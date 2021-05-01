@@ -1205,6 +1205,22 @@ proc ::mime::bodyaux {token reason {fragment {}}} {
 }
 
 
+proc ::mime::contenttype token {
+    upvar 0 $token state
+    try {
+	header get $token content-type
+    } on error {} {
+	# rfc 2045 5.2
+	try {
+	    header get $token MIME-Version
+	    return {text/plain {charset us-ascii}}
+	} on error {} {
+	    return application/octet-stream
+	}
+    }
+}
+
+
 # ::mime::datetime --
 #
 #    Fortunately the clock command in the Tcl 8.x core does all the heavy
@@ -1448,7 +1464,7 @@ proc ::mime::encoding token {
     upvar 0 $token state
     upvar 0 state(params) params
 
-    lassign [header get $token content-type]  content
+    lassign [contenttype $token] content
 
     switch -glob $content {
         audio/*
@@ -1911,10 +1927,10 @@ proc ::mime::header::get {token {key {}}} {
     upvar 0 $token state
     parse $token
 
-    set headerlower $state(headerlower)
     set header $state(header)
-    set headerinternallower $state(headerinternallower)
+    set headerlower $state(headerlower)
     set headerinternal $state(headerinternal)
+    set headerinternallower $state(headerinternallower)
     switch $key {
 	{} {
 	    set result [dict merge $headerinternal $header]
@@ -1943,7 +1959,7 @@ proc ::mime::header::get {token {key {}}} {
 		    set res {}
 		    if {[dict exists $headerinternallower $lower]} {
 			return [dict get $headerinternallower $lower]
-		    } elseif {[dict exists headerlower $lower]} {
+		    } elseif {[dict exists $headerlower $lower]} {
 			return [dict get $headerlower $lower]
 		    } else {
 			error [list {no such header} $key]
@@ -2828,13 +2844,18 @@ proc ::mime::parsepartaux token {
     upvar 0 state(last) last
 
     header parse $token
-    if {![header exists $token content-type]} {
-	# rfc 2045 5.2
-	header setinternal $token Content-Type text/plain [
-	    dict create charset us-ascii]
-    }
 
-    lassign [header get $token content-type] content params
+    # although rfc 2045 5.2 defines a default treatment for content without a
+    # type, don't automatically add an explicit content-type field
+
+    #if {![header exists $token content-type]} {
+    #    # rfc 2045 5.2
+    #    header setinternal $token Content-Type text/plain [
+    #        dict create charset us-ascii]
+    #}
+
+    lassign [contenttype $token] content params
+
 
     set fileP [info exists state(file)]
     if {![string match multipart/* $content]} {
@@ -3105,7 +3126,7 @@ proc ::mime::property {token {property {}}} {
     parsepart $token
 
 
-    lassign [header get $token content-type] content params
+    lassign [contenttype $token] content params
 
     switch $property {
         {} {
@@ -3804,7 +3825,7 @@ proc ::mime::serialize_chan {token channel level} {
         }
 
         parts {
-	    lassign [header get $token content-type] content params
+	    lassign [contenttype $token] content params
 	    set boundary [dict get $params boundary]
 
             switch -glob $content {

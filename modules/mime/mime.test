@@ -899,52 +899,68 @@ dawg one" \
 
 # -------------------------------------------------------------------------
 
-test mime-13.1 {header parsing} {cleanly {
+test mime-17.1 {header parsing} {cleanly {
     set mime [mime::initialize -string {Content-Type: text/html}]
     mime::header get $mime Content-Type
 }} {text/html {}}
 
 
-test mime-13.2 {header parsing} {cleanly {
+test mime-17.2 {header parsing} {cleanly {
     set mime [mime::initialize -string {Content-Type: text/html; charset=iso-8859-1}]
     mime::header get $mime Content-Type
 }} {text/html {charset iso-8859-1}}
 
 
-test mime-13.3 {header parsing} {
+test mime-17.3 {header parsing} {
     set mime [mime::initialize -string {Content-Type: text/html; charset='iso-8859-1'}]
     mime::header get $mime Content-Type
 } {text/html {charset 'iso-8859-1'}}
 
 
-test mime-13.4 {header parsing} {
+test mime-17.4 {header parsing} {
     set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"}]
     mime::header get $mime Content-Type
 } {text/html {charset iso-8859-1}}
 
 
-test mime-13.5 {header parsing} -body {
+test mime-17.5 {header parsing} -body {
     set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"; ignored}]
     mime::header get $mime Content-Type
 } -returnCodes 1 -result {expecting = found end-of-input}
 
 
-test mime-13.6 {header parsing} -body {
+test mime-17.6 {header parsing} -body {
     set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"morecrap}]
     mime::header get $mime Content-Type
 } -returnCodes 1 -result {expecting = found end-of-input}
 
 
-test mime-13.7 {header parsing} {
+test mime-17.7 {header parsing} {
     set mime [mime::initialize -string {Content-Type: test/test; foo="bar\"baz\""}]
     mime::header get $mime Content-Type
 } [list test/test [list foo bar"baz"]]
 
 
-test mime-13.8 {ncgi::parseMimeValue} {
+test mime-17.8 {header parsing} {
     set mime [mime::initialize -string {Content-Type: test/test; foo=""}]
     mime::header get $mime Content-Type
 } {test/test {foo {}}}
+
+
+test mime-17.9 {
+    header supplied by a component message, retrieved by lowercase name
+} {
+    set mime [mime::initialize -string {Content-Disposition: form-data; name="field2"}]
+    mime::header get $mime content-disposition 
+} {form-data {name field2}}
+
+
+test mime-17.10 {
+    Content-Type is not automatically added to a subordinate
+} {
+    set mime [mime::initialize -string {Content-Disposition: form-data; name="field2"}]
+    mime::header get $mime content-disposition 
+} {form-data {name field2}}
 
 
 

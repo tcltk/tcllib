@@ -9,9 +9,9 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [
+	file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
 
 testsNeedTcl     8.4
 testsNeedTcltest 2
@@ -30,84 +30,121 @@ proc main {} {
 	set futlFile   [tcllibPath fileutil/fileutil.tcl]
 	set cmdlFile   [tcllibPath cmdline/cmdline.tcl]
 
+	proc resetenv {} {
+		global env
+		foreach varname {
+			CONTENT_LENGTH CONTENT_TYPE HTTP_COOKIE HTTPS QUERY_STRING
+			REQUEST_METHOD REQUEST_URI SERVER_NAME SERVER_PORT
+	} {
+			if {[info exists env($varname)]} {
+				unset env($varname)
+			}
+		}
+	}
 
-	test ncgi-1.1 {[ncgi reset]} {
-		ncgi::reset
-		list [info exist ncgi::query] [info exist ncgi::contenttype]
+
+	proc withncgi args {
+		set script [lindex $args end]
+		set args [lreplace $args end end]
+		ncgi new ncgi1 {*}$args
+		catch [list uplevel 1 $script] cres copts
+		ncgi1 delete
+		resetenv
+		return -options $copts $cres
+	}
+
+
+	test ncgi-1.1 {[ncgi new]} {
+		withncgi {
+			list [info exist [ncgi1 .namespace]::query] [
+				info exist [ncgi1 .namespace]::contenttype]
+		}
 	} {0 0}
 
 
 	test ncgi-1.2 {[ncgi reset]} {
-		ncgi reset querystring query=reset
-		list $ncgi::querystring $ncgi::contenttype
-	} {query=reset {}}
+		withncgi querystring query=reset {
+			list [set [ncgi1 .namespace]::querystring] [info exists [
+				ncgi1 .namespace]::contenttype]
+		}
+	} {query=reset 0}
 
 
 	test ncgi-1.3 {[ncgi reset]} {
-		ncgi reset querystring query=reset contenttype text/plain
-		list $ncgi::querystring $ncgi::contenttype
+		withncgi querystring query=reset contenttype text/plain {
+			list [set [ncgi1 .namespace]::querystring] [
+				set [ncgi1 .namespace]::contenttype]
+		}
 	} {query=reset text/plain}
 
 
 	test ncgi-2.1 {[ncgi query] fake query data} {
-		ncgi reset querystring fake=query
-		ncgi query parse
-		list $ncgi::querystring $ncgi::query
+		withncgi querystring fake=query {
+			ncgi1 query parse
+			list [set [ncgi1 .namespace]::querystring] [
+				set [ncgi1 .namespace]::query]
+		}
 	} {fake=query {fake query}}
 
 
 	test ncgi-2.2 {[ncgi query] GET} {
-		ncgi reset
 		set env(REQUEST_METHOD) GET
 		set env(QUERY_STRING) name=value
-		ncgi query parse 
-		list $ncgi::querystring $ncgi::query
+		withncgi {
+			ncgi1 query parse 
+			list [set [ncgi1 .namespace]::querystring] [
+				set [ncgi1 .namespace]::query]
+		}
 	} {name=value {name value}}
 
 
 	test ncgi-2.3 {[ncgi query] HEAD} {
-		ncgi reset
 		set env(REQUEST_METHOD) HEAD
-		catch {unset env(QUERY_STRING)}
-		ncgi query parse
-		set ncgi::query
+		withncgi {
+			ncgi1 query parse 
+			set [ncgi1 .namespace]::query
+		}
 	} {} 
 
 
 	test ncgi-2.4 {[ncgi query] POST} {
-		ncgi reset
-		catch {unset env(QUERY_STRING)}
 		set env(REQUEST_METHOD) POST
 		set env(CONTENT_LENGTH) 10
-		makeFile [format {
-		set auto_path {%s}
-		source {%s}
-		source {%s}
-		source {%s}
-		ncgi body
-		puts $::ncgi::body
-		} $sub_ap $cmdlFile $futlFile $ncgiFile] test1 ; # {}
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
-		puts  $f "name=value"
-		flush $f
-		gets  $f line
-		close $f
-		removeFile test1
-		set line
+		withncgi {
+			makeFile [format {
+			set auto_path {%s}
+			source {%s}
+			source {%s}
+			source {%s}
+			ncgi new ncgi1
+			ncgi1 body
+			puts [set [ncgi1 .namespace]::body]
+			ncgi1 delete
+			} $sub_ap $cmdlFile $futlFile $ncgiFile] test1 ; # {}
+			set f [open "|[list $::tcltest::tcltest test1]" r+]
+			puts  $f "name=value"
+			flush $f
+			gets  $f line
+			close $f
+			removeFile test1
+			set line
+		}
 	} name=value
 
 
 	test ncgi-2.5 {ncgi::test} {
-		ncgi reset
 		set env(CONTENT_TYPE) text/html
-		ncgi type
+		withncgi {
+			ncgi1 type
+		}
 	} text/html
 
 
 	test ncgi-2.6 {ncgi::test} {
-		ncgi reset querystring foo=bar contenttype text/plain
 		set env(CONTENT_TYPE) text/html
-		ncgi type
+		withncgi querystring foo=bar contenttype text/plain {
+			ncgi1 type
+		}
 	} text/plain
 
 
@@ -182,109 +219,126 @@ proc main {} {
 
 
 	test ncgi-5.1 {ncgi::query parse} {
-		ncgi reset querystring name=hello+world&name2=%7ewelch
-		ncgi query parse
+		withncgi querystring name=hello+world&name2=%7ewelch {
+			ncgi1 query parse 
+		}
 	} {name {hello world} name2 ~welch}
 
 
 	test ncgi-5.2 {ncgi::merge} {
-		ncgi reset querystring name=&name2 contenttype application/x-www-urlencoded
-		ncgi merge
-	} {name {} name2 {}}
+		withncgi querystring name=&name2 contenttype application/x-www-urlencoded {
+			ncgi1 merge
+		}
+	} {name {{} {}} name2 {{} {}}}
 
 
 	test ncgi-5.3 {ncgi::merge} {
-		ncgi reset querystring name=&name2 contenttype application/x-www-form-urlencoded
-		ncgi merge
-	} {name {} name2 {}}
+		withncgi querystring name=&name2 \
+			contenttype application/x-www-form-urlencoded {
+			ncgi1 merge
+		}
+	} {name {{} {}} name2 {{} {}}}
 
 
 	test ncgi-5.4.1 {ncgi::merge} {
-		ncgi reset querystring name=&name2 contenttype application/xyzzy
-		set code [catch ncgi::merge err]
-		list $code $err
-	} {0 {name {} name2 {}}}
+		withncgi querystring name=&name2 contenttype application/xyzzy {
+			set code [catch {ncgi1 merge} err]
+			list $code $err
+		}
+	} {0 {name {{} {}} name2 {{} {}}}}
 
 	test ncgi-5.4.2 {ncgi::merge} {
-		ncgi reset body name=&name2 contenttype application/xyzzy
-		set code [catch ncgi::merge err]
-		list $code $err
-	} {0 {name {} name2 {}}}
+		withncgi body name=&name2 contenttype application/xyzzy {
+			set code [catch {ncgi1 merge} err]
+			list $code $err
+		}
+	} {0 {}}
 
 	test ncgi-5.4.3 {ncgi::merge} {
-		ncgi reset body name=&name2 contenttype application/xyzzy
-		set code [catch {ncgi::form get} err]
-		list $code $err
+		withncgi body name=&name2 contenttype application/xyzzy {
+			set code [catch {ncgi1 form get} err]
+			list $code $err
+		}
 	} {1 {Unknown Content-Type: application/xyzzy}}
 
 
 	# multipart tests at the end because I'm too lazy to renumber the tests
 
 	test ncgi-6.1 {ncgi::parse, anonymous values, redundant keys} {
-		ncgi reset querystring name=&name2
-		ncgi query parse
+		withncgi querystring name=&name2 {
+			ncgi1 query parse 
+		}
 	} {name {} name2 {}}
 
 
 	test ncgi-7.1 {ncgi::get} {
-		ncgi reset querystring name=value&name2=value2
-		catch {unset env(REQUEST_METHOD)}
-		ncgi get
-	} {name value name2 value2}
+		withncgi querystring name=value&name2=value2 {
+			ncgi1 get
+		}
+	} {name {value {}} name2 {value2 {}}}
 
 
 	test ncgi-7.2 {ncgi::get} {
-		ncgi reset querystring nameList=value1+stuff&nameList=value2+more
-		ncgi all nameList
+		withncgi querystring nameList=value1+stuff&nameList=value2+more {
+			ncgi1 all nameList
+		}
 	} {{value1 stuff} {value2 more}}
 
 
 	test ncgi-7.3 {ncgi::get} {
-		ncgi reset querystring name=value&name=value2
-		catch {ncgi get} err
-		set err
-	} {name value name value2}
+		withncgi querystring name=value&name=value2 {
+			catch {ncgi1 get} err
+			set err
+		}
+	} {name {value {}} name {value2 {}}}
 
 
 	test ncgi-8.1.1 {ncgi::value} {
-		ncgi reset querystring nameList=val+ue&nameList=value2
-		ncgi get nameList
+		withncgi querystring nameList=val+ue&nameList=value2 {
+			ncgi1 get nameList
+		}
 	} value2
 
 
 	test ncgi-8.1.2 {ncgi::value} {
-		ncgi reset querystring nameList=val+ue&nameList=value2
-		ncgi all nameList
+		withncgi querystring nameList=val+ue&nameList=value2 {
+			ncgi1 all nameList
+		}
 	} {{val ue} value2}
 
 
 	test ncgi-8.2.1 {ncgi::value} {
-		ncgi reset querystring name=val+ue&name=value2
-		ncgi get name
+		withncgi querystring name=val+ue&name=value2 {
+			ncgi1 get name
+		}
 	} value2 
 
 
 	test ncgi-8.2.2 {ncgi::value} {
-		ncgi reset querystring name=val+ue&name=value2
-		ncgi all name
+		withncgi querystring name=val+ue&name=value2 {
+			ncgi1 all name
+		}
 	} {{val ue} value2}
 
 
 	test ncgi-8.3 {ncgi::get default} {
-		ncgi reset querystring name=val+ue&name=value2
-		ncgi get noname
+		withncgi querystring name=val+ue&name=value2 {
+			ncgi get noname
+		}
 	} {}
 
 
 	test ncgi-9.1 {ncgi::valueList} {
-		ncgi reset querystring name=val+ue&name=value2
-		ncgi all name
+		withncgi querystring name=val+ue&name=value2 {
+			ncgi1 all name
+		}
 	} {{val ue} value2}
 
 
 	test ncgi-9.2 {ncgi::valueList} {
-		ncgi reset querystring name=val+ue&name=value2
-		ncgi all noname
+		withncgi querystring name=val+ue&name=value2 {
+			ncgi1 all noname
+		}
 	} {}
 
 
@@ -301,7 +355,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::redirect %s
+			ncgi new ncgi1
+			ncgi1 redirect %s
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
@@ -329,8 +385,10 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::setCookie -name CookieName -value 12345
-			ncgi::redirect %s
+			set token [ncgi new {}]
+			$token setCookie -name CookieName -value 12345
+			$token redirect %s
+			$token delete
 		} err]} {
 			puts $err
 		}
@@ -358,7 +416,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::redirect %s
+			ncgi new ncgi1
+			ncgi1 redirect %s
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
@@ -386,7 +446,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::redirect %s
+			ncgi new ncgi1
+			ncgi1 redirect %s
+			ncgi delete
 		} err]} {
 			puts $err
 		}
@@ -414,7 +476,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::redirect %s
+			ncgi new ncgi1
+			ncgi1 redirect %s
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
@@ -436,20 +500,22 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 443
-		set env(HTTPS) "on"
+		set env(HTTPS) on
 		makeFile [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
 			source %s
 			source %s
-			ncgi::redirect %s
+			ncgi new ncgi1
+			ncgi1 redirect %s
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -465,14 +531,16 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) foo.com
 		set env(SERVER_PORT) 443
-		set env(HTTPS) "on"
+		set env(HTTPS) on
 		makeFile [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
 			source %s
 			source %s
-			ncgi::redirect %s
+			ncgi new ncgi1
+			ncgi1 redirect %s
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
@@ -493,7 +561,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::header
+			ncgi new ncgi1
+			ncgi1 header
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
@@ -514,7 +584,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::header text/plain
+			ncgi new ncgi1
+			ncgi1 header text/plain
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
@@ -535,7 +607,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::header text/html X-Comment "This is a test"
+			ncgi new ncgi1
+			ncgi1 header text/html X-Comment "This is a test"
+			ncgi1 delete
 		} err]} {
 			puts $err
 		}
@@ -556,8 +630,9 @@ proc main {} {
 			source %s
 			source %s
 			source %s
-			ncgi::setCookie -name Name -value {The+Value}
-			ncgi::header
+			ncgi new ncgi1
+			ncgi1 setCookie -name Name -value {The+Value}
+			ncgi1 header
 		} err]} {
 			puts $err
 		}
@@ -571,19 +646,16 @@ proc main {} {
 	} "Content-Type: text/html\nSet-Cookie: Name=The+Value ;\n\n"
 
 
-	test ncgi-14.1 {ncgi::multipart} {
-		catch {ncgi::multipart "application/x-www-urlencoded" name=val+ue} err
-		set err
-	} {not a multipart message}
-
 	test ncgi-14.2 {ncgi::multipart} {
-		catch {ncgi::multipart "multipart/form-data" {}} err
+		withncgi contenttype multipart/form-data body {} {
+			catch {ncgi1 get} err
+		}
 		set err
 	} {end-of-string encountered while parsing multipart/form-data}
 
 
 	test ncgi-14.3 {ncgi::multipart} {
-		set in [open [file join [file dirname [info script]] formdata.txt]]
+		set in [open [localPath test-assets formdata.txt]]
 		set X [read $in]
 		close $in
 
@@ -597,15 +669,13 @@ proc main {} {
 		}
 		regsub ".*?\n\n" $X {} X
 
-		ncgi::multipart $type $X
+		withncgi contenttype $type body $X {
+			ncgi1 get
+		}
+
 	} [list \
-		field1 [list value [list \
-			Content-Disposition {form-data {name field1}} \
-			Content-Type {text/plain {charset us-ascii}}
-		]] \
-		field2 [list {another value} [list \
-			Content-Disposition {form-data {name field2}}
-		]] \
+		field1 [list value {}] \
+		field2 [list {another value} {}] \
 		the_file_name [list {
 <center><h1>
                   Netscape Address Book Sync for Palm Pilot
@@ -615,13 +685,12 @@ proc main {} {
 
 } \
 	[list \
-		filename {C:Program FilesNetscapeCommunicatorProgramnareadme.htm} \
-		name the_file_name
+		filename {C:Program FilesNetscapeCommunicatorProgramnareadme.htm}
 	]]]
 
 	
 	test ncgi-14.4 {ncgi::multipart} {
-		set in [open [file join [file dirname [info script]] formdata.txt]]
+		set in [open [localPath test-assets formdata.txt]]
 		set X [read $in]
 		close $in
 
@@ -635,8 +704,10 @@ proc main {} {
 		}
 		regsub ".*?\n\n" $X {} X
 
-		ncgi::reset body $X contenttype $type
-		list [ncgi::get field1] [ncgi::get field2] [ncgi::get the_file_name]
+		withncgi body $X contenttype $type {
+			list [ncgi1 get field1] [ncgi1 get field2] [
+				ncgi1 get the_file_name]
+		}
 	} {value {another value} {
 <center><h1>
                   Netscape Address Book Sync for Palm Pilot
@@ -646,85 +717,35 @@ proc main {} {
 
 }}
 
-	variable binary_content "\r
-	\r
-	<center><h1>\r
-					  Netscape Address Book Sync for Palm Pilot\r
-											 User Guide\r
-	</h1></center>\r
-	\r
-	"
-
-	test ncgi-14.5 {ncgi::multipart--check binary file} {
-		set X [genformdata $binary_content]
-		ncgi::reset body $X contenttype [genformcontent_type]
-		set content [ncgi::get the_file_name]
-		list [ncgi::get field1] [ncgi::get field2] $content
-	} [list value {another value} [string map [list \r {}] $binary_content]]
-
-
-
-	test ncgi-14.6 {ncgi::multipart [query set]} {
-		set in [open [file join [file dirname [info script]] formdata.txt]]
-		set X [read $in]
-		close $in
-
-		foreach line [split $X \n] {
-		if {[string length $line] == 0} {
-			break
-		}
-		if {[regexp {^Content-Type: (.*)$} $line x type]} {
-			break
-		}
-		}
-		regsub ".*?\n\n" $X {} X
-
-		ncgi reset body $X contenttype $type
-		ncgi query set userval1 foo
-		ncgi query set userval2 {a b}
-		list [ncgi get field1] [ncgi get field2] [ncgi get userval1] [ncgi get userval2] [ncgi get the_file_name]
-	} {value {another value} foo {a b} {
-<center><h1>
-                  Netscape Address Book Sync for Palm Pilot
-                                         User Guide
-</h1></center>
-
-
-}}
-
-
-	test ncgi-15.1.1 {ncgi query set} {
-		ncgi reset querystring nameList=val+ue&nameList=value2
-		ncgi query set foo 1
-		ncgi query set bar {a b}
-		list [ncgi get nameList] [ncgi get foo] [ncgi get bar]
-	} {value2 1 {a b}}
-
-	test ncgi-15.1.2 {ncgi query set} {
-		ncgi reset querystring nameList=val+ue&nameList=value2
-		ncgi query set foo 1
-		ncgi query set bar {a b}
-		list [ncgi all nameList] [ncgi get foo] [ncgi get bar]
-	} {{{val ue} value2} 1 {a b}}
-
-
-
 
 	## ------------ tests for binary content and file upload ----------------
 
 	## some utility procedures to generate content 
 
+	variable binary_content "
+	
+	<center><h1>
+					  Netscape Address Book Sync for Palm Pilot
+											 User Guide
+	</h1></center>
+	
+	"
+
+
 	variable form_boundary {17661509020136}
+
 
 	proc genformcontent_type {} {
 		variable form_boundary
 		return "multipart/form-data; boundary=\"$form_boundary\""
 	}
 
+
 	proc genformdatapart {name cd value} {
 		variable form_boundary
 		return "--$form_boundary\nContent-Disposition: form-data; name=\"$name\"$cd\n\n$value\n"
 	}
+
 
 	proc genformdata {bcontent} {
 		variable form_boundary
@@ -736,70 +757,126 @@ proc main {} {
 		return "$a$b$c--$form_boundary--\n" 
 	}
 
+
+
+	test ncgi-14.5 {ncgi::multipart--check binary file} {
+		set X [genformdata $binary_content]
+		withncgi body $X contenttype [genformcontent_type] {
+			set content [ncgi1 get the_file_name]
+			list [ncgi1 get field1] [ncgi1 get field2] $content
+		}
+	} [list value {another value} [string map [list \r {}] $binary_content]]
+
+
+	test ncgi-14.6 {ncgi::multipart [query set]} {
+		set in [open [localPath test-assets formdata.txt]]
+		set X [read $in]
+		close $in
+
+		foreach line [split $X \n] {
+		if {[string length $line] == 0} {
+			break
+		}
+		if {[regexp {^Content-Type: (.*)$} $line x type]} {
+			break
+		}
+		}
+		regsub ".*?\n\n" $X {} X
+
+		withncgi body $X contenttype $type {
+			ncgi1 query set userval1 foo
+			ncgi1 query set userval2 {a b}
+			list [ncgi1 get field1] [ncgi1 get field2] [
+				ncgi1 get userval1] [ncgi1 get userval2] [
+					ncgi1 get the_file_name]
+		}
+	} {value {another value} foo {a b} {
+<center><h1>
+                  Netscape Address Book Sync for Palm Pilot
+                                         User Guide
+</h1></center>
+
+
+}}
+
+
+	test ncgi-15.1.1 {ncgi query set} {
+		withncgi querystring nameList=val+ue&nameList=value2 {
+			ncgi1 query set foo 1
+			ncgi1 query set bar {a b}
+			list [ncgi1 get nameList] [ncgi1 get foo] [ncgi1 get bar]
+		}
+	} {value2 1 {a b}}
+
+
+	test ncgi-15.1.2 {ncgi query set} {
+		withncgi querystring nameList=val+ue&nameList=value2 {
+			ncgi1 query set foo 1
+			ncgi1 query set bar {a b}
+			list [ncgi1 all nameList] [ncgi1 get foo] [
+				ncgi1 get bar]
+		}
+	} {{{val ue} value2} 1 {a b}}
+
+
 	test ncgi-16.1 {ncgi::importFile} {
 		set X [genformdata $binary_content]
-		ncgi::reset body $X contenttype [genformcontent_type]
-		ncgi::importFile -client the_file_name
+		withncgi body $X contenttype [genformcontent_type] {
+			ncgi1 importFile -client the_file_name
+		}
 	} {C:Program FilesNetscapeCommunicatorProgramnareadme.htm}
 
 
 	test ncgi-16.2 {ncgi::importFile - content type} {
 		global binary_content
 		set X [genformdata $binary_content]
-		ncgi::reset post $X contenttype [genformcontent_type]
-		ncgi::importFile -type the_file_name
+		withncgi body $X contenttype [genformcontent_type] {
+			ncgi1 importFile -type the_file_name
+		}
 	} text/html
 
 
 	test ncgi-16.3 {ncgi::importFile -- file contents} {
 		global binary_content
 		set X [genformdata $binary_content]
-		ncgi::reset post $X contenttype [genformcontent_type]
-		ncgi::importFile -data the_file_name
+		withncgi contenttype [genformcontent_type] body $X  {
+			ncgi1 importFile -data the_file_name
+		}
 	} $binary_content
 
 
 	test ncgi-16.4 {ncgi::importFile -- save file} {
-
 		global binary_content
-
 		set X [genformdata $binary_content]
+		withncgi contenttype [genformcontent_type] body $X  {
+			set localfile [ncgi1 importFile -server the_file_name]
 
-		ncgi::reset post $X contenttype [genformcontent_type]
-		ncgi::parse
-
-		set localfile [ncgi::importFile -server the_file_name]
-
-		# get the contents of the local file to verify
-		set in [open $localfile]
-		fconfigure $in -translation binary
-		set content [read $in]
-		close $in
-		file delete $localfile
-		set content
+			# get the contents of the local file to verify
+			set in [open $localfile]
+			fconfigure $in -translation binary
+			set content [read $in]
+			close $in
+			file delete $localfile
+			set content
+		}
 
 	} $binary_content
 
 
 	test ncgi-16.5 {ncgi::importFile -- save file, given name} {
-
 		global binary_content
-
 		set X [genformdata $binary_content]
+		withncgi contenttype [genformcontent_type] body $X {
+			set localfile [ncgi1 importFile -server the_file_name fofo]
 
-		ncgi::reset post $X contenttype [genformcontent_type]
-		ncgi::parse
-
-		set localfile [ncgi::importFile -server the_file_name fofo]
-
-		# get the contents of the local file to verify
-		set in [open $localfile]
-		fconfigure $in -translation binary
-		set content [read $in]
-		close $in
-		file delete $localfile
-		set content
-
+			# get the contents of the local file to verify
+			set in [open $localfile]
+			fconfigure $in -translation binary
+			set content [read $in]
+			close $in
+			file delete $localfile
+			set content
+		}
 	} $binary_content
 
 
@@ -807,38 +884,65 @@ proc main {} {
 
 		set X "bad multipart data"
 
-		ncgi::reset post $X contenttype [genformcontent_type]
-		ncgi::parse
-
-		ncgi::importFile -client the_file_name
-
-	} {}
+		withncgi contenttype [genformcontent_type] body $X {
+			catch {ncgi1 importFile -client the_file_name} res
+			return $res
+		}
+	} {end-of-string encountered while parsing multipart/form-data}
 
 
 	test ncgi-17.1 {ncgi::names} {
-		ncgi::reset querystring name=hello+world&name2=%7ewelch
-		ncgi::names
+		withncgi querystring name=hello+world&name2=%7ewelch {
+			dict keys [ncgi1 get]
+		}
 	} {name name2}
 
 
 	test ncgi-17.2 {ncgi::names} {
-		ncgi::reset querystring name=&name2 contenttype application/x-www-urlencoded
-		ncgi::names
-	} {name}
+		withncgi querystring name=&name2 \
+			contenttype application/x-www-urlencoded {
+			dict keys [ncgi1 get]
+		}
+	} {name name2}
 
 
 	test ncgi-17.3 {ncgi::names} {
-		ncgi::reset querystring name=&name2 \
-			contenttype application/x-www-form-urlencoded
-		ncgi::names
-	} {name}
+		withncgi querystring name=&name2 \
+			contenttype application/x-www-form-urlencoded {
+			dict keys [ncgi1 get]
+		}
+	} {name name2}
 
 
 	test ncgi-17.4 {ncgi::names} {
-		ncgi::reset querystring name=&name2 contenttype application/xyzzy
-		set code [catch ncgi::names err]
-		list $code $err
-	} {1 {Unknown Content-Type: application/xyzzy}}
+		withncgi querystring name=&name2 contenttype application/xyzzy {
+			set code [catch {ncgi1 get} err]
+			list $code $err
+		}
+	} {0 {name {{} {}} name2 {{} {}}}}
+
+	# -------------------------------------------------------------------------
+
+	test ncgi-18.0 {ncgi::cookie::get} {
+		set env(HTTP_COOKIE) {one=1;two=2;two=3;three=4}
+		withncgi {
+			ncgi1 cookies get
+		}
+	} {one 1 two 2 two 3 three 4}
+
+	test ncgi-18.1 {ncgi::cookie::get} {
+		set env(HTTP_COOKIE) {one=1;two=2;two=3;three=4}
+		withncgi {
+			ncgi1 cookies get two
+		}
+	} 3
+
+	test ncgi-18.2 {ncgi::cookie::all} {
+		set env(HTTP_COOKIE) {one=1;two=2;two=3;three=4}
+		withncgi {
+			ncgi1 cookies all two
+		}
+	} {2 3}
 
 	# -------------------------------------------------------------------------
 
