@@ -37,7 +37,6 @@ namespace import mime::*
 
 
 proc channamescmp names {
-    puts [chan names]
     expr {[llength $names] == [llength [chan names]]}
 }
 
@@ -72,8 +71,10 @@ proc with.file {name args} {
     uplevel 1 $body
 }
 
-
-
+proc main {} {
+variable encoded
+variable name
+variable n
 test mime-1.1 {initialize with no args} {cleanly {
     catch {initialize} res
     subst $res
@@ -83,7 +84,7 @@ test mime-1.1 {initialize with no args} {cleanly {
 test mime-2.1 {Generate a MIME message} {cleanly {
     
     set tok [initialize -canonical Text/plain -string {jack and jill}]
-    set msg [mime::buildmessage $tok]
+    set msg [mime::serialize $tok]
 
     # The generated message is predictable except for the Content-ID
     regexp "MIME-Version: 1.0\r
@@ -97,7 +98,7 @@ foreach name {file chan} {
     test mime-2.1.1.$name {Generate a MIME message} {cleanly {
 	setup1
 	with.$name [makeFile {jack and jill} input.txt] -canonical Text/plain {
-	    set msg [mime::getbody $tok]
+	    set msg [mime::body $tok]
 	    mime::finalize $tok
 
 	    # The generated message is predictable except for the Content-ID
@@ -116,7 +117,7 @@ test mime-2.2 {Generate a multi-part MIME message} {cleanly {
 	    -params [list MyParam foo boundary bndry] \
 	    -headers [list Content-Description {Test Multipart}] \
 	    -parts [list $tok1 $tok2]]
-    set msg [mime::buildmessage $bigTok]
+    set msg [mime::serialize $bigTok]
     # The generated message is predictable except for the Content-ID
 
     list [regexp "MIME-Version: 1.0\r
@@ -151,7 +152,7 @@ test mime-2.3 {Generate a multi-part MIME message} {cleanly {
 	    -params [list MyParam foo boundary bndry] \
 	    -headers [list Content-Description {Test Multipart}] \
 	    -parts [list $tok1 $tok2]]
-    set msg [mime::buildmessage $bigTok]
+    set msg [mime::serialize $bigTok]
     # The generated message is predictable except for the Content-ID
     list [regexp "MIME-Version: 1.0\r
 Content-ID: \[^\n]+\r
@@ -183,7 +184,7 @@ Content-Type: Text/plain
 
 I'm the message.}
     set tok [mime::initialize -string $msg]
-    mime::getbody $tok
+    mime::body $tok
 }} {I'm the message.}
 
 
@@ -210,11 +211,11 @@ part3
 }
 
     set tok [mime::initialize -string $msg]
-    set partToks [mime::getproperty $tok parts]
+    set partToks [mime::property $tok parts]
 
     set res {} 
     foreach childTok $partToks {
-	lappend res [mime::getbody $childTok]
+	lappend res [mime::body $childTok]
     }
     set res
 }} {part1 part2 part3}
@@ -234,8 +235,8 @@ Content-Type: text/plain
 msg1}
 
     set tok [mime::initialize -string $msg1]
-    catch {mime::getbody $tok} err1
-    catch {mime::buildmessage $tok} err1a
+    catch {mime::body $tok} err1
+    catch {mime::serialize $tok} err1a
     list $err1 $err1a
 }} "msg1 {MIME-Version: 2.0\r
 Content-Type: text/plain\r
@@ -262,8 +263,8 @@ test mime-3.6 {Try to parse a MIME message with no MIME version and generate a n
 foo}
 
     set tok [mime::initialize -string $msg3]
-    catch {mime::getbody $tok} err3
-    catch {mime::buildmessage $tok} err3a
+    catch {mime::body $tok} err3
+    catch {mime::serialize $tok} err3a
     list $err3 $err3a
 }} "foo {MIME-Version: 1.0\r
 Content-Type: text/plain\r
@@ -275,9 +276,9 @@ foreach name {file chan} {
     test mime-3.7.$name {Test mime with a bad email [SF Bug 631314 ]} {cleanly {
 	with.$name [localPath test-assets badmail1.txt] {
 	    set res {}
-	    set ctok [lindex [mime::getproperty $tok parts] 0]
-	    lappend res [dictsort [mime::getproperty $tok]]
-	    lappend res [dictsort [mime::getproperty $ctok]]
+	    set ctok [lindex [mime::property $tok parts] 0]
+	    lappend res [dictsort [mime::property $tok]]
+	    lappend res [dictsort [mime::property $ctok]]
 	    mime::finalize $tok
 	    string map [list $ctok CHILD] $res
 	}
@@ -286,9 +287,9 @@ foreach name {file chan} {
     test mime-3.8 {Test mime with another bad email [SF Bug 631314 ]} {cleanly {
 	with.$name [localPath test-assets badmail2.txt] {
 	    set res {}
-	    set ctok [lindex [mime::getproperty $tok parts] 0]
-	    lappend res [dictsort [mime::getproperty $tok]]
-	    lappend res [dictsort [mime::getproperty $ctok]]
+	    set ctok [lindex [mime::property $tok parts] 0]
+	    lappend res [dictsort [mime::property $tok]]
+	    lappend res [dictsort [mime::property $ctok]]
 	    mime::finalize $tok
 	    string map [list $ctok CHILD] $res
 	}
@@ -298,50 +299,50 @@ foreach name {file chan} {
 
 
 
-test mime-3.9 {Parse a MIME message with a charset encoded body and use getbody -decode to get it back} {cleanly {
+test mime-3.9 {Parse a MIME message with a charset encoded body and use [body] -decode to get it back} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 
 Fran\xE7ois
 }
     set tok [mime::initialize -string $msg]
-    mime::getbody $tok -decode
+    mime::body $tok -decode
 }} {Fran\xE7ois
 }
 
 
-test mime-3.10 {Parse a MIME message with a charset encoded body and use getbody -decode to get it back (example from encoding man page)} {cleanly {
+test mime-3.10 {Parse a MIME message with a charset encoded body and use [body] -decode to get it back (example from encoding man page)} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain; charset=EUC-JP
 Content-Transfer-Encoding: quoted-printable
 
 =A4=CF}
     set tok [mime::initialize -string $msg]
-    mime::getbody $tok -decode
+    mime::body $tok -decode
 }} \u306F
 
 
-test mime-3.11 {Parse a MIME message without a charset encoded body and use getbody -decode to get it back} {cleanly {
+test mime-3.11 {Parse a MIME message without a charset encoded body and use [body] -decode to get it back} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
 A plain text message.}
     set tok [mime::initialize -string $msg]
-    mime::getbody $tok -decode
+    mime::body $tok -decode
 }} {A plain text message.}
 
 
-test mime-3.12 {Parse a MIME message with a charset encoded body in an unrecognised charset and use getbody -decode to attempt to get it back} {cleanly {
+test mime-3.12 {Parse a MIME message with a charset encoded body in an unrecognised charset and use [body] -decode to attempt to get it back} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain; charset=SCRIBBLE
 Content-Transfer-Encoding: quoted-printable
 
 This is a message in the scribble charset that tcl does not recognise.}
     set tok [mime::initialize -string $msg]
-    catch {mime::getbody $tok -decode} errmsg
+    catch {mime::body $tok -decode} errmsg
     set errmsg
-}} {-decode failed: can't reversemap charset SCRIBBLE}
+}} {{-decode cannot reversemap charset} SCRIBBLE}
 
 
 test mime-3.13 {Parse a MIME message with a charset encoded body in an unrecognised charset but don't use -decode so we get it back raw} {cleanly {
@@ -351,7 +352,7 @@ Content-Transfer-Encoding: quoted-printable
 
 This is a message in the scribble charset that tcl does not recognise.}
     set tok [mime::initialize -string $msg]
-    mime::getbody $tok
+    mime::body $tok
 }} {This is a message in the scribble charset that tcl does not recognise.}
 
 
@@ -483,7 +484,7 @@ test mime-5.9 {Test word_encode with quoted-printable method and multibyte chara
 set n 10
 while {$n < 14} {
     test mime-5.$n {Test word_encode with quoted-printable method and multibyte character across encoded word boundary} {cleanly {
-        mime::word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF" -maxlength [expr 42 + $n]
+	mime::word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF" -maxlength [expr 42 + $n]
     }} "=?EUC-JP?Q?Following_me_is_a_multibyte_character_?=
  =?EUC-JP?Q?=A4=CF?="
     incr n
@@ -497,7 +498,7 @@ test mime-5.14 {Test word_encode with quoted-printable method and multibyte char
 set n 15
 while {$n < 23} {
     test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {cleanly {
-        mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
+	mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
     }} "=?UTF-8?Q?Here_is_a_triple_byte_encoded_character_?=
  =?UTF-8?Q?=E3=81=AF?="
     incr n
@@ -505,14 +506,14 @@ while {$n < 23} {
 
 while {$n < 25} {
     test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {cleanly {
-        mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
+	mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
     }} =?UTF-8?Q?Here_is_a_triple_byte_encoded_character_=E3=81=AF?=
     incr n
 }
 
 while {$n < 29} {
     test mime-5.$n {Test word_encode with base64 method across encoded word boundaries} {cleanly {
-        mime::word_encode euc-jp base64 "There is a multibyte character \xA4\xCF" -maxlength [expr 28 + $n]
+	mime::word_encode euc-jp base64 "There is a multibyte character \xA4\xCF" -maxlength [expr 28 + $n]
     }} "=?EUC-JP?B?VGhlcmUgaXMgYSBtdWx0aWJ5dGUgY2hhcmFjdGVy?=
  =?EUC-JP?B?IKTP?="
     incr n
@@ -520,7 +521,7 @@ while {$n < 29} {
 
 while {$n < 33} {
     test mime-5.$n {Test word_encode with base64 method and triple byte character across encoded word boundary} {cleanly {
-        mime::word_encode utf-8 base64 "Here is a multibyte character \xE3\x81\xAF" -maxlength [expr 23 + $n]
+	mime::word_encode utf-8 base64 "Here is a multibyte character \xE3\x81\xAF" -maxlength [expr 23 + $n]
     }} "=?UTF-8?B?SGVyZSBpcyBhIG11bHRpYnl0ZSBjaGFyYWN0ZXIg?=
  =?UTF-8?B?44Gv?="
     incr n
@@ -670,18 +671,18 @@ test mime-8.2 {Test reversemapencoding+mapencoding with alias} {cleanly {
 
 
 foreach name {file chan} {
-    test mime-9.0.$name {Test chunk handling of copymessage and helpers} {cleanly {
+    test mime-9.0.$name {Test chunk handling of serialize and helpers} {cleanly {
 	set in [makeFile [set data [string repeat [string repeat {123456789 } 10]\n 350]] input.txt]
 	set mi [makeFile {} mime.txt]
 
 	with.$name $in -canonical text/plain {
 	    set f [open $mi w]
 	    fconfigure $f -translation binary
-	    mime::copymessage $tok $f
+	    mime::serialize $tok -chan $f
 	    close $f
 
 	    with.$name $mi {
-		set newdata [mime::getbody $tok]
+		set newdata [mime::body $tok]
 		set res [string compare $data $newdata]
 
 		removeFile input.txt
@@ -704,11 +705,11 @@ foreach {n stamp date} {
     6 126218520 {Wed, 31 Dec 2003 20:42:00 +0000}
 } {
     test mime-10.$n "Test formatting dates (RFC 822)" {
-        # To verify that clock scan gets the expected value.
-        set stamp_test [expr {[mime::parsedatetime $date clock] - $epoch}]
-        # Parse and re-format should get us the original.
-        set parsed_test [mime::parsedatetime $date proper]
-        list $stamp_test $parsed_test
+	# To verify that clock scan gets the expected value.
+	set stamp_test [expr {[mime::datetime $date clock] - $epoch}]
+	# Parse and re-format should get us the original.
+	set parsed_test [mime::datetime $date proper]
+	list $stamp_test $parsed_test
     } [list $stamp $date]
 }
 
@@ -743,13 +744,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
 --------------090305080603000703000106--
 } mail_part]
     set token [mime::initialize -file $in]
-    set allparts [mime::getproperty $token parts]
+    set allparts [mime::property $token parts]
     set attachment [lindex $allparts 1]
 
     set out [makeFile {} mail_att]
     set ofh [open $out w]
     fconfigure $ofh -translation binary
-    mime::copymessage $attachment $ofh
+    mime::serialize $attachment -chan $ofh
     close $ofh
 
     set data [viewFile $out]
@@ -780,7 +781,7 @@ T3JpZ2luYWwtUmVjaXBpZW50OiA8L2ZheD1ibHViYkBndW1taS5ib290PgpBY3Rpb246IGZhaWxl
 ZApEaWFnbm9zdGljLUNvZGU6IHNtdHA7IDU1MCAjNS4xLjAgQWRkcmVzcyByZWplY3RlZC4KUmVt
 b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
 }]
-    set parts [mime::getproperty $token parts]
+    set parts [mime::property $token parts]
     lassign [mime::header get [lindex $parts end] Remote-MTA] result
     return $result
 }} 53.24.282.150
@@ -798,7 +799,7 @@ so plain
 "
 
     set tok [mime::initialize -string $msg]
-	mime::getbody $tok
+	mime::body $tok
 } "so plain\n"
 
 # -------------------------------------------------------------------------
@@ -869,7 +870,7 @@ test mime-16.1 {cleanly {
     set res {}
     set mime [mime::initialize -canonical text/plain -string {dawg one}]
     mime::header set $mime Content-Disposition attachment [list param1 $char]
-    set msg [mime::buildmessage $mime]
+    set msg [mime::serialize $mime]
     regsub {(Content-ID: <).*(>)} $msg {\1\2} msg
     lappend res $msg
     set mime2 [mime::initialize -string $msg]
@@ -889,4 +890,11 @@ dawg one" \
 ]
 
 testsuiteCleanup
+set [namespace current]::done 1
 return
+}
+
+after 0 [list ::coroutine [info cmdcount]_main [namespace current]::main]
+vwait [namespace current]::done
+return
+
