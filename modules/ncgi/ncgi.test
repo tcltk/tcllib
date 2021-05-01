@@ -13,7 +13,7 @@ source [file join [
 	file dirname [file dirname [file join [pwd] [info script]]]
 ] devtools testutilities.tcl]
 
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 2
 
 testing {
@@ -413,7 +413,7 @@ proc main {} {try {
 		close $f
 		removeFile test1
 		set res
-	} "Content-Type: text/html\nSet-Cookie: CookieName=12345 ;\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
+	} "Content-Type: text/html\nSet-Cookie: CookieName=12345\n\t; HttpOnly\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 
 	set URL foo.html
@@ -662,7 +662,7 @@ proc main {} {try {
 		close $f
 		removeFile test1
 		set res
-	} "Content-Type: text/html\nSet-Cookie: Name=The+Value ;\n\n"
+	} "Content-Type: text/html\nSet-Cookie: Name=The+Value\n\t; HttpOnly\n\n"
 
 
 	test ncgi-14.2 {ncgi::multipart} {

@@ -7,7 +7,7 @@ source [file join [ file dirname [file dirname [file dirname [
 ]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 2 
 
 testing {
     useLocal smtp.tcl smtp

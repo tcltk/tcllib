@@ -501,5 +501,4 @@ test tracecommand-1.1 {-tracecommand is called} -body {
 #-----------------------------------------------------------------------
 # Clean up and finish
 
-::tcltest::cleanupTests
-return
+::tcltest::cleanupTestsreturn
