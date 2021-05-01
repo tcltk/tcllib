@@ -18,7 +18,6 @@ proc main {} {
     variable done
     set data1 abcdefghijklmnopqrstuvwxyz
 
-
     test getslimit-configure {} -body {
 	::tcllib::chan::base .new chan1
 	getslimit chan1
