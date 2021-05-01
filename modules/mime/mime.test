@@ -46,6 +46,9 @@ proc cleanly script {
 	namespace path [namespace parent]
     }
     catch {namespace eval $ns $script} cres copts
+    foreach name [info vars ${ns}::*] {
+	catch [list mime finalize $name]
+    }
     namespace delete $ns
     return -options $copts $cres
 }
@@ -128,13 +131,11 @@ Content-Type: multipart/mytype\r
 Content-Description: Test Multipart\r
 \r
 --bndry\r
-MIME-Version: 1.0\r
 Content-ID: \[^\n]+\r
 Content-Type: text/plain\r
 \r
 jack and jill\r
 --bndry\r
-MIME-Version: 1.0\r
 Content-ID: \[^\n]+\r
 Content-Type: text/plain\r
 \r
@@ -162,13 +163,11 @@ Content-Type: multipart/mixed\r
 Content-Description: Test Multipart\r
 \r
 --bndry\r
-MIME-Version: 1.0\r
 Content-ID: \[^\n]+\r
 Content-Type: text/plain\r
 \r
 jack and jill\r
 --bndry\r
-MIME-Version: 1.0\r
 Content-ID: \[^\n]+\r
 Content-Type: text/plain\r
 \r
@@ -750,14 +749,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
     set out [makeFile {} mail_att]
     set ofh [open $out w]
     fconfigure $ofh -translation binary
-    mime::serialize $attachment -chan $ofh
+    mime::serialize $attachment -chan $ofh -level 1
     close $ofh
 
     set data [viewFile $out]
     file delete $in $out
     set data
-}} {MIME-Version: 1.0
-Content-Disposition: attachment
+}} {Content-Disposition: attachment
 	; filename=a0036.dss
 Content-Type: application/octet-stream
 	; name=a0036.dss
@@ -824,6 +822,16 @@ test mime-14.1 {cleanly {
 	error {expecting mailbox in local-part (found >)} friendly foo group {} \
 	local {} memberP 0 phrase foo proper {foo <>} route {}]]
 
+test mime-14.2 {cleanly {
+	special characters in local part
+}} {
+	set parsed [mime::parseaddress hostname fakedomain.fake {"foobar"@grill.com}]
+    list [llength $parsed] [lindex $parsed 0]
+} [list 1 [
+    list address {"foobar"@grill.com} comment {} domain grill.com error {} \
+    friendly foobar group {} local {"foobar"} memberP 0 phrase {} \
+    proper {"foobar"@grill.com} route {}]]
+
 
 # -------------------------------------------------------------------------
 
@@ -839,8 +847,7 @@ so plain
 
     set tok [mime::initialize -string $msg]
     mime::header get $tok
-} [list MIME-Version {1.0 {}} Content-Type \
-    {multipart/mixed {boundary something}}]
+} [list Content-Type {multipart/mixed {boundary something}}]
 
 
 # -------------------------------------------------------------------------
@@ -859,7 +866,7 @@ so plain
 
     set tok [mime::initialize -string $msg]
 	mime::header get $tok
-} [list MIME-Version {1.0 {}} Content-Type {text/plain {}} Content-Disposition [
+} [list Content-Type {text/plain {}} Content-Disposition [
     list attachment [list param1 {a parameter value} \
 	param2 {another parameter value}]]]
 
@@ -884,10 +891,62 @@ Content-Disposition: attachment\r
 	; param1*0*=utf-8''%E3%81%AF\r
 \r
 dawg one" \
-[list MIME-Version {1.0 {}} Content-ID {<> {}} Content-Type {text/plain {}} \
+[list Content-ID {<> {}} Content-Type {text/plain {}} \
     Content-Disposition [list attachment [list param1 $char]]]
 
 ]
+
+
+
+test mime-13.1 {header parsing} {cleanly {
+    set mime [mime::initialize -string {Content-Type: text/html}]
+    mime::header get $mime Content-Type
+}} {text/html {}}
+
+
+test mime-13.2 {header parsing} {cleanly {
+    set mime [mime::initialize -string {Content-Type: text/html; charset=iso-8859-1}]
+    mime::header get $mime Content-Type
+}} {text/html {charset iso-8859-1}}
+
+
+test mime-13.3 {header parsing} {
+    set mime [mime::initialize -string {Content-Type: text/html; charset='iso-8859-1'}]
+    mime::header get $mime Content-Type
+} {text/html {charset 'iso-8859-1'}}
+
+
+test mime-13.4 {header parsing} {
+    set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"}]
+    mime::header get $mime Content-Type
+} {text/html {charset iso-8859-1}}
+
+
+test mime-13.5 {header parsing} -body {
+    set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"; ignored}]
+    mime::header get $mime Content-Type
+} -returnCodes 1 -result {expecting = found end-of-input}
+
+
+test mime-13.6 {header parsing} -body {
+    set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"morecrap}]
+    mime::header get $mime Content-Type
+} -returnCodes 1 -result {expecting = found end-of-input}
+
+
+test mime-13.7 {header parsing} {
+    set mime [mime::initialize -string {Content-Type: test/test; foo="bar\"baz\""}]
+    mime::header get $mime Content-Type
+} [list test/test [list foo bar"baz"]]
+
+
+test mime-13.8 {ncgi::parseMimeValue} {
+    set mime [mime::initialize -string {Content-Type: test/test; foo=""}]
+    mime::header get $mime Content-Type
+} {test/test {foo {}}}
+
+
+
 
 testsuiteCleanup
 set [namespace current]::done 1
