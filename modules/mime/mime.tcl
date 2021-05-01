@@ -1006,6 +1006,13 @@ proc ::mime::contenttype _ {
     }
 }
 
+proc ::mime::cookie_delete {_ name args} {
+    # this -expires overrides any that might be in $args
+    $_ cookie set -value {} {*}$args -expires [
+	format 0 -timezone :UTC -format {%a, %d %b %Y %H:%M:%S %z}]
+    return
+}
+
 
 # ::mime::cookie_set
 #
@@ -1037,8 +1044,8 @@ proc ::mime::cookie_set {_ args} {
 		set expires $opt(-expires)
 	    }
 	    default {
-		set expires [clock format [clock scan $opt(-expires)] \
-			-format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
+		set expires [clock format [datetimescan $opt(-expires)] \
+		    -format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
 	    }
 	}
 	append line " expires=$expires ;"
@@ -1046,7 +1053,8 @@ proc ::mime::cookie_set {_ args} {
     if {[info exists opt(-secure)]} {
 	append line " secure "
     }
-    $_ header set Set-Cookie $line {} 
+    $_ header set Set-Cookie $line {}
+    return
 }
 
 
@@ -1262,6 +1270,7 @@ proc ::mime::datetime {value property} {
     }
     return $value
 }
+
 
 proc ::mime::datetimescan value {
     variable timeformats

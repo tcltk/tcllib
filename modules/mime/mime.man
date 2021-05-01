@@ -144,6 +144,150 @@ the empty string, a default value is used.
 in.
 
 
+[call [arg message] [method {cookie delete}] [arg args]]
+
+Deletes the specifed cookie. [arg args] is the same as for
+[method {cookie set}], except that [arg -value] is not needed and
+[arg -expires] is ignored.
+
+
+[call [arg message] [method {cookie set}] [arg args]]
+
+Sets a cookie header.
+
+[arg args] is a dictionary options:
+
+[list_begin definitions]
+
+[def "[option -name] [arg name]"]
+[def "[option -value] [arg value]"]
+[def "[option -expires] [arg date]"]
+[def "[option -path] [arg {path restriction}]"]
+[def "[option -domain] [arg {domain restriction}]"]
+[list_end]
+
+
+[call [arg message] [method .destroy] [opt "[option -subordinates] [const all] | [const dynamic] | [const none]"]]
+
+Destroys the message and returns the empty string.
+
+
+[para]
+
+[option -subordinates] specifies which messages comprising the body should also
+be destroyed.  The default value of [const dynamic] indicates all component
+messages that were created while parsing a message.  [const all] indicates
+all component messages. [const none] indicates that no component messages should be
+destroyed.
+
+
+[call [arg message] [method header] [method serialize] [arg value] [arg parameters]]
+
+Returns the the serialization of a header.
+
+
+[call [arg message] [method header] [method get] [opt "[arg key] | [option -names]"]]
+
+Returns the header of a message as a multidict where each value is a list
+containing the header value and a dictionary of parameters for that header.
+
+
+[para]
+
+If [arg name] is provided, returns the value and parameters of the last entry
+matching that name, without regard to case.
+
+
+[para]
+
+If [option -names] is provided, returns a list of all header names.
+
+
+[call [arg message] [method header] [method set] [arg {name value}] [ \
+    opt "[arg parameters] [opt "[option -mode] [const write] | [\
+	const append] | [const delete]"]"]]
+
+[arg parameters] is a dictionary of parameters for the header.
+
+If [const append] is provided, creates a new header named [arg name] with the
+value of [arg value] and any provided [arg parameters].
+
+If [const write] is provided, first deletes any existing headers matching 
+[arg name].
+
+If [const delete] is provided, deletes any existing header matching [arg name].
+
+Returns a list of strings containing the previous value associated with the
+key.
+
+
+[para]
+
+The value for [option -mode] is one of:
+
+[list_begin definitions]
+
+[def [const write]]
+
+The [arg key]/[arg value] is either created or overwritten (the default).
+
+[def [const append]]
+
+Appends a new [arg key]/[arg value].
+
+[def [const delete]]
+
+Removes all values associated with the key.  [arg value] is ignored.
+
+[list_end]
+
+
+[call [arg message] [method property] [opt "[arg name] | [option -names]"]]
+
+Returns a dictionary of message properties.  If [arg name] is provided, only
+the corresponding value is returned.  If [option -names] is provided, a list
+of all property names is returned.
+
+
+[para]
+properties:
+
+[list_begin definitions]
+
+[def [const content]]
+
+The type/subtype of the content
+
+[def [const encoding]]
+
+The "Content-Transfer-Encoding"
+
+[def [const params]]
+
+A list of "Content-Type" parameters
+
+[def [const parts]]
+
+A list of tokens for messages that comprise a multipart body.  Only exists if
+there are any such messages.
+
+[def [const size]]
+
+The approximate size of the unencoded content.
+
+[list_end]
+
+
+[call [arg message] [method serialize] [opt [option -level]] [
+    opt "[option -chan] [arg channel]"]]
+
+Returns the serialization of the message.  If
+[option -chan] is provided, writes the serialization to [arg channel] and returns the
+empty string.  [option -level], if provided, indicates the level of the part
+in the message hierarchy.  The [const MIME-Version] header is only included at
+level [const 0].
+
+
 [call [cmd ::mime::datetime] ([arg time] | [option -now]) [arg property]]
 
 Returns the [arg property] of [arg time], which is an 822-style date-time
