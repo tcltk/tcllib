@@ -8,7 +8,7 @@
 #
 
 package require Tcl 8.3
-package require mime 1.4.1
+package require mime 1.7-
 
 catch {
     package require SASL 1.0;           # tcllib 1.8
@@ -386,14 +386,14 @@ proc ::smtp::sendmessage {part args} {
     # the message-id.
 
     if {([lsearch -exact $lowerL $dateL] < 0) \
-            && ([catch { ::mime::getheader $part $dateL }])} {
+            && ([catch {::mime::header get $part $dateL}])} {
         lappend lowerL $dateL
         lappend mixedL $dateM
         lappend header($dateL) [::mime::parsedatetime -now proper]
     }
 
     if {([lsearch -exact $lowerL ${message-idL}] < 0) \
-            && ([catch { ::mime::getheader $part ${message-idL} }])} {
+            && ([catch {::mime::header get $part ${message-idL}}])} {
         lappend lowerL ${message-idL}
         lappend mixedL ${message-idM}
         lappend header(${message-idL}) [::mime::uniqueID]
@@ -402,12 +402,13 @@ proc ::smtp::sendmessage {part args} {
 
     # Get all the headers from the MIME object and save them so that they can
     # later be restored.
-    set savedH [::mime::getheader $part]
+    set savedH [::mime::header get $part]
+    puts [list crackle $savedH]
 
     # Take all the headers defined earlier and add them to the MIME message.
     foreach lower $lowerL mixed $mixedL {
         foreach value $header($lower) {
-            ::mime::setheader $part $mixed $value -mode append
+            ::mime::header set $part $mixed $value -mode append
         }
     }
 
@@ -444,8 +445,8 @@ proc ::smtp::sendmessage {part args} {
 
     if {($code == 0) && ($bccP)} {
         set inner [::mime::initialize -canonical message/rfc822 \
-                                    -header [list Content-Description \
-                                                  "Original Message"] \
+                                    -headers [list Content-Description \
+                                                  {Original Message}] \
                                     -parts [list $part]]
 
         set subject "\[$bccM\]"
@@ -454,16 +455,15 @@ proc ::smtp::sendmessage {part args} {
         }
 
         set outer [::mime::initialize \
-                         -canonical multipart/digest \
-                         -header [list From $originator] \
-                         -header [list Bcc ""] \
-                         -header [list Date \
-                                       [::mime::parsedatetime -now proper]] \
-                         -header [list Subject $subject] \
-                         -header [list Message-ID [::mime::uniqueID]] \
-                         -header [list Content-Description \
-                                       "Blind Carbon Copy"] \
-                         -parts [list $inner]]
+	    -canonical multipart/digest \
+	    -headers [list \
+		From [list $originator {}] \
+		Bcc 
+		Date [::mime::parsedatetime -now proper] \
+		Subject $subject \
+		Message-ID [::mime::uniqueID] \
+		Content-Description {Blind Carbon Copy} \
+	     -parts [list $inner]]
 
 
         set code [catch { sendmessageaux $token $outer \
@@ -504,20 +504,18 @@ proc ::smtp::sendmessage {part args} {
 
     # Destroy SMTP token 'cause we're done with it.
 
-    catch { finalize $token -close $status }
+    catch { finalize $token -close $status } copts cres
 
     # Restore provided MIME object to original state (without the SMTP headers).
 
-    foreach key [::mime::getheader $part -names] {
-        mime::setheader $part $key "" -mode delete
+    foreach key [::mime::header get $part -names] {
+        mime::header set $part $key "" -mode delete
     }
-    foreach {key values} $savedH {
-        foreach value $values {
-            ::mime::setheader $part $key $value -mode append
-        }
+    foreach {key value} $savedH {
+	::mime::header set $part $key {*}$value -mode append
     }
 
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
+    retuern -options $copts $cres
 }
 
 # ::smtp::sendmessageaux --

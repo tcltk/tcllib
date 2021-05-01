@@ -18,90 +18,100 @@
 [keywords smtp]
 [copyright {1999-2000 Marshall T. Rose}]
 [moddesc   {Mime}]
-[titledesc {Manipulation of MIME body parts}]
+[titledesc {Manipulation of Internet messages}]
 [category  {Text processing}]
 [require Tcl 8.5]
 [require mime [opt [vset VERSION]]]
 [description]
 [para]
 
-The [package mime] library package provides the commands to create and
-manipulate MIME body parts.
+Provides commands to create and manipulate Internet messages.
 
 [list_begin definitions]
 
+
 [call [cmd ::mime::initialize] [opt "[option -canonical] [arg type/subtype]"] [opt "[option -params] [arg dictionary]"] [opt "[option -encoding] [arg value]"] [opt "[option -headers] [arg dictionary]"] [
-opt "([option -file] [arg name] | [option -string] [arg value] | [option -parts] \{[arg token1] ... [arg tokenN]\})"]]
+opt "([option -chan] [arg name] | [option -file] [arg name] | [option -string] [arg value] | [option -parts] [arg parts])"]]
 
-Creates a MIME part and returns a token representing it.
+Parses a message and returns a token for the message.  One of [
 
-[list_begin itemized]
+    option -chan
 
-[item]
+], [
 
-If the [option -canonical] option is present the body is already well-formed
-according to the provided [arg type/subtype].
+    option -file
 
-If [option -file] is provided, the body of the message is read from the specified file.
+], or [
 
-If [option -string] is provided, the accompanying value is the body of the message.
+    option -string
+    
+] must be provided as the source of the input.  If [
 
-If [option -parts] is provided, the media type is [const multipart] and the
-tokens in the provided list, which were retuned from previous calls to
-[cmd ::mime::initialize],  are used to produce the message body.  If
-[option -canonical] is not provided, the default value of
-[const multipart/mixed] is used.
+    option -canonical
+    
+] is provided the input is the body only and is already formatted according to
+the provided [
 
-[option -headers] is a dictionary of headers, with possibly redundant keys that
-might specify for example, [const Content-Type].
+    arg type/subtype
+    
+], and therefore should not be parsed.  If [
 
-[option -params] is a dictionary of parameters, with possibly redundant keys
-that might specify, for example [const Content-Disposition].
+    arg parts
+    
+] is provided it is a list of tokens for messages that comprise a [
+
+    const multipart/mixed
+    
+] message body.  [
+
+    option -params
+
+] is a multidict (a dictionary where the keys may not be unique)
+of parameters for the [
+
+    const Content-Type
+    
+] header.  [
+
+    option -headers
+    
+] is a multidict of headers.
+
 
 [para]
 
-Also, [option -encoding], if present, specifies the
+[option -encoding] sets the [const Content-Transfer-Encoding].
 
-[const Content-Transfer-Encoding] when copying the body.
-
-[item]
-
-If the [option -canonical] option is not present, the MIME part
-contained in either the [option -file] or the [option -string] option
-is parsed, dynamically generating subordinates as appropriate.
-
-[list_end]
 
 [call [cmd ::mime::finalize] [arg token] [opt "[option -subordinates] [const all] | [const dynamic] | [const none]"]]
 
-Destroys the MIME part represented by [arg token]. It
+Destroys the message corresponding to [arg token] and
 returns an empty string.
 
-[para]
-
-If the [option -subordinates] option is present, it specifies which
-subordinates should also be destroyed. The default value is
-
-[const dynamic], destroying all subordinates which were created by
-[cmd ::mime::initialize] together with the containing body part.
-
-[call [cmd ::mime::getproperty] [arg token] [opt "[arg property] | [option -names]"]]
-
-Returns a string or a list of strings containing the
-properties of a MIME part. If the command is invoked with the name of
-a specific property, the corresponding value is returned;
-instead, if [option -names] is specified, a list of all properties is
-returned; otherwise, a serialized array of properties and values is
-returned.
 
 [para]
-The possible properties are:
+
+[option -subordinates] specifies which messages 
+comprising the body should also be destroyed.  The default value is
+[const dynamic], which destroys all component messages that were created by
+[cmd ::mime::initialize].
+
+
+[call [cmd ::mime::getproperty] [arg token] [opt "[arg name] | [option -names]"]]
+
+Returns a dictionary of message properties.  If [arg name] is provided, only
+the corresponding value is returned.  If [option -names] is provided, a list
+of all property names is returned.
+
+
+[para]
+properties:
 
 [list_begin definitions]
 
 [def [const content]]
 
-The type/subtype describing the content
+The type/subtype of the content
 
 [def [const encoding]]
 
@@ -113,53 +123,58 @@ A list of "Content-Type" parameters
 
 [def [const parts]]
 
-A list of tokens for the part's subordinates.  This property is
-present only if the MIME part has subordinates.
+A list of tokens for messages that should comprise a multipart body.  Only exists if
+there are any such messages.
 
 [def [const size]]
 
-The approximate size of the content (unencoded)
+The approximate size of the unencoded content.
 
 [list_end]
 
-[call [cmd ::mime::header] [cmd serialize] [arg value] [arg parameters]]
 
-Serializes a header value and its parameters.
+[call [cmd ::mime::header] [cmd generate] [arg value] [arg parameters]]
+
+Generate a header.
+
 
 [call [cmd ::mime::header] [cmd get] [arg token] [opt "[arg key] | [option -names]"]]
 
-Returns the header of a MIME part as a dictionary with possibly-redundant keys,
+Returns the header of a message as a multidict
 where each value is a list containing the header value and any parameters for
 that value.
 
-[para]
-
-If [arg key] is provided, a list of values of matching names, without
-regard to case, is returned.
 
 [para]
 
-If [option -names] is provided, a list of all keys is returned.
+If [arg name] is provided returns a list of values for that name, without
+regard to case.
 
 
-[call [cmd ::mime::header] [cmd set] [arg token] [arg {key value}] [ \
+[para]
+
+If [option -names] is provided, returns a list of all header names.
+
+
+[call [cmd ::mime::header] [cmd set] [arg token] [arg {name value}] [ \
     opt "[arg parameters] [opt "[option -mode] [const write] | [\
 	const append] | [const delete]"]"]]
 
-If [const append] is provided, creates a new header named [arg key] with the
+If [const append] is provided, creates a new header named [arg name] with the
 value of [arg value] is added.
 
 If [const write] is provided, deletes any existing headers whose names match
 [arg key] and then creates a new header named [arg key] with the value of
 [arg value].
 
-If [const delete] is provided any existing header having a name that matches
-[arg key] is deleted. 
+If [const delete] is provided, deletes any existing header having a name that matches
+[arg key]. 
 
 [arg parameters] is a dictionary of parameters for the header.
 
 Returns a list of strings containing the previous value associated with the
 key.
+
 
 [para]
 
@@ -173,95 +188,87 @@ The [arg key]/[arg value] is either created or overwritten (the default).
 
 [def [const append]]
 
-A new [arg value] is appended for the [arg key] (creating it as necessary).
+Appends a new [arg key]/[arg value].
 
 [def [const delete]]
 
-All values associated with the key are removed (the [arg value]
-parameter is ignored).
+Removes all values associated with the key.  [arg value] is ignored.
 
 [list_end]
 
+
 [call [cmd ::mime::getbody] [arg token] [opt [option -decode]] [opt "[option -command] [arg callback] [opt "[option -blocksize] [arg octets]"]"]]
 
-Returns a string containing the body of the leaf MIME
-part represented by [arg token] in canonical form.
+Returns as a string in canonical form the body of the message corresponding to 
+[arg token].
+
 
 [para]
 
-If the [option -command] option is present, it is repeatedly
-invoked with a fragment of the body as this:
+[option -command] provides a command prefix that is invoked once for each block of bytes in the message body.
 
 [example {
-  uplevel #0 $callback [list "data" $fragment]
+  uplevel #0 $callback [list data $block]
 }]
 
-[para]
-
-(The [option -blocksize] option, if present, specifies the maximum
-size of each fragment passed to the callback.)
 
 [para]
 
-When the end of the body is reached, the callback is invoked as:
+[option -blocksize] specifies the maximum size of a block.
+
+
+[para]
+
+When the end of the body is reached the callback is invoked as:
 
 [example {
-    uplevel #0 $callback "end"
+    uplevel #0 $callback end
 }]
+
 
 [para]
 
-Alternatively, if an error occurs, the callback is invoked as:
+If an error occurs the callback is invoked as:
 
 [example {
-    uplevel #0 $callback [list "error" reason]
+    uplevel #0 $callback [list error reason]
 }]
+
 
 [para]
 
-Regardless, the return value of the final invocation of the callback
+In any case the return value of the final invocation of the callback
 is propagated upwards by [cmd ::mime::getbody].
 
-[para]
-
-If the [option -command] option is absent, the return value of
-[cmd ::mime::getbody] is a string containing the MIME part's entire
-body.
 
 [para]
 
-If the option [option -decode] is absent the return value computed
-above is returned as is. This means that it will be in the charset
-specified for the token and not the usual utf-8.
+[option -decode] converts the message body from the character set it is encoded
+in.
 
-If the option [option -decode] is present however the command will use
-the charset information associated with the token to convert the
-string from its encoding into utf-8 before returning it.
 
 [call [cmd ::mime::copymessage] [arg token] [arg channel]]
 
-Copies the MIME represented by [arg token] part to the
-specified [arg channel]. The command operates synchronously, and uses
-fileevent to allow asynchronous operations to proceed
-independently. It returns an empty string.
+Copies to [arg channel] the message corresponding to [arg token] and returns an
+empty string.  Operates synchronously, using fileevent to allow asynchronous
+operations to proceed independently.
+
 
 [call [cmd ::mime::buildmessage] [arg token]]
 
-Returns the MIME part represented by [arg token] as a
-string.  It is similar to [cmd ::mime::copymessage], only it returns
-the data as a return string instead of writing to a channel.
+Like [cmd ::mime::copymessage] but returns the message instead of
+writing it to a channel.
 
-[call [cmd ::mime::parseaddress] [arg string]]
 
-Takes a string containing one or more 822-style address
-specifications and returns a list of serialized arrays, one element
-for each address specified in the argument. If the string contains
-more than one address they will be separated by commas.
+[call [cmd ::mime::parseaddress] [arg addresses]]
+
+Returns a list of describing the comma-separated 822-style [arg addresses].
+
 
 [para]
 
-Each serialized array contains the properties below. Note that one or
-more of these properties may be empty.
+Each dictionary contains the following keys, whose values may be the empty
+string:
 
 [list_begin definitions]
 
@@ -311,11 +318,12 @@ the phrase part
 
 [list_end]
 
+
 [call [cmd ::mime::parsedatetime] ([arg string] | [option -now]) [arg property]]
 
-Takes a string containing an 822-style date-time
-specification and returns the specified property as a serialized
-array.
+Given a [arg property], a string containing an 822-style date-time
+specification,  returns the specified property as a serialized array.
+
 
 [para]
 
@@ -385,11 +393,13 @@ Sun, Mon, ..., Sat
 
 [list_end]
 
+
 [call [cmd ::mime::mapencoding] [arg encoding_name]]
 
-Maps tcl encodings onto the proper names for their MIME
+Maps Tcl encodings onto the proper names for their MIME
 charset type.  This is only done for encodings whose charset types
 were known.  The remaining encodings return "" for now.
+
 
 [call [cmd ::mime::reversemapencoding] [arg charset_type]]
 
@@ -408,12 +418,14 @@ This problem affects only people which are using Tcl and Mime on a
 upgrade to Tcl version 8.4. This version has extended 64 bit support
 and the bug does not appear anymore.
 
+
 [para]
 
 The problem could have been generally solved by requiring the use of
 Tcl 8.4 for this package. We decided against this solution as it would
 force a large number of unaffected users to upgrade their Tcl
 interpreter for no reason.
+
 
 [para]
 

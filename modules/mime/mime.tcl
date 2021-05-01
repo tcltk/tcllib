@@ -331,9 +331,38 @@ namespace eval ::mime {
 }
 
 
+proc ::mime::addchan {token fd} {
+    variable channels
+    upvar 0 $token state
+    if {[info exists state(fd)]} {
+	error [list {a channel is already present}]
+    }
+    set state(fd) $fd
+    incr channels($fd)
+    return
+}
+
+
 proc ::mime::contentid {} {
     set unique [uniqueID]
     return $unique@|
+}
+
+
+proc ::mime::dropchan token {
+    variable channels
+    upvar 0 $token state
+    upvar 0 state(fd) fd
+
+    if {[info exists fd]} {
+	if {[incr channels($fd) -1] == 0} {
+	    unset channels($fd)
+	    if {$state(closechan)} {
+		close $fd
+	    }
+	}
+	unset state(fd)
+    }
 }
 
 
@@ -398,6 +427,7 @@ proc ::mime::initialize args {
 
 proc ::mime::initializeaux {token args} {
     global errorCode errorInfo
+    variable channels
     # FRINK: nocheck
     upvar 0 $token state
     upvar 0 state(canonicalP) canonicalP
@@ -417,6 +447,7 @@ proc ::mime::initializeaux {token args} {
     set state(mixedL) {}
 
     set state(cid) 0
+    set state(closechan) 1
 
     set userparams 0
 
@@ -433,6 +464,15 @@ proc ::mime::initializeaux {token args} {
 		set canonicalP 1
 		set type [string tolower $value]
             }
+
+	    -chan {
+		set state(file) {}
+		addchan $token $value
+	    }
+
+	    -close {
+		set state(closechan) [expr {!!$value}]
+	    }
 
             -params {
 		if {$userparams} {
@@ -497,7 +537,6 @@ proc ::mime::initializeaux {token args} {
 
             -root {
                 # the following are internal options
-
                 set state(root) $value
             }
 
@@ -523,17 +562,37 @@ proc ::mime::initializeaux {token args} {
         }
     }
 
-    #We only want one of -file, -parts or -string:
+    #We only want one of -chan -file, -parts or -string:
     set valueN 0
     foreach value {file parts string} {
         if {[info exists state($value)]} {
-            set state(value) $value
+	    set state(value) $value
             incr valueN
         }
     }
     if {$valueN != 1 && ![info exists state(lines)]} {
         error [list {specify exactly one of} {-file -parts -string}]
     }
+
+
+    if {$state(value) eq {file}} {
+	if {[info exists state(root)]} {
+	    # FRINK: nocheck
+	    upvar 0 $state(root) root
+	    addchan $token $root(fd)
+	} else {
+	    set state(root) $token
+	    if {![info exists state(fd)]} {
+		addchan $token [open $state(file) RDONLY]
+	    }
+	    set state(offset) 0
+	    seek $state(fd) 0 end
+	    set state(count) [tell $state(fd)]
+
+	    fconfigure $state(fd) -translation binary
+	}
+    }
+
 
     if {$canonicalP} {
         if {![header exists $token content-id]} {
@@ -605,22 +664,6 @@ proc ::mime::initializeaux {token args} {
         error {-header requires -canonical}
     }
 
-    if {[set fileP [info exists state(file)]]} {
-        if {[set openP [info exists state(root)]]} {
-            # FRINK: nocheck
-            upvar 0 $state(root) root
-
-            set state(fd) $root(fd)
-        } else {
-            set state(root) $token
-            set state(fd) [open $state(file) RDONLY]
-            set state(offset) 0
-            seek $state(fd) 0 end
-            set state(count) [tell $state(fd)]
-
-            fconfigure $state(fd) -translation binary
-        }
-    }
 }
 
 
@@ -901,7 +944,6 @@ proc ::mime::parsepartaux token {
 proc ::mime::finalize {token args} {
     # FRINK: nocheck
     upvar 0 $token state
-
     array set options [list -subordinates dynamic]
     array set options $args
 
@@ -928,6 +970,8 @@ proc ::mime::finalize {token args} {
             error "unknown value for -subordinates $options(-subordinates)"
         }
     }
+
+    dropchan $token
 
     foreach name [array names state] {
         unset state($name)
@@ -993,6 +1037,7 @@ proc ::mime::getproperty {token {property {}}} {
             if {[info exists state(parts)]} {
                 lappend names parts
             }
+	    lappend nams size
 
             return $names
         }
@@ -1008,7 +1053,7 @@ proc ::mime::getproperty {token {property {}}} {
 	}
         parts {
             if {![info exists state(parts)]} {
-                error {MIME part is a leaf}
+                error [list not a multipart message]
             }
 
             return $state(parts)
@@ -1019,7 +1064,7 @@ proc ::mime::getproperty {token {property {}}} {
         }
 
         default {
-            error "unknown property $property"
+            error [list {unknown property} $property]
         }
     }
 }
@@ -1108,8 +1153,8 @@ namespace eval ::mime::header {
     namespace ensemble create -map {
 	get get
 	exists exists
+	generate generate
 	parse parse
-	serialize serialize
 	set set_
 	setinternal setinternal
     }
@@ -1143,7 +1188,7 @@ proc ::mime::header::boundary {} {
 }
 
 
-proc ::mime::header::serialize {token name value params} {
+proc ::mime::header::generate {token name value params} {
     variable notattchar_re
     set lname [string tolower $name]
 
@@ -1723,17 +1768,12 @@ proc ::mime::header::set_ {token key value args} {
 		content-type {
 		    if {!$internal} {
 			switch $lower {
-			    content-type {
-				error [list key $key {may not be set} \
-				    {use -params instead}]
-			    }
 			    default {
 				lassign [get $token $lower] values params1
 				if {$value ni $values} {
 				    error "key $key may not be set"
 				}
 			    }
-
 			}
 		    }
 		    switch $lower {
@@ -1764,7 +1804,7 @@ proc ::mime::header::set_ {token key value args} {
 	}
         delete {
             unset header($lower)
-	    unset hparams($lower)
+	    dict unset hparams $lower
             set state(lowerL) [lreplace $state(lowerL) $x $x]
             set state(mixedL) [lreplace $state(mixedL) $x $x]
         }
@@ -1827,6 +1867,7 @@ proc ::mime::getbody {token args} {
     global errorCode errorInfo
     # FRINK: nocheck
     upvar 0 $token state
+    upvar 0 state(fd) fd
     parsepart $token
 
     set decode 0
@@ -1848,10 +1889,7 @@ proc ::mime::getbody {token args} {
 
     switch $state(value)/$state(canonicalP) {
         file/0 {
-            set fd [open $state(file) RDONLY]
-
             set code [catch {
-                fconfigure $fd -translation binary
                 seek $fd [set pos $state(offset)] start
                 set last [expr {$state(offset) + $state(count) - 1}]
 
@@ -1900,16 +1938,12 @@ proc ::mime::getbody {token args} {
             } result]
             set ecode $errorCode
             set einfo $errorInfo
-
-            catch {close $fd}
         }
 
         file/1 {
-            set fd [open $state(file) RDONLY]
-
+	    seek $fd [set pos $state(offset)] start
+	    fconfigure $fd -translation binary
             set code [catch {
-                fconfigure $fd -translation binary
-
                 while {[string length [
                     set fragment [read $fd $options(-blocksize)]]] > 0} {
                         uplevel #0 $options(-command) [list data $fragment]
@@ -1917,8 +1951,6 @@ proc ::mime::getbody {token args} {
             } result]
             set ecode $errorCode
             set einfo $errorInfo
-
-            catch {close $fd}
         }
 
         parts/0
@@ -1983,7 +2015,7 @@ proc ::mime::getbody {token args} {
     if {$decode} {
         set params [mime::getproperty $token params]
 
-        if {[dict exists $params charset ]} {
+        if {[dict exists $params charset]} {
             set charset [dict get $params charset]
         } else {
             set charset US-ASCII
@@ -2049,12 +2081,10 @@ proc ::mime::getbodyaux {token reason {fragment {}}} {
     }
 }
 
+
 # ::mime::copymessage --
 #
 #    mime::copymessage copies the MIME part to the specified channel.
-#
-#    mime::copymessage operates synchronously, and uses fileevent to
-#    allow asynchronous operations to proceed independently.
 #
 # Arguments:
 #       token      The MIME token to parse.
@@ -2065,46 +2095,14 @@ proc ::mime::getbodyaux {token reason {fragment {}}} {
 #       is being written to the channel.
 
 proc ::mime::copymessage {token channel} {
-    global errorCode errorInfo
     # FRINK: nocheck
     upvar 0 $token state
-
-    set openP [info exists state(fd)]
-
-    set code [catch {mime::copymessageaux $token $channel} result]
-    set ecode $errorCode
-    set einfo $errorInfo
-
-    if {!$openP && [info exists state(fd)]} {
-        if {![info exists state(root)]} {
-            catch {close $state(fd)}
-        }
-        unset state(fd)
-    }
-
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
-}
-
-# ::mime::copymessageaux --
-#
-#    mime::copymessageaux copies the MIME part to the specified channel.
-#
-# Arguments:
-#       token      The MIME token to parse.
-#       channel    The channel to copy the message to.
-#
-# Results:
-#       Returns nothing unless an error is thrown while the message
-#       is being written to the channel.
-
-proc ::mime::copymessageaux {token channel} {
-    # FRINK: nocheck
-    upvar 0 $token state
+    upvar 0 state(fd) fd
     parsepart $token
 
     set result {}
     foreach {mixed value} [header get $token] {
-	puts $channel [header serialize $token $mixed {*}$value]
+	puts $channel [header generate $token $mixed {*}$value]
     }
 
     set converter {}
@@ -2140,27 +2138,13 @@ proc ::mime::copymessageaux {token channel} {
 
     switch $state(value) {
         file {
-            set closeP 1
             if {[info exists state(root)]} {
-                # FRINK: nocheck
-                upvar 0 $state(root) root
-
-                if {[info exists root(fd)]} {
-                    set fd $root(fd)
-                    set closeP 0
-                } else {
-                    set fd [set state(fd) [open $state(file) RDONLY]]
-                }
                 set size $state(count)
             } else {
-                set fd [set state(fd) [open $state(file) RDONLY]]
                 # read until eof
                 set size -1
             }
             seek $fd $state(offset) start
-            if {$closeP} {
-                fconfigure $fd -translation binary
-            }
 
             puts $channel {}
 
@@ -2179,23 +2163,9 @@ proc ::mime::copymessageaux {token channel} {
                     puts -nonewline $channel [$converter -mode encode -- $X]
                 }
             }
-
-            if {$closeP} {
-                catch {close $state(fd)}
-                unset state(fd)
-            }
         }
 
         parts {
-            if {
-		![info exists state(root)]
-		&&
-		[info exists state(file)]
-	    } {
-                set state(fd) [open $state(file) RDONLY]
-                fconfigure $state(fd) -translation binary
-            }
-
 	    lassign [header get $token content-type] content params
 	    set boundary [dict get $params boundary]
 
@@ -2231,11 +2201,6 @@ proc ::mime::copymessageaux {token channel} {
                     }
                     puts $channel \n--$boundary--
                 }
-            }
-
-            if {[info exists state(fd)]} {
-                catch {close $state(fd)}
-                unset state(fd)
             }
         }
 
@@ -2302,20 +2267,19 @@ proc ::mime::buildmessage token {
         }
         unset state(fd)
     }
-
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
 
 proc ::mime::buildmessageaux token {
-	set chan [tcl::chan::memchan]
-	chan configure $chan -translation crlf
-	copymessageaux $token $chan
-	seek $chan 0
-	chan configure $chan -translation binary
-	set res [read $chan]
-	close $chan
-	return $res
+    set chan [tcl::chan::memchan]
+    chan configure $chan -translation crlf
+    copymessage $token $chan
+    seek $chan 0
+    chan configure $chan -translation binary
+    set res [read $chan]
+    close $chan
+    return $res
 }
 
 # ::mime::encoding --
@@ -2357,22 +2321,27 @@ proc ::mime::encoding token {
     set lineP 1
     switch $state(value) {
         file {
-            set fd [open $state(file) RDONLY]
-            fconfigure $fd -translation binary
+	    if {$state(file) eq {}} {
+		# choose a workable all-purpose encoding 
+		set asciiP 0
+		set lineP 0
+	    } else {
+		set fd [open $state(file) RDONLY]
+		fconfigure $fd -translation binary
 
-            while {[gets $fd line] >= 0} {
-                if {$asciiP} {
-                    set asciiP [encodingasciiP $line]
-                }
-                if {$lineP} {
-                    set lineP [encodinglineP $line]
-                }
-                if {(!$asciiP) && (!$lineP)} {
-                    break
-                }
-            }
-
-            catch {close $fd}
+		while {[gets $fd line] >= 0} {
+		    if {$asciiP} {
+			set asciiP [encodingasciiP $line]
+		    }
+		    if {$lineP} {
+			set lineP [encodinglineP $line]
+		    }
+		    if {(!$asciiP) && (!$lineP)} {
+			break
+		    }
+		}
+		catch {close $fd}
+	    }
         }
 
         parts {
@@ -2566,13 +2535,6 @@ proc ::mime::parsepart token {
     set ecode $errorCode
     set einfo $errorInfo
 
-    if {[info exists state(file)]} {
-        if {![info exists state(root)]} {
-            unset state(root)
-            catch {close $state(fd)}
-        }
-	unset state(fd)
-    }
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
