@@ -36,17 +36,17 @@ test ncgi-1.1 {ncgi::reset} {
 } {0 0}
 
 test ncgi-1.2 {ncgi::reset} {
-    ncgi::reset query=reset
+    ncgi::reset query query=reset
     list $ncgi::query $ncgi::contenttype
 } {query=reset {}}
 
 test ncgi-1.3 {ncgi::reset} {
-    ncgi::reset query=reset text/plain
+    ncgi::reset query query=reset contenttype text/plain
     list $ncgi::query $ncgi::contenttype
 } {query=reset text/plain}
 
 test ncgi-2.1 {ncgi::query fake query data} {
-    ncgi::reset "fake=query"
+    ncgi::reset query fake=query
     ncgi::query
     set ncgi::query
 } "fake=query"
@@ -63,7 +63,7 @@ test ncgi-2.3 {ncgi::query HEAD} {
     ncgi::reset
     set env(REQUEST_METHOD) HEAD
     catch {unset env(QUERY_STRING)}
-    ncgi::query
+    ncgi::querystring
     set ncgi::query
 } ""
 
@@ -77,8 +77,8 @@ test ncgi-2.4 {ncgi::query POST} {
 	source {%s}
 	source {%s}
 	source {%s}
-	ncgi::query
-	puts $ncgi::query
+	ncgi::poststring
+	puts $ncgi::post
 	exit
     } $sub_ap $cmdlFile $futlFile $ncgiFile] test1 ; # {}
     set f [open "|[list $::tcltest::tcltest test1]" r+]
@@ -88,7 +88,7 @@ test ncgi-2.4 {ncgi::query POST} {
     close $f
     removeFile test1
     set line
-} "name=value"
+} name=value
 
 test ncgi-2.5 {ncgi::test} {
     ncgi::reset
@@ -97,7 +97,7 @@ test ncgi-2.5 {ncgi::test} {
 } text/html
 
 test ncgi-2.6 {ncgi::test} {
-    ncgi::reset foo=bar text/plain
+    ncgi::reset query foo=bar contenttype text/plain
     set env(CONTENT_TYPE) text/html
     ncgi::type
 } text/plain
@@ -159,22 +159,22 @@ test ncgi-4.4 {ncgi::encode} {
 } {hello%0D%0Aworld%0D%09bar}
 
 test ncgi-5.1 {ncgi::nvlist} {
-    ncgi::reset "name=hello+world&name2=%7ewelch"
+    ncgi::reset query name=hello+world&name2=%7ewelch
     ncgi::nvlist
 } {name {hello world} name2 ~welch}
 
 test ncgi-5.2 {ncgi::nvlist} {
-    ncgi::reset  "name=&name2"	application/x-www-urlencoded
+    ncgi::reset query name=&name2 contenttype application/x-www-urlencoded
     ncgi::nvlist
 } {name {} anonymous name2}
 
 test ncgi-5.3 {ncgi::nvlist} {
-    ncgi::reset  "name=&name2"	application/x-www-form-urlencoded
+    ncgi::reset query name=&name2 contenttype application/x-www-form-urlencoded
     ncgi::nvlist
 } {name {} anonymous name2}
 
 test ncgi-5.4 {ncgi::nvlist} {
-    ncgi::reset  "name=&name2"	application/xyzzy
+    ncgi::reset query name=&name2 contenttype application/xyzzy
     set code [catch ncgi::nvlist err]
     list $code $err
 } {1 {Unknown Content-Type: application/xyzzy}}
@@ -182,12 +182,12 @@ test ncgi-5.4 {ncgi::nvlist} {
 # multipart tests at the end because I'm too lazy to renumber the tests
 
 test ncgi-6.1 {ncgi::parse, anonymous values} {
-    ncgi::reset "name=&name2"
+    ncgi::reset query name=&name2
     ncgi::parse
 } {name anonymous}
 
 test ncgi-6.2 {ncgi::parse, no list restrictions} {
-    ncgi::reset "name=value&name=value2"
+    ncgi::reset query name=value&name=value2
     ncgi::parse 
 } {name}
 
@@ -198,70 +198,70 @@ test ncgi-7.1 {ncgi::input} {
 } {name name2}
 
 test ncgi-7.2 {ncgi::input} {
-    ncgi::reset "nameList=value1+stuff&nameList=value2+more"
+    ncgi::reset query nameList=value1+stuff&nameList=value2+more
     ncgi::input
     set ncgi::value(nameList)
 } {{value1 stuff} {value2 more}}
 
 test ncgi-7.3 {ncgi::input} {
-    ncgi::reset "name=value&name=value2"
+    ncgi::reset query name=value&name=value2
     catch {ncgi::input} err
     set err
 } {Multiple definitions of name encountered in input. If you're trying to do this intentionally (such as with select), the variable must have a "List" suffix.}
 
 test ncgi-8.1 {ncgi::value} {
-    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::reset query nameList=val+ue&nameList=value2
     ncgi::input
     ncgi::value nameList
 } {{val ue} value2}
 
 test ncgi-8.2 {ncgi::value} {
-    ncgi::reset "name=val+ue&name=value2"
+    ncgi::reset query name=val+ue&name=value2
     ncgi::parse
     ncgi::value name
 } {val ue}
 
 test ncgi-8.3 {ncgi::value} {
-    ncgi::reset "name=val+ue&name=value2"
+    ncgi::reset query name=val+ue&name=value2
     ncgi::parse
     ncgi::value noname
 } {}
 
 test ncgi-9.1 {ncgi::valueList} {
-    ncgi::reset "name=val+ue&name=value2"
+    ncgi::reset query name=val+ue&name=value2
     ncgi::parse
     ncgi::valueList name
 } {{val ue} value2}
 
 test ncgi-9.2 {ncgi::valueList} {
-    ncgi::reset "name=val+ue&name=value2"
+    ncgi::reset query name=val+ue&name=value2
     ncgi::parse
     ncgi::valueList noname
 } {}
 
 test ncgi-10.1 {ncgi::import} {
-    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::reset query nameList=val+ue&nameList=value2
     ncgi::input
     ncgi::import nameList
     set nameList
 } {{val ue} value2}
 
 test ncgi-10.2 {ncgi::import} {
-    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::reset query nameList=val+ue&nameList=value2
     ncgi::input
     ncgi::import nameList myx
     set myx
 } {{val ue} value2}
 
 test ncgi-10.3 {ncgi::import} {
-    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::reset query nameList=val+ue&nameList=value2
     ncgi::input
     ncgi::import noname
     set noname
 } {}
 
 test ncgi-10.4 {ncgi::importAll} {
-    ncgi::reset "name1=val+ue&name2=value2"
+    ncgi::reset query name1=val+ue&name2=value2
     catch {unset name1}
     catch {unset name2}
     ncgi::parse
@@ -270,7 +270,7 @@ test ncgi-10.4 {ncgi::importAll} {
 } {{val ue} value2}
 
 test ncgi-10.5 {ncgi::importAll} {
-    ncgi::reset "name1=val+ue&name2=value2"
+    ncgi::reset query name1=val+ue&name2=value2
     catch {unset name1}
     catch {unset name2}
     catch {unset name3}
@@ -610,7 +610,6 @@ test ncgi-14.3 {ncgi::multipart} {
     }
     regsub ".*?\n\n" $X {} X
 
-    ncgi::reset $X $type
     ncgi::multipart $type $X
 } {field1 {{content-disposition form-data name field1} value} field2 {{content-disposition form-data name field2} {another value}} the_file_name {{content-disposition form-data name the_file_name filename {C:\Program Files\Netscape\Communicator\Program\nareadme.htm} content-type text/html} {
 <center><h1>
@@ -636,7 +635,7 @@ test ncgi-14.4 {ncgi::multipart} {
     }
     regsub ".*?\n\n" $X {} X
 
-    ncgi::reset $X $type
+    ncgi::reset post $X contenttype $type
     ncgi::parse
     list [ncgi::value field1] [ncgi::value field2] [ncgi::value the_file_name]
 } {value {another value} {
@@ -664,7 +663,7 @@ test ncgi-14.6 {ncgi::multipart setValue} {
     }
     regsub ".*?\n\n" $X {} X
 
-    ncgi::reset $X $type
+    ncgi::reset post $X contenttype $type
     ncgi::parse
     ncgi::setValue userval1 foo
     ncgi::setValue userval2 "a b"
@@ -678,8 +677,9 @@ test ncgi-14.6 {ncgi::multipart setValue} {
 
 }}
 
+
 test ncgi-15.1 {ncgi::setValue} {
-    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::reset query nameList=val+ue&nameList=value2
     ncgi::input
     ncgi::setValue foo 1
     ncgi::setValue bar "a b"
@@ -731,7 +731,7 @@ test ncgi-14.5 {ncgi::multipart--check binary file} {
 
     set X [genformdata $binary_content]
 
-    ncgi::reset $X [genformcontent_type]
+    ncgi::reset post $X contenttype [genformcontent_type]
     ncgi::parse
     set content [ncgi::value the_file_name]
     list [ncgi::value field1] [ncgi::value field2] $content
@@ -744,7 +744,7 @@ test ncgi-16.1 {ncgi::importFile} {
 
     set X [genformdata $binary_content]
 
-    ncgi::reset $X [genformcontent_type]
+    ncgi::reset post $X contenttype [genformcontent_type]
     ncgi::parse
 
     ncgi::importFile -client the_file_name
@@ -757,7 +757,7 @@ test ncgi-16.2 {ncgi::importFile - content type} {
 
     set X [genformdata $binary_content]
 
-    ncgi::reset $X [genformcontent_type]
+    ncgi::reset post $X contenttype [genformcontent_type]
     ncgi::parse
 
     ncgi::importFile -type the_file_name
@@ -771,7 +771,7 @@ test ncgi-16.3 {ncgi::importFile -- file contents} {
 
     set X [genformdata $binary_content]
 
-    ncgi::reset $X [genformcontent_type]
+    ncgi::reset post $X contenttype [genformcontent_type]
     ncgi::parse
 
     ncgi::importFile -data the_file_name
@@ -784,7 +784,7 @@ test ncgi-16.4 {ncgi::importFile -- save file} {
 
     set X [genformdata $binary_content]
 
-    ncgi::reset $X [genformcontent_type]
+    ncgi::reset post $X contenttype [genformcontent_type]
     ncgi::parse
 
     set localfile [ncgi::importFile -server the_file_name]
@@ -805,7 +805,7 @@ test ncgi-16.5 {ncgi::importFile -- save file, given name} {
 
     set X [genformdata $binary_content]
 
-    ncgi::reset $X [genformcontent_type]
+    ncgi::reset post $X contenttype [genformcontent_type]
     ncgi::parse
 
     set localfile [ncgi::importFile -server the_file_name fofo]
@@ -825,7 +825,7 @@ test ncgi-16.6 {ncgi::importFile -- bad input} {
 
     set X "bad multipart data"
 
-    ncgi::reset $X [genformcontent_type]
+    ncgi::reset post $X contenttype [genformcontent_type]
     ncgi::parse
 
     ncgi::importFile -client the_file_name
@@ -834,22 +834,23 @@ test ncgi-16.6 {ncgi::importFile -- bad input} {
 
 
 test ncgi-17.1 {ncgi::names} {
-    ncgi::reset "name=hello+world&name2=%7ewelch"
+    ncgi::reset query name=hello+world&name2=%7ewelch
     ncgi::names
 } {name name2}
 
 test ncgi-17.2 {ncgi::names} {
-    ncgi::reset  "name=&name2"	application/x-www-urlencoded
+    ncgi::reset  query name=&name2 contenttype application/x-www-urlencoded
     ncgi::names
 } {name}
 
 test ncgi-17.3 {ncgi::names} {
-    ncgi::reset  "name=&name2"	application/x-www-form-urlencoded
+    ncgi::reset query name=&name2 \
+	contenttype application/x-www-form-urlencoded
     ncgi::names
 } {name}
 
 test ncgi-17.4 {ncgi::names} {
-    ncgi::reset  "name=&name2"	application/xyzzy
+    ncgi::reset query name=&name2 contenttype application/xyzzy
     set code [catch ncgi::names err]
     list $code $err
 } {1 {Unknown Content-Type: application/xyzzy}}
