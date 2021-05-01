@@ -1407,9 +1407,22 @@ proc ::mime::contentid token {
     parsepart $token
     if {[info exists parts]} {
 	foreach part $parts {
+	    upvar 0 $part childpart
+	    set created 0
+	    if {![header::exists $part message-id]} {
+		set created 1
+		header::setinternal $part Message-ID [messageid $part]
+	    }
+
 	    # use message-id here, not content-id, to account for header info
 	    # in the parts
 	    append ids [header get $part message-id] 
+
+	    if {$created} {
+		if {!$childpart(addmessageid)} {
+		    header::unset $part message-id
+		}
+	    }
 	}
 	set id [::sha2::sha256 -hex $ids]
     } else {
@@ -2760,8 +2773,9 @@ proc ::mime::parsepartaux token {
 	set bodychan [tcllib::chan::base .new [info cmdcount]_bodychan [
 	    ::tcl::chan::memchan]]
     } else {
-	set bodychan [tcllib::chan::getslimit .new [info cmdcount]_bodychan [
-	    file tempfile]]
+	set bodychan [tcllib::chan::base .new [info cmdcount]_bodychan]
+	tcllib::chan::getslimit $bodychan
+	$bodychan .init [file tempfile]
     }
     if {[dict exists $params charset]} {
 	set charset [reversemapencoding [dict get $params charset]]

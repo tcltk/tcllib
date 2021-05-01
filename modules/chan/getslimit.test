@@ -7,6 +7,7 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 1.0-
 
+package require {chan base}
 package require {chan getslimit}
 
 package require tcl::chan::memchan 
@@ -19,8 +20,9 @@ proc main {} {
 
 
     test getslimit-configure {} -body {
-	getslimit .new chan1 [::tcl::chan::memchan]
-	chan1 configure -getslimit 33
+	::tcllib::chan::base .new chan1
+	getslimit chan1
+	chan1 .init [::tcl::chan::memchan] -getslimit 33
 	chan1 configure -getslimit
     } -cleanup {
 	rename chan1 {}
@@ -29,7 +31,9 @@ proc main {} {
 
     test getslimit-under {
     } -body {
-	getslimit .new chan1 [::tcl::chan::string $data1] -getslimit 1000
+	::tcllib::chan::base .new chan1
+	getslimit chan1
+	chan1 .init [::tcl::chan::string $data1] -getslimit 1000
 	chan1 gets
     } -cleanup {
 	rename chan1 {}
@@ -38,7 +42,9 @@ proc main {} {
 
     test getslimit-exceeded {
     } -body {
-	getslimit .new chan1 [::tcl::chan::string [
+	::tcllib::chan::base .new chan1
+	getslimit chan1 
+	chan1 .init [::tcl::chan::string [
 	    string repeat $data1 100]] -getslimit 10
 	chan1 gets
     } -cleanup {
@@ -48,7 +54,9 @@ proc main {} {
     test getslimit-read {
 	read is unaffacted by the limit
     } -body {
-	getslimit .new chan1 [::tcl::chan::string $data1]
+	::tcllib::chan::base .new chan1
+	getslimit chan1
+	chan1 .init [::tcl::chan::string $data1]
 	chan1 configure -getslimit 10
 	lappend res [chan1 read 15]
 	lappend res [chan1 read 3]

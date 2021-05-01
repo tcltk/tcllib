@@ -155,7 +155,7 @@ proc .ondelete {_ trace args} {
 	    }} $script]
 	    trace add command $_ delete $trace
 	}
-	$_ .method .ondelete $trace
+	$_ .method .ondelete .ondelete $trace
     } elseif {[llength $args]} {
 	error [list {wrong # args}]
     }
