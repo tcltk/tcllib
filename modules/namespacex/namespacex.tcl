@@ -196,7 +196,7 @@ proc ::namespacex::hook::Handle {handler old args} {
 proc ::namespacex::import {from args} {
     set upns [uplevel 1 {namespace current}]
     if {![string match ::* $from]} {
-	set from $upns::$from[set from {}]
+	set from ${upns}::$from[set from {}]
     }
     set orig [namespace eval $from {namespace export}]
     try {
