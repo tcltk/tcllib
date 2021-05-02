@@ -17,9 +17,8 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [file dirname [file dirname [
+	file join [pwd] [info script]]]] devtools testutilities.tcl]
 
 testsNeedTcl     8.5 ;# See fumagic.testsupport
 testsNeedTcltest 1.0
@@ -344,8 +343,12 @@ test install-3.1 {install a directory, set permissions} {unix tcl8.3plus} {
     foreach fl [glob [file join installDst subdir2 *]] {
 	append res [file attributes $fl -permissions]
     }
-    set res
-} {006660066600666}
+	if {$res in {006660066600666 0o6660o6660o666}} {
+		return success
+	} else {
+		return [list {bad result} $es]
+	}
+} success 
 
 i_cleanup
 
