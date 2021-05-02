@@ -44,7 +44,7 @@ oo::define base {
 
 
     method configure args {
-	my variable chan
+	my variable close chan
 	if {[llength $args] == 1} {
 	    lassign $args key
 	    switch $key {
@@ -61,7 +61,7 @@ oo::define base {
 			set chan $val
 		    }
 		    -close {
-			$_ = close [expr {!!$val}]
+			set close [expr {!!$val}]
 		    }
 		    default {
 			lappend args $key $val
