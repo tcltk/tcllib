@@ -15,9 +15,9 @@ package require tcl::chan::string
 proc main {} {try {
     variable done
 
-    test getslimit-configure {} -body {
-	::tcllib::chan::base .new chan1
-	::tcllib::chan::coroutine chan1
+    test chan-coroutine-configure {} -body {
+	::tcllib::chan::base new chan1
+	::tcllib::chan::coroutine::new chan1
 	chan1 .init [::tcl::chan::string \
 	    {Curiosity governs the first moment}]
 	chan1 read

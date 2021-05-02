@@ -1,33 +1,42 @@
 #! /usr/bin/env tclsh
 
-source [file join \
-	[file dirname [file dirname [file dirname [
-	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
+namespace eval ::tcllib::chan::base::test::[info cmdcount] {
+    try {
+	variable unique [info cmdcount]
+	source [file join [file dirname [file dirname [file dirname [
+	    file normalize [file join [info script] ...]
+	]]]] devtools testutilities.tcl]
 
-testsNeedTcl     8.6
-testsNeedTcltest 2.0
+	testsNeedTcl     8.6
+	testsNeedTcltest 2.0
 
-package require tcl::chan::string 
-package require {chan base}
-namespace import ::tcllib::chan::base
+	package require tcl::chan::string 
+	package require {chan base}
+	namespace import ::tcllib::chan::base
 
-proc main {} {
-    variable done
+	proc main {} {
+	    variable done
 
-    set data1 abcdefghijklmnopqrstuvwxyz
+	    set data1 abcdefghijklmnopqrstuvwxyz
 
-    test chan-object-closeondelete {
-    } -body {
-        base .new chan1 [::tcl::chan::string $data1]
-        set name [chan1 $ chan]
-        lappend res [expr {$name in [chan names]}]
-        chan1 close
-        lappend res [expr {$name in [chan names]}]
-    } -result {1 0} 
+	    test {chan object {close on delete}} {
+	    } -body {
+		set chan [::tcl::chan::string $data1]
+		[base new chan1] .init $chan 
+		set name [chan1 configure -chan]
+		lappend res [expr {$name in [chan names]}]
+		chan1 close
+		lappend res [expr {$name in [chan names]}]
+	    } -result {1 0} 
 
-    testsuiteCleanup
-    set done 1 
+	    testsuiteCleanup
+	    set done 1 
+	}
+
+	after 0 coroutine [namespace current]::[info cmdcount]_main [
+	    namespace current]::main  
+	vwait [namespace current]::done
+    } finally {
+	::namespace delete [::namespace current]
+    }
 }
-
-after 0 coroutine [info cmdcount]_main main  
-vwait [namespace current]::done

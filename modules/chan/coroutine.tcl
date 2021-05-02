@@ -11,27 +11,23 @@
 package require coroutine
 
 
-proc [namespace current] chan {
-	if {![string match ::* $chan]} {
-		set chan [uplevel 1 [list ::namespace which $chan]]
-	}
-	$chan .specialize
-	foreach name {
-		gets read
-	} {
-		$chan .method $name coroutine::$name
-	}
+proc new chan {
+	set chan [uplevel 1 [list ::namespace which $chan[set chan {}]]]
+	oo::objdefine $chan [list mixin [namespace which coroutine]]
 	return $chan
 }
 
+oo::class create coroutine 
+oo::objdefine coroutine {
+	method gets args {
+		my variable chan
+		tailcall ::coroutine::util::gets $chan {*}$args
+	}
 
-proc gets {_ args} {
-	$_ .vars chan
-	tailcall ::coroutine::util::gets $chan {*}$args
+
+	method read args {
+		my variable chan
+		tailcall ::coroutine::util::read $chan {*}$args
+	}
 }
 
-
-proc read {_ args} {
-	$_ .vars chan
-	tailcall ::coroutine::util::read $chan {*}$args
-}

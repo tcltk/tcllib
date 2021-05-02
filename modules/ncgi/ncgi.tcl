@@ -462,7 +462,7 @@ proc ::ncgi::.new {token name args} {
     # normalize $name
     set name [namespace which $name]
 
-    ::tcllib::chan::base .new ${ns}::stdout stdout -close 0
+    [::tcllib::chan::base new ${ns}::stdout] .init stdout -close 0
 
     namespace ensemble create -command ${ns}::header -map [list \
 	send [list header_send $name]

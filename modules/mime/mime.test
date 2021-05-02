@@ -72,7 +72,7 @@ proc with.chan {name args} {
     set body [lindex $args end]
     set args [lrange $args 0 end-1]
     set chan chan_[info cmdcount]
-    ::tcllib::chan::base .new $chan [open $name]
+    [::tcllib::chan::base new $chan] .init [open $name]
     uplevel 1 [list set tok [.new {} {*}$args -chan $chan]]
     try {
 	uplevel 1 $body
@@ -697,7 +697,7 @@ foreach name {file chan} {
 	set mi [makeFile {} mime.txt]
 
 	with.$name $in -canonical text/plain {
-	    ::tcllib::chan::base .new chan1 [open $mi w]
+	    [::tcllib::chan::base new chan1] .init [open $mi w]
 	    chan1 configure -translation binary
 	    $tok serialize -chan chan1 
 	    chan1 close
@@ -769,7 +769,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
     set attachment [lindex $allparts 1]
 
     set out [makeFile {} mail_att]
-    ::tcllib::chan::base .new chan1 [open $out w]
+    [::tcllib::chan::base new chan1] .init [open $out w]
     chan1 configure -translation binary
     $attachment serialize -chan chan1 -level 1
     chan1 close
@@ -993,7 +993,7 @@ test mime-18.1 {
 } {
     set script [list puts -nonewline $message1]
     set chan [open |[list [info nameofexecutable] <<$script]]
-    tcllib::chan::base .new chan1 $chan
+    [tcllib::chan::base new chan1] .init $chan
     set mime [.new {} -spec http -chan chan1]
     $mime serialize
 } "Content-Type: text/plain\r

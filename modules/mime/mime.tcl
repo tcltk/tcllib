@@ -942,11 +942,11 @@ proc ::mime::body_decoded _ {
 	return $state(fd)
     } else {
 	if {![info exists bodychandecoded]} {
-	    set bodychandecoded [::tcllib::chan::base .new [
-		info cmdcount]_bodydecoded [file tempfile]]
+	    set bodychandecoded [[::tcllib::chan::base new [
+		info cmdcount]_bodydecoded] .init [file tempfile]]
 	    $bodychandecoded configure -translation binary
 	    $state(bodychan) seek 0
-	    $state(bodychan) copy [$bodychandecoded $ chan]
+	    $state(bodychan) copy [$bodychandecoded configure -chan]
 	    $bodychandecoded seek 0
 	    $state(bodychan) seek 0
 	    setencoding $token $bodychandecoded
@@ -1019,7 +1019,7 @@ proc ::mime::cookie_delete {_ name args} {
 
 # ::mime::cookie_set
 #
-#	Set a return cookie.  You must call this before you call
+#	Set a return cookie.  Call this before calling 
 #	ncgi::header or ncgi::redirect
 #
 # Arguments:
@@ -1043,7 +1043,8 @@ proc ::mime::cookie_set {_ name value args} {
 		set $key $val
 	    }
 	    default {
-		error [list {wrong # args} {should be} \
+		return -code error -errorcode {MIME WRONGARGS} [
+		    list {wrong # args} {should be} \
 		    [list name value ?path path? ?domain domain? \
 			?expires date? ?httponly boolean?]]
 	    }
@@ -2676,8 +2677,8 @@ proc ::mime::initializeaux {_ args} {
 
 	    -file {
 		checkinputs
-		addchan $token [tcllib::chan::base .new [
-		    info cmdcount]_chan [open $value]]
+		addchan $token [[tcllib::chan::base new [
+		    info cmdcount]_chan] .init [open $value]]
 	    }
 
             -headers {
@@ -2750,8 +2751,8 @@ proc ::mime::initializeaux {_ args} {
 
 	    -string {
 		checkinputs
-		addchan $token [tcllib::chan::base .new [
-		    info cmdcount]_chan [::tcl::chan::string $value]]
+		addchan $token [[tcllib::chan::base new [
+		    info cmdcount]_chan] .init [::tcl::chan::string $value]]
 	    }
 
 	    -usemem {
@@ -2915,11 +2916,10 @@ proc ::mime::parsepartaux _ {
     lassign [$_ contenttype] content params
 
     if {$usemem} {
-	set bodychan [tcllib::chan::base .new [info cmdcount]_bodychan [
+	set bodychan [tcllib::chan::base new [info cmdcount]_bodychan [
 	    ::tcl::chan::memchan]]
     } else {
-	set bodychan [tcllib::chan::base .new [info cmdcount]_bodychan]
-	tcllib::chan::getslimit $bodychan
+	set bodychan [tcllib::chan::getslimit new [info cmdcount]_bodychan]
 	$bodychan .init [file tempfile]
     }
     if {[dict exists $params charset]} {
@@ -3059,7 +3059,7 @@ proc ::mime::parsepartaux _ {
 	    lappend state(dynamic) $child
 	    $child parsepart
         } else {
-	    # this is undtrusted data, so keep the getslimit enabled on the
+	    # this is untrusted data, so keep the getslimit enabled on the
 	    # assumption that no one else wants to get hit by a long-line
 	    # attack either.
 	    #$bodychan configure -getslimit -1
@@ -3621,7 +3621,7 @@ proc ::mime::serialize_chan {_ channel level} {
     $_ parsepart
 
     set result {}
-    if {!$level} {
+    if {!$level && $state(addmimeversion)} {
 	$channel puts [header::serialize MIME-Version $state(version) {}]
     }
     contentid $_
@@ -3693,13 +3693,13 @@ proc ::mime::serialize_chan {_ channel level} {
 	if {$state(canonicalP)} {
 	    set transforms [setencoding $token $channel]
 	    $state(fd) seek 0
-	    $state(fd) copy [$channel $ chan]
+	    $state(fd) copy [$channel configure -chan]
 	    while {[incr transforms -1] >= 0} {
 		$channel $channel
 	    }
 	} else {
 	    $state(bodychan) seek 0
-	    $state(bodychan) copy [$channel $ chan]
+	    $state(bodychan) copy [$channel configure -chan]
 	}
     }
 
@@ -3712,8 +3712,8 @@ proc ::mime::serialize_chan {_ channel level} {
 
 
 proc ::mime::serialize_value {_ level} {
-    set chan [::tcllib::chan::base .new [info cmdcount]_serialize_value [
-	tcl::chan::memchan]]
+    set chan [::tcllib::chan::base new [info cmdcount]_serialize_value]
+    $chan .init [tcl::chan::memchan]
     $chan configure -translation crlf
     serialize_chan $_ $chan $level
     $chan seek 0

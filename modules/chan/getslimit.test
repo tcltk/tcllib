@@ -19,9 +19,9 @@ proc main {} {
     set data1 abcdefghijklmnopqrstuvwxyz
 
     test getslimit-configure {} -body {
-	::tcllib::chan::base .new chan1
-	getslimit chan1
-	chan1 .init [::tcl::chan::memchan] -getslimit 33
+        set chan1 [::tcl::chan::string {}]
+	[::tcllib::chan::getslimit new chan1] .init $chan1
+	chan1 .init [::tcl::chan::memchan] -chan $chan1 -getslimit 33 
 	chan1 configure -getslimit
     } -cleanup {
 	rename chan1 {}
@@ -30,8 +30,7 @@ proc main {} {
 
     test getslimit-under {
     } -body {
-	::tcllib::chan::base .new chan1
-	getslimit chan1
+	::tcllib::chan::getslimit new chan1
 	chan1 .init [::tcl::chan::string $data1] -getslimit 1000
 	chan1 gets
     } -cleanup {
@@ -41,8 +40,7 @@ proc main {} {
 
     test getslimit-exceeded {
     } -body {
-	::tcllib::chan::base .new chan1
-	getslimit chan1 
+	::tcllib::chan::getslimit new chan1
 	chan1 .init [::tcl::chan::string [
 	    string repeat $data1 100]] -getslimit 10
 	chan1 gets
@@ -50,11 +48,11 @@ proc main {} {
 	rename chan1 {}
     } -result {abcdefghij}
 
+
     test getslimit-read {
 	read is unaffacted by the limit
     } -body {
-	::tcllib::chan::base .new chan1
-	getslimit chan1
+	::tcllib::chan::getslimit new chan1
 	chan1 .init [::tcl::chan::string $data1]
 	chan1 configure -getslimit 10
 	lappend res [chan1 read 15]
