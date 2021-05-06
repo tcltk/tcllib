@@ -198,7 +198,7 @@ proc ::math::special::sn { u k } {
 # Note:
 #     If k == 1, then the iteration does not stop
 #
-proc ::math::special::sn { u k } {
+proc ::math::special::dn { u k } {
     if { $k > 1.0 } {
         return -code error "Parameter out of range - must be <= 1.0"
     }

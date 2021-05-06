@@ -460,4 +460,4 @@ source [file join [file dirname [info script]] "classic_polyns.tcl"]
 source [file join [file dirname [info script]] "elliptic.tcl"]
 source [file join [file dirname [info script]] "exponential.tcl"]
 
-package provide math::special 0.5.0
+package provide math::special 0.5.1
