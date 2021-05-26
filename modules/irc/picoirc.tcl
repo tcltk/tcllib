@@ -78,7 +78,7 @@ proc ::picoirc::connect {callback nick args} {
     set irc(nick) $nick
     Callback $context init
     if {$irc(secure)} {
-        set irc(socket) [::tls::socket $irc(server) $irc(port)]
+        set irc(socket) [::tls::socket -async$irc(server) $irc(port)]
     } else {
         set irc(socket) [socket -async $irc(server) $irc(port)]
     }
@@ -321,7 +321,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.10.0
+package provide picoirc 0.10.1
 
 # -------------------------------------------------------------------------
 return
