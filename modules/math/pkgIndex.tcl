@@ -30,7 +30,7 @@ package ifneeded math::decimal           1.0.4 [list source [file join $dir deci
 package ifneeded math::geometry          1.4.1 [list source [file join $dir geometry.tcl]]
 package ifneeded math::trig              1.0   [list source [file join $dir trig.tcl]]
 package ifneeded math::quasirandom       1.0   [list source [file join $dir quasirandom.tcl]]
-package ifneeded math::special           0.5.1 [list source [file join $dir special.tcl]]
+package ifneeded math::special           0.5.2 [list source [file join $dir special.tcl]]
 
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
 package ifneeded math::exact             1.0.1 [list source [file join $dir exact.tcl]]
