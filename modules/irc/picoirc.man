@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.10.1]
+[vset VERSION 0.11.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -38,11 +38,11 @@ more capability investigate the [package irc] package.
 [call [cmd ::picoirc::connect] [arg callback] [arg nick] [opt [arg password]] [arg url]]
 
 Creates a new irc connection to the server specified by [arg url] and
-login using the [arg nick] as the username and optionally [arg password].
-If the [arg url] starts with [emph ircs://] then a TLS connection is
-created. The [arg callback] must be as specified in [sectref CALLBACK].
-Returns a package-specific variable that is used when calling other
-commands in this package.
+login using the [arg nick] as the username and optionally
+[arg password].  If the [arg url] starts with [emph ircs://] then a TLS
+connection is created. The [arg callback] must be as specified in
+[sectref CALLBACK].  Returns a package-specific variable that is used
+when calling other commands in this package.
 
 [para][emph Note:]
 

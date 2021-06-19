@@ -23,7 +23,7 @@ namespace eval ::picoirc {
     if {![info exists uid]} { set uid 0 }
 
     variable defaults {
-        server   "irc.freenode.net"
+        server   "irc.libera.chat"
         port     6667
         secure   0
         channels ""
@@ -76,6 +76,7 @@ proc ::picoirc::connect {callback nick args} {
     if {[info exists passwd]   && $passwd   ne ""} {set irc(passwd)   $passwd}
     set irc(callback) $callback
     set irc(nick) $nick
+    set irc(is_registered) false
     Callback $context init
     if {$irc(secure)} {
         set irc(socket) [::tls::socket -async $irc(server) $irc(port)]
@@ -85,6 +86,13 @@ proc ::picoirc::connect {callback nick args} {
     fileevent $irc(socket) readable [list [namespace origin Read] $context]
     fileevent $irc(socket) writable [list [namespace origin Write] $context]
     return $context
+}
+
+proc picoirc::Pop {varname {nth 0}} {
+    upvar $varname args
+    set r [lindex $args $nth]
+    set args [lreplace $args $nth $nth]
+    return $r
 }
 
 proc ::picoirc::Callback {context state args} {
@@ -119,22 +127,46 @@ proc ::picoirc::Write {context} {
     }
     fconfigure $irc(socket) -blocking 0 -buffering line -translation crlf -encoding utf-8
     Callback $context connect
-    if {[info exists irc(passwd)]} {
-        send $context "PASS $irc(passwd)"
-    }
     set ver [join [lrange [split [Version $context] :] 0 1] " "]
-    send $context "NICK $irc(nick)"
     send $context "USER $::tcl_platform(user) 0 * :$ver user"
-    foreach channel $irc(channels) {
-        after idle [list [namespace origin send] $context "JOIN $channel"]
+    if {[info exists irc(passwd)] && [package provide SASL] ne {}} {
+        send $context "CAP REQ :sasl"
+    } else {
+        Register $context
     }
     return
+}
+
+proc ::picoirc::Register {context} {
+    upvar #0 $context irc
+    unset -nocomplain irc(sasl:challenge) irc(sasl:mechs)
+    send $context "NICK $irc(nick)"
+    if {[info exists irc(passwd)] && !$irc(is_registered)} {
+        send $context "PASS $irc(passwd)"
+    }
 }
 
 proc ::picoirc::Getnick {s} {
     set nick {}
     regexp {^([^!]*)!} $s -> nick
     return $nick
+}
+
+proc ::picoirc::ParseMsg {line} {
+    set prefix ""
+    if {[string match ":*" $line]} {
+        set ndx [string first " " $line]
+        set prefix [string range $line 1 [expr {$ndx - 1}]]
+        set line [string range $line [expr {$ndx + 1}] end]
+    }
+    if {[set ndx [string first " :" $line]] != -1} {
+        set parts [split [string range $line 0 [expr {$ndx - 1}]] " "]
+        set rest [string range $line [expr {$ndx + 2}] end]
+    } else {
+        set parts [split $line " "]
+        set rest ""
+    }
+    return [list $prefix $parts $rest]
 }
 
 proc ::picoirc::Read {context} {
@@ -155,8 +187,31 @@ proc ::picoirc::Read {context} {
         if {[catch {Callback $context debug read $line}] == 3} {
             return
         }
-        if {[regexp {:([^!]*)![^ ].* +PRIVMSG ([^ :]+) +:(.*)} $line -> \
-                 nick target msg]} {
+        if {[string match "AUTHENTICATE *" $line]} {
+            # codes 903 for successful, 904/905/906 for fail
+            set data [string range $line 13 end]
+            if {$data eq "+"} {set data ""}
+            append irc(sasl:challenge) $data ;# accumulate chunks
+            if {[string length $data] != 400} {
+                set challenge [binary decode base64 $irc(sasl:challenge)]
+                set irc(sasl:challenge) ""
+                if {![SASL::step $irc(sasl) $challenge]} {
+                    set response [SASL::response $irc(sasl)]
+                    if {$response eq ""} {
+                        set response "+"
+                    } else {
+                        set response [binary encode base64 $response]
+                    }
+                    send $context "AUTHENTICATE $response"
+                }
+            }
+            return
+        }
+        lassign [ParseMsg $line] prefix parts rest
+        if {[lindex $parts 0] eq "PRIVMSG"} {
+            set nick [Getnick $prefix]
+            set target [lindex $parts 1]
+            set msg $rest
             set type ""
             if {[regexp {^\001(\S+)(?: (.*))?\001$} $msg -> ctcp data]} {
                 switch -- $ctcp {
@@ -182,7 +237,7 @@ proc ::picoirc::Read {context} {
                     }
                 }
             }
-            if {[lsearch -exact {ijchain wubchain} $nick] != -1} {
+            if {[lsearch -exact {ijchain ischain} $nick] != -1} {
                 if {$type eq "ACTION"} {
                     regexp {(\S+) (.+)} $msg -> nick msg
                 } else {
@@ -191,8 +246,9 @@ proc ::picoirc::Read {context} {
             }
             if {$irc(nick) == $target} {set target $nick}
             Callback $context chat $target $nick $msg $type
-        } elseif {[regexp {^:([^ ]+(?: +([^ :]+))*)(?: :(.*))?} $line -> parts junk rest]} {
-	    lassign [split $parts] server code target fourth fifth
+        } elseif {$prefix ne {}} {
+            set server $prefix
+	    lassign $parts code target fourth fifth
             switch -- $code {
                 001 - 002 - 003 - 004 - 005 - 250 - 251 - 252 -
                 254 - 255 - 265 - 266 { return }
@@ -212,19 +268,67 @@ proc ::picoirc::Read {context} {
                 333 { return }
                 375 { set irc(motd) {} ; return }
                 372 { append irc(motd) $rest ; return}
-                376 { return }
+                376 {
+                    foreach channel $irc(channels) {
+                        after idle [list [namespace origin send] \
+                                        $context "JOIN $channel"]
+                    }
+                    return
+                }
                 311 {
-		    lassign [split $parts] server code target nick name host x
+		    lassign $parts code target nick name host x
                     set irc(whois,$fourth) [list name $name host $host userinfo $rest]
                     return
                 }
-                301 - 312 - 317 - 320 { return }
+                301 - 312 - 317 - 320 - 330 - 338 { return }
                 319 { lappend irc(whois,$fourth) channels $rest; return }
                 318 {
                     if {[info exists irc(whois,$fourth)]} {
                         Callback $context userinfo $fourth $irc(whois,$fourth)
                         unset irc(whois,$fourth)
                     }
+                    return
+                }
+                900 {
+                    Callback $context system "" $rest
+                    return
+                }
+                903 {
+                    # sasl success
+                    send $context "CAP END"
+                    set irc(is_registered) true
+                    Callback $context system "" "SASL authentication succeeded"
+                    Register $context
+                    return
+                }
+                904 {
+                    # sasl failed, if no mechanism left, non-sasl login
+                    if {![info exists irc(sasl)]} {
+                        send $context "CAP END"
+                        Callback $context system "" "SASL authentication failed"
+                        Register $context
+                    }
+                    return
+                }
+                905 - 906 {
+                    # sasl aborted
+                    unset irc(sasl)
+                    send $context "CAP END"
+                    Callback $context system "" "SASL authentication aborted"
+                    Register $context
+                    return
+                }
+                908 {
+                    set provided [split $fourth ,]
+                    while {$irc(sasl:mechs) ne {}} {
+                        set mech [Pop irc(sasl:mechs)]
+                        if {$mech in $provided} {
+                            SASL::configure $irc(sasl) -mechanism $mech
+                            send $context "AUTHENTICATE $mech"
+                            return
+                        }
+                    }
+                    unset irc(sasl) ;# no more mechanisms
                     return
                 }
                 JOIN {
@@ -259,11 +363,38 @@ proc ::picoirc::Read {context} {
                     Callback $context chat $target [Getnick $server] $rest NOTICE
                     return
                 }
+                CAP {
+                    if {$fourth eq "LS"} {
+                        set irc(caps) [split $rest]
+                    } elseif {$fourth eq "ACK" && $rest eq "sasl"} {
+                        Callback $context system "" "SASL authentication supported"
+                        set irc(sasl:mechs) [SASL::mechanisms client]
+                        set irc(sasl:challenge) ""
+                        set mech [Pop irc(sasl:mechs)]
+                        set irc(sasl) [SASL::new -mechanism $mech \
+                                           -callback [list [namespace origin SASLCallback] \
+                                                          $context]]
+                        send $context "AUTHENTICATE $mech"
+                    }
+                    return
+                }
             }
-            Callback $context system "" "[lrange [split $parts] 1 end] $rest"
+            Callback $context system "" "$parts $rest"
         } else {
             Callback $context system "" $line
         }
+    }
+}
+
+proc ::picoirc::SASLCallback {Irc context command args} {
+    upvar #0 $Irc irc
+    switch -exact -- $command {
+        login    { return $irc(nick) }
+        username { return $irc(nick) }
+        password { return $irc(passwd) }
+        realm    { return "" }
+        hostname { return [info host] }
+        default  { return -code error unxpected }
     }
 }
 
@@ -321,7 +452,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.10.1
+package provide picoirc 0.11.0
 
 # -------------------------------------------------------------------------
 return

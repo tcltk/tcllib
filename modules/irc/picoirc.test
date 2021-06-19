@@ -39,6 +39,11 @@ proc contextResult {} {
     return [lindex [split $::picoirc::irc(data) \n] end-1]
 }
 
+proc contextItemResult {key} {
+    close $::picoirc::irc(socket)
+    return $::picoirc::irc($key)
+}
+
 proc callback {_ args} {
     global data
     set data $args
@@ -335,5 +340,79 @@ test picoirc-3.16 {unknown command} -body {
     send #tcl "/compile chromium"
     callbackResult
 } -result [list system #tcl {unknown command /compile}]
+
+test picoirc-4.0 {channel message ipv6} -body {
+     contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG #tcl :hello #tcl"
+     callbackResult
+} -result [list chat #tcl tcler {hello #tcl} {}]
+
+test picoirc-4.1 {channel message with action ipv6} -body {
+     contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG #tcl :\001ACTION fixing scripts\001"
+     callbackResult
+} -result [list chat #tcl tcler {fixing scripts} ACTION]
+
+test picoirc-4.2 {channel message with version ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG #tcl :\001VERSION\001"
+    contextResult
+} -result "NOTICE tcler :\001VERSION PicoIRC:1.0:Tcl 8.6 tls 1.7.22\001"
+
+test picoirc-4.3 {private message ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG anonymous :hey there"
+    callbackResult
+} -result [list chat tcler tcler {hey there} {}]
+
+test picoirc-4.4 {private message with action ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG anonymous :\001ACTION feels good\001"
+    callbackResult
+} -result [list chat tcler tcler {feels good} ACTION]
+
+test picoirc-4.5 {private message with version ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG anonymous :\001VERSION\001"
+    contextResult
+} -result "NOTICE tcler :\001VERSION PicoIRC:1.0:Tcl 8.6 tls 1.7.22\001"
+
+# picoirc-4.6 : not ipv6 specific
+
+test picoirc-4.7 {whois ipv6} -body {
+     contextReset [join [list \
+         ":zinc.libera.chat 311 tcler anonymous ~anon client.example.com * :PicoIRC 1.0 user" \
+         ":zinc.libera.chat 319 tcler anonymous :#tcl #tcltest" \
+         ":zinc.libera.chat 312 tcler anonymous zinc.libera.chat :Espoo, FI" \
+         ":zinc.libera.chat 338 tcler anonymous fd0a:7439:215b:fd8f:0:1:2:3 :actually using host" \
+         ":zinc.libera.chat 317 tcler anonymous 149 1624142406 :seconds idle, signon time" \
+         ":zinc.libera.chat 330 tcler anonymous anonymous :is logged in as" \
+         ":zinc.libera.chat 318 tcler anonymous :End of /WHOIS list." \
+     ] "\n"]
+     callbackResult
+} -result [list userinfo anonymous \
+              [list name ~anon \
+                    host client.example.com \
+                    userinfo {PicoIRC 1.0 user} \
+                    channels {#tcl #tcltest}]]
+
+test picoirc-4.8 {join channel ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 JOIN #tcl"
+    callbackResult
+} -result {traffic entered #tcl tcler}
+
+test picoirc-4.9 {change nick ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 NICK :gopher"
+    callbackResult
+} -result {traffic nickchange {} tcler gopher}
+
+test picoirc-4.10 {quit channel ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PART #tcl"
+    callbackResult
+} -result {traffic left #tcl tcler}
+
+test picoirc-4.11 {quit server ipv6} -body {
+    contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 QUIT"
+    callbackResult
+} -result {traffic left {} tcler}
+
+test picoirc-5.0 {capabilities list} -body {
+    contextReset ":zinc.libera.chat CAP tcler LS :multi-prefix tls sasl"
+    contextItemResult caps
+} -result {multi-prefix tls sasl}
 
 testsuiteCleanup
