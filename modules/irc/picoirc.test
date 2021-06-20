@@ -140,12 +140,12 @@ test picoirc-2.2 {channel message with version} -body {
 test picoirc-2.3 {private message} -body {
     contextReset ":tcler!~anon@127.0.0.1 PRIVMSG anonymous :hey there"
     callbackResult
-} -result [list chat tcler tcler {hey there} {}]
+} -result [list chat anonymous tcler {hey there} {}]
 
 test picoirc-2.4 {private message with action} -body {
     contextReset ":tcler!~anon@127.0.0.1 PRIVMSG anonymous :\001ACTION feels good\001"
     callbackResult
-} -result [list chat tcler tcler {feels good} ACTION]
+} -result [list chat anonymous tcler {feels good} ACTION]
 
 test picoirc-2.5 {private message with version} -body {
     contextReset ":tcler!~anon@127.0.0.1 PRIVMSG anonymous :\001VERSION\001"
@@ -359,12 +359,12 @@ test picoirc-4.2 {channel message with version ipv6} -body {
 test picoirc-4.3 {private message ipv6} -body {
     contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG anonymous :hey there"
     callbackResult
-} -result [list chat tcler tcler {hey there} {}]
+} -result [list chat anonymous tcler {hey there} {}]
 
 test picoirc-4.4 {private message with action ipv6} -body {
     contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG anonymous :\001ACTION feels good\001"
     callbackResult
-} -result [list chat tcler tcler {feels good} ACTION]
+} -result [list chat anonymous tcler {feels good} ACTION]
 
 test picoirc-4.5 {private message with version ipv6} -body {
     contextReset ":tcler!~anon@fd0a:7439:215b:fd8f:0:1:2:3 PRIVMSG anonymous :\001VERSION\001"
