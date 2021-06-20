@@ -237,14 +237,6 @@ proc ::picoirc::Read {context} {
                     }
                 }
             }
-            if {[lsearch -exact {ijchain ischain} $nick] != -1} {
-                if {$type eq "ACTION"} {
-                    regexp {(\S+) (.+)} $msg -> nick msg
-                } else {
-                    regexp {<([^>]+)> (.+)} $msg -> nick msg
-                }
-            }
-            if {$irc(nick) == $target} {set target $nick}
             Callback $context chat $target $nick $msg $type
         } elseif {$prefix ne {}} {
             set server $prefix
