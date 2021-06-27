@@ -9,10 +9,10 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [file dirname [file dirname [
+    file join [pwd] [info script]]]] devtools testutilities.tcl]
 
+package require tcltest
 testsNeedTcl     8.3 ; # snit
 testsNeedTcltest 1.0
 
