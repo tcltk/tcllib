@@ -10,7 +10,7 @@
 # (c) 2002-2003 David Welton
 # (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
-# (c) 2013      PoorYorick
+# (c) 2013-2021 Poor Yorick
 #
 #
 # See the file "license.terms" for information on usage and redistribution
@@ -23,7 +23,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.5
 
-package provide mime 1.6.3
+package provide mime 1.7.0
 package require tcl::chan::memchan
 
 
