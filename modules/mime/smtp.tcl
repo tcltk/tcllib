@@ -386,27 +386,33 @@ proc ::smtp::sendmessage {part args} {
     # the message-id.
 
     if {([lsearch -exact $lowerL $dateL] < 0) \
-            && ([catch { ::mime::getheader $part $dateL }])} {
+            && ([catch {::mime::getheader $part $dateL}])} {
         lappend lowerL $dateL
         lappend mixedL $dateM
         lappend header($dateL) [::mime::parsedatetime -now proper]
     }
 
     if {([lsearch -exact $lowerL ${message-idL}] < 0) \
-            && ([catch { ::mime::getheader $part ${message-idL} }])} {
+            && ([catch {::mime::getheader $part ${message-idL}}])} {
         lappend lowerL ${message-idL}
         lappend mixedL ${message-idM}
         lappend header(${message-idL}) [::mime::uniqueID]
 
     }
 
-    # Get all the headers from the MIME object and save them so that they can
-    # later be restored.
-    set savedH [::mime::getheader $part]
+	set origheaders {}
+	set orignames [join [lmap name [::mime::getheader -names] {
+		list [string tolower $name] $name
+	}]]
 
     # Take all the headers defined earlier and add them to the MIME message.
     foreach lower $lowerL mixed $mixedL {
         foreach value $header($lower) {
+			if {![dict exists $origheaders $lower]} {
+				if {![catch {::mime::getheader $part $lower} cres]} {
+					dict set origheaderx $lower $cres
+				}
+			}
             ::mime::setheader $part $mixed $value -mode append
         }
     }
@@ -503,19 +509,16 @@ proc ::smtp::sendmessage {part args} {
     }
 
     # Destroy SMTP token 'cause we're done with it.
-
     catch { finalize $token -close $status }
 
-    # Restore provided MIME object to original state (without the SMTP headers).
-
-    foreach key [::mime::getheader $part -names] {
-        mime::setheader $part $key "" -mode delete
-    }
-    foreach {key values} $savedH {
-        foreach value $values {
-            ::mime::setheader $part $key $value -mode append
-        }
-    }
+	# Restore provided MIME object to original state (without the SMTP
+	# headers).  To avoid an incorect attempt to set a read-only header like
+	# "Content-Type', the only original headers that were saved were those that
+	# were later modified.
+	foreach {key value} $origheaders {
+		mime::setheader $part $key {} -mode delete
+		::mime::setheader $part [dict get orignames $key] $value -mode append
+	}
 
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
