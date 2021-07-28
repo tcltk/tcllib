@@ -79,7 +79,7 @@ if {[catch {package require Trf 2.0}]} {
 #     params: dictionary (keys are lower-case)
 #     encoding: transfer encoding
 #     version: MIME-version
-#     header: dicttionary (keys are lower-case)
+#     header: dictionary (keys are lower-case)
 #     lowerL: list of header keys, lower-case
 #     mixedL: list of header keys, mixed-case
 #     value: either "file", "parts", or "string"
