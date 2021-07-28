@@ -43,7 +43,7 @@ oo::class create ::tcl::transform::base64::implementation {
 
     method write {c data} {
 	set res [my Code encodebuf encode $data 3]
-	incr encdount [string length $data]
+	incr enccount [string length $data]
 	return $res
     }
 
