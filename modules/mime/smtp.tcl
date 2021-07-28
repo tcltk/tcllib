@@ -442,9 +442,7 @@ proc ::smtp::sendmessage {part args} {
 
     set code [catch { sendmessageaux $token $part \
                                            $sender $vrecipients $aloP } \
-                    result]
-    set ecode $errorCode
-    set einfo $errorInfo
+                    cres copts]
 
     # Send the message to bcc recipients as a MIME attachment.
 
@@ -474,15 +472,10 @@ proc ::smtp::sendmessage {part args} {
 
         set code [catch { sendmessageaux $token $outer \
                                                $sender $brecipients \
-                                               $aloP } result2]
-        set ecode $errorCode
-        set einfo $errorInfo
-
+                                               $aloP } cres2 copts2]
         if {$code == 0} {
-            set result [concat $result $result2]
-        } else {
-            set result $result2
-        }
+            append cres $cres2
+        } 
 
         catch { ::mime::finalize $inner -subordinates none }
         catch { ::mime::finalize $outer -subordinates none }
@@ -495,14 +488,6 @@ proc ::smtp::sendmessage {part args} {
         0 {
             set status orderly
         }
-
-        7 {
-            set code 1
-            array set response $result
-            set result "$response(code): $response(diagnostic)"
-            set status abort
-        }
-
         default {
             set status abort
         }
@@ -520,7 +505,7 @@ proc ::smtp::sendmessage {part args} {
 		::mime::setheader $part [dict get orignames $key] $value -mode append
 	}
 
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
+    return -options $copts $cres
 }
 
 # ::smtp::sendmessageaux --
