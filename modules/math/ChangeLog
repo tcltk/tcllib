@@ -1,3 +1,14 @@
+2021-05-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* elliptic.tcl: Correct the implementation of "dn" (ticket 828109660d)
+	* elliptic.test: Add proper tests for sn, cn and dn
+	* special.tcl: Update the version to 0.5.2
+	* pkgIndex.tcl: Updated the version of math::special to 0.5.2
+
+2021-05-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* elliptic.tcl: Correct the name of "dn" (ticket f46d2826b59f540296e76586570c86d07a4a5cec)
+	* special.tcl: Changed version of math::special to 0.5.1
+	* pkgIndex.tcl: Changed version of math::special to 0.5.1
+
 2021-03-14  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* decimal.tcl: Apply patch for fromstr, version 1.0.4 (ticket d159e101f329682a232aabac36c0ef6640ff8484)
 	* decimal.test: Added test for this ticket

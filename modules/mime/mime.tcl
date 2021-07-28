@@ -10,7 +10,7 @@
 # (c) 2002-2003 David Welton
 # (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
-# (c) 2013-2018 Poor Yorick
+# (c) 2013-2021 Poor Yorick
 #
 #
 # See the file "license.terms" for information on usage and redistribution
@@ -35,7 +35,7 @@ package require {chan base}
 package require {chan getslimit}
 package require sha256
 
-package provide mime 1.7
+package provide mime 1.7.0
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -4095,3 +4095,6 @@ namespace eval ::mime::header {
     unset encList encAliasList
 
 } ::mime}
+
+
+variable ::mime::internal 0

@@ -121,7 +121,6 @@ that option.  The optional arguments are
     [def "[option -string] [arg string]"]
 	The string providing the input message.
 
-
 [list_end]
 
 
@@ -207,20 +206,11 @@ If [option -names] is provided, returns a list of all header names.
 [call [arg message] [method header] [method set] [arg {name value}] [ \
     opt "[arg parameters] [opt "[option -mode] [const write] | [\
 	const append] | [const delete]"]"]]
+If [option -names] is provided, a list of all keys is returned.
+
 
 [arg parameters] is a dictionary of parameters for the header.  If parameters
 contains an odd number of items, the last item is a list of flag parameters.
-
-If [const append] is provided, creates a new header named [arg name] with the
-value of [arg value] and any provided [arg parameters].
-
-If [const write] is provided, first deletes any existing headers matching 
-[arg name].
-
-If [const delete] is provided, deletes any existing header matching [arg name].
-
-Returns a list of strings containing the previous value associated with the
-key.
 
 
 [para]

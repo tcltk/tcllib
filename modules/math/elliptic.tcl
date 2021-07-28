@@ -11,7 +11,7 @@
 # namespace ::math::special
 #
 namespace eval ::math::special {
-    namespace export cn sn dn
+    namespace export cn sn dn elliptic_K elliptic_E
 
     ::math::constants::constants pi
 
@@ -198,7 +198,7 @@ proc ::math::special::sn { u k } {
 # Note:
 #     If k == 1, then the iteration does not stop
 #
-proc ::math::special::sn { u k } {
+proc ::math::special::dn { u k } {
     if { $k > 1.0 } {
         return -code error "Parameter out of range - must be <= 1.0"
     }
@@ -206,7 +206,7 @@ proc ::math::special::sn { u k } {
         return [expr {1.0/cosh($u)}]
     } else {
         set u [IterateUK $u $k]
-        return [expr {sqrt(1.0-$k*$k*sin($u))}]
+        return [expr {sqrt(1.0-($k*sin($u))**2)}]
     }
 }
 

@@ -504,7 +504,14 @@ proc ::smtp::sendmessage {part args} {
     }
 
 
-    # Restore provided MIME object to original state (without the SMTP headers).
+	# Restore provided MIME object to original state (without the SMTP
+	# headers).  To avoid an incorect attempt to set a read-only header like
+	# "Content-Type', the only original headers that were saved were those that
+	# were later modified.
+	foreach {key value} $origheaders {
+		mime::setheader $part $key {} -mode delete
+		::mime::setheader $part [dict get orignames $key] $value -mode append
+	}
    
     foreach {key val} [$part header get] {
         $part header set $key "" -mode delete

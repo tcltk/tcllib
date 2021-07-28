@@ -410,6 +410,7 @@ test mime-4.5 {Test qp::encode with softbreak} {cleanly {
 bcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc"
 
 
+
 test mime-4.6 {Test qp::encode with softbreak} {cleanly {
     set str1 [string repeat abc 40]
     qp encode $str1 0 1
@@ -924,12 +925,19 @@ dawg one" \
 
 # -------------------------------------------------------------------------
 
-test mime-12.1 {Fossil ticket 57909d2e1c} -cleanup {
-    mime::finalize $token
-    unset -nocomplain token
-} -body {
-    set token [::mime::initialize -file [asset mail-57909d2e1c.txt]]
-} -result {::mime::*} -match glob
+
+test mime-13.0 {
+    issue a16b1095974e071d
+} {
+    set msg "MIME-Version: 1.0
+Content-Type: text/plain\r
+\r
+so plain
+"
+
+    set tok [mime::initialize -string $msg]
+	mime::getbody $tok
+} "so plain\n"
 
 # -------------------------------------------------------------------------
 

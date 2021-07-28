@@ -1,5 +1,11 @@
 This file records outstanding actions for the math module
 
+dd. 11 may 2021
+Update linearalgebra code:
+- comparison of strings via ==
+- using foreach instead of lassign
+
+
 dd. 4 march 2021
 Paired t-test: https://mathworld.wolfram.com/Pairedt-Test.html
 
