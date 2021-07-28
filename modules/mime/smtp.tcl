@@ -401,7 +401,7 @@ proc ::smtp::sendmessage {part args} {
     }
 
 	set origheaders {}
-	set orignames [join [lmap name [::mime::getheader -names] {
+	set orignames [join [lmap name [::mime::getheader $part -names] {
 		list [string tolower $name] $name
 	}]]
 

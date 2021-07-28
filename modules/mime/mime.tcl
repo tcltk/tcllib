@@ -1557,7 +1557,6 @@ proc ::mime::setheader {token key value args} {
     }
 
     set state(header) [array get header]
-
     return $result
 }
 
@@ -1878,6 +1877,8 @@ proc ::mime::copymessageaux {token channel} {
     upvar 0 $token state
 
     array set header $state(header)
+
+    set boundary {}
 
     set result {}
     foreach {mixed value} [getheader $token] {
