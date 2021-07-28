@@ -193,7 +193,7 @@ test base64-4.0 {base64 -- sf bug 2976290} {!tcl86 !trf} {
 test base64-4.0 {base64 -- sf bug 2976290} {tcl86} {
     list [catch {
 	::base64::decode s=
-    } msg] $msg
+    } msg] [regsub { \(U\+000073\)} $msg {} msg; set msg]
 } {1 {invalid base64 character "s" at position 0}}
 
 test base64-4.0 {base64 -- sf bug 2976290} {trf} {
@@ -212,7 +212,7 @@ test base64-4.1 {base64 -- sf bug 2976290} {!tcl86 !trf} {
 test base64-4.1 {base64 -- sf bug 2976290} {tcl86} {
     list [catch {
 	::base64::decode s
-    } msg] $msg
+    } msg] [regsub { \(U\+000073\)} $msg {} msg; set msg]
 } {1 {invalid base64 character "s" at position 0}}
 
 test base64-4.1 {base64 -- sf bug 2976290} {trf} {

@@ -10,7 +10,7 @@
 # (c) 2002-2003 David Welton
 # (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
-# (c) 2013-2018 Poor Yorick
+# (c) 2013-2021 Poor Yorick
 #
 #
 # See the file "license.terms" for information on usage and redistribution
@@ -1799,16 +1799,16 @@ proc ::mime::header::get {_ {key {}}} {
     set token [$_ token]
     # FRINK: nocheck
     upvar 0 $token state
+    upvar 0 \
+	state(contentid) contentid \
+	state(contentidlower) contentidlower \
+	state(header) header \
+	state(headerlower) headerlower \
+	state(headerinternal) headerinternal \
+	state(headerinternallower) headerinternallower \
+	state(messageid) messageid \
+	state(messageidlower) messageidlower
     parse $token
-
-    set contentid $state(contentid)
-    set contentidlower $state(contentidlower)
-    set header $state(header)
-    set headerlower $state(headerlower)
-    set headerinternal $state(headerinternal)
-    set headerinternallower $state(headerinternallower)
-    set messageid $state(messageid) 
-    set messageidlower $state(messageidlower)
     switch $key {
 	{} {
 	    set result [list {*}$messageid {*}$contentid {*}$headerinternal \

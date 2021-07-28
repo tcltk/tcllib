@@ -11,7 +11,7 @@
 # namespace ::math::special
 #
 namespace eval ::math::special {
-    namespace export cn sn dn
+    namespace export cn sn dn elliptic_K elliptic_E
 
     ::math::constants::constants pi
 
@@ -206,7 +206,7 @@ proc ::math::special::dn { u k } {
         return [expr {1.0/cosh($u)}]
     } else {
         set u [IterateUK $u $k]
-        return [expr {sqrt(1.0-$k*$k*sin($u))}]
+        return [expr {sqrt(1.0-($k*sin($u))**2)}]
     }
 }
 

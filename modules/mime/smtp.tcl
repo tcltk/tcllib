@@ -390,23 +390,29 @@ proc ::smtp::sendmessage {part args} {
         lappend mixedL $dateM
         lappend header($dateL) [::mime::datetime -now proper]
     }
-
     if {([lsearch -exact $lowerL ${message-idL}] < 0) \
             && ([catch {$part header get ${message-idL}}])} {
         lappend lowerL ${message-idL}
         lappend mixedL ${message-idM}
         lappend header(${message-idL}) [::mime::uniqueID]
-
     }
 
     # Get all the headers from the MIME object and save them so that they can
     # later be restored.
-    set savedH [$part header get]
+    set origheaders {}
+    set orignames [join [lmap name [$part header get -names] {
+	list [string tolower $name] $name
+    }]]
 
     # Take all the headers defined earlier and add them to the MIME message.
     foreach lower $lowerL mixed $mixedL {
         foreach value $header($lower) {
-            $part header set $mixed $value -mode append
+	    if {![dict exists $origheaders $lower]} {
+		if {![catch {$part header get $lower} cres]} {
+		    dict set origheaders $lower $cres
+		}
+	    }
+	    $part header set $mixed $value -mode append
         }
     }
 
@@ -434,12 +440,11 @@ proc ::smtp::sendmessage {part args} {
 	return -code error $respArr(diagnostic)
     }
 
-    set code1 [catch {
+    set code [catch {
 	sendmessageaux $token $part $sender $vrecipients $aloP
-    } cres1 copts1]
-    lappend results $code1 $cres1 $copts1
+    } cres copts]
 
-    if {!$code1 && $bccP} {
+    if {!$code && $bccP} {
 	# Send the message to bcc recipients as a MIME attachment.
         set inner [::mime::.new {} -canonical message/rfc822 \
                                     -headers [list Content-Description \
@@ -463,9 +468,9 @@ proc ::smtp::sendmessage {part args} {
 	     -parts [list $inner]]]
 
 
-        set code2 [catch {
+        set code [catch {
 	    sendmessageaux $token $outer $sender $brecipients $aloP
-	} cres2 copts2]
+	} cres copts]
 
 	lappend results $code2 $cres2 $copts2
 
@@ -476,42 +481,32 @@ proc ::smtp::sendmessage {part args} {
     # Determine if there was any error in prior operations and set errorcodes
     # and error messages appropriately.
 
-    foreach {code cres copts} $results {
-	# handle just the first one
-	switch -- $code {
-	    0 {
-		set status orderly
-	    }
-
-	    7 {
-		dict set copts -code 1
-		set status abort
-		break
-	    }
-
-	    default {
-		set status abort
-		break
-	    }
+    switch -- $code {
+	0 {
+	    set status orderly
+	}
+	default {
+	    set status abort
+	    break
 	}
     }
 
+    # Destroy SMTP token 'cause we're done with it.
     set code3 [catch {finalize $token -close $status} cres3 copts3]
 
     if {$code3 && !$code} {
-	# Destroy SMTP token 'cause we're done with it.
-	lassign [list $cres3 $copts3] cres copts
+	set cres $cres3
+	set copts $copts3
     }
 
-    # Restore provided MIME object to original state (without the SMTP headers).
-   
-    foreach {key val} [$part header get] {
-        $part header set $key "" -mode delete
+    # Restore provided MIME object to original state (without the SMTP
+    # headers).  To avoid an incorect attempt to set a read-only header like
+    # "Content-Type', the only original headers that were saved were those that
+    # were later modified.
+    foreach {key value} $origheaders {
+	    $part header set $key "" -mode delete
+	    $part header set [dict get $orignames $key] {*}$value -mode append
     }
-    foreach {key value} $savedH {
-	$part header set $key {*}$value -mode append
-    }
-
     return -options $copts $cres
 }
 
@@ -542,9 +537,7 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
     set badP 0
     set oops ""
     foreach recipient $recipients {
-        set code [catch { waddr $token $recipient } result]
-        set ecode $errorCode
-        set einfo $errorInfo
+        set code [catch { waddr $token $recipient } cres copts]
 
         switch -- $code {
             0 {
@@ -553,25 +546,29 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
 
             7 {
                 incr badP
-
-                array set response $result
-                lappend oops [list $recipient $response(code) \
-                                   $response(diagnostic)]
+                lappend oops [list $recipient $cres $copts]
             }
 
             default {
-                return -code $code -errorinfo $einfo -errorcode $ecode $result
+		return -options $copts $cres
             }
         }
     }
 
     if {($goodP) && ((!$badP) || ($aloP))} {
-        wtext $token $part
+        set status [catch {wtext $token $part} cres copts]
+	if {$status} {
+	    lappend oops [list $recipient $cres $copts]
+	}
     } else {
         catch { talk $token 300 RSET }
     }
 
-    return $oops
+    if {[llength $oops]} {
+	error $oops
+    } else {
+	return
+    }
 }
 
 # ::smtp::initialize --
@@ -885,7 +882,7 @@ proc ::smtp::Authenticate {token mechanism} {
         set state(auth) 1
         return $result
     } else {
-        return -code 7 $result
+	return -code 7 $result
     }
 }
 
@@ -1003,7 +1000,7 @@ proc ::smtp::winit {token part originator {mode MAIL}} {
         set state(addrs) 0
         return $result
     } else {
-        return -code 7 $result
+	return -code 7 $result
     }
 }
 
@@ -1035,7 +1032,6 @@ proc ::smtp::waddr {token recipient} {
             incr state(addrs)
             return $result
         }
-
         default {
             return -code 7 $result
         }
@@ -1065,12 +1061,12 @@ proc ::smtp::wtext {token part} {
     set result [talk $token 300 DATA]
     array set response $result
     if {$response(code) != 354} {
-        return -code 7 $result
+	error $result
     }
 
     if {[catch { wtextaux $token $part } result]} {
         catch { puts -nonewline $state(sd) "\r\n.\r\n" ; flush $state(sd) }
-        return -code 7 [list code 400 diagnostic $result]
+	error [list code 400 diagnostic $result]
     }
 
     set secs $options(-maxsecs)
@@ -1083,7 +1079,7 @@ proc ::smtp::wtext {token part} {
         }
 
         default {
-            return -code 7 $result
+	    error $result
         }
     }
 }
