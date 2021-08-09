@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'picoirc\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "picoirc" n 0\&.9\&.2 tcllib "Simple embeddable IRC interface"
+.TH "picoirc" n 0\&.11\&.0 tcllib "Simple embeddable IRC interface"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ picoirc \- Small and simple embeddable IRC client\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBpicoirc  ?0\&.9\&.2?\fR
+package require \fBpicoirc  ?0\&.11\&.0?\fR
 .sp
 \fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
 .sp
@@ -305,11 +305,11 @@ more capability investigate the \fBirc\fR package\&.
 .TP
 \fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
 Creates a new irc connection to the server specified by \fIurl\fR and
-login using the \fInick\fR as the username and optionally \fIpassword\fR\&.
-If the \fIurl\fR starts with \fIircs://\fR then a TLS connection is
-created\&. The \fIcallback\fR must be as specified in \fBCALLBACK\fR\&.
-Returns a package-specific variable that is used when calling other
-commands in this package\&.
+login using the \fInick\fR as the username and optionally
+\fIpassword\fR\&.  If the \fIurl\fR starts with \fIircs://\fR then a TLS
+connection is created\&. The \fIcallback\fR must be as specified in
+\fBCALLBACK\fR\&.  Returns a package-specific variable that is used
+when calling other commands in this package\&.
 .sp
 \fINote:\fR
 For connecting via TLS the Tcl module \fItls\fR must be already
@@ -339,10 +339,10 @@ sequences and then sent\&.
 .TP
 \fB::picoirc::splituri\fR \fIuri\fR
 Splits an IRC scheme uniform resource indicator into its component
-parts\&. Returns a list of server, port, channel and secure where
+parts\&. Returns a list of server, port, channels and secure where
 secure is a boolean flag which is \fBtrue\fR if a TLS connection was
 requested via the \fIircs://\fR schema\&. The default port is 6667 (or
-6697 if secured) and there is no default channel\&.
+6697 if secured) and there are no default channels\&.
 .TP
 \fB::picoirc::send\fR \fIcontext\fR \fIline\fR
 This command is where all raw output to the server is handled\&. The

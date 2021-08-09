@@ -130,7 +130,7 @@ Tcllib requires Critcl version 2 or higher\.
 
 The github repository providing releases of version 2 and higher, and the
 associated sources, can be found at
-[http://andreas\-kupries\.github\.com/critcl](http://andreas\-kupries\.github\.com/critcl)\.
+[https://andreas\-kupries\.github\.io/critcl](https://andreas\-kupries\.github\.io/critcl)\.
 
 Any branch of the repository can be used \(if not using the prebuild starkit or
 starpack\), although the use of the stable branch *master* is recommended\.

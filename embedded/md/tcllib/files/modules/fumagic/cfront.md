@@ -58,7 +58,9 @@ __[fileutil::magic::cgen](cgen\.md)__\.
 
     This command takes the paths of one or more files and directories and
     compiles all the files, and the files in all the directories into a single
-    recognizer for all the file types specified in these files\.
+    analyzer for all the file types specified in these files\. It returns a list
+    whose first item is a list per\-file dictionaries of analyzer scripts and
+    whose second item is a list of analyzer commands\.
 
     All the files have to be in the format specified by magic\(5\)\.
 

@@ -1,7 +1,7 @@
 
 [//000000001]: # (picoirc \- Simple embeddable IRC interface)
 [//000000002]: # (Generated from file 'picoirc\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (picoirc\(n\) 0\.9\.2 tcllib "Simple embeddable IRC interface")
+[//000000003]: # (picoirc\(n\) 0\.11\.0 tcllib "Simple embeddable IRC interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ picoirc \- Small and simple embeddable IRC client\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require picoirc ?0\.9\.2?  
+package require picoirc ?0\.11\.0?  
 
 [__::picoirc::connect__ *callback* *nick* ?*password*? *url*](#1)  
 [__::picoirc::post__ *context* *channel* *message*](#2)  
@@ -92,10 +92,10 @@ capability investigate the __[irc](irc\.md)__ package\.
   - <a name='3'></a>__::picoirc::splituri__ *uri*
 
     Splits an IRC scheme uniform resource indicator into its component parts\.
-    Returns a list of server, port, channel and secure where secure is a boolean
-    flag which is __true__ if a TLS connection was requested via the
+    Returns a list of server, port, channels and secure where secure is a
+    boolean flag which is __true__ if a TLS connection was requested via the
     *ircs://* schema\. The default port is 6667 \(or 6697 if secured\) and there
-    is no default channel\.
+    are no default channels\.
 
   - <a name='4'></a>__::picoirc::send__ *context* *line*
 

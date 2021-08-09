@@ -309,7 +309,7 @@ The \fBmime\fR library package provides the commands to create and
 manipulate MIME body parts\&.
 .TP
 \fB::mime::initialize\fR ?\fB-canonical\fR \fItype/subtype\fR ?\fB-param\fR {\fIkey value\fR}\&.\&.\&.? ?\fB-encoding\fR \fIvalue\fR? ?\fB-header\fR {\fIkey value\fR}\&.\&.\&.?? (\fB-file\fR \fIname\fR | \fB-string\fR \fIvalue\fR | \fB-parts\fR {\fItoken1\fR \&.\&.\&. \fItokenN\fR})
-This command creates a MIME part and returns a token representing it\&.
+Creates a MIME part and returns a token representing it\&.
 .RS
 .IP \(bu
 If the \fB-canonical\fR option is present, then the body is in
@@ -330,7 +330,7 @@ is parsed, dynamically generating subordinates as appropriate\&.
 .RE
 .TP
 \fB::mime::finalize\fR \fItoken\fR ?\fB-subordinates\fR \fBall\fR | \fBdynamic\fR | \fBnone\fR?
-This command destroys the MIME part represented by \fItoken\fR\&. It
+Destroys the MIME part represented by \fItoken\fR\&. It
 returns an empty string\&.
 .sp
 If the \fB-subordinates\fR option is present, it specifies which
@@ -339,7 +339,7 @@ subordinates should also be destroyed\&. The default value is
 \fB::mime::initialize\fR together with the containing body part\&.
 .TP
 \fB::mime::getproperty\fR \fItoken\fR ?\fIproperty\fR | \fB-names\fR?
-This command returns a string or a list of strings containing the
+Returns a string or a list of strings containing the
 properties of a MIME part\&. If the command is invoked with the name of
 a specific property, then the corresponding value is returned;
 instead, if \fB-names\fR is specified, a list of all properties is
@@ -367,24 +367,23 @@ The approximate size of the content (unencoded)
 .RE
 .TP
 \fB::mime::getheader\fR \fItoken\fR ?\fIkey\fR | \fB-names\fR?
-This command returns the header of a MIME part, as a list of strings\&.
+Returns the header of a MIME part as a dictionary with possibly-redundant keys\&.
 .sp
-A header consists of zero or more key/value pairs\&. Each value is a
-list containing one or more strings\&.
+If \fIkey\fR is provided, then a list of values of matching names, without
+regard to case, is returned\&.
 .sp
-If this command is invoked with the name of a specific \fIkey\fR, then
-a list containing the corresponding value(s) is returned; instead, if
--names is specified, a list of all keys is returned; otherwise, a
-serialized array of keys and values is returned\&. Note that when a key
-is specified (e\&.g\&., "Subject"), the list returned usually contains
-exactly one string; however, some keys (e\&.g\&., "Received") often occur
-more than once in the header, accordingly the list returned usually
-contains more than one string\&.
+If \fB-names\fR is provided, a list of all keys is returned\&.
 .TP
 \fB::mime::setheader\fR \fItoken\fR \fIkey value\fR ?\fB-mode\fR \fBwrite\fR | \fBappend\fR | \fBdelete\fR?
-This command writes, appends to, or deletes the \fIvalue\fR associated
-with a \fIkey\fR in the header\&. It returns a list of strings
-containing the previous value associated with the key\&.
+If \fBappend\fR is provided, creates a new header named \fIkey\fR with the
+value of \fIvalue\fR is added\&.
+If \fBwrite\fR is provided, deletes any existing headers whose names match
+\fIkey\fR and then creates a new header named \fIkey\fR with the value of
+\fIvalue\fR\&.
+If \fBdelete\fR is provided any existing header having a name that matches
+\fIkey\fR is deleted\&.
+Returns a list of strings containing the previous value associated with the
+key\&.
 .sp
 The value for \fB-mode\fR is one of:
 .RS
@@ -401,7 +400,7 @@ parameter is ignored)\&.
 .RE
 .TP
 \fB::mime::getbody\fR \fItoken\fR ?\fB-decode\fR? ?\fB-command\fR \fIcallback\fR ?\fB-blocksize\fR \fIoctets\fR??
-This command returns a string containing the body of the leaf MIME
+Returns a string containing the body of the leaf MIME
 part represented by \fItoken\fR in canonical form\&.
 .sp
 If the \fB-command\fR option is present, then it is repeatedly
@@ -447,18 +446,18 @@ the charset information associated with the token to convert the
 string from its encoding into utf-8 before returning it\&.
 .TP
 \fB::mime::copymessage\fR \fItoken\fR \fIchannel\fR
-This command copies the MIME represented by \fItoken\fR part to the
+Copies the MIME represented by \fItoken\fR part to the
 specified \fIchannel\fR\&. The command operates synchronously, and uses
 fileevent to allow asynchronous operations to proceed
 independently\&. It returns an empty string\&.
 .TP
 \fB::mime::buildmessage\fR \fItoken\fR
-This command returns the MIME part represented by \fItoken\fR as a
+Returns the MIME part represented by \fItoken\fR as a
 string\&.  It is similar to \fB::mime::copymessage\fR, only it returns
 the data as a return string instead of writing to a channel\&.
 .TP
 \fB::mime::parseaddress\fR \fIstring\fR
-This command takes a string containing one or more 822-style address
+Takes a string containing one or more 822-style address
 specifications and returns a list of serialized arrays, one element
 for each address specified in the argument\&. If the string contains
 more than one address they will be separated by commas\&.
@@ -502,7 +501,7 @@ the phrase part
 .RE
 .TP
 \fB::mime::parsedatetime\fR (\fIstring\fR | \fB-now\fR) \fIproperty\fR
-This command takes a string containing an 822-style date-time
+Takes a string containing an 822-style date-time
 specification and returns the specified property as a serialized
 array\&.
 .sp
@@ -556,12 +555,12 @@ Sun, Mon, \&.\&.\&., Sat
 .RE
 .TP
 \fB::mime::mapencoding\fR \fIencoding_name\fR
-This commansd maps tcl encodings onto the proper names for their MIME
+Maps tcl encodings onto the proper names for their MIME
 charset type\&.  This is only done for encodings whose charset types
 were known\&.  The remaining encodings return "" for now\&.
 .TP
 \fB::mime::reversemapencoding\fR \fIcharset_type\fR
-This command maps MIME charset types onto tcl encoding names\&.  Those
+Maps MIME charset types onto tcl encoding names\&.  Those
 that are unknown return ""\&.
 .PP
 .SH "KNOWN BUGS"

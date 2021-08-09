@@ -151,7 +151,7 @@
 manipulate MIME body parts.</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::mime::initialize</b> <span class="opt">?<b class="option">-canonical</b> <i class="arg">type/subtype</i> <span class="opt">?<b class="option">-param</b> {<i class="arg">key value</i>}...?</span> <span class="opt">?<b class="option">-encoding</b> <i class="arg">value</i>?</span> <span class="opt">?<b class="option">-header</b> {<i class="arg">key value</i>}...?</span>?</span> (<b class="option">-file</b> <i class="arg">name</i> | <b class="option">-string</b> <i class="arg">value</i> | <b class="option">-parts</b> {<i class="arg">token1</i> ... <i class="arg">tokenN</i>})</a></dt>
-<dd><p>This command creates a MIME part and returns a token representing it.</p>
+<dd><p>Creates a MIME part and returns a token representing it.</p>
 <ul class="doctools_itemized">
 <li><p>If the <b class="option">-canonical</b> option is present, then the body is in
 canonical (raw) form and is found by consulting either the
@@ -167,14 +167,14 @@ contained in either the <b class="option">-file</b> or the <b class="option">-st
 is parsed, dynamically generating subordinates as appropriate.</p></li>
 </ul></dd>
 <dt><a name="2"><b class="cmd">::mime::finalize</b> <i class="arg">token</i> <span class="opt">?<b class="option">-subordinates</b> <b class="const">all</b> | <b class="const">dynamic</b> | <b class="const">none</b>?</span></a></dt>
-<dd><p>This command destroys the MIME part represented by <i class="arg">token</i>. It
+<dd><p>Destroys the MIME part represented by <i class="arg">token</i>. It
 returns an empty string.</p>
 <p>If the <b class="option">-subordinates</b> option is present, it specifies which
 subordinates should also be destroyed. The default value is
 <b class="const">dynamic</b>, destroying all subordinates which were created by
 <b class="cmd">::mime::initialize</b> together with the containing body part.</p></dd>
 <dt><a name="3"><b class="cmd">::mime::getproperty</b> <i class="arg">token</i> <span class="opt">?<i class="arg">property</i> | <b class="option">-names</b>?</span></a></dt>
-<dd><p>This command returns a string or a list of strings containing the
+<dd><p>Returns a string or a list of strings containing the
 properties of a MIME part. If the command is invoked with the name of
 a specific property, then the corresponding value is returned;
 instead, if <b class="option">-names</b> is specified, a list of all properties is
@@ -195,21 +195,20 @@ present only if the MIME part has subordinates.</p></dd>
 <dd><p>The approximate size of the content (unencoded)</p></dd>
 </dl></dd>
 <dt><a name="4"><b class="cmd">::mime::getheader</b> <i class="arg">token</i> <span class="opt">?<i class="arg">key</i> | <b class="option">-names</b>?</span></a></dt>
-<dd><p>This command returns the header of a MIME part, as a list of strings.</p>
-<p>A header consists of zero or more key/value pairs. Each value is a
-list containing one or more strings.</p>
-<p>If this command is invoked with the name of a specific <i class="arg">key</i>, then
-a list containing the corresponding value(s) is returned; instead, if
--names is specified, a list of all keys is returned; otherwise, a
-serialized array of keys and values is returned. Note that when a key
-is specified (e.g., &quot;Subject&quot;), the list returned usually contains
-exactly one string; however, some keys (e.g., &quot;Received&quot;) often occur
-more than once in the header, accordingly the list returned usually
-contains more than one string.</p></dd>
+<dd><p>Returns the header of a MIME part as a dictionary with possibly-redundant keys.</p>
+<p>If <i class="arg">key</i> is provided, then a list of values of matching names, without
+regard to case, is returned.</p>
+<p>If <b class="option">-names</b> is provided, a list of all keys is returned.</p></dd>
 <dt><a name="5"><b class="cmd">::mime::setheader</b> <i class="arg">token</i> <i class="arg">key value</i> <span class="opt">?<b class="option">-mode</b> <b class="const">write</b> | <b class="const">append</b> | <b class="const">delete</b>?</span></a></dt>
-<dd><p>This command writes, appends to, or deletes the <i class="arg">value</i> associated
-with a <i class="arg">key</i> in the header. It returns a list of strings
-containing the previous value associated with the key.</p>
+<dd><p>If <b class="const">append</b> is provided, creates a new header named <i class="arg">key</i> with the
+value of <i class="arg">value</i> is added.
+If <b class="const">write</b> is provided, deletes any existing headers whose names match
+<i class="arg">key</i> and then creates a new header named <i class="arg">key</i> with the value of
+<i class="arg">value</i>.
+If <b class="const">delete</b> is provided any existing header having a name that matches
+<i class="arg">key</i> is deleted. 
+Returns a list of strings containing the previous value associated with the
+key.</p>
 <p>The value for <b class="option">-mode</b> is one of:</p>
 <dl class="doctools_definitions">
 <dt><b class="const">write</b></dt>
@@ -221,7 +220,7 @@ containing the previous value associated with the key.</p>
 parameter is ignored).</p></dd>
 </dl></dd>
 <dt><a name="6"><b class="cmd">::mime::getbody</b> <i class="arg">token</i> <span class="opt">?<b class="option">-decode</b>?</span> <span class="opt">?<b class="option">-command</b> <i class="arg">callback</i> <span class="opt">?<b class="option">-blocksize</b> <i class="arg">octets</i>?</span>?</span></a></dt>
-<dd><p>This command returns a string containing the body of the leaf MIME
+<dd><p>Returns a string containing the body of the leaf MIME
 part represented by <i class="arg">token</i> in canonical form.</p>
 <p>If the <b class="option">-command</b> option is present, then it is repeatedly
 invoked with a fragment of the body as this:</p>
@@ -250,16 +249,16 @@ If the option <b class="option">-decode</b> is present however the command will 
 the charset information associated with the token to convert the
 string from its encoding into utf-8 before returning it.</p></dd>
 <dt><a name="7"><b class="cmd">::mime::copymessage</b> <i class="arg">token</i> <i class="arg">channel</i></a></dt>
-<dd><p>This command copies the MIME represented by <i class="arg">token</i> part to the
+<dd><p>Copies the MIME represented by <i class="arg">token</i> part to the
 specified <i class="arg">channel</i>. The command operates synchronously, and uses
 fileevent to allow asynchronous operations to proceed
 independently. It returns an empty string.</p></dd>
 <dt><a name="8"><b class="cmd">::mime::buildmessage</b> <i class="arg">token</i></a></dt>
-<dd><p>This command returns the MIME part represented by <i class="arg">token</i> as a
+<dd><p>Returns the MIME part represented by <i class="arg">token</i> as a
 string.  It is similar to <b class="cmd">::mime::copymessage</b>, only it returns
 the data as a return string instead of writing to a channel.</p></dd>
 <dt><a name="9"><b class="cmd">::mime::parseaddress</b> <i class="arg">string</i></a></dt>
-<dd><p>This command takes a string containing one or more 822-style address
+<dd><p>Takes a string containing one or more 822-style address
 specifications and returns a list of serialized arrays, one element
 for each address specified in the argument. If the string contains
 more than one address they will be separated by commas.</p>
@@ -290,7 +289,7 @@ more of these properties may be empty.</p>
 <dd><p>822-style route specification (obsolete)</p></dd>
 </dl></dd>
 <dt><a name="10"><b class="cmd">::mime::parsedatetime</b> (<i class="arg">string</i> | <b class="option">-now</b>) <i class="arg">property</i></a></dt>
-<dd><p>This command takes a string containing an 822-style date-time
+<dd><p>Takes a string containing an 822-style date-time
 specification and returns the specified property as a serialized
 array.</p>
 <p>The list of properties and their ranges are:</p>
@@ -327,11 +326,11 @@ array.</p>
 <dd><p>-720 .. 720 (minutes east of GMT)</p></dd>
 </dl></dd>
 <dt><a name="11"><b class="cmd">::mime::mapencoding</b> <i class="arg">encoding_name</i></a></dt>
-<dd><p>This commansd maps tcl encodings onto the proper names for their MIME
+<dd><p>Maps tcl encodings onto the proper names for their MIME
 charset type.  This is only done for encodings whose charset types
 were known.  The remaining encodings return &quot;&quot; for now.</p></dd>
 <dt><a name="12"><b class="cmd">::mime::reversemapencoding</b> <i class="arg">charset_type</i></a></dt>
-<dd><p>This command maps MIME charset types onto tcl encoding names.  Those
+<dd><p>Maps MIME charset types onto tcl encoding names.  Those
 that are unknown return &quot;&quot;.</p></dd>
 </dl>
 </div>

@@ -21,7 +21,7 @@ the environment variable [variable CRITCL].
 
 [para] The github repository providing releases of version 2 and
 higher, and the associated sources, can be found at
-[uri http://andreas-kupries.github.com/critcl].
+[uri https://andreas-kupries.github.io/critcl].
 
 [para] Any branch of the repository can be used (if not using the
 prebuild starkit or starpack), although the use of the stable branch

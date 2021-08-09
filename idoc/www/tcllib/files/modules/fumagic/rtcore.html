@@ -131,72 +131,47 @@
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::fileutil::magic::rt::&gt;</b></a></li>
 <li><a href="#2"><b class="cmd">::fileutil::magic::rt::&lt;</b></a></li>
-<li><a href="#3"><b class="cmd">::fileutil::magic::rt::open</b> <i class="arg">filename</i></a></li>
-<li><a href="#4"><b class="cmd">::fileutil::magic::rt::close</b></a></li>
-<li><a href="#5"><b class="cmd">::fileutil::magic::rt::file_start</b> <i class="arg">name</i></a></li>
-<li><a href="#6"><b class="cmd">::fileutil::magic::rt::result</b> <span class="opt">?<i class="arg">msg</i>?</span></a></li>
-<li><a href="#7"><b class="cmd">::fileutil::magic::rt::resultv</b> <span class="opt">?<i class="arg">msg</i>?</span></a></li>
-<li><a href="#8"><b class="cmd">::fileutil::magic::rt::emit</b> <i class="arg">msg</i></a></li>
-<li><a href="#9"><b class="cmd">::fileutil::magic::rt::offset</b> <i class="arg">where</i></a></li>
-<li><a href="#10"><b class="cmd">::fileutil::magic::rt::Nv</b> <i class="arg">type</i> <i class="arg">offset</i> <span class="opt">?<i class="arg">qual</i>?</span></a></li>
-<li><a href="#11"><b class="cmd">::fileutil::magic::rt::N</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></li>
-<li><a href="#12"><b class="cmd">::fileutil::magic::rt::Nvx</b> <i class="arg">type</i> <i class="arg">offset</i> <span class="opt">?<i class="arg">qual</i>?</span></a></li>
-<li><a href="#13"><b class="cmd">::fileutil::magic::rt::Nx</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></li>
-<li><a href="#14"><b class="cmd">::fileutil::magic::rt::S</b> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></li>
-<li><a href="#15"><b class="cmd">::fileutil::magic::rt::Sx</b> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></li>
-<li><a href="#16"><b class="cmd">::fileutil::magic::rt::L</b> <i class="arg">newlevel</i></a></li>
-<li><a href="#17"><b class="cmd">::fileutil::magic::rt::I</b> <i class="arg">base</i> <i class="arg">type</i> <i class="arg">delta</i></a></li>
-<li><a href="#18"><b class="cmd">::fileutil::magic::rt::R</b> <i class="arg">offset</i></a></li>
-<li><a href="#19"><b class="cmd">::fileutil::magic::rt::U</b> <i class="arg">fileindex</i> <i class="arg">name</i></a></li>
+<li><a href="#3"><b class="cmd">::fileutil::magic::rt::new</b> <i class="arg">chan</i> <i class="arg">named</i> <i class="arg">analyze</i></a></li>
+<li><a href="#4"><b class="cmd">::fileutil::magic::rt::file_start</b> <i class="arg">name</i></a></li>
+<li><a href="#5"><b class="cmd">::fileutil::magic::rt::emit</b> <i class="arg">msg</i></a></li>
+<li><a href="#6"><b class="cmd">::fileutil::magic::rt::O</b> <i class="arg">where</i></a></li>
+<li><a href="#7"><b class="cmd">::fileutil::magic::rt::R</b> <i class="arg">where</i></a></li>
+<li><a href="#8"><b class="cmd">::fileutil::magic::rt::Nv</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">compinvert</i> <i class="arg">comp</i> <i class="arg">expected</i></a></li>
+<li><a href="#9"><b class="cmd">::fileutil::magic::rt::N</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">testinvert</i> <i class="arg">compinvert</i> <i class="arg">mod</i> <i class="arg">mand</i> <i class="arg">comp</i> <i class="arg">expected</i></a></li>
+<li><a href="#10"><b class="cmd">::fileutil::magic::rt::S</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">testinvert</i> <i class="arg">mod</i> <i class="arg">mand</i> <i class="arg">comp</i> <i class="arg">val</i></a></li>
+<li><a href="#11"><b class="cmd">::fileutil::magic::rt::L</b> <i class="arg">newlevel</i></a></li>
+<li><a href="#12"><b class="cmd">::fileutil::magic::rt::I</b> <i class="arg">offset</i> <i class="arg">it</i> <i class="arg">ioi</i> <i class="arg">ioo</i> <i class="arg">iir</i> <i class="arg">io</i></a></li>
+<li><a href="#13"><b class="cmd">::fileutil::magic::rt::R</b> <i class="arg">offset</i></a></li>
+<li><a href="#14"><b class="cmd">::fileutil::magic::rt::U</b> <i class="arg">fileindex</i> <i class="arg">name</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides the runtime core for file type recognition
 engines written in pure Tcl and is thus used by all other packages in
-this module, i.e. the two frontend packages
-<b class="package">fileutil::magic::mimetypes</b> and
-<b class="package">fileutil::magic::filetypes</b>, and the two engine compiler
+this module such as <b class="package"><a href="filetypes.html">fileutil::magic::filetype</a></b> and the two compiler
 packages <b class="package"><a href="cgen.html">fileutil::magic::cgen</a></b> and
 <b class="package"><a href="cfront.html">fileutil::magic::cfront</a></b>.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::fileutil::magic::rt::&gt;</b></a></dt>
-<dd><p>Shorthand for <b class="cmd">incr level</b>.</p></dd>
+<dd><p>Increment the level and perform related housekeeping</p></dd>
 <dt><a name="2"><b class="cmd">::fileutil::magic::rt::&lt;</b></a></dt>
-<dd><p>Shorthand for <b class="cmd">incr level -1</b>.</p></dd>
-<dt><a name="3"><b class="cmd">::fileutil::magic::rt::open</b> <i class="arg">filename</i></a></dt>
-<dd><p>This command initializes the runtime and prepares the file
-<i class="arg">filename</i> for use by the system.
-This command has to be invoked first, before any other command of this
-package.</p>
-<p>The command returns the channel handle of the opened file as its
-result.</p></dd>
-<dt><a name="4"><b class="cmd">::fileutil::magic::rt::close</b></a></dt>
-<dd><p>This command closes the last file opened via
-<b class="cmd">::fileutil::magic::rt::open</b> and shuts the runtime down.
-This command has to be invoked last, after the file has been dealt
-with completely.
-Afterward another invokation of <b class="cmd">::fileutil::magic::rt::open</b>  is
-required to process another file.</p>
-<p>This command returns the empty string as its result.</p></dd>
-<dt><a name="5"><b class="cmd">::fileutil::magic::rt::file_start</b> <i class="arg">name</i></a></dt>
+<dd><p>Decrement the level and perform related housekeeping</p></dd>
+<dt><a name="3"><b class="cmd">::fileutil::magic::rt::new</b> <i class="arg">chan</i> <i class="arg">named</i> <i class="arg">analyze</i></a></dt>
+<dd><p>Create a new command which returns one description of the file each time it is
+called, and a code of <i class="arg">break</i> when there are no more descriptions.
+<i class="arg">chan</i> is the channel containing the data to describe.  The channel
+configuration is then managed as needed.
+<i class="arg">named</i> is a dictionary of named tests, as generated by
+<b class="cmd">fileutil::magic::cfront::compile</b>.
+<i class="arg">test</i> is a command prefix for a routine composed of the list of commands
+as returned by <b class="cmd">fileutil::magic::cfront::compile</b>.</p></dd>
+<dt><a name="4"><b class="cmd">::fileutil::magic::rt::file_start</b> <i class="arg">name</i></a></dt>
 <dd><p>This command marks the start of a magic file when debugging. It
 returns the empty string as its result.</p></dd>
-<dt><a name="6"><b class="cmd">::fileutil::magic::rt::result</b> <span class="opt">?<i class="arg">msg</i>?</span></a></dt>
-<dd><p>This command returns the current result and stops processing.</p>
-<p>If <i class="arg">msg</i> is specified its text is added to the result before it is
-returned. See <b class="cmd">::fileutil::magic::rt::emit</b> for the allowed
-special character sequences.</p></dd>
-<dt><a name="7"><b class="cmd">::fileutil::magic::rt::resultv</b> <span class="opt">?<i class="arg">msg</i>?</span></a></dt>
-<dd><p>This command returns the current result.
-In contrast to <b class="cmd">::fileutil::magic::rt::result</b> processing
-continues.</p>
-<p>If <i class="arg">msg</i> is specified its text is added to the result before it is
-returned. See <b class="cmd">::fileutil::magic::rt::emit</b> for the allowed
-special character sequences.</p></dd>
-<dt><a name="8"><b class="cmd">::fileutil::magic::rt::emit</b> <i class="arg">msg</i></a></dt>
+<dt><a name="5"><b class="cmd">::fileutil::magic::rt::emit</b> <i class="arg">msg</i></a></dt>
 <dd><p>This command adds the text <i class="arg">msg</i> to the result buffer. The
 message may contain the following special character sequences. They
 will be replaced with buffered values before the message is added to
@@ -210,73 +185,42 @@ the result. The command returns the empty string as its result.</p>
 <dd><p>Replaced with the last buffered numeric value.</p></dd>
 <dt><b class="const">%d</b></dt>
 <dd><p>See above.</p></dd>
+<dt><b class="const">${x:...?...}</b></dt>
+<dd><p>Substitute one string if the file is executable, and
+another string otherwise.</p></dd>
 </dl></dd>
-<dt><a name="10"><b class="cmd">::fileutil::magic::rt::Nv</b> <i class="arg">type</i> <i class="arg">offset</i> <span class="opt">?<i class="arg">qual</i>?</span></a></dt>
-<dd><p>This command fetches the numeric value with <i class="arg">type</i> from the
-absolute location <i class="arg">offset</i> and returns it as its result. The
-fetched value is further stored in the numeric buffer.</p>
-<p>If <i class="arg">qual</i> is specified it is considered to be a mask and applied
-to the fetched value before it is stored and returned. It has to have
-the form of a partial Tcl bit-wise expression, i.e.</p>
+<dt><a name="6"><b class="cmd">::fileutil::magic::rt::O</b> <i class="arg">where</i></a></dt>
+<dd><p>Produce an offset from <i class="arg">where</i>, relative to the cursor one level up.
+Produce an offset from <i class="arg">where</i>, relative to the offset one level up.</p></dd>
+<dt><a name="8"><b class="cmd">::fileutil::magic::rt::Nv</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">compinvert</i> <i class="arg">comp</i> <i class="arg">expected</i></a></dt>
+<dd><p>A limited form of <b class="cmd">::fileutile::magic::rt::N</b> that only checks for
+equality and can't be told to invert the test.</p></dd>
+<dt><a name="9"><b class="cmd">::fileutil::magic::rt::N</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">testinvert</i> <i class="arg">compinvert</i> <i class="arg">mod</i> <i class="arg">mand</i> <i class="arg">comp</i> <i class="arg">expected</i></a></dt>
+<dd><p>Fetch the numeric value with <i class="arg">type</i> from the absolute location
+<i class="arg">offset</i>, compare it with <i class="arg">expected</i> using <i class="arg">comp</i> as the comparision
+operator,  and returns the result.</p>
+<p>The argument <i class="arg">comp</i> must be one of Tcl's comparison
+operators.</p>
 <pre class="doctools_example">
-	&amp; number
-</pre>
-<p>For example:</p>
-<pre class="doctools_example">
-	Nv lelong 0 &amp;0x8080ffff
-</pre>
-<p>For the possible types see section <span class="sectref"><a href="#section3">NUMERIC TYPES</a></span>.</p></dd>
-<dt><a name="11"><b class="cmd">::fileutil::magic::rt::N</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></dt>
-<dd><p>This command behaves mostly like <b class="cmd">::fileutil::magic::rt::Nv</b>,
-except that it compares the fetched and masked value against <i class="arg">val</i>
-as specified with <i class="arg">comp</i> and returns the result of that
-comparison.</p>
-<p>The argument <i class="arg">comp</i> has to contain one of Tcl's comparison
-operators, and the comparison made will be</p>
-<pre class="doctools_example">
-	&lt;val&gt; &lt;comp&gt; &lt;fetched-and-masked-value&gt;
+	&lt;comp&gt; &lt;fetched-and-masked-value&gt; &lt;comp&gt; &lt;expected&gt;
 </pre>
 <p>The special comparison operator <b class="const">x</b> signals that no comparison
 should be done, or, in other words, that the fetched value will always
 match <i class="arg">val</i>.</p></dd>
-<dt><a name="12"><b class="cmd">::fileutil::magic::rt::Nvx</b> <i class="arg">type</i> <i class="arg">offset</i> <span class="opt">?<i class="arg">qual</i>?</span></a></dt>
-<dd><p>This command behaves like <b class="cmd">::fileutil::magic::rt::Nv</b>, except that
-it additionally remembers the location in the file after the fetch in
-the calling context, for the current level, for later use by
-<b class="cmd">::fileutil::magic::rt::R</b>.</p></dd>
-<dt><a name="13"><b class="cmd">::fileutil::magic::rt::Nx</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></dt>
-<dd><p>This command behaves like <b class="cmd">::fileutil::magic::rt::N</b>, except that
-it additionally remembers the location in the file after the fetch in
-the calling context, for the current, for later use by
-<b class="cmd">::fileutil::magic::rt::R</b>.</p></dd>
-<dt><a name="14"><b class="cmd">::fileutil::magic::rt::S</b> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></dt>
-<dd><p>This command behaves like <b class="cmd">::fileutil::magic::rt::N</b>, except that
-it fetches and compares strings, not numeric data. The fetched value
-is also stored in the internal string buffer instead of the numeric
-buffer.</p></dd>
-<dt><a name="15"><b class="cmd">::fileutil::magic::rt::Sx</b> <i class="arg">offset</i> <i class="arg">comp</i> <i class="arg">val</i> <span class="opt">?<i class="arg">qual</i>?</span></a></dt>
-<dd><p>This command behaves like <b class="cmd">::fileutil::magic::rt::S</b>, except that
-it additionally remembers the location in the file after the fetch in
-the calling context, for the current level, for later use by
-<b class="cmd">::fileutil::magic::rt::R</b>.</p></dd>
-<dt><a name="16"><b class="cmd">::fileutil::magic::rt::L</b> <i class="arg">newlevel</i></a></dt>
-<dd><p>This command sets the current level in the calling context to
+<dt><a name="10"><b class="cmd">::fileutil::magic::rt::S</b> <i class="arg">type</i> <i class="arg">offset</i> <i class="arg">testinvert</i> <i class="arg">mod</i> <i class="arg">mand</i> <i class="arg">comp</i> <i class="arg">val</i></a></dt>
+<dd><p>Like <b class="cmd">::fileutil::magic::rt::N</b> except that it fetches and compares string
+types , not numeric data.</p></dd>
+<dt><a name="11"><b class="cmd">::fileutil::magic::rt::L</b> <i class="arg">newlevel</i></a></dt>
+<dd><p>Sets the current level in the calling context to
 <i class="arg">newlevel</i>. The command returns the empty string as its result.</p></dd>
-<dt><a name="17"><b class="cmd">::fileutil::magic::rt::I</b> <i class="arg">base</i> <i class="arg">type</i> <i class="arg">delta</i></a></dt>
-<dd><p>This command handles base locations specified indirectly through the
-contents of the inspected file. It returns the sum of <i class="arg">delta</i> and
-the value of numeric <i class="arg">type</i> fetched from the absolute location
-<i class="arg">base</i>.</p>
-<p>For the possible types see section <span class="sectref"><a href="#section3">NUMERIC TYPES</a></span>.</p></dd>
-<dt><a name="18"><b class="cmd">::fileutil::magic::rt::R</b> <i class="arg">offset</i></a></dt>
-<dd><p>This command handles base locations specified relative to the end of
-the last field one level above.</p>
-<p>In other words, the command computes an absolute location in the file
-based on the relative <i class="arg">offset</i> and returns it as its result. The
-base the offset is added to is the last location remembered for the
-level in the calling context.</p></dd>
-<dt><a name="19"><b class="cmd">::fileutil::magic::rt::U</b> <i class="arg">fileindex</i> <i class="arg">name</i></a></dt>
-<dd><p>Use a named test script at the current level.</p></dd>
+<dt><a name="12"><b class="cmd">::fileutil::magic::rt::I</b> <i class="arg">offset</i> <i class="arg">it</i> <i class="arg">ioi</i> <i class="arg">ioo</i> <i class="arg">iir</i> <i class="arg">io</i></a></dt>
+<dd><p>Calculates an offset based on an initial offset and the provided modifiers.</p></dd>
+<dt><a name="13"><b class="cmd">::fileutil::magic::rt::R</b> <i class="arg">offset</i></a></dt>
+<dd><p>Given an initial offset, calculates an offset relative to the cursor at the
+next level up. The cursor is the position in the data one character after the
+data extracted from the file one level up.</p></dd>
+<dt><a name="14"><b class="cmd">::fileutil::magic::rt::U</b> <i class="arg">fileindex</i> <i class="arg">name</i></a></dt>
+<dd><p>Add a level and use a named test script.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">NUMERIC TYPES</a></h2>

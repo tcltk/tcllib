@@ -60,7 +60,7 @@ MIME body parts\.
 
   - <a name='1'></a>__::mime::initialize__ ?__\-canonical__ *type/subtype* ?__\-param__ \{*key value*\}\.\.\.? ?__\-encoding__ *value*? ?__\-header__ \{*key value*\}\.\.\.?? \(__\-file__ *name* &#124; __\-string__ *value* &#124; __\-parts__ \{*token1* \.\.\. *tokenN*\}\)
 
-    This command creates a MIME part and returns a token representing it\.
+    Creates a MIME part and returns a token representing it\.
 
       * If the __\-canonical__ option is present, then the body is in
         canonical \(raw\) form and is found by consulting either the
@@ -80,8 +80,7 @@ MIME body parts\.
 
   - <a name='2'></a>__::mime::finalize__ *token* ?__\-subordinates__ __all__ &#124; __dynamic__ &#124; __none__?
 
-    This command destroys the MIME part represented by *token*\. It returns an
-    empty string\.
+    Destroys the MIME part represented by *token*\. It returns an empty string\.
 
     If the __\-subordinates__ option is present, it specifies which
     subordinates should also be destroyed\. The default value is __dynamic__,
@@ -90,11 +89,11 @@ MIME body parts\.
 
   - <a name='3'></a>__::mime::getproperty__ *token* ?*property* &#124; __\-names__?
 
-    This command returns a string or a list of strings containing the properties
-    of a MIME part\. If the command is invoked with the name of a specific
-    property, then the corresponding value is returned; instead, if
-    __\-names__ is specified, a list of all properties is returned;
-    otherwise, a serialized array of properties and values is returned\.
+    Returns a string or a list of strings containing the properties of a MIME
+    part\. If the command is invoked with the name of a specific property, then
+    the corresponding value is returned; instead, if __\-names__ is
+    specified, a list of all properties is returned; otherwise, a serialized
+    array of properties and values is returned\.
 
     The possible properties are:
 
@@ -121,24 +120,22 @@ MIME body parts\.
 
   - <a name='4'></a>__::mime::getheader__ *token* ?*key* &#124; __\-names__?
 
-    This command returns the header of a MIME part, as a list of strings\.
+    Returns the header of a MIME part as a dictionary with possibly\-redundant
+    keys\.
 
-    A header consists of zero or more key/value pairs\. Each value is a list
-    containing one or more strings\.
+    If *key* is provided, then a list of values of matching names, without
+    regard to case, is returned\.
 
-    If this command is invoked with the name of a specific *key*, then a list
-    containing the corresponding value\(s\) is returned; instead, if \-names is
-    specified, a list of all keys is returned; otherwise, a serialized array of
-    keys and values is returned\. Note that when a key is specified \(e\.g\.,
-    "Subject"\), the list returned usually contains exactly one string; however,
-    some keys \(e\.g\., "Received"\) often occur more than once in the header,
-    accordingly the list returned usually contains more than one string\.
+    If __\-names__ is provided, a list of all keys is returned\.
 
   - <a name='5'></a>__::mime::setheader__ *token* *key value* ?__\-mode__ __write__ &#124; __append__ &#124; __delete__?
 
-    This command writes, appends to, or deletes the *value* associated with a
-    *key* in the header\. It returns a list of strings containing the previous
-    value associated with the key\.
+    If __append__ is provided, creates a new header named *key* with the
+    value of *value* is added\. If __write__ is provided, deletes any
+    existing headers whose names match *key* and then creates a new header
+    named *key* with the value of *value*\. If __delete__ is provided any
+    existing header having a name that matches *key* is deleted\. Returns a
+    list of strings containing the previous value associated with the key\.
 
     The value for __\-mode__ is one of:
 
@@ -157,8 +154,8 @@ MIME body parts\.
 
   - <a name='6'></a>__::mime::getbody__ *token* ?__\-decode__? ?__\-command__ *callback* ?__\-blocksize__ *octets*??
 
-    This command returns a string containing the body of the leaf MIME part
-    represented by *token* in canonical form\.
+    Returns a string containing the body of the leaf MIME part represented by
+    *token* in canonical form\.
 
     If the __\-command__ option is present, then it is repeatedly invoked
     with a fragment of the body as this:
@@ -191,23 +188,22 @@ MIME body parts\.
 
   - <a name='7'></a>__::mime::copymessage__ *token* *channel*
 
-    This command copies the MIME represented by *token* part to the specified
-    *channel*\. The command operates synchronously, and uses fileevent to allow
-    asynchronous operations to proceed independently\. It returns an empty
-    string\.
+    Copies the MIME represented by *token* part to the specified *channel*\.
+    The command operates synchronously, and uses fileevent to allow asynchronous
+    operations to proceed independently\. It returns an empty string\.
 
   - <a name='8'></a>__::mime::buildmessage__ *token*
 
-    This command returns the MIME part represented by *token* as a string\. It
-    is similar to __::mime::copymessage__, only it returns the data as a
-    return string instead of writing to a channel\.
+    Returns the MIME part represented by *token* as a string\. It is similar to
+    __::mime::copymessage__, only it returns the data as a return string
+    instead of writing to a channel\.
 
   - <a name='9'></a>__::mime::parseaddress__ *string*
 
-    This command takes a string containing one or more 822\-style address
-    specifications and returns a list of serialized arrays, one element for each
-    address specified in the argument\. If the string contains more than one
-    address they will be separated by commas\.
+    Takes a string containing one or more 822\-style address specifications and
+    returns a list of serialized arrays, one element for each address specified
+    in the argument\. If the string contains more than one address they will be
+    separated by commas\.
 
     Each serialized array contains the properties below\. Note that one or more
     of these properties may be empty\.
@@ -258,8 +254,8 @@ MIME body parts\.
 
   - <a name='10'></a>__::mime::parsedatetime__ \(*string* &#124; __\-now__\) *property*
 
-    This command takes a string containing an 822\-style date\-time specification
-    and returns the specified property as a serialized array\.
+    Takes a string containing an 822\-style date\-time specification and returns
+    the specified property as a serialized array\.
 
     The list of properties and their ranges are:
 
@@ -325,14 +321,14 @@ MIME body parts\.
 
   - <a name='11'></a>__::mime::mapencoding__ *encoding\_name*
 
-    This commansd maps tcl encodings onto the proper names for their MIME
-    charset type\. This is only done for encodings whose charset types were
-    known\. The remaining encodings return "" for now\.
+    Maps tcl encodings onto the proper names for their MIME charset type\. This
+    is only done for encodings whose charset types were known\. The remaining
+    encodings return "" for now\.
 
   - <a name='12'></a>__::mime::reversemapencoding__ *charset\_type*
 
-    This command maps MIME charset types onto tcl encoding names\. Those that are
-    unknown return ""\.
+    Maps MIME charset types onto tcl encoding names\. Those that are unknown
+    return ""\.
 
 # <a name='section2'></a>KNOWN BUGS
 
