@@ -290,26 +290,53 @@ For builders and developers we additionally provide
 .PP
 respectively\&.
 .SH "SOURCE LOCATION"
-The official repository for Tcllib can be found at
-\fIhttp://core\&.tcl-lang\&.org/tcllib\fR
-.SH RETRIEVAL
-Assuming that you simply wish to look at the sources, or build a
-specific revision, the easiest way of retrieving it is to:
+The official repository for Tcllib is found at \fIhttp://core\&.tcl-lang\&.org/tcllib\fR\&.
+This repository is managed by the \fIFossil SCM\fR [http://www\&.fossil-scm\&.org]\&.
+.SH "GET ARCHIVES FOR HEAD AND RELEASES"
+This is done easiest by going to the
+\fIofficial repository\fR [http://core\&.tcl-lang\&.org/tcllib]
+and following the links in the \fIReleases\fR section at the top,
+immediately underneath the entry field for searching the package
+documentation\&.
+.SH "RETRIEVAL OF ARBITRARY COMMITS"
+For anything beyond head state and releases the process is a bit more
+involved\&.
+.PP
+If the commit id (commit hash) \fB((ID))\fR of the revision
+of interest is already known links to the desired archives can be
+construct, links using the forms:
+.CS
+
+
+    https://core\&.tcl-lang\&.org/tcllib/tarball/((ID))/Tcl+Library+Source+Code\&.tar\&.gz
+    https://core\&.tcl-lang\&.org/tcllib/zip/((ID))/Tcl+Library+Source+Code\&.zip
+
+.CE
+Note that branch names can be used for the \fB((ID))\fR also, this
+returns archives containing the head revision of the named branch\&.
+.PP
+The part of of the url after the \fB((ID))\fR is the name of
+the file to return and can be modified to suit\&.
+.PP
+Without a known commit id the process is longer again:
 .IP [1]
-Log into this site, as "anonymous", using the semi-random password in the captcha\&.
+Go to the \fIofficial repository\fR [http://core\&.tcl-lang\&.org/tcllib]\&.
 .IP [2]
-Go to the "Timeline"\&.
+Find the login link/button in the top right corner of the page\&.
 .IP [3]
-Choose the revision you wish to have\&.
+Log in as "anonymous", using the semi-random password in the captcha\&.
 .IP [4]
-Follow its link to its detailed information page\&.
+Go to the "Timeline" following the link/button in the middle of the nav bar\&.
 .IP [5]
-On that page, choose either the "ZIP" or "Tarball" link to get
-a copy of this revision in the format of your choice\&.
+Choose the revision you wish to have\&.
+.IP [6]
+Follow its link to its detailed information page\&.
+.IP [7]
+On that page, choose either the "ZIP" or "Tarball" link to get a copy
+of this revision in the format of your choice\&.
 .PP
 .SH "SOURCE CODE MANAGEMENT"
-For the curious (or a developer-to-be), the sources are managed by the
-\fIFossil SCM\fR [http://www\&.fossil-scm\&.org]\&.
+The sources are managed with the \fIFossil SCM\fR [http://www\&.fossil-scm\&.org]\&.
 Binaries for popular platforms can be found directly at its
 \fIdownload page\fR [http://www\&.fossil-scm\&.org/download\&.html]\&.
 .PP

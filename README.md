@@ -36,9 +36,9 @@ Please note the :warning: at the top.
 
 # Guides To Tcllib
 
-   * [Tcl Community - Kind Communication](embedded/www/tcllib/files/devdoc/tcl_community_communication.html)
-   * [License](embedded/www/tcllib/files/devdoc/tcllib_license.html)
-   * [How To Get The Sources](embedded/www/tcllib/files/devdoc/tcllib_sources.html)
-   * [How To Build And Install Tcllib](embedded/www/tcllib/files/devdoc/tcllib_installer.html)
-   * [The Developer's Guide](embedded/www/tcllib/files/devdoc/tcllib_devguide.html)
-   * [The Release Manager's Guide](embedded/www/tcllib/files/devdoc/tcllib_releasemgr.html)
+   * [Tcl Community - Kind Communication](embedded/md/tcllib/files/devdoc/tcl_community_communication.md)
+   * [License](embedded/md/tcllib/files/devdoc/tcllib_license.md)
+   * [How To Get The Sources](embedded/md/tcllib/files/devdoc/tcllib_sources.md)
+   * [How To Build And Install Tcllib](embedded/md/tcllib/files/devdoc/tcllib_installer.md)
+   * [The Developer's Guide](embedded/md/tcllib/files/devdoc/tcllib_devguide.md)
+   * [The Release Manager's Guide](embedded/md/tcllib/files/devdoc/tcllib_releasemgr.md)

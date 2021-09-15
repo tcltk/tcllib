@@ -15,6 +15,16 @@ Packages - [Table Of Contents](md/toc.md)
 	</form>
 </center>
 
+## Releases / Downloads
+
+The download links are on the referenced pages.
+
+   * [Trunk Head](head.md)
+   * [Current Release](../../../technote/cd3a11c3065120d491009e64a19f7676176045cd) __1.20 (Dec 1, 2019)__
+   * [Past Releases](../../../wiki?name=Past+Releases)
+   * [Development Snapshots](../../../wiki?name=Development+Snapshots)
+   * [@ SourceForge](https://sourceforge.net/projects/tcllib/files/)
+
 ## Guides to Tcllib
 
    * [Tcl Community - Kind Communication](md/tcllib/files/devdoc/tcl_community_communication.md)
@@ -36,23 +46,6 @@ link. A few direct links for various topics:
 |tcllib-bugs| : |[Subscribe](https://lists.sourceforge.net/lists/listinfo/tcllib-bugs) [Archive](https://sourceforge.net/p/tcllib/mailman/tcllib-bugs) [Search](https://sourceforge.net/p/tcllib/mailman/search/?mail_list=tcllib-bugs)|
 |tcllib-devel| : |[Subscribe](https://lists.sourceforge.net/lists/listinfo/tcllib-devel) [Archive](https://sourceforge.net/p/tcllib/mailman/tcllib-devel) [Search](https://sourceforge.net/p/tcllib/mailman/search/?mail_list=tcllib-devel)|
 
-## Feedback
-
-Please go to and use our
-[Local Trackers](../../../reportlist).
-They are for
-
-   * Bugs,
-   * Patches, and	 
-   * Ideas & Feature Requests.
-
-## Releases
-
-   * [Current](../../../technote/cd3a11c3065120d491009e64a19f7676176045cd) __1.20 (Dec 1, 2019)__
-   * [Past Releases](../../../wiki?name=Past+Releases)
-   * [Development Snapshots](../../../wiki?name=Development+Snapshots)
-   * [@ SourceForge](https://sourceforge.net/projects/tcllib/files/)
-
 ## Related Repositories
 
    * [Tklib](../../../../tklib)
@@ -62,6 +55,15 @@ They are for
    * [Widget](../../../../widget)
    * [BWidget](../../../../bwidget)
 
+## Feedback
+
+Please go to and use our
+[Local Trackers](../../../reportlist).
+They are for
+
+   * Bugs,
+   * Patches, and	 
+   * Ideas & Feature Requests.
 
 ## See also
 

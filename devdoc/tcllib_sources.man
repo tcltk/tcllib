@@ -21,27 +21,54 @@ respectively.
 
 [section {Source Location}]
 
-The official repository for Tcllib can be found at
-[uri http://core.tcl-lang.org/tcllib]
+The official repository for Tcllib is found at [uri http://core.tcl-lang.org/tcllib].
 
-[section Retrieval]
+This repository is managed by the [uri http://www.fossil-scm.org {Fossil SCM}].
 
-Assuming that you simply wish to look at the sources, or build a
-specific revision, the easiest way of retrieving it is to:
+[section {Get archives for head and releases}]
+
+This is done easiest by going to the
+[uri http://core.tcl-lang.org/tcllib {official repository}]
+and following the links in the [strong Releases] section at the top,
+immediately underneath the entry field for searching the package
+documentation.
+
+[section {Retrieval of arbitrary commits}]
+
+For anything beyond head state and releases the process is a bit more
+involved.
+
+[para] If the commit id (commit hash) [const ((ID))] of the revision
+of interest is already known links to the desired archives can be
+construct, links using the forms:
+
+[example {
+    https://core.tcl-lang.org/tcllib/tarball/((ID))/Tcl+Library+Source+Code.tar.gz
+    https://core.tcl-lang.org/tcllib/zip/((ID))/Tcl+Library+Source+Code.zip
+}]
+
+Note that branch names can be used for the [const ((ID))] also, this
+returns archives containing the head revision of the named branch.
+
+[para] The part of of the url after the [const ((ID))] is the name of
+the file to return and can be modified to suit.
+
+[para] Without a known commit id the process is longer again:
 
 [list_begin enum]
-[enum] Log into this site, as "anonymous", using the semi-random password in the captcha.
-[enum] Go to the "Timeline".
+[enum] Go to the [uri http://core.tcl-lang.org/tcllib {official repository}].
+[enum] Find the login link/button in the top right corner of the page.
+[enum] Log in as "anonymous", using the semi-random password in the captcha.
+[enum] Go to the "Timeline" following the link/button in the middle of the nav bar.
 [enum] Choose the revision you wish to have.
 [enum] Follow its link to its detailed information page.
-[enum] On that page, choose either the "ZIP" or "Tarball" link to get
-a copy of this revision in the format of your choice.
+[enum] On that page, choose either the "ZIP" or "Tarball" link to get a copy
+       of this revision in the format of your choice.
 [list_end]
 
 [section {Source Code Management}]
 
-For the curious (or a developer-to-be), the sources are managed by the
-[uri http://www.fossil-scm.org {Fossil SCM}].
+The sources are managed with the [uri http://www.fossil-scm.org {Fossil SCM}].
 
 Binaries for popular platforms can be found directly at its
 [uri http://www.fossil-scm.org/download.html {download page}].
