@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file 'tcllib_sources\&.man' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tcllib_sources\&.man~' by tcllib/doctools with format 'nroff'
 '\"
 .TH "tcllib_sources" n 1 tcllib ""
 .\" The -*- nroff -*- definitions below are for supplemental macros used

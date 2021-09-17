@@ -1,6 +1,6 @@
 
 [//000000001]: # (tcllib\_sources \- )
-[//000000002]: # (Generated from file 'tcllib\_sources\.man' by tcllib/doctools with format 'markdown')
+[//000000002]: # (Generated from file 'tcllib\_sources\.man~' by tcllib/doctools with format 'markdown')
 [//000000003]: # (tcllib\_sources\(n\) 1 tcllib "")
 
 <hr> [ <a href="../../../toc.md">Main Table Of Contents</a> &#124; <a

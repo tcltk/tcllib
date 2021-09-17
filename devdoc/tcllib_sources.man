@@ -39,8 +39,8 @@ For anything beyond head state and releases the process is a bit more
 involved.
 
 [para] If the commit id (commit hash) [const ((ID))] of the revision
-of interest is already known links to the desired archives can be
-construct, links using the forms:
+of interest is already known then links to the desired archives can be
+constructed using the forms below:
 
 [example {
     https://core.tcl-lang.org/tcllib/tarball/((ID))/Tcl+Library+Source+Code.tar.gz
