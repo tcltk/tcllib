@@ -13,7 +13,6 @@ source [file join \
 
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
-snitErrors
 
 support {
     useAccel [useTcllibC] struct/sets.tcl struct::set
@@ -28,6 +27,8 @@ support {
 testing {
     useLocalKeep fa.tcl grammar::fa
 }
+
+snitErrors
 
 # -------------------------------------------------------------------------
 
