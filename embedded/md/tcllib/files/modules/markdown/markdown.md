@@ -22,7 +22,9 @@ markdown \- Converts Markdown text to HTML
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [Supported markdown syntax](#section2)
+
+  - [Bugs, Ideas, Feedback](#section3)
 
   - [Category](#category)
 
@@ -74,7 +76,44 @@ text into HMTL\.
 
     Reset the language counters\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section2'></a>Supported markdown syntax
+
+This markdown converter supports the original markdown by Gruber and Swartz \(see
+their [syntax](https://daringfireball\.net/projects/markdown/syntax) page for
+details\):
+
+  - paragraphs
+
+  - atx\- and setext\-style headers
+
+  - blockquotes
+
+  - emphasis and strong emphasis
+
+  - unordered and ordered lists
+
+  - inline\-style, reference\-style and automatic links
+
+  - inline\- and reference\-style images
+
+  - inline code
+
+  - code blocks \(with four indent spaces or one tab\)
+
+  - inline HTML
+
+  - backslash escapes
+
+  - horizontal rules
+
+In addition, the following extended markdown sytax is supported, taken from PHP
+Markdown Extra and GFM \(Github Flavoured Markdown\):
+
+  - pipe tables
+
+  - fenced code blocks \(with an optional language specifier\)
+
+# <a name='section3'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
 other problems\. Please report such in the category *textutil* of the [Tcllib

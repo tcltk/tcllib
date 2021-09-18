@@ -321,6 +321,40 @@ without the need of postprocessing the rendered result\&.
 \fB::Markdown::reset_lang_counter\fR
 Reset the language counters\&.
 .PP
+.SH "SUPPORTED MARKDOWN SYNTAX"
+.PP
+This markdown converter supports the original markdown by Gruber and Swartz (see their \fIsyntax\fR [https://daringfireball\&.net/projects/markdown/syntax] page for details):
+.IP \(bu
+paragraphs
+.IP \(bu
+atx- and setext-style headers
+.IP \(bu
+blockquotes
+.IP \(bu
+emphasis and strong emphasis
+.IP \(bu
+unordered and ordered lists
+.IP \(bu
+inline-style, reference-style and automatic links
+.IP \(bu
+inline- and reference-style images
+.IP \(bu
+inline code
+.IP \(bu
+code blocks (with four indent spaces or one tab)
+.IP \(bu
+inline HTML
+.IP \(bu
+backslash escapes
+.IP \(bu
+horizontal rules
+.PP
+In addition, the following extended markdown sytax is supported, taken from PHP Markdown Extra and GFM (Github Flavoured Markdown):
+.IP \(bu
+pipe tables
+.IP \(bu
+fenced code blocks (with an optional language specifier)
+.PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
