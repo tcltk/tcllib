@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file 'tcllib_sources\&.man~' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tcllib_sources\&.man' by tcllib/doctools with format 'nroff'
 '\"
 .TH "tcllib_sources" n 1 tcllib ""
 .\" The -*- nroff -*- definitions below are for supplemental macros used
@@ -303,8 +303,8 @@ For anything beyond head state and releases the process is a bit more
 involved\&.
 .PP
 If the commit id (commit hash) \fB((ID))\fR of the revision
-of interest is already known links to the desired archives can be
-construct, links using the forms:
+of interest is already known then links to the desired archives can be
+constructed using the forms below:
 .CS
 
 
