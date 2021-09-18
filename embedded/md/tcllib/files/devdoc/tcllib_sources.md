@@ -1,6 +1,6 @@
 
 [//000000001]: # (tcllib\_sources \- )
-[//000000002]: # (Generated from file 'tcllib\_sources\.man~' by tcllib/doctools with format 'markdown')
+[//000000002]: # (Generated from file 'tcllib\_sources\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (tcllib\_sources\(n\) 1 tcllib "")
 
 <hr> [ <a href="../../../toc.md">Main Table Of Contents</a> &#124; <a
@@ -64,8 +64,8 @@ searching the package documentation\.
 For anything beyond head state and releases the process is a bit more involved\.
 
 If the commit id \(commit hash\) __\(\(ID\)\)__ of the revision of interest is
-already known links to the desired archives can be construct, links using the
-forms:
+already known then links to the desired archives can be constructed using the
+forms below:
 
     https://core.tcl-lang.org/tcllib/tarball/((ID))/Tcl+Library+Source+Code.tar.gz
     https://core.tcl-lang.org/tcllib/zip/((ID))/Tcl+Library+Source+Code.zip

@@ -1,6 +1,4 @@
 #temporary home until this gets cleaned up for export to tcllib ip module
-# $Id: ipMore.tcl,v 1.4 2006/01/22 00:27:22 andreas_kupries Exp $
-
 
 ##Library Header
 #

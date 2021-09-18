@@ -271,6 +271,51 @@ test bquote-1.5 {complex case (from Caius test suite)} -body {
     <p>This is a test.</p>
 }
 
+test bquote-1.6 {modified complex case (from Caius test suite)} -body {
+    convert {
+        >
+        > > This is what he said. This is what she said. This is what
+        > > he said. This is what she said.
+        > >
+        > > ### Heading 3 #####
+        > > This is what he said. This is what she said. This is what
+        > > he said. This is what she said.
+        > >
+        > >     import os
+        > >     os.path.listdir()
+        > >
+        > > This is what he said. This is what she said. This is what
+        > > he said. This is what she said.
+        >
+        > ## Heading 2
+        > This is what he said. This is what she said. This is what
+        > he said. This is what she said.
+
+        This is a test.
+    }
+} -result {
+    <blockquote>
+    <blockquote>
+    <p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+
+    <h3>Heading 3</h3><p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+
+    <pre><code>import os
+    os.path.listdir()</code></pre>
+
+    <p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+    </blockquote>
+
+    <h2>Heading 2</h2><p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+    </blockquote>
+
+    <p>This is a test.</p>
+}
+
 test convert-2.2 {refs} -body {
     convert {
         Find it [here][foo]!
@@ -295,6 +340,113 @@ test code-block-1.0 {basic code block render} -body {
     <pre><code>in code</code></pre>
 
     <p>post code</p>
+}
+
+test header-1.1 {atx header level 1} -body {
+	convert {
+        # Header level 1
+        Text below without blank line
+	}
+} -result {
+    <h1>Header level 1</h1><p>Text below without blank line</p>
+}
+
+test header-1.2 {atx header level 2} -body {
+	convert {
+        ## Header level 2
+        Text below without blank line
+	}
+} -result {
+    <h2>Header level 2</h2><p>Text below without blank line</p>
+}
+
+
+test header-1.3 {atx header level 3} -body {
+	convert {
+        ### Header level 3
+        Text below without blank line
+	}
+} -result {
+    <h3>Header level 3</h3><p>Text below without blank line</p>
+}
+
+
+test header-1.4 {atx header level 1 with blank line} -body {
+	convert {
+        # Header level 1
+        
+        Text below with blank line
+	}
+} -result {
+    <h1>Header level 1</h1>
+
+    <p>Text below with blank line</p>
+}
+
+
+
+#-------------------------------------------------------------------------
+# Tests with texts from the original markdown page at daringfireball.net
+
+
+test gruber-1.1 {a sample text} -body {
+	convert {
+        A First Level Header
+        ====================
+
+        A Second Level Header
+        ---------------------
+
+        Now is the time for all good men to come to
+        the aid of their country. This is just a
+        regular paragraph.
+
+        The quick brown fox jumped over the lazy
+        dog's back.
+
+        ### Header 3
+
+        > This is a blockquote.
+        > 
+        > This is the second paragraph in the blockquote.
+        >
+        > ## This is an H2 in a blockquote
+	}
+} -result {
+    <h1>A First Level Header</h1>
+
+    <h2>A Second Level Header</h2>
+
+    <p>Now is the time for all good men to come to
+    the aid of their country. This is just a
+    regular paragraph.</p>
+
+    <p>The quick brown fox jumped over the lazy
+    dog's back.</p>
+
+    <h3>Header 3</h3>
+
+    <blockquote>
+    <p>This is a blockquote.</p>
+
+    <p>This is the second paragraph in the blockquote.</p>
+
+    <h2>This is an H2 in a blockquote</h2>
+    </blockquote>
+}
+
+test gruber-1.2 {reference-style links} -body {
+    convert {
+        I get 10 times more traffic from [Google][1] than from
+        [Yahoo][2] or [MSN][3].
+
+        [1]: http://google.com/        "Google"
+        [2]: http://search.yahoo.com/  "Yahoo Search"
+        [3]: http://search.msn.com/    "MSN Search"
+	}
+} -result {
+    <p>I get 10 times more traffic from <a href="http://google.com/" title="Google">Google</a> than from
+    <a href="http://search.yahoo.com/" title="Yahoo Search">Yahoo</a> or <a href="http://search.msn.com/" title="MSN Search">MSN</a>.</p>
 }
 
 #-------------------------------------------------------------------------
@@ -434,7 +586,7 @@ test caius-1.7 {indent test} -body {
 }
 
 #-------------------------------------------------------------------------
-# mdtest: Bugs found while running michelf/mdtest
+# mdtest: Bugs found while running https://github.com/michelf/mdtest/
 
 test mdtest-1.1 {AL: Auto links: & not escaped in URL} -body {
     convert {

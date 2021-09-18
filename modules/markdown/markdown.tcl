@@ -169,22 +169,18 @@ namespace eval Markdown {
                     incr index
                 }
                 {^[ ]{0,3}#{1,6}} {
-                    # ATX STYLE HEADINGS
+                    # ATX STYLE HEADERS
                     set h_level 0
                     set h_result {}
 
-                    while {$index < $no_lines && ![is_empty_line $line]} {
-                        incr index
-
-                        if {!$h_level} {
-                            regexp {^\s*#+} $line m
-                            set h_level [string length [string trim $m]]
-                        }
-
-                        lappend h_result $line
-
-                        set line [lindex $lines $index]
+                    if {!$h_level} {
+                        regexp {^\s*#+} $line m
+                        set h_level [string length [string trim $m]]
                     }
+
+                    lappend h_result $line
+
+                     set line [lindex $lines $index]
 
                     set h_result [\
                         parse_inline [\
@@ -193,6 +189,7 @@ namespace eval Markdown {
                     ]
 
                     append result "<h$h_level>$h_result</h$h_level>"
+                    incr index
                 }
                 {^[ ]{0,3}\>} {
                     # BLOCK QUOTES
@@ -572,7 +569,7 @@ namespace eval Markdown {
                     }
                 }
                 default {
-                    # PARAGRAPHS AND SETTEXT STYLE HEADERS
+                    # PARAGRAPHS AND SETEXT STYLE HEADERS
                     set p_type p
                     set p_result {}
 
@@ -826,5 +823,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.2
+package provide Markdown 1.2.1
 return

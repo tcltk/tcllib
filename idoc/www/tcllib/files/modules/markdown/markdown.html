@@ -105,7 +105,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">markdown(n) 1.2 tcllib &quot;Markdown to HTML Converter&quot;</h1>
+<h1 class="doctools_title">markdown(n) 1.2.1 tcllib &quot;Markdown to HTML Converter&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>markdown - Converts Markdown text to HTML</p>
 </div>
@@ -114,7 +114,8 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">Supported markdown syntax</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
@@ -122,7 +123,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">Markdown 1.2</b></li>
+<li>package require <b class="pkgname">Markdown 1.2.1</b></li>
 <li>package require <b class="pkgname">textutil <span class="opt">?0.8?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
@@ -163,7 +164,29 @@ without the need of postprocessing the rendered result.</p></dd>
 <dd><p>Reset the language counters.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Supported markdown syntax</a></h2>
+<p>This markdown converter supports the original markdown by Gruber and Swartz (see their <a href="https://daringfireball.net/projects/markdown/syntax">syntax</a> page for details):</p>
+<ul class="doctools_itemized">
+<li><p>paragraphs</p></li>
+<li><p>atx- and setext-style headers</p></li>
+<li><p>blockquotes</p></li>
+<li><p>emphasis and strong emphasis</p></li>
+<li><p>unordered and ordered lists</p></li>
+<li><p>inline-style, reference-style and automatic links</p></li>
+<li><p>inline- and reference-style images</p></li>
+<li><p>inline code</p></li>
+<li><p>code blocks (with four indent spaces or one tab)</p></li>
+<li><p>inline HTML</p></li>
+<li><p>backslash escapes</p></li>
+<li><p>horizontal rules</p></li>
+</ul>
+<p>In addition, the following extended markdown sytax is supported, taken from PHP Markdown Extra and GFM (Github Flavoured Markdown):</p>
+<ul class="doctools_itemized">
+<li><p>pipe tables</p></li>
+<li><p>fenced code blocks (with an optional language specifier)</p></li>
+</ul>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>textutil</em> of the

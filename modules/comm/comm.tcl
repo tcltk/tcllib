@@ -21,10 +21,8 @@
 #		comm interps
 #
 #	See the manual page comm.n for further details on this package.
-#
-# RCS: @(#) $Id: comm.tcl,v 1.34 2010/09/15 19:48:33 andreas_kupries Exp $
 
-package require Tcl 8.3
+package require Tcl 8.5
 package require snit ; # comm::future objects.
 
 namespace eval ::comm {
@@ -1807,4 +1805,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.6.4.1
+package provide comm 4.7

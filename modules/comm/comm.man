@@ -1,4 +1,4 @@
-[vset COMM_VERSION 4.6.3]
+[vset COMM_VERSION 4.7]
 [manpage_begin comm n [vset COMM_VERSION]]
 [see_also send(n)]
 [keywords comm]
@@ -17,9 +17,9 @@
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
-[titledesc {A remote communication facility for Tcl (8.3 and later)}]
+[titledesc {A remote communication facility for Tcl (8.5 and later)}]
 [category  {Programming tools}]
-[require Tcl 8.3]
+[require Tcl 8.5]
 [require comm [opt [vset COMM_VERSION]]]
 [description]
 
