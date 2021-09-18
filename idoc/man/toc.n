@@ -346,7 +346,7 @@ tcllib
 \fIfiles/modules/cmdline/cmdline\&.n\fR: Procedures to process command lines and options\&.
 .TP
 \fBcomm\fR
-\fIfiles/modules/comm/comm\&.n\fR: A remote communication facility for Tcl (8\&.3 and later)
+\fIfiles/modules/comm/comm\&.n\fR: A remote communication facility for Tcl (8\&.5 and later)
 .TP
 \fBcomm_wire\fR
 \fIfiles/modules/comm/comm_wire\&.n\fR: The comm wire protocol

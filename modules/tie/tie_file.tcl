@@ -2,16 +2,15 @@
 #
 #	Data source: Files.
 #
-# Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: tie_file.tcl,v 1.11 2008/02/28 06:19:56 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
 
+package require Tcl 8.5
 package require snit
 package require tie
 
@@ -270,4 +269,4 @@ snit::type ::tie::std::file {
 ## Ready to go
 
 ::tie::register ::tie::std::file as file
-package provide   tie::std::file 1.0.4
+package provide   tie::std::file 1.1

@@ -1,4 +1,5 @@
-[manpage_begin pop3 n 1.9]
+[vset VERSION 1.10]
+[manpage_begin pop3 n [vset VERSION]]
 [keywords email]
 [keywords mail]
 [keywords pop]
@@ -11,8 +12,8 @@
 [moddesc   {Tcl POP3 Client Library}]
 [titledesc {Tcl client for POP3 email protocol}]
 [category  Networking]
-[require Tcl  8.4]
-[require pop3 [opt 1.9]]
+[require Tcl  8.5]
+[require pop3 [opt [vset VERSION]]]
 [description]
 
 The [package pop3] package provides a simple Tcl-only client library

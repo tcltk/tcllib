@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'tie\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tie" n 1\&.1 tcllib "Tcl Data Structures"
+.TH "tie" n 1\&.2 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tie \- Array persistence
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBtie  ?1\&.1?\fR
+package require \fBtie  ?1\&.2?\fR
 .sp
 \fB::tie::tie\fR \fIarrayvarname\fR \fIoptions\fR\&.\&.\&. \fIdstype\fR \fIdsname\fR\&.\&.\&.
 .sp
@@ -716,6 +716,6 @@ array, database, file, metakit, persistence, tie, untie
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

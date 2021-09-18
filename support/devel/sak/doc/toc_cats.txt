@@ -331,7 +331,7 @@
 [division_start {Programming tools}]
 [item modules/clay/clay.man               clay                      {A minimalist framework for large scale OO Projects}]
 [item modules/cmdline/cmdline.man         cmdline                   {Procedures to process command lines and options.}]
-[item modules/comm/comm.man               comm                      {A remote communication facility for Tcl (8.3 and later)}]
+[item modules/comm/comm.man               comm                      {A remote communication facility for Tcl (8.5 and later)}]
 [item modules/comm/comm_wire.man          comm_wire                 {The comm wire protocol}]
 [item modules/control/control.man         control                   {Procedures for control flow structures.}]
 [item modules/interp/deleg_method.man     deleg_method              {Creation of comm delegates (snit methods)}]

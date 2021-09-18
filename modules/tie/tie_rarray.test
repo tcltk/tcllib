@@ -1,9 +1,7 @@
 # Tests for the tie module.                              -*- tcl -*- 
 #
-# Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: tie_rarray.test,v 1.7 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -11,7 +9,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 support {

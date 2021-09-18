@@ -633,7 +633,7 @@
 
           + [cmdline](tcllib/files/modules/cmdline/cmdline\.md) Procedures to process command lines and options\.
 
-          + [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.3 and later\)
+          + [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.5 and later\)
 
           + [comm\_wire](tcllib/files/modules/comm/comm\_wire\.md) The comm wire protocol
 

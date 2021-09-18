@@ -2,16 +2,15 @@
 #
 #	Data source: /dev/null. Just log changes.
 #
-# Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: tie_log.tcl,v 1.3 2005/09/28 04:51:24 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
 
+package require Tcl 8.5
 package require snit
 package require log
 package require tie
@@ -92,4 +91,4 @@ snit::type ::tie::std::log {
 ## Ready to go
 
 ::tie::register ::tie::std::log as log
-package provide   tie::std::log 1.0
+package provide   tie::std::log 1.1

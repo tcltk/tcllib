@@ -53,7 +53,7 @@
 [item modules/cmdline/cmdline.man cmdline {Procedures to process command lines and options.}]
 [division_end]
 [division_start comm]
-[item modules/comm/comm.man      comm      {A remote communication facility for Tcl (8.3 and later)}]
+[item modules/comm/comm.man      comm      {A remote communication facility for Tcl (8.5 and later)}]
 [item modules/comm/comm_wire.man comm_wire {The comm wire protocol}]
 [division_end]
 [division_start control]

@@ -2,16 +2,15 @@
 #
 #	Data source: Remote Tcl array.
 #
-# Copyright (c) 2004-2015 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: tie_rarray.tcl,v 1.3 2005/09/28 04:51:24 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
 
+package require Tcl 8.5
 package require snit
 package require tie
 
@@ -115,4 +114,4 @@ snit::type ::tie::std::rarray {
 ## Ready to go
 
 ::tie::register ::tie::std::rarray as remotearray
-package provide   tie::std::rarray 1.0.1
+package provide   tie::std::rarray 1.1

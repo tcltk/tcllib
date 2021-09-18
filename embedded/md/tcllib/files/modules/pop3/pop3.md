@@ -1,7 +1,7 @@
 
 [//000000001]: # (pop3 \- Tcl POP3 Client Library)
 [//000000002]: # (Generated from file 'pop3\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (pop3\(n\) 1\.9 tcllib "Tcl POP3 Client Library")
+[//000000003]: # (pop3\(n\) 1\.10 tcllib "Tcl POP3 Client Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,8 +36,8 @@ pop3 \- Tcl client for POP3 email protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require pop3 ?1\.9?  
+package require Tcl 8\.5  
+package require pop3 ?1\.10?  
 
 [__::pop3::open__ ?__\-msex__ 0&#124;1? ?__\-retr\-mode__ retr&#124;list&#124;slow? ?__\-socketcmd__ cmdprefix? ?__\-stls__ 0&#124;1? ?__\-tls\-callback__ stls\-callback\-command? *host username password* ?*port*?](#1)  
 [__::pop3::config__ *chan*](#2)  

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'pop3\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "pop3" n 1\&.9 tcllib "Tcl POP3 Client Library"
+.TH "pop3" n 1\&.10 tcllib "Tcl POP3 Client Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pop3 \- Tcl client for POP3 email protocol
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpop3  ?1\&.9?\fR
+package require \fBpop3  ?1\&.10?\fR
 .sp
 \fB::pop3::open\fR ?\fB-msex\fR 0|1? ?\fB-retr-mode\fR retr|list|slow? ?\fB-socketcmd\fR cmdprefix? ?\fB-stls\fR 0|1? ?\fB-tls-callback\fR stls-callback-command? \fIhost username password\fR ?\fIport\fR?
 .sp

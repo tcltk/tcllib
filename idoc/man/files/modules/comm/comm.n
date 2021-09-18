@@ -4,7 +4,7 @@
 '\" Copyright (c) 2003-2004 ActiveState Corporation\&.
 '\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "comm" n 4\&.6\&.3 tcllib "Remote communication"
+.TH "comm" n 4\&.7 tcllib "Remote communication"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-comm \- A remote communication facility for Tcl (8\&.3 and later)
+comm \- A remote communication facility for Tcl (8\&.5 and later)
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBcomm  ?4\&.6\&.3?\fR
+package require \fBcomm  ?4\&.7?\fR
 .sp
 \fB::comm::comm send\fR ?-async? ?-command \fIcallback\fR? \fIid\fR \fIcmd\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

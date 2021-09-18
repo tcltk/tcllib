@@ -2,16 +2,15 @@
 #
 #	Tie arrays to persistence engines.
 #
-# Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: tie.tcl,v 1.7 2006/09/19 23:36:18 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
 
+package require Tcl 8.5
 package require snit
 package require cmdline
 
@@ -508,4 +507,4 @@ proc ::tie::Dictsort {dict} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide tie 1.1
+package provide tie 1.2
