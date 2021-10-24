@@ -1427,7 +1427,6 @@ proc ::pki::x509::validate_cert {cert args} {
 
 	# Load cert
 	array set cert_arr $cert
-
 	# Validate certificate
 
 	if {!${ignore time}} {
@@ -1444,22 +1443,27 @@ proc ::pki::x509::validate_cert {cert args} {
 		}
 	}
 
-	# Check for extensions and process them
-	## Critical extensions must be understood, non-critical extensions may be ignored if not understood
-	set CA 0
-	set CAdepth -1
-	foreach {ext_id ext_val} $cert_arr(extensions) {
-		set critical [lindex $ext_val 0]
+    # Check for extensions and process them. However v1 certs have no extensions
+	if {$cert_arr(version) == 0} {
+		# Do not permit V1 certificates for signing.
+		set CA 0
+	} else {
+		## Critical extensions must be understood, non-critical extensions may be ignored if not understood
+		set CA 0
+		set CAdepth -1
+		foreach {ext_id ext_val} $cert_arr(extensions) {
+			set critical [lindex $ext_val 0]
 
-		switch -- $ext_id {
-			id-ce-basicConstraints {
-				set CA [lindex $ext_val 1]
-				set CAdepth [lindex $ext_val 2]
-			}
-			default {
-				### If this extensions is critical and not understood, we must reject it
-				if {$critical} {
-					return false
+			switch -- $ext_id {
+				id-ce-basicConstraints {
+					set CA [lindex $ext_val 1]
+					set CAdepth [lindex $ext_val 2]
+				}
+				default {
+					### If this extensions is critical and not understood, we must reject it
+					if {$critical} {
+						return false
+					}
 				}
 			}
 		}

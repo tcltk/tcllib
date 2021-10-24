@@ -121,7 +121,10 @@ test rsa-generate-cacert-1.0 {cert} -setup $setup2$setup6$setup7 -body {
 } -result [asset-get result/cert-b]
 
 
-test rsa-verify-certv1-1.0 {verify_cert} -setup $setup6 -body {
+test rsa-verify-certv1-1.0 {verify_cert} -setup {
+    set pubcert [pki::x509::parse_cert [asset-get test-v1.crt]]
+    set cacert [pki::x509::parse_cert [asset-get CA.crt]]
+} -body {
     ::pki::x509::verify_cert $pubcert [list $cacert] {validate args} -ignoretime 
 } -cleanup {
     unset pubcert cacert
