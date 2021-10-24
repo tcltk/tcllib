@@ -185,6 +185,7 @@ namespace eval ::pki {
 		2.5.29.31                      id-ce-cRLDistributionPoints
 		2.5.29.32                      id-ce-certificatePolicies
 		2.5.29.35                      id-ce-authorityKeyIdentifier
+		2.5.29.37                      id-ce-extKeyUsage
 	}
 
 	variable handlers
@@ -1228,22 +1229,175 @@ proc ::pki::x509::_native_to_utctime time {
 	return [clock format $time -format %y%m%d%H%M%SZ -gmt true]
 }
 
-proc ::pki::x509::_parse_id-ce-basicConstraints {octets critical} {
-	::asn::asnGetSequence octets ext_value_bin
+proc ::pki::x509::_parse_basicConstraints {ext_octets critical} {
+	# https://www.rfc-editor.org/rfc/rfc5280#page-128
+	# BasicConstraints ::= SEQUENCE {
+	# 	cA                      BOOLEAN DEFAULT FALSE,
+	# 	pathLenConstraint       INTEGER (0..MAX) OPTIONAL }	
 
-	if {$ext_value_bin ne {}} {
-		::asn::asnGetBoolean ext_value_bin allowCA
-	} else {
-		set allowCA false
+	# bytes will hold actual sequence bytes without the header
+	::asn::asnGetSequence ext_octets bytes
+
+	# Both elements are effectively optional. Upper levels use CA depth of -1
+	# to indicate no constraints specified
+	set allowCA false
+	set caDepth -1
+
+	if {$bytes ne {}} {
+		# Check first element - if not a boolean, it is missing and should default
+		::asn::asnPeekByte bytes tag
+		if {$tag == 0x01} {
+			::asn::asnGetBoolean bytes allowCA
+		}
+		# Second field if present
+		if {$bytes ne {}} {
+			::asn::asnGetInteger bytes caDepth
+		}
+		# TODO - should we raise an error if extra bytes left over?
 	}
 
-	if {$ext_value_bin ne {}} {
-		::asn::asnGetInteger ext_value_bin caDepth
-	} else {
-		set caDepth -1
-	}
 
 	return [list $critical $allowCA $caDepth]
+}
+
+proc ::pki::x509::_parse_keyUsage {ext_octets critical} {
+	# KeyUsage ::= BIT STRING {
+	# 	digitalSignature        (0),
+	# 	nonRepudiation          (1),  -- recent editions of X.509 have
+	# 	-- renamed this bit to contentCommitment
+	# 	keyEncipherment         (2),
+	# 	dataEncipherment        (3),
+	# 	keyAgreement            (4),
+	# 	keyCertSign             (5),
+	# 	cRLSign                 (6),
+	# 	encipherOnly            (7),
+	# 	decipherOnly            (8) }
+
+	::asn::asnGetBitString ext_octets bits
+	scan $bits %b bits
+	set tokens {
+		digitalSignature nonRepudiation keyEncipherment dataEncipherment
+		keyAgreement keyCertSign crlSign encipherOnly decipherOnly
+	}
+	set ntokens [llength $tokens]
+	set key_usage {}
+	for {set i 0} {$i < $ntokens} {incr i} {
+		if {$bits & (1 << $i)} {
+			lappend key_usage [lindex $tokens $i]
+		}
+	}
+	return [list $critical $key_usage]
+}
+
+proc ::pki::x509::_parse_subjectAltName {ext_octets critical} {
+	# https://www.rfc-editor.org/rfc/rfc5280#page-128
+	# SubjectAltName ::= GeneralNames
+	# GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+	# GeneralName ::= CHOICE {
+	# 	otherName                 [0]  AnotherName,
+	# 	rfc822Name                [1]  IA5String,
+	# 	dNSName                   [2]  IA5String,
+	# 	x400Address               [3]  ORAddress,
+	# 	directoryName             [4]  Name,
+	# 	ediPartyName              [5]  EDIPartyName,
+	# 	uniformResourceIdentifier [6]  IA5String,
+	# 	iPAddress                 [7]  OCTET STRING,
+	# 	registeredID              [8]  OBJECT IDENTIFIER }
+
+	# bytes will hold actual sequence bytes without the header
+	::asn::asnGetSequence ext_octets bytes
+
+	set alt_names [list]
+	while {$bytes ne {}} {
+		::asn::asnPeekByte bytes tag
+		# The tag is context-specific (0x80) | choice index To extract using asn
+		# routines, replace the tag with the concrete primitive tag using
+		# asnRetag. This is somewhat inefficient and it would have been better
+		# if the asn routines took an optional "expected_tag" argument but they
+		# do not, and I don't want to start hacking that module.
+
+		# Note the name tags (rfc822name etc.) are same as those used in create_cert
+		switch -exact -- [format 0x%02x $tag] {
+			0x80 {
+				# AnotherName - Important because Windows uses it for WinRM to store
+				# UPN format names with OID 1.3.6.1.4.1.311.20.2.3 with the value
+				# as a UTF-8 encoded string. However, other OID's may not use this
+				# UTF-8 forms, so we just keep the raw data in hex.
+				::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+				::asn::asnGetSequence bytes other_name
+				::asn::asnGetObjectIdentifier other_name other_name_oid
+				# Since interpretation is unknown, just store hex representation
+				binary scan $other_name H* other_name_hex
+				lappend alt_names othername [list $other_name_oid $other_name_hex]
+			}
+			0x81 {
+				::asn::asnRetag bytes 0x16;	# Retag as IA5String
+				::asn::asnGetIA5String bytes name
+				lappend alt_names rfc822name $name
+			}
+			0x82 {
+				::asn::asnRetag bytes 0x16;	# Retag as IA5String
+				::asn::asnGetIA5String bytes name
+				lappend alt_names dnsname $name
+			}
+			0x83 {
+				# TODO x400address - forget about parsing this for now!
+				::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+				::asn::asnGetSequence bytes x400addr
+				binary scan $x400addr H* x400addr_hex
+				lappend alt_names x400address $x400addr_hex
+			}
+			0x84 {
+				::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+				::asn::asnGetSequence bytes dir_name
+				lappend alt_names directoryname [_dn_to_string $dir_name]
+			}
+			0x85 {
+				# EDIPartyName ::= SEQUENCE {
+				# 	nameAssigner            [0]     DirectoryString OPTIONAL,
+				# 	partyName               [1]     DirectoryString }
+				# DirectoryString ::= CHOICE {
+				# 	teletexString       TeletexString   (SIZE (1..MAX)),
+				# 	printableString     PrintableString (SIZE (1..MAX)),
+				# 	universalString     UniversalString (SIZE (1..MAX)),
+				# 	utf8String          UTF8String      (SIZE (1..MAX)),
+				# 	bmpString           BMPString       (SIZE (1..MAX)) }
+				# TODO - Not too hard to implement but I'm not clear about the
+				# presence of implicit tags and do not have a sample certificate
+				::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+				::asn::asnGetSequence bytes edi
+				binary scan $x400addr H* edi_hex
+				lappend alt_names edipartyname $edi_hex
+			}
+			0x86 {
+				::asn::asnRetag bytes 0x16;	# Retag as IA5String
+				::asn::asnGetIA5String bytes name
+				lappend alt_names uri $name
+			}
+			0x87 {
+				# IPv4/6 -> must be exactly 4/16 octets respectively
+				::asn::asnRetag bytes 0x04
+				::asn::asnGetOctetString bytes addr
+				set n [string length $addr]
+				if {$n == 4} {
+					binary scan $addr cu* addr
+					set addr [join $addr_str .]
+				} elseif {$n == 16} {
+					binary scan $addr H* addr
+					set addr_str [regsub -all {[[:xdigit:]]{4}(?=.)} $addr {\0:}]
+				} else {
+					error "Invalid IP address. Has $n octets."
+				}
+				lappend alt_names ipaddress $addr_str
+			}
+			0x88 {
+				::asn::asnRetag bytes 0x06;	# Retag as OBJECT IDENTIFIER
+				::asn::asnGetObjectIdentifier bytes oid
+				lappend alt_names registeredid $oid
+			}
+		}
+	}
+	return [list $critical $alt_names]
 }
 
 proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
@@ -1275,8 +1429,15 @@ proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
 		# more oid-dependent values.
 		set ext_value [list $ext_critical]
 		switch -exact -- $ext_oid {
+			id-ce-subjectAltName -
+			id-ce-issuerAltName {
+				set ext_value [_parse_subjectAltName $ext_octets $ext_critical]
+			}
 			id-ce-basicConstraints {
-				set ext_value [_parse_$ext_oid $ext_octets $ext_critical]
+				set ext_value [_parse_basicConstraints $ext_octets $ext_critical]
+			}
+			id-ce-keyUsage {
+				set ext_value [_parse_keyUsage $ext_octets $ext_critical]
 			}
 			default {
 				binary scan $ext_octets H* ext_value_seq_hex
@@ -1331,6 +1492,8 @@ proc ::pki::x509::parse_cert {cert} {
 		::asn::asnGetBitString pubkeyinfo pubkey
 
 	set extensions_list [list]
+	# TODO - this loop seems incorrect to me. The order should be fixed and
+	# out-of-order should be an error. Moreover, duplicates should not be allowed.
 	while {$cert ne {}} {
 		::asn::asnPeekByte cert peek_tag
 
@@ -1348,6 +1511,7 @@ proc ::pki::x509::parse_cert {cert} {
 			}
 		}
 	}
+	# TODO - are duplicated extensions allowed? See RFC 5280 - section 4.2.
 	set ret(extensions) $extensions_list
 
 	::asn::asnGetSequence wholething signature_algo_seq
