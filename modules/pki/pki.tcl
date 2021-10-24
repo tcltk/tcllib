@@ -1228,6 +1228,65 @@ proc ::pki::x509::_native_to_utctime time {
 	return [clock format $time -format %y%m%d%H%M%SZ -gmt true]
 }
 
+proc ::pki::x509::_parse_id-ce-basicConstraints {octets critical} {
+	::asn::asnGetSequence octets ext_value_bin
+
+	if {$ext_value_bin ne {}} {
+		::asn::asnGetBoolean ext_value_bin allowCA
+	} else {
+		set allowCA false
+	}
+
+	if {$ext_value_bin ne {}} {
+		::asn::asnGetInteger ext_value_bin caDepth
+	} else {
+		set caDepth -1
+	}
+
+	return [list $critical $allowCA $caDepth]
+}
+
+proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
+	upvar 1 $extensions_list_var extensions_list
+	# Note - do NOT init extensions_list as we are appending to whatever caller
+	# has already stored there.
+	while {$extensions ne {}} {
+		# Each extension is itself a sequence. The first element is an OID that
+		# identifies the extension. The second element is the "critical" flag.
+		# This is optional and defaults to false. The third element is the
+		# actual extension value encoded as an octet string.
+		::asn::asnGetSequence extensions extension
+		::asn::asnGetObjectIdentifier extension ext_oid
+		set ext_oid [::pki::_oid_number_to_name $ext_oid]
+
+		# Check for presence of optional "critical" flag
+		::asn::asnPeekByte extension peek_tag
+		if {$peek_tag == 0x1} {
+			::asn::asnGetBoolean extension ext_critical
+		} else {
+			set ext_critical false
+		}
+
+		# Now extract the extension value. Note the structure of the octet
+		# string will depend on the OID.
+		::asn::asnGetOctetString extension ext_octets
+
+		# Parsed value of extension is the critical flag followed by zero or
+		# more oid-dependent values.
+		set ext_value [list $ext_critical]
+		switch -exact -- $ext_oid {
+			id-ce-basicConstraints {
+				set ext_value [_parse_$ext_oid $ext_octets $ext_critical]
+			}
+			default {
+				binary scan $ext_octets H* ext_value_seq_hex
+				lappend ext_value $ext_value_seq_hex
+			}
+		}
+		lappend extensions_list $ext_oid $ext_value
+	}
+	return
+}
 
 proc ::pki::x509::parse_cert {cert} {
 	array set parsed_cert [::pki::_parse_pem $cert \
@@ -1285,49 +1344,7 @@ proc ::pki::x509::parse_cert {cert} {
 			0xa3 {
 				::asn::asnGetContext cert - extensions_ctx
 				::asn::asnGetSequence extensions_ctx extensions
-				while {$extensions ne {}} {
-					::asn::asnGetSequence extensions extension
-						::asn::asnGetObjectIdentifier extension ext_oid
-
-						::asn::asnPeekByte extension peek_tag
-						if {$peek_tag == 0x1} {
-							::asn::asnGetBoolean extension ext_critical
-						} else {
-							set ext_critical false
-						}
-
-						::asn::asnGetOctetString extension ext_value_seq
-
-					set ext_oid [::pki::_oid_number_to_name $ext_oid]
-
-					set ext_value [list $ext_critical]
-
-					switch -- $ext_oid {
-						id-ce-basicConstraints {
-							::asn::asnGetSequence ext_value_seq ext_value_bin
-
-							if {$ext_value_bin ne {}} {
-								::asn::asnGetBoolean ext_value_bin allowCA
-							} else {
-								set allowCA false
-							}
-
-							if {$ext_value_bin ne {}} {
-								::asn::asnGetInteger ext_value_bin caDepth
-							} else {
-								set caDepth -1
-							}
-						
-							lappend ext_value $allowCA $caDepth
-						}
-						default {
-							binary scan $ext_value_seq H* ext_value_seq_hex
-							lappend ext_value $ext_value_seq_hex
-						}
-					}
-
-					lappend extensions_list $ext_oid $ext_value
-				}
+				_parse_extensions $extensions extensions_list
 			}
 		}
 	}
