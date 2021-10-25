@@ -182,10 +182,20 @@ namespace eval ::pki {
 		2.5.29.18                      id-ce-issuerAltName
 		2.5.29.19                      id-ce-basicConstraints
 		2.5.29.20                      id-ce-cRLNumber
+		2.5.29.30                      id-ce-nameConstraints
 		2.5.29.31                      id-ce-cRLDistributionPoints
 		2.5.29.32                      id-ce-certificatePolicies
 		2.5.29.35                      id-ce-authorityKeyIdentifier
 		2.5.29.37                      id-ce-extKeyUsage
+		1.3.6.1.5.5.7.3.1              serverAuth
+		1.3.6.1.5.5.7.3.2              clientAuth
+		1.3.6.1.5.5.7.3.3              codeSigning
+		1.3.6.1.5.5.7.3.4              emailProtection
+		1.3.6.1.5.5.7.3.5              ipsecEndSystem
+		1.3.6.1.5.5.7.3.6              ipsecTunnel
+		1.3.6.1.5.5.7.3.7              ipsecUser
+		1.3.6.1.5.5.7.3.8              timeStamping
+		1.3.6.1.5.5.7.3.9              OCSPSigning
 	}
 
 	variable handlers
@@ -1229,7 +1239,8 @@ proc ::pki::x509::_native_to_utctime time {
 	return [clock format $time -format %y%m%d%H%M%SZ -gmt true]
 }
 
-proc ::pki::x509::_parse_basicConstraints {ext_octets critical} {
+
+proc ::pki::x509::_parse_basicConstraints {ext_octets} {
 	# https://www.rfc-editor.org/rfc/rfc5280#page-128
 	# BasicConstraints ::= SEQUENCE {
 	# 	cA                      BOOLEAN DEFAULT FALSE,
@@ -1257,10 +1268,43 @@ proc ::pki::x509::_parse_basicConstraints {ext_octets critical} {
 	}
 
 
-	return [list $critical $allowCA $caDepth]
+	return [list $allowCA $caDepth]
 }
 
-proc ::pki::x509::_parse_keyUsage {ext_octets critical} {
+
+proc ::pki::x509::_parse_extKeyUsage {ext_octets} {
+	# id-ce-extKeyUsage OBJECT IDENTIFIER ::= {id-ce 37}
+	# ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+	# KeyPurposeId ::= OBJECT IDENTIFIER
+	# -- permit unspecified key uses
+	# anyExtendedKeyUsage OBJECT IDENTIFIER ::= { id-ce-extKeyUsage 0 }
+	# -- extended key purpose OIDs
+	# id-kp-serverAuth             OBJECT IDENTIFIER ::= { id-kp 1 }
+	# id-kp-clientAuth             OBJECT IDENTIFIER ::= { id-kp 2 }
+	# id-kp-codeSigning            OBJECT IDENTIFIER ::= { id-kp 3 }
+	# id-kp-emailProtection        OBJECT IDENTIFIER ::= { id-kp 4 }
+	# id-kp-ipsecEndSystem         OBJECT IDENTIFIER ::= { id-kp 5 }
+	# id-kp-ipsecTunnel            OBJECT IDENTIFIER ::= { id-kp 6 }
+	# id-kp-ipsecUser              OBJECT IDENTIFIER ::= { id-kp 7 }
+	# id-kp-timeStamping           OBJECT IDENTIFIER ::= { id-kp 8 }
+	# id-kp-OCSPSigning            OBJECT IDENTIFIER ::= { id-kp 9 }
+
+	::asn::asnGetSequence ext_octets bytes
+
+	set ext_key_usage [list]
+	while {$bytes ne {}} {
+		::asn::asnGetObjectIdentifier bytes oid
+		lappend ext_key_usage [::pki::_oid_number_to_name $oid]
+	}
+
+	# TODO - mnemonics in oid table are clientAuth etc. (without a id-kp- prefix)
+	# Should we add the id-kp- prefix? But that would inconsistent with keyUsage
+	# convention.
+	return $ext_key_usage
+}
+
+
+proc ::pki::x509::_parse_keyUsage {ext_octets} {
 	# KeyUsage ::= BIT STRING {
 	# 	digitalSignature        (0),
 	# 	nonRepudiation          (1),  -- recent editions of X.509 have
@@ -1277,7 +1321,7 @@ proc ::pki::x509::_parse_keyUsage {ext_octets critical} {
 	scan $bits %b bits
 	set tokens {
 		digitalSignature nonRepudiation keyEncipherment dataEncipherment
-		keyAgreement keyCertSign crlSign encipherOnly decipherOnly
+		keyAgreement keyCertSign cRLSign encipherOnly decipherOnly
 	}
 	set ntokens [llength $tokens]
 	set key_usage {}
@@ -1286,13 +1330,16 @@ proc ::pki::x509::_parse_keyUsage {ext_octets critical} {
 			lappend key_usage [lindex $tokens $i]
 		}
 	}
-	return [list $critical $key_usage]
+	return $key_usage
 }
 
-proc ::pki::x509::_parse_subjectAltName {ext_octets critical} {
-	# https://www.rfc-editor.org/rfc/rfc5280#page-128
-	# SubjectAltName ::= GeneralNames
+
+proc ::pki::x509::_parse_GeneralNamesContent {bytes} {
 	# GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+	# NOTE: bytes should hold actual sequence content without the SEQUENCE header
+	# Hence the "Content" in the name
+
+	# https://www.rfc-editor.org/rfc/rfc5280#page-128
 	# GeneralName ::= CHOICE {
 	# 	otherName                 [0]  AnotherName,
 	# 	rfc822Name                [1]  IA5String,
@@ -1303,9 +1350,9 @@ proc ::pki::x509::_parse_subjectAltName {ext_octets critical} {
 	# 	uniformResourceIdentifier [6]  IA5String,
 	# 	iPAddress                 [7]  OCTET STRING,
 	# 	registeredID              [8]  OBJECT IDENTIFIER }
-
-	# bytes will hold actual sequence bytes without the header
-	::asn::asnGetSequence ext_octets bytes
+	# In addition, from RFC 8398 -
+	# id-on-SmtpUTF8Mailbox OBJECT IDENTIFIER ::= { id-on 9 }
+	# SmtpUTF8Mailbox ::= UTF8String (SIZE (1..MAX))
 
 	set alt_names [list]
 	while {$bytes ne {}} {
@@ -1395,9 +1442,117 @@ proc ::pki::x509::_parse_subjectAltName {ext_octets critical} {
 				::asn::asnGetObjectIdentifier bytes oid
 				lappend alt_names registeredid $oid
 			}
+			0x89 {
+				::asn::asnRetag bytes 0x0C;	# Retag as UTF8 string
+				::asn::asnGetUTF8String bytes name
+				lappend alt_names uri $name
+			}
 		}
 	}
-	return [list $critical $alt_names]
+	return $alt_names
+}
+
+
+proc ::pki::x509::_parse_authorityKeyIdentifier {ext_octets} {
+	# AuthorityKeyIdentifier ::= SEQUENCE {
+	# 	keyIdentifier             [0] KeyIdentifier           OPTIONAL,
+	# 	authorityCertIssuer       [1] GeneralNames            OPTIONAL,
+	# 	authorityCertSerialNumber [2] CertificateSerialNumber OPTIONAL  }
+	# KeyIdentifier ::= OCTET STRING
+
+	::asn::asnGetSequence ext_octets bytes
+
+	# Note the fields are optional but must appear in the sequence shown.
+	# TODO - should we raise an error if fields in wrong order?
+
+	set ext_value [list]
+	if {$bytes eq {}} {
+		return $ext_value
+	}
+
+	# The tag is context-specific (0x80) | choice index To extract using asn
+	# routines, replace the tag with the concrete primitive tag using
+	# asnRetag. This is somewhat inefficient and it would have been better
+	# if the asn routines took an optional "expected_tag" argument but they
+	# do not, and I don't want to start hacking that module.
+
+	::asn::asnPeekByte bytes tag
+	if {$tag == 0x80} {
+		::asn::asnRetag bytes 0x04; # Retag as OCTET STRING
+		::asn::asnGetOctetString bytes key_identifier
+		binary scan $key_identifier H* key_identifier_hex
+		lappend ext_value keyIdentifier $key_identifier_hex
+		if {$bytes eq {}} {
+			return $ext_value
+		}
+		::asn::asnPeekByte bytes tag
+	}
+
+	if {$tag == 0x81} {
+		::asn::asnRetag bytes 0x30; # Retag as SEQUENCE - (GeneralNames)
+		::asn::asnGetSequence bytes issuer_names
+		lappend ext_value \
+			authorityCertIssuer [_parse_GeneralNamesContent $issuer_names]
+		if {$bytes eq {}} {
+			return $ext_value
+		}
+		::asn::asnPeekByte bytes tag
+	}
+
+	if {$tag == 0x82} {
+		::asn::asnRetag bytes 0x02; # Retag as INTEGER
+		::asn::asnGetInteger bytes serial
+		lappend ext_value authorityCertSerialNumber $serial
+	}
+
+	# TODO - are we supposed to raise an error if no fields or extra bytes?
+	return $ext_value
+}
+
+proc ::pki::x509::_parse_altNames {ext_octets} {
+	# SubjectAltName ::= GeneralNames
+	# IssuerAltName ::= GeneralNames
+	# GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+
+	::asn::asnGetSequence ext_octets bytes
+	return [_parse_GeneralNamesContent $bytes]
+}
+
+
+proc ::pki::x509::_parse_GeneralSubtreesContent {bytes} {
+	# NOTE: bytes is content of GeneralSubtrees AFTER stripping SEQUENCE header
+	# GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
+	# GeneralSubtree ::= SEQUENCE {
+	# 	base                    GeneralName,
+	# 	minimum         [0]     BaseDistance DEFAULT 0,
+	# 	maximum         [1]     BaseDistance OPTIONAL }
+	# BaseDistance ::= INTEGER (0..MAX)
+
+	set subtrees [list]
+	while {$bytes ne {}} {
+		::asn::asnGetSequence bytes subtree_bytes
+		TBD;
+	}
+}
+
+proc ::pki::x509::_parse_nameConstraints {ext_octets} {
+	# NameConstraints ::= SEQUENCE {
+	# 	permittedSubtrees       [0]     GeneralSubtrees OPTIONAL,
+	# 	excludedSubtrees        [1]     GeneralSubtrees OPTIONAL }
+
+	::asn::asnGetSequence ext_octets bytes
+	set ext_value [list]
+	if {$bytes eq {}} {
+		return $ext_value
+	}
+	::asn::asnPeekByte bytes tag
+	if {$tag == 0x80} {
+		# permittedSubtrees
+		::asn::asnRetag bytes 0x30;	# Tag as SEQUENCE
+		::asn::asnGetSequence bytes subtree_bytes
+
+	}
+
 }
 
 proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
@@ -1427,24 +1582,53 @@ proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
 
 		# Parsed value of extension is the critical flag followed by zero or
 		# more oid-dependent values.
-		set ext_value [list $ext_critical]
+		# TODO - certificatePolicies - MUST
+		# TODO - policyMappings
+		# TODO - subjectDirectoryAttributes
+		# TODO - nameConstraints - MUST
+		# TODO - policyConstraints - MUST
+		# TODO - cRLDistributionPoints
+		# TODO - inhibitAnyPolicy - MUST
+		# TODO - freshestCRL
+
 		switch -exact -- $ext_oid {
 			id-ce-subjectAltName -
 			id-ce-issuerAltName {
-				set ext_value [_parse_subjectAltName $ext_octets $ext_critical]
+				set ext_value [_parse_altNames $ext_octets]
 			}
 			id-ce-basicConstraints {
-				set ext_value [_parse_basicConstraints $ext_octets $ext_critical]
+				set ext_value [_parse_basicConstraints $ext_octets]
 			}
 			id-ce-keyUsage {
-				set ext_value [_parse_keyUsage $ext_octets $ext_critical]
+				set ext_value [_parse_keyUsage $ext_octets]
+			}
+			id-ce-extKeyUsage {
+				set ext_value [_parse_extKeyUsage $ext_octets]
+			}
+			id-ce-authorityKeyIdentifier {
+				set ext_value [_parse_authorityKeyIdentifier $ext_octets]
+			}
+			id-ce-subjectKeyIdentifier {
+				::asn::asnGetOctetString ext_octets subject_key_id
+				binary scan $subject_key_id H* ext_value
+			}
+			id-ce-nameConstraints {
+				set ext_value [_parse_nameConstraints $ext_octets]
 			}
 			default {
-				binary scan $ext_octets H* ext_value_seq_hex
-				lappend ext_value $ext_value_seq_hex
+				binary scan $ext_octets H* ext_value
 			}
 		}
-		lappend extensions_list $ext_oid $ext_value
+		if {$ext_oid eq "id-ce-basicConstraints"} {
+			# TODO - backward compatibility hack This was returned in 0.1 as a
+			# three element list - {critical allowCa caDepth} If backward compat
+			# is not an issue, we should make it consistent with the asn.1 specs
+			# and other extensions where the value is a separate structure from
+			# the critical flag and not flattened.
+			lappend extensions_list $ext_oid [list $ext_critical {*}$ext_value]
+		} else {
+			lappend extensions_list $ext_oid [list $ext_critical $ext_value]
+		}
 	}
 	return
 }
