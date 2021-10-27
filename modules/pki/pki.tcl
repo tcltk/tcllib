@@ -1249,9 +1249,17 @@ proc ::pki::x509::_utctime_to_native utctime {
 	return [clock scan $utctime -format %y%m%d%H%M%SZ -gmt true]
 }
 
-
 proc ::pki::x509::_native_to_utctime time {
 	return [clock format $time -format %y%m%d%H%M%SZ -gmt true]
+}
+
+proc ::pki::x509::_generalizedtime_to_native utctime {
+	return [clock scan $utctime -format %Y%m%d%H%M%SZ -gmt true]
+}
+
+
+proc ::pki::x509::_generalizedtime_to_utctime time {
+	return [clock format $time -format %Y%m%d%H%M%SZ -gmt true]
 }
 
 
@@ -2004,8 +2012,23 @@ proc ::pki::x509::parse_cert {cert} {
 		::asn::asnGetObjectIdentifier data_signature_algo_seq ret(data_signature_algo)
 	::asn::asnGetSequence cert issuer
 	::asn::asnGetSequence cert validity
+		::asn::asnPeekByte validity peek_tag
+	if {$peek_tag == 0x18} {
+		::asn::asnGetGeneralizedTime validity ret(notBefore)
+		set ret(notBefore) [::pki::x509::_generalizedtime_to_native $ret(notBefore)]
+	} else {
+		# 0x17
 		::asn::asnGetUTCTime validity ret(notBefore)
+		set ret(notBefore) [::pki::x509::_utctime_to_native $ret(notBefore)]
+	}
+	if {$peek_tag == 0x18} {
+		::asn::asnGetGeneralizedTime validity ret(notAfter)
+		set ret(notAfter) [::pki::x509::_generalizedtime_to_native $ret(notAfter)]
+	} else {
+		# 0x17
 		::asn::asnGetUTCTime validity ret(notAfter)
+		set ret(notAfter) [::pki::x509::_utctime_to_native $ret(notAfter)]
+	}
 	::asn::asnGetSequence cert subject
 	::asn::asnGetSequence cert pubkeyinfo
 		::asn::asnGetSequence pubkeyinfo pubkey_algoid
@@ -2042,8 +2065,6 @@ proc ::pki::x509::parse_cert {cert} {
 	::asn::asnGetBitString wholething ret(signature)
 
 	# Convert values from ASN.1 decoder to usable values if needed
-	set ret(notBefore) [::pki::x509::_utctime_to_native $ret(notBefore)]
-	set ret(notAfter) [::pki::x509::_utctime_to_native $ret(notAfter)]
 	set ret(serial_number) [::math::bignum::tostr $ret(serial_number)]
 	set ret(data_signature_algo) [::pki::_oid_number_to_name $ret(data_signature_algo)]
 	set ret(signature_algo) [::pki::_oid_number_to_name $ret(signature_algo)]
@@ -2954,6 +2975,155 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 	set retkey(q) $q
 
 	return [array get retkey]
+}
+
+## Fill in missing ASN.1 routines
+
+if {1 || [info commands ::asn::asnGetT61String] eq ""} {
+	namespace eval ::asn {}
+	proc asn::asnGetT61String {data_var print_var} {
+		# This is NOT a fully conforming T.61 decoder. See caveats below.
+		# The result may be used for display purposes etc. but not for validation.
+		# RFC 5280 bans the use for the latter purpose anyways.
+		upvar 1 $data_var data $print_var print
+		asnGetByte data tag
+		if {$tag != 0x14} {
+			return -code error \
+				[format "Expected T.61 String (0x14), but got %02x" $tag]  
+		}
+		asnGetLength data length
+		asnGetBytes data $length t61
+		#
+		# Conversion : https://www.compart.com/en/unicode/charsets/T.61-8bit
+		# - All characters in ascii range 0-0x7f are passed through. T.61 does
+		# not use/define all control characters and even some printables like {, }
+		# but we pass them through anyways.
+		# - Certain 8-bit character within a certain range map to Unicode
+		# equivalents but with a few gaps and exceptions
+		# - T.61 encodes diacritics as the diacritic followed by the base
+		# character. These are encoded as the *decomposed* Unicode character
+		# consisting of the base character followed by the diacritic
+		# (i.e reversed order from T.61). Encoding as precomposed would need
+		# to be table-driven. TODO - the right approach is to create a Tcl
+		# encoding file but that is more work than I can afford right now.
+		# - Everything else result in an error because interpretation of
+		# remaining bytes is not implemented.
+		binary scan $t61 cu* t61_bytes
+		set string ""
+		for {set n [llength $t61_bytes]; set i 0} {$i < $n} {incr i} {
+			set ord [lindex $t61_bytes $i]
+			if {$ord < 0x80} {
+				# 0-0x7f Primary control and graphic characters (basically
+				# ascii) but with some unused passed through
+				append string [format %c $ord]
+			} elseif {$ord < 0xa0} {
+				# 0x80-0x9f - supplementary control. Could map directly to Unicode
+				# except CSI (0x9b) which is a variable length control sequence
+				# that we do not want to parse.
+				if {$ord == 0x9b} {
+					error "T.61 control character ([format 0x%02x]) encountered."
+				}
+				append string [format %c $ord]
+			} elseif {$ord < 0xc1} {
+				# 0xa1-0xbf - Supplementary graphics characters or unused. Map
+				# directly to Unicode with some exceptions.
+				if {$ord == 0xa4} {
+					append string \$
+				} elseif {$od == 0xa6} {
+					append string #
+				} elseif {$od == 0xa8} {
+					append string \u00a4
+				} elseif {$od == 0xb4} {
+					append string \u00d7
+				} elseif {$od == 0xb8} {
+					append string \u00f7
+				} else {
+					append string [format %c $ord]
+				}
+			} elseif {$ord < 0xd0} {
+				# 0xc1-0xcf - diacritic leaders.
+				set diacritic [dict get {
+					c1 \u0300 c2 \u0301 c3 \u0302 c4 \u0303 c5 \u0304 c6 \u0306
+					c7 \u0307 c8 \u0308 c9 \u0308 ca \u030a cb \u0327 cc \u0332
+					cd \u030b ce \u0328 cf \u030c
+				} [format %02x $ord]]
+
+				# In unicode form, the diacritic
+				# follows the base character. So we need to fetch the next T.61
+				# character.
+				incr i
+				if {$i >= $n} {
+					error "Composing diacritic ([format %02x $ord]) not followed by a character."
+				}
+				set ord [lindex $t61_bytes $i]
+				# TODO - do we need to check that the following character is valid?
+				# If so, how?
+				# TODO - Normalise diacritic and base into a single composed character
+				append string [format %c $ord] $diacritic
+			} elseif {$ord < 0xe0} {
+				# Undefined. Replace with ?. Should we generate an error?
+				append string ?
+			} else {
+				# Final set of supplementary graphics 
+				# TODO - e5 and ff are undefined. We replace with ?. Should we
+				# generate an error?
+				append string [dict get {
+					e0 \u2126 e1 \u00c6 e2 \u00d0 e3 \u00aa e4 \u0126 e5 ?
+					e6 \u0132 e7 \u013f e8 \u0141 e9 \u00d8 ea \u0152 eb \u00ba
+					ec \u00de ed \u0166 ee \u014a ef \u0149 f0 \u0138 f1 \u00e6
+					f2 \u0111 f3 \u00f0 f4 \u0127 f5 \u0131 f6 \u0133 f7 \u0140
+					f8 \u0142 f9 \u00f8 fa \u0153 fb \u00df fc \u00fe fd \u0167
+					fe \u014b ff ?
+				} [format %02x $ord]]
+			}
+		}
+
+		# Now that we completed without errors, we can set the output variable
+		set print $string
+		return
+	}
+}
+
+
+
+if {[info commands ::asn::asnGetGeneralizedTime] eq ""} {
+	namespace eval ::asn {}
+	# TODO - asnGeneralizedTime
+	proc asn::asnGetGeneralizedTime {data_var utc_var} {
+		upvar 1 $data_var data $utc_var utc
+
+		asnGetByte data tag
+		if {$tag != 0x18} {
+			return -code error \
+				[format "Expected GeneralizedTime (0x18), but got %02x" $tag]
+		}
+
+		asnGetLength data length
+		asnGetBytes data $length bytes
+
+		# this should be ascii, make it explicit
+		# TODO: support fractional seconds though not required for X.509
+		set bytes [encoding convertfrom ascii $bytes]
+		binary scan $bytes a* utc
+
+		return
+	}
+}
+
+if {[info commands ::asn::asnGeneralizedTime] eq ""} {
+	namespace eval ::asn {}
+	proc asn::asnGeneralizedTime {UTCtimestring} {
+		# the generalized time tag is 0x18.
+		# 
+		# TODO: check the string for well formedness
+		# TODO: accept clock seconds as well as an integer
+		# TODO: support fractional seconds though not required for X.509
+		# which does not permit them.
+
+		set ascii [encoding convertto ascii $UTCtimestring]
+		set len [string length $ascii]
+		return [binary format H2a*a* 18 [asnLength $len] $ascii]
+	}
 }
 
 ## Initialize parsing routines, which may load additional packages (base64)
