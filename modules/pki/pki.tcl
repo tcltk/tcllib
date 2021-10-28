@@ -175,22 +175,22 @@ namespace eval ::pki {
 		2.5.4.7                        l
 		2.5.4.8                        st
 		2.5.4.9                        street
-		2.5.29.9                       id-ce-subjectDirectoryAttributes
-		2.5.29.14                      id-ce-subjectKeyIdentifier
-		2.5.29.15                      id-ce-keyUsage
-		2.5.29.16                      id-ce-privateKeyUsagePeriod
-		2.5.29.17                      id-ce-subjectAltName
-		2.5.29.18                      id-ce-issuerAltName
-		2.5.29.19                      id-ce-basicConstraints
-		2.5.29.20                      id-ce-cRLNumber
-		2.5.29.30                      id-ce-nameConstraints
-		2.5.29.31                      id-ce-cRLDistributionPoints
-		2.5.29.32                      id-ce-certificatePolicies
-		2.5.29.33                      id-ce-policyMappings
-		2.5.29.34                      id-ce-policyConstraints
-		2.5.29.35                      id-ce-authorityKeyIdentifier
-		2.5.29.37                      id-ce-extKeyUsage
-		2.5.29.54                      id-ce-inhibitAnyPolicy
+		2.5.29.9                       subjectDirectoryAttributes
+		2.5.29.14                      subjectKeyIdentifier
+		2.5.29.15                      keyUsage
+		2.5.29.16                      privateKeyUsagePeriod
+		2.5.29.17                      subjectAltName
+		2.5.29.18                      issuerAltName
+		2.5.29.19                      basicConstraints
+		2.5.29.20                      cRLNumber
+		2.5.29.30                      nameConstraints
+		2.5.29.31                      cRLDistributionPoints
+		2.5.29.32                      certificatePolicies
+		2.5.29.33                      policyMappings
+		2.5.29.34                      policyConstraints
+		2.5.29.35                      authorityKeyIdentifier
+		2.5.29.37                      extKeyUsage
+		2.5.29.54                      inhibitAnyPolicy
 		1.3.6.1.5.5.7.3.1              serverAuth
 		1.3.6.1.5.5.7.3.2              clientAuth
 		1.3.6.1.5.5.7.3.3              codeSigning
@@ -1275,7 +1275,7 @@ proc ::pki::x509::_parse_BasicConstraints {ext_octets_var} {
 
 	# Both elements are effectively optional. Upper levels use CA depth of -1
 	# to indicate no constraints specified
-	set allowCA false
+	set allowCA 0
 	set caDepth -1
 
 	if {$bytes ne {}} {
@@ -1297,11 +1297,11 @@ proc ::pki::x509::_parse_BasicConstraints {ext_octets_var} {
 
 
 proc ::pki::x509::_parse_ExtKeyUsage {ext_octets_var} {
-	# id-ce-extKeyUsage OBJECT IDENTIFIER ::= {id-ce 37}
+	# extKeyUsage OBJECT IDENTIFIER ::= {id-ce 37}
 	# ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
 	# KeyPurposeId ::= OBJECT IDENTIFIER
 	# -- permit unspecified key uses
-	# anyExtendedKeyUsage OBJECT IDENTIFIER ::= { id-ce-extKeyUsage 0 }
+	# anyExtendedKeyUsage OBJECT IDENTIFIER ::= { extKeyUsage 0 }
 	# -- extended key purpose OIDs
 	# id-kp-serverAuth             OBJECT IDENTIFIER ::= { id-kp 1 }
 	# id-kp-clientAuth             OBJECT IDENTIFIER ::= { id-kp 2 }
@@ -1395,13 +1395,14 @@ proc ::pki::x509::_parse_GeneralName {bytes_var} {
 
 	# Note the name tags (rfc822name etc.) are same as those used in create_cert
 	switch -exact -- [format 0x%02x $tag] {
-		0x80 {
+		0xa0 {
 			# AnotherName - Important because Windows uses it for WinRM to store
 			# UPN format names with OID 1.3.6.1.4.1.311.20.2.3 with the value
 			# as a UTF-8 encoded string. However, other OID's may not use this
 			# UTF-8 forms, so we just keep the raw data in hex.
-			::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
-			::asn::asnGetSequence bytes other_name
+			::asn::asnGetContext bytes context_tag other_name
+			# ::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+			# ::asn::asnGetSequence bytes other_name
 			::asn::asnGetObjectIdentifier other_name other_name_oid
 			# Since interpretation is unknown, just store hex representation
 			binary scan $other_name H* other_name_hex
@@ -1417,10 +1418,11 @@ proc ::pki::x509::_parse_GeneralName {bytes_var} {
 			::asn::asnGetIA5String bytes name
 			return [list dnsname $name]
 		}
-		0x83 {
+		0xa3 {
 			# TODO x400address - forget about parsing this for now!
-			::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
-			::asn::asnGetSequence bytes x400addr
+			::asn::asnGetContext bytes context_tag x400addr
+			# ::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+			# ::asn::asnGetSequence bytes x400addr
 			binary scan $x400addr H* x400addr_hex
 			return [list x400address $x400addr_hex]
 		}
@@ -1430,7 +1432,7 @@ proc ::pki::x509::_parse_GeneralName {bytes_var} {
 			::asn::asnGetSequence dn_bytes dir_name
 			return [list directoryname [_dn_to_string $dir_name]]
 		}
-		0x85 {
+		0xa5 {
 			# EDIPartyName ::= SEQUENCE {
 			# 	nameAssigner            [0]     DirectoryString OPTIONAL,
 			# 	partyName               [1]     DirectoryString }
@@ -1459,7 +1461,7 @@ proc ::pki::x509::_parse_GeneralName {bytes_var} {
 			set n [string length $addr]
 			if {$n == 4} {
 				binary scan $addr cu* addr
-				set addr [join $addr_str .]
+				set addr_str [join $addr .]
 			} elseif {$n == 16} {
 				binary scan $addr H* addr
 				set addr_str [regsub -all {[[:xdigit:]]{4}(?=.)} $addr {\0:}]
@@ -1903,7 +1905,7 @@ proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
 		if {$peek_tag == 0x1} {
 			::asn::asnGetBoolean extension ext_critical
 		} else {
-			set ext_critical false
+			set ext_critical 0
 		}
 
 		# Now extract the extension value. Note the structure of the octet
@@ -1914,46 +1916,46 @@ proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
 		# more oid-dependent values.
 
 		switch -exact -- $ext_oid {
-			id-ce-subjectAltName -
-			id-ce-issuerAltName {
+			subjectAltName -
+			issuerAltName {
 				set ext_value [_parse_GeneralNames ext_octets]
 			}
-			id-ce-basicConstraints {
+			basicConstraints {
 				set ext_value [_parse_BasicConstraints ext_octets]
 			}
-			id-ce-keyUsage {
+			keyUsage {
 				set ext_value [_parse_KeyUsage ext_octets]
 			}
-			id-ce-extKeyUsage {
+			extKeyUsage {
 				set ext_value [_parse_ExtKeyUsage ext_octets]
 			}
-			id-ce-authorityKeyIdentifier {
+			authorityKeyIdentifier {
 				set ext_value [_parse_AuthorityKeyIdentifier ext_octets]
 			}
-			id-ce-subjectKeyIdentifier {
+			subjectKeyIdentifier {
 				::asn::asnGetOctetString ext_octets subject_key_id
 				binary scan $subject_key_id H* ext_value
 			}
-			id-ce-nameConstraints {
+			nameConstraints {
 				set ext_value [_parse_NameConstraints ext_octets]
 			}
-			id-ce-certificatePolicies {
+			certificatePolicies {
 				set ext_value [_parse_CertificatePolicies ext_octets]
 			}
-			id-ce-policyMappings {
+			policyMappings {
 				set ext_value [_parse_PolicyMappings ext_octets]
 			}
-			id-ce-policyConstraints {
+			policyConstraints {
 				set ext_value [_parse_PolicyConstraints ext_octets]
 			}
-			id-ce-inhibitAnyPolicy {
+			inhibitAnyPolicy {
 				::asn::asnGetInteger ext_octets ext_value
 			}
-			id-ce-subjectDirectoryAttributes {
+			subjectDirectoryAttributes {
 				set ext_value [_parse_SubjectDirectoryAttributes ext_octets]
 			}
-			id-ce-freshestCRL -
-			id-ce-cRLDistributionPoints {
+			freshestCRL -
+			cRLDistributionPoints {
 				set ext_value [_parse_CRLDistributionPoints ext_octets]
 			}
 			id-pe-authorityInfoAccess -
@@ -1964,16 +1966,17 @@ proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
 				binary scan $ext_octets H* ext_value
 			}
 		}
-		if {$ext_oid eq "id-ce-basicConstraints"} {
+		if {$ext_oid eq "basicConstraints"} {
 			# TODO - backward compatibility hack This was returned in 0.1 as a
 			# three element list - {critical allowCa caDepth} If backward compat
 			# is not an issue, we should make it consistent with the asn.1 specs
 			# and other extensions where the value is a separate structure from
-			# the critical flag and not flattened into a list.
-			lappend extensions_list $ext_oid [list $ext_critical {*}$ext_value]
-		} else {
-			lappend extensions_list $ext_oid [list $ext_critical $ext_value]
+			# the critical flag and not flattened into a list. For now, return
+			# both forms.
+			lappend extensions_list id-ce-basicConstraints [list $ext_critical {*}$ext_value]
+			# Note we also add the new form of basicConstraints below
 		}
+		lappend extensions_list $ext_oid [list $ext_critical $ext_value]
 	}
 	return
 }
@@ -2180,9 +2183,9 @@ proc ::pki::x509::validate_cert {cert args} {
 			set critical [lindex $ext_val 0]
 
 			switch -- $ext_id {
-				id-ce-basicConstraints {
-					set CA [lindex $ext_val 1]
-					set CAdepth [lindex $ext_val 2]
+				basicConstraints {
+					set CA [lindex $ext_val 1 0]
+					set CAdepth [lindex $ext_val 1 1]
 				}
 				default {
 					### If this extensions is critical and not understood, we must reject it
@@ -2436,7 +2439,7 @@ proc ::pki::x509::create_cert {
 
 	# If we are generating a CA cert, add a CA extension
 	if {$isCA} {
-		set extensions(id-ce-basicConstraints) [list true true -1]
+		set extensions(basicConstraints) [list true true -1]
 	}
 
 	# Determine what version we need to use (default to 1)
@@ -2529,7 +2532,8 @@ proc ::pki::x509::create_cert {
 			set critical 0
 
 			switch -- $extension {
-				id-ce-basicConstraints {
+				id-ce-basicConstraints -
+				basicConstraints {
 					set critical [lindex $extvalue 0]
 					set allowCA [lindex $extvalue 1]
 					set caDepth [lindex $extvalue 2]
@@ -2545,7 +2549,8 @@ proc ::pki::x509::create_cert {
 					}
 				}
 
-				id-ce-subjectAltName {
+				id-ce-subjectAltName -
+				subjectAltName {
 					set critical [lindex $extvalue 0]
 	
 					unset -nocomplain altnames
@@ -2567,7 +2572,8 @@ proc ::pki::x509::create_cert {
 					set extvalue [::asn::asnSequence {*}$altnames]
 				}
 
-				id-ce-cRLDistributionPoints {
+				id-ce-cRLDistributionPoints -
+				cRLDistributionPoints {
 					set critical [lindex $extvalue 0]
 
 					set crlDistributionPoint_objects [list distributionPoint reasons cRLIssuer]
@@ -2624,7 +2630,8 @@ proc ::pki::x509::create_cert {
 					set extvalue [::asn::asnSequenceFromList $crlDistributionPointsASN]
 				}
 
-				id-ce-keyUsage {
+				id-ce-keyUsage -
+				keyUsage {
 					set critical [lindex $extvalue 0]
 					set extvalue [string tolower [lrange $extvalue 1 end]]
 
