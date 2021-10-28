@@ -61,6 +61,7 @@ foreach {n label input expected} {
     7 A         A      A
     8 del       \177   \\177
     9 circast   \u229b \\u229b
+    10 ???      \uf800 \\uf800
 } {
     test char-2.3.$n "char tcl, map $label" -body {
 	char quote tcl $input
@@ -111,6 +112,7 @@ foreach {n label input expected} {
     7 A         A      A
     8 del       \177   <DEL>
     9 circast   \u229b \u229b
+    10 ???      \uf800 <U+f800>
 } {
     test char-3.3.$n "char string, map $label" -body {
 	char quote string $input
@@ -161,6 +163,7 @@ foreach {n label input expected} {
     7 A         A      A
     8 del       \177   \\177
     9 circast   \u229b \\342\\212\\233
+    10 ???      \uf800 \\357\\240\\200
 } {
     test char-4.3.$n "char cstring, map $label" -body {
 	char quote cstring $input
@@ -211,6 +214,7 @@ foreach {n label input expected} {
     7 A         A      A
     8 del       \177   \\177
     9 circast   \u229b \\u229b
+    10 ???      \uf800 \\uf800
 } {
     test char-5.3.$n "char comment, map $label" -body {
 	char quote comment $input

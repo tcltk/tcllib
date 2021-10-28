@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009,2021 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # Operations with characters: (Un)quoting.
 
 # ### ### ### ######### ######### #########
@@ -91,14 +91,14 @@ proc ::char::quote::Tcl {ch} {
 
     scan $ch %c chcode
 
-    # Control character?
-    if {[::string is control -strict $ch]} {
-	return \\[format %o $chcode]
-    }
-
     # Unicode beyond 7bit ASCII?
     if {$chcode > 127} {
 	return \\u[format %04x $chcode]
+    }
+
+    # Control character?
+    if {[::string is control -strict $ch]} {
+	return \\[format %o $chcode]
     }
 
     # Regular character: Is its own representation.
@@ -134,7 +134,7 @@ proc ::char::quote::String {ch} {
 
     # Unicode characters. Mostly represent themselves, except if
     # control or not printable. Then they are represented by their
-    # codepoint.
+    # hexadecimal codepoint.
 
     # Control characters: Octal
     if {[::string is control -strict $ch] ||
@@ -195,11 +195,6 @@ proc ::char::quote::CString {ch} {
 
     scan $ch %c chcode
 
-    # Control characters: Octal
-    if {[::string is control -strict $ch]} {
-	return \\[format %o $chcode]
-    }
-
     # Beyond 7-bit ASCII: Unicode
     if {$chcode > 127} {
 	# Recode the character into the sequence of utf-8 bytes and
@@ -209,6 +204,11 @@ proc ::char::quote::CString {ch} {
 	    append res \\[format %o $x]
 	}
 	return $res
+    }
+
+    # Control characters: Octal
+    if {[::string is control -strict $ch]} {
+	return \\[format %o $chcode]
     }
 
     # Regular character: Is its own representation.
@@ -243,15 +243,15 @@ proc ::char::quote::Comment {ch} {
 
     scan $ch %c chcode
 
-    # Control characters: Octal
-    if {[::string is control -strict $ch]} {
-	return \\[format %o $chcode]
-    }
-
     # Beyond 7-bit ASCII: Unicode
 
     if {$chcode > 127} {
 	return \\u[format %04x $chcode]
+    }
+
+    # Control characters: Octal
+    if {[::string is control -strict $ch]} {
+	return \\[format %o $chcode]
     }
 
     # Regular character: Is its own representation.
@@ -286,4 +286,4 @@ proc ::char::quote::Arg {cmdpfx str args} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide char 1.0.1
+package provide char 1.0.2
