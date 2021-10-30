@@ -75,6 +75,25 @@ variable cleanup3 {
 	unset pubkey
 }
 
+proc defcertproc {name} {
+    # $name should be file name of certificate (without the path) which should
+    # reside wherever asset-get finds stuff. For example,
+    #   defcertproc pkitest.crt
+    # Then [pkitest.crt] will return the parsed cert
+    # First time the defined proc is called, it will read and parse the cert file.
+    # Then it redefines itself to just return the parsed cert on subsequence calls.
+    proc $name {} {
+        set cert [::pki::x509::parse_cert [asset-get [info level 0]]]
+        proc [info level 0] {} [list return $cert]
+        [info level 0]
+    }
+}
+defcertproc google-com.crt
+defcertproc pkitest-ca.crt
+defcertproc pkitest-ca2.crt
+defcertproc pkitest.crt
+defcertproc dell.crt
+defcertproc CA.crt
 
 test rsa-parse-aeskey-1.0 {parse_key} -setup $setup1 -body {
     dictsort [::pki::pkcs::parse_key $privkey $password]
@@ -106,13 +125,95 @@ test rsa-parse-cacert-1.0 parse_cert -setup $setup5 -body {
     dictsort [::pki::x509::parse_cert $pubkey]
 } -cleanup $cleanup3 -result [asset-get result/certCA]
 
+# Certificate extension tests.
+
+proc testext {test_id ext comment cert result args} {
+    test rsa-parse-cert-$ext-$test_id "$comment $ext" -body [list dict get $cert extensions $ext] -result $result {*}$args
+}
+
+# ext - authorityKeyIdentifier
+testext 1.0 authorityKeyIdentifier "key id, no issuer" [pkitest-ca2.crt] \
+    [list 0 {keyIdentifier 0a0b38b13812eadc6de6094691c925938d9b9d61}]
+testext 2.0 authorityKeyIdentifier "issuer name and serial, no key id" [pkitest.crt] \
+    {0 {authorityCertIssuer {directoryName {CN=Tcllib PKI Test CA, C=US, O=Tcllib, OU=PKI, EMAIL=developers@test.tcllib.nosuchdomain}} authorityCertSerialNumber 1337955185325494225048328027651886906479925237}}
+testext 3.0 authorityKeyIdentifier "key id AND issuer" [CA.crt] \
+    {0 {keyIdentifier 852c1d09b76b0fa10e35d7aa4bcb48b2deb254d5 authorityCertIssuer {directoryName {C=US, ST=Florida, L=Tampa, O=Tcllib, OU=RSA, CN=TestCA}} authorityCertSerialNumber 11180668503388403151}}
+
+# ext - basicConstraints
+testext 1.0 id-ce-basicConstraints "CA false - (deprecated naming)" [google-com.crt] {1 0 -1}
+testext 1.0 basicConstraints "CA false" [google-com.crt] {1 {0 -1}}
+testext 2.0 basicConstraints "CA true" [pkitest-ca.crt] {1 {1 -1}}
+testext 3.0 basicConstraints "CA false, restricted depth" [pkitest-ca2.crt] {1 {1 0}}
+
+# ext - cRLDistributionPoints
+testext 1.0 cRLDistributionPoints "single fullname" [google-com.crt] \
+    {0 {{distributionPoint {fullName {uniformResourceIdentifier http://crls.pki.goog/gts1c3/QqFxbi9M48c.crl}}}}}
+testext 2.0 cRLDistributionPoints "multiple values with missing optional fields" [pkitest.crt] \
+    {0 {{distributionPoint {fullName {uniformResourceIdentifier http://test.tcllib/my.crl}} reasons {195 keyCompromise certificateHold privilegeWithdrawn} cRLIssuer {directoryName {C=US, O=Tcllib, CN=Tcllib CRL Issuer}}} {distributionPoint {nameRelativeToCRLIssuer {CN=Tcllib CRL DP}} reasons {15 keyCompromise cACompromise affiliationChanged}} {distributionPoint {fullName {uniformResourceIdentifier http://crl.test.tcllib}} cRLIssuer {directoryName {C=US, O=Tcllib, CN=Tcllib CRL Issuer}}}}}
+
+# ext - certificatePolicies
+testext 1.0 certificatePolicies "" [google-com.crt] \
+    {0 {{policyIdentifier 2.23.140.1.2.1} {policyIdentifier 1.3.6.1.4.1.11129.2.5.3}}}
+testext 1.0 certificatePolicies "with policy qualifiers" [dell.crt] \
+    {0 {{policyIdentifier 2.23.140.1.4.1 policyQualifiers {cps https://d.symcb.com/cps unotice {explicitText https://d.symcb.com/rpa}}}}}
+
+# ext - extKeyUsage
+testext 1.0 extKeyUsage "CA" [google-com.crt] {0 serverAuth}
+testext 2.0 extKeyUsage "End system full set inc. non-RF5280" [pkitest.crt] \
+    {1 {serverAuth clientAuth codeSigning emailProtection timeStamping OCSPSigning 1.3.6.1.4.1.311.2.1.21 1.3.6.1.4.1.311.2.1.22 1.3.6.1.4.1.311.10.3.1 1.3.6.1.4.1.311.10.3.4 1.3.6.1.5.5.7.3.17 ipsecEndSystem ipsecTunnel ipsecUser}}
+
+# ext - freshestCRL
+testext 1.0 freshestCRL "" [pkitest.crt] \
+    {0 {{distributionPoint {fullName {uniformResourceIdentifier http://crl.test.tcllib}} cRLIssuer {directoryName {C=US, O=Tcllib, CN=Tcllib CRL Issuer}}}}}
+
+# ext - inhibitAnyPolicy
+testext 1.0 inhibitAnyPolicy "" [pkitest-ca2.crt] {1 2}
+
+# ext - issuerAltName
+testext 1.0 issuerAltName "" [pkitest.crt] \
+    {0 {dNSname ca.test.tcllib}}
+
+# ext - keyUsage
+testext 1.0 keyUsage "single use" [google-com.crt] {1 {1 digitalSignature}}
+testext 2.0 keyUsage "full set" [pkitest.crt] \
+    {1 {511 digitalSignature nonRepudiation keyEncipherment dataEncipherment keyAgreement keyCertSign cRLSign encipherOnly decipherOnly}}
+
+# ext - nameConstraints
+testext 1.0 nameConstraints "" [pkitest-ca2.crt] \
+    {1 {permittedSubtrees {{base {rfc822Name .somedomain.com} minimum 0} {base {iPAddress {192.168.0.0 255.255.0.0}} minimum 0}} excludedSubtrees {{base {dNSName deny.com} minimum 0}}}}
+
+# ext - policyConstraints
+testext 1.0 policyConstraints "" [pkitest-ca2.crt] \
+    {1 {requireExplicitPolicy 3 inhibitPolicyMapping 2}}
+
+# ext - policyMappings
+testext 1.0 policyMappings "" [pkitest-ca2.crt] {0 {1.2.3.4.5.6.99 1.2.3.4.5.6.7.99 1.2.3.4.5.6.100 1.2.3.4.5.6.7.100}}
+
+# ext - subjectAltName
+test rsa-parse-cert-subjectAltName-1.0 "parse_cert subjectAltName long list" -body {
+    lassign [dict get [google-com.crt] extensions subjectAltName] critical names
+    list $critical [llength $names] [lrange $names 0 1] [lrange $names end-1 end]
+} -result {0 258 {dNSName *.google.com} {dNSname source.android.google.cn}}
+testext 2.0 subjectAltName "all formats" [pkitest.crt] \
+    {0 {dNSname test.tcllib.nosuchdomain dNSname www.test.tcllib.nosuchdomain iPAddress 192.168.1.1 iPAddress 0013:0000:0000:0000:0000:0000:0000:0017 uniformResourceIdentifier http://test.tcllib rfc822Name noone@test.tcllib registeredID 1.6.7.8.11 directoryName {C=UK, CN=PKI Developer} otherName {1.2.3.4 a0170c15537472696e6720696e207574663820666f726d6174}}}
+
+# ext - subjectDirectoryAttributes - need a cert. OpenSSL does not handle this
+testext 1.0 subjectDirectoryAttributes "TODO" "" "" -constraints TODO
+
+
+test rsa-parse-cert-subjectKeyIdentifier-1.0 parse_cert -body {
+    dict get [pkitest.crt] extensions subjectKeyIdentifier
+} -result {0 5771fc5ba3502ea2e8fdb046456190acc40da6d6}
+
+test rsa-parse-cert-authorityInfoAccess-1.0 parse_cert -body {
+    dict get [google-com.crt] extensions authorityInfoAccess
+} -result {0 {{accessMethod 1.3.6.1.5.5.7.48.1 accessLocation {uniformResourceIdentifier http://ocsp.pki.goog/gts1c3}} {accessMethod 1.3.6.1.5.5.7.48.2 accessLocation {uniformResourceIdentifier http://pki.goog/repo/certs/gts1c3.der}}}}
 
 test rsa-generate-cert-1.0 cert -setup $setup2$setup6$setup7 -body {
     ::pki::x509::create_cert $csr $ca 20100809075203 1281340325 1596959525 0 {} 1
 } -cleanup {
     unset privkey cakey cacert ca_arr ca csr
 } -result [asset-get result/cert]
-
 
 test rsa-generate-cacert-1.0 {cert} -setup $setup2$setup6$setup7 -body {
     ::pki::x509::create_cert $csr $ca 20100809075203 1281340325 1596959525 1 {} 1
