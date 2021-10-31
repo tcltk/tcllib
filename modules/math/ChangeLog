@@ -1,3 +1,9 @@
+2021-10-31  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* figurate.tcl: Evaluate various "figurate" numbers (new package, ticket f8adb7a036)
+	* figurate.test: Corresponding tests
+	* figurate.man: Description of the figurate procedures
+	* pkgIndex.tcl: Added the new package
+
 2021-05-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* elliptic.tcl: Correct the implementation of "dn" (ticket 828109660d)
 	* elliptic.test: Add proper tests for sn, cn and dn
