@@ -290,6 +290,19 @@ test rsa-verify-badcertv3-2.0 {verify_cert} -setup {
     unset pubcert cacert
 } -result {false}
 
+# CSR tests
+test rsa-parse-csr-1.0 {Parse end system CSR} -setup {
+    set csr [asset-get pkitest.csr]
+} -body {
+    ::pki::pkcs::parse_csr $csr
+} -result [asset-get result/pkitest.csr.result]
+test rsa-parse-csr-2.0 {Parse CA CSR} -setup {
+    set csr [asset-get pkitest-ca2.csr]
+} -body {
+    ::pki::pkcs::parse_csr $csr
+} -result [asset-get result/pkitest-ca2.csr.result]
+
+# Crypto tests
 
 test rsa-crypt-roundtrip-1.0 {encrypt, decrypt} -setup {
     set data      {This is a test}

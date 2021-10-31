@@ -210,6 +210,7 @@ namespace eval ::pki {
 		1.3.6.1.5.5.7.48.2             id-ad-caIssuers
 		1.3.6.1.5.5.7.48.3             id-ad-timeStamping
 		1.3.6.1.5.5.7.48.5             id-ad-caRepository
+		1.2.840.113549.1.9.14          extensionRequest
 	}
 
 	variable handlers
@@ -2467,6 +2468,14 @@ proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo sha1}} {
 
 # Parse a PKCS#10 CSR
 proc ::pki::pkcs::parse_csr csr {
+	# RFC 2986
+	# CertificationRequestInfo ::= SEQUENCE {
+    #     version       INTEGER { v1(0) } (v1,...),
+    #     subject       Name,
+    #     subjectPKInfo SubjectPublicKeyInfo{{ PKInfoAlgorithms }},
+    #     attributes    [0] Attributes{{ CRIAttributes }}
+	# }
+	# Attributes { ATTRIBUTE:IOSet } ::= SET OF Attribute{{ IOSet }}
 	array set ret [list]
 
 	array set parsed_csr [::pki::_parse_pem $csr \
@@ -2486,6 +2495,37 @@ proc ::pki::pkcs::parse_csr csr {
 		::asn::asnGetSequence cert_req_seq signature_algo_seq
 			::asn::asnGetObjectIdentifier signature_algo_seq signature_algo
 		::asn::asnGetBitString cert_req_seq signature_bitstring
+
+	# At this point cert_req_info contains attributes if any
+	while {$cert_req_info ne {}} {
+		::asn::asnGetByte cert_req_info tag
+		::asn::asnGetLength cert_req_info len
+		::asn::asnGetBytes cert_req_info $len attrs_bytes
+		if {$tag == 0xa0} {
+			# attr_bytes contains set of attributes without the set header
+			# Each attribute is a sequence of 2 elems - OID and a SET of values
+			while {$attrs_bytes ne {}} {
+				::asn::asnGetSequence attrs_bytes attr_seq
+				::asn::asnGetObjectIdentifier attr_seq attr_oid
+				::asn::asnGetSet attr_seq attr_value_set
+				set attr_oid [::pki::_oid_number_to_name $attr_oid]
+				if {$attr_oid eq "extensionRequest"} {
+					::asn::asnGetSequence attr_value_set ext_req_seq
+					set ext_list {}
+					::pki::x509::_parse_extensions $ext_req_seq ext_list
+				} else {
+					# TODO - what else can be here. Should we add it in hex?
+				}
+			}
+		} else {
+			# TODO - nothing else defined in RFC2986. Skipping but should
+			# we return the tag and attr_bytes in hex?
+		}
+	}
+
+	if {[info exists ext_list]} {
+		set ret(extensionRequest) $ext_list
+	}
 
 	# Convert parsed fields to native types
 	set signature [binary format B* $signature_bitstring]
