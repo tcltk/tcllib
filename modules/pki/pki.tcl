@@ -208,6 +208,8 @@ namespace eval ::pki {
 		1.3.6.1.5.5.7.2.2              unotice
 		1.3.6.1.5.5.7.48.1             id-ad-ocsp
 		1.3.6.1.5.5.7.48.2             id-ad-caIssuers
+		1.3.6.1.5.5.7.48.3             id-ad-timeStamping
+		1.3.6.1.5.5.7.48.5             id-ad-caRepository
 	}
 
 	variable handlers
@@ -1845,7 +1847,7 @@ proc ::pki::x509::_parse_AccessDescriptionSequence {ext_octets_var} {
         ::asn::asnGetObjectIdentifier access_bytes method_oid
 		set location [_parse_GeneralName access_bytes]
 		lappend ext_value [list \
-							   accessMethod [::pki::_oid_number_to_dotted $method_oid] \
+							   accessMethod [::pki::_oid_number_to_name $method_oid] \
 							   accessLocation $location
 							  ]
 	}
@@ -3237,6 +3239,23 @@ if {[info commands ::asn::asnGeneralizedTime] eq ""} {
 		set ascii [encoding convertto ascii $UTCtimestring]
 		set len [string length $ascii]
 		return [binary format H2a*a* 18 [asnLength $len] $ascii]
+	}
+}
+
+if {[info commands ::asn::asnGetVisibleString] eq ""} {
+	namespace eval ::asn {}
+	proc asn::asnGetVisibleString {data_var string_var} {
+		upvar 1 $data_var data $string_var str
+		asnGetByte data tag
+		if {$tag != 0x1a} {
+			return -code error \
+				[format "Expected VisisbleString (0x1a), but got %02x" $tag]  
+		}
+		asnGetLength data length
+		asnGetBytes data $length bytes
+		set str [encoding convertfrom ascii $bytes]
+		# TODO: Supposed to be printable ascii only. Should we check and error out?
+		return
 	}
 }
 
