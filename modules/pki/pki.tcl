@@ -4,6 +4,8 @@
 #
 # (c) 2010, 2011, 2012, 2013 Roy Keene.
 #	 BSD Licensed.
+# (c) 2021 Ashok P. Nadkarni
+#	 BSD Licensed.
 
 # # ## ### ##### ######## #############
 ## Requisites
@@ -3305,4 +3307,4 @@ if {[info commands ::asn::asnGetVisibleString] eq ""} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.10
+package provide pki 0.20
