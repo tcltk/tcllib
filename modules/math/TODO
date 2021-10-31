@@ -1,5 +1,15 @@
 This file records outstanding actions for the math module
 
+
+dd. 21 september 2021
+Ticket de2be80fd27630f85c25c238fe26c89a3dfe9407: direction and octant delete the minus sign lead to diagram display bugs
+The changes were made in 2020, so a year ago. It is unclear what has happened and what should still be repaired. Apparently
+the definition in the Diagram package is screen-oriented.
+
+
+
+
+
 dd. 11 may 2021
 Update linearalgebra code:
 - comparison of strings via ==
