@@ -27,6 +27,8 @@ package require sha256
 ## Requisites
 
 namespace eval ::pki {
+	# OID->name map. Note the corresponding name->OID map is constructed on
+	# the fly on first use in _oid_name_to_number.
 	variable oids
 	array set oids {
 		1.2.840.113549.1.1.1           rsaEncryption
@@ -301,13 +303,25 @@ proc ::pki::_oid_number_to_name {oid} {
 
 
 proc ::pki::_oid_name_to_number {name} {
-	# TODO - optimize with a reverse lookup
-	foreach {chkoid chkname} [array get ::pki::oids] {
-		if {[string equal -nocase $chkname $name]} {
-			return [split $chkoid .]
-		}
+	variable oids
+	variable oid_names
+	unset -nocomplain oid_names; # To handle reloading during development
+	foreach {oid oid_name} [array get ::pki::oids] {
+		set oid_name [string tolower $oid_name]
+		set oid_names($oid_name) $oid
 	}
-	return -code error "Unable to convert OID $name to an OID value"
+	if {[array size oids] != [array size oid_names]} {
+		return -code error "Internal error: OID->name map array oids has duplicate entries."
+	}
+	proc [namespace current]::_oid_name_to_number {name} {
+		variable oid_names
+		set lower [string tolower $name]
+		if {[info exists oid_names($lower)]} {
+			return [split $oid_names($lower) .]
+		}
+		return -code error "Unable to convert OID $name to an OID value"
+	}
+	return [_oid_name_to_number $name]
 }
 
 proc ::pki::_oid_number_to_dotted {oid} {
@@ -1342,9 +1356,6 @@ proc ::pki::x509::_parse_ExtKeyUsage {ext_octets_var} {
 		lappend ext_key_usage [::pki::_oid_number_to_name $oid]
 	}
 
-	# TODO - mnemonics in oid table are clientAuth etc. (without a id-kp- prefix)
-	# Should we add the id-kp- prefix? But that would inconsistent with keyUsage
-	# convention.
 	return $ext_key_usage
 }
 
@@ -1461,7 +1472,7 @@ proc ::pki::x509::_parse_GeneralName {bytes_var {with_ip_mask 0}} {
 			# presence of implicit tags and do not have a sample certificate
 			::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
 			::asn::asnGetSequence bytes edi
-			binary scan $x400addr H* edi_hex
+			binary scan $edi H* edi_hex
 			return [list ediPartyName $edi_hex]
 		}
 		0x86 {
@@ -3162,8 +3173,8 @@ if {1 || [info commands ::asn::asnGetT61String] eq ""} {
 		# character. These are encoded as the *decomposed* Unicode character
 		# consisting of the base character followed by the diacritic
 		# (i.e reversed order from T.61). Encoding as precomposed would need
-		# to be table-driven. TODO - the right approach is to create a Tcl
-		# encoding file but that is more work than I can afford right now.
+		# to be table-driven. As an aside, I do not think the Tcl encoding system
+		# can deal with the reordering required.
 		# - Everything else result in an error because interpretation of
 		# remaining bytes is not implemented.
 		binary scan $t61 cu* t61_bytes
