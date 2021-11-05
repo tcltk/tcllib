@@ -10,7 +10,7 @@
 # # ## ### ##### ######## #############
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.6
 
 ## Versions of asn lower than 0.8.4 are known to have defects
 package require asn 0.8.4
