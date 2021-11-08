@@ -1,3 +1,7 @@
+	2021-10-31 Ashok P. Nadkarni <apnmbx-wits@yahoo.com>
+
+	* Added RFC5280 based certificate and CSR parsing to pki
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

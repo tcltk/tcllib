@@ -4,11 +4,13 @@
 #
 # (c) 2010, 2011, 2012, 2013 Roy Keene.
 #	 BSD Licensed.
+# (c) 2021 Ashok P. Nadkarni
+#	 BSD Licensed.
 
 # # ## ### ##### ######## #############
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.6
 
 ## Versions of asn lower than 0.8.4 are known to have defects
 package require asn 0.8.4
@@ -25,6 +27,8 @@ package require sha256
 ## Requisites
 
 namespace eval ::pki {
+	# OID->name map. Note the corresponding name->OID map is constructed on
+	# the fly on first use in _oid_name_to_number.
 	variable oids
 	array set oids {
 		1.2.840.113549.1.1.1           rsaEncryption
@@ -175,16 +179,42 @@ namespace eval ::pki {
 		2.5.4.7                        l
 		2.5.4.8                        st
 		2.5.4.9                        street
-		2.5.29.14                      id-ce-subjectKeyIdentifier
-		2.5.29.15                      id-ce-keyUsage
-		2.5.29.16                      id-ce-privateKeyUsagePeriod
-		2.5.29.17                      id-ce-subjectAltName
-		2.5.29.18                      id-ce-issuerAltName
-		2.5.29.19                      id-ce-basicConstraints
-		2.5.29.20                      id-ce-cRLNumber
-		2.5.29.31                      id-ce-cRLDistributionPoints
-		2.5.29.32                      id-ce-certificatePolicies
-		2.5.29.35                      id-ce-authorityKeyIdentifier
+		2.5.29.9                       subjectDirectoryAttributes
+		2.5.29.14                      subjectKeyIdentifier
+		2.5.29.15                      keyUsage
+		2.5.29.16                      privateKeyUsagePeriod
+		2.5.29.17                      subjectAltName
+		2.5.29.18                      issuerAltName
+		2.5.29.19                      basicConstraints
+		2.5.29.20                      cRLNumber
+		2.5.29.30                      nameConstraints
+		2.5.29.31                      cRLDistributionPoints
+		2.5.29.32                      certificatePolicies
+		2.5.29.33                      policyMappings
+		2.5.29.34                      policyConstraintsDeprecated
+		2.5.29.35                      authorityKeyIdentifier
+		2.5.29.36                      policyConstraints
+		2.5.29.37                      extKeyUsage
+		2.5.29.46                      freshestCRL
+		2.5.29.54                      inhibitAnyPolicy
+		1.3.6.1.5.5.7.3.1              serverAuth
+		1.3.6.1.5.5.7.3.2              clientAuth
+		1.3.6.1.5.5.7.3.3              codeSigning
+		1.3.6.1.5.5.7.3.4              emailProtection
+		1.3.6.1.5.5.7.3.5              ipsecEndSystem
+		1.3.6.1.5.5.7.3.6              ipsecTunnel
+		1.3.6.1.5.5.7.3.7              ipsecUser
+		1.3.6.1.5.5.7.3.8              timeStamping
+		1.3.6.1.5.5.7.3.9              OCSPSigning
+		1.3.6.1.5.5.7.1.1              authorityInfoAccess
+		1.3.6.1.5.5.7.1.11             subjectInfoAccess 
+		1.3.6.1.5.5.7.2.1              cps
+		1.3.6.1.5.5.7.2.2              unotice
+		1.3.6.1.5.5.7.48.1             id-ad-ocsp
+		1.3.6.1.5.5.7.48.2             id-ad-caIssuers
+		1.3.6.1.5.5.7.48.3             id-ad-timeStamping
+		1.3.6.1.5.5.7.48.5             id-ad-caRepository
+		1.2.840.113549.1.9.14          extensionRequest
 	}
 
 	variable handlers
@@ -273,12 +303,33 @@ proc ::pki::_oid_number_to_name {oid} {
 
 
 proc ::pki::_oid_name_to_number {name} {
-	foreach {chkoid chkname} [array get ::pki::oids] {
-		if {[string equal -nocase $chkname $name]} {
-			return [split $chkoid .]
-		}
+	variable oids
+	variable oid_names
+	unset -nocomplain oid_names; # To handle reloading during development
+	foreach {oid oid_name} [array get ::pki::oids] {
+		set oid_name [string tolower $oid_name]
+		set oid_names($oid_name) $oid
 	}
-	return -code error "Unable to convert OID $name to an OID value"
+	if {[array size oids] != [array size oid_names]} {
+		return -code error "Internal error: OID->name map array oids has duplicate entries."
+	}
+	proc [namespace current]::_oid_name_to_number {name} {
+		variable oid_names
+		set lower [string tolower $name]
+		if {[info exists oid_names($lower)]} {
+			return [split $oid_names($lower) .]
+		}
+		return -code error "Unable to convert OID $name to an OID value"
+	}
+	return [_oid_name_to_number $name]
+}
+
+proc ::pki::_oid_number_to_dotted {oid} {
+	return [join $oid .]
+}
+
+proc ::pki::_oid_dotted_to_number {dotted_oid} {
+	return [split $oid .]
 }
 
 
@@ -1141,10 +1192,19 @@ proc ::pki::pkcs::parse_key {key {password {}}} {
 }
 
 
+# dn expected to be concatenated RelativeDistinguishedName DER encoded values
 proc ::pki::x509::_dn_to_list dn {
 	set ret {} 
 
 	while {$dn ne {}} {
+		# RelativeDistinguishedName  ::=
+		# SET SIZE (1 .. MAX) OF SingleAttribute { {SupportedAttributes} }
+		# SingleAttribute{ATTRIBUTE:AttrSet} ::= SEQUENCE {
+		# 	type      ATTRIBUTE.&id({AttrSet}),
+		# 	value     ATTRIBUTE.&Type({AttrSet}{@type})
+		# }
+		# Assumed here that Set contains a single attribute, and the attribute
+		# value is a string. This should suffice for most (all?) X.509 certs
 		::asn::asnGetSet dn dn_parts
 		::asn::asnGetSequence dn_parts curr_part
 		::asn::asnGetObjectIdentifier curr_part label
@@ -1223,11 +1283,823 @@ proc ::pki::x509::_utctime_to_native utctime {
 	return [clock scan $utctime -format %y%m%d%H%M%SZ -gmt true]
 }
 
-
 proc ::pki::x509::_native_to_utctime time {
 	return [clock format $time -format %y%m%d%H%M%SZ -gmt true]
 }
 
+proc ::pki::x509::_generalizedtime_to_native utctime {
+	return [clock scan $utctime -format %Y%m%d%H%M%SZ -gmt true]
+}
+
+
+proc ::pki::x509::_generalizedtime_to_utctime time {
+	return [clock format $time -format %Y%m%d%H%M%SZ -gmt true]
+}
+
+
+proc ::pki::x509::_parse_BasicConstraints {ext_octets_var} {
+	# https://www.rfc-editor.org/rfc/rfc5280#page-128
+	# BasicConstraints ::= SEQUENCE {
+	# 	cA                      BOOLEAN DEFAULT FALSE,
+	# 	pathLenConstraint       INTEGER (0..MAX) OPTIONAL }
+
+	upvar 1 $ext_octets_var ext_octets
+	# bytes will hold actual sequence bytes without the header
+	::asn::asnGetSequence ext_octets bytes
+
+	# Both elements are effectively optional. Upper levels use CA depth of -1
+	# to indicate no constraints specified
+	set allowCA 0
+	set caDepth -1
+
+	if {$bytes ne {}} {
+		# Check first element - if not a boolean, it is missing and should default
+		::asn::asnPeekByte bytes tag
+		if {$tag == 0x01} {
+			::asn::asnGetBoolean bytes allowCA
+		}
+		# Second field if present
+		if {$bytes ne {}} {
+			::asn::asnGetInteger bytes caDepth
+		}
+		# TODO - should we raise an error if extra bytes left over?
+	}
+
+
+	return [list $allowCA $caDepth]
+}
+
+
+proc ::pki::x509::_parse_ExtKeyUsage {ext_octets_var} {
+	# extKeyUsage OBJECT IDENTIFIER ::= {id-ce 37}
+	# ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+	# KeyPurposeId ::= OBJECT IDENTIFIER
+	# -- permit unspecified key uses
+	# anyExtendedKeyUsage OBJECT IDENTIFIER ::= { extKeyUsage 0 }
+	# -- extended key purpose OIDs
+	# id-kp-serverAuth             OBJECT IDENTIFIER ::= { id-kp 1 }
+	# id-kp-clientAuth             OBJECT IDENTIFIER ::= { id-kp 2 }
+	# id-kp-codeSigning            OBJECT IDENTIFIER ::= { id-kp 3 }
+	# id-kp-emailProtection        OBJECT IDENTIFIER ::= { id-kp 4 }
+	# id-kp-ipsecEndSystem         OBJECT IDENTIFIER ::= { id-kp 5 }
+	# id-kp-ipsecTunnel            OBJECT IDENTIFIER ::= { id-kp 6 }
+	# id-kp-ipsecUser              OBJECT IDENTIFIER ::= { id-kp 7 }
+	# id-kp-timeStamping           OBJECT IDENTIFIER ::= { id-kp 8 }
+	# id-kp-OCSPSigning            OBJECT IDENTIFIER ::= { id-kp 9 }
+
+	upvar 1 $ext_octets_var ext_octets
+	::asn::asnGetSequence ext_octets bytes
+
+	set ext_key_usage [list]
+	while {$bytes ne {}} {
+		::asn::asnGetObjectIdentifier bytes oid
+		lappend ext_key_usage [::pki::_oid_number_to_name $oid]
+	}
+
+	return $ext_key_usage
+}
+
+
+proc ::pki::x509::_parse_KeyUsage {ext_octets_var} {
+	# KeyUsage ::= BIT STRING {
+	# 	digitalSignature        (0),
+	# 	nonRepudiation          (1),  -- recent editions of X.509 have
+	# 	-- renamed this bit to contentCommitment
+	# 	keyEncipherment         (2),
+	# 	dataEncipherment        (3),
+	# 	keyAgreement            (4),
+	# 	keyCertSign             (5),
+	# 	cRLSign                 (6),
+	# 	encipherOnly            (7),
+	# 	decipherOnly            (8) }
+
+	upvar 1 $ext_octets_var ext_octets
+	::asn::asnGetBitString ext_octets bits
+
+	scan $bits %b bits
+	set tokens {
+		digitalSignature nonRepudiation keyEncipherment dataEncipherment
+		keyAgreement keyCertSign cRLSign encipherOnly decipherOnly
+	}
+	set ntokens [llength $tokens]
+	set key_usage [list $bits]
+	for {set i 0} {$i < $ntokens} {incr i} {
+		if {$bits & (1 << $i)} {
+			lappend key_usage [lindex $tokens $i]
+		}
+	}
+	return $key_usage
+}
+
+proc ::pki::x509::_parse_GeneralName {bytes_var {with_ip_mask 0}} {
+	# Returns a pair "name type" and name value
+	# by parsing a GeneralName ASN.1 structure in $bytes_var. The parsed bytes
+	# are removed from $bytes_var.
+	# https://www.rfc-editor.org/rfc/rfc5280#page-128
+	# GeneralName ::= CHOICE {
+	# 	otherName                 [0]  AnotherName,
+	# 	rfc822Name                [1]  IA5String,
+	# 	dNSName                   [2]  IA5String,
+	# 	x400Address               [3]  ORAddress,
+	# 	directoryName             [4]  Name,
+	# 	ediPartyName              [5]  EDIPartyName,
+	# 	uniformResourceIdentifier [6]  IA5String,
+	# 	iPAddress                 [7]  OCTET STRING,
+	# 	registeredID              [8]  OBJECT IDENTIFIER }
+	# In addition, from RFC 8398 -
+	# id-on-SmtpUTF8Mailbox OBJECT IDENTIFIER ::= { id-on 9 }
+	# SmtpUTF8Mailbox ::= UTF8String (SIZE (1..MAX))
+
+	upvar 1 $bytes_var bytes
+
+	::asn::asnPeekByte bytes tag
+	# The tag is context-specific (0x80) | choice index To extract using asn
+	# routines, replace the tag with the concrete primitive tag using
+	# asnRetag. This is somewhat inefficient and it would have been better
+	# if the asn routines took an optional "expected_tag" argument but they
+	# do not, and I don't want to start hacking that module.
+
+	# Note the name tags (rfc822name etc.) are same as those used in create_cert
+	switch -exact -- [format 0x%02x $tag] {
+		0xa0 {
+			# AnotherName - Important because Windows uses it for WinRM to store
+			# UPN format names with OID 1.3.6.1.4.1.311.20.2.3 with the value
+			# as a UTF-8 encoded string. However, other OID's may not use this
+			# UTF-8 forms, so we just keep the raw data in hex.
+			::asn::asnGetContext bytes context_tag other_name
+			# ::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+			# ::asn::asnGetSequence bytes other_name
+			::asn::asnGetObjectIdentifier other_name other_name_oid
+			# Since interpretation is unknown, just store hex representation
+			binary scan $other_name H* other_name_hex
+			return [list otherName [list [::pki::_oid_number_to_dotted $other_name_oid] $other_name_hex]]
+		}
+		0x81 {
+			::asn::asnRetag bytes 0x16;	# Retag as IA5String
+			::asn::asnGetIA5String bytes name
+			return [list rfc822Name $name]
+		}
+		0x82 {
+			::asn::asnRetag bytes 0x16;	# Retag as IA5String
+			::asn::asnGetIA5String bytes name
+			return [list dNSName $name]
+		}
+		0xa3 {
+			# TODO x400address - forget about parsing this for now!
+			::asn::asnGetContext bytes context_tag x400addr
+			# ::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+			# ::asn::asnGetSequence bytes x400addr
+			binary scan $x400addr H* x400addr_hex
+			return [list x400Address $x400addr_hex]
+		}
+		0xa4 {
+			::asn::asnGetContext bytes context_tag dn_bytes
+			#::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+			::asn::asnGetSequence dn_bytes dir_name
+			return [list directoryName [_dn_to_string $dir_name]]
+		}
+		0xa5 {
+			# EDIPartyName ::= SEQUENCE {
+			# 	nameAssigner            [0]     DirectoryString OPTIONAL,
+			# 	partyName               [1]     DirectoryString }
+			# DirectoryString ::= CHOICE {
+			# 	teletexString       TeletexString   (SIZE (1..MAX)),
+			# 	printableString     PrintableString (SIZE (1..MAX)),
+			# 	universalString     UniversalString (SIZE (1..MAX)),
+			# 	utf8String          UTF8String      (SIZE (1..MAX)),
+			# 	bmpString           BMPString       (SIZE (1..MAX)) }
+			# TODO - Not too hard to implement but I'm not clear about the
+			# presence of implicit tags and do not have a sample certificate
+			::asn::asnRetag bytes 0x30; # Retag as SEQUENCE
+			::asn::asnGetSequence bytes edi
+			binary scan $edi H* edi_hex
+			return [list ediPartyName $edi_hex]
+		}
+		0x86 {
+			::asn::asnRetag bytes 0x16;	# Retag as IA5String
+			::asn::asnGetIA5String bytes name
+			return [list uniformResourceIdentifier $name]
+		}
+		0x87 {
+			# IPv4/6 -> must be exactly 4/16 octets respectively in a subject
+			# name but can be 8/32 in a name constraint.
+			::asn::asnRetag bytes 0x04
+			::asn::asnGetOctetString bytes addr
+			set n [string length $addr]
+			if {$n == 4} {
+				binary scan $addr cu* addr
+				set addr_str [join $addr .]
+			} elseif {$n == 16} {
+				binary scan $addr H* addr
+				set addr_str [regsub -all {[[:xdigit:]]{4}(?=.)} $addr {\0:}]
+			} elseif {$with_ip_mask && $n == 8} {
+				binary scan $addr cu4cu* addr mask
+				set addr_str [list [join $addr .] [join $mask .]]
+			} elseif {$with_ip_mask && $n == 32} {
+				binary scan $addr H32H32 addr mask
+				set addr [regsub -all {[[:xdigit:]]{4}(?=.)} $addr {\0:}]
+				set mask [regsub -all {[[:xdigit:]]{4}(?=.)} $mask {\0:}]
+				set addr_str [list $addr $mask]
+			} else {
+				error "Invalid IP address. Has $n octets."
+			}
+			return [list iPAddress $addr_str]
+		}
+		0x88 {
+			::asn::asnRetag bytes 0x06;	# Retag as OBJECT IDENTIFIER
+			::asn::asnGetObjectIdentifier bytes oid
+			return [list registeredID [::pki::_oid_number_to_dotted $oid]]
+		}
+		0x89 {
+			::asn::asnRetag bytes 0x0C;	# Retag as UTF8 string
+			::asn::asnGetUTF8String bytes name
+			return [list uniformResourceIdentifier $name]
+		}
+		default {
+			puts bytes:[binary encode hex $bytes]
+			error "Unknown context tag [format 0x%02x $tag] encountered in parsing ASN.1 GeneralName."
+		}
+	}
+}
+
+
+proc ::pki::x509::_parse_GeneralNames {bytes_var} {
+	# GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+	# https://www.rfc-editor.org/rfc/rfc5280#page-128
+	# GeneralName ::= CHOICE {
+	# 	otherName                 [0]  AnotherName,
+	# 	rfc822Name                [1]  IA5String,
+	# 	dNSName                   [2]  IA5String,
+	# 	x400Address               [3]  ORAddress,
+	# 	directoryName             [4]  Name,
+	# 	ediPartyName              [5]  EDIPartyName,
+	# 	uniformResourceIdentifier [6]  IA5String,
+	# 	iPAddress                 [7]  OCTET STRING,
+	# 	registeredID              [8]  OBJECT IDENTIFIER }
+	# In addition, from RFC 8398 -
+	# id-on-SmtpUTF8Mailbox OBJECT IDENTIFIER ::= { id-on 9 }
+	# SmtpUTF8Mailbox ::= UTF8String (SIZE (1..MAX))
+	upvar 1 $bytes_var bytes
+	::asn::asnGetSequence bytes names_bytes
+
+	set names [list]
+	while {$names_bytes ne {}} {
+		# names is a flat name type and name value list. NOT a dictionary
+		# since types may be repeated.
+		lappend names {*}[_parse_GeneralName names_bytes]
+	}
+	return $names
+}
+
+
+proc ::pki::x509::_parse_GeneralSubtrees {bytes_var} {
+	# NOTE: bytes is content of GeneralSubtrees AFTER stripping SEQUENCE header
+	# GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
+	# GeneralSubtree ::= SEQUENCE {
+	# 	base                    GeneralName,
+	# 	minimum         [0]     BaseDistance DEFAULT 0,
+	# 	maximum         [1]     BaseDistance OPTIONAL }
+	# BaseDistance ::= INTEGER (0..MAX)
+
+	upvar 1 $bytes_var bytes
+	::asn::asnGetSequence bytes subtrees_bytes
+
+	set subtrees [list]
+	while {$subtrees_bytes ne {}} {
+		::asn::asnGetSequence subtrees_bytes subtree_bytes
+		set base [_parse_GeneralName subtree_bytes 1]
+		set minimum 0;			# As per default in spec
+		if {$subtree_bytes ne {}} {
+			::asn::asnPeekByte subtree_bytes tag
+			if {$tag == 0x80} {
+				::asn::asnRetag subtree_bytes 0x02
+				::asn::asnGetInteger subtree_bytes minimum
+				# Next tag. Note NO default if not present
+				if {$subtree_bytes ne {}} {
+					::asn::asnPeekByte subtree_bytes tag
+					::asn::asnRetag subtree_bytes 0x02
+					::asn::asnGetInteger subtree_bytes maximum
+				}
+			}
+		}
+		set subtree [list base $base minimum $minimum]
+		if {[info exists maximum]} {
+			lappend subtree $maximum
+		}
+		lappend subtrees $subtree
+	}
+
+	return $subtrees
+}
+
+
+proc ::pki::x509::_parse_AuthorityKeyIdentifier {ext_octets_var} {
+	# AuthorityKeyIdentifier ::= SEQUENCE {
+	# 	keyIdentifier             [0] KeyIdentifier           OPTIONAL,
+	# 	authorityCertIssuer       [1] GeneralNames            OPTIONAL,
+	# 	authorityCertSerialNumber [2] CertificateSerialNumber OPTIONAL  }
+	# KeyIdentifier ::= OCTET STRING
+
+	upvar 1 $ext_octets_var ext_octets
+
+	::asn::asnGetSequence ext_octets bytes
+
+	# Note the fields are optional but must appear in the sequence shown.
+	# TODO - should we raise an error if fields in wrong order?
+
+	set ext_value [list]
+	if {$bytes eq {}} {
+		return $ext_value
+	}
+
+	# The tag is context-specific (0x80) | choice index To extract using asn
+	# routines, replace the tag with the concrete primitive tag using
+	# asnRetag. This is somewhat inefficient and it would have been better
+	# if the asn routines took an optional "expected_tag" argument but they
+	# do not, and I don't want to start hacking that module.
+
+	::asn::asnPeekByte bytes tag
+	if {$tag == 0x80} {
+		::asn::asnRetag bytes 0x04; # Retag as OCTET STRING
+		::asn::asnGetOctetString bytes key_identifier
+		binary scan $key_identifier H* key_identifier_hex
+		lappend ext_value keyIdentifier $key_identifier_hex
+		if {$bytes eq {}} {
+			return $ext_value
+		}
+		::asn::asnPeekByte bytes tag
+	}
+
+	if {$tag == 0xa1} {
+		::asn::asnRetag bytes 0x30; # Retag as SEQUENCE - (GeneralNames)
+		lappend ext_value \
+			authorityCertIssuer [_parse_GeneralNames bytes]
+		if {$bytes eq {}} {
+			return $ext_value
+		}
+		::asn::asnPeekByte bytes tag
+	}
+
+	if {$tag == 0x82} {
+		if {0} {
+			This breaks because asnGetInteger cannot handle very large integers
+			::asn::asnRetag bytes 0x02; # Retag as INTEGER
+			::asn::asnGetInteger bytes serial
+		} else {
+			# TODO - add this support to asnGetInteger
+			::asn::asnGetByte bytes tag
+			::asn::asnGetLength bytes len
+			::asn::asnGetBytes bytes $len sn_bytes
+			binary scan $sn_bytes H* sn_hex
+			set serial [format %lld 0x$sn_hex]
+		}
+		lappend ext_value authorityCertSerialNumber $serial
+	}
+
+	# TODO - are we supposed to raise an error if no fields or extra bytes?
+	return $ext_value
+}
+
+
+proc ::pki::x509::_parse_NameConstraints {ext_octets_var} {
+	# NameConstraints ::= SEQUENCE {
+	# 	permittedSubtrees       [0]     GeneralSubtrees OPTIONAL,
+	# 	excludedSubtrees        [1]     GeneralSubtrees OPTIONAL }
+
+	upvar 1 $ext_octets_var ext_octets
+	::asn::asnGetSequence ext_octets bytes
+	set ext_value [list]
+	if {$bytes eq {}} {
+		return $ext_value
+	}
+	::asn::asnPeekByte bytes tag
+	if {$tag == 0xa0} {
+		::asn::asnRetag bytes 0x30;	# Tag as SEQUENCE
+		lappend ext_value permittedSubtrees [_parse_GeneralSubtrees bytes]
+		if {$bytes eq {}} {
+			return $ext_value
+		}
+		::asn::asnPeekByte bytes tag
+	}
+	if {$tag == 0xa1} {
+		::asn::asnRetag bytes 0x30;	# Tag as SEQUENCE
+		lappend ext_value excludedSubtrees [_parse_GeneralSubtrees bytes]
+	}
+	return $ext_value
+}
+
+
+proc ::pki::x509::_parse_PolicyConstraints {ext_octets_var} {
+	# PolicyConstraints ::= SEQUENCE {
+    #     requireExplicitPolicy           [0] SkipCerts OPTIONAL,
+    #     inhibitPolicyMapping            [1] SkipCerts OPTIONAL }
+	# SkipCerts ::= INTEGER (0..MAX)
+
+	upvar 1 $ext_octets_var ext_octets
+	::asn::asnGetSequence ext_octets bytes
+	set ext_value [list]
+	if {$bytes eq {}} {
+		return $ext_value
+	}
+	::asn::asnPeekByte bytes tag
+	if {$tag == 0x80} {
+		::asn::asnRetag bytes 0x02;	# Tag as INTEGER
+		::asn::asnGetInteger bytes skip
+		lappend ext_value requireExplicitPolicy $skip
+		if {$bytes eq {}} {
+			return $ext_value
+		}
+		::asn::asnPeekByte bytes tag
+	}
+	if {$tag == 0x81} {
+		::asn::asnRetag bytes 0x02;	# Tag as INTEGER
+		::asn::asnGetInteger bytes skip
+		lappend ext_value inhibitPolicyMapping $skip
+	}
+	return $ext_value
+}
+
+
+proc ::pki::x509::_parse_UserNotice bytes_var {
+	# UserNotice ::= SEQUENCE {
+    #     noticeRef        NoticeReference OPTIONAL,
+    #     explicitText     DisplayText OPTIONAL }
+	# NoticeReference ::= SEQUENCE {
+    #     organization     DisplayText,
+    #     noticeNumbers    SEQUENCE OF INTEGER }
+	# DisplayText ::= CHOICE {
+    #     ia5String        IA5String      (SIZE (1..200)),
+    #     visibleString    VisibleString  (SIZE (1..200)),
+    #     bmpString        BMPString      (SIZE (1..200)),
+    #     utf8String       UTF8String     (SIZE (1..200)) }
+
+	upvar 1 $bytes_var bytes
+
+	set user_notice [list]
+	::asn::asnGetSequence bytes user_notice_bytes
+	::asn::asnPeekByte user_notice_bytes tag
+	if {$tag == 0x30} {
+		# NoticeReference
+		::asn::asnGetSequence user_notice_bytes notice_ref_bytes
+		::asn::asnGetString notice_ref_bytes org
+		set notice_numbers [list]
+		::asn::asnGetSequence notice_ref_bytes int_seq_bytes
+		while {$int_seq_bytes ne {}} {
+			::asn::asnGetSequence int_seq_bytes number
+			lappend notice_numbers $number
+		}
+		lappend user_notice noticeRef \
+			[list organization $org noticeNumbers $notice_numbers]
+	}
+	if {$user_notice_bytes ne {}} {
+		::asn::asnGetString user_notice_bytes explicit_text
+		lappend user_notice explicitText $explicit_text
+	}
+	return $user_notice
+}
+
+
+proc ::pki::x509::_parse_PolicyQualifierInfo bytes_var {
+	# PolicyQualifierInfo ::= SEQUENCE {
+	# 	policyQualifierId  PolicyQualifierId,
+	# 	qualifier          ANY DEFINED BY policyQualifierId }
+	# Qualifier ::= CHOICE {
+    #     cPSuri           CPSuri,
+    #     userNotice       UserNotice }
+	# CPSuri ::= IA5String
+
+	upvar 1 $bytes_var bytes
+
+	::asn::asnGetObjectIdentifier bytes qualifier_oid
+	set qualifier_oid [::pki::_oid_number_to_name $qualifier_oid]
+	switch -exact -- $qualifier_oid {
+		cps {
+			::asn::asnGetIA5String bytes value
+		}
+		unotice {
+			set value [_parse_UserNotice bytes]
+		}
+		default {
+			binary scan $bytes H* value
+		}
+	}
+	return [list $qualifier_oid $value]
+}
+
+
+proc ::pki::x509::_parse_CertificatePolicies ext_octets_var {
+	# CertificatePolicies ::= SEQUENCE SIZE (1..MAX) OF PolicyInformation
+	# PolicyInformation ::= SEQUENCE {
+	#    policyIdentifier CertPolicyId,
+	#    policyQualifiers SEQUENCE SIZE (1..MAX) OF PolicyQualifierInfo OPTIONAL }
+	# CertPolicyId ::= OBJECT IDENTIFIER
+
+	upvar 1 $ext_octets_var ext_octets
+	::asn::asnGetSequence ext_octets bytes
+	set ext_value [list]
+	if {$bytes eq {}} {
+		return $ext_value
+	}
+
+	while {$bytes ne {}} {
+		::asn::asnGetSequence bytes policy_info_bytes
+		::asn::asnGetObjectIdentifier policy_info_bytes policy_oid
+		set policy_oid [::pki::_oid_number_to_dotted $policy_oid]
+		set policy_info [list policyIdentifier $policy_oid]
+		if {$policy_info_bytes ne {}} {
+			set qualifers [list]
+			::asn::asnGetSequence policy_info_bytes qualifiers_bytes
+			while {$qualifiers_bytes ne {}} {
+				::asn::asnGetSequence qualifiers_bytes qualifier_info_bytes
+				lappend qualifiers {*}[_parse_PolicyQualifierInfo qualifier_info_bytes]
+			}
+			lappend policy_info policyQualifiers $qualifiers
+		}
+		lappend ext_value $policy_info
+	}
+
+	return $ext_value
+}
+
+
+proc ::pki::x509::_parse_PolicyMappings {ext_octets_var} {
+    # PolicyMappings ::= SEQUENCE SIZE (1..MAX) OF SEQUENCE {
+    #     issuerDomainPolicy      CertPolicyId,
+    #     subjectDomainPolicy     CertPolicyId }
+    # CertPolicyId ::= OBJECT IDENTIFIER
+
+    upvar 1 $ext_octets_var ext_octets
+    ::asn::asnGetSequence ext_octets bytes
+    set ext_value [list]
+    while {$bytes ne {}} {
+        ::asn::asnGetSequence bytes mapping_bytes
+        ::asn::asnGetObjectIdentifier mapping_bytes issuer_policy_oid
+        ::asn::asnGetObjectIdentifier mapping_bytes subject_policy_oid
+        lappend ext_value \
+            [::pki::_oid_number_to_dotted $issuer_policy_oid] \
+            [::pki::_oid_number_to_dotted $subject_policy_oid]
+    }
+
+    return $ext_value
+}
+
+
+proc ::pki::x509::_parse_AccessDescriptionSequence {ext_octets_var} {
+	# AuthorityInfoAccessSyntax  ::=
+	# SEQUENCE SIZE (1..MAX) OF AccessDescription
+	# SubjectInfoAccessSyntax  ::=
+	# SEQUENCE SIZE (1..MAX) OF AccessDescription
+	# AccessDescription  ::=  SEQUENCE {
+	# 	accessMethod          OBJECT IDENTIFIER,
+	# 	accessLocation        GeneralName  }
+
+	upvar 1 $ext_octets_var ext_octets
+	::asn::asnGetSequence ext_octets bytes
+	set ext_value [list]
+	while {$bytes ne {}} {
+        ::asn::asnGetSequence bytes access_bytes
+        ::asn::asnGetObjectIdentifier access_bytes method_oid
+		set location [_parse_GeneralName access_bytes]
+		lappend ext_value [list \
+							   accessMethod [::pki::_oid_number_to_name $method_oid] \
+							   accessLocation $location
+							  ]
+	}
+
+	return $ext_value
+}
+
+
+proc ::pki::x509::_parse_Attribute {bytes_var} {
+	# Attribute               ::= SEQUENCE {
+	# 	type             AttributeType,
+	# 	values    SET OF AttributeValue }
+	# AttributeType           ::= OBJECT IDENTIFIER
+	# AttributeValue          ::= ANY -- DEFINED BY AttributeType
+
+	upvar 1 $bytes_var bytes
+	::asn::asnGetSequence bytes seq_bytes
+	::asn::asnGetObjectIdentifier seq_bytes type_oid
+	::asn::asnGetSet seq_bytes values_bytes
+	binary scan H* $values_bytes values_hex
+	return [list type [::pki::_oid_number_to_dotted $type_oid] values $values_hex]
+}
+
+
+proc ::pki::x509::_parse_AttributeAndValue {bytes_var} {
+	# AttributeTypeAndValue ::= SEQUENCE {
+	# 	type     AttributeType,
+	# 	value    AttributeValue }
+	# AttributeType           ::= OBJECT IDENTIFIER
+	# AttributeValue          ::= ANY -- DEFINED BY AttributeType
+
+	upvar 1 $bytes_var bytes
+	::asn::asnGetSequence bytes seq_bytes
+	::asn::asnGetObjectIdentifier seq_bytes type_oid
+	binary scan H* $seq_bytes value_hex
+	return [list type [::pki::_oid_number_to_dotted $type_oid] value $value_hex]
+}
+
+proc ::pki::x509::_parse_SubjectDirectoryAttributes {ext_octets_var} {
+	# SubjectDirectoryAttributes ::= SEQUENCE SIZE (1..MAX) OF Attribute
+
+	upvar 1 $ext_octets_var ext_octets
+	::asn::asnGetSequence ext_octets bytes
+
+	set ext_value {}
+	while {$bytes ne {}} {
+		lappend ext_value [_parse_Attribute bytes]
+	}
+
+	return $ext_value
+}
+
+proc ::pki::x509::_parse_DistributionPoint {bytes_var} {
+	# DistributionPoint ::= SEQUENCE {
+    #     distributionPoint       [0]     DistributionPointName OPTIONAL,
+    #     reasons                 [1]     ReasonFlags OPTIONAL,
+    #     cRLIssuer               [2]     GeneralNames OPTIONAL }
+	# DistributionPointName ::= CHOICE {
+    #     fullName                [0]     GeneralNames,
+    #     nameRelativeToCRLIssuer [1]     RelativeDistinguishedName }
+	# ReasonFlags ::= BIT STRING {
+    #     unused                  (0),
+    #     keyCompromise           (1),
+    #     cACompromise            (2),
+    #     affiliationChanged      (3),
+    #     superseded              (4),
+    #     cessationOfOperation    (5),
+    #     certificateHold         (6),
+    #     privilegeWithdrawn      (7),
+    #     aACompromise            (8) }
+
+	upvar 1 $bytes_var bytes
+	set value [list]
+	::asn::asnGetSequence bytes dp_bytes
+	if {$dp_bytes eq {}} {
+		return $value
+	}
+
+	::asn::asnPeekByte dp_bytes tag
+
+	# Note about tagging. Constructed encodings have the form 0xA?, primitives 0x8?
+	if {$tag == 0xA0} {
+		::asn::asnGetContext dp_bytes context_tag name_bytes
+		::asn::asnPeekByte name_bytes name_tag
+		if {$name_tag == 0xA0} {
+			::asn::asnRetag name_bytes 0x30; # Retag as SEQUENCE
+			lappend value distributionPoint \
+				[list fullName [_parse_GeneralNames name_bytes]]
+		} elseif {$name_tag == 0xA1} {
+			::asn::asnRetag name_bytes 0x31; # Retag as SET (RelativeDistinguishedName)
+			#::asn::asnGetSequence name_bytes rdn
+			lappend value distributionPoint \
+				[list nameRelativeToCRLIssuer [_dn_to_string $name_bytes]]
+
+		}
+		if {$dp_bytes eq {}} {
+			return $value
+		}
+		::asn::asnPeekByte dp_bytes tag
+	}
+	if {$tag == 0x81} {
+		::asn::asnRetag dp_bytes 0x03; # BITSTRING
+		::asn::asnGetBitString dp_bytes bits
+		scan $bits %b bits
+		set tokens {
+			unused keyCompromise cACompromise affiliationChanged superseded
+			cessationOfOperation certificateHold privilegeWithdrawn aACompromise
+		}
+		set ntokens [llength $tokens]
+		set reasons [list $bits]; # Keep binary bits to support unknown flags
+		# Note start with i=1 since the "unused" bit is not to be checked
+		for {set i 1} {$i < $ntokens} {incr i} {
+			if {$bits & (1 << $i)} {
+				lappend reasons [lindex $tokens $i]
+			}
+		}
+		lappend value reasons $reasons
+		if {$dp_bytes eq {}} {
+			return $value
+		}
+		::asn::asnPeekByte dp_bytes tag
+	}
+	if {$tag == 0xa2} {
+		# cRLIssuer
+		::asn::asnRetag dp_bytes 0x30; # SEQUENCE
+		lappend value cRLIssuer [_parse_GeneralNames dp_bytes]
+	}
+	return $value
+}
+
+
+proc ::pki::x509::_parse_CRLDistributionPoints {ext_octets_var} {
+	# CRLDistributionPoints ::= SEQUENCE SIZE (1..MAX) OF DistributionPoint
+
+    upvar 1 $ext_octets_var ext_octets
+    ::asn::asnGetSequence ext_octets bytes
+    set ext_value [list]
+    while {$bytes ne {}} {
+        lappend ext_value [_parse_DistributionPoint bytes]
+    }
+
+    return $ext_value
+}
+
+
+proc ::pki::x509::_parse_extensions {extensions extensions_list_var} {
+	upvar 1 $extensions_list_var extensions_list
+	# Note - do NOT init extensions_list as we are appending to whatever caller
+	# has already stored there.
+	while {$extensions ne {}} {
+		# Each extension is itself a sequence. The first element is an OID that
+		# identifies the extension. The second element is the "critical" flag.
+		# This is optional and defaults to false. The third element is the
+		# actual extension value encoded as an octet string.
+		::asn::asnGetSequence extensions extension
+		::asn::asnGetObjectIdentifier extension ext_oid
+		set ext_oid [::pki::_oid_number_to_name $ext_oid]
+
+		# Check for presence of optional "critical" flag
+		::asn::asnPeekByte extension peek_tag
+		if {$peek_tag == 0x1} {
+			::asn::asnGetBoolean extension ext_critical
+		} else {
+			set ext_critical 0
+		}
+
+		# Now extract the extension value. Note the structure of the octet
+		# string will depend on the OID.
+		::asn::asnGetOctetString extension ext_octets
+
+		# Parsed value of extension is the critical flag followed by zero or
+		# more oid-dependent values.
+
+		switch -exact -- $ext_oid {
+			subjectAltName -
+			issuerAltName {
+				set ext_value [_parse_GeneralNames ext_octets]
+			}
+			basicConstraints {
+				set ext_value [_parse_BasicConstraints ext_octets]
+			}
+			keyUsage {
+				set ext_value [_parse_KeyUsage ext_octets]
+			}
+			extKeyUsage {
+				set ext_value [_parse_ExtKeyUsage ext_octets]
+			}
+			authorityKeyIdentifier {
+				set ext_value [_parse_AuthorityKeyIdentifier ext_octets]
+			}
+			subjectKeyIdentifier {
+				::asn::asnGetOctetString ext_octets subject_key_id
+				binary scan $subject_key_id H* ext_value
+			}
+			nameConstraints {
+				set ext_value [_parse_NameConstraints ext_octets]
+			}
+			certificatePolicies {
+				set ext_value [_parse_CertificatePolicies ext_octets]
+			}
+			policyMappings {
+				set ext_value [_parse_PolicyMappings ext_octets]
+			}
+			policyConstraints {
+				set ext_value [_parse_PolicyConstraints ext_octets]
+			}
+			inhibitAnyPolicy {
+				::asn::asnGetInteger ext_octets ext_value
+			}
+			subjectDirectoryAttributes {
+				set ext_value [_parse_SubjectDirectoryAttributes ext_octets]
+			}
+			freshestCRL -
+			cRLDistributionPoints {
+				set ext_value [_parse_CRLDistributionPoints ext_octets]
+			}
+			authorityInfoAccess -
+			subjectInfoAccess {
+				set ext_value [_parse_AccessDescriptionSequence ext_octets]
+			}
+			default {
+				binary scan $ext_octets H* ext_value
+			}
+		}
+		if {$ext_oid eq "basicConstraints"} {
+			# TODO - backward compatibility hack This was returned in 0.1 as a
+			# three element list - {critical allowCa caDepth} If backward compat
+			# is not an issue, we should make it consistent with the asn.1 specs
+			# and other extensions where the value is a separate structure from
+			# the critical flag and not flattened into a list. For now, return
+			# both forms.
+			lappend extensions_list id-ce-basicConstraints [list $ext_critical {*}$ext_value]
+			# Note we also add the new form of basicConstraints below
+		}
+		lappend extensions_list $ext_oid [list $ext_critical $ext_value]
+	}
+	return
+}
 
 proc ::pki::x509::parse_cert {cert} {
 	array set parsed_cert [::pki::_parse_pem $cert \
@@ -1263,8 +2135,23 @@ proc ::pki::x509::parse_cert {cert} {
 		::asn::asnGetObjectIdentifier data_signature_algo_seq ret(data_signature_algo)
 	::asn::asnGetSequence cert issuer
 	::asn::asnGetSequence cert validity
+		::asn::asnPeekByte validity peek_tag
+	if {$peek_tag == 0x18} {
+		::asn::asnGetGeneralizedTime validity ret(notBefore)
+		set ret(notBefore) [::pki::x509::_generalizedtime_to_native $ret(notBefore)]
+	} else {
+		# 0x17
 		::asn::asnGetUTCTime validity ret(notBefore)
+		set ret(notBefore) [::pki::x509::_utctime_to_native $ret(notBefore)]
+	}
+	if {$peek_tag == 0x18} {
+		::asn::asnGetGeneralizedTime validity ret(notAfter)
+		set ret(notAfter) [::pki::x509::_generalizedtime_to_native $ret(notAfter)]
+	} else {
+		# 0x17
 		::asn::asnGetUTCTime validity ret(notAfter)
+		set ret(notAfter) [::pki::x509::_utctime_to_native $ret(notAfter)]
+	}
 	::asn::asnGetSequence cert subject
 	::asn::asnGetSequence cert pubkeyinfo
 		::asn::asnGetSequence pubkeyinfo pubkey_algoid
@@ -1272,65 +2159,28 @@ proc ::pki::x509::parse_cert {cert} {
 		::asn::asnGetBitString pubkeyinfo pubkey
 
 	set extensions_list [list]
+	# TODO - this loop seems incorrect to me. The order should be fixed and
+	# out-of-order should be an error. Moreover, duplicates should not be allowed.
 	while {$cert ne {}} {
 		::asn::asnPeekByte cert peek_tag
 
 		switch -- [format 0x%02x $peek_tag] {
 			0xa1 {
+				# TODO - where is this returned?
 				::asn::asnGetContext cert - issuerUniqID
 			}
 			0xa2 {
+				# TODO - where is this returned?
 				::asn::asnGetContext cert - subjectUniqID
 			}
 			0xa3 {
 				::asn::asnGetContext cert - extensions_ctx
 				::asn::asnGetSequence extensions_ctx extensions
-				while {$extensions ne {}} {
-					::asn::asnGetSequence extensions extension
-						::asn::asnGetObjectIdentifier extension ext_oid
-
-						::asn::asnPeekByte extension peek_tag
-						if {$peek_tag == 0x1} {
-							::asn::asnGetBoolean extension ext_critical
-						} else {
-							set ext_critical false
-						}
-
-						::asn::asnGetOctetString extension ext_value_seq
-
-					set ext_oid [::pki::_oid_number_to_name $ext_oid]
-
-					set ext_value [list $ext_critical]
-
-					switch -- $ext_oid {
-						id-ce-basicConstraints {
-							::asn::asnGetSequence ext_value_seq ext_value_bin
-
-							if {$ext_value_bin ne {}} {
-								::asn::asnGetBoolean ext_value_bin allowCA
-							} else {
-								set allowCA false
-							}
-
-							if {$ext_value_bin ne {}} {
-								::asn::asnGetInteger ext_value_bin caDepth
-							} else {
-								set caDepth -1
-							}
-						
-							lappend ext_value $allowCA $caDepth
-						}
-						default {
-							binary scan $ext_value_seq H* ext_value_seq_hex
-							lappend ext_value $ext_value_seq_hex
-						}
-					}
-
-					lappend extensions_list $ext_oid $ext_value
-				}
+				_parse_extensions $extensions extensions_list
 			}
 		}
 	}
+	# TODO - are duplicated extensions allowed? See RFC 5280 - section 4.2.
 	set ret(extensions) $extensions_list
 
 	::asn::asnGetSequence wholething signature_algo_seq
@@ -1338,8 +2188,6 @@ proc ::pki::x509::parse_cert {cert} {
 	::asn::asnGetBitString wholething ret(signature)
 
 	# Convert values from ASN.1 decoder to usable values if needed
-	set ret(notBefore) [::pki::x509::_utctime_to_native $ret(notBefore)]
-	set ret(notAfter) [::pki::x509::_utctime_to_native $ret(notAfter)]
 	set ret(serial_number) [::math::bignum::tostr $ret(serial_number)]
 	set ret(data_signature_algo) [::pki::_oid_number_to_name $ret(data_signature_algo)]
 	set ret(signature_algo) [::pki::_oid_number_to_name $ret(signature_algo)]
@@ -1427,7 +2275,6 @@ proc ::pki::x509::validate_cert {cert args} {
 
 	# Load cert
 	array set cert_arr $cert
-
 	# Validate certificate
 
 	if {!${ignore time}} {
@@ -1444,22 +2291,27 @@ proc ::pki::x509::validate_cert {cert args} {
 		}
 	}
 
-	# Check for extensions and process them
-	## Critical extensions must be understood, non-critical extensions may be ignored if not understood
-	set CA 0
-	set CAdepth -1
-	foreach {ext_id ext_val} $cert_arr(extensions) {
-		set critical [lindex $ext_val 0]
+    # Check for extensions and process them. However v1 certs have no extensions
+	if {$cert_arr(version) == 0} {
+		# Do not permit V1 certificates for signing.
+		set CA 0
+	} else {
+		## Critical extensions must be understood, non-critical extensions may be ignored if not understood
+		set CA 0
+		set CAdepth -1
+		foreach {ext_id ext_val} $cert_arr(extensions) {
+			set critical [lindex $ext_val 0]
 
-		switch -- $ext_id {
-			id-ce-basicConstraints {
-				set CA [lindex $ext_val 1]
-				set CAdepth [lindex $ext_val 2]
-			}
-			default {
-				### If this extensions is critical and not understood, we must reject it
-				if {$critical} {
-					return false
+			switch -- $ext_id {
+				basicConstraints {
+					set CA [lindex $ext_val 1 0]
+					set CAdepth [lindex $ext_val 1 1]
+				}
+				default {
+					### If this extensions is critical and not understood, we must reject it
+					if {$critical} {
+						return false
+					}
 				}
 			}
 		}
@@ -1629,6 +2481,14 @@ proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo sha1}} {
 
 # Parse a PKCS#10 CSR
 proc ::pki::pkcs::parse_csr csr {
+	# RFC 2986
+	# CertificationRequestInfo ::= SEQUENCE {
+    #     version       INTEGER { v1(0) } (v1,...),
+    #     subject       Name,
+    #     subjectPKInfo SubjectPublicKeyInfo{{ PKInfoAlgorithms }},
+    #     attributes    [0] Attributes{{ CRIAttributes }}
+	# }
+	# Attributes { ATTRIBUTE:IOSet } ::= SET OF Attribute{{ IOSet }}
 	array set ret [list]
 
 	array set parsed_csr [::pki::_parse_pem $csr \
@@ -1648,6 +2508,37 @@ proc ::pki::pkcs::parse_csr csr {
 		::asn::asnGetSequence cert_req_seq signature_algo_seq
 			::asn::asnGetObjectIdentifier signature_algo_seq signature_algo
 		::asn::asnGetBitString cert_req_seq signature_bitstring
+
+	# At this point cert_req_info contains attributes if any
+	while {$cert_req_info ne {}} {
+		::asn::asnGetByte cert_req_info tag
+		::asn::asnGetLength cert_req_info len
+		::asn::asnGetBytes cert_req_info $len attrs_bytes
+		if {$tag == 0xa0} {
+			# attr_bytes contains set of attributes without the set header
+			# Each attribute is a sequence of 2 elems - OID and a SET of values
+			while {$attrs_bytes ne {}} {
+				::asn::asnGetSequence attrs_bytes attr_seq
+				::asn::asnGetObjectIdentifier attr_seq attr_oid
+				::asn::asnGetSet attr_seq attr_value_set
+				set attr_oid [::pki::_oid_number_to_name $attr_oid]
+				if {$attr_oid eq "extensionRequest"} {
+					::asn::asnGetSequence attr_value_set ext_req_seq
+					set ext_list {}
+					::pki::x509::_parse_extensions $ext_req_seq ext_list
+				} else {
+					# TODO - what else can be here. Should we add it in hex?
+				}
+			}
+		} else {
+			# TODO - nothing else defined in RFC2986. Skipping but should
+			# we return the tag and attr_bytes in hex?
+		}
+	}
+
+	if {[info exists ext_list]} {
+		set ret(extensionRequest) $ext_list
+	}
 
 	# Convert parsed fields to native types
 	set signature [binary format B* $signature_bitstring]
@@ -1707,7 +2598,7 @@ proc ::pki::x509::create_cert {
 
 	# If we are generating a CA cert, add a CA extension
 	if {$isCA} {
-		set extensions(id-ce-basicConstraints) [list true true -1]
+		set extensions(basicConstraints) [list true true -1]
 	}
 
 	# Determine what version we need to use (default to 1)
@@ -1800,7 +2691,8 @@ proc ::pki::x509::create_cert {
 			set critical 0
 
 			switch -- $extension {
-				id-ce-basicConstraints {
+				id-ce-basicConstraints -
+				basicConstraints {
 					set critical [lindex $extvalue 0]
 					set allowCA [lindex $extvalue 1]
 					set caDepth [lindex $extvalue 2]
@@ -1816,20 +2708,24 @@ proc ::pki::x509::create_cert {
 					}
 				}
 
-				id-ce-subjectAltName {
+				id-ce-subjectAltName -
+				subjectAltName {
 					set critical [lindex $extvalue 0]
 	
 					unset -nocomplain altnames
 
 					foreach {altnametype altnamevalue} [lrange $extvalue 1 end] {
 						switch -- [string tolower $altnametype] {
+							rfc822Name -
 							rfc822name {
 								lappend altnames [::asn::asnChoice 1 $altnamevalue]
 							}
+							dNSName -
 							dnsname {
 								lappend altnames [::asn::asnChoice 2 $altnamevalue]
 							}
 							default {
+								# TODO - add other alternate name types
 								return -code error "Unknown subjectAltName type: $altnametype"
 							}
 						}
@@ -1838,7 +2734,8 @@ proc ::pki::x509::create_cert {
 					set extvalue [::asn::asnSequence {*}$altnames]
 				}
 
-				id-ce-cRLDistributionPoints {
+				id-ce-cRLDistributionPoints -
+				cRLDistributionPoints {
 					set critical [lindex $extvalue 0]
 
 					set crlDistributionPoint_objects [list distributionPoint reasons cRLIssuer]
@@ -1895,7 +2792,8 @@ proc ::pki::x509::create_cert {
 					set extvalue [::asn::asnSequenceFromList $crlDistributionPointsASN]
 				}
 
-				id-ce-keyUsage {
+				id-ce-keyUsage -
+				keyUsage {
 					set critical [lindex $extvalue 0]
 					set extvalue [string tolower [lrange $extvalue 1 end]]
 
@@ -2248,10 +3146,176 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 	return [array get retkey]
 }
 
+## Fill in missing ASN.1 routines
+
+if {1 || [info commands ::asn::asnGetT61String] eq ""} {
+	namespace eval ::asn {}
+	proc asn::asnGetT61String {data_var print_var} {
+		# This is NOT a fully conforming T.61 decoder. See caveats below.
+		# The result may be used for display purposes etc. but not for validation.
+		# RFC 5280 bans the use for the latter purpose anyways.
+		upvar 1 $data_var data $print_var print
+		asnGetByte data tag
+		if {$tag != 0x14} {
+			return -code error \
+				[format "Expected T.61 String (0x14), but got %02x" $tag]  
+		}
+		asnGetLength data length
+		asnGetBytes data $length t61
+		#
+		# Conversion : https://www.compart.com/en/unicode/charsets/T.61-8bit
+		# - All characters in ascii range 0-0x7f are passed through. T.61 does
+		# not use/define all control characters and even some printables like {, }
+		# but we pass them through anyways.
+		# - Certain 8-bit character within a certain range map to Unicode
+		# equivalents but with a few gaps and exceptions
+		# - T.61 encodes diacritics as the diacritic followed by the base
+		# character. These are encoded as the *decomposed* Unicode character
+		# consisting of the base character followed by the diacritic
+		# (i.e reversed order from T.61). Encoding as precomposed would need
+		# to be table-driven. As an aside, I do not think the Tcl encoding system
+		# can deal with the reordering required.
+		# - Everything else result in an error because interpretation of
+		# remaining bytes is not implemented.
+		binary scan $t61 cu* t61_bytes
+		set string ""
+		for {set n [llength $t61_bytes]; set i 0} {$i < $n} {incr i} {
+			set ord [lindex $t61_bytes $i]
+			if {$ord < 0x80} {
+				# 0-0x7f Primary control and graphic characters (basically
+				# ascii) but with some unused passed through
+				append string [format %c $ord]
+			} elseif {$ord < 0xa0} {
+				# 0x80-0x9f - supplementary control. Could map directly to Unicode
+				# except CSI (0x9b) which is a variable length control sequence
+				# that we do not want to parse.
+				if {$ord == 0x9b} {
+					error "T.61 control character ([format 0x%02x]) encountered."
+				}
+				append string [format %c $ord]
+			} elseif {$ord < 0xc1} {
+				# 0xa1-0xbf - Supplementary graphics characters or unused. Map
+				# directly to Unicode with some exceptions.
+				if {$ord == 0xa4} {
+					append string \$
+				} elseif {$od == 0xa6} {
+					append string #
+				} elseif {$od == 0xa8} {
+					append string \u00a4
+				} elseif {$od == 0xb4} {
+					append string \u00d7
+				} elseif {$od == 0xb8} {
+					append string \u00f7
+				} else {
+					append string [format %c $ord]
+				}
+			} elseif {$ord < 0xd0} {
+				# 0xc1-0xcf - diacritic leaders.
+				set diacritic [dict get {
+					c1 \u0300 c2 \u0301 c3 \u0302 c4 \u0303 c5 \u0304 c6 \u0306
+					c7 \u0307 c8 \u0308 c9 \u0308 ca \u030a cb \u0327 cc \u0332
+					cd \u030b ce \u0328 cf \u030c
+				} [format %02x $ord]]
+
+				# In unicode form, the diacritic
+				# follows the base character. So we need to fetch the next T.61
+				# character.
+				incr i
+				if {$i >= $n} {
+					error "Composing diacritic ([format %02x $ord]) not followed by a character."
+				}
+				set ord [lindex $t61_bytes $i]
+				# TODO - do we need to check that the following character is valid?
+				# If so, how?
+				# TODO - Normalise diacritic and base into a single composed character
+				append string [format %c $ord] $diacritic
+			} elseif {$ord < 0xe0} {
+				# Undefined. Replace with ?. Should we generate an error?
+				append string ?
+			} else {
+				# Final set of supplementary graphics 
+				# TODO - e5 and ff are undefined. We replace with ?. Should we
+				# generate an error?
+				append string [dict get {
+					e0 \u2126 e1 \u00c6 e2 \u00d0 e3 \u00aa e4 \u0126 e5 ?
+					e6 \u0132 e7 \u013f e8 \u0141 e9 \u00d8 ea \u0152 eb \u00ba
+					ec \u00de ed \u0166 ee \u014a ef \u0149 f0 \u0138 f1 \u00e6
+					f2 \u0111 f3 \u00f0 f4 \u0127 f5 \u0131 f6 \u0133 f7 \u0140
+					f8 \u0142 f9 \u00f8 fa \u0153 fb \u00df fc \u00fe fd \u0167
+					fe \u014b ff ?
+				} [format %02x $ord]]
+			}
+		}
+
+		# Now that we completed without errors, we can set the output variable
+		set print $string
+		return
+	}
+}
+
+
+
+if {[info commands ::asn::asnGetGeneralizedTime] eq ""} {
+	namespace eval ::asn {}
+	# TODO - asnGeneralizedTime
+	proc asn::asnGetGeneralizedTime {data_var utc_var} {
+		upvar 1 $data_var data $utc_var utc
+
+		asnGetByte data tag
+		if {$tag != 0x18} {
+			return -code error \
+				[format "Expected GeneralizedTime (0x18), but got %02x" $tag]
+		}
+
+		asnGetLength data length
+		asnGetBytes data $length bytes
+
+		# this should be ascii, make it explicit
+		# TODO: support fractional seconds though not required for X.509
+		set bytes [encoding convertfrom ascii $bytes]
+		binary scan $bytes a* utc
+
+		return
+	}
+}
+
+if {[info commands ::asn::asnGeneralizedTime] eq ""} {
+	namespace eval ::asn {}
+	proc asn::asnGeneralizedTime {UTCtimestring} {
+		# the generalized time tag is 0x18.
+		# 
+		# TODO: check the string for well formedness
+		# TODO: accept clock seconds as well as an integer
+		# TODO: support fractional seconds though not required for X.509
+		# which does not permit them.
+
+		set ascii [encoding convertto ascii $UTCtimestring]
+		set len [string length $ascii]
+		return [binary format H2a*a* 18 [asnLength $len] $ascii]
+	}
+}
+
+if {[info commands ::asn::asnGetVisibleString] eq ""} {
+	namespace eval ::asn {}
+	proc asn::asnGetVisibleString {data_var string_var} {
+		upvar 1 $data_var data $string_var str
+		asnGetByte data tag
+		if {$tag != 0x1a} {
+			return -code error \
+				[format "Expected VisisbleString (0x1a), but got %02x" $tag]  
+		}
+		asnGetLength data length
+		asnGetBytes data $length bytes
+		set str [encoding convertfrom ascii $bytes]
+		# TODO: Supposed to be printable ascii only. Should we check and error out?
+		return
+	}
+}
+
 ## Initialize parsing routines, which may load additional packages (base64)
 ::pki::_parse_init
 
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.10
+package provide pki 0.20
