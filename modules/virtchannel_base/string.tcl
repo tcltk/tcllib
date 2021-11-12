@@ -31,10 +31,50 @@ package require tcl::chan::events
 
 # # ## ### ##### ######## #############
 
-namespace eval ::tcl::chan {}
+namespace eval ::tcl::chan {
+    proc _encodeStringContent {thecontent _encoding} {
+	upvar $_encoding encoding
+	switch -- $encoding "-system" - "" {
+	    set encoding [encoding system]
+	} "-auto" {
+	    # consider bytearray/unicode string (must remain bytearray/string by encoding -auto):
+	    if {[regexp {^value is a (\w+)} [tcl::unsupported::representation $thecontent] _ type]} {
+		switch -- $type string {
+		    # it's rather a unicode string:
+		    set encoding unicode
+		} bytearray {
+		    # it's rather a bytearray, but read'll use utf-8 string range, so use utf-8,
+		    # otherwise (for binary) read method must deviate the encoding and return 
+		    # correct string type:
+		    set encoding "utf-8"
+		} default {
+		    # it's rather a string - need to convert it to "utf-8":
+		    set encoding "utf-8"
+		}
+	    } else {
+		# unknown - fallback to utf-8
+		set encoding "utf-8"
+	    }
+        }
+	if {$encoding ne "binary"} {
+	    ::encoding convertto $encoding $thecontent
+	} else {
+            set thecontent
+        }
+    }
+}
 
-proc ::tcl::chan::string {content} {
-    return [::chan create {read} [string::implementation new $content]]
+proc ::tcl::chan::string {content {encoding utf-8}} {
+    # encoding -none will use default system encoding but wrong string representation
+    # (just it is backwards compatible to previous tcllib)
+    if {$encoding ne "-none"} {
+	set content [::tcl::chan::_encodeStringContent $content encoding]
+    }
+    set ch [::chan create {read} [string::implementation new $content]]
+    if {$encoding ne "-none"} {
+	::chan configure $ch -encoding $encoding
+    }
+    return $ch
 }
 
 oo::class create ::tcl::chan::string::implementation {
