@@ -155,7 +155,6 @@ proc InitializeTclTest {} {
     if {[info exists tcltestinit] && $tcltestinit} return
     set tcltestinit 1
 
-    puts [list gubbay [namespace exists ::tcltest]]
     proc ::tcltest::byConstraint {dict} {
 	foreach {constraint value} $dict {
 	    if {![testConstraint $constraint]} continue
