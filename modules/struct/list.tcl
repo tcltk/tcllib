@@ -825,7 +825,8 @@ proc ::struct::list::Lsplit {sequence cmdprefix args} {
     if {$largs == 0} {
 	# Shortcut when nothing is to be done.
 	if {[::llength $sequence] == 0} {return {{} {}}}
-	return [Lfold $sequence {} [::list ::struct::list::PFTest $cmdprefix]]
+	return [uplevel 1 [::list [namespace which Lfold] $sequence {} [
+		::list ::struct::list::PFTest $cmdprefix]]]
     } elseif {$largs == 2} {
 	# Shortcut when nothing is to be done.
 	foreach {pv fv} $args break
@@ -835,7 +836,9 @@ proc ::struct::list::Lsplit {sequence cmdprefix args} {
 	    set fail {}
 	    return {0 0}
 	}
-	foreach {pass fail} [uplevel 1 [::list ::struct::list::Lfold $sequence {} [::list ::struct::list::PFTest $cmdprefix]]] break
+	foreach {pass fail} [uplevel 1 [
+		::list ::struct::list::Lfold $sequence {} [
+			::list ::struct::list::PFTest $cmdprefix]]] break
 	return [::list [llength $pass] [llength $fail]]
     } else {
 	return -code error \
