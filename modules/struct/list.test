@@ -27,7 +27,6 @@ testing {
 testing {
     useLocal list.test.tcl struct::list::test
 	interp alias {} ::struct::list::test::lcs {} ::struct::list::list longestCommonSubsequence
-	namespace eval ::struct::list::test { puts [list brung [namespace which lcs]]}
 	::struct::list::test::main
 }
 
