@@ -63,12 +63,12 @@ proc ::struct::list::test::main {} {
 	} {0 {{0 1} {0 1}}}
 
 	test list-lcs-2.13 {longestCommonSubsequence, delete first of 2} {
-		list [catch {lcs {a b} a} msg] $msg
-	} {0 {0 0}}
-
-	test list-lcs-2.14 {longestCommonSubsequence, delete second of 2} {
 		list [catch {lcs {a b} b} msg] $msg
 	} {0 {1 0}}
+
+	test list-lcs-2.14 {longestCommonSubsequence, delete second of 2} {
+		list [catch {lcs {a b} a} msg] $msg
+	} {0 {0 0}}
 
 	test list-lcs-2.15 {longestCommonSubsequence, change first of 2} {
 		list [catch {lcs {a b} {c b}} msg] $msg
