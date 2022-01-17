@@ -166,7 +166,7 @@ proc ::coroutine::util::update {{what {}}} {
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::util::gets {args} {
+proc ::coroutine::util::gets args {
     # Process arguments.
     # Acceptable syntax:
     # * gets CHAN ?VARNAME?
@@ -188,29 +188,30 @@ proc ::coroutine::util::gets {args} {
     # Loop until we have a complete line. Yield to the event loop
     # where necessary. During
     set blocking [::chan configure $chan -blocking]
-    while {1} {
-        ::chan configure $chan -blocking 0
+    set readable [::chan event $chan readable]
+    ::chan event $chan readable [list [info coroutine]]
+    ::chan configure $chan -blocking 0
+    try {
+	while 1 {
+	    try {
+		set result [::chan gets $chan line]
+	    } on error {result opts} {
+		return -code $result -options $opts
+	    }
 
-	try {
-	    set result [::chan gets $chan line]
-	} on error {result opts} {
-            ::chan configure $chan -blocking $blocking
-            return -code $result -options $opts
+	    if {[::chan blocked $chan]} {
+		yield
+	    } else {
+		if {[llength $args] == 2} {
+		    return $result
+		} else {
+		    return $line
+		}
+	    }
 	}
-
-	if {[::chan blocked $chan]} {
-            ::chan event $chan readable [list [info coroutine]]
-            yield
-            ::chan event $chan readable {}
-        } else {
-            ::chan configure $chan -blocking $blocking
-
-            if {[llength $args] == 2} {
-                return $result
-            } else {
-                return $line
-            }
-        }
+    } finally {
+	::chan configure $chan -blocking $blocking
+	::chan event $chan readable $readable
     }
 }
 
@@ -222,11 +223,13 @@ proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
 
     # Loop until we have a complete line. Yield to the event loop
     # where necessary. During
-    set blocking [::chan configure $chan -blocking]
     upvar 1 $varname line
+    set blocking [::chan configure $chan -blocking]
+    ::chan configure $chan -blocking 0
+    set readable [::chan event $chan readable]
+    ::chan event $chan readable [list [info coroutine] readable]
     try {
-	while {1} {
-	    ::chan configure $chan -blocking 0
+	while 1 {
 	    if {[::chan pending input $chan]>= $limit} {
 		error {Too many notes, Mozart. Too many notes}
 	    }
@@ -237,20 +240,19 @@ proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
 	    }
 
 	    if {[::chan blocked $chan]} {
-	  set timeoutevent [::after $timeout [list [info coroutine] timeout]]
-		::chan event $chan readable [list [info coroutine] readable]
+		set timeoutevent [::after $timeout [list [info coroutine] timeout]]
 		set event [yield]
 		if {$event eq "timeout"} {
 		  error "Connection Timed Out"
 		}
 		::after cancel $timeoutevent
-		::chan event $chan readable {}
 	    } else {
 		return $result
 	    }
 	}
     } finally {
-        ::chan configure $chan -blocking $blocking
+	::chan configure $chan -blocking $blocking
+	::chan event $chan readable $readable
     }
 }
 
@@ -258,7 +260,7 @@ proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::util::read {args} {
+proc ::coroutine::util::read args {
     # Process arguments.
     # Acceptable syntax:
     # * read ?-nonewline ? CHAN
@@ -277,7 +279,7 @@ proc ::coroutine::util::read {args} {
 
     if {[llength $args] == 2} {
 	lassign $args a b
-	if {$a eq "-nonewline"} {
+	if {$a eq {-nonewline}} {
 	    set chan $b
 	    set chop yes
 	} else {
@@ -293,62 +295,55 @@ proc ::coroutine::util::read {args} {
 
     set buf {}
 
-    if {$total eq "Inf"} {
-	# Loop until eof.
+    set blocking [::chan configure $chan -blocking]
+    set readable [::chan event $chan readable]
+    ::chan event $chan readable [list [info coroutine]]
+    ::chan configure $chan -blocking 0
+    try {
+	if {$total eq "Inf"} {
+	    # Loop until eof.
+	    while 1 {
+		if {[::chan eof $chan]} {
+		    break
+		} elseif {[::chan blocked $chan]} {
+		    yield
+		}
 
-	while 1 {
-	    set blocking [::chan configure $chan -blocking]
-	    ::chan configure $chan -blocking 0
-	    if {[::chan eof $chan]} {
-		break
-	    } elseif {[::chan blocked $chan]} {
-		::chan event $chan readable [list [info coroutine]]
-		yield
-		::chan event $chan readable {}
+		try {
+		    set result [::chan read $chan]
+		} on error {result opts} {
+		    return -code $result -options $opts
+		} 
+		append buf $result
 	    }
+	} else {
+	    # Loop until total characters have been read, or eof found,
+	    # whichever is first.
 
-	    try {
-		set result [::chan read $chan]
-	    } on error {result opts} {
-		::chan configure $chan -blocking $blocking
-		return -code $result -options $opts
-	    } finally {
-		::chan configure $chan -blocking $blocking
-	    }
-	    append buf $result
-	}
-    } else {
-	# Loop until total characters have been read, or eof found,
-	# whichever is first.
+	    set left $total
+	    while 1 {
+		if {[::chan eof $chan]} {
+		    break
+		} elseif {[::chan blocked $chan]} {
+		    yield
+		}
 
-	set left $total
-	while 1 {
-	    set blocking [::chan configure $chan -blocking]
-	    ::chan configure $chan -blocking 0
+		try {
+		    set result [::chan read $chan $left]
+		} on error {result opts} {
+		    return -code $result -options $opts
+		}
 
-	    if {[::chan eof $chan]} {
-		break
-	    } elseif {[::chan blocked $chan]} {
-		::chan event $chan readable [list [info coroutine]]
-		yield
-		::chan event $chan readable {}
-	    }
-
-	    try {
-		set result [::chan read $chan $left]
-	    } on error {result opts} {
-		::chan configure $chan -blocking $blocking
-		return -code $result -options $opts
-	    } finally {
-		::chan configure $chan -blocking $blocking
-	    }
-
-	    append buf $result
-	    incr left -[string length $result]
-	    if {!$left} {
-		break
+		append buf $result
+		incr left -[string length $result]
+		if {!$left} {
+		    break
+		}
 	    }
 	}
+    } finally {
+	::chan configure $chan -blocking $blocking
+	::chan event $chan readable $readable
     }
 
     if {$chop && [string index $buf end] eq "\n"} {
