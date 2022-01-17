@@ -62,29 +62,24 @@ this command.
 [call [cmd ::struct::list] [method longestCommonSubsequence] \
 	[arg sequence1] [arg sequence2] [opt [arg maxOccurs]]]
 
-Returns the longest common subsequence of elements in the two lists
-[arg sequence1] and [arg sequence2]. If the [arg maxOccurs] parameter
-is provided, the common subsequence is restricted to elements that
-occur no more than [arg maxOccurs] times in [arg sequence2].
+Returns a list of indices into [arg sequence1] and a corresponding list where
+each item is an index into [arg sequence2] of the matching value according to the
+longest common subsequences algorithm.  If [arg maxOccurs] is provided, the
+common subsequence is restricted to elements that occur no more than
+[arg maxOccurs] times in [arg sequence2].
 
 [para]
-
-The return value is a list of two lists of equal length. The first
-sublist is of indices into [arg sequence1], and the second sublist is
-of indices into [arg sequence2].  Each corresponding pair of indices
-corresponds to equal elements in the sequences; the sequence returned
-is the longest possible.
 
 [call [cmd ::struct::list] [method longestCommonSubsequence2] \
 	[arg {sequence1 sequence2}] [opt [arg maxOccurs]]]
 
-Returns an approximation to the longest common sequence of elements in
+Returns the longest common subsequence of elements in
 the two lists [arg sequence1] and [arg sequence2].
 
-If the [arg maxOccurs] parameter is omitted, the subsequence computed
-is exactly the longest common subsequence; otherwise, the longest
-common subsequence is approximated by first determining the longest
-common sequence of only those elements that occur no more than
+If [arg maxOccurs] is provided, the result is only an
+approximation, where the longest common subsequence is approximated by first
+determining the longest common sequence of only those elements that occur no
+more than
 
 [arg maxOccurs] times in [arg sequence2], and then using that result
 to align the two lists, determining the longest common subsequences of
@@ -92,17 +87,11 @@ the sublists between the two elements.
 
 [para]
 
-As with [method longestCommonSubsequence], the return value is a list
-of two lists of equal length.  The first sublist is of indices into
-[arg sequence1], and the second sublist is of indices into
-
-[arg sequence2].  Each corresponding pair of indices corresponds to
-equal elements in the sequences.  The sequence approximates the
-longest common subsequence.
+The result is the same as for [method longestCommonSubsequence].
 
 [call [cmd ::struct::list] [method lcsInvert] [arg lcsData] [arg len1] [arg len2]]
 
-This command takes a description of a longest common subsequence
+Takes a description of a longest common subsequence
 
 ([arg lcsData]), inverts it, and returns the result. Inversion means
 here that as the input describes which parts of the two sequences are
