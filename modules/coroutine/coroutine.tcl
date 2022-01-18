@@ -62,7 +62,7 @@ namespace eval ::coroutine::util {
 # # ## ### ##### ######## #############
 ## API. Spawn coroutines, automatic naming
 ##      (like thread::create).
-
+
 proc ::coroutine::util::create {args} {
     ::coroutine [ID] {*}$args
 }
@@ -84,7 +84,7 @@ proc ::coroutine::util::create {args} {
 #     their functionality (like proper error messages for syntax errors).
 
 # - -- --- ----- -------- -------------
-
+
 proc ::coroutine::util::global {args} {
     # Frame #1 is the coroutine-specific stack frame at its
     # bottom. Variables there are out of view of the main code, and
@@ -98,7 +98,7 @@ proc ::coroutine::util::global {args} {
 	return
     }
 
-    set cmd [list upvar "#1"]
+    set cmd [list upvar #1]
     foreach var $args {
 	lappend cmd $var $var
     }
@@ -106,22 +106,22 @@ proc ::coroutine::util::global {args} {
 }
 
 # - -- --- ----- -------- -------------
-
-proc ::coroutine::util::after {delay} {
+
+proc ::coroutine::util::after delay {
     ::after $delay [list [info coroutine]]
     yield
     return
 }
 
 # - -- --- ----- -------- -------------
-
+
 proc ::coroutine::util::exit {{status 0}} {
     return -level [info level] $status
 }
 
 # - -- --- ----- -------- -------------
-
-proc ::coroutine::util::vwait {varname} {
+
+proc ::coroutine::util::vwait varname {
     upvar 1 $varname var
     set callback [list [namespace current]::VWaitTrace [info coroutine]]
 
@@ -144,15 +144,16 @@ proc ::coroutine::util::vwait {varname} {
     return
 }
 
+
 proc ::coroutine::util::VWaitTrace {coroutine args} {
     $coroutine
     return
 }
 
 # - -- --- ----- -------- -------------
-
+
 proc ::coroutine::util::update {{what {}}} {
-    if {$what eq "idletasks"} {
+    if {$what eq {idletasks}} {
         ::after idle [list [info coroutine]]
     } elseif {$what ne {}} {
         # Force proper error message for bad call.
@@ -165,7 +166,7 @@ proc ::coroutine::util::update {{what {}}} {
 }
 
 # - -- --- ----- -------- -------------
-
+
 proc ::coroutine::util::gets args {
     # Process arguments.
     # Acceptable syntax:
@@ -215,7 +216,7 @@ proc ::coroutine::util::gets args {
     }
 }
 
-
+
 proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
     # Process arguments.
     # Acceptable syntax:
@@ -230,7 +231,7 @@ proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
     ::chan event $chan readable [list [info coroutine] readable]
     try {
 	while 1 {
-	    if {[::chan pending input $chan]>= $limit} {
+	    if {[::chan pending input $chan] >= $limit} {
 		error {Too many notes, Mozart. Too many notes}
 	    }
 	    try {
@@ -242,8 +243,8 @@ proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
 	    if {[::chan blocked $chan]} {
 		set timeoutevent [::after $timeout [list [info coroutine] timeout]]
 		set event [yield]
-		if {$event eq "timeout"} {
-		  error "Connection Timed Out"
+		if {$event eq {timeout}} {
+		  error {Connection Timed Out}
 		}
 		::after cancel $timeoutevent
 	    } else {
@@ -257,9 +258,8 @@ proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
 }
 
 
-
 # - -- --- ----- -------- -------------
-
+
 proc ::coroutine::util::read args {
     # Process arguments.
     # Acceptable syntax:
@@ -300,7 +300,7 @@ proc ::coroutine::util::read args {
     ::chan event $chan readable [list [info coroutine]]
     ::chan configure $chan -blocking 0
     try {
-	if {$total eq "Inf"} {
+	if {$total eq {Inf}} {
 	    # Loop until eof.
 	    while 1 {
 		if {[::chan eof $chan]} {
@@ -354,10 +354,10 @@ proc ::coroutine::util::read args {
 }
 
 # - -- --- ----- -------- -------------
+
 ## Yields until the channel is writable before actually writing, as
 ## suggested by the documentation for non-blocking puts
-
-proc ::coroutine::util::puts {args} {
+proc ::coroutine::util::puts args {
     # Process arguments.
     # Acceptable syntax:
     # * puts ?-nonewline? ?CHAN? string
@@ -369,7 +369,7 @@ proc ::coroutine::util::puts {args} {
         2 {
             set ch [lindex $args 0]
             if {[string match {-*} $ch]} {
-                if {$ch ne "-nonewline"} {
+                if {$ch ne {-nonewline}} {
                     # Force proper error message for bad call
                     tailcall ::chan puts {*}$args
                 }
@@ -378,7 +378,7 @@ proc ::coroutine::util::puts {args} {
         }
         3 {
             lassign $args opt ch
-            if {$opt ne "-nonewline"} {
+            if {$opt ne {-nonewline}} {
                 # Force proper error message for bad call
                 tailcall ::chan puts {*}$args
             }
@@ -404,7 +404,8 @@ proc ::coroutine::util::puts {args} {
 
 # - -- --- ----- -------- -------------
 ## Does a non-blocking connect in the background and yields until finished.
-proc ::coroutine::util::socket {args} {
+
+proc ::coroutine::util::socket args {
     # Process arguments.
     # Acceptable syntax:
     # * socket ?options? host port
@@ -419,7 +420,7 @@ proc ::coroutine::util::socket {args} {
     }
     ::chan event $s writable {}
     set errmsg [::chan configure $s -error]
-    if {$errmsg ne ""} {
+    if {$errmsg ne {}} {
         ::chan close $s
         error $errmsg
     }
@@ -431,7 +432,7 @@ proc ::coroutine::util::socket {args} {
 ## This goes beyond the builtin vwait, wait for multiple variables,
 ## result is the name of the variable which was written.
 ## This code mainly by Neil Madden.
-
+
 proc ::coroutine::util::await args {
     set callback [list [namespace current]::AWaitSignal [info coroutine]]
 
@@ -465,16 +466,17 @@ proc ::coroutine::util::await args {
     return $choice
 }
 
+
 proc ::coroutine::util::AWaitSignal {coroutine var index op} {
-    if {$op ne "write"} { return }
+    if {$op ne {write}} return
     set fullvar $var
-    if {$index ne ""} { append fullvar ($index) }
+    if {$index ne {}} {append fullvar ($index)}
     $coroutine $fullvar
 }
 
 # # ## ### ##### ######## #############
 ## Internal (package specific) commands
-
+
 proc ::coroutine::util::ID {} {
     variable counter
     return [namespace current]::C[incr counter]
