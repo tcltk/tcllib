@@ -3,6 +3,7 @@
 # Copyright (c) 2005 Thorsten Schloermann
 # Copyright (c) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
 # Copyright (c) 2013 Andreas Kupries
+# Copyright (c) 2022 Nathan Coulter <org.tcl-lang.tcllib@pooryorick.com>
 #
 # A Tcl implementation of the Advanced Encryption Standard (US FIPS PUB 197)
 #
@@ -68,6 +69,49 @@ namespace eval ::aes {
         0xa0 0xe0 0x3b 0x4d 0xae 0x2a 0xf5 0xb0 0xc8 0xeb 0xbb 0x3c 0x83 0x53 0x99 0x61
         0x17 0x2b 0x04 0x7e 0xba 0x77 0xd6 0x26 0xe1 0x69 0x14 0x63 0x55 0x21 0x0c 0x7d
     }
+}
+
+
+proc ::aes::Accelerate args {
+	switch [llength $args] {
+		0 {}
+		1 {}
+		default {
+			return -code error [list {wrong # args} {should be} \
+				{Accelerate ?on?}]
+
+		}
+	}
+	if {[llength $args]} {
+		lassign $args on
+		set saved [namespace export]
+		namespace export *
+		try {
+			namespace eval tmp {
+				namespace export *
+				namespace import [namespace parent]::*
+			}
+			if {[namespace which [namespace current]::Decrypt] ne {}} {
+				rename ::aes::Decrypt {}
+			}
+			if {[namespace which [namespace current]::Encrypt] ne {}} {
+				rename ::aes::Encrypt {}
+			}
+
+			if {$on} {
+				rename tmp::DecryptAccelerated Decrypt 
+				rename tmp::EncryptAccelerated Encrypt 
+			} else {
+				rename tmp::DecryptTcl Decrypt 
+				rename tmp::EncryptTcl Encrypt 
+			}
+			namespace delete tmp 
+		} finally {
+			namespace export $saved
+		}
+	} 
+	expr {[namespace tail [
+		namespace origin Encrypt]] eq {EncryptAccelerated}}
 }
 
 # aes::Init --
@@ -183,8 +227,16 @@ proc ::aes::DecryptBlock {Key block} {
     set n $state(Nr)
     set data [AddRoundKey $Key $state(Nr) $data]
     for {incr n -1} {$n > 0} {incr n -1} {
+        set data1 [InvShiftRows $data]
+        set data1  [InvSubBytes $data1]
+        set data1 [AddRoundKey $Key $n $data1]
+        set data1 [InvMixColumns $data1]
         set data [InvMixColumns [AddRoundKey $Key $n [InvSubBytes [InvShiftRows $data]]]]
     }
+
+    set data1 [InvShiftRows $data]
+    set data1 [InvSubBytes $data1]
+    set data1 [AddRoundKey $Key $n $data1]
     set data [AddRoundKey $Key $n [InvSubBytes [InvShiftRows $data]]]
     
     if {$state(M) eq {cbc}} {
@@ -222,7 +274,7 @@ proc ::aes::ExpandKey {Key} {
                    0x10000000 0x20000000 0x40000000 0x80000000 0x1b000000 \
                    0x36000000 0x6c000000 0xd8000000 0xab000000 0x4d000000]
     # Split the key into Nk big-endian words
-    binary scan $state(K) I* W
+    binary scan $state(K) Iu* W
     set max [expr {$state(Nb) * ($state(Nr) + 1)}]
     set i $state(Nk)
     set h [expr {$i - 1}]
@@ -423,7 +475,7 @@ proc ::aes::GFMult0e {number} {
 #	Encrypt a blocks of plain text and returns blocks of cipher text.
 #	The input data must be a multiple of the block size (16).
 #
-proc ::aes::Encrypt {Key data} {
+proc ::aes::EncryptTcl {Key data} {
     set len [string length $data]
     if {($len % 16) != 0} {
         return -code error "invalid block size: AES requires 16 byte blocks"
@@ -442,7 +494,7 @@ proc ::aes::Encrypt {Key data} {
 #	Decrypt blocks of cipher text and returns blocks of plain text.
 #	The input data must be a multiple of the block size (16).
 #
-proc ::aes::Decrypt {Key data} {
+proc ::aes::DecryptTcl {Key data} {
     set len [string length $data]
     if {($len % 16) != 0} {
         return -code error "invalid block size: AES requires 16 byte blocks"
@@ -614,9 +666,13 @@ proc ::aes::aes {args} {
     return $r
 }
 
+catch {package require aesc}
+# 0 by default because use of the accelerated routines incurs fees.
+aes::Accelerate 0
+
 # -------------------------------------------------------------------------
 
-package provide aes 1.2.1
+package provide aes 1.2.2
 
 # -------------------------------------------------------------------------
 # Local variables:
