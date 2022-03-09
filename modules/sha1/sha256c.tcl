@@ -11,8 +11,8 @@ package require critcl;        # needs critcl
 # @sak notprovided sha256c
 package provide sha256c 1.0.4
 			       
-critcl::cheaders sha256.h;     # FreeBSD SHA256 implementation
-critcl::csources sha256.c;     # FreeBSD SHA256 implementation
+#critcl::cheaders sha256.h;     # FreeBSD SHA256 implementation
+#critcl::csources sha256.c;     # FreeBSD SHA256 implementation
 
 if {$tcl_platform(byteOrder) eq "littleEndian"} {
     set byteOrder 1234
@@ -26,6 +26,11 @@ namespace eval ::sha2 {
     catch {
         #critcl::debug memory symbols
     }
+
+	variable mypath [info script]
+
+	# include the path to the local sha256.h
+	critcl::cheaders $mypath
 
     critcl::ccode {
         #include "sha256.h"
