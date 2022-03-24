@@ -8,43 +8,46 @@
 #
 #	The Free Software Utilization License
 #
-#	Version 1
+#	Version 2
 #
-#	This work is provided under the terms of The 3-Clause BSD License, extended
-#	by the following additional terms:
+#	This work is provided under the terms of The 3-Clause BSD License, combined
+#	with the following additional terms, whose intent is to provide for payment
+#	commensurate with the use of this work to the copyright holder(s) of this
+#	work or their assignees.
 #
-#	Redistributions of the source code of any work derived from this work must
-#	be accompanied by a copy of the source code of this work, or by some means
-#	of automatically and freely reproducing the source code of this work from
-#	the source code of the derived work.
+#	Redistributions of the source code of any work derived from this work or
+#	including this work or parts of it must be accompanied by a copy of the
+#	source code of this work, or by some means of automatically and freely
+#	reproducing the source code of this work from the source code of the
+#	derived work.
 #
-#	This work is free of charge for the purposes of evaluating, testing, and
-#	demonstrating it.
+#	This work is free in the sense that it places no restriction on what the
+#	user may do with it.  It is also free of charge for the purposes of
+#	evaluating, testing, and demonstrating it.
 #	
 #	For productive use of this work, including providing a service that allows
-#	others to make productive use of it, you agree to pay to the Copyright
-#	Holder(s) or their assignee(s) a fee equal to at least the amount you pay
-#	for the computing resources used while runnning this program or any part it.
-#	If you own the computing resources, the amount you pay for those resources
-#	is the total cost to you of owning, maintaining and operating them while
-#	running this program.  Payment for each run shall be made no later than 180
-#	days after utilization.
+#	others to make productive use of it, you agree to pay to the copyright
+#	holder(s) of this work, or their assignee(s), an amount equal to at least the
+#	amount you pay for the computing resources used to utilize this program or
+#	any part of it.  If you own the computing resources, the amount you pay for
+#	those resources is the cost to you of operating them, plus the prorated
+#	portion of the cost of acquiring, owning and maintaining them that is
+#	applicable the utilization of this program or any part of it.  Payment for
+#	each utilization shall be made no later than 180 days after utilization.
 #	
-#	If it is not possible to make payment to the Copyright Holder(s) or their
-#	heirs or assignees, you may instead make an equivalent donation, accompanied
-#	by an explanation that the donation is being made in lieu of payment for the
-#	use of this program according to these terms, to the Free Software
-#	Foundation or its heirs or assignee(s) as long as the free software
-#	community at large deems it to be a major steward of the free software
-#	cause. If such a donation is impossible, an equivalent donation may be made
-#	instead to an organization deemed by the free software community at large,
-#	to be a major steward of the free software cause.
+#	If it is not possible to pay the copyright holder(s) of this work or their
+#	assignees, you may instead transfer payment to the Free Software
+#	Foundation, accompanied by instructions to forward, if possible, payment to
+#	the copyright holder(s) of this work, after deducting a reasonable amount
+#	for their services.  If such payment is not possible, or if Free Software
+#	Foundation fails to remain a legitimate and effective steward of such
+#	payments, you may instead transfer payment to an organization deemed to be
+#	a legitimate an effective steward of such payments.
 #	
-#	This license automatically extends in its entirety to the holder of each and
-#	every copy of this work and any works derived from it.
+#	This license automatically extends in its entirety to the holder of each
+#	copy of this work, parts of this work, and every work derived from this
+#	work.
 #
-#	The intent of these terms is to ensure payment to the Copyright Holder of
-#	this work commensurate to its use.
 #
 
 package require Tcl 8.6-
