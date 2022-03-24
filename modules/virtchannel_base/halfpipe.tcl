@@ -190,5 +190,5 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::halfpipe 1.0.1
+package provide tcl::chan::halfpipe 1.0.2
 return
