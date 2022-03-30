@@ -57,7 +57,7 @@ namespace eval Markdown {
         array set ::Markdown::_references [collect_references markdown]
 
         # PROCESS
-        return [apply_templates markdown]
+        return [parse_block markdown]
     }
 
     #
@@ -125,7 +125,7 @@ namespace eval Markdown {
     }
 
     ## \private
-    proc apply_templates {markdown_var {parent {}}} {
+    proc parse_block {markdown_var {parent {}}} {
         upvar $markdown_var markdown
 
         set lines    [split $markdown \n]
@@ -170,21 +170,13 @@ namespace eval Markdown {
                 }
                 {^[ ]{0,3}#{1,6}} {
                     # ATX STYLE HEADERS
-                    set h_level 0
-                    set h_result {}
 
-                    if {!$h_level} {
-                        regexp {^\s*#+} $line m
-                        set h_level [string length [string trim $m]]
-                    }
-
-                    lappend h_result $line
-
-                     set line [lindex $lines $index]
+                    regexp {^\s*#+} $line m
+                    set h_level [string length [string trim $m]]
 
                     set h_result [\
                         parse_inline [\
-                            regsub -all {^\s*#+\s*|\s*#+\s*$} [join $h_result \n] {} \
+                            regsub -all {^\s*#+\s*|\s*#+\s*$} $line {} \
                         ]\
                     ]
 
@@ -222,7 +214,7 @@ namespace eval Markdown {
                     set bq_result [string trim [join $bq_result \n]]
 
                     append result <blockquote>\n \
-                                    [apply_templates bq_result] \
+                                    [parse_block bq_result] \
                                   \n</blockquote>
                 }
                 {^\s{4,}\S+} {
@@ -389,7 +381,7 @@ namespace eval Markdown {
                         set item_result [join $item_result \n]
 
                         if {$p_count > 1} {
-                            set item_result [apply_templates item_result li]
+                            set item_result [parse_block item_result li]
                         } else {
                             if {[regexp -lineanchor \
                                 {(\A.*?)((?:^[ ]{0,3}(?:\*|-|\+) |^[ ]{0,3}\d+\. ).*\Z)} \
@@ -397,7 +389,7 @@ namespace eval Markdown {
                                 match para rest]} \
                             {
                                 set item_result [parse_inline $para]
-                                append item_result [apply_templates rest]
+                                append item_result [parse_block rest]
                             } else {
                                 set item_result [parse_inline $item_result]
                             }
@@ -638,7 +630,7 @@ namespace eval Markdown {
 
         set re_backticks   {\A`+}
         set re_whitespace  {\s}
-        set re_inlinelink  {\A\!?\[((?:[^\]]|\[[^\]]*?\])+)\]\s*\(\s*((?:[^\s\)]+|\([^\s\)]+\))+)?(\s+([\"'])(.*)?\4)?\s*\)}
+        set re_inlinelink  {\A!\[([^\]]*)\]\(\s*((?:[^\s\)]+|\([^\s\)]+\))+)?(\s+([\"'])(.*)?\4)?\s*\)}
         set re_reflink     {\A\!?\[((?:[^\]]|\[[^\]]*?\])+)\](?:\s*\[((?:[^\]]|\[[^\]]*?\])*)\])?}
         set re_htmltag     {\A</?\w+\s*>|\A<\w+(?:\s+\w+=(?:\"[^\"]+\"|\'[^\']+\'))*\s*/?>}
         set re_autolink    {\A<(?:(\S+@\S+)|(\S+://\S+))>}
@@ -823,5 +815,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.2.1
+package provide Markdown 1.2.2
 return

@@ -384,6 +384,59 @@ test header-1.4 {atx header level 1 with blank line} -body {
 }
 
 
+test img-1.0 {image link with alt text} -body {
+	convert {
+        ![some text](https://www.url.com)
+	}
+} -result {
+    <p><img src="https://www.url.com" alt="some text"/></p>
+}
+
+
+test img-1.1 {image link with alt text and title in double quotes} -body {
+	convert {
+        ![some text](https://www.url.com "my title")
+	}
+} -result {
+    <p><img src="https://www.url.com" alt="some text" title="my title"/></p>
+}
+
+
+test img-1.2 {image link with alt text and title in single quotes} -body {
+	convert {
+        ![some text](https://www.url.com 'my title')
+	}
+} -result {
+    <p><img src="https://www.url.com" alt="some text" title="my title"/></p>
+}
+
+
+test img-1.3 {image link without alt text} -body {
+	convert {
+        ![](https://www.url.com)
+	}
+} -result {
+    <p><img src="https://www.url.com" alt=""/></p>
+}
+
+
+test img-1.4 {image link without alt text but a title} -body {
+	convert {
+        ![](https://www.url.com "my title")
+	}
+} -result {
+    <p><img src="https://www.url.com" alt="" title="my title"/></p>
+}
+
+
+test img-1.5 {image link with single space as alt text} -body {
+	convert {
+        ![ ](https://www.url.com)
+	}
+} -result {
+    <p><img src="https://www.url.com" alt=" "/></p>
+}
+
 
 #-------------------------------------------------------------------------
 # Tests with texts from the original markdown page at daringfireball.net
@@ -956,6 +1009,8 @@ tcltest::test markdown-8.5 {} -body {
 
     <p><code>broken</code> markup</p>
 }]
+
+
 
 #-------------------------------------------------------------------------
 # Cleanup
