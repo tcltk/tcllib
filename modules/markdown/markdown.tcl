@@ -104,7 +104,7 @@ namespace eval Markdown {
 	    } {
                 set title [string trim [string range $title 1 end-1]]
                 if {$title eq {}} {
-                    set next_line [lindex $lines [expr {$index + 1}]]
+                    set next_line [lindex $lines $index+1]]
 
                     if {[regexp \
 			     {^(?:\s+(?:([\"\']).*\1|\(.*\))\s*$)} \
@@ -144,14 +144,14 @@ namespace eval Markdown {
             switch -regexp -matchvar line_match -- $line {
                 {^\s*$} {
                     # EMPTY LINES
-                    if {![regexp {^\s*$} [lindex $lines [expr {$index - 1}]]]} {
+                    if {![regexp {^\s*$} [lindex $lines $index-1]]} {
                         append result "\n\n"
                     }
                     incr index
                 }
                 {^[ ]{0,3}\[(?:[^\]]|\[[^\]]*?\])+\]:\s*\S+(?:\s+(?:([\"\']).*\1|\(.*\))\s*$)?} {
                     # SKIP REFERENCES
-                    set next_line [lindex $lines [expr {$index + 1}]]
+                    set next_line [lindex $lines $index+1]
 
                     if {[regexp \
 			     {^(?:\s+(?:([\"\']).*\1|\(.*\))\s*$)} \
@@ -457,7 +457,7 @@ namespace eval Markdown {
 				      [string trim $line] {| }]]
 
                         if {$row_count == 0} {
-                            set sep_cols [lindex $lines [expr {$index + 1}]]
+                            set sep_cols [lindex $lines $index+1]
 
                             # check if we have a separator row
                             if {[regexp {^\s{0,3}\|?(?:\s*:?-+:?(?:\s*$|\s*\|))+} $sep_cols]} {
@@ -638,7 +638,7 @@ namespace eval Markdown {
             switch $chr {
                 "\\" {
                     # ESCAPES
-                    set next_chr [string index $text [expr {$index + 1}]]
+                    set next_chr [string index $text $index+1]
 
                     if {[string first $next_chr {\`*_\{\}[]()#+-.!>|}] != -1} {
                         set chr $next_chr
@@ -649,7 +649,7 @@ namespace eval Markdown {
                 {*} {
                     # EMPHASIS
                     if {[regexp $re_whitespace [string index $result end]] &&
-                        [regexp $re_whitespace [string index $text [expr {$index + 1}]]]
+                        [regexp $re_whitespace [string index $text $index+1]]
 		    } {
                         #do nothing
                     } elseif {[regexp -start $index \
@@ -679,12 +679,12 @@ namespace eval Markdown {
                     set start [expr {$index + [string length $m]}]
 
                     if {[regexp -start $start -indices $m $text m]} {
-                        set stop [expr {[lindex $m 0] - 1}]
-
-                        set sub [string trim [string range $text $start $stop]]
+			lassign $m from to
+			
+                        set sub [string trim [string range $text $start $from-1]]
 
                         append result "<code>[html_escape $sub]</code>"
-                        set index [expr {[lindex $m 1] + 1}]
+                        set index [expr {$to + 1}]
                         continue
                     }
                 }
