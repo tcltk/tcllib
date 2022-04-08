@@ -2,7 +2,7 @@
 [//000000001]: # (processman \- processman)
 [//000000002]: # (Generated from file 'processman\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2015 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (processman\(n\) 0\.1 tcllib "processman")
+[//000000004]: # (processman\(n\) 0\.6 tcllib "processman")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ processman \- Tool for automating the period callback of commands
 package require Tcl 8\.5  
 package require twapi 3\.1  
 package require cron 1\.1  
-package require processman ?0\.1?  
+package require processman ?0\.6?  
 
 [__::processman::find\_exe__ *name*](#1)  
 [__::processman::kill__ *id*](#2)  
