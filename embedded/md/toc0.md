@@ -387,6 +387,8 @@
 
           + [math::exact](tcllib/files/modules/math/exact\.md) Exact Real Arithmetic
 
+          + [math::figurate](tcllib/files/modules/math/figurate\.md) Evaluate figurate numbers
+
           + [math::filters](tcllib/files/modules/math/filtergen\.md) Digital filters
 
           + [math::fourier](tcllib/files/modules/math/fourier\.md) Discrete and fast fourier transforms

@@ -189,6 +189,7 @@ modules/math/combinatorics.man
 modules/math/constants.man
 modules/math/decimal.man
 modules/math/exact.man
+modules/math/figurate.man
 modules/math/filtergen.man
 modules/math/fourier.man
 modules/math/fuzzy.man

@@ -176,33 +176,24 @@ this command.</p>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence</b> <i class="arg">sequence1</i> <i class="arg">sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></dt>
-<dd><p>Returns the longest common subsequence of elements in the two lists
-<i class="arg">sequence1</i> and <i class="arg">sequence2</i>. If the <i class="arg">maxOccurs</i> parameter
-is provided, the common subsequence is restricted to elements that
-occur no more than <i class="arg">maxOccurs</i> times in <i class="arg">sequence2</i>.</p>
-<p>The return value is a list of two lists of equal length. The first
-sublist is of indices into <i class="arg">sequence1</i>, and the second sublist is
-of indices into <i class="arg">sequence2</i>.  Each corresponding pair of indices
-corresponds to equal elements in the sequences; the sequence returned
-is the longest possible.</p></dd>
+<dd><p>Returns a list of indices into <i class="arg">sequence1</i> and a corresponding list where
+each item is an index into <i class="arg">sequence2</i> of the matching value according to the
+longest common subsequences algorithm.  If <i class="arg">maxOccurs</i> is provided, the
+common subsequence is restricted to elements that occur no more than
+<i class="arg">maxOccurs</i> times in <i class="arg">sequence2</i>.</p></dd>
 <dt><a name="2"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence2</b> <i class="arg">sequence1 sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></dt>
-<dd><p>Returns an approximation to the longest common sequence of elements in
+<dd><p>Returns the longest common subsequence of elements in
 the two lists <i class="arg">sequence1</i> and <i class="arg">sequence2</i>.
-If the <i class="arg">maxOccurs</i> parameter is omitted, the subsequence computed
-is exactly the longest common subsequence; otherwise, the longest
-common subsequence is approximated by first determining the longest
-common sequence of only those elements that occur no more than
+If <i class="arg">maxOccurs</i> is provided, the result is only an
+approximation, where the longest common subsequence is approximated by first
+determining the longest common sequence of only those elements that occur no
+more than
 <i class="arg">maxOccurs</i> times in <i class="arg">sequence2</i>, and then using that result
 to align the two lists, determining the longest common subsequences of
 the sublists between the two elements.</p>
-<p>As with <b class="method">longestCommonSubsequence</b>, the return value is a list
-of two lists of equal length.  The first sublist is of indices into
-<i class="arg">sequence1</i>, and the second sublist is of indices into
-<i class="arg">sequence2</i>.  Each corresponding pair of indices corresponds to
-equal elements in the sequences.  The sequence approximates the
-longest common subsequence.</p></dd>
+<p>The result is the same as for <b class="method">longestCommonSubsequence</b>.</p></dd>
 <dt><a name="3"><b class="cmd">::struct::list</b> <b class="method">lcsInvert</b> <i class="arg">lcsData</i> <i class="arg">len1</i> <i class="arg">len2</i></a></dt>
-<dd><p>This command takes a description of a longest common subsequence
+<dd><p>Takes a description of a longest common subsequence
 (<i class="arg">lcsData</i>), inverts it, and returns the result. Inversion means
 here that as the input describes which parts of the two sequences are
 identical the output describes the differences instead.</p>

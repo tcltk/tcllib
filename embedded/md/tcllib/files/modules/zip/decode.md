@@ -1,8 +1,8 @@
 
 [//000000001]: # (zipfile::decode \- Zip archive handling)
 [//000000002]: # (Generated from file 'decode\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2008\-2016 Andreas Kupries)
-[//000000004]: # (zipfile::decode\(n\) 0\.8 tcllib "Zip archive handling")
+[//000000003]: # (Copyright &copy; 2008\-2022 Andreas Kupries)
+[//000000004]: # (zipfile::decode\(n\) 0\.9 tcllib "Zip archive handling")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ package require Tcl 8\.4
 package require fileutil::decode 0\.2\.1  
 package require Trf  
 package require zlibtcl  
-package require zipfile::decode ?0\.8?  
+package require zipfile::decode ?0\.9?  
 
 [__::zipfile::decode::archive__](#1)  
 [__::zipfile::decode::close__](#2)  
@@ -183,4 +183,4 @@ File
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2008\-2016 Andreas Kupries
+Copyright &copy; 2008\-2022 Andreas Kupries

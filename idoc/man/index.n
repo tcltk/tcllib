@@ -4544,6 +4544,12 @@ tcl::chan::fifo2
 \fBfiles/modules/virtchannel_base/halfpipe\&.n\fR
 tcl::chan::halfpipe
 .RE
+figurate numbers
+.RS
+.TP
+\fBfiles/modules/math/figurate\&.n\fR
+math::figurate
+.RE
 file
 .RS
 .TP
@@ -6646,6 +6652,9 @@ simulation::random
 .RE
 mathematics
 .RS
+.TP
+\fBfiles/modules/math/figurate\&.n\fR
+math::figurate
 .TP
 \fBfiles/modules/math/fourier\&.n\fR
 math::fourier

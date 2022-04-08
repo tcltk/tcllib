@@ -87,39 +87,30 @@ provided here can be reached through a subcommand of this command\.
 
   - <a name='1'></a>__::struct::list__ __longestCommonSubsequence__ *sequence1* *sequence2* ?*maxOccurs*?
 
-    Returns the longest common subsequence of elements in the two lists
-    *sequence1* and *sequence2*\. If the *maxOccurs* parameter is provided,
-    the common subsequence is restricted to elements that occur no more than
+    Returns a list of indices into *sequence1* and a corresponding list where
+    each item is an index into *sequence2* of the matching value according to
+    the longest common subsequences algorithm\. If *maxOccurs* is provided, the
+    common subsequence is restricted to elements that occur no more than
     *maxOccurs* times in *sequence2*\.
-
-    The return value is a list of two lists of equal length\. The first sublist
-    is of indices into *sequence1*, and the second sublist is of indices into
-    *sequence2*\. Each corresponding pair of indices corresponds to equal
-    elements in the sequences; the sequence returned is the longest possible\.
 
   - <a name='2'></a>__::struct::list__ __longestCommonSubsequence2__ *sequence1 sequence2* ?*maxOccurs*?
 
-    Returns an approximation to the longest common sequence of elements in the
-    two lists *sequence1* and *sequence2*\. If the *maxOccurs* parameter is
-    omitted, the subsequence computed is exactly the longest common subsequence;
-    otherwise, the longest common subsequence is approximated by first
-    determining the longest common sequence of only those elements that occur no
-    more than *maxOccurs* times in *sequence2*, and then using that result
-    to align the two lists, determining the longest common subsequences of the
-    sublists between the two elements\.
+    Returns the longest common subsequence of elements in the two lists
+    *sequence1* and *sequence2*\. If *maxOccurs* is provided, the result is
+    only an approximation, where the longest common subsequence is approximated
+    by first determining the longest common sequence of only those elements that
+    occur no more than *maxOccurs* times in *sequence2*, and then using that
+    result to align the two lists, determining the longest common subsequences
+    of the sublists between the two elements\.
 
-    As with __longestCommonSubsequence__, the return value is a list of two
-    lists of equal length\. The first sublist is of indices into *sequence1*,
-    and the second sublist is of indices into *sequence2*\. Each corresponding
-    pair of indices corresponds to equal elements in the sequences\. The sequence
-    approximates the longest common subsequence\.
+    The result is the same as for __longestCommonSubsequence__\.
 
   - <a name='3'></a>__::struct::list__ __lcsInvert__ *lcsData* *len1* *len2*
 
-    This command takes a description of a longest common subsequence
-    \(*lcsData*\), inverts it, and returns the result\. Inversion means here that
-    as the input describes which parts of the two sequences are identical the
-    output describes the differences instead\.
+    Takes a description of a longest common subsequence \(*lcsData*\), inverts
+    it, and returns the result\. Inversion means here that as the input describes
+    which parts of the two sequences are identical the output describes the
+    differences instead\.
 
     To be fully defined the lengths of the two sequences have to be known and
     are specified through *len1* and *len2*\.

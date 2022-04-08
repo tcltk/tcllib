@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'decode\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008-2016 Andreas Kupries
+'\" Copyright (c) 2008-2022 Andreas Kupries
 '\"
-.TH "zipfile::decode" n 0\&.8 tcllib "Zip archive handling"
+.TH "zipfile::decode" n 0\&.9 tcllib "Zip archive handling"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -282,7 +282,7 @@ package require \fBTrf \fR
 .sp
 package require \fBzlibtcl \fR
 .sp
-package require \fBzipfile::decode  ?0\&.8?\fR
+package require \fBzipfile::decode  ?0\&.9?\fR
 .sp
 \fB::zipfile::decode::archive\fR
 .sp
@@ -426,6 +426,6 @@ decompression, zip
 File
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008-2016 Andreas Kupries
+Copyright (c) 2008-2022 Andreas Kupries
 
 .fi
