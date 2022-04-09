@@ -12,9 +12,9 @@ package provide math::figurate 1.0
 
 namespace eval ::math::figurate {
     namespace export sum_sequence sum_squares sum_cubes sum_4th_power sum_5th_power sum_6th_power \
-              sum_7th_power sum_8th_power sum_9th_power sum_10th_power
+              sum_7th_power sum_8th_power sum_9th_power sum_10th_power \
               sum_sequence_odd sum_squares_odd sum_cubes_odd sum_4th_power_odd sum_5th_power_odd sum_6th_power_odd \
-              sum_7th_power_odd sum_8th_power_odd sum_9th_power_odd sum_10th_power_odd
+              sum_7th_power_odd sum_8th_power_odd sum_9th_power_odd sum_10th_power_odd \
               oblong pronic triangular square cubic biquadratic centeredSquare centeredCube centeredPentagonal \
               centeredHexagonal decagonal heptagonal hexagonal octagonal octahedral pentagonal squarePyramidal \
               tetrahedral pentatope centeredTriangular
