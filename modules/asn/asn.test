@@ -4,16 +4,12 @@
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # Copyright (c) 2004-2007 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: asn.test,v 1.19 2011/01/05 22:33:33 mic42 Exp $
 
 # -------------------------------------------------------------------------
-
 
 source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
-
 	
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
@@ -27,10 +23,10 @@ testing {
 # Allows cut'n'paste both encoded and parsed OID from dumpasn1.cfg
 #
 proc bytes2hex {string} {
-	foreach b [split $string ""] {
-		lappend l [format %02X [scan $b %c]]
-	}
-	return [join $l " "]
+    foreach b [split $string ""] {
+	lappend l [format %02X [scan $b %c]]
+    }
+    return [join $l " "]
 }	
 
 # -------------------------------------------------------------------------
@@ -951,6 +947,14 @@ foreach {n hex bin} {
 	 $bin
 }
 
+test asn-35.0 {asnOctetString} {
+    bytes2hex [asn::asnOctetString 1.3.6.1.4.1.1466.20037] 
+} {04 16 31 2E 33 2E 36 2E 31 2E 34 2E 31 2E 31 34 36 36 2E 32 30 30 33 37}
 
+test asn-36.0 {asnApplicationConstr + asnOctetString / ldap} {
+    bytes2hex [asn::asnApplicationConstr 23 [asn::asnOctetString 1.3.6.1.4.1.1466.20037]]
+} {77 18 04 16 31 2E 33 2E 36 2E 31 2E 34 2E 31 2E 31 34 36 36 2E 32 30 30 33 37}
+
+# -------------------------------------------------------------------------
 testsuiteCleanup
-
+return
