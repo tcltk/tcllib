@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.10]
+[vset VERSION 1.10.1]
 [manpage_begin ldap n [vset VERSION]]
 [keywords {directory access}]
 [keywords internet]

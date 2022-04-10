@@ -4,7 +4,7 @@
 '\" Copyright (c) 2004 Jochen Loewer <loewerj@web\&.de>
 '\" Copyright (c) 2006 Michael Schlenker <mic42@users\&.sourceforge\&.net>
 '\"
-.TH "ldap" n 1\&.10 tcllib "LDAP client"
+.TH "ldap" n 1\&.10\&.1 tcllib "LDAP client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ ldap \- LDAP client
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBldap  ?1\&.10?\fR
+package require \fBldap  ?1\&.10\&.1?\fR
 .sp
 \fB::ldap::connect\fR \fIhost\fR ?\fIport\fR?
 .sp
