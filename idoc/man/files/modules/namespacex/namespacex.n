@@ -4,7 +4,7 @@
 '\" Copyright (c) 200? Various (http://wiki\&.tcl\&.tk/1489)
 '\" Copyright (c) 2010 Documentation, Andreas Kupries
 '\"
-.TH "namespacex" n 0\&.2 tcllib "Namespace utility commands"
+.TH "namespacex" n 0\&.3 tcllib "Namespace utility commands"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ namespacex \- Namespace utility commands
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBnamespacex  ?0\&.2?\fR
+package require \fBnamespacex  ?0\&.3?\fR
 .sp
 \fB::namespacex hook add\fR ?\fInamespace\fR? \fIcmdprefix\fR
 .sp

@@ -4,7 +4,7 @@
 [//000000003]: # (Copyright &copy; 200? Neil Madden \(http://wiki\.tcl\.tk/12790\))
 [//000000004]: # (Copyright &copy; 200? Various \(http://wiki\.tcl\.tk/1489\))
 [//000000005]: # (Copyright &copy; 2010 Documentation, Andreas Kupries)
-[//000000006]: # (namespacex\(n\) 0\.2 tcllib "Namespace utility commands")
+[//000000006]: # (namespacex\(n\) 0\.3 tcllib "Namespace utility commands")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ namespacex \- Namespace utility commands
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require namespacex ?0\.2?  
+package require namespacex ?0\.3?  
 
 [__::namespacex hook add__ ?*namespace*? *cmdprefix*](#1)  
 [__::namespacex hook proc__ ?*namespace*? *arguments* *body*](#2)  
