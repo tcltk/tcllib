@@ -35,7 +35,7 @@ tcl::chan::textwindow \- Textwindow channel
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.6  
 package require TclOO  
 package require tcl::chan::events ?1?  
 package require tcl::chan::textwindow ?1?  

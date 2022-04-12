@@ -37,7 +37,7 @@ tcl::chan::halfpipe \- In\-memory channel, half of a fifo2
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.6  
 package require TclOO  
 package require tcl::chan::events ?1?  
 package require tcl::chan::halfpipe ?1\.0\.1?  

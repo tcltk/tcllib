@@ -9,7 +9,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {Concatenation channel}]
-[require Tcl 8.5]
+[require Tcl 8.6]
 [require TclOO]
 [require tcl::chan::core [opt 1]]
 [require tcl::chan::cat [opt [vset Version]]]

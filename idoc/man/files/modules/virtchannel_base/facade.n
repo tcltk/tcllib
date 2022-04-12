@@ -2,7 +2,7 @@
 '\" Generated from file 'facade\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::facade" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::facade" n 1\&.0\&.2 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::facade \- Facade channel
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBTclOO \fR
 .sp
@@ -282,7 +282,7 @@ package require \fBlogger \fR
 .sp
 package require \fBtcl::chan::core  ?1?\fR
 .sp
-package require \fBtcl::chan::facade  ?1?\fR
+package require \fBtcl::chan::facade  ?1\&.0\&.2?\fR
 .sp
 \fB::tcl::chan::facade\fR \fIchan\fR
 .sp

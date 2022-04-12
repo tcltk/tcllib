@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::textwindow \- Textwindow channel
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBTclOO \fR
 .sp

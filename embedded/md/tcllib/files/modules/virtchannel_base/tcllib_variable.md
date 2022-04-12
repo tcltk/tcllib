@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::chan::variable \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'tcllib\_variable\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::variable\(n\) 1\.0\.4 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::chan::variable\(n\) 1\.0\.5 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,10 +35,10 @@ tcl::chan::variable \- In\-memory channel using variable for storage
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.6  
 package require TclOO  
 package require tcl::chan::events ?1?  
-package require tcl::chan::variable ?1\.0\.4?  
+package require tcl::chan::variable ?1\.0\.5?  
 
 [__::tcl::chan::variable__ *varname*](#1)  
 

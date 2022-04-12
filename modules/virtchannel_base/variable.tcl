@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::variable 1.0.4
+# Package tcl::chan::variable 1.0.5
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -28,7 +28,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
+package require Tcl 8.6
 package require TclOO
 package require tcl::chan::events
 
@@ -60,7 +60,7 @@ oo::class create ::tcl::chan::variable::implementation {
 	next {*}$args
     }
 
-    variable varname at 
+    variable varname at
 
     method read {c n} {
 	# Bring connected variable for content into scope.
@@ -166,6 +166,28 @@ oo::class create ::tcl::chan::variable::implementation {
 	return $at
     }
 
+    method truncate {c newloc} {
+	# Bring connected variable for content into scope.
+
+	upvar #0 $varname content
+
+	# Check if the new location is beyond the range given by the
+	# content.
+
+	set max [string length $content]
+	if {$newloc < 0} {
+	    return -code error "Cannot truncate before the start of the channel"
+	} elseif {$newloc > $max} {
+	    # We can truncate beyond the end of the current contents, add
+	    # a block of zeros.
+	    #puts XXX.PAD.[expr {$newloc - $max}]
+	    append content [binary format @[expr {$newloc - $max}]]
+	} elseif {$newloc < $max} {
+	    set content [string range $content 0 $newloc-1]
+	}
+	return
+    }
+
     method Events {} {
 	# Always readable -- Even if the seek location is at the end
 	# (or beyond).  In that case the readable events are fired
@@ -177,5 +199,5 @@ oo::class create ::tcl::chan::variable::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::variable 1.0.4
+package provide tcl::chan::variable 1.0.5
 return

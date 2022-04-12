@@ -26,7 +26,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
+package require Tcl 8.6
 package require TclOO
 package require tcl::chan::core
 
@@ -88,7 +88,7 @@ oo::class create ::tcl::chan::events {
 
     # Event System State - Timer driven
 
-    variable timer allowed requested posting delay    
+    variable timer allowed requested posting delay
 
     # channel   = The channel to post events to - provided by superclass
     # timer     = Timer controlling the posting.

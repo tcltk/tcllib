@@ -82,9 +82,7 @@ oo::class create ::tcl::transform::rot::implementation {
 	    } else {
 		set n $d
 	    }
-
 	    append result $n
-		
 	}
 	return $result
     }

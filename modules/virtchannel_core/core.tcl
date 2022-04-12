@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::core 1
+# Package tcl::chan::core 1.0.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -16,12 +16,12 @@
 # Meta description mixed into C.
 # Meta platform tcl
 # Meta require TclOO
-# Meta require {Tcl 8.5}
+# Meta require {Tcl 8.6}
 # @@ Meta End
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
+package require Tcl 8.6
 package require TclOO
 
 # # ## ### ##### ######## #############
@@ -45,7 +45,7 @@ oo::class create ::tcl::chan::core {
 	set supported {}
 	foreach m {
 	    initialize finalize watch read write seek configure cget
-	    cgetall blocking
+	    cgetall blocking truncate
 	} {
 	    if {$m in $methods} {
 		lappend supported $m
@@ -69,5 +69,5 @@ oo::class create ::tcl::chan::core {
 }
 
 # # ## ### #####
-package provide tcl::chan::core 1
+package provide tcl::chan::core 1.0.1
 return

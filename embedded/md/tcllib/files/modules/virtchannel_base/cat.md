@@ -35,7 +35,7 @@ tcl::chan::cat \- Concatenation channel
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.6  
 package require TclOO  
 package require tcl::chan::core ?1?  
 package require tcl::chan::cat ?1\.0\.3?  

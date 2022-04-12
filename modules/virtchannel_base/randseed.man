@@ -11,7 +11,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {Utilities for random channels}]
-[require Tcl 8.5]
+[require Tcl 8.6]
 [require TclOO]
 [require tcl::randomseed [opt 1]]
 [description]

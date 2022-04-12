@@ -37,7 +37,7 @@ tcl::transform::core \- Basic reflected/virtual channel transform support
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.6  
 package require TclOO  
 package require tcl::transform::core ?1?  
 

@@ -7,7 +7,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {Basic reflected/virtual channel transform support}]
-[require Tcl 8.5]
+[require Tcl 8.6]
 [require TclOO]
 [require tcl::transform::core [opt 1]]
 [description]

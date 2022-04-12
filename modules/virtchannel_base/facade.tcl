@@ -10,7 +10,7 @@
 # whereas the facade has access to even this.
 
 # @@ Meta Begin
-# Package tcl::chan::facade 1.0.1
+# Package tcl::chan::facade 1.0.2
 # Meta as::author {Colin McCormack}
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2011
@@ -32,9 +32,9 @@
 # # ## ### ##### ######## #############
 ## TODO document the special options of the facade
 ## TODO log integration.
-## TODO document that facada takes ownership of the channel.
+## TODO document that facade takes ownership of the channel.
 
-package require Tcl 8.5
+package require Tcl 8.6
 package require TclOO
 package require logger
 package require tcl::chan::core
@@ -207,6 +207,18 @@ oo::class create ::tcl::chan::facade::implementation {
 	return $result
     }
 
+    method seek {myself offset base} {
+	set value [::chan seek $chan $offset $base]
+	log::debug {[self] seek $myself $option $base -> $value}
+	return $value
+    }
+
+    method truncate {myself newloc} {
+	::chan truncate $chan $newloc
+	log::debug {[self] truncate $myself $newloc}
+	return
+    }
+
     # # ## ### ##### ######## #############
 
     # Internals. Methods. Event generation.
@@ -230,5 +242,5 @@ oo::class create ::tcl::chan::facade::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::facade 1.0.1
+package provide tcl::chan::facade 1.0.2
 return

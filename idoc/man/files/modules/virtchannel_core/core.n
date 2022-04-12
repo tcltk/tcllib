@@ -2,7 +2,7 @@
 '\" Generated from file 'core\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::core" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::core" n 1\&.0\&.1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::core \- Basic reflected/virtual channel support
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBtcl::chan::core  ?1?\fR
+package require \fBtcl::chan::core  ?1\&.0\&.1?\fR
 .sp
 \fB::tcl::chan::core\fR \fIobjectName\fR
 .sp

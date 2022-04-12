@@ -25,7 +25,7 @@
 # # ## ### ##### ######## #############
 
 package require tcl::chan::events
-package require Tcl 8.5
+package require Tcl 8.6
 package require TclOO
 
 # # ## ### ##### ######## #############

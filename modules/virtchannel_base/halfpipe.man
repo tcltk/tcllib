@@ -11,7 +11,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {In-memory channel, half of a fifo2}]
-[require Tcl 8.5]
+[require Tcl 8.6]
 [require TclOO]
 [require tcl::chan::events [opt 1]]
 [require tcl::chan::halfpipe [opt [vset VERSION]]]
