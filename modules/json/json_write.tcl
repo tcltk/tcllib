@@ -2,12 +2,10 @@
 #
 #	Commands for the generation of JSON (Java Script Object Notation).
 #
-# Copyright (c) 2009-2011 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2011,2022 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: json_write.tcl,v 1.2 2011/08/24 20:09:44 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -16,7 +14,7 @@ package require Tcl 8.5
 
 namespace eval ::json::write {
     namespace export \
-	string array object indented aligned
+	string array array-strings object object-strings indented aligned
 
     namespace ensemble create
 }
@@ -68,6 +66,20 @@ proc ::json::write::string {s} {
 proc ::json::write::array {args} {
     # always compact form.
     return "\[[join $args ,]\]"
+}
+
+proc ::json::write::array-strings {args} {
+    # convenience command for an array of strings.
+    set words {}
+    foreach w $args { lappend words [string $w] }
+    return [array {*}$words]
+}
+
+proc ::json::write::object-strings {args} {
+    # convenience command for an object of string fields.
+    set words {}
+    foreach {k v} $args { lappend words $k [string $v] }
+    return [object {*}$words]
 }
 
 proc ::json::write::object {args} {
@@ -196,5 +208,5 @@ namespace eval ::json::write {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json::write 1.0.3
+package provide json::write 1.0.4
 return
