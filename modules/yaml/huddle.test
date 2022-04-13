@@ -5,6 +5,8 @@
 # All rights reserved.
 #
 
+# --------------------------------------------------------------------
+
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
@@ -34,12 +36,14 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     #testsNeed dict 1
 
     support {
-    use json/json.tcl json
+	use json/json.tcl json
     }
     testing {
         useLocal huddle.tcl huddle
     }
 }
+
+# --------------------------------------------------------------------
 
 test huddle-1.1 "test of huddle create" -body {
     set upper [huddle create a b c d]
@@ -365,10 +369,35 @@ test huddle-11.1 "test of huddle superclass" -body {
     huddle append a key2 [huddle mapping key3 var3]
 } -result {HUDDLE {!!map {key1 {!!str var1} key2 {!!map {key3 {!!str var3}}}}}}
 
+test huddle-12.0 {ticket [d0e1cf6be1]: jsondump added types} -setup {
+    namespace eval ::map {
+	variable settings {
+	    publicMethods {jsondump}
+	    isContainer   yes
+	    tag           !!map
+	}
+    }
+    proc ::map::jsondump {obj {offset "  "} {newline "\n"} {begin {}}} {
+	# strip huddle and type markers, then ...
+	set data [lindex $obj 1 1]
+	# ... rewrap into the dict the map is an alias for, and dump
+	return [::huddle::jsondump [list HUDDLE [list D $data]] $offset $newline $begin]
+    }
+    huddle addType ::map
+} -body {
+    huddle jsondump {HUDDLE {!!map {a {s fox} b {b true}}}}
+} -cleanup {
+    namespace delete ::map
+} -result {{
+  "a": "fox",
+  "b": true
+}}
 
+# --------------------------------------------------------------------
 
 if {[info exists selfrun]} {
     tcltest::cleanupTests
 } else {
     testsuiteCleanup
 }
+return

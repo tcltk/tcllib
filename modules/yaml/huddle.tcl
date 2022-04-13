@@ -11,10 +11,11 @@
 # Copyright (c) 2015 Miguel Martínez López <aplicacionamedida@gmail.com>
 
 package require Tcl 8.5
-package provide huddle 0.3
+package provide huddle 0.4
 
 namespace eval ::huddle {
-    namespace export huddle wrap unwrap isHuddle strip_node are_equal_nodes argument_to_node get_src
+    namespace export huddle wrap unwrap isHuddle strip_node are_equal_nodes \
+	argument_to_node get_src
 
     variable types
 
@@ -152,7 +153,7 @@ proc ::huddle::isHuddle {obj} {
     variable types
     set node [lindex $obj 1]
     set tag [lindex $node 0]
-
+    
     if { [array get types "type:$tag"] == ""} {
         return 0
     }
@@ -535,7 +536,9 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
             return "\{$nlof[join $inner ,$nlof]$newline$begin\}"
         }
         default {
-            return [$types(callback:$type) jsondump $data $offset $newline $nextoff]
+	    set node [unwrap $huddle_object]
+	    foreach {tag src} $node break
+	    return [$types(callback:$tag) jsondump $huddle_object $offset $newline $nextoff]
         }
     }
 }
