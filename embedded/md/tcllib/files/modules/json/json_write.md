@@ -1,8 +1,8 @@
 
 [//000000001]: # (json::write \- JSON)
 [//000000002]: # (Generated from file 'json\_write\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2009\-2013 Andreas Kupries <andreas\_kupries@sourceforge\.net>)
-[//000000004]: # (json::write\(n\) 1\.0\.3 tcllib "JSON")
+[//000000003]: # (Copyright &copy; 2009\-2013,2022 Andreas Kupries <andreas\_kupries@sourceforge\.net>)
+[//000000004]: # (json::write\(n\) 1\.0\.4 tcllib "JSON")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ json::write \- JSON generation
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require json::write ?1\.0\.3?  
+package require json::write ?1\.0\.4?  
 
 [__::json::write__ __indented__](#1)  
 [__::json::write__ __indented__ *flag*](#2)  
@@ -46,7 +46,9 @@ package require json::write ?1\.0\.3?
 [__::json::write__ __aligned__ *flag*](#4)  
 [__::json::write__ __string__ *s*](#5)  
 [__::json::write__ __array__ *arg*\.\.\.](#6)  
-[__::json::write__ __object__ *key* *value*\.\.\.](#7)  
+[__::json::write__ __array\-strings__ *arg*\.\.\.](#7)  
+[__::json::write__ __object__ *key* *value*\.\.\.](#8)  
+[__::json::write__ __object\-strings__ *key* *value*\.\.\.](#9)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -100,11 +102,23 @@ data exchange format as specified in RFC 4627
     This method takes a series of JSON formatted arguments and returns them as a
     properly formatted JSON array as its result\.
 
-  - <a name='7'></a>__::json::write__ __object__ *key* *value*\.\.\.
+  - <a name='7'></a>__::json::write__ __array\-strings__ *arg*\.\.\.
+
+    This is a convenience variant of __array__\. It assumes that all
+    arguments are plain strings and formats them as JSON strings before passing
+    them into the __array__\.
+
+  - <a name='8'></a>__::json::write__ __object__ *key* *value*\.\.\.
 
     This method takes a series of key/value arguments, the values already
     formatted for JSON, and returns them as a properly formatted JSON object as
     its result, with the keys formatted as JSON strings\.
+
+  - <a name='9'></a>__::json::write__ __object\-strings__ *key* *value*\.\.\.
+
+    This is a convenience variant of __object__\. It assumes that all
+    *value* arguments are plain strings and formats them as JSON strings
+    before passing them into the __object__\.
 
 # <a name='section3'></a>RELATED
 
@@ -138,4 +152,4 @@ CGI programming
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2009\-2013 Andreas Kupries <andreas\_kupries@sourceforge\.net>
+Copyright &copy; 2009\-2013,2022 Andreas Kupries <andreas\_kupries@sourceforge\.net>

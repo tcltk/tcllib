@@ -30,7 +30,14 @@ pcx::check 1.0 std ::json::write {checkSimpleArgs 1 -1 {
 	{array {checkSimpleArgs 0 -1 {
 	    checkWord
 	}}}
+	{array-strings {checkSimpleArgs 0 -1 {
+	    checkWord
+	}}}
 	{object {checkSimpleArgsModNk 0 -1 2 0 {
+	    checkWord
+	    checkWord
+	}}}
+	{object-strings {checkSimpleArgsModNk 0 -1 2 0 {
 	    checkWord
 	    checkWord
 	}}}

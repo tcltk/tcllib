@@ -15,7 +15,7 @@ namespace eval ::tcllib::testutils {
 
 
 # ### ### ### ######### ######### #########
-## Declares the minimal version of Tcl and the dependenices required by the
+## Declares the minimal version of Tcl and the dependencies required by the
 ## package tested by this test suite.  Must be called immediately after loading
 ## the utilities.  Bails out of the calling level if the required minimum
 ## version is not met by the active interpreter.
@@ -34,7 +34,7 @@ proc testsNeedTcl {version} {
 # ### ### ### ######### ######### #########
 ## Declares the minimum version of Tcltest required to run the test suite.
 ## Must be called after loading the utilities.  Loads a suitable version of The
-## only procedure that may preced it is 'testNeedTcl' above.  Tcltest if the
+## only procedure that may preceed it is 'testNeedTcl' above.  Tcltest if the
 ## package has not been loaded yet.  Bail out of the test script that called
 ## this procedure if the loaded version of tcltest does not meet the given
 ## minimum version,
@@ -98,7 +98,7 @@ proc testsNeed {name {version {}}} {
 
 # ### ### ### ######### ######### #########
 
-## Saves/restores the environment for test suites manipulate it either to
+## Saves/restores the environment for test suites which manipulate it either to
 ## achieve the effects they test for/against, or to shield themselves against
 ## manipulation by the environment.  'fileutil' is an example of the first, and
 ## 'doctools' is an example of the second.
@@ -167,7 +167,7 @@ proc InitializeTclTest {} {
 	# Tcltest 2.0+ provides a documented public API to define and
 	# initialize a test constraint. For earlier versions the user has to
 	# directly set a non-public undocumented variable in the package's
-	# namespace.  The following procedures does this, adhering the public
+	# namespace.  The following procedures do this, adhering the public
 	# API.
 
 	proc ::tcltest::testConstraint {c args} {
@@ -412,7 +412,7 @@ proc snitErrors {} {
 ## Procedures that load files from various locations within the local Tcllib
 ## or that load local Tcllib packages.  To avoid contamination of the test
 ## suite by packages and code outside of the Tcllib under test, none of them go
-## through the auto-loader or used the regular package management procedures.
+## through the auto-loader nor use the regular package management procedures.
 
 proc asset args {
     set localPath [file join [uplevel 1 [
@@ -641,7 +641,7 @@ proc dictsort {dict} {
 }
 
 # ### ### ### ######### ######### #########
-## Puts strings together.  Useful when the stings cannot be expressed easily as
+## Puts strings together.  Useful when the strings cannot be expressed easily as
 ## one string due to quoting problems.
 
 proc cat {args} {

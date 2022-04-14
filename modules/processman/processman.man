@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.1]
+[vset PACKAGE_VERSION 0.6]
 [manpage_begin processman n [vset PACKAGE_VERSION]]
 [keywords {processman}]
 [keywords {odie}]

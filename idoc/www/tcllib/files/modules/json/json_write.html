@@ -93,7 +93,7 @@
 </head>
 <!-- Generated from file 'json_write.man' by tcllib/doctools with format 'html'
    -->
-<!-- Copyright &amp;copy; 2009-2013 Andreas Kupries &amp;lt;andreas_kupries@sourceforge.net&amp;gt;
+<!-- Copyright &amp;copy; 2009-2013,2022 Andreas Kupries &amp;lt;andreas_kupries@sourceforge.net&amp;gt;
    -->
 <!-- json::write.n
    -->
@@ -107,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">json::write(n) 1.0.3 tcllib &quot;JSON&quot;</h1>
+<h1 class="doctools_title">json::write(n) 1.0.4 tcllib &quot;JSON&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>json::write - JSON generation</p>
 </div>
@@ -128,7 +128,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">json::write <span class="opt">?1.0.3?</span></b></li>
+<li>package require <b class="pkgname">json::write <span class="opt">?1.0.4?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::json::write</b> <b class="method">indented</b></a></li>
@@ -137,7 +137,9 @@
 <li><a href="#4"><b class="cmd">::json::write</b> <b class="method">aligned</b> <i class="arg">flag</i></a></li>
 <li><a href="#5"><b class="cmd">::json::write</b> <b class="method">string</b> <i class="arg">s</i></a></li>
 <li><a href="#6"><b class="cmd">::json::write</b> <b class="method">array</b> <i class="arg">arg</i>...</a></li>
-<li><a href="#7"><b class="cmd">::json::write</b> <b class="method">object</b> <i class="arg">key</i> <i class="arg">value</i>...</a></li>
+<li><a href="#7"><b class="cmd">::json::write</b> <b class="method">array-strings</b> <i class="arg">arg</i>...</a></li>
+<li><a href="#8"><b class="cmd">::json::write</b> <b class="method">object</b> <i class="arg">key</i> <i class="arg">value</i>...</a></li>
+<li><a href="#9"><b class="cmd">::json::write</b> <b class="method">object-strings</b> <i class="arg">key</i> <i class="arg">value</i>...</a></li>
 </ul>
 </div>
 </div>
@@ -176,10 +178,18 @@ for JSON as its result.</p></dd>
 <dt><a name="6"><b class="cmd">::json::write</b> <b class="method">array</b> <i class="arg">arg</i>...</a></dt>
 <dd><p>This method takes a series of JSON formatted arguments and returns
 them as a properly formatted JSON array as its result.</p></dd>
-<dt><a name="7"><b class="cmd">::json::write</b> <b class="method">object</b> <i class="arg">key</i> <i class="arg">value</i>...</a></dt>
+<dt><a name="7"><b class="cmd">::json::write</b> <b class="method">array-strings</b> <i class="arg">arg</i>...</a></dt>
+<dd><p>This is a convenience variant of <b class="method">array</b>. It assumes that all
+arguments are plain strings and formats them as JSON strings before
+passing them into the <b class="method">array</b>.</p></dd>
+<dt><a name="8"><b class="cmd">::json::write</b> <b class="method">object</b> <i class="arg">key</i> <i class="arg">value</i>...</a></dt>
 <dd><p>This method takes a series of key/value arguments, the values already
 formatted for JSON, and returns them as a properly formatted JSON
 object as its result, with the keys formatted as JSON strings.</p></dd>
+<dt><a name="9"><b class="cmd">::json::write</b> <b class="method">object-strings</b> <i class="arg">key</i> <i class="arg">value</i>...</a></dt>
+<dd><p>This is a convenience variant of <b class="method">object</b>. It assumes that all
+<i class="arg">value</i> arguments are plain strings and formats them as JSON
+strings before passing them into the <b class="method">object</b>.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">RELATED</a></h2>
@@ -206,6 +216,6 @@ left-most button in the secondary navigation bar.</p>
 <p>CGI programming</p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2009-2013 Andreas Kupries &lt;andreas_kupries@sourceforge.net&gt;</p>
+<p>Copyright &copy; 2009-2013,2022 Andreas Kupries &lt;andreas_kupries@sourceforge.net&gt;</p>
 </div>
 </div></body></html>

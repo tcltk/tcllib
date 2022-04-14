@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1.0.3]
+[vset PACKAGE_VERSION 1.0.4]
 [manpage_begin json::write n [vset PACKAGE_VERSION]]
 [keywords {data exchange}]
 [keywords {exchange format}]
 [keywords javascript]
 [keywords json]
-[copyright {2009-2013 Andreas Kupries <andreas_kupries@sourceforge.net>}]
+[copyright {2009-2013,2022 Andreas Kupries <andreas_kupries@sourceforge.net>}]
 [moddesc   {JSON}]
 [titledesc {JSON generation}]
 [category  {CGI programming}]
@@ -74,11 +74,23 @@ for JSON as its result.
 This method takes a series of JSON formatted arguments and returns
 them as a properly formatted JSON array as its result.
 
+[call [cmd ::json::write] [method array-strings] [arg arg]...]
+
+This is a convenience variant of [method array]. It assumes that all
+arguments are plain strings and formats them as JSON strings before
+passing them into the [method array].
+
 [call [cmd ::json::write] [method object] [arg key] [arg value]...]
 
 This method takes a series of key/value arguments, the values already
 formatted for JSON, and returns them as a properly formatted JSON
 object as its result, with the keys formatted as JSON strings.
+
+[call [cmd ::json::write] [method object-strings] [arg key] [arg value]...]
+
+This is a convenience variant of [method object]. It assumes that all
+[arg value] arguments are plain strings and formats them as JSON
+strings before passing them into the [method object].
 
 [list_end]
 [para]

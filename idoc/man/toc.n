@@ -813,6 +813,9 @@ tcllib
 \fBmath::exact\fR
 \fIfiles/modules/math/exact\&.n\fR: Exact Real Arithmetic
 .TP
+\fBmath::figurate\fR
+\fIfiles/modules/math/figurate\&.n\fR: Evaluate figurate numbers
+.TP
 \fBmath::filters\fR
 \fIfiles/modules/math/filtergen\&.n\fR: Digital filters
 .TP

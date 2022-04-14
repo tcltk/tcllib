@@ -20,11 +20,6 @@ critcl::cflags -DTCL_BYTE_ORDER=$byteOrder
 
 namespace eval ::sha1 {
 
-	variable mypath [info script]
-
-	# include the path to the local sha256.h
-	critcl::cheaders $mypath
-
     critcl::ccode {
         #include "sha1.h"
         #include <stdlib.h>

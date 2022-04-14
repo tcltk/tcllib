@@ -1,4 +1,4 @@
-[vset VERSION 0.3]
+[vset VERSION 0.4]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin huddle n [vset VERSION]]
 [see_also yaml]

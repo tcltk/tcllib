@@ -349,37 +349,28 @@ this command\&.
 .SH COMMANDS
 .TP
 \fB::struct::list\fR \fBlongestCommonSubsequence\fR \fIsequence1\fR \fIsequence2\fR ?\fImaxOccurs\fR?
-Returns the longest common subsequence of elements in the two lists
-\fIsequence1\fR and \fIsequence2\fR\&. If the \fImaxOccurs\fR parameter
-is provided, the common subsequence is restricted to elements that
-occur no more than \fImaxOccurs\fR times in \fIsequence2\fR\&.
+Returns a list of indices into \fIsequence1\fR and a corresponding list where
+each item is an index into \fIsequence2\fR of the matching value according to the
+longest common subsequences algorithm\&.  If \fImaxOccurs\fR is provided, the
+common subsequence is restricted to elements that occur no more than
+\fImaxOccurs\fR times in \fIsequence2\fR\&.
 .sp
-The return value is a list of two lists of equal length\&. The first
-sublist is of indices into \fIsequence1\fR, and the second sublist is
-of indices into \fIsequence2\fR\&.  Each corresponding pair of indices
-corresponds to equal elements in the sequences; the sequence returned
-is the longest possible\&.
 .TP
 \fB::struct::list\fR \fBlongestCommonSubsequence2\fR \fIsequence1 sequence2\fR ?\fImaxOccurs\fR?
-Returns an approximation to the longest common sequence of elements in
+Returns the longest common subsequence of elements in
 the two lists \fIsequence1\fR and \fIsequence2\fR\&.
-If the \fImaxOccurs\fR parameter is omitted, the subsequence computed
-is exactly the longest common subsequence; otherwise, the longest
-common subsequence is approximated by first determining the longest
-common sequence of only those elements that occur no more than
+If \fImaxOccurs\fR is provided, the result is only an
+approximation, where the longest common subsequence is approximated by first
+determining the longest common sequence of only those elements that occur no
+more than
 \fImaxOccurs\fR times in \fIsequence2\fR, and then using that result
 to align the two lists, determining the longest common subsequences of
 the sublists between the two elements\&.
 .sp
-As with \fBlongestCommonSubsequence\fR, the return value is a list
-of two lists of equal length\&.  The first sublist is of indices into
-\fIsequence1\fR, and the second sublist is of indices into
-\fIsequence2\fR\&.  Each corresponding pair of indices corresponds to
-equal elements in the sequences\&.  The sequence approximates the
-longest common subsequence\&.
+The result is the same as for \fBlongestCommonSubsequence\fR\&.
 .TP
 \fB::struct::list\fR \fBlcsInvert\fR \fIlcsData\fR \fIlen1\fR \fIlen2\fR
-This command takes a description of a longest common subsequence
+Takes a description of a longest common subsequence
 (\fIlcsData\fR), inverts it, and returns the result\&. Inversion means
 here that as the input describes which parts of the two sequences are
 identical the output describes the differences instead\&.

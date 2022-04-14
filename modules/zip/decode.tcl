@@ -1,15 +1,13 @@
 # -*- tcl -*-
 # ### ### ### ######### ######### #########
 ## Copyright (c) 2008-2012 ActiveState Software Inc., Andreas Kupries
-##                    2016 Andreas Kupries
+##               2016-2022 Andreas Kupries
 ## BSD License
 ##
 # Package providing commands for the decoding of basic zip-file
 # structures.
 
 package require Tcl 8.4
-# HaO 2020-11-24 I don't see why this is helpful, so commented out
-# package require fileutil::magic::filetype ; # Tcllib. File type determination via magic constants
 package require fileutil::decode 0.2.1    ; # Framework for easy decoding of files.
 namespace eval ::zipfile::decode {}
 if {[package vcompare $tcl_patchLevel "8.6"] < 0} {
@@ -653,6 +651,17 @@ proc ::zipfile::decode::Error {msg args} {
 ## This piece of code lifted from tclvs/library/zipvfs (v 1.0.3).
 
 proc ::zipfile::decode::LocateEnd {path} {
+    if {[set code [catch {
+	LocateEndCore $path fd
+    } result]]} {
+	::close $fd
+	return -code $code $result
+    }
+    return $result
+}
+
+proc ::zipfile::decode::LocateEndCore {path fdv} {
+    upvar 1 $fdv fd
     set fd [::open $path r]
     fconfigure $fd -translation binary ;#-buffering none
 
@@ -738,5 +747,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.8
+package provide zipfile::decode 0.9
 return

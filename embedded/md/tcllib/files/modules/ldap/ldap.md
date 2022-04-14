@@ -4,7 +4,7 @@
 [//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2004 Jochen Loewer <loewerj@web\.de>)
 [//000000005]: # (Copyright &copy; 2006 Michael Schlenker <mic42@users\.sourceforge\.net>)
-[//000000006]: # (ldap\(n\) 1\.10 tcllib "LDAP client")
+[//000000006]: # (ldap\(n\) 1\.10\.1 tcllib "LDAP client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,7 +42,7 @@ ldap \- LDAP client
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require ldap ?1\.10?  
+package require ldap ?1\.10\.1?  
 
 [__::ldap::connect__ *host* ?*port*?](#1)  
 [__::ldap::tlsoptions__ __reset__](#2)  

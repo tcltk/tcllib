@@ -45,6 +45,15 @@ proc ns3_setup {{parent {}}} {
     }
 }
 
+proc ns4_setup {{parent {}}} {
+    namespace eval ${parent}::X {
+        namespace eval B {
+            variable z1 ; array set z1 {a 1 b 2}
+            variable z2 99
+        }
+    }
+}
+
 if {[package vsatisfies [package present Tcl] 8.6]} {
     # 8.6+ args => ?arg ...?
     proc E {text} { string map [list "..." "?arg ...?"] $text }
@@ -404,7 +413,7 @@ test namespacex-state-get-2.0.0 {namespacex state get, fqn} -setup {
     dictsort [namespacex state get ::X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB 3 vXa 1 vXb aleph}
+} -result {{S B::vB} 3 {S vXa} 1 {S vXb} aleph}
 
 test namespacex-state-get-2.0.1 {namespacex state get, relative to global} -setup {
     ns2_setup
@@ -412,7 +421,7 @@ test namespacex-state-get-2.0.1 {namespacex state get, relative to global} -setu
     dictsort [namespacex state get X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB 3 vXa 1 vXb aleph}
+} -result {{S B::vB} 3 {S vXa} 1 {S vXb} aleph}
 
 test namespacex-state-get-2.0.2 {namespacex state get, relative to non-global} -setup {
     ns2_setup ::Q
@@ -422,7 +431,7 @@ test namespacex-state-get-2.0.2 {namespacex state get, relative to non-global} -
     }
 } -cleanup {
     namespace delete ::Q
-} -result {B::vB 3 vXa 1 vXb aleph}
+} -result {{S B::vB} 3 {S vXa} 1 {S vXb} aleph}
 
 test namespacex-state-get-2.1.0 {namespacex state get, fqn} -setup {
     namespace eval ::X {}
@@ -456,7 +465,7 @@ test namespacex-state-get-2.2.0 {namespacex state get, fqn} -setup {
     dictsort [namespacex state get ::X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB mjolnir}
+} -result {{S B::vB} mjolnir}
 
 test namespacex-state-get-2.2.1 {namespacex state get, relative to global} -setup {
     ns3_setup
@@ -464,7 +473,7 @@ test namespacex-state-get-2.2.1 {namespacex state get, relative to global} -setu
     dictsort [namespacex state get X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB mjolnir}
+} -result {{S B::vB} mjolnir}
 
 test namespacex-state-get-2.2.2 {namespacex state get, relative to non-global} -setup {
     ns3_setup ::Q
@@ -474,7 +483,17 @@ test namespacex-state-get-2.2.2 {namespacex state get, relative to non-global} -
     }
 } -cleanup {
     namespace delete ::Q
-} -result {B::vB mjolnir}
+} -result {{S B::vB} mjolnir}
+
+test namespacex-state-get-2.3 {namespacex state get, array handling} -setup {
+    ns4_setup ::Q
+} -body {
+    namespace eval ::Q {
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {{A B::z1} {a 1 b 2} {S B::z2} 99}
 
 # -------------------------------------------------------------------------
 ## state drop
@@ -598,7 +617,7 @@ test namespacex-state-set-2.0.0 {namespacex state set, fqn} -setup {
     dictsort [namespacex state get ::X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB 3 vXa 1 vXb aleph}
+} -result {{S B::vB} 3 {S vXa} 1 {S vXb} aleph}
 
 test namespacex-state-set-2.0.1 {namespacex state set, relative to global} -setup {
     ns2_setup
@@ -609,7 +628,7 @@ test namespacex-state-set-2.0.1 {namespacex state set, relative to global} -setu
     dictsort [namespacex state get X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB 3 vXa 1 vXb aleph}
+} -result {{S B::vB} 3 {S vXa} 1 {S vXb} aleph}
 
 test namespacex-state-set-2.0.1 {namespacex state set, relative to non-global} -setup {
     ns2_setup
@@ -623,7 +642,7 @@ test namespacex-state-set-2.0.1 {namespacex state set, relative to non-global} -
     }
 } -cleanup {
     namespace delete ::Q
-} -result {B::vB 3 vXa 1 vXb aleph}
+} -result {{S B::vB} 3 {S vXa} 1 {S vXb} aleph}
 
 test namespacex-state-set-2.1.0 {namespacex state set, fqn} -setup {
     ns3_setup
@@ -634,7 +653,7 @@ test namespacex-state-set-2.1.0 {namespacex state set, fqn} -setup {
     dictsort [namespacex state get ::X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB mjolnir}
+} -result {{S B::vB} mjolnir}
 
 test namespacex-state-set-2.1.1 {namespacex state set, relative to global} -setup {
     ns3_setup
@@ -645,7 +664,7 @@ test namespacex-state-set-2.1.1 {namespacex state set, relative to global} -setu
     dictsort [namespacex state get X]
 } -cleanup {
     namespace delete ::X
-} -result {B::vB mjolnir}
+} -result {{S B::vB} mjolnir}
 
 test namespacex-state-set-2.1.2 {namespacex state set, relative to non-global} -setup {
     ns3_setup
@@ -659,7 +678,33 @@ test namespacex-state-set-2.1.2 {namespacex state set, relative to non-global} -
     }
 } -cleanup {
     namespace delete ::Q
-} -result {B::vB mjolnir}
+} -result {{S B::vB} mjolnir}
+
+test namespacex-state-set-2.2 {namespacex state set, array handling} -setup {
+    ns4_setup
+    set ST [namespacex state get ::X]
+    namespace delete ::X
+    ns2_setup ::Q
+} -body {
+    namespace eval ::Q {
+        namespacex state set X $ST
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {{A B::z1} {a 1 b 2} {S B::z2} 99}
+
+test namespacex-state-set-2.3 {namespacex state set, old style} -setup {
+    set ST {B::z1 {a 1 b 2} B::z2 99}
+    ns2_setup ::Q
+} -body {
+    namespace eval ::Q {
+        namespacex state set X $ST
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {{S B::z1} {a 1 b 2} {S B::z2} 99}
 
 ## done
 # -------------------------------------------------------------------------

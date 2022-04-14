@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'huddle\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008\-2011 KATO Kanryu <kanryu6@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2015 Miguel Martínez López <aplicacionamedida@gmail\.com>)
-[//000000005]: # (huddle\(n\) 0\.3 tcllib "HUDDLE")
+[//000000005]: # (huddle\(n\) 0\.4 tcllib "HUDDLE")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,7 +45,7 @@ huddle \- Create and manipulate huddle object
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require huddle ?0\.3?  
+package require huddle ?0\.4?  
 
 [__huddle create__ *key* *value* ?*key value \.\.\.*?](#1)  
 [__huddle list__ ?*value value \.\.\.*?](#2)  

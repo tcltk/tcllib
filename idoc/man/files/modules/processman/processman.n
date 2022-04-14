@@ -2,7 +2,7 @@
 '\" Generated from file 'processman\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "processman" n 0\&.1 tcllib "processman"
+.TH "processman" n 0\&.6 tcllib "processman"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -280,7 +280,7 @@ package require \fBtwapi  3\&.1\fR
 .sp
 package require \fBcron  1\&.1\fR
 .sp
-package require \fBprocessman  ?0\&.1?\fR
+package require \fBprocessman  ?0\&.6?\fR
 .sp
 \fB::processman::find_exe\fR \fIname\fR
 .sp

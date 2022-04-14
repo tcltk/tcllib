@@ -3,7 +3,7 @@
 '\" Copyright (c) 2008-2011 KATO Kanryu <kanryu6@users\&.sourceforge\&.net>
 '\" Copyright (c) 2015 Miguel Martínez López <aplicacionamedida@gmail\&.com>
 '\"
-.TH "huddle" n 0\&.3 tcllib "HUDDLE"
+.TH "huddle" n 0\&.4 tcllib "HUDDLE"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ huddle \- Create and manipulate huddle object
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBhuddle  ?0\&.3?\fR
+package require \fBhuddle  ?0\&.4?\fR
 .sp
 \fBhuddle create\fR \fIkey\fR \fIvalue\fR ?\fIkey value \&.\&.\&.\fR?
 .sp

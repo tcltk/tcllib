@@ -35,8 +35,6 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.26 2008/11/22 12:25:27 mic42 Exp $
-#
 #   written by Jochen Loewer
 #   3 June, 1999
 #
@@ -44,7 +42,7 @@
 
 package require Tcl 8.5
 package require asn 0.7
-package provide ldap 1.10
+package provide ldap 1.10.1
 
 namespace eval ldap {
 
@@ -400,7 +398,7 @@ proc ldap::Whoami {handle} {
             "Server does not support the \"Who am I?\" extension"
     }
 
-    set request [asnApplicationConstr 23 [asnOctetString 1.3.6.1.4.1.4203.1.11.3]]
+    set request [asnApplicationConstr 23 [asnEncodeString 80 1.3.6.1.4.1.4203.1.11.3]]
     set mid [SendMessage $handle $request]
     set response [WaitForResponse $handle $mid]
 
@@ -665,7 +663,7 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""} \
     package require tls
 
 
-    set request [asnApplicationConstr 23 [asnOctetString 1.3.6.1.4.1.1466.20037]]
+    set request [asnApplicationConstr 23 [asnEncodeString 80 1.3.6.1.4.1.1466.20037]]
     set mid [SendMessage $handle $request]
     set conn(tlsHandshakeInProgress) 1
     set response [WaitForResponse $handle $mid]

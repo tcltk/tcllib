@@ -27,6 +27,10 @@ support {
     use [file join ${TCLLIBMOD} log logger.tcl]           logger
     use [file join ${TCLLIBMOD} base64 base64.tcl]        base64
     use [file join ${TCLLIBMOD} md5 md5x.tcl]             md5
+    use [file join ${TCLLIBMOD} virtchannel_core core.tcl] tcl::chan::core
+    use [file join ${TCLLIBMOD} virtchannel_core events.tcl] tcl::chan::events
+    use [file join ${TCLLIBMOD} virtchannel_base memchan.tcl] tcl::chan::memchan
+    # note: mime depends on the virtchannel packages
     use [file join ${TCLLIBMOD} mime mime.tcl]            mime
     use [file join ${TCLLIBMOD} uuid uuid.tcl]            uuid
     use [file join ${TCLLIBMOD} cmdline cmdline.tcl]      cmdline
@@ -39,9 +43,6 @@ support {
     use [file join ${TCLLIBMOD} coroutine coroutine.tcl]  coroutine
     use [file join ${TCLLIBMOD} dicttool dicttool.tcl]    dicttool
     use [file join ${TCLLIBMOD} cron cron.tcl]            cron
-    use [file join ${TCLLIBMOD} virtchannel_core core.tcl] tcl::chan::core
-    use [file join ${TCLLIBMOD} virtchannel_core events.tcl] tcl::chan::events
-    use [file join ${TCLLIBMOD} virtchannel_base memchan.tcl] tcl::chan::memchan
     use [file join ${TCLLIBMOD} websocket websocket.tcl]  websocket
     use [file join ${MODDIR} clay clay.tcl]               clay
 }

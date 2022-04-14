@@ -291,7 +291,11 @@ proc ::namespacex::state::get {ns} {
     ::set result {}
     foreach v [::namespacex info allvars $ns] {
 	namespace upvar $ns $v value
-	lappend result $v $value
+	if {[array exists value]} {
+	    lappend result [list A $v] [array get value]
+	} else {
+	    lappend result [list S $v] $value
+	}
     }
     return $result
 }
@@ -299,12 +303,33 @@ proc ::namespacex::state::get {ns} {
 proc ::namespacex::state::set {ns state} {
     ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     # Inlined 'state drop'.
-    namespace eval $ns [list ::unset  {*}[::namespacex info allvars $ns]]
-    namespace eval $ns [list variable {*}$state]
+    namespace eval $ns [list ::unset {*}[::namespacex info allvars $ns]]
+
+    foreach {var value} $state {
+	if {[llength $var] == 2} {
+	    # test for type-tagged variables
+	    switch -exact -- [lindex $var 0] {
+		A {
+		    namespace upvar $ns [lindex $var 1] nsvar
+		    array set nsvar $value
+		    continue
+		}
+		S {
+		    namespace upvar $ns [lindex $var 1] nsvar
+		    ::set nsvar $value
+		    continue
+		}
+	    }
+	    # If tag is unknown assume untagged variable whose name contains spaces
+	}
+	# old-style state with untagged variable names. Assume scalar.
+	namespace upvar $ns $var nsvar
+	::set nsvar $value
+    }
     return
 }
 
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide namespacex 0.2
+package provide namespacex 0.3
