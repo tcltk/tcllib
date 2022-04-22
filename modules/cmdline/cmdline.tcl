@@ -171,7 +171,7 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 #	that lists the allowed flags if an incorrect flag is specified.
 #
 # Arguments:
-#	arglistVar	The name of the argument list, typically argv.
+#	argvVar		The name of the argument list, typically argv.
 #			We remove all known options and their args from it.
 #                       In other words, after the call to this command the
 #                       referenced variable contains only the non-options,
@@ -193,10 +193,10 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 #
 # Results
 #	Name value pairs suitable for using with array set.
-#       A modified `arglistVar`.
+#       A modified `argvVar`.
 
-proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
-    upvar 1 $arglistVar argv
+proc ::cmdline::getoptions {argvVar optlist {usage options:}} {
+    upvar 1 $argvVar argv
 
     set opts [GetOptionDefaults $optlist result]
 
@@ -222,7 +222,7 @@ proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
 #	is used incorrectly.
 #
 # Arguments:
-#	arglistVar	The name of the argument list, typically argv.  This
+#	argvVar		The name of the argument list, typically argv.  This
 #			We remove all known options and their args from it.
 #                       In other words, after the call to this command the
 #                       referenced variable contains only the non-options,
@@ -239,10 +239,10 @@ proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
 #
 # Results
 #	Name value pairs suitable for using with array set.
-#       A modified `arglistVar`.
+#       A modified `argvVar`.
 
-proc ::cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
-    upvar 1 $arglistVar argv
+proc ::cmdline::getKnownOptions {argvVar optlist {usage options:}} {
+    upvar 1 $argvVar argv
 
     set opts [GetOptionDefaults $optlist result]
 
@@ -714,7 +714,7 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
 #	specified.
 #
 # Arguments:
-#	arglistVar	The name of the argument list, typically argv
+#	argvVar		The name of the argument list, typically argv
 #	optlist		A list-of-lists where each element specifies an option
 #			in the form:
 #
@@ -760,10 +760,10 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
 # Results
 #	Name value pairs suitable for using with array set.
 
-proc ::cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
+proc ::cmdline::typedGetoptions {argvVar optlist {usage options:}} {
     variable charclasses
 
-    upvar 1 $arglistVar argv
+    upvar 1 $argvVar argv
 
     set opts {? help}
     foreach opt $optlist {
