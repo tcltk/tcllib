@@ -343,22 +343,35 @@ proc ::cmdline::GetOptionDefaults {optlist defaultArrayVar} {
 
 proc ::cmdline::usage {optlist {usage {options:}}} {
     set str "[getArgv0] $usage\n"
+    set longest 20
+    set accum {}
     foreach opt [concat $optlist \
 	     {{- "Forcibly stop option processing"} {help "Print this message"} {? "Print this message"}}] {
-	set name [lindex $opt 0]
+	set name "-[lindex $opt 0]"
 	if {[regsub -- {\.secret$} $name {} name] == 1} {
 	    # Hidden option
 	    continue
 	}
 	if {[regsub -- {\.arg$} $name {} name] == 1} {
+	    append name " value"
 	    set default [lindex $opt 1]
 	    set comment [lindex $opt 2]
-	    append str [string trimright [format " %-20s %s <%s>" "-$name value" $comment $default]]\n
+	    lappend accum [list $name $comment $default]
 	} else {
 	    set comment [lindex $opt 1]
-	    append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
+	    lappend accum [list $name $comment]
 	}
+	set longest [expr {max($longest, [string length $name])}]
     }
+    foreach opt $accum {
+	lassign $opt name comment default
+	set entry [format " %-*s %s" $longest $name $comment]
+	if {[llength $opt] == 3} {
+	    append entry " <$default>"
+	}
+	append str "[string trimright $entry]\n"
+    }
+
     return $str
 }
 
@@ -836,9 +849,11 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
     variable charclasses
 
     set str "[getArgv0] $usage\n"
+    set longest 20
+    set accum {}
     foreach opt [concat $optlist \
             {{help "Print this message"} {? "Print this message"}}] {
-        set name [lindex $opt 0]
+        set name "-[lindex $opt 0]"
         if {[regsub -- {\.secret$} $name {} name] == 1} {
             # Hidden option
 
@@ -856,13 +871,21 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
 		if {$default == "<>"} {
 		    set default ""
 		}
-		append str [string trimright [format " %-20s %s %s" "-$name $charclass" \
-						  $comment $default]]\n
+		lappend accum [list "$name $charclass" $comment $default]
 	    } else {
                 set comment [lindex $opt 1]
-		append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
+		lappend accum [list $name $comment]
             }
         }
+	set longest [expr {max($longest, [string length $name])}]
+    }
+    foreach opt $accum {
+	lassign $opt name comment default
+	set entry [format " %-*s %s" $longest $name $comment]
+	if {[llength $opt] == 3} {
+	    append entry " $default"
+	}
+	append str "[string trimright $entry]\n"
     }
     return $str
 }
