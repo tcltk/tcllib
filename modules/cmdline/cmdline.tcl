@@ -344,7 +344,7 @@ proc ::cmdline::GetOptionDefaults {optlist defaultArrayVar} {
 proc ::cmdline::usage {optlist {usage {options:}}} {
     set str "[getArgv0] $usage\n"
     set longest 20
-    set accum {}
+    set lines {}
     foreach opt [concat $optlist \
 	     {{- "Forcibly stop option processing"} {help "Print this message"} {? "Print this message"}}] {
 	set name "-[lindex $opt 0]"
@@ -354,22 +354,15 @@ proc ::cmdline::usage {optlist {usage {options:}}} {
 	}
 	if {[regsub -- {\.arg$} $name {} name] == 1} {
 	    append name " value"
-	    set default [lindex $opt 1]
-	    set comment [lindex $opt 2]
-	    lappend accum [list $name $comment $default]
+	    set desc "[lindex $opt 2] <[lindex $opt 1]>"
 	} else {
-	    set comment [lindex $opt 1]
-	    lappend accum [list $name $comment]
+	    set desc "[lindex $opt 1]"
 	}
 	set longest [expr {max($longest, [string length $name])}]
+	lappend lines $name $desc
     }
-    foreach opt $accum {
-	lassign $opt name comment default
-	set entry [format " %-*s %s" $longest $name $comment]
-	if {[llength $opt] == 3} {
-	    append entry " <$default>"
-	}
-	append str "[string trimright $entry]\n"
+    foreach {name desc} $lines {
+	append str "[string trimright [format " %-*s %s" $longest $name $desc]]\n"
     }
 
     return $str
@@ -850,42 +843,37 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
 
     set str "[getArgv0] $usage\n"
     set longest 20
-    set accum {}
+    set lines {}
     foreach opt [concat $optlist \
             {{help "Print this message"} {? "Print this message"}}] {
         set name "-[lindex $opt 0]"
         if {[regsub -- {\.secret$} $name {} name] == 1} {
             # Hidden option
+	    continue
+	}
 
-        } else {
-            if {[regsub -- {\.multi$} $name {} name] == 1} {
-                # Display something about multiple options
-            }
+	if {[regsub -- {\.multi$} $name {} name] == 1} {
+	    # Display something about multiple options
+	}
 
-            if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass] ||
-		[regexp -- {\.\(([^)]+)\)} $opt dummy charclass]
-	    } {
-		regsub -- "\\..+\$" $name {} name
-		set comment [lindex $opt 2]
-		set default "<[lindex $opt 1]>"
-		if {$default == "<>"} {
-		    set default ""
-		}
-		lappend accum [list "$name $charclass" $comment $default]
-	    } else {
-                set comment [lindex $opt 1]
-		lappend accum [list $name $comment]
-            }
-        }
+	if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass] ||
+	    [regexp -- {\.\(([^)]+)\)} $opt dummy charclass]
+	} {
+	    regsub -- "\\..+\$" $name {} name
+	    append name " $charclass"
+	    set desc [lindex $opt 2]
+	    set default [lindex $opt 1]
+	    if {$default != ""} {
+		append desc " <$default>"
+	    }
+	} else {
+	    set desc [lindex $opt 1]
+	}
+	lappend accum $name $desc
 	set longest [expr {max($longest, [string length $name])}]
     }
-    foreach opt $accum {
-	lassign $opt name comment default
-	set entry [format " %-*s %s" $longest $name $comment]
-	if {[llength $opt] == 3} {
-	    append entry " $default"
-	}
-	append str "[string trimright $entry]\n"
+    foreach {name desc} $accum {
+	append str "[string trimright [format " %-*s %s" $longest $name $desc]]\n"
     }
     return $str
 }
