@@ -105,7 +105,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">cmdline(n) 1.5.1 tcllib &quot;Command line and option processing&quot;</h1>
+<h1 class="doctools_title">cmdline(n) 1.5.2 tcllib &quot;Command line and option processing&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>cmdline - Procedures to process command lines and options.</p>
 </div>
@@ -135,13 +135,13 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">cmdline <span class="opt">?1.5.1?</span></b></li>
+<li>package require <b class="pkgname">cmdline <span class="opt">?1.5.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::cmdline::getopt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></li>
 <li><a href="#2"><b class="cmd">::cmdline::getKnownOpt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></li>
-<li><a href="#3"><b class="cmd">::cmdline::getoptions</b> <i class="arg">arglistVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></li>
-<li><a href="#4"><b class="cmd">::cmdline::getKnownOptions</b> <i class="arg">arglistVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></li>
+<li><a href="#3"><b class="cmd">::cmdline::getoptions</b> <i class="arg">argvVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></li>
+<li><a href="#4"><b class="cmd">::cmdline::getKnownOptions</b> <i class="arg">argvVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></li>
 <li><a href="#5"><b class="cmd">::cmdline::usage</b> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></li>
 <li><a href="#6"><b class="cmd">::cmdline::getfiles</b> <i class="arg">patterns</i> <i class="arg">quiet</i></a></li>
 <li><a href="#7"><b class="cmd">::cmdline::getArgv0</b></a></li>
@@ -186,9 +186,9 @@ options, otherwise the value is 1.</p></dd>
 <dt><a name="2"><b class="cmd">::cmdline::getKnownOpt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></dt>
 <dd><p>Like <b class="cmd">::cmdline::getopt</b>, except it ignores any unknown options in
 the input.</p></dd>
-<dt><a name="3"><b class="cmd">::cmdline::getoptions</b> <i class="arg">arglistVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></dt>
+<dt><a name="3"><b class="cmd">::cmdline::getoptions</b> <i class="arg">argvVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></dt>
 <dd><p>Processes the entire set of command line options found in the list
-variable named by <i class="arg">arglistVar</i> and fills in defaults for those not
+variable named by <i class="arg">argvVar</i> and fills in defaults for those not
 specified.  This also generates an error message that lists the
 allowed flags if an incorrect flag is specified.
 The optional <i class="arg">usage</i>-argument contains a string to include in
@@ -211,7 +211,7 @@ leaving all arguments coming after for regular processing, even if
 starting with a dash.</p>
 <p>The result of the command is a dictionary mapping all options to their
 values, be they user-specified or defaults.</p></dd>
-<dt><a name="4"><b class="cmd">::cmdline::getKnownOptions</b> <i class="arg">arglistVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></dt>
+<dt><a name="4"><b class="cmd">::cmdline::getKnownOptions</b> <i class="arg">argvVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></dt>
 <dd><p>Like <b class="cmd">::cmdline::getoptions</b>, but ignores any unknown options in the
 input.</p></dd>
 <dt><a name="5"><b class="cmd">::cmdline::usage</b> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></dt>

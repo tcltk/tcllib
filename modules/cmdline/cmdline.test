@@ -175,10 +175,11 @@ test cmdline-2.10 {cmdline::getoptions, errors} {
  -help                Print this message
  -?                   Print this message
 " {}]
+
 test cmdline-2.11 {cmdline::getoptions, usage string in errors} {
     set argList {-help}
     list [catch {cmdline::getoptions argList {{foo.arg blat} a} {testing}} msg] $msg \
-	    $argList
+           $argList
 } [list 1 "[cmdline::getArgv0] testing
  -foo value            <blat>
  -a
@@ -234,6 +235,19 @@ test cmdline-3.3 {cmdline::usage, bug 3189786} {
  --                   Forcibly stop option processing
  -help                Print this message
  -?                   Print this message
+" {}]
+
+test cmdline-3.4 {cmdline::usage, long options} {
+    set argList {-help}
+    list [catch {cmdline::getoptions argList {{mysecret blat} a {very-long-option.arg foobar {A very very long option}}}} msg] $msg \
+	    $argList
+} [list 1 "[cmdline::getArgv0] options:
+ -mysecret               blat
+ -a
+ -very-long-option value A very very long option <foobar>
+ --                      Forcibly stop option processing
+ -help                   Print this message
+ -?                      Print this message
 " {}]
 
 # cmdline::getfiles

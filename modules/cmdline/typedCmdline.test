@@ -107,7 +107,7 @@ test typed-cmdline-6.13 {cmdline::typedGetopt, integer options} {
     list [cmdline::typedGetopt argList {a.arg foo.integer b} opt arg] $argList $opt $arg
 } {1 {} foo 123}
 
-test typed-cmdline-6.14.0 {cmdline::typedGetopt, integer options} tcl8.6plus {
+test typed-cmdline-6.14.0 {cmdline::typedGetopt, integer options} tcl8.6not8.7 {
     catch {unset opt}
     catch {unset arg}
     set argList {-foo 123}
@@ -127,6 +127,14 @@ test typed-cmdline-6.14.2 {cmdline::typedGetopt, integer options} tcl8.4minus {
     set argList {-foo 123}
     list [catch {cmdline::typedGetopt argList {a.arg foo.bar b} opt arg} msg] $msg $argList $opt $arg
 } [list 1 {Illegal option type specification: must be one of alnum|alpha|ascii|control|boolean|digit|double|false|graph|integer|lower|print|punct|space|true|upper|wordchar|xdigit} {-foo 123} {} {}]
+
+test typed-cmdline-6.14.3 {cmdline::typedGetopt, integer options} tcl8.7plus {
+    catch {unset opt}
+    catch {unset arg}
+    set argList {-foo 123}
+    list [catch {cmdline::typedGetopt argList {a.arg foo.bar b} opt arg} msg] $msg $argList $opt $arg
+} [list 1 {Illegal option type specification: must be one of alnum|alpha|ascii|control|boolean|dict|digit|double|entier|false|graph|integer|list|lower|print|punct|space|true|upper|unicode|wideinteger|wordchar|xdigit} {-foo 123} {} {}]
+
 
 test typed-cmdline-6.15 {cmdline::typedGetopt, integer options} {
     catch {unset opt}

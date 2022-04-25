@@ -12,7 +12,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.2
-package provide cmdline 1.5.1
+package provide cmdline 1.5.2
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -171,7 +171,7 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 #	that lists the allowed flags if an incorrect flag is specified.
 #
 # Arguments:
-#	arglistVar	The name of the argument list, typically argv.
+#	argvVar		The name of the argument list, typically argv.
 #			We remove all known options and their args from it.
 #                       In other words, after the call to this command the
 #                       referenced variable contains only the non-options,
@@ -193,10 +193,10 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 #
 # Results
 #	Name value pairs suitable for using with array set.
-#       A modified `arglistVar`.
+#       A modified `argvVar`.
 
-proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
-    upvar 1 $arglistVar argv
+proc ::cmdline::getoptions {argvVar optlist {usage options:}} {
+    upvar 1 $argvVar argv
 
     set opts [GetOptionDefaults $optlist result]
 
@@ -222,7 +222,7 @@ proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
 #	is used incorrectly.
 #
 # Arguments:
-#	arglistVar	The name of the argument list, typically argv.  This
+#	argvVar		The name of the argument list, typically argv.  This
 #			We remove all known options and their args from it.
 #                       In other words, after the call to this command the
 #                       referenced variable contains only the non-options,
@@ -239,10 +239,10 @@ proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
 #
 # Results
 #	Name value pairs suitable for using with array set.
-#       A modified `arglistVar`.
+#       A modified `argvVar`.
 
-proc ::cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
-    upvar 1 $arglistVar argv
+proc ::cmdline::getKnownOptions {argvVar optlist {usage options:}} {
+    upvar 1 $argvVar argv
 
     set opts [GetOptionDefaults $optlist result]
 
@@ -343,22 +343,30 @@ proc ::cmdline::GetOptionDefaults {optlist defaultArrayVar} {
 
 proc ::cmdline::usage {optlist {usage {options:}}} {
     set str "[getArgv0] $usage\n"
+    set longest 20
+    set lines {}
     foreach opt [concat $optlist \
 	     {{- "Forcibly stop option processing"} {help "Print this message"} {? "Print this message"}}] {
-	set name [lindex $opt 0]
+	set name "-[lindex $opt 0]"
 	if {[regsub -- {\.secret$} $name {} name] == 1} {
 	    # Hidden option
 	    continue
 	}
 	if {[regsub -- {\.arg$} $name {} name] == 1} {
-	    set default [lindex $opt 1]
-	    set comment [lindex $opt 2]
-	    append str [string trimright [format " %-20s %s <%s>" "-$name value" $comment $default]]\n
+	    append name " value"
+	    set desc "[lindex $opt 2] <[lindex $opt 1]>"
 	} else {
-	    set comment [lindex $opt 1]
-	    append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
+	    set desc "[lindex $opt 1]"
 	}
+	set n [string length $name]
+	if {$n > $longest} { set longest $n }
+	# max not available before 8.5 - set longest [expr {max($longest, )}]
+	lappend lines $name $desc
     }
+    foreach {name desc} $lines {
+	append str "[string trimright [format " %-*s %s" $longest $name $desc]]\n"
+    }
+
     return $str
 }
 
@@ -714,7 +722,7 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
 #	specified.
 #
 # Arguments:
-#	arglistVar	The name of the argument list, typically argv
+#	argvVar		The name of the argument list, typically argv
 #	optlist		A list-of-lists where each element specifies an option
 #			in the form:
 #
@@ -760,10 +768,10 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
 # Results
 #	Name value pairs suitable for using with array set.
 
-proc ::cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
+proc ::cmdline::typedGetoptions {argvVar optlist {usage options:}} {
     variable charclasses
 
-    upvar 1 $arglistVar argv
+    upvar 1 $argvVar argv
 
     set opts {? help}
     foreach opt $optlist {
@@ -836,33 +844,40 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
     variable charclasses
 
     set str "[getArgv0] $usage\n"
+    set longest 20
+    set lines {}
     foreach opt [concat $optlist \
             {{help "Print this message"} {? "Print this message"}}] {
-        set name [lindex $opt 0]
+        set name "-[lindex $opt 0]"
         if {[regsub -- {\.secret$} $name {} name] == 1} {
             # Hidden option
+	    continue
+	}
 
-        } else {
-            if {[regsub -- {\.multi$} $name {} name] == 1} {
-                # Display something about multiple options
-            }
+	if {[regsub -- {\.multi$} $name {} name] == 1} {
+	    # Display something about multiple options
+	}
 
-            if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass] ||
-		[regexp -- {\.\(([^)]+)\)} $opt dummy charclass]
-	    } {
-		regsub -- "\\..+\$" $name {} name
-		set comment [lindex $opt 2]
-		set default "<[lindex $opt 1]>"
-		if {$default == "<>"} {
-		    set default ""
-		}
-		append str [string trimright [format " %-20s %s %s" "-$name $charclass" \
-						  $comment $default]]\n
-	    } else {
-                set comment [lindex $opt 1]
-		append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
-            }
-        }
+	if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass] ||
+	    [regexp -- {\.\(([^)]+)\)} $opt dummy charclass]
+	} {
+	    regsub -- "\\..+\$" $name {} name
+	    append name " $charclass"
+	    set desc [lindex $opt 2]
+	    set default [lindex $opt 1]
+	    if {$default != ""} {
+		append desc " <$default>"
+	    }
+	} else {
+	    set desc [lindex $opt 1]
+	}
+	lappend accum $name $desc
+	set n [string length $name]
+	if {$n > $longest} { set longest $n }
+	# max not available before 8.5 - set longest [expr {max($longest, [string length $name])}]
+    }
+    foreach {name desc} $accum {
+	append str "[string trimright [format " %-*s %s" $longest $name $desc]]\n"
     }
     return $str
 }

@@ -1,4 +1,4 @@
-[vset VERSION 1.5.1]
+[vset VERSION 1.5.2]
 [manpage_begin cmdline n [vset VERSION]]
 [keywords {argument processing}]
 [keywords argv]
@@ -71,10 +71,10 @@ options, otherwise the value is 1.
 Like [cmd ::cmdline::getopt], except it ignores any unknown options in
 the input.
 
-[call [cmd ::cmdline::getoptions] [arg arglistVar] [arg optlist] [opt [arg usage]]]
+[call [cmd ::cmdline::getoptions] [arg argvVar] [arg optlist] [opt [arg usage]]]
 
 Processes the entire set of command line options found in the list
-variable named by [arg arglistVar] and fills in defaults for those not
+variable named by [arg argvVar] and fills in defaults for those not
 specified.  This also generates an error message that lists the
 allowed flags if an incorrect flag is specified.
 
@@ -114,7 +114,7 @@ starting with a dash.
 The result of the command is a dictionary mapping all options to their
 values, be they user-specified or defaults.
 
-[call [cmd ::cmdline::getKnownOptions] [arg arglistVar] [arg optlist] [opt [arg usage]]]
+[call [cmd ::cmdline::getKnownOptions] [arg argvVar] [arg optlist] [opt [arg usage]]]
 
 Like [cmd ::cmdline::getoptions], but ignores any unknown options in the
 input.

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'cmdline\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "cmdline" n 1\&.5\&.1 tcllib "Command line and option processing"
+.TH "cmdline" n 1\&.5\&.2 tcllib "Command line and option processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,15 +275,15 @@ cmdline \- Procedures to process command lines and options\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBcmdline  ?1\&.5\&.1?\fR
+package require \fBcmdline  ?1\&.5\&.2?\fR
 .sp
 \fB::cmdline::getopt\fR \fIargvVar\fR \fIoptstring\fR \fIoptVar\fR \fIvalVar\fR
 .sp
 \fB::cmdline::getKnownOpt\fR \fIargvVar\fR \fIoptstring\fR \fIoptVar\fR \fIvalVar\fR
 .sp
-\fB::cmdline::getoptions\fR \fIarglistVar\fR \fIoptlist\fR ?\fIusage\fR?
+\fB::cmdline::getoptions\fR \fIargvVar\fR \fIoptlist\fR ?\fIusage\fR?
 .sp
-\fB::cmdline::getKnownOptions\fR \fIarglistVar\fR \fIoptlist\fR ?\fIusage\fR?
+\fB::cmdline::getKnownOptions\fR \fIargvVar\fR \fIoptlist\fR ?\fIusage\fR?
 .sp
 \fB::cmdline::usage\fR \fIoptlist\fR ?\fIusage\fR?
 .sp
@@ -335,9 +335,9 @@ options, otherwise the value is 1\&.
 Like \fB::cmdline::getopt\fR, except it ignores any unknown options in
 the input\&.
 .TP
-\fB::cmdline::getoptions\fR \fIarglistVar\fR \fIoptlist\fR ?\fIusage\fR?
+\fB::cmdline::getoptions\fR \fIargvVar\fR \fIoptlist\fR ?\fIusage\fR?
 Processes the entire set of command line options found in the list
-variable named by \fIarglistVar\fR and fills in defaults for those not
+variable named by \fIargvVar\fR and fills in defaults for those not
 specified\&.  This also generates an error message that lists the
 allowed flags if an incorrect flag is specified\&.
 The optional \fIusage\fR-argument contains a string to include in
@@ -366,7 +366,7 @@ starting with a dash\&.
 The result of the command is a dictionary mapping all options to their
 values, be they user-specified or defaults\&.
 .TP
-\fB::cmdline::getKnownOptions\fR \fIarglistVar\fR \fIoptlist\fR ?\fIusage\fR?
+\fB::cmdline::getKnownOptions\fR \fIargvVar\fR \fIoptlist\fR ?\fIusage\fR?
 Like \fB::cmdline::getoptions\fR, but ignores any unknown options in the
 input\&.
 .TP
