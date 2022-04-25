@@ -1,7 +1,7 @@
 
 [//000000001]: # (cmdline \- Command line and option processing)
 [//000000002]: # (Generated from file 'cmdline\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (cmdline\(n\) 1\.5\.1 tcllib "Command line and option processing")
+[//000000003]: # (cmdline\(n\) 1\.5\.2 tcllib "Command line and option processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,12 +43,12 @@ cmdline \- Procedures to process command lines and options\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require cmdline ?1\.5\.1?  
+package require cmdline ?1\.5\.2?  
 
 [__::cmdline::getopt__ *argvVar* *optstring* *optVar* *valVar*](#1)  
 [__::cmdline::getKnownOpt__ *argvVar* *optstring* *optVar* *valVar*](#2)  
-[__::cmdline::getoptions__ *arglistVar* *optlist* ?*usage*?](#3)  
-[__::cmdline::getKnownOptions__ *arglistVar* *optlist* ?*usage*?](#4)  
+[__::cmdline::getoptions__ *argvVar* *optlist* ?*usage*?](#3)  
+[__::cmdline::getKnownOptions__ *argvVar* *optlist* ?*usage*?](#4)  
 [__::cmdline::usage__ *optlist* ?*usage*?](#5)  
 [__::cmdline::getfiles__ *patterns* *quiet*](#6)  
 [__::cmdline::getArgv0__](#7)  
@@ -101,10 +101,10 @@ desired or required, is the responsibility of the caller\.
     Like __::cmdline::getopt__, except it ignores any unknown options in the
     input\.
 
-  - <a name='3'></a>__::cmdline::getoptions__ *arglistVar* *optlist* ?*usage*?
+  - <a name='3'></a>__::cmdline::getoptions__ *argvVar* *optlist* ?*usage*?
 
     Processes the entire set of command line options found in the list variable
-    named by *arglistVar* and fills in defaults for those not specified\. This
+    named by *argvVar* and fills in defaults for those not specified\. This
     also generates an error message that lists the allowed flags if an incorrect
     flag is specified\. The optional *usage*\-argument contains a string to
     include in front of the generated message\. If not present it defaults to
@@ -131,7 +131,7 @@ desired or required, is the responsibility of the caller\.
     The result of the command is a dictionary mapping all options to their
     values, be they user\-specified or defaults\.
 
-  - <a name='4'></a>__::cmdline::getKnownOptions__ *arglistVar* *optlist* ?*usage*?
+  - <a name='4'></a>__::cmdline::getKnownOptions__ *argvVar* *optlist* ?*usage*?
 
     Like __::cmdline::getoptions__, but ignores any unknown options in the
     input\.

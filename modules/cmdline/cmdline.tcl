@@ -12,7 +12,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.2
-package provide cmdline 1.5.1
+package provide cmdline 1.5.2
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -358,7 +358,9 @@ proc ::cmdline::usage {optlist {usage {options:}}} {
 	} else {
 	    set desc "[lindex $opt 1]"
 	}
-	set longest [expr {max($longest, [string length $name])}]
+	set n [string length $name]
+	if {$n > $longest} { set longest $n }
+	# max not available before 8.5 - set longest [expr {max($longest, )}]
 	lappend lines $name $desc
     }
     foreach {name desc} $lines {
@@ -870,7 +872,9 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
 	    set desc [lindex $opt 1]
 	}
 	lappend accum $name $desc
-	set longest [expr {max($longest, [string length $name])}]
+	set n [string length $name]
+	if {$n > $longest} { set longest $n }
+	# max not available before 8.5 - set longest [expr {max($longest, [string length $name])}]
     }
     foreach {name desc} $accum {
 	append str "[string trimright [format " %-*s %s" $longest $name $desc]]\n"

@@ -1,4 +1,4 @@
-[vset VERSION 1.5.1]
+[vset VERSION 1.5.2]
 [manpage_begin cmdline n [vset VERSION]]
 [keywords {argument processing}]
 [keywords argv]
