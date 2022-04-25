@@ -1,6 +1,6 @@
 # -*- tcl -*-
 # # ## ### ##### ######## ############# ##################### 
-# (C) 2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# (C) 2013-2022 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 ##
 # ###
 
@@ -60,6 +60,10 @@ proc ::sak::review::Scan {} {
 
     foreach {trunk   tuid} [Leaf          trunk]   break ;# rid + uuid
     foreach {release ruid} [YoungestOfTag release] break ;# datetime + uuid
+
+    #puts T:($trunk)\t($tuid)
+    #puts Y:($release)\t($ruid)
+    
     AllParentsAfter $trunk $tuid $release $ruid -> rid uuid numparents {
 	Next ; Progress " $rid"
 
@@ -333,6 +337,7 @@ proc ::sak::review::Description {rid} {
 }
 
 proc ::sak::review::AllParentsAfter {rid ruid cut cutuid _ rv uv nv script} {
+    #puts X:[info level 0]
     upvar 1 $rv therev $uv theuid $nv thenump
 
     array set rev {}
@@ -396,6 +401,7 @@ proc ::sak::review::Parents {rid cut} {
 }
 
 proc ::sak::review::AllParents {rid} {
+    #puts X:[info level 0]
     lappend map @rid@    $rid
     split [F [string map $map {
 	SELECT pid, blob.uuid, event.mtime, datetime(event.mtime)
@@ -452,7 +458,7 @@ proc ::sak::review::Leaf {branch} {
 
 proc ::sak::review::F {script} {
     #puts |$script|
-    set r [exec fossil sqlite3 << $script]
+    set r [exec fossil sqlite3 << ".mode list\n$script"]
     #puts ($r)
     return $r
 }
