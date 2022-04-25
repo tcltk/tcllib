@@ -17,7 +17,7 @@ package ifneeded struct::tree      1.2.2 [list source [file join $dir tree1.tcl]
 package ifneeded struct::matrix    1.2.2 [list source [file join $dir matrix1.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
-package ifneeded struct::list      1.8.4  [list source [file join $dir list.tcl]]
+package ifneeded struct::list        1.8.5  [list source [file join $dir list.tcl]]
 package ifneeded struct::list::test  1.8.4  [list source [file join $dir list.test.tcl]]
 package ifneeded struct::graph     2.4.3  [list source [file join $dir graph.tcl]]
 package ifneeded struct::map       1      [list source [file join $dir map.tcl]]
