@@ -30,43 +30,43 @@ namespace eval ::math::figurate {
 #     Sum 1**k + 2**k + ... + n**k
 #
 proc ::math::figurate::sum_sequence {n} {
-    expr {$n * ($n+1) / 2}
+    expr {$n > 0 ? $n * ($n+1) / 2 : 0}
 }
 
 proc ::math::figurate::sum_squares {n} {
-    expr {$n*($n + 1) * (2*$n +1 ) / 6}
+    expr {$n > 0 ? $n*($n + 1) * (2*$n +1 ) / 6 : 0}
 }
 
 proc ::math::figurate::sum_cubes {n} {
-    expr {$n**2 * ($n + 1)**2 / 4}
+    expr {$n > 0 ? $n**2 * ($n + 1)**2 / 4 : 0}
 }
 
 proc ::math::figurate::sum_4th_power {n} {
-    expr {$n* ($n + 1) * (2*$n + 1) * (3*$n**2 + 3*$n -1 ) / 30}
+    expr {$n > 0 ? $n* ($n + 1) * (2*$n + 1) * (3*$n**2 + 3*$n -1 ) / 30 : 0}
 }
 
 proc ::math::figurate::sum_5th_power {n} {
-    expr {$n**2 * ($n + 1)**2 * (2*$n**2 + 2*$n - 1) / 12}
+    expr {$n > 0 ? $n**2 * ($n + 1)**2 * (2*$n**2 + 2*$n - 1) / 12 : 0}
 }
 
 proc ::math::figurate::sum_6th_power {n} {
-    expr {$n * ($n + 1) * (2*$n + 1 ) * (3*$n**4 + 6*$n**3 - 3*$n + 1) / 42}
+    expr {$n > 0 ? $n * ($n + 1) * (2*$n + 1 ) * (3*$n**4 + 6*$n**3 - 3*$n + 1) / 42 : 0}
 }
 
 proc ::math::figurate::sum_7th_power {n} {
-    expr {$n**2 * ($n + 1)**2 * (3*$n**4 + 6*$n**3 - $n**2 - 4*$n + 2) / 24}
+    expr {$n > 0 ? $n**2 * ($n + 1)**2 * (3*$n**4 + 6*$n**3 - $n**2 - 4*$n + 2) / 24 : 0}
 }
 
 proc ::math::figurate::sum_8th_power {n} {
-    expr {$n * ($n + 1) * (2*$n + 1) * (5*$n**6 + 15*$n**5 + 5*$n**4 - 15*$n**3 - $n**2 + 9*$n - 3) / 90}
+    expr {$n > 0 ? $n * ($n + 1) * (2*$n + 1) * (5*$n**6 + 15*$n**5 + 5*$n**4 - 15*$n**3 - $n**2 + 9*$n - 3) / 90 : 0}
 }
 
 proc ::math::figurate::sum_9th_power {n} {
-    expr {$n**2 * ($n + 1)**2 * (2*$n**6 + 6*$n**5 + $n**4 - 8*$n**3 + $n**2 + 6*$n - 3) / 20}
+    expr {$n > 0 ? $n**2 * ($n + 1)**2 * (2*$n**6 + 6*$n**5 + $n**4 - 8*$n**3 + $n**2 + 6*$n - 3) / 20 : 0}
 }
 
 proc ::math::figurate::sum_10th_power {n} {
-    expr {$n * ($n + 1) * (2*$n + 1) * (3*$n**8 + 12*$n**7 + 8*$n**6 - 18*$n**5 - 10*$n**4 + 24*$n**3 + 2*$n**2 - 15*$n + 5) / 66}
+    expr {$n > 0 ? $n * ($n + 1) * (2*$n + 1) * (3*$n**8 + 12*$n**7 + 8*$n**6 - 18*$n**5 - 10*$n**4 + 24*$n**3 + 2*$n**2 - 15*$n + 5) / 66 : 0}
 }
 
 # calculate sums of odd integers:
@@ -81,83 +81,123 @@ proc ::math::figurate::sum_10th_power {n} {
 #     Sum (2k+1)**m = Sum j**m - 2**m Sum k**m, where k = 0,...,n, j = 0,..., 2*n+1
 #
 proc ::math::figurate::sum_sequence_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_sequence [expr {$n-1}]]
-    set sum2 [sum_sequence $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_sequence [expr {$n-1}]]
+        set sum2 [sum_sequence $maxnum]
 
-    return [expr {$sum2 - 2 * $sum1}]
+        return [expr {$sum2 - 2 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_squares_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_squares [expr {$n-1}]]
-    set sum2 [sum_squares $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_squares [expr {$n-1}]]
+        set sum2 [sum_squares $maxnum]
 
-    return [expr {$sum2 - 4 * $sum1}]
+        return [expr {$sum2 - 4 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_cubes_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_cubes [expr {$n-1}]]
-    set sum2 [sum_cubes $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_cubes [expr {$n-1}]]
+        set sum2 [sum_cubes $maxnum]
 
-    return [expr {$sum2 - 8 * $sum1}]
+        return [expr {$sum2 - 8 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_4th_power_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_4th_power [expr {$n-1}]]
-    set sum2 [sum_4th_power $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_4th_power [expr {$n-1}]]
+        set sum2 [sum_4th_power $maxnum]
 
-    return [expr {$sum2 - 16 * $sum1}]
+        return [expr {$sum2 - 16 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_5th_power_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_5th_power [expr {$n-1}]]
-    set sum2 [sum_5th_power $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_5th_power [expr {$n-1}]]
+        set sum2 [sum_5th_power $maxnum]
 
-    return [expr {$sum2 - 32 * $sum1}]
+        return [expr {$sum2 - 32 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_6th_power_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_6th_power [expr {$n-1}]]
-    set sum2 [sum_6th_power $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_6th_power [expr {$n-1}]]
+        set sum2 [sum_6th_power $maxnum]
 
-    return [expr {$sum2 - 64 * $sum1}]
+        return [expr {$sum2 - 64 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_7th_power_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_7th_power [expr {$n-1}]]
-    set sum2 [sum_7th_power $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_7th_power [expr {$n-1}]]
+        set sum2 [sum_7th_power $maxnum]
 
-    return [expr {$sum2 - 128 * $sum1}]
+        return [expr {$sum2 - 128 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_8th_power_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_8th_power [expr {$n-1}]]
-    set sum2 [sum_8th_power $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_8th_power [expr {$n-1}]]
+        set sum2 [sum_8th_power $maxnum]
 
-    return [expr {$sum2 - 256 * $sum1}]
+        return [expr {$sum2 - 256 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_9th_power_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_9th_power [expr {$n-1}]]
-    set sum2 [sum_9th_power $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_9th_power [expr {$n-1}]]
+        set sum2 [sum_9th_power $maxnum]
 
-    return [expr {$sum2 - 512 * $sum1}]
+        return [expr {$sum2 - 512 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 proc ::math::figurate::sum_10th_power_odd {n} {
-    set maxnum [expr {2 * $n - 1}]
-    set sum1 [sum_10th_power [expr {$n-1}]]
-    set sum2 [sum_10th_power $maxnum]
+    if { $n > 0 } {
+        set maxnum [expr {2 * $n - 1}]
+        set sum1 [sum_10th_power [expr {$n-1}]]
+        set sum2 [sum_10th_power $maxnum]
 
-    return [expr {$sum2 - 1024 * $sum1}]
+        return [expr {$sum2 - 1024 * $sum1}]
+    } else {
+        return 0
+    }
 }
 
 # calculate figurate numbers --
@@ -173,82 +213,82 @@ proc ::math::figurate::sum_10th_power_odd {n} {
 #     - for the interpretation: again see the Mathworld page
 #
 proc ::math::figurate::oblong {n} {
-    expr {$n * ($n + 1)}
+    expr {$n > 0 ? $n * ($n + 1) : 0}
 }
 
 proc ::math::figurate::pronic {n} {
-    expr {$n * ($n + 1)}
+    expr {$n > 0 ? $n * ($n + 1) : 0}
 }
 
 proc ::math::figurate::triangular {n} {
-    expr {$n * ($n + 1)/2}
+    expr {$n > 0 ? $n * ($n + 1)/2 : 0}
 }
 
 proc ::math::figurate::square {n} {
-    expr {$n**2}
+    expr {$n > 0 ? $n**2 : 0}
 }
 
 proc ::math::figurate::cubic {n} {
-    expr {$n**3}
+    expr {$n > 0 ? $n**3 : 0}
 }
 
 proc ::math::figurate::biquadratic {n} {
-    expr {$n**4}
+    expr {$n > 0 ? $n**4 : 0}
 }
 
 proc ::math::figurate::centeredTriangular {n} {
-    expr {(3*$n**2 - 3*$n + 2) / 2}
+    expr {$n > 0 ? (3*$n**2 - 3*$n + 2) / 2 : 0}
 }
 
 proc ::math::figurate::centeredSquare {n} {
-    expr {$n**2 + ($n+1)**2}
+    expr {$n >0 ? $n**2 + ($n-1)**2 : 0}
 }
 
 proc ::math::figurate::centeredCube {n} {
-    expr {$n**3 + ($n+1)**3}
+    expr {$n > 0 ? $n**3 + ($n-1)**3 : 0}
 }
 
 proc ::math::figurate::centeredPentagonal {n} {
-    expr {(5*$n**2 + 5*$n + 2) / 2}
+    expr {$n > 0 ? (5*($n-1)**2 + 5*($n-1) + 2) / 2 : 0}
 }
 
 proc ::math::figurate::centeredHexagonal {n} {
-    expr {3*$n**2 + 3*$n + 1}
+    expr {$n > 0 ? 3*($n-1)**2 + 3*($n-1) + 1 : 0}
 }
 
 proc ::math::figurate::decagonal {n} {
-    expr {4*$n**2 - 3*$n}
+    expr {$n > 0 ? 4*$n**2 - 3*$n : 0}
 }
 
 proc ::math::figurate::heptagonal {n} {
-    expr {$n * (5*$n - 3) / 2}
+    expr {$n > 0 ? $n * (5*$n - 3) / 2 : 0}
 }
 
 proc ::math::figurate::hexagonal {n} {
-    expr {$n * (2*$n - 1)}
+    expr {$n > 0 ? $n * (2*$n - 1) : 0}
 }
 
 proc ::math::figurate::octagonal {n} {
-    expr {$n * (3*$n - 2)}
+    expr {$n > 0 ? $n * (3*$n - 2) : 0}
 }
 
 proc ::math::figurate::octahedral {n} {
-    expr {$n * (2*$n**2 + 1) / 3}
+    expr {$n > 0 ? $n * (2*$n**2 + 1) / 3 : 0}
 }
 
 proc ::math::figurate::pentagonal {n} {
-    expr {$n * (3*$n - 1) / 2}
+    expr {$n > 0 ? $n * (3*$n - 1) / 2 : 0}
 }
 
 proc ::math::figurate::squarePyramidal {n} {
-    expr {$n * ($n + 1) * (2*$n + 1)/ 6}
+    expr {$n > 0 ? $n * ($n + 1) * (2*$n + 1)/ 6 : 0}
 }
 
 proc ::math::figurate::tetrahedral {n} {
-    expr {$n * ($n + 1) *  ($n + 2) / 6}
+    expr {$n > 0 ? $n * ($n + 1) *  ($n + 2) / 6 : 0}
 }
 
 proc ::math::figurate::pentatope {n} {
-    expr {$n * ($n + 1) *  ($n + 2) * ($n + 3) / 24}
+    expr {$n > 0 ? $n * ($n + 1) *  ($n + 2) * ($n + 3) / 24 : 0}
 }
 
