@@ -1,3 +1,8 @@
+2022-04-26  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* figurate.tcl: Correct the implementation of various procedures (note: consistent handling of "no objects")
+	* figurate.test: Correct the test cases
+	* figurate.man: Add note about zero or less objects
+
 2021-10-31  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* figurate.tcl: Evaluate various "figurate" numbers (new package, ticket f8adb7a036)
 	* figurate.test: Corresponding tests
