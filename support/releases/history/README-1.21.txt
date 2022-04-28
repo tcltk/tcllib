@@ -1,11 +1,11 @@
 Overview
 ========
 
-    6   new packages                in 2   modules
+    7   new packages                in 3   modules
     52  changed packages            in 33  modules
     76  internally changed packages in 17  modules
     309 unchanged packages          in 105 modules
-    452 packages, total             in 131 modules, total
+    453 packages, total             in 132 modules, total
 
 Legend
 ======
@@ -33,6 +33,7 @@ New in Tcllib 1.21
              math::filters         0.1
              math::probopt         1.0
     -------- --------------------- ------------- ----------
+    mkdoc    mkdoc                 0.7.0
     struct   struct::list::test    1.8.4
     -------- --------------------- ------------- ----------
 

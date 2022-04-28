@@ -1,4 +1,5 @@
 apps/dtplite.man
+apps/mkdoc.man
 apps/nns.man
 apps/nnsd.man
 apps/nnslog.man
@@ -217,6 +218,7 @@ modules/md5/md5.man
 modules/md5crypt/md5crypt.man
 modules/mime/mime.man
 modules/mime/smtp.man
+modules/mkdoc/mkdoc.man
 modules/multiplexer/multiplexer.man
 modules/namespacex/namespacex.man
 modules/ncgi/ncgi.man
