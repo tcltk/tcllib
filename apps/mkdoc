@@ -55,7 +55,7 @@ if {[lsearch -exact $argv {--version}] > -1} {
     return
 }
 if {[lsearch -exact $argv {--license}] > -1} {
-    puts "MIT License - see manual page"
+    puts "BSD License - see manual page"
     return
 }
 
