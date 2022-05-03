@@ -1,5 +1,5 @@
+[comment {-*- mode: tcl ; fill-column: 80 -*- doctools manpage}]
 [vset PACKAGE_VERSION 0.11]
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tar n [vset PACKAGE_VERSION]]
 [keywords archive]
 [keywords {tape archive}]
@@ -11,11 +11,44 @@
 [require tar [opt [vset PACKAGE_VERSION]]]
 [description]
 
-[para] Note: Starting with version 0.8 the tar reader commands
-(contents, stats, get, untar) support the GNU LongName extension
-(header type 'L') for large paths.
+[para] [strong Note]: Starting with version 0.8 the tar reader commands
+(contents, stats, get, untar) support the GNU LongName extension (header type
+'L') for large paths.
 
-[para]
+[para] 
+
+[section BEWARE]
+
+For all commands, when using [option -chan] ...
+
+[list_begin enumerated]
+
+[enum] It is assumed that the channel was opened for reading, and configured for
+       binary input.
+
+[enum] It is assumed that the channel position is at the beginning of a legal
+       tar file.
+
+[enum] The commands will [emph modify] the channel position as they perform their
+       task.
+
+[enum] The commands will [emph not] close the channel.
+
+[enum] In other words, the commands leave the channel in a state very likely
+       unsuitable for use by further [cmd tar] commands. Still doing so will
+       very likely results in errors, bad data, etc. pp.
+
+[enum] It is the responsibility of the user to seek the channel back to a
+       suitable position.
+
+[enum] When using a channel transformation which is not generally seekable, for
+       example [cmd gunzip], then it is the responsibility of the user to (a)
+       unstack the transformation before seeking the channel back to a suitable
+       position, and (b) for restacking it after.
+
+[list_end]
+
+[section COMMANDS]
 
 [list_begin definitions]
 
