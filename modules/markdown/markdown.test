@@ -160,6 +160,53 @@ test basic-1.2 {multi-line paragraphs} -body {
     anim id est laborum.</p>
 }
 
+test basic-1.3 {horizontal rule} -body {
+    convert {
+	A line of text.
+
+	---
+
+	Another line of text.
+    }
+} -result {
+    <p>A line of text.</p>
+
+    <hr />
+
+    <p>Another line of text.</p>
+}
+
+test basic-1.4 {direct link} -body {
+    convert {
+	This is a [link](bar) to bar.
+    }
+} -result {
+    <p>This is a <a href="bar">link</a> to bar.</p>
+}
+
+foreach {k input result notes} {
+    5  {_____}               {<strong></strong>_}		.
+    6  {__\___}              {<strong>_</strong>}		.
+    7  {_\_\_\__}            {<em>___</em>}			.
+    8  {__.__}               {<strong>.</strong>}		.
+    9  {__\.__}              {<strong>.</strong>}		.FAIL
+    10 {__*__}               {<strong>*</strong>}		.
+    11 {__\*__}              {<strong>*</strong>}		.FAIL
+    12 {. \.}                {. .}				.
+    13 {_ \_}                {_ _}				.
+    14 {[foo_bar](sna_fu)}   {<a href="sna_fu">foo_bar</a>}	.
+    15 {[foo\_bar](sna_fu)}  {<a href="sna_fu">foo_bar</a>}	.
+    16 {[foo_bar](sna\_fu)}  {<a href="sna_fu">foo_bar</a>}	.FAIL
+    17 {[foo\_bar](sna\_fu)} {<a href="sna_fu">foo_bar</a>}	.FAIL
+} {
+    # skipping knownbugs
+    if {$notes eq ".FAIL"} continue
+    
+    test basic-1.$k "escaped characters: ($input)" -body {
+	convert "x $input x"
+    } -result "\n    <p>x ${result} x</p>\n"
+}
+
 test bquote-1.1 {simple blockquote} -body {
     convert {
         >
@@ -343,54 +390,98 @@ test code-block-1.0 {basic code block render} -body {
 }
 
 test header-1.1 {atx header level 1} -body {
-	convert {
+    convert {
         # Header level 1
         Text below without blank line
-	}
+    }
 } -result {
     <h1>Header level 1</h1><p>Text below without blank line</p>
 }
 
 test header-1.2 {atx header level 2} -body {
-	convert {
+    convert {
         ## Header level 2
         Text below without blank line
-	}
+    }
 } -result {
     <h2>Header level 2</h2><p>Text below without blank line</p>
 }
 
-
 test header-1.3 {atx header level 3} -body {
-	convert {
+    convert {
         ### Header level 3
         Text below without blank line
-	}
+    }
 } -result {
     <h3>Header level 3</h3><p>Text below without blank line</p>
 }
 
-
 test header-1.4 {atx header level 1 with blank line} -body {
-	convert {
+    convert {
         # Header level 1
         
         Text below with blank line
-	}
+    }
 } -result {
     <h1>Header level 1</h1>
 
     <p>Text below with blank line</p>
 }
 
+test img-1.0 {image link with alt text} -body {
+    convert {
+        ![some text](https://www.url.com)
+    }
+} -result {
+    <p><img src="https://www.url.com" alt="some text"/></p>
+}
 
+test img-1.1 {image link with alt text and title in double quotes} -body {
+    convert {
+        ![some text](https://www.url.com "my title")
+    }
+} -result {
+    <p><img src="https://www.url.com" alt="some text" title="my title"/></p>
+}
+
+test img-1.2 {image link with alt text and title in single quotes} -body {
+    convert {
+        ![some text](https://www.url.com 'my title')
+    }
+} -result {
+    <p><img src="https://www.url.com" alt="some text" title="my title"/></p>
+}
+
+test img-1.3 {image link without alt text} -body {
+    convert {
+        ![](https://www.url.com)
+    }
+} -result {
+    <p><img src="https://www.url.com" alt=""/></p>
+}
+
+test img-1.4 {image link without alt text but a title} -body {
+    convert {
+        ![](https://www.url.com "my title")
+    }
+} -result {
+    <p><img src="https://www.url.com" alt="" title="my title"/></p>
+}
+
+test img-1.5 {image link with single space as alt text} -body {
+    convert {
+        ![ ](https://www.url.com)
+    }
+} -result {
+    <p><img src="https://www.url.com" alt=" "/></p>
+}
 
 #-------------------------------------------------------------------------
 # Tests with texts from the original markdown page at daringfireball.net
 
 
 test gruber-1.1 {a sample text} -body {
-	convert {
+    convert {
         A First Level Header
         ====================
 
@@ -411,7 +502,7 @@ test gruber-1.1 {a sample text} -body {
         > This is the second paragraph in the blockquote.
         >
         > ## This is an H2 in a blockquote
-	}
+    }
 } -result {
     <h1>A First Level Header</h1>
 
@@ -443,7 +534,7 @@ test gruber-1.2 {reference-style links} -body {
         [1]: http://google.com/        "Google"
         [2]: http://search.yahoo.com/  "Yahoo Search"
         [3]: http://search.msn.com/    "MSN Search"
-	}
+    }
 } -result {
     <p>I get 10 times more traffic from <a href="http://google.com/" title="Google">Google</a> than from
     <a href="http://search.yahoo.com/" title="Yahoo Search">Yahoo</a> or <a href="http://search.msn.com/" title="MSN Search">MSN</a>.</p>
@@ -956,6 +1047,8 @@ tcltest::test markdown-8.5 {} -body {
 
     <p><code>broken</code> markup</p>
 }]
+
+
 
 #-------------------------------------------------------------------------
 # Cleanup
