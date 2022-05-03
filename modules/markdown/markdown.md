@@ -88,6 +88,6 @@ will take some time.
 This module originated as the Tcl-Markdown project by Tobias Koch and Danyil Bohdan, 
 as part of the Caius Test Tool. [https://github.com/tobijk/caius/](https://github.com/tobijk/caius/)
 
-That module incorporated into Tcllib is based on a version that modifed and enhanced 
+The module incorporated into Tcllib is based on a version that was modifed and enhanced 
 by Will Duquette. [https://github.com/wduquette/tcl-markdown](https://github.com/wduquette/tcl-markdown)
 
