@@ -194,12 +194,13 @@ foreach {k input result notes} {
     11 {__\*__}              {<strong>*</strong>}		.FAIL
     12 {. \.}                {. .}				.
     13 {_ \_}                {_ _}				.
-    14 {[foo_bar](sna_fu)}   {<a href="sna_fu">foo_bar</a>}	.See-1.4
-    15 {[foo\_bar](sna_fu)}  {<a href="sna_fu">foo_bar</a>}	.See-1.4
+    14 {[foo_bar](sna_fu)}   {<a href="sna_fu">foo_bar</a>}	.
+    15 {[foo\_bar](sna_fu)}  {<a href="sna_fu">foo_bar</a>}	.
     16 {[foo_bar](sna\_fu)}  {<a href="sna_fu">foo_bar</a>}	.FAIL
     17 {[foo\_bar](sna\_fu)} {<a href="sna_fu">foo_bar</a>}	.FAIL
 } {
-    #if {$notes eq ".FAIL"} continue ;# known bugs
+    # skipping knownbugs
+    if {$notes eq ".FAIL"} continue
     
     test basic-1.$k "escaped characters: ($input)" -body {
 	convert "x $input x"
