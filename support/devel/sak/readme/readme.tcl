@@ -222,7 +222,10 @@ proc ::sak::readme::run {theformat} {
 
     Table CNT Overview {
 	CNT delete row 0 ; # strip title row
-    } {}
+    } {
+	set align [lreplace $align 0 0 r]
+	set align [lreplace $align 3 3 r]
+    }
     
     Table LEG Legend {
 	Sep LEG - 1
@@ -289,10 +292,18 @@ proc ::sak::readme::Table {obj title {pretxt {}} {premd {}}} {
 	    puts [Indent "    " [Detrail [$obj format 2string]]]
 	}
 	md {
+	    upvar 1 align align
+	    # Column alignment setup.
+	    set align [lrepeat [$obj columns] l]
+	    
 	    uplevel 1 $premd
 	    # Header row, then separator, then the remainder.
 	    puts |[join [$obj get row 0] |]|
-	    puts |[join [lrepeat [$obj columns] ---] |]|
+	    puts |[join [string map {
+		c ---
+		l :---
+		r ---:
+	    } $align] |]|
 	    set n [$obj rows]
 	    for {set i 1} {$i < $n} {incr i} {
 		puts |[join [$obj get row $i] |]|

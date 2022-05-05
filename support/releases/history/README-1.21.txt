@@ -3,8 +3,8 @@ Overview
 
     7   new packages                in 3   modules
     52  changed packages            in 33  modules
-    76  internally changed packages in 17  modules
-    309 unchanged packages          in 105 modules
+    77  internally changed packages in 18  modules
+    308 unchanged packages          in 104 modules
     453 packages, total             in 132 modules, total
 
 Legend
@@ -75,7 +75,7 @@ Changes from Tcllib 1.20 to 1.21
     ldap               ldap                        1.9.2       1.10.1    B D
                        ldapx                       1.1         1.2       EF
     ------------------ --------------------------- ----------- --------- ------------
-    markdown           Markdown                    1.1.1       1.2.1     B D EF T
+    markdown           Markdown                    1.1.1       1.2.2     B D EF T
     ------------------ --------------------------- ----------- --------- ------------
     math               math::bigfloat              1.2.2       1.2.3     B D T
                        math::bigfloat              2.0.2       2.0.3     B D T
@@ -205,6 +205,8 @@ Invisible changes (documentation, testsuites)
                     struct::tree                         1.2.2       1.2.2     I T
                     struct::tree                         2.1.2       2.1.2     I T
     --------------- ------------------------------------ ----------- --------- ----------
+    tar             tar                                  0.11        0.11      D
+    --------------- ------------------------------------ ----------- --------- ----------
     textutil        textutil::adjust                     0.7.3       0.7.3     T
                     textutil::patch                      0.1         0.1       I T
     --------------- ------------------------------------ ----------- --------- ----------
@@ -273,7 +275,7 @@ Unchanged
     stringprep::data, struct, struct::disjointset,
     struct::graph::op, struct::map, struct::matrix, struct::pool,
     struct::prioqueue, struct::record, struct::set, sum, switched,
-    tar, tcl::chan::cat, tcl::chan::core, tcl::chan::events,
+    tcl::chan::cat, tcl::chan::core, tcl::chan::events,
     tcl::chan::facade, tcl::chan::fifo, tcl::chan::fifo2,
     tcl::chan::memchan, tcl::chan::null, tcl::chan::nullzero,
     tcl::chan::random, tcl::chan::std, tcl::chan::string,
