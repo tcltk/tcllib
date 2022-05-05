@@ -4,9 +4,9 @@ Overview
 ||||||
 |---:|:---|:---|---:|:---|
 |7|new packages|in|3|modules|
-|52|changed packages|in|33|modules|
+|53|changed packages|in|34|modules|
 |77|internally changed packages|in|18|modules|
-|308|unchanged packages|in|104|modules|
+|307|unchanged packages|in|103|modules|
 |453|packages, total|in|132|modules, total|
 
 Legend
@@ -111,6 +111,7 @@ Changes from Tcllib 1.20 to 1.21
 ||tie::std::log|1.0|1.1|D EF T|
 ||tie::std::rarray|1.0.1|1.1|D EF T|
 |virtchannel_base|tcl::chan::halfpipe|1.0.1|1.0.2|EF|
+|websocket|websocket|1.4.1|1.4.2|B|
 |yaml|huddle|0.3|0.4|B D T|
 |zip|zipfile::decode|0.7.1|0.9|B D EF|
 ||||||
@@ -301,5 +302,5 @@ Unchanged
     valtype::creditcard::discover, valtype::creditcard::mastercard,
     valtype::creditcard::visa, valtype::gs1::ean13, valtype::iban,
     valtype::imei, valtype::isbn, valtype::luhn, valtype::luhn5,
-    valtype::usnpi, valtype::verhoeff, websocket, wip, xsxp,
-    zipfile::encode, zipfile::mkzip
+    valtype::usnpi, valtype::verhoeff, wip, xsxp, zipfile::encode,
+    zipfile::mkzip

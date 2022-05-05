@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'websocket\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "websocket" n 1\&.3\&.1 tcllib "websocket client and server"
+.TH "websocket" n 1\&.4\&.2 tcllib "websocket client and server"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -283,7 +283,7 @@ package require \fBsha1 \fR
 .sp
 package require \fBbase64 \fR
 .sp
-package require \fBwebsocket  ?1\&.3\&.1?\fR
+package require \fBwebsocket  ?1\&.4\&.2?\fR
 .sp
 \fB::websocket::open\fR \fIurl\fR \fIhandler\fR ?\fIoptions\fR?
 .sp

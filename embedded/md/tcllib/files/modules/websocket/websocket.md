@@ -1,7 +1,7 @@
 
 [//000000001]: # (websocket \- websocket client and server)
 [//000000002]: # (Generated from file 'websocket\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (websocket\(n\) 1\.3\.1 tcllib "websocket client and server")
+[//000000003]: # (websocket\(n\) 1\.4\.2 tcllib "websocket client and server")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,7 +45,7 @@ package require http 2\.7
 package require logger  
 package require sha1  
 package require base64  
-package require websocket ?1\.3\.1?  
+package require websocket ?1\.4\.2?  
 
 [__::websocket::open__ *url* *handler* ?*options*?](#1)  
 [__::websocket::send__ *sock* *type* ?*msg*? ?*final*?](#2)  
