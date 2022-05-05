@@ -99,7 +99,7 @@ Changes from Tcllib 1.20 to 1.21
 ||||||
 |profiler|profiler|0.4|0.6|B D T|
 |pt|char|1.0.1|1.0.2|B T|
-|rest|rest|1.3.1|1.4|D EF|
+|rest|rest|1.3.1|1.5|D EF|
 |struct|struct::list|1.8.4|1.8.5|B D T|
 |term|term::ansi::code::ctrl|0.2|0.3|B D|
 ||||||
