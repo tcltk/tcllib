@@ -31,10 +31,10 @@ namespace eval ::picoirc {
         motd     {}
         users    {}
     }
-    namespace export connect send post splituri
+    namespace export connect send post
 }
 
-proc ::picoirc::splituri {uri} {
+proc ::picoirc::Splituri {uri} {
     lassign {{} {} {} {}} secure server port channels
     if {![regexp {^irc(s)?://([^:/]+)(?::([^/]+))?(?:/([^ ]+))?} $uri -> secure server port channels]} {
         regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channels server port
@@ -68,7 +68,7 @@ proc ::picoirc::connect {callback nick args} {
     set context [namespace current]::irc[incr uid]
     upvar #0 $context irc
     array set irc $defaults
-    lassign [splituri $url] server port channels secure
+    lassign [Splituri $url] server port channels secure
     if {[info exists channels] && $channels ne ""} {set irc(channels) $channels}
     if {[info exists server]   && $server   ne ""} {set irc(server)   $server}
     if {[info exists port]     && $port     ne ""} {set irc(port)     $port}
@@ -444,7 +444,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.11.0
+package provide picoirc 0.12.0
 
 # -------------------------------------------------------------------------
 return

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.11.0]
+[vset VERSION 0.12.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -69,14 +69,6 @@ This should be called to process user input and send it to the
 server. A number of commands are recognised when prefixed with a
 forward-slash (/). Such commands are converted to IRC command
 sequences and then sent.
-
-[call [cmd ::picoirc::splituri] [arg uri]]
-
-Splits an IRC scheme uniform resource indicator into its component
-parts. Returns a list of server, port, channels and secure where
-secure is a boolean flag which is [const true] if a TLS connection was
-requested via the [emph ircs://] schema. The default port is 6667 (or
-6697 if secured) and there are no default channels.
 
 [call [cmd ::picoirc::send] [arg context] [arg line]]
 
