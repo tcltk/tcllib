@@ -3,8 +3,8 @@ Overview
 
     7   new packages                in 3   modules
     53  changed packages            in 34  modules
-    77  internally changed packages in 18  modules
-    307 unchanged packages          in 103 modules
+    78  internally changed packages in 19  modules
+    307 unchanged packages          in 102 modules
     453 packages, total             in 132 modules, total
 
 Legend
@@ -68,7 +68,7 @@ Changes from Tcllib 1.20 to 1.21
     inifile            inifile                     0.3.1       0.3.2     B T
     ------------------ --------------------------- ----------- --------- ------------
     irc                irc                         0.6.2       0.7.0     I
-                       picoirc                     0.5.2       0.11.0    B D EF I T
+                       picoirc                     0.5.2       0.13.0    B D EF I T
     ------------------ --------------------------- ----------- --------- ------------
     json               json::write                 1.0.3       1.0.4     EF
     ------------------ --------------------------- ----------- --------- ------------
@@ -125,6 +125,7 @@ Invisible changes (documentation, testsuites)
     amazon-s3       S3                                   1.0.3       1.0.3     T
     asn             asn                                  0.8.4       0.8.4     T
     base64          yencode                              1.1.3       1.1.3     T
+    clay            clay                                 0.8.6       0.8.6     T
     --------------- ------------------------------------ ----------- --------- ----------
     clock           clock::iso8601                       0.1         0.1       D
                     clock::rfc2822                       0.1         0.1       D I
@@ -220,21 +221,21 @@ Unchanged
 
     aes, ascii85, autoproxy, base32, base32::core, base32::hex, bee,
     bench, bench::in, bench::out::csv, bench::out::text, blowfish,
-    cache::async, calendar, cksum, clay, clay, configuration,
-    control, counter, cron, csv, debug, debug::caller,
-    debug::heartbeat, debug::timestamp, defer, des, dicttool,
-    docstrip, docstrip::util, doctools, doctools::changelog,
-    doctools::config, doctools::cvs, doctools::html,
-    doctools::html::cssdefaults, doctools::idx, doctools::idx,
-    doctools::msgcat, doctools::msgcat::idx::c,
-    doctools::msgcat::idx::de, doctools::msgcat::idx::en,
-    doctools::msgcat::idx::fr, doctools::msgcat::toc::c,
-    doctools::msgcat::toc::de, doctools::msgcat::toc::en,
-    doctools::msgcat::toc::fr, doctools::nroff::man_macros,
-    doctools::paths, doctools::text, doctools::toc, doctools::toc,
-    dtplite, exif, fileutil::decode, fileutil::multi,
-    fileutil::multi::op, fileutil::paths, fileutil::traverse, ftp,
-    ftp::geturl, ftpd, gpx, grammar::aycock, grammar::aycock::debug,
+    cache::async, calendar, cksum, clay, configuration, control,
+    counter, cron, csv, debug, debug::caller, debug::heartbeat,
+    debug::timestamp, defer, des, dicttool, docstrip,
+    docstrip::util, doctools, doctools::changelog, doctools::config,
+    doctools::cvs, doctools::html, doctools::html::cssdefaults,
+    doctools::idx, doctools::idx, doctools::msgcat,
+    doctools::msgcat::idx::c, doctools::msgcat::idx::de,
+    doctools::msgcat::idx::en, doctools::msgcat::idx::fr,
+    doctools::msgcat::toc::c, doctools::msgcat::toc::de,
+    doctools::msgcat::toc::en, doctools::msgcat::toc::fr,
+    doctools::nroff::man_macros, doctools::paths, doctools::text,
+    doctools::toc, doctools::toc, dtplite, exif, fileutil::decode,
+    fileutil::multi, fileutil::multi::op, fileutil::paths,
+    fileutil::traverse, ftp, ftp::geturl, ftpd, gpx,
+    grammar::aycock, grammar::aycock::debug,
     grammar::aycock::runtime, grammar::fa::dacceptor,
     grammar::fa::dexec, grammar::fa::op, grammar::me::cpu,
     grammar::me::cpu::core, grammar::me::cpu::gasm,

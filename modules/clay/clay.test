@@ -1,6 +1,9 @@
+## -*- tcl -*-
+# -------------------------------------------------------------------------
 
-namespace eval ::oo::dialect {}
-set ::oo::dialect::has(tip470) 0
+namespace eval ::oo::dialect {
+    variable has ; set has(tip470) 0
+}
 
 # clay.test - Copyright (c) 2018 Sean Woods
 # -------------------------------------------------------------------------
@@ -23,10 +26,7 @@ testing {
     useLocal clay.tcl clay
 }
 
-
 set ::clay::trace 0
-
-
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing
@@ -3126,8 +3126,6 @@ test tip479-004 {Test that a later ensemble definition trumps a more primitive o
   $obj item new id 4 shape round trim leather
 } {id 4 shape round trim leather color green}
 
-
-
 testsuiteCleanup
 
 # Local variables:
@@ -3135,13 +3133,14 @@ testsuiteCleanup
 # indent-tabs-mode: nil
 # End:
 
-
-
+# -------------------------------------------------------------------------
 
 if {![package vsatisfies [package provide Tcl] 8.7]} {return}
 puts "Repeating tests with 8.7 features"
-namespace eval ::oo::dialect {}
-set ::oo::dialect::has(tip470) 1
+
+namespace eval ::oo::dialect {
+    variable has ; set has(tip470) 1
+}
 
 # clay.test - Copyright (c) 2018 Sean Woods
 # -------------------------------------------------------------------------
@@ -3164,10 +3163,7 @@ testing {
     useLocal clay.tcl clay
 }
 
-
 set ::clay::trace 0
-
-
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing
@@ -6270,10 +6266,8 @@ test tip479-004 {Test that a later ensemble definition trumps a more primitive o
 
 
 testsuiteCleanup
-
+return
 # Local variables:
 # mode: tcl
 # indent-tabs-mode: nil
 # End:
-
-
