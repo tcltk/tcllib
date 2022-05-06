@@ -31,7 +31,7 @@ namespace eval ::picoirc {
         motd     {}
         users    {}
     }
-    namespace export connect send post
+    namespace export connect post
 }
 
 proc ::picoirc::Splituri {uri} {
@@ -128,9 +128,9 @@ proc ::picoirc::Write {context} {
     fconfigure $irc(socket) -blocking 0 -buffering line -translation crlf -encoding utf-8
     Callback $context connect
     set ver [join [lrange [split [Version $context] :] 0 1] " "]
-    send $context "USER $::tcl_platform(user) 0 * :$ver user"
+    Send $context "USER $::tcl_platform(user) 0 * :$ver user"
     if {[info exists irc(passwd)] && [package provide SASL] ne {}} {
-        send $context "CAP REQ :sasl"
+        Send $context "CAP REQ :sasl"
     } else {
         Register $context
     }
@@ -140,9 +140,9 @@ proc ::picoirc::Write {context} {
 proc ::picoirc::Register {context} {
     upvar #0 $context irc
     unset -nocomplain irc(sasl:challenge) irc(sasl:mechs)
-    send $context "NICK $irc(nick)"
+    Send $context "NICK $irc(nick)"
     if {[info exists irc(passwd)] && !$irc(is_registered)} {
-        send $context "PASS $irc(passwd)"
+        Send $context "PASS $irc(passwd)"
     }
 }
 
@@ -180,7 +180,7 @@ proc ::picoirc::Read {context} {
     }
     if {[gets $irc(socket) line] != -1} {
         if {[string match "PING*" $line]} {
-            send $context "PONG [info hostname] [lindex [split $line] 1]"
+            Send $context "PONG [info hostname] [lindex [split $line] 1]"
             return
         }
         # the callback can return -code break to prevent processing the read
@@ -202,7 +202,7 @@ proc ::picoirc::Read {context} {
                     } else {
                         set response [binary encode base64 $response]
                     }
-                    send $context "AUTHENTICATE $response"
+                    Send $context "AUTHENTICATE $response"
                 }
             }
             return
@@ -217,22 +217,22 @@ proc ::picoirc::Read {context} {
                 switch -- $ctcp {
                     ACTION { set type ACTION ; set msg $data }
                     VERSION {
-                        send $context "NOTICE $nick :\001VERSION [Version $context]\001"
+                        Send $context "NOTICE $nick :\001VERSION [Version $context]\001"
                         return
                     }
                     PING {
-                        send $context "NOTICE $nick :\001PING [lindex $data 0]\001"
+                        Send $context "NOTICE $nick :\001PING [lindex $data 0]\001"
                         return
                     }
                     TIME {
                         set time [clock format [clock seconds] \
                                       -format {%a %b %d %H:%M:%S %Y %Z}]
-                        send $context "NOTICE $nick :\001TIME $time\001"
+                        Send $context "NOTICE $nick :\001TIME $time\001"
                         return
                     }
                     default {
                         set err [string map [list \001 ""] $msg]
-                        send $context "NOTICE $nick :\001ERRMSG $err : unknown query\001"
+                        Send $context "NOTICE $nick :\001ERRMSG $err : unknown query\001"
                         return
                     }
                 }
@@ -248,7 +248,7 @@ proc ::picoirc::Read {context} {
                     variable nickid ; if {![info exists nickid]} {set nickid 0}
                     set seqlen [string length [incr nickid]]
                     set irc(nick) [string range $irc(nick) 0 [expr 8-$seqlen]]$nickid
-                    send $context "NICK $irc(nick)"
+                    Send $context "NICK $irc(nick)"
                 }
                 353 { set irc(users) [concat $irc(users) $rest]; return }
                 366 {
@@ -262,7 +262,7 @@ proc ::picoirc::Read {context} {
                 372 { append irc(motd) $rest ; return}
                 376 {
                     foreach channel $irc(channels) {
-                        after idle [list [namespace origin send] \
+                        after idle [list [namespace origin Send] \
                                         $context "JOIN $channel"]
                     }
                     return
@@ -287,7 +287,7 @@ proc ::picoirc::Read {context} {
                 }
                 903 {
                     # sasl success
-                    send $context "CAP END"
+                    Send $context "CAP END"
                     set irc(is_registered) true
                     Callback $context system "" "SASL authentication succeeded"
                     Register $context
@@ -296,7 +296,7 @@ proc ::picoirc::Read {context} {
                 904 {
                     # sasl failed, if no mechanism left, non-sasl login
                     if {![info exists irc(sasl)]} {
-                        send $context "CAP END"
+                        Send $context "CAP END"
                         Callback $context system "" "SASL authentication failed"
                         Register $context
                     }
@@ -305,7 +305,7 @@ proc ::picoirc::Read {context} {
                 905 - 906 {
                     # sasl aborted
                     unset irc(sasl)
-                    send $context "CAP END"
+                    Send $context "CAP END"
                     Callback $context system "" "SASL authentication aborted"
                     Register $context
                     return
@@ -316,7 +316,7 @@ proc ::picoirc::Read {context} {
                         set mech [Pop irc(sasl:mechs)]
                         if {$mech in $provided} {
                             SASL::configure $irc(sasl) -mechanism $mech
-                            send $context "AUTHENTICATE $mech"
+                            Send $context "AUTHENTICATE $mech"
                             return
                         }
                     }
@@ -366,7 +366,7 @@ proc ::picoirc::Read {context} {
                         set irc(sasl) [SASL::new -mechanism $mech \
                                            -callback [list [namespace origin SASLCallback] \
                                                           $context]]
-                        send $context "AUTHENTICATE $mech"
+                        Send $context "AUTHENTICATE $mech"
                     }
                     return
                 }
@@ -401,24 +401,24 @@ proc ::picoirc::post {context channel msg} {
                         Callback $context system "" "not in channel"
                         continue
                     }
-                    send $context "PRIVMSG $channel :\001ACTION $msg\001"
+                    Send $context "PRIVMSG $channel :\001ACTION $msg\001"
                     Callback $context chat $channel $irc(nick) $msg ACTION
                 }
-                nick {send $context "NICK $msg"}
-                quit {send $context "QUIT"}
-                part {send $context "PART $channel"}
-                names {send $context "NAMES $channel"}
-                whois {send $context "WHOIS $msg"}
-                kick {send $context "KICK $channel $first :$rest"}
-                mode {send $context "MODE $msg"}
-                topic {send $context "TOPIC $channel :$msg"}
-                quote {send $context $msg}
-                join {send $context "JOIN $msg"}
-                version {send $context "PRIVMSG $first :\001VERSION\001"}
+                nick {Send $context "NICK $msg"}
+                quit {Send $context "QUIT"}
+                part {Send $context "PART $channel"}
+                names {Send $context "NAMES $channel"}
+                whois {Send $context "WHOIS $msg"}
+                kick {Send $context "KICK $channel $first :$rest"}
+                mode {Send $context "MODE $msg"}
+                topic {Send $context "TOPIC $channel :$msg"}
+                quote {Send $context $msg}
+                join {Send $context "JOIN $msg"}
+                version {Send $context "PRIVMSG $first :\001VERSION\001"}
                 msg - notice {
                     set type [expr {$cmd == "msg" ? ""        : "NOTICE"}]
                     set cmd  [expr {$cmd == "msg" ? "PRIVMSG" : "NOTICE"}]
-                    send $context "$cmd $first :$rest"
+                    Send $context "$cmd $first :$rest"
                     Callback $context chat $first $irc(nick) $rest $type
                 }
                 default {Callback $context system $channel "unknown command /$cmd"}
@@ -426,15 +426,15 @@ proc ::picoirc::post {context channel msg} {
             continue
         }
         if {$channel eq ""} {
-            Callback $context system "" "not in channel"
+            Send $context $line
             continue
         }
-        send $context "PRIVMSG $channel :$line"
+        Send $context "PRIVMSG $channel :$line"
         Callback $context chat $channel $irc(nick) $line
     }
 }
 
-proc ::picoirc::send {context line} {
+proc ::picoirc::Send {context line} {
     upvar #0 $context irc
     # the callback can return -code break to prevent writing to socket
     if {[catch {Callback $context debug write $line}] != 3} {
@@ -444,7 +444,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.12.0
+package provide picoirc 0.13.0
 
 # -------------------------------------------------------------------------
 return
