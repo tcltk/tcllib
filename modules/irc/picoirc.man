@@ -132,7 +132,7 @@ name. [arg nick] is the name of the sender of the message.
 message was sent as a CTCP ACTION. [arg type] is set to "NOTICE" if the
 message was sent as a NOTICE command, in that case [arg target] is empty
 if it matches current user nick or it's "*", in later case empty
-[arg nick] means that notice comes from server.
+[arg target] means that notice comes from server.
 
 [opt_def mode "[arg nick] [arg target] [arg flags]"]
 
