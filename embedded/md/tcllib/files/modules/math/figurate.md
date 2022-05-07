@@ -90,7 +90,9 @@ simple example is the sum of integers 1, 2, \.\.\. up to n\. You can arrange 1,
 
 The __math::figurate__ package consists of a collection of procedures to
 evaluate a wide variety of figurate numbers\. While all formulae are
-straightforward, the details are sometimes puzzling\.
+straightforward, the details are sometimes puzzling\. *Note:* The procedures
+consider arguments lower than zero as to mean "no objects to be counted" and
+therefore return 0\.
 
 # <a name='section2'></a>PROCEDURES
 

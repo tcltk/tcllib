@@ -1,6 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.24 2010/10/05 21:47:25 andreas_kupries Exp $}]
-[vset LIST_VERSION 1.8.4]
+[vset LIST_VERSION 1.8.5]
 [manpage_begin struct::list n [vset LIST_VERSION]]
 [keywords assign]
 [keywords common]

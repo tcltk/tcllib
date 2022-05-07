@@ -377,6 +377,8 @@ numbers:
 The \fBmath::figurate\fR package consists of a collection of procedures to
 evaluate a wide variety of figurate numbers\&. While all formulae are
 straightforward, the details are sometimes puzzling\&.
+\fINote:\fR The procedures consider arguments lower than zero as to mean "no objects to be counted"
+and therefore return 0\&.
 .SH PROCEDURES
 The procedures can be arranged in a few categories: sums of integers raised to a
 particular power, sums of odd integers and general figurate numbers, for

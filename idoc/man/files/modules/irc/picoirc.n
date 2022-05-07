@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'picoirc\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "picoirc" n 0\&.11\&.0 tcllib "Simple embeddable IRC interface"
+.TH "picoirc" n 0\&.13\&.0 tcllib "Simple embeddable IRC interface"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,15 +275,11 @@ picoirc \- Small and simple embeddable IRC client\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBpicoirc  ?0\&.11\&.0?\fR
+package require \fBpicoirc  ?0\&.13\&.0?\fR
 .sp
 \fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
 .sp
 \fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
-.sp
-\fB::picoirc::splituri\fR \fIuri\fR
-.sp
-\fB::picoirc::send\fR \fIcontext\fR \fIline\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -333,25 +329,16 @@ proc workaround {state args} {
 .TP
 \fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
 This should be called to process user input and send it to the
-server\&. A number of commands are recognised when prefixed with a
-forward-slash (/)\&. Such commands are converted to IRC command
-sequences and then sent\&.
-.TP
-\fB::picoirc::splituri\fR \fIuri\fR
-Splits an IRC scheme uniform resource indicator into its component
-parts\&. Returns a list of server, port, channels and secure where
-secure is a boolean flag which is \fBtrue\fR if a TLS connection was
-requested via the \fIircs://\fR schema\&. The default port is 6667 (or
-6697 if secured) and there are no default channels\&.
-.TP
-\fB::picoirc::send\fR \fIcontext\fR \fIline\fR
-This command is where all raw output to the server is handled\&. The
-default action is to write the \fIline\fR to the irc socket\&. However,
-before this happens the callback is called with "debug write"\&. This
-permits the application author to inspect the raw IRC data and if
-desired to return a break error code to halt further processing\&. In
-this way the application can override the default send via the
-callback procedure\&.
+server\&. If \fImessage\fR is multiline then each line will be processed
+and sent individually\&. A number of commands are recognised when
+prefixed with a forward-slash (/)\&. Such commands are converted to
+IRC command sequences and then sent\&. If \fIchannel\fR is empty then
+all raw output to the server is handled\&. The default action is to
+write the \fImessage\fR to the irc socket\&. However, before this
+happens the callback is called with "debug write"\&. This permits the
+application author to inspect the raw IRC data and if desired to
+return a break error code to halt further processing\&. In this way the
+application can override the default send via the callback procedure\&.
 .PP
 .SH CALLBACK
 The callback must look like:
@@ -398,7 +385,7 @@ name\&. \fInick\fR is the name of the sender of the message\&.
 message was sent as a CTCP ACTION\&. \fItype\fR is set to "NOTICE" if the
 message was sent as a NOTICE command, in that case \fItarget\fR is empty
 if it matches current user nick or it's "*", in later case empty
-\fInick\fR means that notice comes from server\&.
+\fItarget\fR means that notice comes from server\&.
 .TP
 \fBmode\fR \fInick\fR \fItarget\fR \fIflags\fR
 called when mode of user or channel changes\&. \fInick\fR is the name

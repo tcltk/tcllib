@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'struct\_list\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003\-2005 by Kevin B\. Kenny\. All rights reserved)
 [//000000004]: # (Copyright &copy; 2003\-2012 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000005]: # (struct::list\(n\) 1\.8\.4 tcllib "Tcl Data Structures")
+[//000000005]: # (struct::list\(n\) 1\.8\.5 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,7 +43,7 @@ struct::list \- Procedures for manipulating lists
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require struct::list ?1\.8\.4?  
+package require struct::list ?1\.8\.5?  
 
 [__::struct::list__ __longestCommonSubsequence__ *sequence1* *sequence2* ?*maxOccurs*?](#1)  
 [__::struct::list__ __longestCommonSubsequence2__ *sequence1 sequence2* ?*maxOccurs*?](#2)  

@@ -1,6 +1,6 @@
 # -*- tcl -*-
 # # ## ### ##### ######## ############# ##################### 
-# (C) 2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# (C) 2013-2022 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 ##
 # ###
 
@@ -60,8 +60,12 @@ proc ::sak::review::Scan {} {
 
     foreach {trunk   tuid} [Leaf          trunk]   break ;# rid + uuid
     foreach {release ruid} [YoungestOfTag release] break ;# datetime + uuid
+
+    #puts T:($trunk)\t($tuid)
+    #puts Y:($release)\t($ruid)
+    
     AllParentsAfter $trunk $tuid $release $ruid -> rid uuid numparents {
-	Next ; Progress " $rid"
+	Next ; Progress " $rid $uuid"
 
 	if {$numparents > 1} {
 	    Progress " SKIP"
@@ -71,6 +75,9 @@ proc ::sak::review::Scan {} {
 	    
 	    set d [Description $rid]
 	    Progress " D"
+
+	    set ts [Timestamp $rid]
+	    Progress " $ts"
 
 	    # Determine file set, split by modules, then generate a package of
 	    # uuid, description and filtered files per modules touched.
@@ -83,7 +90,7 @@ proc ::sak::review::Scan {} {
 		set px [file split $path]
 		set themodule [lindex $px 1]
 		lappend modifiedm $themodule
-		lappend cm($themodule) $d
+		lappend cm($themodule) "($ts) $d"
 
 		# ignore files in modules/
 		if {[llength $px] < 3} continue
@@ -95,8 +102,9 @@ proc ::sak::review::Scan {} {
 	    }
 
 	    foreach {m files} [array get fs] {
-		set str \[htts://core.tcl.tk/tcllib/info/$uuid\]\n$d\n\n[join [lsort -dict $files] \n]
+		set str "($ts)\n\[https://core.tcl-lang.org/tcllib/info/$uuid\]\n$d\n\n[join [lsort -dict [lsort -unique $files]] \n]"
 		lappend rm($m) $str
+		set rm($m) [lsort $rm($m)]
 	    }
 	    unset fs
 	}
@@ -313,7 +321,7 @@ proc ::sak::review::FileSet {rid _ pv av script} {
 	WHERE mlink.mid  = @rid@
 	AND   mlink.fnid = filename.fnid
 	ORDER BY filename.name;
-    }]]] \n] {
+    }] file-set]] \n] {
 	foreach {thepath theaction} [split $line |] break
 	# ignore all changes not in modules
 	if {![string match modules* $thepath]} continue
@@ -329,10 +337,21 @@ proc ::sak::review::Description {rid} {
 	FROM   event
 	WHERE  event.objid = @rid@
 	;
-    }]]
+    }] description]
+}
+
+proc ::sak::review::Timestamp {rid} {
+    lappend map @rid@ $rid
+    string trim [F [string map $map {
+	SELECT datetime(event.mtime)
+	FROM   event
+	WHERE  event.objid = @rid@
+	;
+    }] timestamp]
 }
 
 proc ::sak::review::AllParentsAfter {rid ruid cut cutuid _ rv uv nv script} {
+    #puts X:[info level 0]
     upvar 1 $rv therev $uv theuid $nv thenump
 
     array set rev {}
@@ -392,10 +411,11 @@ proc ::sak::review::Parents {rid cut} {
 	AND   plink.pid = event.objid
 	AND   event.mtime > @cutoff@
 	;
-    }]] \n
+    }] parents] \n
 }
 
 proc ::sak::review::AllParents {rid} {
+    #puts X:[info level 0]
     lappend map @rid@    $rid
     split [F [string map $map {
 	SELECT pid, blob.uuid, event.mtime, datetime(event.mtime)
@@ -404,7 +424,7 @@ proc ::sak::review::AllParents {rid} {
 	AND   plink.pid = blob.rid
 	AND   plink.pid = event.objid
 	;
-    }]] \n
+    }] all-parents] \n
 }
 
 proc ::sak::review::YoungestOfTag {tag} {
@@ -420,7 +440,7 @@ proc ::sak::review::YoungestOfTag {tag} {
 	ORDER BY event.mtime DESC
 	LIMIT 1
 	;
-    }]]"
+    }] youngest-tag]"
     split [F [string map $map {
 	SELECT event.mtime, blob.uuid
 	FROM   tag, tagxref, event, blob
@@ -433,12 +453,12 @@ proc ::sak::review::YoungestOfTag {tag} {
 	ORDER BY event.mtime DESC
 	LIMIT 1
 	;
-    }]] |
+    }] youngest-tag] |
 }
 
 proc ::sak::review::Leaf {branch} {
     lappend map @branch@ $branch
-    split [F [string map $map {
+    set script [string map $map {
 	SELECT blob.rid, blob.uuid
 	FROM   leaf, blob, tag, tagxref
 	WHERE blob.rid        = leaf.rid
@@ -446,14 +466,19 @@ proc ::sak::review::Leaf {branch} {
 	AND   tagxref.tagid   = tag.tagid
 	AND   tagxref.tagtype > 0
 	AND   tagxref.rid     = leaf.rid
+	ORDER BY blob.rid
 	;
-    }]] |
+    }]
+    set r [split [lindex [split [F $script leaf] \n] end] |]
+
+    #puts ($script)-->($r)
+    return $r
 }
 
-proc ::sak::review::F {script} {
-    #puts |$script|
-    set r [exec fossil sqlite3 << $script]
-    #puts ($r)
+proc ::sak::review::F {script {label unknown}} {
+    #puts stderr $label:|$script|
+    set r [exec fossil sqlite3 << ".mode list\n$script"]
+    #puts stderr =($r)
     return $r
 }
 
@@ -594,6 +619,8 @@ proc ::sak::review::RefreshDisplay {} {
     variable rlog
     variable what
     variable smode
+    variable ip
+    variable np
 
     if {$smode eq "rev"} {
 	set text $rlog
@@ -602,9 +629,9 @@ proc ::sak::review::RefreshDisplay {} {
     }
 
     if {$smode eq "rev"} {
-	Banner "($ir/$nr) \[$im/$nm\] [=cya [string totitle $what]] [=green $m]"
+	Banner "(C $ir/$nr) \[M $im/$nm\] [=cya [string totitle $what]] \[P $ip/$np\] [=green $m]"
     } else {
-	Banner "\[$im/$nm\] [=cya [string totitle $what]] [=green $m]"
+	Banner "\[M $im/$nm\] [=cya [string totitle $what]] \[P $ip/$np\] [=green $m]"
     }
     puts "| [join [split $text \n] "\n| "]\n"
     return
@@ -633,11 +660,11 @@ proc ::sak::review::Prompt {} {
     variable m
 
     if {$smode eq "rev"} {
-	append p "($ir/$nr) "
+	append p "(C $ir/$nr) "
     }
 
-    append p "\[$im/$nm\] [=green $m] [=cya [string totitle $what]] "
-    append p "\[$ip/$np\] [=whi $name] ($tags): "
+    append p "\[M $im/$nm\] [=green $m] [=cya [string totitle $what]] "
+    append p "\[P $ip/$np\] [=whi $name] ($tags): "
     return $p
 }
 

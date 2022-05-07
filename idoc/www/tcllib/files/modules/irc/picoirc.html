@@ -105,7 +105,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">picoirc(n) 0.11.0 tcllib &quot;Simple embeddable IRC interface&quot;</h1>
+<h1 class="doctools_title">picoirc(n) 0.13.0 tcllib &quot;Simple embeddable IRC interface&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>picoirc - Small and simple embeddable IRC client.</p>
 </div>
@@ -125,13 +125,11 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6</b></li>
-<li>package require <b class="pkgname">picoirc <span class="opt">?0.11.0?</span></b></li>
+<li>package require <b class="pkgname">picoirc <span class="opt">?0.13.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::picoirc::connect</b> <i class="arg">callback</i> <i class="arg">nick</i> <span class="opt">?<i class="arg">password</i>?</span> <i class="arg">url</i></a></li>
 <li><a href="#2"><b class="cmd">::picoirc::post</b> <i class="arg">context</i> <i class="arg">channel</i> <i class="arg">message</i></a></li>
-<li><a href="#3"><b class="cmd">::picoirc::splituri</b> <i class="arg">uri</i></a></li>
-<li><a href="#4"><b class="cmd">::picoirc::send</b> <i class="arg">context</i> <i class="arg">line</i></a></li>
 </ul>
 </div>
 </div>
@@ -176,23 +174,16 @@ proc workaround {state args} {
 </dd>
 <dt><a name="2"><b class="cmd">::picoirc::post</b> <i class="arg">context</i> <i class="arg">channel</i> <i class="arg">message</i></a></dt>
 <dd><p>This should be called to process user input and send it to the
-server. A number of commands are recognised when prefixed with a
-forward-slash (/). Such commands are converted to IRC command
-sequences and then sent.</p></dd>
-<dt><a name="3"><b class="cmd">::picoirc::splituri</b> <i class="arg">uri</i></a></dt>
-<dd><p>Splits an IRC scheme uniform resource indicator into its component
-parts. Returns a list of server, port, channels and secure where
-secure is a boolean flag which is <b class="const">true</b> if a TLS connection was
-requested via the <em>ircs://</em> schema. The default port is 6667 (or
-6697 if secured) and there are no default channels.</p></dd>
-<dt><a name="4"><b class="cmd">::picoirc::send</b> <i class="arg">context</i> <i class="arg">line</i></a></dt>
-<dd><p>This command is where all raw output to the server is handled. The
-default action is to write the <i class="arg">line</i> to the irc socket. However,
-before this happens the callback is called with &quot;debug write&quot;. This
-permits the application author to inspect the raw IRC data and if
-desired to return a break error code to halt further processing. In
-this way the application can override the default send via the
-callback procedure.</p></dd>
+server. If <i class="arg">message</i> is multiline then each line will be processed
+and sent individually. A number of commands are recognised when
+prefixed with a forward-slash (/). Such commands are converted to
+IRC command sequences and then sent. If <i class="arg">channel</i> is empty then
+all raw output to the server is handled. The default action is to
+write the <i class="arg">message</i> to the irc socket. However, before this
+happens the callback is called with &quot;debug write&quot;. This permits the
+application author to inspect the raw IRC data and if desired to
+return a break error code to halt further processing. In this way the
+application can override the default send via the callback procedure.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">CALLBACK</a></h2>
@@ -232,7 +223,7 @@ name. <i class="arg">nick</i> is the name of the sender of the message.
 message was sent as a CTCP ACTION. <i class="arg">type</i> is set to &quot;NOTICE&quot; if the
 message was sent as a NOTICE command, in that case <i class="arg">target</i> is empty
 if it matches current user nick or it's &quot;*&quot;, in later case empty
-<i class="arg">nick</i> means that notice comes from server.</p></dd>
+<i class="arg">target</i> means that notice comes from server.</p></dd>
 <dt><b class="option">mode</b> <i class="arg">nick</i> <i class="arg">target</i> <i class="arg">flags</i></dt>
 <dd><p>called when mode of user or channel changes. <i class="arg">nick</i> is the name
 of the user who requested a change, can be empty if it's the server.

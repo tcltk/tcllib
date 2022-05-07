@@ -294,10 +294,37 @@ package require \fBtar  ?0\&.11?\fR
 .BE
 .SH DESCRIPTION
 .PP
-Note: Starting with version 0\&.8 the tar reader commands
-(contents, stats, get, untar) support the GNU LongName extension
-(header type 'L') for large paths\&.
+\fINote\fR: Starting with version 0\&.8 the tar reader commands
+(contents, stats, get, untar) support the GNU LongName extension (header type
+\'L') for large paths\&.
 .PP
+.SH BEWARE
+For all commands, when using \fB-chan\fR \&.\&.\&.
+.IP [1]
+It is assumed that the channel was opened for reading, and configured for
+binary input\&.
+.IP [2]
+It is assumed that the channel position is at the beginning of a legal
+tar file\&.
+.IP [3]
+The commands will \fImodify\fR the channel position as they perform their
+task\&.
+.IP [4]
+The commands will \fInot\fR close the channel\&.
+.IP [5]
+In other words, the commands leave the channel in a state very likely
+unsuitable for use by further \fBtar\fR commands\&. Still doing so will
+very likely results in errors, bad data, etc\&. pp\&.
+.IP [6]
+It is the responsibility of the user to seek the channel back to a
+suitable position\&.
+.IP [7]
+When using a channel transformation which is not generally seekable, for
+example \fBgunzip\fR, then it is the responsibility of the user to (a)
+unstack the transformation before seeking the channel back to a suitable
+position, and (b) for restacking it after\&.
+.PP
+.SH COMMANDS
 .TP
 \fB::tar::contents\fR \fItarball\fR ?\fB-chan\fR?
 Returns a list of the files contained in \fItarball\fR\&. The order is not sorted and depends on the order

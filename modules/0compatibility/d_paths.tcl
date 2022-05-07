@@ -5,12 +5,6 @@
 # Replacement:
 # - fileutil::paths
 
-package require Tcl 8.4
-package require fileutil::paths
-
-namespace eval ::doctools {}
-
-proc ::doctools::paths {args} { uplevel 1 [linsert $args 0 ::fileutil::paths] }
-
+error "The package doctools::paths is stage 2 deprecated. Use fileutil::paths instead."
 package provide doctools::paths 0.1
 return

@@ -377,9 +377,6 @@ proc ::websocket::validate {hdrs} {
 			break
 		    }
 		}
-		if {!$upgrading} {
-		    ThrowError "No 'Connect' header with 'upgrade' token found" HANDSHAKE CONNECTION
-		}
 	    }
 	    upgrade {
 		# May be a list, see
@@ -432,6 +429,9 @@ proc ::websocket::validate {hdrs} {
 		dict lappend res protocols {*}$protocols;
 	    }
 	}
+    }
+    if {!$upgrading} {
+	ThrowError "No 'Connect' header with 'upgrade' token found" HANDSHAKE CONNECTION
     }
     if {![dict exists $res version]} {
 	ThrowError "No WebSocket version specified" HANDSHAKE VERSION
@@ -1754,4 +1754,4 @@ proc ::websocket::ThrowError {msg args} {
 	$msg;
 }
 
-package provide websocket 1.4.1
+package provide websocket 1.4.2

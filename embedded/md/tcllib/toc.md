@@ -221,8 +221,6 @@
 
   - [doctools\_plugin\_apiref](tcllib/files/modules/doctools/doctools\_plugin\_apiref\.md) doctools plugin API reference
 
-  - [dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
-
   - [dtplite](tcllib/files/apps/dtplite\.md) Lightweight DocTools Markup Processor
 
   - [fileutil](tcllib/files/modules/fileutil/fileutil\.md) Procedures implementing some file utilities
@@ -409,6 +407,10 @@
 
   - [mime](tcllib/files/modules/mime/mime\.md) Manipulation of MIME body parts
 
+  - [mkdoc](tcllib/files/apps/mkdoc\.md) Source code documentation extractor/converter application
+
+  - [mkdoc](tcllib/files/modules/mkdoc/mkdoc\.md) Extracts and optionally converts Markdown comments in source code to HTML
+
   - [mpexpand](tcllib/files/modules/doctools/mpexpand\.md) Markup processor
 
   - [multiplexer](tcllib/files/modules/multiplexer/multiplexer\.md) One\-to\-many communication with sockets\.
@@ -470,6 +472,8 @@
   - [page\_util\_quote](tcllib/files/modules/page/page\_util\_quote\.md) page character quoting utilities
 
   - [picoirc](tcllib/files/modules/irc/picoirc\.md) Small and simple embeddable IRC client\.
+
+  - [pkg\_dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
 
   - [pki](tcllib/files/modules/pki/pki\.md) Implementation of the public key cipher
 

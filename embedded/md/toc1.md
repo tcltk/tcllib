@@ -297,7 +297,7 @@
 
       * [dtplite]()
 
-          + [dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
+          + [pkg\_dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
 
       * [fileutil]()
 
@@ -560,6 +560,10 @@
           + [mime](tcllib/files/modules/mime/mime\.md) Manipulation of MIME body parts
 
           + [smtp](tcllib/files/modules/mime/smtp\.md) Client\-side tcl implementation of the smtp protocol
+
+      * [mkdoc]()
+
+          + [mkdoc](tcllib/files/modules/mkdoc/mkdoc\.md) Extracts and optionally converts Markdown comments in source code to HTML
 
       * [multiplexer]()
 

@@ -22,7 +22,11 @@ tar \- Tar file creation, extraction & manipulation
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [BEWARE](#section2)
+
+  - [COMMANDS](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [Keywords](#keywords)
 
@@ -43,8 +47,38 @@ package require tar ?0\.11?
 
 # <a name='description'></a>DESCRIPTION
 
-Note: Starting with version 0\.8 the tar reader commands \(contents, stats, get,
-untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
+*Note*: Starting with version 0\.8 the tar reader commands \(contents, stats,
+get, untar\) support the GNU LongName extension \(header type 'L'\) for large
+paths\.
+
+# <a name='section2'></a>BEWARE
+
+For all commands, when using __\-chan__ \.\.\.
+
+  1. It is assumed that the channel was opened for reading, and configured for
+     binary input\.
+
+  1. It is assumed that the channel position is at the beginning of a legal tar
+     file\.
+
+  1. The commands will *modify* the channel position as they perform their
+     task\.
+
+  1. The commands will *not* close the channel\.
+
+  1. In other words, the commands leave the channel in a state very likely
+     unsuitable for use by further __tar__ commands\. Still doing so will
+     very likely results in errors, bad data, etc\. pp\.
+
+  1. It is the responsibility of the user to seek the channel back to a suitable
+     position\.
+
+  1. When using a channel transformation which is not generally seekable, for
+     example __gunzip__, then it is the responsibility of the user to \(a\)
+     unstack the transformation before seeking the channel back to a suitable
+     position, and \(b\) for restacking it after\.
+
+# <a name='section3'></a>COMMANDS
 
   - <a name='1'></a>__::tar::contents__ *tarball* ?__\-chan__?
 
@@ -187,7 +221,7 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
         % ::tar::contents new.tar
         file3
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
 other problems\. Please report such in the category *tar* of the [Tcllib
