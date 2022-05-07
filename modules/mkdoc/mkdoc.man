@@ -26,8 +26,8 @@ Each line of the embedded documentation begins with the special comment marker
 
 The command reads the specified [arg infile] and extracts the code comments introduced by
 the [const " #'"] marker.  If the [arg outfile] is either a [file .html] or [file .htm]
-file the Markdown is converted into HTML using either a default or the specified style
-sheet [arg cssfile].
+file the Markdown is converted into HTML using either a default style or the specified
+style sheet [arg cssfile].
 
 [para] All arguments are paths to the files to read from or write to.
 

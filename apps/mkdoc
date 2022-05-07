@@ -59,45 +59,52 @@ if {[lsearch -exact $argv {--license}] > -1} {
     return
 }
 
+proc Report {event settings} {
+    set label [dict get {
+	D Defaults
+	Y YAML....
+	F Final...
+    } $event]
+    puts "$label $settings"
+}
+
+proc Done {outfile} {
+    puts "Results written to `$outfile`."
+}
+
+proc Processing {infile inmode outmode} {
+    puts "Processing $inmode file `$infile` for $outmode."
+}
+
+#hook bind mkdoc::mkdoc Header/Defaults x {::Report D}
+hook bind mkdoc::mkdoc Header/YAML     x {::Report Y}
+hook bind mkdoc::mkdoc Header/Final    x {::Report F}
+hook bind mkdoc::mkdoc Done            x ::Done
+hook bind mkdoc::mkdoc Processing      x ::Processing
+
 if {[llength $argv] < 2 || [lsearch -exact $argv {--help}] > -1} {
     set usage [regsub -all {__APP__} $Usage [info script]]
     puts $usage
     exit 0
     
-} elseif {[llength $argv] >= 2 && [lsearch $argv {--run}] == 1} {
-    mkdoc::run $argv 
+} elseif {[llength $argv] >= 2 && [lsearch -exact $argv {--run}] == 1} {
+    # argv == `path --run ...` -- Modify for run to see `path ...`
+    mkdoc::run {*}[lreplace $argv 1 1]
 
 } elseif {[llength $argv] == 2} {
     if {[regexp {^-.} [lindex $argv 1]]} {
 	puts stderr "Error: wrong outfile name [lindex $argv 1]"
 	exit 1
     }
-    mkdoc::mkdoc [lindex $argv 0] [lindex $argv 1]
+
+    mkdoc::mkdoc {*}$argv
 
 } elseif {[llength $argv] > 2} {
-
-    proc Report {event settings} {
-	set label [dict get {
-	    D Defaults
-	    Y YAML....
-	    F Final...
-	} $event]
-	puts "$label $settings"
+    # Check for `--css` and replace with the internal `-css`
+    set csspos [lsearch -exact $argv --css]
+    if {$csspos >= 0} {
+	set argv [lreplace $argv $csspos $csspos -css]
     }
-
-    proc Done {outfile} {
-	puts "Results written to `$outfile`."
-    }
-
-    proc Processing {infile inmode outmode} {
-	puts "Processing $inmode file `$infile` for $outmode."
-    }
-    
-    #hook bind mkdoc::mkdoc Header/Defaults x {::Report D}
-    hook bind mkdoc::mkdoc Header/YAML     x {::Report Y}
-    hook bind mkdoc::mkdoc Header/Final    x {::Report F}
-    hook bind mkdoc::mkdoc Done            x ::Done
-    hook bind mkdoc::mkdoc Processing      x ::Processing
     
     mkdoc::mkdoc {*}$argv
 }

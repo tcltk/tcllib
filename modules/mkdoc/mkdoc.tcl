@@ -65,7 +65,7 @@
 #'
 #' ```
 #' package require mkdoc::mkdoc
-#' mkdoc::mkdoc inputfile outputfile ?--css file.css?
+#' mkdoc::mkdoc inputfile outputfile ?-css file.css?
 #' ```
 #'
 #' Usage as command line application for extraction of Markdown comments prefixed with `#'`:
@@ -97,19 +97,19 @@
 #' ## <a name='command'>COMMAND</a>
 #'
 #'  <a name="mkdoc"> </a>
-#' **mkdoc::mkdoc** *infile outfile ?--css file.css?*
+#' **mkdoc::mkdoc** *infile outfile ?-css file.css?*
 #' 
 #' > Extracts the documentation in Markdown format from *infile* and writes the documentation 
 #'    to *outfile* either in Markdown, Doctools  or HTML format. 
 #' 
 #' > - *infile* - file with embedded markdown documentation
 #'   - *outfile* -  name of output file extension
-#'   - *--css cssfile* if outfile is an HTML file use the given *cssfile*
+#'   - *-css cssfile* if outfile is an HTML file use the given *cssfile*
 #'     
 #' > If the file extension of the outfile is either html or htm a HTML file is created. If the output file has other 
 #'   file extension the documentation after _#'_ comments is simply extracted and stored in the given _outfile_, *-mode* flag  (one of -html, -md, -pandoc) is not given, the output format is taken from the file extension of the output file, either *.html* for HTML or *.md* for Markdown format. This deduction from the filetype can be overwritten giving either `-html` or `-md` as command line flags. If as mode `-pandoc` is given, the Markdown markup code as well contains the YAML header.
 #'   If infile has the extension .md (Markdown) or -man (Doctools) than conversion to html will be performed, outfile file extension
-#'   In this case must be .html. If output is html a *--css* flag can be given to use the given stylesheet file instead of the default style sheet embedded within the mkdoc code.
+#'   In this case must be .html. If output is html a *-css* flag can be given to use the given stylesheet file instead of the default style sheet embedded within the mkdoc code.
 #'  
 #' > Example:
 #'
@@ -228,7 +228,7 @@ proc mkdoc::mkdoc {filename outfile args} {
     variable htmlstart
     variable mkdocstyle
 
-    array set arg [list --css ""]
+    array set arg [list -css ""]
     array set arg $args
     if {[file extension $filename] eq [file extension $outfile]} {
 	return -code error "Error: infile and outfile must have different file extensions!"
@@ -307,8 +307,8 @@ proc mkdoc::mkdoc {filename outfile args} {
                 append mdhtml "$indent$line\n"
             }
         }
-        if {$arg(--css) ne ""} {
-            dict set yamldict css $arg(--css)
+        if {$arg(-css) ne ""} {
+            dict set yamldict css $arg(-css)
         }
 
 	# Regenerate yamltext from the final dict (to report the final CSS reference)

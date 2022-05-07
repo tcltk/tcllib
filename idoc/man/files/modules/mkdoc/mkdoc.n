@@ -299,8 +299,8 @@ Each line of the embedded documentation begins with the special comment marker
 \fB::mkdoc::mkdoc\fR \fIinfile\fR \fIoutfile\fR ?\fB-css\fR \fIcssfile\fR?
 The command reads the specified \fIinfile\fR and extracts the code comments introduced by
 the \fB #'\fR marker\&.  If the \fIoutfile\fR is either a "\fI\&.html\fR" or "\fI\&.htm\fR"
-file the Markdown is converted into HTML using either a default or the specified style
-sheet \fIcssfile\fR\&.
+file the Markdown is converted into HTML using either a default style or the specified
+style sheet \fIcssfile\fR\&.
 .sp
 All arguments are paths to the files to read from or write to\&.
 .sp

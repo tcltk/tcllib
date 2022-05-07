@@ -58,8 +58,8 @@ the embedded documentation begins with the special comment marker __\#'__\.
 
     The command reads the specified *infile* and extracts the code comments
     introduced by the __\#'__ marker\. If the *outfile* is either a "\.html"
-    or "\.htm" file the Markdown is converted into HTML using either a default or
-    the specified style sheet *cssfile*\.
+    or "\.htm" file the Markdown is converted into HTML using either a default
+    style or the specified style sheet *cssfile*\.
 
     All arguments are paths to the files to read from or write to\.
 
