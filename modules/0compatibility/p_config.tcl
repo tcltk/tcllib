@@ -5,10 +5,6 @@
 # Replacement:
 # - struct::map
 
-package require Tcl 8.4
-package require struct::map
-
-proc ::configuration {args} { uplevel 1 [linsert $args 0 ::struct::map] }
-
+error "The package configuration is stage 2 deprecated. Use struct::map instead."
 package provide configuration 1
 return

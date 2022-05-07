@@ -1,16 +1,10 @@
-# (c) 2019 Andreas Kupries
-# Redirection wrapper for deprecated package
+# (c) 2022 Andreas Kupries
+# Error wrapper for deprecated package
 # Deprecated:
 # - doctools::config
 # Replacement:
 # - struct::map
 
-package require Tcl 8.4
-package require struct::map
-
-namespace eval ::doctools {}
-
-proc ::doctools::config {args} { uplevel 1 [linsert $args 0 ::struct::map] }
-
+error "The package doctools::config is stage 2 deprecated. Use struct::map instead."
 package provide doctools::config 0.1
 return
