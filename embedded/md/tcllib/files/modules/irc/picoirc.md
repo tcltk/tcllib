@@ -1,7 +1,7 @@
 
 [//000000001]: # (picoirc \- Simple embeddable IRC interface)
 [//000000002]: # (Generated from file 'picoirc\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (picoirc\(n\) 0\.11\.0 tcllib "Simple embeddable IRC interface")
+[//000000003]: # (picoirc\(n\) 0\.13\.0 tcllib "Simple embeddable IRC interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,12 +35,10 @@ picoirc \- Small and simple embeddable IRC client\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require picoirc ?0\.11\.0?  
+package require picoirc ?0\.13\.0?  
 
 [__::picoirc::connect__ *callback* *nick* ?*password*? *url*](#1)  
 [__::picoirc::post__ *context* *channel* *message*](#2)  
-[__::picoirc::splituri__ *uri*](#3)  
-[__::picoirc::send__ *context* *line*](#4)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -85,26 +83,16 @@ capability investigate the __[irc](irc\.md)__ package\.
 
   - <a name='2'></a>__::picoirc::post__ *context* *channel* *message*
 
-    This should be called to process user input and send it to the server\. A
-    number of commands are recognised when prefixed with a forward\-slash \(/\)\.
-    Such commands are converted to IRC command sequences and then sent\.
-
-  - <a name='3'></a>__::picoirc::splituri__ *uri*
-
-    Splits an IRC scheme uniform resource indicator into its component parts\.
-    Returns a list of server, port, channels and secure where secure is a
-    boolean flag which is __true__ if a TLS connection was requested via the
-    *ircs://* schema\. The default port is 6667 \(or 6697 if secured\) and there
-    are no default channels\.
-
-  - <a name='4'></a>__::picoirc::send__ *context* *line*
-
-    This command is where all raw output to the server is handled\. The default
-    action is to write the *line* to the irc socket\. However, before this
-    happens the callback is called with "debug write"\. This permits the
-    application author to inspect the raw IRC data and if desired to return a
-    break error code to halt further processing\. In this way the application can
-    override the default send via the callback procedure\.
+    This should be called to process user input and send it to the server\. If
+    *message* is multiline then each line will be processed and sent
+    individually\. A number of commands are recognised when prefixed with a
+    forward\-slash \(/\)\. Such commands are converted to IRC command sequences and
+    then sent\. If *channel* is empty then all raw output to the server is
+    handled\. The default action is to write the *message* to the irc socket\.
+    However, before this happens the callback is called with "debug write"\. This
+    permits the application author to inspect the raw IRC data and if desired to
+    return a break error code to halt further processing\. In this way the
+    application can override the default send via the callback procedure\.
 
 # <a name='section3'></a>CALLBACK
 
@@ -152,7 +140,8 @@ to a picoirc procedure\)\. state is one of a number of states as described below
     message text\. *type* is set to "ACTION" if the message was sent as a CTCP
     ACTION\. *type* is set to "NOTICE" if the message was sent as a NOTICE
     command, in that case *target* is empty if it matches current user nick or
-    it's "\*", in later case empty *nick* means that notice comes from server\.
+    it's "\*", in later case empty *target* means that notice comes from
+    server\.
 
   - __mode__ *nick* *target* *flags*
 

@@ -1831,4 +1831,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.8.4
+package provide struct::list 1.8.5

@@ -603,9 +603,6 @@ tcllib
 \fBdtplite\fR
 \fIfiles/apps/dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
-\fBdtplite\fR
-\fIfiles/modules/dtplite/pkg_dtplite\&.n\fR: Lightweight DocTools Markup Processor
-.TP
 \fBfileutil\fR
 \fIfiles/modules/fileutil/fileutil\&.n\fR: Procedures implementing some file utilities
 .TP
@@ -882,6 +879,12 @@ tcllib
 \fBmime\fR
 \fIfiles/modules/mime/mime\&.n\fR: Manipulation of MIME body parts
 .TP
+\fBmkdoc\fR
+\fIfiles/apps/mkdoc\&.n\fR: Source code documentation extractor/converter application
+.TP
+\fBmkdoc\fR
+\fIfiles/modules/mkdoc/mkdoc\&.n\fR: Extracts and optionally converts Markdown comments in source code to HTML
+.TP
 \fBmpexpand\fR
 \fIfiles/modules/doctools/mpexpand\&.n\fR: Markup processor
 .TP
@@ -974,6 +977,9 @@ tcllib
 .TP
 \fBpicoirc\fR
 \fIfiles/modules/irc/picoirc\&.n\fR: Small and simple embeddable IRC client\&.
+.TP
+\fBpkg_dtplite\fR
+\fIfiles/modules/dtplite/pkg_dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
 \fBpki\fR
 \fIfiles/modules/pki/pki\&.n\fR: Implementation of the public key cipher

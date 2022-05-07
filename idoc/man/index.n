@@ -776,11 +776,11 @@ doctools::toc::export::html
 \fBfiles/apps/dtplite\&.n\fR
 dtplite
 .TP
-\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
-.TP
 \fBfiles/modules/doctools/mpexpand\&.n\fR
 mpexpand
+.TP
+\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
+pkg_dtplite
 .RE
 IBAN
 .RS
@@ -1436,11 +1436,11 @@ doctools::toc
 \fBfiles/apps/dtplite\&.n\fR
 dtplite
 .TP
-\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
-.TP
 \fBfiles/modules/doctools/mpexpand\&.n\fR
 mpexpand
+.TP
+\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
+pkg_dtplite
 .RE
 TOOL
 .RS
@@ -3050,14 +3050,14 @@ doctools::toc::import
 \fBfiles/apps/dtplite\&.n\fR
 dtplite
 .TP
-\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
-.TP
 \fBfiles/modules/math/roman\&.n\fR
 math::roman
 .TP
 \fBfiles/modules/doctools/mpexpand\&.n\fR
 mpexpand
+.TP
+\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
+pkg_dtplite
 .TP
 \fBfiles/modules/pt/pt_peg_from_json\&.n\fR
 pt::peg::from::json
@@ -3666,7 +3666,7 @@ doctools::msgcat::idx::fr
 dtplite
 .TP
 \fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
+pkg_dtplite
 .RE
 docidx commands
 .RS
@@ -3783,7 +3783,7 @@ doctools::toc::structure
 dtplite
 .TP
 \fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
+pkg_dtplite
 .RE
 doctoc commands
 .RS
@@ -3954,7 +3954,7 @@ doctools::toc::structure
 dtplite
 .TP
 \fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
+pkg_dtplite
 .RE
 doctools commands
 .RS
@@ -6302,11 +6302,11 @@ doctools_plugin_apiref
 \fBfiles/apps/dtplite\&.n\fR
 dtplite
 .TP
-\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
-.TP
 \fBfiles/modules/doctools/mpexpand\&.n\fR
 mpexpand
+.TP
+\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
+pkg_dtplite
 .RE
 map
 .RS
@@ -6437,11 +6437,11 @@ doctools_plugin_apiref
 \fBfiles/apps/dtplite\&.n\fR
 dtplite
 .TP
-\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
-.TP
 \fBfiles/modules/doctools/mpexpand\&.n\fR
 mpexpand
+.TP
+\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
+pkg_dtplite
 .TP
 \fBfiles/apps/tcldocstrip\&.n\fR
 tcldocstrip
@@ -7250,11 +7250,11 @@ doctools::toc::export::nroff
 \fBfiles/apps/dtplite\&.n\fR
 dtplite
 .TP
-\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
-dtplite
-.TP
 \fBfiles/modules/doctools/mpexpand\&.n\fR
 mpexpand
+.TP
+\fBfiles/modules/dtplite/pkg_dtplite\&.n\fR
+pkg_dtplite
 .RE
 null
 .RS

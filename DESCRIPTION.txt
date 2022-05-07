@@ -4,12 +4,12 @@ Description: This package is intended to be a collection of
     Tcl packages that provide utility functions useful to a
     large collection of Tcl programmers.
 Rights: BSD
-Version: 1.20
+Version: 1.21
 URL: http://core.tcl.tk/tcllib
 Architecture: tcl
 Contributor:  <jeffh at activestate dot com>
 Contributor: Aaron Faupell <afaupell at users dot sourceforge dot net>
-Contributor: Andreas Kupries <andreas_kupries at users dot sourceforge dot net>
+Contributor: Andreas Kupries <andreas dot kupries at gmail dot com>
 Contributor: Arjen Markus <arjenmarkus at users dot sourceforge dot net>
 Contributor: Benjamin Riefenstahl <b dot riefenstahl at turtle-trading dot net>
 Contributor: Bob Techentin <techentin at users dot sourceforge dot net>
@@ -46,6 +46,7 @@ Contributor: Ross Mohn <rpmohn at panix dot com>
 Contributor: Sandeep Tamhankar <sandeep at scriptics dot com>
 Contributor: Scott Redman <redman at scriptics dot com>
 Contributor: Scott Stanton <stanton at scriptics dot com>
+Contributor: Shawn Wagner <shawnw dot mobile at gmail dot com>
 Contributor: Steffen Traeger <Steffen dot Traeger at t-online dot de>
 Contributor: Stephane Arnold <sarnold75 at users dot sourceforge dot net>
 Contributor: Steve Ball <Steve dot Ball at zveno dot com>

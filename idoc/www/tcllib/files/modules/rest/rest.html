@@ -105,7 +105,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">rest(n) 1.4 tcllib &quot;A framework for RESTful web services&quot;</h1>
+<h1 class="doctools_title">rest(n) 1.5 tcllib &quot;A framework for RESTful web services&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>rest - define REST web APIs and call them inline or asychronously</p>
 </div>
@@ -127,7 +127,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">rest <span class="opt">?1.4?</span></b></li>
+<li>package require <b class="pkgname">rest <span class="opt">?1.5?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::rest::simple</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
@@ -375,6 +375,9 @@ No authentication is done if the option is not specified.</p>
 the procedure <b class="cmd">basic_auth</b> in the namespace of interface. This
 procedure takes two arguments, the username and password, in this
 order.</p></dd>
+<dt><b class="const">bearer</b></dt>
+<dd><p>The user may configure a bearer token as authentication. The value is
+the token passed to the HTTP authorization header.</p></dd>
 <dt><b class="const">sign</b></dt>
 <dd><p>The value must actually be a list with the second element the name of
 a procedure which will be called to perform request signing.</p></dd>

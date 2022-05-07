@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'rest\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "rest" n 1\&.4 tcllib "A framework for RESTful web services"
+.TH "rest" n 1\&.5 tcllib "A framework for RESTful web services"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ rest \- define REST web APIs and call them inline or asychronously
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBrest  ?1\&.4?\fR
+package require \fBrest  ?1\&.5?\fR
 .sp
 \fB::rest::simple\fR \fIurl\fR \fIquery\fR ?\fIconfig\fR? ?\fIbody\fR?
 .sp
@@ -584,6 +584,10 @@ The user may configure the \fIbasic authentication\fR by overriding
 the procedure \fBbasic_auth\fR in the namespace of interface\&. This
 procedure takes two arguments, the username and password, in this
 order\&.
+.TP
+\fBbearer\fR
+The user may configure a bearer token as authentication\&. The value is
+the token passed to the HTTP authorization header\&.
 .TP
 \fBsign\fR
 The value must actually be a list with the second element the name of

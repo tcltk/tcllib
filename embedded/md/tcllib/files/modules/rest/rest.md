@@ -1,7 +1,7 @@
 
 [//000000001]: # (rest \- A framework for RESTful web services)
 [//000000002]: # (Generated from file 'rest\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (rest\(n\) 1\.4 tcllib "A framework for RESTful web services")
+[//000000003]: # (rest\(n\) 1\.5 tcllib "A framework for RESTful web services")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ rest \- define REST web APIs and call them inline or asychronously
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require rest ?1\.4?  
+package require rest ?1\.5?  
 
 [__::rest::simple__ *url* *query* ?*config*? ?*body*?](#1)  
 [__::rest::get__ *url* *query* ?*config*? ?*body*?](#2)  
@@ -339,6 +339,11 @@ Example, Yahoo Weather:
             the procedure __basic\_auth__ in the namespace of interface\. This
             procedure takes two arguments, the username and password, in this
             order\.
+
+          + __bearer__
+
+            The user may configure a bearer token as authentication\. The value
+            is the token passed to the HTTP authorization header\.
 
           + __sign__
 

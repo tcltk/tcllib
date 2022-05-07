@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.4]
+[vset VERSION 1.5]
 [manpage_begin rest n [vset VERSION]]
 [moddesc   {A framework for RESTful web services}]
 [titledesc {define REST web APIs and call them inline or asychronously}]
@@ -330,6 +330,11 @@ The user may configure the [term {basic authentication}] by overriding
 the procedure [cmd basic_auth] in the namespace of interface. This
 procedure takes two arguments, the username and password, in this
 order.
+
+[def [const bearer]]
+
+The user may configure a bearer token as authentication. The value is
+the token passed to the HTTP authorization header.
 
 [def [const sign]]
 

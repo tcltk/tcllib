@@ -10,8 +10,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: filetypes.tcl,v 1.6 2006/09/27 21:19:35 andreas_kupries Exp $
 
 #####
 #
@@ -81,7 +79,7 @@ proc ::fileutil::magic::filetype file {
 }
 
 
-package provide fileutil::magic::filetype 2.0
+package provide fileutil::magic::filetype 2.0.1
 
 
 namespace eval ::fileutil::magic::filetype {

@@ -404,7 +404,7 @@ namespace eval Markdown {
                 {^<(?:p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del)} {
                     # HTML BLOCKS
                     set block_tag [string range $line_match 1 end]
-                    set re_htmltag {<(/?)(\w+)(?:\s+\w+=(?:\"[^\"]+\"|'[^']+'))*\s*>}
+		    set re_htmltag {<(/?)(\w+)(?:\s+\w+(?:=\"[^\"]+\"|'[^']+')?)*\s*>}
 
                     set block_lines 0
                     set buffer {}
@@ -433,8 +433,7 @@ namespace eval Markdown {
                     }
 
                     # Skip empty lines after the block.
-                    while {$index < $no_lines
-                           && [regexp {^\s*$} [lindex $lines $index]]} {
+                    while {$index < $no_lines && [is_empty_line [lindex $lines $index]]} {
                         incr index
                     }
 

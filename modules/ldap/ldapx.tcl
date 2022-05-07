@@ -3,8 +3,6 @@
 #
 # (c) 2006-2018 Pierre David (pdagog@gmail.com)
 #
-# $Id: ldapx.tcl,v 1.12 2008/02/07 21:19:39 pdav Exp $
-#
 # History:
 #   2006/08/08 : pda : design
 #

@@ -477,8 +477,81 @@ test img-1.5 {image link with single space as alt text} -body {
 }
 
 #-------------------------------------------------------------------------
-# Tests with texts from the original markdown page at daringfireball.net
+# Attribute mishandling in HTML block tags. Ticket [0d23817f75]
 
+test div-1.1 {[0d23817f75] embedded html on a line surrounded by empty lines having html attribute without value} -body {
+    convert {
+        hello
+
+        <div allowfullscreen></div>
+
+        hello again
+    }
+} -result {
+    <p>hello</p>
+
+    <div allowfullscreen></div>
+
+    <p>hello again</p>
+}
+
+test div-1.2 {[0d23817f75] embedded html on a line surrounded by empty lines having html attribute with value} -body {
+    convert {
+        hello
+
+        <div allowfullscreen="1"></div>
+
+        hello again
+    }
+} -result {
+    <p>hello</p>
+
+    <div allowfullscreen="1"></div>
+
+    <p>hello again</p>
+}
+
+#-------------------------------------------------------------------------
+# known bugs in div handling - Ticket [57f151c354]
+
+test div-1.3 {[57f151c354] embedded div on a line in a paragraph} -body {
+    convert {
+        hello
+        <div allowfullscreen></div>
+        hello again
+    }
+} -constraints knownbug -result {
+    <p>hello</p>
+
+    <div allowfullscreen></div>
+
+    <p>hello again</p>
+}
+# actual result:
+# <p>hello
+# &lt;div allowfullscreen&gt;</div>
+# hello again</p>
+
+test div-1.4 {[57f151c354] embedded div with attribute on a line in a paragraph} -body {
+    convert {
+        hello
+        <div allowfullscreen="1"></div>
+        hello again
+    }
+} -constraints knownbug -result {
+    <p>hello</p>
+
+    <div allowfullscreen="1"></div>
+
+    <p>hello again</p>
+}
+# actual result:
+# <p>hello
+# <div allowfullscreen="1"></div>
+# hello again</p>
+
+#-------------------------------------------------------------------------
+# Tests with texts from the original markdown page at daringfireball.net
 
 test gruber-1.1 {a sample text} -body {
     convert {
