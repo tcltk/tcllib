@@ -12,7 +12,7 @@
 
 package require Tcl 8.5;# lrepeat
 package require math::interpolate
-package provide math::calculus 0.8.2
+package provide math::calculus 1.0
 
 # math::calculus --
 #    Namespace for the commands
@@ -37,7 +37,7 @@ namespace eval ::math::calculus {
     namespace export romberg_powerLawLower romberg_powerLawUpper
     namespace export romberg_expLower romberg_expUpper
 
-    namespace export regula_falsi
+    namespace export regula_falsi root_bisection root_secant root_brent root_chandrupatla
 
     variable nr_maxiter    20
     variable nr_tolerance   0.001
@@ -1643,3 +1643,8 @@ proc ::math::calculus::qk15_detailed {xstart xend func {n 1}} {
 
     return [list $result $abserr $resabs $resasc]
 }
+
+#
+# Add the root finding procedures based on bracketing a root
+#
+source [file join [file dirname [info script]] rootfind.tcl]

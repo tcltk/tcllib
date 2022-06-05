@@ -642,6 +642,57 @@ test "regula-2.2" "Invalid interval" \
    set x1 [::math::calculus::regula_falsi ::f3 0.0 5.0]
 } -result "Interval must be *" -returnCodes error
 
+
+# Function with one ordinary root and one double root
+proc ::w {x} {
+    expr { ($x + 3.0) * ($x - 2.0) ** 2 }
+}
+
+# Function with no real root
+proc ::h {x} {
+    expr {$x**2 + 0.1}
+}
+
+test "root-finding-1.0" "Third degree function - bisection" -match numbers -body {
+   set x [::math::calculus::root_bisection ::w -4.0 0.25]
+} -result -3.0
+
+# Converges to the double root!
+# These two tests show that secant may not be the most reliable method
+test "root-finding-1.1" "Third degree function - secant" -match numbers -body {
+   set x [::math::calculus::root_secant ::w -4.0 0.25]
+} -result 1.9999937262995833
+
+test "root-finding-1.1b" "Third degree function - secant (different interval)" -match numbers -body {
+   set x [::math::calculus::root_secant ::w -4.0 -0.25]
+} -result 2.000041303828004
+
+test "root-finding-1.2" "Third degree function - Brent" -match numbers -body {
+   set x [::math::calculus::root_brent ::w -4.0 0.25]
+} -result -3.0
+
+test "root-finding-1.3" "Third degree function - Chandrupatla" -match numbers -body {
+   set x [::math::calculus::root_chandrupatla ::w -4.0 0.25]
+} -result -3.0
+
+
+test "root-finding-2.0" "Invalid interval - bisection" -match glob -body {
+   set x [::math::calculus::root_bisection ::h -0.5 2.6]
+} -result "The given interval does not *" -returnCodes error
+
+test "root-finding-2.1" "Invalid interval - secant" -match glob -body {
+   set x [::math::calculus::root_secant ::h -0.5 2.6]
+} -result "The given interval does not *" -returnCodes error
+
+test "root-finding-2.2" "Invalid interval - Brent" -match glob -body {
+   set x [::math::calculus::root_brent ::h -0.5 2.6]
+} -result "The given interval does not *" -returnCodes error
+
+test "root-finding-2.3" "Invalid interval - Chandrupatla" -match glob -body {
+   set x [::math::calculus::root_chandrupatla ::h -0.5 2.6]
+} -result "The given interval does not *" -returnCodes error
+
+
 test "solveTriDiagonal-1.0" "Solve tridiagonal system" \
    -match numbers -body {
    set x [::math::calculus::solveTriDiagonal {3 3} {1 1 1} {2 2} {1 0 0}]
