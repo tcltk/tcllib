@@ -1,3 +1,10 @@
+2022-06-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* rootfind.tcl: New file containing the new root-findng procedures
+	* calculus.tcl: Add a "source" command for rootfind.tcl, bump version to 1.0
+	* calculus.test: Add tests for the root-finding procedures
+	* calculus.man: Description of the root-finding procedures
+	* pkgIndex.tcl: Bump version to 1.0
+
 2022-04-26  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* figurate.tcl: Correct the implementation of various procedures (note: consistent handling of "no objects")
 	* figurate.test: Correct the test cases
