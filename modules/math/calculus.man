@@ -330,6 +330,100 @@ to lie
 
 [list_end]
 
+
+[call [cmd ::math::calculus::root_bisection] [arg f] [arg xb] [arg xe] [arg eps]]
+
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [lb]xb,xe[rb]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.
+
+[para]
+The method used is the so-called [emph {bisection}]. For properties: see the [emph {regula falsi}] procedure.
+
+[list_begin arguments]
+[arg_def command f] Name of the command that evaluates the function for
+which the zero is to be returned
+
+[arg_def float xb] Start of the interval in which the zero is supposed
+to lie
+
+[arg_def float xe] End of the interval
+
+[arg_def float eps] Relative allowed error (defaults to 1.0e-7)
+
+[list_end]
+
+
+[call [cmd ::math::calculus::root_secant] [arg f] [arg xb] [arg xe] [arg eps]]
+
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [lb]xb,xe[rb]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.
+
+[para]
+The method used is the so-called [emph {secant}] method. For properties: see the [emph {regula falsi}] procedure.
+Note that this method is not guaranteed to produce a zero, but it is fast.
+
+[list_begin arguments]
+[arg_def command f] Name of the command that evaluates the function for
+which the zero is to be returned
+
+[arg_def float xb] Start of the interval in which the zero is supposed
+to lie
+
+[arg_def float xe] End of the interval
+
+[arg_def float eps] Relative allowed error (defaults to 1.0e-7)
+
+[list_end]
+
+
+[call [cmd ::math::calculus::root_brent] [arg f] [arg xb] [arg xe] [arg eps]]
+
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [lb]xb,xe[rb]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.
+
+[para]
+The method used is the so-called [emph {Brent}] method. For properties: see the [emph {regula falsi}] procedure.
+
+[list_begin arguments]
+[arg_def command f] Name of the command that evaluates the function for
+which the zero is to be returned
+
+[arg_def float xb] Start of the interval in which the zero is supposed
+to lie
+
+[arg_def float xe] End of the interval
+
+[arg_def float eps] Relative allowed error (defaults to 1.0e-7)
+
+[list_end]
+
+
+[call [cmd ::math::calculus::root_chandrupatla] [arg f] [arg xb] [arg xe] [arg eps]]
+
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [lb]xb,xe[rb]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.
+
+[para]
+The method used is the so-called [emph {Chandrupatla}] method. It is a variant of the Brent method and
+is reputed to be faster. See [uri https://www.embeddedrelated.com/showarticle/855.php] for a discussion.
+
+[list_begin arguments]
+[arg_def command f] Name of the command that evaluates the function for
+which the zero is to be returned
+
+[arg_def float xb] Start of the interval in which the zero is supposed
+to lie
+
+[arg_def float xe] End of the interval
+
+[arg_def float eps] Relative allowed error (defaults to 1.0e-7)
+
+[list_end]
+
 [list_end]
 [para]
 
@@ -372,6 +466,12 @@ Other types of boundary conditions (zero gradient, zero flux)
 [item]
 Other schematisation of the first-order term (now central
 differences are used, but upstream differences might be useful too).
+
+[item]
+The various root finding methods differ in robustness, ease of use and convergence rates. While the Newton-Raphson
+method is quite fast (quadratic convergence), it is not guaranteed to produce an answer. The methods
+that bracket the root, require two starting points, but except for the secant method are guaranteed to
+deliver a good estimate.
 [list_end]
 
 [section EXAMPLES]
