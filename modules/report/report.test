@@ -832,7 +832,6 @@ test report-27.4 {formatting} {
 }
 
 test report-27.5 {formatting} {
-
     ::struct::matrix mymatrix
     mymatrix add columns 5
     mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
@@ -1011,6 +1010,30 @@ true numeric}    15      47    31.91}
 |   |true numeric       |       |       |        |
 +---+-------------------+-------+-------+--------+
 }
+
+test report-27.9 {formatting, double-wide, colored} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        橡      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row [list 005 {IF elseif true numeric} 15 \033\[1m47\033\[0m 31.91]
+
+    report myreport 5 ; # style plain
+    set result [myreport printmatrix mymatrix]
+    myreport destroy
+    mymatrix destroy
+
+    set result
+} "000VERSIONS:             2:8.4a31:8.4a31:8.4a3%
+001CATCH return ok       7      13     53.85
+002CATCH return error    橡     91     74.73
+003CATCH no catch used   7      14     50.00
+004IF if true numeric    12     33     36.36
+005IF elseif true numeric15     \033\[1m47\033\[0m     31.91
+"
 
 # And now all of above again, for printing into a channel.
 
@@ -1244,8 +1267,6 @@ true numeric}    15      47    31.91}
 |   |true numeric       |       |       |        |
 +---+-------------------+-------+-------+--------+}
 
-
-
 test report-28.10 {formatting, rowheight > 1} {
     ::struct::matrix mymatrix
     mymatrix add columns 5
@@ -1358,5 +1379,33 @@ true numeric}    15      47    31.91}
 |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
 +---+-------------------+-------+-------+--------+
 }
+
+
+test report-28.13 {formatting, double-wide, colored} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        橡      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row [list 005 {IF elseif true numeric} 15 \033\[1m47\033\[0m 31.91]
+
+    set f [open [makeFile {} rep1] w]
+    report myreport 5 ; # style plain
+    myreport printmatrix2channel mymatrix $f
+    myreport destroy
+    mymatrix destroy
+    close $f
+
+    set res [viewFile rep1]
+    removeFile rep1
+    set res
+} "000VERSIONS:             2:8.4a31:8.4a31:8.4a3%
+001CATCH return ok       7      13     53.85
+002CATCH return error    橡     91     74.73
+003CATCH no catch used   7      14     50.00
+004IF if true numeric    12     33     36.36
+005IF elseif true numeric15     \033\[1m47\033\[0m     31.91"
 
 testsuiteCleanup
