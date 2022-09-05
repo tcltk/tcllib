@@ -703,9 +703,7 @@ test matrix-5.5 {formatting, 2 string, no report} {
     set result [mymatrix format 2string]
     mymatrix destroy
     set result
-} "1 2 5
-3 4 6
-7 8 9"
+} "1 2 5\n3 4 6\n7 8 9"
 
 test matrix-5.6 {formatting 2 channel, no report} {
     matrix mymatrix
@@ -724,9 +722,71 @@ test matrix-5.6 {formatting 2 channel, no report} {
     set result [read $chan]
     close $chan
     set result
-} "1 2 5
-3 4 6
-7 8 9"
+} "1 2 5\n3 4 6\n7 8 9"
+
+test matrix-5.7 {formatting, 2 string, no report, double wide} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row {7 橡 9}
+    set result [mymatrix format 2string]
+    mymatrix destroy
+    set result
+} "1 2  5\n3 4  6\n7 橡 9"
+
+test matrix-5.8 {formatting 2 channel, no report, double-wide} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row {7 橡 9}
+
+    set chan [tcl::chan::memchan]
+    mymatrix format 2chan {} $chan
+    mymatrix destroy
+
+    seek $chan 0
+    set result [read $chan]
+    close $chan
+    set result
+} "1 2  5\n3 4  6\n7 橡 9"
+
+test matrix-5.9 {formatting, 2 string, no report, colored} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row "7 \033\[1m8\033\[0m 9"
+    set result [mymatrix format 2string]
+    mymatrix destroy
+    set result
+} "1 2 5\n3 4 6\n7 \033\[1m8\033\[0m 9"
+
+test matrix-5.10 {formatting 2 channel, no report, colored} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row "7 \033\[1m8\033\[0m 9"
+
+    set chan [tcl::chan::memchan]
+    mymatrix format 2chan {} $chan
+    mymatrix destroy
+
+    seek $chan 0
+    set result [read $chan]
+    close $chan
+    set result
+} "1 2 5\n3 4 6\n7 \033\[1m8\033\[0m 9"
 
 test matrix-6.0 {set/get error} {
     matrix mymatrix
