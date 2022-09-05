@@ -58,6 +58,10 @@ package require math::calculus 0\.8\.2
 [__::math::calculus::newtonRaphson__ *func* *deriv* *initval*](#14)  
 [__::math::calculus::newtonRaphsonParameters__ *maxiter* *tolerance*](#15)  
 [__::math::calculus::regula\_falsi__ *f* *xb* *xe* *eps*](#16)  
+[__::math::calculus::root\_bisection__ *f* *xb* *xe* *eps*](#17)  
+[__::math::calculus::root\_secant__ *f* *xb* *xe* *eps*](#18)  
+[__::math::calculus::root\_brent__ *f* *xb* *xe* *eps*](#19)  
+[__::math::calculus::root\_chandrupatla__ *f* *xb* *xe* *eps*](#20)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -383,6 +387,113 @@ This package defines the following public procedures:
 
         Relative allowed error \(defaults to 1\.0e\-4\)
 
+  - <a name='17'></a>__::math::calculus::root\_bisection__ *f* *xb* *xe* *eps*
+
+    Return an estimate of the zero or one of the zeros of the function contained
+    in the interval \[xb,xe\]\. The error in this estimate is of the order of
+    eps\*abs\(xe\-xb\), the actual error may be slightly larger\.
+
+    The method used is the so\-called *bisection*\. For properties: see the
+    *regula falsi* procedure\.
+
+      * command *f*
+
+        Name of the command that evaluates the function for which the zero is to
+        be returned
+
+      * float *xb*
+
+        Start of the interval in which the zero is supposed to lie
+
+      * float *xe*
+
+        End of the interval
+
+      * float *eps*
+
+        Relative allowed error \(defaults to 1\.0e\-7\)
+
+  - <a name='18'></a>__::math::calculus::root\_secant__ *f* *xb* *xe* *eps*
+
+    Return an estimate of the zero or one of the zeros of the function contained
+    in the interval \[xb,xe\]\. The error in this estimate is of the order of
+    eps\*abs\(xe\-xb\), the actual error may be slightly larger\.
+
+    The method used is the so\-called *secant* method\. For properties: see the
+    *regula falsi* procedure\. Note that this method is not guaranteed to
+    produce a zero, but it is fast\.
+
+      * command *f*
+
+        Name of the command that evaluates the function for which the zero is to
+        be returned
+
+      * float *xb*
+
+        Start of the interval in which the zero is supposed to lie
+
+      * float *xe*
+
+        End of the interval
+
+      * float *eps*
+
+        Relative allowed error \(defaults to 1\.0e\-7\)
+
+  - <a name='19'></a>__::math::calculus::root\_brent__ *f* *xb* *xe* *eps*
+
+    Return an estimate of the zero or one of the zeros of the function contained
+    in the interval \[xb,xe\]\. The error in this estimate is of the order of
+    eps\*abs\(xe\-xb\), the actual error may be slightly larger\.
+
+    The method used is the so\-called *Brent* method\. For properties: see the
+    *regula falsi* procedure\.
+
+      * command *f*
+
+        Name of the command that evaluates the function for which the zero is to
+        be returned
+
+      * float *xb*
+
+        Start of the interval in which the zero is supposed to lie
+
+      * float *xe*
+
+        End of the interval
+
+      * float *eps*
+
+        Relative allowed error \(defaults to 1\.0e\-7\)
+
+  - <a name='20'></a>__::math::calculus::root\_chandrupatla__ *f* *xb* *xe* *eps*
+
+    Return an estimate of the zero or one of the zeros of the function contained
+    in the interval \[xb,xe\]\. The error in this estimate is of the order of
+    eps\*abs\(xe\-xb\), the actual error may be slightly larger\.
+
+    The method used is the so\-called *Chandrupatla* method\. It is a variant of
+    the Brent method and is reputed to be faster\. See
+    [https://www\.embeddedrelated\.com/showarticle/855\.php](https://www\.embeddedrelated\.com/showarticle/855\.php)
+    for a discussion\.
+
+      * command *f*
+
+        Name of the command that evaluates the function for which the zero is to
+        be returned
+
+      * float *xb*
+
+        Start of the interval in which the zero is supposed to lie
+
+      * float *xe*
+
+        End of the interval
+
+      * float *eps*
+
+        Relative allowed error \(defaults to 1\.0e\-7\)
+
 *Notes:*
 
 Several of the above procedures take the *names* of procedures as arguments\.
@@ -419,6 +530,12 @@ Enhancements for the second\-order boundary value problem:
 
   - Other schematisation of the first\-order term \(now central differences are
     used, but upstream differences might be useful too\)\.
+
+  - The various root finding methods differ in robustness, ease of use and
+    convergence rates\. While the Newton\-Raphson method is quite fast \(quadratic
+    convergence\), it is not guaranteed to produce an answer\. The methods that
+    bracket the root, require two starting points, but except for the secant
+    method are guaranteed to deliver a good estimate\.
 
 # <a name='section3'></a>EXAMPLES
 

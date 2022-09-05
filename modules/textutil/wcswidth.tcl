@@ -7,7 +7,8 @@
 #
 # Author: Sean Woods <yoda@etoyoc.com>
 ###
-package provide textutil::wcswidth 35.1
+package provide textutil::wcswidth 35.2
+namespace eval ::textutil {}
 proc ::textutil::wcswidth_type char {
   if {$char == 161} { return A }
   if {$char == 164} { return A }
@@ -290,7 +291,7 @@ proc ::textutil::wcswidth_type char {
   if {$char >= 12688 && $char <= 12689 } { return W }
   if {$char >= 12690 && $char <= 12693 } { return W }
   if {$char >= 12694 && $char <= 12703 } { return W }
-  if {$char >= 12704 && $char <= 12730 } { return W }
+  if {$char >= 12704 && $char <= 12735 } { return W }
   if {$char >= 12736 && $char <= 12771 } { return W }
   if {$char >= 12784 && $char <= 12799 } { return W }
   if {$char >= 12800 && $char <= 12830 } { return W }
@@ -303,12 +304,10 @@ proc ::textutil::wcswidth_type char {
   if {$char >= 12928 && $char <= 12937 } { return W }
   if {$char >= 12938 && $char <= 12976 } { return W }
   if {$char >= 12977 && $char <= 12991 } { return W }
-  if {$char >= 12992 && $char <= 13054 } { return W }
+  if {$char >= 12992 && $char <= 13055 } { return W }
   if {$char >= 13056 && $char <= 13311 } { return W }
-  if {$char >= 13312 && $char <= 19893 } { return W }
-  if {$char >= 19894 && $char <= 19903 } { return W }
-  if {$char >= 19968 && $char <= 40943 } { return W }
-  if {$char >= 40944 && $char <= 40959 } { return W }
+  if {$char >= 13312 && $char <= 19903 } { return W }
+  if {$char >= 19968 && $char <= 40959 } { return W }
   if {$char >= 40960 && $char <= 40980 } { return W }
   if {$char == 40981} { return W }
   if {$char >= 40982 && $char <= 42124 } { return W }
@@ -416,10 +415,21 @@ proc ::textutil::wcswidth_type char {
   if {$char >= 65517 && $char <= 65518 } { return H }
   if {$char == 65533} { return A }
   if {$char >= 94176 && $char <= 94177 } { return W }
-  if {$char >= 94208 && $char <= 100337 } { return W }
-  if {$char >= 100352 && $char <= 101106 } { return W }
+  if {$char == 94178} { return W }
+  if {$char == 94179} { return W }
+  if {$char == 94180} { return W }
+  if {$char >= 94192 && $char <= 94193 } { return W }
+  if {$char >= 94208 && $char <= 100343 } { return W }
+  if {$char >= 100352 && $char <= 101119 } { return W }
+  if {$char >= 101120 && $char <= 101589 } { return W }
+  if {$char >= 101632 && $char <= 101640 } { return W }
+  if {$char >= 110576 && $char <= 110579 } { return W }
+  if {$char >= 110581 && $char <= 110587 } { return W }
+  if {$char >= 110589 && $char <= 110590 } { return W }
   if {$char >= 110592 && $char <= 110847 } { return W }
-  if {$char >= 110848 && $char <= 110878 } { return W }
+  if {$char >= 110848 && $char <= 110882 } { return W }
+  if {$char >= 110928 && $char <= 110930 } { return W }
+  if {$char >= 110948 && $char <= 110951 } { return W }
   if {$char >= 110960 && $char <= 111355 } { return W }
   if {$char == 126980} { return W }
   if {$char == 127183} { return W }
@@ -460,20 +470,28 @@ proc ::textutil::wcswidth_type char {
   if {$char >= 128640 && $char <= 128709 } { return W }
   if {$char == 128716} { return W }
   if {$char >= 128720 && $char <= 128722 } { return W }
+  if {$char >= 128725 && $char <= 128727 } { return W }
+  if {$char >= 128733 && $char <= 128735 } { return W }
   if {$char >= 128747 && $char <= 128748 } { return W }
-  if {$char >= 128756 && $char <= 128761 } { return W }
-  if {$char >= 129296 && $char <= 129342 } { return W }
-  if {$char >= 129344 && $char <= 129392 } { return W }
-  if {$char >= 129395 && $char <= 129398 } { return W }
-  if {$char == 129402} { return W }
-  if {$char >= 129404 && $char <= 129442 } { return W }
-  if {$char >= 129456 && $char <= 129465 } { return W }
-  if {$char >= 129472 && $char <= 129474 } { return W }
-  if {$char >= 129488 && $char <= 129535 } { return W }
-  if {$char >= 131072 && $char <= 173782 } { return W }
-  if {$char >= 173783 && $char <= 173823 } { return W }
-  if {$char >= 173824 && $char <= 177972 } { return W }
-  if {$char >= 177973 && $char <= 177983 } { return W }
+  if {$char >= 128756 && $char <= 128764 } { return W }
+  if {$char >= 128992 && $char <= 129003 } { return W }
+  if {$char == 129008} { return W }
+  if {$char >= 129292 && $char <= 129338 } { return W }
+  if {$char >= 129340 && $char <= 129349 } { return W }
+  if {$char >= 129351 && $char <= 129535 } { return W }
+  if {$char >= 129648 && $char <= 129652 } { return W }
+  if {$char >= 129656 && $char <= 129660 } { return W }
+  if {$char >= 129664 && $char <= 129670 } { return W }
+  if {$char >= 129680 && $char <= 129708 } { return W }
+  if {$char >= 129712 && $char <= 129722 } { return W }
+  if {$char >= 129728 && $char <= 129733 } { return W }
+  if {$char >= 129744 && $char <= 129753 } { return W }
+  if {$char >= 129760 && $char <= 129767 } { return W }
+  if {$char >= 129776 && $char <= 129782 } { return W }
+  if {$char >= 131072 && $char <= 173791 } { return W }
+  if {$char >= 173792 && $char <= 173823 } { return W }
+  if {$char >= 173824 && $char <= 177976 } { return W }
+  if {$char >= 177977 && $char <= 177983 } { return W }
   if {$char >= 177984 && $char <= 178205 } { return W }
   if {$char >= 178206 && $char <= 178207 } { return W }
   if {$char >= 178208 && $char <= 183969 } { return W }
@@ -483,7 +501,8 @@ proc ::textutil::wcswidth_type char {
   if {$char >= 194560 && $char <= 195101 } { return W }
   if {$char >= 195102 && $char <= 195103 } { return W }
   if {$char >= 195104 && $char <= 196605 } { return W }
-  if {$char >= 196608 && $char <= 262141 } { return W }
+  if {$char >= 196608 && $char <= 201546 } { return W }
+  if {$char >= 201547 && $char <= 262141 } { return W }
   if {$char >= 917760 && $char <= 917999 } { return A }
   if {$char >= 983040 && $char <= 1048573 } { return A }
   if {$char >= 1048576 && $char <= 1114109 } { return A }
@@ -585,7 +604,7 @@ proc ::textutil::wcswidth_char char {
   if {$char >= 12688 && $char <= 12689 } { return 2 }
   if {$char >= 12690 && $char <= 12693 } { return 2 }
   if {$char >= 12694 && $char <= 12703 } { return 2 }
-  if {$char >= 12704 && $char <= 12730 } { return 2 }
+  if {$char >= 12704 && $char <= 12735 } { return 2 }
   if {$char >= 12736 && $char <= 12771 } { return 2 }
   if {$char >= 12784 && $char <= 12799 } { return 2 }
   if {$char >= 12800 && $char <= 12830 } { return 2 }
@@ -597,12 +616,10 @@ proc ::textutil::wcswidth_char char {
   if {$char >= 12928 && $char <= 12937 } { return 2 }
   if {$char >= 12938 && $char <= 12976 } { return 2 }
   if {$char >= 12977 && $char <= 12991 } { return 2 }
-  if {$char >= 12992 && $char <= 13054 } { return 2 }
+  if {$char >= 12992 && $char <= 13055 } { return 2 }
   if {$char >= 13056 && $char <= 13311 } { return 2 }
-  if {$char >= 13312 && $char <= 19893 } { return 2 }
-  if {$char >= 19894 && $char <= 19903 } { return 2 }
-  if {$char >= 19968 && $char <= 40943 } { return 2 }
-  if {$char >= 40944 && $char <= 40959 } { return 2 }
+  if {$char >= 13312 && $char <= 19903 } { return 2 }
+  if {$char >= 19968 && $char <= 40959 } { return 2 }
   if {$char >= 40960 && $char <= 40980 } { return 2 }
   if {$char == 40981} { return 2 }
   if {$char >= 40982 && $char <= 42124 } { return 2 }
@@ -691,10 +708,21 @@ proc ::textutil::wcswidth_char char {
   if {$char == 65508} { return 2 }
   if {$char >= 65509 && $char <= 65510 } { return 2 }
   if {$char >= 94176 && $char <= 94177 } { return 2 }
-  if {$char >= 94208 && $char <= 100337 } { return 2 }
-  if {$char >= 100352 && $char <= 101106 } { return 2 }
+  if {$char == 94178} { return 2 }
+  if {$char == 94179} { return 2 }
+  if {$char == 94180} { return 2 }
+  if {$char >= 94192 && $char <= 94193 } { return 2 }
+  if {$char >= 94208 && $char <= 100343 } { return 2 }
+  if {$char >= 100352 && $char <= 101119 } { return 2 }
+  if {$char >= 101120 && $char <= 101589 } { return 2 }
+  if {$char >= 101632 && $char <= 101640 } { return 2 }
+  if {$char >= 110576 && $char <= 110579 } { return 2 }
+  if {$char >= 110581 && $char <= 110587 } { return 2 }
+  if {$char >= 110589 && $char <= 110590 } { return 2 }
   if {$char >= 110592 && $char <= 110847 } { return 2 }
-  if {$char >= 110848 && $char <= 110878 } { return 2 }
+  if {$char >= 110848 && $char <= 110882 } { return 2 }
+  if {$char >= 110928 && $char <= 110930 } { return 2 }
+  if {$char >= 110948 && $char <= 110951 } { return 2 }
   if {$char >= 110960 && $char <= 111355 } { return 2 }
   if {$char == 126980} { return 2 }
   if {$char == 127183} { return 2 }
@@ -729,20 +757,28 @@ proc ::textutil::wcswidth_char char {
   if {$char >= 128640 && $char <= 128709 } { return 2 }
   if {$char == 128716} { return 2 }
   if {$char >= 128720 && $char <= 128722 } { return 2 }
+  if {$char >= 128725 && $char <= 128727 } { return 2 }
+  if {$char >= 128733 && $char <= 128735 } { return 2 }
   if {$char >= 128747 && $char <= 128748 } { return 2 }
-  if {$char >= 128756 && $char <= 128761 } { return 2 }
-  if {$char >= 129296 && $char <= 129342 } { return 2 }
-  if {$char >= 129344 && $char <= 129392 } { return 2 }
-  if {$char >= 129395 && $char <= 129398 } { return 2 }
-  if {$char == 129402} { return 2 }
-  if {$char >= 129404 && $char <= 129442 } { return 2 }
-  if {$char >= 129456 && $char <= 129465 } { return 2 }
-  if {$char >= 129472 && $char <= 129474 } { return 2 }
-  if {$char >= 129488 && $char <= 129535 } { return 2 }
-  if {$char >= 131072 && $char <= 173782 } { return 2 }
-  if {$char >= 173783 && $char <= 173823 } { return 2 }
-  if {$char >= 173824 && $char <= 177972 } { return 2 }
-  if {$char >= 177973 && $char <= 177983 } { return 2 }
+  if {$char >= 128756 && $char <= 128764 } { return 2 }
+  if {$char >= 128992 && $char <= 129003 } { return 2 }
+  if {$char == 129008} { return 2 }
+  if {$char >= 129292 && $char <= 129338 } { return 2 }
+  if {$char >= 129340 && $char <= 129349 } { return 2 }
+  if {$char >= 129351 && $char <= 129535 } { return 2 }
+  if {$char >= 129648 && $char <= 129652 } { return 2 }
+  if {$char >= 129656 && $char <= 129660 } { return 2 }
+  if {$char >= 129664 && $char <= 129670 } { return 2 }
+  if {$char >= 129680 && $char <= 129708 } { return 2 }
+  if {$char >= 129712 && $char <= 129722 } { return 2 }
+  if {$char >= 129728 && $char <= 129733 } { return 2 }
+  if {$char >= 129744 && $char <= 129753 } { return 2 }
+  if {$char >= 129760 && $char <= 129767 } { return 2 }
+  if {$char >= 129776 && $char <= 129782 } { return 2 }
+  if {$char >= 131072 && $char <= 173791 } { return 2 }
+  if {$char >= 173792 && $char <= 173823 } { return 2 }
+  if {$char >= 173824 && $char <= 177976 } { return 2 }
+  if {$char >= 177977 && $char <= 177983 } { return 2 }
   if {$char >= 177984 && $char <= 178205 } { return 2 }
   if {$char >= 178206 && $char <= 178207 } { return 2 }
   if {$char >= 178208 && $char <= 183969 } { return 2 }
@@ -752,7 +788,8 @@ proc ::textutil::wcswidth_char char {
   if {$char >= 194560 && $char <= 195101 } { return 2 }
   if {$char >= 195102 && $char <= 195103 } { return 2 }
   if {$char >= 195104 && $char <= 196605 } { return 2 }
-  if {$char >= 196608 && $char <= 262141 } { return 2 }
+  if {$char >= 196608 && $char <= 201546 } { return 2 }
+  if {$char >= 201547 && $char <= 262141 } { return 2 }
   return 1
 }
 

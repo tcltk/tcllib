@@ -825,6 +825,8 @@
 
           + [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
 
+          + [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
+
           + [uuencode](tcllib/files/modules/base64/uuencode\.md) UU\-encode/decode binary data
 
           + [xsxp](tcllib/files/modules/amazon\-s3/xsxp\.md) eXtremely Simple Xml Parser
@@ -1896,6 +1898,8 @@
               - [textutil::tabify](tcllib/files/modules/textutil/tabify\.md) Procedures to \(un\)tabify strings
 
               - [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
+
+              - [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
 
           + [tie]()
 

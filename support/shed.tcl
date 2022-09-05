@@ -5,7 +5,7 @@
 ###
 # List of mirrors
 ###
-#tool mirror http://core.tcl.tk/tcllib 
+#tool mirror http://core.tcl.tk/tcllib
 #tool mirror http://fossil.etoyoc.com/fossil/tcllib
 ###
 # Populate the branches
