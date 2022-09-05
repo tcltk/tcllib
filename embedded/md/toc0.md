@@ -123,8 +123,6 @@
 
           + [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
-          + [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
-
           + [struct::pool](tcllib/files/modules/struct/pool\.md) Create and manipulate pool objects \(of discrete items\)
 
           + [struct::prioqueue](tcllib/files/modules/struct/prioqueue\.md) Create and manipulate prioqueue objects

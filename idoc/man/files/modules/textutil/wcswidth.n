@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'wcswidth\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "textutil::wcswidth" n 35\&.1 tcllib "Text and string utilities, macro processing"
+.TH "textutil::wcswidth" n 35\&.2 tcllib "Text and string utilities, macro processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ textutil::wcswidth \- Procedures to compute terminal width of strings
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBtextutil::wcswidth  ?35\&.1?\fR
+package require \fBtextutil::wcswidth  ?35\&.2?\fR
 .sp
 \fB::textutil::wcswidth\fR \fIstring\fR
 .sp
