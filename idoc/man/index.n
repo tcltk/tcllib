@@ -2492,6 +2492,18 @@ term::ansi::send
 \fBfiles/modules/term/term_send\&.n\fR
 term::send
 .RE
+character type
+.RS
+.TP
+\fBfiles/modules/textutil/wcswidth\&.n\fR
+textutil::wcswidth
+.RE
+character width
+.RS
+.TP
+\fBfiles/modules/textutil/wcswidth\&.n\fR
+textutil::wcswidth
+.RE
 chat
 .RS
 .TP
@@ -4072,6 +4084,12 @@ domain name service
 .TP
 \fBfiles/modules/dns/tcllib_dns\&.n\fR
 dns
+.RE
+double-wide character
+.RS
+.TP
+\fBfiles/modules/textutil/wcswidth\&.n\fR
+textutil::wcswidth
 .RE
 e
 .RS
@@ -8227,6 +8245,9 @@ textutil::string
 .TP
 \fBfiles/modules/textutil/trim\&.n\fR
 textutil::trim
+.TP
+\fBfiles/modules/textutil/wcswidth\&.n\fR
+textutil::wcswidth
 .RE
 prime
 .RS
@@ -8908,6 +8929,9 @@ textutil::split
 .TP
 \fBfiles/modules/textutil/trim\&.n\fR
 textutil::trim
+.TP
+\fBfiles/modules/textutil/wcswidth\&.n\fR
+textutil::wcswidth
 .RE
 regular grammar
 .RS
@@ -10138,6 +10162,9 @@ textutil::tabify
 .TP
 \fBfiles/modules/textutil/trim\&.n\fR
 textutil::trim
+.TP
+\fBfiles/modules/textutil/wcswidth\&.n\fR
+textutil::wcswidth
 .RE
 stringprep
 .RS

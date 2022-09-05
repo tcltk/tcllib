@@ -803,6 +803,8 @@
 
   - [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
 
+  - [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
+
   - [throw](tcllib/files/modules/try/tcllib\_throw\.md) throw \- Throw an error exception with a message
 
   - [tie](tcllib/files/modules/tie/tie\_std\.md) Array persistence, standard data sources

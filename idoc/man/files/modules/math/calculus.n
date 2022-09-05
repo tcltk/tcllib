@@ -310,6 +310,14 @@ package require \fBmath::calculus  0\&.8\&.2\fR
 .sp
 \fB::math::calculus::regula_falsi\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
 .sp
+\fB::math::calculus::root_bisection\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+.sp
+\fB::math::calculus::root_secant\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+.sp
+\fB::math::calculus::root_brent\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+.sp
+\fB::math::calculus::root_chandrupatla\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -638,6 +646,100 @@ End of the interval
 float \fIeps\fR
 Relative allowed error (defaults to 1\&.0e-4)
 .RE
+.TP
+\fB::math::calculus::root_bisection\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]\&. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger\&.
+.sp
+The method used is the so-called \fIbisection\fR\&. For properties: see the \fIregula falsi\fR procedure\&.
+.RS
+.TP
+command \fIf\fR
+Name of the command that evaluates the function for
+which the zero is to be returned
+.TP
+float \fIxb\fR
+Start of the interval in which the zero is supposed
+to lie
+.TP
+float \fIxe\fR
+End of the interval
+.TP
+float \fIeps\fR
+Relative allowed error (defaults to 1\&.0e-7)
+.RE
+.TP
+\fB::math::calculus::root_secant\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]\&. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger\&.
+.sp
+The method used is the so-called \fIsecant\fR method\&. For properties: see the \fIregula falsi\fR procedure\&.
+Note that this method is not guaranteed to produce a zero, but it is fast\&.
+.RS
+.TP
+command \fIf\fR
+Name of the command that evaluates the function for
+which the zero is to be returned
+.TP
+float \fIxb\fR
+Start of the interval in which the zero is supposed
+to lie
+.TP
+float \fIxe\fR
+End of the interval
+.TP
+float \fIeps\fR
+Relative allowed error (defaults to 1\&.0e-7)
+.RE
+.TP
+\fB::math::calculus::root_brent\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]\&. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger\&.
+.sp
+The method used is the so-called \fIBrent\fR method\&. For properties: see the \fIregula falsi\fR procedure\&.
+.RS
+.TP
+command \fIf\fR
+Name of the command that evaluates the function for
+which the zero is to be returned
+.TP
+float \fIxb\fR
+Start of the interval in which the zero is supposed
+to lie
+.TP
+float \fIxe\fR
+End of the interval
+.TP
+float \fIeps\fR
+Relative allowed error (defaults to 1\&.0e-7)
+.RE
+.TP
+\fB::math::calculus::root_chandrupatla\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]\&. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger\&.
+.sp
+The method used is the so-called \fIChandrupatla\fR method\&. It is a variant of the Brent method and
+is reputed to be faster\&. See \fIhttps://www\&.embeddedrelated\&.com/showarticle/855\&.php\fR for a discussion\&.
+.RS
+.TP
+command \fIf\fR
+Name of the command that evaluates the function for
+which the zero is to be returned
+.TP
+float \fIxb\fR
+Start of the interval in which the zero is supposed
+to lie
+.TP
+float \fIxe\fR
+End of the interval
+.TP
+float \fIeps\fR
+Relative allowed error (defaults to 1\&.0e-7)
+.RE
 .PP
 .PP
 \fINotes:\fR
@@ -681,6 +783,11 @@ Other types of boundary conditions (zero gradient, zero flux)
 .IP \(bu
 Other schematisation of the first-order term (now central
 differences are used, but upstream differences might be useful too)\&.
+.IP \(bu
+The various root finding methods differ in robustness, ease of use and convergence rates\&. While the Newton-Raphson
+method is quite fast (quadratic convergence), it is not guaranteed to produce an answer\&. The methods
+that bracket the root, require two starting points, but except for the secant method are guaranteed to
+deliver a good estimate\&.
 .PP
 .SH EXAMPLES
 Let us take a few simple examples:

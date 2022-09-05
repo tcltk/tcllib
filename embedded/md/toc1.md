@@ -939,6 +939,8 @@
 
           + [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
 
+          + [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
+
       * [tie]()
 
           + [tie](tcllib/files/modules/tie/tie\.md) Array persistence

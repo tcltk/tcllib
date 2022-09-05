@@ -1473,6 +1473,9 @@ tcllib
 \fBtextutil::trim\fR
 \fIfiles/modules/textutil/trim\&.n\fR: Procedures to trim strings
 .TP
+\fBtextutil::wcswidth\fR
+\fIfiles/modules/textutil/wcswidth\&.n\fR: Procedures to compute terminal width of strings
+.TP
 \fBthrow\fR
 \fIfiles/modules/try/tcllib_throw\&.n\fR: throw - Throw an error exception with a message
 .TP
