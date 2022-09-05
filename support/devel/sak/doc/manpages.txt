@@ -327,7 +327,6 @@ modules/struct/graph.man
 modules/struct/graph1.man
 modules/struct/graphops.man
 modules/struct/matrix.man
-modules/struct/matrix1.man
 modules/struct/pool.man
 modules/struct/prioqueue.man
 modules/struct/queue.man
@@ -365,6 +364,7 @@ modules/textutil/textutil.man
 modules/textutil/textutil_split.man
 modules/textutil/textutil_string.man
 modules/textutil/trim.man
+modules/textutil/wcswidth.man
 modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man

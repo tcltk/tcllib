@@ -1,4 +1,5 @@
-[manpage_begin textutil::wcswidth n 35.1]
+[vset VERSION 35.2]
+[manpage_begin textutil::wcswidth n [vset VERSION]]
 [see_also regexp(n)]
 [see_also split(n)]
 [see_also string(n)]
@@ -10,7 +11,7 @@
 [titledesc {Procedures to compute terminal width of strings}]
 [category  {Text processing}]
 [require Tcl 8.5]
-[require textutil::wcswidth [opt 35.1]]
+[require textutil::wcswidth [opt [vset VERSION]]]
 [description]
 
 The package [package textutil::wcswidth] provides commands that determine character type and width

@@ -5,7 +5,7 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2001, 2019 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001, 2019, 2022 by Andreas Kupries <andreas.kupries@gmail.com>
 # All rights reserved.
 
 # -------------------------------------------------------------------------
@@ -30,6 +30,8 @@ support {
     if {![llength [info commands ::tcl::chan::memchan]]} {
 	use virtchannel_base/memchan.tcl tcl::chan::memchan
     }
+
+    use textutil/wcswidth.tcl textutil::wcswidth
 
     useLocalFile matrix.testsupport
 }
@@ -2132,7 +2134,7 @@ test matrix-15.2 {serialization, submatrix} {
     # {2 2 {{g b} {02 01}}}
 } ok
 
-# ---------------------------------------------------  
+# ---------------------------------------------------
 
 test matrix-16.0 {deserialization, wrong #args} {
     matrix mymatrix
@@ -2253,7 +2255,7 @@ test matrix-16.10 {deserialization} {
     set result
 } {dim/row-mismatch dim/row-mismatch ok dim/row-mismatch dim/row-mismatch ok}
 
-# ---------------------------------------------------  
+# ---------------------------------------------------
 
 test matrix-17.1 {matrix assignment} {
     matrix mymatrix
@@ -2279,7 +2281,7 @@ test matrix-17.2 {matrix assignment} {
     set result
 } {dim/row-mismatch ok}
 
-# ---------------------------------------------------  
+# ---------------------------------------------------
 
 test matrix-18.1 {reverse matrix assignment} {
     matrix mymatrix
@@ -2306,7 +2308,7 @@ test matrix-18.2 {reverse matrix assignment} {
     set result
 } {dim/row-mismatch ok}
 
-# ---------------------------------------------------  
+# ---------------------------------------------------
 
 test matrix-19.1 {copy construction, wrong # args} {
     catch {matrix mymatrix = a b} result
@@ -2354,4 +2356,3 @@ test matrix-19.4 {copy construction, matrix} {
 # recalculation.
 
 testsuiteCleanup
-

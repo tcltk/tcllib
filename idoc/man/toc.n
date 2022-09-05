@@ -1239,9 +1239,6 @@ tcllib
 \fBstruct::matrix\fR
 \fIfiles/modules/struct/matrix\&.n\fR: Create and manipulate matrix objects
 .TP
-\fBstruct::matrix_v1\fR
-\fIfiles/modules/struct/matrix1\&.n\fR: Create and manipulate matrix objects
-.TP
 \fBstruct::pool\fR
 \fIfiles/modules/struct/pool\&.n\fR: Create and manipulate pool objects (of discrete items)
 .TP

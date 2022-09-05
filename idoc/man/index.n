@@ -6707,9 +6707,6 @@ report
 \fBfiles/modules/struct/matrix\&.n\fR
 struct::matrix
 .TP
-\fBfiles/modules/struct/matrix1\&.n\fR
-struct::matrix_v1
-.TP
 \fBfiles/modules/struct/queue\&.n\fR
 struct::queue
 .TP

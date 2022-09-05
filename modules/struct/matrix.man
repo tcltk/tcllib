@@ -1,12 +1,12 @@
-[vset VERSION 2.0.4]
+[vset VERSION 2.1]
 [comment {-*- tcl -*-}]
 [manpage_begin struct::matrix n [vset VERSION]]
 [keywords matrix]
-[copyright {2002-2013,2019 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2002-2013,2019,2022 Andreas Kupries <andreas.kupries@gmail.com>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate matrix objects}]
 [category  {Data structures}]
-[require Tcl 8.2]
+[require Tcl 8.5]
 [require struct::matrix [opt [vset VERSION]]]
 [description]
 [para]
@@ -183,6 +183,11 @@ computation.
 [para][emph Note:] The command recognizes ANSI color control sequences
 and excludes them from the width of a line, as they are logically of
 zero width.
+
+[para][emph Note:] The command properly recognizes and accounts for Asian double-wide characters.
+
+[para][emph {In other words}], the returned length is the number of terminal columns taken by the
+string, and not the number of characters.
 
 [call [arg matrixName] [method {delete column}] [arg column]]
 
