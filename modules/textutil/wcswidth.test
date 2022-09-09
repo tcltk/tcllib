@@ -36,11 +36,11 @@ test wcswidth-2.1 {wcswidth, wide characters} -body {
 
 test wcswidth_char-1.0 {wcswidth_char, wrong # args} -body {
     textutil::wcswidth_char
-} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_char char"}
+} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_char c"}
 
 test wcswidth_char-1.1 {wcswidth_char, wrong # args} -body {
     textutil::wcswidth_char a b
-} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_char char"}
+} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_char c"}
 
 test wcswidth_char-2.0 {wcswidth_char, ASCII} -setup {
     scan h %c char
@@ -62,11 +62,11 @@ test wcswidth_char-2.1 {wcswidth_char, ASCII} -setup {
 
 test wcswidth_type-1.0 {wcswidth_type, wrong # args} -body {
     textutil::wcswidth_type
-} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_type char"}
+} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_type c"}
 
 test wcswidth_type-1.1 {wcswidth_type, wrong # args} -body {
     textutil::wcswidth_type a b
-} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_type char"}
+} -returnCodes error -result {wrong # args: should be "textutil::wcswidth_type c"}
 
 test wcswidth_type-2.0 {wcswidth_type, ASCII} -setup {
     scan h %c char
