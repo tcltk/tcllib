@@ -1027,6 +1027,7 @@ proc ::math::bigfloat::fromstr {number {addzeros 0}} {
         # trim the number with left-side 0's
         set found [string length $expsign]
         set exp $expsign[string trimleft [string range $exp $found end] 0]
+	if {$exp eq $expsign} { set exp ${expsign}0 }
         set mantissa [lindex $tab 0]
     } else {
         set exp 0
@@ -2220,4 +2221,4 @@ namespace eval ::math::bigfloat {
 # (AM) No "namespace import" - this should be left to the user!
 #namespace import ::math::bigfloat::*
 
-package provide math::bigfloat 2.0.3
+package provide math::bigfloat 2.0.4
