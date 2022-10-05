@@ -123,6 +123,14 @@ proc testSuite {} {
     }
     unset k
 
+    test bigfloat2-fromstr-5.0 {fromstr zero exponent} {
+	fromstr 1.0e0
+    } {F 524288 -19 52430}
+
+    test bigfloat2-fromstr-6.0 {fromstr zero exponent} {
+	tostr [fromstr 1.0e0]
+    } 1.
+
     ################################################################################
     # fromdouble with precision
     ################################################################################
