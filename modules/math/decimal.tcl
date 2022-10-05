@@ -207,7 +207,7 @@ proc ::math::decimal::+ {a b {rescale 1}} {
         set er $ea
     }
     if { $sa == $sb } {
-	# Both are either postive or negative
+	# Both are either positive or negative
 	# Sign remains the same.
 	set mr [expr {$ma + $mb}]
 	set sr $sa

@@ -110,7 +110,8 @@ The package defines the following auxiliary procedures:
 
   - <a name='1'></a>__::simulation::montecarlo::getOption__ *keyword*
 
-    Get the value of an option given as part of the *singeExperiment* command\.
+    Get the value of an option given as part of the *singleExperiment*
+    command\.
 
       * string *keyword*
 

@@ -362,7 +362,7 @@ a statistical distribution with "fat" tails\&.
 The package defines the following auxiliary procedures:
 .TP
 \fB::simulation::montecarlo::getOption\fR \fIkeyword\fR
-Get the value of an option given as part of the \fIsingeExperiment\fR command\&.
+Get the value of an option given as part of the \fIsingleExperiment\fR command\&.
 .RS
 .TP
 string \fIkeyword\fR

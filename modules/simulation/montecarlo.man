@@ -79,7 +79,7 @@ The package defines the following auxiliary procedures:
 
 [call [cmd ::simulation::montecarlo::getOption] [arg keyword]]
 
-Get the value of an option given as part of the [term singeExperiment] command.
+Get the value of an option given as part of the [term singleExperiment] command.
 
 [list_begin arguments]
 [arg_def string keyword] Given keyword (without leading minus)
