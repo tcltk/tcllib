@@ -604,8 +604,11 @@ proc useTcllibC {} {
 	if {![catch {
 	    package require tcllibc
 	}]} {
-	    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
-	    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
+	    set v [package present tcllibc]
+	    set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
+
+	    puts "$::tcllib::testutils::tag E tcllibc $v"
+	    puts "$::tcllib::testutils::tag E tcllibc = $c"
 	    return 1
 	}
 
@@ -618,8 +621,12 @@ proc useTcllibC {} {
 
     package require tcllibc
 
-    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
-    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
+    set v [package present tcllibc]
+    set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
+
+    puts "$::tcllib::testutils::tag I tcllibc $v"
+    puts "$::tcllib::testutils::tag I tcllibc = $c"
+
     return 1
 }
 
