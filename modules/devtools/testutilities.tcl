@@ -619,15 +619,19 @@ proc useTcllibC {} {
     uplevel #0 [list source $index]
     unset ::dir
 
-    package require tcllibc
+    if {![catch {
+	package require tcllibc
+    }]} {
+	set v [package present tcllibc]
+	set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
 
-    set v [package present tcllibc]
-    set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
+	puts "$::tcllib::testutils::tag I tcllibc $v"
+	puts "$::tcllib::testutils::tag I tcllibc = $c"
+	return 1
+    }
 
-    puts "$::tcllib::testutils::tag I tcllibc $v"
-    puts "$::tcllib::testutils::tag I tcllibc = $c"
-
-    return 1
+    puts "$::tcllib::testutils::tag - tcllibc n/a"
+    return 0
 }
 
 # ### ### ### ######### ######### #########
