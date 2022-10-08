@@ -1,5 +1,6 @@
+[vset VERSION 0.6]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::slippy n 0.5]
+[manpage_begin map::slippy n [vset VERSION]]
 [keywords geodesy]
 [keywords geography]
 [keywords latitute]
@@ -10,9 +11,8 @@
 [keywords zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Common code for slippy based map packages}]
-[require Tcl 8.4]
-[require Tk 8.4]
-[require map::slippy [opt 0.5]]
+[require Tcl 8.6]
+[require map::slippy [opt [vset VERSION]]]
 [description]
 
 This package provides a number of methods doing things needed by all

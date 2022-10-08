@@ -1,7 +1,7 @@
 
 [//000000001]: # (map::slippy::fetcher \- Mapping utilities)
 [//000000002]: # (Generated from file 'map\_slippy\_fetcher\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (map::slippy::fetcher\(n\) 0\.4 tcllib "Mapping utilities")
+[//000000003]: # (map::slippy::fetcher\(n\) 0\.5 tcllib "Mapping utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,11 +32,10 @@ map::slippy::fetcher \- Accessing a server providing tiles for slippy\-based map
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require Tk 8\.4  
-package require img::png  
+package require Tcl 8\.6  
+package require Tk 8\.6  
 package require map::slippy  
-package require map::slippy::fetcher ?0\.4?  
+package require map::slippy::fetcher ?0\.5?  
 
 [__::map::slippy::fetcher__ *fetcherName* *levels* *url*](#1)  
 [*fetcherName* __levels__](#2)  

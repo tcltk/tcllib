@@ -1,221 +1,219 @@
 ## -*- tcl -*-
 # ### ### ### ######### ######### #########
-
-## Common information for slippy based maps. I.e. tile size,
-## relationship between zoom level and map size, etc.
-
-## See http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Pseudo-Code
+##
+## Common information for slippy based maps. I.e. tile size, relationship between zoom level and map
+## size, etc.
+##
+## See
+##	http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Pseudo-Code
+##
 ## for the coordinate conversions and other information.
 
-# ### ### ### ######### ######### #########
-## Requisites
+#
+# Management code for switching between Tcl and C accelerated implementations.
+#
+# @mdgen EXCLUDE: map_slippy_c.tcl
+#
 
-package require Tcl 8.4
-package require snit
-package require math::constants
+package require Tcl 8.6
+namespace eval ::map::slippy {}
 
 # ### ### ### ######### ######### #########
-## Implementation
+## Management of map::slippy std implementations.
+
+# ::map::slippy::LoadAccelerator --
+#
+#	Loads a named implementation, if possible.
+#
+# Arguments:
+#	key	Name of the implementation to load.
+#
+# Results:
+#	A boolean flag. True if the implementation was successfully loaded; and False otherwise.
+
+proc ::map::slippy::LoadAccelerator {key} {
+    variable accel
+    set isok 0
+    switch -exact -- $key {
+	critcl {
+	    # Critcl implementation of map::slippy requires Tcl 8.6.
+	    if {![package vsatisfies [package provide Tcl] 8.6]} {return 0}
+	    if {[catch {package require tcllibc}]} { return 0 }
+	    set isok [llength [info commands ::map::slippy::critcl_tiles]]
+	}
+	tcl {
+	    variable selfdir
+	    if {[catch {source [file join $selfdir map_slippy_tcl.tcl]}]} {return 0}
+	    set isok [llength [info commands ::map::slippy::tcl_tiles]]
+	}
+        default {
+            return -code error "invalid accelerator $key:\
+                must be one of [join [KnownImplementations] {, }]"
+        }
+    }
+    set accel($key) $isok
+    return $isok
+}
+
+# ::map::slippy::SwitchTo --
+#
+#	Activates a loaded named implementation.
+#
+# Arguments:
+#	key	Name of the implementation to activate.
+#
+# Results:
+#	None.
+
+proc ::map::slippy::SwitchTo {key} {
+    variable accel
+    variable loaded
+
+    if {$key eq $loaded} {
+	# No change, nothing to do.
+	return
+    } elseif {$key ne {}} {
+	# Validate the target implementation of the switch.
+
+	if {![info exists accel($key)]} {
+	    return -code error "Unable to activate unknown implementation \"$key\""
+	} elseif {![info exists accel($key)] || !$accel($key)} {
+	    return -code error "Unable to activate missing implementation \"$key\""
+	}
+    }
+
+    # Deactivate the previous implementation, if there was any.
+
+    set cmdmap {
+        fit_geobox  fit::geobox
+        geo_2point  geo::2point
+        geo_2points geo::2points
+        geo_2tile   geo::2tile
+        geo_2tilef  geo::2tile.float
+        length      length
+        point_2geo  point::2geo
+        point_2tile point::2tile
+        tile_2geo   tile::2geo
+        tile_2point tile::2point
+        tile_size   tile::size
+        tile_valid  tile::valid
+        tiles       tiles
+    }
+
+    if {$loaded ne {}} {
+	foreach {origin c} $cmdmap {
+	    rename ::map::slippy::$c ::map::slippy::${loaded}_$origin
+	}
+    }
+
+    # Activate the new implementation, if there is any.
+
+    if {$key ne {}} {
+	foreach {origin c} $cmdmap {
+	    rename ::map::slippy::${key}_$origin ::map::slippy::$c
+	}
+    }
+
+    # Remember the active implementation, for deactivation by future switches.
+
+    set loaded $key
+    return
+}
+
+# ::map::slippy::Implementations --
+#
+#	Determines which implementations are present, i.e. loaded.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	A list of implementation keys.
+
+proc ::map::slippy::Implementations {} {
+    variable accel
+    set res {}
+    foreach n [array names accel] {
+	if {!$accel($n)} continue
+	lappend res $n
+    }
+    return $res
+}
+
+# ::map::slippy::KnownImplementations --
+#
+#	Determines which implementations are known as possible implementations.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	A list of implementation keys. In the order of preference, most prefered first.
+
+proc ::map::slippy::KnownImplementations {} {
+    return {critcl tcl}
+}
+
+proc ::map::slippy::Names {} {
+    return {
+	critcl {tcllibc based}
+	tcl    {pure Tcl}
+    }
+}
+
+# ### ### ### ######### ######### #########
+## Initialization: Data structures.
 
 namespace eval ::map::slippy {
-    math::constants::constants pi radtodeg degtorad
+    variable  selfdir [file dirname [info script]]
+    variable  loaded  {}
+
+    variable  accel
+    array set accel {tcl 0 critcl 0}
 }
 
-snit::type map::slippy {
-    # ### ### ### ######### ######### #########
-    ## API
+# ### ### ### ######### ######### #########
+## Initialization. Ensemble
 
-    typemethod length {level} {
-	return [expr {$ourtilesize * [tiles $level]}]
-    }
-
-    typemethod tiles {level} {
-	return [tiles $level]
-    }
-
-    typemethod {tile size} {} {
-	return $ourtilesize
-    }
-
-    typemethod {tile valid} {tile levels {msgv {}}} {
-	if {$msgv ne ""} { upvar 1 $msgv msg }
-
-	# Bad syntax.
-
-	if {[llength $tile] != 3} {
-	    set msg "Bad tile <[join $tile ,]>, expected 3 elements (zoom, row, col)"
-	    return 0
-	}
-
-	foreach {z r c} $tile break
-
-	# Requests outside of the valid ranges are rejected
-	# immediately, without even going to the filesystem or
-	# provider.
-
-	if {($z < 0) || ($z >= $levels)} {
-	    set msg "Bad zoom level '$z' (max: $levels)"
-	    return 0
-	}
-
-	set tiles [tiles $z]
-	if {($r < 0) || ($r >= $tiles) ||
-	    ($c < 0) || ($c >= $tiles)
-	} {
-	    set msg "Bad cell '$r $c' (max: $tiles)"
-	    return 0
-	}
-
-	return 1
-    }
-
-    # Coordinate conversions.
-    # geo   = zoom, latitude, longitude
-    # tile  = zoom, row,      column
-    # point = zoom, y,        x
-
-    typemethod {geo 2tile} {geo} {
-	::variable degtorad
-	::variable pi
-	foreach {zoom lat lon} $geo break 
-	# lat, lon are in degrees.
-	# The missing sec() function is computed using the 1/cos equivalency.
-	set tiles  [tiles $zoom]
-	set latrad [expr {$degtorad * $lat}]
-	set row    [expr {int((1 - (log(tan($latrad) + 1.0/cos($latrad)) / $pi)) / 2 * $tiles)}]
-	set col    [expr {int((($lon + 180.0) / 360.0) * $tiles)}]
-	return [list $zoom $row $col]
-    }
-
-    typemethod {geo 2tile.float} {geo} {
-	::variable degtorad
-	::variable pi
-	foreach {zoom lat lon} $geo break 
-	# lat, lon are in degrees.
-	# The missing sec() function is computed using the 1/cos equivalency.
-	set tiles  [tiles $zoom]
-	set latrad [expr {$degtorad * $lat}]
-	set row    [expr {(1 - (log(tan($latrad) + 1.0/cos($latrad)) / $pi)) / 2 * $tiles}]
-	set col    [expr {(($lon + 180.0) / 360.0) * $tiles}]
-	return [list $zoom $row $col]
-    }
-
-    typemethod {geo 2point} {geo} {
-	::variable degtorad
-	::variable pi
-	foreach {zoom lat lon} $geo break 
-	# Essence: [geo 2tile $geo] * $ourtilesize, with 'geo 2tile' inlined.
-	set tiles  [tiles $zoom]
-	set latrad [expr {$degtorad * $lat}]
-	set y      [expr {$ourtilesize * ((1 - (log(tan($latrad) + 1.0/cos($latrad)) / $pi)) / 2 * $tiles)}]
-	set x      [expr {$ourtilesize * ((($lon + 180.0) / 360.0) * $tiles)}]
-	return [list $zoom $y $x]
-    }
-
-    typemethod {tile 2geo} {tile} {
-	::variable radtodeg
-	::variable pi
-	foreach {zoom row col} $tile break
-	# Note: For integer row/col the geo location is for the upper
-	#       left corner of the tile. To get the geo location of
-	#       the center simply add 0.5 to the row/col values.
-	set tiles [tiles $zoom]
-	set lat   [expr {$radtodeg * (atan(sinh($pi * (1 - 2 * $row / double($tiles)))))}]
-	set lon   [expr {$col / double($tiles) * 360.0 - 180.0}]
-	return [list $zoom $lat $lon]
-    }
-
-    typemethod {tile 2point} {tile} {
-	foreach {zoom row col} $tile break
-	# Note: For integer row/col the pixel location is for the
-	#       upper left corner of the tile. To get the pixel
-	#       location of the center simply add 0.5 to the row/col
-	#       values.
-	#set tiles [tiles $zoom]
-	set y     [expr {$ourtilesize * $row}]
-	set x     [expr {$ourtilesize * $col}]
-	return [list $zoom $y $x]
-    }
-
-    typemethod {point 2geo} {point} {
-	::variable radtodeg
-	::variable pi
-	foreach {zoom y x} $point break
-	set length [expr {$ourtilesize * [tiles $zoom]}]
-	set lat    [expr {$radtodeg * (atan(sinh($pi * (1 - 2 * double($y) / $length))))}]
-	set lon    [expr {double($x) / $length * 360.0 - 180.0}]
-	return [list $zoom $lat $lon]
-    }
-
-    typemethod {point 2tile} {point} {
-	foreach {zoom y x} $point break
-	#set tiles [tiles $zoom]
-	set row   [expr {double($y) / $ourtilesize}]
-	set col   [expr {double($x) / $ourtilesize}]
-	return [list $zoom $row $col]
-    }
-
-    typemethod {fit geobox} {canvdim geobox zmin zmax} {
-        foreach {canvw canvh} $canvdim break
-        foreach {lat0 lat1 lon0 lon1} $geobox break
-
-        # NOTE we assume ourtilesize == [map::slippy length 0].
-        #      Further, we assume that each zoom step "grows" the
-        #      linear resolution by 2 (that's the log(2) down there)
-        set canvw [expr {abs($canvw)}]
-        set canvh [expr {abs($canvh)}]
-        set z [expr {int(log(min( \
-                    ($canvh/$ourtilesize) / (abs($lat1 - $lat0)/180), \
-                    ($canvw/$ourtilesize) / (abs($lon1 - $lon0)/360))) \
-                 / log(2))}]
-        # clamp $z
-        set z [expr {($z<$zmin) ? $zmin : (($z>$zmax) ? $zmax : $z)}]
-        # Now $zoom is an approximation, since the scale factor isn't uniform
-        # across the map (the vertical dimension depends on latitude). So we have
-        # to refine iteratively (I expect it to take just one step):
-        while {1} {
-            # Now we can run "uphill", then there's z0 = z - 1 and "downhill",
-            # then there's z1 = z + 1 (from the last iteration)
-            #puts "try zoom $z"
-            foreach {_ y0 x0} [map::slippy geo 2point [list $z $lat0 $lon0]] break
-            foreach {_ y1 x1} [map::slippy geo 2point [list $z $lat1 $lon1]] break
-            set w [expr {abs($x1 - $x0)}]
-            set h [expr {abs($y1 - $y0)}]
-            if { $w > $canvw ||  $h > $canvh } {
-                # too big: shrink
-                #puts "too big: shrink..."
-                if { [info exists z0] } break; # but not if we come "from below"
-                if {$z <= $zmin} break; # can't be < $zmin
-                set z1 $z
-                incr z -1
-            } else {
-                # fits: grow
-                #puts "fits: grow..."
-                if { [info exists z1] } break; # but not if we come "from above"
-                set z0 $z
-                incr z
-            }
-        }
-        if { [info exists z0] } { return $z0 }
-        return $z
-    }
-
-    proc tiles {level} {
-	return [expr {1 << $level}]
-    }
-
-    # ### ### ### ######### ######### #########
-    ## Internal commands
-
-    # ### ### ### ######### ######### #########
-    ## State
-
-    typevariable ourtilesize 256 ; # Size of slippy tiles <pixels>
-
-    # ### ### ### ######### ######### #########
+namespace eval ::map {
+    namespace export slippy
+    namespace ensemble create
 }
+namespace eval ::map::slippy {
+    namespace export fit geo length point tile tiles
+    namespace ensemble create
+}
+namespace eval ::map::slippy::tile {
+    namespace export 2geo 2point size valid
+    namespace ensemble create
+}
+namespace eval ::map::slippy::geo {
+    namespace export 2point 2points 2tile 2tile.float
+    namespace ensemble create
+}
+namespace eval ::map::slippy::point {
+    namespace export 2geo 2tile
+    namespace ensemble create
+}
+namespace eval ::map::slippy::fit {
+    namespace export geobox
+    namespace ensemble create
+}
+
+# ### ### ### ######### ######### #########
+## Initialization: Choose an implementation, most prefered first.
+## Loads only one of the possible implementations and activates it.
+
+apply {{} {
+    foreach e [KnownImplementations] {
+	if {[LoadAccelerator $e]} {
+	    SwitchTo $e
+	    break
+	}
+    }
+} ::map::slippy}
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.5
+package provide map::slippy 0.6

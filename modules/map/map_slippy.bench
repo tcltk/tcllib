@@ -1,0 +1,96 @@
+# -*- tcl -*-
+# Tcl Benchmark File
+#
+# This file contains a number of benchmarks for the 'map' module.  This allow developers to
+# monitor/gauge/track package performance.
+#
+# (c) 2022 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+# We need at least version 8.6 for the package and thus the benchmarks.
+
+if {![package vsatisfies [package provide Tcl] 8.6]} {
+    return
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Setting up the environment ...
+
+package forget map::slippy
+catch {namespace delete ::map::slippy}
+
+set self  [file join [pwd] [file dirname [info script]]]
+set index [file join [file dirname $self] tcllibc pkgIndex.tcl]
+
+if {[file exists $index]} {
+    set ::dir [file dirname $index]
+    uplevel #0 [list source $index]
+    unset ::dir
+    package require tcllibc
+}
+
+source [file join $self map_slippy.tcl]
+
+# ### ### ### ######### ######### ######### ###########################
+## Benchmarks.
+
+map::slippy::SwitchTo {}
+foreach e [map::slippy::KnownImplementations] {
+    ::map::slippy::LoadAccelerator $e
+}
+
+foreach impl [map::slippy::Implementations] {
+    map::slippy::SwitchTo $impl
+
+    foreach n {0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18} {
+	bench -desc "Length/$impl $n" -body {
+	    map slippy length $n
+	}
+	bench -desc "Tiles/$impl $n" -body {
+	    map slippy tiles $n
+	}
+	bench -desc "Tile Size/$impl" -body {
+	    map slippy tile size
+	}
+
+	# geo 2xxx
+	for {set lat -70} {$lat <= 70} {incr lat 10} {
+	    for {set lon -180} {$lon <= 180} {incr lon 10} {
+		set p [list $n $lat $lon]
+
+		bench -desc "Geo2Tile/$impl $n $lat $lon" -body {
+		    map slippy geo 2tile $p
+		}
+		bench -desc "Geo2Tile.Float/$impl $n $lat $lon" -body {
+		    map slippy geo 2tile.float $p
+		}
+		bench -desc "Geo2Point/$impl $n $lat $lon" -body {
+		    map slippy geo 2point $p
+		}
+	    }
+	}
+
+	# point 2xxx
+	for {set y 10} {$y <= 90} {incr y 10} {
+	    for {set x 10} {$x <= 90} {incr x 10} {
+		set t [list $n $y $x]
+
+		bench -desc "Point2Tile/$impl $n $y $x" -body {
+		    map slippy point 2tile $t
+		}
+		bench -desc "Point2Geo/$impl $n $y $x" -body {
+		    map slippy point 2geo $t
+		}
+	    }
+	}
+
+	# geo 2points batch
+	bench -desc "Geo2Points/$impl $n" -pre {
+	    set p [list 0 20 20]
+	} -body {
+	    map slippy geo 2points $n $p
+	}
+    }
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Complete
