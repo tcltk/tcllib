@@ -1173,7 +1173,7 @@ proc ::websocket::Connected { opener sock token } {
     # Dig into the internals of the HTTP library for the socket if
     # none present as part of the arguments (ugly...)
     if { $sock eq "" } {
-	set sock [HTTPSocket $token]
+	set sock [HTTPSocket $token $opener]
 	if { $sock eq "" } {
 	    ${log}::warn "Cannot extract sock from HTTP token $token, aborting"
 	    return 0
@@ -1210,7 +1210,10 @@ proc ::websocket::Connected { opener sock token } {
 	# really can take over the socket and make sure the library
 	# will open A NEW socket, even towards the same host, at a
 	# later time.
-	if { [info vars ::http::socketmap] ne "" } {
+	if {[package vsatisfies [package require http] 2.10]} {
+	    # Production versions of http 2.10 process an upgrade request by
+	    # opening a new socket that is outside the (renamed) socketmap.
+	} elseif { [info vars ::http::socketmap] ne "" } {
 	    foreach k [array names ::http::socketmap] {
 		if { $::http::socketmap($k) eq $sock } {
 		    ${log}::debug "Removed socket $sock from internal state\
@@ -1221,7 +1224,7 @@ proc ::websocket::Connected { opener sock token } {
 	} else {
 	    ${log}::warn "Could not remove socket $sock from socket map, future\
                           connections to same host and port are likely not to\
-                          work"
+                          work.  Upgrade http to version 2.10."
 	}
 
 	# Takeover the socket to create a connection and mediate about
@@ -1293,7 +1296,7 @@ proc ::websocket::Timeout { opener token } {
     if { [info exists $opener] } {
 	upvar \#0 $opener OPEN
 	
-	set sock [HTTPSocket $token]
+	set sock [HTTPSocket $token $opener]
 	Push $sock timeout \
 	    "Timeout when connecting to $OPEN(url)" $OPEN(handler)
 	::http::reset $token "timeout";
@@ -1322,11 +1325,28 @@ proc ::websocket::Timeout { opener token } {
 #
 # Side Effects:
 #       None.
-proc ::websocket::HTTPSocket { token } {
+proc ::websocket::HTTPSocket { token opener } {
     variable log
 
     upvar \#0 $token htstate
-    if { [info exists htstate(sock)] } {
+    upvar \#0 $opener OPEN
+    set timeoutVal $OPEN(timeoutVal)
+
+    if {$timeoutVal < 1000} {
+        # This timeout value is used only here.  It is for socket creation
+        # including DNS lookup, which from http 2.10 are background events.
+        set timeoutVal 30000
+    }
+
+    if {     [info exists htstate(sock)]
+         && ([string range $htstate(sock) 0 16] eq {HTTP_PLACEHOLDER_})
+    } {
+        # sock is not opened synchronously.  DNS lookup etc are done in the
+        # background.
+        after $timeoutVal [list set ${token}(sock) $htstate(sock)]
+        vwait ${token}(sock)
+	return $htstate(sock)
+    } elseif {[info exists htstate(sock)]} {
 	return $htstate(sock)
     } else {
 	${log}::error "No socket associated to HTTP token $token!"
@@ -1426,6 +1446,7 @@ proc ::websocket::open { url handler args } {
     set OPEN(url) $url
     set OPEN(handler) $handler
     set OPEN(nonce) ""
+    set OPEN(timeoutVal) $timeout
 
     # Construct the WebSocket part of the header according to RFC6455.
     # The NONCE should be randomly chosen for each new connection
@@ -1461,7 +1482,7 @@ proc ::websocket::open { url handler args } {
 	unset $varname;    # Free opening context, we won't need it!
 	ThrowError "Error while opening WebSocket connection to $url: $token"
     } else {
-	set sock [HTTPSocket $token]
+	set sock [HTTPSocket $token $varname]
 	if { $sock ne "" } {
 	    # Create connection context.
 	    New $sock $handler
