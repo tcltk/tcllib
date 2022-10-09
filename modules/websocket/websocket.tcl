@@ -358,7 +358,7 @@ proc ::websocket::Type { opcode } {
 # Results:
 #       An empty list if the headers do not constitute a valid WebSocket opening
 #       handshake. Otherwise, a dictionary with keys 'key', 'version'
-#       and, optionally, 'protocols'.
+#       and a (possibly empty) list 'protocols'.
 #
 # Side Effects:
 #       None.
@@ -439,7 +439,9 @@ proc ::websocket::validate {hdrs} {
     if {![dict exists $res key]} {
 	ThrowError "No WebSocket key specified" HANDSHAKE KEY
     }
-
+    if {![dict exists $res protocols]} {
+        dict set res protocols [list]
+    }
     return $res
 }
 
