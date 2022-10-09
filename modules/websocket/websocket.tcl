@@ -120,8 +120,8 @@ proc ::websocket::Disconnect { sock } {
     if { $Connection(liveness) ne "" } {
 	after cancel $Connection(liveness)
     }
-    Push $sock disconnect "Disconnected from remote end"
     catch {::close $sock}
+    Push $sock disconnect "Disconnected from remote end"
     unset $varname
 }
 
