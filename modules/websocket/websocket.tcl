@@ -1456,7 +1456,7 @@ proc ::websocket::open { url handler args } {
     for { set i 0 } { $i < 4 } { incr i } {
         append OPEN(nonce) [binary format Iu [expr {int(rand()*4294967296)}]]
     }
-    set OPEN(nonce) [::base64::encode $OPEN(nonce)]
+    set OPEN(nonce) [::base64::encode -maxlen 0 $OPEN(nonce)]
     set HDR(Sec-WebSocket-Key) $OPEN(nonce)
     set HDR(Sec-WebSocket-Protocol) [join $protos ", "]
     set HDR(Sec-WebSocket-Version) $WS(ws_version)
@@ -1674,7 +1674,7 @@ proc ::websocket::configure { sock args } {
 proc ::websocket::sec-websocket-accept { key } {
     variable WS
     set sec ${key}$WS(ws_magic)
-    return [::base64::encode [sha1::sha1 -bin $sec]]
+    return [::base64::encode -maxlen 0 [sha1::sha1 -bin $sec]]
 }
 
 # ::websocket::SplitCommaSeparated -- Extract elements from comma-separated headers
