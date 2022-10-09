@@ -117,7 +117,7 @@ proc ::websocket::Disconnect { sock } {
     set varname [namespace current]::Connection_$sock
     upvar \#0 $varname Connection
 
-    if { $Connection(liveness) ne "" } {
+    if { [info exists Connection(liveness)] } {
 	after cancel $Connection(liveness)
     }
     catch {::close $sock}
@@ -304,10 +304,14 @@ proc ::websocket::Liveness { sock } {
     variable log
 
     set varname [namespace current]::Connection_$sock
+    if { ! [info exists $varname] } {
+	${log}::warn "$sock is not a WebSocket connection anymore"
+	ThrowError "$sock is not a WebSocket"
+    }
     upvar \#0 $varname Connection
 
     # Keep connection alive by issuing pings.
-    if { $Connection(liveness) ne "" } {
+    if { [info exists Connection(liveness)] } {
 	after cancel $Connection(liveness)
     }
     set when [expr {$Connection(-keepalive)*1000}]
