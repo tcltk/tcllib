@@ -1,4 +1,8 @@
-source websocket.tcl
+#!/bin/env tclsh
+# Example websocket server from anonymous user at
+# https://core.tcl-lang.org/tcllib/tktview?name=0dd2a66f08
+
+package require websocket
 
 ::websocket::loglevel debug
 
@@ -23,6 +27,7 @@ oo::class create WebSocketServer {
     
     method HandleRead {client_socket} { 
         chan configure $client_socket -translation crlf
+        set hdrs {}
         
         gets $client_socket line
         
@@ -66,3 +71,4 @@ oo::class create ServerExample {
 }
 
 ServerExample new 8080
+vwait forever

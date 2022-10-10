@@ -1,4 +1,8 @@
-source websocket.tcl
+#!/bin/env tclsh
+# Example websocket server from anonymous user at
+# https://core.tcl-lang.org/tcllib/tktview?name=0dd2a66f08
+
+package require websocket
 
 ::websocket::loglevel debug
 set srvSock [socket -server handleConnect 8080] 
@@ -8,7 +12,7 @@ set srvSock [socket -server handleConnect 8080]
 # 2. register callback 
 ::websocket::live $srvSock / wsLiveCB 
 
-# the usual tcl-tcp stuf (I don't (want to) use an http server package) 
+# the usual tcl-tcp stuff (I don't (want to) use an http server package) 
 
 proc handleConnect {client_socket IP_address port} {
     puts "handleConnect"
@@ -23,6 +27,7 @@ proc handleConnect {client_socket IP_address port} {
 proc handleRead {client_socket} { 
     global srvSock
     chan configure $client_socket -translation crlf
+    set hdrs {}
     
     gets $client_socket line
     
@@ -43,14 +48,16 @@ proc handleRead {client_socket} {
     puts "\n"
     
 
-    # once having groked the HTTP GET headers 
+    # Now have the HTTP GET headers 
     # 3. let's check valid 
     
     if {[::websocket::test $srvSock $client_socket / $hdrs]} { 
-        puts "Inconmming websocket connection received"
+        puts "Incoming websocket connection received"
         # 4. upgrade the socket 
         ::websocket::upgrade $client_socket 
         # from now the wsLiveCB will be called (not anymore handleRead). 
+    } else {
+        close $client_socket
     }
 }
 
