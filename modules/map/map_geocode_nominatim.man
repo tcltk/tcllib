@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::geocode::nominatim n 0.1]
+[vset VERSION 0.2]
+[manpage_begin map::geocode::nominatim n [vset VERSION]]
 [keywords geocoding]
 [keywords http]
 [keywords location]
@@ -9,12 +10,12 @@
 [keywords url]
 [moddesc   {Mapping utilities}]
 [titledesc {Resolving geographical names with a Nominatim service}]
-[require Tcl 8.5]
+[require Tcl 8.6]
 [require http]
 [require json]
 [require uri]
 [require snit]
-[require map::geocode::nominatim [opt 0.1]]
+[require map::geocode::nominatim [opt [vset VERSION]]]
 [description]
 
 This package provides a class for accessing geocoding services which implement

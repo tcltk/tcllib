@@ -1,17 +1,16 @@
 ## -*- tcl -*-
 # ### ### ### ######### ######### #########
 
-## A cache we put on top of a slippy fetcher, to satisfy requests for
-## tiles from the local filesystem first, if possible.
+## A cache we put on top of a slippy fetcher, to satisfy requests for tiles from the local
+## filesystem first, if possible.
 
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4     ; # No {*}-expansion :(, no ** either, nor lassign
-package require Tk          ; # image photo
+package require Tcl 8.6     ; #
+package require Tk  8.6     ; # image photo - Note: directly supports PNG format
 package require map::slippy ; # Slippy constants
 package require fileutil    ; # Testing paths
-package require img::png    ; # We write tile images using the PNG image file format.
 package require snit
 
 # ### ### ### ######### ######### #########
@@ -27,7 +26,7 @@ snit::type map::slippy::cache {
 	}
 	set mycachedir $cachedir
 	set myprovider $provider
-	set mylevels   [uplevel \#0 [linsert $myprovider end levels]]
+	set mylevels   [uplevel \#0 [list {*}$myprovider levels]]
 	return
     }
 
@@ -36,18 +35,18 @@ snit::type map::slippy::cache {
 
     method valid {tile {msgv {}}} {
 	if {$msgv ne ""} { upvar 1 $msgv msg }
-	return [map::slippy tile valid $tile $mylevels msg]
+	return [map slippy tile valid $tile $mylevels msg]
     }
 
     method exists {tile} {
-	if {![map::slippy tile valid $tile $mylevels msg]} {
+	if {![map slippy tile valid $tile $mylevels msg]} {
 	    return -code error $msg
 	}
 	return [file exists [FileOf $tile]]
     }
 
     method get {tile donecmd} {
-	if {![map::slippy tile valid $tile $mylevels msg]} {
+	if {![map slippy tile valid $tile $mylevels msg]} {
 	    return -code error $msg
 	}
 
@@ -57,7 +56,7 @@ snit::type map::slippy::cache {
 	set tilefile [FileOf $tile]
 	if {[file exists $tilefile]} {
 	    set tileimage [image create photo -file $tilefile]
-	    after 0 [linsert $donecmd end set $tile $tileimage]
+	    after 0 [list {*}$donecmd set $tile $tileimage]
 	    return
 	}
 
@@ -69,7 +68,7 @@ snit::type map::slippy::cache {
 	lappend mypending($tile) $donecmd
 	if {[llength $mypending($tile)] > 1} return
 
-	uplevel \#0 [linsert $myprovider end get $tile [mymethod Done]]
+	uplevel \#0 [list {*}$myprovider get $tile [mymethod Done]]
 	return
     }
 
@@ -95,7 +94,7 @@ snit::type map::slippy::cache {
 	set taken 0
 	foreach d $requests {
 	    if {![llength $d]} continue
-	    uplevel \#0 [linsert $d end set $tile $tileimage]
+	    uplevel \#0 [list {*}$d set $tile $tileimage]
 	    set taken 1
 	}
 
@@ -110,7 +109,7 @@ snit::type map::slippy::cache {
 	# the cache (it did not know the tile either), the result can
 	# be directly handed over to the original requestor.
 
-	uplevel \#0 [linsert $donecmd end unset $tile]
+	uplevel \#0 [list {*}$donecmd unset $tile]
 	return
     }
 
@@ -119,7 +118,7 @@ snit::type map::slippy::cache {
 
     proc FileOf {tile} {
 	upvar 1 mycachedir mycachedir
-	foreach {z r c} $tile break
+	lassign $tile z r c
 	return [file join $mycachedir $z $c $r.png]
     }
 
@@ -138,4 +137,4 @@ snit::type map::slippy::cache {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::cache 0.2
+package provide map::slippy::cache 0.3
