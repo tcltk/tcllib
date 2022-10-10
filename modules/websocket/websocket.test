@@ -69,12 +69,18 @@ proc wsStopSleep {val} {
 
 set wsNum 0
 
+# Set the test URL.
+# The value of expectNum, and some of the result strings, depend on the
+# server configuration and therefore on the URL.
+set wsUrl ws://ws.ifelse.io
+set expectNum 2
+
 test example-1.1 "Open a websocket" -constraints {} -setup {
     wsResetSleep
     wsResetHandler
 } -body {
-    wsExpectHandler 2
-    set ws1 [::websocket::open ws://ws.ifelse.io wsOutputHandler]
+    wsExpectHandler $expectNum
+    set ws1 [::websocket::open $wsUrl wsOutputHandler]
     wsSleep
     wsResetSleep
     wsSleep 1000
@@ -91,8 +97,8 @@ SOCKET text {Request served by *}
 test example-1.2 "Close a websocket" -constraints {} -setup {
     wsResetHandler
     wsResetSleep
-    wsExpectHandler 2
-    set ws1 [::websocket::open ws://ws.ifelse.io wsOutputHandler]
+    wsExpectHandler $expectNum
+    set ws1 [::websocket::open $wsUrl wsOutputHandler]
     wsSleep
     wsResetHandler
     wsResetSleep
@@ -112,14 +118,14 @@ SOCKET disconnect {Disconnected from remote end}
 test example-1.3 "Open second websocket - require different socket" -constraints {} -setup {
     wsResetSleep
     wsResetHandler
-    wsExpectHandler 2
-    set ws1 [::websocket::open ws://ws.ifelse.io wsOutputHandler]
+    wsExpectHandler $expectNum
+    set ws1 [::websocket::open $wsUrl wsOutputHandler]
     wsSleep
     wsResetSleep
     wsResetHandler
 } -body {
-    wsExpectHandler 2
-    set ws2 [::websocket::open ws://ws.ifelse.io wsOutputHandler]
+    wsExpectHandler $expectNum
+    set ws2 [::websocket::open $wsUrl wsOutputHandler]
     if {$ws1 eq $ws2} {
         set res "Both sockets are $ws1"
     } else {
@@ -135,14 +141,14 @@ test example-1.3 "Open second websocket - require different socket" -constraints
 test example-1.4 "Open second websocket - usual server return" -constraints {} -setup {
     wsResetSleep
     wsResetHandler
-    wsExpectHandler 2
-    set ws1 [::websocket::open ws://ws.ifelse.io wsOutputHandler]
+    wsExpectHandler $expectNum
+    set ws1 [::websocket::open $wsUrl wsOutputHandler]
     wsSleep
     wsResetSleep
     wsResetHandler
 } -body {
-    wsExpectHandler 2
-    set ws2 [::websocket::open ws://ws.ifelse.io wsOutputHandler]
+    wsExpectHandler $expectNum
+    set ws2 [::websocket::open $wsUrl wsOutputHandler]
     if {$ws1 eq $ws2} {
         return -code error "Both sockets are $ws1"
     }
@@ -162,8 +168,8 @@ SOCKET text {Request served by *}
 test example-2.1 "Send a message" -constraints {} -setup {
     wsResetHandler
     wsResetSleep
-    wsExpectHandler 2
-    set ws1 [::websocket::open ws://ws.ifelse.io wsOutputHandler]
+    wsExpectHandler $expectNum
+    set ws1 [::websocket::open $wsUrl wsOutputHandler]
     wsSleep
     wsResetHandler
     wsResetSleep
@@ -176,7 +182,7 @@ test example-2.1 "Send a message" -constraints {} -setup {
     wsSleep 1000
     string map [list $ws1 SOCKET <${wsNum}> NUMBER] $wsOutput
 } -cleanup {
-    wsExpectHandler 2
+    wsExpectHandler $expectNum
     ::websocket::close $ws1
     wsSleep
     wsResetSleep
@@ -185,7 +191,14 @@ test example-2.1 "Send a message" -constraints {} -setup {
 }
 
 testsuiteCleanup
-unset -nocomplain wsNum
+unset -nocomplain wsNum wsMsgCounter wsOutput wsMsgMax wsWAITER wsUrl expectNum ws1 ws2 newMessage
+foreach pr {
+    wsResetHandler wsExpectHandler wsOutputHandler
+    wsSleep wsResetSleep wsStopSleep
+} {
+    rename $pr {}
+}
+
 
 # Local variables:
 #   mode: tcl

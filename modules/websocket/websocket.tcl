@@ -117,11 +117,11 @@ proc ::websocket::Disconnect { sock } {
     set varname [namespace current]::Connection_$sock
     upvar \#0 $varname Connection
 
-    if { $Connection(liveness) ne "" } {
+    if { [info exists Connection(liveness)] } {
 	after cancel $Connection(liveness)
     }
-    Push $sock disconnect "Disconnected from remote end"
     catch {::close $sock}
+    Push $sock disconnect "Disconnected from remote end"
     unset $varname
 }
 
@@ -304,10 +304,14 @@ proc ::websocket::Liveness { sock } {
     variable log
 
     set varname [namespace current]::Connection_$sock
+    if { ! [info exists $varname] } {
+	${log}::warn "$sock is not a WebSocket connection anymore"
+	ThrowError "$sock is not a WebSocket"
+    }
     upvar \#0 $varname Connection
 
     # Keep connection alive by issuing pings.
-    if { $Connection(liveness) ne "" } {
+    if { [info exists Connection(liveness)] } {
 	after cancel $Connection(liveness)
     }
     set when [expr {$Connection(-keepalive)*1000}]
@@ -358,7 +362,7 @@ proc ::websocket::Type { opcode } {
 # Results:
 #       An empty list if the headers do not constitute a valid WebSocket opening
 #       handshake. Otherwise, a dictionary with keys 'key', 'version'
-#       and, optionally, 'protocols'.
+#       and a (possibly empty) list 'protocols'.
 #
 # Side Effects:
 #       None.
@@ -439,7 +443,9 @@ proc ::websocket::validate {hdrs} {
     if {![dict exists $res key]} {
 	ThrowError "No WebSocket key specified" HANDSHAKE KEY
     }
-
+    if {![dict exists $res protocols]} {
+        dict set res protocols [list]
+    }
     return $res
 }
 
@@ -1173,7 +1179,7 @@ proc ::websocket::Connected { opener sock token } {
     # Dig into the internals of the HTTP library for the socket if
     # none present as part of the arguments (ugly...)
     if { $sock eq "" } {
-	set sock [HTTPSocket $token]
+	set sock [HTTPSocket $token $opener]
 	if { $sock eq "" } {
 	    ${log}::warn "Cannot extract sock from HTTP token $token, aborting"
 	    return 0
@@ -1210,7 +1216,12 @@ proc ::websocket::Connected { opener sock token } {
 	# really can take over the socket and make sure the library
 	# will open A NEW socket, even towards the same host, at a
 	# later time.
-	if { [info vars ::http::socketmap] ne "" } {
+	if {[package vsatisfies [package require http] 2.9.8-]} {
+	    # Versions 2.9.8 of http and above, including production versions
+	    # of http 2.10 and development versions from 2022-06-20 or later,
+	    # process an upgrade request by opening a new socket
+	    # that is outside the (renamed) socketmap.
+	} elseif { [info vars ::http::socketmap] ne "" } {
 	    foreach k [array names ::http::socketmap] {
 		if { $::http::socketmap($k) eq $sock } {
 		    ${log}::debug "Removed socket $sock from internal state\
@@ -1221,7 +1232,7 @@ proc ::websocket::Connected { opener sock token } {
 	} else {
 	    ${log}::warn "Could not remove socket $sock from socket map, future\
                           connections to same host and port are likely not to\
-                          work"
+                          work.  Upgrade http to version 2.9.8 or 2.10."
 	}
 
 	# Takeover the socket to create a connection and mediate about
@@ -1236,6 +1247,7 @@ proc ::websocket::Connected { opener sock token } {
 	    $OPEN(handler)
     }
 
+    # Comment out this line when debugging the http connection.
     ::http::cleanup $token
     unset $opener;   # Always unset the temporary connection opening
 		     # array
@@ -1293,7 +1305,7 @@ proc ::websocket::Timeout { opener token } {
     if { [info exists $opener] } {
 	upvar \#0 $opener OPEN
 	
-	set sock [HTTPSocket $token]
+	set sock [HTTPSocket $token $opener]
 	Push $sock timeout \
 	    "Timeout when connecting to $OPEN(url)" $OPEN(handler)
 	::http::reset $token "timeout";
@@ -1322,11 +1334,28 @@ proc ::websocket::Timeout { opener token } {
 #
 # Side Effects:
 #       None.
-proc ::websocket::HTTPSocket { token } {
+proc ::websocket::HTTPSocket { token opener } {
     variable log
 
     upvar \#0 $token htstate
-    if { [info exists htstate(sock)] } {
+    upvar \#0 $opener OPEN
+    set timeoutVal $OPEN(timeoutVal)
+
+    if {$timeoutVal < 1000} {
+        # This timeout value is used only here.  It is for socket creation
+        # including DNS lookup, which from http 2.10 are background events.
+        set timeoutVal 30000
+    }
+
+    if {     [info exists htstate(sock)]
+         && ([string range $htstate(sock) 0 16] eq {HTTP_PLACEHOLDER_})
+    } {
+        # sock is not opened synchronously.  DNS lookup etc are done in the
+        # background.
+        after $timeoutVal [list set ${token}(sock) $htstate(sock)]
+        vwait ${token}(sock)
+	return $htstate(sock)
+    } elseif {[info exists htstate(sock)]} {
 	return $htstate(sock)
     } else {
 	${log}::error "No socket associated to HTTP token $token!"
@@ -1426,6 +1455,7 @@ proc ::websocket::open { url handler args } {
     set OPEN(url) $url
     set OPEN(handler) $handler
     set OPEN(nonce) ""
+    set OPEN(timeoutVal) $timeout
 
     # Construct the WebSocket part of the header according to RFC6455.
     # The NONCE should be randomly chosen for each new connection
@@ -1435,7 +1465,7 @@ proc ::websocket::open { url handler args } {
     for { set i 0 } { $i < 4 } { incr i } {
         append OPEN(nonce) [binary format Iu [expr {int(rand()*4294967296)}]]
     }
-    set OPEN(nonce) [::base64::encode $OPEN(nonce)]
+    set OPEN(nonce) [::base64::encode -maxlen 0 $OPEN(nonce)]
     set HDR(Sec-WebSocket-Key) $OPEN(nonce)
     set HDR(Sec-WebSocket-Protocol) [join $protos ", "]
     set HDR(Sec-WebSocket-Version) $WS(ws_version)
@@ -1461,7 +1491,7 @@ proc ::websocket::open { url handler args } {
 	unset $varname;    # Free opening context, we won't need it!
 	ThrowError "Error while opening WebSocket connection to $url: $token"
     } else {
-	set sock [HTTPSocket $token]
+	set sock [HTTPSocket $token $varname]
 	if { $sock ne "" } {
 	    # Create connection context.
 	    New $sock $handler
@@ -1653,7 +1683,7 @@ proc ::websocket::configure { sock args } {
 proc ::websocket::sec-websocket-accept { key } {
     variable WS
     set sec ${key}$WS(ws_magic)
-    return [::base64::encode [sha1::sha1 -bin $sec]]
+    return [::base64::encode -maxlen 0 [sha1::sha1 -bin $sec]]
 }
 
 # ::websocket::SplitCommaSeparated -- Extract elements from comma-separated headers
