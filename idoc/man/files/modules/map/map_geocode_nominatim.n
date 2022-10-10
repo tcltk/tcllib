@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'map_geocode_nominatim\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "map::geocode::nominatim" n 0\&.1 tcllib "Mapping utilities"
+.TH "map::geocode::nominatim" n 0\&.2 tcllib "Mapping utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 map::geocode::nominatim \- Resolving geographical names with a Nominatim service
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBhttp \fR
 .sp
@@ -283,7 +283,7 @@ package require \fBuri \fR
 .sp
 package require \fBsnit \fR
 .sp
-package require \fBmap::geocode::nominatim  ?0\&.1?\fR
+package require \fBmap::geocode::nominatim  ?0\&.2?\fR
 .sp
 \fB::map::geocode::nominatim\fR \fIrequestor\fR ?\fB-baseurl\fR \fIurl\fR? ?\fB-callback\fR \fIcallback\fR? ?\fB-error\fR \fIerror callback\fR?
 .sp
