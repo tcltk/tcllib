@@ -1216,9 +1216,11 @@ proc ::websocket::Connected { opener sock token } {
 	# really can take over the socket and make sure the library
 	# will open A NEW socket, even towards the same host, at a
 	# later time.
-	if {[package vsatisfies [package require http] 2.10]} {
-	    # Production versions of http 2.10 process an upgrade request by
-	    # opening a new socket that is outside the (renamed) socketmap.
+	if {[package vsatisfies [package require http] 2.9.8-]} {
+	    # Versions 2.9.8 of http and above, including production versions
+	    # of http 2.10 and development versions from 2022-06-20 or later,
+	    # process an upgrade request by opening a new socket
+	    # that is outside the (renamed) socketmap.
 	} elseif { [info vars ::http::socketmap] ne "" } {
 	    foreach k [array names ::http::socketmap] {
 		if { $::http::socketmap($k) eq $sock } {
@@ -1230,7 +1232,7 @@ proc ::websocket::Connected { opener sock token } {
 	} else {
 	    ${log}::warn "Could not remove socket $sock from socket map, future\
                           connections to same host and port are likely not to\
-                          work.  Upgrade http to version 2.10."
+                          work.  Upgrade http to version 2.9.8 or 2.10."
 	}
 
 	# Takeover the socket to create a connection and mediate about
@@ -1245,6 +1247,7 @@ proc ::websocket::Connected { opener sock token } {
 	    $OPEN(handler)
     }
 
+    # Comment out this line when debugging the http connection.
     ::http::cleanup $token
     unset $opener;   # Always unset the temporary connection opening
 		     # array
