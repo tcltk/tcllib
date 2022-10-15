@@ -82,23 +82,24 @@ proc ::map::slippy::SwitchTo {key} {
 	}
     }
 
-    # Deactivate the previous implementation, if there was any.
-
     set cmdmap {
-        fit_geobox  fit::geobox
-        geo_2point  geo::2point
-        geo_2points geo::2points
-        geo_2tile   geo::2tile
-        geo_2tilef  geo::2tile.float
-        length      length
-        point_2geo  point::2geo
-        point_2tile point::2tile
-        tile_2geo   tile::2geo
-        tile_2point tile::2point
-        tile_size   tile::size
-        tile_valid  tile::valid
-        tiles       tiles
+        fit_geobox   fit::geobox
+	geo_distance geo::distance
+        geo_2point   geo::2point
+        geo_2points  geo::2points
+        geo_2tile    geo::2tile
+        geo_2tilef   geo::2tile.float
+        length       length
+        point_2geo   point::2geo
+        point_2tile  point::2tile
+        tile_2geo    tile::2geo
+        tile_2point  tile::2point
+        tile_size    tile::size
+        tile_valid   tile::valid
+        tiles        tiles
     }
+
+    # Deactivate the previous implementation, if there was any.
 
     if {$loaded ne {}} {
 	foreach {origin c} $cmdmap {
@@ -188,7 +189,7 @@ namespace eval ::map::slippy::tile {
     namespace ensemble create
 }
 namespace eval ::map::slippy::geo {
-    namespace export 2point 2points 2tile 2tile.float
+    namespace export distance 2point 2points 2tile 2tile.float
     namespace ensemble create
 }
 namespace eval ::map::slippy::point {
@@ -216,4 +217,4 @@ apply {{} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.6
+package provide map::slippy 0.7

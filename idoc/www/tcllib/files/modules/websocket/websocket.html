@@ -219,17 +219,23 @@ the following</p>
 <dd><p>Complete binary message</p></dd>
 <dt><b class="const">ping</b></dt>
 <dd><p>Incoming ping message</p></dd>
+<dt><b class="const">pong</b></dt>
+<dd><p>Response to incoming ping message</p></dd>
 <dt><b class="const">connect</b></dt>
 <dd><p>Notification of successful connection to server</p></dd>
 <dt><b class="const">disconnect</b></dt>
 <dd><p>Disconnection from remote end</p></dd>
 <dt><b class="const">close</b></dt>
 <dd><p>Pending closure of connection</p></dd>
+<dt><b class="const">timeout</b></dt>
+<dd><p>Notification of connection timeout</p></dd>
+<dt><b class="const">error</b></dt>
+<dd><p>Notification of error condition</p></dd>
 </dl></dd>
 <dt><i class="arg">msg</i></dt>
 <dd><p>Will contain the data of the message, whenever this is relevant,
-i.e. when the <i class="arg">type</i> is <b class="const">text</b>, <b class="const">binary</b> or
-<b class="const">ping</b> and whenever there is data available.</p></dd>
+i.e. when the <i class="arg">type</i> is <b class="const">text</b>, <b class="const">binary</b>,
+<b class="const">ping</b> or <b class="const">pong</b> and whenever there is data available.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
@@ -267,7 +273,8 @@ used.</p></dd>
 <dt>-protocol</dt>
 <dd><p>This option specifies a list of application protocols to handshake
 with the server.  This protocols might help the server triggering
-application specific features.</p></dd>
+application specific features.  The http::geturl option -protocol is
+used internally by the websocket library and cannot be used.</p></dd>
 <dt>-timeout</dt>
 <dd><p>This option is supported, but will implemented as part of the library
 to enable a number of finalising cleanups.</p></dd>
@@ -427,12 +434,14 @@ sent as part of the handshake. The known codes are:</p>
 </dl>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">Examples</a></h2>
-<p>The following example opens a websocket connection to the echo
+<p>The following example script is a client that opens a websocket
+connection to an echo
 service, waits 400ms to ensure that the connection is really
 established and sends a single textual message which should be echoed
 back by the echo service.  A real example would probably use the
 <b class="const">connect</b> callback to know when connection to the remote
-server has been establish and would only send data at that time.</p>
+server has been establish and would only send data at that time.
+Finally the script closes the connection.</p>
 <pre class="doctools_example">
 package require websocket
 ::websocket::loglevel debug
@@ -454,11 +463,13 @@ proc test { sock } {
     puts &quot;[::websocket::conninfo $sock type] from [::websocket::conninfo $sock sockname] to [::websocket::conninfo $sock peername]&quot;
     
     ::websocket::send $sock text &quot;Testing, testing...&quot;
+    after 2000 ::websocket::close $sock
 }
-set sock [::websocket::open ws://echo.websocket.org/ handler]
+set sock [::websocket::open ws://ws.ifelse.io/ handler]
 after 400 test $sock
 vwait forever
 </pre>
+<p>Example code for a websocket server is provided in the Tcllib directory &quot;examples/websocket&quot;.</p>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">TLS Security Considerations</a></h2>
 <p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the

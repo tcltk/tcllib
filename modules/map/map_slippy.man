@@ -1,4 +1,4 @@
-[vset VERSION 0.6]
+[vset VERSION 0.7]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::slippy n [vset VERSION]]
 [keywords geodesy]
@@ -22,7 +22,7 @@ types of slippy-based map packages.
 
 [list_begin definitions]
 
-[call [cmd ::map::slippy] [method length] [arg level]]
+[call [cmd ::map] [method {slippy length}] [arg level]]
 
 This method returns the width/height of a slippy-based map at the
 specified zoom [arg level], in pixels. This is, in essence, the result
@@ -32,17 +32,17 @@ of
 	expr { [tiles $level] * [tile size] }
 }]
 
-[call [cmd ::map::slippy] [method tiles] [arg level]]
+[call [cmd ::map] [method {slippy tiles}] [arg level]]
 
 This method returns the width/height of a slippy-based map at the
 specified zoom [arg level], in [term tiles].
 
-[call [cmd ::map::slippy] [method {tile size}]]
+[call [cmd ::map] [method {slippy tile size}]]
 
 This method returns the width/height of a tile in a slippy-based map,
 in pixels.
 
-[call [cmd ::map::slippy] [method {tile valid}] [arg tile] \
+[call [cmd ::map] [method {slippy tile valid}] [arg tile] \
 	[arg levels] [opt [arg msgvar]]]
 
 This method checks whether [arg tile] described a valid tile in a
@@ -60,7 +60,17 @@ between 0 and "[arg levels]-1", and that the row/col information is
 within the boundaries for the zoom level, i.e. 0 ...
 "[lb]tiles $zoom[rb]-1".
 
-[call [cmd ::map::slippy] [method {geo 2tile}] [arg geo]]
+[call [cmd ::map] [method {slippy geo distance}] [arg geo1] [arg geo2]]
+
+This method computes the great-circle distance between the two
+[strong Earth-based] geographical locations in meters and returns that
+value. The zoom level is irrelevant to the calculation and ignored.
+
+[para] The code is based on
+[uri https://wiki.tcl-lang.org/page/geodesy] take on the
+[uri https://en.wikipedia.org/wiki/Haversine_formula {haversine formula}].
+
+[call [cmd ::map] [method {slippy geo 2tile}] [arg geo]]
 
 Converts a geographical location at a zoom level ([arg geo], a list
 containing zoom level, latitude, and longitude, in this order) to a
@@ -68,7 +78,7 @@ tile identifier (list containing zoom level, row, and column) at that
 level. The tile identifier uses pure integer numbers for the tile
 coordinates, for all geographic coordinates mapping to that tile.
 
-[call [cmd ::map::slippy] [method {geo 2tile.float}] [arg geo]]
+[call [cmd ::map] [method {slippy geo 2tile.float}] [arg geo]]
 
 Converts a geographical location at a zoom level ([arg geo], a list
 containing zoom level, latitude, and longitude, in this order) to a
@@ -77,39 +87,39 @@ level. The tile identifier uses floating point numbers for the tile
 coordinates, representing not only the tile the geographic coordinates
 map to, but also the fractional location inside of that tile.
 
-[call [cmd ::map::slippy] [method {geo 2point}] [arg geo]]
+[call [cmd ::map] [method {slippy geo 2point}] [arg geo]]
 
 Converts a geographical location at a zoom level ([arg geo], a list
 containing zoom level, latitude, and longitude, in this order) to a
 pixel position (list containing zoom level, y, and x) at that level.
 
-[call [cmd ::map::slippy] [method {tile 2geo}] [arg tile]]
+[call [cmd ::map] [method {slippy tile 2geo}] [arg tile]]
 
 Converts a tile identifier at a zoom level ([arg tile], list
 containing zoom level, row, and column) to a geographical location
 (list containing zoom level, latitude, and longitude, in this order)
 at that level.
 
-[call [cmd ::map::slippy] [method {tile 2point}] [arg tile]]
+[call [cmd ::map] [method {slippy tile 2point}] [arg tile]]
 
 Converts a tile identifier at a zoom level ([arg tile], a list
 containing zoom level, row, and column, in this order) to a pixel
 position (list containing zoom level, y, and x) at that level.
 
-[call [cmd ::map::slippy] [method {point 2geo}] [arg point]]
+[call [cmd ::map] [method {slippy point 2geo}] [arg point]]
 
 Converts a pixel position at a zoom level ([arg point], list
 containing zoom level, y, and x) to a geographical location (list
 containing zoom level, latitude, and longitude, in this order) at that
 level.
 
-[call [cmd ::map::slippy] [method {point 2tile}] [arg point]]
+[call [cmd ::map] [method {slippy point 2tile}] [arg point]]
 
 Converts a pixel position at a zoom level ([arg point], a list
 containing zoom level, y, and x, in this order) to a tile identifier
 (list containing zoom level, row, and column) at that level.
 
-[call [cmd ::map::slippy] [method {fit geobox}] [arg canvdim] \
+[call [cmd ::map] [method {slippy fit geobox}] [arg canvdim] \
      [arg geobox] [arg zmin] [arg zmax]]
 
 Calculates the zoom level (whithin the bounds [arg zmin] and

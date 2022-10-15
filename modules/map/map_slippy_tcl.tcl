@@ -68,6 +68,58 @@ proc ::map::slippy::tcl_tile_valid {tile levels {msgv {}}} {
     return 1
 }
 
+proc ::map::slippy::tcl_geo_distance {geoa geob} {
+    # https://en.wikipedia.org/wiki/Haversine_formula
+    # https://wiki.tcl-lang.org/page/geodesy
+    # https://en.wikipedia.org/wiki/Geographical_distance	| For radius used in angle
+    # https://en.wikipedia.org/wiki/Earth_radius		| to meter conversion
+    ##
+    # Go https://en.wikipedia.org/wiki/N-vector ?
+    
+    #puts deg.A($geoa)-B($geob)
+    
+    variable ::map::slippy::degtorad
+    variable ::map::slippy::pi
+
+    # Get the decimal degrees
+    lassign $geoa _ lata lona
+    lassign $geob _ latb lonb
+
+    # Convert all to radians
+    set lata [expr {$degtorad * $lata}]
+    set lona [expr {$degtorad * $lona}]
+    set latb [expr {$degtorad * $latb}]
+    set lonb [expr {$degtorad * $lonb}]
+
+    #puts rad.A($lata|$lona)-B($latb|$lonb)
+
+    set dlat [expr {$latb - $lata}]
+    set dlon [expr {$lonb - $lona}]
+
+    # puts d.lat($dlat).lon.($dlon)
+
+    set h [expr {pow((sin($dlat/2)),2) + cos($lata)*cos($latb)*pow((sin($dlon/2)),2)}]
+    #       dy^2 + cos*cos*dx^2
+    #       dy^2 + (sqrt(cos*cos)*dx)^2
+    # puts H.($h)
+
+    # Fix rounding errors, clamp to range -1...1
+    if {abs($h) > 1.0} { set h [expr {($h > 0) ? 1.0 : -1.0}] }
+    # puts HC.($h)
+
+    # Distance angle
+    set d [expr {2 * asin(sqrt($h))}]
+    # puts D.($d)
+
+    # set d [expr {2*asin(hypot( sin($dlat/2), sqrt(cos($y1)*cos($y2)) * sin($dlon/2) )  )}]
+    # not sure how bad that is with rounding errors for antipodal points.
+    
+    # Convert to meters and return
+    set meters [expr {6371009*$d}]
+    #puts M.($meters)
+    return $meters
+}
+
 # Coordinate conversions.
 # geo   = zoom, latitude, longitude
 # tile  = zoom, row,      column

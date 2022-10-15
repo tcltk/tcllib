@@ -105,7 +105,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">map::slippy(n) 0.6 tcllib &quot;Mapping utilities&quot;</h1>
+<h1 class="doctools_title">map::slippy(n) 0.7 tcllib &quot;Mapping utilities&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>map::slippy - Common code for slippy based map packages</p>
 </div>
@@ -130,21 +130,22 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6</b></li>
-<li>package require <b class="pkgname">map::slippy <span class="opt">?0.6?</span></b></li>
+<li>package require <b class="pkgname">map::slippy <span class="opt">?0.7?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::map::slippy</b> <b class="method">length</b> <i class="arg">level</i></a></li>
-<li><a href="#2"><b class="cmd">::map::slippy</b> <b class="method">tiles</b> <i class="arg">level</i></a></li>
-<li><a href="#3"><b class="cmd">::map::slippy</b> <b class="method">tile size</b></a></li>
-<li><a href="#4"><b class="cmd">::map::slippy</b> <b class="method">tile valid</b> <i class="arg">tile</i> <i class="arg">levels</i> <span class="opt">?<i class="arg">msgvar</i>?</span></a></li>
-<li><a href="#5"><b class="cmd">::map::slippy</b> <b class="method">geo 2tile</b> <i class="arg">geo</i></a></li>
-<li><a href="#6"><b class="cmd">::map::slippy</b> <b class="method">geo 2tile.float</b> <i class="arg">geo</i></a></li>
-<li><a href="#7"><b class="cmd">::map::slippy</b> <b class="method">geo 2point</b> <i class="arg">geo</i></a></li>
-<li><a href="#8"><b class="cmd">::map::slippy</b> <b class="method">tile 2geo</b> <i class="arg">tile</i></a></li>
-<li><a href="#9"><b class="cmd">::map::slippy</b> <b class="method">tile 2point</b> <i class="arg">tile</i></a></li>
-<li><a href="#10"><b class="cmd">::map::slippy</b> <b class="method">point 2geo</b> <i class="arg">point</i></a></li>
-<li><a href="#11"><b class="cmd">::map::slippy</b> <b class="method">point 2tile</b> <i class="arg">point</i></a></li>
-<li><a href="#12"><b class="cmd">::map::slippy</b> <b class="method">fit geobox</b> <i class="arg">canvdim</i> <i class="arg">geobox</i> <i class="arg">zmin</i> <i class="arg">zmax</i></a></li>
+<li><a href="#1"><b class="cmd">::map</b> <b class="method">slippy length</b> <i class="arg">level</i></a></li>
+<li><a href="#2"><b class="cmd">::map</b> <b class="method">slippy tiles</b> <i class="arg">level</i></a></li>
+<li><a href="#3"><b class="cmd">::map</b> <b class="method">slippy tile size</b></a></li>
+<li><a href="#4"><b class="cmd">::map</b> <b class="method">slippy tile valid</b> <i class="arg">tile</i> <i class="arg">levels</i> <span class="opt">?<i class="arg">msgvar</i>?</span></a></li>
+<li><a href="#5"><b class="cmd">::map</b> <b class="method">slippy geo distance</b> <i class="arg">geo1</i> <i class="arg">geo2</i></a></li>
+<li><a href="#6"><b class="cmd">::map</b> <b class="method">slippy geo 2tile</b> <i class="arg">geo</i></a></li>
+<li><a href="#7"><b class="cmd">::map</b> <b class="method">slippy geo 2tile.float</b> <i class="arg">geo</i></a></li>
+<li><a href="#8"><b class="cmd">::map</b> <b class="method">slippy geo 2point</b> <i class="arg">geo</i></a></li>
+<li><a href="#9"><b class="cmd">::map</b> <b class="method">slippy tile 2geo</b> <i class="arg">tile</i></a></li>
+<li><a href="#10"><b class="cmd">::map</b> <b class="method">slippy tile 2point</b> <i class="arg">tile</i></a></li>
+<li><a href="#11"><b class="cmd">::map</b> <b class="method">slippy point 2geo</b> <i class="arg">point</i></a></li>
+<li><a href="#12"><b class="cmd">::map</b> <b class="method">slippy point 2tile</b> <i class="arg">point</i></a></li>
+<li><a href="#13"><b class="cmd">::map</b> <b class="method">slippy fit geobox</b> <i class="arg">canvdim</i> <i class="arg">geobox</i> <i class="arg">zmin</i> <i class="arg">zmax</i></a></li>
 </ul>
 </div>
 </div>
@@ -154,7 +155,7 @@ types of slippy-based map packages.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::map::slippy</b> <b class="method">length</b> <i class="arg">level</i></a></dt>
+<dt><a name="1"><b class="cmd">::map</b> <b class="method">slippy length</b> <i class="arg">level</i></a></dt>
 <dd><p>This method returns the width/height of a slippy-based map at the
 specified zoom <i class="arg">level</i>, in pixels. This is, in essence, the result
 of</p>
@@ -162,13 +163,13 @@ of</p>
 	expr { [tiles $level] * [tile size] }
 </pre>
 </dd>
-<dt><a name="2"><b class="cmd">::map::slippy</b> <b class="method">tiles</b> <i class="arg">level</i></a></dt>
+<dt><a name="2"><b class="cmd">::map</b> <b class="method">slippy tiles</b> <i class="arg">level</i></a></dt>
 <dd><p>This method returns the width/height of a slippy-based map at the
 specified zoom <i class="arg">level</i>, in <i class="term">tiles</i>.</p></dd>
-<dt><a name="3"><b class="cmd">::map::slippy</b> <b class="method">tile size</b></a></dt>
+<dt><a name="3"><b class="cmd">::map</b> <b class="method">slippy tile size</b></a></dt>
 <dd><p>This method returns the width/height of a tile in a slippy-based map,
 in pixels.</p></dd>
-<dt><a name="4"><b class="cmd">::map::slippy</b> <b class="method">tile valid</b> <i class="arg">tile</i> <i class="arg">levels</i> <span class="opt">?<i class="arg">msgvar</i>?</span></a></dt>
+<dt><a name="4"><b class="cmd">::map</b> <b class="method">slippy tile valid</b> <i class="arg">tile</i> <i class="arg">levels</i> <span class="opt">?<i class="arg">msgvar</i>?</span></a></dt>
 <dd><p>This method checks whether <i class="arg">tile</i> described a valid tile in a
 slippy-based map containing that many zoom <i class="arg">levels</i>. The result is
 a boolean value, <b class="const">true</b> if the tile is valid, and <b class="const">false</b>
@@ -180,42 +181,49 @@ essentially checks this, i.e. the syntax, that the zoom level is
 between 0 and &quot;<i class="arg">levels</i>-1&quot;, and that the row/col information is
 within the boundaries for the zoom level, i.e. 0 ...
 &quot;[tiles $zoom]-1&quot;.</p></dd>
-<dt><a name="5"><b class="cmd">::map::slippy</b> <b class="method">geo 2tile</b> <i class="arg">geo</i></a></dt>
+<dt><a name="5"><b class="cmd">::map</b> <b class="method">slippy geo distance</b> <i class="arg">geo1</i> <i class="arg">geo2</i></a></dt>
+<dd><p>This method computes the great-circle distance between the two
+<em>Earth-based</em> geographical locations in meters and returns that
+value. The zoom level is irrelevant to the calculation and ignored.</p>
+<p>The code is based on
+<a href="https://wiki.tcl-lang.org/page/geodesy">https://wiki.tcl-lang.org/page/geodesy</a> take on the
+<a href="https://en.wikipedia.org/wiki/Haversine_formula">haversine formula</a>.</p></dd>
+<dt><a name="6"><b class="cmd">::map</b> <b class="method">slippy geo 2tile</b> <i class="arg">geo</i></a></dt>
 <dd><p>Converts a geographical location at a zoom level (<i class="arg">geo</i>, a list
 containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
 level. The tile identifier uses pure integer numbers for the tile
 coordinates, for all geographic coordinates mapping to that tile.</p></dd>
-<dt><a name="6"><b class="cmd">::map::slippy</b> <b class="method">geo 2tile.float</b> <i class="arg">geo</i></a></dt>
+<dt><a name="7"><b class="cmd">::map</b> <b class="method">slippy geo 2tile.float</b> <i class="arg">geo</i></a></dt>
 <dd><p>Converts a geographical location at a zoom level (<i class="arg">geo</i>, a list
 containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
 level. The tile identifier uses floating point numbers for the tile
 coordinates, representing not only the tile the geographic coordinates
 map to, but also the fractional location inside of that tile.</p></dd>
-<dt><a name="7"><b class="cmd">::map::slippy</b> <b class="method">geo 2point</b> <i class="arg">geo</i></a></dt>
+<dt><a name="8"><b class="cmd">::map</b> <b class="method">slippy geo 2point</b> <i class="arg">geo</i></a></dt>
 <dd><p>Converts a geographical location at a zoom level (<i class="arg">geo</i>, a list
 containing zoom level, latitude, and longitude, in this order) to a
 pixel position (list containing zoom level, y, and x) at that level.</p></dd>
-<dt><a name="8"><b class="cmd">::map::slippy</b> <b class="method">tile 2geo</b> <i class="arg">tile</i></a></dt>
+<dt><a name="9"><b class="cmd">::map</b> <b class="method">slippy tile 2geo</b> <i class="arg">tile</i></a></dt>
 <dd><p>Converts a tile identifier at a zoom level (<i class="arg">tile</i>, list
 containing zoom level, row, and column) to a geographical location
 (list containing zoom level, latitude, and longitude, in this order)
 at that level.</p></dd>
-<dt><a name="9"><b class="cmd">::map::slippy</b> <b class="method">tile 2point</b> <i class="arg">tile</i></a></dt>
+<dt><a name="10"><b class="cmd">::map</b> <b class="method">slippy tile 2point</b> <i class="arg">tile</i></a></dt>
 <dd><p>Converts a tile identifier at a zoom level (<i class="arg">tile</i>, a list
 containing zoom level, row, and column, in this order) to a pixel
 position (list containing zoom level, y, and x) at that level.</p></dd>
-<dt><a name="10"><b class="cmd">::map::slippy</b> <b class="method">point 2geo</b> <i class="arg">point</i></a></dt>
+<dt><a name="11"><b class="cmd">::map</b> <b class="method">slippy point 2geo</b> <i class="arg">point</i></a></dt>
 <dd><p>Converts a pixel position at a zoom level (<i class="arg">point</i>, list
 containing zoom level, y, and x) to a geographical location (list
 containing zoom level, latitude, and longitude, in this order) at that
 level.</p></dd>
-<dt><a name="11"><b class="cmd">::map::slippy</b> <b class="method">point 2tile</b> <i class="arg">point</i></a></dt>
+<dt><a name="12"><b class="cmd">::map</b> <b class="method">slippy point 2tile</b> <i class="arg">point</i></a></dt>
 <dd><p>Converts a pixel position at a zoom level (<i class="arg">point</i>, a list
 containing zoom level, y, and x, in this order) to a tile identifier
 (list containing zoom level, row, and column) at that level.</p></dd>
-<dt><a name="12"><b class="cmd">::map::slippy</b> <b class="method">fit geobox</b> <i class="arg">canvdim</i> <i class="arg">geobox</i> <i class="arg">zmin</i> <i class="arg">zmax</i></a></dt>
+<dt><a name="13"><b class="cmd">::map</b> <b class="method">slippy fit geobox</b> <i class="arg">canvdim</i> <i class="arg">geobox</i> <i class="arg">zmin</i> <i class="arg">zmax</i></a></dt>
 <dd><p>Calculates the zoom level (whithin the bounds <i class="arg">zmin</i> and
 <i class="arg">zmax</i>) such that <i class="arg">geobox</i> (a 4-element list containing the
 latitudes and longitudes lat0, lat1, lon0 and lon1 of a geo box,

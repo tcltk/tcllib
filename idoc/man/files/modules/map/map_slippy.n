@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'map_slippy\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "map::slippy" n 0\&.6 tcllib "Mapping utilities"
+.TH "map::slippy" n 0\&.7 tcllib "Mapping utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,31 +275,33 @@ map::slippy \- Common code for slippy based map packages
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBmap::slippy  ?0\&.6?\fR
+package require \fBmap::slippy  ?0\&.7?\fR
 .sp
-\fB::map::slippy\fR \fBlength\fR \fIlevel\fR
+\fB::map\fR \fBslippy length\fR \fIlevel\fR
 .sp
-\fB::map::slippy\fR \fBtiles\fR \fIlevel\fR
+\fB::map\fR \fBslippy tiles\fR \fIlevel\fR
 .sp
-\fB::map::slippy\fR \fBtile size\fR
+\fB::map\fR \fBslippy tile size\fR
 .sp
-\fB::map::slippy\fR \fBtile valid\fR \fItile\fR \fIlevels\fR ?\fImsgvar\fR?
+\fB::map\fR \fBslippy tile valid\fR \fItile\fR \fIlevels\fR ?\fImsgvar\fR?
 .sp
-\fB::map::slippy\fR \fBgeo 2tile\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo distance\fR \fIgeo1\fR \fIgeo2\fR
 .sp
-\fB::map::slippy\fR \fBgeo 2tile\&.float\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo 2tile\fR \fIgeo\fR
 .sp
-\fB::map::slippy\fR \fBgeo 2point\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo 2tile\&.float\fR \fIgeo\fR
 .sp
-\fB::map::slippy\fR \fBtile 2geo\fR \fItile\fR
+\fB::map\fR \fBslippy geo 2point\fR \fIgeo\fR
 .sp
-\fB::map::slippy\fR \fBtile 2point\fR \fItile\fR
+\fB::map\fR \fBslippy tile 2geo\fR \fItile\fR
 .sp
-\fB::map::slippy\fR \fBpoint 2geo\fR \fIpoint\fR
+\fB::map\fR \fBslippy tile 2point\fR \fItile\fR
 .sp
-\fB::map::slippy\fR \fBpoint 2tile\fR \fIpoint\fR
+\fB::map\fR \fBslippy point 2geo\fR \fIpoint\fR
 .sp
-\fB::map::slippy\fR \fBfit geobox\fR \fIcanvdim\fR \fIgeobox\fR \fIzmin\fR \fIzmax\fR
+\fB::map\fR \fBslippy point 2tile\fR \fIpoint\fR
+.sp
+\fB::map\fR \fBslippy fit geobox\fR \fIcanvdim\fR \fIgeobox\fR \fIzmin\fR \fIzmax\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -307,7 +309,7 @@ This package provides a number of methods doing things needed by all
 types of slippy-based map packages\&.
 .SH API
 .TP
-\fB::map::slippy\fR \fBlength\fR \fIlevel\fR
+\fB::map\fR \fBslippy length\fR \fIlevel\fR
 This method returns the width/height of a slippy-based map at the
 specified zoom \fIlevel\fR, in pixels\&. This is, in essence, the result
 of
@@ -318,15 +320,15 @@ of
 
 .CE
 .TP
-\fB::map::slippy\fR \fBtiles\fR \fIlevel\fR
+\fB::map\fR \fBslippy tiles\fR \fIlevel\fR
 This method returns the width/height of a slippy-based map at the
 specified zoom \fIlevel\fR, in \fItiles\fR\&.
 .TP
-\fB::map::slippy\fR \fBtile size\fR
+\fB::map\fR \fBslippy tile size\fR
 This method returns the width/height of a tile in a slippy-based map,
 in pixels\&.
 .TP
-\fB::map::slippy\fR \fBtile valid\fR \fItile\fR \fIlevels\fR ?\fImsgvar\fR?
+\fB::map\fR \fBslippy tile valid\fR \fItile\fR \fIlevels\fR ?\fImsgvar\fR?
 This method checks whether \fItile\fR described a valid tile in a
 slippy-based map containing that many zoom \fIlevels\fR\&. The result is
 a boolean value, \fBtrue\fR if the tile is valid, and \fBfalse\fR
@@ -340,14 +342,23 @@ between 0 and "\fIlevels\fR-1", and that the row/col information is
 within the boundaries for the zoom level, i\&.e\&. 0 \&.\&.\&.
 "[tiles $zoom]-1"\&.
 .TP
-\fB::map::slippy\fR \fBgeo 2tile\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo distance\fR \fIgeo1\fR \fIgeo2\fR
+This method computes the great-circle distance between the two
+\fIEarth-based\fR geographical locations in meters and returns that
+value\&. The zoom level is irrelevant to the calculation and ignored\&.
+.sp
+The code is based on
+\fIhttps://wiki\&.tcl-lang\&.org/page/geodesy\fR take on the
+\fIhaversine formula\fR [https://en\&.wikipedia\&.org/wiki/Haversine_formula]\&.
+.TP
+\fB::map\fR \fBslippy geo 2tile\fR \fIgeo\fR
 Converts a geographical location at a zoom level (\fIgeo\fR, a list
 containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
 level\&. The tile identifier uses pure integer numbers for the tile
 coordinates, for all geographic coordinates mapping to that tile\&.
 .TP
-\fB::map::slippy\fR \fBgeo 2tile\&.float\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo 2tile\&.float\fR \fIgeo\fR
 Converts a geographical location at a zoom level (\fIgeo\fR, a list
 containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
@@ -355,34 +366,34 @@ level\&. The tile identifier uses floating point numbers for the tile
 coordinates, representing not only the tile the geographic coordinates
 map to, but also the fractional location inside of that tile\&.
 .TP
-\fB::map::slippy\fR \fBgeo 2point\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo 2point\fR \fIgeo\fR
 Converts a geographical location at a zoom level (\fIgeo\fR, a list
 containing zoom level, latitude, and longitude, in this order) to a
 pixel position (list containing zoom level, y, and x) at that level\&.
 .TP
-\fB::map::slippy\fR \fBtile 2geo\fR \fItile\fR
+\fB::map\fR \fBslippy tile 2geo\fR \fItile\fR
 Converts a tile identifier at a zoom level (\fItile\fR, list
 containing zoom level, row, and column) to a geographical location
 (list containing zoom level, latitude, and longitude, in this order)
 at that level\&.
 .TP
-\fB::map::slippy\fR \fBtile 2point\fR \fItile\fR
+\fB::map\fR \fBslippy tile 2point\fR \fItile\fR
 Converts a tile identifier at a zoom level (\fItile\fR, a list
 containing zoom level, row, and column, in this order) to a pixel
 position (list containing zoom level, y, and x) at that level\&.
 .TP
-\fB::map::slippy\fR \fBpoint 2geo\fR \fIpoint\fR
+\fB::map\fR \fBslippy point 2geo\fR \fIpoint\fR
 Converts a pixel position at a zoom level (\fIpoint\fR, list
 containing zoom level, y, and x) to a geographical location (list
 containing zoom level, latitude, and longitude, in this order) at that
 level\&.
 .TP
-\fB::map::slippy\fR \fBpoint 2tile\fR \fIpoint\fR
+\fB::map\fR \fBslippy point 2tile\fR \fIpoint\fR
 Converts a pixel position at a zoom level (\fIpoint\fR, a list
 containing zoom level, y, and x, in this order) to a tile identifier
 (list containing zoom level, row, and column) at that level\&.
 .TP
-\fB::map::slippy\fR \fBfit geobox\fR \fIcanvdim\fR \fIgeobox\fR \fIzmin\fR \fIzmax\fR
+\fB::map\fR \fBslippy fit geobox\fR \fIcanvdim\fR \fIgeobox\fR \fIzmin\fR \fIzmax\fR
 Calculates the zoom level (whithin the bounds \fIzmin\fR and
 \fIzmax\fR) such that \fIgeobox\fR (a 4-element list containing the
 latitudes and longitudes lat0, lat1, lon0 and lon1 of a geo box,
