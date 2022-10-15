@@ -38,8 +38,8 @@ critcl::ccode {
     #ifndef M_PI
     #define M_PI (3.141592653589793238462643)
     #endif
-    #define DEGTORAD     (M_PI/180.)
-    #define RADTODEG     (180./M_PI)
+    #define DEGTORAD     (M_PI/180.)	/* (2pi)/360 */
+    #define RADTODEG     (180./M_PI)	/* 360/(2pi) */
     #define OURTILESIZE  (256)
     #define OURTILESIZED ((double) OURTILESIZE)
     #define TILES(z)     (1 << (z))
@@ -104,6 +104,42 @@ critcl::cproc ::map::slippy::critcl_tile_valid {
 	(c < 0) || (c >= tiles)) BAD ("Bad cell '%f %f' (max: %d)", r, c, tiles);
 
     return 1;
+}
+
+# ### ### ### ######### ######### #########
+## Distance
+#
+# https://en.wikipedia.org/wiki/Haversine_formula
+# https://wiki.tcl-lang.org/page/geodesy
+# https://en.wikipedia.org/wiki/Geographical_distance	| For radius used in angle
+# https://en.wikipedia.org/wiki/Earth_radius		| to meter conversion
+##
+# Go https://en.wikipedia.org/wiki/N-vector ?
+
+critcl::cproc ::map::slippy::critcl_geo_distance {tripoint geoa tripoint geob} double {
+    // lat, lon are in degrees.
+
+    // Convert all to radians
+    double lata = DEGTORAD * geoa.y;
+    double lona = DEGTORAD * geoa.x;
+    double latb = DEGTORAD * geob.y;
+    double lonb = DEGTORAD * geob.x;
+
+    double dlat   = latb - lata;
+    double dlon   = lonb - lona;
+    double hsdlat = sin(dlat/2.);
+    double hsdlon = sin(dlon/2.);
+
+    double h      = hsdlat*hsdlat + cos(lata)*cos(latb)*hsdlon*hsdlon;
+
+    // Distance base, clamp to -1..1, then to angle
+    if (fabs(h) > 1.0) { h = (h > 0) ? 1 : -1; }
+
+    double d = 2*asin(sqrt(h));
+
+    // Convert to meters and return
+    double meters = 6371009 * d;
+    return meters;
 }
 
 # ### ### ### ######### ######### #########

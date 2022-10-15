@@ -36,6 +36,31 @@ test map-slippy-${impl}-7.0 {tile 2geo} -body {
 } -match 4digits -result {11.0 67.0674 -43.7695}
 
 # -------------------------------------------------------------------------
+# Distances ...
+# -------------------------------------------------------------------------
+
+foreach {n meters a b note} {
+    0    69976.7972 {51     6} {51     7}     51.East
+    1   111195.0837 {51     6} {50     6}     51.South
+    2   111195.0837 {0      0} {0      1}     Equator.East
+    3   111195.0837 {0      0} {1      0}     Equator.North
+    4      111.1951 {50.777 6} {50.778 6}     .
+    5      131.5606 {50.777 6} {50.778 6.001} Diagonally.a.bit
+    6 19158338.4931 {50     6} {-50  174}     Hopefully-Antipodal
+} {
+    # 5 ~ 19,158 km ~ 20,000 km ~ half around the world ...
+    
+    test map-slippy-${impl}-21.$n {point x point -> distance} -setup {
+        set a [list 0 {*}$a]
+        set b [list 0 {*}$b]
+    } -body {
+        map slippy geo distance $a $b
+    } -cleanup {
+    } -match 4digits -result $meters
+}
+unset n meters a b
+
+# -------------------------------------------------------------------------
 # Converting between the three coordinate systems.
 # -------------------------------------------------------------------------
 

@@ -389,6 +389,9 @@ Complete binary message
 \fBping\fR
 Incoming ping message
 .TP
+\fBpong\fR
+Response to incoming ping message
+.TP
 \fBconnect\fR
 Notification of successful connection to server
 .TP
@@ -397,12 +400,18 @@ Disconnection from remote end
 .TP
 \fBclose\fR
 Pending closure of connection
+.TP
+\fBtimeout\fR
+Notification of connection timeout
+.TP
+\fBerror\fR
+Notification of error condition
 .RE
 .TP
 \fImsg\fR
 Will contain the data of the message, whenever this is relevant,
-i\&.e\&. when the \fItype\fR is \fBtext\fR, \fBbinary\fR or
-\fBping\fR and whenever there is data available\&.
+i\&.e\&. when the \fItype\fR is \fBtext\fR, \fBbinary\fR,
+\fBping\fR or \fBpong\fR and whenever there is data available\&.
 .PP
 .SH API
 .TP
@@ -444,7 +453,8 @@ used\&.
 -protocol
 This option specifies a list of application protocols to handshake
 with the server\&.  This protocols might help the server triggering
-application specific features\&.
+application specific features\&.  The http::geturl option -protocol is
+used internally by the websocket library and cannot be used\&.
 .TP
 -timeout
 This option is supported, but will implemented as part of the library
@@ -640,18 +650,19 @@ TLS handshake error
 .PP
 .SH EXAMPLES
 .PP
-The following example opens a websocket connection to the echo
+The following example script is a client that opens a websocket
+connection to an echo
 service, waits 400ms to ensure that the connection is really
 established and sends a single textual message which should be echoed
 back by the echo service\&.  A real example would probably use the
 \fBconnect\fR callback to know when connection to the remote
 server has been establish and would only send data at that time\&.
+Finally the script closes the connection\&.
 .CS
 
 
 package require websocket
 ::websocket::loglevel debug
-
 proc handler { sock type msg } {
     switch -glob -nocase -- $type {
 	co* {
@@ -666,18 +677,18 @@ proc handler { sock type msg } {
     }
 
 }
-
 proc test { sock } {
     puts "[::websocket::conninfo $sock type] from [::websocket::conninfo $sock sockname] to [::websocket::conninfo $sock peername]"
 
     ::websocket::send $sock text "Testing, testing\&.\&.\&."
+    after 2000 ::websocket::close $sock
 }
-
-set sock [::websocket::open ws://echo\&.websocket\&.org/ handler]
+set sock [::websocket::open ws://ws\&.ifelse\&.io/ handler]
 after 400 test $sock
 vwait forever
 
 .CE
+Example code for a websocket server is provided in the Tcllib directory "examples/websocket"\&.
 .SH "TLS SECURITY CONSIDERATIONS"
 .PP
 This package uses the \fBTLS\fR package to handle the

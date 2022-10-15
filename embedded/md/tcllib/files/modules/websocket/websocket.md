@@ -140,6 +140,10 @@ following arguments will be appended:
 
         Incoming ping message
 
+      * __pong__
+
+        Response to incoming ping message
+
       * __connect__
 
         Notification of successful connection to server
@@ -152,11 +156,19 @@ following arguments will be appended:
 
         Pending closure of connection
 
+      * __timeout__
+
+        Notification of connection timeout
+
+      * __error__
+
+        Notification of error condition
+
   - *msg*
 
     Will contain the data of the message, whenever this is relevant, i\.e\. when
-    the *type* is __text__, __binary__ or __ping__ and whenever
-    there is data available\.
+    the *type* is __text__, __binary__, __ping__ or __pong__
+    and whenever there is data available\.
 
 # <a name='section3'></a>API
 
@@ -201,7 +213,8 @@ following arguments will be appended:
 
         This option specifies a list of application protocols to handshake with
         the server\. This protocols might help the server triggering application
-        specific features\.
+        specific features\. The http::geturl option \-protocol is used internally
+        by the websocket library and cannot be used\.
 
       * \-timeout
 
@@ -418,15 +431,15 @@ following arguments will be appended:
 
 # <a name='section4'></a>Examples
 
-The following example opens a websocket connection to the echo service, waits
-400ms to ensure that the connection is really established and sends a single
-textual message which should be echoed back by the echo service\. A real example
-would probably use the __connect__ callback to know when connection to the
-remote server has been establish and would only send data at that time\.
+The following example script is a client that opens a websocket connection to an
+echo service, waits 400ms to ensure that the connection is really established
+and sends a single textual message which should be echoed back by the echo
+service\. A real example would probably use the __connect__ callback to know
+when connection to the remote server has been establish and would only send data
+at that time\. Finally the script closes the connection\.
 
     package require websocket
     ::websocket::loglevel debug
-
     proc handler { sock type msg } {
         switch -glob -nocase -- $type {
     	co* {
@@ -441,16 +454,18 @@ remote server has been establish and would only send data at that time\.
         }
 
     }
-
     proc test { sock } {
         puts "[::websocket::conninfo $sock type] from [::websocket::conninfo $sock sockname] to [::websocket::conninfo $sock peername]"
 
         ::websocket::send $sock text "Testing, testing..."
+        after 2000 ::websocket::close $sock
     }
-
-    set sock [::websocket::open ws://echo.websocket.org/ handler]
+    set sock [::websocket::open ws://ws.ifelse.io/ handler]
     after 400 test $sock
     vwait forever
+
+Example code for a websocket server is provided in the Tcllib directory
+"examples/websocket"\.
 
 # <a name='section5'></a>TLS Security Considerations
 

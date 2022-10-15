@@ -1,7 +1,7 @@
 
 [//000000001]: # (map::slippy \- Mapping utilities)
 [//000000002]: # (Generated from file 'map\_slippy\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (map::slippy\(n\) 0\.6 tcllib "Mapping utilities")
+[//000000003]: # (map::slippy\(n\) 0\.7 tcllib "Mapping utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,20 +39,21 @@ map::slippy \- Common code for slippy based map packages
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require map::slippy ?0\.6?  
+package require map::slippy ?0\.7?  
 
-[__::map::slippy__ __length__ *level*](#1)  
-[__::map::slippy__ __tiles__ *level*](#2)  
-[__::map::slippy__ __tile size__](#3)  
-[__::map::slippy__ __tile valid__ *tile* *levels* ?*msgvar*?](#4)  
-[__::map::slippy__ __geo 2tile__ *geo*](#5)  
-[__::map::slippy__ __geo 2tile\.float__ *geo*](#6)  
-[__::map::slippy__ __geo 2point__ *geo*](#7)  
-[__::map::slippy__ __tile 2geo__ *tile*](#8)  
-[__::map::slippy__ __tile 2point__ *tile*](#9)  
-[__::map::slippy__ __point 2geo__ *point*](#10)  
-[__::map::slippy__ __point 2tile__ *point*](#11)  
-[__::map::slippy__ __fit geobox__ *canvdim* *geobox* *zmin* *zmax*](#12)  
+[__::map__ __slippy length__ *level*](#1)  
+[__::map__ __slippy tiles__ *level*](#2)  
+[__::map__ __slippy tile size__](#3)  
+[__::map__ __slippy tile valid__ *tile* *levels* ?*msgvar*?](#4)  
+[__::map__ __slippy geo distance__ *geo1* *geo2*](#5)  
+[__::map__ __slippy geo 2tile__ *geo*](#6)  
+[__::map__ __slippy geo 2tile\.float__ *geo*](#7)  
+[__::map__ __slippy geo 2point__ *geo*](#8)  
+[__::map__ __slippy tile 2geo__ *tile*](#9)  
+[__::map__ __slippy tile 2point__ *tile*](#10)  
+[__::map__ __slippy point 2geo__ *point*](#11)  
+[__::map__ __slippy point 2tile__ *point*](#12)  
+[__::map__ __slippy fit geobox__ *canvdim* *geobox* *zmin* *zmax*](#13)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -61,24 +62,24 @@ slippy\-based map packages\.
 
 # <a name='section2'></a>API
 
-  - <a name='1'></a>__::map::slippy__ __length__ *level*
+  - <a name='1'></a>__::map__ __slippy length__ *level*
 
     This method returns the width/height of a slippy\-based map at the specified
     zoom *level*, in pixels\. This is, in essence, the result of
 
         expr { [tiles $level] * [tile size] }
 
-  - <a name='2'></a>__::map::slippy__ __tiles__ *level*
+  - <a name='2'></a>__::map__ __slippy tiles__ *level*
 
     This method returns the width/height of a slippy\-based map at the specified
     zoom *level*, in *tiles*\.
 
-  - <a name='3'></a>__::map::slippy__ __tile size__
+  - <a name='3'></a>__::map__ __slippy tile size__
 
     This method returns the width/height of a tile in a slippy\-based map, in
     pixels\.
 
-  - <a name='4'></a>__::map::slippy__ __tile valid__ *tile* *levels* ?*msgvar*?
+  - <a name='4'></a>__::map__ __slippy tile valid__ *tile* *levels* ?*msgvar*?
 
     This method checks whether *tile* described a valid tile in a slippy\-based
     map containing that many zoom *levels*\. The result is a boolean value,
@@ -92,7 +93,18 @@ slippy\-based map packages\.
     and that the row/col information is within the boundaries for the zoom
     level, i\.e\. 0 \.\.\. "\[tiles $zoom\]\-1"\.
 
-  - <a name='5'></a>__::map::slippy__ __geo 2tile__ *geo*
+  - <a name='5'></a>__::map__ __slippy geo distance__ *geo1* *geo2*
+
+    This method computes the great\-circle distance between the two
+    *Earth\-based* geographical locations in meters and returns that value\. The
+    zoom level is irrelevant to the calculation and ignored\.
+
+    The code is based on
+    [https://wiki\.tcl\-lang\.org/page/geodesy](https://wiki\.tcl\-lang\.org/page/geodesy)
+    take on the [haversine
+    formula](https://en\.wikipedia\.org/wiki/Haversine\_formula)\.
+
+  - <a name='6'></a>__::map__ __slippy geo 2tile__ *geo*
 
     Converts a geographical location at a zoom level \(*geo*, a list containing
     zoom level, latitude, and longitude, in this order\) to a tile identifier
@@ -100,7 +112,7 @@ slippy\-based map packages\.
     identifier uses pure integer numbers for the tile coordinates, for all
     geographic coordinates mapping to that tile\.
 
-  - <a name='6'></a>__::map::slippy__ __geo 2tile\.float__ *geo*
+  - <a name='7'></a>__::map__ __slippy geo 2tile\.float__ *geo*
 
     Converts a geographical location at a zoom level \(*geo*, a list containing
     zoom level, latitude, and longitude, in this order\) to a tile identifier
@@ -109,37 +121,37 @@ slippy\-based map packages\.
     representing not only the tile the geographic coordinates map to, but also
     the fractional location inside of that tile\.
 
-  - <a name='7'></a>__::map::slippy__ __geo 2point__ *geo*
+  - <a name='8'></a>__::map__ __slippy geo 2point__ *geo*
 
     Converts a geographical location at a zoom level \(*geo*, a list containing
     zoom level, latitude, and longitude, in this order\) to a pixel position
     \(list containing zoom level, y, and x\) at that level\.
 
-  - <a name='8'></a>__::map::slippy__ __tile 2geo__ *tile*
+  - <a name='9'></a>__::map__ __slippy tile 2geo__ *tile*
 
     Converts a tile identifier at a zoom level \(*tile*, list containing zoom
     level, row, and column\) to a geographical location \(list containing zoom
     level, latitude, and longitude, in this order\) at that level\.
 
-  - <a name='9'></a>__::map::slippy__ __tile 2point__ *tile*
+  - <a name='10'></a>__::map__ __slippy tile 2point__ *tile*
 
     Converts a tile identifier at a zoom level \(*tile*, a list containing zoom
     level, row, and column, in this order\) to a pixel position \(list containing
     zoom level, y, and x\) at that level\.
 
-  - <a name='10'></a>__::map::slippy__ __point 2geo__ *point*
+  - <a name='11'></a>__::map__ __slippy point 2geo__ *point*
 
     Converts a pixel position at a zoom level \(*point*, list containing zoom
     level, y, and x\) to a geographical location \(list containing zoom level,
     latitude, and longitude, in this order\) at that level\.
 
-  - <a name='11'></a>__::map::slippy__ __point 2tile__ *point*
+  - <a name='12'></a>__::map__ __slippy point 2tile__ *point*
 
     Converts a pixel position at a zoom level \(*point*, a list containing zoom
     level, y, and x, in this order\) to a tile identifier \(list containing zoom
     level, row, and column\) at that level\.
 
-  - <a name='12'></a>__::map::slippy__ __fit geobox__ *canvdim* *geobox* *zmin* *zmax*
+  - <a name='13'></a>__::map__ __slippy fit geobox__ *canvdim* *geobox* *zmin* *zmax*
 
     Calculates the zoom level \(whithin the bounds *zmin* and *zmax*\) such
     that *geobox* \(a 4\-element list containing the latitudes and longitudes
