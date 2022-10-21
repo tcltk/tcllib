@@ -217,4 +217,4 @@ apply {{} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.7
+package provide map::slippy 0.7.1

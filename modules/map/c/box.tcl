@@ -31,8 +31,8 @@ critcl::ccode {
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
 	if (lc != 4) {
-	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "BOX");
-	    Tcl_AppendResult (interp, "Bad box, expected list of 4");
+	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "BOX", NULL);
+	    Tcl_AppendResult (interp, "Bad box, expected list of 4", NULL);
 	    return TCL_ERROR;
 	}
 
