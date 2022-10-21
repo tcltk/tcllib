@@ -29,8 +29,8 @@ critcl::ccode {
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
 	if (lc != 2) {
-	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "WXH");
-	    Tcl_AppendResult (interp, "Bad WxH, expected list of 2");
+	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "WXH", NULL);
+	    Tcl_AppendResult (interp, "Bad WxH, expected list of 2", NULL);
 	    return TCL_ERROR;
 	}
 

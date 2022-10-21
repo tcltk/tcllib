@@ -30,8 +30,8 @@ critcl::ccode {
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
 	if (lc != 3) {
-	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "POINT/INT");
-	    Tcl_AppendResult (interp, "Bad point-int, expected list of 3");
+	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "POINT/INT", NULL);
+	    Tcl_AppendResult (interp, "Bad point-int, expected list of 3", NULL);
 	    return TCL_ERROR;
 	}
 

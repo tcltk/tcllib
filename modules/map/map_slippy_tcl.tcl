@@ -69,6 +69,9 @@ proc ::map::slippy::tcl_tile_valid {tile levels {msgv {}}} {
 }
 
 proc ::map::slippy::tcl_geo_distance {geoa geob} {
+    ::map::slippy::Check $geoa
+    ::map::slippy::Check $geob
+    
     # https://en.wikipedia.org/wiki/Haversine_formula
     # https://wiki.tcl-lang.org/page/geodesy
     # https://en.wikipedia.org/wiki/Geographical_distance	| For radius used in angle
@@ -126,6 +129,8 @@ proc ::map::slippy::tcl_geo_distance {geoa geob} {
 # point = zoom, y,        x
 
 proc ::map::slippy::tcl_geo_2tile {geo} {
+    ::map::slippy::Check $geo
+    
     variable ::map::slippy::degtorad
     variable ::map::slippy::pi
     lassign $geo zoom lat lon
@@ -139,6 +144,8 @@ proc ::map::slippy::tcl_geo_2tile {geo} {
 }
 
 proc ::map::slippy::tcl_geo_2tilef {geo} {
+    ::map::slippy::Check $geo
+    
     variable ::map::slippy::degtorad
     variable ::map::slippy::pi
     lassign $geo zoom lat lon
@@ -152,6 +159,8 @@ proc ::map::slippy::tcl_geo_2tilef {geo} {
 }
 
 proc ::map::slippy::tcl_geo_2point {geo} {
+    ::map::slippy::Check $geo
+    
     variable ::map::slippy::degtorad
     variable ::map::slippy::pi
     variable ::map::slippy::ourtilesize
@@ -165,6 +174,8 @@ proc ::map::slippy::tcl_geo_2point {geo} {
 }
 
 proc ::map::slippy::tcl_geo_2points {levels geo} {
+    ::map::slippy::Check $geo
+    
     # Ignore z in input, compute points for all (zoom) levels.
     set r {}
     for {set z 0} {$z < $levels} {incr z} {
@@ -174,6 +185,8 @@ proc ::map::slippy::tcl_geo_2points {levels geo} {
 }
 
 proc ::map::slippy::tcl_tile_2geo {tile} {
+    ::map::slippy::Check $tile
+    
     variable ::map::slippy::radtodeg
     variable ::map::slippy::pi
     lassign $tile zoom row col
@@ -186,6 +199,8 @@ proc ::map::slippy::tcl_tile_2geo {tile} {
 }
 
 proc ::map::slippy::tcl_tile_2point {tile} {
+    ::map::slippy::Check $tile
+
     variable ::map::slippy::ourtilesize
     lassign $tile zoom row col
     # Note: For integer row/col the pixel location is for the upper left corner of the tile. To get
@@ -197,6 +212,8 @@ proc ::map::slippy::tcl_tile_2point {tile} {
 }
 
 proc ::map::slippy::tcl_point_2geo {point} {
+    ::map::slippy::Check $point
+
     variable ::map::slippy::radtodeg
     variable ::map::slippy::pi
     lassign $point zoom y x
@@ -207,6 +224,8 @@ proc ::map::slippy::tcl_point_2geo {point} {
 }
 
 proc ::map::slippy::tcl_point_2tile {point} {
+    ::map::slippy::Check $point
+
     variable ::map::slippy::ourtilesize
     lassign $point zoom y x
     #set tiles [tiles $zoom]
@@ -260,6 +279,17 @@ proc ::map::slippy::tcl_fit_geobox {canvdim geobox zmin zmax} {
     }
     if { [info exists z0] } { return $z0 }
     return $z
+}
+
+proc ::map::slippy::Check {p} {
+    if {[llength $p] != 3} {
+	return -code error {Bad point, expected list of 3}
+    }
+    lassign $p a b c
+    if {![string is int    -strict $a]} { return -code error "expected integer but got \"$a\"" }
+    if {![string is double -strict $b]} { return -code error "expected floating-point number but got \"$b\"" }
+    if {![string is double -strict $c]} { return -code error "expected floating-point number but got \"$c\"" }
+    return
 }
 
 # ### ### ### ######### ######### #########

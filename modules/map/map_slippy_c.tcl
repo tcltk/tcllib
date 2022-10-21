@@ -19,6 +19,8 @@ critcl::license {Andreas Kupries} {BSD licensed.}
 #package require critcl::cutil
 #critcl::cutil::tracer on
 #critcl::config trace
+#critcl::debug symbols
+#critcl::debug memory
 
 # ### ### ### ######### ######### #########
 ## Custom argument and result processing
