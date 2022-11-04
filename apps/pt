@@ -97,12 +97,24 @@ proc ::pt::app::Topics {} {
 
 proc ::pt::app::generateHelp {} {
     return {
-	@ generate PFORMAT ?-option value...? PFILE INFORMAT GFILE
+	@ generate PFORMAT ?-option value...? PFILE GFORMAT GFILE
 
 	Generate data in format PFORMAT and write it to PFILE.  Read
 	the grammar to be processed from GFILE (assuming the format
 	GFORMAT). Use any options to configure the generator. The are
 	dependent on PFORMAT.
+
+	Available GFORMATs are:
+
+		json, peg, serial
+	
+	Available PFORMATs are:
+
+		c, container, critcl, json, nx, oo, oo-sa,
+		param, peg, snit, snit-sa, tea
+
+	The -sa formats inline the required runtime package into the
+	result.
     }
 }
 proc ::pt::app::generate {args} {
