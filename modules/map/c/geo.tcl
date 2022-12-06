@@ -5,14 +5,14 @@
 # ### ### ### ######### ######### #########
 ## Type definitions
 
-critcl::resulttype point {
-    Tcl_SetObjResult(interp, point_box (interp, &rv));
+critcl::resulttype geo {
+    Tcl_SetObjResult(interp, geo_box (interp, &rv));
     return TCL_OK;
-} point
+} geo
 
-critcl::argtype point {
-    if (point_unbox (interp, @@, &@A) != TCL_OK) return TCL_ERROR;
-} point point
+critcl::argtype geo {
+    if (geo_unbox (interp, @@, &@A) != TCL_OK) return TCL_ERROR;
+} geo geo
 
 # ### ### ### ######### ######### #########
 ## Support implementation
@@ -20,12 +20,12 @@ critcl::argtype point {
 critcl::ccode {
     #include <stdio.h>
 
-    typedef struct point {
-	double y;
-	double x;
-    } point;
+    typedef struct geo {
+	double lat;
+	double lon;
+    } geo;
 
-    static int point_unbox (Tcl_Interp* interp, Tcl_Obj* obj, point* p) {
+    static int geo_unbox (Tcl_Interp* interp, Tcl_Obj* obj, geo* p) {
 	int       lc;
 	Tcl_Obj** lv;
 
@@ -36,35 +36,35 @@ critcl::ccode {
 	    return TCL_ERROR;
 	}
 
-	double y;
-	double x;
+	double lat;
+	double lon;
 
-	if (Tcl_GetDoubleFromObj (interp, lv[0], &x) != TCL_OK) return TCL_ERROR;
-	if (Tcl_GetDoubleFromObj (interp, lv[1], &y) != TCL_OK) return TCL_ERROR;
+	if (Tcl_GetDoubleFromObj (interp, lv[0], &lat) != TCL_OK) return TCL_ERROR;
+	if (Tcl_GetDoubleFromObj (interp, lv[1], &lon) != TCL_OK) return TCL_ERROR;
 
-	p->y = y;
-	p->x = x;
+	p->lat = lat;
+	p->lon = lon;
 
 	return TCL_OK;
     }
 
-    static Tcl_Obj* point_box (Tcl_Interp* interp, point* p) {
+    static Tcl_Obj* geo_box (Tcl_Interp* interp, geo* p) {
 	Tcl_Obj* cl[2];
-	cl [0] = Tcl_NewDoubleObj (p->x);
-	cl [1] = Tcl_NewDoubleObj (p->y);
+	cl [0] = Tcl_NewDoubleObj (p->lat);
+	cl [1] = Tcl_NewDoubleObj (p->lon);
 	return Tcl_NewListObj(2, cl);
     }
 
-    static Tcl_Obj* point_box_list (int release, Tcl_Interp* interp, int c, point* points) {
+    static Tcl_Obj* geo_box_list (int release, Tcl_Interp* interp, int c, geo* geos) {
 	Tcl_Obj** cl = (Tcl_Obj**) ckalloc (c * sizeof(Tcl_Obj*));
 
 	for (unsigned int k = 0; k < c; k++) \
-	    cl[k] = point_box (interp, &points[k]);
+	    cl[k] = geo_box (interp, &geos[k]);
 
 	Tcl_Obj* r = Tcl_NewListObj(c, cl);
 
 	ckfree (cl);
-	if (release) { ckfree (points); }
+	if (release) { ckfree (geos); }
 	return r;
     }
 }

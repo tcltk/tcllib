@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'map_slippy_cache\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "map::slippy::cache" n 0\&.3 tcllib "Mapping utilities"
+.TH "map::slippy::cache" n 0\&.4 tcllib "Mapping utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTk  8\&.6\fR
 .sp
 package require \fBmap::slippy \fR
 .sp
-package require \fBmap::slippy::cache  ?0\&.3?\fR
+package require \fBmap::slippy::cache  ?0\&.4?\fR
 .sp
 \fB::map::slippy::cache\fR \fIcacheName\fR \fIcachedir\fR \fIprovider\fR
 .sp
@@ -291,8 +291,12 @@ package require \fBmap::slippy::cache  ?0\&.3?\fR
 .sp
 .BE
 .SH DESCRIPTION
-This package provides a class for managing a cache of tiles for
-slippy-based maps in the local filesystem\&.
+This package provides a class for managing a cache of tiles for slippy-based maps in the local
+filesystem\&.
+.PP
+\fIBEWARE\fR, \fIAttention\fR Version \fI0\&.4\fR is \fINOT backward compatible\fR
+with version 0\&.3 and earlier\&. This is due to switching this package's internals to the use of
+version 0\&.8 of \fBmap::slippy\fR\&.
 .SH API
 .TP
 \fB::map::slippy::cache\fR \fIcacheName\fR \fIcachedir\fR \fIprovider\fR

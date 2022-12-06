@@ -679,7 +679,7 @@ proc syntax {spec basecmd {setup {}} {cleanup {}} {xlabel {}} {map {}}} {
 	if {[llength $map]} { set expected [string map $map $expected] }
 
 	set tbase [string map {{ } - :: -} $basecmd]
-	
+
 	# Assemble test cases from the min/max information.
 	set testcases {}
 	if {$required > 0} {
@@ -725,7 +725,7 @@ proc arg-counts {signature} {
     if {[lindex $signature end] eq "args"} {
 	set  max {}
 	incr min -1
-	set signature [lreplace $signature end end "?arg ...?"]
+	set signature [lreplace $signature end end "?args...?"]
 	return [list $min $max [join $signature { }]]
     }
 

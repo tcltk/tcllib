@@ -28,4 +28,5 @@ critcl      struct_setc   struct/sets_c.tcl
 critcl      struct_stackc struct/stack_c.tcl
 critcl      struct_treec  struct/tree_c.tcl
 critcl      uuid          uuid/uuid.tcl
+#critcl      map           map/map_slippy_c.tcl	;# Tcl 8.6+
 critcl_notes {Note: you can ignore warnings for tcllibc.tcl, base64c.tcl and crcc.tcl.}

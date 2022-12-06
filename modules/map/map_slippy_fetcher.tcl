@@ -9,8 +9,8 @@
 package require Tcl 8.6
 package require Tk  8.6 ; # image photo - Note: directly supports PNG format
 
-package require map::slippy ; # Slippy contants
-package require http        ; # Retrieval method
+package require map::slippy 0.8 ; # Slippy (contants, validation)
+package require http            ; # Retrieval method
 package require snit
 
 # ### ### ### ######### ######### #########
@@ -38,7 +38,7 @@ snit::type map::slippy::fetcher {
 
     method get {tile donecmd} {
 	# tile = list (zoom, row, col)
-	if {![map slippy tile valid $tile $mylevels msg]} {
+	if {![map slippy tile valid {*}$tile $mylevels msg]} {
 	    return -code error $msg
 	}
 
@@ -167,4 +167,4 @@ snit::type map::slippy::fetcher {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::fetcher 0.5
+package provide map::slippy::fetcher 0.6

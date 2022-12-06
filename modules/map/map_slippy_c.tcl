@@ -11,7 +11,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require critcl
+package require critcl 3.1.18.2	;# REQUIRED: `[]type` support.
+# TODO:                3.2
 
 critcl::tcl 8.6
 critcl::license {Andreas Kupries} {BSD licensed.}
@@ -23,19 +24,12 @@ critcl::license {Andreas Kupries} {BSD licensed.}
 #critcl::debug memory
 
 # ### ### ### ######### ######### #########
-## Custom argument and result processing
-
-critcl::source c/point.tcl
-critcl::source c/point-int.tcl
-critcl::source c/wxh.tcl
-critcl::source c/box.tcl
-
-# ### ### ### ######### ######### #########
 ## API - Helper setup
 
 critcl::ccode {
     #include <math.h>
     #include <stdlib.h>
+    #include <string.h>	/* memset */
 
     #ifndef M_PI
     #define M_PI (3.141592653589793238462643)
@@ -45,299 +39,161 @@ critcl::ccode {
     #define OURTILESIZE  (256)
     #define OURTILESIZED ((double) OURTILESIZE)
     #define TILES(z)     (1 << (z))
+    #define MIN(a,b)     (((a) < (b)) ? (a) : (b))
+    #define MAX(a,b)     (((a) > (b)) ? (a) : (b))
 
     #define OP Tcl_ObjPrintf
     #define BAD(f, ...) { if (msgv.o != 0) Tcl_ObjSetVar2 (interp, msgv.o, 0, OP (f, __VA_ARGS__), 0); return 0; }
 }
 
 # ### ### ### ######### ######### #########
-## Implementation - Basics
+## Custom argument and result processing
 
-critcl::cproc ::map::slippy::critcl_length {int level} int {
+critcl::source c/geo.tcl
+critcl::source c/geobox.tcl
+critcl::source c/point.tcl
+critcl::source c/pointbox.tcl
+critcl::source c/wxh.tcl
+critcl::source c/common.tcl
+
+# ### ### ### ######### ######### #########
+## Implementation
+
+critcl::cproc ::map::slippy::critcl_length {
+    int level
+} int {
     return OURTILESIZE * TILES (level);
 }
 
-critcl::cproc ::map::slippy::critcl_tiles {int level} int {
+critcl::cproc ::map::slippy::critcl_tiles {
+    int level
+} int {
     return TILES (level);
 }
 
 critcl::cconst ::map::slippy::critcl_tile_size int OURTILESIZE
 
-# ### ### ### ######### ######### #########
-## Implementation - Validation
-
-# Force critcl_pstring to be declared for use by helper
-critcl::cproc ::map::slippy::DOOM {pstring dummy} void {}
-critcl::ccode {
-    static critcl_pstring ms_pstring_empty() { critcl_pstring x = {0,0,0} ; return x; }
-
-    // you initialize a struct variable as shown above. You cannot assign to it in the same manner
-    // after initialization. You need a value of the proper type. The helper produces such a thing
-    // for us. We use it as the default value for the optional `msgv` argument (a varname)
-}
-
 critcl::cproc ::map::slippy::critcl_tile_valid {
     Tcl_Interp* interp
-    list        tile
+    int         zoom
+    int         row
+    int         col
     int         levels
     pstring    {msgv ms_pstring_empty()}
 } boolean {
-    if (tile.c != 3) \
-	BAD ("Bad tile <%s>, expected 3 elements (zoom, row, col)", Tcl_GetString(tile.o));
+    if ((zoom < 0) || (zoom >= levels)) {
+	BAD ("Bad zoom level '%d' (max: %d)", zoom, levels);
+    }
 
-    int    z;
-    double r;
-    double c;
+    int tiles = TILES (zoom);
 
-    if (Tcl_GetIntFromObj    (interp, tile.v[0], &z) != TCL_OK) \
-	BAD ("Bad tile <%s>, expected int for zoom",   Tcl_GetString(tile.o));
-
-    if (Tcl_GetDoubleFromObj (interp, tile.v[1], &r) != TCL_OK) \
-	BAD ("Bad tile <%s>, expected double for row", Tcl_GetString(tile.o));
-
-    if (Tcl_GetDoubleFromObj (interp, tile.v[2], &c) != TCL_OK) \
-	BAD ("Bad tile <%s>, expected double for col", Tcl_GetString(tile.o));
-
-    if ((z < 0) || (z >= levels)) BAD ("Bad zoom level '%d' (max: %d)", z, levels);
-
-    int tiles = TILES (z);
-
-    if ((r < 0) || (r >= tiles) ||
-	(c < 0) || (c >= tiles)) BAD ("Bad cell '%f %f' (max: %d)", r, c, tiles);
+    if ((row < 0) || (row >= tiles) ||
+	(col < 0) || (col >= tiles)) {
+	BAD ("Bad cell '%d %d' (max: %d)", row, col, tiles);
+    }
 
     return 1;
 }
 
-# ### ### ### ######### ######### #########
-## Distance
-#
-# https://en.wikipedia.org/wiki/Haversine_formula
-# https://wiki.tcl-lang.org/page/geodesy
-# https://en.wikipedia.org/wiki/Geographical_distance	| For radius used in angle
-# https://en.wikipedia.org/wiki/Earth_radius		| to meter conversion
-##
-# Go https://en.wikipedia.org/wiki/N-vector ?
+critcl::cproc ::map::slippy::critcl_geo_box_2point {
+    int    zoom
+    geobox gbox
+} pointbox {
+    geo gmin = {
+	.lat = gbox.lat0,
+	.lon = gbox.lon0
+    };
+    geo gmax = {
+	.lat = gbox.lat1,
+	.lon = gbox.lon1
+    };
 
-critcl::cproc ::map::slippy::critcl_geo_distance {tripoint geoa tripoint geob} double {
-    // lat, lon are in degrees.
+    point pmin, pmax;
 
-    // Convert all to radians
-    double lata = DEGTORAD * geoa.y;
-    double lona = DEGTORAD * geoa.x;
-    double latb = DEGTORAD * geob.y;
-    double lonb = DEGTORAD * geob.x;
+    geo_2point (zoom, &gmin, &pmin);
+    geo_2point (zoom, &gmax, &pmax);
 
-    double dlat   = latb - lata;
-    double dlon   = lonb - lona;
-    double hsdlat = sin(dlat/2.);
-    double hsdlon = sin(dlon/2.);
-
-    double h      = hsdlat*hsdlat + cos(lata)*cos(latb)*hsdlon*hsdlon;
-
-    // Distance base, clamp to -1..1, then to angle
-    if (fabs(h) > 1.0) { h = (h > 0) ? 1 : -1; }
-
-    double d = 2*asin(sqrt(h));
-
-    // Convert to meters and return
-    double meters = 6371009 * d;
-    return meters;
-}
-
-# ### ### ### ######### ######### #########
-## Implementation - Coordinate conversions.
-#
-# geo   = zoom, latitude, longitude
-# tile  = zoom, row,      column
-# point = zoom, y,        x
-
-critcl::cproc ::map::slippy::critcl_geo_2tile {tripoint geo} tripoint-int {
-    // lat, lon are in degrees.
-    // The missing sec() function is computed using the 1/cos equivalency.
-
-    int    zoom   = geo.z;
-    double lat    = geo.y;
-    double lon    = geo.x;
-
-    int    tiles  = TILES (zoom);
-    double latrad = DEGTORAD * lat;
-    int    row    = (int) ((1 - (log(tan(latrad) + 1.0/cos(latrad)) / M_PI)) / 2 * tiles);
-    int    col    = (int) (((lon + 180.0) / 360.0) * tiles);
-
-    tripoint_int out;
-
-    out.z = zoom;
-    out.y = row;
-    out.x = col;
+    pointbox out = {
+	.x0 = MIN(pmin.x,pmax.x),
+	.y0 = MIN(pmin.y,pmax.y),
+	.x1 = MAX(pmin.x,pmax.x),
+	.y1 = MAX(pmin.y,pmax.y)
+    };
 
     return out;
 }
 
-critcl::cproc ::map::slippy::critcl_geo_2tilef {tripoint geo} tripoint {
-    int    zoom   = geo.z;
-    double lat    = geo.y;
-    double lon    = geo.x;
-
-    int    tiles  = TILES (zoom);
-    double latrad = DEGTORAD * lat;
-    double row    = (1 - (log(tan(latrad) + 1.0/cos(latrad)) / M_PI)) / 2 * tiles;
-    double col    = ((lon + 180.0) / 360.0) * tiles;
-
-    tripoint out;
-    out.z = zoom;
-    out.y = row;
-    out.x = col;
-
-    return out;
-}
-
-critcl::ccode {
-    static void geo_2point (int zoom, double lat, double lon, double* y, double* x) {
-	int    tiles  = TILES (zoom);
-	double latrad = DEGTORAD * lat;
-	double row    = (1 - (log(tan(latrad) + 1.0/cos(latrad)) / M_PI)) / 2 * tiles;
-	double col    = ((lon + 180.0) / 360.0) * tiles;
-
-	*y = OURTILESIZE * row;
-	*x = OURTILESIZE * col;
-    }
-}
-
-critcl::cproc ::map::slippy::critcl_geo_2point {tripoint geo} tripoint {
-    // Essence: [geo 2tile.float $geo] * $ourtilesize, with 'geo 2tile.float' inlined.
-
-    tripoint out;
-
-    out.z = geo.z;
-    geo_2point (geo.z, geo.y, geo.x, &out.y, &out.x);
-
-    return out;
-}
-
-critcl::cproc ::map::slippy::critcl_geo_2points {
+critcl::cproc ::map::slippy::critcl_geo_box_corners {
     Tcl_Interp* interp
-    int         levels
-    tripoint    geo
+    geobox      gbox
 } object0 {
-    // Essence: [geo 2tile.float $geo] * $ourtilesize, with 'geo 2tile.float' inlined.
+    geo g[4] = {{
+	.lat = gbox.lat0,
+	.lon = gbox.lon0
+    }, {
+	.lat = gbox.lat0,
+	.lon = gbox.lon1
+    }, {
+	.lat = gbox.lat1,
+	.lon = gbox.lon0
+    }, {
+	.lat = gbox.lat1,
+	.lon = gbox.lon1
+    }};
 
-    Tcl_Obj** cl = (Tcl_Obj**) ckalloc (levels * sizeof(Tcl_Obj*));
-    int z;
-    for (z = 0; z < levels; z++) {
-       tripoint out;
-
-       out.z = z;
-       geo_2point (z, geo.y, geo.x, &out.y, &out.x);
-
-       cl[z] = tripoint_box (interp, &out);
-    }
-
-    Tcl_Obj* r = Tcl_NewListObj(levels, cl);
-    ckfree (cl);
-    return r;
+    return geo_box_list (0, interp, 4, g);
 }
 
-critcl::cproc ::map::slippy::critcl_tile_2geo {tripoint tile} tripoint {
-    // Note: For integer row/col the geo location is for the upper left corner of the tile. To get
-    //       the geo location of the center simply add 0.5 to the row/col values.
+critcl::cproc ::map::slippy::critcl_geo_box_opposites {
+    Tcl_Interp* interp
+    geobox      gbox
+} object0 {
+    geo g[2] = {{
+	.lat = gbox.lat0,
+	.lon = gbox.lon0
+    }, {
+	.lat = gbox.lat1,
+	.lon = gbox.lon1
+    }};
 
-    int    zoom   = tile.z;
-    double row    = tile.y;
-    double col    = tile.x;
-
-    double tiles  = TILES (zoom);
-    double lat    = RADTODEG * (atan(sinh(M_PI * (1 - 2 * row / tiles))));
-    double lon    = col / tiles * 360.0 - 180.0;
-
-    tripoint out;
-
-    out.z = zoom;
-    out.y = lat;
-    out.x = lon;
-
-    return out;
+    return geo_box_list (0, interp, 2, g);
 }
 
-critcl::cproc ::map::slippy::critcl_tile_2point {tripoint tile} tripoint {
-    // Note: For integer row/col the pixel location is for the upper left corner of the tile. To get
-    //       the pixel location of the center simply add 0.5 to the row/col values.
-
-    int    zoom   = tile.z;
-    double row    = tile.y;
-    double col    = tile.x;
-
-    tripoint out;
-
-    out.z = zoom;
-    out.y = OURTILESIZE * row;
-    out.x = OURTILESIZE * col;
-
-    return out;
-}
-
-critcl::cproc ::map::slippy::critcl_point_2geo {tripoint point} tripoint {
-
-    int    zoom   = point.z;
-    double y      = point.y;
-    double x      = point.x;
-
-    int    length = OURTILESIZE * TILES (zoom);
-    double lat    = RADTODEG * (atan(sinh(M_PI * (1 - 2 * y / length))));
-    double lon    = x / length * 360.0 - 180.0;
-
-    tripoint out;
-
-    out.z = zoom;
-    out.y = lat;
-    out.x = lon;
-
-    return out;
-}
-
-critcl::cproc ::map::slippy::critcl_point_2tile {tripoint point} tripoint {
-
-    int    zoom   = point.z;
-    double y      = point.y;
-    double x      = point.x;
-
-    tripoint out;
-
-    out.z = zoom;
-    out.y = y / OURTILESIZE;
-    out.x = x / OURTILESIZE;
-
-    return out;
-}
-
-# ### ### ### ######### ######### #########
-## Implementation
-
-critcl::cproc ::map::slippy::critcl_fit_geobox {
-    wxh canvdim
-    box geobox
-    int zmin
-    int zmax
+critcl::cproc ::map::slippy::critcl_geo_box_fit {
+    geobox gbox
+    wxh    canvdim
+    int    zmax
+    int    {zmin 0}
 } int {
-    int    canvw = canvdim.w;
-    int    canvh = canvdim.h;
-    double lat0  = geobox.lat0;
-    double lon0  = geobox.lon0;
-    double lat1  = geobox.lat1;
-    double lon1  = geobox.lon1;
+    double canvw = canvdim.w;
+    double canvh = canvdim.h;
+
+    geo gmin = {
+	.lat  = gbox.lat0,
+	.lon  = gbox.lon0
+    };
+    geo gmax = {
+	.lat  = gbox.lat1,
+	.lon  = gbox.lon1
+    };
+
+    point pmin, pmax;
 
     // NOTE we assume ourtilesize == [map::slippy length 0].
     // Further, we assume that each zoom step "grows" the linear resolution by a factor 2
     // (that's the log(2) down there)
 
-    canvw = abs (canvw);
-    canvh = abs (canvh);
+    canvw = fabs (canvw);
+    canvh = fabs (canvh);
 
     int z = (int) (log(fmin(
-			(canvh/OURTILESIZED) / (fabs(lat1 - lat0)/180.),
-			(canvw/OURTILESIZED) / (fabs(lon1 - lon0)/360.)))
+			(canvh/OURTILESIZED) / (fabs(gbox.lat1 - gbox.lat0)/180.),
+			(canvw/OURTILESIZED) / (fabs(gbox.lon1 - gbox.lon0)/360.)))
 		/ log(2));
+    //fprintf(stdout, "z'initial:%d\n", z);fflush(stdout);
     // clamp
     z = ((z < zmin) ? zmin : ((z > zmax) ? zmax : z));
+    //fprintf(stdout, "z'clamp:%d\n", z);fflush(stdout);
 
     // Now zoom is an approximation, since the scale factor isn't uniform across the map
     // (the vertical dimension depends on latitude). So we have to refine iteratively
@@ -348,35 +204,392 @@ critcl::cproc ::map::slippy::critcl_fit_geobox {
     hasz0 = hasz1 = 0;
 
     while (1) {
+	//fprintf(stdout, "try zoom %d\n", z);fflush(stdout);
 	// Now we can run "uphill",   getting z0 = z - 1
 	// and            "downhill", getting z1 = z + 1
 	// (borders from the last iteration)
 
-	double x0, y0, x1, y1;
+	geo_2point (z, &gmin, &pmin);
+	geo_2point (z, &gmax, &pmax);
 
-	geo_2point (z, lat0, lon0, &y0, &x0);
-	geo_2point (z, lat1, lon1, &y1, &x1);
+	double w = fabs(pmax.x - pmin.x);
+	double h = fabs(pmax.y - pmin.y);
 
-	double w = fabs(x1 - x0);
-	double h = fabs(y1 - y0);
+	//fprintf(stdout, "dimensions|w|%f|%f|h|%f|%f\n", w, canvw, h, canvh);fflush(stdout);
 
 	if ((w > canvw) || (h > canvh)) {
+	    //fprintf(stdout, "to big: shrink z0?%d\n", hasz0);fflush(stdout);
 	    // too big: shrink
 	    if (hasz0) break; // but not if we came from below
 	    if (z <= zmin) break; // can't be < zmin
 	    z1 = z ; hasz1 = 1;
 	    z --;
 	} else {
+	    //fprintf(stdout, "fits: grow z1?%d\n", hasz1);fflush(stdout);
 	    // fits: grow
 	    if (hasz1) break; // but not if we came from above
-	    if (z >= zmax) break; // can't be > zmax
+	    if (z >= zmax) {
+		//fprintf(stdout, "fits: at max!\n");fflush(stdout);
+		break; // can't be > zmax
+	    }
 	    z0 = z ; hasz0 = 1;
 	    z ++;
 	}
     }
 
-    if (hasz0) return z0;
+    if (hasz0) { z = z0; }
+    //fprintf(stdout, "z'final:%d\n", z);fflush(stdout);
     return z;
+}
+
+critcl::cproc ::map::slippy::critcl_geo_distance {
+    geo geoa
+    geo geob
+} double {
+    // lat, lon are in degrees - convert all to radians
+
+    double lata = DEGTORAD * geoa.lat;
+    double lona = DEGTORAD * geoa.lon;
+    double latb = DEGTORAD * geob.lat;
+    double lonb = DEGTORAD * geob.lon;
+
+    double d = geo_distance (lata, lona, latb, lonb);
+
+    // Convert to meters and return
+    double meters = 6371009 * d;
+    return meters;
+}
+
+critcl::cproc ::map::slippy::critcl_geo_distance_args {
+    bool closed
+    geo  args
+} double {
+    return geo_distance_list (closed, args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_distance_list {
+    bool  closed
+    []geo geos
+} double {
+    return geo_distance_list (closed, geos.c, geos.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_bbox {
+    geo args
+} geobox {
+    return geo_bbox (args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_bbox_list {
+    []geo geos
+} geobox {
+    return geo_bbox (geos.c, geos.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_center {
+    geo args
+} geo {
+    return geo_center (args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_center_list {
+    []geo geos
+} geo {
+    return geo_center (geos.c, geos.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_diameter {
+    geo args
+} double {
+    return geo_diameter (args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_diameter_list {
+    []geo geos
+} double {
+    return geo_diameter (geos.c, geos.v);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_2point {
+    int zoom
+    geo g
+} point {
+    point out;
+
+    geo_2point (zoom, &g, &out);
+
+    return out;
+}
+
+critcl::cproc ::map::slippy::critcl_geo_2point_args {
+    Tcl_Interp* interp
+    int         zoom
+    geo         args
+} object0 {
+    if (args.c == 0) {
+	/* Pass the input, no need for transient helper memory */
+	return Tcl_NewListObj (0,0);
+    }
+
+    return point_box_list (1, interp, args.c, geos_2points (zoom, args.c, args.v));
+}
+
+critcl::cproc ::map::slippy::critcl_geo_2point_list {
+    Tcl_Interp* interp
+    int         zoom
+    []geo       geos
+} object0 {
+    if (geos.c == 0) {
+	/* Pass the input, no need for transient helper memory */
+	return Tcl_NewListObj (0,0);
+    }
+
+    return point_box_list (1, interp, geos.c, geos_2points (zoom, geos.c, geos.v));
+}
+
+critcl::cproc ::map::slippy::critcl_point_box_2geo {
+    int      zoom
+    pointbox pbox
+} geobox {
+    point pmin = {
+	.y = pbox.y0,
+	.x = pbox.x0
+    };
+    point pmax = {
+	.y = pbox.y1,
+	.x = pbox.x1
+    };
+
+    geo gmin, gmax;
+
+    point_2geo (zoom, &pmin, &gmin);
+    point_2geo (zoom, &pmax, &gmax);
+
+    geobox out = {
+	.lat0 = MIN(gmin.lat,gmax.lat),
+	.lon0 = MIN(gmin.lon,gmax.lon),
+	.lat1 = MAX(gmin.lat,gmax.lat),
+	.lon1 = MAX(gmin.lon,gmax.lon)
+    };
+
+    return out;
+}
+
+critcl::cproc ::map::slippy::critcl_point_box_corners {
+    Tcl_Interp* interp
+    pointbox    pbox
+} object0 {
+    point p[4] = {{
+	.x = pbox.x0,
+	.y = pbox.y0
+    }, {
+	.x = pbox.x0,
+	.y = pbox.y1
+    }, {
+	.x = pbox.x1,
+	.y = pbox.y0
+    }, {
+	.x = pbox.x1,
+	.y = pbox.y1
+    }};
+
+    return point_box_list (0, interp, 4, p);
+}
+
+critcl::cproc ::map::slippy::critcl_point_box_opposites {
+    Tcl_Interp* interp
+    pointbox    pbox
+} object0 {
+    point p[2] = {{
+	.x = pbox.x0,
+	.y = pbox.y0
+    }, {
+	.x = pbox.x1,
+	.y = pbox.y1
+    }};
+
+    return point_box_list (0, interp, 2, p);
+}
+
+critcl::cproc ::map::slippy::critcl_point_distance {
+    point pointa
+    point pointb
+} double {
+    return point_distance (&pointa, &pointb);
+}
+
+critcl::cproc ::map::slippy::critcl_point_distance_args {
+    bool  closed
+    point args
+} double {
+    return point_distance_list (closed, args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_distance_list {
+    bool    closed
+    []point points
+} double {
+    return point_distance_list (closed, points.c, points.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_bbox {
+    point args
+} pointbox {
+    return point_bbox (args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_bbox_list {
+    []point points
+} pointbox {
+    return point_bbox (points.c, points.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_center {
+    point args
+} point {
+    return point_center (args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_center_list {
+    []point points
+} point {
+    return point_center (points.c, points.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_diameter {
+    point args
+} double {
+    return point_diameter (args.c, args.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_diameter_list {
+    []point points
+} double {
+    return point_diameter (points.c, points.v);
+}
+
+critcl::cproc ::map::slippy::critcl_point_2geo {
+    int   zoom
+    point p
+} geo {
+    geo out;
+
+    point_2geo (zoom, &p, &out);
+
+    return out;
+}
+
+critcl::cproc ::map::slippy::critcl_point_2geo_args {
+    Tcl_Interp* interp
+    int         zoom
+    point       args
+} object0 {
+    if (args.c == 0) {
+	/* Pass the input, no need for transient helper memory */
+	return Tcl_NewListObj (0,0);
+    }
+
+    return geo_box_list (1, interp, args.c, points_2geos (zoom, args.c, args.v));
+}
+
+critcl::cproc ::map::slippy::critcl_point_2geo_list {
+    Tcl_Interp* interp
+    int         zoom
+    []point     points
+} object0 {
+    if (points.c == 0) {
+	/* Pass the input, no need for transient helper memory */
+	return Tcl_NewListObj (0,0);
+    }
+
+    return geo_box_list (1, interp, points.c, points_2geos (zoom, points.c, points.v));
+}
+
+critcl::cproc ::map::slippy::critcl_point_simplify_radial {
+    Tcl_Interp* interp
+    double      threshold
+    bool        closed
+    []point     points
+} object0 {
+    if (points.c < 2) {
+	/* Pass the input, no need for transient helper memory */
+	return points.o;
+    }
+
+    point* res = (point*) ckalloc (points.c * sizeof(point));
+
+    unsigned int anchor = 0;
+    unsigned int into   = 0;
+
+    res[into].y = points.v[anchor].y;
+    res[into].x = points.v[anchor].x;
+    into ++;
+
+    for (unsigned int k = 1; k < points.c; k++) {
+	double d = hypot (points.v[k].x - points.v[anchor].x,
+			  points.v[k].y - points.v[anchor].y);
+	if (d < threshold) continue;
+
+	anchor = k;
+
+	res[into].y = points.v[anchor].y;
+	res[into].x = points.v[anchor].x;
+	into ++;
+    }
+
+    if (closed && (into > 1)) {
+	// For an actual loop, check last against first, remove last if necessary
+	double d = hypot (res[0].x - res[into-1].x,
+			  res[0].y - res[into-1].y);
+	if (d < threshold) {
+	    into --;
+	    // into > 0
+	}
+
+	if (into == 2) {
+	    // Loop degenerated into line, reduce to singularity using line center
+	    res[0].x = (res[0].x + res[1].x)/2.;
+	    res[0].y = (res[0].y + res[1].y)/2.;
+	    into = 1;
+	}
+    }
+
+    // Note: into >= 1, i.e. at least one point is present.
+
+    return point_box_list (1, interp, into, res);
+}
+
+critcl::cproc ::map::slippy::critcl_point_simplify_rdp {
+    Tcl_Interp* interp
+    []point     points
+} object0 {
+    if (points.c < 3) {
+	/* Pass the input, no need for transient helper memory */
+	return points.o;
+    }
+
+    /* Enough data present to run the full algorithm */
+
+    char*     keep = (char*) ckalloc (points.c * sizeof(char));
+    memset   (keep, 0,                points.c * sizeof(char));
+
+    rdp_core (keep, points.v, 0, points.c-1);
+
+    /* Compress the input array down to the kept points */
+
+    unsigned int into = 0;
+    for (unsigned int i=0; i < points.c; i++) {
+        if (!keep[i]) continue;
+	points.v[into] = points.v[i];
+	into++;
+    }
+    ckfree (keep);
+
+    if (!into) {
+	return Tcl_NewListObj (0,0);
+    }
+
+    return point_box_list (0, interp, into, points.v);
 }
 
 # ### ### ### ######### ######### #########
