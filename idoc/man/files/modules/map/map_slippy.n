@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'map_slippy\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "map::slippy" n 0\&.7\&.1 tcllib "Mapping utilities"
+.TH "map::slippy" n 0\&.8 tcllib "Mapping utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ map::slippy \- Common code for slippy based map packages
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBmap::slippy  ?0\&.7\&.1?\fR
+package require \fBmap::slippy  ?0\&.8?\fR
 .sp
 \fB::map\fR \fBslippy length\fR \fIlevel\fR
 .sp
@@ -283,176 +283,346 @@ package require \fBmap::slippy  ?0\&.7\&.1?\fR
 .sp
 \fB::map\fR \fBslippy tile size\fR
 .sp
-\fB::map\fR \fBslippy tile valid\fR \fItile\fR \fIlevels\fR ?\fImsgvar\fR?
+\fB::map\fR \fBslippy tile valid\fR \fIzoom\fR \fIrow\fR \fIcolumn\fR \fIlevels\fR ?\fImsgvar\fR?
+.sp
+\fB::map\fR \fBslippy geo box 2point\fR \fIzoom\fR \fIgeobox\fR
+.sp
+\fB::map\fR \fBslippy geo box corners\fR \fIgeobox\fR
+.sp
+\fB::map\fR \fBslippy geo box opposites\fR \fIgeobox\fR
+.sp
+\fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
 .sp
 \fB::map\fR \fBslippy geo distance\fR \fIgeo1\fR \fIgeo2\fR
 .sp
-\fB::map\fR \fBslippy geo 2tile\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo distance*\fR \fIclosed\fR \fIgeo\fR\&.\&.\&.
 .sp
-\fB::map\fR \fBslippy geo 2tile\&.float\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo distance-list\fR \fIclosed\fR \fIgeo-list\fR
 .sp
-\fB::map\fR \fBslippy geo 2point\fR \fIgeo\fR
+\fB::map\fR \fBslippy geo bbox\fR \fIgeo\fR\&.\&.\&.
 .sp
-\fB::map\fR \fBslippy tile 2geo\fR \fItile\fR
+\fB::map\fR \fBslippy geo bbox-list\fR \fIgeo-list\fR
 .sp
-\fB::map\fR \fBslippy tile 2point\fR \fItile\fR
+\fB::map\fR \fBslippy geo center\fR \fIgeo\fR\&.\&.\&.
 .sp
-\fB::map\fR \fBslippy point 2geo\fR \fIpoint\fR
+\fB::map\fR \fBslippy geo center-list\fR \fIgeo-list\fR
 .sp
-\fB::map\fR \fBslippy point 2tile\fR \fIpoint\fR
+\fB::map\fR \fBslippy geo diameter\fR \fIgeo\fR\&.\&.\&.
 .sp
-\fB::map\fR \fBslippy fit geobox\fR \fIcanvdim\fR \fIgeobox\fR \fIzmin\fR \fIzmax\fR
+\fB::map\fR \fBslippy geo diameter-list\fR \fIgeo-list\fR
+.sp
+\fB::map\fR \fBslippy geo 2point\fR \fIzoom\fR \fIgeo\fR
+.sp
+\fB::map\fR \fBslippy geo 2point*\fR \fIzoom\fR \fIgeo\fR\&.\&.\&.
+.sp
+\fB::map\fR \fBslippy geo 2point-list\fR \fIzoom\fR \fIgeo-list\fR
+.sp
+\fB::map\fR \fBslippy point box 2geo\fR \fIzoom\fR \fIpointbox\fR
+.sp
+\fB::map\fR \fBslippy point box corners\fR \fIpointbox\fR
+.sp
+\fB::map\fR \fBslippy point box opposites\fR \fIpointbox\fR
+.sp
+\fB::map\fR \fBslippy point distance\fR \fIpoint1\fR \fIpoint2\fR
+.sp
+\fB::map\fR \fBslippy point distance*\fR \fIclosed\fR \fIpoint\fR\&.\&.\&.
+.sp
+\fB::map\fR \fBslippy point distance-list\fR \fIclosed\fR \fIpoint-list\fR
+.sp
+\fB::map\fR \fBslippy point bbox\fR \fIpoint\fR\&.\&.\&.
+.sp
+\fB::map\fR \fBslippy point bbox-list\fR \fIpoint-list\fR
+.sp
+\fB::map\fR \fBslippy point center\fR \fIpoint\fR\&.\&.\&.
+.sp
+\fB::map\fR \fBslippy point center-list\fR \fIpoint-list\fR
+.sp
+\fB::map\fR \fBslippy point diameter\fR \fIpoint\fR\&.\&.\&.
+.sp
+\fB::map\fR \fBslippy point diameter-list\fR \fIpoint-list\fR
+.sp
+\fB::map\fR \fBslippy point 2geo\fR \fIzoom\fR \fIpoint\fR
+.sp
+\fB::map\fR \fBslippy point 2geo*\fR \fIzoom\fR \fIpoint\fR\&.\&.\&.
+.sp
+\fB::map\fR \fBslippy point 2geo-list\fR \fIzoom\fR \fIpoint-list\fR
+.sp
+\fB::map\fR \fBslippy point simplify radial\fR \fIthreshold\fR \fIpoint-list\fR
+.sp
+\fB::map\fR \fBslippy point simplify rdp\fR \fIpoint-list\fR
 .sp
 .BE
 .SH DESCRIPTION
-This package provides a number of methods doing things needed by all
-types of slippy-based map packages\&.
+This package provides a number of methods doing things needed by all types of slippy-based map
+packages\&.
+.PP
+\fIBEWARE\fR, \fIAttention\fR Version \fI0\&.8\fR is \fINOT backward compatible\fR
+with version 0\&.7 and earlier\&.  The entire API was \fIheavily revised and changed\fR\&.
+.PP
+\fINote:\fR For the representation of locations in the various coordinate systems used by
+the commands of this package please read section \fBCoordinate systems\fR\&. The command
+descriptions will not repeat them, and assume that they are understood already\&.
+.SH "COORDINATE SYSTEMS"
+The commands of this package operate in two distinct coordinate systems, geographical locations, and
+points\&. The former represents coordinates for locations on Earth, while the latter is for use on Tk
+\fIcanvas\fR widgets\&.
+.SS GEOGRAPHIC
+Geographical locations (short: \fIgeo\fR) are represented by a pair of \fILatitude\fR and
+\fILongitude\fR values, each of which is measured in degrees, as they are essentially angles\&.
+.PP
+The \fBZero\fR longitude is the \fIGreenwich meridian\fR, with positive values going
+\fIeast\fR, and negative values going \fIwest\fR, for a total range of +/- 180 degrees\&. Note that
++180 and -180 longitude are the same \fImeridian\fR, opposite to Greenwich\&.
+.PP
+The \fBzero\fR latitude is the \fIEquator\fR, with positive values going \fInorth\fR and
+negative values going \fIsouth\fR\&. While the true range is +/- 90 degrees the projection used by
+the package requires us to cap the range at roughly +/- \fB85\&.05112877983284\fR degrees\&. This
+means that the North and South poles are not representable and not part of any map\&.
+.PP
+A geographical location is represented by a list containing two values, the latitude, and
+longitude of the location, in this order\&.
+.PP
+A geographical bounding box is represented by a list containing four values, the minimal
+latitude and longitude of the box, and the maximal latitude and longitude of the box, in this order\&.
+.PP
+Geographical locations and boxes can be converted to points and their boxes by means of an
+additional parameter, the \fIzoom\fR level\&. This parameter indicates the size of the map in the
+canvas the coordinates are to be projected into\&.
+.SS POINTS
+Points (short: \fIpoint\fR) are represented by a pair of \fIx\fR and \fIy\fR values, each of
+which is measured in pixels\&. They reference a location in a Tk \fIcanvas\fR widget\&.
+As a map can be shown at different degrees of magnification, the exact pixel coordinates for a
+geographical location depend on this \fIzoom\fR level\&.
+.PP
+For the following explanation to make sense it should be noted that a map shown in a Tk
+\fIcanvas\fR widget is split into equal-sized quadratic \fItiles\fR\&.
+.PP
+Point coordinates are tile coordinates scaled by the size of these tiles\&. This package uses
+tiles of size \fB256\fR, which is the standard size used by many online servers providing map
+tiles of some kind or other\&.
+.PP
+A point is represented by a list containing the x- and y-coordinates of the lcoation, in this
+in this order\&.
+.PP
+A point bounding box is represented by a list containing four values, the minimal x and y of
+the box, and the maximal x and y of the box, in this order\&.
+.PP
+Point locations and boxes can be converted to geographical locations and their boxes by means
+of an additional parameter, the \fIzoom\fR level\&. This parameter indicates the size of the map in
+the canvas the coordinates are projected from\&.
+.PP
+Tile coordinates appear only in one place of the API, in the signature of command
+\fBmap slippy tile valid\fR\&. Everything else uses Point coordinates\&.
+.PP
+Using tile coordinates in the following however makes the structure of the map at the various
+\fIzoom\fR levels (maginification factors) easier to explain\&.
+.PP
+Generally the integer part of the tile coordinates represent the row and column number of a
+tile of the map, wheras the fractional parts signal how far inside that tile the location in
+question is, with pure integer coordinates (no fractional part) representing the upper left corner
+of a tile\&.
+.PP
+The zero point of the map is at the upper left corner, regardless of zoom level, with larger
+coordinates going right (east) and down (south), and smaller coordinates going left (west) and up
+(north)\&. Again regardless of zoom level\&.
+.PP
+Negative coordinates are not allowed\&.
+.PP
+At zoom level \fB0\fR the entire map is represented by a single tile, putting the
+geographic zero at 1/2, 1/2 in terms of tile coordinates, and the range of tile coordinates as
+[0\&.\&.\&.1]\&.
+.PP
+When going from zoom level \fBN\fR to the next deeper (magnified) level (\fBN\fR+1) each tile
+of level \fBN\fR is split into its four quadrants, which then are the tiles of level \fBN\fR+1\&.
+.PP
+This means that at zoom level \fBN\fR the map is sliced (horizontally and vertically) into
+\fB2^N\fR rows and columns, for a total of \fB4^N\fR tiles, with the tile coordinates ranging from
+\fB0\fR to \fB2^N+1\fR\&.
 .SH API
 .TP
 \fB::map\fR \fBslippy length\fR \fIlevel\fR
-This method returns the width/height of a slippy-based map at the
-specified zoom \fIlevel\fR, in pixels\&. This is, in essence, the result
-of
+This command returns the width/height of a slippy-based map at the specified zoom \fIlevel\fR, in
+pixels\&. This is, in essence, the result of
 .CS
 
 
-	expr { [tiles $level] * [tile size] }
+expr { [tiles $level] * [tile size] }
 
 .CE
 .TP
 \fB::map\fR \fBslippy tiles\fR \fIlevel\fR
-This method returns the width/height of a slippy-based map at the
-specified zoom \fIlevel\fR, in \fItiles\fR\&.
+This command returns the width/height of a slippy-based map at the specified zoom \fIlevel\fR, in
+\fItiles\fR\&.
 .TP
 \fB::map\fR \fBslippy tile size\fR
-This method returns the width/height of a tile in a slippy-based map,
-in pixels\&.
+This command returns the width/height of a tile in a slippy-based map, in pixels\&.
 .TP
-\fB::map\fR \fBslippy tile valid\fR \fItile\fR \fIlevels\fR ?\fImsgvar\fR?
-This method checks whether \fItile\fR described a valid tile in a
-slippy-based map containing that many zoom \fIlevels\fR\&. The result is
-a boolean value, \fBtrue\fR if the tile is valid, and \fBfalse\fR
-otherwise\&. For the latter a message is left in the variable named by
-\fImsgvar\fR, should it be specified\&.
+\fB::map\fR \fBslippy tile valid\fR \fIzoom\fR \fIrow\fR \fIcolumn\fR \fIlevels\fR ?\fImsgvar\fR?
+This command checks if the tile described by \fIzoom\fR, \fIrow\fR, and \fIcolumn\fR is valid for a
+slippy-based map having that many zoom \fIlevels\fR, or not\&.
+The result is a boolean value, \fBtrue\fR if the tile is valid, and \fBfalse\fR otherwise\&.
+In the latter case a message is left in the variable named by \fImsgvar\fR, should it be specified\&.
+.TP
+\fB::map\fR \fBslippy geo box 2point\fR \fIzoom\fR \fIgeobox\fR
+The command converts the geographical box \fIgeobox\fR to a point box in the canvas, for the
+specified \fIzoom\fR level, and returns that box\&.
+.TP
+\fB::map\fR \fBslippy geo box corners\fR \fIgeobox\fR
+This command returns a list containing the four corner locations implied by the geographical box
+\fIgeobox\fR\&. The four points are top-left, bottom-left, top-right, and bottom-right, in that order\&.
+.TP
+\fB::map\fR \fBslippy geo box opposites\fR \fIgeobox\fR
+This command returns a list containing the two principal corner locations implied by the
+geographical box \fIgeobox\fR\&. The two points are top-left, and bottom-right, in that order\&.
+.TP
+\fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
+This command calculates the zoom level such that the \fIgeobox\fR will fit into a viewport given by
+\fIcanvdim\fR (a 2-element list containing the width and height of said viewport) and returns it\&.
 .sp
-A tile identifier as stored in \fItile\fR is a list containing zoom
-level, tile row, and tile column, in this order\&. The command
-essentially checks this, i\&.e\&. the syntax, that the zoom level is
-between 0 and "\fIlevels\fR-1", and that the row/col information is
-within the boundaries for the zoom level, i\&.e\&. 0 \&.\&.\&.
-"[tiles $zoom]-1"\&.
+The zoom level will be made to fit within the range \fIzmin\fR\&.\&.\&.\fIzmax\fR\&.
+When \fIzmin\fR is not specified it will default to \fB0\fR\&.
 .TP
 \fB::map\fR \fBslippy geo distance\fR \fIgeo1\fR \fIgeo2\fR
-This method computes the great-circle distance between the two
-\fIEarth-based\fR geographical locations in meters and returns that
-value\&. The zoom level is irrelevant to the calculation and ignored\&.
+This command computes the great-circle distance between the two geographical locations in meters and
+returns that value\&.
 .sp
 The code is based on
 \fIhttps://wiki\&.tcl-lang\&.org/page/geodesy\fR take on the
 \fIhaversine formula\fR [https://en\&.wikipedia\&.org/wiki/Haversine_formula]\&.
 .TP
-\fB::map\fR \fBslippy geo 2tile\fR \fIgeo\fR
-Converts a geographical location at a zoom level (\fIgeo\fR, a list
-containing zoom level, latitude, and longitude, in this order) to a
-tile identifier (list containing zoom level, row, and column) at that
-level\&. The tile identifier uses pure integer numbers for the tile
-coordinates, for all geographic coordinates mapping to that tile\&.
+\fB::map\fR \fBslippy geo distance*\fR \fIclosed\fR \fIgeo\fR\&.\&.\&.
+An extension of \fBmap slippy geo distance\fR this command computes the cumulative distance along
+the path specified by the ordered set of geographical locations in meters, and returns it\&.
+.sp
+If the path is marked as \fIclosed\fR (i\&.e\&. a polygon/loop) the result contains the distance
+between last and first element of the path as well, making the result the length of the perimeter of
+the area described by the locations\&.
 .TP
-\fB::map\fR \fBslippy geo 2tile\&.float\fR \fIgeo\fR
-Converts a geographical location at a zoom level (\fIgeo\fR, a list
-containing zoom level, latitude, and longitude, in this order) to a
-tile identifier (list containing zoom level, row, and column) at that
-level\&. The tile identifier uses floating point numbers for the tile
-coordinates, representing not only the tile the geographic coordinates
-map to, but also the fractional location inside of that tile\&.
+\fB::map\fR \fBslippy geo distance-list\fR \fIclosed\fR \fIgeo-list\fR
+As a variant of \fBmap slippy geo distance*\fR this command takes the path to compute the length
+of as a single list of geographical locations, instead of a varying number of arguments\&.
 .TP
-\fB::map\fR \fBslippy geo 2point\fR \fIgeo\fR
-Converts a geographical location at a zoom level (\fIgeo\fR, a list
-containing zoom level, latitude, and longitude, in this order) to a
-pixel position (list containing zoom level, y, and x) at that level\&.
+\fB::map\fR \fBslippy geo bbox\fR \fIgeo\fR\&.\&.\&.
 .TP
-\fB::map\fR \fBslippy tile 2geo\fR \fItile\fR
-Converts a tile identifier at a zoom level (\fItile\fR, list
-containing zoom level, row, and column) to a geographical location
-(list containing zoom level, latitude, and longitude, in this order)
-at that level\&.
+\fB::map\fR \fBslippy geo bbox-list\fR \fIgeo-list\fR
+These two commands compute the bounding box for the specified set of geographical locations and
+return a geographical box\&.
+.sp
+When no geographical locations are specified the box is "\fB0 0 0 0\fR"\&.
+.sp
+The locations are specified as either a varying number of arguments, or as a single list\&.
 .TP
-\fB::map\fR \fBslippy tile 2point\fR \fItile\fR
-Converts a tile identifier at a zoom level (\fItile\fR, a list
-containing zoom level, row, and column, in this order) to a pixel
-position (list containing zoom level, y, and x) at that level\&.
+\fB::map\fR \fBslippy geo center\fR \fIgeo\fR\&.\&.\&.
 .TP
-\fB::map\fR \fBslippy point 2geo\fR \fIpoint\fR
-Converts a pixel position at a zoom level (\fIpoint\fR, list
-containing zoom level, y, and x) to a geographical location (list
-containing zoom level, latitude, and longitude, in this order) at that
-level\&.
+\fB::map\fR \fBslippy geo center-list\fR \fIgeo-list\fR
+These two commands compute the center of the bounding box for the specified set of geographical
+locations\&.
+.sp
+When no geographical locations are specified the center is "\fB0 0\fR"\&.
+.sp
+The locations are specified as either a varying number of arguments, or as a single list\&.
 .TP
-\fB::map\fR \fBslippy point 2tile\fR \fIpoint\fR
-Converts a pixel position at a zoom level (\fIpoint\fR, a list
-containing zoom level, y, and x, in this order) to a tile identifier
-(list containing zoom level, row, and column) at that level\&.
+\fB::map\fR \fBslippy geo diameter\fR \fIgeo\fR\&.\&.\&.
 .TP
-\fB::map\fR \fBslippy fit geobox\fR \fIcanvdim\fR \fIgeobox\fR \fIzmin\fR \fIzmax\fR
-Calculates the zoom level (whithin the bounds \fIzmin\fR and
-\fIzmax\fR) such that \fIgeobox\fR (a 4-element list containing the
-latitudes and longitudes lat0, lat1, lon0 and lon1 of a geo box,
-in this order) fits into a viewport given by \fIcanvdim\fR, a
-2-element list containing the width and height of the viewport, in
-this order\&.
+\fB::map\fR \fBslippy geo diameter-list\fR \fIgeo-list\fR
+These two commands compute the diameter for the specified set of geographical locations, in meters\&.
+The diameter is the maximum of the pair-wise distances between all locations\&.
+.sp
+When less than two geographical locations are specified the diameter is "\fB0\fR"\&.
+.sp
+The locations are specified as either a varying number of arguments, or as a single list\&.
+.TP
+\fB::map\fR \fBslippy geo 2point\fR \fIzoom\fR \fIgeo\fR
+This command converts the geographical location \fIgeo\fR to a point in the canvas, for the
+specified \fIzoom\fR level, and returns that point\&.
+.TP
+\fB::map\fR \fBslippy geo 2point*\fR \fIzoom\fR \fIgeo\fR\&.\&.\&.
+.TP
+\fB::map\fR \fBslippy geo 2point-list\fR \fIzoom\fR \fIgeo-list\fR
+These two commands are extensions of \fBmap slippy geo 2point\fR which take a series of
+geographical locations as either a varying number of arguments or a single list, convert them all to
+points as per the specified \fIzoom\fR level and return a list of the results\&.
+.TP
+\fB::map\fR \fBslippy point box 2geo\fR \fIzoom\fR \fIpointbox\fR
+The command converts the point box \fIpointbox\fR to a geographical box in the canvas, as per the
+specified \fIzoom\fR level, and returns that box\&.
+.TP
+\fB::map\fR \fBslippy point box corners\fR \fIpointbox\fR
+This command returns a list containing the four corner locations implied by the point box
+\fIpointbox\fR\&. The four points are top-left, bottom-left, top-right, and bottom-right, in that
+order\&.
+.TP
+\fB::map\fR \fBslippy point box opposites\fR \fIpointbox\fR
+This command returns a list containing the two principal corner locations implied by the point box
+\fIpointbox\fR\&. The two points are top-left, and bottom-right, in that order\&.
+.TP
+\fB::map\fR \fBslippy point distance\fR \fIpoint1\fR \fIpoint2\fR
+This command computes the euclidena distance between the two points in pixels and returns that
+value\&.
+.TP
+\fB::map\fR \fBslippy point distance*\fR \fIclosed\fR \fIpoint\fR\&.\&.\&.
+An extension of \fBmap slippy point distance\fR this command computes the cumulative distance
+along the path specified by the ordered set of points, and returns it\&.
+.sp
+If the path is marked as \fIclosed\fR (i\&.e\&. a polygon/loop) the result contains the distance
+between last and first element of the path as well, making the result the length of the perimeter of
+the area described by the locations\&.
+.TP
+\fB::map\fR \fBslippy point distance-list\fR \fIclosed\fR \fIpoint-list\fR
+As a variant of \fBmap slippy point distance*\fR this command takes the path to compute the length
+of as a single list of points, instead of a varying number of arguments\&.
+.TP
+\fB::map\fR \fBslippy point bbox\fR \fIpoint\fR\&.\&.\&.
+.TP
+\fB::map\fR \fBslippy point bbox-list\fR \fIpoint-list\fR
+These two commands compute the bounding box for the specified set of points and return a point box\&.
+.sp
+When no points are specified the box is "\fB0 0 0 0\fR"\&.
+.sp
+The locations are specified as either a varying number of arguments, or as a single list\&.
+.TP
+\fB::map\fR \fBslippy point center\fR \fIpoint\fR\&.\&.\&.
+.TP
+\fB::map\fR \fBslippy point center-list\fR \fIpoint-list\fR
+These two commands compute the center of the bounding box for the specified set of points\&.
+.sp
+When no points are specified the center is "\fB0 0\fR"\&.
+.sp
+The locations are specified as either a varying number of arguments, or as a single list\&.
+.TP
+\fB::map\fR \fBslippy point diameter\fR \fIpoint\fR\&.\&.\&.
+.TP
+\fB::map\fR \fBslippy point diameter-list\fR \fIpoint-list\fR
+These two commands compute the diameter for the specified set of points, in pixels\&.
+The diameter is the maximum of the pair-wise distances between all locations\&.
+.sp
+When less than two points are specified the diameter is "\fB0\fR"\&.
+.sp
+The locations are specified as either a varying number of arguments, or as a single list\&.
+.TP
+\fB::map\fR \fBslippy point 2geo\fR \fIzoom\fR \fIpoint\fR
+This command converts the \fIpoint\fR in the canvas, for the specified \fIzoom\fR level, to a
+geograhical location, and returns that location\&.
+.TP
+\fB::map\fR \fBslippy point 2geo*\fR \fIzoom\fR \fIpoint\fR\&.\&.\&.
+.TP
+\fB::map\fR \fBslippy point 2geo-list\fR \fIzoom\fR \fIpoint-list\fR
+These two commands are extensions of \fBmap slippy point 2geo\fR which take a series of points as
+either a varying number of arguments or a single list, convert them all to geographical locations as
+per the specified \fIzoom\fR level and return a list of the results\&.
+.TP
+\fB::map\fR \fBslippy point simplify radial\fR \fIthreshold\fR \fIpoint-list\fR
+This command takes a path of points (as a single list), simplifies the path using the
+\fIRadial Distance\fR algorithm and returns the simplified path as list of points\&.
+.sp
+In essence the algorithm keeps only the first of adjacent points nearer to that first point
+than the threshold, and drops the others\&.
+.TP
+\fB::map\fR \fBslippy point simplify rdp\fR \fIpoint-list\fR
+This command takes a patch of points (as a single list), simplifies it using the
+\fInon-parametric\fR \fIRamer-Douglas-Peucker\fR algorithm and returns the simplified path as
+list of points\&.
 .PP
-.SH "COORDINATE SYSTEMS"
-The commands of this package operate on three distinct coordinate
-systems, which are explained below\&.
-.SS GEOGRAPHIC
-\fIGeographic\fRal coordinates are represented by \fILatitude\fR and
-\fILongitude\fR, each of which is measured in degrees, as they are
-essentially angles\&.
-.PP
-\fBZero\fR longitude is the \fIGreenwich meridian\fR, with
-positive values going \fIeast\fR, and negative values going
-\fIwest\fR, for a total range of +/- 180 degrees\&. Note that +180 and
--180 longitude are the same \fImeridian\fR, opposite to greenwich\&.
-.PP
-\fBzero\fR latitude the \fIEquator\fR, with positive values
-going \fInorth\fR and negative values going \fIsouth\fR\&. While the
-true range is +/- 90 degrees the projection used by the package
-requires us to cap the range at +/- 85\&.05112877983284 degrees\&. This
-means that north and south pole are not representable and not part of
-any map\&.
-.SS TILES
-While \fBGeographic\fRal coordinates of the previous section are
-independent of zoom level the \fItile coordinates\fR are not\&.
-.PP
-Generally the integer part of tile coordinates represent the
-row and column number of the tile in question, wheras the fractional
-parts signal how far inside the tile the location in question is, with
-pure integer coordinates (no fractional part) representing the upper
-left corner of the tile\&.
-.PP
-The zero point of the map is at the upper left corner,
-regardless of zoom level, with larger coordinates going right (east)
-and down (south), and smaller coordinates going left (west) and up
-(north)\&. Again regardless of zxoom level\&.
-.PP
-Negative tile coordinates are not allowed\&.
-.PP
-At zoom level 0 the whole map is represented by a single,
-putting the geographic zero at 1/2, 1/2 of tile coordinates, and the
-range of tile coordinates as [0\&.\&.\&.1]\&.
-.PP
-To go from a zoom level N to the next deeper level N+1 each
-tile of level N is split into its four quadrants, which then are the
-tiles of level N+1\&.
-.PP
-This means that at zoom level N the map is sliced (horizontally
-and vertically) into 2^N stripes, for a total of 4^N tiles, with tile
-coordinates ranging from 0 to 2^N+1\&.
-.SS PIXELS/POINTS
-\fIpixel coordinates\fR, also called \fIpoint coordinates\fR are
-in essence \fBtile coordinates\fR scaled by the size of
-the image representing a tile\&. This tile size currently has a fixed
-value, \fB256\fR\&.
 .SH REFERENCES
 .IP [1]
 \fIhttp://wiki\&.openstreetmap\&.org/wiki/Main_Page\fR
