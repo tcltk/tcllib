@@ -1,8 +1,8 @@
-## -*- tcl -*-
+## -*- mode: tcl; fill-column: 90 -*-
 # ### ### ### ######### ######### #########
 ##
-## Common information for slippy based maps. I.e. tile size, relationship between zoom level and map
-## size, etc.
+## Common information and commands for slippy based maps. I.e. tile size, relationship
+## between zoom level and map size, etc.
 ##
 ## See
 ##	http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Pseudo-Code
@@ -50,6 +50,7 @@ proc ::map::slippy::LoadAccelerator {key} {
 	    if {[catch {
 		source [file join $selfdir map_slippy_tcl.tcl]
 	    } msg]} {
+		#puts /$msg
 		return 0
 	    }
 	    set isok [llength [info commands ::map::slippy::tcl_tiles]]
@@ -97,9 +98,14 @@ proc ::map::slippy::SwitchTo {key} {
 	geo::bbox			point::bbox
 	geo::bbox-list			point::bbox-list
 	geo::box::2point		point::box::2geo
+	geo::box::center		point::box::center
 	geo::box::corners		point::box::corners
+	geo::box::diameter		point::box::diameter
+	geo::box::dimensions		point::box::dimensions
 	geo::box::fit
+	geo::box::inside		point::box::inside
 	geo::box::opposites		point::box::opposites
+	geo::box::perimeter		point::box::perimeter
 	geo::center			point::center
 	geo::center-list		point::center-list
 	geo::diameter			point::diameter
@@ -208,8 +214,9 @@ namespace eval ::map::slippy::geo {
     namespace ensemble create
 }
 namespace eval ::map::slippy::geo::box {
-        namespace export 2point corners fit opposites
-        namespace ensemble create
+    namespace export fit 2point corners opposites center dimensions inside \
+	diameter perimeter
+    namespace ensemble create
 }
 namespace eval ::map::slippy::point {
     namespace export \
@@ -219,8 +226,9 @@ namespace eval ::map::slippy::point {
     namespace ensemble create
 }
 namespace eval ::map::slippy::point::box {
-        namespace export 2geo corners opposites
-        namespace ensemble create
+    namespace export 2geo corners opposites center dimensions inside \
+	diameter perimeter
+    namespace ensemble create
 }
 namespace eval ::map::slippy::point::simplify {
     namespace export radial rdp

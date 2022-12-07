@@ -95,6 +95,39 @@ critcl::cproc ::map::slippy::critcl_tile_valid {
     return 1;
 }
 
+critcl::cproc ::map::slippy::critcl_geo_box_inside {
+    Tcl_Interp* interp
+    geobox      gbox
+    geo         g
+} bool {
+    return ((g.lat >= gbox.lat0) && (g.lat <= gbox.lat1) &&
+	    (g.lon >= gbox.lon0) && (g.lon <= gbox.lon1));
+}
+
+critcl::cproc ::map::slippy::critcl_geo_box_center {
+    Tcl_Interp* interp
+    geobox      gbox
+} geo {
+    geo out = {
+	.lat = (gbox.lat0 + gbox.lat1) / 2.,
+	.lon = (gbox.lon0 + gbox.lon1) / 2.
+    };
+
+    return out;
+}
+
+critcl::cproc ::map::slippy::critcl_geo_box_dimensions {
+    Tcl_Interp* interp
+    geobox      gbox
+} wxh {
+    wxh out = {
+	.w = (gbox.lon1 - gbox.lon0),
+	.h = (gbox.lat1 - gbox.lat0)
+    };
+
+    return out;
+}
+
 critcl::cproc ::map::slippy::critcl_geo_box_2point {
     int    zoom
     geobox gbox
@@ -144,6 +177,21 @@ critcl::cproc ::map::slippy::critcl_geo_box_corners {
     return geo_box_list (0, interp, 4, g);
 }
 
+critcl::cproc ::map::slippy::critcl_geo_box_diameter {
+    Tcl_Interp* interp
+    geobox      gbox
+} double {
+    geo g[2] = {{
+	.lat = gbox.lat0,
+	.lon = gbox.lon0
+    }, {
+	.lat = gbox.lat1,
+	.lon = gbox.lon1
+    }};
+
+    return geo_distance_list (0, 2, g);
+}
+
 critcl::cproc ::map::slippy::critcl_geo_box_opposites {
     Tcl_Interp* interp
     geobox      gbox
@@ -157,6 +205,27 @@ critcl::cproc ::map::slippy::critcl_geo_box_opposites {
     }};
 
     return geo_box_list (0, interp, 2, g);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_box_perimeter {
+    Tcl_Interp* interp
+    geobox      gbox
+} double {
+    geo g[4] = {{
+	.lat = gbox.lat0,
+	.lon = gbox.lon0
+    }, {
+	.lat = gbox.lat0,
+	.lon = gbox.lon1
+    }, {
+	.lat = gbox.lat1,
+	.lon = gbox.lon0
+    }, {
+	.lat = gbox.lat1,
+	.lon = gbox.lon1
+    }};
+
+    return geo_distance_list (1, 4, g);
 }
 
 critcl::cproc ::map::slippy::critcl_geo_box_fit {
@@ -347,6 +416,39 @@ critcl::cproc ::map::slippy::critcl_geo_2point_list {
     return point_box_list (1, interp, geos.c, geos_2points (zoom, geos.c, geos.v));
 }
 
+critcl::cproc ::map::slippy::critcl_point_box_inside {
+    Tcl_Interp* interp
+    pointbox    pbox
+    point       p
+} bool {
+    return ((p.x >= pbox.x0) && (p.x <= pbox.x1) &&
+	    (p.y >= pbox.y0) && (p.y <= pbox.y1));
+}
+
+critcl::cproc ::map::slippy::critcl_point_box_center {
+    Tcl_Interp* interp
+    pointbox    pbox
+} point {
+    point out = {
+	.x = (pbox.x0 + pbox.x1) / 2.,
+	.y = (pbox.y0 + pbox.y1) / 2.
+    };
+
+    return out;
+}
+
+critcl::cproc ::map::slippy::critcl_point_box_dimensions {
+    Tcl_Interp* interp
+    pointbox      pbox
+} wxh {
+    wxh out = {
+	.w = (pbox.x1 - pbox.x0),
+	.h = (pbox.y1 - pbox.y0)
+    };
+
+    return out;
+}
+
 critcl::cproc ::map::slippy::critcl_point_box_2geo {
     int      zoom
     pointbox pbox
@@ -396,6 +498,21 @@ critcl::cproc ::map::slippy::critcl_point_box_corners {
     return point_box_list (0, interp, 4, p);
 }
 
+critcl::cproc ::map::slippy::critcl_point_box_diameter {
+    Tcl_Interp* interp
+    pointbox    pbox
+} double {
+    point p[2] = {{
+	.x = pbox.x0,
+	.y = pbox.y0
+    }, {
+	.x = pbox.x1,
+	.y = pbox.y1
+    }};
+
+    return point_distance_list (0, 2, p);
+}
+
 critcl::cproc ::map::slippy::critcl_point_box_opposites {
     Tcl_Interp* interp
     pointbox    pbox
@@ -409,6 +526,27 @@ critcl::cproc ::map::slippy::critcl_point_box_opposites {
     }};
 
     return point_box_list (0, interp, 2, p);
+}
+
+critcl::cproc ::map::slippy::critcl_point_box_perimeter {
+    Tcl_Interp* interp
+    pointbox    pbox
+} double {
+    point p[4] = {{
+	.x = pbox.x0,
+	.y = pbox.y0
+    }, {
+	.x = pbox.x0,
+	.y = pbox.y1
+    }, {
+	.x = pbox.x1,
+	.y = pbox.y0
+    }, {
+	.x = pbox.x1,
+	.y = pbox.y1
+    }};
+
+    return point_distance_list (1, 4, p);
 }
 
 critcl::cproc ::map::slippy::critcl_point_distance {

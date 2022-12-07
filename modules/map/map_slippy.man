@@ -70,16 +70,43 @@ The command converts the geographical box [arg geobox] to a point box in the can
 specified [arg zoom] level, and returns that box.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box center}] [arg geobox]]
+
+The command returns the center of the geographical box [arg geobox].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo box corners}] [arg geobox]]
 
 This command returns a list containing the four corner locations implied by the geographical box
 [arg geobox]. The four points are top-left, bottom-left, top-right, and bottom-right, in that order.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box diameter}] [arg geobox]]
+
+The command returns the diameter of the geographical box [arg geobox], in meters.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box dimensions}] [arg geobox]]
+
+The command returns the dimensions of the geographical box [arg geobox], width and height, in this
+order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box inside}] [arg geobox] [arg geo]]
+
+The command tests if the geographical location [arg geo] is contained in the geographical
+box [arg geobox] or not. It returns [const true] if so, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo box opposites}] [arg geobox]]
 
 This command returns a list containing the two principal corner locations implied by the
 geographical box [arg geobox]. The two points are top-left, and bottom-right, in that order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box perimeter}] [arg geobox]]
+
+The command returns the perimeter of the geographical box [arg geobox], in meters.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo box fit}] [arg geobox] \
@@ -172,6 +199,11 @@ The command converts the point box [arg pointbox] to a geographical box in the c
 specified [arg zoom] level, and returns that box.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box center}] [arg pointbox]]
+
+The command returns the center of the [arg pointbox].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy point box corners}] [arg pointbox]]
 
 This command returns a list containing the four corner locations implied by the point box
@@ -179,10 +211,31 @@ This command returns a list containing the four corner locations implied by the 
 order.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box diameter}] [arg pointbox]]
+
+The command returns the diameter of the [arg pointbox], in pixels.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box dimensions}] [arg pointbox]]
+
+The command returns the dimensions of the [arg pointbox], width and height, in this order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box inside}] [arg pointbox] [arg point]]
+
+The command tests if the [arg point] is contained in the [arg pointbox] or not.
+It returns [const true] if so, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy point box opposites}] [arg pointbox]]
 
 This command returns a list containing the two principal corner locations implied by the point box
 [arg pointbox]. The two points are top-left, and bottom-right, in that order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box perimeter}] [arg pointbox]]
+
+The command returns the perimeter of the [arg pointbox], in pixels.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy point distance}] [arg point1] [arg point2]]
