@@ -63,6 +63,40 @@ proc ::map::slippy::tcl_tile_valid {zoom row col levels {msgv {}}} {
     return 1
 }
 
+proc ::map::slippy::tcl_geo_box_inside {gbox g} {
+    ::map::slippy::Check4 $gbox
+    ::map::slippy::Check2 $g
+    lassign $gbox latmin lonmin latmax lonmax
+    lassign $g    lat lon
+
+    if {$lat < $latmin} { return 0 }
+    if {$lat > $latmax} { return 0 }
+    if {$lon < $lonmin} { return 0 }
+    if {$lon > $lonmax} { return 0 }
+
+    return 1
+}
+
+proc ::map::slippy::tcl_geo_box_center {gbox} {
+    ::map::slippy::Check4 $gbox
+    lassign $gbox latmin lonmin latmax lonmax
+
+    set lat [expr {($latmin + $latmax)/2.}]
+    set lon [expr {($lonmin + $lonmax)/2.}]
+
+    return [list $lat $lon]
+}
+
+proc ::map::slippy::tcl_geo_box_dimensions {gbox} {
+    ::map::slippy::Check4 $gbox
+    lassign $gbox latmin lonmin latmax lonmax
+
+    set dlat [expr {$latmax - $latmin}]
+    set dlon [expr {$lonmax - $lonmin}]
+
+    return [list $dlon $dlat]
+}
+
 proc ::map::slippy::tcl_geo_box_2point {zoom gbox} {
     return [map slippy point bbox-list [map slippy geo 2point-list $zoom [opposites $gbox]]]
 }
@@ -75,9 +109,19 @@ proc ::map::slippy::tcl_geo_box_corners {gbox} {
 		[list $latmax $lonmin] [list $latmax $lonmax]]
 }
 
+proc ::map::slippy::tcl_geo_box_diameter {gbox} {
+    ::map::slippy::Check4 $gbox
+    lassign $gbox latmin lonmin latmax lonmax
+    return [map slippy geo distance* 0 [list $latmin $lonmin] [list $latmax $lonmax]]
+}
+
 proc ::map::slippy::tcl_geo_box_opposites {gbox} {
     ::map::slippy::Check4 $gbox
     return [list [lrange $gbox 0 1] [lrange $gbox 2 3]]
+}
+
+proc ::map::slippy::tcl_geo_box_perimeter {gbox} {
+    return [map slippy geo distance-list 1 [corners $gbox]]
 }
 
 proc ::map::slippy::tcl_geo_box_fit {gbox canvdim zmax {zmin 0}} {
@@ -86,7 +130,7 @@ proc ::map::slippy::tcl_geo_box_fit {gbox canvdim zmax {zmin 0}} {
 
     variable ::map::slippy::ourtilesize
     lassign $canvdim canvw canvh
-    lassign $gbox  lat0 lon0 lat1 lon1
+    lassign [dimensions $gbox] gw gh
 
     # NOTE we assume ourtilesize == [map::slippy length 0].
     # Further, we assume that each zoom step "grows" the linear resolution by a factor 2
@@ -94,8 +138,8 @@ proc ::map::slippy::tcl_geo_box_fit {gbox canvdim zmax {zmin 0}} {
     set canvw [expr {abs($canvw)}]
     set canvh [expr {abs($canvh)}]
     set z [expr {int(log(min( \
-		  ($canvh/$ourtilesize) / (abs($lat1 - $lat0)/180), \
-		  ($canvw/$ourtilesize) / (abs($lon1 - $lon0)/360))) \
+		  ($canvh/$ourtilesize) / (abs($gh)/180), \
+		  ($canvw/$ourtilesize) / (abs($gw)/360))) \
                  / log(2))}]
     #puts z'initial:$z
     # clamp ...
@@ -109,15 +153,12 @@ proc ::map::slippy::tcl_geo_box_fit {gbox canvdim zmax {zmin 0}} {
 	# Now we can run "uphill", then there's z0 = z - 1 and "downhill", then there's z1 = z + 1
 	# (from the last iteration)
 	#puts "try zoom $z"
-	lassign [map slippy geo 2point $z [list $lat0 $lon0]] y0 x0
-	lassign [map slippy geo 2point $z [list $lat1 $lon1]] y1 x1
 
-	set w [expr {abs($x1 - $x0)}]
-	set h [expr {abs($y1 - $y0)}]
+	lassign [map slippy point box dimensions [2point $z $gbox]] w h
 
-	#puts dimensions|w|$w|$canvw|h|$h|$canvh|
+	#puts dimensions|w|[expr {abs($w)}]|$canvw|h|[expr {abs($h)}]|$canvh|
 
-	if { ($w > $canvw) || ($h > $canvh) } {
+	if { (abs($w) > $canvw) || (abs($h) > $canvh) } {
 	    # too big: shrink
 	    #puts "too big: shrink..."
 	    if { [info exists z0] } break; # but not if we come "from below"
@@ -262,10 +303,10 @@ proc ::map::slippy::tcl_geo_center_list {geos} {
 
     }
 
-    set y [expr {($lat0 + $lat1)/2.}]
-    set x [expr {($lon0 + $lon1)/2.}]
+    set lat [expr {($lat0 + $lat1)/2.}]
+    set lon [expr {($lon0 + $lon1)/2.}]
 
-    return [list $y $x]
+    return [list $lat $lon]
 }
 
 proc ::map::slippy::tcl_geo_diameter {args} {
@@ -323,6 +364,40 @@ proc ::map::slippy::tcl_geo_2point_list {zoom geos} {
     return [lmap geo $geos { 2point $zoom $geo }]
 }
 
+proc ::map::slippy::tcl_point_box_inside {pbox p} {
+    ::map::slippy::Check4 $pbox
+    ::map::slippy::Check2 $p
+    lassign $pbox x0 y0 x1 y1
+    lassign $p    x y
+
+    if {$y < $y0} { return 0 }
+    if {$y > $y1} { return 0 }
+    if {$x < $x0} { return 0 }
+    if {$x > $x1} { return 0 }
+
+    return 1
+}
+
+proc ::map::slippy::tcl_point_box_center {pbox} {
+    ::map::slippy::Check4 $pbox
+    lassign $pbox x0 y0 x1 y1
+
+    set x [expr {($x0 + $x1)/2.}]
+    set y [expr {($y0 + $y1)/2.}]
+
+    return [list $x $y]
+}
+
+proc ::map::slippy::tcl_point_box_dimensions {pbox} {
+    ::map::slippy::Check4 $pbox
+    lassign $pbox x0 y0 x1 y1
+
+    set dx [expr {$x1 - $x0}]
+    set dy [expr {$y1 - $y0}]
+
+    return [list $dx $dy]
+}
+
 proc ::map::slippy::tcl_point_box_2geo {zoom pbox} {
     return [map slippy geo bbox-list [map slippy point 2geo-list $zoom [opposites $pbox]]]
 }
@@ -335,9 +410,19 @@ proc ::map::slippy::tcl_point_box_corners {pbox} {
 		[list $xmax $ymin] [list $xmax $ymax]]
 }
 
+proc ::map::slippy::tcl_point_box_diameter {pbox} {
+    ::map::slippy::Check4 $pbox
+    lassign $pbox x0 y0 x1 y1
+    return [map slippy point distance* 0 [list $x0 $y0] [list $x1 $y1]]
+}
+
 proc ::map::slippy::tcl_point_box_opposites {pbox} {
     ::map::slippy::Check4 $pbox
     return [list [lrange $pbox 0 1] [lrange $pbox 2 3]]
+}
+
+proc ::map::slippy::tcl_point_box_perimeter {pbox} {
+    return [map slippy point distance-list 1 [corners $pbox]]
 }
 
 proc ::map::slippy::tcl_point_distance {pointa pointb} {

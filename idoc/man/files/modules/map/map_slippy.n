@@ -287,9 +287,19 @@ package require \fBmap::slippy  ?0\&.8?\fR
 .sp
 \fB::map\fR \fBslippy geo box 2point\fR \fIzoom\fR \fIgeobox\fR
 .sp
+\fB::map\fR \fBslippy geo box center\fR \fIgeobox\fR
+.sp
 \fB::map\fR \fBslippy geo box corners\fR \fIgeobox\fR
 .sp
+\fB::map\fR \fBslippy geo box diameter\fR \fIgeobox\fR
+.sp
+\fB::map\fR \fBslippy geo box dimensions\fR \fIgeobox\fR
+.sp
+\fB::map\fR \fBslippy geo box inside\fR \fIgeobox\fR \fIgeo\fR
+.sp
 \fB::map\fR \fBslippy geo box opposites\fR \fIgeobox\fR
+.sp
+\fB::map\fR \fBslippy geo box perimeter\fR \fIgeobox\fR
 .sp
 \fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
 .sp
@@ -319,9 +329,19 @@ package require \fBmap::slippy  ?0\&.8?\fR
 .sp
 \fB::map\fR \fBslippy point box 2geo\fR \fIzoom\fR \fIpointbox\fR
 .sp
+\fB::map\fR \fBslippy point box center\fR \fIpointbox\fR
+.sp
 \fB::map\fR \fBslippy point box corners\fR \fIpointbox\fR
 .sp
+\fB::map\fR \fBslippy point box diameter\fR \fIpointbox\fR
+.sp
+\fB::map\fR \fBslippy point box dimensions\fR \fIpointbox\fR
+.sp
+\fB::map\fR \fBslippy point box inside\fR \fIpointbox\fR \fIpoint\fR
+.sp
 \fB::map\fR \fBslippy point box opposites\fR \fIpointbox\fR
+.sp
+\fB::map\fR \fBslippy point box perimeter\fR \fIpointbox\fR
 .sp
 \fB::map\fR \fBslippy point distance\fR \fIpoint1\fR \fIpoint2\fR
 .sp
@@ -467,13 +487,30 @@ In the latter case a message is left in the variable named by \fImsgvar\fR, shou
 The command converts the geographical box \fIgeobox\fR to a point box in the canvas, for the
 specified \fIzoom\fR level, and returns that box\&.
 .TP
+\fB::map\fR \fBslippy geo box center\fR \fIgeobox\fR
+The command returns the center of the geographical box \fIgeobox\fR\&.
+.TP
 \fB::map\fR \fBslippy geo box corners\fR \fIgeobox\fR
 This command returns a list containing the four corner locations implied by the geographical box
 \fIgeobox\fR\&. The four points are top-left, bottom-left, top-right, and bottom-right, in that order\&.
 .TP
+\fB::map\fR \fBslippy geo box diameter\fR \fIgeobox\fR
+The command returns the diameter of the geographical box \fIgeobox\fR, in meters\&.
+.TP
+\fB::map\fR \fBslippy geo box dimensions\fR \fIgeobox\fR
+The command returns the dimensions of the geographical box \fIgeobox\fR, width and height, in this
+order\&.
+.TP
+\fB::map\fR \fBslippy geo box inside\fR \fIgeobox\fR \fIgeo\fR
+The command tests if the geographical location \fIgeo\fR is contained in the geographical
+box \fIgeobox\fR or not\&. It returns \fBtrue\fR if so, and \fBfalse\fR else\&.
+.TP
 \fB::map\fR \fBslippy geo box opposites\fR \fIgeobox\fR
 This command returns a list containing the two principal corner locations implied by the
 geographical box \fIgeobox\fR\&. The two points are top-left, and bottom-right, in that order\&.
+.TP
+\fB::map\fR \fBslippy geo box perimeter\fR \fIgeobox\fR
+The command returns the perimeter of the geographical box \fIgeobox\fR, in meters\&.
 .TP
 \fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
 This command calculates the zoom level such that the \fIgeobox\fR will fit into a viewport given by
@@ -547,14 +584,30 @@ points as per the specified \fIzoom\fR level and return a list of the results\&.
 The command converts the point box \fIpointbox\fR to a geographical box in the canvas, as per the
 specified \fIzoom\fR level, and returns that box\&.
 .TP
+\fB::map\fR \fBslippy point box center\fR \fIpointbox\fR
+The command returns the center of the \fIpointbox\fR\&.
+.TP
 \fB::map\fR \fBslippy point box corners\fR \fIpointbox\fR
 This command returns a list containing the four corner locations implied by the point box
 \fIpointbox\fR\&. The four points are top-left, bottom-left, top-right, and bottom-right, in that
 order\&.
 .TP
+\fB::map\fR \fBslippy point box diameter\fR \fIpointbox\fR
+The command returns the diameter of the \fIpointbox\fR, in pixels\&.
+.TP
+\fB::map\fR \fBslippy point box dimensions\fR \fIpointbox\fR
+The command returns the dimensions of the \fIpointbox\fR, width and height, in this order\&.
+.TP
+\fB::map\fR \fBslippy point box inside\fR \fIpointbox\fR \fIpoint\fR
+The command tests if the \fIpoint\fR is contained in the \fIpointbox\fR or not\&.
+It returns \fBtrue\fR if so, and \fBfalse\fR else\&.
+.TP
 \fB::map\fR \fBslippy point box opposites\fR \fIpointbox\fR
 This command returns a list containing the two principal corner locations implied by the point box
 \fIpointbox\fR\&. The two points are top-left, and bottom-right, in that order\&.
+.TP
+\fB::map\fR \fBslippy point box perimeter\fR \fIpointbox\fR
+The command returns the perimeter of the \fIpointbox\fR, in pixels\&.
 .TP
 \fB::map\fR \fBslippy point distance\fR \fIpoint1\fR \fIpoint2\fR
 This command computes the euclidena distance between the two points in pixels and returns that

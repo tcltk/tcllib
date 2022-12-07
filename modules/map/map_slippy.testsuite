@@ -19,9 +19,14 @@ syntax {
     geo::bbox			 args
     geo::bbox-list		 geos
     geo::box::2point		{zoom gbox}
+    geo::box::center		 gbox
     geo::box::corners		 gbox
+    geo::box::diameter		 gbox
+    geo::box::dimensions	 gbox
     geo::box::fit		{gbox canvdim zmax ?zmin?}
+    geo::box::inside		{gbox g}
     geo::box::opposites		 gbox
+    geo::box::perimeter		 gbox
     geo::center			 args
     geo::center-list		 geos
     geo::diameter		 args
@@ -34,8 +39,13 @@ syntax {
     point::bbox	    		 args
     point::bbox-list	    	 points
     point::box::2geo    	{zoom pbox}
+    point::box::center		 pbox
     point::box::corners 	 pbox
+    point::box::diameter 	 pbox
+    point::box::dimensions	 pbox
+    point::box::inside		{pbox p}
     point::box::opposites	 pbox
+    point::box::perimeter 	 pbox
     point::center	    	 args
     point::center-list  	 points
     point::diameter	    	 args
@@ -96,19 +106,34 @@ foreach {n levels zoom row col ok msg} {
 unset n levels zoom row col ok msg msgv
 
 # -------------------------------------------------------------------------
-# Box fitting
+# Box fitting, diameter, perimeter
 # -------------------------------------------------------------------------
 
-foreach {n canvas box min max result} {
-    0 {380.0 267.0}  {49.300005 -123.158551 49.301624 -123.157253} 0 18 17
-    1 {380.0 267.0}  {49.292809 -123.1589   49.314037 -123.116543} 0 18 13
-    2 {1410.0 913.0} {49.300005 -123.158551 49.301624 -123.157253} 0 18 18
-    3 {1423.0 913.0} {49.292809 -123.1589   49.314037 -123.116543} 0 18 15
+foreach {n canvas box min max result gdiameter gperimeter pdiameter pperimeter} {
+    0 {380.0 267.0}  {49.300005 -123.158551 49.301624 -123.157253} 0 18 17  203.1425    594.5182   0.00208 0.00675
+    1 {380.0 267.0}  {49.292809 -123.1589   49.314037 -123.116543} 0 18 13 3873.41787 13889.032599 0.04738 0.17947
+    2 {1410.0 913.0} {49.300005 -123.158551 49.301624 -123.157253} 0 18 18  203.1425    594.5182   0.00208 0.00675
+    3 {1423.0 913.0} {49.292809 -123.1589   49.314037 -123.116543} 0 18 15 3873.41787 13889.032599 0.04738 0.17947
 } {
-    test map-slippy-${impl}-geo-box-fit-4.$n {fit geobox -> zoom} -body {
+    test map-slippy-${impl}-geo-box-fit-4.$n.0 {geo box fit -> zoom} -body {
         map slippy geo box fit $box $canvas $max $min
     } -result $result
-    break
+
+    test map-slippy-${impl}-geo-box-diameter-4.$n.1 {geo box diameter -> length} -body {
+        map slippy geo box diameter $box
+    } -match 4digits -result $gdiameter
+
+    test map-slippy-${impl}-geo-box-perimeter-4.$n.2 {point box perimeter -> length} -body {
+        map slippy geo box perimeter $box
+    } -match 4digits -result $gperimeter
+
+    test map-slippy-${impl}-point-box-diameter-4.$n.3 {point box diameter -> length} -body {
+        map slippy point box diameter $box
+    } -match 4digits -result $pdiameter
+
+    test map-slippy-${impl}-point-box-perimeter-4.$n.4 {point box perimeter -> length} -body {
+        map slippy point box perimeter $box
+    } -match 4digits -result $pperimeter
 }
 unset n canvas box min max result
 
@@ -162,14 +187,14 @@ unset n meters a b note perimeter
 # Geo - Boxes, Center, Diameter ...
 # -------------------------------------------------------------------------
 
-foreach {n meters a b center note} {
-    0    69976.7972 {51     6} {51     7}     {51 6.5} 51.East
-    1   111195.0837 {51     6} {50     6}     {50.5 6} 51.South
-    2   111195.0837 {0      0} {0      1}     {0 0.5} Equator.East
-    3   111195.0837 {0      0} {1      0}     {0.5 0} Equator.North
-    4      111.1951 {50.777 6} {50.778 6}     {50.7775 6} .
-    5      131.5606 {50.777 6} {50.778 6.001} {50.7775 6.0005} Diagonally.a.bit
-    6 19158338.4931 {50     6} {-50  174}     {0 90} Hopefully-Antipodal
+foreach {n meters dim a b center note} {
+    0    69976.7972 {1 0}         {51     6} {51     7}     {51 6.5}         51.East
+    1   111195.0837 {0 1}         {51     6} {50     6}     {50.5 6}         51.South
+    2   111195.0837 {1 0}         {0      0} {0      1}     {0 0.5}          Equator.East
+    3   111195.0837 {0 1}         {0      0} {1      0}     {0.5 0}          Equator.North
+    4      111.1951 {0 0.001}     {50.777 6} {50.778 6}     {50.7775 6}      .
+    5      131.5606 {0.001 0.001} {50.777 6} {50.778 6.001} {50.7775 6.0005} Diagonally.a.bit
+    6 19158338.4931 {168 100}     {50     6} {-50  174}     {0 90}           Hopefully-Antipodal
 } {
     # 5 ~ 19,158 km ~ 20,000 km ~ half around the world ...
 
@@ -202,8 +227,16 @@ foreach {n meters a b center note} {
     test map-slippy-${impl}-6.$n.5 {center list(geo) -> geo} -body {
         map slippy geo center-list [list $a $b]
     } -match 4digits -result $center
+
+    test map-slippy-${impl}-6.$n.6 {center geobox -> geo} -body {
+        map slippy geo box center $box
+    } -match 4digits -result $center
+
+    test map-slippy-${impl}-6.$n.7 {dimensions geobox -> wxh} -body {
+        map slippy geo box dimensions $box
+    } -match 4digits -result $dim
 }
-unset n meters a b center note lata latb lona lonb
+unset n meters a b center note lata latb lona lonb box dim
 
 # -------------------------------------------------------------------------
 # Converting between the coordinate systems.
@@ -308,14 +341,14 @@ unset n cmd arg
 # Point - Boxes, Center, Diameter ...
 # -------------------------------------------------------------------------
 
-foreach {n diam a b center note} {
-    0   1      {51     6} {51     7}     {51 6.5}		.
-    1   1      {51     6} {50     6}     {50.5 6}		.
-    2   1      {0      0} {0      1}     {0 0.5}		.
-    3   1      {0      0} {1      0}     {0.5 0}		.
-    4   0.0010 {50.777 6} {50.778 6}     {50.7775 6}		.
-    5   0.0014 {50.777 6} {50.778 6.001} {50.7775 6.0005}	.
-    6 195.5096 {50     6} {-50  174}     {0 90}			.
+foreach {n diam dim a b center note} {
+    0   1      {0 1}         {51     6} {51     7}     {51 6.5}		.
+    1   1      {1 0}         {51     6} {50     6}     {50.5 6}		.
+    2   1      {0 1}         {0      0} {0      1}     {0 0.5}		.
+    3   1      {1 0}         {0      0} {1      0}     {0.5 0}		.
+    4   0.0010 {0.001 0}     {50.777 6} {50.778 6}     {50.7775 6}		.
+    5   0.0014 {0.001 0.001} {50.777 6} {50.778 6.001} {50.7775 6.0005}	.
+    6 195.5096 {100 168}     {50     6} {-50  174}     {0 90}			.
 } {
     lassign $a xa ya
     lassign $b xb yb
@@ -366,8 +399,16 @@ foreach {n diam a b center note} {
     test map-slippy-${impl}-9.$n.10 {distance-list, closed, list(geo) -> distance} -body {
         map slippy point distance-list 1 [list $a $b]
     } -match 4digits -result [expr {2*$diam}]
+
+    test map-slippy-${impl}-9.$n.11 {center pointbox -> point} -body {
+        map slippy point box center $box
+    } -match 4digits -result $center
+
+    test map-slippy-${impl}-9.$n.12 {dimensions pointbox -> wxh} -body {
+        map slippy point box dimensions $box
+    } -match 4digits -result $dim
 }
-unset n diam a b note ya yb xa xb
+unset n diam a b note ya yb xa xb box dim
 
 # -------------------------------------------------------------------------
 # Point - Simplifications - Radial, Ramer-Douglas-Peucker
@@ -501,6 +542,28 @@ foreach {n pbox zoom gbox} {
 	map slippy geo box 2point $zoom [map slippy point box 2geo $zoom $pbox]
     } -match x4digits -result $pbox
 }
+
+# -------------------------------------------------------------------------
+# Boxes -- Containment
+# -------------------------------------------------------------------------
+
+foreach {n p inside} {
+    0 {60 50} 1
+    1 {40 50} 0
+    2 {90 50} 0
+    3 {60 10} 0
+    4 {60 80} 0
+} {
+    test map-slippy-${impl}-box-inside-14.$n.0 {geobox inside} -body {
+        map slippy geo box inside {50 20 80 70} $p
+    } -result $inside
+
+    test map-slippy-${impl}-box-inside-14.$n.1 {pointbox inside} -body {
+        map slippy point box inside {50 20 80 70} $p
+    } -result $inside
+}
+
+unset n p inside
 
 # -------------------------------------------------------------------------
 # Local variables:
