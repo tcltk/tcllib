@@ -117,6 +117,9 @@ proc ::map::slippy::SwitchTo {key} {
 	tiles				point::simplify::rdp
 	tile::size
 	tile::valid
+	limit6
+	limit3
+	limit2
     }
 
     # Deactivate the previous implementation, if there was any.
@@ -203,7 +206,8 @@ namespace eval ::map {
     namespace ensemble create
 }
 namespace eval ::map::slippy {
-    namespace export length geo point tile tiles
+    namespace export length geo point tile tiles \
+	limit6 limit3 limit2 pretty-distance
     namespace ensemble create
 }
 namespace eval ::map::slippy::geo {
@@ -237,6 +241,16 @@ namespace eval ::map::slippy::point::simplify {
 namespace eval ::map::slippy::tile {
     namespace export size valid
     namespace ensemble create
+}
+
+# ### ### ### ######### ######### #########
+## Unaccelerated commands
+
+proc ::map::slippy::pretty-distance {x} {
+    if {$x >= 1000} {
+	return "[limit3 [expr {$x/1000.}]] km"
+    }
+    return "[limit2 $x] m"
 }
 
 # ### ### ### ######### ######### #########

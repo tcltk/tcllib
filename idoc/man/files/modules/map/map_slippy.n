@@ -277,14 +277,6 @@ package require \fBTcl  8\&.6\fR
 .sp
 package require \fBmap::slippy  ?0\&.8?\fR
 .sp
-\fB::map\fR \fBslippy length\fR \fIlevel\fR
-.sp
-\fB::map\fR \fBslippy tiles\fR \fIlevel\fR
-.sp
-\fB::map\fR \fBslippy tile size\fR
-.sp
-\fB::map\fR \fBslippy tile valid\fR \fIzoom\fR \fIrow\fR \fIcolumn\fR \fIlevels\fR ?\fImsgvar\fR?
-.sp
 \fB::map\fR \fBslippy geo box 2point\fR \fIzoom\fR \fIgeobox\fR
 .sp
 \fB::map\fR \fBslippy geo box center\fR \fIgeobox\fR
@@ -326,6 +318,14 @@ package require \fBmap::slippy  ?0\&.8?\fR
 \fB::map\fR \fBslippy geo 2point*\fR \fIzoom\fR \fIgeo\fR\&.\&.\&.
 .sp
 \fB::map\fR \fBslippy geo 2point-list\fR \fIzoom\fR \fIgeo-list\fR
+.sp
+\fB::map\fR \fBslippy length\fR \fIlevel\fR
+.sp
+\fB::map\fR \fBslippy limit2\fR \fIx\fR
+.sp
+\fB::map\fR \fBslippy limit3\fR \fIx\fR
+.sp
+\fB::map\fR \fBslippy limit6\fR \fIx\fR
 .sp
 \fB::map\fR \fBslippy point box 2geo\fR \fIzoom\fR \fIpointbox\fR
 .sp
@@ -370,6 +370,14 @@ package require \fBmap::slippy  ?0\&.8?\fR
 \fB::map\fR \fBslippy point simplify radial\fR \fIthreshold\fR \fIpoint-list\fR
 .sp
 \fB::map\fR \fBslippy point simplify rdp\fR \fIpoint-list\fR
+.sp
+\fB::map\fR \fBslippy pretty-distance\fR \fIx\fR
+.sp
+\fB::map\fR \fBslippy tiles\fR \fIlevel\fR
+.sp
+\fB::map\fR \fBslippy tile size\fR
+.sp
+\fB::map\fR \fBslippy tile valid\fR \fIzoom\fR \fIrow\fR \fIcolumn\fR \fIlevels\fR ?\fImsgvar\fR?
 .sp
 .BE
 .SH DESCRIPTION
@@ -459,29 +467,6 @@ This means that at zoom level \fBN\fR the map is sliced (horizontally and vertic
 \fB2^N\fR rows and columns, for a total of \fB4^N\fR tiles, with the tile coordinates ranging from
 \fB0\fR to \fB2^N+1\fR\&.
 .SH API
-.TP
-\fB::map\fR \fBslippy length\fR \fIlevel\fR
-This command returns the width/height of a slippy-based map at the specified zoom \fIlevel\fR, in
-pixels\&. This is, in essence, the result of
-.CS
-
-
-expr { [tiles $level] * [tile size] }
-
-.CE
-.TP
-\fB::map\fR \fBslippy tiles\fR \fIlevel\fR
-This command returns the width/height of a slippy-based map at the specified zoom \fIlevel\fR, in
-\fItiles\fR\&.
-.TP
-\fB::map\fR \fBslippy tile size\fR
-This command returns the width/height of a tile in a slippy-based map, in pixels\&.
-.TP
-\fB::map\fR \fBslippy tile valid\fR \fIzoom\fR \fIrow\fR \fIcolumn\fR \fIlevels\fR ?\fImsgvar\fR?
-This command checks if the tile described by \fIzoom\fR, \fIrow\fR, and \fIcolumn\fR is valid for a
-slippy-based map having that many zoom \fIlevels\fR, or not\&.
-The result is a boolean value, \fBtrue\fR if the tile is valid, and \fBfalse\fR otherwise\&.
-In the latter case a message is left in the variable named by \fImsgvar\fR, should it be specified\&.
 .TP
 \fB::map\fR \fBslippy geo box 2point\fR \fIzoom\fR \fIgeobox\fR
 The command converts the geographical box \fIgeobox\fR to a point box in the canvas, for the
@@ -580,6 +565,25 @@ These two commands are extensions of \fBmap slippy geo 2point\fR which take a se
 geographical locations as either a varying number of arguments or a single list, convert them all to
 points as per the specified \fIzoom\fR level and return a list of the results\&.
 .TP
+\fB::map\fR \fBslippy length\fR \fIlevel\fR
+This command returns the width/height of a slippy-based map at the specified zoom \fIlevel\fR, in
+pixels\&. This is, in essence, the result of
+.CS
+
+
+expr { [tiles $level] * [tile size] }
+
+.CE
+.TP
+\fB::map\fR \fBslippy limit2\fR \fIx\fR
+.TP
+\fB::map\fR \fBslippy limit3\fR \fIx\fR
+.TP
+\fB::map\fR \fBslippy limit6\fR \fIx\fR
+This command limits the value to at most 2, 3, or 6 decimals and returns the result\&.
+.sp
+For geographical coordinates 6 decimals is roughly equivalent to a grid of 11\&.1 cm\&.
+.TP
 \fB::map\fR \fBslippy point box 2geo\fR \fIzoom\fR \fIpointbox\fR
 The command converts the point box \fIpointbox\fR to a geographical box in the canvas, as per the
 specified \fIzoom\fR level, and returns that box\&.
@@ -675,6 +679,26 @@ than the threshold, and drops the others\&.
 This command takes a patch of points (as a single list), simplifies it using the
 \fInon-parametric\fR \fIRamer-Douglas-Peucker\fR algorithm and returns the simplified path as
 list of points\&.
+.TP
+\fB::map\fR \fBslippy pretty-distance\fR \fIx\fR
+This methods formats the distance \fIx\fR (in meters) for display and returns the resulting string
+(including the chosen unit)\&.
+.sp
+Sub-kilometer distances are limited to 2 decimals, i\&.e\&. centimeters, whereas Kilometers are
+limited to 3 decimals, i\&.e\&. meters\&.
+.TP
+\fB::map\fR \fBslippy tiles\fR \fIlevel\fR
+This command returns the width/height of a slippy-based map at the specified zoom \fIlevel\fR, in
+\fItiles\fR\&.
+.TP
+\fB::map\fR \fBslippy tile size\fR
+This command returns the width/height of a tile in a slippy-based map, in pixels\&.
+.TP
+\fB::map\fR \fBslippy tile valid\fR \fIzoom\fR \fIrow\fR \fIcolumn\fR \fIlevels\fR ?\fImsgvar\fR?
+This command checks if the tile described by \fIzoom\fR, \fIrow\fR, and \fIcolumn\fR is valid for a
+slippy-based map having that many zoom \fIlevels\fR, or not\&.
+The result is a boolean value, \fBtrue\fR if the tile is valid, and \fBfalse\fR otherwise\&.
+In the latter case a message is left in the variable named by \fImsgvar\fR, should it be specified\&.
 .PP
 .SH REFERENCES
 .IP [1]

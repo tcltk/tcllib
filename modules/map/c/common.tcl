@@ -22,6 +22,20 @@ critcl::ccode {
 # Go https://en.wikipedia.org/wiki/N-vector ?
 
 critcl::ccode {
+    static Tcl_Obj* delimit(double x, double factor) {
+
+	if (x == (double)(int)x) {
+	    return Tcl_NewIntObj ((int)x);
+	}
+
+	x = round(x * factor)/factor;
+
+	if (x == (double)(int)x) {
+	    return Tcl_NewIntObj ((int)x);
+	}
+	return Tcl_NewDoubleObj (x);
+    }
+
     static void geo_2point (int zoom, geo* g, point* p) {
 	int    tiles  = TILES (zoom);
 	double latrad = DEGTORAD * g->lat;
