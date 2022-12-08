@@ -66,6 +66,13 @@ The command tests if the geographical location [arg geo] is contained in the geo
 box [arg geobox] or not. It returns [const true] if so, and [const false] else.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box limit}] [arg geobox]]
+
+This command limits the geographical box to at most 6 decimals and returns the result.
+
+[para] For geographical coordinates 6 decimals is roughly equivalent to a grid of 11.1 cm.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo box opposites}] [arg geobox]]
 
 This command returns a list containing the two principal corner locations implied by the
@@ -111,6 +118,13 @@ the area described by the locations.
 
 As a variant of [cmd {map slippy geo distance*}] this command takes the path to compute the length
 of as a single list of geographical locations, instead of a varying number of arguments.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo limit}] [arg geo]]
+
+This command limits the geographical location to at most 6 decimals and returns the result.
+
+[para] For geographical coordinates 6 decimals is roughly equivalent to a grid of 11.1 cm.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo bbox}] [arg geo]...]

@@ -25,6 +25,7 @@ syntax {
     geo::box::dimensions	 gbox
     geo::box::fit		{gbox canvdim zmax ?zmin?}
     geo::box::inside		{gbox g}
+    geo::box::limit              gbox
     geo::box::opposites		 gbox
     geo::box::perimeter		 gbox
     geo::center			 args
@@ -33,6 +34,7 @@ syntax {
     geo::diameter-list		 geos
     geo::distance		{geoa geob}
     geo::distance-list		{closed geos}
+    geo::limit                   g
     length			 level
     limit2                      {x}
     limit3                      {x}
@@ -108,6 +110,10 @@ foreach {n levels zoom row col ok msg} {
 
 unset n levels zoom row col ok msg msgv
 
+# -------------------------------------------------------------------------
+# Limiting precision
+# -------------------------------------------------------------------------
+
 foreach {n x       xxxl      xxl    xl} {
     0 1            1         1      1
     1 1.000        1         1      1
@@ -133,6 +139,14 @@ foreach {n x       xxxl      xxl    xl} {
     test map-slippy-${impl}-limit2-1.$n {limit} -body {
         map slippy limit2 $x
     } -result $xl
+
+    test map-slippy-${impl}-geo-limit-1.$n {geo limit} -body {
+        map slippy geo limit [list $x $x]
+    } -result [list $xxxl $xxxl]
+
+    test map-slippy-${impl}-geo-box-limit-1.$n {geo box limit} -body {
+        map slippy geo box limit [list $x $x $x $x]
+    } -result [list $xxxl $xxxl $xxxl $xxxl]
 }
 
 # -------------------------------------------------------------------------

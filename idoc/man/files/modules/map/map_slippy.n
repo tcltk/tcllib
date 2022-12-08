@@ -289,6 +289,8 @@ package require \fBmap::slippy  ?0\&.8?\fR
 .sp
 \fB::map\fR \fBslippy geo box inside\fR \fIgeobox\fR \fIgeo\fR
 .sp
+\fB::map\fR \fBslippy geo box limit\fR \fIgeobox\fR
+.sp
 \fB::map\fR \fBslippy geo box opposites\fR \fIgeobox\fR
 .sp
 \fB::map\fR \fBslippy geo box perimeter\fR \fIgeobox\fR
@@ -300,6 +302,8 @@ package require \fBmap::slippy  ?0\&.8?\fR
 \fB::map\fR \fBslippy geo distance*\fR \fIclosed\fR \fIgeo\fR\&.\&.\&.
 .sp
 \fB::map\fR \fBslippy geo distance-list\fR \fIclosed\fR \fIgeo-list\fR
+.sp
+\fB::map\fR \fBslippy geo limit\fR \fIgeo\fR
 .sp
 \fB::map\fR \fBslippy geo bbox\fR \fIgeo\fR\&.\&.\&.
 .sp
@@ -490,6 +494,11 @@ order\&.
 The command tests if the geographical location \fIgeo\fR is contained in the geographical
 box \fIgeobox\fR or not\&. It returns \fBtrue\fR if so, and \fBfalse\fR else\&.
 .TP
+\fB::map\fR \fBslippy geo box limit\fR \fIgeobox\fR
+This command limits the geographical box to at most 6 decimals and returns the result\&.
+.sp
+For geographical coordinates 6 decimals is roughly equivalent to a grid of 11\&.1 cm\&.
+.TP
 \fB::map\fR \fBslippy geo box opposites\fR \fIgeobox\fR
 This command returns a list containing the two principal corner locations implied by the
 geographical box \fIgeobox\fR\&. The two points are top-left, and bottom-right, in that order\&.
@@ -523,6 +532,11 @@ the area described by the locations\&.
 \fB::map\fR \fBslippy geo distance-list\fR \fIclosed\fR \fIgeo-list\fR
 As a variant of \fBmap slippy geo distance*\fR this command takes the path to compute the length
 of as a single list of geographical locations, instead of a varying number of arguments\&.
+.TP
+\fB::map\fR \fBslippy geo limit\fR \fIgeo\fR
+This command limits the geographical location to at most 6 decimals and returns the result\&.
+.sp
+For geographical coordinates 6 decimals is roughly equivalent to a grid of 11\&.1 cm\&.
 .TP
 \fB::map\fR \fBslippy geo bbox\fR \fIgeo\fR\&.\&.\&.
 .TP
