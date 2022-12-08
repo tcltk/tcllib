@@ -28,6 +28,18 @@ namespace eval ::map::slippy::point::simplify {}
 # ### ### ### ######### ######### #########
 ## Implementation
 
+proc ::map::slippy::tcl_limit6 {x} { Limit $x 1000000. }
+proc ::map::slippy::tcl_limit3 {x} { Limit $x 1000.    }
+proc ::map::slippy::tcl_limit2 {x} { Limit $x 100.     }
+proc ::map::slippy::Limit {x f} {
+    set y [expr {int($x)}]
+    if {$x == $y} { return $y }
+    set x [expr {round($x * $f)/$f}]
+    set y [expr {int($x)}]
+    if {$x == $y} { return $y }
+    return $x
+}
+
 proc ::map::slippy::tcl_length {level} {
     variable ourtilesize
     return [expr {$ourtilesize * (1 << $level)}]

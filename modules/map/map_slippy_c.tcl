@@ -59,6 +59,27 @@ critcl::source c/common.tcl
 # ### ### ### ######### ######### #########
 ## Implementation
 
+critcl::cproc ::map::slippy::critcl_limit6 {
+    Tcl_Interp* interp
+    double      x
+} object0 {
+    return delimit (x, 1000000);
+}
+
+critcl::cproc ::map::slippy::critcl_limit3 {
+    Tcl_Interp* interp
+    double      x
+} object0 {
+    return delimit (x, 1000);
+}
+
+critcl::cproc ::map::slippy::critcl_limit2 {
+    Tcl_Interp* interp
+    double      x
+} object0 {
+    return delimit (x, 100);
+}
+
 critcl::cproc ::map::slippy::critcl_length {
     int level
 } int {

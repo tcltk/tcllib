@@ -39,31 +39,31 @@ map::slippy \- Common code for slippy based map packages
 package require Tcl 8\.6  
 package require map::slippy ?0\.8?  
 
-[__::map__ __slippy length__ *level*](#1)  
-[__::map__ __slippy tiles__ *level*](#2)  
-[__::map__ __slippy tile size__](#3)  
-[__::map__ __slippy tile valid__ *zoom* *row* *column* *levels* ?*msgvar*?](#4)  
-[__::map__ __slippy geo box 2point__ *zoom* *geobox*](#5)  
-[__::map__ __slippy geo box center__ *geobox*](#6)  
-[__::map__ __slippy geo box corners__ *geobox*](#7)  
-[__::map__ __slippy geo box diameter__ *geobox*](#8)  
-[__::map__ __slippy geo box dimensions__ *geobox*](#9)  
-[__::map__ __slippy geo box inside__ *geobox* *geo*](#10)  
-[__::map__ __slippy geo box opposites__ *geobox*](#11)  
-[__::map__ __slippy geo box perimeter__ *geobox*](#12)  
-[__::map__ __slippy geo box fit__ *geobox* *canvdim* *zmax* ?*zmin*?](#13)  
-[__::map__ __slippy geo distance__ *geo1* *geo2*](#14)  
-[__::map__ __slippy geo distance\*__ *closed* *geo*\.\.\.](#15)  
-[__::map__ __slippy geo distance\-list__ *closed* *geo\-list*](#16)  
-[__::map__ __slippy geo bbox__ *geo*\.\.\.](#17)  
-[__::map__ __slippy geo bbox\-list__ *geo\-list*](#18)  
-[__::map__ __slippy geo center__ *geo*\.\.\.](#19)  
-[__::map__ __slippy geo center\-list__ *geo\-list*](#20)  
-[__::map__ __slippy geo diameter__ *geo*\.\.\.](#21)  
-[__::map__ __slippy geo diameter\-list__ *geo\-list*](#22)  
-[__::map__ __slippy geo 2point__ *zoom* *geo*](#23)  
-[__::map__ __slippy geo 2point\*__ *zoom* *geo*\.\.\.](#24)  
-[__::map__ __slippy geo 2point\-list__ *zoom* *geo\-list*](#25)  
+[__::map__ __slippy geo box 2point__ *zoom* *geobox*](#1)  
+[__::map__ __slippy geo box center__ *geobox*](#2)  
+[__::map__ __slippy geo box corners__ *geobox*](#3)  
+[__::map__ __slippy geo box diameter__ *geobox*](#4)  
+[__::map__ __slippy geo box dimensions__ *geobox*](#5)  
+[__::map__ __slippy geo box inside__ *geobox* *geo*](#6)  
+[__::map__ __slippy geo box opposites__ *geobox*](#7)  
+[__::map__ __slippy geo box perimeter__ *geobox*](#8)  
+[__::map__ __slippy geo box fit__ *geobox* *canvdim* *zmax* ?*zmin*?](#9)  
+[__::map__ __slippy geo distance__ *geo1* *geo2*](#10)  
+[__::map__ __slippy geo distance\*__ *closed* *geo*\.\.\.](#11)  
+[__::map__ __slippy geo distance\-list__ *closed* *geo\-list*](#12)  
+[__::map__ __slippy geo bbox__ *geo*\.\.\.](#13)  
+[__::map__ __slippy geo bbox\-list__ *geo\-list*](#14)  
+[__::map__ __slippy geo center__ *geo*\.\.\.](#15)  
+[__::map__ __slippy geo center\-list__ *geo\-list*](#16)  
+[__::map__ __slippy geo diameter__ *geo*\.\.\.](#17)  
+[__::map__ __slippy geo diameter\-list__ *geo\-list*](#18)  
+[__::map__ __slippy geo 2point__ *zoom* *geo*](#19)  
+[__::map__ __slippy geo 2point\*__ *zoom* *geo*\.\.\.](#20)  
+[__::map__ __slippy geo 2point\-list__ *zoom* *geo\-list*](#21)  
+[__::map__ __slippy length__ *level*](#22)  
+[__::map__ __slippy limit2__ *x*](#23)  
+[__::map__ __slippy limit3__ *x*](#24)  
+[__::map__ __slippy limit6__ *x*](#25)  
 [__::map__ __slippy point box 2geo__ *zoom* *pointbox*](#26)  
 [__::map__ __slippy point box center__ *pointbox*](#27)  
 [__::map__ __slippy point box corners__ *pointbox*](#28)  
@@ -86,6 +86,10 @@ package require map::slippy ?0\.8?
 [__::map__ __slippy point 2geo\-list__ *zoom* *point\-list*](#45)  
 [__::map__ __slippy point simplify radial__ *threshold* *point\-list*](#46)  
 [__::map__ __slippy point simplify rdp__ *point\-list*](#47)  
+[__::map__ __slippy pretty\-distance__ *x*](#48)  
+[__::map__ __slippy tiles__ *level*](#49)  
+[__::map__ __slippy tile size__](#50)  
+[__::map__ __slippy tile valid__ *zoom* *row* *column* *levels* ?*msgvar*?](#51)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -194,74 +198,49 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
 
 # <a name='section3'></a>API
 
-  - <a name='1'></a>__::map__ __slippy length__ *level*
-
-    This command returns the width/height of a slippy\-based map at the specified
-    zoom *level*, in pixels\. This is, in essence, the result of
-
-        expr { [tiles $level] * [tile size] }
-
-  - <a name='2'></a>__::map__ __slippy tiles__ *level*
-
-    This command returns the width/height of a slippy\-based map at the specified
-    zoom *level*, in *tiles*\.
-
-  - <a name='3'></a>__::map__ __slippy tile size__
-
-    This command returns the width/height of a tile in a slippy\-based map, in
-    pixels\.
-
-  - <a name='4'></a>__::map__ __slippy tile valid__ *zoom* *row* *column* *levels* ?*msgvar*?
-
-    This command checks if the tile described by *zoom*, *row*, and
-    *column* is valid for a slippy\-based map having that many zoom *levels*,
-    or not\. The result is a boolean value, __true__ if the tile is valid,
-    and __false__ otherwise\. In the latter case a message is left in the
-    variable named by *msgvar*, should it be specified\.
-
-  - <a name='5'></a>__::map__ __slippy geo box 2point__ *zoom* *geobox*
+  - <a name='1'></a>__::map__ __slippy geo box 2point__ *zoom* *geobox*
 
     The command converts the geographical box *geobox* to a point box in the
     canvas, for the specified *zoom* level, and returns that box\.
 
-  - <a name='6'></a>__::map__ __slippy geo box center__ *geobox*
+  - <a name='2'></a>__::map__ __slippy geo box center__ *geobox*
 
     The command returns the center of the geographical box *geobox*\.
 
-  - <a name='7'></a>__::map__ __slippy geo box corners__ *geobox*
+  - <a name='3'></a>__::map__ __slippy geo box corners__ *geobox*
 
     This command returns a list containing the four corner locations implied by
     the geographical box *geobox*\. The four points are top\-left, bottom\-left,
     top\-right, and bottom\-right, in that order\.
 
-  - <a name='8'></a>__::map__ __slippy geo box diameter__ *geobox*
+  - <a name='4'></a>__::map__ __slippy geo box diameter__ *geobox*
 
     The command returns the diameter of the geographical box *geobox*, in
     meters\.
 
-  - <a name='9'></a>__::map__ __slippy geo box dimensions__ *geobox*
+  - <a name='5'></a>__::map__ __slippy geo box dimensions__ *geobox*
 
     The command returns the dimensions of the geographical box *geobox*, width
     and height, in this order\.
 
-  - <a name='10'></a>__::map__ __slippy geo box inside__ *geobox* *geo*
+  - <a name='6'></a>__::map__ __slippy geo box inside__ *geobox* *geo*
 
     The command tests if the geographical location *geo* is contained in the
     geographical box *geobox* or not\. It returns __true__ if so, and
     __false__ else\.
 
-  - <a name='11'></a>__::map__ __slippy geo box opposites__ *geobox*
+  - <a name='7'></a>__::map__ __slippy geo box opposites__ *geobox*
 
     This command returns a list containing the two principal corner locations
     implied by the geographical box *geobox*\. The two points are top\-left, and
     bottom\-right, in that order\.
 
-  - <a name='12'></a>__::map__ __slippy geo box perimeter__ *geobox*
+  - <a name='8'></a>__::map__ __slippy geo box perimeter__ *geobox*
 
     The command returns the perimeter of the geographical box *geobox*, in
     meters\.
 
-  - <a name='13'></a>__::map__ __slippy geo box fit__ *geobox* *canvdim* *zmax* ?*zmin*?
+  - <a name='9'></a>__::map__ __slippy geo box fit__ *geobox* *canvdim* *zmax* ?*zmin*?
 
     This command calculates the zoom level such that the *geobox* will fit
     into a viewport given by *canvdim* \(a 2\-element list containing the width
@@ -270,7 +249,7 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
     The zoom level will be made to fit within the range *zmin*\.\.\.*zmax*\.
     When *zmin* is not specified it will default to __0__\.
 
-  - <a name='14'></a>__::map__ __slippy geo distance__ *geo1* *geo2*
+  - <a name='10'></a>__::map__ __slippy geo distance__ *geo1* *geo2*
 
     This command computes the great\-circle distance between the two geographical
     locations in meters and returns that value\.
@@ -280,7 +259,7 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
     take on the [haversine
     formula](https://en\.wikipedia\.org/wiki/Haversine\_formula)\.
 
-  - <a name='15'></a>__::map__ __slippy geo distance\*__ *closed* *geo*\.\.\.
+  - <a name='11'></a>__::map__ __slippy geo distance\*__ *closed* *geo*\.\.\.
 
     An extension of __map slippy geo distance__ this command computes the
     cumulative distance along the path specified by the ordered set of
@@ -291,15 +270,15 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
     making the result the length of the perimeter of the area described by the
     locations\.
 
-  - <a name='16'></a>__::map__ __slippy geo distance\-list__ *closed* *geo\-list*
+  - <a name='12'></a>__::map__ __slippy geo distance\-list__ *closed* *geo\-list*
 
     As a variant of __map slippy geo distance\*__ this command takes the path
     to compute the length of as a single list of geographical locations, instead
     of a varying number of arguments\.
 
-  - <a name='17'></a>__::map__ __slippy geo bbox__ *geo*\.\.\.
+  - <a name='13'></a>__::map__ __slippy geo bbox__ *geo*\.\.\.
 
-  - <a name='18'></a>__::map__ __slippy geo bbox\-list__ *geo\-list*
+  - <a name='14'></a>__::map__ __slippy geo bbox\-list__ *geo\-list*
 
     These two commands compute the bounding box for the specified set of
     geographical locations and return a geographical box\.
@@ -309,9 +288,9 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
     The locations are specified as either a varying number of arguments, or as a
     single list\.
 
-  - <a name='19'></a>__::map__ __slippy geo center__ *geo*\.\.\.
+  - <a name='15'></a>__::map__ __slippy geo center__ *geo*\.\.\.
 
-  - <a name='20'></a>__::map__ __slippy geo center\-list__ *geo\-list*
+  - <a name='16'></a>__::map__ __slippy geo center\-list__ *geo\-list*
 
     These two commands compute the center of the bounding box for the specified
     set of geographical locations\.
@@ -321,9 +300,9 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
     The locations are specified as either a varying number of arguments, or as a
     single list\.
 
-  - <a name='21'></a>__::map__ __slippy geo diameter__ *geo*\.\.\.
+  - <a name='17'></a>__::map__ __slippy geo diameter__ *geo*\.\.\.
 
-  - <a name='22'></a>__::map__ __slippy geo diameter\-list__ *geo\-list*
+  - <a name='18'></a>__::map__ __slippy geo diameter\-list__ *geo\-list*
 
     These two commands compute the diameter for the specified set of
     geographical locations, in meters\. The diameter is the maximum of the
@@ -335,19 +314,38 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
     The locations are specified as either a varying number of arguments, or as a
     single list\.
 
-  - <a name='23'></a>__::map__ __slippy geo 2point__ *zoom* *geo*
+  - <a name='19'></a>__::map__ __slippy geo 2point__ *zoom* *geo*
 
     This command converts the geographical location *geo* to a point in the
     canvas, for the specified *zoom* level, and returns that point\.
 
-  - <a name='24'></a>__::map__ __slippy geo 2point\*__ *zoom* *geo*\.\.\.
+  - <a name='20'></a>__::map__ __slippy geo 2point\*__ *zoom* *geo*\.\.\.
 
-  - <a name='25'></a>__::map__ __slippy geo 2point\-list__ *zoom* *geo\-list*
+  - <a name='21'></a>__::map__ __slippy geo 2point\-list__ *zoom* *geo\-list*
 
     These two commands are extensions of __map slippy geo 2point__ which
     take a series of geographical locations as either a varying number of
     arguments or a single list, convert them all to points as per the specified
     *zoom* level and return a list of the results\.
+
+  - <a name='22'></a>__::map__ __slippy length__ *level*
+
+    This command returns the width/height of a slippy\-based map at the specified
+    zoom *level*, in pixels\. This is, in essence, the result of
+
+        expr { [tiles $level] * [tile size] }
+
+  - <a name='23'></a>__::map__ __slippy limit2__ *x*
+
+  - <a name='24'></a>__::map__ __slippy limit3__ *x*
+
+  - <a name='25'></a>__::map__ __slippy limit6__ *x*
+
+    This command limits the value to at most 2, 3, or 6 decimals and returns the
+    result\.
+
+    For geographical coordinates 6 decimals is roughly equivalent to a grid of
+    11\.1 cm\.
 
   - <a name='26'></a>__::map__ __slippy point box 2geo__ *zoom* *pointbox*
 
@@ -475,6 +473,32 @@ with the tile coordinates ranging from __0__ to __2^N\+1__\.
     This command takes a patch of points \(as a single list\), simplifies it using
     the *non\-parametric* *Ramer\-Douglas\-Peucker* algorithm and returns the
     simplified path as list of points\.
+
+  - <a name='48'></a>__::map__ __slippy pretty\-distance__ *x*
+
+    This methods formats the distance *x* \(in meters\) for display and returns
+    the resulting string \(including the chosen unit\)\.
+
+    Sub\-kilometer distances are limited to 2 decimals, i\.e\. centimeters, whereas
+    Kilometers are limited to 3 decimals, i\.e\. meters\.
+
+  - <a name='49'></a>__::map__ __slippy tiles__ *level*
+
+    This command returns the width/height of a slippy\-based map at the specified
+    zoom *level*, in *tiles*\.
+
+  - <a name='50'></a>__::map__ __slippy tile size__
+
+    This command returns the width/height of a tile in a slippy\-based map, in
+    pixels\.
+
+  - <a name='51'></a>__::map__ __slippy tile valid__ *zoom* *row* *column* *levels* ?*msgvar*?
+
+    This command checks if the tile described by *zoom*, *row*, and
+    *column* is valid for a slippy\-based map having that many zoom *levels*,
+    or not\. The result is a boolean value, __true__ if the tile is valid,
+    and __false__ otherwise\. In the latter case a message is left in the
+    variable named by *msgvar*, should it be specified\.
 
 # <a name='section4'></a>References
 
