@@ -116,6 +116,18 @@ critcl::cproc ::map::slippy::critcl_tile_valid {
     return 1;
 }
 
+critcl::cproc ::map::slippy::critcl_geo_box_limit {
+    Tcl_Interp* interp
+    geobox      gbox
+} object0 {
+    Tcl_Obj* cl[4];
+    cl [0] = delimit (gbox.lat0, 1000000);
+    cl [1] = delimit (gbox.lon0, 1000000);
+    cl [2] = delimit (gbox.lat1, 1000000);
+    cl [3] = delimit (gbox.lon1, 1000000);
+    return Tcl_NewListObj(4, cl);
+}
+
 critcl::cproc ::map::slippy::critcl_geo_box_inside {
     Tcl_Interp* interp
     geobox      gbox
@@ -330,6 +342,16 @@ critcl::cproc ::map::slippy::critcl_geo_box_fit {
     if (hasz0) { z = z0; }
     //fprintf(stdout, "z'final:%d\n", z);fflush(stdout);
     return z;
+}
+
+critcl::cproc ::map::slippy::critcl_geo_limit {
+    Tcl_Interp* interp
+    geo         g
+} object0 {
+    Tcl_Obj* cl[4];
+    cl [0] = delimit (g.lat, 1000000);
+    cl [1] = delimit (g.lon, 1000000);
+    return Tcl_NewListObj(2, cl);
 }
 
 critcl::cproc ::map::slippy::critcl_geo_distance {

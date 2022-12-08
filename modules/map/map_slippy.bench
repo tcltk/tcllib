@@ -59,6 +59,80 @@ foreach impl [map::slippy::Implementations] {
     }
 
     # ### ### ### ######### ######### ######### ###########################
+    ## Formatting Distances
+
+    foreach {n x} {
+	0 1.777777777
+	1 100.7777777
+	2 1500
+	3 1500.777777
+	4 1
+    } {
+	bench -desc "PrettyDistance/$impl $n" -body {
+	    map slippy pretty-distance $x
+	}
+    }
+
+    # ### ### ### ######### ######### ######### ###########################
+    ## Limiting
+
+    foreach {n x} {
+	0 1
+	1 1.000
+	2 1.1
+	3 1.01
+	4 1.001
+	5 1.0001
+	6 1.777777777
+	7 0.777777777
+	8 1.0000001
+	9 1.00000001
+    } {
+	bench -desc "Limit6/$impl $n" -body {
+	    map slippy limit6 $x
+	}
+
+	bench -desc "Limit3/$impl $n" -body {
+	    map slippy limit3 $x
+	}
+
+	bench -desc "Limit2/$impl $n" -body {
+	    map slippy limit2 $x
+	}
+
+	bench -desc "GeoLimit/$impl $n" -pre {
+	    set g [list $x $x]
+	} -body {
+	    map slippy geo limit $g
+	}
+
+	bench -desc "GeoBoxLimit/$impl $n" -pre {
+	    set g [list $x $x $x $x]
+	} -body {
+	    map slippy geo box limit $g
+	}
+    }
+
+    # ### ### ### ######### ######### ######### ###########################
+    ## Box containment
+
+    foreach {n p inside} {
+	0 {60 50} 1
+	1 {40 50} 0
+	2 {90 50} 0
+	3 {60 10} 0
+	4 {60 80} 0
+    } {
+	bench -desc "BoxInside/$impl $n $p $inside" -body {
+	    map slippy geo box inside {50 20 80 70} $p
+	}
+
+	bench -desc "Point/BoxInside/$impl $n $p $inside" -body {
+	    map slippy geo box inside {50 20 80 70} $p
+	}
+    }
+
+    # ### ### ### ######### ######### ######### ###########################
     ## Boxes
 
     foreach {n canvas box} {
@@ -67,31 +141,31 @@ foreach impl [map::slippy::Implementations] {
 	2 {1410.0 913.0} {49.300005 -123.158551 49.301624 -123.157253}
 	3 {1423.0 913.0} {49.292809 -123.1589   49.314037 -123.116543}
     } {
-	bench -desc "GeoBoxFit/$impl $n $canvas $box" -body {
+	bench -desc "BoxFit/$impl $n $canvas $box" -body {
 	    map slippy geo box fit $box $canvas 18
 	}
 
-	bench -desc "GeoBox2Point/$impl $n $canvas" -body {
+	bench -desc "Box2Point/$impl $n $canvas" -body {
 	    map slippy geo box 2point 18 $box
 	}
 
-	bench -desc "GeoBoxCorners/$impl $n $box" -body {
+	bench -desc "BoxCorners/$impl $n $box" -body {
 	    map slippy geo box corners $box
 	}
 
-	bench -desc "GeoBoxOpposites/$impl $n $box" -body {
+	bench -desc "BoxOpposites/$impl $n $box" -body {
 	    map slippy geo box opposites $box
 	}
 
-	bench -desc "PointBox2Point/$impl $n $canvas" -body {
+	bench -desc "Point/Box2Point/$impl $n $canvas" -body {
 	    map slippy point box 2geo 18 $box
 	}
 
-	bench -desc "PointBoxCorners/$impl $n $box" -body {
+	bench -desc "Point/BoxCorners/$impl $n $box" -body {
 	    map slippy point box corners $box
 	}
 
-	bench -desc "PointBoxOpposites/$impl $n $box" -body {
+	bench -desc "Point/BoxOpposites/$impl $n $box" -body {
 	    map slippy point box opposites $box
 	}
     }
@@ -167,6 +241,30 @@ foreach impl [map::slippy::Implementations] {
 	    map slippy geo bbox-list $ps
 	}
 
+	bench -desc "BoxDiameter/$impl $n $a $b" -pre {
+	    set box [map slippy geo bbox $a $b]
+	} -body {
+	    map slippy geo box diameter $box
+	}
+
+	bench -desc "BoxPerimeter/$impl $n $a $b" -pre {
+	    set box [map slippy geo bbox $a $b]
+	} -body {
+	    map slippy geo box perimeter $box
+	}
+
+	bench -desc "BoxDimensions/$impl $n $a $b" -pre {
+	    set box [map slippy geo bbox $a $b]
+	} -body {
+	    map slippy geo box dimensions $box
+	}
+
+	bench -desc "BoxCenter/$impl $n $a $b" -pre {
+	    set box [map slippy geo bbox $a $b]
+	} -body {
+	    map slippy geo box center $box
+	}
+
 	bench -desc "Center/$impl $n $a $b" -body {
 	    map slippy geo center $a $b
 	}
@@ -209,6 +307,30 @@ foreach impl [map::slippy::Implementations] {
 	    set ps [list $a $b]
 	} -body {
 	    map slippy point bbox-list $ps
+	}
+
+	bench -desc "Point/BoxDiameter/$impl $n $a $b" -pre {
+	    set box [map slippy point bbox $a $b]
+	} -body {
+	    map slippy point box diameter $box
+	}
+
+	bench -desc "Point/BoxPerimeter/$impl $n $a $b" -pre {
+	    set box [map slippy point bbox $a $b]
+	} -body {
+	    map slippy point box perimeter $box
+	}
+
+	bench -desc "Point/BoxDimensions/$impl $n $a $b" -pre {
+	    set box [map slippy point bbox $a $b]
+	} -body {
+	    map slippy point box dimensions $box
+	}
+
+	bench -desc "Point/BoxCenter/$impl $n $a $b" -pre {
+	    set box [map slippy point bbox $a $b]
+	} -body {
+	    map slippy point box center $box
 	}
 
 	bench -desc "Point/Center/$impl $n $a $b" -body {

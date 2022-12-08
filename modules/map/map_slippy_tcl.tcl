@@ -75,6 +75,18 @@ proc ::map::slippy::tcl_tile_valid {zoom row col levels {msgv {}}} {
     return 1
 }
 
+proc ::map::slippy::tcl_geo_box_limit {gbox} {
+    ::map::slippy::Check4 $gbox
+    lassign $gbox latmin lonmin latmax lonmax
+
+    lappend r [map slippy limit6 $latmin]
+    lappend r [map slippy limit6 $lonmin]
+    lappend r [map slippy limit6 $latmax]
+    lappend r [map slippy limit6 $lonmax]
+
+    return $r
+}
+
 proc ::map::slippy::tcl_geo_box_inside {gbox g} {
     ::map::slippy::Check4 $gbox
     ::map::slippy::Check2 $g
@@ -192,6 +204,16 @@ proc ::map::slippy::tcl_geo_box_fit {gbox canvdim zmax {zmin 0}} {
     if { [info exists z0] } { set z $z0 }
     #puts z'final:$z
     return $z
+}
+
+proc ::map::slippy::tcl_geo_limit {g} {
+    ::map::slippy::Check2 $g
+    lassign $g lat lon
+
+    lappend r [map slippy limit6 $lat]
+    lappend r [map slippy limit6 $lon]
+
+    return $r
 }
 
 proc ::map::slippy::tcl_geo_distance {geoa geob} {
