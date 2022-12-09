@@ -287,6 +287,8 @@ package require \fBmap::slippy  ?0\&.8?\fR
 .sp
 \fB::map\fR \fBslippy geo box dimensions\fR \fIgeobox\fR
 .sp
+\fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
+.sp
 \fB::map\fR \fBslippy geo box inside\fR \fIgeobox\fR \fIgeo\fR
 .sp
 \fB::map\fR \fBslippy geo box limit\fR \fIgeobox\fR
@@ -295,7 +297,9 @@ package require \fBmap::slippy  ?0\&.8?\fR
 .sp
 \fB::map\fR \fBslippy geo box perimeter\fR \fIgeobox\fR
 .sp
-\fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
+\fB::map\fR \fBslippy geo box valid\fR \fIgeobox\fR
+.sp
+\fB::map\fR \fBslippy geo box valid-list\fR \fIgeoboxes\fR
 .sp
 \fB::map\fR \fBslippy geo distance\fR \fIgeo1\fR \fIgeo2\fR
 .sp
@@ -322,6 +326,10 @@ package require \fBmap::slippy  ?0\&.8?\fR
 \fB::map\fR \fBslippy geo 2point*\fR \fIzoom\fR \fIgeo\fR\&.\&.\&.
 .sp
 \fB::map\fR \fBslippy geo 2point-list\fR \fIzoom\fR \fIgeo-list\fR
+.sp
+\fB::map\fR \fBslippy geo valid\fR \fIgeo\fR
+.sp
+\fB::map\fR \fBslippy geo valid-list\fR \fIgeos\fR
 .sp
 \fB::map\fR \fBslippy length\fR \fIlevel\fR
 .sp
@@ -382,6 +390,10 @@ package require \fBmap::slippy  ?0\&.8?\fR
 \fB::map\fR \fBslippy tile size\fR
 .sp
 \fB::map\fR \fBslippy tile valid\fR \fIzoom\fR \fIrow\fR \fIcolumn\fR \fIlevels\fR ?\fImsgvar\fR?
+.sp
+\fB::map\fR \fBslippy valid latitude\fR \fIx\fR
+.sp
+\fB::map\fR \fBslippy valid longitude\fR \fIx\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -490,6 +502,13 @@ The command returns the diameter of the geographical box \fIgeobox\fR, in meters
 The command returns the dimensions of the geographical box \fIgeobox\fR, width and height, in this
 order\&.
 .TP
+\fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
+This command calculates the zoom level such that the \fIgeobox\fR will fit into a viewport given by
+\fIcanvdim\fR (a 2-element list containing the width and height of said viewport) and returns it\&.
+.sp
+The zoom level will be made to fit within the range \fIzmin\fR\&.\&.\&.\fIzmax\fR\&.
+When \fIzmin\fR is not specified it will default to \fB0\fR\&.
+.TP
 \fB::map\fR \fBslippy geo box inside\fR \fIgeobox\fR \fIgeo\fR
 The command tests if the geographical location \fIgeo\fR is contained in the geographical
 box \fIgeobox\fR or not\&. It returns \fBtrue\fR if so, and \fBfalse\fR else\&.
@@ -506,12 +525,14 @@ geographical box \fIgeobox\fR\&. The two points are top-left, and bottom-right, 
 \fB::map\fR \fBslippy geo box perimeter\fR \fIgeobox\fR
 The command returns the perimeter of the geographical box \fIgeobox\fR, in meters\&.
 .TP
-\fB::map\fR \fBslippy geo box fit\fR \fIgeobox\fR \fIcanvdim\fR \fIzmax\fR ?\fIzmin\fR?
-This command calculates the zoom level such that the \fIgeobox\fR will fit into a viewport given by
-\fIcanvdim\fR (a 2-element list containing the width and height of said viewport) and returns it\&.
-.sp
-The zoom level will be made to fit within the range \fIzmin\fR\&.\&.\&.\fIzmax\fR\&.
-When \fIzmin\fR is not specified it will default to \fB0\fR\&.
+\fB::map\fR \fBslippy geo box valid\fR \fIgeobox\fR
+This commands tests if the specified geographical box contains only valid latitudes
+and longitudes\&. It returns \fBtrue\fR if the box is valid, and \fBfalse\fR else\&.
+.TP
+\fB::map\fR \fBslippy geo box valid-list\fR \fIgeoboxes\fR
+This commands tests if the list of geographical boxes contains only valid latitudes
+and longitudes\&. It returns \fBtrue\fR if all the boxes are valid, and \fBfalse\fR
+else\&.
 .TP
 \fB::map\fR \fBslippy geo distance\fR \fIgeo1\fR \fIgeo2\fR
 This command computes the great-circle distance between the two geographical locations in meters and
@@ -578,6 +599,14 @@ specified \fIzoom\fR level, and returns that point\&.
 These two commands are extensions of \fBmap slippy geo 2point\fR which take a series of
 geographical locations as either a varying number of arguments or a single list, convert them all to
 points as per the specified \fIzoom\fR level and return a list of the results\&.
+.TP
+\fB::map\fR \fBslippy geo valid\fR \fIgeo\fR
+This commands tests if the specified geographical location contains only valid latitudes and
+longitudes\&. It returns \fBtrue\fR if the location is valid, and \fBfalse\fR else\&.
+.TP
+\fB::map\fR \fBslippy geo valid-list\fR \fIgeos\fR
+This commands tests if the list of geographical locations contains only valid latitudes and
+longitudes\&. It returns \fBtrue\fR if all the locations are valid, and \fBfalse\fR else\&.
 .TP
 \fB::map\fR \fBslippy length\fR \fIlevel\fR
 This command returns the width/height of a slippy-based map at the specified zoom \fIlevel\fR, in
@@ -713,6 +742,14 @@ This command checks if the tile described by \fIzoom\fR, \fIrow\fR, and \fIcolum
 slippy-based map having that many zoom \fIlevels\fR, or not\&.
 The result is a boolean value, \fBtrue\fR if the tile is valid, and \fBfalse\fR otherwise\&.
 In the latter case a message is left in the variable named by \fImsgvar\fR, should it be specified\&.
+.TP
+\fB::map\fR \fBslippy valid latitude\fR \fIx\fR
+This commands tests if the argument \fIx\fR is a valid latitude value, and returns the boolean
+result of that test\&. I\&.e\&. \fBtrue\fR if the value is valid, and \fBfalse\fR else\&.
+.TP
+\fB::map\fR \fBslippy valid longitude\fR \fIx\fR
+This commands tests if the argument \fIx\fR is a valid longitude value, and returns the boolean
+result of that test\&. I\&.e\&. \fBtrue\fR if the value is valid, and \fBfalse\fR else\&.
 .PP
 .SH REFERENCES
 .IP [1]

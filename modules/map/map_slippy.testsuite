@@ -28,6 +28,8 @@ syntax {
     geo::box::limit              gbox
     geo::box::opposites		 gbox
     geo::box::perimeter		 gbox
+    geo::box::valid              gbox
+    geo::box::valid-list         gs
     geo::center			 args
     geo::center-list		 geos
     geo::diameter		 args
@@ -35,6 +37,8 @@ syntax {
     geo::distance		{geoa geob}
     geo::distance-list		{closed geos}
     geo::limit                   g
+    geo::valid                   g
+    geo::valid-list              gs
     length			 level
     limit2                      {x}
     limit3                      {x}
@@ -62,6 +66,8 @@ syntax {
     tile::size			{}
     tile::valid			{zoom row col levels ?msgv?}
     tiles			 level
+    valid::latitude              x
+    valid::longitude             x
 } map::slippy {} {} $impl
 
 # -- Tcl / Critcl differ in the `args` translation for wrong#args
@@ -631,6 +637,66 @@ foreach {n distance out} {
 }
 
 unset n distance out
+
+# -------------------------------------------------------------------------
+# Lat/Lon Validations
+# -------------------------------------------------------------------------
+
+foreach {n x latok lonok} {
+    0 -200 0 0
+    1  200 0 0
+    2   50 1 1
+    3 -100 0 1
+    4  100 0 1
+} {
+    test map-slippy-${impl}-valid-lat-16.$n.0 {valid latitude} -body {
+        map slippy valid latitude $x
+    } -result $latok
+
+    test map-slippy-${impl}-valid-lon-16.$n.1 {valid longitude} -body {
+        map slippy valid longitude $x
+    } -result $lonok
+}
+
+unset n x latok lonok
+
+foreach {n lat lon ok} {
+    0 -100    0 0
+    1  100    0 0
+    2  -80    0 1
+    3   80    0 1
+    4    0 -200 0
+    5    0  200 0
+    6    0 -170 1
+    7    0  170 1
+    8   80   80 1
+} {
+    test map-slippy-${impl}-geo-valid-17.$n.0 {geo valid} -body {
+        map slippy geo valid [list $lat $lon]
+    } -result $ok
+
+    test map-slippy-${impl}-geo-valid-17.$n.1 {geo valid-list} -body {
+        map slippy geo valid-list [list [list $lat $lon]]
+    } -result $ok
+
+    test map-slippy-${impl}-geo-box-valid-17.$n.2 {geo box valid} -body {
+        map slippy geo box valid [list $lat $lon 0 0]
+    } -result $ok
+
+    test map-slippy-${impl}-geo-box-valid-17.$n.3 {geo box valid} -body {
+        map slippy geo box valid [list 0 0 $lat $lon]
+    } -result $ok
+
+    test map-slippy-${impl}-geo-box-valid-17.$n.4 {geo box valid-list} -body {
+        map slippy geo box valid-list [list [list $lat $lon 0 0]]
+    } -result $ok
+
+    test map-slippy-${impl}-geo-box-valid-17.$n.5 {geo box valid-list} -body {
+        map slippy geo box valid-list [list [list 0 0 $lat $lon]]
+    } -result $ok
+}
+
+unset n lat lon ok
 
 # -------------------------------------------------------------------------
 # Local variables:

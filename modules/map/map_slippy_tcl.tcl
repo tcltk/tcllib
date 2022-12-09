@@ -28,6 +28,43 @@ namespace eval ::map::slippy::point::simplify {}
 # ### ### ### ######### ######### #########
 ## Implementation
 
+proc ::map::slippy::tcl_geo_valid_list {gs} {
+    foreach g $gs { if {![valid $g]} { return 0 } }
+    return 1
+}
+
+proc ::map::slippy::tcl_geo_box_valid_list {gs} {
+    foreach g $gs { if {![valid $g]} { return 0 } }
+    return 1
+}
+
+proc ::map::slippy::tcl_geo_valid {g} {
+    ::map::slippy::Check2 $g
+    lassign $g lat lon
+    return [expr {[map slippy valid latitude $lat] && [map slippy valid longitude $lon]}]
+}
+
+proc ::map::slippy::tcl_geo_box_valid {gbox} {
+    ::map::slippy::Check4 $gbox
+    lassign $gbox lat0 lon0 lat1 lon1
+    return [expr {
+	  [map slippy valid latitude $lat0] && [map slippy valid longitude $lon0] &&
+	  [map slippy valid latitude $lat1] && [map slippy valid longitude $lon1]
+    }]
+}
+
+proc ::map::slippy::tcl_valid_latitude {x} {
+    if {$x >  90} { return 0 }
+    if {$x < -90} { return 0 }
+    return 1
+}
+
+proc ::map::slippy::tcl_valid_longitude {x} {
+    if {$x >  180} { return 0 }
+    if {$x < -180} { return 0 }
+    return 1
+}
+
 proc ::map::slippy::tcl_limit6 {x} { Limit $x 1000000. }
 proc ::map::slippy::tcl_limit3 {x} { Limit $x 1000.    }
 proc ::map::slippy::tcl_limit2 {x} { Limit $x 100.     }

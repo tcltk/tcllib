@@ -107,6 +107,8 @@ proc ::map::slippy::SwitchTo {key} {
 	geo::box::limit
 	geo::box::opposites		point::box::opposites
 	geo::box::perimeter		point::box::perimeter
+	geo::box::valid
+	geo::box::valid-list
 	geo::center			point::center
 	geo::center-list		point::center-list
 	geo::diameter			point::diameter
@@ -115,6 +117,8 @@ proc ::map::slippy::SwitchTo {key} {
 	geo::distance*			point::distance*
 	geo::distance-list		point::distance-list
 	geo::limit			point::simplify::rdp
+	geo::valid
+	geo::valid-list
 	length				point::simplify::radial
 	limit2
 	limit3
@@ -122,6 +126,8 @@ proc ::map::slippy::SwitchTo {key} {
 	tile::size
 	tile::valid
 	tiles
+	valid::latitude
+	valid::longitude
     }
 
     # Deactivate the previous implementation, if there was any.
@@ -209,19 +215,24 @@ namespace eval ::map {
 }
 namespace eval ::map::slippy {
     namespace export length geo point tile tiles \
-	limit6 limit3 limit2 pretty-distance
+	limit6 limit3 limit2 pretty-distance valid
+    namespace ensemble create
+}
+namespace eval ::map::slippy::valid {
+    namespace export latitude longitude
     namespace ensemble create
 }
 namespace eval ::map::slippy::geo {
     namespace export \
 	2point 2point* 2point-list bbox bbox-list \
 	box center center-list diameter diameter-list \
-	distance distance* distance-list limit
+	distance distance* distance-list limit \
+	valid valid-list
     namespace ensemble create
 }
 namespace eval ::map::slippy::geo::box {
     namespace export fit 2point corners opposites center dimensions inside \
-	diameter perimeter limit
+	diameter perimeter limit valid valid-list
     namespace ensemble create
 }
 namespace eval ::map::slippy::point {
