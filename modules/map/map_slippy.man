@@ -60,6 +60,16 @@ The command returns the dimensions of the geographical box [arg geobox], width a
 order.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box fit}] [arg geobox] \
+	[arg canvdim] [arg zmax] [opt [arg zmin]]]
+
+This command calculates the zoom level such that the [arg geobox] will fit into a viewport given by
+[arg canvdim] (a 2-element list containing the width and height of said viewport) and returns it.
+
+[para] The zoom level will be made to fit within the range [arg zmin]...[arg zmax].
+When [arg zmin] is not specified it will default to [const 0].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo box inside}] [arg geobox] [arg geo]]
 
 The command tests if the geographical location [arg geo] is contained in the geographical
@@ -84,14 +94,17 @@ geographical box [arg geobox]. The two points are top-left, and bottom-right, in
 The command returns the perimeter of the geographical box [arg geobox], in meters.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
-[call [cmd ::map] [method {slippy geo box fit}] [arg geobox] \
-	[arg canvdim] [arg zmax] [opt [arg zmin]]]
+[call [cmd ::map] [method {slippy geo box valid}] [arg geobox]]
 
-This command calculates the zoom level such that the [arg geobox] will fit into a viewport given by
-[arg canvdim] (a 2-element list containing the width and height of said viewport) and returns it.
+This commands tests if the specified geographical box contains only valid latitudes
+and longitudes. It returns [const true] if the box is valid, and [const false] else.
 
-[para] The zoom level will be made to fit within the range [arg zmin]...[arg zmax].
-When [arg zmin] is not specified it will default to [const 0].
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box valid-list}] [arg geoboxes]]
+
+This commands tests if the list of geographical boxes contains only valid latitudes
+and longitudes. It returns [const true] if all the boxes are valid, and [const false]
+else.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo distance}] [arg geo1] [arg geo2]]
@@ -173,6 +186,18 @@ specified [arg zoom] level, and returns that point.
 These two commands are extensions of [cmd {map slippy geo 2point}] which take a series of
 geographical locations as either a varying number of arguments or a single list, convert them all to
 points as per the specified [arg zoom] level and return a list of the results.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo valid}] [arg geo]]
+
+This commands tests if the specified geographical location contains only valid latitudes and
+longitudes. It returns [const true] if the location is valid, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo valid-list}] [arg geos]]
+
+This commands tests if the list of geographical locations contains only valid latitudes and
+longitudes. It returns [const true] if all the locations are valid, and [const false] else.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy length}] [arg level]]
@@ -353,6 +378,18 @@ slippy-based map having that many zoom [arg levels], or not.
 The result is a boolean value, [const true] if the tile is valid, and [const false] otherwise.
 
 In the latter case a message is left in the variable named by [arg msgvar], should it be specified.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy valid latitude}] [arg x]]
+
+This commands tests if the argument [arg x] is a valid latitude value, and returns the boolean
+result of that test. I.e. [const true] if the value is valid, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy valid longitude}] [arg x]]
+
+This commands tests if the argument [arg x] is a valid longitude value, and returns the boolean
+result of that test. I.e. [const true] if the value is valid, and [const false] else.
 
 [list_end]
 

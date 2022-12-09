@@ -59,6 +59,62 @@ critcl::source c/common.tcl
 # ### ### ### ######### ######### #########
 ## Implementation
 
+critcl::cproc ::map::slippy::critcl_geo_valid_list {
+    []geo gs
+} bool {
+    for (unsigned int k = 0; k < gs.c; k++) {
+	if (!((gs.v[k].lat >=  -90) && (gs.v[k].lat <=  90) &&
+	      (gs.v[k].lon >= -180) && (gs.v[k].lon <= 180))) {
+	    return 0;
+	}
+    }
+    return 1;
+}
+
+critcl::cproc ::map::slippy::critcl_geo_box_valid_list {
+    []geobox gs
+} bool {
+    for (unsigned int k = 0; k < gs.c; k++) {
+	if (!((gs.v[k].lat0 >=  -90) && (gs.v[k].lat0 <=  90) &&
+	      (gs.v[k].lon0 >= -180) && (gs.v[k].lon0 <= 180) &&
+	      (gs.v[k].lat1 >=  -90) && (gs.v[k].lat1 <=  90) &&
+	      (gs.v[k].lon1 >= -180) && (gs.v[k].lon1 <= 180))) {
+	    return 0;
+	}
+    }
+    return 1;
+}
+
+critcl::cproc ::map::slippy::critcl_geo_valid {
+    geo g
+} bool {
+    return
+	(g.lat >=  -90) && (g.lat <=  90) &&
+	(g.lon >= -180) && (g.lon <= 180);
+}
+
+critcl::cproc ::map::slippy::critcl_geo_box_valid {
+    geobox gbox
+} bool {
+    return
+	(gbox.lat0 >=  -90) && (gbox.lat0 <=  90) &&
+	(gbox.lon0 >= -180) && (gbox.lon0 <= 180) &&
+	(gbox.lat1 >=  -90) && (gbox.lat1 <=  90) &&
+	(gbox.lon1 >= -180) && (gbox.lon1 <= 180);
+}
+
+critcl::cproc ::map::slippy::critcl_valid_latitude {
+    double x
+} bool {
+    return (x >= -90) && (x <= 90);
+}
+
+critcl::cproc ::map::slippy::critcl_valid_longitude {
+    double x
+} bool {
+    return (x >= -180) && (x <= 180);
+}
+
 critcl::cproc ::map::slippy::critcl_limit6 {
     Tcl_Interp* interp
     double      x
