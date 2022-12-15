@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'map_slippy_fetcher\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "map::slippy::fetcher" n 0\&.5 tcllib "Mapping utilities"
+.TH "map::slippy::fetcher" n 0\&.6 tcllib "Mapping utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTk  8\&.6\fR
 .sp
 package require \fBmap::slippy \fR
 .sp
-package require \fBmap::slippy::fetcher  ?0\&.5?\fR
+package require \fBmap::slippy::fetcher  ?0\&.6?\fR
 .sp
 \fB::map::slippy::fetcher\fR \fIfetcherName\fR \fIlevels\fR \fIurl\fR
 .sp
@@ -293,8 +293,11 @@ package require \fBmap::slippy::fetcher  ?0\&.5?\fR
 .sp
 .BE
 .SH DESCRIPTION
-This package provides a class for accessing http servers providing
-tiles for slippy-based maps\&.
+This package provides a class for accessing http servers providing tiles for slippy-based maps\&.
+.PP
+\fIBEWARE\fR, \fIAttention\fR Version \fI0\&.6\fR is \fINOT backward compatible\fR
+with version 0\&.5 and earlier\&. This is due to switching this package's internals to the use of
+version 0\&.8 of \fBmap::slippy\fR\&.
 .SH API
 .TP
 \fB::map::slippy::fetcher\fR \fIfetcherName\fR \fIlevels\fR \fIurl\fR
