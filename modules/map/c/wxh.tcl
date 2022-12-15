@@ -11,7 +11,7 @@ critcl::resulttype wxh {
 } wxh
 
 critcl::argtype wxh {
-    if (!wxh_unbox (interp, @@, &@A) != TCL_OK) return TCL_ERROR;
+    if (wxh_unbox (interp, @@, &@A) != TCL_OK) return TCL_ERROR;
 } wxh wxh
 
 # ### ### ### ######### ######### #########
@@ -19,8 +19,8 @@ critcl::argtype wxh {
 
 critcl::ccode {
     typedef struct wxh {
-	int h;
-	int w;
+	double w;
+	double h;
     } wxh;
 
     static int wxh_unbox (Tcl_Interp* interp, Tcl_Obj* obj, wxh* p) {
@@ -34,11 +34,12 @@ critcl::ccode {
 	    return TCL_ERROR;
 	}
 
-	int h;
-	int w;
+	double h;
+	double w;
 
-	if (Tcl_GetIntFromObj (interp, lv[0], &h) != TCL_OK) return TCL_ERROR;
-	if (Tcl_GetIntFromObj (interp, lv[1], &w) != TCL_OK) return TCL_ERROR;
+	if (Tcl_GetDoubleFromObj (interp, lv[0], &w) != TCL_OK) return TCL_ERROR;
+
+	if (Tcl_GetDoubleFromObj (interp, lv[1], &h) != TCL_OK) return TCL_ERROR;
 
 	p->h = h;
 	p->w = w;
@@ -48,8 +49,8 @@ critcl::ccode {
 
     static Tcl_Obj* wxh_box (Tcl_Interp* interp, wxh* p) {
 	Tcl_Obj* cl[2];
-	cl [0] = Tcl_NewIntObj (p->h);
-	cl [1] = Tcl_NewIntObj (p->w);
+	cl [0] = Tcl_NewDoubleObj (p->w);
+	cl [1] = Tcl_NewDoubleObj (p->h);
 	return Tcl_NewListObj(2, cl);
     }
 }

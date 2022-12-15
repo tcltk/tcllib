@@ -5,34 +5,34 @@
 # ### ### ### ######### ######### #########
 ## Type definitions
 
-critcl::resulttype box {
-    Tcl_SetObjResult(interp, box_box (interp, &rv));
+critcl::resulttype geobox {
+    Tcl_SetObjResult(interp, geobox_box (interp, &rv));
     return TCL_OK;
-} box
+} geobox
 
-critcl::argtype box {
-    if (box_unbox (interp, @@, &@A) != TCL_OK) return TCL_ERROR;
-} box box
+critcl::argtype geobox {
+    if (geobox_unbox (interp, @@, &@A) != TCL_OK) return TCL_ERROR;
+} geobox geobox
 
 # ### ### ### ######### ######### #########
 ## Support implementation
 
 critcl::ccode {
-    typedef struct box {
+    typedef struct geobox {
 	double lat0;
 	double lon0;
 	double lat1;
 	double lon1;
-    } box;
+    } geobox;
 
-    static int box_unbox (Tcl_Interp* interp, Tcl_Obj* obj, box* p) {
+    static int geobox_unbox (Tcl_Interp* interp, Tcl_Obj* obj, geobox* g) {
 	int       lc;
 	Tcl_Obj** lv;
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
 	if (lc != 4) {
-	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "BOX", NULL);
-	    Tcl_AppendResult (interp, "Bad box, expected list of 4", NULL);
+	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "GEOBOX", NULL);
+	    Tcl_AppendResult (interp, "Bad geobox, expected list of 4", NULL);
 	    return TCL_ERROR;
 	}
 
@@ -46,20 +46,20 @@ critcl::ccode {
 	if (Tcl_GetDoubleFromObj (interp, lv[2], &lat1) != TCL_OK) return TCL_ERROR;
 	if (Tcl_GetDoubleFromObj (interp, lv[3], &lon1) != TCL_OK) return TCL_ERROR;
 
-	p->lat0 = lat0;
-	p->lon0 = lon0;
-	p->lat1 = lat1;
-	p->lon1 = lon1;
+	g->lat0 = lat0;
+	g->lon0 = lon0;
+	g->lat1 = lat1;
+	g->lon1 = lon1;
 
 	return TCL_OK;
     }
 
-    static Tcl_Obj* box_box (Tcl_Interp* interp, box* p) {
+    static Tcl_Obj* geobox_box (Tcl_Interp* interp, geobox* g) {
 	Tcl_Obj* cl[4];
-	cl [0] = Tcl_NewDoubleObj (p->lat0);
-	cl [1] = Tcl_NewDoubleObj (p->lon0);
-	cl [2] = Tcl_NewDoubleObj (p->lat1);
-	cl [3] = Tcl_NewDoubleObj (p->lon1);
+	cl [0] = Tcl_NewDoubleObj (g->lat0);
+	cl [1] = Tcl_NewDoubleObj (g->lon0);
+	cl [2] = Tcl_NewDoubleObj (g->lat1);
+	cl [3] = Tcl_NewDoubleObj (g->lon1);
 	return Tcl_NewListObj(4, cl);
     }
 }

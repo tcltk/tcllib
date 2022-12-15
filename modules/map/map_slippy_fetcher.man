@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.5]
+[vset VERSION 0.6]
 [manpage_begin map::slippy::fetcher n [vset VERSION]]
 [keywords http]
 [keywords location]
@@ -17,8 +17,11 @@
 [require map::slippy::fetcher [opt [vset VERSION]]]
 [description]
 
-This package provides a class for accessing http servers providing
-tiles for slippy-based maps.
+This package provides a class for accessing http servers providing tiles for slippy-based maps.
+
+[para][strong BEWARE], [strong Attention] Version [strong 0.6] is [strong {NOT backward compatible}]
+with version 0.5 and earlier. This is due to switching this package's internals to the use of
+version 0.8 of [package map::slippy].
 
 [section API]
 

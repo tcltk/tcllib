@@ -7,10 +7,10 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.6     ; #
-package require Tk  8.6     ; # image photo - Note: directly supports PNG format
-package require map::slippy ; # Slippy constants
-package require fileutil    ; # Testing paths
+package require Tcl 8.6         ; #
+package require Tk  8.6         ; # image photo - Note: directly supports PNG format
+package require map::slippy 0.8 ; # Slippy base (constants, validation)
+package require fileutil        ; # Testing paths
 package require snit
 
 # ### ### ### ######### ######### #########
@@ -35,18 +35,21 @@ snit::type map::slippy::cache {
 
     method valid {tile {msgv {}}} {
 	if {$msgv ne ""} { upvar 1 $msgv msg }
-	return [map slippy tile valid $tile $mylevels msg]
+	# tile = list (zoom, row, col)
+	return [map slippy tile valid {*}$tile $mylevels msg]
     }
 
     method exists {tile} {
-	if {![map slippy tile valid $tile $mylevels msg]} {
+	# tile = list (zoom, row, col)
+	if {![map slippy tile valid {*}$tile $mylevels msg]} {
 	    return -code error $msg
 	}
 	return [file exists [FileOf $tile]]
     }
 
     method get {tile donecmd} {
-	if {![map slippy tile valid $tile $mylevels msg]} {
+	# tile = list (zoom, row, col)
+	if {![map slippy tile valid {*}$tile $mylevels msg]} {
 	    return -code error $msg
 	}
 
@@ -137,4 +140,4 @@ snit::type map::slippy::cache {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::cache 0.3
+package provide map::slippy::cache 0.4

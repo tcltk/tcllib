@@ -2,7 +2,7 @@
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2012-05-11  Andreas Kupries  <andreask@activestate.com>
 
@@ -24,7 +24,7 @@
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -38,7 +38,7 @@
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2010-05-27  Andreas Kupries  <andreask@activestate.com>
 
@@ -52,22 +52,22 @@
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-11-28  Andreas Kupries  <andreask@activestate.com>
 
 	* map_slippy_cache.man: Version mismatch code / index.
 	* map_slippy_cache.tcl: Fix and bump to 0.2 as it was
 	* map_slippy_fetcher.man: already distributed.
-	* map_slippy_fetcher.tcl: 
-	* map_slippy.man: 
-	* map_slippy.tcl: 
+	* map_slippy_fetcher.tcl:
+	* map_slippy.man:
+	* map_slippy.tcl:
 	* pkgIndex.tcl:
 
 2008-11-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
@@ -78,6 +78,6 @@
 	* map_slippy_cache.tcl: slippy servers and fetching tiles, caching
 	* map_slippy_fetcher.man: tiles in the local filesystem, and shared
 	* map_slippy_fetcher.tcl: utility code.
-	* map_slippy.man: 
-	* map_slippy.tcl: 
+	* map_slippy.man:
+	* map_slippy.tcl:
 	* pkgIndex.tcl:

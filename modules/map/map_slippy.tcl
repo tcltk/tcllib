@@ -1,8 +1,8 @@
-## -*- tcl -*-
+## -*- mode: tcl; fill-column: 90 -*-
 # ### ### ### ######### ######### #########
 ##
-## Common information for slippy based maps. I.e. tile size, relationship between zoom level and map
-## size, etc.
+## Common information and commands for slippy based maps. I.e. tile size, relationship
+## between zoom level and map size, etc.
 ##
 ## See
 ##	http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Pseudo-Code
@@ -38,12 +38,21 @@ proc ::map::slippy::LoadAccelerator {key} {
 	critcl {
 	    # Critcl implementation of map::slippy requires Tcl 8.6.
 	    if {![package vsatisfies [package provide Tcl] 8.6]} {return 0}
-	    if {[catch {package require tcllibc}]} { return 0 }
+	    if {[catch {
+		package require tcllibc
+	    }]} {
+		return 0
+	    }
 	    set isok [llength [info commands ::map::slippy::critcl_tiles]]
 	}
 	tcl {
 	    variable selfdir
-	    if {[catch {source [file join $selfdir map_slippy_tcl.tcl]}]} {return 0}
+	    if {[catch {
+		source [file join $selfdir map_slippy_tcl.tcl]
+	    } msg]} {
+		#puts /$msg
+		return 0
+	    }
 	    set isok [llength [info commands ::map::slippy::tcl_tiles]]
 	}
         default {
@@ -83,35 +92,59 @@ proc ::map::slippy::SwitchTo {key} {
     }
 
     set cmdmap {
-        fit_geobox   fit::geobox
-	geo_distance geo::distance
-        geo_2point   geo::2point
-        geo_2points  geo::2points
-        geo_2tile    geo::2tile
-        geo_2tilef   geo::2tile.float
-        length       length
-        point_2geo   point::2geo
-        point_2tile  point::2tile
-        tile_2geo    tile::2geo
-        tile_2point  tile::2point
-        tile_size    tile::size
-        tile_valid   tile::valid
-        tiles        tiles
+	geo::2point			point::2geo
+	geo::2point*			point::2geo*
+	geo::2point-list		point::2geo-list
+	geo::bbox			point::bbox
+	geo::bbox-list			point::bbox-list
+	geo::box::2point		point::box::2geo
+	geo::box::center		point::box::center
+	geo::box::corners		point::box::corners
+	geo::box::diameter		point::box::diameter
+	geo::box::dimensions		point::box::dimensions
+	geo::box::fit
+	geo::box::inside		point::box::inside
+	geo::box::limit
+	geo::box::opposites		point::box::opposites
+	geo::box::perimeter		point::box::perimeter
+	geo::box::valid
+	geo::box::valid-list
+	geo::center			point::center
+	geo::center-list		point::center-list
+	geo::diameter			point::diameter
+	geo::diameter-list		point::diameter-list
+	geo::distance			point::distance
+	geo::distance*			point::distance*
+	geo::distance-list		point::distance-list
+	geo::limit			point::simplify::rdp
+	geo::valid
+	geo::valid-list
+	length				point::simplify::radial
+	limit2
+	limit3
+	limit6
+	tile::size
+	tile::valid
+	tiles
+	valid::latitude
+	valid::longitude
     }
 
     # Deactivate the previous implementation, if there was any.
 
     if {$loaded ne {}} {
-	foreach {origin c} $cmdmap {
-	    rename ::map::slippy::$c ::map::slippy::${loaded}_$origin
+	foreach cmd $cmdmap {
+	    set origin [string map {:: _ - _ * _args} $cmd]
+	    rename ::map::slippy::$cmd ::map::slippy::${loaded}_$origin
 	}
     }
 
     # Activate the new implementation, if there is any.
 
     if {$key ne {}} {
-	foreach {origin c} $cmdmap {
-	    rename ::map::slippy::${key}_$origin ::map::slippy::$c
+	foreach cmd $cmdmap {
+	    set origin [string map {:: _ - _ * _args} $cmd]
+	    rename ::map::slippy::${key}_$origin ::map::slippy::$cmd
 	}
     }
 
@@ -181,24 +214,56 @@ namespace eval ::map {
     namespace ensemble create
 }
 namespace eval ::map::slippy {
-    namespace export fit geo length point tile tiles
+    namespace export length geo point tile tiles \
+	limit6 limit3 limit2 pretty-distance valid
     namespace ensemble create
 }
-namespace eval ::map::slippy::tile {
-    namespace export 2geo 2point size valid
+namespace eval ::map::slippy::valid {
+    namespace export latitude longitude
     namespace ensemble create
 }
 namespace eval ::map::slippy::geo {
-    namespace export distance 2point 2points 2tile 2tile.float
+    namespace export \
+	2point 2point* 2point-list bbox bbox-list \
+	box center center-list diameter diameter-list \
+	distance distance* distance-list limit \
+	valid valid-list
+    namespace ensemble create
+}
+namespace eval ::map::slippy::geo::box {
+    namespace export fit 2point corners opposites center dimensions inside \
+	diameter perimeter limit valid valid-list
     namespace ensemble create
 }
 namespace eval ::map::slippy::point {
-    namespace export 2geo 2tile
+    namespace export \
+	2geo 2geo* 2geo-list bbox bbox-list \
+	box center center-list diameter diameter-list \
+	distance distance* distance-list simplify
     namespace ensemble create
 }
-namespace eval ::map::slippy::fit {
-    namespace export geobox
+namespace eval ::map::slippy::point::box {
+    namespace export 2geo corners opposites center dimensions inside \
+	diameter perimeter
     namespace ensemble create
+}
+namespace eval ::map::slippy::point::simplify {
+    namespace export radial rdp
+    namespace ensemble create
+}
+namespace eval ::map::slippy::tile {
+    namespace export size valid
+    namespace ensemble create
+}
+
+# ### ### ### ######### ######### #########
+## Unaccelerated commands
+
+proc ::map::slippy::pretty-distance {x} {
+    if {$x >= 1000} {
+	return "[limit3 [expr {$x/1000.}]] km"
+    }
+    return "[limit2 $x] m"
 }
 
 # ### ### ### ######### ######### #########
@@ -217,4 +282,4 @@ apply {{} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.7.1
+package provide map::slippy 0.8
