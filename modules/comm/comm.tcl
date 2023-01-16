@@ -1594,8 +1594,7 @@ proc ::comm::CommRunHook {chan event} {
 
     # Perform the return code propagation promised
     # to the hook scripts.
-	return -options $options $options
-
+    return -options $options -code $code $res
 }
 
 # ### ### ### ######### ######### #########
@@ -1805,4 +1804,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.7
+package provide comm 4.7.1

@@ -12,9 +12,8 @@
 source [file join [file dirname [file dirname [
     file join [pwd] [info script]]]] devtools testutilities.tcl]
 
-package require tcltest
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 tcltest::testConstraint hastls [expr {![catch {package require tls}]}]
 
@@ -308,6 +307,14 @@ test comm-6.0 {secured communication via tls package} hastls {
     # Return result of the secured command
     set res
 } dog
+
+# ------------------------------------------------------------------------
+
+test comm-cb9a7f0bfc {Ticket cb9a7f0bfc, hook eval code handling} -setup {
+    ::comm::comm hook eval { return $buffer }
+} -body {
+    ::comm::comm send [::comm::comm self] pid
+} -result pid
 
 # ------------------------------------------------------------------------
 
