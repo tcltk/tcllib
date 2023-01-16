@@ -23,7 +23,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.5
 
-package provide mime 1.7.0
+package provide mime 1.7.1
 package require tcl::chan::memchan
 
 
@@ -1340,12 +1340,19 @@ proc ::mime::getsize {token} {
 proc ::mime::getContentType token {
     variable $token
     upvar 0 $token state
-    set boundary {}
     set res $state(content)
+
+    set boundary {}
     foreach {k v} $state(params) {
-	set boundary $v
+        if {$k eq {boundary}} {
+	    set boundary $v
+	}
         append res ";\n              $k=\"$v\""
     }
+
+    # Save boundary separate from the params
+    set state(boundary) $boundary
+
     if {([string match multipart/* $state(content)]) \
         && ($boundary eq {})} {
         # we're doing everything in one pass...
@@ -1355,6 +1362,8 @@ proc ::mime::getContentType token {
             set key [md5 -- $key]
         }
         set boundary "----- =_[string trim [base64 -mode encode -- $key]]"
+
+	set state(boundary) $boundary
 
         append res ";\n              boundary=\"$boundary\""
     }
@@ -1397,7 +1406,7 @@ proc ::mime::getheader {token {key {}}} {
 	    lappend result MIME-Version $state(version)
             foreach lower $state(lowerL) mixed $state(mixedL) {
 		foreach value $header($lower) {
-		    lappend result $mixed $value 
+		    lappend result $mixed $value
 		}
             }
 	    set tencoding [getTransferEncoding $token]
@@ -1878,18 +1887,12 @@ proc ::mime::copymessageaux {token channel} {
 
     array set header $state(header)
 
-    set boundary {}
-
     set result {}
     foreach {mixed value} [getheader $token] {
 	puts $channel "$mixed: $value"
     }
 
-    foreach {k v} $state(params) {
-        if {$k eq {boundary}} {
-            set boundary $v
-        }
-    }
+    set boundary $state(boundary) ;# computed by `getheader`
 
     set converter {}
     set encoding {}
@@ -1916,17 +1919,6 @@ proc ::mime::copymessageaux {token channel} {
                 }
             }
         }
-    } elseif {([string match multipart/* $state(content)]) \
-        && ($boundary eq {})} {
-        # we're doing everything in one pass...
-        set key [clock seconds]$token[info hostname][array get state]
-        set seqno 8
-        while {[incr seqno -1] >= 0} {
-            set key [md5 -- $key]
-        }
-        set boundary "----- =_[string trim [base64 -mode encode -- $key]]"
-
-        puts $channel ";\n              boundary=\"$boundary\""
     }
 
     if {[info exists state(error)]} {
@@ -2072,7 +2064,7 @@ proc ::mime::copymessageaux {token channel} {
 #       token      The MIME token to parse.
 #
 # Results:
-#       The message. 
+#       The message.
 
 proc ::mime::buildmessage token {
     global errorCode errorInfo
