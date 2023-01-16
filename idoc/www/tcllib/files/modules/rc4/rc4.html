@@ -190,7 +190,7 @@ data and is used to initialize the cipher internal state.</p></dd>
 % set keydata [binary format H* 0123456789abcdef]
 % rc4::rc4 -hex -key $keydata HelloWorld
 3cf1ae8b7f1c670b612f
-% rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
+% rc4::rc4 -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
 HelloWorld
 </pre>
 <pre class="doctools_example">
