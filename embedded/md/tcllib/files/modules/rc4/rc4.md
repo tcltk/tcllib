@@ -106,7 +106,7 @@ restrictions this cipher is sometimes known as ARCFOUR\.
     % set keydata [binary format H* 0123456789abcdef]
     % rc4::rc4 -hex -key $keydata HelloWorld
     3cf1ae8b7f1c670b612f
-    % rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
+    % rc4::rc4 -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
     HelloWorld
 
     set Key [rc4::RC4Init "key data"]
