@@ -107,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">zipfile::mkzip(n) 1.2.1 tcllib &quot;Zip archive creation&quot;</h1>
+<h1 class="doctools_title">zipfile::mkzip(n) 1.2.2 tcllib &quot;Zip archive creation&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>zipfile::mkzip - Build a zip archive</p>
 </div>
@@ -127,10 +127,10 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6</b></li>
-<li>package require <b class="pkgname">zipfile::mkzip <span class="opt">?1.2.1?</span></b></li>
+<li>package require <b class="pkgname">zipfile::mkzip <span class="opt">?1.2.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::zipfile::mkzip::mkzip</b> <i class="arg">zipfile</i> <span class="opt">?<b class="option">-zipkit</b>?</span> <span class="opt">?<b class="option">-runtime</b> <i class="arg">prefix</i>?</span> <span class="opt">?<b class="option">-comment</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-directory</b> <i class="arg">rootpath</i>?</span> <span class="opt">?<b class="option">-exclude</b> <i class="arg">exclude</i>?</span> <span class="opt">?<b class="option">--</b>?</span> <span class="opt">?<i class="arg">path</i>...?</span></a></li>
+<li><a href="#1"><b class="cmd">::zipfile::mkzip::mkzip</b> <i class="arg">zipfile</i> <span class="opt">?<b class="option">-zipkit</b>?</span> <span class="opt">?<b class="option">-runtime</b> <i class="arg">prefix</i>?</span> <span class="opt">?<b class="option">-comment</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-directory</b> <i class="arg">rootpath</i>?</span> <span class="opt">?<b class="option">-prepend-base-directory</b> <i class="arg">bool</i>?</span> <span class="opt">?<b class="option">-exclude</b> <i class="arg">exclude</i>?</span> <span class="opt">?<b class="option">--</b>?</span> <span class="opt">?<i class="arg">path</i>...?</span></a></li>
 </ul>
 </div>
 </div>
@@ -140,7 +140,7 @@ archives.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::zipfile::mkzip::mkzip</b> <i class="arg">zipfile</i> <span class="opt">?<b class="option">-zipkit</b>?</span> <span class="opt">?<b class="option">-runtime</b> <i class="arg">prefix</i>?</span> <span class="opt">?<b class="option">-comment</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-directory</b> <i class="arg">rootpath</i>?</span> <span class="opt">?<b class="option">-exclude</b> <i class="arg">exclude</i>?</span> <span class="opt">?<b class="option">--</b>?</span> <span class="opt">?<i class="arg">path</i>...?</span></a></dt>
+<dt><a name="1"><b class="cmd">::zipfile::mkzip::mkzip</b> <i class="arg">zipfile</i> <span class="opt">?<b class="option">-zipkit</b>?</span> <span class="opt">?<b class="option">-runtime</b> <i class="arg">prefix</i>?</span> <span class="opt">?<b class="option">-comment</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-directory</b> <i class="arg">rootpath</i>?</span> <span class="opt">?<b class="option">-prepend-base-directory</b> <i class="arg">bool</i>?</span> <span class="opt">?<b class="option">-exclude</b> <i class="arg">exclude</i>?</span> <span class="opt">?<b class="option">--</b>?</span> <span class="opt">?<i class="arg">path</i>...?</span></a></dt>
 <dd><p>From <a href="http://wiki.tcl.tk/15158">http://wiki.tcl.tk/15158</a></p>
 <p>This command constructs a zip archive from a directory tree
 using nothing but Tcl 8.6 core features. The resulting zip file should
@@ -180,6 +180,11 @@ archive.</p></dd>
 <dt><b class="option">-directory</b> path</dt>
 <dd><p>This option specifies the directory to place into the generated
 archive. If specified any argument <i class="arg">path</i>s are <em>ignored</em>.</p></dd>
+<dt><b class="option">-prepend-base-directory</b> bool</dt>
+<dd><p>When this option is set the tail of the <b class="option">-directory</b> path is
+prepended to all paths added to the archive.</p>
+<p>The option is ignored when option <b class="option">-directory</b> is not specified.</p>
+<p>By default this option is <b class="const">false</b>.</p></dd>
 <dt><b class="option">-exclude</b> list</dt>
 <dd><p>This option specifies a list of glob patterns. All paths matching at
 least one of the patterns are not placed into the generated archive.
