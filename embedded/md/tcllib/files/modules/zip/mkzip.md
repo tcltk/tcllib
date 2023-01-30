@@ -2,7 +2,7 @@
 [//000000001]: # (zipfile::mkzip \- Zip archive creation)
 [//000000002]: # (Generated from file 'mkzip\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Pat Thoyts)
-[//000000004]: # (zipfile::mkzip\(n\) 1\.2\.1 tcllib "Zip archive creation")
+[//000000004]: # (zipfile::mkzip\(n\) 1\.2\.2 tcllib "Zip archive creation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,9 +36,9 @@ zipfile::mkzip \- Build a zip archive
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require zipfile::mkzip ?1\.2\.1?  
+package require zipfile::mkzip ?1\.2\.2?  
 
-[__::zipfile::mkzip::mkzip__ *zipfile* ?__\-zipkit__? ?__\-runtime__ *prefix*? ?__\-comment__ *string*? ?__\-directory__ *rootpath*? ?__\-exclude__ *exclude*? ?__\-\-__? ?*path*\.\.\.?](#1)  
+[__::zipfile::mkzip::mkzip__ *zipfile* ?__\-zipkit__? ?__\-runtime__ *prefix*? ?__\-comment__ *string*? ?__\-directory__ *rootpath*? ?__\-prepend\-base\-directory__ *bool*? ?__\-exclude__ *exclude*? ?__\-\-__? ?*path*\.\.\.?](#1)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -46,7 +46,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
 
 # <a name='section2'></a>API
 
-  - <a name='1'></a>__::zipfile::mkzip::mkzip__ *zipfile* ?__\-zipkit__? ?__\-runtime__ *prefix*? ?__\-comment__ *string*? ?__\-directory__ *rootpath*? ?__\-exclude__ *exclude*? ?__\-\-__? ?*path*\.\.\.?
+  - <a name='1'></a>__::zipfile::mkzip::mkzip__ *zipfile* ?__\-zipkit__? ?__\-runtime__ *prefix*? ?__\-comment__ *string*? ?__\-directory__ *rootpath*? ?__\-prepend\-base\-directory__ *bool*? ?__\-exclude__ *exclude*? ?__\-\-__? ?*path*\.\.\.?
 
     From [http://wiki\.tcl\.tk/15158](http://wiki\.tcl\.tk/15158)
 
@@ -98,6 +98,15 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
 
         This option specifies the directory to place into the generated archive\.
         If specified any argument *path*s are *ignored*\.
+
+      * __\-prepend\-base\-directory__ bool
+
+        When this option is set the tail of the __\-directory__ path is
+        prepended to all paths added to the archive\.
+
+        The option is ignored when option __\-directory__ is not specified\.
+
+        By default this option is __false__\.
 
       * __\-exclude__ list
 
