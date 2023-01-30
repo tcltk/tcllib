@@ -15,7 +15,7 @@
 ##
 ##################
 
-package require Tcl 8.5
+package require Tcl 8.6
 
 package require http 2.7;  # Need keepalive!
 package require logger
@@ -43,27 +43,11 @@ package require base64
 # future.
 
 namespace eval ::websocket {
+    namespace export {[a-z]*}
+    namespace ensemble create
+    
     variable WS
     if { ! [info exists WS] } {
-	array set WS {
-	    loglevel       "error"
-	    maxlength      16777216
-	    ws_magic       "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-	    ws_version     13
-	    id_gene        0
-	    whitespace     " \t"
-	    tchar          {!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz|~}
-	    -keepalive     30
-	    -ping          ""
-	}
-	# Build ASCII case-insensitive mapping table. See
-	# <http://tools.ietf.org/html/rfc6455#section-2.1>.
-	for {set i 0x41} {$i <= 0x5A} {incr i} {
-	    lappend WS(lowercase) [format %c $i] [format %c [expr {$i + 0x20}]]
-	}; unset i;
-	variable log [::logger::init [string trimleft [namespace current] ::]]
-	variable libdir [file dirname [file normalize [info script]]]
-	${log}::setlevel $WS(loglevel)
     }
 }
 
@@ -1784,4 +1768,34 @@ proc ::websocket::ThrowError {msg args} {
 	$msg;
 }
 
-package provide websocket 1.4.2
+##################
+
+apply {{infoscript} {
+    variable  libdir [file dirname [file normalize $infoscript]]
+    variable  log    [::logger::init [string trimleft [namespace current] ::]]
+    variable  WS
+    array set WS {
+	loglevel       "error"
+	maxlength      16777216
+	ws_magic       "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+	ws_version     13
+	id_gene        0
+	whitespace     " \t"
+	tchar          {!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz|~}
+	-keepalive     30
+	-ping          ""
+    }
+
+    # Build ASCII case-insensitive mapping table. See
+    # <http://tools.ietf.org/html/rfc6455#section-2.1>.
+
+    for {set i 0x41} {$i <= 0x5A} {incr i} {
+	lappend WS(lowercase) [format %c $i] [format %c [expr {$i + 0x20}]]
+    }
+
+    ${log}::setlevel $WS(loglevel)
+
+} ::websocket} [info script]
+
+##################
+package provide websocket 1.5
