@@ -45,10 +45,8 @@ package require base64
 namespace eval ::websocket {
     namespace export {[a-z]*}
     namespace ensemble create
-    
+
     variable WS
-    if { ! [info exists WS] } {
-    }
 }
 
 # ::websocket::loglevel -- Set or query loglevel
@@ -169,7 +167,7 @@ proc ::websocket::close { sock { code 1000 } { reason "" } } {
 	${log}::info "Closing web socket: $code ($reason)"
 	Push $sock close [list $code $reason]
     }
-    
+
     Disconnect $sock
 }
 
@@ -502,7 +500,7 @@ proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
     # Create a context for the incoming client
     set varname [namespace current]::Client_${srvSock}_${cliSock}
     upvar \#0 $varname Client
-    
+
     set Client(server) $srvSock
     set Client(sock) $cliSock
     set Client(key) $key
@@ -513,7 +511,7 @@ proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
     set Client(protos) $protos
     set Client(live) $found(live)
     set Client(protocol) $found(protocol)
-    
+
     # Return the context for the incoming client.
     return 1
 }
@@ -764,7 +762,7 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
 	append header [binary format Iu $mask]
 	set msg [Mask $mask $msg]
     }
-    
+
     # Send the (masked) frame
     if { [catch {
 	puts -nonewline $sock $header$msg;
@@ -1042,20 +1040,20 @@ proc ::websocket::New { sock handler { server 0 } } {
 
     set varname [namespace current]::Connection_$sock
     upvar \#0 $varname Connection
-    
+
     set Connection(sock) $sock
     set Connection(handler) $handler
     set Connection(server) $server
 
     set Connection(peername) 0.0.0.0
     set Connection(sockname) 127.0.0.1
-    
+
     set Connection(read:mode) ""
     set Connection(read:msg) ""
     set Connection(write:opcode) -1
     set Connection(state) CONNECTING
     set Connection(liveness) ""
-    
+
     # Arrange for keepalive to be zero, i.e. no pings, when we are
     # within a client.  When in servers, take the default from the
     # library.  In any case, this can be configured, which means that
@@ -1130,7 +1128,7 @@ proc ::websocket::takeover { sock handler { server 0 } { info {} }} {
 
     # Tell the WebSocket handler that the connection is now open.
     Push $sock connect $info;
-    
+
     ${log}::debug "$sock has been registered as a\
                    [expr $server?\"server\":\"client\"] WebSocket"
 }
@@ -1288,13 +1286,13 @@ proc ::websocket::Timeout { opener token } {
 
     if { [info exists $opener] } {
 	upvar \#0 $opener OPEN
-	
+
 	set sock [HTTPSocket $token $opener]
 	Push $sock timeout \
 	    "Timeout when connecting to $OPEN(url)" $OPEN(handler)
 	::http::reset $token "timeout";
 	::http::cleanup $token
-	
+
 	# Destroy connection state, which will also attempt to close
 	# the socket.
 	if { $sock ne "" } {
@@ -1489,7 +1487,6 @@ proc ::websocket::open { url handler args } {
 	    Timeout $varname $token
 	}
     }
-
     return $sock
 }
 
@@ -1528,7 +1525,7 @@ proc ::websocket::conninfo { sock what } {
         ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
-    
+
     switch -glob -nocase -- $what {
         "peer*" {
             return $Connection(peername)
