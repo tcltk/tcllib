@@ -1,3 +1,7 @@
+2023-04-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.man: Correction in the description of mv-wls
+	* mvlinreg.tcl: Correction in the header
+
 2022-06-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* rootfind.tcl: New file containing the new root-findng procedures
 	* calculus.tcl: Add a "source" command for rootfind.tcl, bump version to 1.0
