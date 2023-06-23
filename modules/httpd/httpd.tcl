@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package require Tcl 8.6
+package require Tcl 8.6-
 package provide httpd 4.3.5
 namespace eval ::httpd {}
 set ::httpd::version 4.3.5

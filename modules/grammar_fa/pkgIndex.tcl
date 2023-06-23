@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.4]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 
 package ifneeded grammar::fa            0.5   [list source [file join $dir fa.tcl]]
 package ifneeded grammar::fa::op        0.4.1 [list source [file join $dir faop.tcl]]

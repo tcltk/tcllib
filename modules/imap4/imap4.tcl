@@ -54,7 +54,7 @@
 #   20130212: Added basic copy function
 #   20130212: Missing chan parameter added to all imaptotcl* procs -ger
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package provide imap4 0.5.3
 
 namespace eval imap4 {

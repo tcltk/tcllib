@@ -5,7 +5,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require logger
 
 namespace eval ::uevent               {}
@@ -442,23 +442,21 @@ namespace eval ::uevent::watch::event {
 }
 
 # ### ### ### ######### ######### #########
-## Ensemblify the system when running under Tcl 8.5 or higher.
+## Ensemblify the system since running under Tcl 8.5 or higher.
 
-if {[package vsatisfies [package present Tcl] 8.5]} {
-    namespace eval ::uevent {
-	namespace eval watch {
-	    namespace eval tag {
-		namespace ensemble create
-	    }
-	    namespace eval event {
-		namespace ensemble create
-	    }
-	    namespace export tag event
-	    namespace ensemble create
-	}
-	namespace export watch
-	namespace ensemble create
+namespace eval ::uevent {
+    namespace eval watch {
+        namespace eval tag {
+            namespace ensemble create
+        }
+        namespace eval event {
+            namespace ensemble create
+        }
+        namespace export tag event
+        namespace ensemble create
     }
+    namespace export watch
+    namespace ensemble create
 }
 
 # ### ### ### ######### ######### #########

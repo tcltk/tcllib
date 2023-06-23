@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 ## -*- tcl -*-
 
-package require Tcl 8.3
+package require Tcl 8.5-
 package require ftp 2.0
 
 # user configuration

@@ -14,7 +14,7 @@
 package require critcl
 # @sak notprovided struct_treec
 package provide struct_treec 2.1.1
-package require Tcl 8.2
+package require Tcl 8.5-
 
 namespace eval ::struct {
     # Supporting code for the main command.

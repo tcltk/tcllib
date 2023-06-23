@@ -1,4 +1,4 @@
-package require Tcl 8.5
+package require Tcl 8.5-
 package provide math::decimal 1.0.4
 #
 # Copyright 2011, 2013 Mark Alston. All rights reserved.

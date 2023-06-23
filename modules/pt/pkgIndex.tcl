@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.5]} return
+if {![package vsatisfies [package provide Tcl] 8.5 9]} return
 
 # General utilities.
 package ifneeded char          1.0.2 [list source [file join $dir char.tcl]]

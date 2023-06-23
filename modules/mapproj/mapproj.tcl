@@ -10,7 +10,7 @@
 # RCS: @(#) $Id: mapproj.tcl,v 1.1 2007/08/24 22:36:35 kennykb Exp $
 #------------------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require math::interpolate 1.0
 package require math::special 0.2.1
 

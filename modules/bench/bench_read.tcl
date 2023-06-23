@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
 
-package require Tcl 8.2
+package require Tcl 8.5-
 package require csv
 
 namespace eval ::bench::in {}

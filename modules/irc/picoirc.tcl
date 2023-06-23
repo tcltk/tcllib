@@ -14,7 +14,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.6
+package require Tcl 8.6-
 
 # -------------------------------------------------------------------------
 

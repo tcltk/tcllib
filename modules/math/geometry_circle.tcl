@@ -7,7 +7,7 @@
 #     Part of the math::geometry package
 #
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package require math
 
 namespace eval ::math::geometry {

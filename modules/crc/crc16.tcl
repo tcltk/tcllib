@@ -42,7 +42,7 @@
 
 # @mdgen EXCLUDE: crcc.tcl
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5-;                # tcl minimum version
 
 namespace eval ::crc {
     namespace export crc16 crc-ccitt crc-32

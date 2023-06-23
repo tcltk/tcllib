@@ -34,7 +34,7 @@
 ## TODO log integration.
 ## TODO document that facada takes ownership of the channel.
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package require TclOO
 package require logger
 package require tcl::chan::core

@@ -9,7 +9,7 @@
 #
 # RCS: @(#) $Id: misc.tcl,v 1.6 2005/10/10 14:02:47 arjenmarkus Exp $
 
-package require Tcl 8.2		;# uses [lindex $l end-$integer]
+package require Tcl 8.5-		;# uses [lindex $l end-$integer]
 namespace eval ::math {
 }
 

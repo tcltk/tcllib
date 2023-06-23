@@ -25,7 +25,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require fileutil::magic::rt ; # Runtime core, for Access to the typemap
 package require struct::list        ; # Our data structures.
 

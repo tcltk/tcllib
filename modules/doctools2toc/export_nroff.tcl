@@ -18,7 +18,7 @@
 
 # @mdgen NODEP: doctools::toc::export::plugin
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require doctools::toc::export::plugin ; # Presence of this
 						# pseudo package
 						# indicates execution

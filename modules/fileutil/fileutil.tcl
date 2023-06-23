@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.2
+package require Tcl 8.5-
 package require cmdline
 package provide fileutil 1.16.1
 
@@ -228,7 +228,7 @@ proc ::fileutil::FADD {filename} {
 #    directory (stat might return enough information too (mode), but
 #    possibly also not portable).
 
-if {[package vsatisfies [package present Tcl] 8.5]} {
+if {[package vsatisfies [package present Tcl] 8.5 9]} {
     # Tcl 8.5+.
     # We have to check readability of "current" on our own, glob
     # changed to error out instead of returning nothing.

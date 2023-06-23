@@ -11,7 +11,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5-;                # tcl minimum version
 package require SASL 1.0;               # tcllib 1.7
 package require des 1.0;                # tcllib 1.8
 package require md4;                    # tcllib 1.4

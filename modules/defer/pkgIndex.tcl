@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.6]} {
+if {![package vsatisfies [package provide Tcl] 8.6 9]} {
     # PRAGMA: returnok
     return
 }

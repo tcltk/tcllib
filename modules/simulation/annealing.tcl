@@ -10,7 +10,7 @@
 # RCS: @(#) $Id: annealing.tcl,v 1.4 2008/02/22 13:34:07 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5-
 
 # ::simulation::annealing --
 #     Create the namespace

@@ -13,7 +13,7 @@
 ## **************************************
 ## the true source is the file from which this one was generated.
 ##
-if {![package vsatisfies [package provide Tcl] 8.4]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 package ifneeded docstrip 1.2\
   [list source [file join $dir docstrip.tcl]]
 package ifneeded docstrip::util 1.3.1\

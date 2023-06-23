@@ -92,7 +92,7 @@ proc ::struct::queue::queue_tcl {args} {
 # Results:
 #	Varies based on command to perform
 
-if {[package vsatisfies [package provide Tcl] 8.5]} {
+if {[package vsatisfies [package provide Tcl] 8.5 9]} {
     # In 8.5+ we can do an ensemble for fast dispatch.
 
     proc ::struct::queue::QueueProc {name cmd args} {

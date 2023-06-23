@@ -51,7 +51,7 @@
 # # ## ### ##### ######## ############# ######################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package require snit
 package require valtype::common
 

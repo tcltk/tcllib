@@ -7,8 +7,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.6         ; #
-package require Tk  8.6         ; # image photo - Note: directly supports PNG format
+package require Tcl 8.6-         ; #
+package require Tk  8.6-         ; # image photo - Note: directly supports PNG format
 package require map::slippy 0.8 ; # Slippy base (constants, validation)
 package require fileutil        ; # Testing paths
 package require snit

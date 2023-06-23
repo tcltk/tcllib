@@ -8,7 +8,7 @@
 # # ## ### ##### ######## ############# ####################
 
 package provide throw 1
-package require Tcl 8.5
+package require Tcl 8.5-
 
 # Do nothing if the "throw" command exists already (8.6 and higher).
 if {[llength [info commands throw]]} return

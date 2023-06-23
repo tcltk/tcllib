@@ -18,7 +18,7 @@
 # This package requires the 'tclparser' from http://tclpro.sf.net/
 # to analyze the expressions presented to it.
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require grammar::aycock 1.0
 package provide math::calculus::symdiff 1.0.1
 

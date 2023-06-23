@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+if {![package vsatisfies [package provide Tcl] 8.6 9]} {return}
 
 package ifneeded tcl::transform::adler32 1     [list source [file join $dir adler32.tcl]]
 package ifneeded tcl::transform::base64 1      [list source [file join $dir base64.tcl]]

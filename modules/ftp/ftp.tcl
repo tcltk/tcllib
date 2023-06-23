@@ -50,7 +50,7 @@
 # ---------------------------------------------
 #
 
-package require Tcl 8.2
+package require Tcl 8.5-
 package require log     ; # tcllib/log, general logging facility.
 
 namespace eval ::ftp {

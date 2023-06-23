@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.3		;# uses [clock clicks -milliseconds]
+package require Tcl 8.5-		;# uses [clock clicks -milliseconds]
 package provide profiler 0.6
 
 namespace eval ::profiler {}

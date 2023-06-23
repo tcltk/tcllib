@@ -16,7 +16,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5-
 
 namespace eval ::debug {
     namespace export -clear \

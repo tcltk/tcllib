@@ -5,7 +5,7 @@
 #
 # (c) 2022 Andreas Kupries <andreas.kupries@gmail.com>
 
-if {![package vsatisfies [package provide Tcl] 8.5]} {
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     return
 }
 

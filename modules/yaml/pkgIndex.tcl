@@ -1,5 +1,5 @@
 
-if {![package vsatisfies [package provide Tcl] 8.5]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 
 package ifneeded yaml         0.4.1 [list source [file join $dir yaml.tcl]]
 package ifneeded huddle       0.4   [list source [file join $dir huddle.tcl]]

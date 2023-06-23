@@ -14,7 +14,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5-;                # tcl minimum version
 
 catch {package require tcllibc};        # critcl enhancements to tcllib
 #catch {package require crcc};           # critcl enhanced crc module

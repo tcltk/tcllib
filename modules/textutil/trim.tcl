@@ -14,7 +14,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.2
+package require Tcl 8.5-
 
 namespace eval ::textutil::trim {}
 

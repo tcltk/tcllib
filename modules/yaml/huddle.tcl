@@ -10,7 +10,7 @@
 # Copyright (c) 2008-2011 KATO Kanryu <kanryu6@users.sourceforge.net>
 # Copyright (c) 2015 Miguel Martínez López <aplicacionamedida@gmail.com>
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package provide huddle 0.4
 
 namespace eval ::huddle {

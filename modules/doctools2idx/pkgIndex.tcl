@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.4]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 
 # Packages for the doctools idx v2 implementation
 # (still v1.1 docidx language).
@@ -29,7 +29,5 @@ package ifneeded doctools::msgcat::idx::c      0.1 [list source [file join $dir 
 package ifneeded doctools::msgcat::idx::de     0.1 [list source [file join $dir msgcat_de.tcl]]
 package ifneeded doctools::msgcat::idx::en     0.1 [list source [file join $dir msgcat_en.tcl]]
 package ifneeded doctools::msgcat::idx::fr     0.1 [list source [file join $dir msgcat_fr.tcl]]
-
-if {![package vsatisfies [package provide Tcl] 8.5]} {return}
 
 package ifneeded doctools::idx::import         0.2.1 [list source [file join $dir import.tcl]]

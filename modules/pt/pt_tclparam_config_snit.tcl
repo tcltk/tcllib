@@ -11,7 +11,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5              ; # Required runtime.
+package require Tcl 8.5-              ; # Required runtime.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -67,7 +67,7 @@ proc ::pt::tclparam::configuration::snit::def {class pkg version cmd} {
 	# # ## ### ##### ######## ############# #####################
 	## Requirements
 
-	package require Tcl 8.5
+	package require Tcl 8.5-
 	package require snit
 	package require pt::rde ; # Implementation of the PARAM
 				  # virtual machine underlying the

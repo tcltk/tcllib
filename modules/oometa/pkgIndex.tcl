@@ -1,6 +1,6 @@
 #checker -scope global exclude warnUndefinedVar
 # var in question is 'dir'.
-if {![package vsatisfies [package provide Tcl] 8.6]} {
+if {![package vsatisfies [package provide Tcl] 8.6 9]} {
     # PRAGMA: returnok
     return
 }

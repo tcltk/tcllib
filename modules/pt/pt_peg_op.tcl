@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5        ; # Required runtime.
+package require Tcl 8.5-        ; # Required runtime.
 package require pt::pe         ; # PE basics
 package require pt::pe::op     ; # PE transforms
 package require struct::set    ; # Set operations (symbol sets)

@@ -26,7 +26,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package require TclOO
 package require tcl::chan::core
 

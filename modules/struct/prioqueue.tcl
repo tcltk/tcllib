@@ -11,7 +11,7 @@
 #
 # RCS: @(#) $Id: prioqueue.tcl,v 1.10 2008/09/04 04:35:02 andreas_kupries Exp $
 
-package require Tcl 8.2
+package require Tcl 8.5-
 
 namespace eval ::struct {}
 

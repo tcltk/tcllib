@@ -15,7 +15,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5-
 
 # math::optimize --
 #    Namespace for the commands
@@ -1305,7 +1305,7 @@ proc g {a b} {
 }
 
 set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     set ::tcl_precision 17
 } else {
     set ::tcl_precision 0

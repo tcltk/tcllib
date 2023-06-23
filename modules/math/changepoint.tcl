@@ -17,7 +17,7 @@
 #    - Implementation of the binary segmentation algorithm
 #
 
-package require Tcl 8.6
+package require Tcl 8.6-
 package require TclOO
 package require math::statistics
 package provide math::changepoint 0.1
