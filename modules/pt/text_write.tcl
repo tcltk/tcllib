@@ -12,7 +12,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package require textutil::adjust
 
 namespace eval ::text::write {

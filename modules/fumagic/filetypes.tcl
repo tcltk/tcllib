@@ -24,7 +24,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements.
 
-package require Tcl 8.6
+package require Tcl 8.6-
 package require fileutil::magic::rt 3-
 
 # ### ### ### ######### ######### #########

@@ -9,7 +9,7 @@
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
 
-package require Tcl 8.2
+package require Tcl 8.5-
 
 # @mdgen EXCLUDE: rc4c.tcl
 

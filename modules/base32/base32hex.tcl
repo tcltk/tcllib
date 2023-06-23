@@ -11,7 +11,7 @@
 
 # @mdgen EXCLUDE: base32hex_c.tcl
 
-package require Tcl 8.4
+package require Tcl 8.5-
 
 namespace eval ::base32::hex {}
 

@@ -43,7 +43,7 @@
 #-----------------------------------------------------------------------------
 
 # needed for using wide()
-package require Tcl 8.4
+package require Tcl 8.5-
 
 namespace eval asn {
     # Encoder commands
@@ -707,7 +707,7 @@ proc ::asn::asnGetResponse {sock data_var} {
     }
 }
 
-if {[package vsatisfies [package present Tcl] 8.5.0]} {
+if {[package vsatisfies [package present Tcl] 8.5.0 9]} {
 ##############################################################################
 # Code for 8.5
 ##############################################################################

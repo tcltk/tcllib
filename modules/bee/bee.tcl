@@ -5,7 +5,7 @@
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # See the file license.terms.
 
-package require Tcl 8.4
+package require Tcl 8.5-
 
 namespace eval ::bee {
     # Encoder commands

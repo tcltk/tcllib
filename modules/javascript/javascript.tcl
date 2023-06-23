@@ -14,7 +14,7 @@
 #
 # RCS: @(#) $Id: javascript.tcl,v 1.5 2005/09/30 05:36:39 andreas_kupries Exp $
 
-package require Tcl 8
+package require Tcl 8.5-
 package require ncgi 1
 package provide javascript 1.0.2
 

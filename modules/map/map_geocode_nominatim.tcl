@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.6
+package require Tcl 8.6-
 package require http
 package require json
 package require uri

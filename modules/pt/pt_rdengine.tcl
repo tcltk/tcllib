@@ -18,7 +18,7 @@
 
 # @mdgen EXCLUDE: pt_rdengine_c.tcl
 
-package require Tcl 8.5
+package require Tcl 8.5-
 
 namespace eval ::pt::rde {}
 
@@ -49,7 +49,7 @@ proc ::pt::rde::LoadAccelerator {key} {
     set r 0
     switch -exact -- $key {
 	critcl {
-	    if {![package vsatisfies [package provide Tcl] 8.5]} {return 0}
+	    if {![package vsatisfies [package provide Tcl] 8.5 9]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::pt::rde_critcl]]
 	}

@@ -25,7 +25,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.5
+package require Tcl 8.5-
 
 # file to compile the magic file from magic(5) into a tcl program
 package require fileutil              ; # File processing (input)

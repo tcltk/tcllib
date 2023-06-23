@@ -2,7 +2,7 @@
 # IRM External Process Manager
 ###
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package require cron 2.0
 
 ::namespace eval ::processman {}

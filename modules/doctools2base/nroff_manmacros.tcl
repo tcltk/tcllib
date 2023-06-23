@@ -8,7 +8,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4 ; # Required Core
+package require Tcl 8.5- ; # Required Core
 
 namespace eval ::doctools::nroff::man_macros {
     # Contents of the file we carry

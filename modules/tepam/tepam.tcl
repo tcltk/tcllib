@@ -15,7 +15,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 ##########################################################################
 
-package require Tcl 8.3
+package require Tcl 8.5-
 
 namespace eval tepam {
    # Exports the major commands from this package:

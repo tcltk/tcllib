@@ -14,7 +14,7 @@
 # FUTURE --  => Connectivity to 'struct::matrix', Reports!
 
 
-package require Tcl 8.2
+package require Tcl 8.5-
 package require textutil
 
 namespace eval ::doctools {}

@@ -10,7 +10,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5-
 
 package provide math::constants 1.0.2
 
@@ -183,7 +183,7 @@ if { [info exists ::argv0]
      && [string equal $::argv0 [info script]] } {
     ::math::constants::constants pi e ln10 onethird eps
     set prec $::tcl_precision
-    if {![package vsatisfies [package provide Tcl] 8.5]} {
+    if {![package vsatisfies [package provide Tcl] 8.5 9]} {
         set ::tcl_precision 17
     } else {
         set ::tcl_precision 0

@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
 
-package require Tcl 8.2
+package require Tcl 8.5-
 package require logger
 package require csv
 package require struct::matrix

@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package require Tcl 8.6
+package require Tcl 8.6-
 package provide practcl 0.16.4
 namespace eval ::practcl {}
 
@@ -278,7 +278,7 @@ namespace eval ::clay {
   variable option_class {}
   variable core_classes {::oo::class ::oo::object}
 }
-package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
+package require Tcl 8.6- ;# try in pipeline.tcl. Possibly other things.
 if {[info commands irmmd5] eq {}} {
   if {[catch {package require odielibc}]} {
     package require md5 2

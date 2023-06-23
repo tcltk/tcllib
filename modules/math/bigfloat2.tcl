@@ -5,7 +5,7 @@
 # See the file named license.terms.
 ########################################################################
 
-package require Tcl 8.5
+package require Tcl 8.5-
 
 # this line helps when I want to source this file again and again
 catch {namespace delete ::math::bigfloat}

@@ -8,7 +8,7 @@
 
 # FUTURE: Write convenience command to zip up a whole directory.
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require logger   ; # Tracing
 package require Trf      ; # Wrapper to zlib
 package require crc32    ; # Tcllib, crc calculation

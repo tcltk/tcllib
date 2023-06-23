@@ -15,7 +15,7 @@
 
 # @mdgen EXCLUDE: sets_c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.5-
 
 namespace eval ::struct::set {}
 

@@ -11,7 +11,7 @@
 # obviously known by default, forcing the loading of stooop is mandatory prior
 # to the first proc declaration.
 
-if {![package vsatisfies [package provide Tcl] 8.3]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 package ifneeded stooop 4.4.1 [list source [file join $dir stooop.tcl]]
 
 # the following package index instruction was generated using:

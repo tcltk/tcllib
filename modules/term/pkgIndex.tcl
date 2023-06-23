@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.4]} return
+if {![package vsatisfies [package provide Tcl] 8.5 9]} return
 package ifneeded term                     0.1 [list source [file join $dir term.tcl]]
 package ifneeded term::ansi::code         0.2 [list source [file join $dir ansi/code.tcl]]
 package ifneeded term::ansi::code::attr   0.1 [list source [file join $dir ansi/code/attr.tcl]]

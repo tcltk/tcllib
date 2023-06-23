@@ -6,7 +6,7 @@
 # Hold harmless the author, and any lawful use is allowed.
 #
 
-package require Tcl 8.3
+package require Tcl 8.5-
 global options
 
 

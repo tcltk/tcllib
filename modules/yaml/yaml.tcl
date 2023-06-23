@@ -12,7 +12,7 @@
 #
 #
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package provide yaml 0.4.1
 package require cmdline
 package require huddle 0.1.7

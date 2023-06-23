@@ -21,7 +21,7 @@
 # RCS: @(#) $Id: random.tcl,v 1.5 2012/08/15 04:38:48 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5-
 
 # ::simulation::random --
 #     Create the namespace

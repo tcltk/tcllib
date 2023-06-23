@@ -28,7 +28,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require struct::matrix
 
 # ::math::interpolate --

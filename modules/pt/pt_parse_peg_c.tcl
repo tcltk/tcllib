@@ -11,7 +11,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5-
 package require critcl
 # @sak notprovided pt_parse_peg_c
 package provide    pt_parse_peg_c 1.0.1

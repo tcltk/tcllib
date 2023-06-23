@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.2]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 package ifneeded struct            2.1   [list source [file join $dir struct.tcl]]
 package ifneeded struct            1.4   [list source [file join $dir struct1.tcl]]
 
@@ -14,16 +14,13 @@ package ifneeded struct::skiplist  1.3   [list source [file join $dir skiplist.t
 package ifneeded struct::graph     1.2.1 [list source [file join $dir graph1.tcl]]
 package ifneeded struct::tree      1.2.2 [list source [file join $dir tree1.tcl]]
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 package ifneeded struct::list        1.8.5  [list source [file join $dir list.tcl]]
 package ifneeded struct::list::test  1.8.4  [list source [file join $dir list.test.tcl]]
 package ifneeded struct::graph     2.4.3  [list source [file join $dir graph.tcl]]
 package ifneeded struct::map       1      [list source [file join $dir map.tcl]]
 
-if {![package vsatisfies [package provide Tcl] 8.5]} {return}
-
 package ifneeded struct::matrix    2.1 [list source [file join $dir matrix.tcl]]
 
-if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+if {![package vsatisfies [package provide Tcl] 8.6 9]} {return}
 package ifneeded struct::disjointset 1.1 [list source [file join $dir disjointset.tcl]]
 package ifneeded struct::graph::op 0.11.3 [list source [file join $dir graphops.tcl]]

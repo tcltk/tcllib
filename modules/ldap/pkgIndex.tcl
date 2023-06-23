@@ -1,6 +1,6 @@
 # Tcl package index file, version 1.1
 
-if {![package vsatisfies [package provide Tcl] 8.5]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 package ifneeded ldap 1.10.1 [list source [file join $dir ldap.tcl]]
 
 # the OO level wrapper for ldap

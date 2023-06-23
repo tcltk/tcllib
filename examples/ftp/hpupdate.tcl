@@ -29,7 +29,7 @@
 ########################################################################
 
 # load required FTP package library 
-package require Tcl 8.3
+package require Tcl 8.5-
 package require ftp 2.0
 package require Tk
 if {![llength [info commands tkButtonInvoke]]} {

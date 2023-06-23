@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.4]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 
 # Packages for the doctools {idx,toc,doc} v2 implementation
 # (still v1.1 doc{idx,toc} languages).

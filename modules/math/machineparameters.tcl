@@ -81,7 +81,7 @@
 #
 # Copyright 2008 Michael Baudin
 #
-package require Tcl 8.4
+package require Tcl 8.5-
 package require snit
 package provide math::machineparameters 0.1
 

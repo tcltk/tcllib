@@ -7,7 +7,7 @@
 #
 #     Inspired by "gold", definitions of the figurate numbers following https://mathworld.wolfram.com/FigurateNumber.html
 #
-package require Tcl 8.6
+package require Tcl 8.6-
 package provide math::figurate 1.0
 
 namespace eval ::math::figurate {

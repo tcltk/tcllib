@@ -15,7 +15,7 @@
 # @mdgen EXCLUDE: map_slippy_c.tcl
 #
 
-package require Tcl 8.6
+package require Tcl 8.6-
 namespace eval ::map::slippy {}
 
 # ### ### ### ######### ######### #########
@@ -37,7 +37,7 @@ proc ::map::slippy::LoadAccelerator {key} {
     switch -exact -- $key {
 	critcl {
 	    # Critcl implementation of map::slippy requires Tcl 8.6.
-	    if {![package vsatisfies [package provide Tcl] 8.6]} {return 0}
+	    if {![package vsatisfies [package provide Tcl] 8.6 9]} {return 0}
 	    if {[catch {
 		package require tcllibc
 	    }]} {

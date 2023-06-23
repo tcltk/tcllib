@@ -20,7 +20,7 @@
 # Decoding uses the high bits to select the result block, and the low bits to select the
 # result in the block.
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package provide textutil::wcswidth 35.2
 namespace eval ::textutil {}
 

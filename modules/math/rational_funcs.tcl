@@ -306,7 +306,7 @@ package provide math::rationalfunctions 1.0.1
 #
 if { 0 } {
 set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     set ::tcl_precision 17
 } else {
     set ::tcl_precision 0

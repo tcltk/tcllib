@@ -18,7 +18,7 @@ namespace eval ::coserv {variable subcode {}}
 package forget comm
 catch {namespace delete comm}
 
-if {[package vsatisfies [package present Tcl] 8.5]} {
+if {[package vsatisfies [package present Tcl] 8.5 9]} {
     set ::coserv::snitsrc [file join [file dirname [file dirname [info script]]] snit snit2.tcl]
 } else {
     set ::coserv::snitsrc [file join [file dirname [file dirname [info script]]] snit snit.tcl]

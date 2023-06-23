@@ -10,7 +10,7 @@
 # -------------------------------------------------------------------------
 # @mdgen EXCLUDE: md5cryptc.tcl
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5-;                # tcl minimum version
 package require md5 2;                  # tcllib 1.5
 
 # Try and load a compiled extension to help.

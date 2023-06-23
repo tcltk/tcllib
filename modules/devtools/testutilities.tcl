@@ -21,7 +21,7 @@ namespace eval ::tcllib::testutils {
 ## version is not met by the active interpreter.
 
 proc testsNeedTcl {version} {
-    if {[package vsatisfies [package provide Tcl] $version]} return
+    if {[package vsatisfies [package provide Tcl] $version-]} return
 
     puts "    Aborting the tests found in \"[file tail [info script]]\""
     puts "    Requiring at least Tcl $version, have [package present Tcl]."
@@ -211,10 +211,10 @@ proc InitializeTclTest {} {
     }]
 
     ::tcltest::testConstraint tcl8.5plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
+	[expr {[package vsatisfies [package provide Tcl] 8.5 9]}]
 
     ::tcltest::testConstraint tcl8.6plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
+	[expr {[package vsatisfies [package provide Tcl] 8.6 9]}]
 
     ::tcltest::testConstraint tcl8.6not8.7 \
 	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
@@ -225,7 +225,7 @@ proc InitializeTclTest {} {
 	       ![package vsatisfies [package provide Tcl] 8.6.10]}]
 
     ::tcltest::testConstraint tcl8.6.10plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6.10]}]
+	[expr {[package vsatisfies [package provide Tcl] 8.6.10 9]}]
 
     ::tcltest::testConstraint tcl8.4minus \
 	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
@@ -234,14 +234,14 @@ proc InitializeTclTest {} {
 	[expr {![package vsatisfies [package provide Tcl] 8.6]}]
 
     ::tcltest::testConstraint tcl8.7plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.7]}]
+	[expr {[package vsatisfies [package provide Tcl] 8.7 9]}]
 
     # ### ### ### ######### ######### #########
     ## Cross-version code for the generation of the error messages created
     ## by Tcl procedures when called with the wrong number of arguments,
     ## either too many, or not enough.
 
-    if {[package vsatisfies [package provide Tcl] 8.6]} {
+    if {[package vsatisfies [package provide Tcl] 8.6 9]} {
 	# 8.6+
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -874,7 +874,7 @@ proc TestAccelExit {namespace} {
 
 proc TestFiles pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
@@ -889,7 +889,7 @@ proc TestFiles pattern {
 
 proc TestFilesGlob pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {

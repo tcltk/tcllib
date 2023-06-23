@@ -1,4 +1,4 @@
-if {![package vsatisfies [package provide Tcl] 8.5]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 package ifneeded tie                1.2 [list source [file join $dir tie.tcl]]
 package ifneeded tie::std::file     1.1 [list source [file join $dir tie_file.tcl]]
 package ifneeded tie::std::growfile 1.1 [list source [file join $dir tie_growfile.tcl]]

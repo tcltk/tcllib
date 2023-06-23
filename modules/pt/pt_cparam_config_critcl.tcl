@@ -14,7 +14,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5              ; # Required runtime.
+package require Tcl 8.5-              ; # Required runtime.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -80,7 +80,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 	# # ## ### ##### ######## ############# #####################
 	## Requirements
 
-	package require Tcl 8.4
+	package require Tcl 8.5-
 	package require critcl
 	# @sak notprovided @@PKG@@
 	package provide    @@PKG@@ @@VERSION@@

@@ -11,7 +11,7 @@
 
 # @mdgen EXCLUDE: pt_parse_peg_c.tcl
 
-package require Tcl 8.5
+package require Tcl 8.5-
 
 namespace eval ::pt::parse::peg {}
 
@@ -34,7 +34,7 @@ proc ::pt::parse::peg::LoadAccelerator {key} {
     set r 0
     switch -exact -- $key {
 	critcl {
-	    if {![package vsatisfies [package provide Tcl] 8.5]} {return 0}
+	    if {![package vsatisfies [package provide Tcl] 8.5 9]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::pt::parse::peg_critcl]]
 	}

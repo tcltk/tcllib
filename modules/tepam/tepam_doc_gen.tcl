@@ -11,7 +11,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 ##########################################################################
 
-package require Tcl 8.3
+package require Tcl 8.5-
 package require tepam 0.5
 
 namespace eval tepam::doc_gen {

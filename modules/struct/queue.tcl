@@ -12,7 +12,7 @@
 
 # @mdgen EXCLUDE: queue_c.tcl
 
-package require Tcl 8.4
+package require Tcl 8.5-
 namespace eval ::struct::queue {}
 
 # ### ### ### ######### ######### #########
@@ -42,7 +42,7 @@ proc ::struct::queue::LoadAccelerator {key} {
 	tcl {
 	    variable selfdir
 	    if {
-		[package vsatisfies [package provide Tcl] 8.5] &&
+		[package vsatisfies [package provide Tcl] 8.5 9] &&
 		![catch {package require TclOO 0.6.1-}]
 	    } {
 		source [file join $selfdir queue_oo.tcl]

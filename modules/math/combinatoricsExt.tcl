@@ -8,7 +8,7 @@
 #
 #     Several parts based on: https://wiki.tcl-lang.org/page/Permutations and other Wiki pages
 #
-package require Tcl 8.6
+package require Tcl 8.6-
 package require TclOO
 package provide math::combinatorics 2.0
 

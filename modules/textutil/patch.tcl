@@ -7,7 +7,7 @@
 # - Factored patch parsing into a helper
 # - Replaced `puts` with report callback.
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package provide textutil::patch 0.1
 
 # # ## ### ##### ######## ############# #####################

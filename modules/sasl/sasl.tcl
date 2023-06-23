@@ -13,7 +13,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5-
 
 namespace eval ::SASL {
     variable uid

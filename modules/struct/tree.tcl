@@ -11,7 +11,7 @@
 
 # @mdgen EXCLUDE: tree_c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.5-
 package require struct::list
 
 namespace eval ::struct::tree {}

@@ -7,10 +7,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.3
+package require Tcl 8.5-
 
 # OO core
-if {[package vsatisfies [package present Tcl] 8.5]} {
+if {[package vsatisfies [package present Tcl] 8.5 9]} {
     # Use new Tcl 8.5a6+ features to specify the allowed packages.
     # We can use anything above 1.3. This means v2 as well.
     package require snit 1.3-
@@ -362,7 +362,7 @@ snit::type ::fileutil::traverse {
 #    directory (stat might return enough information too (mode), but
 #    possibly also not portable).
 
-if {[package vsatisfies [package present Tcl] 8.5]} {
+if {[package vsatisfies [package present Tcl] 8.5 9]} {
     # Tcl 8.5+.
     # We have to check readability of "current" on our own, glob
     # changed to error out instead of returning nothing.

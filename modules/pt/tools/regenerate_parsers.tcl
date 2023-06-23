@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 # -*- tcl -*-
 
-package require Tcl 8.5
+package require Tcl 8.5-
 
 set     self      [file normalize [info script]]
 set     selfdir   [file dirname $self]

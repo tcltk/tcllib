@@ -14,7 +14,7 @@
 #----------------------------------------------------------------------
 
 package provide grammar::aycock 1.0
-package require Tcl 8.4
+package require Tcl 8.5-
 
 # Bring in procedures that aid in debugging a parser; they will in turn
 # bring in procedures that implement the runtime system.

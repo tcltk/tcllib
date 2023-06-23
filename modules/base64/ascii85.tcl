@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.4
+package require Tcl 8.5-
 
 namespace eval ascii85 {
     namespace export encode encodefile decode

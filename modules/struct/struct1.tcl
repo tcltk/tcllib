@@ -1,4 +1,4 @@
-package require Tcl 8.2
+package require Tcl 8.5-
 package require struct::graph     1.2.1
 package require struct::queue     1.2.1
 package require struct::stack     1.2.1

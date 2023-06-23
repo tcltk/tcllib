@@ -8,7 +8,7 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.2]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 package ifneeded sha256 1.0.4 [list source [file join $dir sha256.tcl]]
 package ifneeded sha256c 1.0.4 [list source [file join $dir sha256c.tcl]]
 package ifneeded sha1   2.0.4 [list source [file join $dir sha1.tcl]]

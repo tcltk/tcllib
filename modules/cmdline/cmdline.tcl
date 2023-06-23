@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.2
+package require Tcl 8.5-
 package provide cmdline 1.5.2
 
 namespace eval ::cmdline {

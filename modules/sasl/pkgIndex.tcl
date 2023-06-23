@@ -1,7 +1,7 @@
 # pkgIndex.tcl                                                -*- tcl -*-
 # Copyright (C) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
 # $Id: pkgIndex.tcl,v 1.11 2008/01/29 00:51:39 patthoyts Exp $
-if {![package vsatisfies [package provide Tcl] 8.2]} {
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     # PRAGMA: returnok
     return
 }

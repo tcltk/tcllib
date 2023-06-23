@@ -6,7 +6,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # See the file license.terms.
 
-package require Tcl 8
+package require Tcl 8.5-
 package provide log 1.4
 
 # ### ### ### ######### ######### #########
