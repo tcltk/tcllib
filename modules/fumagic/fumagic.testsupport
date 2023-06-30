@@ -2,7 +2,7 @@
 # Testsuite support specific to 'fileutil::magic'.
 # ### ### ### ######### ######### #########
 
-package require Tcl 8.5 ;# dict, apply.
+package require Tcl 8.5- ;# dict, apply.
 
 # This file can assume that the general testsupport (see
 # devtools/testutilities.tcl) is already loaded and active.
