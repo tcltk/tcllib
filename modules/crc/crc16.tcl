@@ -63,7 +63,7 @@ namespace eval ::crc {
     # calculate the sign bit for the current platform.
     variable signbit
     if {![info exists signbit]} {
-        if {[info exists tcl_platform(wordSize)]} {
+        if {[info exists ::tcl_platform(wordSize)]} {
             set signbit [expr {1 << (8*$tcl_platform(wordSize)-1)}]
         } else {
             # Old Tcl. Find bit by shifting until wrap around to 0.
