@@ -344,6 +344,7 @@ proc ::clay::uuid::generate_tcl_machinfo {} {
   ###
   if {[file exists /dev/urandom]} {
     set fin [open /dev/urandom r]
+    fconfigure $fin -encoding binary  
     binary scan [read $fin 128] H* machinfo
     close $fin
   } elseif {[catch {package require nettool}]} {
