@@ -1304,11 +1304,13 @@ proc g {a b} {
     return $x4
 }
 
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5 9]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
+    if {![package vsatisfies [package provide Tcl] 8.5 9]} {
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
 }
 
 puts "f"
@@ -1316,4 +1318,6 @@ puts [math::optimize::nelderMead f {1. 0.} -scale {0.1 0.01} -trace 1]
 puts "g"
 puts [math::optimize::nelderMead g {0. 0.} -scale {1. 1.} -trace 1]
 
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
