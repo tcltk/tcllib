@@ -79,7 +79,9 @@ proc assert {name version code result} {
 interp alias {} zero {} string repeat 0
 # S.ARNOLD 08/01/2005
 # trying to set the precision of the comparisons to 15 digits
-set old_precision $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set old_precision $::tcl_precision
+}
 set ::tcl_precision 15
 proc Zero {x} {
     global tcl_precision
@@ -701,5 +703,9 @@ rename Zero ""
 
 testsuiteCleanup
 
-set ::tcl_precision $old_precision
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $old_precision
+} else {
+    unset ::tcl_precision
+}
 return

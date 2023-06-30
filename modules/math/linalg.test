@@ -45,12 +45,14 @@ if {$regular==1} then {
 
 namespace import -force ::math::linearalgebra::*
 
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    # 8.4 or less - Remove, 8.5+ required already
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
+    if {![package vsatisfies [package provide Tcl] 8.5]} {
+        # 8.4 or less - Remove, 8.5+ required already
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
 }
 
 #
@@ -927,7 +929,9 @@ test conforming-7 "Non-conforming matmul - vector-matrix" -body {
 # Additional tests: procedures by Federico Ferri
 #source ferri/ferri.test
 
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
 
 if {$regular==1} then {
     testsuiteCleanup

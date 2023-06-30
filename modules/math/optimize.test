@@ -38,11 +38,13 @@ namespace eval optimizetest {
 
 namespace import ::math::optimize::*
 
-set old_precision $::tcl_precision
-if {![package vsatisfies [package present Tcl] 8.5]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set old_precision $::tcl_precision
+    if {![package vsatisfies [package present Tcl] 8.5]} {
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
 }
 
 #
@@ -623,7 +625,9 @@ test nelderMead-2.5 "Nelder-Mead - indeterminate minimum (valley)" \
 testsuiteCleanup
 
 #  Restore precision
-set ::tcl_precision $old_precision
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $old_precision
+}
 
 # Local Variables:
 # mode: tcl
