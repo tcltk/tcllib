@@ -88,7 +88,7 @@ namespace eval ::crc {
     variable signbit
     if {![info exists signbit]} {
         if {[info exists ::tcl_platform(wordSize)]} {
-            set signbit [expr {1 << (8*$tcl_platform(wordSize)-1)}]
+            set signbit [expr {1 << (8*$::tcl_platform(wordSize)-1)}]
         } else {
             # Old Tcl. Find bit by shifting until wrap around to 0.
             # With int() result limited to system word size the loop will end.
