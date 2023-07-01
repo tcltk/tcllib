@@ -752,6 +752,14 @@ test dtypemethod-1.5 {delegating unknown typemethods to existing typecomponent} 
     dog destroy
 } -result {3}
 
+if {[package vsatisfies [package provide Tcl] 9]} {
+    set stringErr1 {bad option "foo": must be compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+    set stringErr2 {unknown or ambiguous subcommand "foo": must be compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+} else {
+    set stringErr1 {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+    set stringErr2 {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+}
+
 # Case 1
 test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
@@ -767,7 +775,7 @@ test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent wi
     snit1
 } -returnCodes {
     error
-} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr1
 
 test dtypemethod-1.6a.0 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
@@ -783,7 +791,7 @@ test dtypemethod-1.6a.0 {delegating unknown typemethod to existing typecomponent
     snit2 tcl8.5minus
 } -returnCodes {
     error
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dtypemethod-1.6a.1 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
@@ -799,7 +807,7 @@ test dtypemethod-1.6a.1 {delegating unknown typemethod to existing typecomponent
     snit2 tcl8.6plus
 } -returnCodes {
     error
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 1} -body {
     type dog {
@@ -3336,7 +3344,7 @@ test dmethod-1.6 {delegating unknown method to existing component with error} -b
     error
 } -cleanup {
     dog destroy
-} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr1
 
 test dmethod-1.6a.0 {delegating unknown method to existing component with error} -body {
     type dog {
@@ -3355,7 +3363,7 @@ test dmethod-1.6a.0 {delegating unknown method to existing component with error}
     error
 } -cleanup {
     dog destroy
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dmethod-1.6a.1 {delegating unknown method to existing component with error} -body {
     type dog {
@@ -3374,7 +3382,7 @@ test dmethod-1.6a.1 {delegating unknown method to existing component with error}
     error
 } -cleanup {
     dog destroy
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dmethod-1.7 {can't delegate local method: order 1} -body {
     type cat {
