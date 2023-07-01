@@ -1108,7 +1108,7 @@ proc ::textutil::expander::LocRange {name text} {
 
 proc ::textutil::expander::DisplayOf {text} {
     set ellip ""
-    while {[string bytelength $text] > 30} {
+    while {[string length [encoding convertto utf-8 $text]] > 30} {
 	set ellip ...
 	set text [string range $text 0 end-1]
     }

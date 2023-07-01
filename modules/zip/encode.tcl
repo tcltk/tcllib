@@ -172,7 +172,7 @@ snit::type            ::zipfile::encode {
 
 	# Write the local file header
 
-	set fnlen  [string bytelength $dst]
+	set fnlen  [string length [encoding convertto utf-8 $dst]]
 	set offset [tell $ch] ; # location local header, needed for central header
 
 	tag      $ch 4 3
@@ -225,7 +225,7 @@ snit::type            ::zipfile::encode {
     method writeCentralFileHeader {ch dst} {
 	foreach {owned src size ctime attr noCompress cm gpbf csize offset crc} $files($dst) break
 
-	set fnlen [string bytelength $dst]
+	set fnlen [string length [encoding convertto utf-8 $dst]]
 
 	tag      $ch 2 1
 	byte     $ch 20      ; # vmb/lsb/version  = 2.0
@@ -256,7 +256,7 @@ snit::type            ::zipfile::encode {
 
     method writeEndOfCentralDir {ch cfhoffset cfhsize} {
 
-	set clen   [string bytelength $comment]
+	set clen   [string length [encoding convertto utf-8 $comment]]
 	set nfiles [array size files]
 
 	tag      $ch 6 5

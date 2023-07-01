@@ -3733,7 +3733,8 @@ proc ::mime::word_encode {charset method string {args}} {
         return {}
     }
 
-    set string_bytelength [string bytelength $unencoded_string]
+    set string_bytelength \
+        [string length [encoding convertto utf-8 $unencoded_string]
 
     # the 7 is for =?, ?Q?, ?= delimiters of the encoded word
     set maxlength [expr {$options(-maxlength) - [string length $encodings($charset)] - 7}]

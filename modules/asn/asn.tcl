@@ -525,7 +525,7 @@ proc ::asn::asnPrintableString {string} {
 proc ::asn::asnIA5String {string} {
     # the IA5 string tag is 0x16
     # check for extended charachers
-    if {[string length $string]!=[string bytelength $string]} {
+    if {[string length $string]!=[string length [encoding convertto utf-8 $string]]} {
 	return -code error "Illegal character in IA5String"
     }
     set ascii [encoding convertto ascii $string]
@@ -1562,7 +1562,7 @@ proc ::asn::defaultStringType {{type {}}} {
 proc ::asn::asnString {string} {
 	variable nonPrintableChars
 	variable nonNumericChars
-	if {[string length $string]!=[string bytelength $string]} {
+	if {[string length $string]!=[string length [encoding convertto utf-8 $string]]} {
 	# There are non-ascii character
 		variable defaultStringType
 		return [asn${defaultStringType}String $string]
