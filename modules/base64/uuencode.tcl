@@ -30,9 +30,9 @@ proc ::uuencode::Encode {s} {
         if {$c2 == {}} {set c2 0}
         if {$c3 == {}} {set c3 0}
         append r [Enc [expr {$c1 >> 2}]]
-        append r [Enc [expr {(($c1 << 4) & 060) | (($c2 >> 4) & 017)}]]
-        append r [Enc [expr {(($c2 << 2) & 074) | (($c3 >> 6) & 003)}]]
-        append r [Enc [expr {($c3 & 077)}]]
+        append r [Enc [expr {(($c1 << 4) & 0o060) | (($c2 >> 4) & 0o017)}]]
+        append r [Enc [expr {(($c2 << 2) & 0o074) | (($c3 >> 6) & 0o003)}]]
+        append r [Enc [expr {($c3 & 0o077)}]]
     }
     return $r
 }
@@ -94,9 +94,9 @@ if {[package provide critcl] != {}} {
                 char a, b, c;
                 a = *p; b = *(p+1), c = *(p+2);
                 *r++ = Enc(a >> 2);
-                *r++ = Enc(((a << 4) & 060) | ((b >> 4) & 017));
-                *r++ = Enc(((b << 2) & 074) | ((c >> 6) & 003));
-                *r++ = Enc(c & 077);
+                *r++ = Enc(((a << 4) & 0o060) | ((b >> 4) & 0o017));
+                *r++ = Enc(((b << 2) & 0o074) | ((c >> 6) & 0o003));
+                *r++ = Enc(c & 0o077);
             }
             Tcl_SetObjResult(interp, resultPtr);
             return TCL_OK;
@@ -181,7 +181,7 @@ if {[info commands ::uuencode::CDecode] != {}} {
 # -------------------------------------------------------------------------
 
 proc ::uuencode::uuencode {args} {
-    array set opts {mode 0644 filename {} name {}}
+    array set opts {mode 0o0644 filename {} name {}}
     set wrongargs "wrong \# args: should be\
             \"uuencode ?-name string? ?-mode octal?\
             (-file filename | ?--? string)\""
@@ -258,7 +258,7 @@ proc ::uuencode::uuencode {args} {
 #  data itself.
 #
 proc ::uuencode::uudecode {args} {
-    array set opts {mode 0644 filename {}}
+    array set opts {mode 0o0644 filename {}}
     set wrongargs "wrong \# args: should be \"uudecode (-file filename | ?--? string)\""
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
