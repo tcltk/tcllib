@@ -229,7 +229,7 @@ test do-2.2 {wrong no of arguments} {
 
 # ----------------------------------------
 
-if {[package vsatisfies [package provide Tcl] 8.6]} {
+if {[package vsatisfies [package provide Tcl] 8.6 9]} {
     # 8.6+
     set do23res {1 {wrong # args: should be "do body ?arg ...?"
     while executing
