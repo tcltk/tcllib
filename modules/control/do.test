@@ -173,7 +173,7 @@ test do-1.12 {stack traces for errors in the first iteration} {
 "a"}
 
 # ----------------------------------------
-test do-1.14 {stack traces for errors in subsequent iterations} tcl8.3plus {
+test do-1.14 {stack traces for errors in subsequent iterations} {
     proc a {} b
     proc b {} {
 	set i 10

@@ -92,7 +92,7 @@ proc msg {name {suffix {}}} {
 }  -match regexp -output {\[[\d:\/ ]+\] \[catTest\] \[namespace\] \[critical\] test}
 
 
-::tcltest::test createLogProc-2 {tkt e4d5ef01e7, %M OO context} -constraints tcl8.5plus -setup {
+::tcltest::test createLogProc-2 {tkt e4d5ef01e7, %M OO context} -setup {
     package require TclOO
     ::oo::class create Main {
 	variable log

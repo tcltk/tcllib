@@ -193,25 +193,10 @@ proc InitializeTclTest {} {
     # ### ### ### ######### ######### #########
     ## Define a set of standard constraints
 
-    ::tcltest::testConstraint tcl8.3only \
-	[expr {![package vsatisfies [package provide Tcl] 8.4 9]}]
-
-    ::tcltest::testConstraint tcl8.3plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.3 9]}]
-
-    ::tcltest::testConstraint tcl8.4only \
-	[expr {![package vsatisfies [package provide Tcl] 8.5 9]}]
-
-    ::tcltest::testConstraint tcl8.4plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.4 9]}]
-
     ::tcltest::testConstraint tcl8.5only [expr {
 	![package vsatisfies [package provide Tcl] 8.6 9] &&
 	 [package vsatisfies [package provide Tcl] 8.5]
     }]
-
-    ::tcltest::testConstraint tcl8.5plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.5 9]}]
 
     ::tcltest::testConstraint tcl8.6plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.6 9]}]
@@ -227,14 +212,11 @@ proc InitializeTclTest {} {
     ::tcltest::testConstraint tcl8.6.10plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.6.10 9]}]
 
-    ::tcltest::testConstraint tcl8.4minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.5 9]}]
-
-    ::tcltest::testConstraint tcl8.5minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.6 9]}]
-
     ::tcltest::testConstraint tcl8.7plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.7 9]}]
+
+    ::tcltest::testConstraint tcl9plus \
+	[expr {[package vsatisfies [package provide Tcl] 9]}]
 
     # ### ### ### ######### ######### #########
     ## Cross-version code for the generation of the error messages created
