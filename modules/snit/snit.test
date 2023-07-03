@@ -788,7 +788,7 @@ test dtypemethod-1.6a.0 {delegating unknown typemethod to existing typecomponent
 
     dog foo bar
 } -constraints {
-    snit2 tcl8.5minus
+    snit2 tcl8.5only
 } -returnCodes {
     error
 } -result $stringErr2
@@ -3358,7 +3358,7 @@ test dmethod-1.6a.0 {delegating unknown method to existing component with error}
     dog create spot
     spot foo bar
 } -constraints {
-    snit2 tcl8.5minus
+    snit2 tcl8.5only
 } -returnCodes {
     error
 } -cleanup {
