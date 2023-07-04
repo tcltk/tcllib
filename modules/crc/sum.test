@@ -58,13 +58,19 @@ foreach {n msg expected} {
     "25587"
     8    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "21845"
-    9    "\uFFFE\u0000\u0001\u0002"
-    "16418"
 } {
     test sum-2.$n {sum using BSD algorithm and unsigned integer} -body {
 	::crc::sum -bsd $msg
     } -result $expected
 }
+
+test sum-2.9 {sum using BSD algorithm and unsigned integer} tcl8 {
+    ::crc::sum -bsd "\uFFFE\u0000\u0001\u0002"
+} "16418"
+
+test sum-2.9 {sum using BSD algorithm and unsigned integer} tcl9plus {
+    catch {::crc::sum -bsd "\uFFFE\u0000\u0001\u0002"}
+} 1
 
 # -------------------------------------------------------------------------
 foreach {n msg expected} {
@@ -84,13 +90,19 @@ foreach {n msg expected} {
     "5387"
     8    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "4200"
-    9    "\uFFFE\u0000\u0001\u0002"
-    "257"
 } {
     test sum-3.$n {sum using SysV algorithm and unsigned integer} -body {
 	::crc::sum -sysv $msg
     } -result $expected
 }
+
+test sum-3.9 {sum using SysV algorithm and unsigned integer} tcl8 {
+    ::crc::sum -sysv "\uFFFE\u0000\u0001\u0002"
+} "257"
+
+test sum-3.9 {sum using SysV algorithm and unsigned integer} tcl9plus {
+    catch {::crc::sum -sysv "\uFFFE\u0000\u0001\u0002"}
+} 1
 
 # -------------------------------------------------------------------------
 
