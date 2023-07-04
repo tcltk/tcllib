@@ -45,13 +45,20 @@ foreach {n msg expected} {
     "81918263"
     7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "1939911592"
-    8    "\uFFFE\u0000\u0001\u0002"
-    "893385333"
 } {
     test cksum-2.$n {cksum and unsigned integer} {
 	::crc::cksum $msg
     } $expected
 }
+
+test cksum-2.8 {cksum and unsigned integer} tcl8 {
+    ::crc::cksum "\uFFFE\u0000\u0001\u0002"
+} "893385333"
+
+test cksum-2.8 {cksum and unsigned integer} tcl9plus {
+    catch {::crc::cksum "\uFFFE\u0000\u0001\u0002"}
+} 1
+
 
 # -------------------------------------------------------------------------
 
@@ -70,13 +77,19 @@ foreach {n msg expected} {
     "0x4E1F937"
     7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "0x73A0B3A8"
-    8    "\uFFFE\u0000\u0001\u0002"
-    "0x353FFA75"
 } {
     test cksum-3.$n {cksum as hexadecimal string} {
 	::crc::cksum -format 0x%X $msg
     } $expected
 }
+
+test cksum-3.8 {cksum as hexadecimal string} tcl8 {
+    ::crc::cksum -format 0x%X "\uFFFE\u0000\u0001\u0002"
+} "0x353FFA75"
+
+test cksum-3.8 {cksum as hexadecimal string} tcl9plus {
+    catch {::crc::cksum -format 0x%X "\uFFFE\u0000\u0001\u0002"}
+} 1
 
 # -------------------------------------------------------------------------
 
