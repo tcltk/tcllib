@@ -1459,56 +1459,50 @@ proc ::fileutil::foreachLine {var filename cmd} {
 # Errors:
 #	Both of "-r" and "-t" cannot be specified.
 
-if {[package vsatisfies [package provide Tcl] 8.3]} {
-    namespace eval ::fileutil {
-	namespace export touch
+proc ::fileutil::touch {args} {
+    # Don't bother catching errors, just let them propagate up
+
+    set options {
+        {a          "set the atime only"}
+        {m          "set the mtime only"}
+        {c          "do not create non-existant files"}
+        {r.arg  ""  "use time from ref_file"}
+        {t.arg  -1  "use specified time"}
     }
-
-    proc ::fileutil::touch {args} {
-        # Don't bother catching errors, just let them propagate up
-
-        set options {
-            {a          "set the atime only"}
-            {m          "set the mtime only"}
-            {c          "do not create non-existant files"}
-            {r.arg  ""  "use time from ref_file"}
-            {t.arg  -1  "use specified time"}
-        }
-        set usage ": [lindex [info level 0] 0]\
+    set usage ": [lindex [info level 0] 0]\
                       \[options] filename ...\noptions:"
-        array set params [::cmdline::getoptions args $options $usage]
+    array set params [::cmdline::getoptions args $options $usage]
 
-        # process -a and -m options
-        set set_atime [set set_mtime "true"]
-        if {  $params(a) && ! $params(m)} {set set_mtime "false"}
-        if {! $params(a) &&   $params(m)} {set set_atime "false"}
+    # process -a and -m options
+    set set_atime [set set_mtime "true"]
+    if {  $params(a) && ! $params(m)} {set set_mtime "false"}
+    if {! $params(a) &&   $params(m)} {set set_atime "false"}
 
-        # process -r and -t
-        set has_t [expr {$params(t) != -1}]
-        set has_r [expr {[string length $params(r)] > 0}]
-        if {$has_t && $has_r} {
-            return -code error "Cannot specify both -r and -t"
-        } elseif {$has_t} {
-            set atime [set mtime $params(t)]
-        } elseif {$has_r} {
-            file stat $params(r) stat
-            set atime $stat(atime)
-            set mtime $stat(mtime)
-        } else {
-            set atime [set mtime [clock seconds]]
-        }
-
-        # do it
-        foreach filename $args {
-            if {! [file exists $filename]} {
-                if {$params(c)} {continue}
-                close [open $filename w]
-            }
-            if {$set_atime} {file atime $filename $atime}
-            if {$set_mtime} {file mtime $filename $mtime}
-        }
-        return
+    # process -r and -t
+    set has_t [expr {$params(t) != -1}]
+    set has_r [expr {[string length $params(r)] > 0}]
+    if {$has_t && $has_r} {
+        return -code error "Cannot specify both -r and -t"
+    } elseif {$has_t} {
+        set atime [set mtime $params(t)]
+    } elseif {$has_r} {
+        file stat $params(r) stat
+        set atime $stat(atime)
+        set mtime $stat(mtime)
+    } else {
+        set atime [set mtime [clock seconds]]
     }
+
+    # do it
+    foreach filename $args {
+        if {! [file exists $filename]} {
+            if {$params(c)} {continue}
+            close [open $filename w]
+        }
+        if {$set_atime} {file atime $filename $atime}
+        if {$set_mtime} {file mtime $filename $mtime}
+    }
+    return
 }
 
 # ::fileutil::fileType --
