@@ -198,6 +198,11 @@ proc InitializeTclTest {} {
 	 [package vsatisfies [package provide Tcl] 8.5]
     }]
 
+    ::tcltest::testConstraint tcl8.6only [expr {
+	![package vsatisfies [package provide Tcl] 8.5 9] &&
+	 [package vsatisfies [package provide Tcl] 8.6]
+    }]
+
     ::tcltest::testConstraint tcl8.6plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.6 9]}]
 
@@ -250,7 +255,7 @@ proc InitializeTclTest {} {
 	    }
 	    return $msg
 	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.5]} {
+    } else {
 	# 8.5
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -271,36 +276,6 @@ proc InitializeTclTest {} {
 	    } else {
 		set msg "wrong # args: should be \"$functionName\""
 	    }
-	    return $msg
-	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.4]} {
-	# 8.4+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    if {$argList != {}} {set argList " $argList"}
-	    set msg "wrong # args: should be \"$functionName$argList\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    # Create a different message for functions with no args.
-	    if {[llength $argList]} {
-		set msg "wrong # args: should be \"$functionName $argList\""
-	    } else {
-		set msg "wrong # args: should be \"$functionName\""
-	    }
-	    return $msg
-	}
-    } else {
-	# 8.2+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    set msg "no value given for parameter "
-	    append msg "\"[lindex $argList $missingIndex]\" to "
-	    append msg "\"$functionName\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    set msg "called \"$functionName\" with too many arguments"
 	    return $msg
 	}
     }
