@@ -10,7 +10,6 @@ package ifneeded math::roman             1.0   [list source [file join $dir roma
 package ifneeded math::optimize          1.0.1 [list source [file join $dir optimize.tcl]]
 package ifneeded math::interpolate       1.1.2 [list source [file join $dir interpolate.tcl]]
 package ifneeded math::bignum            3.1.1 [list source [file join $dir bignum.tcl]]
-package ifneeded math::bigfloat          1.2.3 [list source [file join $dir bigfloat.tcl]]
 package ifneeded math::machineparameters 0.1   [list source [file join $dir machineparameters.tcl]]
 package ifneeded math::calculus          1.0   [list source [file join $dir calculus.tcl]]
 # statistics depends on linearalgebra (for multi-variate linear regression).
