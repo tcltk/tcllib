@@ -4045,7 +4045,7 @@ namespace eval ::math::exact {
 	$worker unref
 
 	set worker [[Log2Worker new] ref]
-	variable log2 [[$worker applyM {{1 1} {1 2}}] ref]
+	variable ::math:exact::log2 [[$worker applyM {{1 1} {1 2}}] ref]
 	$worker unref
 
     }
