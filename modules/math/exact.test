@@ -51,7 +51,7 @@ namespace eval math::exact::test {
 	set sep {}
 	foreach o [lsort -dictionary [info commands ::oo::Obj*]] {
 	    if {![dict exists $leakBaseline $o]} {
-		if {[info object isa typeof $o math::exact::counted]} {
+		if {[info object isa typeof $o ::math::exact::counted]} {
 		    append trouble $sep "Leaked counted object " \
 			$o ": " [$o dump] \n
 		} else {
@@ -1033,7 +1033,7 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::log2 to avoid appearance of
 	    # a leak in its cache
-	    $math::exact::log2 asFloat 100
+	    $::math::exact::log2 asFloat 100
 	    leakBaseline
 	}
 	-body {
@@ -1050,7 +1050,7 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::log2 to avoid appearance of
 	    # a leak in its cache
-	    $math::exact::log2 asFloat 100
+	    $::math::exact::log2 asFloat 100
 	    leakBaseline
 	}
 	-body {
@@ -1067,7 +1067,7 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::log2 to avoid appearance of
 	    # a leak in its cache
-	    $math::exact::log2 asFloat 100
+	    $::math::exact::log2 asFloat 100
 	    leakBaseline
 	}
 	-body {
@@ -1084,7 +1084,7 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::log2 to avoid appearance of
 	    # a leak in its cache
-	    $math::exact::log2 asFloat 100
+	    $::math::exact::log2 asFloat 100
 	    leakBaseline
 	}
 	-body {
@@ -1121,7 +1121,7 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::pi to avoid appearance of
 	    # a leak in its cache
-	    $math::exact::pi asFloat 3000
+	    $::math::exact::pi asFloat 3000
 	    leakBaseline
 	}
 	-body {
@@ -1140,7 +1140,7 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::pi to avoid appearance of
 	    # a leak in its cache
-	    $math::exact::pi asFloat 100
+	    $::math::exact::pi asFloat 100
 	    leakBaseline
 	}
 	-body {
@@ -1718,7 +1718,7 @@ namespace eval math::exact::test {
     test math::exact-52.1 {e} {
 	-setup {
 	    # don't report cached digits of e as a leak
-	    $math::exact::e asPrint 100;
+	    $::math::exact::e asPrint 100;
 	    leakBaseline
 	}
 	-body {
@@ -1734,7 +1734,7 @@ namespace eval math::exact::test {
     test math::exact-52.2 {e} {
 	-setup {
 	    # don't report cached digits of e as a leak
-	    $math::exact::e asPrint 100;
+	    $::math::exact::e asPrint 100;
 	    leakBaseline
 	}
 	-body {
@@ -1750,7 +1750,7 @@ namespace eval math::exact::test {
     test math::exact-52.2 {e} {
 	-setup {
 	    # don't report cached digits of e as a leak
-	    $math::exact::e asPrint 100;
+	    $::math::exact::e asPrint 100;
 	    leakBaseline
 	}
 	-body {
@@ -1767,8 +1767,8 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::e and math::exact::log2
 	    # to avoid appearance of a leak in the cache
-	    $math::exact::e asFloat 100
-	    $math::exact::log2 asFloat 100
+	    $::math::exact::e asFloat 100
+	    $::math::exact::log2 asFloat 100
 	    leakBaseline
 	}
 	-body {
@@ -1785,7 +1785,7 @@ namespace eval math::exact::test {
 	-setup {
 	    # Consume digits from math::exact::e
 	    # to avoid appearance of a leak in the cache
-	    $math::exact::e asFloat 100
+	    $::math::exact::e asFloat 100
 	    leakBaseline
 	}
 	-body {
