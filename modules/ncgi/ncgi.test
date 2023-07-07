@@ -158,6 +158,17 @@ test ncgi-4.4 {ncgi::encode} {
     ncgi::encode "hello\nworld\r\tbar"
 } {hello%0D%0Aworld%0D%09bar}
 
+test ncgi-4.5 {ncgi::encode TIP 465} tcl8 {
+    ncgi::decode [ncgi::encode "("]
+    # emacs: )
+} "("
+# emacs: )
+test ncgi-4.5 {ncgi::encode TIP 465} {tcl9plus knownBug} {
+    ncgi::decode [ncgi::encode "("]
+    # emacs: )
+} "("
+# emacs: )
+
 test ncgi-5.1 {ncgi::nvlist} {
     ncgi::reset "name=hello+world&name2=%7ewelch"
     ncgi::nvlist
