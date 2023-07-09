@@ -145,8 +145,8 @@ proc ::yaml::dict2yaml {dict {indent 2} {wordwrap 40}} {
 }
 
 proc ::yaml::huddle2yaml {huddle {indent 2} {wordwrap 40}} {
-    set yaml::_dumpIndent   $indent
-    set yaml::_dumpWordWrap $wordwrap
+    set ::yaml::_dumpIndent   $indent
+    set ::yaml::_dumpWordWrap $wordwrap
 
     # Start at the base of the array and move through it.
     set out [join [list "---\n" [_imp_huddle2yaml $huddle] "\n"] ""]
