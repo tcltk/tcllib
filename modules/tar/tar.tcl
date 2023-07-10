@@ -319,7 +319,7 @@ proc ::tar::statFile {name followlinks} {
     set ret {}
     
     if {$::tcl_platform(platform) == "unix"} {
-        lappend ret mode 1[file attributes $name -permissions]
+        lappend ret mode 1[string map {o 0} [file attributes $name -permissions]]
         lappend ret uname [file attributes $name -owner]
         lappend ret gname [file attributes $name -group]
         if {$stat(type) == "link"} {
