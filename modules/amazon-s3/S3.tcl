@@ -1146,7 +1146,7 @@ proc S3::calcacl {myargs} {
     error "S3 Not Yet Implemented" "" [list S3 notyet calcacl $myargs]
     set result [S3::Configure -default-acl]
     catch {
-	set chmod [file attributes [dict get $myargs -file] -permissions]
+	set chmod [string map {o 0} [file attributes [dict get $myargs -file] -permissions]]
 	set chmod [expr {$chmod & 6}]
 	if {$chmod == 0} {set result private}
 	if {$chmod == 2} {set result public-write}
