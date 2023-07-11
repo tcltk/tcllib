@@ -290,7 +290,7 @@ proc i_setup {} {
 	makeFile "blah" $fn
 
 	# Give it some "bad" permissions.
-	file attributes $fn -permissions 0600
+	file attributes $fn -permissions 0o600
     }
     return
 }

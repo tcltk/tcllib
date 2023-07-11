@@ -3612,7 +3612,7 @@ proc ::practcl::installDir {d1 d2} {
     } elseif {[file isfile $f]} {
 	    file copy -force $f [file join $d2 $ftail]
 	    if {$::tcl_platform(platform) eq {unix}} {
-        file attributes [file join $d2 $ftail] -permissions 0644
+        file attributes [file join $d2 $ftail] -permissions 0o644
 	    } else {
         file attributes [file join $d2 $ftail] -readonly 1
 	    }
@@ -3620,7 +3620,7 @@ proc ::practcl::installDir {d1 d2} {
   }
 
   if {$::tcl_platform(platform) eq {unix}} {
-    file attributes $d2 -permissions 0755
+    file attributes $d2 -permissions 0o755
   } else {
     file attributes $d2 -readonly 1
   }
@@ -3635,7 +3635,7 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
     file copy -force $d1 $d2
     set ftail [file tail $d1]
     if {$::tcl_platform(platform) eq {unix}} {
-      file attributes [file join $d2 $ftail] -permissions 0644
+      file attributes [file join $d2 $ftail] -permissions 0o644
     } else {
       file attributes [file join $d2 $ftail] -readonly 1
     }
@@ -3647,7 +3647,7 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
       } elseif {[file isfile $f]} {
         file copy -force $f [file join $d2 $ftail]
         if {$::tcl_platform(platform) eq {unix}} {
-          file attributes [file join $d2 $ftail] -permissions 0644
+          file attributes [file join $d2 $ftail] -permissions 0o644
         } else {
           file attributes [file join $d2 $ftail] -readonly 1
         }

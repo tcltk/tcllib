@@ -282,7 +282,7 @@ proc ::tar::untar {tar args} {
 
         if {$::tcl_platform(platform) == "unix"} {
             if {!$noperms} {
-                catch {file attributes $name -permissions 0[string range $header(mode) 2 end]}
+                catch {file attributes $name -permissions 0o[string range $header(mode) 2 end]}
             }
             catch {file attributes $name -owner $header(uid) -group $header(gid)}
             catch {file attributes $name -owner $header(uname) -group $header(gname)}
@@ -319,6 +319,9 @@ proc ::tar::statFile {name followlinks} {
     set ret {}
     
     if {$::tcl_platform(platform) == "unix"} {
+        # Tcl 9 returns the permission as 0o octal number. Since this
+        # is written to the tar file and the file format expects "00"
+        # we have to rewrite.
         lappend ret mode 1[string map {o 0} [file attributes $name -permissions]]
         lappend ret uname [file attributes $name -owner]
         lappend ret gname [file attributes $name -group]
