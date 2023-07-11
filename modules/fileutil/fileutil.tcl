@@ -1915,7 +1915,7 @@ proc ::fileutil::MakeTempDir {config} {
 	if {[catch {
 	    file mkdir $path
 	    if {$::tcl_platform(platform) eq "unix"} {
-		file attributes $path -permissions 0700
+		file attributes $path -permissions 0o700
 	    }
 	}]} continue
 

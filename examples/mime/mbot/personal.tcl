@@ -443,7 +443,7 @@ if {[catch {
 
         lappend deleteFiles [set messageFile $tmp(file)]
 
-        catch { file attributes $messageFile -permissions 0600 }
+        catch { file attributes $messageFile -permissions 0o600 }
 
         if {[gets stdin line] <= 0} {
             cleanup "empty message"
