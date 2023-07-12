@@ -33,7 +33,6 @@ proc ::struct::graph::LoadAccelerator {key} {
     switch -exact -- $key {
 	critcl {
 	    # Critcl implementation of graph requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::graph_critcl]]
 	}

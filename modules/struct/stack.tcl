@@ -35,16 +35,12 @@ proc ::struct::stack::LoadAccelerator {key} {
     switch -exact -- $key {
 	critcl {
 	    # Critcl implementation of stack requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::stack_critcl]]
 	}
 	tcl {
 	    variable selfdir
-	    if {
-		[package vsatisfies [package provide Tcl] 8.5] &&
-		![catch {package require TclOO 0.6.1-} mx]
-	    } {
+	    if {![catch {package require TclOO 0.6.1-} mx]} {
 		source [file join $selfdir stack_oo.tcl]
 	    } else {
 		source [file join $selfdir stack_tcl.tcl]

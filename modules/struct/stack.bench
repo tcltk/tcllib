@@ -10,14 +10,11 @@
 # We need at least version 8.2 for the package and thus the
 # benchmarks.
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    return
-}
 
 # ### ### ### ######### ######### ######### ###########################
 ## Setting up the environment ...
 
-package require Tcl 8.4
+package require Tcl 8.5-
 
 package forget struct::list
 package forget struct::stack
