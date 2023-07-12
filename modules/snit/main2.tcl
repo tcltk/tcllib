@@ -1700,16 +1700,16 @@ proc ::snit::widgetadaptor {type body} {
 
 proc ::snit::typemethod {type method arglist body} {
     # Make sure the type exists.
-    if {![info exists ${type}::Snit_info]} {
+    if {![info exists ::${type}::Snit_info]} {
         error "no such type: \"$type\""
     }
 
-    upvar ${type}::Snit_info           Snit_info
-    upvar ${type}::Snit_typemethodInfo Snit_typemethodInfo
+    upvar ::${type}::Snit_info           Snit_info
+    upvar ::${type}::Snit_typemethodInfo Snit_typemethodInfo
 
     # FIRST, check the typemethod name against previously defined 
     # typemethods.
-    Comp.CheckMethodName $method 0 ${type}::Snit_typemethodInfo \
+    Comp.CheckMethodName $method 0 ::${type}::Snit_typemethodInfo \
         "Cannot define \"$method\""
 
     # NEXT, check the arguments
@@ -1734,16 +1734,16 @@ proc ::snit::typemethod {type method arglist body} {
 
 proc ::snit::method {type method arglist body} {
     # Make sure the type exists.
-    if {![info exists ${type}::Snit_info]} {
+    if {![info exists ::${type}::Snit_info]} {
         error "no such type: \"$type\""
     }
 
-    upvar ${type}::Snit_methodInfo  Snit_methodInfo
-    upvar ${type}::Snit_info        Snit_info
+    upvar ::${type}::Snit_methodInfo  Snit_methodInfo
+    upvar ::${type}::Snit_info        Snit_info
 
     # FIRST, check the method name against previously defined 
     # methods.
-    Comp.CheckMethodName $method 0 ${type}::Snit_methodInfo \
+    Comp.CheckMethodName $method 0 ::${type}::Snit_methodInfo \
         "Cannot define \"$method\""
 
     # NEXT, check the arguments
