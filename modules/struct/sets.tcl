@@ -38,8 +38,6 @@ proc ::struct::set::LoadAccelerator {key} {
     set r 0
     switch -exact -- $key {
 	critcl {
-	    # Critcl implementation of set requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::set_critcl]]
 	}
