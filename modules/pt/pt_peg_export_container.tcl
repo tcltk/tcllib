@@ -19,7 +19,7 @@
 
 # @mdgen NODEP: pt::peg::export::plugin
 
-package  require Tcl 8.5
+package  require Tcl 8.5-
 package  require pt::peg::export::plugin ; # The presence of this
 						# pseudo package
 						# indicates execution
