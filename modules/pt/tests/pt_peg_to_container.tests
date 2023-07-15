@@ -44,7 +44,7 @@ foreach {k mode section} {
 	    text::write field   # Parsing Expression Grammar '@name@'.      ; text::write /line
 	    text::write field   # Generated for @user@, from file '@file@'  ; text::write /line
 	    text::write /line
-	    text::write field   package require Tcl 8.5                     ; text::write /line
+	    text::write field   package require Tcl 8.5-                    ; text::write /line
 	    text::write field   package require snit                        ; text::write /line
 	    text::write field   package require pt::peg::container          ; text::write /line
 	    text::write /line

@@ -11,7 +11,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5
+package require Tcl 8.5-
 package require TclOO
 package require pt::rde::oo ; # OO-based implementation of the
 			      # PARAM virtual machine
