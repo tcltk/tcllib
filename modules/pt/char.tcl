@@ -44,10 +44,10 @@ proc ::char::Unquote {ch} {
     }
 
     if {[regexp {^\\([0-2][0-7][0-7])$} $ch -> ocode]} {
-	return [format %c $ocode]
+	return [format %c 0o$ocode]
 
     } elseif {[regexp {^\\([0-7][0-7]?)$} $ch -> ocode]} {
-	return [format %c 0$ocode]
+	return [format %c 0o$ocode]
 
     } elseif {[regexp {^\\u([[:xdigit:]][[:xdigit:]]?[[:xdigit:]]?[[:xdigit:]]?)$} $ch -> hcode]} {
 	return [format %c 0x$hcode]
