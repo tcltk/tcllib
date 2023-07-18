@@ -390,7 +390,11 @@ snit::type ::pluginmgr {
 	set prefix {}
 	foreach part $name {
 	    lappend prefix $part
-	    set pd [file join ~ .[join $prefix /] plugin]
+            if {[package vsatisfies [package present Tcl] 9]} {
+                set pd [file join [file home] .[join $prefix /] plugin]
+            } else {
+                set pd [file join ~ .[join $prefix /] plugin]
+            }
 
 	    #puts "+? path($pd)"
 
@@ -403,7 +407,11 @@ snit::type ::pluginmgr {
 	    # also more consistent with the environment variables
 	    # above, where we also use plugins, plural.
 
-	    set pd [file join ~ .[join $prefix /] plugins]
+            if {[package vsatisfies [package present Tcl] 9]} {
+                set pd [file join [file home] .[join $prefix /] plugins]
+            } else {
+                set pd [file join ~ .[join $prefix /] plugins]
+            }
 
 	    #puts "+? path($pd)"
 
