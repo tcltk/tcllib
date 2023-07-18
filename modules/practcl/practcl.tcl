@@ -2767,7 +2767,11 @@ proc ::practcl::local_os {} {
 
   # Look for a local preference file
   set pathlist {}
-  set userhome [file normalize ~/tcl]
+  if {[package vsatisfies [package present Tcl] 9]} {
+      set userhome [file normalize [file join [file home] tcl]]
+  } else {
+      set userhome [file normalize ~/tcl]
+  }
   set local_install [file join $userhome lib]
   switch $OS {
     windows {
@@ -2777,13 +2781,24 @@ proc ::practcl::local_os {} {
       }
     }
     macosx {
-      set userhome [file join [file normalize {~/Library/Application Support/}] Tcl]
-      if {[file exists {~/Library/Application Support/ActiveState/Teapot/repository/}]} {
-        dict set result teapot [file normalize {~/Library/Application Support/ActiveState/Teapot/repository/}]
-      }
-      dict set result local_install [file normalize ~/Library/Tcl]
-      if {![dict exists $result sandbox]} {
-        dict set result sandbox       [file normalize ~/Library/Tcl/sandbox]
+      if {[package vsatisfies [package present Tcl] 9]} {
+        set userhome [file join [file normalize [file home] Library/Application Support/] Tcl]
+        if {[file exists [file join [file home] Library/Application Support/ActiveState/Teapot/repository/]]} {
+          dict set result teapot [file normalize [file join [file home] Library/Application Support/ActiveState/Teapot/repository/]]
+        }
+        dict set result local_install [file normalize [file join [file home] Library/Tcl]]
+        if {![dict exists $result sandbox]} {
+          dict set result sandbox [file normalize [file join [[file home] Library/Tcl/sandbox]]
+        }
+      } else {
+        set userhome [file join [file normalize {~/Library/Application Support/}] Tcl]
+        if {[file exists {~/Library/Application Support/ActiveState/Teapot/repository/}]} {
+          dict set result teapot [file normalize {~/Library/Application Support/ActiveState/Teapot/repository/}]
+        }
+        dict set result local_install [file normalize ~/Library/Tcl]
+        if {![dict exists $result sandbox]} {
+          dict set result sandbox       [file normalize ~/Library/Tcl/sandbox]
+        }
       }
     }
     default {
