@@ -94,9 +94,9 @@ if {[package provide critcl] != {}} {
                 char a, b, c;
                 a = *p; b = *(p+1), c = *(p+2);
                 *r++ = Enc(a >> 2);
-                *r++ = Enc(((a << 4) & 0o060) | ((b >> 4) & 0o017));
-                *r++ = Enc(((b << 2) & 0o074) | ((c >> 6) & 0o003));
-                *r++ = Enc(c & 0o077);
+                *r++ = Enc(((a << 4) & 060) | ((b >> 4) & 017));
+                *r++ = Enc(((b << 2) & 074) | ((c >> 6) & 003));
+                *r++ = Enc(c & 077);
             }
             Tcl_SetObjResult(interp, resultPtr);
             return TCL_OK;
