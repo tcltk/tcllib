@@ -22,7 +22,11 @@
     set os [::practcl::local_os]
     my define set os $os
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     set srcdir [my define get srcdir]
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options

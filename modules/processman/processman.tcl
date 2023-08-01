@@ -186,7 +186,12 @@ proc ::processman::events {} {
 proc ::processman::find_exe name {
     global tcl_platform
     if {$tcl_platform(platform)=="windows"} {set suffix .exe} {set suffix {}}
-    foreach f [list $name ~/irm/bin/$name ./$name/$name ./$name  ../$name/$name ../../$name/$name] {
+    if {[package vsatisfies [package present Tcl] 9]} {
+        set thisDir [file join [file home] irm/bin$name]
+    }  else {
+        set thisDir ~/irm/bin/$name
+    }
+    foreach f [list $name $thisDir ./$name/$name ./$name  ../$name/$name ../../$name/$name] {
 	if {[file executable $f]} break
 	append f $suffix
 	if {[file executable $f]} break

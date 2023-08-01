@@ -466,13 +466,18 @@ if {[catch {
         if {[catch { id convert user $userName }]} {
             cleanup "userName doesn't exist: $userName"
         }
-        if {([catch { file isdirectory ~$userName } result]) \
+        if {[package vsatisfies [package present Tcl] 9]} {
+            set thisDir [file home $userName]
+        } else {
+            set thisDir ~$userName
+        }
+        if {([catch { file isdirectory $thisDir } result]) \
                 || (!$result)} {
             cleanup "userName doesn't have a home directory: $userName"
         }
 
         umask 0077
-        cd ~$userName
+        cd $thisDir
     }
 
     if {![file exists $configFile]} {
