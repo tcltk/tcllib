@@ -93,6 +93,10 @@ proc ::practcl::file_relative {base dst} {
     # Ensure that the link to directory 'dst' is properly done relative to
     # the directory 'base'.
 
+    if {[package vsatisfies [package present Tcl] 9]} {
+        set base [file tildeexpand $base]
+        set dst [file tildeexpand $dst]
+    }
     if {![string equal [file pathtype $base] [file pathtype $dst]]} {
       return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
     }

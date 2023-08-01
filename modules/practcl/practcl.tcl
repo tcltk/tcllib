@@ -7337,7 +7337,12 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
 }
     append thread_init_script \n [list set ::starkit::thread_init $thread_init_script]
     append main_init_script \n [list set ::starkit::thread_init $thread_init_script]
-    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set thisdir [file tildeexpand ~/.tclshrc]
+    } else {
+      set thisdir ~/.tclshrc
+    }
+    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName $thisdir]]
 
 
     practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $thread_init_script]);"
@@ -7466,7 +7471,11 @@ set dir [file dirname $::PKGIDXFILE]
 if {$::tcl_platform(platform) eq "windows"} {
   set ::starkit::localHome [file join [file normalize $::env(LOCALAPPDATA)] tcl]
 } else {
-  set ::starkit::localHome [file normalize ~/tcl]
+  if {[package vsatisfies [package present Tcl] 9]} {
+    set ::starkit::localHome [file normalize [file tildeexpand ~/tcl]]
+  } else {
+    set ::starkit::localHome [file normalize ~/tcl]
+  }
 }
 set ::tcl_teapot [file join $::starkit::localHome teapot $::tcl_teapot_profile]
 lappend ::auto_path $::tcl_teapot
@@ -8089,7 +8098,11 @@ oo::objdefine ::practcl::distribution.git {
     ###
     set pkg [my define get pkg_name [my define get name]]
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     set srcdir [my define get srcdir]
     ::practcl::dotclexec [file join $srcdir installer.tcl] \
       -apps -app-path [file join $prefix apps] \
@@ -8143,7 +8156,11 @@ oo::objdefine ::practcl::distribution.git {
     ###
     set pkg [my define get pkg_name [my define get name]]
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     set srcdir [my define get srcdir]
     ::practcl::dotclexec [file join $srcdir make.tcl] install [file join $prefix lib $pkg]
   }
@@ -8190,7 +8207,11 @@ oo::objdefine ::practcl::distribution.git {
     set os [::practcl::local_os]
     my define set os $os
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     set srcdir [my define get srcdir]
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options
@@ -8377,7 +8398,11 @@ oo::objdefine ::practcl::distribution.git {
     my unpack
     set os [::practcl::local_os]
 
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options
     puts [list [self] OS [dict get $os TEACUP_OS] options $options]
@@ -8433,7 +8458,11 @@ set ::auto_index(::practcl::LOCAL) {
     }
     method env-install {} {
       my unpack
-      set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
+      if {[package vsatisfies [package present Tcl] 9]} {
+        set prefix [my <project> define get prefix [file join [file normalize [file home]] tcl]]
+      } else {
+        set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
+      }
       set srcdir [my define get srcdir]
       ::practcl::dotclexec [file join $srcdir build.tcl] install [file join $prefix lib]
     }

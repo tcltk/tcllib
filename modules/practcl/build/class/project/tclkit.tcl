@@ -215,7 +215,12 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
 }
     append thread_init_script \n [list set ::starkit::thread_init $thread_init_script]
     append main_init_script \n [list set ::starkit::thread_init $thread_init_script]
-    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set thisDir [file tildeexpand ~/.tclshrc]
+    } else {
+      set thisDir ~/.tclshrc
+    }   
+    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName $thisDir]]
 
 
     practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $thread_init_script]);"
@@ -348,7 +353,11 @@ set dir [file dirname $::PKGIDXFILE]
 if {$::tcl_platform(platform) eq "windows"} {
   set ::starkit::localHome [file join [file normalize $::env(LOCALAPPDATA)] tcl]
 } else {
-  set ::starkit::localHome [file normalize ~/tcl]
+  if {[package vsatisfies [package present Tcl] 9]} {
+    set ::starkit::localHome [file normalize [file tildeexpand ~/tcl]]
+  } else {
+    set ::starkit::localHome [file normalize ~/tcl]
+  }
 }
 set ::tcl_teapot [file join $::starkit::localHome teapot $::tcl_teapot_profile]
 lappend ::auto_path $::tcl_teapot
