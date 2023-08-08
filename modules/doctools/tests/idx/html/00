@@ -5,12 +5,13 @@
 <!-- KWIC
    -->
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title> KWIC </title>
 </head>
 <body>
 <h3> KWIC -- Test </h3>
-<hr><div class="#doctools_idxnav">
+<hr><div class="doctools_idxnav">
 </div>
-<hr><table class="#doctools_idx" width="100%">
+<hr><table class="doctools_idx" width="100%">
 </table>
 </body></html>
