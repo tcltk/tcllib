@@ -27,6 +27,7 @@ proc fmt_toc_begin {label title} {
     if {![Get raw]} {
 	append  hdr "[markup {<!DOCTYPE html>}]"
 	append  hdr "[markup <html><head>]\n"
+	append  hdr [taga meta {name viewport content {width=device-width, initial-scale=1}}] \n
 	append  hdr "[markup <title>] $label [markup </title>]\n"
 
 	# Engine parameter - insert 'meta'
@@ -108,20 +109,20 @@ proc fmt_division_end {} {
 }
 
 proc fmt_item {file label desc} {
-    if {[IFirst]} { append text \n[markup "<table class=\"#doctools_toc\">"]\n }
+    if {[IFirst]} { append text \n[markup "<table class=\"doctools_toc\">"]\n }
     INext
 
     if {[Even]} {
-	append text [markup "<tr class=\"#doctools_toceven\" >"]\n
+	append text [markup "<tr class=\"doctools_toceven\" >"]\n
     } else {
-	append text [markup "<tr class=\"#doctools_tocodd\"  >"]\n
+	append text [markup "<tr class=\"doctools_tocodd\"  >"]\n
     }
     EFlip
-    append text [markup "<td class=\"#doctools_tocleft\" >"]
+    append text [markup "<td class=\"doctools_tocleft\" >"]
     append text [markup "<a name='[Anchor $label]'><a href=\"[dt_fmap $file]\">"]
     append text $label
     append text [tag/ a][tag/ td]\n
-    append text [markup "<td class=\"#doctools_tocright\">"]${desc}[tag /td]\n
+    append text [markup "<td class=\"doctools_tocright\">"]${desc}[tag /td]\n
     append text [tag/ tr]\n
     return $text
 }
