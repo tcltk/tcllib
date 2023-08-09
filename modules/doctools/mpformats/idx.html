@@ -88,6 +88,7 @@ proc BeginHeader {} {
     lappend lines [ht_comment [c_provenance]]
     lappend lines [ht_comment "$la"]
     lappend lines [markup <head>]
+    lappend lines [markup {<meta charset="UTF-8">}]
     lappend lines [taga meta {name viewport content {width=device-width, initial-scale=1}}] \n
     lappend lines "[markup <title>] $la [markup </title>]"
     return

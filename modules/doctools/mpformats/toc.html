@@ -27,6 +27,7 @@ proc fmt_toc_begin {label title} {
     if {![Get raw]} {
 	append  hdr "[markup {<!DOCTYPE html>}]"
 	append  hdr "[markup <html><head>]\n"
+        append  hdr "[markup {<meta charset='UTF-8'>}]\n"
 	append  hdr [taga meta {name viewport content {width=device-width, initial-scale=1}}] \n
 	append  hdr "[markup <title>] $label [markup </title>]\n"
 

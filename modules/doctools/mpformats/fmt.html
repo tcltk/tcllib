@@ -86,6 +86,7 @@ c_pass 2 fmt_manpage_begin {title section version} {
     if {![Get raw]} {
 	append  hdr [markup {<!DOCTYPE html>}]
 	append  hdr [tag html] [tag head] \n
+        append  hdr [taga meta {charset UTF-8}] \n
 	append  hdr [taga meta {name viewport content {width=device-width, initial-scale=1}}] \n
 	append  hdr [tag_ title $pagetitle] \n
 
