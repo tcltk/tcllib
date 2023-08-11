@@ -45,7 +45,7 @@ pt::peg::interp \- Interpreter for parsing expression grammars
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::interp ?1\.0\.1?  
 package require pt::rde ?1?  
 package require snit  

@@ -17,7 +17,7 @@
 #-----------------------------------------------------------------
 package provide units 2.2.1
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::units {
 

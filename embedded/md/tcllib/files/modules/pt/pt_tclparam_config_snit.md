@@ -35,7 +35,7 @@ pt::tclparam::configuration::snit \- Tcl/PARAM, Canned configuration, Snit
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::tclparam::configuration::snit ?1\.0\.2?  
 
 [__::pt::tclparam::configuration::snit__ __def__ *name* *pkg* *version* *cmdprefix*](#1)  

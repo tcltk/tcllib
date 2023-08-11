@@ -37,7 +37,7 @@ ascii85 \- ascii85\-encode/decode binary data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require ascii85 ?1\.0?  
 
 [__::ascii85::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*](#1)  

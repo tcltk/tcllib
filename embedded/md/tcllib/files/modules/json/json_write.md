@@ -37,7 +37,7 @@ json::write \- JSON generation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require json::write ?1\.0\.4?  
 
 [__::json::write__ __indented__](#1)  

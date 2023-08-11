@@ -51,7 +51,7 @@ math::bigfloat \- Arbitrary precision floating\-point numbers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require math::bigfloat ?2\.0\.4?  
 
 [__fromstr__ *number* ?*trailingZeros*?](#1)  

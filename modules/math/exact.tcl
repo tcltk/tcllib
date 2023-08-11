@@ -24,7 +24,7 @@
 #
 #-----------------------------------------------------------------------------
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 package require grammar::aycock 1.0
 
 namespace eval math::exact {

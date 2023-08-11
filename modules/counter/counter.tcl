@@ -9,7 +9,7 @@
 #
 # RCS: @(#) $Id: counter.tcl,v 1.23 2005/09/30 05:36:38 andreas_kupries Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::counter {
 

@@ -44,7 +44,7 @@ tcllib\_ip \- IPv4 and IPv6 address manipulation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require ip ?1\.4?  
 
 [__::ip::version__ *address*](#1)  

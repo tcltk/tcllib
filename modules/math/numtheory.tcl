@@ -16,7 +16,7 @@
 # Copyright (c) 2010 by Lars Hellstrom.  All rights reserved.
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package provide math::numtheory 1.1.3
 namespace eval ::math::numtheory {
    namespace export isprime

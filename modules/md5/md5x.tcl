@@ -16,7 +16,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.5-;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::md5 {
     variable  accel

@@ -24,7 +24,7 @@
 # 1.0.0 - added SetAcl, GetAcl, and -acl keep option.
 #
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 # This is by Darren New too.
 # It is a SAX package to format XML for easy retrieval.

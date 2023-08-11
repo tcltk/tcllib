@@ -36,7 +36,7 @@ irc \- Create IRC connection and interface\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require irc ?0\.7\.0?  
 
 [__::irc::config__ ?key? ?value?](#1)  

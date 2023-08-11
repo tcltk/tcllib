@@ -48,7 +48,7 @@ autoproxy \- Automatic HTTP proxy usage and authentication
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require http ?2\.0?  
 package require autoproxy ?1\.7?  
 

@@ -32,7 +32,7 @@ textutil::repeat \- Procedures to repeat strings\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::repeat ?0\.7?  
 
 [__::textutil::repeat::strRepeat__ *text* *num*](#1)  

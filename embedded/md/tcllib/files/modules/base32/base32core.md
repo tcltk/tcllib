@@ -35,7 +35,7 @@ base32::core \- Expanding basic base32 maps
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require base32::core ?0\.1?  
 
 [__::base32::core::define__ *map* *forwvar* *backwvar* *ivar*](#1)  

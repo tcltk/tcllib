@@ -32,7 +32,7 @@ textutil::wcswidth \- Procedures to compute terminal width of strings
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require textutil::wcswidth ?35\.2?  
 
 [__::textutil::wcswidth__ *string*](#1)  

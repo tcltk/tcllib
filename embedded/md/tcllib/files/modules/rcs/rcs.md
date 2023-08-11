@@ -44,7 +44,7 @@ rcs \- RCS low level utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require rcs ?0\.1?  
 
 [__::rcs::text2dict__ *text*](#1)  

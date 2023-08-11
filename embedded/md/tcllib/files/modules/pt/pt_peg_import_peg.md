@@ -47,7 +47,7 @@ pt::peg::import::peg \- PEG Import Plugin\. Read PEG format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::import::peg ?1?  
 package require pt::peg::to::peg  
 

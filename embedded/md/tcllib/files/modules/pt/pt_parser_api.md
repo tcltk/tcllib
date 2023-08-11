@@ -47,7 +47,7 @@ pt\_parser\_api \- Parser API
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 
 [__className__ ?*objectName*?](#1)  
 [*objectName* __destroy__](#2)  

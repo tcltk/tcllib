@@ -9,7 +9,7 @@
 
 
 # check whether empty named arrays and array unset are supported:
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 package provide stooop 4.4.1
 

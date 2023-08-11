@@ -47,7 +47,7 @@ transfer::transmitter \- Data source
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit ?1\.0?  
 package require transfer::copy ?0\.2?  
 package require transfer::data::source ?0\.2?  

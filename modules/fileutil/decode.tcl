@@ -7,7 +7,7 @@
 # Package to help the writing of file decoders. Provides generic
 # low-level support commands.
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::fileutil::decode {
     namespace export mark go rewind at

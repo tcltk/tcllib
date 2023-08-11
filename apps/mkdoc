@@ -2,7 +2,7 @@
 # -*- tcl -*- A Tcl comment, whose contents don't matter \
 exec tclsh "$0" "$@"
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 package require mkdoc
 package require hook
 

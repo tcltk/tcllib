@@ -39,7 +39,7 @@ yaml \- YAML Format Encoder/Decoder
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require yaml ?0\.4\.1?  
 
 [__::yaml::yaml2dict__ ?*options*? *txt*](#1)  

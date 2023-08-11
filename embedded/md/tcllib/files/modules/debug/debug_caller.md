@@ -35,7 +35,7 @@ debug::caller \- debug narrative \- caller
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require debug::caller ?1\.1?  
 
 [__[debug](debug\.md)__ __caller__ ?*args*\.\.\.?](#1)  

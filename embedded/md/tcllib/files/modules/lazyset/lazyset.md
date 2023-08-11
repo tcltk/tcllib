@@ -37,7 +37,7 @@ lazyset \- Lazy evaluation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require lazyset ?1?  
 
 [__::lazyset::variable__ ?*\-array boolean*? ?*\-appendArgs boolean*? *variableName* *commandPrefix*](#1)  

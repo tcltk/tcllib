@@ -9,7 +9,7 @@ namespace eval ::tool {}
 ###
 # START: core.tcl
 ###
-package require Tcl 8.6- ;# try in pipeline.tcl. Possibly other things.
+package require Tcl 8.6 9 ;# try in pipeline.tcl. Possibly other things.
 package require dicttool
 package require TclOO
 package require sha1

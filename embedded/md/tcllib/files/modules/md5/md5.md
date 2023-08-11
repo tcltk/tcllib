@@ -43,7 +43,7 @@ md5 \- MD5 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require md5 ?2\.0\.7?  
 
 [__::md5::md5__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  

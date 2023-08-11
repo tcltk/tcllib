@@ -39,7 +39,7 @@ docstrip \- Docstrip style source code extraction
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require docstrip ?1\.2?  
 
 [__docstrip::extract__ *text* *terminals* ?*option* *value* \.\.\.?](#1)  

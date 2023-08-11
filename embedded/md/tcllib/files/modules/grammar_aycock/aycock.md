@@ -42,7 +42,7 @@ grammar::aycock \- Aycock\-Horspool\-Earley parser generator for Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require grammar::aycock ?1\.0?  
 
 [__::aycock::parser__ *grammar* ?__\-verbose__?](#1)  

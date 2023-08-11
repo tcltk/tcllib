@@ -33,7 +33,7 @@ struct::graph\_v1 \- Create and manipulate directed graph objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::graph ?1\.2\.1?  
 
 [__graphName__ *option* ?*arg arg \.\.\.*?](#1)  

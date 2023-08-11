@@ -43,7 +43,7 @@ pt::peg \- Parsing Expression Grammar Serialization
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg ?1?  
 package require pt::pe  
 

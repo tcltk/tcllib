@@ -26,7 +26,7 @@
 # of decoding them.
 
 # We use newer string routines
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require fileutil ; # Required by importFile.
 package require uri
 

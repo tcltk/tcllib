@@ -22,7 +22,7 @@
 # -------------------------------------------------------------------------
 # @mdgen EXCLUDE: sha1c.tcl
 
-package require Tcl 8.5-;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable  accel

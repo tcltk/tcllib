@@ -32,7 +32,7 @@ textutil::tabify \- Procedures to \(un\)tabify strings
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::tabify ?0\.7?  
 
 [__::textutil::tabify::tabify__ *string* ?*num*?](#1)  

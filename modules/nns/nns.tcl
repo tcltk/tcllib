@@ -5,7 +5,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require comm             ; # Generic message transport
 package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity

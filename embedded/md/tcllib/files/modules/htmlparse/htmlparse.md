@@ -32,7 +32,7 @@ htmlparse \- Procedures to parse HTML strings
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::stack 1\.3  
 package require cmdline 1\.1  
 package require htmlparse ?1\.2\.2?  

@@ -41,7 +41,7 @@ unicode \- Implementation of Unicode normalization
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require unicode 1\.0  
 
 [__::unicode::fromstring__ *string*](#1)  

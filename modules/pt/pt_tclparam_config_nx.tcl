@@ -12,7 +12,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5-              ; # Required runtime.
+package require Tcl 8.5 9              ; # Required runtime.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -57,7 +57,7 @@ proc ::pt::tclparam::configuration::nx::def {class pkg version cmd} {
 	# # ## ### ##### ######## ############# #####################
 	## Requirements
 
-	package require Tcl 8.5-
+	package require Tcl 8.5 9
 	package require nx
 	package require pt::rde::nx ; # NX-based implementation of the
 				      # PARAM virtual machine

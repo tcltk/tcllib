@@ -295,7 +295,7 @@ namespace eval ::clay {
 ###
 # START: core.tcl
 ###
-package require Tcl 8.6- ;# try in pipeline.tcl. Possibly other things.
+package require Tcl 8.6 9 ;# try in pipeline.tcl. Possibly other things.
 if {[info commands irmmd5] eq {}} {
   if {[catch {package require odielibc}]} {
     package require md5 2

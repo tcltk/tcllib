@@ -45,7 +45,7 @@ pt::peg::container \- PEG Storage
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require snit  
 package require pt::peg::container ?1?  
 

@@ -43,7 +43,7 @@ rc4 \- Implementation of the RC4 stream cipher
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require rc4 ?1\.1\.0?  
 
 [__::rc4::rc4__ ?*\-hex*? *\-key keyvalue* ?*\-command lst*? ?*\-out channel*? \[ *\-in channel* &#124; *\-infile filename* &#124; *string* \]](#1)  

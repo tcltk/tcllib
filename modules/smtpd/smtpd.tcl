@@ -12,7 +12,7 @@
 # -------------------------------------------------------------------------
 # @mdgen EXCLUDE: clients/mail-test.tcl
 
-package require Tcl 8.5-;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 

@@ -13,7 +13,7 @@
 ## **************************************
 ## the true source is the file from which this one was generated.
 ##
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require docstrip 1.2
 package provide docstrip::util 1.3.1
 namespace eval docstrip::util {

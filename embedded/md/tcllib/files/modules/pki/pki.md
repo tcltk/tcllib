@@ -43,7 +43,7 @@ pki \- Implementation of the public key cipher
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pki ?0\.10?  
 
 [__::pki::encrypt__ ?*\-binary*? ?*\-hex*? ?*\-pad*? ?*\-nopad*? ?*\-priv*? ?*\-pub*? ?*\-\-*? *input* *key*](#1)  

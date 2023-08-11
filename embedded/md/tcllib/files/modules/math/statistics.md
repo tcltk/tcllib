@@ -44,7 +44,7 @@ math::statistics \- Basic statistical functions and procedures
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require math::statistics 1  
 
 [__::math::statistics::mean__ *data*](#1)  

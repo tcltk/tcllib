@@ -35,7 +35,7 @@ pt::cparam::configuration::tea \- C/PARAM, Canned configuration, TEA
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::cparam::configuration::tea ?0\.1?  
 
 [__::pt::cparam::configuration::tea__ __def__ *name* *pkg* *version* *cmdprefix*](#1)  

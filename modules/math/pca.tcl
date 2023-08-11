@@ -1,7 +1,7 @@
 # pca.tcl --
 #     Package for principal component analysis
 #
-package require Tcl 8.6-
+package require Tcl 8.6 9
 package require math::linearalgebra
 
 namespace eval ::math::PCA {

@@ -20,7 +20,7 @@
 # @sak notprovided dict
 # @mdgen NODEP: doctools::idx::import::plugin
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require doctools::idx::import::plugin ; # The presence of this
 						# pseudo package
 						# indicates execution

@@ -39,7 +39,7 @@ doctools::idx::export::html \- HTML export plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::idx::export::html ?0\.2?  
 package require doctools::text  
 package require doctools::html  

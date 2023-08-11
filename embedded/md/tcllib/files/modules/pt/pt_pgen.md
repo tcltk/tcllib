@@ -37,7 +37,7 @@ pt::pgen \- Parser Generator
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::pgen ?1\.1?  
 
 [__::pt::pgen__ *inputformat* *text* *resultformat* ?*options\.\.\.*?](#1)  
@@ -148,7 +148,7 @@ file "calculator\.peg" is
 
 From this we create a snit\-based parser using the script "gen"
 
-    package require Tcl 8.5
+    package require Tcl 8.5 9
     package require fileutil
     package require pt::pgen
 

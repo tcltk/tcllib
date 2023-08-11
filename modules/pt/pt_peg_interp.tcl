@@ -22,7 +22,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require pt::rde ; # Virtual machine geared to the parsing of PEGs.
 package require snit
 

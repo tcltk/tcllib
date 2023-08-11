@@ -34,7 +34,7 @@ nntp \- Tcl client for the NNTP protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require nntp ?0\.2\.1?  
 
 [__::nntp::nntp__ ?*host*? ?*port*? ?*nntpName*?](#1)  

@@ -49,7 +49,7 @@ clay \- A minimalist framework for large scale OO Projects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require uuid  
 package require oo::dialect  
 

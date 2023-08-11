@@ -36,7 +36,7 @@ debug \- debug narrative \- core
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require debug ?1\.0\.6?  
 
 [__debug\.____tag__ *message* ?*level*?](#1)  

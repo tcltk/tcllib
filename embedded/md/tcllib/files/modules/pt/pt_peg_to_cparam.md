@@ -49,7 +49,7 @@ pt::peg::to::cparam \- PEG Conversion\. Write CPARAM format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::to::cparam ?1\.1\.2?  
 
 [__pt::peg::to::cparam__ __reset__](#1)  

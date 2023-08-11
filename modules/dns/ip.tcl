@@ -11,7 +11,7 @@
 
 # @mdgen EXCLUDE: ipMoreC.tcl
 
-package require Tcl 8.5-;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ip {
     namespace export is version normalize equal type contract mask collapse subtract

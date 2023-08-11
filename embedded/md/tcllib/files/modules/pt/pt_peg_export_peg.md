@@ -49,7 +49,7 @@ pt::peg::export::peg \- PEG Export Plugin\. Write PEG format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::export::peg ?1?  
 package require pt::peg::to::peg  
 

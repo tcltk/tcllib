@@ -39,7 +39,7 @@ grammar::me::cpu::core \- ME virtual machine state manipulation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require grammar::me::cpu::core ?0\.2?  
 
 [__::grammar::me::cpu::core__ __disasm__ *asm*](#1)  

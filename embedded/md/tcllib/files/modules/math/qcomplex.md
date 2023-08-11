@@ -35,7 +35,7 @@ math::complexnumbers \- Straightforward complex number package
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require math::complexnumbers ?1\.0\.2?  
 
 [__::math::complexnumbers::\+__ *z1* *z2*](#1)  

@@ -37,7 +37,7 @@ oauth \- oauth API base signature
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require oauth ?1\.0\.3?  
 
 [__::oauth::config__](#1)  

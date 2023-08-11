@@ -13,7 +13,7 @@
 #
 # Originally by Brent Welch, with help from Dan Kuchler and Melissa Chawla
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require ncgi
 package provide html 1.5
 

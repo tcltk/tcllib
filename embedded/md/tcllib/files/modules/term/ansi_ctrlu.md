@@ -39,7 +39,7 @@ term::ansi::ctrl::unix \- Control operations and queries
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::ansi::ctrl::unix ?0\.1\.1?  
 
 [__::term::ansi::ctrl::unix::import__ ?*ns*? ?*arg*\.\.\.?](#1)  

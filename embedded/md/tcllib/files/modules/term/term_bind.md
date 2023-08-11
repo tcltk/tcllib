@@ -39,7 +39,7 @@ term::receive::bind \- Keyboard dispatch from terminals
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::receive::bind ?0\.1?  
 
 [__term::receive::bind__ *object* ?*map*?](#1)  

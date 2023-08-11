@@ -45,7 +45,7 @@ transfer::copy::queue \- Queued transfers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit ?1\.0?  
 package require struct::queue ?1\.4?  
 package require transfer::copy ?0\.2?  

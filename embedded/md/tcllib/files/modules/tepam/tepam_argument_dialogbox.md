@@ -49,7 +49,7 @@ tepam::argument\_dialogbox \- TEPAM argument\_dialogbox, reference manual
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require Tk 8\.3  
 package require tepam ?0\.5?  
 

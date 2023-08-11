@@ -15,7 +15,7 @@
 ##
 ##################
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 
 package require http 2.7;  # Need keepalive!
 package require logger

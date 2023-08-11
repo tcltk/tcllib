@@ -35,7 +35,7 @@ processman \- Tool for automating the period callback of commands
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require twapi 3\.1  
 package require cron 1\.1  
 package require processman ?0\.6?  

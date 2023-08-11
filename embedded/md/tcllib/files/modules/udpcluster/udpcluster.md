@@ -33,7 +33,7 @@ udpcluster \- UDP Peer\-to\-Peer cluster
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require udpcluster ?0\.3\.3?  
 package require ip  
 package require nettool  

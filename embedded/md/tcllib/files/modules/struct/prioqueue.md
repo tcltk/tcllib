@@ -33,7 +33,7 @@ struct::prioqueue \- Create and manipulate prioqueue objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::prioqueue ?1\.4?  
 
 [__::struct::prioqueue__ ?__\-ascii&#124;\-dictionary&#124;\-integer&#124;\-real__? ?*prioqueueName*?](#1)  

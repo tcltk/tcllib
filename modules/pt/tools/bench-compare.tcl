@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 # -*- tcl -*-
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require bench::in
 package require struct::matrix
 package require report

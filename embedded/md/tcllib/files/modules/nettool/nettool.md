@@ -35,7 +35,7 @@ nettool \- Tools for networked applications
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require nettool ?0\.5\.2?  
 package require twapi 3\.1  
 package require ip 0\.1  

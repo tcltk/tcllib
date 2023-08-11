@@ -37,7 +37,7 @@ zipfile::encode \- Generation of zip archives
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require logger  
 package require Trf  
 package require crc32  

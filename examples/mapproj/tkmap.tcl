@@ -5,7 +5,7 @@
 #	Example application demonstrating the use of Tcllib's 'mapproj'
 #	package.
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require Tk 8.4
 package require mapproj 1.0
 

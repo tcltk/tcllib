@@ -8,7 +8,7 @@
 #
 # RCS: @(#) $Id: treeql85.tcl,v 1.2 2007/05/01 17:00:25 andreas_kupries Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require snit
 package require struct::list
 package require struct::set

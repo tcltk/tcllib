@@ -7,7 +7,7 @@ exec tclsh "$0" ${1+"$@"}
 # by any module is 8.2. So we enforce that the installer is run with
 # at least that.
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 set distribution   [file dirname [info script]]
 lappend auto_path  [file join $distribution modules]

@@ -35,7 +35,7 @@ zipfile::decode \- Access to zip archives
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require fileutil::decode 0\.2\.1  
 package require Trf  
 package require zlibtcl  

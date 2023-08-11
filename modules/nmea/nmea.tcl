@@ -6,7 +6,7 @@
 #
 # RCS: @(#) $Id: nmea.tcl,v 1.5 2009/01/09 06:49:25 afaupell Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package provide nmea 1.0.0
 
 namespace eval ::nmea {

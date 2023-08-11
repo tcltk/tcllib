@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5-              ; # Required runtime.
+package require Tcl 8.5 9              ; # Required runtime.
 package require snit                 ; # OO system.
 
 # # ## ### ##### ######## ############# #####################

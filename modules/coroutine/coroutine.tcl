@@ -49,7 +49,7 @@
 # # ## ### ##### ######## #############
 ## Requisites, and ensemble setup.
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 
 namespace eval ::coroutine::util {
 

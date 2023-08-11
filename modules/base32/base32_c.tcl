@@ -7,7 +7,7 @@
 # RCS: @(#) $Id: base32_c.tcl,v 1.3 2008/01/28 22:58:18 andreas_kupries Exp $
 
 package require critcl
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::base32 {
     # Supporting code for the main command.

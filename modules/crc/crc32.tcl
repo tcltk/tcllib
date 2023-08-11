@@ -11,7 +11,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::crc {
     variable  accel

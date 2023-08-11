@@ -49,7 +49,7 @@ tie \- Array persistence
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require tie ?1\.2?  
 
 [__::tie::tie__ *arrayvarname* *options*\.\.\. *dstype* *dsname*\.\.\.](#1)  

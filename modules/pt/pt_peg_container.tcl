@@ -22,7 +22,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require snit               ; # Tcllib | OO system used
 package require pt::pe             ; # PE serialization
 package require pt::peg ; # PEG serialization

@@ -9,7 +9,7 @@
 
 # @mdgen EXCLUDE: graph_c.tcl
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::struct::graph {}
 

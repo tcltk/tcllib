@@ -11,7 +11,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require fileutil
 package require pt::peg::from::json    ; # Frontends: json, and PEG text form
 package require pt::peg::from::peg     ; #

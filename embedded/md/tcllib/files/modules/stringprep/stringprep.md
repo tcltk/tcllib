@@ -41,7 +41,7 @@ stringprep \- Implementation of stringprep
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require stringprep 1\.0\.1  
 
 [__::stringprep::register__ *profile* ?*\-mapping list*? ?*\-normalization form*? ?*\-prohibited list*? ?*\-prohibitedList list*? ?*\-prohibitedCommand command*? ?*\-prohibitedBidi boolean*?](#1)  

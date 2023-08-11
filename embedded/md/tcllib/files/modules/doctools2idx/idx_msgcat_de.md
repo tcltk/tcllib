@@ -35,7 +35,7 @@ doctools::msgcat::idx::de \- Message catalog for the docidx parser \(DE\)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require msgcat  
 package require doctools::msgcat::idx::de ?0\.1?  
 

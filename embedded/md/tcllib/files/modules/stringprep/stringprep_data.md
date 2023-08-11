@@ -31,7 +31,7 @@ stringprep::data \- stringprep data tables, generated, internal
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require stringprep::data 1\.0\.1  
 
 # <a name='description'></a>DESCRIPTION

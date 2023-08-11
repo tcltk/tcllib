@@ -45,7 +45,7 @@ math::calculus::romberg \- Romberg integration
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require math::calculus 0\.6  
 
 [__::math::calculus::romberg__ *f* *a* *b* ?*\-option value*\.\.\.?](#1)  

@@ -9,7 +9,7 @@
 #
 # RCS: @(#) $Id: tree_tcl.tcl,v 1.5 2009/06/22 18:21:59 andreas_kupries Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require struct::list
 
 namespace eval ::struct::tree {

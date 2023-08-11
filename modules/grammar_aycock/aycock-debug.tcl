@@ -14,7 +14,7 @@
 #----------------------------------------------------------------------
 
 package provide grammar::aycock::debug 1.0
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 # Bring in the runtime library
 

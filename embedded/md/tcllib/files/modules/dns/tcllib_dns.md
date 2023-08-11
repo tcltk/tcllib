@@ -43,7 +43,7 @@ dns \- Tcl Domain Name Service Client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require dns ?1\.5\.0?  
 
 [__::dns::resolve__ *query* ?*options*?](#1)  

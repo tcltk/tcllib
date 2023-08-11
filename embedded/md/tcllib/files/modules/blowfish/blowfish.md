@@ -47,7 +47,7 @@ blowfish \- Implementation of the Blowfish block cipher
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require blowfish ?1\.0\.5?  
 
 [__::blowfish::blowfish__ ?*\-mode \[ecb&#124;cbc\]*? ?*\-dir \[encrypt&#124;decrypt\]*? *\-key keydata* ?*\-iv vector*? ?*\-out channel*? ?*\-chunksize size*? ?*\-pad padchar*? \[ *\-in channel* &#124; ?*\-\-*? *data* \]](#1)  

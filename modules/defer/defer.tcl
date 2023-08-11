@@ -20,7 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 
 namespace eval ::defer {
 	namespace export defer

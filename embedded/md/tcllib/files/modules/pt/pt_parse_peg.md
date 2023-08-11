@@ -37,7 +37,7 @@ pt\_parse\_peg \- Parser Tools PEG Parser
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::parse::peg 1  
 
 [__pt::parse::peg__ ?*objectName*?](#1)  

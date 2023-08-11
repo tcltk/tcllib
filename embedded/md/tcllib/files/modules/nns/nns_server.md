@@ -41,7 +41,7 @@ nameserv::server \- Name service facility, Server
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require nameserv::server ?0\.3\.2?  
 package require comm  
 package require interp  

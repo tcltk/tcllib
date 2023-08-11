@@ -9,7 +9,7 @@
 # RCS: @(#) $Id: montecarlo.tcl,v 1.2 2008/01/23 05:35:02 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require simulation::random
 package require math::statistics
 

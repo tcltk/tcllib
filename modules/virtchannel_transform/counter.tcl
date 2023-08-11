@@ -36,7 +36,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 package require tcl::transform::core
 
 # # ## ### ##### ######## #############
