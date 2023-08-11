@@ -6,7 +6,7 @@
 #     2. Minimisation via Shuffled Complex Evolution
 #     3. Maximisation via Lipschitz Optimisation
 #
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package provide math::probopt 1.0
 
 namespace eval ::math::probopt {}

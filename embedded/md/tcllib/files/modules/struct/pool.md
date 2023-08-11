@@ -41,7 +41,7 @@ struct::pool \- Create and manipulate pool objects \(of discrete items\)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::pool ?1\.2\.3?  
 
 [__::struct::pool__ ?*poolName*? ?*maxsize*?](#1)  

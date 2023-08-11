@@ -7,7 +7,7 @@
 #   2006/08/08 : pda : design
 #
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require snit		;# tcllib
 package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib

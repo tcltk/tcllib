@@ -37,7 +37,7 @@ valtype::common \- Validation, common code
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require valtype::common ?1?  
 
 [__valtype::common::reject__ *code* *text*](#1)  

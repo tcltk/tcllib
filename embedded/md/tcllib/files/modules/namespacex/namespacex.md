@@ -35,7 +35,7 @@ namespacex \- Namespace utility commands
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require namespacex ?0\.3?  
 
 [__::namespacex hook add__ ?*namespace*? *cmdprefix*](#1)  

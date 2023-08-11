@@ -48,7 +48,7 @@ doctools::idx::export \- Exporting keyword indices
 # <a name='synopsis'></a>SYNOPSIS
 
 package require doctools::idx::export ?0\.2\.1?  
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require struct::map  
 package require doctools::idx::structure  
 package require snit  

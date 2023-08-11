@@ -37,7 +37,7 @@ doctools::cvs \- Processing text in 'cvs log' format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil  
 package require doctools::cvs ?1?  
 

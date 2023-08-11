@@ -47,7 +47,7 @@ smtpd \- Tcl SMTP server implementation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require smtpd ?1\.5?  
 
 [__::smtpd::start__ ?*myaddr*? ?*port*?](#1)  

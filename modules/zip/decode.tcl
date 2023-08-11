@@ -7,7 +7,7 @@
 # Package providing commands for the decoding of basic zip-file
 # structures.
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require fileutil::decode 0.2.1    ; # Framework for easy decoding of files.
 namespace eval ::zipfile::decode {}
 if {[package vcompare $tcl_patchLevel "8.6"] < 0} {

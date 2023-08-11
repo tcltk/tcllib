@@ -13,7 +13,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require cmdline
 
 namespace eval ::struct { namespace eval list {} }

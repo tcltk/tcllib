@@ -14,7 +14,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require struct::map
 package require doctools::idx::structure
 package require fileutil::paths

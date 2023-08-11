@@ -36,7 +36,7 @@ debug::heartbeat \- debug narrative \- heartbeat
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require debug::heartbeat ?1\.0\.1?  
 package require debug ?1?  
 

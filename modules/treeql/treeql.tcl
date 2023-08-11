@@ -8,7 +8,7 @@
 #
 # RCS: @(#) $Id: treeql.tcl,v 1.10 2006/09/19 23:36:18 andreas_kupries Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 # Select the implementation based on the version of the Tcl core
 # executing this code. For 8.5 we are using features like

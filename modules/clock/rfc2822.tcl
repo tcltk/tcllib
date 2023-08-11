@@ -6,7 +6,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package provide clock::rfc2822 0.1
 namespace eval ::clock::rfc2822 {}
 

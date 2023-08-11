@@ -14,7 +14,7 @@
 
 # Define the ftpd package version 1.2.5
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 namespace eval ::ftpd {
 
     # The listening port.

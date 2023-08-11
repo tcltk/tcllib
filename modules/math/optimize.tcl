@@ -15,7 +15,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 # math::optimize --
 #    Namespace for the commands

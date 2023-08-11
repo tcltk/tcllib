@@ -40,7 +40,7 @@ imap4 \- imap client\-side tcl implementation of imap protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require imap4 ?0\.5\.3?  
 
 [__::imap4::open__ *hostname* ?*port*?](#1)  

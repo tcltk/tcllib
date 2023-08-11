@@ -30,7 +30,7 @@ multiplexer \- One\-to\-many communication with sockets\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require logger  
 package require multiplexer ?0\.2?  
 

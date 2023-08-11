@@ -119,7 +119,7 @@
 #' mkdoc::mkdoc mkdoc.tcl mkdoc.md 
 #' > ```
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 
 package require yaml
 package require Markdown

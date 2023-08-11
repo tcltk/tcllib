@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require SASL
 package require sha1
 package require base64

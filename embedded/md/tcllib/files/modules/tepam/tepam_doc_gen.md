@@ -53,7 +53,7 @@ tepam::doc\_gen \- TEPAM DOC Generation, reference manual
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require tepam 0\.5  
 package require tepam::doc\_gen ?0\.1?  
 

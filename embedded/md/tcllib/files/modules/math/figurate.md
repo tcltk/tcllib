@@ -32,7 +32,7 @@ math::figurate \- Evaluate figurate numbers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require math::figurate 1\.0  
 
 [__::math::figurate::sum\_sequence__ *n*](#1)  

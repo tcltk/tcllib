@@ -15,7 +15,7 @@
 #
 #-----------------------------------------------------------------------
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 # Define the snit namespace and save the library directory
 

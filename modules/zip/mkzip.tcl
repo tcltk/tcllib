@@ -11,7 +11,7 @@
 # Package providing commands for the generation of a zip archive.
 # version 1.2.2
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 
 namespace eval ::zipfile {}
 namespace eval ::zipfile::decode {}

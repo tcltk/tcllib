@@ -39,7 +39,7 @@ ntp\_time \- Tcl Time Service Client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.0  
+package require Tcl 8\.5 9  
 package require time ?1\.2\.1?  
 
 [__::time::gettime__ ?*options*? *timeserver* ?*port*?](#1)  

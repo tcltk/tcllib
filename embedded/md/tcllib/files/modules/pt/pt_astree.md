@@ -39,7 +39,7 @@ pt::ast \- Abstract Syntax Tree Serialization
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::ast ?1\.1?  
 
 [__::pt::ast__ __verify__ *serial* ?*canonvar*?](#1)  

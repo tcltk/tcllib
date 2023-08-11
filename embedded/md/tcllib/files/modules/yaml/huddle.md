@@ -44,7 +44,7 @@ huddle \- Create and manipulate huddle object
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require huddle ?0\.4?  
 
 [__huddle create__ *key* *value* ?*key value \.\.\.*?](#1)  

@@ -11,7 +11,7 @@
 # 
 # RCS: @(#) $Id: tar.tcl,v 1.17 2012/09/11 17:22:24 andreas_kupries Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package provide tar 0.11
 
 namespace eval ::tar {}

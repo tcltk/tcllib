@@ -35,7 +35,7 @@ pt::tclparam::configuration::nx \- Tcl/PARAM, Canned configuration, NX
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::tclparam::configuration::nx ?1\.0\.1?  
 
 [__::pt::tclparam::configuration::nx__ __def__ *name* *pkg* *version* *cmdprefix*](#1)  

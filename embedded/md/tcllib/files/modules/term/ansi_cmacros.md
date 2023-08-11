@@ -39,7 +39,7 @@ term::ansi::code::macros \- Macro sequences
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require textutil::repeat  
 package require textutil::tabify  
 package require term::ansi::code::macros ?0\.1?  

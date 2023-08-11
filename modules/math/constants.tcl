@@ -10,7 +10,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 package provide math::constants 1.0.2
 

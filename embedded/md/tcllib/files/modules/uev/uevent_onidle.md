@@ -35,7 +35,7 @@ uevent::onidle \- Request merging and deferal to idle time
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require uevent::onidle ?0\.1?  
 package require logger  
 

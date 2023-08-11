@@ -45,7 +45,7 @@ cksum \- Calculate a cksum\(1\) compatible checksum
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require cksum ?1\.1\.4?  
 
 [__::crc::cksum__ ?*\-format format*? ?*\-chunksize size*? \[ *\-channel chan* &#124; *\-filename file* &#124; *string* \]](#1)  

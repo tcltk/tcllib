@@ -35,7 +35,7 @@ doctools::html::cssdefaults \- Default CSS style for HTML export plugins
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::html::cssdefaults ?0\.1?  
 
 [__::doctools::html::cssdefaults::contents__](#1)  

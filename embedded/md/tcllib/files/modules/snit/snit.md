@@ -69,7 +69,7 @@ snit \- Snit's Not Incr Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require snit ?2\.3\.2?  
 
 [__snit::type__ *name* *definition*](#1)  

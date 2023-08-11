@@ -32,7 +32,7 @@ textutil::trim \- Procedures to trim strings
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::trim ?0\.7?  
 
 [__::textutil::trim::trim__ *string* ?*regexp*?](#1)  

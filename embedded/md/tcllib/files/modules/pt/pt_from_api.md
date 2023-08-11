@@ -47,7 +47,7 @@ pt\_import\_api \- Parser Tools Import API
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 
 [__CONVERTER__ __convert__ *text*](#1)  
 [__IncludeFile__ *currentfile* *path*](#2)  

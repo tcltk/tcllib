@@ -4,7 +4,7 @@
 #	"control".  It provides commands that govern the flow of
 #	control of a program.
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::control {
     namespace export assert control do no-op rswitch

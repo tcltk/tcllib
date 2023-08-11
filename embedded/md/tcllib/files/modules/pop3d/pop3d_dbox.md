@@ -33,7 +33,7 @@ pop3d::dbox \- Simple mailbox database for pop3d
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require pop3d::dbox ?1\.0\.2?  
 
 [__::pop3d::dbox::new__ ?*dbName*?](#1)  

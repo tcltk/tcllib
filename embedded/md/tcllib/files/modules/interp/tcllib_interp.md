@@ -35,7 +35,7 @@ interp \- Interp creation and aliasing
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require interp ?0\.1\.2?  
 
 [__::interp::createEmpty__ ?*path*?](#1)  

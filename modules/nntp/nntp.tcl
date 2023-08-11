@@ -7,7 +7,7 @@
 # 
 # RCS: @(#) $Id: nntp.tcl,v 1.13 2004/05/03 22:56:25 andreas_kupries Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package provide nntp 0.2.1
 
 namespace eval ::nntp {

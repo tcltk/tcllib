@@ -11,7 +11,7 @@
 # Usage: uuid::uuid generate
 #        uuid::uuid equal $idA $idB
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval uuid {
     variable accel

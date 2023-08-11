@@ -35,7 +35,7 @@ doctools::nroff::man\_macros \- Default CSS style for NROFF export plugins
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::nroff::man\_macros ?0\.1?  
 
 [__::doctools::nroff::man\_macros::contents__](#1)  

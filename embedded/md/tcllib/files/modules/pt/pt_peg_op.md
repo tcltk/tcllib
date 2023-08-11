@@ -35,7 +35,7 @@ pt\_peg\_op \- Parser Tools PE Grammar Utility Operations
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::op ?1\.1\.0?  
 
 [__::peg::peg::op__ __called__ *container*](#1)  

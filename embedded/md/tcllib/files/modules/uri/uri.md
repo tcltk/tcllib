@@ -48,7 +48,7 @@ uri \- URI utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require uri ?1\.2\.7?  
 
 [__uri::setQuirkOption__ *option* ?*value*?](#1)  

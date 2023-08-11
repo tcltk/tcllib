@@ -1,7 +1,7 @@
 ###
 # Option handling for TclOO
 ###
-package require Tcl 8.6- ;# due oo::meta
+package require Tcl 8.6 9 ;# due oo::meta
 package require oo::meta 0.4
 
 proc ::oo::define::option {field argdict} {

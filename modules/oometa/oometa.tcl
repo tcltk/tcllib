@@ -3,7 +3,7 @@
 ##
 # TclOO routines to implement property tracking by class and object
 ###
-package require Tcl 8.6- ;# tailcall
+package require Tcl 8.6 9 ;# tailcall
 package require dicttool
 package provide oo::meta 0.7.1
 

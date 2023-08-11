@@ -13,7 +13,7 @@
 # This is accomplished through the use of Tcl namespaces.
 
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package provide logger 0.9.4
 
 namespace eval ::logger {

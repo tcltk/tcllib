@@ -53,7 +53,7 @@ textutil::expander \- Procedures to process templates and expand text\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::expander ?1\.3\.1?  
 
 [__::textutil::expander__ *expanderName*](#1)  

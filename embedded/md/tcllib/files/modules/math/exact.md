@@ -40,7 +40,7 @@ math::exact \- Exact Real Arithmetic
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require grammar::aycock 1\.0  
 package require math::exact 1\.0\.1  
 

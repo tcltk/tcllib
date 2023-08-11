@@ -43,7 +43,7 @@ sha1 \- SHA1 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require sha1 ?2\.0\.4?  
 
 [__::sha1::sha1__ ?__\-hex&#124;\-bin__? \[ __\-channel channel__ &#124; __\-file filename__ &#124; ?__\-\-__? *string* \]](#1)  

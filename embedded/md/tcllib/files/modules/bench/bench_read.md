@@ -37,7 +37,7 @@ bench::in \- bench::in \- Reading benchmark results
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require csv  
 package require bench::in ?0\.1?  
 

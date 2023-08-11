@@ -32,7 +32,7 @@ math \- Tcl Math Library
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require math ?1\.2\.5?  
 
 [__::math::cov__ *value* *value* ?*value \.\.\.*?](#1)  

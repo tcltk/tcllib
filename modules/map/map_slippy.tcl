@@ -15,7 +15,7 @@
 # @mdgen EXCLUDE: map_slippy_c.tcl
 #
 
-package require Tcl 8.6-
+package require Tcl 8.6 9
 namespace eval ::map::slippy {}
 
 # ### ### ### ######### ######### #########

@@ -39,7 +39,7 @@ pt::pe \- Parsing Expression Serialization
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::pe ?1\.0\.1?  
 package require char  
 

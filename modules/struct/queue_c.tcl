@@ -14,7 +14,7 @@
 package require critcl
 # @sak notprovided struct_queuec
 package provide struct_queuec 1.3.1
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::struct {
     # Supporting code for the main command.

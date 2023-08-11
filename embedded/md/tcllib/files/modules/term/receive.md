@@ -33,7 +33,7 @@ term::receive \- General input from terminals
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::receive ?0\.1?  
 
 [__::term::receive::getch__ ?*chan*?](#1)  

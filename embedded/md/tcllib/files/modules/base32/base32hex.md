@@ -37,7 +37,7 @@ base32::hex \- base32 extended hex encoding
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require base32::core ?0\.1?  
 package require base32::hex ?0\.1?  
 

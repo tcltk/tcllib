@@ -43,7 +43,7 @@ crc16 \- Perform a 16bit Cyclic Redundancy Check
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require crc16 ?1\.1\.4?  
 
 [__::crc::crc16__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#1)  

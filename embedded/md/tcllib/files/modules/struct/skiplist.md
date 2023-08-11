@@ -33,7 +33,7 @@ struct::skiplist \- Create and manipulate skiplists
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::skiplist ?1\.3?  
 
 [__skiplistName__ *option* ?*arg arg \.\.\.*?](#1)  

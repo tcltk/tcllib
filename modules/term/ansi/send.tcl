@@ -5,7 +5,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require term::send
 package require term::ansi::code::ctrl
 

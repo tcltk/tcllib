@@ -49,7 +49,7 @@ doctools::idx \- docidx \- Processing indices
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require doctools::idx ?1\.1?  
 
 [__::doctools::idx::new__ *objectName* ?__\-option__ *value* \.\.\.?](#1)  

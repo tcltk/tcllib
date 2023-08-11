@@ -49,7 +49,7 @@ doctools \- doctools \- Processing documents
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require doctools ?1\.5\.6?  
 
 [__::doctools::new__ *objectName* ?*option value*\.\.\.?](#1)  

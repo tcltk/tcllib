@@ -30,7 +30,7 @@ struct::queue \- Create and manipulate queue objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require struct::queue ?1\.4\.5?  
 
 [*queueName* __option__ ?*arg arg \.\.\.*?](#1)  

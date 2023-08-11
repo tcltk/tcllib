@@ -47,7 +47,7 @@ pt::peg::from::peg \- PEG Conversion\. Read PEG format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::from::peg ?1\.0\.3?  
 
 [__pt::peg::from::peg__ __convert__ *text*](#1)  

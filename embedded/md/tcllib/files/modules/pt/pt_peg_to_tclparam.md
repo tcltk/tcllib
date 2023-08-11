@@ -48,7 +48,7 @@ pt::peg::to::tclparam \- PEG Conversion\. Write TCLPARAM format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::to::tclparam ?1\.0\.3?  
 
 [__pt::peg::to::tclparam__ __reset__](#1)  

@@ -19,7 +19,7 @@
 
 # @mdgen EXCLUDE: base64c.tcl
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 namespace eval ::base64 {
     namespace export encode decode
 }

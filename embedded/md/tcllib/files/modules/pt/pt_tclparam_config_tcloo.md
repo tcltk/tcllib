@@ -35,7 +35,7 @@ pt::tclparam::configuration::tcloo \- Tcl/PARAM, Canned configuration, Tcloo
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::tclparam::configuration::tcloo ?1\.0\.4?  
 
 [__::pt::tclparam::configuration::tcloo__ __def__ *name* *pkg* *version* *cmdprefix*](#1)  

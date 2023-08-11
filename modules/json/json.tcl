@@ -6,7 +6,7 @@
 
 # @mdgen EXCLUDE: jsonc.tcl
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 namespace eval ::json {}
 
 # ### ### ### ######### ######### #########

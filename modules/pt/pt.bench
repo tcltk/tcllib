@@ -16,7 +16,7 @@ if {![package vsatisfies [package provide Tcl] 8.5 9]} {
 # ### ### ### ######### ######### ######### ###########################
 ## Setting up the environment ...
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 package forget struct::stack
 package forget char

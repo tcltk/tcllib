@@ -35,7 +35,7 @@ math::trig \- Trigonometric anf hyperbolic functions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require math::trig 1\.0\.0  
 
 [__::math::trig::radian\_reduced__ *angle*](#1)  

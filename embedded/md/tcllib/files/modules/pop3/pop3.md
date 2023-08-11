@@ -36,7 +36,7 @@ pop3 \- Tcl client for POP3 email protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pop3 ?1\.10?  
 
 [__::pop3::open__ ?__\-msex__ 0&#124;1? ?__\-retr\-mode__ retr&#124;list&#124;slow? ?__\-socketcmd__ cmdprefix? ?__\-stls__ 0&#124;1? ?__\-tls\-callback__ stls\-callback\-command? *host username password* ?*port*?](#1)  

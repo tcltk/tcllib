@@ -9,7 +9,7 @@
 
 # FUTURE: Rework to allow switching between the tcl/critcl implementations.
 
-package require Tcl 8.5-;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 catch {package require crc32};          # tcllib 1.1
 catch {package require tcllibc};        # critcl enhancements for tcllib
 

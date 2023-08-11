@@ -55,7 +55,7 @@ struct::graph::op \- Operation for \(un\)directed graph objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require struct::graph::op ?0\.11\.3?  
 
 [__struct::graph::op::toAdjacencyMatrix__ *g*](#1)  

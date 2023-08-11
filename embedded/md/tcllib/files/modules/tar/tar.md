@@ -34,7 +34,7 @@ tar \- Tar file creation, extraction & manipulation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require tar ?0\.11?  
 
 [__::tar::contents__ *tarball* ?__\-chan__?](#1)  

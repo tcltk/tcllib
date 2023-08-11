@@ -46,7 +46,7 @@ doctools::idx \- Holding keyword indices
 # <a name='synopsis'></a>SYNOPSIS
 
 package require doctools::idx ?2?  
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::idx::structure  
 package require snit  
 

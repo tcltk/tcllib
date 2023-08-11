@@ -38,7 +38,7 @@ rest \- define REST web APIs and call them inline or asychronously
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require rest ?1\.5?  
 
 [__::rest::simple__ *url* *query* ?*config*? ?*body*?](#1)  

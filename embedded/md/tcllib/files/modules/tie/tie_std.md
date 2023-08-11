@@ -33,7 +33,7 @@ tie \- Array persistence, standard data sources
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require tie::std::log ?1\.1?  
 package require tie::std::array ?1\.1?  
 package require tie::std::rarray ?1\.1?  

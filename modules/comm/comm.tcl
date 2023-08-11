@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 package require snit ; # comm::future objects.
 
 namespace eval ::comm {

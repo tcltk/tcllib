@@ -37,7 +37,7 @@ SASL::SCRAM \- Implementation of SASL SCRAM mechanism for Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require SASL::SCRAM ?0\.1?  
 
 # <a name='description'></a>DESCRIPTION

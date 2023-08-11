@@ -32,7 +32,7 @@ profiler \- Tcl source code profiler
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require profiler ?0\.6?  
 
 [__::profiler::init__](#1)  

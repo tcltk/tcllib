@@ -39,7 +39,7 @@ doctools::toc::export::nroff \- nroff export plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::toc::export::nroff ?0\.2?  
 package require doctools::text  
 package require doctools::nroff::man\_macros  

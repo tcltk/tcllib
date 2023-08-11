@@ -41,7 +41,7 @@ grammar::fa \- Create and manipulate finite automatons
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit 1\.3  
 package require struct::list  
 package require struct::set  

@@ -38,7 +38,7 @@ math::calculus::symdiff \- Symbolic differentiation for Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require grammar::aycock 1\.0  
 package require math::calculus::symdiff 1\.0\.1  
 

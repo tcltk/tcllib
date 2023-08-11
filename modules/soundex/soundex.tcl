@@ -9,7 +9,7 @@
 # 
 # RCS: @(#) $Id: soundex.tcl,v 1.3 2004/01/15 06:36:14 andreas_kupries Exp $
 
-package require Tcl 8.5-
+package require Tcl 8.5 9
 
 namespace eval ::soundex {}
 
