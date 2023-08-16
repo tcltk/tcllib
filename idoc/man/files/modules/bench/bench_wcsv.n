@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bench::out::csv \- bench::out::csv - Formatting benchmark results as CSV
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBbench::out::csv  ?0\&.1\&.2?\fR
 .sp

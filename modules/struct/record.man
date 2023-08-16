@@ -8,7 +8,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Define and create records (similar to 'C' structures)}]
 [category  {Data structures}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require struct::record [opt [vset VERSION]]]
 [description]
 

@@ -7,7 +7,7 @@
 [moddesc {Object Oriented logging facility}]
 [titledesc {Collection of predefined appenders for logger}]
 [category  {Programming tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require logger::appender [opt [vset VERSION]]]
 [description]
 

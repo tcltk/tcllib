@@ -276,7 +276,7 @@ doctools::toc \- Holding tables of contents
 .SH SYNOPSIS
 package require \fBdoctools::toc  ?2?\fR
 .sp
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBdoctools::toc::structure \fR
 .sp

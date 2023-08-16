@@ -6,7 +6,7 @@
 [moddesc   {Lightweight UDP based tool for cluster node discovery}]
 [titledesc {UDP Peer-to-Peer cluster}]
 [category  Networking]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require udpcluster [opt [vset VERSION]]]
 [require ip]
 [require nettool]

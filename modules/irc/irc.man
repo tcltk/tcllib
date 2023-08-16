@@ -7,7 +7,7 @@
 [moddesc   {Low Level Tcl IRC Interface}]
 [titledesc {Create IRC connection and interface.}]
 [category  Networking]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require irc [opt [vset VERSION]]]
 [description]
 

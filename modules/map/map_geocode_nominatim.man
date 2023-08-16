@@ -10,7 +10,7 @@
 [keywords url]
 [moddesc   {Mapping utilities}]
 [titledesc {Resolving geographical names with a Nominatim service}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require http]
 [require json]
 [require uri]

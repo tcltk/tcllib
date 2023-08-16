@@ -13,7 +13,7 @@
 [keywords scanl]
 [moddesc    {Tcl Generator Commands}]
 [titledesc  {Procedures for creating and using generators.}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require generator [opt [vset VERSION]]]
 [description]
 [para]

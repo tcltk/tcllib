@@ -9,7 +9,7 @@
 [moddesc   {Terminal control}]
 [titledesc {Macro sequences}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require textutil::repeat]
 [require textutil::tabify]
 [require term::ansi::code::macros [opt 0.1]]

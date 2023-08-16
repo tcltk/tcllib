@@ -3,4 +3,4 @@
 [moddesc {Parser Tools}]
 [include keywords.inc]
 [category {Parsing and Grammars}]
-[require Tcl 8.5-]
+[require Tcl "8.5 9"]

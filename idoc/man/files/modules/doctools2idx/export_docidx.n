@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::export::docidx \- docidx export plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBdoctools::idx::export::docidx  ?0\&.2\&.1?\fR
 .sp

@@ -6,7 +6,7 @@
 [moddesc   {Math}]
 [titledesc {Polynomial functions}]
 [category  Mathematics]
-[require Tcl [opt 8.4]]
+[require Tcl [opt "8.5 9"]]
 [require math::rationalfunctions [opt 1.0.1]]
 
 [description]

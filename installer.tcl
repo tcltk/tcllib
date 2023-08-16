@@ -48,7 +48,7 @@ proc gen_main_index {outdir package version} {
 
     puts $index {
 # All tcllib packages need Tcl 8 (use [namespace])
-if {![package vsatisfies [package provide Tcl] 8 9]} {return}
+if {![package vsatisfies [package provide Tcl] 8]} {return}
 
 # Extend the auto_path to make tcllib packages available
 if {[lsearch -exact $::auto_path $dir] == -1} {
@@ -56,7 +56,7 @@ if {[lsearch -exact $::auto_path $dir] == -1} {
 }
 
 # For Tcl 8.3.1 and later, that's all we need
-if {[package vsatisfies [package provide Tcl] 8.4 9]} {return}
+if {[package vsatisfies [package provide Tcl] 8.4]} {return}
 if {(0 == [catch {
     package vcompare [info patchlevel] [info patchlevel]
 }]) && (

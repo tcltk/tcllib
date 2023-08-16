@@ -7,7 +7,7 @@
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Simulated annealing}]
 [category  Mathematics]
-[require Tcl [opt 8.4]]
+[require Tcl [opt "8.5 9"]]
 [require simulation::annealing 0.2]
 
 [description]

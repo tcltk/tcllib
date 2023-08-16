@@ -7,7 +7,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in Emacs ChangeLog format}]
 [category  {Documentation tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require textutil]
 [require doctools::changelog [opt 1.1]]
 [description]

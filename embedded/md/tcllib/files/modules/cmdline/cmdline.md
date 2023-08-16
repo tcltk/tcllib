@@ -178,7 +178,7 @@ created, then the 'args' list is passed to cmdline for processing\. Subsequently
 different options are checked to see if they have been passed to the script, and
 what their value is\.
 
-            package require Tcl 8.5 9
+            package require Tcl 8.5
             package require try         ;# Tcllib.
             package require cmdline 1.5 ;# First version with proper error-codes.
 

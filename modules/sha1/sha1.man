@@ -14,7 +14,7 @@
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {SHA1 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require sha1 [opt [vset VERSION]]]
 [description]
 [para]

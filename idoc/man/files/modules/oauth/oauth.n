@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 oauth \- oauth API base signature
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBoauth  ?1\&.0\&.3?\fR
 .sp

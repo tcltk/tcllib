@@ -8,7 +8,7 @@
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to (un)tabify strings}]
 [category  {Text processing}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require textutil::tabify [opt 0.7]]
 [description]
 

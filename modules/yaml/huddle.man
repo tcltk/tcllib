@@ -13,7 +13,7 @@
 [copyright {2015 Miguel Martínez López <aplicacionamedida@gmail.com>}]
 [moddesc   {HUDDLE}]
 [titledesc {Create and manipulate huddle object}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require huddle [opt [vset VERSION]]]
 [description]
 [para]

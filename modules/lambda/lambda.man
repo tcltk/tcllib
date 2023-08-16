@@ -13,7 +13,7 @@
 [moddesc {Utility commands for anonymous procedures}]
 [titledesc {Utility commands for anonymous procedures}]
 [category  Utility]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require lambda [opt 1]]
 [description]
 [para]

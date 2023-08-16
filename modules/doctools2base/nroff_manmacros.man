@@ -10,7 +10,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Default CSS style for NROFF export plugins}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require doctools::nroff::man_macros [opt 0.1]]
 [description]
 

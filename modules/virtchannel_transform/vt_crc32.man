@@ -11,7 +11,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {Crc32 transformation}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require tcl::transform::core [opt 1]]
 [require tcl::transform::crc32 [opt 1]]
 [description]

@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 markdown \- Converts Markdown text to HTML
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBMarkdown  1\&.2\&.2\fR
 .sp

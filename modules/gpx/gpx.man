@@ -6,7 +6,7 @@
 [moddesc {GPS eXchange Format (GPX)}]
 [titledesc {Extracts waypoints, tracks and routes from GPX files}]
 [category  {File formats}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require gpx [opt 0.9]]
 [description]
 [para]

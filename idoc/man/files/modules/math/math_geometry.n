@@ -278,7 +278,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::geometry \- Geometrical computations
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5?\fR
+package require \fBTcl  ?8\&.5 9?\fR
 .sp
 package require \fBmath::geometry  ?1\&.4\&.1?\fR
 .sp

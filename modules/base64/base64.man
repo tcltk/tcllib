@@ -7,7 +7,7 @@
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {base64-encode/decode binary data}]
 [category  {Text processing}]
-[require Tcl 8]
+[require Tcl "8.5 9"]
 [require base64 [opt [vset VERSION]]]
 [description]
 [para]

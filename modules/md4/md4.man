@@ -13,7 +13,7 @@
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD4 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require md4 [opt [vset VERSION]]]
 [description]
 [para]

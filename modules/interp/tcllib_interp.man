@@ -9,7 +9,7 @@
 [moddesc   {Interpreter utilities}]
 [titledesc {Interp creation and aliasing}]
 [category  {Programming tools}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require interp [opt 0.1.2]]
 [description]
 [para]

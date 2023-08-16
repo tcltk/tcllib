@@ -9,7 +9,7 @@
 [moddesc   {oauth}]
 [titledesc {oauth API base signature}]
 [category  Networking]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require oauth [opt [vset PACKAGE_VERSION]]]
 [description]
 [para]

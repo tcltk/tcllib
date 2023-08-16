@@ -20,7 +20,7 @@
 [moddesc   {Mime}]
 [titledesc {Manipulation of MIME body parts}]
 [category  {Text processing}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require mime [opt [vset VERSION]]]
 [description]
 [para]

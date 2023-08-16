@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 stooop \- Object oriented extension\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBstooop  ?4\&.4\&.1?\fR
 .sp

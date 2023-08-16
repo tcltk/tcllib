@@ -5,7 +5,7 @@
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {ascii85-encode/decode binary data}]
 [category  {Text processing}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require ascii85 [opt 1.0]]
 [description]
 [para]

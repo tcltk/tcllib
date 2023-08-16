@@ -7,7 +7,7 @@
 [titledesc {A minimalist framework for large scale OO Projects}]
 [category  {Programming tools}]
 [keywords TclOO]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require uuid]
 [require oo::dialect]
 [description]

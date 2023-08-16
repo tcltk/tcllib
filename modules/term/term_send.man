@@ -7,7 +7,7 @@
 [moddesc   {Terminal control}]
 [titledesc {General output to terminals}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::send [opt 0.1]]
 [description]
 

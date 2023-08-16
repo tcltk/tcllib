@@ -13,7 +13,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {zlib (de)compression}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require tcl::transform::core [opt 1]]
 [require tcl::transform::zlib [opt 1]]
 [description]

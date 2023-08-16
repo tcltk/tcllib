@@ -11,7 +11,7 @@
 [moddesc   {Tcl SMTP Server Package}]
 [titledesc {Tcl SMTP server implementation}]
 [category  Networking]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require smtpd [opt 1.5]]
 [description]
 [para]

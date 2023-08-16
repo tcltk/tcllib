@@ -9,7 +9,7 @@
 [moddesc   {Text and string utilities}]
 [titledesc {Parsing of shell command line}]
 [category  {Text processing}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require string::token::shell [opt [vset VERSION]]]
 [require string::token [opt 1]]
 [require fileutil]

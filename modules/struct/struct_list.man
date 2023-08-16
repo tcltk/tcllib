@@ -38,7 +38,7 @@
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating lists}]
 [category  {Data structures}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require struct::list [opt [vset LIST_VERSION]]]
 [description]
 

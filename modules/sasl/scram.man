@@ -6,7 +6,7 @@
 [moddesc {Simple Authentication and Security Layer (SASL)}]
 [titledesc {Implementation of SASL SCRAM mechanism for Tcl}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require SASL::SCRAM [opt 0.1]]
 [description]
 [para]

@@ -19,7 +19,7 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {Interpreter for parsing expression grammars}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require grammar::mengine     [opt 0.1]]
 [require grammar::peg::interp [opt 0.1.1]]
 [description]

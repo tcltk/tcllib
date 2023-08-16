@@ -8,7 +8,7 @@
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, shared definitions}]
 [category  Networking]
-[require Tcl 8]
+[require Tcl "8.5 9"]
 [require nameserv::common [opt 0.1]]
 [description]
 

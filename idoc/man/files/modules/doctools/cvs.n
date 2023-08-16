@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::cvs \- Processing text in 'cvs log' format
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBtextutil \fR
 .sp

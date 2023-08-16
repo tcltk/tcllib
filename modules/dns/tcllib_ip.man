@@ -13,7 +13,7 @@
 [moddesc   {Domain Name Service}]
 [titledesc {IPv4 and IPv6 address manipulation}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require ip [opt [vset IP_VERSION]]]
 [description]
 [para]

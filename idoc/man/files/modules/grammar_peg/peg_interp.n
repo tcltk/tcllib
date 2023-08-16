@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::peg::interp \- Interpreter for parsing expression grammars
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBgrammar::mengine  ?0\&.1?\fR
 .sp

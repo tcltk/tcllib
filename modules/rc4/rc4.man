@@ -13,7 +13,7 @@
 [moddesc   {RC4 Stream Cipher}]
 [titledesc {Implementation of the RC4 stream cipher}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require rc4 [opt 1.1.0]]
 [description]
 [para]

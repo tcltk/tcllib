@@ -6,7 +6,7 @@
 [copyright {2007 Kevin B. Kenny <kennykb@acm.org>}]
 [moddesc {Tcl Library}]
 [titledesc {Map projection routines}]
-[require Tcl [opt 8.4]]
+[require Tcl [opt "8.5 9"]]
 [require math::interpolate [opt 1.0]]
 [require math::special [opt 0.2.1]]
 [require mapproj [opt 1.0]]

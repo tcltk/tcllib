@@ -6,7 +6,7 @@
 [titledesc {eXtremely Simple Xml Parser}]
 [copyright {Copyright 2006 Darren New. All Rights Reserved.}]
 [category  {Text processing}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require xsxp 1]
 [require xml]
 [description]

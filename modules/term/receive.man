@@ -10,7 +10,7 @@
 [moddesc   {Terminal control}]
 [titledesc {General input from terminals}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::receive [opt 0.1]]
 [description]
 

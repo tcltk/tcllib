@@ -11,7 +11,7 @@
 [keywords zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Common code for slippy based map packages}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require map::slippy [opt [vset VERSION]]]
 [description]
 

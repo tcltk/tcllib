@@ -18,7 +18,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {doctools - Processing documents}]
 [category  {Documentation tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require doctools [opt [vset PACKAGE_VERSION]]]
 [description]
 

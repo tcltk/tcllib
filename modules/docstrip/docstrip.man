@@ -11,7 +11,7 @@
 [moddesc {Literate programming tool}]
 [titledesc {Docstrip style source code extraction}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require docstrip [opt 1.2]]
 [vset emdash \u2014]
 [description]

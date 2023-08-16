@@ -7,7 +7,7 @@
 [moddesc   {Simple Tcl Only Object Oriented Programming}]
 [titledesc {switch/option management.}]
 [category  {Programming tools}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require switched [opt 2.2.1]]
 [description]
 [para]

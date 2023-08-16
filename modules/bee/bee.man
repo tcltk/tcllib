@@ -9,7 +9,7 @@
 [moddesc   {BitTorrent}]
 [titledesc {BitTorrent Serialization Format Encoder/Decoder}]
 [category  Networking]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require bee [opt 0.1]]
 [description]
 [para]

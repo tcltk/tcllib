@@ -12,7 +12,7 @@
 [moddesc   {Domain Name Service}]
 [titledesc {Tcl Domain Name Service Client}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require dns [opt [vset DNS_VERSION]]]
 [description]
 [para]

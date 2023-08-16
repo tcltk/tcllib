@@ -37,7 +37,7 @@ math::decimal \- General decimal arithmetic
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
+package require Tcl ?8\.5 9?  
 package require math::decimal 1\.0\.3  
 
 [__::math::decimal::fromstr__ *string*](#1)  

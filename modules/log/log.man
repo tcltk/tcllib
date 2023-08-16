@@ -9,7 +9,7 @@
 [moddesc   {Logging facility}]
 [titledesc {Procedures to log messages of libraries and applications.}]
 [category  {Programming tools}]
-[require Tcl 8]
+[require Tcl "8.5 9"]
 [require log [opt [vset VERSION]]]
 [description]
 

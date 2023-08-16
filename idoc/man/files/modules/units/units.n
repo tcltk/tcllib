@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 units \- unit conversion
 .SH SYNOPSIS
-package require \fBTcl  8\&.1\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBunits  ?2\&.1?\fR
 .sp

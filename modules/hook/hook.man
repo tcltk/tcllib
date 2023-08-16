@@ -15,7 +15,7 @@
 [moddesc {Hooks}]
 [titledesc  {Hooks}]
 [category  {Programming tools}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require hook [opt [vset VERSION]]]
 [description]
 [para]

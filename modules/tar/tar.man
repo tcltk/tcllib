@@ -7,7 +7,7 @@
 [moddesc   {Tar file handling}]
 [titledesc {Tar file creation, extraction & manipulation}]
 [category  {File formats}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require tar [opt [vset PACKAGE_VERSION]]]
 [description]
 

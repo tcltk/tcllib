@@ -11,7 +11,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in 'cvs log' format}]
 [category  {Documentation tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require textutil]
 [require doctools::cvs [opt 1]]
 [description]

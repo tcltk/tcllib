@@ -5,7 +5,7 @@
 [moddesc   {Source code documentation using Markdown}]
 [titledesc {Extracts and optionally converts Markdown comments in source code to HTML}]
 [category  {Text processing}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require Markdown [opt 1.2.1]]
 [require yaml [opt 0.4.1]]
 [require mkdoc [opt [vset VERSION]]]

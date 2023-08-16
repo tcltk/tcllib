@@ -7,7 +7,7 @@
 [moddesc   {Simple Tcl Only Object Oriented Programming}]
 [titledesc {Object oriented extension.}]
 [category  {Programming tools}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require stooop [opt 4.4.1]]
 [description]
 [para]

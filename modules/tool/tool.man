@@ -7,7 +7,7 @@
 [category TclOO]
 [keywords TclOO]
 [keywords framework]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require sha1]
 [require dicttool]
 [require oo::meta]

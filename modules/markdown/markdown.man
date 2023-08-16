@@ -4,7 +4,7 @@
 [moddesc   {Markdown to HTML Converter}]
 [titledesc {Converts Markdown text to HTML}]
 [category  {Text processing}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require Markdown [vset VERSION]]
 [require textutil [opt 0.8]]
 [description]

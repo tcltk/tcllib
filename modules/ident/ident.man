@@ -7,7 +7,7 @@
 [titledesc {Ident protocol client}]
 [moddesc   {Identification protocol client}]
 [category  Networking]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require ident [opt 0.42]]
 [description]
 

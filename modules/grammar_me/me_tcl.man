@@ -7,7 +7,7 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {Virtual machine implementation I for parsing token streams}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require grammar::me::tcl [opt 0.1]]
 [description]
 [para]

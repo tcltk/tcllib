@@ -3,7 +3,7 @@
 [moddesc   {Date/Time Utilities}]
 [titledesc {Parsing ISO 8601 dates/times}]
 [category  {Text processing}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require clock::iso8601 [opt 0.1]]
 [description]
 

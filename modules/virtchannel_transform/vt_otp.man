@@ -15,7 +15,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {Encryption via one-time pad}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require tcl::transform::core [opt 1]]
 [require tcl::transform::otp [opt 1]]
 [description]

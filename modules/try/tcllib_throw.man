@@ -10,7 +10,7 @@
 [moddesc {Forward compatibility implementation of [throw]}]
 [titledesc {throw - Throw an error exception with a message}]
 [category  Utility]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require throw [opt [vset VERSION]]]
 [description]
 [para]

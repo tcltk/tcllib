@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::export::container \- PEG Export Plugin\&. Write CONTAINER format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBpt::peg::export::container  ?1?\fR
 .sp

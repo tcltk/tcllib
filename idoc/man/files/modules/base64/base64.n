@@ -275,7 +275,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 base64 \- base64-encode/decode binary data
 .SH SYNOPSIS
-package require \fBTcl  8\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBbase64  ?2\&.5?\fR
 .sp

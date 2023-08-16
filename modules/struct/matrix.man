@@ -6,7 +6,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate matrix objects}]
 [category  {Data structures}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require struct::matrix [opt [vset VERSION]]]
 [description]
 [para]

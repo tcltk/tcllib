@@ -7,7 +7,7 @@
 [moddesc   {nettool}]
 [titledesc {Tools for networked applications}]
 [category  System]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require nettool [opt [vset PACKAGE_VERSION]]]
 [require twapi 3.1]
 [require ip 0.1]

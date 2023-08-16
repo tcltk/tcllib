@@ -6,7 +6,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate stack objects}]
 [category  {Data structures}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require struct::stack [opt 1.5.3]]
 [description]
 

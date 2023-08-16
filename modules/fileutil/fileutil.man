@@ -11,7 +11,7 @@
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [category  {Programming tools}]
-[require Tcl 8]
+[require Tcl "8.5 9"]
 [require fileutil [opt [vset PACKAGE_VERSION]]]
 [description]
 [para]

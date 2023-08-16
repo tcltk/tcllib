@@ -10,7 +10,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Disjoint set data structure}]
 [category  {Data structures}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require struct::disjointset [opt [vset VERSION]]]
 [description]
 [para]

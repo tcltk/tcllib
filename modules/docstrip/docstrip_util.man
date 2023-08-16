@@ -22,7 +22,7 @@
 [moddesc {Literate programming tool}]
 [titledesc {Docstrip-related utilities}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require docstrip [opt 1.2]]
 [require docstrip::util [opt [vset VERSION]]]
 [vset emdash \u2014]

@@ -6,7 +6,7 @@
 [moddesc   {One-to-many communication with sockets.}]
 [titledesc {One-to-many communication with sockets.}]
 [category  {Programming tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require logger]
 [require multiplexer [opt 0.2]]
 [description]

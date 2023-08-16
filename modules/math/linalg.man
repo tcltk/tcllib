@@ -14,7 +14,7 @@
 [moddesc   {Tcl Math Library}]
 [titledesc {Linear Algebra}]
 [category  Mathematics]
-[require Tcl [opt 8.4]]
+[require Tcl [opt "8.5 9"]]
 [require math::linearalgebra [opt [vset VERSION]]]
 [description]
 [para]

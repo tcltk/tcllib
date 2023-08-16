@@ -14,7 +14,7 @@
 [moddesc   {LDAP extended object interface}]
 [titledesc {LDAP extended object interface}]
 [category  Networking]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require ldapx [opt [vset VERSION]]]
 [description]
 [para]

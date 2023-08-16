@@ -6,7 +6,7 @@
 [copyright {2007, Sergei Golovan <sgolovan@nes.ru>}]
 [moddesc {Unicode normalization}]
 [titledesc {Implementation of Unicode normalization}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require unicode 1.0]
 [description]
 [para]

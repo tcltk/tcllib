@@ -9,7 +9,7 @@
 [moddesc   {JSON}]
 [titledesc {JSON generation}]
 [category  {CGI programming}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require json::write [opt [vset PACKAGE_VERSION]]]
 [description]
 [para]

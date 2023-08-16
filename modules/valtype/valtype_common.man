@@ -10,7 +10,7 @@
 [titledesc "Validation, common code"]
 [moddesc {Validation types}]
 [category {Validation, Type checking}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require valtype::common [opt 1]]
 [description]
 

@@ -45,7 +45,7 @@ math::linearalgebra \- Linear Algebra
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require math::linearalgebra ?1\.1\.5?  
 
 [__::math::linearalgebra::mkVector__ *ndim* *value*](#1)  

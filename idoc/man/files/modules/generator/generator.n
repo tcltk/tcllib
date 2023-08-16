@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 generator \- Procedures for creating and using generators\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl  8\&.6 9\fR
 .sp
 package require \fBgenerator  ?0\&.2?\fR
 .sp

@@ -10,7 +10,7 @@
 [keywords zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Management of a tile cache in the local filesystem}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require Tk 8.6]
 [require map::slippy]
 [require map::slippy::cache [opt [vset VERSION]]]

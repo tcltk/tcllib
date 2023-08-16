@@ -276,7 +276,7 @@ doctools::idx \- Holding keyword indices
 .SH SYNOPSIS
 package require \fBdoctools::idx  ?2?\fR
 .sp
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBdoctools::idx::structure \fR
 .sp

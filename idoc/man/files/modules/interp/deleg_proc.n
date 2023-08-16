@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 deleg_proc \- Creation of comm delegates (procedures)
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBinterp::delegate::proc  ?0\&.2?\fR
 .sp
