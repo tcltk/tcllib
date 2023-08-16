@@ -9,7 +9,7 @@
 [moddesc   {Interpreter utilities}]
 [titledesc {Creation of comm delegates (snit methods)}]
 [category  {Programming tools}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require snit [opt 1.1]]
 [require interp::delegate::method [opt 0.2]]
 [description]

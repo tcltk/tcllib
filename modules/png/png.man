@@ -9,7 +9,7 @@
 [moddesc   {Image manipulation}]
 [titledesc {PNG querying and manipulation of meta data}]
 [category  {File formats}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require crc32]
 [require png [opt [vset VERSION]]]
 [description]

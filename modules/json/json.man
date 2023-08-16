@@ -10,7 +10,7 @@
 [moddesc   {JSON}]
 [titledesc {JSON parser}]
 [category  {CGI programming}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require json [opt [vset VERSION]]]
 [description]
 [para]

@@ -7,7 +7,7 @@
 [moddesc   {cron}]
 [titledesc {Tool for automating the period callback of commands}]
 [category  System]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require cron [opt [vset PACKAGE_VERSION]]]
 [description]
 [para]

@@ -9,7 +9,7 @@
 [moddesc   {bibtex}]
 [titledesc {Parse bibtex files}]
 [category  {Text processing}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require bibtex [opt [vset VERSION]]]
 [description]
 [para]

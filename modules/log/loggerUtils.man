@@ -7,7 +7,7 @@
 [moddesc {Object Oriented logging facility}]
 [titledesc {Utilities for logger}]
 [category  {Programming tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require logger::utils [opt [vset VERSION]]]
 [description]
 

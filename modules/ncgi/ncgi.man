@@ -9,7 +9,7 @@
 [moddesc   {CGI Support}]
 [titledesc {Procedures to manipulate CGI values.}]
 [category  {CGI programming}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require ncgi [opt [vset VERSION]]]
 [description]
 [para]

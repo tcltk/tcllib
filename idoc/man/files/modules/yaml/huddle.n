@@ -275,7 +275,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 huddle \- Create and manipulate huddle object
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBhuddle  ?0\&.4?\fR
 .sp

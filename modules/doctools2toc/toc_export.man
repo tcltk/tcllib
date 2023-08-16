@@ -25,7 +25,7 @@
 [titledesc {Exporting tables of contents}]
 [category  {Documentation tools}]
 [require doctools::toc::export [opt [vset VERSION]]]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require struct::map]
 [require doctools::toc::structure]
 [require snit]

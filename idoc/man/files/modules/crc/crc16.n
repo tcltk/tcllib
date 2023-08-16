@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 crc16 \- Perform a 16bit Cyclic Redundancy Check
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBcrc16  ?1\&.1\&.4?\fR
 .sp

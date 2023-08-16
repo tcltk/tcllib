@@ -11,7 +11,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Array persistence}]
 [category  {Programming tools}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require tie [opt [vset VERSION]]]
 [description]
 

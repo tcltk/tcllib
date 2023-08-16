@@ -5,7 +5,7 @@
 [moddesc   {Lazy evaluation for variables and arrays}]
 [category  Utility]
 [titledesc {Lazy evaluation}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require lazyset [opt [vset VERSION]]]
 [description]
 [para]

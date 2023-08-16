@@ -17,7 +17,7 @@
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench::in - Reading benchmark results}]
 [category  {Benchmark tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require csv]
 [require bench::in [opt 0.1]]
 [description]

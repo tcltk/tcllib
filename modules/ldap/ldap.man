@@ -15,7 +15,7 @@
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [category  Networking]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require ldap [opt [vset VERSION]]]
 [description]
 [para]

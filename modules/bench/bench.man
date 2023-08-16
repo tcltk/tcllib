@@ -15,7 +15,7 @@
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench - Processing benchmark suites}]
 [category  {Benchmark tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require bench [opt 0.4]]
 [description]
 

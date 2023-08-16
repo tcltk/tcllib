@@ -7,7 +7,7 @@
 [moddesc   {Tcl Profiler}]
 [titledesc {Tcl source code profiler}]
 [category  {Programming tools}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require profiler [opt [vset VERSION]]]
 [description]
 [para]

@@ -12,7 +12,7 @@
 [moddesc   {file utilities}]
 [titledesc {Runtime core for file type recognition engines written in pure Tcl}]
 [category  {Programming tools}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require fileutil::magic::rt [opt [vset VERSION]]]
 [description]
 [para]

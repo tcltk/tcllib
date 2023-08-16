@@ -7,7 +7,7 @@
 [moddesc   {Data transfer facilities}]
 [titledesc {Data transfer foundation}]
 [category  {Transfer module}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require transfer::copy [opt 0.2]]
 [description]
 [para]

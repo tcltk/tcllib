@@ -7,7 +7,7 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {AST utilities}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require grammar::me::util [opt 0.1]]
 [description]
 [para]

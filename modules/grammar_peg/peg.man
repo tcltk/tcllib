@@ -17,7 +17,7 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {Create and manipulate parsing expression grammars}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
 [require grammar::peg [opt 0.1]]
 [description]

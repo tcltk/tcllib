@@ -9,7 +9,7 @@
 [moddesc   {Terminal control}]
 [titledesc {ANSI attribute sequences}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::ansi::code       [opt 0.1]]
 [require term::ansi::code::attr [opt 0.1]]
 [description]

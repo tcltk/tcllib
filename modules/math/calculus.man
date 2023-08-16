@@ -10,7 +10,7 @@
 [moddesc   {Tcl Math Library}]
 [titledesc {Integration and ordinary differential equations}]
 [category  Mathematics]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require math::calculus [vset VERSION]]
 [description]
 [para]

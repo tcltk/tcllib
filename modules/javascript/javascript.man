@@ -10,7 +10,7 @@
 [moddesc   {HTML and Java Script Generation}]
 [titledesc {Procedures to generate HTML and Java Script structures.}]
 [category  {CGI programming}]
-[require Tcl 8]
+[require Tcl "8.5 9"]
 [require javascript [opt 1.0.2]]
 [description]
 [para]

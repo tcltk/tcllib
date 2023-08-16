@@ -14,7 +14,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Message catalog management for the various document parsers}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require msgcat]
 [require doctools::msgcat [opt 0.1]]
 [description]

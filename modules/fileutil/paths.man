@@ -2,7 +2,7 @@
 [vset VERSION 1]
 [manpage_begin fileutil::paths n [vset VERSION]]
 [titledesc {Manage search path pools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require fileutil::paths [opt [vset VERSION]]]
 [description]
 

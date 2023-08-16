@@ -7,7 +7,7 @@ Redistribution permitted under the terms of the Open\
 Publication License <http://www.opencontent.org/openpub/>"]
 [moddesc "Symbolic differentiation for Tcl"]
 [titledesc "Symbolic differentiation for Tcl"]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require grammar::aycock 1.0]
 [require math::calculus::symdiff [vset VERSION]]
 [description]

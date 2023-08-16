@@ -9,7 +9,7 @@
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Simple mailbox database for pop3d}]
 [category  Networking]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require pop3d::dbox [opt 1.0.2]]
 [description]
 [para]

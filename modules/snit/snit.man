@@ -16,7 +16,7 @@
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc  {Snit's Not Incr Tcl}]
 [category  {Programming tools}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require snit [opt 2.3.2]]
 [description]
 [para]

@@ -15,7 +15,7 @@
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating sets}]
 [category  {Data structures}]
-[require Tcl 8.0]
+[require Tcl "8.5 9"]
 [require struct::set [opt 2.2.3]]
 [description]
 

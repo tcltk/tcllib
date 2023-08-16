@@ -13,7 +13,7 @@
 [moddesc   {Terminal control}]
 [titledesc {Control operations and queries}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::ansi::ctrl::unix [opt 0.1.1]]
 [description]
 

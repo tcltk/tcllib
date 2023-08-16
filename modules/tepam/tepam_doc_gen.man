@@ -3,7 +3,7 @@
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM DOC Generation, reference manual}]
 [category {Documentation tools}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require tepam 0.5]
 [require tepam::doc_gen [opt 0.1]]
 

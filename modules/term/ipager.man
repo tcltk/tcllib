@@ -8,7 +8,7 @@
 [moddesc   {Terminal control}]
 [titledesc {Terminal widget, paging}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::interact::pager [opt 0.1]]
 [description]
 

@@ -6,7 +6,7 @@
 [moddesc {Zip archive handling}]
 [titledesc {Access to zip archives}]
 [category  File]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require fileutil::decode 0.2.1]
 [require Trf]
 [require zlibtcl]

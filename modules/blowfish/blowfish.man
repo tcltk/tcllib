@@ -13,7 +13,7 @@
 [moddesc   {Blowfish Block Cipher}]
 [titledesc {Implementation of the Blowfish block cipher}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require blowfish [opt [vset VERSION]]]
 [description]
 [para]

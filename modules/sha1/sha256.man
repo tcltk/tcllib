@@ -15,7 +15,7 @@
 [copyright {2008, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [titledesc {SHA256 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require sha256 [opt [vset VERSION]]]
 [description]
 [para]

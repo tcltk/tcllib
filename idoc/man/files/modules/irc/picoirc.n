@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 picoirc \- Small and simple embeddable IRC client\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl  8\&.6 9\fR
 .sp
 package require \fBpicoirc  ?0\&.13\&.0?\fR
 .sp

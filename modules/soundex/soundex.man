@@ -10,7 +10,7 @@
 [moddesc   {Soundex}]
 [titledesc {Soundex}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require soundex [opt 1.0]]
 [description]
 [para]

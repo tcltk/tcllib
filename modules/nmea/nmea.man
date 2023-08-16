@@ -5,7 +5,7 @@
 [moddesc   {NMEA protocol implementation}]
 [titledesc {Process NMEA data}]
 [category Networking]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require nmea [opt 1.0.0]]
 [description]
 [para]

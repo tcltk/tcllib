@@ -11,7 +11,7 @@
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench::out::csv - Formatting benchmark results as CSV}]
 [category  {Benchmark tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require bench::out::csv [opt 0.1.2]]
 [description]
 

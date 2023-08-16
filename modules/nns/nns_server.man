@@ -7,7 +7,7 @@
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Server}]
 [category  Networking]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require nameserv::server [opt 0.3.2]]
 [require comm]
 [require interp]

@@ -15,7 +15,7 @@
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Create and use deterministic acceptors}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
 [require struct::set]
 [require grammar::fa::dacceptor [opt 0.1.1]]

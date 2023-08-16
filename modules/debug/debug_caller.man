@@ -9,7 +9,7 @@
 [moddesc {debug narrative}]
 [titledesc {debug narrative - caller}]
 [category  {debugging, tracing, and logging}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require debug::caller [opt [vset VERSION]]]
 [description]
 [para]

@@ -276,7 +276,7 @@ doctools::toc::parse \- Parsing text in doctoc format
 .SH SYNOPSIS
 package require \fBdoctools::toc::parse  ?0\&.1?\fR
 .sp
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBdoctools::toc::structure \fR
 .sp

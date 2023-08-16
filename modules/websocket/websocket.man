@@ -9,7 +9,7 @@
 [moddesc {websocket client and server}]
 [titledesc {Tcl implementation of the websocket protocol}]
 [category Networking]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require http 2.7]
 [require logger]
 [require sha1]

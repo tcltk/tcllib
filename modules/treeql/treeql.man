@@ -14,7 +14,7 @@
 [moddesc   {Tree Query Language}]
 [titledesc {Query tree objects}]
 [category  {Data structures}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require snit]
 [require struct::list]
 [require struct::set]

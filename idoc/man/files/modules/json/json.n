@@ -275,7 +275,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 json \- JSON parser
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBjson  ?1\&.3\&.4?\fR
 .sp

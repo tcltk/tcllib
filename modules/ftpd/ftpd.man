@@ -9,7 +9,7 @@
 [moddesc   {Tcl FTP Server Package}]
 [titledesc {Tcl FTP server implementation}]
 [category  Networking]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require ftpd [opt [vset VERSION]]]
 [description]
 

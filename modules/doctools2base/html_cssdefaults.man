@@ -10,7 +10,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Default CSS style for HTML export plugins}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require doctools::html::cssdefaults [opt 0.1]]
 [description]
 

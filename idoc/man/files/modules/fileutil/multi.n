@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil::multi \- Multi-file operation, scatter/gather, standard object
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBfileutil::multi  ?0\&.1?\fR
 .sp

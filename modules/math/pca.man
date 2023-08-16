@@ -7,7 +7,7 @@
 [moddesc   {Principal Components Analysis}]
 [titledesc {Package for Principal Component Analysis}]
 [category  Mathematics]
-[require Tcl [opt 8.6]]
+[require Tcl [opt "8.6 9"]]
 [require math::linearalgebra 1.0]
 
 [description]

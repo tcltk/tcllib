@@ -13,7 +13,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate queue objects}]
 [category  {Data structures}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require struct::queue [opt 1.4.5]]
 [description]
 

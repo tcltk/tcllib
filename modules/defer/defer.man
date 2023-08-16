@@ -7,7 +7,7 @@
 [moddesc {Defered execution ala Go}]
 [titledesc {Defered execution}]
 [category  {Utility}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require defer [opt [vset VERSION]]]
 [description]
 

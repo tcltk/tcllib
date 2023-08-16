@@ -7,7 +7,7 @@
 [titledesc {Amazon S3 Web Service Interface}]
 [category  Networking]
 [copyright {Copyright 2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require S3 [opt [vset VERSION]]]
 [require sha1 1.0]
 [require md5 2.0]

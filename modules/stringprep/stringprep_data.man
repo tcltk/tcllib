@@ -5,7 +5,7 @@
 [copyright {2007-2009, Sergei Golovan <sgolovan@nes.ru>}]
 [moddesc {Preparation of Internationalized Strings}]
 [titledesc {stringprep data tables, generated, internal}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require stringprep::data 1.0.1]
 [description]
 [para]

@@ -8,7 +8,7 @@
 [moddesc   {Matrix reports}]
 [titledesc {Create and manipulate report objects}]
 [category  {Data structures}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require report [opt [vset VERSION]]]
 [description]
 [para]

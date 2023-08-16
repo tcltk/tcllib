@@ -9,7 +9,7 @@
 [titledesc {Parsing text in docidx format}]
 [category  {Documentation tools}]
 [require doctools::idx::parse [opt 0.1]]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require doctools::idx::structure]
 [require doctools::msgcat]
 [require doctools::tcl::parse]

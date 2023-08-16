@@ -6,7 +6,7 @@
 [moddesc {Zip archive handling}]
 [titledesc {Generation of zip archives}]
 [category  File]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require logger]
 [require Trf]
 [require crc32]

@@ -6,7 +6,7 @@
 [moddesc   {file utilities}]
 [titledesc {Iterative directory traversal}]
 [category  {Programming tools}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require fileutil::traverse [opt [vset VERSION]]]
 [require fileutil]
 [require control]

@@ -7,7 +7,7 @@
 [moddesc   {HTTP protocol helper modules}]
 [titledesc {Automatic HTTP proxy usage and authentication}]
 [category  Networking]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require http [opt 2.0]]
 [require autoproxy [opt [vset VERSION]]]
 [description]

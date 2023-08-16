@@ -6,7 +6,7 @@
 [moddesc   {Plugin management}]
 [titledesc {Manage a plugin}]
 [category  {Programming tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require pluginmgr [opt 0.3]]
 [description]
 

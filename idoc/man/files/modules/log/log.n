@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 log \- Procedures to log messages of libraries and applications\&.
 .SH SYNOPSIS
-package require \fBTcl  8\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBlog  ?1\&.4?\fR
 .sp

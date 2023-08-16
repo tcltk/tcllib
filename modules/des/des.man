@@ -15,7 +15,7 @@
 [moddesc {Data Encryption Standard (DES)}]
 [titledesc {Implementation of the DES and triple-DES ciphers}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require des 1.1]
 [description]
 [para]

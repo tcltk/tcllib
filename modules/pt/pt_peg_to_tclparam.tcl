@@ -19,7 +19,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package  require Tcl 8.5-
+package  require Tcl 8.5 9
 package  require pt::peg             ; # Verification that the input
 				       # is proper.
 package  require pt::pe              ; # Walking an expression.

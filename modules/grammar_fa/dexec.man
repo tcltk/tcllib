@@ -16,7 +16,7 @@
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Execute deterministic finite automatons}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
 [require grammar::fa::dexec [opt 0.2]]
 [description]

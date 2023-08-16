@@ -6,7 +6,7 @@
 [moddesc   {Terminal control}]
 [titledesc {General terminal control}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term [opt 0.1]]
 [description]
 

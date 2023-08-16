@@ -796,17 +796,8 @@ global ftp
 }
 
 
-if {[package vcompare [info tclversion] 8.4] >= 0} {
-    proc Touch {filename} {
-	file mtime $filename [clock seconds]
-    }
-} else {
-    # update timestamp
-    proc Touch {filename} {
-	set file [open $filename w]
-	puts -nonewline $file ""
-	close $file
-    }
+proc Touch {filename} {
+    file mtime $filename [clock seconds]
 }
 
 

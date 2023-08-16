@@ -148,7 +148,7 @@ file "calculator\.peg" is
 
 From this we create a snit\-based parser using the script "gen"
 
-    package require Tcl 8.5 9
+    package require Tcl 8.5
     package require fileutil
     package require pt::pgen
 

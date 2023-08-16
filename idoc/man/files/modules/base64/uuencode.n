@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uuencode \- UU-encode/decode binary data
 .SH SYNOPSIS
-package require \fBTcl  8\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBuuencode  ?1\&.1\&.4?\fR
 .sp

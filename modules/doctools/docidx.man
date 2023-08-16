@@ -23,7 +23,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {docidx - Processing indices}]
 [category  {Documentation tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require doctools::idx [opt [vset PACKAGE_VERSION]]]
 [description]
 

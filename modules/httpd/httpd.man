@@ -11,7 +11,7 @@
 [keywords httpd]
 [keywords httpserver]
 [keywords services]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require uuid]
 [require clay]
 [require coroutine]

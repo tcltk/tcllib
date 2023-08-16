@@ -9,7 +9,7 @@
 [moddesc   {Network Time Facilities}]
 [titledesc {Tcl Time Service Client}]
 [category  Networking]
-[require Tcl 8.0]
+[require Tcl "8.5 9"]
 [require time [opt 1.2.1]]
 [description]
 [para]

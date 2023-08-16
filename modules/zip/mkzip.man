@@ -6,7 +6,7 @@
 [moddesc {Zip archive creation}]
 [titledesc {Build a zip archive}]
 [category  File]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require zipfile::mkzip [opt [vset ZIP_mkzip_VERSION]]]
 [description]
 [para]

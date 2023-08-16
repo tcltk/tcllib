@@ -8,7 +8,7 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {Facade channel}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require TclOO]
 [require logger]
 [require tcl::chan::core [opt 1]]

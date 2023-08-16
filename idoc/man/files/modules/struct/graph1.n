@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::graph_v1 \- Create and manipulate directed graph objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBstruct::graph  ?1\&.2\&.1?\fR
 .sp

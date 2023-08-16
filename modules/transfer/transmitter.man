@@ -12,7 +12,7 @@
 [moddesc   {Data transfer facilities}]
 [titledesc {Data source}]
 [category  {Transfer module}]
-[require Tcl                    8.4]
+[require Tcl                    "8.5 9"]
 [require snit                   [opt 1.0]]
 [require transfer::copy         [opt 0.2]]
 [require transfer::data::source [opt 0.2]]

@@ -10,7 +10,7 @@
 [moddesc   {Terminal control}]
 [titledesc {Keyboard dispatch from terminals}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::receive::bind [opt 0.1]]
 [description]
 
