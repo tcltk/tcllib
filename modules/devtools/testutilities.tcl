@@ -21,7 +21,7 @@ namespace eval ::tcllib::testutils {
 ## version is not met by the active interpreter.
 
 proc testsNeedTcl {version} {
-    if {[package vsatisfies [package provide Tcl] $version-]} return
+    if {[package vsatisfies [package provide Tcl] $version 9]} return
 
     puts "    Aborting the tests found in \"[file tail [info script]]\""
     puts "    Requiring at least Tcl $version, have [package present Tcl]."
