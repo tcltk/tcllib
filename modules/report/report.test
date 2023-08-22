@@ -60,11 +60,7 @@ test report-2.2 {style definition errors} {
 test report-2.3 {style definition errors} {
     catch {::report::defstyle foo {} {} bla} result
     set result
-} [if {[info tclversion] < 8.4} {
-    set msg {called "::report::defstyle" with too many arguments}
-} else {
-    set msg {wrong # args: should be "::report::defstyle styleName arguments body"}
-}]
+} {wrong # args: should be "::report::defstyle styleName arguments body"}
 
 test report-2.4 {style definition errors} {
     catch {::report::defstyle plain {} {}} result
