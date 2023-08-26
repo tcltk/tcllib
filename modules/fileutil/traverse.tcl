@@ -336,166 +336,55 @@ snit::type ::fileutil::traverse {
 # ### ### ### ######### ######### #########
 ##
 
-# The next three helper commands for the traverser depend strongly on
-# the version of Tcl, and partially on the platform.
+# Tcl 8.5+.
+# We have to check readability of "current" on our own, glob
+# changed to error out instead of returning nothing.
 
-# 1. In Tcl 8.3 using -types f will return only true files, but not
-#    links to files. This changed in 8.4+ where links to files are
-#    returned as well. So for 8.3 we have to handle the links
-#    separately (-types l) and also filter on our own.
-#    Note that Windows file links are hard links which are reported by
-#    -types f, but not -types l, so we can optimize that for the two
-#    platforms.
-#
-# 2. In Tcl 8.3 we also have a crashing bug in glob (SIGABRT, "stat on
-#    a known file") when trying to perform 'glob -types {hidden f}' on
-#    a directory without e'x'ecute permissions. We code around by
-#    testing if we can cd into the directory (stat might return enough
-#    information too (mode), but possibly also not portable).
-#
-#    For Tcl 8.2 and 8.4+ glob simply delivers an empty result
-#    (-nocomplain), without crashing. For them this command is defined
-#    so that the bytecode compiler removes it from the bytecode.
-#
-#    This bug made the ACCESS helper necessary.
-#    We code around the problem by testing if we can cd into the
-#    directory (stat might return enough information too (mode), but
-#    possibly also not portable).
+proc ::fileutil::traverse::ACCESS {args} {return 1}
 
-if {[package vsatisfies [package present Tcl] 8.5 9]} {
-    # Tcl 8.5+.
-    # We have to check readability of "current" on our own, glob
-    # changed to error out instead of returning nothing.
-
-    proc ::fileutil::traverse::ACCESS {args} {return 1}
-
-    proc ::fileutil::traverse::GLOBF {current} {
-	if {![file readable $current] ||
-	    [BadLink $current]} {
-	    return {}
-	}
-
-	set res [lsort -unique [concat \
-		     [glob -nocomplain -directory $current -types f          -- *] \
-		     [glob -nocomplain -directory $current -types {hidden f} -- *]]]
-
-	# Look for broken links (They are reported as neither file nor directory).
-	foreach l [lsort -unique [concat \
-		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
-	    if {[file isfile      $l]} continue
-	    if {[file isdirectory $l]} continue
-	    lappend res $l
-	}
-	return [lsort -unique $res]
+proc ::fileutil::traverse::GLOBF {current} {
+    if {![file readable $current] ||
+	[BadLink $current]} {
+	return {}
     }
 
-    proc ::fileutil::traverse::GLOBD {current} {
-	if {![file readable $current] ||
-	    [BadLink $current]} {
-	    return {}
-	}
+    set res [lsort -unique [concat \
+				[glob -nocomplain -directory $current -types f          -- *] \
+				[glob -nocomplain -directory $current -types {hidden f} -- *]]]
 
-	lsort -unique [concat \
-	   [glob -nocomplain -directory $current -types d          -- *] \
-	   [glob -nocomplain -directory $current -types {hidden d} -- *]]
+    # Look for broken links (They are reported as neither file nor directory).
+    foreach l [lsort -unique [concat \
+				  [glob -nocomplain -directory $current -types l          -- *] \
+				  [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
+	if {[file isfile      $l]} continue
+	if {[file isdirectory $l]} continue
+	lappend res $l
+    }
+    return [lsort -unique $res]
+}
+
+proc ::fileutil::traverse::GLOBD {current} {
+    if {![file readable $current] ||
+	[BadLink $current]} {
+	return {}
     }
 
-    proc ::fileutil::traverse::BadLink {current} {
-	if {[file type $current] ne "link"} { return no }
+    lsort -unique [concat \
+		       [glob -nocomplain -directory $current -types d          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden d} -- *]]
+}
 
-	set dst [file join [file dirname $current] [file readlink $current]]
+proc ::fileutil::traverse::BadLink {current} {
+    if {[file type $current] ne "link"} { return no }
 
-	if {![file exists   $dst] ||
-	    ![file readable $dst]} {
-	    return yes
-	}
+    set dst [file join [file dirname $current] [file readlink $current]]
 
-	return no
+    if {![file exists   $dst] ||
+	![file readable $dst]} {
+	return yes
     }
 
-} elseif {[package vsatisfies [package present Tcl] 8.4]} {
-    # Tcl 8.4+.
-    # (Ad 1) We have -directory, and -types,
-    # (Ad 2) Links are returned for -types f/d if they refer to files/dirs.
-    # (Ad 3) No bug to code around
-
-    proc ::fileutil::traverse::ACCESS {args} {return 1}
-
-    proc ::fileutil::traverse::GLOBF {current} {
-	set res [concat \
-		     [glob -nocomplain -directory $current -types f          -- *] \
-		     [glob -nocomplain -directory $current -types {hidden f} -- *]]
-
-	# Look for broken links (They are reported as neither file nor directory).
-	foreach l [concat \
-		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *] ] {
-	    if {[file isfile      $l]} continue
-	    if {[file isdirectory $l]} continue
-	    lappend res $l
-	}
-	return $res
-    }
-
-    proc ::fileutil::traverse::GLOBD {current} {
-	concat \
-	    [glob -nocomplain -directory $current -types d          -- *] \
-	    [glob -nocomplain -directory $current -types {hidden d} -- *]
-    }
-
-} else {
-    # 8.3.
-    # (Ad 1) We have -directory, and -types,
-    # (Ad 2) Links are NOT returned for -types f/d, collect separately.
-    #        No symbolic file links on Windows.
-    # (Ad 3) Bug to code around.
-
-    proc ::fileutil::traverse::ACCESS {current} {
-	if {[catch {
-	    set h [pwd] ; cd $current ; cd $h
-	}]} {return 0}
-	return 1
-    }
-
-    if {[string equal $::tcl_platform(platform) windows]} {
-	proc ::fileutil::traverse::GLOBF {current} {
-	    concat \
-		[glob -nocomplain -directory $current -types f          -- *] \
-		[glob -nocomplain -directory $current -types {hidden f} -- *]]
-	}
-    } else {
-	proc ::fileutil::traverse::GLOBF {current} {
-	    set l [concat \
-		       [glob -nocomplain -directory $current -types f          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden f} -- *]]
-
-	    foreach x [concat \
-			   [glob -nocomplain -directory $current -types l          -- *] \
-			   [glob -nocomplain -directory $current -types {hidden l} -- *]] {
-		if {[file isdirectory $x]} continue
-		# We have now accepted files, links to files, and broken links.
-		lappend l $x
-	    }
-
-	    return $l
-	}
-    }
-
-    proc ::fileutil::traverse::GLOBD {current} {
-	set l [concat \
-		   [glob -nocomplain -directory $current -types d          -- *] \
-		   [glob -nocomplain -directory $current -types {hidden d} -- *]]
-
-	foreach x [concat \
-		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *]] {
-	    if {![file isdirectory $x]} continue
-	    lappend l $x
-	}
-
-	return $l
-    }
+    return no
 }
 
 # ### ### ### ######### ######### #########
