@@ -23,16 +23,7 @@ namespace eval ::snit:: {
     set library [file dirname [info script]]
 }
 
-# Select the implementation based on the version of the Tcl core
-# executing this code. For 8.3 we use a backport emulating various
-# 8.4 features
-
-if {[package vsatisfies [package provide Tcl] 8.4]} {
-    source [file join $::snit::library main1.tcl]
-} else {
-    source [file join $::snit::library main1_83.tcl]
-    source [file join $::snit::library snit_tcl83_utils.tcl]
-}
+source [file join $::snit::library main1.tcl]
 
 # Load the library of Snit validation types.
 

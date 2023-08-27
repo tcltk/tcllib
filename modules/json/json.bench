@@ -6,10 +6,10 @@
 #
 # (c) 2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-# We need at least version 8.4 for the package and thus the
+# We need at least version 8.5 for the package and thus the
 # benchmarks.
 
-if {![package vsatisfies [package present Tcl] 8.5]} {
+if {![package vsatisfies [package present Tcl] 8.5 9]} {
     bench_puts "Need Tcl 8.5+, found Tcl [package present Tcl]"
     return
 }

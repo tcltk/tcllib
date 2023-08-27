@@ -42,12 +42,8 @@ namespace import ::math::calculus::symdiff::*
 
 if {![package vsatisfies [package provide Tcl] 9]} {
     set prec $::tcl_precision
-    if {![package vsatisfies [package provide Tcl] 8.5]} {
-        set ::tcl_precision 17
-    } else {
-        set ::tcl_precision 0
-    }
 }
+set ::tcl_precision 0
 
 test symdiff-1.1 {derivative of a constant} {
     symdiff {1.0} a

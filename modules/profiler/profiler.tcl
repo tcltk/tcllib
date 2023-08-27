@@ -295,14 +295,9 @@ proc ::profiler::profProc {name arglist body} {
     set statTime($name) {}
     set enabled($name) [expr {!$paused}]
 
-    if {[package vsatisfies [package provide Tcl] 8.4]} {
-        uplevel 1 [list ::_oldProc $name $arglist $body]
-        trace add execution $name {enter leave} \
-                 [list ::profiler::TraceHandler $name]
-    } else {
-        uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
-        uplevel 1 [list interp alias {} $name {} ::profiler::Handler $name]
-    }
+    uplevel 1 [list ::_oldProc $name $arglist $body]
+    trace add execution $name {enter leave} \
+        [list ::profiler::TraceHandler $name]
     return
 }
 

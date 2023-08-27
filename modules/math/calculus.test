@@ -43,12 +43,8 @@ namespace import ::math::calculus::*
 
 if {![package vsatisfies [package provide Tcl] 9]} {
     set prec $::tcl_precision
-    if {![package vsatisfies [package provide Tcl] 8.5]} {
-        set ::tcl_precision 17
-    } else {
-        set ::tcl_precision 0
-    }
 }
+set ::tcl_precision 0
 
 proc matchNumbers {expected actual} {
     set match 1

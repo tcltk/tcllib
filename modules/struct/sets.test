@@ -91,15 +91,11 @@ TestAccelDo struct::set impl {
 		proc Nothing {} {
 		    return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
 		}
-	    } elseif {[package vsatisfies [package present Tcl] 8.5]} {
+	    } else {
 		# In 8.5 head the alias itself is reported, not what it
 		# resolved to.
 		proc Nothing {} {
 		    return [tcltest::wrongNumArgs setop {cmd args} 0]
-		}
-	    } else {
-		proc Nothing {} {
-		    return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
 		}
 	    }
 
