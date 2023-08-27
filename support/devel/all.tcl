@@ -177,7 +177,7 @@ foreach module $modules {
 	    # Under wish 8.2/8.3 we have to explicitly load Tk into the
 	    # slave, the package management is not able to.
 
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {
+	    if {![package vsatisfies [package provide Tcl] 8.4 9]} {
 		catch {
 		    load {} Tk
 		    wm withdraw .

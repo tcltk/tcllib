@@ -2681,13 +2681,8 @@ proc ::mime::addr_next {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
-    set nocomplain [package vsatisfies [package provide Tcl] 8.4]
     foreach prop {comment domain error group local memberP phrase route} {
-        if {$nocomplain} {
-            unset -nocomplain state($prop)
-        } else {
-            if {[catch {unset state($prop)}]} {set ::errorInfo {}}
-        }
+        unset -nocomplain state($prop)
     }
 
     switch -- [set code [catch {mime::addr_specification $token} result]] {

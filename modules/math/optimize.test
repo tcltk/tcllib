@@ -40,12 +40,8 @@ namespace import ::math::optimize::*
 
 if {![package vsatisfies [package provide Tcl] 9]} {
     set old_precision $::tcl_precision
-    if {![package vsatisfies [package present Tcl] 8.5]} {
-        set ::tcl_precision 17
-    } else {
-        set ::tcl_precision 0
-    }
 }
+set ::tcl_precision 0
 
 #
 # Simple test functions
