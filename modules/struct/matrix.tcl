@@ -1605,8 +1605,8 @@ proc ::struct::matrix::_link {name args} {
 	}
     }
 
-    trace variable array wu [list ::struct::matrix::MatTraceIn  $variable $name]
-    trace variable data  w  [list ::struct::matrix::MatTraceOut $variable $name]
+    trace add variable array wu [list ::struct::matrix::MatTraceIn  $variable $name]
+    trace add variable data  w  [list ::struct::matrix::MatTraceOut $variable $name]
     return
 }
 
@@ -2212,8 +2212,8 @@ proc ::struct::matrix::_unlink {name avar} {
     upvar #0 $avar    array
     variable ${name}::data
 
-    trace vdelete array wu [list ::struct::matrix::MatTraceIn  $avar $name]
-    trace vdelete date  w  [list ::struct::matrix::MatTraceOut $avar $name]
+    trace remove array wu [list ::struct::matrix::MatTraceIn  $avar $name]
+    trace remove date  w  [list ::struct::matrix::MatTraceOut $avar $name]
 
     unset link($avar)
     return

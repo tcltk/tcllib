@@ -571,13 +571,13 @@ if {[llength [array names ::env STOOOP*]]>0} {
             # check write and unset operations on empty named array holding
             # class data
             uplevel 1 namespace eval $class\
-                [list {::trace variable {} wu ::stooop::checkData}]
+                [list {::trace add variable {} wu ::stooop::checkData}]
         }
         if {[info exists ::env(STOOOPTRACEDATA)]} {
             # trace write and unset operations on empty named array holding
             # class data
             uplevel 1 namespace eval $class [list\
-                "::trace variable {} $trace(dataOperations) ::stooop::traceData"\
+                "::trace add variable {} $trace(dataOperations) ::stooop::traceData"\
             ]
         }
         uplevel 1 ::stooop::_class $args
