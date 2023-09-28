@@ -2212,8 +2212,8 @@ proc ::struct::matrix::_unlink {name avar} {
     upvar #0 $avar    array
     variable ${name}::data
 
-    trace remove array wu [list ::struct::matrix::MatTraceIn  $avar $name]
-    trace remove date  w  [list ::struct::matrix::MatTraceOut $avar $name]
+    trace remove variable array wu [list ::struct::matrix::MatTraceIn  $avar $name]
+    trace remove variable date  w  [list ::struct::matrix::MatTraceOut $avar $name]
 
     unset link($avar)
     return
