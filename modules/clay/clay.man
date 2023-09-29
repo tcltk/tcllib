@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.8.6]
+[vset PACKAGE_VERSION 0.8.7]
 [manpage_begin clay n [vset PACKAGE_VERSION]]
 [keywords oo]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]

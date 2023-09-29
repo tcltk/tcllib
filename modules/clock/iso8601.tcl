@@ -8,7 +8,7 @@
 ## Requisites
 
 package require Tcl 8.5 9
-package provide clock::iso8601 0.1
+package provide clock::iso8601 0.2
 namespace eval ::clock::iso8601 {}
 
 # # ## ### ##### ######## ############# #####################

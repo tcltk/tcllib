@@ -1576,5 +1576,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.8.4
+package provide asn 0.8.5
 

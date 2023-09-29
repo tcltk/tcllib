@@ -14,5 +14,5 @@ namespace eval ::calendar {
 	lappend ::auto_path $home
     }
 
-    package provide [namespace tail [namespace current]] 0.2
+    package provide [namespace tail [namespace current]] 0.3
 }

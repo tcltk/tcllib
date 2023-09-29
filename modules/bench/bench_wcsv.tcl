@@ -98,4 +98,4 @@ proc ::bench::out::csv {data} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::out::csv 0.1.2
+package provide bench::out::csv 0.1.3

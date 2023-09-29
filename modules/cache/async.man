@@ -1,4 +1,4 @@
-[vset Version 0.3.1]
+[vset Version 0.3.2]
 [manpage_begin cache::async n [vset Version]]
 [keywords asynchronous]
 [keywords cache]

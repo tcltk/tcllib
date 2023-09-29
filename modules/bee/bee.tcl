@@ -987,4 +987,4 @@ proc ::bee::decodePush {token string} {
 }
 
 
-package provide bee 0.1
+package provide bee 0.2

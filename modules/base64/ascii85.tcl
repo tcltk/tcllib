@@ -268,4 +268,4 @@ proc ascii85::pad {chars len padchar} {
     return $chars
 }
 
-package provide ascii85 1.0
+package provide ascii85 1.1

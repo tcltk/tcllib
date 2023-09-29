@@ -38,7 +38,7 @@ package require sha1
 package require md5
 package require base64
 
-package provide S3 1.0.3
+package provide S3 1.0.4
 
 namespace eval S3 {
     variable config          ; # A dict holding the current configuration.

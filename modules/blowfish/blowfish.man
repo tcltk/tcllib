@@ -1,4 +1,4 @@
-[vset VERSION 1.0.5]
+[vset VERSION 1.0.6]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin blowfish n [vset VERSION]]
 [see_also 3des]

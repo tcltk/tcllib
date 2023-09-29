@@ -745,7 +745,7 @@ namespace eval ::blowfish {
     unset e
 }
 
-package provide blowfish 1.0.5
+package provide blowfish 1.0.6
 
 # -------------------------------------------------------------------------
 #

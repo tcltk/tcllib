@@ -497,5 +497,5 @@ namespace eval bibtex {
 
 # ### ### ### ######### ######### #########
 ## Ready to go
-package provide bibtex 0.7
+package provide bibtex 0.8
 # EOF

@@ -6,7 +6,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package clay 0.8.6
+# Package clay 0.8.7
 # Meta platform     tcl
 # Meta summary      A minimalist framework for complex TclOO development
 # Meta description  This package introduces the method "clay" to both oo::object
@@ -24,7 +24,7 @@
 # Do not edit directly, tweak the source in build/ and rerun
 # build.tcl
 ###
-package provide clay 0.8.6
+package provide clay 0.8.7
 namespace eval ::clay {}
 
 ###
