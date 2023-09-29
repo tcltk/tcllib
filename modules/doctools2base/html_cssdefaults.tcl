@@ -154,5 +154,5 @@ TH {
 }
 }
 
-package provide doctools::html::cssdefaults 0.1
+package provide doctools::html::cssdefaults 0.2
 return

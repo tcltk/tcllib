@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::fa::dacceptor n 0.1.1]
+[manpage_begin grammar::fa::dacceptor n 0.1.2]
 [keywords acceptance]
 [keywords acceptor]
 [keywords automaton]
@@ -18,7 +18,7 @@
 [require Tcl "8.5 9"]
 [require snit]
 [require struct::set]
-[require grammar::fa::dacceptor [opt 0.1.1]]
+[require grammar::fa::dacceptor [opt 0.1.2]]
 [description]
 [para]
 

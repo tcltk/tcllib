@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin gpx n 0.9]
+[manpage_begin gpx n 1.1]
 [keywords gps]
 [keywords gpx]
 [copyright {2010, Keith Vetter <kvetter@gmail.com>}]
@@ -7,7 +7,7 @@
 [titledesc {Extracts waypoints, tracks and routes from GPX files}]
 [category  {File formats}]
 [require Tcl "8.5 9"]
-[require gpx [opt 0.9]]
+[require gpx [opt 1.1]]
 [description]
 [para]
 

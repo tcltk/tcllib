@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine 1.3
+# Package coroutine 1.4
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta license         BSD
@@ -45,7 +45,6 @@
 # Copyright (c) 2009 Neil Madden
 # Copyright (c) 2009 Peter Spjuth
 
-## $Id: coroutine.tcl,v 1.2 2011/04/18 20:23:58 andreas_kupries Exp $
 # # ## ### ##### ######## #############
 ## Requisites, and ensemble setup.
 
@@ -492,5 +491,5 @@ namespace eval ::coroutine::util {
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1.3
+package provide coroutine 1.4
 return

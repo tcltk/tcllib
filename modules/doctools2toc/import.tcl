@@ -185,5 +185,5 @@ snit::type ::doctools::toc::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::import 0.2.1
+package provide doctools::toc::import 0.2.2
 return

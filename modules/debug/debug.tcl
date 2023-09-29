@@ -302,5 +302,5 @@ namespace eval debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug 1.0.6
+package provide debug 1.0.7
 return

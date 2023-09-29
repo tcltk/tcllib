@@ -29,7 +29,7 @@ package require Tcl 8.5 9
 package require fileutil::magic::rt ; # Runtime core, for Access to the typemap
 package require struct::list        ; # Our data structures.
 
-package provide fileutil::magic::cgen 1.3.0
+package provide fileutil::magic::cgen 1.3.1
 
 # ### ### ### ######### ######### #########
 ## Implementation

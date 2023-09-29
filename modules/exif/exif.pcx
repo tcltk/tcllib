@@ -9,24 +9,24 @@
 
 package require pcx
 pcx::register exif
-pcx::tcldep   1.1.2 needs tcl 8.3
+pcx::tcldep   1.1.3 needs tcl 8.3
 
 namespace eval ::exif {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 1.1.2 std ::exif::analyze \
+pcx::check 1.1.3 std ::exif::analyze \
     {checkSimpleArgs 1 2 {
 	checkChannelID
 	checkFileName
     }}
-pcx::check 1.1.2 std ::exif::analyzeFile \
+pcx::check 1.1.3 std ::exif::analyzeFile \
     {checkSimpleArgs 1 2 {
 	checkFileName
 	checkFileName
     }}
-pcx::check 1.1.2 std ::exif::fieldnames \
+pcx::check 1.1.3 std ::exif::fieldnames \
     {checkAtEnd}
 
 # Initialization via pcx::init.

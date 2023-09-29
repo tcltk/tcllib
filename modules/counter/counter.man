@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin counter n 2.0.4]
+[manpage_begin counter n 2.0.5]
 [keywords counting]
 [keywords histogram]
 [keywords statistics]
@@ -8,7 +8,7 @@
 [titledesc {Procedures for counters and histograms}]
 [category  {Data structures}]
 [require Tcl "8.5 9"]
-[require counter [opt 2.0.4]]
+[require counter [opt 2.0.5]]
 [description]
 [para]
 

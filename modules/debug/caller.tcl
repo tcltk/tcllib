@@ -93,5 +93,5 @@ proc ::debug::Filter {args droplist} {
 # ### ######### ###########################
 ## Ready for use
 
-package provide debug::caller 1.1
+package provide debug::caller 1.2
 return

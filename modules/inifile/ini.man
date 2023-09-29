@@ -1,4 +1,4 @@
-[vset VERSION 0.3.2]
+[vset VERSION 0.3.3]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin inifile n [vset VERSION]]
 [moddesc   {Parsing of Windows INI files}]

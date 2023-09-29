@@ -1513,7 +1513,7 @@ proc ::uri::JoinDns {args} {
 
 catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
 
-package provide dns 1.5.0
+package provide dns 1.6
 
 # -------------------------------------------------------------------------
 # Local Variables:

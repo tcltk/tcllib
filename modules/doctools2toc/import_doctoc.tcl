@@ -87,5 +87,5 @@ proc import {text configuration} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::import::doctoc 0.1
+package provide doctools::toc::import::doctoc 0.2
 return

@@ -1262,4 +1262,4 @@ proc ::counter::Identity {x} {
     return $x
 }
 
-package provide counter 2.0.4
+package provide counter 2.0.5

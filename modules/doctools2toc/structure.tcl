@@ -384,5 +384,5 @@ snit::type ::doctools::toc::structure {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::toc::structure 0.1
+package provide doctools::toc::structure 0.2
 return

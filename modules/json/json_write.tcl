@@ -208,5 +208,5 @@ namespace eval ::json::write {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json::write 1.0.4
+package provide json::write 1.0.5
 return

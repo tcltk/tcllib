@@ -1039,5 +1039,5 @@ snit::type            ::doctools::idx::parse {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::idx::parse 0.1
+package provide doctools::idx::parse 0.2
 return

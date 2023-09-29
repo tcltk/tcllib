@@ -219,5 +219,5 @@ proc FmtR {v str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::json 0.1
+package provide doctools::toc::export::json 0.2
 return

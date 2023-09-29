@@ -206,5 +206,5 @@ proc FmtR {v str} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide doctools::idx::export::docidx 0.1
+package provide doctools::idx::export::docidx 0.2
 return

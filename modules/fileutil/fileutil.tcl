@@ -11,7 +11,7 @@
 
 package require Tcl 8.5 9
 package require cmdline
-package provide fileutil 1.16.1
+package provide fileutil 1.16.2
 
 namespace eval ::fileutil {
     namespace export \

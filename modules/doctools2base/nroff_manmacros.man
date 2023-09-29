@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::nroff::man_macros n 0.1]
+[manpage_begin doctools::nroff::man_macros n 0.2]
 [keywords doctools]
 [keywords export]
 [keywords macros]
@@ -11,7 +11,7 @@
 [titledesc {Default CSS style for NROFF export plugins}]
 [category  {Documentation tools}]
 [require Tcl "8.5 9"]
-[require doctools::nroff::man_macros [opt 0.1]]
+[require doctools::nroff::man_macros [opt 0.2]]
 [description]
 
 This package provides a single command providing access to the

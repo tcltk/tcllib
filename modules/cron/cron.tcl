@@ -615,5 +615,5 @@ namespace eval ::cron {
 }
 
 ::cron::wake STARTUP
-package provide cron 2.1
+package provide cron 2.2
 

@@ -1014,6 +1014,6 @@ proc ::fileutil::magic::rt::Init {} {
 # ### ### ### ######### ######### #########
 ## Ready for use.
 
-package provide fileutil::magic::rt 3.0
+package provide fileutil::magic::rt 3.1
 
 # EOF

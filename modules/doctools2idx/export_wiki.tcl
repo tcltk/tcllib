@@ -159,5 +159,5 @@ proc Map {type id} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::export::wiki 0.2
+package provide doctools::idx::export::wiki 0.3
 return

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::me_vm n 0.1]
+[manpage_begin grammar::me_vm n 0.2]
 [keywords grammar]
 [keywords parsing]
 [keywords {virtual machine}]

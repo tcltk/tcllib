@@ -34,7 +34,7 @@ package require fileutil::magic::rt   ; # Runtime (typemap)
 package require struct::list          ; # lrepeat.
 package require struct::tree          ; #
 
-package provide fileutil::magic::cfront 1.3.0
+package provide fileutil::magic::cfront 1.3.1
 
 # ### ### ### ######### ######### #########
 ## Implementation

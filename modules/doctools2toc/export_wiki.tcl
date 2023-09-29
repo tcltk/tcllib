@@ -140,5 +140,5 @@ proc Map {id} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::wiki 0.1
+package provide doctools::toc::export::wiki 0.2
 return

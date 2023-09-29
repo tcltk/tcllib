@@ -435,8 +435,8 @@ pkgIndex utilpkg
 % the odd man out, we'd better begin with that.
 % \begin{tcl}
 %<*man,utilman>
-%<man>[manpage_begin docstrip n 1.2]
-%<utilman>[vset VERSION 1.3.1]
+%<man>[manpage_begin docstrip n 1.3]
+%<utilman>[vset VERSION 1.3.2]
 %<utilman>[manpage_begin docstrip_util n [vset VERSION]]
 %<man>[see_also docstrip_util]
 %<utilman>[see_also docstrip]
@@ -484,18 +484,18 @@ pkgIndex utilpkg
 % 
 % Next comes the \textsf{docstrip} package version.
 % \begin{tcl}
-%<pkg>package provide docstrip 1.2
-%<idx>package ifneeded docstrip 1.2\
+%<pkg>package provide docstrip 1.3
+%<idx>package ifneeded docstrip 1.3\
 %<idx>  [list source [file join $dir docstrip.tcl]]
-%<man,utilman>[require docstrip [opt 1.2]]
-%<utilpkg>package require docstrip 1.2
+%<man,utilman>[require docstrip [opt 1.3]]
+%<utilpkg>package require docstrip 1.3
 % \end{tcl}
 % The \textsf{docstrip::util} package has a dependency on the 
 % \textsf{docstrip} package, but not the other way around. Hence the 
 % next block is slightly shorter.
 % \begin{tcl}
-%<utilpkg>package provide docstrip::util 1.3.1
-%<idx>package ifneeded docstrip::util 1.3.1\
+%<utilpkg>package provide docstrip::util 1.3.2
+%<idx>package ifneeded docstrip::util 1.3.2\
 %<idx>  [list source [file join $dir docstrip_util.tcl]]
 %<utilman>[require docstrip::util [opt [vset VERSION]]]
 % \end{tcl}

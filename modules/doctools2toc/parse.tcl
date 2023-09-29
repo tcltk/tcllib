@@ -1054,5 +1054,5 @@ snit::type            ::doctools::toc::parse {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::toc::parse 0.1
+package provide doctools::toc::parse 0.2
 return

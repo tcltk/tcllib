@@ -282,4 +282,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.3.4
+package provide json 1.3.5

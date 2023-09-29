@@ -290,5 +290,5 @@ proc ::gpx::_GetAllAttributes {node} {
 }
 ################################################################
 
-package provide gpx 1
+package provide gpx 1.1
 return

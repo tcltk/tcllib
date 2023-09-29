@@ -70,5 +70,5 @@ snit::type ::fileutil::paths {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::paths 1
+package provide fileutil::paths 1.1
 return

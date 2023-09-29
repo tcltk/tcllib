@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset HTML_VERSION 1.5]
+[vset HTML_VERSION 1.6]
 [manpage_begin html n [vset HTML_VERSION]]
 [see_also htmlparse]
 [see_also ncgi]

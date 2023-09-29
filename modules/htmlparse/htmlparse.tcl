@@ -1441,4 +1441,4 @@ proc ::htmlparse::Reorder {tree node} {
 
 # ### ######### ###########################
 
-package provide htmlparse 1.2.2
+package provide htmlparse 1.2.3

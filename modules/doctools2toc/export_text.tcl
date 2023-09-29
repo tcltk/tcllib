@@ -138,5 +138,5 @@ proc Map {id} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::text 0.1
+package provide doctools::toc::export::text 0.2
 return

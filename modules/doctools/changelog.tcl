@@ -275,4 +275,4 @@ proc ::doctools::changelog::toDoctools {title module version entries} {
 #------------------------------------
 # Module initialization
 
-package provide doctools::changelog 1.1
+package provide doctools::changelog 1.2

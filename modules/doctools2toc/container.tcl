@@ -541,5 +541,5 @@ snit::type ::doctools::toc {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc 2
+package provide doctools::toc 2.1
 return

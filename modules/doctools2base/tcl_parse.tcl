@@ -796,5 +796,5 @@ namespace eval ::doctools::tcl {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::tcl::parse 0.1
+package provide doctools::tcl::parse 0.2
 return

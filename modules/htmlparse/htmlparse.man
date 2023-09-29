@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.2.2]
+[vset VERSION 1.2.3]
 [manpage_begin htmlparse n [vset VERSION]]
 [see_also struct::tree]
 [keywords html]

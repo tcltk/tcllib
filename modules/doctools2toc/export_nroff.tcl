@@ -214,5 +214,5 @@ proc .TH {name} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::nroff 0.2
+package provide doctools::toc::export::nroff 0.3
 return

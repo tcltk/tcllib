@@ -117,4 +117,4 @@ proc ::defer::cancel {args} {
 	}
 }
 
-package provide defer 1
+package provide defer 1.1

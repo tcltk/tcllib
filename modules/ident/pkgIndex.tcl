@@ -9,5 +9,5 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
-package ifneeded ident 0.42 [list source [file join $dir ident.tcl]]
+package ifneeded ident 0.43 [list source [file join $dir ident.tcl]]
 

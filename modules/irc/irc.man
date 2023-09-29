@@ -1,4 +1,4 @@
-[vset VERSION 0.7.0]
+[vset VERSION 0.8.0]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin irc n [vset VERSION]]
 [see_also {rfc 1459}]

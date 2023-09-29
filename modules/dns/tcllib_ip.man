@@ -1,4 +1,4 @@
-[vset IP_VERSION 1.4]
+[vset IP_VERSION 1.5]
 [manpage_begin tcllib_ip n [vset IP_VERSION]]
 [see_also inet(3)]
 [see_also ip(7)]

@@ -1,4 +1,4 @@
-[vset COMM_VERSION 4.7.1]
+[vset COMM_VERSION 4.7.2]
 [manpage_begin comm n [vset COMM_VERSION]]
 [see_also send(n)]
 [keywords comm]

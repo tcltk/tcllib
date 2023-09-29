@@ -84,4 +84,4 @@ proc ::interp::snitDictLink {path methoddict} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide interp 0.1.2
+package provide interp 0.1.3

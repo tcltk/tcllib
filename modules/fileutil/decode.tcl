@@ -203,5 +203,5 @@ namespace eval ::fileutil::decode {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide fileutil::decode 0.2.1
+package provide fileutil::decode 0.2.2
 return

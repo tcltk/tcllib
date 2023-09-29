@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::cvs n 1]
-[see_also {[uri}]
+[manpage_begin doctools::cvs n 1.1]
+[see_also uri]
 [see_also http://wiki.tcl.tk/log2changelog]
 [keywords changelog]
 [keywords cvs]
@@ -13,7 +13,7 @@
 [category  {Documentation tools}]
 [require Tcl "8.5 9"]
 [require textutil]
-[require doctools::cvs [opt 1]]
+[require doctools::cvs [opt 1.1]]
 [description]
 
 This package provides Tcl commands for the processing and reformatting
