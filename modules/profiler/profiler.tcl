@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.5 9		;# uses [clock clicks -milliseconds]
-package provide profiler 0.6
+package provide profiler 0.7
 
 namespace eval ::profiler {}
 

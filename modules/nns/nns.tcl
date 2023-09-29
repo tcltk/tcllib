@@ -426,7 +426,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.4.2
+package provide nameserv 0.4.3
 
 ##
 # ### ### ### ######### ######### #########

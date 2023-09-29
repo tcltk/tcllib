@@ -46,5 +46,5 @@ proc export {serial configuration} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::export::json 1
+package provide pt::peg::export::json 1.1
 return

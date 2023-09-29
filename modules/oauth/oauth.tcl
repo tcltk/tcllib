@@ -25,7 +25,7 @@ exec tclsh "$0" "$@"
 #  TODO: create online documentation
 
 package require Tcl 8.5 9
-package provide oauth 1.0.3
+package provide oauth 1.0.4
 
 package require http
 package require tls

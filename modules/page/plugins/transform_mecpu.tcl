@@ -104,4 +104,4 @@ proc page_trun {data} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::transform::mecpu 0.1
+package provide page::transform::mecpu 0.2

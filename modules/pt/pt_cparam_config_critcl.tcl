@@ -490,5 +490,5 @@ namespace eval ::pt::cparam::configuration::critcl {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::cparam::configuration::critcl 1.0.2
+package provide pt::cparam::configuration::critcl 1.0.3
 return

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::roman "" 1.0]
+[manpage_begin math::roman "" 1.1]
 [keywords conversion]
 [keywords integer]
 [keywords {roman numeral}]
@@ -8,7 +8,7 @@
 [titledesc {Tools for creating and manipulating roman numerals}]
 [category  Mathematics]
 [require Tcl "8.5 9"]
-[require math::roman [opt 1.0]]
+[require math::roman [opt 1.1]]
 [description]
   [para]
     [cmd ::math::roman] is a pure-Tcl library for converting between integers

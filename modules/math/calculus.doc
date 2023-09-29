@@ -1,7 +1,7 @@
 [pageheader "Package: Calculus"]
 [synopsis \
 {package require Tcl 8.5 9
-package require math::calculus 0.5
+package require math::calculus 1.1
 ::math::calculus::integral begin end nosteps func
 ::math::calculus::integralExpr begin end nosteps expression
 ::math::calculus::integral2D xinterval yinterval func

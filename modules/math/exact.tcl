@@ -25,7 +25,7 @@
 #-----------------------------------------------------------------------------
 
 package require Tcl 8.6 9
-package require grammar::aycock 1.0
+package require grammar::aycock 1.1
 
 namespace eval math::exact {
 
@@ -4055,6 +4055,6 @@ namespace eval ::math::exact {
     namespace export exactexpr abs1 signum1
 }
 
-package provide math::exact 1.0.1
+package provide math::exact 1.0.2
 
 #-----------------------------------------------------------------------

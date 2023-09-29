@@ -137,5 +137,5 @@ namespace eval ::pt::tclparam::configuration::snit {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::snit 1.0.2
+package provide pt::tclparam::configuration::snit 1.0.3
 return

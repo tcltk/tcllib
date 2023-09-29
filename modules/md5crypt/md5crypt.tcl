@@ -143,7 +143,7 @@ if {[info commands ::md5crypt::md5crypt_c] == {}} {
 
 # -------------------------------------------------------------------------
 
-package provide md5crypt 1.1.0
+package provide md5crypt 1.2.0
 
 # -------------------------------------------------------------------------
 # Local Variables:

@@ -1,4 +1,4 @@
-[manpage_begin math::fourier n 1.0.2]
+[manpage_begin math::fourier n 1.0.3]
 [keywords {complex numbers}]
 [keywords FFT]
 [keywords {Fourier transform}]
@@ -7,7 +7,7 @@
 [titledesc {Discrete and fast fourier transforms}]
 [category  Mathematics]
 [require Tcl "8.5 9"]
-[require math::fourier 1.0.2]
+[require math::fourier 1.0.3]
 [description]
 [para]
 

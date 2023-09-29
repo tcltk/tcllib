@@ -142,5 +142,5 @@ snit::type pt::peg::container::peg {
     delegate method * to myg
 }
 
-package provide pt::peg::container::peg 1
+package provide pt::peg::container::peg 1.1
 return

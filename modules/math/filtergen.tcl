@@ -247,4 +247,4 @@ namespace eval ::math::filters {
     namespace export filterButterworth filter filterObject
 }
 
-package provide math::filters 0.1
+package provide math::filters 0.2

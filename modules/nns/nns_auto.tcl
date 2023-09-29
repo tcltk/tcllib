@@ -437,7 +437,7 @@ uevent::bind nameserv lost-connection ::nameserv::auto::Reconnect
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::auto 0.3
+package provide nameserv::auto 0.4
 
 ##
 # ### ### ### ######### ######### #########

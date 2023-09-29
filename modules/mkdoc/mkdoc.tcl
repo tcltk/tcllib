@@ -30,7 +30,7 @@
 #
 ##############################################################################
 #' ---
-#' title: mkdoc::mkdoc 0.7.0
+#' title: mkdoc::mkdoc 0.7.1
 #' author: Detlef Groth, Schwielowsee, Germany
 #' css: mkdoc.css
 #' ---
@@ -125,7 +125,7 @@ package require yaml
 package require Markdown
 package require hook
 
-package provide mkdoc 0.7.0
+package provide mkdoc 0.7.1
 
 namespace eval mkdoc {
     variable deindent [list \n\t \n "\n    " \n]

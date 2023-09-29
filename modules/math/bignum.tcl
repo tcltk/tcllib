@@ -897,4 +897,4 @@ namespace eval ::math::bignum {
 
 # Announce the package
 
-package provide math::bignum 3.1.1
+package provide math::bignum 3.1.2

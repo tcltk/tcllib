@@ -1,4 +1,4 @@
-[vset VERSION 1.0.1]
+[vset VERSION 1.0.2]
 [manpage_begin math::exact n [vset VERSION]]
 [copyright "2015 Kevin B. Kenny <kennykb@acm.org>
 Redistribution permitted under the terms of the Open\

@@ -1,4 +1,4 @@
-[vset VERSION 1.0.0]
+[vset VERSION 1.1]
 [manpage_begin math::trig n [vset VERSION]]
 [keywords math trigonometry]
 [copyright {2018 Arjen Markus}]

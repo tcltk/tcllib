@@ -855,7 +855,7 @@ namespace eval ::ripemd::ripemd160 {
     unset e
 }
 
-package provide ripemd160 1.0.5
+package provide ripemd160 1.0.6
 
 # -------------------------------------------------------------------------
 # Local Variables:

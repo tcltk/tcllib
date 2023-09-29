@@ -282,4 +282,4 @@ apply {{} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.8
+package provide map::slippy 0.9

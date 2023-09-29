@@ -88,4 +88,4 @@ snit::type map::geocode::nominatim {
     # none, so far
 }
 
-package provide map::geocode::nominatim 0.2
+package provide map::geocode::nominatim 0.3

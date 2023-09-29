@@ -332,4 +332,4 @@ proc ::namespacex::state::set {ns state} {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide namespacex 0.3
+package provide namespacex 0.4

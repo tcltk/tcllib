@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- paths manpage}]
-[manpage_begin pluginmgr n 0.3]
+[manpage_begin pluginmgr n 0.4]
 [keywords {plugin management}]
 [keywords {plugin search}]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -7,7 +7,7 @@
 [titledesc {Manage a plugin}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require pluginmgr [opt 0.3]]
+[require pluginmgr [opt 0.4]]
 [description]
 
 This package provides commands and objects for the generic management

@@ -558,7 +558,7 @@ namespace eval ::md4 {
     unset e
 }
 
-package provide md4 1.0.7
+package provide md4 1.0.8
 
 # -------------------------------------------------------------------------
 # Local Variables:

@@ -1277,7 +1277,7 @@ proc ::math::optimize::SimplexNewTableau {tableau nextcol nextrow vector} {
 }
 
 # Now we can announce our presence
-package provide math::optimize 1.0.1
+package provide math::optimize 1.0.2
 
 if { ![info exists ::argv0] || [string compare $::argv0 [info script]] } {
     return

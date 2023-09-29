@@ -527,4 +527,4 @@ snit::type ::pt::peg::container {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::peg::container 1
+package provide pt::peg::container 1.1

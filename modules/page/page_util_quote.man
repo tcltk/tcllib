@@ -8,7 +8,7 @@
 [moddesc   {Parser generator tools}]
 [titledesc {page character quoting utilities}]
 [category  {Page Parser Generator}]
-[require page::util::quote [opt 0.1]]
+[require page::util::quote [opt 0.2]]
 [require snit]
 [description]
 [para]

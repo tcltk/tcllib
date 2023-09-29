@@ -1,4 +1,4 @@
-[manpage_begin math n 1.2.5]
+[manpage_begin math n 1.2.6]
 [keywords math]
 [keywords statistics]
 [comment {-*- tcl -*- doctools manpage}]
@@ -6,7 +6,7 @@
 [titledesc {Tcl Math Library}]
 [category  Mathematics]
 [require Tcl "8.5 9"]
-[require math [opt 1.2.5]]
+[require math [opt 1.2.6]]
 [description]
 [para]
 

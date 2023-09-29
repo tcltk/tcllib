@@ -4,4 +4,4 @@ if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     # PRAGMA: returnok
     return
 }
-package ifneeded oo::util 1.2.2 [list source [file join $dir ooutil.tcl]]
+package ifneeded oo::util 1.2.3 [list source [file join $dir ooutil.tcl]]

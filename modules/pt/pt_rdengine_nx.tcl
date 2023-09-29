@@ -138,7 +138,7 @@ namespace eval ::pt::rde {
   namespace export nx
 }
 
-package provide pt::rde::nx [package req pt::rde::oo].1.1
+package provide pt::rde::nx [package req pt::rde::oo].1.2
 
 # Local variables:
 #    mode: tcl

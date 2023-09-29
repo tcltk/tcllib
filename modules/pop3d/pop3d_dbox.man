@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[manpage_begin pop3d::dbox n 1.0.2]
+[manpage_begin pop3d::dbox n 1.0.3]
 [keywords internet]
 [keywords network]
 [keywords pop3]
@@ -10,7 +10,7 @@
 [titledesc {Simple mailbox database for pop3d}]
 [category  Networking]
 [require Tcl "8.5 9"]
-[require pop3d::dbox [opt 1.0.2]]
+[require pop3d::dbox [opt 1.0.3]]
 [description]
 [para]
 

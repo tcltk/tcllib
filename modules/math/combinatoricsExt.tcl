@@ -10,7 +10,7 @@
 #
 package require Tcl 8.6 9
 package require TclOO
-package provide math::combinatorics 2.0
+package provide math::combinatorics 2.1
 
 # ::math::combinatorics --
 #     Encompassing namespace and auxiliary variables

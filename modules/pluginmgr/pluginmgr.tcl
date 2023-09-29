@@ -426,4 +426,4 @@ snit::type ::pluginmgr {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pluginmgr 0.3
+package provide pluginmgr 0.4

@@ -245,5 +245,5 @@ namespace eval ::text::write {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide text::write 1
+package provide text::write 1.1
 return

@@ -1,4 +1,4 @@
-[vset VERSION 0.9.4]
+[vset VERSION 0.9.5]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin logger n [vset VERSION]]
 [keywords log]

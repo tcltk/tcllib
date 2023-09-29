@@ -7,7 +7,7 @@
 #     3. Maximisation via Lipschitz Optimisation
 #
 package require Tcl 8.5 9
-package provide math::probopt 1.0
+package provide math::probopt 1.1
 
 namespace eval ::math::probopt {}
 

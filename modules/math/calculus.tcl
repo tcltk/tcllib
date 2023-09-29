@@ -12,7 +12,7 @@
 
 package require Tcl 8.5 9;# lrepeat
 package require math::interpolate
-package provide math::calculus 1.0
+package provide math::calculus 1.1
 
 # math::calculus --
 #    Namespace for the commands

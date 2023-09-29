@@ -9,7 +9,7 @@
 
 package require Tcl 8.6 9         ; #
 package require Tk  8.6-         ; # image photo - Note: directly supports PNG format
-package require map::slippy 0.8 ; # Slippy base (constants, validation)
+package require map::slippy 0.9 ; # Slippy base (constants, validation)
 package require fileutil        ; # Testing paths
 package require snit
 
@@ -140,4 +140,4 @@ snit::type map::slippy::cache {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::cache 0.4
+package provide map::slippy::cache 0.5

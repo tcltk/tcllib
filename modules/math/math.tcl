@@ -40,5 +40,5 @@ namespace eval ::math {
 	source [file join [file dirname [info script]] combinatorics.tcl]
     }
 
-    package provide [namespace tail [namespace current]] 1.2.5
+    package provide [namespace tail [namespace current]] 1.2.6
 }

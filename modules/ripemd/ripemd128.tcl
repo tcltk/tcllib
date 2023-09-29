@@ -722,7 +722,7 @@ namespace eval ::ripemd::ripemd128 {
     unset e
 }
 
-package provide ripemd128 1.0.5
+package provide ripemd128 1.0.6
 
 # -------------------------------------------------------------------------
 # Local Variables:

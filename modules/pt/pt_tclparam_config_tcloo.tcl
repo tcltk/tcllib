@@ -117,5 +117,5 @@ namespace eval ::pt::tclparam::configuration::tcloo {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::tcloo 1.0.4
+package provide pt::tclparam::configuration::tcloo 1.0.5
 return

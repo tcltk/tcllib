@@ -186,4 +186,4 @@ proc ::oo::Helpers::link {args} {
 # # ## ### ##### ######## ############# ####################
 ## Ready
 
-package provide oo::util 1.2.2
+package provide oo::util 1.2.3

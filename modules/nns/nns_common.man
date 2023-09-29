@@ -1,4 +1,4 @@
-[manpage_begin nameserv::common n 0.1]
+[manpage_begin nameserv::common n 0.2]
 [see_also nameserv::client(n)]
 [see_also nameserv::server(n)]
 [keywords client]
@@ -9,7 +9,7 @@
 [titledesc {Name service facility, shared definitions}]
 [category  Networking]
 [require Tcl "8.5 9"]
-[require nameserv::common [opt 0.1]]
+[require nameserv::common [opt 0.2]]
 [description]
 
 Please read [term {Name service facility, introduction}] first.

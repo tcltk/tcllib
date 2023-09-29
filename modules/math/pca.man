@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::PCA n 1.0]
+[manpage_begin math::PCA n 1.1]
 [keywords PCA]
 [keywords statistics]
 [keywords math]
@@ -8,7 +8,7 @@
 [titledesc {Package for Principal Component Analysis}]
 [category  Mathematics]
 [require Tcl [opt "8.6 9"]]
-[require math::linearalgebra 1.0]
+[require math::linearalgebra 1.1]
 
 [description]
 [para]

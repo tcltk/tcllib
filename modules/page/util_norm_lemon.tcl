@@ -424,4 +424,4 @@ proc ::page::util::norm::lemon::TokReduce {t src attr} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::util::norm::lemon 0.1
+package provide page::util::norm::lemon 0.2

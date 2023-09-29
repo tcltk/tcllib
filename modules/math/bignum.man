@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::bignum n 3.1]
+[manpage_begin math::bignum n 3.1.2]
 [keywords bignums]
 [keywords math]
 [keywords multiprecision]
@@ -10,7 +10,7 @@
 [titledesc {Arbitrary precision integer numbers}]
 [category  Mathematics]
 [require Tcl [opt "8.5 9"]]
-[require math::bignum [opt 3.1]]
+[require math::bignum [opt 3.1.2]]
 
 [description]
 [para]

@@ -1025,5 +1025,5 @@ namespace eval ::pt::peg::to::param {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::param 1.0.1
+package provide pt::peg::to::param 1.0.2
 return

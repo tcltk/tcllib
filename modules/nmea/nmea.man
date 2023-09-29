@@ -1,4 +1,4 @@
-[manpage_begin nmea n 1.0.0]
+[manpage_begin nmea n 1.1.0]
 [keywords gps]
 [keywords nmea]
 [copyright {2006-2009, Aaron Faupell <afaupell@users.sourceforge.net>}]
@@ -6,7 +6,7 @@
 [titledesc {Process NMEA data}]
 [category Networking]
 [require Tcl "8.5 9"]
-[require nmea [opt 1.0.0]]
+[require nmea [opt 1.1.0]]
 [description]
 [para]
 

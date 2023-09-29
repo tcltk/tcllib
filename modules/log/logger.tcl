@@ -14,7 +14,7 @@
 
 
 package require Tcl 8.5 9
-package provide logger 0.9.4
+package provide logger 0.9.5
 
 namespace eval ::logger {
     namespace eval tree {}

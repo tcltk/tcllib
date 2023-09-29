@@ -1,4 +1,4 @@
-[vset VERSION 0.8]
+[vset VERSION 0.9]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::slippy n [vset VERSION]]
 [keywords geodesy]
@@ -18,7 +18,7 @@
 This package provides a number of methods doing things needed by all types of slippy-based map
 packages.
 
-[para][strong BEWARE], [strong Attention] Version [strong 0.8] is [strong {NOT backward compatible}]
+[para][strong BEWARE], [strong Attention] Version [strong 0.9] is [strong {NOT backward compatible}]
 with version 0.7 and earlier.  The entire API was [strong {heavily revised and changed}].
 
 [para][strong Note:] For the representation of locations in the various coordinate systems used by

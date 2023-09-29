@@ -1,13 +1,13 @@
 [comment {-*- mode: tcl ;fill-column: 90 -*- doctools manpage}]
-[vset VERSION 0.7.0]
+[vset VERSION 0.7.1]
 [manpage_begin mkdoc n [vset VERSION]]
 [copyright {2019-2022, Detlef Groth <detlef(at)dgroth(dot)de>}]
 [moddesc   {Source code documentation using Markdown}]
 [titledesc {Extracts and optionally converts Markdown comments in source code to HTML}]
 [category  {Text processing}]
 [require Tcl "8.6 9"]
-[require Markdown [opt 1.2.1]]
-[require yaml [opt 0.4.1]]
+[require Markdown [opt 1.2.2]]
+[require yaml [opt 0.4.2]]
 [require mkdoc [opt [vset VERSION]]]
 [require hook]
 [description]
@@ -97,7 +97,7 @@ as well.
 
 [example {
     #' ---
-    #' title: mkdoc::mkdoc 0.7.0
+    #' title: mkdoc::mkdoc 0.7.1
     #' author: Detlef Groth, Schwielowsee, Germany
     #' date: 2022-04-17 
     #' css: mini.css 

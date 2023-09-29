@@ -382,4 +382,4 @@ snit::type ::pt::peg::interp {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::peg::interp 1.0.1
+package provide pt::peg::interp 1.0.2

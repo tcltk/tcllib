@@ -1,4 +1,4 @@
-[vset VERSION 0.6]
+[vset VERSION 0.7]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin profiler n [vset VERSION]]
 [keywords performance]
