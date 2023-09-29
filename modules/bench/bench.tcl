@@ -548,4 +548,4 @@ namespace eval ::bench {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench 0.4
+package provide bench 0.5

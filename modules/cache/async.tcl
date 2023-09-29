@@ -182,4 +182,4 @@ snit::type cache::async {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide cache::async 0.3.1
+package provide cache::async 0.3.2

@@ -159,4 +159,4 @@ proc ::bench::in::RDtext {chan} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::in 0.1
+package provide bench::in 0.2

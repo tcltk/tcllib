@@ -162,4 +162,4 @@ proc ::bench::out::PADR {max str} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::out::text 0.1.2
+package provide bench::out::text 0.1.3

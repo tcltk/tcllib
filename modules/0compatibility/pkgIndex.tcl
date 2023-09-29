@@ -17,10 +17,10 @@
 
 if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 
-package ifneeded configuration    1   [list source [file join $dir p_config.tcl]]
-package ifneeded doctools::config 0.1 [list source [file join $dir d_config.tcl]]
-package ifneeded doctools::paths  0.1 [list source [file join $dir d_paths.tcl]]
-package ifneeded paths            1   [list source [file join $dir p_paths.tcl]]
+package ifneeded configuration    1.1   [list source [file join $dir p_config.tcl]]
+package ifneeded doctools::config 0.2 [list source [file join $dir d_config.tcl]]
+package ifneeded doctools::paths  0.2 [list source [file join $dir d_paths.tcl]]
+package ifneeded paths            1.1   [list source [file join $dir p_paths.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.6]} {return}
 

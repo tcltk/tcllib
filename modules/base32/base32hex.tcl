@@ -179,4 +179,4 @@ namespace eval ::base32::hex {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide base32::hex 0.1
+package provide base32::hex 0.2
