@@ -79,7 +79,7 @@ proc ::fileutil::magic::filetype file {
 }
 
 
-package provide fileutil::magic::filetype 2.0.1
+package provide fileutil::magic::filetype 2.0.2
 
 
 namespace eval ::fileutil::magic::filetype {

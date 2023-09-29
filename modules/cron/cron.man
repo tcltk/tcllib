@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 2.1]
+[vset PACKAGE_VERSION 2.2]
 [manpage_begin cron n [vset PACKAGE_VERSION]]
 [keywords {cron}]
 [keywords {odie}]

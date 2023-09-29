@@ -319,5 +319,5 @@ proc Extend {varname} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::html 0.1
+package provide doctools::toc::export::html 0.2
 return

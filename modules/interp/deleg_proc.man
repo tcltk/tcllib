@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin deleg_proc n 0.2]
+[manpage_begin deleg_proc n 0.3]
 [keywords comm]
 [keywords delegation]
 [keywords interpreter]
@@ -9,7 +9,7 @@
 [titledesc {Creation of comm delegates (procedures)}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require interp::delegate::proc [opt 0.2]]
+[require interp::delegate::proc [opt 0.3]]
 [description]
 [para]
 

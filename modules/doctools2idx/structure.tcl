@@ -284,5 +284,5 @@ snit::type ::doctools::idx::structure {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::idx::structure 0.1
+package provide doctools::idx::structure 0.2
 return

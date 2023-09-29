@@ -1,4 +1,4 @@
-[manpage_begin jpeg n 0.5]
+[manpage_begin jpeg n 0.6]
 [keywords comment]
 [keywords exif]
 [keywords image]
@@ -13,7 +13,7 @@
 [titledesc {JPEG querying and manipulation of meta data}]
 [category  {File formats}]
 [require Tcl "8.5 9"]
-[require jpeg [opt 0.5]]
+[require jpeg [opt 0.6]]
 [description]
 [para]
 

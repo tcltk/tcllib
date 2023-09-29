@@ -205,5 +205,5 @@ namespace eval ::doctools::html {
 }
 
 # # ## ### ##### ######## ############# #####################
-package provide doctools::html 0.1
+package provide doctools::html 0.2
 return

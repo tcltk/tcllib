@@ -43,5 +43,5 @@ namespace eval ::debug::timestamp {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug::timestamp 1
+package provide debug::timestamp 1.1
 return

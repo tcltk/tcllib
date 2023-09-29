@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::peg::interp n 0.1.1]
+[manpage_begin grammar::peg::interp n 0.1.2]
 [keywords {context-free languages}]
 [keywords expression]
 [keywords grammar]
@@ -21,7 +21,7 @@
 [category  {Grammars and finite automata}]
 [require Tcl "8.5 9"]
 [require grammar::mengine     [opt 0.1]]
-[require grammar::peg::interp [opt 0.1.1]]
+[require grammar::peg::interp [opt 0.1.2]]
 [description]
 [para]
 

@@ -13,7 +13,7 @@
 #
 #----------------------------------------------------------------------
 
-package provide grammar::aycock::runtime 1.0
+package provide grammar::aycock::runtime 1.1
 package require Tcl 8.5 9
 
 # Define the directory containing this package's scripts

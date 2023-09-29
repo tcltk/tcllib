@@ -548,7 +548,7 @@ source [file join [file dirname [info script]] ipMore.tcl]
 
 # -------------------------------------------------------------------------
 
-package provide ip 1.4
+package provide ip 1.5
 
 # -------------------------------------------------------------------------
 # Local Variables:

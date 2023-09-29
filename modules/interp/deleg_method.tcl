@@ -61,4 +61,4 @@ snit::macro ::interp::delegate::method {args} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide interp::delegate::method 0.2
+package provide interp::delegate::method 0.3

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::me::util n 0.1]
+[manpage_begin grammar::me::util n 0.2]
 [keywords {abstract syntax tree}]
 [keywords {syntax tree}]
 [keywords tree]
@@ -8,7 +8,7 @@
 [titledesc {AST utilities}]
 [category  {Grammars and finite automata}]
 [require Tcl "8.5 9"]
-[require grammar::me::util [opt 0.1]]
+[require grammar::me::util [opt 0.2]]
 [description]
 [para]
 

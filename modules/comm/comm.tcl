@@ -1804,4 +1804,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.7.1
+package provide comm 4.7.2

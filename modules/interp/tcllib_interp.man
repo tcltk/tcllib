@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin interp n 0.1.2]
+[manpage_begin interp n 0.1.3]
 [keywords alias]
 [keywords {empty interpreter}]
 [keywords interpreter]
@@ -10,7 +10,7 @@
 [titledesc {Interp creation and aliasing}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require interp [opt 0.1.2]]
+[require interp [opt 0.1.3]]
 [description]
 [para]
 

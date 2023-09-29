@@ -1,4 +1,4 @@
-[manpage_begin control n 0.1.3]
+[manpage_begin control n 0.1.4]
 [see_also break]
 [see_also continue]
 [see_also expr]
@@ -18,7 +18,7 @@
 [titledesc {Procedures for control flow structures.}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require control [opt 0.1.3]]
+[require control [opt 0.1.4]]
 [description]
 [para]
 

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin deleg_method n 0.2]
+[manpage_begin deleg_method n 0.3]
 [keywords comm]
 [keywords delegation]
 [keywords interpreter]
@@ -11,7 +11,7 @@
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
 [require snit [opt 1.1]]
-[require interp::delegate::method [opt 0.2]]
+[require interp::delegate::method [opt 0.3]]
 [description]
 [para]
 

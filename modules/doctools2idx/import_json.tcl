@@ -74,5 +74,5 @@ proc import {text configuration} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::import::json 0.1
+package provide doctools::idx::import::json 0.2
 return

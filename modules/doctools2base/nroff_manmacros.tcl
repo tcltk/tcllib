@@ -257,5 +257,5 @@ Database Class:	\\fB\\$3\\fR
 \\$1\l'|0\(ul'\\$2
 ..}
 
-package provide doctools::nroff::man_macros 0.1
+package provide doctools::nroff::man_macros 0.2
 return

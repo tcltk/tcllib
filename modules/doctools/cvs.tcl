@@ -131,4 +131,4 @@ proc ::doctools::cvs::toChangeLog {evar cvar fvar} {
 #------------------------------------
 # Module initialization
 
-package provide doctools::cvs 1
+package provide doctools::cvs 1.1

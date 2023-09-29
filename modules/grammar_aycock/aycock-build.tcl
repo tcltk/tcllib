@@ -13,13 +13,13 @@
 #
 #----------------------------------------------------------------------
 
-package provide grammar::aycock 1.0
+package provide grammar::aycock 1.1
 package require Tcl 8.5 9
 
 # Bring in procedures that aid in debugging a parser; they will in turn
 # bring in procedures that implement the runtime system.
 
-package require grammar::aycock::debug 1.0
+package require grammar::aycock::debug 1.1
 
 namespace eval grammar::aycock {
 

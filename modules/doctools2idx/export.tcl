@@ -119,5 +119,5 @@ snit::type ::doctools::idx::export {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::export 0.2.1
+package provide doctools::idx::export 0.2.2
 return

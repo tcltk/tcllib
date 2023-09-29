@@ -1,4 +1,4 @@
-[vset CKSUM_VERSION 1.1.4]
+[vset CKSUM_VERSION 1.1.5]
 [manpage_begin cksum n [vset CKSUM_VERSION]]
 [see_also crc32(n)]
 [see_also sum(n)]

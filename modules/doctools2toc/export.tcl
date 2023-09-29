@@ -119,5 +119,5 @@ snit::type ::doctools::toc::export {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export 0.2.1
+package provide doctools::toc::export 0.2.2
 return

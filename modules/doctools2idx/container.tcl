@@ -401,5 +401,5 @@ snit::type ::doctools::idx {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx 2
+package provide doctools::idx 2.1
 return

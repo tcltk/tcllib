@@ -8,7 +8,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Parsing text in doctoc format}]
 [category  {Documentation tools}]
-[require doctools::toc::parse [opt 0.1]]
+[require doctools::toc::parse [opt 0.2]]
 [require Tcl "8.5 9"]
 [require doctools::toc::structure]
 [require doctools::msgcat]

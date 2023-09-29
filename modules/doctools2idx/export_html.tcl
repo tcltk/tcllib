@@ -417,5 +417,5 @@ proc Extend {varname} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::export::html 0.2
+package provide doctools::idx::export::html 0.3
 return

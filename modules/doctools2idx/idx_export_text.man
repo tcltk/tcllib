@@ -3,5 +3,5 @@
 [vset NAME    {plain text}]
 [vset REQUIRE text]
 [vset CONFIG  text]
-[vset VERSION 0.2]
+[vset VERSION 0.3]
 [include include/export/plugin.inc]

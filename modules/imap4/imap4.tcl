@@ -55,7 +55,7 @@
 #   20130212: Missing chan parameter added to all imaptotcl* procs -ger
 
 package require Tcl 8.5 9
-package provide imap4 0.5.3
+package provide imap4 0.5.4
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.

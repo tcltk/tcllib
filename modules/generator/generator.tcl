@@ -9,7 +9,7 @@
 #
 
 package require Tcl         8.6-
-package provide generator   0.2
+package provide generator   0.3
 
 namespace eval generator {
     namespace export {[a-z]*}

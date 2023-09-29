@@ -642,4 +642,4 @@ snit::type ::fileutil::multi::op {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi::op 0.5.3
+package provide fileutil::multi::op 0.5.4

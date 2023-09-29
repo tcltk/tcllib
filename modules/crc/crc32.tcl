@@ -373,7 +373,7 @@ namespace eval ::crc {
     unset e
 }
 
-package provide crc32 1.3.3
+package provide crc32 1.3.4
 
 # -------------------------------------------------------------------------
 #

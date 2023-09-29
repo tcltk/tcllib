@@ -390,4 +390,4 @@ proc ::fileutil::traverse::BadLink {current} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.6
+package provide fileutil::traverse 0.7

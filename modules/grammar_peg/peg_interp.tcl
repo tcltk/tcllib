@@ -347,4 +347,4 @@ namespace eval ::grammar::peg::interp {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::peg::interp 0.1.1
+package provide grammar::peg::interp 0.1.2

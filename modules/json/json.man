@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.3.4]
+[vset VERSION 1.3.5]
 [manpage_begin json n [vset VERSION]]
 [keywords {data exchange}]
 [keywords {exchange format}]

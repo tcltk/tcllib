@@ -65,4 +65,4 @@ proc ::interp::delegate::proc {args} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide interp::delegate::proc 0.2
+package provide interp::delegate::proc 0.3

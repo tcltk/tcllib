@@ -1239,4 +1239,4 @@ snit::type ::grammar::fa {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa 0.5
+package provide grammar::fa 0.6

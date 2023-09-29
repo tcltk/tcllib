@@ -23,4 +23,4 @@ mcset de docidx/key/syntax		{[key] ist hier nicht erlaubt}
 
 mcset de docidx/ref/redef               {Fehlerhafte Verwendung der Referenz "%1$s", zuerst (%2$s "%3$s"), jetzt (%4$s "%5$s")}
 
-package provide doctools::msgcat::idx::de 0.1
+package provide doctools::msgcat::idx::de 0.2

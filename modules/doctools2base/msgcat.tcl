@@ -55,5 +55,5 @@ namespace eval ::doctools::msgcat {
     namespace export init
 }
 
-package provide doctools::msgcat 0.1
+package provide doctools::msgcat 0.2
 return

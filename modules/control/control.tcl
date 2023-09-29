@@ -20,5 +20,5 @@ namespace eval ::control {
 	lappend ::auto_path $home
     }
 
-    package provide [namespace tail [namespace current]] 0.1.3
+    package provide [namespace tail [namespace current]] 0.1.4
 }

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.13.0]
+[vset VERSION 0.14.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]

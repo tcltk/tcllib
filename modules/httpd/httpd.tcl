@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.6 9
-package provide httpd 4.3.5
+package provide httpd 4.3.6
 namespace eval ::httpd {}
-set ::httpd::version 4.3.5
+set ::httpd::version 4.3.6
 ###
 # START: core.tcl
 ###

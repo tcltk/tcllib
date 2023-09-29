@@ -2,7 +2,7 @@
 # Tool to download file from the web
 # Enhacements to http
 ###
-package provide http::wget 0.1
+package provide http::wget 0.2
 package require http
 
 ::namespace eval ::http {}
