@@ -1,4 +1,4 @@
-[manpage_begin otp n 1.0.0]
+[manpage_begin otp n 1.1.0]
 [see_also md4]
 [see_also md5]
 [see_also ripemd160]
@@ -14,7 +14,7 @@
 [titledesc {One-Time Passwords}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl "8.5 9"]
-[require otp [opt 1.0.0]]
+[require otp [opt 1.1.0]]
 [description]
 [para]
 

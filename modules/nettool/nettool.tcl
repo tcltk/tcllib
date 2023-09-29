@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.5 9
-package provide nettool 0.5.2
+package provide nettool 0.5.3
 namespace eval ::nettool {}
-set ::nettool::version 0.5.2
+set ::nettool::version 0.5.3
 
 ###
 # START: core.tcl

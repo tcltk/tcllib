@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin pt::param n 1]
+[manpage_begin pt::param n 1.1]
 [keywords {virtual machine}]
 [include include/module.inc]
 [titledesc {PackRat Machine Specification}]

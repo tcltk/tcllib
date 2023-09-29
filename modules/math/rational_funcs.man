@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::rationalfunctions n 1.0.1]
+[manpage_begin math::rationalfunctions n 1.0.2]
 [keywords math]
 [keywords {rational functions}]
 [copyright {2005 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
@@ -7,7 +7,7 @@
 [titledesc {Polynomial functions}]
 [category  Mathematics]
 [require Tcl [opt "8.5 9"]]
-[require math::rationalfunctions [opt 1.0.1]]
+[require math::rationalfunctions [opt 1.0.2]]
 
 [description]
 [para]

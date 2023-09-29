@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin lambda n 1]
+[manpage_begin lambda n 1.1]
 [see_also apply(n)]
 [see_also proc(n)]
 [keywords {anonymous procedure}]
@@ -14,7 +14,7 @@
 [titledesc {Utility commands for anonymous procedures}]
 [category  Utility]
 [require Tcl "8.5 9"]
-[require lambda [opt 1]]
+[require lambda [opt 1.1]]
 [description]
 [para]
 

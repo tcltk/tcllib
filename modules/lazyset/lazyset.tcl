@@ -85,4 +85,4 @@ proc ::lazyset::variable {args} {
 	return
 }
 
-package provide lazyset 1
+package provide lazyset 1.1

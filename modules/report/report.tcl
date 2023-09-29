@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.5 9
-package provide report 0.4
+package provide report 0.5
 
 namespace eval ::report {
     # Data storage in the report module

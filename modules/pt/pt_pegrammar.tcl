@@ -376,5 +376,5 @@ namespace eval ::pt::peg {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::peg 1
+package provide pt::peg 1.1
 return

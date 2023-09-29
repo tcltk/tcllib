@@ -2221,4 +2221,4 @@ namespace eval ::math::bigfloat {
 # (AM) No "namespace import" - this should be left to the user!
 #namespace import ::math::bigfloat::*
 
-package provide math::bigfloat 2.0.4
+package provide math::bigfloat 2.0.5

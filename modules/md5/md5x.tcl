@@ -728,7 +728,7 @@ namespace eval ::md5 {
     unset    e
 }
 
-package provide md5 2.0.8
+package provide md5 2.0.9
 
 # -------------------------------------------------------------------------
 # Local Variables:

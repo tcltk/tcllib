@@ -14,7 +14,7 @@
 package require Tcl 8.5 9
 package require cmdline
 package require log
-package provide pop3 1.10
+package provide pop3 1.11
 
 namespace eval ::pop3 {
 

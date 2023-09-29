@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt_parse_peg i 1]
+[manpage_begin pt_parse_peg i 1.1]
 [include include/module.inc]
 [titledesc {Parser Tools PEG Parser}]
 [require pt::parse::peg 1]

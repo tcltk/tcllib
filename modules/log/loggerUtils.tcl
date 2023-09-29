@@ -531,7 +531,7 @@ proc ::logger::utils::autoApplyAppender {command command-string log op args} {
 }
 
 
-package provide logger::utils 1.3.1
+package provide logger::utils 1.3.2
 
 # ;;; Local Variables: ***
 # ;;; mode: tcl ***

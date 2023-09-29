@@ -87,4 +87,4 @@ snit::type ::page::util::flow::iter {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::util::flow 0.1
+package provide page::util::flow 0.2

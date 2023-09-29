@@ -20,7 +20,7 @@
 package require Tcl 8.6 9
 package require TclOO
 package require math::statistics
-package provide math::changepoint 0.1
+package provide math::changepoint 0.2
 
 namespace eval ::math::changepoint {
     namespace export cusum-detect cusum-online binary-segmentation

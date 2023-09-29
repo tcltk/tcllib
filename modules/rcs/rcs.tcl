@@ -278,4 +278,4 @@ proc ::rcs::applyRcsPatch {text patch} {
 # ### ### ### ######### ######### #########
 ## Ready for use.
 
-package provide rcs 0.1
+package provide rcs 0.2

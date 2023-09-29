@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.4.1]
+[manpage_begin math::geometry n 1.4.2]
 [keywords angle]
 [keywords distance]
 [keywords line]
@@ -15,7 +15,7 @@
 [titledesc {Geometrical computations}]
 [category  Mathematics]
 [require Tcl [opt "8.5 9"]]
-[require math::geometry [opt 1.4.1]]
+[require math::geometry [opt 1.4.2]]
 
 [description]
 [para]

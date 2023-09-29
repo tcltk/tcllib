@@ -230,5 +230,5 @@ namespace eval ::pt::ast {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::ast 1.1
+package provide pt::ast 1.2
 return

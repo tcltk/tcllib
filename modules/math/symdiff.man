@@ -1,4 +1,4 @@
-[vset VERSION 1.0.1]
+[vset VERSION 1.0.2]
 [manpage_begin math::calculus::symdiff n [vset VERSION]]
 [see_also math::calculus]
 [see_also math::interpolate]

@@ -413,7 +413,7 @@ namespace eval ::rc4 {
     }
 }
 
-package provide rc4 1.1.0
+package provide rc4 1.2.0
 
 # -------------------------------------------------------------------------
 # Local variables:

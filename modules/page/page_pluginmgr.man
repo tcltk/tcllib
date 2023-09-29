@@ -7,7 +7,7 @@
 [moddesc   {Parser generator tools}]
 [titledesc {page plugin manager}]
 [category  {Page Parser Generator}]
-[require page::pluginmgr [opt 0.2]]
+[require page::pluginmgr [opt 0.3]]
 [require fileutil]
 [description]
 [para]

@@ -1,4 +1,4 @@
-[manpage_begin rcs n 2.0.2]
+[manpage_begin rcs n 0.2]
 [see_also struct]
 [see_also textutil]
 [keywords CVS]
@@ -15,7 +15,7 @@
 [titledesc {RCS low level utilities}]
 [category  {Text processing}]
 [require Tcl "8.5 9"]
-[require rcs [opt 0.1]]
+[require rcs [opt 0.2]]
 [description]
 [para]
 

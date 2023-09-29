@@ -30,7 +30,7 @@ package require Tcl 8.5 9
 package require fileutil ; # Required by importFile.
 package require uri
 
-package provide ncgi 1.4.4
+package provide ncgi 1.4.5
 
 namespace eval ::ncgi {
 

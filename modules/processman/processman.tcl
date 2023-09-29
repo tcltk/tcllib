@@ -344,5 +344,5 @@ namespace eval ::processman {
 
 ::cron::every processman 60 ::processman::events
 
-package provide odie::processman 0.6
-package provide processman 0.6
+package provide odie::processman 0.7
+package provide processman 0.7

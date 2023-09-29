@@ -4,7 +4,7 @@
 # build.tcl
 ###
 package require Tcl 8.6 9
-package provide practcl 0.16.4
+package provide practcl 0.16.5
 namespace eval ::practcl {}
 
 ###

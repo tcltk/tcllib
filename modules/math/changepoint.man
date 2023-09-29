@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::changepoint n 0.1]
+[manpage_begin math::changepoint n 0.2]
 [keywords statistics]
 [keywords control]
 [copyright {2020 by Arjen Markus}]
@@ -9,7 +9,7 @@
 [require Tcl "8.6 9"]
 [require TclOO]
 [require math::statistics]
-[require math::changepoint [opt 0.1]]
+[require math::changepoint [opt 0.2]]
 
 [description]
 [para]

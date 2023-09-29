@@ -184,5 +184,5 @@ snit::type ::pt::peg::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::import 1.0.1
+package provide pt::peg::import 1.0.2
 return

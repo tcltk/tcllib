@@ -7,7 +7,7 @@
 #     See tickets https://core.tcl-lang.org/tcllib/tktview/df3676c9821ba917c5cfda68c2ea0ad7a6947ac9
 #     and https://core.tcl-lang.org/tcllib/tktview/21fef042b91ca252fc2a20ead5cd05c2b51b1776
 #
-package provide math::trig 1.0
+package provide math::trig 1.1
 
 # ::math::trig --
 #     Create the namespace

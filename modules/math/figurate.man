@@ -1,4 +1,4 @@
-[manpage_begin math::figurate n 1.0]
+[manpage_begin math::figurate n 1.1]
 [keywords {figurate numbers}]
 [keywords mathematics]
 [moddesc {Tcl Math Library}]

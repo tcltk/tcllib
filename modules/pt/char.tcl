@@ -286,4 +286,4 @@ proc ::char::quote::Arg {cmdpfx str args} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide char 1.0.2
+package provide char 1.0.3

@@ -91,4 +91,4 @@ proc ::page::gen::tree::text::Quote {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::gen::tree::text 0.1
+package provide page::gen::tree::text 0.2

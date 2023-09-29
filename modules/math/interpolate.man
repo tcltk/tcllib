@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::interpolate n 1.1]
+[manpage_begin math::interpolate n 1.2.1]
 [keywords interpolation]
 [keywords math]
 [keywords {spatial interpolation}]
@@ -10,7 +10,7 @@
 [category  Mathematics]
 [require Tcl [opt "8.5 9"]]
 [require struct]
-[require math::interpolate [opt 1.1]]
+[require math::interpolate [opt 1.2.1]]
 
 [description]
 [para]

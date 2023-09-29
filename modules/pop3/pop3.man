@@ -1,4 +1,4 @@
-[vset VERSION 1.10]
+[vset VERSION 1.11]
 [manpage_begin pop3 n [vset VERSION]]
 [keywords email]
 [keywords mail]

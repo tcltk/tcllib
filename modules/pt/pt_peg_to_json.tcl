@@ -145,5 +145,5 @@ namespace eval ::pt::peg::to::json {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::json 1
+package provide pt::peg::to::json 1.1
 return

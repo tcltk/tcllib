@@ -9,7 +9,7 @@
 # 
 # RCS: @(#) $Id: png.tcl,v 1.11 2012/07/09 16:35:04 afaupell Exp $
 
-package provide png 0.3
+package provide png 0.4
 
 namespace eval ::png {}
 

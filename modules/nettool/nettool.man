@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.5.2]
+[vset PACKAGE_VERSION 0.5.3]
 [manpage_begin nettool n [vset PACKAGE_VERSION]]
 [keywords {nettool}]
 [keywords {odie}]
@@ -10,8 +10,8 @@
 [require Tcl "8.5 9"]
 [require nettool [opt [vset PACKAGE_VERSION]]]
 [require twapi 3.1]
-[require ip 0.1]
-[require platform 0.1]
+[require ip 0.2]
+[require platform 0.2]
 [description]
 [para]
 

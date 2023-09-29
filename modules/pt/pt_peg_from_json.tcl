@@ -44,5 +44,5 @@ proc ::pt::peg::from::json::convert {text} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::from::json 1
+package provide pt::peg::from::json 1.1
 return

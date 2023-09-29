@@ -113,5 +113,5 @@ snit::type ::pt::peg::export {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::export 1.0.1
+package provide pt::peg::export 1.0.2
 return

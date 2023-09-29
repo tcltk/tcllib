@@ -177,4 +177,4 @@ namespace eval ::pt {
     namespace export rde
 }
 
-package provide pt::parse::peg 1.0.1
+package provide pt::parse::peg 1.0.2

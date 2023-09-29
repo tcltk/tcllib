@@ -379,7 +379,7 @@ namespace eval        ::nameserv::server {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::server 0.3.2
+package provide nameserv::server 0.3.3
 
 ##
 # ### ### ### ######### ######### #########

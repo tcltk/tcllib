@@ -39,5 +39,5 @@ proc lambda@ {ns arguments body args} {
 
 # # ## ### ##### ######## ############# ####################
 ## Ready
-package provide lambda 1
+package provide lambda 1.1
 

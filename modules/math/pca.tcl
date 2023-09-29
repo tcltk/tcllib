@@ -362,7 +362,7 @@ proc ::math::PCA::Transform {observations correlation} {
     return [list $result $mean $scale]
 }
 
-package provide math::PCA 1.0
+package provide math::PCA 1.1
 
 # Test
 if {0} {

@@ -37,5 +37,5 @@ proc import {text} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::import::peg 1
+package provide pt::peg::import::peg 1.1
 return

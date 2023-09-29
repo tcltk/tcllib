@@ -1,4 +1,4 @@
-[vset VERSION 2.0.4]
+[vset VERSION 2.0.5]
 [manpage_begin math::bigfloat n [vset VERSION]]
 [keywords computations]
 [keywords floating-point]

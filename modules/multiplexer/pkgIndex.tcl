@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if { ![package vsatisfies [package provide Tcl] 8.5 9] } { return }
-package ifneeded multiplexer 0.2 [list source [file join $dir multiplexer.tcl]]
+package ifneeded multiplexer 0.3 [list source [file join $dir multiplexer.tcl]]

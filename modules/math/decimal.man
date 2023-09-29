@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::decimal n 1.0.3]
+[manpage_begin math::decimal n 1.0.5]
 [keywords decimal]
 [keywords math]
 [keywords tcl]
