@@ -109,4 +109,4 @@ namespace eval ::textutil::trim {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::trim 0.7
+package provide textutil::trim 0.8

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1]
+[vset VERSION 1.1]
 [manpage_begin throw n [vset VERSION]]
 [see_also error(n)]
 [keywords error]

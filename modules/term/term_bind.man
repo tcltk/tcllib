@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::receive::bind n 0.1]
+[manpage_begin term::receive::bind n 0.2]
 [keywords {character input}]
 [keywords control]
 [keywords dispatcher]
@@ -11,7 +11,7 @@
 [titledesc {Keyboard dispatch from terminals}]
 [category  {Terminal control}]
 [require Tcl "8.5 9"]
-[require term::receive::bind [opt 0.1]]
+[require term::receive::bind [opt 0.2]]
 [description]
 
 This package provides a class for the creation of simple dispatchers

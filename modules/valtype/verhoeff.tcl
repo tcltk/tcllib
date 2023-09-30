@@ -125,4 +125,4 @@ snit::type ::valtype::verhoeff {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::verhoeff 1
+package provide valtype::verhoeff 1.1

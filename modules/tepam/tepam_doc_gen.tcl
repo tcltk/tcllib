@@ -733,7 +733,7 @@ namespace eval tepam::doc_gen {
 }; # End namespace tepam::doc
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam::doc_gen 0.1.1
+package provide tepam::doc_gen 0.1.2
 
 ##########################################################################
 # Id: tepam_doc.tcl

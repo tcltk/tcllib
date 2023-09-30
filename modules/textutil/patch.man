@@ -1,4 +1,4 @@
-[vset VERSION 0.1]
+[vset VERSION 0.2]
 [manpage_begin textutil::patch n [vset VERSION]]
 [keywords {diff, unified format} {unified format diff} patch {diff -ruN} git fossil]
 [moddesc   {Text and string utilities}]

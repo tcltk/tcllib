@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::transform::base64 n 1]
+[manpage_begin tcl::transform::base64 n 1.1]
 [keywords base64]
 [keywords {channel transformation}]
 [keywords {reflected channel}]
@@ -12,8 +12,8 @@
 [category  Channels]
 [titledesc {Base64 encoding transformation}]
 [require Tcl "8.6 9"]
-[require tcl::transform::core [opt 1]]
-[require tcl::transform::base64 [opt 1]]
+[require tcl::transform::core [opt 1.1]]
+[require tcl::transform::base64 [opt 1.1]]
 [description]
 [para]
 

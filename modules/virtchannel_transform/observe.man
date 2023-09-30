@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::transform::observe n 1]
+[manpage_begin tcl::transform::observe n 1.1]
 [keywords {channel transformation}]
 [keywords observer]
 [keywords {reflected channel}]
@@ -12,8 +12,8 @@
 [category  Channels]
 [titledesc {Observer transformation, stream copy}]
 [require Tcl "8.6 9"]
-[require tcl::transform::core [opt 1]]
-[require tcl::transform::observe [opt 1]]
+[require tcl::transform::core [opt 1.1]]
+[require tcl::transform::observe [opt 1.1]]
 [description]
 [para]
 

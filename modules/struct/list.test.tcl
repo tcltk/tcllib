@@ -1265,4 +1265,4 @@ proc ::struct::list::test::main {} {
 	}
 }
 
-package provide struct::list::test 1.8.4 
+package provide struct::list::test 1.8.5

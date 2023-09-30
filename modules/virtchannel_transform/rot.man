@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::transform::rot n 1]
+[manpage_begin tcl::transform::rot n 1.1]
 [keywords {caesar cipher}]
 [keywords {channel transformation}]
 [keywords cipher]
@@ -16,8 +16,8 @@
 [category  Channels]
 [titledesc {rot-encryption}]
 [require Tcl "8.6 9"]
-[require tcl::transform::core [opt 1]]
-[require tcl::transform::rot [opt 1]]
+[require tcl::transform::core [opt 1.1]]
+[require tcl::transform::rot [opt 1.1]]
 [description]
 [para]
 

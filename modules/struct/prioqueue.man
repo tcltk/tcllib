@@ -1,4 +1,4 @@
-[manpage_begin struct::prioqueue n 1.4]
+[manpage_begin struct::prioqueue n 1.5]
 [keywords {ordered list}]
 [keywords prioqueue]
 [keywords {priority queue}]
@@ -7,7 +7,7 @@
 [titledesc {Create and manipulate prioqueue objects}]
 [category  {Data structures}]
 [require Tcl "8.5 9"]
-[require struct::prioqueue [opt 1.4]]
+[require struct::prioqueue [opt 1.5]]
 [description]
 
 This package implements a simple priority queue using nested tcl lists.

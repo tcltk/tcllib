@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::string 1.0.3
+# Package tcl::chan::string 1.0.4
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -120,5 +120,5 @@ oo::class create ::tcl::chan::string::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::string 1.0.3
+package provide tcl::chan::string 1.0.4
 return

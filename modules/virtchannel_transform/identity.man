@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::transform::identity n 1]
+[manpage_begin tcl::transform::identity n 1.1]
 [keywords {channel transformation}]
 [keywords identity]
 [keywords {reflected channel}]
@@ -11,8 +11,8 @@
 [category  Channels]
 [titledesc {Identity transformation}]
 [require Tcl "8.6 9"]
-[require tcl::transform::core [opt 1]]
-[require tcl::transform::identity [opt 1]]
+[require tcl::transform::core [opt 1.1]]
+[require tcl::transform::identity [opt 1.1]]
 [description]
 [para]
 

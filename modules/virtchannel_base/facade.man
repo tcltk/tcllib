@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::chan::facade n 1]
+[manpage_begin tcl::chan::facade n 1.1]
 [keywords {concatenation channel}]
 [keywords {reflected channel}]
 [keywords {tip 219}]
@@ -11,8 +11,8 @@
 [require Tcl "8.5 9"]
 [require TclOO]
 [require logger]
-[require tcl::chan::core [opt 1]]
-[require tcl::chan::facade [opt 1]]
+[require tcl::chan::core [opt 1.1]]
+[require tcl::chan::facade [opt 1.1]]
 [description]
 [para]
 

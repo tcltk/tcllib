@@ -180,4 +180,4 @@ namespace eval ::struct {
     namespace export queue
 }
 
-package provide struct::queue 1.4.5
+package provide struct::queue 1.4.6

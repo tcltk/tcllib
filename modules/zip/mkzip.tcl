@@ -9,7 +9,7 @@
 ## BSD License
 ##
 # Package providing commands for the generation of a zip archive.
-# version 1.2.2
+# version 1.2.3
 
 package require Tcl 8.6 9
 
@@ -296,4 +296,4 @@ proc ::zipfile::mkzip::mkzip {filename args} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::mkzip 1.2.2
+package provide zipfile::mkzip 1.2.3

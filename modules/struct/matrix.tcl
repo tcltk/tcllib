@@ -2803,4 +2803,4 @@ namespace eval ::struct {
     namespace import -force matrix::matrix
     namespace export matrix
 }
-package provide struct::matrix 2.1
+package provide struct::matrix 2.2

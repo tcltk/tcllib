@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset YAML_VERSION 0.4.1]
+[vset YAML_VERSION 0.4.2]
 [manpage_begin yaml n [vset YAML_VERSION]]
 [see_also base64]
 [see_also huddle]

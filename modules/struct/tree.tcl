@@ -179,4 +179,4 @@ namespace eval ::struct {
     namespace export tree
 }
 
-package provide struct::tree 2.1.2
+package provide struct::tree 2.1.3

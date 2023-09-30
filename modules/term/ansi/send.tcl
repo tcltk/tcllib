@@ -86,7 +86,7 @@ namespace eval ::term::ansi::send {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::send 0.2
+package provide term::ansi::send 0.3
 
 ##
 # ### ### ### ######### ######### #########

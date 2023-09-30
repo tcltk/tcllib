@@ -462,7 +462,7 @@ namespace eval ::uevent {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent 0.3.1
+package provide uevent 0.3.2
 
 ##
 # ### ### ### ######### ######### #########

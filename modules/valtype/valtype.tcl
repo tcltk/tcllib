@@ -74,4 +74,4 @@ namespace eval ::valtype::common {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::common 1
+package provide valtype::common 1.1

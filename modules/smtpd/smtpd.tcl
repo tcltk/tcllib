@@ -16,7 +16,7 @@ package require Tcl 8.5 9;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 
-package provide smtpd 1.5
+package provide smtpd 1.6
 
 namespace eval ::smtpd {
     variable version [package present smtpd]

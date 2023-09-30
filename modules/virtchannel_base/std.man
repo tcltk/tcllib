@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::chan::std n 1]
+[manpage_begin tcl::chan::std n 1.1]
 [keywords {reflected channel}]
 [keywords {standard io}]
 [keywords stdin]
@@ -12,8 +12,8 @@
 [titledesc {Standard I/O, unification of stdin and stdout}]
 [require Tcl "8.5 9"]
 [require TclOO]
-[require tcl::chan::core [opt 1]]
-[require tcl::chan::std [opt 1]]
+[require tcl::chan::core [opt 1.1]]
+[require tcl::chan::std [opt 1.1]]
 [description]
 [para]
 

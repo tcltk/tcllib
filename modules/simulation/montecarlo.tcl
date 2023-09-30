@@ -441,7 +441,7 @@ proc ::simulation::montecarlo::StandardAnalysis {} {
 
 # Announce the package
 #
-package provide simulation::montecarlo 0.1
+package provide simulation::montecarlo 0.2
 
 # main --
 #     Quick test

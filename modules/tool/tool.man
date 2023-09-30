@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tool n 0.4.2]
+[manpage_begin tool n 0.8]
 [keywords TOOL]
 [copyright {2015 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Standardized OO Framework for development}]

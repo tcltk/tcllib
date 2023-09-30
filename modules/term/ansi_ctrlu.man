@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::ansi::ctrl::unix n 0.1.1]
+[manpage_begin term::ansi::ctrl::unix n 0.1.2]
 [keywords ansi]
 [keywords columns]
 [keywords control]
@@ -14,7 +14,7 @@
 [titledesc {Control operations and queries}]
 [category  {Terminal control}]
 [require Tcl "8.5 9"]
-[require term::ansi::ctrl::unix [opt 0.1.1]]
+[require term::ansi::ctrl::unix [opt 0.1.2]]
 [description]
 
 [emph {WARNING}]: This package is unix-specific and depends on the

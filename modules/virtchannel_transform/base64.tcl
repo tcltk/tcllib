@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::transform::base64 1
+# Package tcl::transform::base64 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -107,5 +107,5 @@ oo::class create ::tcl::transform::base64::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::transform::base64 1
+package provide tcl::transform::base64 1.1
 return

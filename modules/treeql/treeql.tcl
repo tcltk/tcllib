@@ -21,4 +21,4 @@ if {[package vsatisfies [package provide Tcl] 8.5 9]} {
     source [file join $dir treeql84.tcl]
 }
 
-package provide treeql 1.3.1
+package provide treeql 1.3.2

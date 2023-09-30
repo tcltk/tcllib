@@ -3,7 +3,7 @@
 # (C) 2009, 2019 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::halfpipe 1
+# Package tcl::chan::halfpipe 1.0.3
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009,2019
 # Meta as::license BSD
@@ -190,5 +190,5 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::halfpipe 1.0.2
+package provide tcl::chan::halfpipe 1.0.3
 return

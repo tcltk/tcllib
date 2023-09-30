@@ -460,4 +460,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 1.2
+package provide wip 1.3

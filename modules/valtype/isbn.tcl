@@ -173,4 +173,4 @@ snit::type ::valtype::isbn {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::isbn 1
+package provide valtype::isbn 1.1

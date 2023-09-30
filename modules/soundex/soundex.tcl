@@ -93,4 +93,4 @@ proc ::soundex::knuth {in} {
     return [string range ${key}0000 0 3]
 }
 
-package provide soundex 1.0
+package provide soundex 1.1

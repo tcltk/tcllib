@@ -67,4 +67,4 @@ snit::type ::valtype::creditcard::discover {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::creditcard::discover 1
+package provide valtype::creditcard::discover 1.1

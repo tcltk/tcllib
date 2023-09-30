@@ -269,4 +269,4 @@ snit::type ::tie::std::file {
 ## Ready to go
 
 ::tie::register ::tie::std::file as file
-package provide   tie::std::file 1.1
+package provide   tie::std::file 1.2

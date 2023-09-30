@@ -1,4 +1,4 @@
-[vset VERSION 2.0.4]
+[vset VERSION 2.0.5]
 [manpage_begin sha1 n [vset VERSION]]
 [see_also md4]
 [see_also md5]

@@ -65,4 +65,4 @@ snit::type ::valtype::creditcard::amex {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::creditcard::amex 1
+package provide valtype::creditcard::amex 1.1

@@ -11,7 +11,7 @@
 # RCS: @(#) $Id: stringprep_data.tcl,v 1.2 2009/11/02 00:26:44 patthoyts Exp $
 #
 
-package provide stringprep::data 1.0.1
+package provide stringprep::data 1.0.2
 
 namespace eval ::stringprep::data {
 

@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: struct_set.man,v 1.12 2009/01/29 06:16:20 andreas_kupries Exp $}]
-[manpage_begin struct::set n 2.2.3]
+[manpage_begin struct::set n 2.2.4]
 [keywords cardinality]
 [keywords difference]
 [keywords emptiness]
@@ -16,7 +16,7 @@
 [titledesc {Procedures for manipulating sets}]
 [category  {Data structures}]
 [require Tcl "8.5 9"]
-[require struct::set [opt 2.2.3]]
+[require struct::set [opt 2.2.4]]
 [description]
 
 [para]

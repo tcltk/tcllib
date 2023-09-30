@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset WEBSOCKET_VERSION 1.5]
+[vset WEBSOCKET_VERSION 1.6]
 [manpage_begin websocket n [vset WEBSOCKET_VERSION]]
 [see_also http]
 [keywords http]

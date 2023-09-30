@@ -658,4 +658,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide udpcluster 0.3.3
+package provide udpcluster 0.3.4

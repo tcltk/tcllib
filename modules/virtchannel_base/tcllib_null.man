@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::chan::null n 1]
+[manpage_begin tcl::chan::null n 1.1]
 [keywords /dev/null]
 [keywords null]
 [keywords {reflected channel}]
@@ -11,8 +11,8 @@
 [titledesc {Null channel}]
 [require Tcl "8.5 9"]
 [require TclOO]
-[require tcl::chan::events [opt 1]]
-[require tcl::chan::null [opt 1]]
+[require tcl::chan::events [opt 1.1]]
+[require tcl::chan::null [opt 1.1]]
 [description]
 [para]
 

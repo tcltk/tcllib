@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
-package ifneeded soundex 1.0 [list source [file join $dir soundex.tcl]]
+package ifneeded soundex 1.1 [list source [file join $dir soundex.tcl]]

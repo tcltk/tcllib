@@ -1,4 +1,4 @@
-[vset VERSION 1.0.6]
+[vset VERSION 1.0.8]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin uuid n [vset VERSION]]
 [keywords GUID]

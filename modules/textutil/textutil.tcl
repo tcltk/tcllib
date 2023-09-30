@@ -77,4 +77,4 @@ namespace eval ::textutil {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil 0.9
+package provide textutil 0.10n

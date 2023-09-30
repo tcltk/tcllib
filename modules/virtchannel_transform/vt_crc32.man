@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::transform::crc32 n 1]
+[manpage_begin tcl::transform::crc32 n 1.1]
 [keywords {channel transformation}]
 [keywords checksum]
 [keywords crc32]
@@ -12,8 +12,8 @@
 [category  Channels]
 [titledesc {Crc32 transformation}]
 [require Tcl "8.6 9"]
-[require tcl::transform::core [opt 1]]
-[require tcl::transform::crc32 [opt 1]]
+[require tcl::transform::core [opt 1.1]]
+[require tcl::transform::crc32 [opt 1.1]]
 [description]
 [para]
 

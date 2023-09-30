@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin unicode n 1.0.0]
+[manpage_begin unicode n 1.1.0]
 [see_also stringprep(n)]
 [keywords normalization]
 [keywords unicode]
@@ -7,7 +7,7 @@
 [moddesc {Unicode normalization}]
 [titledesc {Implementation of Unicode normalization}]
 [require Tcl "8.5 9"]
-[require unicode 1.0]
+[require unicode 1.1]
 [description]
 [para]
 

@@ -381,5 +381,5 @@ namespace eval ::struct {
     namespace export disjointset
 }
 
-package provide struct::disjointset 1.1
+package provide struct::disjointset 1.2
 return

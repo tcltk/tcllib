@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset LIST_VERSION 1.8.5]
+[vset LIST_VERSION 1.8.6]
 [manpage_begin struct::list n [vset LIST_VERSION]]
 [keywords assign]
 [keywords common]

@@ -143,4 +143,4 @@ snit::type ::tie::std::growfile {
 ## Ready to go
 
 ::tie::register ::tie::std::growfile as growfile
-package provide   tie::std::growfile 1.1
+package provide   tie::std::growfile 1.2

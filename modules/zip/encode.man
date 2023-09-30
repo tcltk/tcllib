@@ -1,4 +1,4 @@
-[vset VERSION 0.4]
+[vset VERSION 0.5]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin zipfile::encode n [vset VERSION]]
 [keywords compression zip]

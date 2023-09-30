@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin simulation::annealing n 0.2]
+[manpage_begin simulation::annealing n 0.3]
 [keywords math]
 [keywords optimization]
 [keywords {simulated annealing}]
@@ -8,7 +8,7 @@
 [titledesc {Simulated annealing}]
 [category  Mathematics]
 [require Tcl [opt "8.5 9"]]
-[require simulation::annealing 0.2]
+[require simulation::annealing 0.3]
 
 [description]
 [para]

@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::transform::adler32 1
+# Package tcl::transform::adler32 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -99,5 +99,5 @@ oo::class create ::tcl::transform::adler32::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::transform::adler32 1
+package provide tcl::transform::adler32 1.1
 return

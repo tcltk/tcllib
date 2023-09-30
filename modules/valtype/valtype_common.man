@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- --- doctools ---}]
-[manpage_begin valtype::common n 1]
+[manpage_begin valtype::common n 1.1]
 [keywords Checking]
 [keywords isA]
 [keywords Testing]
@@ -11,7 +11,7 @@
 [moddesc {Validation types}]
 [category {Validation, Type checking}]
 [require Tcl "8.5 9"]
-[require valtype::common [opt 1]]
+[require valtype::common [opt 1.1]]
 [description]
 
 This package implements a number of common commands used by the

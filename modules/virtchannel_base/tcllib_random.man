@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::chan::random n 1]
+[manpage_begin tcl::chan::random n 1.1]
 [keywords /dev/random]
 [keywords random]
 [keywords {reflected channel}]
@@ -11,8 +11,8 @@
 [titledesc {Random channel}]
 [require Tcl "8.5 9"]
 [require TclOO]
-[require tcl::chan::events [opt 1]]
-[require tcl::chan::random [opt 1]]
+[require tcl::chan::events [opt 1.1]]
+[require tcl::chan::random [opt 1.1]]
 [description]
 [para]
 

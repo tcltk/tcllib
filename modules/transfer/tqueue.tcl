@@ -219,5 +219,5 @@ snit::type ::transfer::copy::queue {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::copy::queue 0.1
+package provide transfer::copy::queue 0.2
 

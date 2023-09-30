@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::transform::identity 1
+# Package tcl::transform::identity 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -55,5 +55,5 @@ oo::class create ::tcl::transform::identity::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::transform::identity 1
+package provide tcl::transform::identity 1.1
 return

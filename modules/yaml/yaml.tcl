@@ -13,9 +13,9 @@
 #
 
 package require Tcl 8.5 9
-package provide yaml 0.4.1
+package provide yaml 0.4.2
 package require cmdline
-package require huddle 0.1.7
+package require huddle 0.1.8
 
 namespace eval ::yaml {
     namespace export load setOptions dict2dump list2dump

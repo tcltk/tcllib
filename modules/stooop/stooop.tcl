@@ -11,7 +11,7 @@
 # check whether empty named arrays and array unset are supported:
 package require Tcl 8.5 9
 
-package provide stooop 4.4.1
+package provide stooop 4.4.2
 
 # rename proc before it is overloaded, ignore error in case of multiple
 # inclusion of this file:

@@ -237,7 +237,7 @@ namespace eval ::uuid {
     unset e
 }
 
-package provide uuid 1.0.7
+package provide uuid 1.0.8
 
 # -------------------------------------------------------------------------
 # Local variables:

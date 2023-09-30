@@ -1,4 +1,4 @@
-[manpage_begin uevent n 0.3.1]
+[manpage_begin uevent n 0.3.2]
 [see_also hook(n)]
 [keywords bind]
 [keywords event]
@@ -10,7 +10,7 @@
 [titledesc {User events}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require uevent [opt 0.3.1]]
+[require uevent [opt 0.3.2]]
 [require logger]
 [description]
 
