@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::transform::otp n 1]
+[manpage_begin tcl::transform::otp n 1.1]
 [keywords {channel transformation}]
 [keywords cipher]
 [keywords decryption]
@@ -16,8 +16,8 @@
 [category  Channels]
 [titledesc {Encryption via one-time pad}]
 [require Tcl "8.6 9"]
-[require tcl::transform::core [opt 1]]
-[require tcl::transform::otp [opt 1]]
+[require tcl::transform::core [opt 1.1]]
+[require tcl::transform::otp [opt 1.1]]
 [description]
 [para]
 

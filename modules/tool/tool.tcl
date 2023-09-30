@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide tool 0.7
+package provide tool 0.8
 namespace eval ::tool {}
 
 ###

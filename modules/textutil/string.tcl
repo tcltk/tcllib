@@ -141,4 +141,4 @@ namespace eval ::textutil::string {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::string 0.8
+package provide textutil::string 0.9

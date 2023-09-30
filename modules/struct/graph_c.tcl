@@ -11,7 +11,7 @@
 
 package require critcl
 # @sak notprovided struct_graphc
-package provide struct_graphc 2.4.3
+package provide struct_graphc 2.4.4
 package require Tcl 8.5 9
 
 namespace eval ::struct {

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin switched n 2.2.1]
+[manpage_begin switched n 2.2.2]
 [keywords C++]
 [keywords class]
 [keywords object]
@@ -8,7 +8,7 @@
 [titledesc {switch/option management.}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require switched [opt 2.2.1]]
+[require switched [opt 2.2.2]]
 [description]
 [para]
 

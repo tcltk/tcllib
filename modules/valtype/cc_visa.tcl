@@ -66,4 +66,4 @@ snit::type ::valtype::creditcard::visa {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::creditcard::visa 1
+package provide valtype::creditcard::visa 1.1

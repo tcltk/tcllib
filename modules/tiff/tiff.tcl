@@ -9,7 +9,7 @@
 # 
 # RCS: @(#) $Id: tiff.tcl,v 1.5 2008/03/24 03:48:59 andreas_kupries Exp $
 
-package provide tiff 0.2.1
+package provide tiff 0.2.2
 
 namespace eval ::tiff {}
 

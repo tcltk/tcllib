@@ -699,7 +699,7 @@ namespace eval ::sha1 {
     unset e
 }
 
-package provide sha1 1.1.1
+package provide sha1 1.1.2
 
 # -------------------------------------------------------------------------
 # Local Variables:

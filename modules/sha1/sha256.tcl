@@ -824,7 +824,7 @@ namespace eval ::sha2 {
     unset e
 }
 
-package provide sha256 1.0.4
+package provide sha256 1.0.5
 
 # -------------------------------------------------------------------------
 # Local Variables:

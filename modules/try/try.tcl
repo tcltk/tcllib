@@ -12,7 +12,7 @@
 
 # # ## ### ##### ######## ############# ####################
 
-package provide try 1
+package provide try 1.1
 package require Tcl 8.5 9
 # Do nothing if the "try" command exists already (8.6 and higher).
 if {[llength [info commands try]]} return

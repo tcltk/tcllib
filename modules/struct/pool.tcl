@@ -712,4 +712,4 @@ namespace eval ::struct {
     namespace import -force pool::pool
     namespace export pool
 }
-package provide struct::pool 1.2.3
+package provide struct::pool 1.2.4

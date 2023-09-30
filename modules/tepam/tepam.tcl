@@ -2723,7 +2723,7 @@ namespace eval tepam {
 }; # End namespace tepam
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam 0.5.2
+package provide tepam 0.5.3
 
 ##########################################################################
 # Id: tepam.tcl

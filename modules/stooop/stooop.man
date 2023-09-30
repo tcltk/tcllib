@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin stooop n 4.4.1]
+[manpage_begin stooop n 4.4.2]
 [keywords C++]
 [keywords class]
 [keywords object]
@@ -8,7 +8,7 @@
 [titledesc {Object oriented extension.}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require stooop [opt 4.4.1]]
+[require stooop [opt 4.4.2]]
 [description]
 [para]
 

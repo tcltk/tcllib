@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset SASL_VERSION 1.3.3]
+[vset SASL_VERSION 1.3.4]
 [manpage_begin SASL n [vset SASL_VERSION]]
 [keywords authentication]
 [keywords SASL]

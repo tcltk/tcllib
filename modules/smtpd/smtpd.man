@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin smtpd n 1.5]
+[manpage_begin smtpd n 1.6]
 [keywords {rfc 821}]
 [keywords {rfc 2821}]
 [keywords services]
@@ -12,7 +12,7 @@
 [titledesc {Tcl SMTP server implementation}]
 [category  Networking]
 [require Tcl "8.5 9"]
-[require smtpd [opt 1.5]]
+[require smtpd [opt 1.6]]
 [description]
 [para]
 
@@ -121,7 +121,7 @@ procedures.
 
 [def "[option -banner] [arg text]"]
 
-Text of a custom banner message. The default banner is "tcllib smtpd 1.5".
+Text of a custom banner message. The default banner is "tcllib smtpd 1.6".
 Note that changing the banner does not affect the bracketing text
 in the full greeting, printing status 220, server-address, and timestamp.
 

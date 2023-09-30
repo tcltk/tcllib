@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin transfer::copy::queue n 0.1]
+[manpage_begin transfer::copy::queue n 0.2]
 [keywords channel]
 [keywords copy]
 [keywords queue]
@@ -11,8 +11,8 @@
 [require Tcl                   "8.5 9"]
 [require snit                  [opt 1.0]]
 [require struct::queue         [opt 1.4]]
-[require transfer::copy        [opt 0.2]]
-[require transfer::copy::queue [opt 0.1]]
+[require transfer::copy        [opt 0.3]]
+[require transfer::copy::queue [opt 0.2]]
 [description]
 [para]
 

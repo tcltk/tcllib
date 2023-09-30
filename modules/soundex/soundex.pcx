@@ -9,14 +9,14 @@
 
 package require pcx
 pcx::register soundex
-pcx::tcldep   1.0 needs tcl 8.2
+pcx::tcldep   1.1 needs tcl 8.2
 
 namespace eval ::soundex {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 1.0 std ::soundex::knuth \
+pcx::check 1.1 std ::soundex::knuth \
     {checkSimpleArgs 1 1 {
 	checkWord
     }}

@@ -366,7 +366,7 @@ if {[llength [package provide SASL]] != 0} {
     ::SASL::register NTLM 50 ::SASL::NTLM::NTLM
 }
 
-package provide SASL::NTLM 1.1.2
+package provide SASL::NTLM 1.1.3
 
 # -------------------------------------------------------------------------
 #

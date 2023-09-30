@@ -273,6 +273,6 @@ proc ::stringprep::prohibited_bidi {profile uclist} {
 
 ########################################################################
 
-package provide stringprep 1.0.1
+package provide stringprep 1.0.2
 
 ########################################################################

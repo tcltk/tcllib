@@ -90,5 +90,5 @@ proc ::string::token::chomp {map sv text rv} {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide string::token 1
+package provide string::token 1.1
 return

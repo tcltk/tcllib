@@ -1,4 +1,4 @@
-[manpage_begin textutil::trim n 0.7]
+[manpage_begin textutil::trim n 0.8]
 [see_also regexp(n)]
 [see_also split(n)]
 [see_also string(n)]
@@ -10,7 +10,7 @@
 [titledesc {Procedures to trim strings}]
 [category  {Text processing}]
 [require Tcl "8.5 9"]
-[require textutil::trim [opt 0.7]]
+[require textutil::trim [opt 0.8]]
 [description]
 
 The package [package textutil::trim] provides commands that trim

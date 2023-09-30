@@ -48,4 +48,4 @@ snit::type uevent::onidle {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent::onidle 0.1
+package provide uevent::onidle 0.2

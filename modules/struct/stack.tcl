@@ -180,4 +180,4 @@ namespace eval ::struct {
     namespace export stack
 }
 
-package provide struct::stack 1.5.3
+package provide struct::stack 1.5.4

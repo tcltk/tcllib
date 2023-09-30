@@ -174,4 +174,4 @@ namespace eval ::struct {
     namespace export graph
 }
 
-package provide struct::graph 2.4.3
+package provide struct::graph 2.4.4

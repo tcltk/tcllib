@@ -125,4 +125,4 @@ snit::type ::valtype::luhn {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::luhn 1
+package provide valtype::luhn 1.1

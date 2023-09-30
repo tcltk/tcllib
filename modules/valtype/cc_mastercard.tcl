@@ -65,4 +65,4 @@ snit::type ::valtype::creditcard::mastercard {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::creditcard::mastercard 1
+package provide valtype::creditcard::mastercard 1.1

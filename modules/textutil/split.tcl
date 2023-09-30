@@ -141,4 +141,4 @@ namespace eval ::textutil::split {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::split 0.8
+package provide textutil::split 0.9

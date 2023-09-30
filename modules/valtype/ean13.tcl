@@ -96,4 +96,4 @@ snit::type ::valtype::gs1::ean13 {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::gs1::ean13 1
+package provide valtype::gs1::ean13 1.1

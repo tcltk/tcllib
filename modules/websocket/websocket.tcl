@@ -1795,4 +1795,4 @@ apply {{infoscript} {
 } ::websocket} [info script]
 
 ##################
-package provide websocket 1.5
+package provide websocket 1.6

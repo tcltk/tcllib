@@ -532,4 +532,4 @@ namespace eval ::struct {
     namespace export prioqueue
 }
 
-package provide struct::prioqueue 1.4
+package provide struct::prioqueue 1.5

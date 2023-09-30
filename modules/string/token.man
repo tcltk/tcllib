@@ -1,4 +1,4 @@
-[manpage_begin string::token n 1]
+[manpage_begin string::token n 1.1]
 [keywords lexing]
 [keywords regex]
 [keywords string]
@@ -7,7 +7,7 @@
 [titledesc {Regex based iterative lexing}]
 [category  {Text processing}]
 [require Tcl "8.5 9"]
-[require string::token [opt 1]]
+[require string::token [opt 1.1]]
 [require fileutil]
 [description]
 

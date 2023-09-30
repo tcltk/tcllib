@@ -1441,4 +1441,4 @@ uri::register {ldap ldaps} {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.7
+package provide uri 1.2.8

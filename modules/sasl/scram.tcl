@@ -493,7 +493,7 @@ proc ::SASL::SCRAM::SHA-1:server {context clientrsp args} {
 
 # -------------------------------------------------------------------------
 
-package provide SASL::SCRAM 0.1
+package provide SASL::SCRAM 0.2
 
 # -------------------------------------------------------------------------
 #

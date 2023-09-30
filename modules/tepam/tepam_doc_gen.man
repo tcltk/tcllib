@@ -1,11 +1,11 @@
-[manpage_begin tepam::doc_gen n 0.5.0]
+[manpage_begin tepam::doc_gen n 0.1.2]
 [copyright {2013, Andreas Drollinger}]
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM DOC Generation, reference manual}]
 [category {Documentation tools}]
 [require Tcl "8.5 9"]
 [require tepam 0.5]
-[require tepam::doc_gen [opt 0.1]]
+[require tepam::doc_gen [opt 0.1.2]]
 
 [description]
 This package generates documentations of TEPAM procedures (procedures that have been declared with [cmd tepam::procedure]). The documents are generated in the classic UNIX document style using the following document sections: Name, Synopsis, Description, Arguments and Example. [package "TEPAM Doc Gen"] provides support for various document formats. Support for additional formats can be added if necessary. 

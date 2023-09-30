@@ -1,4 +1,4 @@
-[manpage_begin textutil::repeat n 0.7.1]
+[manpage_begin textutil::repeat n 0.8]
 [see_also regexp(n)]
 [see_also split(n)]
 [see_also string(n)]
@@ -9,7 +9,7 @@
 [titledesc {Procedures to repeat strings.}]
 [category  {Text processing}]
 [require Tcl "8.5 9"]
-[require textutil::repeat [opt 0.7]]
+[require textutil::repeat [opt 0.8]]
 [description]
 
 The package [package textutil::repeat] provides commands to generate

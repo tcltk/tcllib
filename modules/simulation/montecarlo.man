@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin simulation::montecarlo n 0.1]
+[manpage_begin simulation::montecarlo n 0.2]
 [keywords math]
 [keywords {montecarlo simulation}]
 [keywords {stochastic modelling}]
@@ -8,7 +8,7 @@
 [titledesc {Monte Carlo simulations}]
 [category  Mathematics]
 [require Tcl [opt "8.5 9"]]
-[require simulation::montecarlo 0.1]
+[require simulation::montecarlo 0.2]
 [require simulation::random]
 [require math::statistics]
 

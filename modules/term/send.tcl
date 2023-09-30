@@ -28,7 +28,7 @@ namespace eval ::term::send {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::send 0.1
+package provide term::send 0.2
 
 ##
 # ### ### ### ######### ######### #########

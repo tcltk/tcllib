@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin soundex n 1.0]
+[manpage_begin soundex n 1.1]
 [keywords knuth]
 [keywords soundex]
 [keywords {text comparison}]
@@ -11,7 +11,7 @@
 [titledesc {Soundex}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl "8.5 9"]
-[require soundex [opt 1.0]]
+[require soundex [opt 1.1]]
 [description]
 [para]
 

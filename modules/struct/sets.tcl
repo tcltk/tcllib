@@ -184,4 +184,4 @@ namespace eval ::struct {
     namespace export set
 }
 
-package provide struct::set 2.2.3
+package provide struct::set 2.2.4

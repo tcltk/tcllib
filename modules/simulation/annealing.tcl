@@ -476,7 +476,7 @@ proc ::simulation::annealing::findCombinatorialMinimum {args} {
 
 # Announce the package
 #
-package provide simulation::annealing 0.2
+package provide simulation::annealing 0.3
 
 # main --
 #     Example

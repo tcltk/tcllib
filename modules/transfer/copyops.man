@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin transfer::copy n 0.2]
+[manpage_begin transfer::copy n 0.3]
 [keywords channel]
 [keywords copy]
 [keywords transfer]
@@ -8,7 +8,7 @@
 [titledesc {Data transfer foundation}]
 [category  {Transfer module}]
 [require Tcl "8.5 9"]
-[require transfer::copy [opt 0.2]]
+[require transfer::copy [opt 0.3]]
 [description]
 [para]
 

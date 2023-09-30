@@ -461,4 +461,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 2.2
+package provide wip 2.3

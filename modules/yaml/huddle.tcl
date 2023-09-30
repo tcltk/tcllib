@@ -11,7 +11,7 @@
 # Copyright (c) 2015 Miguel Martínez López <aplicacionamedida@gmail.com>
 
 package require Tcl 8.5 9
-package provide huddle 0.4
+package provide huddle 0.5
 
 namespace eval ::huddle {
     namespace export huddle wrap unwrap isHuddle strip_node are_equal_nodes \

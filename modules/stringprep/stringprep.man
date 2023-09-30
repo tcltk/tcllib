@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin stringprep n 1.0.1]
+[manpage_begin stringprep n 1.0.2]
 [see_also unicode(n)]
 [keywords stringprep]
 [keywords unicode]
@@ -7,7 +7,7 @@
 [moddesc {Preparation of Internationalized Strings}]
 [titledesc {Implementation of stringprep}]
 [require Tcl "8.5 9"]
-[require stringprep 1.0.1]
+[require stringprep 1.0.2]
 [description]
 [para]
 

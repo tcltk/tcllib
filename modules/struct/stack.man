@@ -1,4 +1,4 @@
-[manpage_begin struct::stack n 1.5.3]
+[manpage_begin struct::stack n 1.5.4]
 [keywords graph]
 [keywords matrix]
 [keywords queue]
@@ -7,7 +7,7 @@
 [titledesc {Create and manipulate stack objects}]
 [category  {Data structures}]
 [require Tcl "8.5 9"]
-[require struct::stack [opt 1.5.3]]
+[require struct::stack [opt 1.5.4]]
 [description]
 
 The [namespace ::struct] namespace contains a commands for processing

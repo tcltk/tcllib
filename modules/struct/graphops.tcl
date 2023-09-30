@@ -3784,4 +3784,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.11.3
+package provide struct::graph::op 0.11.4

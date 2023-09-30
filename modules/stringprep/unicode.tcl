@@ -9,7 +9,7 @@
 #
 # RCS: @(#) $Id: unicode.tcl,v 1.1 2008/01/29 02:18:10 patthoyts Exp $
 
-package require unicode::data 1.0
+package require unicode::data 1.1
 
 namespace eval ::unicode {
     # Hangul constants
@@ -288,5 +288,5 @@ proc ::unicode::composeCanonical {uclist} {
 
 ########################################################################
 
-package provide unicode 1.0.0
+package provide unicode 1.1.0
 

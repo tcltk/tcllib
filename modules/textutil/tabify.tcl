@@ -286,4 +286,4 @@ namespace eval ::textutil::tabify {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::tabify 0.7
+package provide textutil::tabify 0.8

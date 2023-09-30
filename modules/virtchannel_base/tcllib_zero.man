@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::chan::zero n 1]
+[manpage_begin tcl::chan::zero n 1.1]
 [keywords /dev/zero]
 [keywords {reflected channel}]
 [keywords {tip 219}]
@@ -11,8 +11,8 @@
 [titledesc {Zero channel}]
 [require Tcl "8.5 9"]
 [require TclOO]
-[require tcl::chan::events [opt 1]]
-[require tcl::chan::zero [opt 1]]
+[require tcl::chan::events [opt 1.1]]
+[require tcl::chan::zero [opt 1.1]]
 [description]
 [para]
 

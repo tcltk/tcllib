@@ -88,4 +88,4 @@ namespace eval ::textutil::repeat {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::repeat 0.7
+package provide textutil::repeat 0.8

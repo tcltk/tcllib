@@ -1,4 +1,4 @@
-[manpage_begin tiff n 0.2.1]
+[manpage_begin tiff n 0.2.2]
 [keywords image]
 [keywords tif]
 [keywords tiff]
@@ -7,7 +7,7 @@
 [titledesc {TIFF reading, writing, and querying and manipulation of meta data}]
 [category  {File formats}]
 [require Tcl "8.5 9"]
-[require tiff [opt 0.2.1]]
+[require tiff [opt 0.2.2]]
 [description]
 [para]
 

@@ -1,4 +1,4 @@
-[vset VERSION 0.3.3]
+[vset VERSION 0.3.4]
 [manpage_begin udpcluster n [vset VERSION]]
 [keywords {name service}]
 [keywords server]

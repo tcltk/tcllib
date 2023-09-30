@@ -168,5 +168,5 @@ proc ::string::token::shell {args} {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide string::token::shell 1.2
+package provide string::token::shell 1.3
 return

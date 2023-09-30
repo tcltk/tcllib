@@ -507,4 +507,4 @@ proc ::tie::Dictsort {dict} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide tie 1.2
+package provide tie 1.3

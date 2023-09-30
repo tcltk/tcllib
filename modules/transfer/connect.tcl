@@ -94,4 +94,4 @@ snit::type ::transfer::connect {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::connect 0.2
+package provide transfer::connect 0.3

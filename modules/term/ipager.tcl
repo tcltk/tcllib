@@ -200,7 +200,7 @@ namespace eval ::term::interact::pager {
     term::ansi::send::import       vt
 }
 
-package provide term::interact::pager 0.1
+package provide term::interact::pager 0.2
 
 ##
 # ### ### ### ######### ######### #########

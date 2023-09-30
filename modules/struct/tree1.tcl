@@ -1482,4 +1482,4 @@ namespace eval ::struct {
     namespace import -force tree::tree
     namespace export tree
 }
-package provide struct::tree 1.2.2
+package provide struct::tree 1.2.3

@@ -502,7 +502,7 @@ proc ::simulation::random::prng_SymmetricTriangle {min max} {
 
 # Announce the package
 #
-package provide simulation::random 0.4.0
+package provide simulation::random 0.5.0
 
 
 # main --
