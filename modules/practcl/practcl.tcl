@@ -17,7 +17,7 @@ namespace eval ::practcl {}
 ###
 # START: clay/clay.tcl
 ###
-package provide clay 0.8.6
+package provide clay 0.8.7
 namespace eval ::clay {
 }
 namespace eval ::clay {

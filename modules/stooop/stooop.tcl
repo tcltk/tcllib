@@ -76,7 +76,7 @@ namespace eval ::stooop {
         # eventually override with user defined format:
         catch {set trace(dataFormat) $::env(STOOOPTRACEDATAFORMAT)}
         # trace all operations by default:
-        set trace(dataOperations) rwu
+        set trace(dataOperations) {read write unset}
         # eventually override with user defined operations:
         catch {set trace(dataOperations) $::env(STOOOPTRACEDATAOPERATIONS)}
     }
@@ -571,7 +571,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
             # check write and unset operations on empty named array holding
             # class data
             uplevel 1 namespace eval $class\
-                [list {::trace add variable {} wu ::stooop::checkData}]
+                [list {::trace add variable {} {write unset} ::stooop::checkData}]
         }
         if {[info exists ::env(STOOOPTRACEDATA)]} {
             # trace write and unset operations on empty named array holding
