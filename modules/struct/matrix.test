@@ -1826,6 +1826,21 @@ test matrix-9.13 {operation on linked matrix} {
     set result
 } {{1 2 3 {}} {a b c d}}
 
+test matrix-9.14 {trace cleanup after unlink} {
+    catch {unset a}
+    set result {}
+    matrix mymatrix
+    mymatrix add columns 4
+    mymatrix add row {1 2 3}
+    lappend result [trace info variable ::mymatrix::data]
+    mymatrix link a
+    lappend result [trace info variable ::mymatrix::data]
+    mymatrix unlink a
+    lappend result [trace info variable ::mymatrix::data]
+    mymatrix destroy
+    set result
+} {{} {{write {::struct::matrix::MatTraceOut a ::mymatrix}}} {}}
+
 test matrix-10.1 {search errors} {
     matrix mymatrix
     catch {mymatrix search} msg

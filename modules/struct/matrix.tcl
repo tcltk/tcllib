@@ -2213,7 +2213,7 @@ proc ::struct::matrix::_unlink {name avar} {
     variable ${name}::data
 
     trace vdelete array wu [list ::struct::matrix::MatTraceIn  $avar $name]
-    trace vdelete date  w  [list ::struct::matrix::MatTraceOut $avar $name]
+    trace vdelete data  w  [list ::struct::matrix::MatTraceOut $avar $name]
 
     unset link($avar)
     return
