@@ -870,9 +870,8 @@ if {[llength [array names ::env STOOOP*]]>0} {
         } else {                                             ;# static procedure
             regsub -all %O $text {} text
         }
-        array set string {r read w write u unset}
-        regsub -all %o $text $string($operation) text
-        if {[string equal $operation u]} {
+        regsub -all %o $text $operation text
+        if {[string equal $operation unset]} {
             regsub -all %v $text {} text              ;# no value when unsetting
         } else {
             regsub -all %v $text [uplevel 1 set ${array}($name)] text

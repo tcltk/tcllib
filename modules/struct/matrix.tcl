@@ -2485,7 +2485,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # 2. An individual element was unset:  Set the corresponding cell to the empty string.
     #    See SF Tcllib Bug #532791.
 
-    if {(![string compare $op u]) && ($idx == {})} {
+    if {(![string compare $op unset]) && ($idx == {})} {
 	# Possibility 1: Array was destroyed
 	$name unlink $avar
 	return
@@ -2505,7 +2505,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # Use standard method to propagate the change.
     # => Get automatically index checks, cache updates, ...
 
-    if {![string compare $op u]} {
+    if {![string compare $op unset]} {
 	# Unset possibility 2: Element was unset.
 	# Note: Setting the cell to the empty string will
 	# invoke MatTraceOut for this array and thus try
