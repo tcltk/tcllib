@@ -302,6 +302,7 @@ proc ::ncgi::encode {string} {
     regsub -all -- \[^a-zA-Z0-9\] $string {$map(&)} string
     # This quotes cases like $map([) or $map($) => $map(\[) ...
     regsub -all -- {[][{})\\]\)} $string {\\&} string
+    set string [string map {$map(() $map(\\()} $string]
     return [subst -nocommand $string]
 }
 
