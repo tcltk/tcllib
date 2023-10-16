@@ -5330,7 +5330,10 @@ test iinfo-6.5 {info options with unknown delegated options} -constraints {
     set a
 } -cleanup {
     myframe destroy
-} -result {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+} -result [::tcltest::byConstraint {
+    tcl8 {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+    tcl9plus {-background -backgroundimage -bd -bg -bgimg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -tile -visual -width}
+}]
 
 test iinfo-6.7 {info options with exceptions} -constraints {
     tk
@@ -5350,7 +5353,10 @@ test iinfo-6.7 {info options with exceptions} -constraints {
     set a
 } -cleanup {
     myframe destroy
-} -result {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+} -result [::tcltest::byConstraint {
+    tcl8 {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+    tcl9plus {-backgroundimage -bd -bg -bgimg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -tile -visual -width}
+}]
 
 test iinfo-6.8 {info options with pattern} -constraints {
     tk
