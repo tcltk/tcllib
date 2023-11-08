@@ -6,7 +6,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc16.test,v 1.7 2012/01/23 20:28:11 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -222,6 +221,37 @@ foreach {n msg expected} {
         list [catch {::crc::xmodem -format 0x%X $msg} res] $res
     } [list 0 $expected]
 }
+
+# -------------------------------------------------------------------------
+# General tests based on the test vectors listed in the implementation
+# -------------------------------------------------------------------------
+
+foreach {n cmd expected} {
+    1  crc16     0xBB3D
+    2  crc-ccitt 0x29B1
+    3  xmodem    0x31C3
+    4  crc-32    0xCBF43926
+    5  kermit    0x2189
+    6  modbus    0x4B37
+    7  mcrf4xx   0x6F91
+    8  genibus   0xD64E
+    9  crc-x25   0x906E
+    10 crc-sdlc  0x906E
+    11 crc-usb   0xB4C8
+    12 buypass   0xFEE8
+    13 umts      0xFEE8
+    14 gsm       0xCE3C
+    15 unknown2  0xDE76
+    16 maxim     0x44C2
+    17 unknown3   0x117
+    18 unknown4  0x5118
+    19 cms       0xAEE7
+} {
+    test crc16-9.$n "$cmd CRC as hexadecimal string" {
+        list [catch {::crc::$cmd -format 0x%X "123456789"} res] $res
+    } [list 0 $expected]
+}
+
 # -------------------------------------------------------------------------
 
 catch {unset crc::filename}

@@ -19,6 +19,25 @@
 #   XMODEM:    0x31C3
 #   CRC-32:    0xCBF43926
 #
+# Additional CRCs from the bottom of
+# http://reveng.sourceforge.net/crc-catalogue/all.htm
+#
+#   KERMIT:    0x2189
+#   MODBUS:    0x4B37
+#   MCRF4XX:   0x6F91
+#   GENIBUS:   0xD64E
+#   X.25:      0x906E
+#   SDLC:      0x906E
+#   USB:       0xB4C8
+#   BUYPASS:   0xFEE8
+#   UMTS:      0xFEE8		::crc::umts
+#   GSM:       0xCE3C
+#   UNKNOWN2:  0xDE76
+#   MAXIM:     0x44C2
+#   UNKNOWN3:  0x0117
+#   UNKNOWN4:  0x5118
+#   CMS:       0xAEE7
+#
 # eg: crc::crc16 "123456789"
 #     crc::crc-ccitt "123456789"
 # or  crc::crc16 -file tclsh.exe
@@ -26,7 +45,7 @@
 # Note:
 #  The CCITT CRC can very easily be checked for the accuracy of transmission
 #  as the CRC of the message plus the CRC values will be 0. That is:
-#   % set msg {123456789]
+#   % set msg {123456789}
 #   % set crc [crc::crc-ccitt $msg]
 #   % crc::crc-ccitt $msg[binary format S $crc]
 #   0
@@ -49,12 +68,25 @@ namespace eval ::crc {
 
     # Standard CRC generator polynomials.
     variable polynomial
-    set polynomial(crc16) [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
-    set polynomial(ccitt) [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
-    set polynomial(crc32) [expr {(1<<32) | (1<<26) | (1<<23) | (1<<22)
-                                 | (1<<16) | (1<<12) | (1<<11) | (1<<10)
-                                 | (1<<8) | (1<<7) | (1<<5) | (1<<4)
-                                 | (1<<2) | (1<<1) | 1}]
+    set polynomial(crc16)     [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(ccitt)     [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(crc32)     [expr {(1<<32) | (1<<26) | (1<<23) | (1<<22)
+                                     | (1<<16) | (1<<12) | (1<<11) | (1<<10)
+                                     | (1<<8) | (1<<7) | (1<<5) | (1<<4)
+                                     | (1<<2) | (1<<1) | 1}]
+    set polynomial(kermit)    [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(modbus)    [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(mcrf4xx)   [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(genibus)   [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(x25)       [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(usb)       [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(buypass)   [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(gsm)       [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(unknown2)  [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(maxim)     [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(unknown3)  [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(unknown4)  [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(cms)       [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
 
     # Array to hold the generated tables
     variable table
@@ -82,9 +114,22 @@ namespace eval ::crc {
 # Setting 'reflected' changes the bit order for input bytes.
 # Returns a list or 255 elements.
 #
-# CRC-32:      Crc_table 32 $crc::polynomial(crc32) 1
-# CRC-16:      Crc_table 16 $crc::polynomial(crc16) 1
-# CRC16/CCITT: Crc_table 16 $crc::polynomial(ccitt) 0
+# CRC-32:      Crc_table 32 $crc::polynomial(crc32)    1
+# CRC-16:      Crc_table 16 $crc::polynomial(crc16)    1
+# CRC16/CCITT: Crc_table 16 $crc::polynomial(ccitt)    0
+# KERMIT:      Crc_table 16 $crc::polynomial(kermit)   1
+# MODBUS:      Crc_table 16 $crc::polynomial(modbus)   1
+# MCRF4XX:     Crc_table 16 $crc::polynomial(mcrf4xx)  1
+# GENIBUS:     Crc_table 16 $crc::polynomial(genibus)  0
+# X.25:        Crc_table 16 $crc::polynomial(x25)      1
+# USB:         Crc_table 16 $crc::polynomial(usb)      1
+# BUYPASS:     Crc_table 16 $crc::polynomial(buypass)  0
+# GSM:         Crc_table 16 $crc::polynomial(gsm)      0
+# UNKNOWN2:    Crc_table 16 $crc::polynomial(unknown2) 1
+# MAXIM:       Crc_table 16 $crc::polynomial(maxim)    1
+# UNKNOWN3:    Crc_table 16 $crc::polynomial(unknown3) 0
+# UNKNOWN4:    Crc_table 16 $crc::polynomial(unknown4) 0
+# CMS:         Crc_table 16 $crc::polynomial(cms)      0
 #
 proc ::crc::Crc_table {width poly reflected} {
     set tbl {}
@@ -208,7 +253,202 @@ proc ::crc::CRC-CCITT {s {seed 0} {xor 0}} {
 }
 
 # -------------------------------------------------------------------------
-# Demostrates the parameters used for the 32 bit checksum CRC-32.
+# Specialisation of the general crc procedure to perform the KERMIT
+# flavour of the CRC16 checksum
+proc ::crc::CRC-KERMIT {s {seed 0} {xor 0}} {
+    variable table
+    if {![info exists table(kermit)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(kermit) [Crc_table 16 $polynomial(kermit) 1]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(kermit) $seed $xor 1]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the MODBUS
+# flavour of the CRC16 checksum
+proc ::crc::CRC-MODBUS {s {seed 0xFFFF} {xor 0}} {
+    variable table
+    if {![info exists table(modbus)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(modbus) [Crc_table 16 $polynomial(modbus) 1]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(modbus) $seed $xor 1]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the MCRF4XX
+# flavour of the CRC16 checksum
+proc ::crc::CRC-MCRF4XX {s {seed 0xFFFF} {xor 0}} {
+    variable table
+    if {![info exists table(mcrf4xx)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(mcrf4xx) [Crc_table 16 $polynomial(mcrf4xx) 1]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(mcrf4xx) $seed $xor 1]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the GENIBUS
+# flavour of the CRC16 checksum
+proc ::crc::CRC-GENIBUS {s {seed 0xFFFF} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(genibus)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(genibus) [Crc_table 16 $polynomial(genibus) 0]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(genibus) $seed $xor 0]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the X25
+# flavour of the CRC16 checksum
+proc ::crc::CRC-X25 {s {seed 0xFFFF} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(x25)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(x25) [Crc_table 16 $polynomial(x25) 1]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(x25) $seed $xor 1]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the USB
+# flavour of the CRC16 checksum
+proc ::crc::CRC-USB {s {seed 0xFFFF} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(usb)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(usb) [Crc_table 16 $polynomial(usb) 1]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(usb) $seed $xor 1]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the BUYPASS
+# flavour of the CRC16 checksum
+proc ::crc::CRC-BUYPASS {s {seed 0} {xor 0}} {
+    variable table
+    if {![info exists table(buypass)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(buypass) [Crc_table 16 $polynomial(buypass) 0]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(buypass) $seed $xor 0]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the GSM
+# flavour of the CRC16 checksum
+proc ::crc::CRC-GSM {s {seed 0} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(gsm)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(gsm) [Crc_table 16 $polynomial(gsm) 0]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(gsm) $seed $xor 0]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the UNKNOWN-2
+# flavour of the CRC16 checksum
+proc ::crc::CRC-UNKNOWN2 {s {seed 0} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(unknown2)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(unknown2) [Crc_table 16 $polynomial(unknown2) 1]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(unknown2) $seed $xor 1]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the MAXIM
+# flavour of the CRC16 checksum
+proc ::crc::CRC-MAXIM {s {seed 0} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(maxim)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(maxim) [Crc_table 16 $polynomial(maxim) 1]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(maxim) $seed $xor 1]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the UNKNOWN-3
+# flavour of the CRC16 checksum
+proc ::crc::CRC-UNKNOWN3 {s {seed 0} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(unknown3)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(unknown3) [Crc_table 16 $polynomial(unknown3) 0]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(unknown3) $seed $xor 0]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the UNKNOWN-4
+# flavour of the CRC16 checksum
+proc ::crc::CRC-UNKNOWN4 {s {seed 0xFFFF} {xor 0xFFFF}} {
+    variable table
+    if {![info exists table(unknown4)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(unknown4) [Crc_table 16 $polynomial(unknown4) 0]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(unknown4) $seed $xor 0]
+}
+
+# -------------------------------------------------------------------------
+# Specialisation of the general crc procedure to perform the CMS
+# flavour of the CRC16 checksum
+proc ::crc::CRC-CMS {s {seed 0xFFFF} {xor 0}} {
+    variable table
+    if {![info exists table(cms)]} {
+        variable polynomial
+        # ::crc::Crc_table width poly reflected
+        set table(cms) [Crc_table 16 $polynomial(cms) 0]
+    }
+
+    # ::crc::Crc s width table init xorout reflected
+    return [Crc $s 16 [namespace current]::table(cms) $seed $xor 0]
+}
+
+# -------------------------------------------------------------------------
+# Demonstrates the parameters used for the 32 bit checksum CRC-32.
 # This can be used to show the algorithm is working right by comparison with
 # other crc32 implementations
 proc ::crc::CRC-32 {s {seed 0xFFFFFFFF}} {
@@ -296,9 +536,76 @@ proc ::crc::crc-32 {args} {
                 $args]
 }
 
+proc ::crc::kermit {args} {
+    return [eval [list crc -impl [namespace origin CRC-KERMIT] -seed 0]\
+                $args]
+}
+
+proc ::crc::modbus {args} {
+    return [eval [list crc -impl [namespace origin CRC-MODBUS] -seed 0xFFFF]\
+                $args]
+}
+
+proc ::crc::mcrf4xx {args} {
+    return [eval [list crc -impl [namespace origin CRC-MCRF4XX] -seed 0xFFFF]\
+                $args]
+}
+
+proc ::crc::genibus {args} {
+    return [eval [list crc -impl [namespace origin CRC-GENIBUS] -seed 0xFFFF]\
+                $args]
+}
+
+proc ::crc::crc-x25 {args} {
+    return [eval [list crc -impl [namespace origin CRC-X25] -seed 0xFFFF]\
+                $args]
+}
+
+proc ::crc::crc-sdlc {args} {
+    return [eval [list crc -impl [namespace origin CRC-X25] -seed 0xFFFF]\
+                $args]
+}
+
+proc ::crc::crc-usb {args} {
+    return [eval [list crc -impl [namespace origin CRC-USB] -seed 0xFFFF]\
+                $args]
+}
+
+proc ::crc::buypass {args} {
+    return [eval [list crc -impl [namespace origin CRC-BUYPASS] -seed 0] $args]
+}
+
+proc ::crc::umts {args} {
+    return [eval [list crc -impl [namespace origin CRC-BUYPASS] -seed 0] $args]
+}
+
+proc ::crc::gsm {args} {
+    return [eval [list crc -impl [namespace origin CRC-GSM] -seed 0] $args]
+}
+
+proc ::crc::unknown2 {args} {
+    return [eval [list crc -impl [namespace origin CRC-UNKNOWN2] -seed 0] $args]
+}
+
+proc ::crc::maxim {args} {
+    return [eval [list crc -impl [namespace origin CRC-MAXIM] -seed 0] $args]
+}
+
+proc ::crc::unknown3 {args} {
+    return [eval [list crc -impl [namespace origin CRC-UNKNOWN3] -seed 0] $args]
+}
+
+proc ::crc::unknown4 {args} {
+    return [eval [list crc -impl [namespace origin CRC-UNKNOWN4] -seed 0xFFFF] $args]
+}
+
+proc ::crc::cms {args} {
+    return [eval [list crc -impl [namespace origin CRC-CMS] -seed 0xFFFF] $args]
+}
+
 # -------------------------------------------------------------------------
 
-package provide crc16 1.1.4
+package provide crc16 1.1.5
 
 # -------------------------------------------------------------------------
 #
