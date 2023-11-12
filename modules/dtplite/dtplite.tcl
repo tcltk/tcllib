@@ -143,7 +143,7 @@ package provide dtplite 1.3.2
 
 package require doctools      1.4.11 ; # 'image' support, -ibase support
 package require doctools::idx 1.0.4 ;
-package require doctools::toc 1.1.3 ;
+package require doctools::toc 1.3 ;
 package require fileutil
 package require textutil::repeat
 
