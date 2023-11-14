@@ -32,7 +32,7 @@ textutil::string \- Procedures to manipulate texts and strings\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::string ?0\.8?  
 
 [__::textutil::string::chop__ *string*](#1)  

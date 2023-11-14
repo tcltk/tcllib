@@ -41,7 +41,7 @@ wip \- Word Interpreter
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require wip ?2\.2?  
 package require snit ?1\.3?  
 package require struct::set  

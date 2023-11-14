@@ -23,7 +23,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::ripemd {
     namespace eval ripemd128 {
@@ -722,7 +722,7 @@ namespace eval ::ripemd::ripemd128 {
     unset e
 }
 
-package provide ripemd128 1.0.5
+package provide ripemd128 1.0.6
 
 # -------------------------------------------------------------------------
 # Local Variables:

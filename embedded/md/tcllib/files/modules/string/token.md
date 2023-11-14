@@ -30,7 +30,7 @@ string::token \- Regex based iterative lexing
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require string::token ?1?  
 package require fileutil  
 

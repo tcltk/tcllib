@@ -185,4 +185,4 @@ snit::type ::transfer::receiver {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::receiver 0.2
+package provide transfer::receiver 0.3

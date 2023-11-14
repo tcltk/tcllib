@@ -39,7 +39,7 @@ grammar::me::cpu \- Virtual machine implementation II for parsing token streams
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require grammar::me::cpu ?0\.2?  
 
 [__::grammar::me::cpu__ *meName* *matchcode*](#1)  

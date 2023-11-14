@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::me::cpu n 0.2]
+[manpage_begin grammar::me::cpu n 0.3]
 [keywords grammar]
 [keywords parsing]
 [keywords {virtual machine}]
@@ -7,8 +7,8 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {Virtual machine implementation II for parsing token streams}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
-[require grammar::me::cpu [opt 0.2]]
+[require Tcl "8.5 9"]
+[require grammar::me::cpu [opt 0.3]]
 [description]
 [para]
 

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::cpu \- Virtual machine implementation II for parsing token streams
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBgrammar::me::cpu  ?0\&.2?\fR
 .sp

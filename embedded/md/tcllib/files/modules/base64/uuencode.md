@@ -37,7 +37,7 @@ uuencode \- UU\-encode/decode binary data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
+package require Tcl 8\.5 9  
 package require uuencode ?1\.1\.4?  
 
 [__::uuencode::encode__ *string*](#1)  

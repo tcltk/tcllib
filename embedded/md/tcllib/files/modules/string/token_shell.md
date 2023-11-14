@@ -30,7 +30,7 @@ string::token::shell \- Parsing of shell command line
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require string::token::shell ?1\.2?  
 package require string::token ?1?  
 package require fileutil  

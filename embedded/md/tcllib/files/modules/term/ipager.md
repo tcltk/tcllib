@@ -41,7 +41,7 @@ term::interact::pager \- Terminal widget, paging
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::interact::pager ?0\.1?  
 
 [__term::interact::pager__ *object* *text* ?*options*\.\.\.?](#1)  

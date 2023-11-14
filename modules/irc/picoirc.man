@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.13.0]
+[vset VERSION 0.14.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -7,7 +7,7 @@
 [moddesc   {Simple embeddable IRC interface}]
 [titledesc {Small and simple embeddable IRC client.}]
 [category  Networking]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require picoirc [opt [vset VERSION]]]
 [description]
 

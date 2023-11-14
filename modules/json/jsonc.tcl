@@ -9,7 +9,7 @@
 package require critcl
 # @sak notprovided jsonc
 package provide jsonc 1.1.2
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 #critcl::cheaders -g
 #critcl::debug memory symbols

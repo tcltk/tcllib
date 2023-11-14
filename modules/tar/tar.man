@@ -1,5 +1,5 @@
 [comment {-*- mode: tcl ; fill-column: 80 -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.11]
+[vset PACKAGE_VERSION 0.12]
 [manpage_begin tar n [vset PACKAGE_VERSION]]
 [keywords archive]
 [keywords {tape archive}]
@@ -7,7 +7,7 @@
 [moddesc   {Tar file handling}]
 [titledesc {Tar file creation, extraction & manipulation}]
 [category  {File formats}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require tar [opt [vset PACKAGE_VERSION]]]
 [description]
 

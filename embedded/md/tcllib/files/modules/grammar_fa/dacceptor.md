@@ -39,7 +39,7 @@ grammar::fa::dacceptor \- Create and use deterministic acceptors
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
 package require struct::set  
 package require grammar::fa::dacceptor ?0\.1\.1?  

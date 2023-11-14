@@ -49,7 +49,7 @@ pt\_export\_api \- Parser Tools Export API
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 
 [__CONVERTER__ __reset__](#1)  
 [__CONVERTER__ __configure__](#2)  

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::tcl \- Virtual machine implementation I for parsing token streams
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBgrammar::me::tcl  ?0\&.1?\fR
 .sp

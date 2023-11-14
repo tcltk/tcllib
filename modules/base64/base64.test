@@ -13,7 +13,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -25,7 +25,7 @@ testing {
 tcltest::testConstraint tcl86 0
 tcltest::testConstraint trf   0
 
-if {[package vsatisfies [package present Tcl] 8.6]} {
+if {[package vsatisfies [package present Tcl] 8.6 9]} {
     puts "> Core based"
     tcltest::testConstraint tcl86 1
 } elseif {![catch {package present Trf}]} {

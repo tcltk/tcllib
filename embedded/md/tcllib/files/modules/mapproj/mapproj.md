@@ -37,7 +37,7 @@ mapproj \- Map projection routines
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require math::interpolate ?1\.0?  
 package require math::special ?0\.2\.1?  
 package require mapproj ?1\.0?  

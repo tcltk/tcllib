@@ -4,7 +4,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require fileutil ;# cat
 
 # # ## ### ##### ######## ############# #####################
@@ -90,5 +90,5 @@ proc ::string::token::chomp {map sv text rv} {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide string::token 1
+package provide string::token 1.1
 return

@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require textutil::wcswidth	;# TermWidth, for _columnwidth and related places
 
 namespace eval ::struct {}
@@ -1605,8 +1605,8 @@ proc ::struct::matrix::_link {name args} {
 	}
     }
 
-    trace variable array wu [list ::struct::matrix::MatTraceIn  $variable $name]
-    trace variable data  w  [list ::struct::matrix::MatTraceOut $variable $name]
+    trace add variable array {write unset} [list ::struct::matrix::MatTraceIn  $variable $name]
+    trace add variable data  write  [list ::struct::matrix::MatTraceOut $variable $name]
     return
 }
 
@@ -2212,8 +2212,8 @@ proc ::struct::matrix::_unlink {name avar} {
     upvar #0 $avar    array
     variable ${name}::data
 
-    trace vdelete array wu [list ::struct::matrix::MatTraceIn  $avar $name]
-    trace vdelete data  w  [list ::struct::matrix::MatTraceOut $avar $name]
+    trace remove variable array {write unset} [list ::struct::matrix::MatTraceIn  $avar $name]
+    trace remove variable data  write  [list ::struct::matrix::MatTraceOut $avar $name]
 
     unset link($avar)
     return
@@ -2485,7 +2485,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # 2. An individual element was unset:  Set the corresponding cell to the empty string.
     #    See SF Tcllib Bug #532791.
 
-    if {(![string compare $op u]) && ($idx == {})} {
+    if {(![string compare $op unset]) && ($idx == {})} {
 	# Possibility 1: Array was destroyed
 	$name unlink $avar
 	return
@@ -2505,7 +2505,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # Use standard method to propagate the change.
     # => Get automatically index checks, cache updates, ...
 
-    if {![string compare $op u]} {
+    if {![string compare $op unset]} {
 	# Unset possibility 2: Element was unset.
 	# Note: Setting the cell to the empty string will
 	# invoke MatTraceOut for this array and thus try
@@ -2803,4 +2803,4 @@ namespace eval ::struct {
     namespace import -force matrix::matrix
     namespace export matrix
 }
-package provide struct::matrix 2.1
+package provide struct::matrix 2.2

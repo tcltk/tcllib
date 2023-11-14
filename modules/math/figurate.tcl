@@ -7,8 +7,8 @@
 #
 #     Inspired by "gold", definitions of the figurate numbers following https://mathworld.wolfram.com/FigurateNumber.html
 #
-package require Tcl 8.6
-package provide math::figurate 1.0
+package require Tcl 8.6 9
+package provide math::figurate 1.1
 
 namespace eval ::math::figurate {
     namespace export sum_sequence sum_squares sum_cubes sum_4th_power sum_5th_power sum_6th_power \

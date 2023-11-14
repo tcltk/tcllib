@@ -198,7 +198,7 @@ proc emit {version moddir types widths} {
 	# Decoding uses the high bits to select the result block, and the low bits to select the
 	# result in the block.
 	
-	package require Tcl 8.5
+	package require Tcl 8.5 9
 	package provide textutil::wcswidth :version
 	namespace eval ::textutil {}
 	

@@ -3,7 +3,7 @@ set step "  "
 
 proc main {} {
     global step
-    set version 35.2
+    set version 35.3
     
     set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
     set moddir [file dirname $srcdir]
@@ -321,7 +321,7 @@ proc emit {version moddir types widths} {
 	# Author: Sean Woods <yoda@etoyoc.com>
 	# Author: Andreas Kupries <andreas.kupries@gmail.com>
 	###
-	package require Tcl 8.5
+	package require Tcl 8.5 9
 	package provide textutil::wcswidth :version
 	namespace eval ::textutil {}
 

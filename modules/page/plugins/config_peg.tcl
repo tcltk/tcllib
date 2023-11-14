@@ -1,6 +1,6 @@
 # -*- tcl -*- $Id: config_peg.tcl,v 1.2 2005/09/28 06:16:38 andreas_kupries Exp $
 
-package provide page::config::peg 0.1
+package provide page::config::peg 0.2
 
 proc page_cdefinition {} {
     return {

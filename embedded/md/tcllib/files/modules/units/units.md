@@ -53,7 +53,7 @@ units \- unit conversion
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.1  
+package require Tcl 8\.5 9  
 package require units ?2\.1?  
 
 [__::units::convert__ *value* *targetUnits*](#1)  

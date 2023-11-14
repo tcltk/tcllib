@@ -48,7 +48,7 @@ aes \- Implementation of the AES block cipher
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require aes ?1\.2\.1?  
 
 [__::aes::aes__ ?*\-mode \[ecb&#124;cbc\]*? ?*\-dir \[encrypt&#124;decrypt\]*? *\-key keydata* ?*\-iv vector*? ?*\-hex*? ?*\-out channel*? ?*\-chunksize size*? \[ *\-in channel* &#124; ?__\-\-__? *data* \]](#1)  

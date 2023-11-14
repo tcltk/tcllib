@@ -45,7 +45,7 @@ crc32 \- Perform a 32bit Cyclic Redundancy Check
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require crc32 ?1\.3\.3?  
 
 [__::crc::crc32__ ?\-format *format*? ?\-seed *value*? \[ *\-channel chan* &#124; *\-filename file* &#124; *message* \]](#1)  

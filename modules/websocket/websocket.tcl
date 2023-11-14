@@ -15,7 +15,7 @@
 ##
 ##################
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 
 package require http 2.7;  # Need keepalive!
 package require logger
@@ -1795,4 +1795,4 @@ apply {{infoscript} {
 } ::websocket} [info script]
 
 ##################
-package provide websocket 1.5
+package provide websocket 1.6

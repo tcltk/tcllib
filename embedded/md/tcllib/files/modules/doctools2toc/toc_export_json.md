@@ -41,7 +41,7 @@ doctools::toc::export::json \- JSON export plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::toc::export::json ?0\.1?  
 package require textutil::adjust  
 

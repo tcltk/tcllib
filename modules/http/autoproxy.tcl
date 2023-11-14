@@ -20,7 +20,7 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 
-package require Tcl 8.5 ;# ni/in operators
+package require Tcl 8.5 9 ;# ni/in operators
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
@@ -578,7 +578,7 @@ proc ::autoproxy::tls_socket {args} {
 
 # -------------------------------------------------------------------------
 
-package provide autoproxy 1.7
+package provide autoproxy 1.8
 
 # -------------------------------------------------------------------------
 #

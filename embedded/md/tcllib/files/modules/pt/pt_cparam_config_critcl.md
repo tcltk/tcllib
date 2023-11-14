@@ -35,7 +35,7 @@ pt::cparam::configuration::critcl \- C/PARAM, Canned configuration, Critcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::cparam::configuration::critcl ?1\.0\.2?  
 
 [__::pt::cparam::configuration::critcl__ __def__ *name* *pkg* *version* *cmdprefix*](#1)  

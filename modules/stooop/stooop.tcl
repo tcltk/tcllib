@@ -9,9 +9,9 @@
 
 
 # check whether empty named arrays and array unset are supported:
-package require Tcl 8.3
+package require Tcl 8.5 9
 
-package provide stooop 4.4.1
+package provide stooop 4.4.2
 
 # rename proc before it is overloaded, ignore error in case of multiple
 # inclusion of this file:
@@ -76,7 +76,7 @@ namespace eval ::stooop {
         # eventually override with user defined format:
         catch {set trace(dataFormat) $::env(STOOOPTRACEDATAFORMAT)}
         # trace all operations by default:
-        set trace(dataOperations) rwu
+        set trace(dataOperations) {read write unset}
         # eventually override with user defined operations:
         catch {set trace(dataOperations) $::env(STOOOPTRACEDATAOPERATIONS)}
     }
@@ -571,13 +571,13 @@ if {[llength [array names ::env STOOOP*]]>0} {
             # check write and unset operations on empty named array holding
             # class data
             uplevel 1 namespace eval $class\
-                [list {::trace variable {} wu ::stooop::checkData}]
+                [list {::trace add variable {} {write unset} ::stooop::checkData}]
         }
         if {[info exists ::env(STOOOPTRACEDATA)]} {
             # trace write and unset operations on empty named array holding
             # class data
             uplevel 1 namespace eval $class [list\
-                "::trace variable {} $trace(dataOperations) ::stooop::traceData"\
+                "::trace add variable {} $trace(dataOperations) ::stooop::traceData"\
             ]
         }
         uplevel 1 ::stooop::_class $args
@@ -870,9 +870,8 @@ if {[llength [array names ::env STOOOP*]]>0} {
         } else {                                             ;# static procedure
             regsub -all %O $text {} text
         }
-        array set string {r read w write u unset}
-        regsub -all %o $text $string($operation) text
-        if {[string equal $operation u]} {
+        regsub -all %o $text $operation text
+        if {[string equal $operation unset]} {
             regsub -all %v $text {} text              ;# no value when unsetting
         } else {
             regsub -all %v $text [uplevel 1 set ${array}($name)] text

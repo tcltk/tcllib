@@ -33,7 +33,7 @@ logger::appender \- Collection of predefined appenders for logger
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require logger::appender ?1\.2?  
 
 [__::logger::appender::console__ __\-level__ *level* __\-service__ *service* ?*options*\.\.\.?](#1)  

@@ -44,7 +44,7 @@ pop3d \- Tcl POP3 server implementation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require pop3d ?1\.1\.0?  
 
 [__::pop3d::new__ ?*serverName*?](#1)  

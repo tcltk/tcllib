@@ -35,7 +35,7 @@ coroutine \- Coroutine based event and IO handling
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require coroutine 1\.3  
 
 [__coroutine::util after__ *delay*](#1)  

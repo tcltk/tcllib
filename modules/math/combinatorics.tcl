@@ -16,7 +16,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.0
+package require Tcl 8.5 9
 
 namespace eval ::math {
 

@@ -41,7 +41,7 @@ term::interact::menu \- Terminal widget, menu
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::interact::menu ?0\.1?  
 
 [__term::interact::menu__ *object* *dict* ?*options*\.\.\.?](#1)  

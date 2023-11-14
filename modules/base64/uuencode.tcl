@@ -7,7 +7,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 # Try and get some compiled helper package.
 if {[catch {package require tcllibc}]} {
@@ -30,9 +30,9 @@ proc ::uuencode::Encode {s} {
         if {$c2 == {}} {set c2 0}
         if {$c3 == {}} {set c3 0}
         append r [Enc [expr {$c1 >> 2}]]
-        append r [Enc [expr {(($c1 << 4) & 060) | (($c2 >> 4) & 017)}]]
-        append r [Enc [expr {(($c2 << 2) & 074) | (($c3 >> 6) & 003)}]]
-        append r [Enc [expr {($c3 & 077)}]]
+        append r [Enc [expr {(($c1 << 4) & 0o060) | (($c2 >> 4) & 0o017)}]]
+        append r [Enc [expr {(($c2 << 2) & 0o074) | (($c3 >> 6) & 0o003)}]]
+        append r [Enc [expr {($c3 & 0o077)}]]
     }
     return $r
 }
@@ -181,7 +181,7 @@ if {[info commands ::uuencode::CDecode] != {}} {
 # -------------------------------------------------------------------------
 
 proc ::uuencode::uuencode {args} {
-    array set opts {mode 0644 filename {} name {}}
+    array set opts {mode 0o0644 filename {} name {}}
     set wrongargs "wrong \# args: should be\
             \"uuencode ?-name string? ?-mode octal?\
             (-file filename | ?--? string)\""
@@ -258,7 +258,7 @@ proc ::uuencode::uuencode {args} {
 #  data itself.
 #
 proc ::uuencode::uudecode {args} {
-    array set opts {mode 0644 filename {}}
+    array set opts {mode 0o0644 filename {}}
     set wrongargs "wrong \# args: should be \"uudecode (-file filename | ?--? string)\""
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
@@ -324,7 +324,7 @@ proc ::uuencode::uudecode {args} {
 
 # -------------------------------------------------------------------------
 
-package provide uuencode 1.1.5
+package provide uuencode 1.1.6
 
 # -------------------------------------------------------------------------
 #

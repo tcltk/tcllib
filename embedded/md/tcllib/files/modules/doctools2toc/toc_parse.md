@@ -42,7 +42,7 @@ doctools::toc::parse \- Parsing text in doctoc format
 # <a name='synopsis'></a>SYNOPSIS
 
 package require doctools::toc::parse ?0\.1?  
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::toc::structure  
 package require doctools::msgcat  
 package require doctools::tcl::parse  

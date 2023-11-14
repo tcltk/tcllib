@@ -355,4 +355,4 @@ proc hook::configure {args} {
 # ---------------------------------------------------------------
 # Ready
 
-package provide hook 0.2
+package provide hook 0.3

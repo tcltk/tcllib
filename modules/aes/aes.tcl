@@ -20,7 +20,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 namespace eval ::aes {
     variable uid
@@ -616,7 +616,7 @@ proc ::aes::aes {args} {
 
 # -------------------------------------------------------------------------
 
-package provide aes 1.2.1
+package provide aes 1.2.2
 
 # -------------------------------------------------------------------------
 # Local variables:

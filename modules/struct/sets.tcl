@@ -15,7 +15,7 @@
 
 # @mdgen EXCLUDE: sets_c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::struct::set {}
 
@@ -38,8 +38,6 @@ proc ::struct::set::LoadAccelerator {key} {
     set r 0
     switch -exact -- $key {
 	critcl {
-	    # Critcl implementation of set requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::set_critcl]]
 	}
@@ -186,4 +184,4 @@ namespace eval ::struct {
     namespace export set
 }
 
-package provide struct::set 2.2.3
+package provide struct::set 2.2.4

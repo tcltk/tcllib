@@ -491,16 +491,18 @@ proc ::math::polynomials::DivRemPolyn {polyn1 polyn2} {
 #
 # Announce our presence
 #
-package provide math::polynomials 1.0.1
+package provide math::polynomials 1.0.2
 
 # some tests --
 #
 if { 0 } {
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
+    if {![package vsatisfies [package provide Tcl] 8.5 9]} {
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
 }
 
 set f1    [::math::polynomials::polynomial {1 2 3}]
@@ -556,5 +558,7 @@ set f3 [::math::polynomials::divPolyn $f2 $f1]
 set coeffs [::math::polynomials::allCoeffsPolyn $f3]
 puts "Coefficients: $coeffs"
 
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
 }

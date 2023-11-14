@@ -18,7 +18,7 @@
 
 # @mdgen NODEP: doctools::idx::export::plugin
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require doctools::idx::export::plugin ; # Presence of this
 						# pseudo package
 						# indicates execution
@@ -417,5 +417,5 @@ proc Extend {varname} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::export::html 0.2
+package provide doctools::idx::export::html 0.3
 return

@@ -34,7 +34,7 @@ fileutil\_traverse \- Iterative directory traversal
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require fileutil::traverse ?0\.6?  
 package require fileutil  
 package require control  

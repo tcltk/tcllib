@@ -478,4 +478,4 @@ namespace eval ::page::gen::peg::canon {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::gen::peg::canon 0.1
+package provide page::gen::peg::canon 0.2

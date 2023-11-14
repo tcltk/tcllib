@@ -34,7 +34,7 @@ stooop \- Object oriented extension\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require stooop ?4\.4\.1?  
 
 [__::stooop::class__ *name body*](#1)  

@@ -10,7 +10,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 if {[catch {package require tclDES 1.0.0}]} {
     package require tclDESjr 1.0.0
@@ -262,7 +262,7 @@ proc ::DES::des {args} {
 
 # -------------------------------------------------------------------------
 
-package provide des 1.1.0
+package provide des 1.2
 
 # -------------------------------------------------------------------------
 #

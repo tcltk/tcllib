@@ -35,7 +35,7 @@ zipfile::mkzip \- Build a zip archive
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require zipfile::mkzip ?1\.2\.2?  
 
 [__::zipfile::mkzip::mkzip__ *zipfile* ?__\-zipkit__? ?__\-runtime__ *prefix*? ?__\-comment__ *string*? ?__\-directory__ *rootpath*? ?__\-prepend\-base\-directory__ *bool*? ?__\-exclude__ *exclude*? ?__\-\-__? ?*path*\.\.\.?](#1)  

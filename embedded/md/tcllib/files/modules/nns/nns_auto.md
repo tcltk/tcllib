@@ -43,7 +43,7 @@ nameserv::auto \- Name service facility, Client Extension
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require nameserv::auto ?0\.3?  
 package require nameserv  
 

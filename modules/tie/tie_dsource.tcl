@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require tie
 
@@ -50,4 +50,4 @@ snit::type ::tie::std::dsource {
 ## Ready to go
 
 ::tie::register ::tie::std::dsource as dsource
-package provide   tie::std::dsource 1.1
+package provide   tie::std::dsource 1.2

@@ -15,7 +15,7 @@
 
 package require critcl
 # @sak notprovided rc4c
-package provide rc4c 1.1.0
+package provide rc4c 1.2.0
 
 namespace eval ::rc4 {
 

@@ -33,7 +33,7 @@ simulation::random \- Pseudo\-random number generators
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require simulation::random 0\.4  
 
 [__::simulation::random::prng\_Bernoulli__ *p*](#1)  

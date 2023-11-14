@@ -10,7 +10,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in 'subst -novariables' format}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
 [require fileutil]
 [require logger]

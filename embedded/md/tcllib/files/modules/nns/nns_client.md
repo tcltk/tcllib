@@ -47,7 +47,7 @@ nameserv \- Name service facility, Client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require nameserv ?0\.4\.2?  
 package require comm  
 package require logger  

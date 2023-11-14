@@ -180,4 +180,4 @@ snit::type ::transfer::data::source {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::data::source 0.2
+package provide transfer::data::source 0.3

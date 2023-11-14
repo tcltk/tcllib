@@ -36,7 +36,7 @@ map::slippy \- Common code for slippy based map packages
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require map::slippy ?0\.8?  
 
 [__::map__ __slippy geo box 2point__ *zoom* *geobox*](#1)  

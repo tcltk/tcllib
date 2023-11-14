@@ -43,7 +43,7 @@ bench \- bench \- Processing benchmark suites
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require bench ?0\.4?  
 
 [__::bench::locate__ *pattern* *paths*](#1)  

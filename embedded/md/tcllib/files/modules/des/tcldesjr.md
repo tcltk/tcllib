@@ -35,7 +35,7 @@ tclDESjr \- Implementation of the DES and triple\-DES ciphers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require tclDESjr 1\.1  
 
 # <a name='description'></a>DESCRIPTION

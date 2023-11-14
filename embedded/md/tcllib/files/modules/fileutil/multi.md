@@ -32,7 +32,7 @@ fileutil::multi \- Multi\-file operation, scatter/gather, standard object
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require fileutil::multi ?0\.1?  
 package require fileutil::multi::op ?0\.1?  
 package require wip ?1\.0?  

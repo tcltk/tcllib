@@ -9,14 +9,14 @@
 
 package require pcx
 pcx::register ident
-pcx::tcldep   0.42 needs tcl 8.2
+pcx::tcldep   0.43 needs tcl 8.2
 
 namespace eval ::ident {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 0.42 std ::ident::query \
+pcx::check 0.43 std ::ident::query \
     {checkSimpleArgs 2 2 {
 	checkChannelID
 	{checkProcCall 1}

@@ -1,10 +1,10 @@
-[vset VERSION 0.3.2]
+[vset VERSION 0.3.3]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin inifile n [vset VERSION]]
 [moddesc   {Parsing of Windows INI files}]
 [titledesc {Parsing of Windows INI files}]
 [category  {Text processing}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require inifile [opt [vset VERSION]]]
 [description]
 

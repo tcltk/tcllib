@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require cmdline
 
@@ -507,4 +507,4 @@ proc ::tie::Dictsort {dict} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide tie 1.2
+package provide tie 1.3

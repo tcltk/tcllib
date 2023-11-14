@@ -33,7 +33,7 @@ grammar::me::util \- AST utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require grammar::me::util ?0\.1?  
 
 [__::grammar::me::util::ast2tree__ *ast* *tree* ?*root*?](#1)  

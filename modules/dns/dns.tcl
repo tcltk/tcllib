@@ -30,7 +30,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
@@ -1513,7 +1513,7 @@ proc ::uri::JoinDns {args} {
 
 catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
 
-package provide dns 1.5.0
+package provide dns 1.6
 
 # -------------------------------------------------------------------------
 # Local Variables:

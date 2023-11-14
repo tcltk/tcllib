@@ -35,7 +35,7 @@ cron \- Tool for automating the period callback of commands
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require cron ?2\.1?  
 
 [__::cron::at__ *?processname?* *timecode* *command*](#1)  

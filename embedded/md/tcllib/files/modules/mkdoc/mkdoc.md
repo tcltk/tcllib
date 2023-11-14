@@ -38,7 +38,7 @@ HTML
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require Markdown ?1\.2\.1?  
 package require yaml ?0\.4\.1?  
 package require mkdoc ?0\.7\.0?  

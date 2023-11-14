@@ -34,7 +34,7 @@ ftp::geturl \- Uri handler for ftp urls
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require ftp::geturl ?0\.2\.2?  
 
 [__::ftp::geturl__ *url*](#1)  

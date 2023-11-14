@@ -37,7 +37,7 @@ pt::rde \- Parsing Runtime Support, PARAM based
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::rde ?1\.1?  
 package require snit  
 package require struct::stack 1\.5  

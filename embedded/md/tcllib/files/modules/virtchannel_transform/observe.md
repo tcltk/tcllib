@@ -35,7 +35,7 @@ tcl::transform::observe \- Observer transformation, stream copy
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require tcl::transform::core ?1?  
 package require tcl::transform::observe ?1?  
 

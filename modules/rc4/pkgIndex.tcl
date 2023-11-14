@@ -6,8 +6,8 @@
 #
 # $Id: pkgIndex.tcl,v 1.4 2005/12/20 16:19:38 patthoyts Exp $
 
-if {![package vsatisfies [package provide Tcl] 8.2]} {
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     # PRAGMA: returnok
     return
 }
-package ifneeded rc4 1.1.0 [list source [file join $dir rc4.tcl]]
+package ifneeded rc4 1.2.0 [list source [file join $dir rc4.tcl]]

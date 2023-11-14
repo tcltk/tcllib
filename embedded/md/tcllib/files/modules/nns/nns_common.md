@@ -37,7 +37,7 @@ nameserv::common \- Name service facility, shared definitions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
+package require Tcl 8\.5 9  
 package require nameserv::common ?0\.1?  
 
 [__::nameserv::common::port__](#1)  

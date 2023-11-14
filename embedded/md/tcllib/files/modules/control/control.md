@@ -36,7 +36,7 @@ control \- Procedures for control flow structures\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require control ?0\.1\.3?  
 
 [__control::control__ *command* *option* ?*arg arg \.\.\.*?](#1)  

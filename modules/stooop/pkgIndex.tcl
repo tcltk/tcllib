@@ -11,12 +11,12 @@
 # obviously known by default, forcing the loading of stooop is mandatory prior
 # to the first proc declaration.
 
-if {![package vsatisfies [package provide Tcl] 8.3]} {return}
-package ifneeded stooop 4.4.1 [list source [file join $dir stooop.tcl]]
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
+package ifneeded stooop 4.4.2 [list source [file join $dir stooop.tcl]]
 
 # the following package index instruction was generated using:
 #   "tclsh mkpkgidx.tcl switched switched.tcl"
 # (comment out the following line if you do not want to use the switched class
 # as a package)
 
-package ifneeded switched 2.2.1 [list source [file join $dir switched.tcl]]
+package ifneeded switched 2.2.2 [list source [file join $dir switched.tcl]]

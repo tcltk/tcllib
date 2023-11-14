@@ -41,7 +41,7 @@ math::special \- Special mathematical functions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
+package require Tcl ?8\.5 9?  
 package require math::special ?0\.5?  
 
 [__::math::special::eulerNumber__ *index*](#1)  

@@ -35,7 +35,7 @@ math::roman \- Tools for creating and manipulating roman numerals
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require math::roman ?1\.0?  
 
 [__::math::roman::toroman__ *i*](#1)  

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ntp_time \- Tcl Time Service Client
 .SH SYNOPSIS
-package require \fBTcl  8\&.0\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBtime  ?1\&.2\&.1?\fR
 .sp

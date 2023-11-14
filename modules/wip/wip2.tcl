@@ -21,7 +21,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 # Use new Tcl 8.5a6+ features for specification of allowed packages.
 # We can use snit 1.3 and anything above (incl. v2+).
@@ -461,4 +461,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 2.2
+package provide wip 2.3

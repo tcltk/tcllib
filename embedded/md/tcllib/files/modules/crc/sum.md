@@ -43,7 +43,7 @@ sum \- Calculate a sum\(1\) compatible checksum
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require sum ?1\.1\.2?  
 
 [__::crc::sum__ ?*\-bsd* &#124; *\-sysv*? ?*\-format fmt*? ?*\-chunksize size*? \[ *\-filename file* &#124; *\-channel chan* &#124; *string* \]](#1)  

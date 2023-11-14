@@ -39,7 +39,7 @@ doctools::toc::export::text \- plain text export plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::toc::export::text ?0\.1?  
 package require doctools::text  
 

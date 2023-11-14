@@ -37,7 +37,7 @@ throw \- throw \- Throw an error exception with a message
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require throw ?1?  
 
 [__::throw__ *error\_code* *error\_message*](#1)  

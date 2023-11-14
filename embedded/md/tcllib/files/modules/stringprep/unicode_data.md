@@ -31,7 +31,7 @@ unicode::data \- unicode data tables, generated, internal
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require unicode::data 1\.0\.0  
 
 # <a name='description'></a>DESCRIPTION

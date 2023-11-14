@@ -266,7 +266,7 @@ namespace eval ::term::ansi::code::ctrl {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code::ctrl 0.3
+package provide term::ansi::code::ctrl 0.4
 
 ##
 # ### ### ### ######### ######### #########

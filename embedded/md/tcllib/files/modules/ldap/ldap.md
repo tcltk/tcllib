@@ -41,7 +41,7 @@ ldap \- LDAP client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require ldap ?1\.10\.1?  
 
 [__::ldap::connect__ *host* ?*port*?](#1)  

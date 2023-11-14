@@ -37,7 +37,7 @@ math::rationalfunctions \- Polynomial functions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require math::rationalfunctions ?1\.0\.1?  
 
 [__::math::rationalfunctions::rationalFunction__ *num* *den*](#1)  

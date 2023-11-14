@@ -6,7 +6,7 @@
 #    version 0.2: improved and extended, march 2002
 #    version 0.2.1: fix bug #2933130, january 2010
 
-package provide math::fuzzy 0.2.1
+package provide math::fuzzy 0.2.2
 
 namespace eval ::math::fuzzy {
    variable eps3 2.2e-16

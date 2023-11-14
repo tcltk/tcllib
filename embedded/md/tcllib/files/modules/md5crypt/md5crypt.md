@@ -41,7 +41,7 @@ md5crypt \- MD5\-based password encryption
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require md5 2\.0  
 package require md5crypt ?1\.1\.0?  
 

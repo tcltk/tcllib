@@ -34,7 +34,7 @@ picoirc \- Small and simple embeddable IRC client\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require picoirc ?0\.13\.0?  
 
 [__::picoirc::connect__ *callback* *nick* ?*password*? *url*](#1)  

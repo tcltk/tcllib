@@ -100,4 +100,4 @@ snit::type ::grammar::me::cpu {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide grammar::me::cpu 0.2
+package provide grammar::me::cpu 0.3

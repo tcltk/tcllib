@@ -14,7 +14,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -80,8 +80,6 @@ set tests {
     "532866770"
     7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "2091469426"
-    8    "\uFFFE\u0000\u0001\u0002"
-    "2968055525"
     9    "-"
     "2547889144"
     10   "--"
@@ -114,8 +112,6 @@ set tests {
     "0x1FC2E6D2"
     7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "0x7CA94A72"
-    8    "\uFFFE\u0000\u0001\u0002"
-    "0xB0E8EEE5"
     9    "-"
     "0x97DDB3F8"
     10   "--"
@@ -129,6 +125,12 @@ foreach impl [implementations] {
             list [catch {::crc::crc32 -format 0x%X $msg} err] $err
         } [list 0 $expected]
     }
+    test crc32-$impl-3.8 "crc32 as hexadecimal string ($impl)" tcl8 {
+        list [catch {::crc::crc32 -format 0x%X "\uFFFE\u0000\u0001\u0002"} err] $err
+    } [list 0 "0xB0E8EEE5"]
+    test crc32-$impl-3.8 "crc32 as hexadecimal string ($impl)" tcl9plus {
+        list [catch {::crc::crc32 -format 0x%X "\uFFFE\u0000\u0001\u0002"} err] $err
+    } [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
     reset_implementation
 }
 
@@ -196,8 +198,6 @@ set tests {
     5    "1234567890" 
     "1234567890123456789012345678901234567890123456789012345678901234567890"
     "2091469426"
-    6    "\uFFFE\u0000" "\u0001\u0002"
-    "2968055525"
 }
 foreach impl [implementations] {
     select_implementation $impl
@@ -208,6 +208,16 @@ foreach impl [implementations] {
             } err] $err
         } [list 0 $expected]
     }
+    test crc32-$impl-6.6 "crc32 using -seed ($impl)" tcl8 {
+        list [catch {
+            ::crc::crc32 -seed [expr {[::crc::crc32 "\uFFFE\u0000"] ^ 0xffffffff}] "\u0001\u0002"
+        } err] $err
+    } [list 0 "2968055525"]
+    test crc32-$impl-6.6 "crc32 using -seed ($impl)" tcl9plus {
+        list [catch {
+            ::crc::crc32 -seed [expr {[::crc::crc32 "\uFFFE\u0000"] ^ 0xffffffff}] "\u0001\u0002"
+        } err] $err
+    } [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00' (U+00FFFE)"]
     reset_implementation
 }
 

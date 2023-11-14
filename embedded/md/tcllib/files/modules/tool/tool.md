@@ -41,7 +41,7 @@ tool \- TclOO Library \(TOOL\) Framework
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require sha1  
 package require dicttool  
 package require oo::meta  

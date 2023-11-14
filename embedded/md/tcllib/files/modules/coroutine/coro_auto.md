@@ -33,7 +33,7 @@ coroutine::auto \- Automatic event and IO coroutine awareness
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require coroutine::auto 1\.2  
 package require coroutine 1\.3  
 

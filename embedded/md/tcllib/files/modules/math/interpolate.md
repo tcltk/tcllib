@@ -40,7 +40,7 @@ math::interpolate \- Interpolation routines
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require struct  
 package require math::interpolate ?1\.1?  
 

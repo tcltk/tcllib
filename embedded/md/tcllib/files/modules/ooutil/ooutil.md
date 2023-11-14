@@ -39,7 +39,7 @@ oo::util \- Utility commands for TclOO
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require TclOO  
 package require oo::util ?1\.2\.2?  
 

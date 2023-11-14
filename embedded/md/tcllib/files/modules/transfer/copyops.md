@@ -35,7 +35,7 @@ transfer::copy \- Data transfer foundation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require transfer::copy ?0\.2?  
 
 [__transfer::copy::do__ __chan__&#124;__string__ *data* *outchannel* ?*options*\.\.\.?](#1)  

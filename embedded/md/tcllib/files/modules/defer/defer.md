@@ -41,7 +41,7 @@ defer \- Defered execution
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require defer ?1?  
 
 [__::defer::defer__ ?*command*? ?*arg1*? ?*arg2*? ?*argN\.\.\.*?](#1)  

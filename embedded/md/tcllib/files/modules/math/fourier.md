@@ -34,7 +34,7 @@ math::fourier \- Discrete and fast fourier transforms
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require math::fourier 1\.0\.2  
 
 [__::math::fourier::dft__ *in\_data*](#1)  

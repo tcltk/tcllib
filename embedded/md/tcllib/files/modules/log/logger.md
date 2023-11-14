@@ -34,7 +34,7 @@ logger \- System to control logging of events\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require logger ?0\.9\.4?  
 
 [__logger::init__ *service*](#1)  

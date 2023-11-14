@@ -32,7 +32,7 @@ textutil::split \- Procedures to split texts
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::split ?0\.8?  
 
 [__::textutil::split::splitn__ *string* ?*len*?](#1)  

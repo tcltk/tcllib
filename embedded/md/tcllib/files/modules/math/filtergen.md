@@ -33,7 +33,7 @@ math::filters \- Digital filters
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require TclOO  
 package require math::filters ?0\.1?  
 

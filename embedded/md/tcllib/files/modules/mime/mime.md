@@ -37,7 +37,7 @@ mime \- Manipulation of MIME body parts
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require mime ?1\.7\.1?  
 
 [__::mime::initialize__ ?__\-canonical__ *type/subtype* ?__\-param__ \{*key value*\}\.\.\.? ?__\-encoding__ *value*? ?__\-header__ \{*key value*\}\.\.\.?? \(__\-file__ *name* &#124; __\-string__ *value* &#124; __\-parts__ \{*token1* \.\.\. *tokenN*\}\)](#1)  

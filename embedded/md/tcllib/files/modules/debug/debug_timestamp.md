@@ -36,7 +36,7 @@ debug::timestamp \- debug narrative \- timestamping
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require debug::timestamp ?1?  
 package require debug ?1?  
 

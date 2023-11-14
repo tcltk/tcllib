@@ -49,7 +49,7 @@ pt::peg::to::peg \- PEG Conversion\. Write PEG format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::to::peg ?1\.0\.2?  
 package require pt::peg  
 package require pt::pe  

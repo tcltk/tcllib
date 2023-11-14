@@ -11,10 +11,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require cmdline
 package require log
-package provide pop3 1.10
+package provide pop3 1.11
 
 namespace eval ::pop3 {
 

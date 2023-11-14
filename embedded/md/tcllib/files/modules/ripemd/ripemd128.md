@@ -43,7 +43,7 @@ ripemd128 \- RIPEMD\-128 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require ripemd128 ?1\.0\.5?  
 
 [__::ripemd::ripemd128__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  

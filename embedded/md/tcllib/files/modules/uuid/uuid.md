@@ -39,7 +39,7 @@ uuid \- UUID generation and comparison
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require uuid ?1\.0\.6?  
 
 [__::uuid::uuid generate__](#1)  

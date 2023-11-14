@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::decimal \- General decimal arithmetic
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5?\fR
+package require \fBTcl  ?8\&.5 9?\fR
 .sp
 package require \fBmath::decimal  1\&.0\&.3\fR
 .sp

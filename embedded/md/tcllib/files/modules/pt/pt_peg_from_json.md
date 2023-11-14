@@ -47,7 +47,7 @@ pt::peg::from::json \- PEG Conversion\. Read JSON format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::from::json ?1?  
 package require pt::peg  
 package require json  

@@ -49,7 +49,7 @@ pt::peg::to::container \- PEG Conversion\. Write CONTAINER format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::to::container ?1?  
 package require pt::peg  
 package require text::write  

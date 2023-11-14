@@ -13,7 +13,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.2;		# Not tested with earlier releases
+package require Tcl 8.5 9;		# Not tested with earlier releases
 
 #----------------------------------------------------------------------
 #

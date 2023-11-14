@@ -12,7 +12,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require snit
 
 # ### ### ### ######### ######### #########
@@ -70,5 +70,5 @@ snit::type ::fileutil::paths {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::paths 1
+package provide fileutil::paths 1.1
 return

@@ -35,7 +35,7 @@ doctools::msgcat \- Message catalog management for the various document parsers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require msgcat  
 package require doctools::msgcat ?0\.1?  
 

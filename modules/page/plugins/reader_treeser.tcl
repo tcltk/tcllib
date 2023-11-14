@@ -113,4 +113,4 @@ proc page_rrun {} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::reader::treeser 0.1
+package provide page::reader::treeser 0.2

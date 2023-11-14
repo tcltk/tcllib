@@ -41,7 +41,7 @@ otp \- One\-Time Passwords
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require otp ?1\.0\.0?  
 
 [__::otp::otp\-md4__ ?*\-hex*? ?*\-words*? *\-seed seed* *\-count count* *data*](#1)  

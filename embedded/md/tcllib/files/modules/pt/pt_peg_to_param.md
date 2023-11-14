@@ -49,7 +49,7 @@ pt::peg::to::param \- PEG Conversion\. Write PARAM format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::to::param ?1?  
 package require pt::peg  
 package require pt::pe  

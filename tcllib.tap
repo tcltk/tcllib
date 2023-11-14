@@ -2095,7 +2095,6 @@ Desc     {Principal Components Analysis, Tcl Decimal Arithmetic Library, tclrep,
 Hidden
 Base     @TAP_DIR@/math
 Path     bessel.tcl
-Path     bigfloat.tcl
 Path     bigfloat2.tcl
 Path     bignum.tcl
 Path     calculus.tcl

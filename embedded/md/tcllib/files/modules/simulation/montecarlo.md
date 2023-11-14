@@ -35,7 +35,7 @@ simulation::montecarlo \- Monte Carlo simulations
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require simulation::montecarlo 0\.1  
 package require simulation::random  
 package require math::statistics  

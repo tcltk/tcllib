@@ -37,7 +37,7 @@ tcl::chan::core \- Basic reflected/virtual channel support
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require TclOO  
 package require tcl::chan::core ?1?  
 

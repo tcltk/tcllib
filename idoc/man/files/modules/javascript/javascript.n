@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 javascript \- Procedures to generate HTML and Java Script structures\&.
 .SH SYNOPSIS
-package require \fBTcl  8\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBjavascript  ?1\&.0\&.2?\fR
 .sp

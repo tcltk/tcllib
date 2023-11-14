@@ -8,5 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded counter 2.0.4 [list source [file join $dir counter.tcl]]
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
+package ifneeded counter 2.0.5 [list source [file join $dir counter.tcl]]

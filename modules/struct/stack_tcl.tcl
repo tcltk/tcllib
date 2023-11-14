@@ -86,7 +86,7 @@ proc ::struct::stack::stack_tcl {args} {
 # Results:
 #	Varies based on command to perform
 
-if {[package vsatisfies [package provide Tcl] 8.5]} {
+if {[package vsatisfies [package provide Tcl] 8.5 9]} {
     # In 8.5+ we can do an ensemble for fast dispatch.
 
     proc ::struct::stack::StackProc {name cmd args} {
@@ -393,7 +393,7 @@ proc ::struct::stack::I::pop {name {count 1}} {
 # Results:
 #	None.
 
-if {[package vsatisfies [package provide Tcl] 8.5]} {
+if {[package vsatisfies [package provide Tcl] 8.5 9]} {
 
     proc ::struct::stack::I::push {name args} {
 	if {![llength $args]} {

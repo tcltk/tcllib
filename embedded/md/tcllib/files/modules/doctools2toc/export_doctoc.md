@@ -41,7 +41,7 @@ doctools::toc::export::doctoc \- doctoc export plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::toc::export::doctoc ?0\.2\.1?  
 
 [__[export](\.\./\.\./\.\./\.\./index\.md\#export)__ *serial* *configuration*](#1)  

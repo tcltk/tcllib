@@ -43,7 +43,7 @@ gpx \- Extracts waypoints, tracks and routes from GPX files
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require gpx ?0\.9?  
 
 [__::gpx::Create__ *gpxFilename* ?*rawXML*?](#1)  

@@ -9,7 +9,7 @@
 # RCS: @(#) $Id: montecarlo.tcl,v 1.2 2008/01/23 05:35:02 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require simulation::random
 package require math::statistics
 
@@ -441,7 +441,7 @@ proc ::simulation::montecarlo::StandardAnalysis {} {
 
 # Announce the package
 #
-package provide simulation::montecarlo 0.1
+package provide simulation::montecarlo 0.2
 
 # main --
 #     Quick test

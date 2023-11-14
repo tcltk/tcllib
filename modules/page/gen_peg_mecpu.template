@@ -45,4 +45,4 @@ snit::type ::@PKG@ {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide @PKG@ 0.1
+package provide @PKG@ 0.2

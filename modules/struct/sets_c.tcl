@@ -16,7 +16,7 @@
 package require critcl
 # @sak notprovided struct_setc
 package provide struct_setc 2.1.1
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::struct {
     # Supporting code for the main command.

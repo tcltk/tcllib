@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 SASL::NTLM \- Implementation of SASL NTLM mechanism for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBSASL::NTLM  ?1\&.1\&.2?\fR
 .sp

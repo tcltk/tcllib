@@ -10,9 +10,9 @@
 #
 # RCS: @(#) $Id: calculus.tcl,v 1.15 2008/10/08 03:30:48 andreas_kupries Exp $
 
-package require Tcl 8.5;# lrepeat
+package require Tcl 8.5 9;# lrepeat
 package require math::interpolate
-package provide math::calculus 1.0
+package provide math::calculus 1.1
 
 # math::calculus --
 #    Namespace for the commands
@@ -1489,7 +1489,7 @@ namespace eval ::math::calculus {
            0.3818300505051189e+00    0.4179591836734694e+00}
 }
 
-if {[package vsatisfies [package present Tcl] 8.5]} {
+if {[package vsatisfies [package present Tcl] 8.5 9]} {
     proc ::math::calculus::Min {a b} { expr {min ($a, $b)} }
     proc ::math::calculus::Max {a b} { expr {max ($a, $b)} }
 } else {
