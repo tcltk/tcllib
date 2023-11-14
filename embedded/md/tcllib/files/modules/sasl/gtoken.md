@@ -37,7 +37,7 @@ SASL::XGoogleToken \- Implementation of SASL NTLM mechanism for Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require SASL::XGoogleToken ?1\.0\.1?  
 
 # <a name='description'></a>DESCRIPTION

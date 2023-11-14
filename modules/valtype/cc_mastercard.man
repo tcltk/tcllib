@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE creditcard::mastercard]
-[vset VERSION 1]
+[vset VERSION 1.1]
 [vset A a]
 [vset NAME {Mastercard creditcard number}]
 [vset NAMEX {Mastercard creditcard number}]

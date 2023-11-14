@@ -47,7 +47,7 @@ des \- Implementation of the DES and triple\-DES ciphers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require des 1\.1  
 
 [__::DES::des__ ?*\-mode \[ecb&#124;cbc&#124;cfb&#124;ofb\]*? ?*\-dir \[encrypt&#124;decrypt\]*? *\-key keydata* ?*\-iv vector*? ?*\-hex*? ?*\-weak*? ?*\-out channel*? ?*\-chunksize size*? \[ *\-in channel* &#124; *data* \]](#1)  

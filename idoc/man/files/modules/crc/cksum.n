@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 cksum \- Calculate a cksum(1) compatible checksum
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBcksum  ?1\&.1\&.4?\fR
 .sp

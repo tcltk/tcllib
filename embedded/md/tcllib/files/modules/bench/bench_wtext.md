@@ -38,7 +38,7 @@ readable text
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require bench::out::text ?0\.1\.2?  
 
 [__::bench::out::text__ *bench\_result*](#1)  

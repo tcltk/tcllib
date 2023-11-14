@@ -56,7 +56,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require textutil::repeat
 
 namespace eval ::textutil::tabify {}
@@ -286,4 +286,4 @@ namespace eval ::textutil::tabify {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::tabify 0.7
+package provide textutil::tabify 0.8

@@ -37,7 +37,7 @@ log \- Procedures to log messages of libraries and applications\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
+package require Tcl 8\.5 9  
 package require log ?1\.4?  
 
 [__::log::levels__](#1)  

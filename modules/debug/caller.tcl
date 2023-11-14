@@ -7,7 +7,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require debug
 
 namespace eval ::debug {
@@ -93,5 +93,5 @@ proc ::debug::Filter {args droplist} {
 # ### ######### ###########################
 ## Ready for use
 
-package provide debug::caller 1.1
+package provide debug::caller 1.2
 return

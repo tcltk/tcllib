@@ -275,7 +275,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pop3d \- Tcl POP3 server implementation
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBpop3d  ?1\&.1\&.0?\fR
 .sp

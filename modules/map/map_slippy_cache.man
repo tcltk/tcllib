@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.4]
+[vset VERSION 0.5]
 [manpage_begin map::slippy::cache n [vset VERSION]]
 [keywords cache]
 [keywords filesystem]
@@ -10,7 +10,7 @@
 [keywords zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Management of a tile cache in the local filesystem}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require Tk 8.6]
 [require map::slippy]
 [require map::slippy::cache [opt [vset VERSION]]]
@@ -19,7 +19,7 @@
 This package provides a class for managing a cache of tiles for slippy-based maps in the local
 filesystem.
 
-[para][strong BEWARE], [strong Attention] Version [strong 0.4] is [strong {NOT backward compatible}]
+[para][strong BEWARE], [strong Attention] Version [strong 0.5] is [strong {NOT backward compatible}]
 with version 0.3 and earlier. This is due to switching this package's internals to the use of
 version 0.8 of [package map::slippy].
 

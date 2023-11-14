@@ -33,7 +33,7 @@ term \- General terminal control
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term ?0\.1?  
 
 # <a name='description'></a>DESCRIPTION

@@ -14,7 +14,7 @@
 package require critcl
 # @sak notprovided struct_stackc
 package provide struct_stackc 1.3.1
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::struct {
     # Supporting code for the main command.

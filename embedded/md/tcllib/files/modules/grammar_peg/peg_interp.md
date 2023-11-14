@@ -35,7 +35,7 @@ grammar::peg::interp \- Interpreter for parsing expression grammars
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require grammar::mengine ?0\.1?  
 package require grammar::peg::interp ?0\.1\.1?  
 

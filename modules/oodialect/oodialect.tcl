@@ -7,7 +7,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package oo::dialect 0.3.3
+# Package oo::dialect 0.3.4
 # Meta platform     tcl
 # Meta summary      A utility for defining a domain specific language for TclOO systems
 # Meta description  This package allows developers to generate
@@ -262,4 +262,4 @@ proc ::oo::dialect::SuperClass {namespace args} {
   }
 }
 
-package provide oo::dialect 0.3.3
+package provide oo::dialect 0.3.4

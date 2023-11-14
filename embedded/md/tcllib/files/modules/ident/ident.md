@@ -33,7 +33,7 @@ ident \- Ident protocol client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require ident ?0\.42?  
 
 [__::ident::query__ *socket* ?*callback*?](#1)  

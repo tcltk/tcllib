@@ -61,7 +61,7 @@
 
 # @mdgen EXCLUDE: crcc.tcl
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::crc {
     namespace export crc16 crc-ccitt crc-32
@@ -95,8 +95,8 @@ namespace eval ::crc {
     # calculate the sign bit for the current platform.
     variable signbit
     if {![info exists signbit]} {
-        if {[info exists tcl_platform(wordSize)]} {
-            set signbit [expr {1 << (8*$tcl_platform(wordSize)-1)}]
+        if {[info exists ::tcl_platform(wordSize)]} {
+            set signbit [expr {1 << (8*$::tcl_platform(wordSize)-1)}]
         } else {
             # Old Tcl. Find bit by shifting until wrap around to 0.
             # With int() result limited to system word size the loop will end.
@@ -523,8 +523,7 @@ proc ::crc::crc16 {args} {
 }
 
 proc ::crc::crc-ccitt {args} {
-    return [eval [list crc -impl [namespace origin CRC-CCITT] -seed 0xFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-CCITT] -seed 0xFFFF] $args]
 }
 
 proc ::crc::xmodem {args} {
@@ -532,43 +531,35 @@ proc ::crc::xmodem {args} {
 }
 
 proc ::crc::crc-32 {args} {
-    return [eval [list crc -impl [namespace origin CRC-32] -seed 0xFFFFFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-32] -seed 0xFFFFFFFF] $args]
 }
 
 proc ::crc::kermit {args} {
-    return [eval [list crc -impl [namespace origin CRC-KERMIT] -seed 0]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-KERMIT] -seed 0] $args]
 }
 
 proc ::crc::modbus {args} {
-    return [eval [list crc -impl [namespace origin CRC-MODBUS] -seed 0xFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-MODBUS] -seed 0xFFFF] $args]
 }
 
 proc ::crc::mcrf4xx {args} {
-    return [eval [list crc -impl [namespace origin CRC-MCRF4XX] -seed 0xFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-MCRF4XX] -seed 0xFFFF] $args]
 }
 
 proc ::crc::genibus {args} {
-    return [eval [list crc -impl [namespace origin CRC-GENIBUS] -seed 0xFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-GENIBUS] -seed 0xFFFF] $args]
 }
 
 proc ::crc::crc-x25 {args} {
-    return [eval [list crc -impl [namespace origin CRC-X25] -seed 0xFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-X25] -seed 0xFFFF] $args]
 }
 
 proc ::crc::crc-sdlc {args} {
-    return [eval [list crc -impl [namespace origin CRC-X25] -seed 0xFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-X25] -seed 0xFFFF] $args]
 }
 
 proc ::crc::crc-usb {args} {
-    return [eval [list crc -impl [namespace origin CRC-USB] -seed 0xFFFF]\
-                $args]
+    return [eval [list crc -impl [namespace origin CRC-USB] -seed 0xFFFF] $args]
 }
 
 proc ::crc::buypass {args} {

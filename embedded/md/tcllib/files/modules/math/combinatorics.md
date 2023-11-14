@@ -30,9 +30,9 @@ math::combinatorics \- Combinatorial functions in the Tcl Math Library
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require math ?1\.2\.3?  
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require TclOO  
 package require math::combinatorics ?2\.0?  
 

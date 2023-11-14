@@ -33,7 +33,7 @@ math::numtheory \- Number Theory
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
+package require Tcl ?8\.5 9?  
 package require math::numtheory ?1\.1\.3?  
 
 [__math::numtheory::isprime__ *N* ?*option* *value* \.\.\.?](#1)  

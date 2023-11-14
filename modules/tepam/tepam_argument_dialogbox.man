@@ -7,7 +7,7 @@
 [moddesc   {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM argument_dialogbox, reference manual}]
 [category  {Argument entry form, mega widget}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require Tk 8.3]
 [require tepam [opt 0.5]]
 

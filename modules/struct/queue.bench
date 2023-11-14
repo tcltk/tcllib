@@ -9,15 +9,15 @@
 # We need at least version 8.4 for the package and thus the
 # benchmarks.
 
-if {![package vsatisfies [package present Tcl] 8.4]} {
-    bench_puts "Need Tcl 8.4+, found Tcl [package present Tcl]"
+if {![package vsatisfies [package present Tcl] 8.5 9]} {
+    bench_puts "Need Tcl 8.5+, found Tcl [package present Tcl]"
     return
 }
 
 # ### ### ### ######### ######### ######### ###########################
 ## Setting up the environment ...
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 package forget struct::list
 package forget struct::queue

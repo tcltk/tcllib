@@ -1,4 +1,4 @@
-[vset VERSION 1.5.2]
+[vset VERSION 1.5.3]
 [manpage_begin cmdline n [vset VERSION]]
 [keywords {argument processing}]
 [keywords argv]
@@ -8,7 +8,7 @@
 [moddesc   {Command line and option processing}]
 [titledesc {Procedures to process command lines and options.}]
 [category  {Programming tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require cmdline [opt [vset VERSION]]]
 [description]
 

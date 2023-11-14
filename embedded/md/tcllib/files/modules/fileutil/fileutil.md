@@ -32,7 +32,7 @@ fileutil \- Procedures implementing some file utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
+package require Tcl 8\.5 9  
 package require fileutil ?1\.16\.1?  
 
 [__::fileutil::lexnormalize__ *path*](#1)  

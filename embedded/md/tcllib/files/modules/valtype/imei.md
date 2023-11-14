@@ -37,7 +37,7 @@ valtype::imei \- Validation for IMEI
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require snit 2  
 package require valtype::common  
 package require valtype::luhn  

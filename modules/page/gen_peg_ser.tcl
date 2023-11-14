@@ -60,4 +60,4 @@ namespace eval ::page::gen::peg::ser {}
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::gen::peg::ser 0.1
+package provide page::gen::peg::ser 0.2

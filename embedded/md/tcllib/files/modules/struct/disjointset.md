@@ -32,7 +32,7 @@ struct::disjointset \- Disjoint set data structure
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require struct::disjointset ?1\.1?  
 
 [__::struct::disjointset__ *disjointsetName*](#1)  

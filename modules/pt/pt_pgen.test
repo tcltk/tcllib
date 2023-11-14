@@ -29,8 +29,8 @@ support {
     useAccel [useTcllibC] struct/sets.tcl struct::set
     TestAccelInit                         struct::set
 
-    if {![package vsatisfies [package present Tcl] 8.6]} {
-	# Pull in try emulation for 8.5. Tcl 8.6 has it builtin.
+    if {![package vsatisfies [package present Tcl] 8.6 9]} {
+	# Pull in try emulation for 8.5. Tcl 8.6 / 9 has it builtin.
 	use try/try.tcl try
     }
     use      snit/snit.tcl          snit

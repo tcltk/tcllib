@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc::export::doctoc \- doctoc export plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBdoctools::toc::export::doctoc  ?0\&.2\&.1?\fR
 .sp

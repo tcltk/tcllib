@@ -6,7 +6,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5 ; # Required runtime.
+package require Tcl 8.5 9 ; # Required runtime.
 package require char
 
 # # ## ### ##### ######## ############# #####################
@@ -156,5 +156,5 @@ proc ::pt::util::Readable {pe} {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::util 1.1
+package provide pt::util 1.2
 return

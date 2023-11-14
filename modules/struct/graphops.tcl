@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 
 package require struct::disjointset ; # Used by kruskal -- 8.6 required
 package require struct::prioqueue   ; # Used by kruskal, prim
@@ -3784,4 +3784,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.11.3
+package provide struct::graph::op 0.11.4

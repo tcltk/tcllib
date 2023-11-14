@@ -35,7 +35,7 @@ tcl::chan::memchan \- In\-memory channel
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require TclOO  
 package require tcl::chan::events ?1?  
 package require tcl::chan::memchan ?1\.0\.4?  

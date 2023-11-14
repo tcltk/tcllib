@@ -17,7 +17,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -50,7 +50,7 @@ proc makewritable {path enable} {
 	file attributes $path -readonly $ro
     } else {
 	set mode [expr {$enable ? "700" : "500"}]
-	file attributes $path -permissions 00$mode
+	file attributes $path -permissions 0o0$mode
     }
     return
 }
@@ -61,7 +61,7 @@ proc makereadable {path enable} {
 	return -code error "Can't do that on Windows"
     } else {
 	set mode [expr {$enable ? "700" : "300"}]
-	file attributes $path -permissions 00$mode
+	file attributes $path -permissions 0o0$mode
     }
     return
 }
@@ -72,7 +72,7 @@ proc makeexecutable {path enable} {
 	return -code error "Can't do that on Windows"
     } else {
 	set mode [expr {$enable ? "700" : "600"}]
-	file attributes $path -permissions 00$mode
+	file attributes $path -permissions 0o0$mode
     }
     return
 }

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 xsxp \- eXtremely Simple Xml Parser
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBxsxp  1\fR
 .sp

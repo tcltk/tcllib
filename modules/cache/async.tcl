@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4 ; #
+package require Tcl 8.5 9 ; #
 package require snit    ; # 
 
 # ### ### ### ######### ######### #########
@@ -182,4 +182,4 @@ snit::type cache::async {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide cache::async 0.3.1
+package provide cache::async 0.3.2

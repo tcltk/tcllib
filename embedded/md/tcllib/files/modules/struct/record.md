@@ -51,7 +51,7 @@ struct::record \- Define and create records \(similar to 'C' structures\)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::record ?1\.2\.2?  
 
 [__record define__ *recordName* *recordMembers* ?*instanceName1 instanceName2 \.\.\.*?](#1)  

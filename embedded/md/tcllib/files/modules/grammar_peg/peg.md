@@ -45,7 +45,7 @@ grammar::peg \- Create and manipulate parsing expression grammars
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
 package require grammar::peg ?0\.1?  
 

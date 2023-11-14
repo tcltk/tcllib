@@ -30,7 +30,7 @@ struct::stack \- Create and manipulate stack objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require struct::stack ?1\.5\.3?  
 
 [*stackName* __option__ ?*arg arg \.\.\.*?](#1)  

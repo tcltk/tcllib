@@ -8,7 +8,7 @@
 # server is strictly for short testing the implementation of the ftp
 # module over short periods of time.
 
-package require Tcl 8.3
+package require Tcl 8.5 9
 package require ftpd
 package require log
 

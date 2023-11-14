@@ -22,7 +22,7 @@
 # -------------------------------------------------------------------------
 # @mdgen EXCLUDE: sha256c.tcl
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::sha2 {
     variable  accel
@@ -824,7 +824,7 @@ namespace eval ::sha2 {
     unset e
 }
 
-package provide sha256 1.0.4
+package provide sha256 1.0.5
 
 # -------------------------------------------------------------------------
 # Local Variables:

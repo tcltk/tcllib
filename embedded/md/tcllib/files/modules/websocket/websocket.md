@@ -40,7 +40,7 @@ websocket \- Tcl implementation of the websocket protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require http 2\.7  
 package require logger  
 package require sha1  

@@ -32,7 +32,7 @@ javascript \- Procedures to generate HTML and Java Script structures\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
+package require Tcl 8\.5 9  
 package require javascript ?1\.0\.2?  
 
 [__::javascript::makeSelectorWidget__ *id leftLabel leftValueList rightLabel rightValueList rightNameList* ?*length*? ?*minWidth*?](#1)  

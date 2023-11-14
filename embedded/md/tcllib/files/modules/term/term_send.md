@@ -33,7 +33,7 @@ term::send \- General output to terminals
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::send ?0\.1?  
 
 [__::term::send::wrch__ *chan* *str*](#1)  

@@ -33,7 +33,7 @@ cache::async \- Asynchronous in\-memory cache
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require cache::async ?0\.3\.1?  
 
 [__::cache::async__ *objectName* *commandprefix* ?*options*\.\.\.?](#1)  

@@ -5,7 +5,7 @@
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # See the file license.terms.
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::bee {
     # Encoder commands
@@ -987,4 +987,4 @@ proc ::bee::decodePush {token string} {
 }
 
 
-package provide bee 0.1
+package provide bee 0.2

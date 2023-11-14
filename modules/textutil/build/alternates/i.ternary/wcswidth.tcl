@@ -8,7 +8,7 @@
 # Author: Sean Woods <yoda@etoyoc.com>
 # Author: Andreas Kupries <andreas.kupries@gmail.com>
 ###
-package require Tcl 8.5
+package require Tcl 8.5 9
 package provide textutil::wcswidth 35.2
 namespace eval ::textutil {}
 

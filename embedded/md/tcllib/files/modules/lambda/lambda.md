@@ -39,7 +39,7 @@ lambda \- Utility commands for anonymous procedures
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require lambda ?1?  
 
 [__::lambda__ *arguments* *body* ?*arg*\.\.\.?](#1)  

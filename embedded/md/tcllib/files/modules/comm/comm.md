@@ -77,7 +77,7 @@ comm \- A remote communication facility for Tcl \(8\.5 and later\)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require comm ?4\.7\.1?  
 
 [__::comm::comm send__ ?\-async? ?\-command *callback*? *id* *cmd* ?*arg arg \.\.\.*?](#1)  

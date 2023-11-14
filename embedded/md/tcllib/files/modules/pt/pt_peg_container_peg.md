@@ -33,7 +33,7 @@ pt::peg::container::peg \- PEG Storage\. Canned PEG grammar specification
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require snit  
 package require pt::peg::container::peg ?1?  
 package require pt::peg::container  

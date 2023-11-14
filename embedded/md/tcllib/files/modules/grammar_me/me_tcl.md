@@ -39,7 +39,7 @@ grammar::me::tcl \- Virtual machine implementation I for parsing token streams
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require grammar::me::tcl ?0\.1?  
 
 [__::grammar::me::tcl__ __cmd__ *\.\.\.*](#1)  

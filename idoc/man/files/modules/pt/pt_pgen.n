@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::pgen \- Parser Generator
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBpt::pgen  ?1\&.1?\fR
 .sp

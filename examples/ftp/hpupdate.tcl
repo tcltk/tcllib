@@ -29,7 +29,7 @@
 ########################################################################
 
 # load required FTP package library 
-package require Tcl 8.3
+package require Tcl 8.5 9
 package require ftp 2.0
 package require Tk
 if {![llength [info commands tkButtonInvoke]]} {
@@ -796,17 +796,8 @@ global ftp
 }
 
 
-if {[package vcompare [info tclversion] 8.4] >= 0} {
-    proc Touch {filename} {
-	file mtime $filename [clock seconds]
-    }
-} else {
-    # update timestamp
-    proc Touch {filename} {
-	set file [open $filename w]
-	puts -nonewline $file ""
-	close $file
-    }
+proc Touch {filename} {
+    file mtime $filename [clock seconds]
 }
 
 

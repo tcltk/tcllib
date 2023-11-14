@@ -1,4 +1,4 @@
-[vset TU_STRING_VERSION 0.8]
+[vset TU_STRING_VERSION 0.9]
 [manpage_begin textutil::string n [vset TU_STRING_VERSION]]
 [see_also regexp(n)]
 [see_also split(n)]
@@ -13,7 +13,7 @@
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to manipulate texts and strings.}]
 [category  {Text processing}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require textutil::string [opt [vset TU_STRING_VERSION]]]
 [description]
 

@@ -37,7 +37,7 @@ bench::out::csv \- bench::out::csv \- Formatting benchmark results as CSV
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require bench::out::csv ?0\.1\.2?  
 
 [__::bench::out::csv__ *bench\_result*](#1)  

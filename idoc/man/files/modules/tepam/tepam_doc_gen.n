@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tepam::doc_gen \- TEPAM DOC Generation, reference manual
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBtepam  0\&.5\fR
 .sp

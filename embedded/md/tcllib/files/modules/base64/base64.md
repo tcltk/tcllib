@@ -42,7 +42,7 @@ base64 \- base64\-encode/decode binary data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
+package require Tcl 8\.5 9  
 package require base64 ?2\.5?  
 
 [__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*](#1)  

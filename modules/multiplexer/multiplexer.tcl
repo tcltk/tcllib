@@ -9,7 +9,7 @@
 
 # $Id: multiplexer.tcl,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
 
-package provide multiplexer 0.2
+package provide multiplexer 0.3
 package require logger
 
 namespace eval ::multiplexer {

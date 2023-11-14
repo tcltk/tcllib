@@ -45,7 +45,7 @@ report \- Create and manipulate report objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require report ?0\.4?  
 
 [__::report::report__ *reportName* *columns* ?__style__ *style arg\.\.\.*?](#1)  

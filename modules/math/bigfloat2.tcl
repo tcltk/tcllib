@@ -5,7 +5,7 @@
 # See the file named license.terms.
 ########################################################################
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 # this line helps when I want to source this file again and again
 catch {namespace delete ::math::bigfloat}
@@ -2221,4 +2221,4 @@ namespace eval ::math::bigfloat {
 # (AM) No "namespace import" - this should be left to the user!
 #namespace import ::math::bigfloat::*
 
-package provide math::bigfloat 2.0.4
+package provide math::bigfloat 2.0.5

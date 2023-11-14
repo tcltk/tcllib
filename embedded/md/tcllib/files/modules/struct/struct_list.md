@@ -42,7 +42,7 @@ struct::list \- Procedures for manipulating lists
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require struct::list ?1\.8\.5?  
 
 [__::struct::list__ __longestCommonSubsequence__ *sequence1* *sequence2* ?*maxOccurs*?](#1)  

@@ -2322,8 +2322,8 @@ set mixoutscript {my test untool $class}
 set mixinscript {my test tool $class}
 clay::define MixinTool {
   Variable toolvar unchanged.mixin
-  clay set mixin/ unmap-script $mixoutscript
-  clay set mixin/ map-script $mixinscript
+  clay set mixin/ unmap-script $::mixoutscript
+  clay set mixin/ map-script $::mixinscript
   clay set mixin/ name {Generic Tool}
 
   Ensemble test::untool class {

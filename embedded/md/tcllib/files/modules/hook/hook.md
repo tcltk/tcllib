@@ -49,7 +49,7 @@ hook \- Hooks
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require hook ?0\.2?  
 
 [__hook__ __bind__ ?*subject*? ?*hook*? ?*observer*? ?*cmdPrefix*?](#1)  

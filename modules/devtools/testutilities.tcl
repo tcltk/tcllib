@@ -21,7 +21,7 @@ namespace eval ::tcllib::testutils {
 ## version is not met by the active interpreter.
 
 proc testsNeedTcl {version} {
-    if {[package vsatisfies [package provide Tcl] $version]} return
+    if {[package vsatisfies [package provide Tcl] $version 9]} return
 
     puts "    Aborting the tests found in \"[file tail [info script]]\""
     puts "    Requiring at least Tcl $version, have [package present Tcl]."
@@ -193,55 +193,46 @@ proc InitializeTclTest {} {
     # ### ### ### ######### ######### #########
     ## Define a set of standard constraints
 
-    ::tcltest::testConstraint tcl8.3only \
-	[expr {![package vsatisfies [package provide Tcl] 8.4]}]
-
-    ::tcltest::testConstraint tcl8.3plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
-
-    ::tcltest::testConstraint tcl8.4only \
-	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
-
-    ::tcltest::testConstraint tcl8.4plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
-
     ::tcltest::testConstraint tcl8.5only [expr {
-	![package vsatisfies [package provide Tcl] 8.6] &&
+	![package vsatisfies [package provide Tcl] 8.6 9] &&
 	 [package vsatisfies [package provide Tcl] 8.5]
     }]
 
-    ::tcltest::testConstraint tcl8.5plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
+    ::tcltest::testConstraint tcl8.6only [expr {
+	![package vsatisfies [package provide Tcl] 9] &&
+	 [package vsatisfies [package provide Tcl] 8.6]
+    }]
 
     ::tcltest::testConstraint tcl8.6plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
+	[expr {[package vsatisfies [package provide Tcl] 8.6 9]}]
 
     ::tcltest::testConstraint tcl8.6not8.7 \
 	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
 	       ![package vsatisfies [package provide Tcl] 8.7]}]
 
     ::tcltest::testConstraint tcl8.6not10 \
-	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
+	[expr { [package vsatisfies [package provide Tcl] 8.6 9] &&
 	       ![package vsatisfies [package provide Tcl] 8.6.10]}]
 
     ::tcltest::testConstraint tcl8.6.10plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6.10]}]
-
-    ::tcltest::testConstraint tcl8.4minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
-
-    ::tcltest::testConstraint tcl8.5minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.6]}]
+	[package vsatisfies [package provide Tcl] 8.6.10 9]
 
     ::tcltest::testConstraint tcl8.7plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.7]}]
+	[package vsatisfies [package provide Tcl] 8.7 9]
+
+    ::tcltest::testConstraint tcl9plus \
+	[package vsatisfies [package provide Tcl] 9]
+
+    ::tcltest::testConstraint tcl8 \
+	[package vsatisfies [package provide Tcl] 8.5]
+        
 
     # ### ### ### ######### ######### #########
     ## Cross-version code for the generation of the error messages created
     ## by Tcl procedures when called with the wrong number of arguments,
     ## either too many, or not enough.
 
-    if {[package vsatisfies [package provide Tcl] 8.6]} {
+    if {[package vsatisfies [package provide Tcl] 8.6 9]} {
 	# 8.6+
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -264,7 +255,7 @@ proc InitializeTclTest {} {
 	    }
 	    return $msg
 	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.5]} {
+    } else {
 	# 8.5
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -285,36 +276,6 @@ proc InitializeTclTest {} {
 	    } else {
 		set msg "wrong # args: should be \"$functionName\""
 	    }
-	    return $msg
-	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.4]} {
-	# 8.4+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    if {$argList != {}} {set argList " $argList"}
-	    set msg "wrong # args: should be \"$functionName$argList\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    # Create a different message for functions with no args.
-	    if {[llength $argList]} {
-		set msg "wrong # args: should be \"$functionName $argList\""
-	    } else {
-		set msg "wrong # args: should be \"$functionName\""
-	    }
-	    return $msg
-	}
-    } else {
-	# 8.2+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    set msg "no value given for parameter "
-	    append msg "\"[lindex $argList $missingIndex]\" to "
-	    append msg "\"$functionName\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    set msg "called \"$functionName\" with too many arguments"
 	    return $msg
 	}
     }
@@ -874,7 +835,7 @@ proc TestAccelExit {namespace} {
 
 proc TestFiles pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
@@ -889,7 +850,7 @@ proc TestFiles pattern {
 
 proc TestFilesGlob pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {

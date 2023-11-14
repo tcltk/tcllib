@@ -37,7 +37,7 @@ uevent \- User events
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require uevent ?0\.3\.1?  
 package require logger  
 

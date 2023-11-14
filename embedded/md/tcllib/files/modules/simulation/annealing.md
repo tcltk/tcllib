@@ -35,7 +35,7 @@ simulation::annealing \- Simulated annealing
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require simulation::annealing 0\.2  
 
 [__::simulation::annealing::getOption__ *keyword*](#1)  

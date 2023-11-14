@@ -30,7 +30,7 @@ switched \- switch/option management\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require switched ?2\.2\.1?  
 
 [__<switched>__ __complete__ *this*](#1)  

@@ -30,7 +30,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.3
+testsNeedTcl     8.5
 testsNeedTcltest 2.2
 
 #---------------------------------------------------------------------
@@ -50,14 +50,12 @@ tcltest::testConstraint bwidget [expr {
 }]
 
 # Determine which Snit version to load.  If Tcl 8.5, use 2.x.
-# Otherwise, use 1.x. (Different variants depending on 8.3 vs 8.4)
-if {[package vsatisfies [package present Tcl] 8.5]} {
-    set snitVersion 2
-    set snitFile snit2.tcl
-} else {
-    set snitVersion 1
-    set snitFile snit.tcl
-}
+set snitVersion 2
+set snitFile snit2.tcl
+
+# For Snit 1 use
+# set snitVersion 1
+# set snitFile snit.tcl
 
 # Marks tests which are only for Snit 1
 tcltest::testConstraint snit1 [expr {$snitVersion == 1}]
@@ -65,15 +63,11 @@ tcltest::testConstraint snit1 [expr {$snitVersion == 1}]
 # Marks tests which are only for Snit 2
 tcltest::testConstraint snit2 [expr {$snitVersion == 2}]
 
-# Marks tests which are only for Snit 1 with Tcl 8.3
-tcltest::testConstraint tcl83 [string equal [info tclversion] "8.3"]
-tcltest::testConstraint tcl84 [package vsatisfies [package present Tcl] 8.4]
-
-if {[package vsatisfies [package provide Tcl] 8.6]} {
-    # 8.6+
+if {[package vsatisfies [package provide Tcl] 8.6 9]} {
+    # 8.6-
     proc expect {six default} { return $six }
 } else {
-    # 8.4/8.5
+    # 8.5
     proc expect {six default} { return $default }
 }
 
@@ -752,6 +746,17 @@ test dtypemethod-1.5 {delegating unknown typemethods to existing typecomponent} 
     dog destroy
 } -result {3}
 
+if {[package vsatisfies [package provide Tcl] 9]} {
+    set stringErr1 {bad option "foo": must be cat, compare, equal, first, index, insert, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+    set stringErr2 {unknown or ambiguous subcommand "foo": must be cat, compare, equal, first, index, insert, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} elseif {[package vsatisfies [package provide Tcl] 8.6]} { 
+    set stringErr1 {bad option "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+    set stringErr2 {unknown or ambiguous subcommand "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} else {
+    set stringErr1 {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+    set stringErr2 {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+}    
+
 # Case 1
 test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
@@ -767,7 +772,7 @@ test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent wi
     snit1
 } -returnCodes {
     error
-} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr1
 
 test dtypemethod-1.6a.0 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
@@ -780,10 +785,10 @@ test dtypemethod-1.6a.0 {delegating unknown typemethod to existing typecomponent
 
     dog foo bar
 } -constraints {
-    snit2 tcl8.5minus
+    snit2 tcl8.5only
 } -returnCodes {
     error
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dtypemethod-1.6a.1 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
@@ -799,7 +804,7 @@ test dtypemethod-1.6a.1 {delegating unknown typemethod to existing typecomponent
     snit2 tcl8.6plus
 } -returnCodes {
     error
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 1} -body {
     type dog {
@@ -3336,7 +3341,7 @@ test dmethod-1.6 {delegating unknown method to existing component with error} -b
     error
 } -cleanup {
     dog destroy
-} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr1
 
 test dmethod-1.6a.0 {delegating unknown method to existing component with error} -body {
     type dog {
@@ -3350,12 +3355,12 @@ test dmethod-1.6a.0 {delegating unknown method to existing component with error}
     dog create spot
     spot foo bar
 } -constraints {
-    snit2 tcl8.5minus
+    snit2 tcl8.5only
 } -returnCodes {
     error
 } -cleanup {
     dog destroy
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dmethod-1.6a.1 {delegating unknown method to existing component with error} -body {
     type dog {
@@ -3374,7 +3379,7 @@ test dmethod-1.6a.1 {delegating unknown method to existing component with error}
     error
 } -cleanup {
     dog destroy
-} -result {unknown or ambiguous subcommand "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+} -result $stringErr2
 
 test dmethod-1.7 {can't delegate local method: order 1} -body {
     type cat {
@@ -5307,28 +5312,8 @@ test iinfo-6.3 {info options with local and delegated options} -body {
     dog destroy
 } -result {-bar -foo -quux}
 
-test iinfo-6.4 {info options with unknown delegated options} -constraints {
-    tk tcl83
-} -body {
-    widgetadaptor myframe {
-        option -foo a
-        delegate option * to hull
-        constructor {args} {
-            installhull [frame $self]
-        }
-    }
-    myframe .frm
-
-    set a [lsort [.frm info options]]
-    destroy .frm
-    tkbide
-    set a
-} -cleanup {
-    myframe destroy
-} -result {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -relief -takefocus -visual -width}
-
 test iinfo-6.5 {info options with unknown delegated options} -constraints {
-    tk tcl84
+    tk
 } -body {
     widgetadaptor myframe {
         option -foo a
@@ -5345,30 +5330,13 @@ test iinfo-6.5 {info options with unknown delegated options} -constraints {
     set a
 } -cleanup {
     myframe destroy
-} -result {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
-
-test iinfo-6.6 {info options with exceptions} -constraints {
-    tk tcl83
-} -body {
-    widgetadaptor myframe {
-        option -foo a
-        delegate option * to hull except -background
-        constructor {args} {
-            installhull [frame $self]
-        }
-    }
-    myframe .frm
-
-    set a [lsort [.frm info options]]
-    destroy .frm
-    tkbide
-    set a
-} -cleanup {
-    myframe destroy
-} -result {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -relief -takefocus -visual -width}
+} -result [::tcltest::byConstraint {
+    tcl8 {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+    tcl9plus {-background -backgroundimage -bd -bg -bgimg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -tile -visual -width}
+}]
 
 test iinfo-6.7 {info options with exceptions} -constraints {
-    tk tcl84
+    tk
 } -body {
     widgetadaptor myframe {
         option -foo a
@@ -5385,7 +5353,10 @@ test iinfo-6.7 {info options with exceptions} -constraints {
     set a
 } -cleanup {
     myframe destroy
-} -result {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+} -result [::tcltest::byConstraint {
+    tcl8 {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+    tcl9plus {-backgroundimage -bd -bg -bgimg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -tile -visual -width}
+}]
 
 test iinfo-6.8 {info options with pattern} -constraints {
     tk

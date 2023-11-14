@@ -47,7 +47,7 @@ pt::peg::import::json \- PEG Import Plugin\. Read JSON format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::import::json ?1?  
 package require pt::peg::to::json  
 

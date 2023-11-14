@@ -15,7 +15,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require pt::peg
 package require pluginmgr
@@ -113,5 +113,5 @@ snit::type ::pt::peg::export {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::export 1.0.1
+package provide pt::peg::export 1.0.2
 return

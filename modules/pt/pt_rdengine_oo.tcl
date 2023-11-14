@@ -16,7 +16,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require TclOO
 package require struct::stack 1.5 ; # Requiring peekr, getr, get, trim* methods
 package require pt::ast
@@ -2166,5 +2166,5 @@ oo::class create ::pt::rde::oo {
 
 # # ## ### ##### ######## ############# #####################
 ## Ready
-package provide pt::rde::oo 1.1
+package provide pt::rde::oo 1.2
 return

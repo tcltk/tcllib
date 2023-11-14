@@ -30,7 +30,7 @@ counter \- Procedures for counters and histograms
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
+package require Tcl 8\.5 9  
 package require counter ?2\.0\.4?  
 
 [__::counter::init__ *tag args*](#1)  

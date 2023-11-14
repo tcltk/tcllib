@@ -18,7 +18,7 @@
 #       Original version derived from wiki code
 #-------------------------------------------------------------------------
 
-package provide math::roman 1.0
+package provide math::roman 1.1
 
 #==========================================================================
 # Namespace

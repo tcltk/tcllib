@@ -30,7 +30,7 @@ textutil::patch \- Application of uni\-diff patches to directory trees
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::patch ?0\.1?  
 
 [__::textutil::patch::apply__ *basedirectory* *striplevel* *patch* *reportcmd*](#1)  

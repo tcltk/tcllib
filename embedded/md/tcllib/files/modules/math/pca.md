@@ -34,7 +34,7 @@ math::PCA \- Package for Principal Component Analysis
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.6?  
+package require Tcl ?8\.6 9?  
 package require math::linearalgebra 1\.0  
 
 [__::math::PCA::createPCA__ *data* ?args?](#1)  

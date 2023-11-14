@@ -34,7 +34,7 @@ map::geocode::nominatim \- Resolving geographical names with a Nominatim service
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require http  
 package require json  
 package require uri  

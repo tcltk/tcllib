@@ -41,12 +41,10 @@ namespace eval ::math::calculus::test {
 namespace import ::tcltest::test
 namespace import ::math::calculus::*
 
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
 }
+set ::tcl_precision 0
 
 proc matchNumbers {expected actual} {
     set match 1
@@ -722,7 +720,9 @@ test "integrateQk15-1.2" "Integration according to Gauss-Kronrod quadrature (wit
 # End of test cases
 testsuiteCleanup
 
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
 
 testsuiteCleanup
 }

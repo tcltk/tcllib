@@ -538,4 +538,4 @@ snit::type ::grammar::peg {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::peg 0.2
+package provide grammar::peg 0.3

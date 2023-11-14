@@ -43,7 +43,7 @@ md4 \- MD4 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require md4 ?1\.0\.7?  
 
 [__::md4::md4__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  

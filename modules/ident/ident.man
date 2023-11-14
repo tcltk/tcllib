@@ -1,5 +1,5 @@
 [comment {-*- Tcl -*- doctools manpage}]
-[manpage_begin ident n 0.42]
+[manpage_begin ident n 0.43]
 [keywords ident]
 [keywords identification]
 [keywords {rfc 1413}]
@@ -7,8 +7,8 @@
 [titledesc {Ident protocol client}]
 [moddesc   {Identification protocol client}]
 [category  Networking]
-[require Tcl 8.3]
-[require ident [opt 0.42]]
+[require Tcl "8.5 9"]
+[require ident [opt 0.43]]
 [description]
 
 The [package ident] package provides a client implementation of the ident

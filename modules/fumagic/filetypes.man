@@ -11,7 +11,7 @@
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing file-type recognition}]
 [category  {Programming tools}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require fileutil::magic::filetype [opt [vset VERSION]]]
 [description]
 [para]

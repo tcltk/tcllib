@@ -223,7 +223,6 @@
     82a69adbe423f2d6fdeeacf0f48f825384d9d723
     3834bce92672d7073a0205ec2fa4ce401ba86954
     04f4266c7c5b545cab5b0db49c752f654d071633
-    b25a632997f014d44aadccd406bfb6bdee945480
     15f64bac77be7589c69615de12620197f6321122
     bf78406c64bfd634cf60a856ad630bbce77d505b
     bfc6ac577677878385bfe570bd12341d78b7248d
@@ -4166,7 +4165,6 @@ bba45f02c6c48f2652168fb35b1dc0cc979802ba {
   }
   package/ {
     04f4266c7c5b545cab5b0db49c752f654d071633
-    b25a632997f014d44aadccd406bfb6bdee945480
     15f64bac77be7589c69615de12620197f6321122
     bf78406c64bfd634cf60a856ad630bbce77d505b
     bfc6ac577677878385bfe570bd12341d78b7248d
@@ -4201,17 +4199,6 @@ bba45f02c6c48f2652168fb35b1dc0cc979802ba {
   meta {
     class: package
     file: bigfloat.man
-  }
-}
-b25a632997f014d44aadccd406bfb6bdee945480 {
-  entity {
-    name: math::bigfloat
-    shed_class: package
-    version: 1.2.2
-  }
-  meta {
-    class: package
-    file: bigfloat.tcl
   }
 }
 15f64bac77be7589c69615de12620197f6321122 {

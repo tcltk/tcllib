@@ -15,7 +15,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require textutil::repeat
 package require textutil::string
 
@@ -758,4 +758,4 @@ namespace eval ::textutil::adjust {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::adjust 0.7.3
+package provide textutil::adjust 0.7.4

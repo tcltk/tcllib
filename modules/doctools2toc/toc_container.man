@@ -24,7 +24,7 @@
 [titledesc {Holding tables of contents}]
 [category  {Documentation tools}]
 [require doctools::toc [opt 2]]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require doctools::toc::structure]
 [require struct::tree]
 [require snit]

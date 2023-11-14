@@ -36,7 +36,7 @@ ftp \- Client\-side tcl implementation of the ftp protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require ftp ?2\.4\.13?  
 
 [__::ftp::Open__ *server* *user* *passwd* ?*options*?](#1)  

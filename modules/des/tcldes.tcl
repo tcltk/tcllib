@@ -1086,4 +1086,4 @@ namespace eval des {
     }; # End of createKeys.
 }; # End of des namespace eval.
 
-package provide tclDES 1.0.0
+package provide tclDES 1.1

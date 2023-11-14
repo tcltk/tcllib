@@ -37,7 +37,7 @@ valtype::luhn5 \- Validation for plain number with a LUHN5 checkdigit
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require snit 2  
 package require valtype::common  
 package require valtype::luhn5 ?1?  

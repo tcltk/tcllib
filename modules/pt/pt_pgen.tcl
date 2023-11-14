@@ -11,7 +11,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require fileutil
 package require pt::peg::from::json    ; # Frontends: json, and PEG text form
 package require pt::peg::from::peg     ; #
@@ -21,11 +21,11 @@ package require pt::peg::to::peg       ; #
 package require pt::peg::to::param     ; # PARAM assembly, raw
 package require pt::peg::to::tclparam  ; # PARAM assembly, embedded into Tcl
 package require pt::peg::to::cparam    ; # PARAM assembly, embedded into C
-package require pt::tclparam::configuration::snit  1.0.2 ; # PARAM/Tcl, snit::type
-package require pt::tclparam::configuration::tcloo 1.0.4 ; # PARAM/Tcl, TclOO class
-package require pt::cparam::configuration::critcl  1.0.2 ; # PARAM/C, in critcl
+package require pt::tclparam::configuration::snit  1.0.3 ; # PARAM/Tcl, snit::type
+package require pt::tclparam::configuration::tcloo 1.0.5 ; # PARAM/Tcl, TclOO class
+package require pt::cparam::configuration::critcl  1.0.3 ; # PARAM/C, in critcl
 package require pt::cparam::configuration::tea           ; # PARAM/C, in TEA
-package require pt::tclparam::configuration::nx 1.0.0    ; # PARAM/Tcl, NX class
+package require pt::tclparam::configuration::nx 1.0.2    ; # PARAM/Tcl, NX class
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -275,4 +275,4 @@ proc ::pt::pgen::Write::Version {optiondict} {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::pgen 1.2
+package provide pt::pgen 1.4

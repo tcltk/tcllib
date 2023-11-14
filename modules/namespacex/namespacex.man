@@ -13,7 +13,7 @@
 [copyright {2010 Documentation, Andreas Kupries}]
 [moddesc   {Namespace utility commands}]
 [titledesc {Namespace utility commands}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require namespacex [opt [vset VERSION]]]
 [description]
 

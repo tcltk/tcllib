@@ -7,7 +7,7 @@
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {Y-encode/decode binary data}]
 [category  {Text processing}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require yencode [opt 1.1.2]]
 [description]
 [para]

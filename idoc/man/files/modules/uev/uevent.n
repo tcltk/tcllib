@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uevent \- User events
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBuevent  ?0\&.3\&.1?\fR
 .sp

@@ -13,7 +13,7 @@
 # # ## ### ##### ######## ############# ######################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require valtype::luhn
 package require valtype::common
@@ -65,4 +65,4 @@ snit::type ::valtype::creditcard::amex {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::creditcard::amex 1
+package provide valtype::creditcard::amex 1.1

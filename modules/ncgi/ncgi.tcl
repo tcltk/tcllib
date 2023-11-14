@@ -26,11 +26,11 @@
 # of decoding them.
 
 # We use newer string routines
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require fileutil ; # Required by importFile.
 package require uri
 
-package provide ncgi 1.4.4
+package provide ncgi 1.4.5
 
 namespace eval ::ncgi {
 
@@ -253,7 +253,7 @@ proc ::ncgi::type {} {
 # Results:
 #	The decoded value
 
-if {[package vsatisfies [package present Tcl] 8.6]} {
+if {[package vsatisfies [package present Tcl] 8.6 9]} {
     # 8.6+, use 'binary decode hex'
     proc ::ncgi::DecodeHex {hex} {
 	return [binary decode hex $hex]
@@ -302,6 +302,7 @@ proc ::ncgi::encode {string} {
     regsub -all -- \[^a-zA-Z0-9\] $string {$map(&)} string
     # This quotes cases like $map([) or $map($) => $map(\[) ...
     regsub -all -- {[][{})\\]\)} $string {\\&} string
+    set string [string map {$map(() $map(\\()} $string]
     return [subst -nocommand $string]
 }
 

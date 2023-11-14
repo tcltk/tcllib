@@ -27,7 +27,7 @@
 # # ## ### ##### ######## ############# ######################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require valtype::common
 
@@ -173,4 +173,4 @@ snit::type ::valtype::isbn {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::isbn 1
+package provide valtype::isbn 1.1

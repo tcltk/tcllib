@@ -43,7 +43,7 @@ math::geometry \- Geometrical computations
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
+package require Tcl ?8\.5 9?  
 package require math::geometry ?1\.4\.1?  
 
 [__::math::geometry::\+__ *point1* *point2*](#1)  

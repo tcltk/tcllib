@@ -32,7 +32,7 @@ map::slippy::fetcher \- Accessing a server providing tiles for slippy\-based map
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require Tk 8\.6  
 package require map::slippy  
 package require map::slippy::fetcher ?0\.6?  

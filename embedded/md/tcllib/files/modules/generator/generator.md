@@ -32,7 +32,7 @@ generator \- Procedures for creating and using generators\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require generator ?0\.2?  
 
 [__generator__ __define__ *name* *params* *body*](#1)  

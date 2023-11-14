@@ -35,7 +35,7 @@ xsxp \- eXtremely Simple Xml Parser
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require xsxp 1  
 package require xml  
 

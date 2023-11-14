@@ -24,7 +24,7 @@
 # 1.0.0 - added SetAcl, GetAcl, and -acl keep option.
 #
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 # This is by Darren New too.
 # It is a SAX package to format XML for easy retrieval.
@@ -38,7 +38,7 @@ package require sha1
 package require md5
 package require base64
 
-package provide S3 1.0.3
+package provide S3 1.0.4
 
 namespace eval S3 {
     variable config          ; # A dict holding the current configuration.

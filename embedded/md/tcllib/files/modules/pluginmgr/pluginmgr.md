@@ -43,7 +43,7 @@ pluginmgr \- Manage a plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require pluginmgr ?0\.3?  
 
 [__::pluginmgr__ *objectName* ?*option value*\.\.\.?](#1)  

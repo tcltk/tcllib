@@ -32,7 +32,7 @@ uri\_urn \- URI utilities, URN scheme
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require uri::urn ?1\.0\.3?  
 
 [__uri::urn::quote__ *url*](#1)  

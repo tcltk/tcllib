@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 package require http
 package require json
 package require uri
@@ -88,4 +88,4 @@ snit::type map::geocode::nominatim {
     # none, so far
 }
 
-package provide map::geocode::nominatim 0.2
+package provide map::geocode::nominatim 0.3

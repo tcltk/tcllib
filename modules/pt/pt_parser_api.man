@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt_parser_api i 1]
+[manpage_begin pt_parser_api i 1.1]
 [include include/module.inc]
 [titledesc {Parser API}]
 [description]

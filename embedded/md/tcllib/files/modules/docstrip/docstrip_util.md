@@ -37,7 +37,7 @@ docstrip\_util \- Docstrip\-related utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require docstrip ?1\.2?  
 package require docstrip::util ?1\.3\.1?  
 

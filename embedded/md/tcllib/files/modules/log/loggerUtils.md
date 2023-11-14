@@ -33,7 +33,7 @@ logger::utils \- Utilities for logger
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require logger::utils ?1\.3\.1?  
 
 [__::logger::utils::createFormatCmd__ *formatString*](#1)  

@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.5]
+[vset VERSION 1.6]
 [manpage_begin rest n [vset VERSION]]
 [moddesc   {A framework for RESTful web services}]
 [titledesc {define REST web APIs and call them inline or asychronously}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require rest [opt [vset VERSION]]]
 [description]
 

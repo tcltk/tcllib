@@ -1,10 +1,10 @@
 [comment {-*- tclrep -*- doctools manpage}]
-[manpage_begin math::machineparameters n 1.0]
+[manpage_begin math::machineparameters n 0.2]
 [copyright {2008 Michael Baudin <michael.baudin@sourceforge.net>}]
 [moddesc tclrep]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
-[require math::machineparameters 0.1]
+[require math::machineparameters 0.2]
 
 [titledesc {Compute double precision machine parameters.}]
 

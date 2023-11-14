@@ -41,7 +41,7 @@ transfer::data::destination \- Data destination
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit ?1\.0?  
 package require transfer::data::destination ?0\.2?  
 

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 zipfile::mkzip \- Build a zip archive
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl  8\&.6 9\fR
 .sp
 package require \fBzipfile::mkzip  ?1\&.2\&.2?\fR
 .sp

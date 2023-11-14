@@ -42,7 +42,7 @@ cmdline \- Procedures to process command lines and options\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require cmdline ?1\.5\.2?  
 
 [__::cmdline::getopt__ *argvVar* *optstring* *optVar* *valVar*](#1)  

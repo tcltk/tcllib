@@ -1,4 +1,4 @@
-[vset VERSION 35.2]
+[vset VERSION 35.3]
 [manpage_begin textutil::wcswidth n [vset VERSION]]
 [see_also regexp(n)]
 [see_also split(n)]
@@ -10,7 +10,7 @@
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to compute terminal width of strings}]
 [category  {Text processing}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require textutil::wcswidth [opt [vset VERSION]]]
 [description]
 

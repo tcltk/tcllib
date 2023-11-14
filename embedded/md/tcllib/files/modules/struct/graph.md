@@ -35,7 +35,7 @@ struct::graph \- Create and manipulate directed graph objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require struct::graph ?2\.4\.3?  
 package require struct::list ?1\.5?  
 package require struct::set ?2\.2\.3?  

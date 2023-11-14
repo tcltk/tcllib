@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[vset PGEN_VERSION 1.1]
+[vset PGEN_VERSION 1.2]
 [manpage_begin pt::pgen n [vset PGEN_VERSION]]
 [include include/module.inc]
 [titledesc {Parser Generator}]

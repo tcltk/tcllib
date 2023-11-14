@@ -38,7 +38,7 @@ doctools::toc::structure \- Doctoc serialization utilities
 # <a name='synopsis'></a>SYNOPSIS
 
 package require doctools::toc::structure ?0\.1?  
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require logger  
 package require snit  
 

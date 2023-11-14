@@ -7,7 +7,7 @@
 #
 # Author: Sean Woods <yoda@etoyoc.com>
 ###
-package require Tcl 8.5
+package require Tcl 8.5 9
 package provide textutil::wcswidth 35.2
 namespace eval ::textutil {}
 proc ::textutil::wcswidth_type char {

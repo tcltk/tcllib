@@ -32,7 +32,7 @@ textutil::adjust \- Procedures to adjust, indent, and undent paragraphs
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil::adjust ?0\.7\.3?  
 
 [__::textutil::adjust::adjust__ *string* ?*option value\.\.\.*?](#1)  

@@ -18,7 +18,7 @@
 # Copyright (c) 2005 Neil Madden.
 # License: Tcl/BSD style.
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require bibtex
 
 proc readfile file {

@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5              ; # Required runtime.
+package require Tcl 8.5 9              ; # Required runtime.
 package require char                 ; # Character quoting utilities.
 
 # # ## ### ##### ######## ############# #####################
@@ -317,5 +317,5 @@ namespace eval ::pt::pe {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::pe 1.0.2
+package provide pt::pe 1.0.3
 return

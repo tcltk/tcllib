@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ftp \- Client-side tcl implementation of the ftp protocol
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBftp  ?2\&.4\&.13?\fR
 .sp

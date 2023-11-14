@@ -11,7 +11,7 @@
 
 # @mdgen EXCLUDE: base32_c.tcl
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::base32 {}
 

@@ -115,25 +115,25 @@ proc t_cleanup {} {
 
 t_setup
 
-test touch-1.1 {create file} tcl8.3plus {
+test touch-1.1 {create file} {
     set f [file join $tt here]
     fileutil::touch $f
     file exists $f
 } 1
 
-test touch-1.2 {'-c' prevents file creation} tcl8.3plus {
+test touch-1.2 {'-c' prevents file creation} {
     set f [file join $tt nothere]
     fileutil::touch -c $f
     file exists $f
 } 0
 
-test touch-1.3 {'-c' has no effect on existing files} tcl8.3plus {
+test touch-1.3 {'-c' has no effect on existing files} {
     set f [file join $tt {file [1]}]
     fileutil::touch -c $f
     file exists $f
 } 1
 
-test touch-1.4 {test relative times} tcl8.3plus {
+test touch-1.4 {test relative times} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -145,7 +145,7 @@ test touch-1.4 {test relative times} tcl8.3plus {
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } {1 1 1 1}
 
-test touch-1.5 {test relative times using -a} tcl8.3plus {
+test touch-1.5 {test relative times using -a} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -157,7 +157,7 @@ test touch-1.5 {test relative times using -a} tcl8.3plus {
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } {1 0 1 0}
 
-test touch-1.6 {test relative times using -m} tcl8.3plus {
+test touch-1.6 {test relative times using -m} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -169,7 +169,7 @@ test touch-1.6 {test relative times using -m} tcl8.3plus {
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } {1 0 0 1}
 
-test touch-1.7 {test relative times using -a and -m} tcl8.3plus {
+test touch-1.7 {test relative times using -a and -m} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -181,7 +181,7 @@ test touch-1.7 {test relative times using -a and -m} tcl8.3plus {
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } {1 1 1 1}
 
-test touch-1.8 {test -t} tcl8.3plus {
+test touch-1.8 {test -t} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     after 1001
@@ -191,7 +191,7 @@ test touch-1.8 {test -t} tcl8.3plus {
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } {1 1}
 
-test touch-1.9 {test -t with -a} tcl8.3plus {
+test touch-1.9 {test -t with -a} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     after 1001
@@ -201,7 +201,7 @@ test touch-1.9 {test -t with -a} tcl8.3plus {
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } [list 1 0]
 
-test touch-1.10 {test -t with -m} tcl8.3plus {
+test touch-1.10 {test -t with -m} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     after 1001
@@ -211,7 +211,7 @@ test touch-1.10 {test -t with -m} tcl8.3plus {
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } [list 0 1]
 
-test touch-1.11 {test -t with -a and -m} tcl8.3plus {
+test touch-1.11 {test -t with -a and -m} {
     set f [file join $tt {file [1]}]
     fileutil::touch $f
     after 1001
@@ -221,7 +221,7 @@ test touch-1.11 {test -t with -a and -m} tcl8.3plus {
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } {1 1}
 
-test touch-1.12 {test -r} tcl8.3plus {
+test touch-1.12 {test -r} {
     set r [info script]
     set f [file join $tt {file [1]}]
     fileutil::touch $f
@@ -232,7 +232,7 @@ test touch-1.12 {test -r} tcl8.3plus {
     list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
 } {1 1}
 
-test touch-1.13 {test -r with -a} tcl8.3plus {
+test touch-1.13 {test -r with -a} {
     set r [info script]
     set f [file join $tt {file [1]}]
     fileutil::touch $f
@@ -243,7 +243,7 @@ test touch-1.13 {test -r with -a} tcl8.3plus {
     list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
 } {1 0}
 
-test touch-1.14 {test -r with -m} tcl8.3plus {
+test touch-1.14 {test -r with -m} {
     set r [info script]
     set f [file join $tt {file [1]}]
     fileutil::touch $f
@@ -254,7 +254,7 @@ test touch-1.14 {test -r with -m} tcl8.3plus {
     list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
 } {0 1}
 
-test touch-1.15 {test -r with -a and -m} tcl8.3plus {
+test touch-1.15 {test -r with -a and -m} {
     set r [info script]
     set f [file join $tt {file [1]}]
     fileutil::touch $f
@@ -290,7 +290,7 @@ proc i_setup {} {
 	makeFile "blah" $fn
 
 	# Give it some "bad" permissions.
-	file attributes $fn -permissions 0600
+	file attributes $fn -permissions 0o600
     }
     return
 }
@@ -315,7 +315,7 @@ test install-1.1 {install a file} {
 
 makeDirectory installDst
 
-test install-2.1 {install a directory} {tcl8.4plus} {
+test install-2.1 {install a directory} {
     list [catch {
         fileutil::install                         [file join installSrc subdir] installDst
         set result [lsort [glob -tails -directory [file join installDst subdir] [file join . / *]]]
@@ -326,7 +326,7 @@ test install-2.1 {install a directory} {tcl8.4plus} {
 
 makeDirectory installDst
 
-test install-2.2 {install a directory} {tcl8.3plus} {
+test install-2.2 {install a directory} {
     list [catch {
         fileutil::install                  [file join installSrc subdir] installDst
         set result [lsort [glob -directory [file join installDst subdir] [file join . / *]]]
@@ -337,7 +337,7 @@ test install-2.2 {install a directory} {tcl8.3plus} {
 
 makeDirectory installDst
 
-test install-3.1 {install a directory, set permissions} {unix tcl8.3plus} {
+test install-3.1 {install a directory, set permissions} unix {
     set res {}
     fileutil::install -m go+rw [file join installSrc subdir2] installDst
     foreach fl [glob [file join installDst subdir2 *]] {

@@ -35,7 +35,7 @@ nmea \- Process NMEA data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require nmea ?1\.0\.0?  
 
 [__::nmea::input__ *sentence*](#1)  

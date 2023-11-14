@@ -276,7 +276,7 @@ doctools::idx::export \- Exporting keyword indices
 .SH SYNOPSIS
 package require \fBdoctools::idx::export  ?0\&.2\&.1?\fR
 .sp
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBstruct::map \fR
 .sp

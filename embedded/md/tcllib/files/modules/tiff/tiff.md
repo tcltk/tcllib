@@ -39,7 +39,7 @@ tiff \- TIFF reading, writing, and querying and manipulation of meta data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require tiff ?0\.2\.1?  
 
 [__::tiff::isTIFF__ *file*](#1)  

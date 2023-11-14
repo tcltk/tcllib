@@ -33,7 +33,7 @@ bibtex \- Parse bibtex files
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require bibtex ?0\.7?  
 
 [__::bibtex::parse__ ?*options*? ?*text*?](#1)  

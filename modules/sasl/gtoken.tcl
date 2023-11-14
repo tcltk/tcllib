@@ -10,7 +10,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require SASL
 package require http
 package require tls
@@ -83,7 +83,7 @@ if {[llength [package provide SASL]] != 0} {
     ::SASL::register X-GOOGLE-TOKEN 40 ::SASL::XGoogleToken::client
 }
 
-package provide SASL::XGoogleToken 1.0.1
+package provide SASL::XGoogleToken 1.0.2
 
 # -------------------------------------------------------------------------
 #

@@ -35,7 +35,7 @@ deleg\_method \- Creation of comm delegates \(snit methods\)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require snit ?1\.1?  
 package require interp::delegate::method ?0\.2?  
 

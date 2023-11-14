@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::msgcat::idx::c \- Message catalog for the docidx parser (C)
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBmsgcat \fR
 .sp

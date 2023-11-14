@@ -35,7 +35,7 @@ pt::util \- General utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::ast ?1\.1?  
 
 [__::pt::util__ __error2readable__ *error* *text*](#1)  

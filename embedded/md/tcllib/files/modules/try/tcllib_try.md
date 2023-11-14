@@ -37,7 +37,7 @@ try \- try \- Trap and process errors and exceptions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require try ?1?  
 
 [__::try__ *body* ?*handler\.\.\.*? ?__finally__ *script*?](#1)  

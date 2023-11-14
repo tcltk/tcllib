@@ -35,7 +35,7 @@ struct::matrix \- Create and manipulate matrix objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require struct::matrix ?2\.1?  
 
 [__::struct::matrix__ ?*matrixName*? ?__=__&#124;__:=__&#124;__as__&#124;__deserialize__ *source*?](#1)  

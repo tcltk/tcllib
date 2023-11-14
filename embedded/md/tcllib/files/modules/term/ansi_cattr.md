@@ -39,7 +39,7 @@ term::ansi::code::attr \- ANSI attribute sequences
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::ansi::code ?0\.1?  
 package require term::ansi::code::attr ?0\.1?  
 

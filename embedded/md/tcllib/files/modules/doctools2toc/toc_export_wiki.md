@@ -41,7 +41,7 @@ doctools::toc::export::wiki \- wiki export plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::toc::export::wiki ?0\.1?  
 package require doctools::text  
 

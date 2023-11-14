@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 autoproxy \- Automatic HTTP proxy usage and authentication
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBhttp  ?2\&.0?\fR
 .sp

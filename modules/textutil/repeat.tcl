@@ -14,7 +14,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::textutil::repeat {}
 
@@ -88,4 +88,4 @@ namespace eval ::textutil::repeat {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::repeat 0.7
+package provide textutil::repeat 0.8

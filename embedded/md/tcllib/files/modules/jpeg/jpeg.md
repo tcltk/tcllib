@@ -40,7 +40,7 @@ jpeg \- JPEG querying and manipulation of meta data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require jpeg ?0\.5?  
 
 [__::jpeg::isJPEG__ *file*](#1)  

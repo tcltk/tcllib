@@ -2,7 +2,7 @@
 # Parsing Expression Grammar 'PEG'.
 # Definition of a human-readable form of parsing expression grammar specification.
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require pt::peg::container
 
@@ -142,5 +142,5 @@ snit::type pt::peg::container::peg {
     delegate method * to myg
 }
 
-package provide pt::peg::container::peg 1
+package provide pt::peg::container::peg 1.1
 return

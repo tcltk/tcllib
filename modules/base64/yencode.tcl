@@ -9,7 +9,7 @@
 
 # FUTURE: Rework to allow switching between the tcl/critcl implementations.
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 catch {package require crc32};          # tcllib 1.1
 catch {package require tcllibc};        # critcl enhancements for tcllib
 
@@ -296,7 +296,7 @@ proc ::yencode::ydecode {args} {
 
 # -------------------------------------------------------------------------
 
-package provide yencode 1.1.3
+package provide yencode 1.1.4
 
 # -------------------------------------------------------------------------
 #

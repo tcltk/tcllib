@@ -1,4 +1,4 @@
-[manpage_begin md5crypt n 1.1.0]
+[manpage_begin md5crypt n 1.2.0]
 [see_also md5]
 [keywords hashing]
 [keywords md5]
@@ -9,9 +9,9 @@
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5-based password encryption}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require md5 2.0]
-[require md5crypt [opt 1.1.0]]
+[require md5crypt [opt 1.2.0]]
 [description]
 [para]
 

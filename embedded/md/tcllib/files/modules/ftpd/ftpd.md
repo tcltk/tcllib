@@ -36,7 +36,7 @@ ftpd \- Tcl FTP server implementation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require ftpd ?1\.3?  
 
 [__::ftpd::server__ ?*myaddr*?](#1)  

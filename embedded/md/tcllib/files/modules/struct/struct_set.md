@@ -37,7 +37,7 @@ struct::set \- Procedures for manipulating sets
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.0  
+package require Tcl 8\.5 9  
 package require struct::set ?2\.2\.3?  
 
 [__::struct::set__ __empty__ *set*](#1)  

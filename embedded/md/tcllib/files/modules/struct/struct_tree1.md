@@ -33,7 +33,7 @@ struct::tree\_v1 \- Create and manipulate tree objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::tree ?1\.2\.2?  
 
 [__treeName__ __option__ ?*arg arg \.\.\.*?](#1)  

@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require struct::matrix
 package require report
 
@@ -162,4 +162,4 @@ proc ::bench::out::PADR {max str} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::out::text 0.1.2
+package provide bench::out::text 0.1.3

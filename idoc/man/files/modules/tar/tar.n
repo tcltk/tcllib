@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tar \- Tar file creation, extraction & manipulation
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBtar  ?0\&.11?\fR
 .sp

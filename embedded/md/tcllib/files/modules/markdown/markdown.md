@@ -30,7 +30,7 @@ markdown \- Converts Markdown text to HTML
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require Markdown 1\.2\.2  
 package require textutil ?0\.8?  
 

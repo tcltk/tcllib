@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 mapproj \- Map projection routines
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.4?\fR
+package require \fBTcl  ?8\&.5 9?\fR
 .sp
 package require \fBmath::interpolate  ?1\&.0?\fR
 .sp

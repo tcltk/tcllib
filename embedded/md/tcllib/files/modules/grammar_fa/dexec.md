@@ -42,7 +42,7 @@ grammar::fa::dexec \- Execute deterministic finite automatons
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
 package require grammar::fa::dexec ?0\.2?  
 

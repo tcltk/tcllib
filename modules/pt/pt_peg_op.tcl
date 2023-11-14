@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5        ; # Required runtime.
+package require Tcl 8.5 9        ; # Required runtime.
 package require pt::pe         ; # PE basics
 package require pt::pe::op     ; # PE transforms
 package require struct::set    ; # Set operations (symbol sets)
@@ -371,5 +371,5 @@ namespace eval ::pt::peg::op {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::peg::op 1.1.0
+package provide pt::peg::op 1.2.0
 return
