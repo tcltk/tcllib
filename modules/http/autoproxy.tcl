@@ -402,20 +402,20 @@ proc ::autoproxy::tls_connect {args} {
             if {$options(tls_package) eq "twapi"} {
                 set s [eval [linsert [lrange $args 0 end-3] 0 ::twapi::starttls $s -peersubject $peersubject]]
             } else {
-                eval [linsert [lrange $args 0 end-3] 0 ::tls::import $s]
+                eval [linsert [lrange $args 0 end-3] 0 ::tls::import $s -servername $peersubject]
             }
         } else {
             if {$options(tls_package) eq "twapi"} {
                 set s [eval [linsert [lrange $args 0 end-2] 0 ::twapi::starttls $s -peersubject $peersubject]]
             } else {
-                eval [linsert [lrange $args 0 end-2] 0 ::tls::import $s]
+                eval [linsert [lrange $args 0 end-2] 0 ::tls::import $s -servername $peersubject]
             }
         }
     } else {
         if {$options(tls_package) eq "twapi"} {
             set s [eval [linsert $args 0 ::twapi::tls_socket]]
         } else {
-            set s [eval [linsert $args 0 ::tls::socket]]
+            set s [eval [linsert $args 0 ::tls::socket -servername $peersubject]]
         }
     }
     return $s
