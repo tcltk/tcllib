@@ -1,3 +1,9 @@
+2023-12-03 Harald Oehlmann <harald.oehlmann@elmicron.de>
+
+	* autoproxy.tcl: ticket [ae5a1fbd] set "server name indication"
+	  also when TCLTLS package is used (TWAPI is ok)
+	Bumped to version 1.8.1.
+
 2017-10-28  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* autoproxy.tcl: allow unsetting basic auth information
