@@ -192,7 +192,7 @@ proc ::yencode::yencode {args} {
     }
 
     if {$opts(filename) != {}} {
-        set f [open $opts(filename) r]
+        set f [open $opts(filename) rb]
         fconfigure $f -translation binary
         set data [read $f]
         close $f

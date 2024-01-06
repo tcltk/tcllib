@@ -31,7 +31,7 @@ if {[llength [info commands ::yencode::CEncode]]} {
 }
 
 proc ::yencode::loaddata {filename {translation auto}} {
-    set f [open $filename r]
+    set f [open $filename rb]
     fconfigure $f -translation $translation
     set data [read $f]
     close $f
