@@ -274,17 +274,17 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::fa \- Create and manipulate finite automatons
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  1\&.3\fR
+package require \fBsnit 1\&.3\fR
 .sp
-package require \fBstruct::list \fR
+package require \fBstruct::list\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
-package require \fBgrammar::fa::op  ?0\&.3?\fR
+package require \fBgrammar::fa::op ?0\&.3?\fR
 .sp
-package require \fBgrammar::fa  ?0\&.6?\fR
+package require \fBgrammar::fa ?0\&.6?\fR
 .sp
 \fB::grammar::fa\fR \fIfaName\fR ?\fB=\fR|\fB:=\fR|\fB<--\fR|\fBas\fR|\fBdeserialize\fR \fIsrc\fR|\fBfromRegex\fR \fIre\fR ?\fIover\fR??
 .sp

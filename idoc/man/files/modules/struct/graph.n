@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::graph \- Create and manipulate directed graph objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::graph  ?2\&.4\&.4?\fR
+package require \fBstruct::graph ?2\&.4\&.4?\fR
 .sp
-package require \fBstruct::list  ?1\&.8\&.6?\fR
+package require \fBstruct::list ?1\&.8\&.6?\fR
 .sp
-package require \fBstruct::set  ?2\&.2\&.4?\fR
+package require \fBstruct::set ?2\&.2\&.4?\fR
 .sp
 \fB::struct::graph\fR ?\fIgraphName\fR? ?\fB=\fR|\fB:=\fR|\fBas\fR|\fBdeserialize\fR \fIsource\fR?
 .sp

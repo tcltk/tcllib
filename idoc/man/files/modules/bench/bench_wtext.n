@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bench::out::text \- bench::out::text - Formatting benchmark results as human readable text
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbench::out::text  ?0\&.1\&.3?\fR
+package require \fBbench::out::text ?0\&.1\&.3?\fR
 .sp
 \fB::bench::out::text\fR \fIbench_result\fR
 .sp

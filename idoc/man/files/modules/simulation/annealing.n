@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 simulation::annealing \- Simulated annealing
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5 9?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBsimulation::annealing  0\&.3\fR
+package require \fBsimulation::annealing 0\&.3\fR
 .sp
 \fB::simulation::annealing::getOption\fR \fIkeyword\fR
 .sp

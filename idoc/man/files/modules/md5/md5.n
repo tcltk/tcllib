@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 md5 \- MD5 Message-Digest Algorithm
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmd5  ?2\&.0\&.9?\fR
+package require \fBmd5 ?2\&.0\&.9?\fR
 .sp
 \fB::md5::md5\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp

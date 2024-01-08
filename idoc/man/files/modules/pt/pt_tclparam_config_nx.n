@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::tclparam::configuration::nx \- Tcl/PARAM, Canned configuration, NX
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::tclparam::configuration::nx  ?1\&.0\&.2?\fR
+package require \fBpt::tclparam::configuration::nx ?1\&.0\&.2?\fR
 .sp
 \fB::pt::tclparam::configuration::nx\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp

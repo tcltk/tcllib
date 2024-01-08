@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::cpu::core \- ME virtual machine state manipulation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::me::cpu::core  ?0\&.3?\fR
+package require \fBgrammar::me::cpu::core ?0\&.3?\fR
 .sp
 \fB::grammar::me::cpu::core\fR \fBdisasm\fR \fIasm\fR
 .sp

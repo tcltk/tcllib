@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::tabify \- Procedures to (un)tabify strings
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::tabify  ?0\&.8?\fR
+package require \fBtextutil::tabify ?0\&.8?\fR
 .sp
 \fB::textutil::tabify::tabify\fR \fIstring\fR ?\fInum\fR?
 .sp

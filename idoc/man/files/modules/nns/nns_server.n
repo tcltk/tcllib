@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nameserv::server \- Name service facility, Server
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnameserv::server  ?0\&.3\&.3?\fR
+package require \fBnameserv::server ?0\&.3\&.3?\fR
 .sp
-package require \fBcomm \fR
+package require \fBcomm\fR
 .sp
-package require \fBinterp \fR
+package require \fBinterp\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
 \fB::nameserv::server::start\fR
 .sp

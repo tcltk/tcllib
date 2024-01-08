@@ -4,7 +4,7 @@
 # Code used inside of a checker interpreter to ensure correct usage of
 # doctools formatting commands.
 #
-# Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # L10N
 
@@ -299,10 +299,10 @@ proc manpage_end {} {
     Go done
     fmt_manpage_end
 }
-proc require {pkg {version {}}} {
+proc require {pkg args} {
     Enter require
     if {[IsNot header]} {Error hdrcmd}
-    fmt_require $pkg $version
+    fmt_require $pkg $args
 }
 proc description {} {
     Enter description

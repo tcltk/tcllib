@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::cparam::configuration::critcl \- C/PARAM, Canned configuration, Critcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::cparam::configuration::critcl  ?1\&.0\&.3?\fR
+package require \fBpt::cparam::configuration::critcl ?1\&.0\&.3?\fR
 .sp
 \fB::pt::cparam::configuration::critcl\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp

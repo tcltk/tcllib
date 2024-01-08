@@ -274,21 +274,21 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 zipfile::encode \- Generation of zip archives
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBTrf \fR
+package require \fBTrf\fR
 .sp
-package require \fBcrc32 \fR
+package require \fBcrc32\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBzlibtcl \fR
+package require \fBzlibtcl\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
-package require \fBzipfile::encode  ?0\&.5?\fR
+package require \fBzipfile::encode ?0\&.5?\fR
 .sp
 \fB::zipfile::encode\fR ?\fIobjectName\fR?
 .sp

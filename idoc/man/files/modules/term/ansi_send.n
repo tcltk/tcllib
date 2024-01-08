@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::ansi::send \- Output of ANSI control sequences to terminals
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::ansi::send  ?0\&.2?\fR
+package require \fBterm::ansi::send ?0\&.2?\fR
 .sp
 \fB::term::ansi::send::import\fR ?\fIns\fR? \fI\&.\&.\&.\fR
 .sp

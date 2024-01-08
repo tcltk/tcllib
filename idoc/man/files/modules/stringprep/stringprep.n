@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 stringprep \- Implementation of stringprep
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstringprep  1\&.0\&.2\fR
+package require \fBstringprep 1\&.0\&.2\fR
 .sp
 \fB::stringprep::register\fR \fIprofile\fR ?\fI-mapping list\fR? ?\fI-normalization form\fR? ?\fI-prohibited list\fR? ?\fI-prohibitedList list\fR? ?\fI-prohibitedCommand command\fR? ?\fI-prohibitedBidi boolean\fR?
 .sp

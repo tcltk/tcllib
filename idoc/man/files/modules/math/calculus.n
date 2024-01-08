@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::calculus \- Integration and ordinary differential equations
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::calculus  1\&.1\fR
+package require \fBmath::calculus 1\&.1\fR
 .sp
 \fB::math::calculus::integral\fR \fIbegin\fR \fIend\fR \fInosteps\fR \fIfunc\fR
 .sp

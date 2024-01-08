@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 cmdline \- Procedures to process command lines and options\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcmdline  ?1\&.5\&.3?\fR
+package require \fBcmdline ?1\&.5\&.3?\fR
 .sp
 \fB::cmdline::getopt\fR \fIargvVar\fR \fIoptstring\fR \fIoptVar\fR \fIvalVar\fR
 .sp

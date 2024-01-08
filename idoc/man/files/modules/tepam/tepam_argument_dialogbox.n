@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tepam::argument_dialogbox \- TEPAM argument_dialogbox, reference manual
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBTk  8\&.3\fR
+package require \fBTk 8\&.3\fR
 .sp
-package require \fBtepam  ?0\&.5?\fR
+package require \fBtepam ?0\&.5?\fR
 .sp
 \fBtepam::argument_dialogbox\fR \fIitem_name item_attributes ?item_name item_attributes? ?\&.\&.\&.?\fR
 .sp

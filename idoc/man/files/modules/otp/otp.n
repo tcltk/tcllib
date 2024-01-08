@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 otp \- One-Time Passwords
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBotp  ?1\&.1\&.0?\fR
+package require \fBotp ?1\&.1\&.0?\fR
 .sp
 \fB::otp::otp-md4\fR ?\fI-hex\fR? ?\fI-words\fR? \fI-seed seed\fR \fI-count count\fR \fIdata\fR
 .sp

@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::figurate \- Evaluate figurate numbers
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBmath::figurate  1\&.0\fR
+package require \fBmath::figurate 1\&.0\fR
 .sp
 \fB::math::figurate::sum_sequence\fR \fIn\fR
 .sp

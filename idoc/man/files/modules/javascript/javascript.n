@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 javascript \- Procedures to generate HTML and Java Script structures\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBjavascript  ?1\&.0\&.3?\fR
+package require \fBjavascript ?1\&.0\&.3?\fR
 .sp
 \fB::javascript::makeSelectorWidget\fR \fIid leftLabel leftValueList rightLabel rightValueList rightNameList\fR ?\fIlength\fR? ?\fIminWidth\fR?
 .sp

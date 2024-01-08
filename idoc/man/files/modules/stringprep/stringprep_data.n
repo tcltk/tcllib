@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 stringprep::data \- stringprep data tables, generated, internal
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstringprep::data  1\&.0\&.2\fR
+package require \fBstringprep::data 1\&.0\&.2\fR
 .sp
 .BE
 .SH DESCRIPTION

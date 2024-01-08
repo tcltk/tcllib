@@ -8,9 +8,11 @@
 .SH NAME
 TEST \- \&.\&.THE_TITLE\&.\&.
 .SH SYNOPSIS
-package require \fBAAA \fR
+package require \fBAAA\fR
 .sp
-package require \fBBBB  VVV\fR
+package require \fBBBB VVV\fR
+.sp
+package require \fBCCC VA VB VC\fR
 .sp
 .BE
 .SH DESCRIPTION

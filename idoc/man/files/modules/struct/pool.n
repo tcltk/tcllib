@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::pool \- Create and manipulate pool objects (of discrete items)
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::pool  ?1\&.2\&.4?\fR
+package require \fBstruct::pool ?1\&.2\&.4?\fR
 .sp
 \fB::struct::pool\fR ?\fIpoolName\fR? ?\fImaxsize\fR?
 .sp

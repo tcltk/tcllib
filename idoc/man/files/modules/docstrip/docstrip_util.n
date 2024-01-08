@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 docstrip_util \- Docstrip-related utilities
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdocstrip  ?1\&.3?\fR
+package require \fBdocstrip ?1\&.3?\fR
 .sp
-package require \fBdocstrip::util  ?1\&.3\&.2?\fR
+package require \fBdocstrip::util ?1\&.3\&.2?\fR
 .sp
 \fBpkgProvide\fR \fIname\fR \fIversion\fR \fIterminals\fR
 .sp

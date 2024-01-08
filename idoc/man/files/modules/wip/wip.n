@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 wip \- Word Interpreter
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBwip  ?2\&.3?\fR
+package require \fBwip ?2\&.3?\fR
 .sp
-package require \fBsnit  ?1\&.4?\fR
+package require \fBsnit ?1\&.4?\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
 \fB::wip\fR \fIwipName\fR \fIengine\fR \fIarg\fR\&.\&.\&.
 .sp

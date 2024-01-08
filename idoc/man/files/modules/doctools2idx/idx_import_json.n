@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::import::json \- JSON import plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx::import::json  ?0\&.2\&.1?\fR
+package require \fBdoctools::idx::import::json ?0\&.2\&.1?\fR
 .sp
-package require \fBdoctools::idx::structure \fR
+package require \fBdoctools::idx::structure\fR
 .sp
-package require \fBjson \fR
+package require \fBjson\fR
 .sp
 \fBimport\fR \fIstring\fR \fIconfiguration\fR
 .sp

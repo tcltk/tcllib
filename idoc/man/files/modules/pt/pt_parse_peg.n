@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt_parse_peg \- Parser Tools PEG Parser
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::parse::peg  1\fR
+package require \fBpt::parse::peg 1\fR
 .sp
 \fBpt::parse::peg\fR ?\fIobjectName\fR?
 .sp

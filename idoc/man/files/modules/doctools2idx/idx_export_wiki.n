@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::export::wiki \- wiki export plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx::export::wiki  ?0\&.3?\fR
+package require \fBdoctools::idx::export::wiki ?0\&.3?\fR
 .sp
-package require \fBdoctools::text \fR
+package require \fBdoctools::text\fR
 .sp
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 .sp

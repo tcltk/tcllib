@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 transfer::copy \- Data transfer foundation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtransfer::copy  ?0\&.3?\fR
+package require \fBtransfer::copy ?0\&.3?\fR
 .sp
 \fBtransfer::copy::do\fR \fBchan\fR|\fBstring\fR \fIdata\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 report \- Create and manipulate report objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBreport  ?0\&.5?\fR
+package require \fBreport ?0\&.5?\fR
 .sp
 \fB::report::report\fR \fIreportName\fR \fIcolumns\fR ?\fBstyle\fR \fIstyle arg\&.\&.\&.\fR?
 .sp

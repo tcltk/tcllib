@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 docstrip \- Docstrip style source code extraction
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdocstrip  ?1\&.3?\fR
+package require \fBdocstrip ?1\&.3?\fR
 .sp
 \fBdocstrip::extract\fR \fItext\fR \fIterminals\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 .sp

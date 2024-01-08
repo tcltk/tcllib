@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 interp \- Interp creation and aliasing
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBinterp  ?0\&.1\&.3?\fR
+package require \fBinterp ?0\&.1\&.3?\fR
 .sp
 \fB::interp::createEmpty\fR ?\fIpath\fR?
 .sp

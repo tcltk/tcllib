@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 coroutine \- Coroutine based event and IO handling
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBcoroutine  1\&.4\fR
+package require \fBcoroutine 1\&.4\fR
 .sp
 \fBcoroutine::util after\fR \fIdelay\fR
 .sp

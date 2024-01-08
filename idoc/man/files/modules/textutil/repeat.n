@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::repeat \- Procedures to repeat strings\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::repeat  ?0\&.8?\fR
+package require \fBtextutil::repeat ?0\&.8?\fR
 .sp
 \fB::textutil::repeat::strRepeat\fR \fItext\fR \fInum\fR
 .sp

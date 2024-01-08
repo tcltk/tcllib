@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::stack \- Create and manipulate stack objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::stack  ?1\&.5\&.4?\fR
+package require \fBstruct::stack ?1\&.5\&.4?\fR
 .sp
 \fIstackName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

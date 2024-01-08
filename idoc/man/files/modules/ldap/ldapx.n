@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ldapx \- LDAP extended object interface
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBldapx  ?1\&.3?\fR
+package require \fBldapx ?1\&.3?\fR
 .sp
 \fIe\fR \fBreset\fR
 .sp

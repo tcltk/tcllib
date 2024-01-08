@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::pe \- Parsing Expression Serialization
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::pe  ?1\&.0\&.2?\fR
+package require \fBpt::pe ?1\&.0\&.2?\fR
 .sp
-package require \fBchar \fR
+package require \fBchar\fR
 .sp
 \fB::pt::pe\fR \fBverify\fR \fIserial\fR ?\fIcanonvar\fR?
 .sp

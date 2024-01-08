@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ftp::geturl \- Uri handler for ftp urls
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBftp::geturl  ?0\&.2\&.3?\fR
+package require \fBftp::geturl ?0\&.2\&.3?\fR
 .sp
 \fB::ftp::geturl\fR \fIurl\fR
 .sp

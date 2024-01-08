@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 lazyset \- Lazy evaluation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlazyset  ?1\&.1?\fR
+package require \fBlazyset ?1\&.1?\fR
 .sp
 \fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIvariableName\fR \fIcommandPrefix\fR
 .sp

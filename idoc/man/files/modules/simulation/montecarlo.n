@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 simulation::montecarlo \- Monte Carlo simulations
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5 9?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBsimulation::montecarlo  0\&.2\fR
+package require \fBsimulation::montecarlo 0\&.2\fR
 .sp
-package require \fBsimulation::random \fR
+package require \fBsimulation::random\fR
 .sp
-package require \fBmath::statistics \fR
+package require \fBmath::statistics\fR
 .sp
 \fB::simulation::montecarlo::getOption\fR \fIkeyword\fR
 .sp

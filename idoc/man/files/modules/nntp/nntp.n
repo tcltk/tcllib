@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nntp \- Tcl client for the NNTP protocol
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnntp  ?0\&.2\&.2?\fR
+package require \fBnntp ?0\&.2\&.2?\fR
 .sp
 \fB::nntp::nntp\fR ?\fIhost\fR? ?\fIport\fR? ?\fInntpName\fR?
 .sp

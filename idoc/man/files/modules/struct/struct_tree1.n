@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::tree_v1 \- Create and manipulate tree objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::tree  ?1\&.2\&.3?\fR
+package require \fBstruct::tree ?1\&.2\&.3?\fR
 .sp
 \fBtreeName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pki \- Implementation of the public key cipher
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpki  ?0\&.21?\fR
+package require \fBpki ?0\&.21?\fR
 .sp
 \fB::pki::encrypt\fR ?\fI-binary\fR? ?\fI-hex\fR? ?\fI-pad\fR? ?\fI-nopad\fR? ?\fI-priv\fR? ?\fI-pub\fR? ?\fI--\fR? \fIinput\fR \fIkey\fR
 .sp

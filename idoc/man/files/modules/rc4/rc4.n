@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 rc4 \- Implementation of the RC4 stream cipher
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBrc4  ?1\&.2\&.0?\fR
+package require \fBrc4 ?1\&.2\&.0?\fR
 .sp
 \fB::rc4::rc4\fR ?\fI-hex\fR? \fI-key keyvalue\fR ?\fI-command lst\fR? ?\fI-out channel\fR? [ \fI-in channel\fR | \fI-infile filename\fR | \fIstring\fR ]
 .sp

@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 try \- try - Trap and process errors and exceptions
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtry  ?1\&.1?\fR
+package require \fBtry ?1\&.1?\fR
 .sp
 \fB::try\fR \fIbody\fR ?\fIhandler\&.\&.\&.\fR? ?\fBfinally\fR \fIscript\fR?
 .sp

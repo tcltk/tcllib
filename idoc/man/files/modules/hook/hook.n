@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 hook \- Hooks
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBhook  ?0\&.3?\fR
+package require \fBhook ?0\&.3?\fR
 .sp
 \fBhook\fR \fBbind\fR ?\fIsubject\fR? ?\fIhook\fR? ?\fIobserver\fR? ?\fIcmdPrefix\fR?
 .sp

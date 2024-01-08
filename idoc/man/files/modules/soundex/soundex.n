@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 soundex \- Soundex
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsoundex  ?1\&.1?\fR
+package require \fBsoundex ?1\&.1?\fR
 .sp
 \fB::soundex::knuth\fR \fIstring\fR
 .sp

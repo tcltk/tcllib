@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc::structure \- Doctoc serialization utilities
 .SH SYNOPSIS
-package require \fBdoctools::toc::structure  ?0\&.2?\fR
+package require \fBdoctools::toc::structure ?0\&.2?\fR
 .sp
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
 \fB::doctools::toc::structure\fR \fBverify\fR \fIserial\fR ?\fIcanonvar\fR?
 .sp

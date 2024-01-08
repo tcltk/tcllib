@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 dns \- Tcl Domain Name Service Client
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdns  ?1\&.6?\fR
+package require \fBdns ?1\&.6?\fR
 .sp
 \fB::dns::resolve\fR \fIquery\fR ?\fIoptions\fR?
 .sp

@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 transfer::connect \- Connection setup
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  ?1\&.0?\fR
+package require \fBsnit ?1\&.0?\fR
 .sp
-package require \fBtransfer::connect  ?0\&.3?\fR
+package require \fBtransfer::connect ?0\&.3?\fR
 .sp
 \fBtransfer::connect\fR \fIobjectName\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 md5crypt \- MD5-based password encryption
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmd5  2\&.0\fR
+package require \fBmd5 2\&.0\fR
 .sp
-package require \fBmd5crypt  ?1\&.2\&.0?\fR
+package require \fBmd5crypt ?1\&.2\&.0?\fR
 .sp
 \fB::md5crypt::md5crypt\fR \fIpassword\fR \fIsalt\fR
 .sp

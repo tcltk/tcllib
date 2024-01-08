@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::fa::dacceptor \- Create and use deterministic acceptors
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
-package require \fBgrammar::fa::dacceptor  ?0\&.1\&.2?\fR
+package require \fBgrammar::fa::dacceptor ?0\&.1\&.2?\fR
 .sp
 \fB::grammar::fa::dacceptor\fR \fIdaName\fR \fIfa\fR ?\fB-any\fR \fIany\fR?
 .sp

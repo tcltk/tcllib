@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::fourier \- Discrete and fast fourier transforms
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::fourier  1\&.0\&.3\fR
+package require \fBmath::fourier 1\&.0\&.3\fR
 .sp
 \fB::math::fourier::dft\fR \fIin_data\fR
 .sp

@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::record \- Define and create records (similar to 'C' structures)
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::record  ?1\&.2\&.3?\fR
+package require \fBstruct::record ?1\&.2\&.3?\fR
 .sp
 \fBrecord define\fR \fIrecordName\fR \fIrecordMembers\fR ?\fIinstanceName1 instanceName2 \&.\&.\&.\fR?
 .sp

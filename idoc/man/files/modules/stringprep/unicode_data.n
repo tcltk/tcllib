@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 unicode::data \- unicode data tables, generated, internal
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBunicode::data  1\&.1\&.0\fR
+package require \fBunicode::data 1\&.1\&.0\fR
 .sp
 .BE
 .SH DESCRIPTION

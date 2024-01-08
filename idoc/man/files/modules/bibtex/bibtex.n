@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bibtex \- Parse bibtex files
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbibtex  ?0\&.8?\fR
+package require \fBbibtex ?0\&.8?\fR
 .sp
 \fB::bibtex::parse\fR ?\fIoptions\fR? ?\fItext\fR?
 .sp

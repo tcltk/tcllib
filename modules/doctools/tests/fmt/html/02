@@ -119,6 +119,7 @@
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">AAA</b></li>
 <li>package require <b class="pkgname">BBB VVV</b></li>
+<li>package require <b class="pkgname">CCC VA VB VC</b></li>
 </ul>
 </div>
 </div>

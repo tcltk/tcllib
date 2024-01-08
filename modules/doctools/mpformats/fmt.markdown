@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # Convert a doctools document into markdown formatted text
 #
-# Copyright (c) 2019 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2019-2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Note: While markdown is a text format its intended target is HTML,
 # making its formatting nearer to that with the ability to set anchors
@@ -225,9 +225,9 @@ c_pass 2 fmt_call {cmd args} {
     return [fmt_lst_item [SetAnchor $text [c_cnext]]]
 }
 
-c_pass 1 fmt_require {pkg {version {}}} {
+c_pass 1 fmt_require {pkg vs} {
     set result "package require $pkg"
-    if {$version != {}} {append result " $version"}
+    foreach version $vs {append result " $version"}
     c_hold require "$result  "
     return
 }

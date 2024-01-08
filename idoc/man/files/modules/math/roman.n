@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::roman \- Tools for creating and manipulating roman numerals
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::roman  ?1\&.1?\fR
+package require \fBmath::roman ?1\&.1?\fR
 .sp
 \fB::math::roman::toroman\fR \fIi\fR
 .sp

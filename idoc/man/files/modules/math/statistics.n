@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::statistics \- Basic statistical functions and procedures
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::statistics  1\&.6\fR
+package require \fBmath::statistics 1\&.6\fR
 .sp
 \fB::math::statistics::mean\fR \fIdata\fR
 .sp

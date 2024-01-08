@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 cksum \- Calculate a cksum(1) compatible checksum
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcksum  ?1\&.1\&.5?\fR
+package require \fBcksum ?1\&.1\&.5?\fR
 .sp
 \fB::crc::cksum\fR ?\fI-format format\fR? ?\fI-chunksize size\fR? [ \fI-channel chan\fR | \fI-filename file\fR | \fIstring\fR ]
 .sp

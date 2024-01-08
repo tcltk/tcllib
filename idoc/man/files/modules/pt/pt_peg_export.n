@@ -274,17 +274,17 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::export \- PEG Export
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBstruct::map \fR
+package require \fBstruct::map\fR
 .sp
-package require \fBpt::peg \fR
+package require \fBpt::peg\fR
 .sp
-package require \fBpluginmgr \fR
+package require \fBpluginmgr\fR
 .sp
-package require \fBpt::peg::export  ?1\&.0\&.2?\fR
+package require \fBpt::peg::export ?1\&.0\&.2?\fR
 .sp
 \fB::pt::peg::export\fR \fIobjectName\fR
 .sp

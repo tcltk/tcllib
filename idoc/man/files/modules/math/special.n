@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::special \- Special mathematical functions
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5 9?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::special  ?0\&.5\&.3?\fR
+package require \fBmath::special ?0\&.5\&.3?\fR
 .sp
 \fB::math::special::eulerNumber\fR \fIindex\fR
 .sp

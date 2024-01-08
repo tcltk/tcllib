@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 SASL::SCRAM \- Implementation of SASL SCRAM mechanism for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBSASL::SCRAM  ?0\&.2?\fR
+package require \fBSASL::SCRAM ?0\&.2?\fR
 .sp
 .BE
 .SH DESCRIPTION

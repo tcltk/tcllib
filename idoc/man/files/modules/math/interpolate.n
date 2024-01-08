@@ -275,11 +275,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::interpolate \- Interpolation routines
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5 9?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBstruct \fR
+package require \fBstruct\fR
 .sp
-package require \fBmath::interpolate  ?1\&.1\&.4?\fR
+package require \fBmath::interpolate ?1\&.1\&.4?\fR
 .sp
 \fB::math::interpolate::defineTable\fR \fIname\fR \fIcolnames\fR \fIvalues\fR
 .sp

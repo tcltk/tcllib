@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 control \- Procedures for control flow structures\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcontrol  ?0\&.1\&.4?\fR
+package require \fBcontrol ?0\&.1\&.4?\fR
 .sp
 \fBcontrol::control\fR \fIcommand\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

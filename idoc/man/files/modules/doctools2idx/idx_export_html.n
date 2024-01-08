@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::export::html \- HTML export plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx::export::html  ?0\&.3?\fR
+package require \fBdoctools::idx::export::html ?0\&.3?\fR
 .sp
-package require \fBdoctools::text \fR
+package require \fBdoctools::text\fR
 .sp
-package require \fBdoctools::html \fR
+package require \fBdoctools::html\fR
 .sp
-package require \fBdoctools::html::cssdefaults \fR
+package require \fBdoctools::html::cssdefaults\fR
 .sp
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 .sp

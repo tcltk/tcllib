@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::export::nroff \- nroff export plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx::export::nroff  ?0\&.4?\fR
+package require \fBdoctools::idx::export::nroff ?0\&.4?\fR
 .sp
-package require \fBdoctools::text \fR
+package require \fBdoctools::text\fR
 .sp
-package require \fBdoctools::nroff::man_macros \fR
+package require \fBdoctools::nroff::man_macros\fR
 .sp
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 .sp

@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc \- Holding tables of contents
 .SH SYNOPSIS
-package require \fBdoctools::toc  ?2?\fR
+package require \fBdoctools::toc ?2?\fR
 .sp
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::toc::structure \fR
+package require \fBdoctools::toc::structure\fR
 .sp
-package require \fBstruct::tree \fR
+package require \fBstruct::tree\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
 \fB::doctools::toc\fR \fIobjectName\fR
 .sp

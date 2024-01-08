@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 mapproj \- Map projection routines
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5 9?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::interpolate  ?1\&.1?\fR
+package require \fBmath::interpolate ?1\&.1?\fR
 .sp
-package require \fBmath::special  ?0\&.2\&.2?\fR
+package require \fBmath::special ?0\&.2\&.2?\fR
 .sp
-package require \fBmapproj  ?1\&.1?\fR
+package require \fBmapproj ?1\&.1?\fR
 .sp
 \fB::mapproj::toPlateCarree\fR \fIlambda_0\fR \fIphi_0\fR \fIlambda\fR \fIphi\fR
 .sp

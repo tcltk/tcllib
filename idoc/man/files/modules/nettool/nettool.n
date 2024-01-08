@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nettool \- Tools for networked applications
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnettool  ?0\&.5\&.3?\fR
+package require \fBnettool ?0\&.5\&.3?\fR
 .sp
-package require \fBtwapi  3\&.1\fR
+package require \fBtwapi 3\&.1\fR
 .sp
-package require \fBip  0\&.2\fR
+package require \fBip 0\&.2\fR
 .sp
-package require \fBplatform  0\&.2\fR
+package require \fBplatform 0\&.2\fR
 .sp
 \fB::cat\fR \fIfilename\fR
 .sp

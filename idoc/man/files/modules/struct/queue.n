@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::queue \- Create and manipulate queue objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::queue  ?1\&.4\&.6?\fR
+package require \fBstruct::queue ?1\&.4\&.6?\fR
 .sp
 \fIqueueName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 namespacex \- Namespace utility commands
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnamespacex  ?0\&.4?\fR
+package require \fBnamespacex ?0\&.4?\fR
 .sp
 \fB::namespacex hook add\fR ?\fInamespace\fR? \fIcmdprefix\fR
 .sp

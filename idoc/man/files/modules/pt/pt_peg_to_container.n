@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::to::container \- PEG Conversion\&. Write CONTAINER format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::to::container  ?1\&.1?\fR
+package require \fBpt::peg::to::container ?1\&.1?\fR
 .sp
-package require \fBpt::peg \fR
+package require \fBpt::peg\fR
 .sp
-package require \fBtext::write \fR
+package require \fBtext::write\fR
 .sp
-package require \fBchar \fR
+package require \fBchar\fR
 .sp
 \fBpt::peg::to::container\fR \fBreset\fR
 .sp

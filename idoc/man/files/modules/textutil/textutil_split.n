@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::split \- Procedures to split texts
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::split  ?0\&.9?\fR
+package require \fBtextutil::split ?0\&.9?\fR
 .sp
 \fB::textutil::split::splitn\fR \fIstring\fR ?\fIlen\fR?
 .sp

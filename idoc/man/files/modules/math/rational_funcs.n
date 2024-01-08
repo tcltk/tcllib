@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::rationalfunctions \- Polynomial functions
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5 9?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::rationalfunctions  ?1\&.0\&.2?\fR
+package require \fBmath::rationalfunctions ?1\&.0\&.2?\fR
 .sp
 \fB::math::rationalfunctions::rationalFunction\fR \fInum\fR \fIden\fR
 .sp

@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::export::peg \- PEG Export Plugin\&. Write PEG format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::export::peg  ?1?\fR
+package require \fBpt::peg::export::peg ?1?\fR
 .sp
-package require \fBpt::peg::to::peg \fR
+package require \fBpt::peg::to::peg\fR
 .sp
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 .sp

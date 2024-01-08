@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::changelog \- Processing text in Emacs ChangeLog format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil \fR
+package require \fBtextutil\fR
 .sp
-package require \fBdoctools::changelog  ?1\&.2?\fR
+package require \fBdoctools::changelog ?1\&.2?\fR
 .sp
 \fB::doctools::changelog::scan\fR \fItext\fR
 .sp

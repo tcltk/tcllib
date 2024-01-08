@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::pe::op \- Parsing Expression Utilities
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::pe::op  ?1\&.0\&.2?\fR
+package require \fBpt::pe::op ?1\&.0\&.2?\fR
 .sp
-package require \fBpt::pe  ?1?\fR
+package require \fBpt::pe ?1?\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
 \fB::pt::pe::op\fR \fBdrop\fR \fIdropset\fR \fIpe\fR
 .sp

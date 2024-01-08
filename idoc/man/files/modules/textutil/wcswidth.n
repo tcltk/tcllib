@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::wcswidth \- Procedures to compute terminal width of strings
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::wcswidth  ?35\&.3?\fR
+package require \fBtextutil::wcswidth ?35\&.3?\fR
 .sp
 \fB::textutil::wcswidth\fR \fIstring\fR
 .sp

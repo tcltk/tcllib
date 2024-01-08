@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 mkdoc \- Extracts and optionally converts Markdown comments in source code to HTML
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBMarkdown  ?1\&.2\&.2?\fR
+package require \fBMarkdown ?1\&.2\&.2?\fR
 .sp
-package require \fByaml  ?0\&.4\&.2?\fR
+package require \fByaml ?0\&.4\&.2?\fR
 .sp
-package require \fBmkdoc  ?0\&.7\&.1?\fR
+package require \fBmkdoc ?0\&.7\&.1?\fR
 .sp
-package require \fBhook \fR
+package require \fBhook\fR
 .sp
 \fB::mkdoc::mkdoc\fR \fIinfile\fR \fIoutfile\fR ?\fB-css\fR \fIcssfile\fR?
 .sp

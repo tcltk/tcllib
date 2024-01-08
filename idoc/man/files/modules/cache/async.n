@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 cache::async \- Asynchronous in-memory cache
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcache::async  ?0\&.3\&.2?\fR
+package require \fBcache::async ?0\&.3\&.2?\fR
 .sp
 \fB::cache::async\fR \fIobjectName\fR \fIcommandprefix\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

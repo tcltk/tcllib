@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt_peg_op \- Parser Tools PE Grammar Utility Operations
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::op  ?1\&.2\&.0?\fR
+package require \fBpt::peg::op ?1\&.2\&.0?\fR
 .sp
 \fB::peg::peg::op\fR \fBcalled\fR \fIcontainer\fR
 .sp

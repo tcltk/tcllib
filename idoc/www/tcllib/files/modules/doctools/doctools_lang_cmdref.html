@@ -169,7 +169,7 @@
 <li><a href="#38"><b class="cmd"><a href="../../../../index.html#package">package</a></b> <i class="arg">text</i></a></li>
 <li><a href="#39"><b class="cmd">para</b></a></li>
 <li><a href="#40"><b class="cmd">rb</b></a></li>
-<li><a href="#41"><b class="cmd">require</b> <i class="arg">package</i> <span class="opt">?<i class="arg">version</i>?</span></a></li>
+<li><a href="#41"><b class="cmd">require</b> <i class="arg">package</i> <span class="opt">?<i class="arg">version</i>...?</span></a></li>
 <li><a href="#42"><b class="cmd">section</b> <i class="arg">name</i></a></li>
 <li><a href="#43"><b class="cmd">sectref</b> <i class="arg">id</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
 <li><a href="#44"><b class="cmd">sectref-external</b> <i class="arg">text</i></a></li>
@@ -429,11 +429,12 @@ forms of structure are sections and subsections.</p></dd>
 <dd><p>Text. The command is replaced with a right bracket. Use in free-form text.
 Required to avoid interpretation of a right bracket as the end of a markup
 command.</p></dd>
-<dt><a name="41"><b class="cmd">require</b> <i class="arg">package</i> <span class="opt">?<i class="arg">version</i>?</span></a></dt>
+<dt><a name="41"><b class="cmd">require</b> <i class="arg">package</i> <span class="opt">?<i class="arg">version</i>...?</span></a></dt>
 <dd><p>Document information. Header. This command registers its argument
 <i class="arg">package</i> as the name of a package or application required by the
-described package or application. A minimum version can be provided as
-well. This argument can be marked up. The usual markup is <b class="cmd">opt</b>.</p></dd>
+described package or application. A set of required versions can be
+provided as well. This argument can be marked up. The usual markup
+is <b class="cmd">opt</b>.</p></dd>
 <dt><a name="42"><b class="cmd">section</b> <i class="arg">name</i></a></dt>
 <dd><p>Text structure. This command starts a new named document section. The
 argument has to be plain text. Implicitly closes the last paragraph

@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uevent \- User events
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBuevent  ?0\&.3\&.2?\fR
+package require \fBuevent ?0\&.3\&.2?\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
 \fB::uevent::bind\fR \fItag\fR \fIevent\fR \fIcommand\fR
 .sp

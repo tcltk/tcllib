@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::disjointset \- Disjoint set data structure
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBstruct::disjointset  ?1\&.2?\fR
+package require \fBstruct::disjointset ?1\&.2?\fR
 .sp
 \fB::struct::disjointset\fR \fIdisjointsetName\fR
 .sp

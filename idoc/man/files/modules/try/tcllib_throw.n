@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 throw \- throw - Throw an error exception with a message
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBthrow  ?1\&.1?\fR
+package require \fBthrow ?1\&.1?\fR
 .sp
 \fB::throw\fR \fIerror_code\fR \fIerror_message\fR
 .sp

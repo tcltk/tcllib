@@ -274,33 +274,33 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::import::docidx \- docidx import plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx::import::docidx  ?0\&.2\&.1?\fR
+package require \fBdoctools::idx::import::docidx ?0\&.2\&.1?\fR
 .sp
-package require \fBdoctools::idx::parse \fR
+package require \fBdoctools::idx::parse\fR
 .sp
-package require \fBdoctools::idx::structure \fR
+package require \fBdoctools::idx::structure\fR
 .sp
-package require \fBdoctools::msgcat \fR
+package require \fBdoctools::msgcat\fR
 .sp
-package require \fBdoctools::tcl::parse \fR
+package require \fBdoctools::tcl::parse\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBstruct::list \fR
+package require \fBstruct::list\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
-package require \fBstruct::stack \fR
+package require \fBstruct::stack\fR
 .sp
-package require \fBstruct::tree \fR
+package require \fBstruct::tree\fR
 .sp
-package require \fBtreeql \fR
+package require \fBtreeql\fR
 .sp
 \fBimport\fR \fIstring\fR \fIconfiguration\fR
 .sp

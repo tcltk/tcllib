@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 base32::core \- Expanding basic base32 maps
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbase32::core  ?0\&.2?\fR
+package require \fBbase32::core ?0\&.2?\fR
 .sp
 \fB::base32::core::define\fR \fImap\fR \fIforwvar\fR \fIbackwvar\fR \fIivar\fR
 .sp

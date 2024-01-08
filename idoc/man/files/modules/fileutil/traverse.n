@@ -273,13 +273,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil_traverse \- Iterative directory traversal
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBfileutil::traverse  ?0\&.7?\fR
+package require \fBfileutil::traverse ?0\&.7?\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
-package require \fBcontrol \fR
+package require \fBcontrol\fR
 .sp
 \fB::fileutil::traverse\fR ?\fIobjectName\fR? \fIpath\fR ?\fIoption\fR \fIvalue\fR\&.\&.\&.?
 .sp

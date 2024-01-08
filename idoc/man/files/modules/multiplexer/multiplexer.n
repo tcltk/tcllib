@@ -273,11 +273,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 multiplexer \- One-to-many communication with sockets\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBmultiplexer  ?0\&.3?\fR
+package require \fBmultiplexer ?0\&.3?\fR
 .sp
 \fB::multiplexer::create\fR
 .sp

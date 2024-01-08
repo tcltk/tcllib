@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::util \- General utilities
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::ast  ?1\&.2?\fR
+package require \fBpt::ast ?1\&.2?\fR
 .sp
 \fB::pt::util\fR \fBerror2readable\fR \fIerror\fR \fItext\fR
 .sp
