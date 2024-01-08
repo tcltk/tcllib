@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'pki\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010, 2011, 2012, 2013, 2021 Roy Keene, Andreas Kupries, Ashok P\&. Nadkarni
+'\" Copyright (c) 2010, 2011, 2012, 2013, 2021 - 2024 Roy Keene, Andreas Kupries, Ashok P\&. Nadkarni
 '\"
-.TH "pki" n 0\&.21 tcllib "public key encryption"
+.TH "pki" n 0\&.22 tcllib "public key encryption"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pki \- Implementation of the public key cipher
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpki ?0\&.21?\fR
+package require \fBpki ?0\&.22?\fR
 .sp
 \fB::pki::encrypt\fR ?\fI-binary\fR? ?\fI-hex\fR? ?\fI-pad\fR? ?\fI-nopad\fR? ?\fI-priv\fR? ?\fI-pub\fR? ?\fI--\fR? \fIinput\fR \fIkey\fR
 .sp
@@ -614,6 +614,6 @@ cipher, data integrity, encryption, public key cipher, rsa, security
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010, 2011, 2012, 2013, 2021 Roy Keene, Andreas Kupries, Ashok P\&. Nadkarni
+Copyright (c) 2010, 2011, 2012, 2013, 2021 - 2024 Roy Keene, Andreas Kupries, Ashok P\&. Nadkarni
 
 .fi
