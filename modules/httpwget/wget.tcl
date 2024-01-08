@@ -33,7 +33,7 @@ proc ::http::_followRedirects {url args} {
 
 	if {[info exists meta(Location)]} {
 	    set url $meta(Location)
-	} elseif {![info exists meta(location)]} {
+	} elseif {[info exists meta(location)]} {
 	    set url $meta(location)
 	} else {
 	    return $url
