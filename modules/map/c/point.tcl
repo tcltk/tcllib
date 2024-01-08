@@ -26,7 +26,7 @@ critcl::ccode {
     } point;
 
     static int point_unbox (Tcl_Interp* interp, Tcl_Obj* obj, point* p) {
-	int       lc;
+	int	  lc;
 	Tcl_Obj** lv;
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
@@ -57,8 +57,9 @@ critcl::ccode {
 
     static Tcl_Obj* point_box_list (int release, Tcl_Interp* interp, int c, point* points) {
 	Tcl_Obj** cl = (Tcl_Obj**) ckalloc (c * sizeof(Tcl_Obj*));
+	unsigned int k;
 
-	for (unsigned int k = 0; k < c; k++) \
+	for (k = 0; k < c; k++) \
 	    cl[k] = point_box (interp, &points[k]);
 
 	Tcl_Obj* r = Tcl_NewListObj(c, cl);

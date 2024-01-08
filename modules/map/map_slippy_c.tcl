@@ -62,7 +62,8 @@ critcl::source c/common.tcl
 critcl::cproc ::map::slippy::critcl_geo_valid_list {
     []geo gs
 } bool {
-    for (unsigned int k = 0; k < gs.c; k++) {
+    unsigned int k;
+    for (k = 0; k < gs.c; k++) {
 	if (!((gs.v[k].lat >=  -90) && (gs.v[k].lat <=  90) &&
 	      (gs.v[k].lon >= -180) && (gs.v[k].lon <= 180))) {
 	    return 0;
@@ -74,7 +75,8 @@ critcl::cproc ::map::slippy::critcl_geo_valid_list {
 critcl::cproc ::map::slippy::critcl_geo_box_valid_list {
     []geobox gs
 } bool {
-    for (unsigned int k = 0; k < gs.c; k++) {
+    unsigned int k;
+    for (k = 0; k < gs.c; k++) {
 	if (!((gs.v[k].lat0 >=  -90) && (gs.v[k].lat0 <=  90) &&
 	      (gs.v[k].lon0 >= -180) && (gs.v[k].lon0 <= 180) &&
 	      (gs.v[k].lat1 >=  -90) && (gs.v[k].lat1 <=  90) &&
@@ -748,6 +750,7 @@ critcl::cproc ::map::slippy::critcl_point_simplify_radial {
     bool        closed
     []point     points
 } object0 {
+    unsigned int k;
     if (points.c < 2) {
 	/* Pass the input, no need for transient helper memory */
 	return points.o;
@@ -762,7 +765,7 @@ critcl::cproc ::map::slippy::critcl_point_simplify_radial {
     res[into].x = points.v[anchor].x;
     into ++;
 
-    for (unsigned int k = 1; k < points.c; k++) {
+    for (k = 1; k < points.c; k++) {
 	double d = hypot (points.v[k].x - points.v[anchor].x,
 			  points.v[k].y - points.v[anchor].y);
 	if (d < threshold) continue;
@@ -815,7 +818,8 @@ critcl::cproc ::map::slippy::critcl_point_simplify_rdp {
     /* Compress the input array down to the kept points */
 
     unsigned int into = 0;
-    for (unsigned int i=0; i < points.c; i++) {
+    unsigned int i;
+    for (i=0; i < points.c; i++) {
         if (!keep[i]) continue;
 	points.v[into] = points.v[i];
 	into++;
