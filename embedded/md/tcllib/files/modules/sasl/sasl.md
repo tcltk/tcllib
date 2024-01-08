@@ -2,7 +2,7 @@
 [//000000001]: # (SASL \- Simple Authentication and Security Layer \(SASL\))
 [//000000002]: # (Generated from file 'sasl\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005\-2006, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (SASL\(n\) 1\.3\.3 tcllib "Simple Authentication and Security Layer \(SASL\)")
+[//000000004]: # (SASL\(n\) 1\.3\.4 tcllib "Simple Authentication and Security Layer \(SASL\)")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -48,7 +48,7 @@ SASL \- Implementation of SASL mechanisms for Tcl
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require SASL ?1\.3\.3?  
+package require SASL ?1\.3\.4?  
 
 [__::SASL::new__ *option value ?\.\.\.?*](#1)  
 [__::SASL::configure__ *option value* ?*\.\.\.*?](#2)  

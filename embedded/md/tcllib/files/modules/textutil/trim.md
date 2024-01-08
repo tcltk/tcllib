@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::trim \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'trim\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::trim\(n\) 0\.7 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil::trim\(n\) 0\.8 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ textutil::trim \- Procedures to trim strings
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require textutil::trim ?0\.7?  
+package require textutil::trim ?0\.8?  
 
 [__::textutil::trim::trim__ *string* ?*regexp*?](#1)  
 [__::textutil::trim::trimleft__ *string* ?*regexp*?](#2)  

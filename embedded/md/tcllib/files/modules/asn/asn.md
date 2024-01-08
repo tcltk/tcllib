@@ -46,7 +46,7 @@ asn \- ASN\.1 BER encoder/decoder
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require asn ?0\.8\.4?  
+package require asn ?0\.8\.5?  
 
 [__::asn::asnSequence__ *evalue*\.\.\.](#1)  
 [__::asn::asnSequenceFromList__ *elist*](#2)  

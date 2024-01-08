@@ -6,7 +6,7 @@
 '\" Copyright (c) 2018 by Arjen Markus
 '\" Copyright (c) 2020 by Manfred Rosenberger
 '\"
-.TH "math::geometry" n 1\&.4\&.1 tcllib "Tcl Math Library"
+.TH "math::geometry" n 1\&.4\&.2 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -280,7 +280,7 @@ math::geometry \- Geometrical computations
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5 9?\fR
 .sp
-package require \fBmath::geometry  ?1\&.4\&.1?\fR
+package require \fBmath::geometry  ?1\&.4\&.2?\fR
 .sp
 \fB::math::geometry::+\fR \fIpoint1\fR \fIpoint2\fR
 .sp

@@ -2,7 +2,7 @@
 '\" Generated from file 'debug_caller\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2012-2015, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "debug::caller" n 1\&.1 tcllib "debug narrative"
+.TH "debug::caller" n 1\&.2 tcllib "debug narrative"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ debug::caller \- debug narrative - caller
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBdebug::caller  ?1\&.1?\fR
+package require \fBdebug::caller  ?1\&.2?\fR
 .sp
 \fBdebug\fR \fBcaller\fR ?\fIargs\fR\&.\&.\&.?
 .sp

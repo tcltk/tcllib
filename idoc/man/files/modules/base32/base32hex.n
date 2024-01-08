@@ -2,7 +2,7 @@
 '\" Generated from file 'base32hex\&.man' by tcllib/doctools with format 'nroff'
 '\" Public domain
 '\"
-.TH "base32::hex" n 0\&.1 tcllib "Base32 encoding"
+.TH "base32::hex" n 0\&.2 tcllib "Base32 encoding"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,9 @@ base32::hex \- base32 extended hex encoding
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBbase32::core  ?0\&.1?\fR
+package require \fBbase32::core  ?0\&.2?\fR
 .sp
-package require \fBbase32::hex  ?0\&.1?\fR
+package require \fBbase32::hex  ?0\&.2?\fR
 .sp
 \fB::base32::hex::encode\fR \fIstring\fR
 .sp

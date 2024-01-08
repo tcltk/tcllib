@@ -2,7 +2,7 @@
 [//000000001]: # (tool \- Standardized OO Framework for development)
 [//000000002]: # (Generated from file 'tool\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2015 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (tool\(n\) 0\.4\.2 tcllib "Standardized OO Framework for development")
+[//000000004]: # (tool\(n\) 0\.8 tcllib "Standardized OO Framework for development")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

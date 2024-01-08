@@ -2,7 +2,7 @@
 '\" Generated from file 'copyops\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "transfer::copy" n 0\&.2 tcllib "Data transfer facilities"
+.TH "transfer::copy" n 0\&.3 tcllib "Data transfer facilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ transfer::copy \- Data transfer foundation
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBtransfer::copy  ?0\&.2?\fR
+package require \fBtransfer::copy  ?0\&.3?\fR
 .sp
 \fBtransfer::copy::do\fR \fBchan\fR|\fBstring\fR \fIdata\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

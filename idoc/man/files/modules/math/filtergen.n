@@ -2,7 +2,7 @@
 '\" Generated from file 'filtergen\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2020 by Arjen Markus
 '\"
-.TH "math::filters" n 0\&.1 tcllib "Tcl Math Library"
+.TH "math::filters" n 0\&.2 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.6 9\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBmath::filters  ?0\&.1?\fR
+package require \fBmath::filters  ?0\&.2?\fR
 .sp
 \fB::math::filters::filterButterworth\fR \fIlowpass\fR \fIorder\fR \fIsamplefreq\fR \fIcutofffreq\fR
 .sp

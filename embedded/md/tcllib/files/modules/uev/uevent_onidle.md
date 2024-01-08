@@ -2,7 +2,7 @@
 [//000000001]: # (uevent::onidle \- User events)
 [//000000002]: # (Generated from file 'uevent\_onidle\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (uevent::onidle\(n\) 0\.1 tcllib "User events")
+[//000000004]: # (uevent::onidle\(n\) 0\.2 tcllib "User events")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ uevent::onidle \- Request merging and deferal to idle time
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require uevent::onidle ?0\.1?  
+package require uevent::onidle ?0\.2?  
 package require logger  
 
 [__::uevent::onidle__ *objectName* *commandprefix*](#1)  

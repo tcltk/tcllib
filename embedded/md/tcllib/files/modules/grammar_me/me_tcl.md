@@ -2,7 +2,7 @@
 [//000000001]: # (grammar::me::tcl \- Grammar operations and usage)
 [//000000002]: # (Generated from file 'me\_tcl\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (grammar::me::tcl\(n\) 0\.1 tcllib "Grammar operations and usage")
+[//000000004]: # (grammar::me::tcl\(n\) 0\.2 tcllib "Grammar operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ grammar::me::tcl \- Virtual machine implementation I for parsing token streams
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require grammar::me::tcl ?0\.1?  
+package require grammar::me::tcl ?0\.2?  
 
 [__::grammar::me::tcl__ __cmd__ *\.\.\.*](#1)  
 [__::grammar::me::tcl__ __init__ *nextcmd* ?*tokmap*?](#2)  

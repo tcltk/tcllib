@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::patch \- Text and string utilities)
 [//000000002]: # (Generated from file 'patch\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::patch\(n\) 0\.1 tcllib "Text and string utilities")
+[//000000003]: # (textutil::patch\(n\) 0\.2 tcllib "Text and string utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -31,7 +31,7 @@ textutil::patch \- Application of uni\-diff patches to directory trees
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require textutil::patch ?0\.1?  
+package require textutil::patch ?0\.2?  
 
 [__::textutil::patch::apply__ *basedirectory* *striplevel* *patch* *reportcmd*](#1)  
 [__\{\*\}reportcmd__ __apply__ *filename*](#2)  

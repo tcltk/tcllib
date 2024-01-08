@@ -2,7 +2,7 @@
 [//000000001]: # (base32::core \- Base32 encoding)
 [//000000002]: # (Generated from file 'base32core\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Public domain)
-[//000000004]: # (base32::core\(n\) 0\.1 tcllib "Base32 encoding")
+[//000000004]: # (base32::core\(n\) 0\.2 tcllib "Base32 encoding")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ base32::core \- Expanding basic base32 maps
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require base32::core ?0\.1?  
+package require base32::core ?0\.2?  
 
 [__::base32::core::define__ *map* *forwvar* *backwvar* *ivar*](#1)  
 [__::base32::core::valid__ *string* *pattern* *mvar*](#2)  

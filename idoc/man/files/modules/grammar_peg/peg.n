@@ -2,7 +2,7 @@
 '\" Generated from file 'peg\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::peg" n 0\&.1 tcllib "Grammar operations and usage"
+.TH "grammar::peg" n 0\&.3 tcllib "Grammar operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBsnit \fR
 .sp
-package require \fBgrammar::peg  ?0\&.1?\fR
+package require \fBgrammar::peg  ?0\&.3?\fR
 .sp
 \fB::grammar::peg\fR \fIpegName\fR ?\fB=\fR|\fB:=\fR|\fB<--\fR|\fBas\fR|\fBdeserialize\fR \fIsrc\fR?
 .sp

@@ -2,7 +2,7 @@
 '\" Generated from file 'cvs\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::cvs" n 1 tcllib "Documentation tools"
+.TH "doctools::cvs" n 1\&.1 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBtextutil \fR
 .sp
-package require \fBdoctools::cvs  ?1?\fR
+package require \fBdoctools::cvs  ?1\&.1?\fR
 .sp
 \fB::doctools::cvs::scanLog\fR \fItext\fR \fIevar\fR \fIcvar\fR \fIfvar\fR
 .sp
@@ -359,7 +359,7 @@ inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
 .SH "SEE ALSO"
-[uri, http://wiki\&.tcl\&.tk/log2changelog
+http://wiki\&.tcl\&.tk/log2changelog, uri
 .SH KEYWORDS
 changelog, cvs, cvs log, emacs, log
 .SH CATEGORY

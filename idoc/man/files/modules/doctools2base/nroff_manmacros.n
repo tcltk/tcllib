@@ -2,7 +2,7 @@
 '\" Generated from file 'nroff_manmacros\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::nroff::man_macros" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::nroff::man_macros" n 0\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ doctools::nroff::man_macros \- Default CSS style for NROFF export plugins
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBdoctools::nroff::man_macros  ?0\&.1?\fR
+package require \fBdoctools::nroff::man_macros  ?0\&.2?\fR
 .sp
 \fB::doctools::nroff::man_macros::contents\fR
 .sp

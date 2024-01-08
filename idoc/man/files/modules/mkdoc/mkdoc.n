@@ -2,7 +2,7 @@
 '\" Generated from file 'mkdoc\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2019-2022, Detlef Groth <detlef(at)dgroth(dot)de>
 '\"
-.TH "mkdoc" n 0\&.7\&.0 tcllib "Source code documentation using Markdown"
+.TH "mkdoc" n 0\&.7\&.1 tcllib "Source code documentation using Markdown"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,11 +276,11 @@ mkdoc \- Extracts and optionally converts Markdown comments in source code to HT
 .SH SYNOPSIS
 package require \fBTcl  8\&.6 9\fR
 .sp
-package require \fBMarkdown  ?1\&.2\&.1?\fR
+package require \fBMarkdown  ?1\&.2\&.2?\fR
 .sp
-package require \fByaml  ?0\&.4\&.1?\fR
+package require \fByaml  ?0\&.4\&.2?\fR
 .sp
-package require \fBmkdoc  ?0\&.7\&.0?\fR
+package require \fBmkdoc  ?0\&.7\&.1?\fR
 .sp
 package require \fBhook \fR
 .sp
@@ -376,7 +376,7 @@ See the example below for the syntax:
 
 
     #' ---
-    #' title: mkdoc::mkdoc 0\&.7\&.0
+    #' title: mkdoc::mkdoc 0\&.7\&.1
     #' author: Detlef Groth, Schwielowsee, Germany
     #' date: 2022-04-17
     #' css: mini\&.css

@@ -2,7 +2,7 @@
 [//000000001]: # (md5 \- MD5 Message\-Digest Algorithm)
 [//000000002]: # (Generated from file 'md5\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (md5\(n\) 2\.0\.8 tcllib "MD5 Message\-Digest Algorithm")
+[//000000004]: # (md5\(n\) 2\.0\.9 tcllib "MD5 Message\-Digest Algorithm")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ md5 \- MD5 Message\-Digest Algorithm
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require md5 ?2\.0\.7?  
+package require md5 ?2\.0\.9?  
 
 [__::md5::md5__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  
 [__::md5::hmac__ ?*\-hex*? *\-key key* \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#2)  

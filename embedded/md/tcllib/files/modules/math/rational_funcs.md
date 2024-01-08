@@ -2,7 +2,7 @@
 [//000000001]: # (math::rationalfunctions \- Math)
 [//000000002]: # (Generated from file 'rational\_funcs\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
-[//000000004]: # (math::rationalfunctions\(n\) 1\.0\.1 tcllib "Math")
+[//000000004]: # (math::rationalfunctions\(n\) 1\.0\.2 tcllib "Math")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ math::rationalfunctions \- Polynomial functions
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.5 9?  
-package require math::rationalfunctions ?1\.0\.1?  
+package require math::rationalfunctions ?1\.0\.2?  
 
 [__::math::rationalfunctions::rationalFunction__ *num* *den*](#1)  
 [__::math::rationalfunctions::ratioCmd__ *num* *den*](#2)  

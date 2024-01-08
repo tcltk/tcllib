@@ -3,7 +3,7 @@
 '\" Copyright (c) 2004, Code: Aaron Faupell <afaupell@users\&.sourceforge\&.net>
 '\" Copyright (c) 2004, Doc: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "png" n 0\&.3 tcllib "Image manipulation"
+.TH "png" n 0\&.4 tcllib "Image manipulation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBcrc32 \fR
 .sp
-package require \fBpng  ?0\&.3?\fR
+package require \fBpng  ?0\&.4?\fR
 .sp
 \fB::png::validate\fR \fIfile\fR
 .sp

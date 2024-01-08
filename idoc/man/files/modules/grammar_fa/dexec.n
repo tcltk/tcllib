@@ -3,7 +3,7 @@
 '\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 2007 Bogdan <rftghost@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::fa::dexec" n 0\&.2 tcllib "Finite automaton operations and usage"
+.TH "grammar::fa::dexec" n 0\&.3 tcllib "Finite automaton operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBsnit \fR
 .sp
-package require \fBgrammar::fa::dexec  ?0\&.2?\fR
+package require \fBgrammar::fa::dexec  ?0\&.3?\fR
 .sp
 \fB::grammar::fa::dexec\fR \fIdaName\fR \fIfa\fR ?\fB-any\fR \fIany\fR? ?\fB-command\fR \fIcmdprefix\fR?
 .sp

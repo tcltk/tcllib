@@ -2,7 +2,7 @@
 [//000000001]: # (base32 \- Base32 encoding)
 [//000000002]: # (Generated from file 'base32\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Public domain)
-[//000000004]: # (base32\(n\) 0\.1 tcllib "Base32 encoding")
+[//000000004]: # (base32\(n\) 0\.2 tcllib "Base32 encoding")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,8 +38,8 @@ base32 \- base32 standard encoding
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require base32::core ?0\.1?  
-package require base32 ?0\.1?  
+package require base32::core ?0\.2?  
+package require base32 ?0\.2?  
 
 [__::base32::encode__ *string*](#1)  
 [__::base32::decode__ *estring*](#2)  

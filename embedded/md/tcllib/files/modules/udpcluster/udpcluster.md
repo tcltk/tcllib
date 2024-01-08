@@ -2,7 +2,7 @@
 [//000000001]: # (udpcluster \- Lightweight UDP based tool for cluster node discovery)
 [//000000002]: # (Generated from file 'udpcluster\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2016\-2018 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (udpcluster\(n\) 0\.3\.3 tcllib "Lightweight UDP based tool for cluster node discovery")
+[//000000004]: # (udpcluster\(n\) 0\.3\.4 tcllib "Lightweight UDP based tool for cluster node discovery")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,7 +34,7 @@ udpcluster \- UDP Peer\-to\-Peer cluster
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require udpcluster ?0\.3\.3?  
+package require udpcluster ?0\.3\.4?  
 package require ip  
 package require nettool  
 package require comm  

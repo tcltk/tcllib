@@ -2,7 +2,7 @@
 [//000000001]: # (grammar::me\_vm \- Grammar operations and usage)
 [//000000002]: # (Generated from file 'me\_vm\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (grammar::me\_vm\(n\) 0\.1 tcllib "Grammar operations and usage")
+[//000000004]: # (grammar::me\_vm\(n\) 0\.2 tcllib "Grammar operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

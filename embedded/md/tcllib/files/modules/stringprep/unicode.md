@@ -2,7 +2,7 @@
 [//000000001]: # (unicode \- Unicode normalization)
 [//000000002]: # (Generated from file 'unicode\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007, Sergei Golovan <sgolovan@nes\.ru>)
-[//000000004]: # (unicode\(n\) 1\.0\.0 tcllib "Unicode normalization")
+[//000000004]: # (unicode\(n\) 1\.1\.0 tcllib "Unicode normalization")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,7 +42,7 @@ unicode \- Implementation of Unicode normalization
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require unicode 1\.0  
+package require unicode 1\.1  
 
 [__::unicode::fromstring__ *string*](#1)  
 [__::unicode::tostring__ *uclist*](#2)  

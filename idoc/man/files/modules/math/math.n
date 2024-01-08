@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'math\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math" n 1\&.2\&.5 tcllib "Tcl Math Library"
+.TH "math" n 1\&.2\&.6 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ math \- Tcl Math Library
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBmath  ?1\&.2\&.5?\fR
+package require \fBmath  ?1\&.2\&.6?\fR
 .sp
 \fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp

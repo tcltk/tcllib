@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::probopt \- Tcl Math Library)
 [//000000002]: # (Generated from file 'probopt\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::probopt\(n\) 1 tcllib "Tcl Math Library")
+[//000000003]: # (math::probopt\(n\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,7 +34,7 @@ math::probopt \- Probabilistic optimisation methods
 
 package require Tcl 8\.6 9  
 package require TclOO  
-package require math::probopt 1  
+package require math::probopt 1\.1  
 
 [__::math::probopt::pso__ *function* *bounds* *args*](#1)  
 [__::math::probopt::sce__ *function* *bounds* *args*](#2)  

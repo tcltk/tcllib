@@ -2,7 +2,7 @@
 [//000000001]: # (valtype::luhn \- Validation types)
 [//000000002]: # (Generated from file 'vtype\.inc' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (valtype::luhn\(n\) 1 tcllib "Validation types")
+[//000000004]: # (valtype::luhn\(n\) 1\.1 tcllib "Validation types")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ valtype::luhn \- Validation for plain number with a LUHN checkdigit
 package require Tcl 8\.5 9  
 package require snit 2  
 package require valtype::common  
-package require valtype::luhn ?1?  
+package require valtype::luhn ?1\.1?  
 
 [__valtype::luhn__ __validate__ *value*](#1)  
 [__valtype::luhn__ __checkdigit__ *value*](#2)  

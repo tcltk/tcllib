@@ -2,7 +2,7 @@
 [//000000001]: # (throw \- Forward compatibility implementation of \[throw\])
 [//000000002]: # (Generated from file 'tcllib\_throw\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2015 Miguel Martínez López, BSD licensed)
-[//000000004]: # (throw\(n\) 1 tcllib "Forward compatibility implementation of \[throw\]")
+[//000000004]: # (throw\(n\) 1\.1 tcllib "Forward compatibility implementation of \[throw\]")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ throw \- throw \- Throw an error exception with a message
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require throw ?1?  
+package require throw ?1\.1?  
 
 [__::throw__ *error\_code* *error\_message*](#1)  
 

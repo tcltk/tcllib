@@ -37,7 +37,7 @@ page\_util\_flow \- page dataflow/treewalker utility
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require page::util::flow ?0\.1?  
+package require page::util::flow ?0\.2?  
 package require snit  
 
 [__::page::util::flow__ *start* *flowvar* *nodevar* *script*](#1)  

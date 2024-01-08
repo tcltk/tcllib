@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::string \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'textutil\_string\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::string\(n\) 0\.8 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil::string\(n\) 0\.9 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ textutil::string \- Procedures to manipulate texts and strings\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require textutil::string ?0\.8?  
+package require textutil::string ?0\.9?  
 
 [__::textutil::string::chop__ *string*](#1)  
 [__::textutil::string::tail__ *string*](#2)  

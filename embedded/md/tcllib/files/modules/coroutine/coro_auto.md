@@ -2,7 +2,7 @@
 [//000000001]: # (coroutine::auto \- Coroutine utilities)
 [//000000002]: # (Generated from file 'coro\_auto\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010\-2014 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (coroutine::auto\(n\) 1\.2 tcllib "Coroutine utilities")
+[//000000004]: # (coroutine::auto\(n\) 1\.3 tcllib "Coroutine utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ coroutine::auto \- Automatic event and IO coroutine awareness
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6 9  
-package require coroutine::auto 1\.2  
-package require coroutine 1\.3  
+package require coroutine::auto 1\.3  
+package require coroutine 1\.4  
 
 # <a name='description'></a>DESCRIPTION
 

@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::chan::memchan \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'tcllib\_memchan\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009\-2017 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::memchan\(n\) 1\.0\.4 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::chan::memchan\(n\) 1\.0\.5 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ tcl::chan::memchan \- In\-memory channel
 
 package require Tcl 8\.5 9  
 package require TclOO  
-package require tcl::chan::events ?1?  
-package require tcl::chan::memchan ?1\.0\.4?  
+package require tcl::chan::events ?1\.1?  
+package require tcl::chan::memchan ?1\.0\.5?  
 
 [__::tcl::chan::memchan__](#1)  
 

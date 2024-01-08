@@ -6,7 +6,7 @@
 [//000000005]: # (Copyright &copy; 2010 by Kevin Kenny)
 [//000000006]: # (Copyright &copy; 2018 by Arjen Markus)
 [//000000007]: # (Copyright &copy; 2020 by Manfred Rosenberger)
-[//000000008]: # (math::geometry\(n\) 1\.4\.1 tcllib "Tcl Math Library")
+[//000000008]: # (math::geometry\(n\) 1\.4\.2 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ math::geometry \- Geometrical computations
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.5 9?  
-package require math::geometry ?1\.4\.1?  
+package require math::geometry ?1\.4\.2?  
 
 [__::math::geometry::\+__ *point1* *point2*](#1)  
 [__::math::geometry::\-__ *point1* *point2*](#2)  

@@ -1,7 +1,7 @@
 
 [//000000001]: # (tar \- Tar file handling)
 [//000000002]: # (Generated from file 'tar\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (tar\(n\) 0\.11 tcllib "Tar file handling")
+[//000000003]: # (tar\(n\) 0\.12 tcllib "Tar file handling")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ tar \- Tar file creation, extraction & manipulation
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require tar ?0\.11?  
+package require tar ?0\.12?  
 
 [__::tar::contents__ *tarball* ?__\-chan__?](#1)  
 [__::tar::stat__ *tarball* ?file? ?__\-chan__?](#2)  

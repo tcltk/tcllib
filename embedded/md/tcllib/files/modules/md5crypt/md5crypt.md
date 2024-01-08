@@ -2,7 +2,7 @@
 [//000000001]: # (md5crypt \- MD5\-based password encryption)
 [//000000002]: # (Generated from file 'md5crypt\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (md5crypt\(n\) 1\.1\.0 tcllib "MD5\-based password encryption")
+[//000000004]: # (md5crypt\(n\) 1\.2\.0 tcllib "MD5\-based password encryption")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,7 +43,7 @@ md5crypt \- MD5\-based password encryption
 
 package require Tcl 8\.5 9  
 package require md5 2\.0  
-package require md5crypt ?1\.1\.0?  
+package require md5crypt ?1\.2\.0?  
 
 [__::md5crypt::md5crypt__ *password* *salt*](#1)  
 [__::md5crypt::aprcrypt__ *password* *salt*](#2)  

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'fourier\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::fourier" n 1\&.0\&.2 tcllib "Tcl Math Library"
+.TH "math::fourier" n 1\&.0\&.3 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ math::fourier \- Discrete and fast fourier transforms
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBmath::fourier  1\&.0\&.2\fR
+package require \fBmath::fourier  1\&.0\&.3\fR
 .sp
 \fB::math::fourier::dft\fR \fIin_data\fR
 .sp

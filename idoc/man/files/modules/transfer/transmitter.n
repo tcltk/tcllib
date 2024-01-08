@@ -2,7 +2,7 @@
 '\" Generated from file 'transmitter\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "transfer::transmitter" n 0\&.2 tcllib "Data transfer facilities"
+.TH "transfer::transmitter" n 0\&.3 tcllib "Data transfer facilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,13 +278,13 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBsnit  ?1\&.0?\fR
 .sp
-package require \fBtransfer::copy  ?0\&.2?\fR
+package require \fBtransfer::copy  ?0\&.3?\fR
 .sp
-package require \fBtransfer::data::source  ?0\&.2?\fR
+package require \fBtransfer::data::source  ?0\&.3?\fR
 .sp
-package require \fBtransfer::connect  ?0\&.2?\fR
+package require \fBtransfer::connect  ?0\&.3?\fR
 .sp
-package require \fBtransfer::transmitter  ?0\&.2?\fR
+package require \fBtransfer::transmitter  ?0\&.3?\fR
 .sp
 \fBtransfer::transmitter\fR \fIobjectName\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

@@ -2,7 +2,7 @@
 [//000000001]: # (math::decimal \- Tcl Decimal Arithmetic Library)
 [//000000002]: # (Generated from file 'decimal\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011 Mark Alston <mark at beernut dot com>)
-[//000000004]: # (math::decimal\(n\) 1\.0\.3 tcllib "Tcl Decimal Arithmetic Library")
+[//000000004]: # (math::decimal\(n\) 1\.0\.5 tcllib "Tcl Decimal Arithmetic Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

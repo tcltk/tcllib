@@ -2,7 +2,7 @@
 '\" Generated from file 'nmea\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006-2009, Aaron Faupell <afaupell@users\&.sourceforge\&.net>
 '\"
-.TH "nmea" n 1\&.0\&.0 tcllib "NMEA protocol implementation"
+.TH "nmea" n 1\&.1\&.0 tcllib "NMEA protocol implementation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ nmea \- Process NMEA data
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBnmea  ?1\&.0\&.0?\fR
+package require \fBnmea  ?1\&.1\&.0?\fR
 .sp
 \fB::nmea::input\fR \fIsentence\fR
 .sp

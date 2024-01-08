@@ -2,7 +2,7 @@
 [//000000001]: # (crc16 \- Cyclic Redundancy Checks)
 [//000000002]: # (Generated from file 'crc16\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, 2017, Pat Thoyts)
-[//000000004]: # (crc16\(n\) 1\.1\.4 tcllib "Cyclic Redundancy Checks")
+[//000000004]: # (crc16\(n\) 1\.1\.5 tcllib "Cyclic Redundancy Checks")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ crc16 \- Perform a 16bit Cyclic Redundancy Check
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require crc16 ?1\.1\.4?  
+package require crc16 ?1\.1\.5?  
 
 [__::crc::crc16__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#1)  
 [__::crc::crc16__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#2)  
@@ -52,6 +52,36 @@ package require crc16 ?1\.1\.4?
 [__::crc::crc\-ccitt__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#4)  
 [__::crc::xmodem__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#5)  
 [__::crc::xmodem__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#6)  
+[__::crc::kermit__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#7)  
+[__::crc::kermit__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#8)  
+[__::crc::modbus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#9)  
+[__::crc::modbus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#10)  
+[__::crc::mcrf4xx__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#11)  
+[__::crc::mcrf4xx__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#12)  
+[__::crc::genibus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#13)  
+[__::crc::genibus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#14)  
+[__::crc::crc\-x25__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#15)  
+[__::crc::crc\-x25__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#16)  
+[__::crc::crc\-sdlc__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#17)  
+[__::crc::crc\-sdlc__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#18)  
+[__::crc::crc\-usb__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#19)  
+[__::crc::crc\-usb__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#20)  
+[__::crc::buypass__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#21)  
+[__::crc::buypass__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#22)  
+[__::crc::umts__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#23)  
+[__::crc::umts__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#24)  
+[__::crc::gsm__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#25)  
+[__::crc::gsm__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#26)  
+[__::crc::unknown2__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#27)  
+[__::crc::unknown2__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#28)  
+[__::crc::maxim__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#29)  
+[__::crc::maxim__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#30)  
+[__::crc::unknown3__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#31)  
+[__::crc::unknown3__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#32)  
+[__::crc::unknown4__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#33)  
+[__::crc::unknown4__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#34)  
+[__::crc::cms__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#35)  
+[__::crc::cms__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#36)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -73,6 +103,66 @@ package can handle all of them\. Defaults are set up for the most common cases\.
   - <a name='5'></a>__::crc::xmodem__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
 
   - <a name='6'></a>__::crc::xmodem__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='7'></a>__::crc::kermit__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='8'></a>__::crc::kermit__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='9'></a>__::crc::modbus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='10'></a>__::crc::modbus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='11'></a>__::crc::mcrf4xx__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='12'></a>__::crc::mcrf4xx__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='13'></a>__::crc::genibus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='14'></a>__::crc::genibus__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='15'></a>__::crc::crc\-x25__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='16'></a>__::crc::crc\-x25__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='17'></a>__::crc::crc\-sdlc__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='18'></a>__::crc::crc\-sdlc__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='19'></a>__::crc::crc\-usb__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='20'></a>__::crc::crc\-usb__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='21'></a>__::crc::buypass__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='22'></a>__::crc::buypass__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='23'></a>__::crc::umts__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='24'></a>__::crc::umts__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='25'></a>__::crc::gsm__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='26'></a>__::crc::gsm__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='27'></a>__::crc::unknown2__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='28'></a>__::crc::unknown2__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='29'></a>__::crc::maxim__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='30'></a>__::crc::maxim__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='31'></a>__::crc::unknown3__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='32'></a>__::crc::unknown3__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='33'></a>__::crc::unknown4__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='34'></a>__::crc::unknown4__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
+
+  - <a name='35'></a>__::crc::cms__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*
+
+  - <a name='36'></a>__::crc::cms__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*
 
     The command takes either string data or a file name and returns a checksum
     value calculated using the CRC algorithm\. The command used sets up the CRC

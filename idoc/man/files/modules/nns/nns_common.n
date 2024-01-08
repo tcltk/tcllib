@@ -2,7 +2,7 @@
 '\" Generated from file 'nns_common\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "nameserv::common" n 0\&.1 tcllib "Name service facility"
+.TH "nameserv::common" n 0\&.2 tcllib "Name service facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ nameserv::common \- Name service facility, shared definitions
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBnameserv::common  ?0\&.1?\fR
+package require \fBnameserv::common  ?0\&.2?\fR
 .sp
 \fB::nameserv::common::port\fR
 .sp

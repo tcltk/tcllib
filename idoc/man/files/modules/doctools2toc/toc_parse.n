@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc::parse \- Parsing text in doctoc format
 .SH SYNOPSIS
-package require \fBdoctools::toc::parse  ?0\&.1?\fR
+package require \fBdoctools::toc::parse  ?0\&.2?\fR
 .sp
 package require \fBTcl  8\&.5 9\fR
 .sp

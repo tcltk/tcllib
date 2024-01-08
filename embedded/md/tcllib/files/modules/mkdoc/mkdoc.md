@@ -2,7 +2,7 @@
 [//000000001]: # (mkdoc \- Source code documentation using Markdown)
 [//000000002]: # (Generated from file 'mkdoc\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2019\-2022, Detlef Groth <detlef\(at\)dgroth\(dot\)de>)
-[//000000004]: # (mkdoc\(n\) 0\.7\.0 tcllib "Source code documentation using Markdown")
+[//000000004]: # (mkdoc\(n\) 0\.7\.1 tcllib "Source code documentation using Markdown")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,9 +39,9 @@ HTML
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6 9  
-package require Markdown ?1\.2\.1?  
-package require yaml ?0\.4\.1?  
-package require mkdoc ?0\.7\.0?  
+package require Markdown ?1\.2\.2?  
+package require yaml ?0\.4\.2?  
+package require mkdoc ?0\.7\.1?  
 package require hook  
 
 [__::mkdoc::mkdoc__ *infile* *outfile* ?__\-css__ *cssfile*?](#1)  
@@ -132,7 +132,7 @@ use them as well\.
 See the example below for the syntax:
 
     #' ---
-    #' title: mkdoc::mkdoc 0.7.0
+    #' title: mkdoc::mkdoc 0.7.1
     #' author: Detlef Groth, Schwielowsee, Germany
     #' date: 2022-04-17
     #' css: mini.css

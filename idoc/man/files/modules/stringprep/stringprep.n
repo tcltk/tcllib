@@ -2,7 +2,7 @@
 '\" Generated from file 'stringprep\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2009, Sergei Golovan <sgolovan@nes\&.ru>
 '\"
-.TH "stringprep" n 1\&.0\&.1 tcllib "Preparation of Internationalized Strings"
+.TH "stringprep" n 1\&.0\&.2 tcllib "Preparation of Internationalized Strings"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ stringprep \- Implementation of stringprep
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBstringprep  1\&.0\&.1\fR
+package require \fBstringprep  1\&.0\&.2\fR
 .sp
 \fB::stringprep::register\fR \fIprofile\fR ?\fI-mapping list\fR? ?\fI-normalization form\fR? ?\fI-prohibited list\fR? ?\fI-prohibitedList list\fR? ?\fI-prohibitedCommand command\fR? ?\fI-prohibitedBidi boolean\fR?
 .sp

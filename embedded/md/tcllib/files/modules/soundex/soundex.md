@@ -4,7 +4,7 @@
 [//000000003]: # (Copyright &copy; ????, Algorithm: Donald E\. Knuth)
 [//000000004]: # (Copyright &copy; 2003, Documentation: Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000005]: # (Copyright &copy; 1998, Tcl port: Evan Rempel <erempel@uvic\.ca>)
-[//000000006]: # (soundex\(n\) 1\.0 tcllib "Soundex")
+[//000000006]: # (soundex\(n\) 1\.1 tcllib "Soundex")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ soundex \- Soundex
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require soundex ?1\.0?  
+package require soundex ?1\.1?  
 
 [__::soundex::knuth__ *string*](#1)  
 

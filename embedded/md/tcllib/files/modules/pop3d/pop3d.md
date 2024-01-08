@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'pop3d\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2005 Reinhard Max  <max@suse\.de>)
-[//000000005]: # (pop3d\(n\) 1\.1\.0 tcllib "Tcl POP3 Server Package")
+[//000000005]: # (pop3d\(n\) 1\.2\.0 tcllib "Tcl POP3 Server Package")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,7 +45,7 @@ pop3d \- Tcl POP3 server implementation
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require pop3d ?1\.1\.0?  
+package require pop3d ?1\.2\.0?  
 
 [__::pop3d::new__ ?*serverName*?](#1)  
 [__serverName__ *option* ?*arg arg \.\.\.*?](#2)  

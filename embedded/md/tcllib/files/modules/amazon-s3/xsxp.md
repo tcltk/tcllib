@@ -2,7 +2,7 @@
 [//000000001]: # (xsxp \- Amazon S3 Web Service Utilities)
 [//000000002]: # (Generated from file 'xsxp\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (2006 Darren New\. All Rights Reserved\.)
-[//000000004]: # (xsxp\(n\) 1\.0 tcllib "Amazon S3 Web Service Utilities")
+[//000000004]: # (xsxp\(n\) 1\.1 tcllib "Amazon S3 Web Service Utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ xsxp \- eXtremely Simple Xml Parser
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require xsxp 1  
+package require xsxp 1\.1  
 package require xml  
 
 [__xsxp::parse__ *xml*](#1)  

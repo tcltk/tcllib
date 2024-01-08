@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'nntp\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "nntp" n 1\&.5\&.1 tcllib "Tcl NNTP Client Library"
+.TH "nntp" n 0\&.2\&.2 tcllib "Tcl NNTP Client Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ nntp \- Tcl client for the NNTP protocol
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBnntp  ?0\&.2\&.1?\fR
+package require \fBnntp  ?0\&.2\&.2?\fR
 .sp
 \fB::nntp::nntp\fR ?\fIhost\fR? ?\fIport\fR? ?\fInntpName\fR?
 .sp

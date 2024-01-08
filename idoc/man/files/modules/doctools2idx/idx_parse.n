@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::parse \- Parsing text in docidx format
 .SH SYNOPSIS
-package require \fBdoctools::idx::parse  ?0\&.1?\fR
+package require \fBdoctools::idx::parse  ?0\&.2?\fR
 .sp
 package require \fBTcl  8\&.5 9\fR
 .sp

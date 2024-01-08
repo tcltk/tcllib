@@ -2,7 +2,7 @@
 '\" Generated from file 'nullzero\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::nullzero" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::nullzero" n 1\&.1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,9 +278,9 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBtcl::chan::events  ?1?\fR
+package require \fBtcl::chan::events  ?1\&.1?\fR
 .sp
-package require \fBtcl::chan::nullzero  ?1?\fR
+package require \fBtcl::chan::nullzero  ?1\&.1?\fR
 .sp
 \fB::tcl::chan::nullzero\fR
 .sp

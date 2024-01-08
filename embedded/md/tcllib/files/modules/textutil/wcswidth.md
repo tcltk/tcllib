@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::wcswidth \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'wcswidth\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::wcswidth\(n\) 35\.2 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil::wcswidth\(n\) 35\.3 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ textutil::wcswidth \- Procedures to compute terminal width of strings
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require textutil::wcswidth ?35\.2?  
+package require textutil::wcswidth ?35\.3?  
 
 [__::textutil::wcswidth__ *string*](#1)  
 [__::textutil::wcswidth\_char__ *char*](#2)  

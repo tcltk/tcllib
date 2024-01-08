@@ -2,7 +2,7 @@
 [//000000001]: # (grammar::fa \- Finite automaton operations and usage)
 [//000000002]: # (Generated from file 'fa\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (grammar::fa\(n\) 0\.4 tcllib "Finite automaton operations and usage")
+[//000000004]: # (grammar::fa\(n\) 0\.6 tcllib "Finite automaton operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,8 +45,8 @@ package require Tcl 8\.5 9
 package require snit 1\.3  
 package require struct::list  
 package require struct::set  
-package require grammar::fa::op ?0\.2?  
-package require grammar::fa ?0\.4?  
+package require grammar::fa::op ?0\.3?  
+package require grammar::fa ?0\.6?  
 
 [__::grammar::fa__ *faName* ?__=__&#124;__:=__&#124;__<\-\-__&#124;__as__&#124;__deserialize__ *src*&#124;__fromRegex__ *re* ?*over*??](#1)  
 [__faName__ *option* ?*arg arg \.\.\.*?](#2)  

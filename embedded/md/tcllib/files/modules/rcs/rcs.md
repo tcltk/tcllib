@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'rcs\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2005, Colin McCormack <coldstore@users\.sourceforge\.net>)
-[//000000005]: # (rcs\(n\) 2\.0\.2 tcllib "RCS low level utilities")
+[//000000005]: # (rcs\(n\) 0\.2 tcllib "RCS low level utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,7 +45,7 @@ rcs \- RCS low level utilities
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require rcs ?0\.1?  
+package require rcs ?0\.2?  
 
 [__::rcs::text2dict__ *text*](#1)  
 [__::rcs::dict2text__ *dict*](#2)  

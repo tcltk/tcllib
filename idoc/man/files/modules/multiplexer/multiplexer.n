@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'multiplexer\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "multiplexer" n 0\&.2 tcllib "One-to-many communication with sockets\&."
+.TH "multiplexer" n 0\&.3 tcllib "One-to-many communication with sockets\&."
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBlogger \fR
 .sp
-package require \fBmultiplexer  ?0\&.2?\fR
+package require \fBmultiplexer  ?0\&.3?\fR
 .sp
 \fB::multiplexer::create\fR
 .sp

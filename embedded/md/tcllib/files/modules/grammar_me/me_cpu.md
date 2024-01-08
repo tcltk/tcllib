@@ -2,7 +2,7 @@
 [//000000001]: # (grammar::me::cpu \- Grammar operations and usage)
 [//000000002]: # (Generated from file 'me\_cpu\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005\-2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (grammar::me::cpu\(n\) 0\.2 tcllib "Grammar operations and usage")
+[//000000004]: # (grammar::me::cpu\(n\) 0\.3 tcllib "Grammar operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ grammar::me::cpu \- Virtual machine implementation II for parsing token streams
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require grammar::me::cpu ?0\.2?  
+package require grammar::me::cpu ?0\.3?  
 
 [__::grammar::me::cpu__ *meName* *matchcode*](#1)  
 [__meName__ __option__ ?*arg arg \.\.\.*?](#2)  

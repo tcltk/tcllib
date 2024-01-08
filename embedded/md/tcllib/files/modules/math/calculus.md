@@ -2,7 +2,7 @@
 [//000000001]: # (math::calculus \- Tcl Math Library)
 [//000000002]: # (Generated from file 'calculus\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002,2003,2004 Arjen Markus)
-[//000000004]: # (math::calculus\(n\) 0\.8\.2 tcllib "Tcl Math Library")
+[//000000004]: # (math::calculus\(n\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ math::calculus \- Integration and ordinary differential equations
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require math::calculus 0\.8\.2  
+package require math::calculus 1\.1  
 
 [__::math::calculus::integral__ *begin* *end* *nosteps* *func*](#1)  
 [__::math::calculus::integralExpr__ *begin* *end* *nosteps* *expression*](#2)  

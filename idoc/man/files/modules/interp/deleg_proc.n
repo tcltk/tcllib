@@ -2,7 +2,7 @@
 '\" Generated from file 'deleg_proc\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "deleg_proc" n 0\&.2 tcllib "Interpreter utilities"
+.TH "deleg_proc" n 0\&.3 tcllib "Interpreter utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ deleg_proc \- Creation of comm delegates (procedures)
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBinterp::delegate::proc  ?0\&.2?\fR
+package require \fBinterp::delegate::proc  ?0\&.3?\fR
 .sp
 \fB::interp::delegate::proc\fR ?\fB-async\fR? \fIname\fR \fIarguments\fR \fIcomm\fR \fIid\fR
 .sp

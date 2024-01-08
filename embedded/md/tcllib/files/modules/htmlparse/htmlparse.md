@@ -1,7 +1,7 @@
 
 [//000000001]: # (htmlparse \- HTML Parser)
 [//000000002]: # (Generated from file 'htmlparse\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (htmlparse\(n\) 1\.2\.2 tcllib "HTML Parser")
+[//000000003]: # (htmlparse\(n\) 1\.2\.3 tcllib "HTML Parser")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ htmlparse \- Procedures to parse HTML strings
 package require Tcl 8\.5 9  
 package require struct::stack 1\.3  
 package require cmdline 1\.1  
-package require htmlparse ?1\.2\.2?  
+package require htmlparse ?1\.2\.3?  
 
 [__::htmlparse::parse__ ?\-cmd *cmd*? ?\-vroot *tag*? ?\-split *n*? ?\-incvar *var*? ?\-queue *q*? *html*](#1)  
 [__::htmlparse::debugCallback__ ?*clientdata*? *tag slash param textBehindTheTag*](#2)  

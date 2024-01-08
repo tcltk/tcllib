@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::transform::otp \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'vt\_otp\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::transform::otp\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::transform::otp\(n\) 1\.1 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,8 +36,8 @@ tcl::transform::otp \- Encryption via one\-time pad
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6 9  
-package require tcl::transform::core ?1?  
-package require tcl::transform::otp ?1?  
+package require tcl::transform::core ?1\.1?  
+package require tcl::transform::otp ?1\.1?  
 
 [__::tcl::transform::otp__ *chan* *keychanw* *keychanr*](#1)  
 

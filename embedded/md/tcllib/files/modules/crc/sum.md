@@ -2,7 +2,7 @@
 [//000000001]: # (sum \- Cyclic Redundancy Checks)
 [//000000002]: # (Generated from file 'sum\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (sum\(n\) 1\.1\.2 tcllib "Cyclic Redundancy Checks")
+[//000000004]: # (sum\(n\) 1\.1\.3 tcllib "Cyclic Redundancy Checks")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ sum \- Calculate a sum\(1\) compatible checksum
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require sum ?1\.1\.2?  
+package require sum ?1\.1\.3?  
 
 [__::crc::sum__ ?*\-bsd* &#124; *\-sysv*? ?*\-format fmt*? ?*\-chunksize size*? \[ *\-filename file* &#124; *\-channel chan* &#124; *string* \]](#1)  
 

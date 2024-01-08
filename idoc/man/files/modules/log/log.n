@@ -2,7 +2,7 @@
 '\" Generated from file 'log\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2001-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "log" n 1\&.4 tcllib "Logging facility"
+.TH "log" n 1\&.5 tcllib "Logging facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ log \- Procedures to log messages of libraries and applications\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBlog  ?1\&.4?\fR
+package require \fBlog  ?1\&.5?\fR
 .sp
 \fB::log::levels\fR
 .sp

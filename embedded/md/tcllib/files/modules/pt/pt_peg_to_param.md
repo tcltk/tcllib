@@ -2,7 +2,7 @@
 [//000000001]: # (pt::peg::to::param \- Parser Tools)
 [//000000002]: # (Generated from file 'to\.inc' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt::peg::to::param\(n\) 1 tcllib "Parser Tools")
+[//000000004]: # (pt::peg::to::param\(n\) 1\.1 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -50,7 +50,7 @@ pt::peg::to::param \- PEG Conversion\. Write PARAM format
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require pt::peg::to::param ?1?  
+package require pt::peg::to::param ?1\.1?  
 package require pt::peg  
 package require pt::pe  
 

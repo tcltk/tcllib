@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'paths\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil::paths" n 1 tcllib ""
+.TH "fileutil::paths" n 1\&.1 tcllib ""
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ fileutil::paths \- Manage search path pools
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBfileutil::paths  ?1?\fR
+package require \fBfileutil::paths  ?1\&.1?\fR
 .sp
 \fB::fileutil::paths\fR \fIpoolName\fR
 .sp

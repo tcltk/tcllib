@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::chan::textwindow \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'textwindow\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::textwindow\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::chan::textwindow\(n\) 1\.1 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ tcl::chan::textwindow \- Textwindow channel
 
 package require Tcl 8\.5 9  
 package require TclOO  
-package require tcl::chan::events ?1?  
-package require tcl::chan::textwindow ?1?  
+package require tcl::chan::events ?1\.1?  
+package require tcl::chan::textwindow ?1\.1?  
 
 [__::tcl::chan::textwindow__ *widget*](#1)  
 

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 page_util_norm_lemon \- page AST normalization, LEMON
 .SH SYNOPSIS
-package require \fBpage::util::norm_lemon  ?0\&.1?\fR
+package require \fBpage::util::norm_lemon  ?0\&.2?\fR
 .sp
 package require \fBsnit \fR
 .sp

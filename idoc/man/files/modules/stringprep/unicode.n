@@ -2,7 +2,7 @@
 '\" Generated from file 'unicode\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007, Sergei Golovan <sgolovan@nes\&.ru>
 '\"
-.TH "unicode" n 1\&.0\&.0 tcllib "Unicode normalization"
+.TH "unicode" n 1\&.1\&.0 tcllib "Unicode normalization"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ unicode \- Implementation of Unicode normalization
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBunicode  1\&.0\fR
+package require \fBunicode  1\&.1\fR
 .sp
 \fB::unicode::fromstring\fR \fIstring\fR
 .sp
