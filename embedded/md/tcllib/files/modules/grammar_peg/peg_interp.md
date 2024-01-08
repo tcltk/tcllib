@@ -2,7 +2,7 @@
 [//000000001]: # (grammar::peg::interp \- Grammar operations and usage)
 [//000000002]: # (Generated from file 'peg\_interp\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005\-2011 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (grammar::peg::interp\(n\) 0\.1\.1 tcllib "Grammar operations and usage")
+[//000000004]: # (grammar::peg::interp\(n\) 0\.1\.2 tcllib "Grammar operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,7 +37,7 @@ grammar::peg::interp \- Interpreter for parsing expression grammars
 
 package require Tcl 8\.5 9  
 package require grammar::mengine ?0\.1?  
-package require grammar::peg::interp ?0\.1\.1?  
+package require grammar::peg::interp ?0\.1\.2?  
 
 [__::grammar::peg::interp::setup__ *peg*](#1)  
 [__::grammar::peg::interp::parse__ *nextcmd* *errorvar* *astvar*](#2)  

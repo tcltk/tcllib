@@ -2,7 +2,7 @@
 '\" Generated from file 'struct_set\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "struct::set" n 2\&.2\&.3 tcllib "Tcl Data Structures"
+.TH "struct::set" n 2\&.2\&.4 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ struct::set \- Procedures for manipulating sets
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBstruct::set  ?2\&.2\&.3?\fR
+package require \fBstruct::set  ?2\&.2\&.4?\fR
 .sp
 \fB::struct::set\fR \fBempty\fR \fIset\fR
 .sp

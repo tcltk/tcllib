@@ -2,7 +2,7 @@
 [//000000001]: # (docstrip \- Literate programming tool)
 [//000000002]: # (Generated from file 'docstrip\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003–2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>)
-[//000000004]: # (docstrip\(n\) 1\.2 tcllib "Literate programming tool")
+[//000000004]: # (docstrip\(n\) 1\.3 tcllib "Literate programming tool")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ docstrip \- Docstrip style source code extraction
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require docstrip ?1\.2?  
+package require docstrip ?1\.3?  
 
 [__docstrip::extract__ *text* *terminals* ?*option* *value* \.\.\.?](#1)  
 [__docstrip::sourcefrom__ *filename* *terminals* ?*option* *value* \.\.\.?](#2)  

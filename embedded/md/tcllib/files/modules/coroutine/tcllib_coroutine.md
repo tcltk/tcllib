@@ -2,7 +2,7 @@
 [//000000001]: # (coroutine \- Coroutine utilities)
 [//000000002]: # (Generated from file 'tcllib\_coroutine\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010\-2015 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (coroutine\(n\) 1\.3 tcllib "Coroutine utilities")
+[//000000004]: # (coroutine\(n\) 1\.4 tcllib "Coroutine utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ coroutine \- Coroutine based event and IO handling
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6 9  
-package require coroutine 1\.3  
+package require coroutine 1\.4  
 
 [__coroutine::util after__ *delay*](#1)  
 [__coroutine::util await__ *varname*\.\.\.](#2)  

@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'debug\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 200?, Colin McCormack, Wub Server Utilities)
 [//000000004]: # (Copyright &copy; 2012\-2014, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000005]: # (debug\(n\) 1\.0\.6 tcllib "debug narrative")
+[//000000005]: # (debug\(n\) 1\.0\.7 tcllib "debug narrative")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,7 +37,7 @@ debug \- debug narrative \- core
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require debug ?1\.0\.6?  
+package require debug ?1\.0\.7?  
 
 [__debug\.____tag__ *message* ?*level*?](#1)  
 [__debug__ __2array__](#2)  

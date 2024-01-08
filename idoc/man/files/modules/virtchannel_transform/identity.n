@@ -2,7 +2,7 @@
 '\" Generated from file 'identity\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::transform::identity" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::transform::identity" n 1\&.1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,9 @@ tcl::transform::identity \- Identity transformation
 .SH SYNOPSIS
 package require \fBTcl  8\&.6 9\fR
 .sp
-package require \fBtcl::transform::core  ?1?\fR
+package require \fBtcl::transform::core  ?1\&.1?\fR
 .sp
-package require \fBtcl::transform::identity  ?1?\fR
+package require \fBtcl::transform::identity  ?1\&.1?\fR
 .sp
 \fB::tcl::transform::identity\fR \fIchan\fR
 .sp

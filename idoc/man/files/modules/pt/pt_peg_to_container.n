@@ -2,7 +2,7 @@
 '\" Generated from file 'to\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::to::container" n 1 tcllib "Parser Tools"
+.TH "pt::peg::to::container" n 1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::peg::to::container \- PEG Conversion\&. Write CONTAINER format
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBpt::peg::to::container  ?1?\fR
+package require \fBpt::peg::to::container  ?1\&.1?\fR
 .sp
 package require \fBpt::peg \fR
 .sp

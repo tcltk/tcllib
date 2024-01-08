@@ -2,7 +2,7 @@
 '\" Generated from file 'report\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002-2014,2022 Andreas Kupries <andreas\&.kupries@gmail\&.com>
 '\"
-.TH "report" n 0\&.4 tcllib "Matrix reports"
+.TH "report" n 0\&.5 tcllib "Matrix reports"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ report \- Create and manipulate report objects
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBreport  ?0\&.4?\fR
+package require \fBreport  ?0\&.5?\fR
 .sp
 \fB::report::report\fR \fIreportName\fR \fIcolumns\fR ?\fBstyle\fR \fIstyle arg\&.\&.\&.\fR?
 .sp

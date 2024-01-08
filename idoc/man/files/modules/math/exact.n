@@ -3,7 +3,7 @@
 '\" Copyright (c) 2015 Kevin B\&. Kenny <kennykb@acm\&.org>
 '\" Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
 '\"
-.TH "math::exact" n 1\&.0\&.1 tcllib "Tcl Math Library"
+.TH "math::exact" n 1\&.0\&.2 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTcl  8\&.6 9\fR
 .sp
 package require \fBgrammar::aycock  1\&.0\fR
 .sp
-package require \fBmath::exact  1\&.0\&.1\fR
+package require \fBmath::exact  1\&.0\&.2\fR
 .sp
 \fB::math::exact::exactexpr\fR \fIexpr\fR
 .sp

@@ -2,7 +2,7 @@
 '\" Generated from file 'vtype\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "valtype::creditcard::mastercard" n 1 tcllib "Validation types"
+.TH "valtype::creditcard::mastercard" n 1\&.1 tcllib "Validation types"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -282,7 +282,7 @@ package require \fBvaltype::common \fR
 .sp
 package require \fBvaltype::luhn \fR
 .sp
-package require \fBvaltype::creditcard::mastercard  ?1?\fR
+package require \fBvaltype::creditcard::mastercard  ?1\&.1?\fR
 .sp
 \fBvaltype::creditcard::mastercard\fR \fBvalidate\fR \fIvalue\fR
 .sp

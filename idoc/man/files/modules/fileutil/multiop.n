@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'multiop\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil::multi::op" n 0\&.5\&.3 tcllib "file utilities"
+.TH "fileutil::multi::op" n 0\&.5\&.4 tcllib "file utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ fileutil::multi::op \- Multi-file operation, scatter/gather
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBfileutil::multi::op  ?0\&.5\&.3?\fR
+package require \fBfileutil::multi::op  ?0\&.5\&.4?\fR
 .sp
 package require \fBwip  ?1\&.0?\fR
 .sp

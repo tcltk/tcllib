@@ -2,7 +2,7 @@
 [//000000001]: # (textutil::expander \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'expander\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; William H\. Duquette, http://www\.wjduquette\.com/expand)
-[//000000004]: # (textutil::expander\(n\) 1\.3\.1 tcllib "Text and string utilities, macro processing")
+[//000000004]: # (textutil::expander\(n\) 1\.3\.2 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -54,7 +54,7 @@ textutil::expander \- Procedures to process templates and expand text\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require textutil::expander ?1\.3\.1?  
+package require textutil::expander ?1\.3\.2?  
 
 [__::textutil::expander__ *expanderName*](#1)  
 [*expanderName* __cappend__ *text*](#2)  

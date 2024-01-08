@@ -2,7 +2,7 @@
 [//000000001]: # (cksum \- Cyclic Redundancy Checks)
 [//000000002]: # (Generated from file 'cksum\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Pat Thoyts)
-[//000000004]: # (cksum\(n\) 1\.1\.4 tcllib "Cyclic Redundancy Checks")
+[//000000004]: # (cksum\(n\) 1\.1\.5 tcllib "Cyclic Redundancy Checks")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -46,7 +46,7 @@ cksum \- Calculate a cksum\(1\) compatible checksum
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require cksum ?1\.1\.4?  
+package require cksum ?1\.1\.5?  
 
 [__::crc::cksum__ ?*\-format format*? ?*\-chunksize size*? \[ *\-channel chan* &#124; *\-filename file* &#124; *string* \]](#1)  
 [__::crc::CksumInit__](#2)  

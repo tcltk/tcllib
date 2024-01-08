@@ -2,7 +2,7 @@
 [//000000001]: # (transfer::copy \- Data transfer facilities)
 [//000000002]: # (Generated from file 'copyops\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (transfer::copy\(n\) 0\.2 tcllib "Data transfer facilities")
+[//000000004]: # (transfer::copy\(n\) 0\.3 tcllib "Data transfer facilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ transfer::copy \- Data transfer foundation
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require transfer::copy ?0\.2?  
+package require transfer::copy ?0\.3?  
 
 [__transfer::copy::do__ __chan__&#124;__string__ *data* *outchannel* ?*options*\.\.\.?](#1)  
 [__transfer::copy::chan__ *channel* *outchannel* ?*options*\.\.\.?](#2)  

@@ -2,7 +2,7 @@
 [//000000001]: # (valtype::common \- Validation types)
 [//000000002]: # (Generated from file 'valtype\_common\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (valtype::common\(n\) 1 tcllib "Validation types")
+[//000000004]: # (valtype::common\(n\) 1\.1 tcllib "Validation types")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ valtype::common \- Validation, common code
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require valtype::common ?1?  
+package require valtype::common ?1\.1?  
 
 [__valtype::common::reject__ *code* *text*](#1)  
 [__valtype::common::badchar__ *code* ?*text*?](#2)  

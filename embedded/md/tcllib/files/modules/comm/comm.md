@@ -4,7 +4,7 @@
 [//000000003]: # (Copyright &copy; 1995\-1998 The Open Group\. All Rights Reserved\.)
 [//000000004]: # (Copyright &copy; 2003\-2004 ActiveState Corporation\.)
 [//000000005]: # (Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000006]: # (comm\(n\) 4\.7\.1 tcllib "Remote communication")
+[//000000006]: # (comm\(n\) 4\.7\.2 tcllib "Remote communication")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -78,7 +78,7 @@ comm \- A remote communication facility for Tcl \(8\.5 and later\)
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require comm ?4\.7\.1?  
+package require comm ?4\.7\.2?  
 
 [__::comm::comm send__ ?\-async? ?\-command *callback*? *id* *cmd* ?*arg arg \.\.\.*?](#1)  
 [__::comm::comm self__](#2)  

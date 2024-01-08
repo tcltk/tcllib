@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::figurate \- Tcl Math Library)
 [//000000002]: # (Generated from file 'figurate\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::figurate\(n\) 1\.0 tcllib "Tcl Math Library")
+[//000000003]: # (math::figurate\(n\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

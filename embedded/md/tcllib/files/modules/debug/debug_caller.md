@@ -2,7 +2,7 @@
 [//000000001]: # (debug::caller \- debug narrative)
 [//000000002]: # (Generated from file 'debug\_caller\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2012\-2015, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (debug::caller\(n\) 1\.1 tcllib "debug narrative")
+[//000000004]: # (debug::caller\(n\) 1\.2 tcllib "debug narrative")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ debug::caller \- debug narrative \- caller
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require debug::caller ?1\.1?  
+package require debug::caller ?1\.2?  
 
 [__[debug](debug\.md)__ __caller__ ?*args*\.\.\.?](#1)  
 

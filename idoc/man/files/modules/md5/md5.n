@@ -2,7 +2,7 @@
 '\" Generated from file 'md5\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "md5" n 2\&.0\&.8 tcllib "MD5 Message-Digest Algorithm"
+.TH "md5" n 2\&.0\&.9 tcllib "MD5 Message-Digest Algorithm"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ md5 \- MD5 Message-Digest Algorithm
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBmd5  ?2\&.0\&.7?\fR
+package require \fBmd5  ?2\&.0\&.9?\fR
 .sp
 \fB::md5::md5\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp

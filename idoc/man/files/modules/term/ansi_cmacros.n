@@ -2,7 +2,7 @@
 '\" Generated from file 'ansi_cmacros\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "term::ansi::code::macros" n 0\&.1 tcllib "Terminal control"
+.TH "term::ansi::code::macros" n 0\&.2 tcllib "Terminal control"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -280,7 +280,7 @@ package require \fBtextutil::repeat \fR
 .sp
 package require \fBtextutil::tabify \fR
 .sp
-package require \fBterm::ansi::code::macros  ?0\&.1?\fR
+package require \fBterm::ansi::code::macros  ?0\&.2?\fR
 .sp
 \fB::term::ansi::code::macros::names\fR
 .sp

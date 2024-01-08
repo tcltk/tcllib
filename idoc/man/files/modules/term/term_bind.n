@@ -2,7 +2,7 @@
 '\" Generated from file 'term_bind\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "term::receive::bind" n 0\&.1 tcllib "Terminal control"
+.TH "term::receive::bind" n 0\&.2 tcllib "Terminal control"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ term::receive::bind \- Keyboard dispatch from terminals
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBterm::receive::bind  ?0\&.1?\fR
+package require \fBterm::receive::bind  ?0\&.2?\fR
 .sp
 \fBterm::receive::bind\fR \fIobject\fR ?\fImap\fR?
 .sp

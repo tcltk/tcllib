@@ -1,7 +1,7 @@
 
 [//000000001]: # (uri \- Tcl Uniform Resource Identifier Management)
 [//000000002]: # (Generated from file 'uri\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (uri\(n\) 1\.2\.7 tcllib "Tcl Uniform Resource Identifier Management")
+[//000000003]: # (uri\(n\) 1\.2\.8 tcllib "Tcl Uniform Resource Identifier Management")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -49,7 +49,7 @@ uri \- URI utilities
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require uri ?1\.2\.7?  
+package require uri ?1\.2\.8?  
 
 [__uri::setQuirkOption__ *option* ?*value*?](#1)  
 [__uri::split__ *url* ?*defaultscheme*?](#2)  

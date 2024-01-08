@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'textutil_string\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "textutil::string" n 0\&.8 tcllib "Text and string utilities, macro processing"
+.TH "textutil::string" n 0\&.9 tcllib "Text and string utilities, macro processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ textutil::string \- Procedures to manipulate texts and strings\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBtextutil::string  ?0\&.8?\fR
+package require \fBtextutil::string  ?0\&.9?\fR
 .sp
 \fB::textutil::string::chop\fR \fIstring\fR
 .sp

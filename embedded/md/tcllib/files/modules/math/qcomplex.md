@@ -2,7 +2,7 @@
 [//000000001]: # (math::complexnumbers \- Tcl Math Library)
 [//000000002]: # (Generated from file 'qcomplex\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
-[//000000004]: # (math::complexnumbers\(n\) 1\.0\.2 tcllib "Tcl Math Library")
+[//000000004]: # (math::complexnumbers\(n\) 1\.0\.3 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ math::complexnumbers \- Straightforward complex number package
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require math::complexnumbers ?1\.0\.2?  
+package require math::complexnumbers ?1\.0\.3?  
 
 [__::math::complexnumbers::\+__ *z1* *z2*](#1)  
 [__::math::complexnumbers::\-__ *z1* *z2*](#2)  

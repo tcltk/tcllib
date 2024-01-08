@@ -2,7 +2,7 @@
 [//000000001]: # (pt::pgen \- Parser Tools)
 [//000000002]: # (Generated from file 'pt\_pgen\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt::pgen\(n\) 1\.1 tcllib "Parser Tools")
+[//000000004]: # (pt::pgen\(n\) 1\.2 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ pt::pgen \- Parser Generator
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require pt::pgen ?1\.1?  
+package require pt::pgen ?1\.2?  
 
 [__::pt::pgen__ *inputformat* *text* *resultformat* ?*options\.\.\.*?](#1)  
 

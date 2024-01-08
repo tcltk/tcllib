@@ -2,7 +2,7 @@
 [//000000001]: # (logger::appender \- Object Oriented logging facility)
 [//000000002]: # (Generated from file 'loggerAppender\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
-[//000000004]: # (logger::appender\(n\) 1\.2 tcllib "Object Oriented logging facility")
+[//000000004]: # (logger::appender\(n\) 1\.4 tcllib "Object Oriented logging facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,7 +34,7 @@ logger::appender \- Collection of predefined appenders for logger
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require logger::appender ?1\.2?  
+package require logger::appender ?1\.4?  
 
 [__::logger::appender::console__ __\-level__ *level* __\-service__ *service* ?*options*\.\.\.?](#1)  
 [__::logger::appender::colorConsole__ __\-level__ *level* __\-service__ *service* ?*options*\.\.\.?](#2)  

@@ -2,7 +2,7 @@
 '\" Generated from file 'ansi_ctrlu\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "term::ansi::ctrl::unix" n 0\&.1\&.1 tcllib "Terminal control"
+.TH "term::ansi::ctrl::unix" n 0\&.1\&.2 tcllib "Terminal control"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ term::ansi::ctrl::unix \- Control operations and queries
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBterm::ansi::ctrl::unix  ?0\&.1\&.1?\fR
+package require \fBterm::ansi::ctrl::unix  ?0\&.1\&.2?\fR
 .sp
 \fB::term::ansi::ctrl::unix::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 .sp

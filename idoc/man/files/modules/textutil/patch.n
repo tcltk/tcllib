@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'patch\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "textutil::patch" n 0\&.1 tcllib "Text and string utilities"
+.TH "textutil::patch" n 0\&.2 tcllib "Text and string utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ textutil::patch \- Application of uni-diff patches to directory trees
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBtextutil::patch  ?0\&.1?\fR
+package require \fBtextutil::patch  ?0\&.2?\fR
 .sp
 \fB::textutil::patch::apply\fR \fIbasedirectory\fR \fIstriplevel\fR \fIpatch\fR \fIreportcmd\fR
 .sp

@@ -41,7 +41,7 @@ package require Tcl 8\.5 9
 package require snit  
 package require struct::list  
 package require struct::set  
-package require grammar::fa::op ?0\.4\.1?  
+package require grammar::fa::op ?0\.4\.2?  
 
 [__::grammar::fa::op::constructor__ *cmd*](#1)  
 [__::grammar::fa::op::reverse__ *fa*](#2)  

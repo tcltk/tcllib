@@ -2,7 +2,7 @@
 [//000000001]: # (docstrip\_util \- Literate programming tool)
 [//000000002]: # (Generated from file 'docstrip\_util\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003–2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>)
-[//000000004]: # (docstrip\_util\(n\) 1\.3\.1 tcllib "Literate programming tool")
+[//000000004]: # (docstrip\_util\(n\) 1\.3\.2 tcllib "Literate programming tool")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,8 +38,8 @@ docstrip\_util \- Docstrip\-related utilities
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require docstrip ?1\.2?  
-package require docstrip::util ?1\.3\.1?  
+package require docstrip ?1\.3?  
+package require docstrip::util ?1\.3\.2?  
 
 [__pkgProvide__ *name* *version* *terminals*](#1)  
 [__pkgIndex__ ?*terminal* \.\.\.?](#2)  

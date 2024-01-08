@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'figurate\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::figurate" n 1\&.0 tcllib "Tcl Math Library"
+.TH "math::figurate" n 1\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

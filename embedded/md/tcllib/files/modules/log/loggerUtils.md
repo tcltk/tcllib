@@ -2,7 +2,7 @@
 [//000000001]: # (logger::utils \- Object Oriented logging facility)
 [//000000002]: # (Generated from file 'loggerUtils\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
-[//000000004]: # (logger::utils\(n\) 1\.3\.1 tcllib "Object Oriented logging facility")
+[//000000004]: # (logger::utils\(n\) 1\.3\.2 tcllib "Object Oriented logging facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,7 +34,7 @@ logger::utils \- Utilities for logger
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require logger::utils ?1\.3\.1?  
+package require logger::utils ?1\.3\.2?  
 
 [__::logger::utils::createFormatCmd__ *formatString*](#1)  
 [__::logger::utils::createLogProc__ __\-procName__ *procName* ?*options*\.\.\.?](#2)  

@@ -2,7 +2,7 @@
 '\" Generated from file 'md5crypt\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "md5crypt" n 1\&.1\&.0 tcllib "MD5-based password encryption"
+.TH "md5crypt" n 1\&.2\&.0 tcllib "MD5-based password encryption"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBmd5  2\&.0\fR
 .sp
-package require \fBmd5crypt  ?1\&.1\&.0?\fR
+package require \fBmd5crypt  ?1\&.2\&.0?\fR
 .sp
 \fB::md5crypt::md5crypt\fR \fIpassword\fR \fIsalt\fR
 .sp

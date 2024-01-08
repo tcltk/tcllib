@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'combinatorics\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::combinatorics" n 2\&.0 tcllib "Tcl Math Library"
+.TH "math::combinatorics" n 2\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,13 +275,13 @@ math::combinatorics \- Combinatorial functions in the Tcl Math Library
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBmath  ?1\&.2\&.3?\fR
+package require \fBmath  ?1\&.2\&.6?\fR
 .sp
 package require \fBTcl  8\&.6 9\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBmath::combinatorics  ?2\&.0?\fR
+package require \fBmath::combinatorics  ?2\&.1?\fR
 .sp
 \fB::math::ln_Gamma\fR \fIz\fR
 .sp

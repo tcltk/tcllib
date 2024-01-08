@@ -3,7 +3,7 @@
 '\" Copyright (c) 2005, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 2005, Colin McCormack <coldstore@users\&.sourceforge\&.net>
 '\"
-.TH "rcs" n 2\&.0\&.2 tcllib "RCS low level utilities"
+.TH "rcs" n 0\&.2 tcllib "RCS low level utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ rcs \- RCS low level utilities
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBrcs  ?0\&.1?\fR
+package require \fBrcs  ?0\&.2?\fR
 .sp
 \fB::rcs::text2dict\fR \fItext\fR
 .sp

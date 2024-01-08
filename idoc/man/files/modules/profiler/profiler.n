@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'profiler\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "profiler" n 0\&.6 tcllib "Tcl Profiler"
+.TH "profiler" n 0\&.7 tcllib "Tcl Profiler"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ profiler \- Tcl source code profiler
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBprofiler  ?0\&.6?\fR
+package require \fBprofiler  ?0\&.7?\fR
 .sp
 \fB::profiler::init\fR
 .sp

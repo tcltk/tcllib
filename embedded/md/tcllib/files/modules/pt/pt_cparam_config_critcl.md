@@ -2,7 +2,7 @@
 [//000000001]: # (pt::cparam::configuration::critcl \- Parser Tools)
 [//000000002]: # (Generated from file 'pt\_cparam\_config\_critcl\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt::cparam::configuration::critcl\(n\) 1\.0\.2 tcllib "Parser Tools")
+[//000000004]: # (pt::cparam::configuration::critcl\(n\) 1\.0\.3 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ pt::cparam::configuration::critcl \- C/PARAM, Canned configuration, Critcl
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require pt::cparam::configuration::critcl ?1\.0\.2?  
+package require pt::cparam::configuration::critcl ?1\.0\.3?  
 
 [__::pt::cparam::configuration::critcl__ __def__ *name* *pkg* *version* *cmdprefix*](#1)  
 

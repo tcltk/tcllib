@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 page_util_quote \- page character quoting utilities
 .SH SYNOPSIS
-package require \fBpage::util::quote  ?0\&.1?\fR
+package require \fBpage::util::quote  ?0\&.2?\fR
 .sp
 package require \fBsnit \fR
 .sp

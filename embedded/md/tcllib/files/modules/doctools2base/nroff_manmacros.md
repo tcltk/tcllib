@@ -2,7 +2,7 @@
 [//000000001]: # (doctools::nroff::man\_macros \- Documentation tools)
 [//000000002]: # (Generated from file 'nroff\_manmacros\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools::nroff::man\_macros\(n\) 0\.1 tcllib "Documentation tools")
+[//000000004]: # (doctools::nroff::man\_macros\(n\) 0\.2 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ doctools::nroff::man\_macros \- Default CSS style for NROFF export plugins
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require doctools::nroff::man\_macros ?0\.1?  
+package require doctools::nroff::man\_macros ?0\.2?  
 
 [__::doctools::nroff::man\_macros::contents__](#1)  
 

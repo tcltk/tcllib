@@ -2,7 +2,7 @@
 '\" Generated from file 'roman\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Kenneth Green <kenneth\&.green@gmail\&.com>
 '\"
-.TH "math::roman"  1\&.0 tcllib "Tcl Math Library"
+.TH "math::roman"  1\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ math::roman \- Tools for creating and manipulating roman numerals
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBmath::roman  ?1\&.0?\fR
+package require \fBmath::roman  ?1\&.1?\fR
 .sp
 \fB::math::roman::toroman\fR \fIi\fR
 .sp

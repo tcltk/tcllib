@@ -2,7 +2,7 @@
 [//000000001]: # (doctools::toc::export::text \- Documentation tools)
 [//000000002]: # (Generated from file 'plugin\.inc' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools::toc::export::text\(n\) 0\.1 tcllib "Documentation tools")
+[//000000004]: # (doctools::toc::export::text\(n\) 0\.2 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ doctools::toc::export::text \- plain text export plugin
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require doctools::toc::export::text ?0\.1?  
+package require doctools::toc::export::text ?0\.2?  
 package require doctools::text  
 
 [__[export](\.\./\.\./\.\./\.\./index\.md\#export)__ *serial* *configuration*](#1)  

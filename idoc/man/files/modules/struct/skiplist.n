@@ -2,7 +2,7 @@
 '\" Generated from file 'skiplist\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2000 Keith Vetter
 '\"
-.TH "struct::skiplist" n 1\&.3 tcllib "Tcl Data Structures"
+.TH "struct::skiplist" n 1\&.4 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ struct::skiplist \- Create and manipulate skiplists
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBstruct::skiplist  ?1\&.3?\fR
+package require \fBstruct::skiplist  ?1\&.4?\fR
 .sp
 \fBskiplistName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

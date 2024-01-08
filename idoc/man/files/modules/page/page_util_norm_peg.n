@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 page_util_norm_peg \- page AST normalization, PEG
 .SH SYNOPSIS
-package require \fBpage::util::norm_peg  ?0\&.1?\fR
+package require \fBpage::util::norm_peg  ?0\&.2?\fR
 .sp
 package require \fBsnit \fR
 .sp

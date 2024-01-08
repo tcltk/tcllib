@@ -1,7 +1,7 @@
 
 [//000000001]: # (math \- Tcl Math Library)
 [//000000002]: # (Generated from file 'math\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math\(n\) 1\.2\.5 tcllib "Tcl Math Library")
+[//000000003]: # (math\(n\) 1\.2\.6 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ math \- Tcl Math Library
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require math ?1\.2\.5?  
+package require math ?1\.2\.6?  
 
 [__::math::cov__ *value* *value* ?*value \.\.\.*?](#1)  
 [__::math::integrate__ *list of xy value pairs*](#2)  

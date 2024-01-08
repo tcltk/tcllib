@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'quasirandom\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::quasirandom" n 1 tcllib "Tcl Math Library"
+.TH "math::quasirandom" n 1\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ package require \fBTcl  8\&.6 9\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBmath::quasirandom  1\fR
+package require \fBmath::quasirandom  1\&.1\fR
 .sp
 \fB::math::quasirandom::qrpoint create\fR \fINAME\fR \fIDIM\fR ?ARGS?
 .sp

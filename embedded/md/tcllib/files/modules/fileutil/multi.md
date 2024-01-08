@@ -1,7 +1,7 @@
 
 [//000000001]: # (fileutil::multi \- file utilities)
 [//000000002]: # (Generated from file 'multi\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (fileutil::multi\(n\) 0\.1 tcllib "file utilities")
+[//000000003]: # (fileutil::multi\(n\) 0\.2 tcllib "file utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,9 +33,9 @@ fileutil::multi \- Multi\-file operation, scatter/gather, standard object
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require fileutil::multi ?0\.1?  
-package require fileutil::multi::op ?0\.1?  
-package require wip ?1\.0?  
+package require fileutil::multi ?0\.2?  
+package require fileutil::multi::op ?0\.5\.4?  
+package require wip ?1\.1?  
 
 [__::fileutil::multi__ ?*word*\.\.\.?](#1)  
 

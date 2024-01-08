@@ -1,7 +1,7 @@
 
 [//000000001]: # (map::slippy \- Mapping utilities)
 [//000000002]: # (Generated from file 'map\_slippy\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (map::slippy\(n\) 0\.8 tcllib "Mapping utilities")
+[//000000003]: # (map::slippy\(n\) 0\.9 tcllib "Mapping utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,7 +37,7 @@ map::slippy \- Common code for slippy based map packages
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6 9  
-package require map::slippy ?0\.8?  
+package require map::slippy ?0\.9?  
 
 [__::map__ __slippy geo box 2point__ *zoom* *geobox*](#1)  
 [__::map__ __slippy geo box center__ *geobox*](#2)  
@@ -104,7 +104,7 @@ package require map::slippy ?0\.8?
 This package provides a number of methods doing things needed by all types of
 slippy\-based map packages\.
 
-*BEWARE*, *Attention* Version *0\.8* is *NOT backward compatible* with
+*BEWARE*, *Attention* Version *0\.9* is *NOT backward compatible* with
 version 0\.7 and earlier\. The entire API was *heavily revised and changed*\.
 
 *Note:* For the representation of locations in the various coordinate systems

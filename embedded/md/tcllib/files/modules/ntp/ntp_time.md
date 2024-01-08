@@ -2,7 +2,7 @@
 [//000000001]: # (ntp\_time \- Network Time Facilities)
 [//000000002]: # (Generated from file 'ntp\_time\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (ntp\_time\(n\) 1\.2\.1 tcllib "Network Time Facilities")
+[//000000004]: # (ntp\_time\(n\) 1\.2\.2 tcllib "Network Time Facilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ ntp\_time \- Tcl Time Service Client
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require time ?1\.2\.1?  
+package require time ?1\.2\.2?  
 
 [__::time::gettime__ ?*options*? *timeserver* ?*port*?](#1)  
 [__::time::getsntp__ ?*options*? *timeserver* ?*port*?](#2)  

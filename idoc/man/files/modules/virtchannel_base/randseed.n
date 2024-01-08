@@ -2,7 +2,7 @@
 '\" Generated from file 'randseed\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::randomseed" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::randomseed" n 1\&.1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBtcl::randomseed  ?1?\fR
+package require \fBtcl::randomseed  ?1\&.1?\fR
 .sp
 \fB::tcl::randomseed\fR
 .sp

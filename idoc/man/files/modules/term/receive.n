@@ -2,7 +2,7 @@
 '\" Generated from file 'receive\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "term::receive" n 0\&.1 tcllib "Terminal control"
+.TH "term::receive" n 0\&.2 tcllib "Terminal control"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ term::receive \- General input from terminals
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBterm::receive  ?0\&.1?\fR
+package require \fBterm::receive  ?0\&.2?\fR
 .sp
 \fB::term::receive::getch\fR ?\fIchan\fR?
 .sp

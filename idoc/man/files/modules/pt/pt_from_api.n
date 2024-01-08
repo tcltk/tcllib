@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_from_api\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt_import_api" i 1 tcllib "Parser Tools"
+.TH "pt_import_api" i 1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

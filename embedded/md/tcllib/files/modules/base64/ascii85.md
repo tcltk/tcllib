@@ -2,7 +2,7 @@
 [//000000001]: # (ascii85 \- Text encoding & decoding binary data)
 [//000000002]: # (Generated from file 'ascii85\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010, Emiliano Gavilán)
-[//000000004]: # (ascii85\(n\) 1\.0 tcllib "Text encoding & decoding binary data")
+[//000000004]: # (ascii85\(n\) 1\.1 tcllib "Text encoding & decoding binary data")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ ascii85 \- ascii85\-encode/decode binary data
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require ascii85 ?1\.0?  
+package require ascii85 ?1\.1?  
 
 [__::ascii85::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*](#1)  
 [__::ascii85::decode__ *string*](#2)  

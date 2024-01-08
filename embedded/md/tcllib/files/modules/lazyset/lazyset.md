@@ -2,7 +2,7 @@
 [//000000001]: # (lazyset \- Lazy evaluation for variables and arrays)
 [//000000002]: # (Generated from file 'lazyset\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2018 Roy Keene)
-[//000000004]: # (lazyset\(n\) 1 tcllib "Lazy evaluation for variables and arrays")
+[//000000004]: # (lazyset\(n\) 1\.1 tcllib "Lazy evaluation for variables and arrays")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ lazyset \- Lazy evaluation
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require lazyset ?1?  
+package require lazyset ?1\.1?  
 
 [__::lazyset::variable__ ?*\-array boolean*? ?*\-appendArgs boolean*? *variableName* *commandPrefix*](#1)  
 

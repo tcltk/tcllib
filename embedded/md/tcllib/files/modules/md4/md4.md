@@ -2,7 +2,7 @@
 [//000000001]: # (md4 \- MD4 Message\-Digest Algorithm)
 [//000000002]: # (Generated from file 'md4\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (md4\(n\) 1\.0\.7 tcllib "MD4 Message\-Digest Algorithm")
+[//000000004]: # (md4\(n\) 1\.0\.8 tcllib "MD4 Message\-Digest Algorithm")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ md4 \- MD4 Message\-Digest Algorithm
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require md4 ?1\.0\.7?  
+package require md4 ?1\.0\.8?  
 
 [__::md4::md4__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  
 [__::md4::hmac__ ?*\-hex*? *\-key key* \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#2)  

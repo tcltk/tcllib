@@ -2,7 +2,7 @@
 '\" Generated from file 'fa\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::fa" n 0\&.4 tcllib "Finite automaton operations and usage"
+.TH "grammar::fa" n 0\&.6 tcllib "Finite automaton operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -282,9 +282,9 @@ package require \fBstruct::list \fR
 .sp
 package require \fBstruct::set \fR
 .sp
-package require \fBgrammar::fa::op  ?0\&.2?\fR
+package require \fBgrammar::fa::op  ?0\&.3?\fR
 .sp
-package require \fBgrammar::fa  ?0\&.4?\fR
+package require \fBgrammar::fa  ?0\&.6?\fR
 .sp
 \fB::grammar::fa\fR \fIfaName\fR ?\fB=\fR|\fB:=\fR|\fB<--\fR|\fBas\fR|\fBdeserialize\fR \fIsrc\fR|\fBfromRegex\fR \fIre\fR ?\fIover\fR??
 .sp

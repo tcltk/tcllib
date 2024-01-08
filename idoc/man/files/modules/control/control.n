@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'control\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "control" n 0\&.1\&.3 tcllib "Tcl Control Flow Commands"
+.TH "control" n 0\&.1\&.4 tcllib "Tcl Control Flow Commands"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ control \- Procedures for control flow structures\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBcontrol  ?0\&.1\&.3?\fR
+package require \fBcontrol  ?0\&.1\&.4?\fR
 .sp
 \fBcontrol::control\fR \fIcommand\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

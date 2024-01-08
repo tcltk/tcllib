@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'png\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004, Code: Aaron Faupell <afaupell@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2004, Doc:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000005]: # (png\(n\) 0\.3 tcllib "Image manipulation")
+[//000000005]: # (png\(n\) 0\.4 tcllib "Image manipulation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ png \- PNG querying and manipulation of meta data
 
 package require Tcl 8\.5 9  
 package require crc32  
-package require png ?0\.3?  
+package require png ?0\.4?  
 
 [__::png::validate__ *file*](#1)  
 [__::png::isPNG__ *file*](#2)  

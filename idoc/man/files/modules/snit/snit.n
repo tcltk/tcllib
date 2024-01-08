@@ -2,7 +2,7 @@
 '\" Generated from file 'snit\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003-2009, by William H\&. Duquette
 '\"
-.TH "snit" n 2\&.3\&.2 tcllib "Snit's Not Incr Tcl, OO system"
+.TH "snit" n 2\&.3\&.3 tcllib "Snit's Not Incr Tcl, OO system"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ snit \- Snit's Not Incr Tcl
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBsnit  ?2\&.3\&.2?\fR
+package require \fBsnit  ?2\&.3\&.3?\fR
 .sp
 \fBsnit::type\fR \fIname\fR \fIdefinition\fR
 .sp

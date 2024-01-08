@@ -2,7 +2,7 @@
 [//000000001]: # (struct::pool \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'pool\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Erik Leunissen <e\.leunissen@hccnet\.nl>)
-[//000000004]: # (struct::pool\(n\) 1\.2\.3 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::pool\(n\) 1\.2\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,7 +42,7 @@ struct::pool \- Create and manipulate pool objects \(of discrete items\)
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require struct::pool ?1\.2\.3?  
+package require struct::pool ?1\.2\.4?  
 
 [__::struct::pool__ ?*poolName*? ?*maxsize*?](#1)  
 [__poolName__ *option* ?*arg arg \.\.\.*?](#2)  

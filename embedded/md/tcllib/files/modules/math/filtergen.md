@@ -2,7 +2,7 @@
 [//000000001]: # (math::filters \- Tcl Math Library)
 [//000000002]: # (Generated from file 'filtergen\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2020 by Arjen Markus)
-[//000000004]: # (math::filters\(n\) 0\.1 tcllib "Tcl Math Library")
+[//000000004]: # (math::filters\(n\) 0\.2 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ math::filters \- Digital filters
 
 package require Tcl 8\.6 9  
 package require TclOO  
-package require math::filters ?0\.1?  
+package require math::filters ?0\.2?  
 
 [__::math::filters::filterButterworth__ *lowpass* *order* *samplefreq* *cutofffreq*](#1)  
 [__::math::filters::filter__ *coeffs* *data*](#2)  

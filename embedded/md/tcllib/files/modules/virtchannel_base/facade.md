@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::chan::facade \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'facade\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::facade\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::chan::facade\(n\) 1\.1 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,8 +38,8 @@ tcl::chan::facade \- Facade channel
 package require Tcl 8\.5 9  
 package require TclOO  
 package require logger  
-package require tcl::chan::core ?1?  
-package require tcl::chan::facade ?1?  
+package require tcl::chan::core ?1\.1?  
+package require tcl::chan::facade ?1\.1?  
 
 [__::tcl::chan::facade__ *chan*](#1)  
 

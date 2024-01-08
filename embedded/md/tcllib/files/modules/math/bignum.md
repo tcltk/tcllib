@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'bignum\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Salvatore Sanfilippo <antirez at invece dot org>)
 [//000000004]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>)
-[//000000005]: # (math::bignum\(n\) 3\.1 tcllib "Tcl Math Library")
+[//000000005]: # (math::bignum\(n\) 3\.1\.2 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ math::bignum \- Arbitrary precision integer numbers
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.5 9?  
-package require math::bignum ?3\.1?  
+package require math::bignum ?3\.1\.2?  
 
 [__::math::bignum::fromstr__ *string* ?*radix*?](#1)  
 [__::math::bignum::tostr__ *bignum* ?*radix*?](#2)  

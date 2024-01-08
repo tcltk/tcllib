@@ -2,7 +2,7 @@
 [//000000001]: # (deleg\_method \- Interpreter utilities)
 [//000000002]: # (Generated from file 'deleg\_method\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (deleg\_method\(n\) 0\.2 tcllib "Interpreter utilities")
+[//000000004]: # (deleg\_method\(n\) 0\.3 tcllib "Interpreter utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,7 +37,7 @@ deleg\_method \- Creation of comm delegates \(snit methods\)
 
 package require Tcl 8\.5 9  
 package require snit ?1\.1?  
-package require interp::delegate::method ?0\.2?  
+package require interp::delegate::method ?0\.3?  
 
 [__::interp::delegate::method__ ?__\-async__? *name* *arguments* *comm* *id*](#1)  
 

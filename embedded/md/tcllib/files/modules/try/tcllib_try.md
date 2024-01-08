@@ -2,7 +2,7 @@
 [//000000001]: # (try \- Forward compatibility implementation of \[try\])
 [//000000002]: # (Generated from file 'tcllib\_try\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008 Donal K\. Fellows, BSD licensed)
-[//000000004]: # (try\(n\) 1 tcllib "Forward compatibility implementation of \[try\]")
+[//000000004]: # (try\(n\) 1\.1 tcllib "Forward compatibility implementation of \[try\]")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ try \- try \- Trap and process errors and exceptions
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require try ?1?  
+package require try ?1\.1?  
 
 [__::try__ *body* ?*handler\.\.\.*? ?__finally__ *script*?](#1)  
 

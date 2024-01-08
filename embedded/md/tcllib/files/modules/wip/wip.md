@@ -2,7 +2,7 @@
 [//000000001]: # (wip \- Word Interpreter)
 [//000000002]: # (Generated from file 'wip\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2010 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (wip\(n\) 2\.2 tcllib "Word Interpreter")
+[//000000004]: # (wip\(n\) 2\.3 tcllib "Word Interpreter")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,8 +42,8 @@ wip \- Word Interpreter
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require wip ?2\.2?  
-package require snit ?1\.3?  
+package require wip ?2\.3?  
+package require snit ?1\.4?  
 package require struct::set  
 
 [__::wip__ *wipName* *engine* *arg*\.\.\.](#1)  

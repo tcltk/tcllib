@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_fifo2\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::fifo2" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::fifo2" n 1\&.1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,11 +278,11 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBtcl::chan::events  ?1?\fR
+package require \fBtcl::chan::events  ?1\&.1?\fR
 .sp
-package require \fBtcl::chan::halfpipe  ?1?\fR
+package require \fBtcl::chan::halfpipe  ?1\&.1?\fR
 .sp
-package require \fBtcl::chan::fifo2  ?1?\fR
+package require \fBtcl::chan::fifo2  ?1\&.1?\fR
 .sp
 \fB::tcl::chan::fifo2\fR
 .sp

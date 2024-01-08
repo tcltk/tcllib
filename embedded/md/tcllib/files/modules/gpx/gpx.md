@@ -2,7 +2,7 @@
 [//000000001]: # (gpx \- GPS eXchange Format \(GPX\))
 [//000000002]: # (Generated from file 'gpx\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010, Keith Vetter <kvetter@gmail\.com>)
-[//000000004]: # (gpx\(n\) 0\.9 tcllib "GPS eXchange Format \(GPX\)")
+[//000000004]: # (gpx\(n\) 1\.1 tcllib "GPS eXchange Format \(GPX\)")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ gpx \- Extracts waypoints, tracks and routes from GPX files
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require gpx ?0\.9?  
+package require gpx ?1\.1?  
 
 [__::gpx::Create__ *gpxFilename* ?*rawXML*?](#1)  
 [__::gpx::Cleanup__ *token*](#2)  

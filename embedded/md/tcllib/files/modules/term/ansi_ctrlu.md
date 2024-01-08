@@ -2,7 +2,7 @@
 [//000000001]: # (term::ansi::ctrl::unix \- Terminal control)
 [//000000002]: # (Generated from file 'ansi\_ctrlu\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2011 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (term::ansi::ctrl::unix\(n\) 0\.1\.1 tcllib "Terminal control")
+[//000000004]: # (term::ansi::ctrl::unix\(n\) 0\.1\.2 tcllib "Terminal control")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ term::ansi::ctrl::unix \- Control operations and queries
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require term::ansi::ctrl::unix ?0\.1\.1?  
+package require term::ansi::ctrl::unix ?0\.1\.2?  
 
 [__::term::ansi::ctrl::unix::import__ ?*ns*? ?*arg*\.\.\.?](#1)  
 [__::term::ansi::ctrl::unix::raw__](#2)  

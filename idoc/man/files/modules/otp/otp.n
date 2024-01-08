@@ -2,7 +2,7 @@
 '\" Generated from file 'otp\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "otp" n 1\&.0\&.0 tcllib "RFC 2289 A One-Time Password System"
+.TH "otp" n 1\&.1\&.0 tcllib "RFC 2289 A One-Time Password System"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ otp \- One-Time Passwords
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBotp  ?1\&.0\&.0?\fR
+package require \fBotp  ?1\&.1\&.0?\fR
 .sp
 \fB::otp::otp-md4\fR ?\fI-hex\fR? ?\fI-words\fR? \fI-seed seed\fR \fI-count count\fR \fIdata\fR
 .sp

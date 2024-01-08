@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::split \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'textutil\_split\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::split\(n\) 0\.8 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil::split\(n\) 0\.9 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ textutil::split \- Procedures to split texts
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require textutil::split ?0\.8?  
+package require textutil::split ?0\.9?  
 
 [__::textutil::split::splitn__ *string* ?*len*?](#1)  
 [__::textutil::split::splitx__ *string* ?*regexp*?](#2)  

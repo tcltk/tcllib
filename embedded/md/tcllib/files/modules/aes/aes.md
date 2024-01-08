@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'aes\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2012\-2014, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000005]: # (aes\(n\) 1\.2\.1 tcllib "Advanced Encryption Standard \(AES\)")
+[//000000005]: # (aes\(n\) 1\.2\.2 tcllib "Advanced Encryption Standard \(AES\)")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -49,7 +49,7 @@ aes \- Implementation of the AES block cipher
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require aes ?1\.2\.1?  
+package require aes ?1\.2\.2?  
 
 [__::aes::aes__ ?*\-mode \[ecb&#124;cbc\]*? ?*\-dir \[encrypt&#124;decrypt\]*? *\-key keydata* ?*\-iv vector*? ?*\-hex*? ?*\-out channel*? ?*\-chunksize size*? \[ *\-in channel* &#124; ?__\-\-__? *data* \]](#1)  
 [__::aes::Init__ *mode* *keydata* *iv*](#2)  

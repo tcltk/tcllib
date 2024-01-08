@@ -1,7 +1,7 @@
 
 [//000000001]: # (multiplexer \- One\-to\-many communication with sockets\.)
 [//000000002]: # (Generated from file 'multiplexer\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (multiplexer\(n\) 0\.2 tcllib "One\-to\-many communication with sockets\.")
+[//000000003]: # (multiplexer\(n\) 0\.3 tcllib "One\-to\-many communication with sockets\.")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,7 +32,7 @@ multiplexer \- One\-to\-many communication with sockets\.
 
 package require Tcl 8\.5 9  
 package require logger  
-package require multiplexer ?0\.2?  
+package require multiplexer ?0\.3?  
 
 [__::multiplexer::create__](#1)  
 [__$\{multiplexer\_instance\}::Init__ *port*](#2)  

@@ -1,7 +1,7 @@
 
 [//000000001]: # (fileutil\_traverse \- file utilities)
 [//000000002]: # (Generated from file 'traverse\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (fileutil\_traverse\(n\) 0\.6 tcllib "file utilities")
+[//000000003]: # (fileutil\_traverse\(n\) 0\.7 tcllib "file utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ fileutil\_traverse \- Iterative directory traversal
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require fileutil::traverse ?0\.6?  
+package require fileutil::traverse ?0\.7?  
 package require fileutil  
 package require control  
 

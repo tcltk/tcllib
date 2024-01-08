@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_tclparam_config_snit\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::tclparam::configuration::snit" n 1\&.0\&.2 tcllib "Parser Tools"
+.TH "pt::tclparam::configuration::snit" n 1\&.0\&.3 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::tclparam::configuration::snit \- Tcl/PARAM, Canned configuration, Snit
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBpt::tclparam::configuration::snit  ?1\&.0\&.2?\fR
+package require \fBpt::tclparam::configuration::snit  ?1\&.0\&.3?\fR
 .sp
 \fB::pt::tclparam::configuration::snit\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp

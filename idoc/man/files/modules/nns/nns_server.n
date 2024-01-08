@@ -2,7 +2,7 @@
 '\" Generated from file 'nns_server\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "nameserv::server" n 0\&.3\&.2 tcllib "Name service facility"
+.TH "nameserv::server" n 0\&.3\&.3 tcllib "Name service facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ nameserv::server \- Name service facility, Server
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBnameserv::server  ?0\&.3\&.2?\fR
+package require \fBnameserv::server  ?0\&.3\&.3?\fR
 .sp
 package require \fBcomm \fR
 .sp

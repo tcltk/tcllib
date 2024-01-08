@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'token_shell\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "string::token::shell" n 1\&.2 tcllib "Text and string utilities"
+.TH "string::token::shell" n 1\&.3 tcllib "Text and string utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ string::token::shell \- Parsing of shell command line
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBstring::token::shell  ?1\&.2?\fR
+package require \fBstring::token::shell  ?1\&.3?\fR
 .sp
 package require \fBstring::token  ?1?\fR
 .sp

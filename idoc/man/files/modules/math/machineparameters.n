@@ -2,7 +2,7 @@
 '\" Generated from file 'machineparameters\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Michael Baudin <michael\&.baudin@sourceforge\&.net>
 '\"
-.TH "math::machineparameters" n 1\&.0 tcllib "tclrep"
+.TH "math::machineparameters" n 0\&.2 tcllib "tclrep"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBsnit \fR
 .sp
-package require \fBmath::machineparameters  0\&.1\fR
+package require \fBmath::machineparameters  0\&.2\fR
 .sp
 \fBmachineparameters\fR create \fIobjectname\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

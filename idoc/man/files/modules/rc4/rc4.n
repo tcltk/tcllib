@@ -2,7 +2,7 @@
 '\" Generated from file 'rc4\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "rc4" n 1\&.1\&.0 tcllib "RC4 Stream Cipher"
+.TH "rc4" n 1\&.2\&.0 tcllib "RC4 Stream Cipher"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ rc4 \- Implementation of the RC4 stream cipher
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBrc4  ?1\&.1\&.0?\fR
+package require \fBrc4  ?1\&.2\&.0?\fR
 .sp
 \fB::rc4::rc4\fR ?\fI-hex\fR? \fI-key keyvalue\fR ?\fI-command lst\fR? ?\fI-out channel\fR? [ \fI-in channel\fR | \fI-infile filename\fR | \fIstring\fR ]
 .sp

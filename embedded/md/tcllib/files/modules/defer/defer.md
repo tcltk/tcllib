@@ -2,7 +2,7 @@
 [//000000001]: # (defer \- Defered execution ala Go)
 [//000000002]: # (Generated from file 'defer\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2017, Roy Keene)
-[//000000004]: # (defer\(n\) 1 tcllib "Defered execution ala Go")
+[//000000004]: # (defer\(n\) 1\.1 tcllib "Defered execution ala Go")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,7 +42,7 @@ defer \- Defered execution
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6 9  
-package require defer ?1?  
+package require defer ?1\.1?  
 
 [__::defer::defer__ ?*command*? ?*arg1*? ?*arg2*? ?*argN\.\.\.*?](#1)  
 [__::defer::with__ *variableList* *script*](#2)  

@@ -1,7 +1,7 @@
 
 [//000000001]: # (map::slippy::cache \- Mapping utilities)
 [//000000002]: # (Generated from file 'map\_slippy\_cache\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (map::slippy::cache\(n\) 0\.4 tcllib "Mapping utilities")
+[//000000003]: # (map::slippy::cache\(n\) 0\.5 tcllib "Mapping utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ map::slippy::cache \- Management of a tile cache in the local filesystem
 package require Tcl 8\.6 9  
 package require Tk 8\.6  
 package require map::slippy  
-package require map::slippy::cache ?0\.4?  
+package require map::slippy::cache ?0\.5?  
 
 [__::map::slippy::cache__ *cacheName* *cachedir* *provider*](#1)  
 [*cacheName* __valid__ *tile* ?*msgvar*?](#2)  
@@ -47,7 +47,7 @@ package require map::slippy::cache ?0\.4?
 This package provides a class for managing a cache of tiles for slippy\-based
 maps in the local filesystem\.
 
-*BEWARE*, *Attention* Version *0\.4* is *NOT backward compatible* with
+*BEWARE*, *Attention* Version *0\.5* is *NOT backward compatible* with
 version 0\.3 and earlier\. This is due to switching this package's internals to
 the use of version 0\.8 of __[map::slippy](map\_slippy\.md)__\.
 

@@ -2,7 +2,7 @@
 '\" Generated from file 'gpx\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, Keith Vetter <kvetter@gmail\&.com>
 '\"
-.TH "gpx" n 0\&.9 tcllib "GPS eXchange Format (GPX)"
+.TH "gpx" n 1\&.1 tcllib "GPS eXchange Format (GPX)"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ gpx \- Extracts waypoints, tracks and routes from GPX files
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBgpx  ?0\&.9?\fR
+package require \fBgpx  ?1\&.1?\fR
 .sp
 \fB::gpx::Create\fR \fIgpxFilename\fR ?\fIrawXML\fR?
 .sp

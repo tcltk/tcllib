@@ -1,7 +1,7 @@
 
 [//000000001]: # (inifile \- Parsing of Windows INI files)
 [//000000002]: # (Generated from file 'ini\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (inifile\(n\) 0\.3\.2 tcllib "Parsing of Windows INI files")
+[//000000003]: # (inifile\(n\) 0\.3\.3 tcllib "Parsing of Windows INI files")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -29,7 +29,7 @@ inifile \- Parsing of Windows INI files
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require inifile ?0\.3\.2?  
+package require inifile ?0\.3\.3?  
 
 [__::ini::open__ *file* ?__\-encoding__ *encoding*? ?*access*?](#1)  
 [__::ini::close__ *ini*](#2)  

@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_peg_container\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::container" n 1 tcllib "Parser Tools"
+.TH "pt::peg::container" n 1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

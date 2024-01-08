@@ -1,7 +1,7 @@
 
 [//000000001]: # (string::token \- Text and string utilities)
 [//000000002]: # (Generated from file 'token\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (string::token\(n\) 1 tcllib "Text and string utilities")
+[//000000003]: # (string::token\(n\) 1\.1 tcllib "Text and string utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -31,7 +31,7 @@ string::token \- Regex based iterative lexing
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require string::token ?1?  
+package require string::token ?1\.1?  
 package require fileutil  
 
 [__::string token text__ *lex* *string*](#1)  

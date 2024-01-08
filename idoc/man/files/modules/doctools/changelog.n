@@ -2,7 +2,7 @@
 '\" Generated from file 'changelog\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::changelog" n 1\&.1 tcllib "Documentation tools"
+.TH "doctools::changelog" n 1\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBtextutil \fR
 .sp
-package require \fBdoctools::changelog  ?1\&.1?\fR
+package require \fBdoctools::changelog  ?1\&.2?\fR
 .sp
 \fB::doctools::changelog::scan\fR \fItext\fR
 .sp

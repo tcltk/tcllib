@@ -2,7 +2,7 @@
 [//000000001]: # (bench::out::text \- Benchmarking/Performance tools)
 [//000000002]: # (Generated from file 'bench\_wtext\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (bench::out::text\(n\) 0\.1\.2 tcllib "Benchmarking/Performance tools")
+[//000000004]: # (bench::out::text\(n\) 0\.1\.3 tcllib "Benchmarking/Performance tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ readable text
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require bench::out::text ?0\.1\.2?  
+package require bench::out::text ?0\.1\.3?  
 
 [__::bench::out::text__ *bench\_result*](#1)  
 

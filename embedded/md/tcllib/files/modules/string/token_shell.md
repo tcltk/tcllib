@@ -1,7 +1,7 @@
 
 [//000000001]: # (string::token::shell \- Text and string utilities)
 [//000000002]: # (Generated from file 'token\_shell\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (string::token::shell\(n\) 1\.2 tcllib "Text and string utilities")
+[//000000003]: # (string::token::shell\(n\) 1\.3 tcllib "Text and string utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -31,7 +31,7 @@ string::token::shell \- Parsing of shell command line
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require string::token::shell ?1\.2?  
+package require string::token::shell ?1\.3?  
 package require string::token ?1?  
 package require fileutil  
 

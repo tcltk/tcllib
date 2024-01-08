@@ -2,7 +2,7 @@
 '\" Generated from file 'pop3d_dbox\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pop3d::dbox" n 1\&.0\&.2 tcllib "Tcl POP3 Server Package"
+.TH "pop3d::dbox" n 1\&.0\&.3 tcllib "Tcl POP3 Server Package"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pop3d::dbox \- Simple mailbox database for pop3d
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBpop3d::dbox  ?1\&.0\&.2?\fR
+package require \fBpop3d::dbox  ?1\&.0\&.3?\fR
 .sp
 \fB::pop3d::dbox::new\fR ?\fIdbName\fR?
 .sp

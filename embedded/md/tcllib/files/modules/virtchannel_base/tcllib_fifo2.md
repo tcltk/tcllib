@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::chan::fifo2 \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'tcllib\_fifo2\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::fifo2\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::chan::fifo2\(n\) 1\.1 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,9 +37,9 @@ tcl::chan::fifo2 \- In\-memory interconnected fifo channels
 
 package require Tcl 8\.5 9  
 package require TclOO  
-package require tcl::chan::events ?1?  
-package require tcl::chan::halfpipe ?1?  
-package require tcl::chan::fifo2 ?1?  
+package require tcl::chan::events ?1\.1?  
+package require tcl::chan::halfpipe ?1\.1?  
+package require tcl::chan::fifo2 ?1\.1?  
 
 [__::tcl::chan::fifo2__](#1)  
 

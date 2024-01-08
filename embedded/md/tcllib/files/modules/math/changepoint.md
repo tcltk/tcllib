@@ -2,7 +2,7 @@
 [//000000001]: # (math::changepoint \- Tcl Math Library)
 [//000000002]: # (Generated from file 'changepoint\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2020 by Arjen Markus)
-[//000000004]: # (math::changepoint\(n\) 0\.1 tcllib "Tcl Math Library")
+[//000000004]: # (math::changepoint\(n\) 0\.2 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ math::changepoint \- Change point detection methods
 package require Tcl 8\.6 9  
 package require TclOO  
 package require math::statistics  
-package require math::changepoint ?0\.1?  
+package require math::changepoint ?0\.2?  
 
 [__::math::changepoint::cusum\-detect__ *data* ?args?](#1)  
 [__::math::changepoint::cusum\-online__ ?args?](#2)  

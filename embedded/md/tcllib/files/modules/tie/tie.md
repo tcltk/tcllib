@@ -2,7 +2,7 @@
 [//000000001]: # (tie \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'tie\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004\-2021 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tie\(n\) 1\.2 tcllib "Tcl Data Structures")
+[//000000004]: # (tie\(n\) 1\.3 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -50,7 +50,7 @@ tie \- Array persistence
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require tie ?1\.2?  
+package require tie ?1\.3?  
 
 [__::tie::tie__ *arrayvarname* *options*\.\.\. *dstype* *dsname*\.\.\.](#1)  
 [__::tie::untie__ *arrayvarname* ?*token*?](#2)  

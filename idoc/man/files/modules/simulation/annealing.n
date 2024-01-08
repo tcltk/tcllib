@@ -2,7 +2,7 @@
 '\" Generated from file 'annealing\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
-.TH "simulation::annealing" n 0\&.2 tcllib "Tcl Simulation Tools"
+.TH "simulation::annealing" n 0\&.3 tcllib "Tcl Simulation Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ simulation::annealing \- Simulated annealing
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5 9?\fR
 .sp
-package require \fBsimulation::annealing  0\&.2\fR
+package require \fBsimulation::annealing  0\&.3\fR
 .sp
 \fB::simulation::annealing::getOption\fR \fIkeyword\fR
 .sp

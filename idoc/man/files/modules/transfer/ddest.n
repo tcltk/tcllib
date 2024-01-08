@@ -2,7 +2,7 @@
 '\" Generated from file 'ddest\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "transfer::data::destination" n 0\&.2 tcllib "Data transfer facilities"
+.TH "transfer::data::destination" n 0\&.3 tcllib "Data transfer facilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5 9\fR
 .sp
 package require \fBsnit  ?1\&.0?\fR
 .sp
-package require \fBtransfer::data::destination  ?0\&.2?\fR
+package require \fBtransfer::data::destination  ?0\&.3?\fR
 .sp
 \fBtransfer::data::destination\fR \fIobjectName\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

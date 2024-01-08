@@ -2,7 +2,7 @@
 [//000000001]: # (lambda \- Utility commands for anonymous procedures)
 [//000000002]: # (Generated from file 'lambda\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011 Andreas Kupries, BSD licensed)
-[//000000004]: # (lambda\(n\) 1 tcllib "Utility commands for anonymous procedures")
+[//000000004]: # (lambda\(n\) 1\.1 tcllib "Utility commands for anonymous procedures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ lambda \- Utility commands for anonymous procedures
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require lambda ?1?  
+package require lambda ?1\.1?  
 
 [__::lambda__ *arguments* *body* ?*arg*\.\.\.?](#1)  
 [__::lambda@__ *namespace* *arguments* *body* ?*arg*\.\.\.?](#2)  

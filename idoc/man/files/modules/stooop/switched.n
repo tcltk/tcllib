@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'switched\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "switched" n 2\&.2\&.1 tcllib "Simple Tcl Only Object Oriented Programming"
+.TH "switched" n 2\&.2\&.2 tcllib "Simple Tcl Only Object Oriented Programming"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ switched \- switch/option management\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBswitched  ?2\&.2\&.1?\fR
+package require \fBswitched  ?2\&.2\&.2?\fR
 .sp
 \fB<switched>\fR \fBcomplete\fR \fIthis\fR
 .sp

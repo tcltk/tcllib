@@ -282,7 +282,7 @@ package require \fBstruct::list \fR
 .sp
 package require \fBstruct::set \fR
 .sp
-package require \fBgrammar::fa::op  ?0\&.4\&.1?\fR
+package require \fBgrammar::fa::op  ?0\&.4\&.2?\fR
 .sp
 \fB::grammar::fa::op::constructor\fR \fIcmd\fR
 .sp

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'cmdline\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "cmdline" n 1\&.5\&.2 tcllib "Command line and option processing"
+.TH "cmdline" n 1\&.5\&.3 tcllib "Command line and option processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ cmdline \- Procedures to process command lines and options\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBcmdline  ?1\&.5\&.2?\fR
+package require \fBcmdline  ?1\&.5\&.3?\fR
 .sp
 \fB::cmdline::getopt\fR \fIargvVar\fR \fIoptstring\fR \fIoptVar\fR \fIvalVar\fR
 .sp

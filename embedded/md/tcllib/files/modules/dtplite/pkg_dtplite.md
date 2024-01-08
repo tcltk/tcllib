@@ -2,7 +2,7 @@
 [//000000001]: # (pkg\_dtplite \- Documentation toolbox)
 [//000000002]: # (Generated from file 'pkg\_dtplite\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004\-2013 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pkg\_dtplite\(n\) 1\.3\.1 tcllib "Documentation toolbox")
+[//000000004]: # (pkg\_dtplite\(n\) 1\.3\.2 tcllib "Documentation toolbox")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,7 +37,7 @@ pkg\_dtplite \- Lightweight DocTools Markup Processor
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require dtplite ?1\.3\.1?  
+package require dtplite ?1\.3\.2?  
 
 [__dtplite::print\-via__ *cmd*](#1)  
 [__dtplite::do__ *arguments*](#2)  

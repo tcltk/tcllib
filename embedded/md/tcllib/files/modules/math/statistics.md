@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::statistics \- Tcl Math Library)
 [//000000002]: # (Generated from file 'statistics\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::statistics\(n\) 1 tcllib "Tcl Math Library")
+[//000000003]: # (math::statistics\(n\) 1\.6 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,7 +45,7 @@ math::statistics \- Basic statistical functions and procedures
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require math::statistics 1  
+package require math::statistics 1\.6  
 
 [__::math::statistics::mean__ *data*](#1)  
 [__::math::statistics::min__ *data*](#2)  

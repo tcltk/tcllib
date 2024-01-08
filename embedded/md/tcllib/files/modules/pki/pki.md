@@ -2,7 +2,7 @@
 [//000000001]: # (pki \- public key encryption)
 [//000000002]: # (Generated from file 'pki\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010, 2011, 2012, 2013, 2021 Roy Keene, Andreas Kupries, Ashok P\. Nadkarni)
-[//000000004]: # (pki\(n\) 0\.10 tcllib "public key encryption")
+[//000000004]: # (pki\(n\) 0\.21 tcllib "public key encryption")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ pki \- Implementation of the public key cipher
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require pki ?0\.10?  
+package require pki ?0\.21?  
 
 [__::pki::encrypt__ ?*\-binary*? ?*\-hex*? ?*\-pad*? ?*\-nopad*? ?*\-priv*? ?*\-pub*? ?*\-\-*? *input* *key*](#1)  
 [__::pki::decrypt__ ?*\-binary*? ?*\-hex*? ?*\-unpad*? ?*\-nounpad*? ?*\-priv*? ?*\-pub*? ?*\-\-*? *input* *key*](#2)  
