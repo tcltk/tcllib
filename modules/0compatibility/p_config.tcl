@@ -6,5 +6,5 @@
 # - struct::map
 
 error "The package configuration is stage 2 deprecated. Use struct::map instead."
-package provide configuration 1
+package provide configuration 1.1
 return

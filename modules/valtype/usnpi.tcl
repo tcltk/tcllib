@@ -62,4 +62,4 @@ snit::type ::valtype::usnpi {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::usnpi 1
+package provide valtype::usnpi 1.1

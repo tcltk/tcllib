@@ -1,5 +1,5 @@
 if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
-package ifneeded struct            2.1   [list source [file join $dir struct.tcl]]
+package ifneeded struct            2.2   [list source [file join $dir struct.tcl]]
 package ifneeded struct            1.5   [list source [file join $dir struct1.tcl]]
 
 package ifneeded struct::queue     1.4.6 [list source [file join $dir queue.tcl]]
