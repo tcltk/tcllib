@@ -267,7 +267,7 @@ nx::Class create PARSER -superclasses pt::rde::nx {
     :method sym_CharOctalFull {} {
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     
@@ -280,14 +280,14 @@ nx::Class create PARSER -superclasses pt::rde::nx {
     :method sequence_44 {} {
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     
         : si:void_state_push
         : si:next_char \134
         : si:voidvoid_part
-        : si:next_range 0 2
+        : si:next_range 0 3
         : si:voidvoid_part
         : si:next_range 0 7
         : si:voidvoid_part
