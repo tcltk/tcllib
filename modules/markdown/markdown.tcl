@@ -290,7 +290,7 @@ namespace eval Markdown {
                             break
                         }
 
-                        lappend code_result [html_escape $line]
+                        lappend code_result [html_escape $line]	;# (*)
                     }
                     set code_result [join $code_result \n]
 
@@ -305,9 +305,7 @@ namespace eval Markdown {
 			if {$extended} { lappend cmd [lrange [lindex $line_match 0] 1 end] }
 			lappend cmd $code_result
 			set code_result [uplevel #0 $cmd]
-		    } else {
-                        set code_result [html_escape $code_result]
-		    }
+		    } ;# else do nothing, do not escape again, already done at (*)
                     append result \
 			"<pre class='code'>" \
 			<code$code_CCS_class> \
@@ -811,5 +809,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.2.3
+package provide Markdown 1.2.4
 return

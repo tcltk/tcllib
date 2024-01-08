@@ -876,6 +876,25 @@ test mdtest-1.11 {fenced code block with language specifier} -body {
     <pre class='code'><code class='tcl'>set x 1</code></pre>
 }
 
+
+test mdtest-1.12.0 {quotes in fenced code block} -body {
+    convert {
+	```
+	set x "a"
+	```
+    }
+} -result {
+    <pre class='code'><code>set x &quot;a&quot;</code></pre>
+}
+
+test mdtest-1.12.1 {quotes in indented code block} -body {
+    convert {
+	    set x "a"
+    }
+} -result {
+    <p>set x &quot;a&quot;</p>
+}
+
 #=========================================================================
 # Tclssg markdown tests - Copyright (c) 2015, 2017, 2018, 2020, 2021
 #-
