@@ -11,7 +11,7 @@ package ifneeded math::optimize          1.0.2 [list source [file join $dir opti
 package ifneeded math::interpolate       1.1.4 [list source [file join $dir interpolate.tcl]]
 package ifneeded math::bignum            3.1.2 [list source [file join $dir bignum.tcl]]
 package ifneeded math::machineparameters 0.2   [list source [file join $dir machineparameters.tcl]]
-package ifneeded math::calculus          1.0   [list source [file join $dir calculus.tcl]]
+package ifneeded math::calculus          1.1   [list source [file join $dir calculus.tcl]]
 # statistics depends on linearalgebra (for multi-variate linear regression).
 # statistics depends on optimize (for logistic regression).
 package ifneeded math::statistics        1.6.0 [list source [file join $dir statistics.tcl]]

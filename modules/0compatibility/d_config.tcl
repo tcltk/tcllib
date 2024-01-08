@@ -6,5 +6,5 @@
 # - struct::map
 
 error "The package doctools::config is stage 2 deprecated. Use struct::map instead."
-package provide doctools::config 0.1
+package provide doctools::config 0.2
 return

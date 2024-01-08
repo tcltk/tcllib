@@ -85,7 +85,7 @@ namespace eval ::term::ansi::ctrl::unix {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::ctrl::unix 0.1.1
+package provide term::ansi::ctrl::unix 0.1.2
 
 ##
 # ### ### ### ######### ######### #########

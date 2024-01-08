@@ -6,5 +6,5 @@
 # - fileutil::paths
 
 error "The package doctools::paths is stage 2 deprecated. Use fileutil::paths instead."
-package provide doctools::paths 0.1
+package provide doctools::paths 0.2
 return
