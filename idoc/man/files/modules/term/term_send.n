@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::send \- General output to terminals
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::send  ?0\&.2?\fR
+package require \fBterm::send ?0\&.2?\fR
 .sp
 \fB::term::send::wrch\fR \fIchan\fR \fIstr\fR
 .sp

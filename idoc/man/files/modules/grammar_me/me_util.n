@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::util \- AST utilities
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::me::util  ?0\&.2?\fR
+package require \fBgrammar::me::util ?0\&.2?\fR
 .sp
 \fB::grammar::me::util::ast2tree\fR \fIast\fR \fItree\fR ?\fIroot\fR?
 .sp

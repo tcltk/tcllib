@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nameserv \- Name service facility, Client
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnameserv  ?0\&.4\&.3?\fR
+package require \fBnameserv ?0\&.4\&.3?\fR
 .sp
-package require \fBcomm \fR
+package require \fBcomm\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
 \fB::nameserv::bind\fR \fIname\fR \fIdata\fR
 .sp

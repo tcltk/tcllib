@@ -277,9 +277,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 jpeg \- JPEG querying and manipulation of meta data
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBjpeg  ?0\&.6?\fR
+package require \fBjpeg ?0\&.6?\fR
 .sp
 \fB::jpeg::isJPEG\fR \fIfile\fR
 .sp

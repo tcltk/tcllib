@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# (c) 2002-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
+# (c) 2002-2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [expand] definitions to convert a tcl based manpage definition into
 # Wiki markup.
@@ -125,11 +125,11 @@ proc fmt_subsection {name {id {}}} {return "\n\n***$name***\n\n"}
 proc fmt_para    {}     {return \n}
 proc fmt_nl      {}     {return \n}
 
-c_pass 2 fmt_require {pkg {version {}}} NOP
-c_pass 1 fmt_require {pkg {version {}}} {
-    if {$version != {}} {set version " $version"}
+c_pass 2 fmt_require {pkg vs} NOP
+c_pass 1 fmt_require {pkg vs} {
+    foreach version $vs {append pkg " " $version}
     # @mdgen NODEP: '''
-    c_hold synopsis "package require '''$pkg$version'''\n"
+    c_hold synopsis "package require '''$pkg'''\n"
 }
 
 c_pass 2 fmt_usage {cmd args} NOP

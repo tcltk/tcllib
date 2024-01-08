@@ -273,11 +273,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil::multi::op \- Multi-file operation, scatter/gather
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBfileutil::multi::op  ?0\&.5\&.4?\fR
+package require \fBfileutil::multi::op ?0\&.5\&.4?\fR
 .sp
-package require \fBwip  ?1\&.0?\fR
+package require \fBwip ?1\&.0?\fR
 .sp
 \fB::fileutil::multi::op\fR ?\fIopName\fR? ?\fIword\fR\&.\&.\&.?
 .sp

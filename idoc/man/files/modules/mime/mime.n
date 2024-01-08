@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 mime \- Manipulation of MIME body parts
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmime  ?1\&.7\&.2?\fR
+package require \fBmime ?1\&.7\&.2?\fR
 .sp
 \fB::mime::initialize\fR ?\fB-canonical\fR \fItype/subtype\fR ?\fB-param\fR {\fIkey value\fR}\&.\&.\&.? ?\fB-encoding\fR \fIvalue\fR? ?\fB-header\fR {\fIkey value\fR}\&.\&.\&.?? (\fB-file\fR \fIname\fR | \fB-string\fR \fIvalue\fR | \fB-parts\fR {\fItoken1\fR \&.\&.\&. \fItokenN\fR})
 .sp

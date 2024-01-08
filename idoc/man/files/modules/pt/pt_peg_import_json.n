@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::import::json \- PEG Import Plugin\&. Read JSON format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::import::json  ?1\&.1?\fR
+package require \fBpt::peg::import::json ?1\&.1?\fR
 .sp
-package require \fBpt::peg::to::json \fR
+package require \fBpt::peg::to::json\fR
 .sp
 \fBimport\fR \fItext\fR
 .sp

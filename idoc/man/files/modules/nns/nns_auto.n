@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nameserv::auto \- Name service facility, Client Extension
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnameserv::auto  ?0\&.4?\fR
+package require \fBnameserv::auto ?0\&.4?\fR
 .sp
-package require \fBnameserv \fR
+package require \fBnameserv\fR
 .sp
 .BE
 .SH DESCRIPTION

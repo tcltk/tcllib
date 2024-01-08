@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::html::cssdefaults \- Default CSS style for HTML export plugins
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::html::cssdefaults  ?0\&.2?\fR
+package require \fBdoctools::html::cssdefaults ?0\&.2?\fR
 .sp
 \fB::doctools::html::cssdefaults::contents\fR
 .sp

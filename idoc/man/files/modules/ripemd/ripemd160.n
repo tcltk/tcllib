@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ripemd160 \- RIPEMD-160 Message-Digest Algorithm
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBripemd160  ?1\&.0\&.6?\fR
+package require \fBripemd160 ?1\&.0\&.6?\fR
 .sp
 \fB::ripemd::ripemd160\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp

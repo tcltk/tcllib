@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pkg_dtplite \- Lightweight DocTools Markup Processor
 .SH SYNOPSIS
-package require \fBdtplite  ?1\&.3\&.2?\fR
+package require \fBdtplite ?1\&.3\&.2?\fR
 .sp
 \fBdtplite::print-via\fR \fIcmd\fR
 .sp

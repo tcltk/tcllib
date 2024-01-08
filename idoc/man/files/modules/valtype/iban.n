@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 valtype::iban \- Validation for IBAN
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  2\fR
+package require \fBsnit 2\fR
 .sp
-package require \fBvaltype::common \fR
+package require \fBvaltype::common\fR
 .sp
-package require \fBvaltype::iban  ?1\&.8?\fR
+package require \fBvaltype::iban ?1\&.8?\fR
 .sp
 \fBvaltype::iban\fR \fBvalidate\fR \fIvalue\fR
 .sp

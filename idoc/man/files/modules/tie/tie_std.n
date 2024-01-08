@@ -274,19 +274,19 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tie \- Array persistence, standard data sources
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtie::std::log  ?1\&.2?\fR
+package require \fBtie::std::log ?1\&.2?\fR
 .sp
-package require \fBtie::std::array  ?1\&.2?\fR
+package require \fBtie::std::array ?1\&.2?\fR
 .sp
-package require \fBtie::std::rarray  ?1\&.2?\fR
+package require \fBtie::std::rarray ?1\&.2?\fR
 .sp
-package require \fBtie::std::file  ?1\&.2?\fR
+package require \fBtie::std::file ?1\&.2?\fR
 .sp
-package require \fBtie::std::growfile  ?1\&.2?\fR
+package require \fBtie::std::growfile ?1\&.2?\fR
 .sp
-package require \fBtie::std::dsource  ?1\&.2?\fR
+package require \fBtie::std::dsource ?1\&.2?\fR
 .sp
 .BE
 .SH DESCRIPTION

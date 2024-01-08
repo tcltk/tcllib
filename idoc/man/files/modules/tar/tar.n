@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tar \- Tar file creation, extraction & manipulation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtar  ?0\&.12?\fR
+package require \fBtar ?0\&.12?\fR
 .sp
 \fB::tar::contents\fR \fItarball\fR ?\fB-chan\fR?
 .sp

@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::machineparameters \- Compute double precision machine parameters\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBmath::machineparameters  0\&.2\fR
+package require \fBmath::machineparameters 0\&.2\fR
 .sp
 \fBmachineparameters\fR create \fIobjectname\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

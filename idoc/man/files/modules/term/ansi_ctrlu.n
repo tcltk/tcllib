@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::ansi::ctrl::unix \- Control operations and queries
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::ansi::ctrl::unix  ?0\&.1\&.2?\fR
+package require \fBterm::ansi::ctrl::unix ?0\&.1\&.2?\fR
 .sp
 \fB::term::ansi::ctrl::unix::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 .sp

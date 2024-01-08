@@ -275,9 +275,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcllib_ip \- IPv4 and IPv6 address manipulation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBip  ?1\&.5?\fR
+package require \fBip ?1\&.5?\fR
 .sp
 \fB::ip::version\fR \fIaddress\fR
 .sp

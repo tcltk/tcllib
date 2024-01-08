@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::from::peg \- PEG Conversion\&. Read PEG format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::from::peg  ?1\&.0\&.4?\fR
+package require \fBpt::peg::from::peg ?1\&.0\&.4?\fR
 .sp
 \fBpt::peg::from::peg\fR \fBconvert\fR \fItext\fR
 .sp

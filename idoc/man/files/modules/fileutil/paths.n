@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil::paths \- Manage search path pools
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBfileutil::paths  ?1\&.1?\fR
+package require \fBfileutil::paths ?1\&.1?\fR
 .sp
 \fB::fileutil::paths\fR \fIpoolName\fR
 .sp

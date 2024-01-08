@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::constants \- Mathematical and numerical constants
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.3?\fR
+package require \fBTcl ?8\&.3?\fR
 .sp
-package require \fBmath::constants  ?1\&.0\&.3?\fR
+package require \fBmath::constants ?1\&.0\&.3?\fR
 .sp
 \fB::math::constants::constants\fR \fIargs\fR
 .sp

@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 coroutine::auto \- Automatic event and IO coroutine awareness
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBcoroutine::auto  1\&.3\fR
+package require \fBcoroutine::auto 1\&.3\fR
 .sp
-package require \fBcoroutine  1\&.4\fR
+package require \fBcoroutine 1\&.4\fR
 .sp
 .BE
 .SH DESCRIPTION

@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::container::peg \- PEG Storage\&. Canned PEG grammar specification
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBpt::peg::container::peg  ?1?\fR
+package require \fBpt::peg::container::peg ?1?\fR
 .sp
-package require \fBpt::peg::container \fR
+package require \fBpt::peg::container\fR
 .sp
 .BE
 .SH DESCRIPTION

@@ -274,17 +274,17 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc::export \- Exporting tables of contents
 .SH SYNOPSIS
-package require \fBdoctools::toc::export  ?0\&.2\&.2?\fR
+package require \fBdoctools::toc::export ?0\&.2\&.2?\fR
 .sp
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::map \fR
+package require \fBstruct::map\fR
 .sp
-package require \fBdoctools::toc::structure \fR
+package require \fBdoctools::toc::structure\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBpluginmgr \fR
+package require \fBpluginmgr\fR
 .sp
 \fB::doctools::toc::export\fR \fIobjectName\fR
 .sp

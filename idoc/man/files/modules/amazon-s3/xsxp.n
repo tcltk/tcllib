@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 xsxp \- eXtremely Simple Xml Parser
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBxsxp  1\&.1\fR
+package require \fBxsxp 1\&.1\fR
 .sp
-package require \fBxml \fR
+package require \fBxml\fR
 .sp
 \fBxsxp::parse\fR \fIxml\fR
 .sp

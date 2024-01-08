@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 blowfish \- Implementation of the Blowfish block cipher
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBblowfish  ?1\&.0\&.6?\fR
+package require \fBblowfish ?1\&.0\&.6?\fR
 .sp
 \fB::blowfish::blowfish\fR ?\fI-mode [ecb|cbc]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? ?\fI-pad padchar\fR? [ \fI-in channel\fR | ?\fI--\fR? \fIdata\fR ]
 .sp

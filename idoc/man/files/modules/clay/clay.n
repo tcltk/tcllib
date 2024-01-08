@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 clay \- A minimalist framework for large scale OO Projects
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBuuid \fR
+package require \fBuuid\fR
 .sp
-package require \fBoo::dialect \fR
+package require \fBoo::dialect\fR
 .sp
 proc \fBclay::PROC\fR \fIname\fR \fIarglist\fR \fIbody\fR ?\fIninja\fR \fB\fR?
 .sp

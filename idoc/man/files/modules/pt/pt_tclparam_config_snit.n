@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::tclparam::configuration::snit \- Tcl/PARAM, Canned configuration, Snit
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::tclparam::configuration::snit  ?1\&.0\&.3?\fR
+package require \fBpt::tclparam::configuration::snit ?1\&.0\&.3?\fR
 .sp
 \fB::pt::tclparam::configuration::snit\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp

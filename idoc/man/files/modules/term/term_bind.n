@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::receive::bind \- Keyboard dispatch from terminals
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::receive::bind  ?0\&.2?\fR
+package require \fBterm::receive::bind ?0\&.2?\fR
 .sp
 \fBterm::receive::bind\fR \fIobject\fR ?\fImap\fR?
 .sp

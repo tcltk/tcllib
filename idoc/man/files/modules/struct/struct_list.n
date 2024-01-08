@@ -275,9 +275,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::list \- Procedures for manipulating lists
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::list  ?1\&.8\&.6?\fR
+package require \fBstruct::list ?1\&.8\&.6?\fR
 .sp
 \fB::struct::list\fR \fBlongestCommonSubsequence\fR \fIsequence1\fR \fIsequence2\fR ?\fImaxOccurs\fR?
 .sp

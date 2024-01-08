@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 irc \- Create IRC connection and interface\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBirc  ?0\&.8\&.0?\fR
+package require \fBirc ?0\&.8\&.0?\fR
 .sp
 \fB::irc::config\fR ?key? ?value?
 .sp

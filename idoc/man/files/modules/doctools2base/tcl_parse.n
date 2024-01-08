@@ -274,23 +274,23 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::tcl::parse \- Processing text in 'subst -novariables' format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBstruct::list \fR
+package require \fBstruct::list\fR
 .sp
-package require \fBstruct::stack \fR
+package require \fBstruct::stack\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
-package require \fBtreeql \fR
+package require \fBtreeql\fR
 .sp
-package require \fBdoctools::tcl::parse \fR
+package require \fBdoctools::tcl::parse\fR
 .sp
 \fB::doctools::tcl::parse\fR \fBtext\fR \fItree\fR \fItext\fR ?\fIroot\fR?
 .sp

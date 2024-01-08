@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::numtheory \- Number Theory
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5 9?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::numtheory  ?1\&.1\&.4?\fR
+package require \fBmath::numtheory ?1\&.1\&.4?\fR
 .sp
 \fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 .sp

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tool::dict_ensemble \- Dictionary Tools
 .SH SYNOPSIS
-package require \fBtool  ?0\&.4\&.2?\fR
+package require \fBtool ?0\&.4\&.2?\fR
 .sp
 \fIobject\fR \fIensemble\fR \fBadd\fR \fIfield\fR
 .sp

@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::map \- Manage key/value maps
 .SH SYNOPSIS
-package require \fBstruct::map  ?1?\fR
+package require \fBstruct::map ?1?\fR
 .sp
 \fB::struct::map\fR \fImapName\fR
 .sp

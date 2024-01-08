@@ -273,17 +273,17 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 websocket \- Tcl implementation of the websocket protocol
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBhttp  2\&.7\fR
+package require \fBhttp 2\&.7\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBsha1 \fR
+package require \fBsha1\fR
 .sp
-package require \fBbase64 \fR
+package require \fBbase64\fR
 .sp
-package require \fBwebsocket  ?1\&.6?\fR
+package require \fBwebsocket ?1\&.6?\fR
 .sp
 \fB::websocket::open\fR \fIurl\fR \fIhandler\fR ?\fIoptions\fR?
 .sp

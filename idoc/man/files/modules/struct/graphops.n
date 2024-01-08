@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::graph::op \- Operation for (un)directed graph objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBstruct::graph::op  ?0\&.11\&.4?\fR
+package require \fBstruct::graph::op ?0\&.11\&.4?\fR
 .sp
 \fBstruct::graph::op::toAdjacencyMatrix\fR \fIg\fR
 .sp

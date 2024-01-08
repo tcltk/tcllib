@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::bigfloat \- Arbitrary precision floating-point numbers
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::bigfloat  ?2\&.0\&.5?\fR
+package require \fBmath::bigfloat ?2\&.0\&.5?\fR
 .sp
 \fBfromstr\fR \fInumber\fR ?\fItrailingZeros\fR?
 .sp

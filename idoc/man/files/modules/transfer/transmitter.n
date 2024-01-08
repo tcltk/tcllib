@@ -274,17 +274,17 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 transfer::transmitter \- Data source
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  ?1\&.0?\fR
+package require \fBsnit ?1\&.0?\fR
 .sp
-package require \fBtransfer::copy  ?0\&.3?\fR
+package require \fBtransfer::copy ?0\&.3?\fR
 .sp
-package require \fBtransfer::data::source  ?0\&.3?\fR
+package require \fBtransfer::data::source ?0\&.3?\fR
 .sp
-package require \fBtransfer::connect  ?0\&.3?\fR
+package require \fBtransfer::connect ?0\&.3?\fR
 .sp
-package require \fBtransfer::transmitter  ?0\&.3?\fR
+package require \fBtransfer::transmitter ?0\&.3?\fR
 .sp
 \fBtransfer::transmitter\fR \fIobjectName\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

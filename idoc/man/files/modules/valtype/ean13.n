@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 valtype::gs1::ean13 \- Validation for EAN13
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  2\fR
+package require \fBsnit 2\fR
 .sp
-package require \fBvaltype::common \fR
+package require \fBvaltype::common\fR
 .sp
-package require \fBvaltype::gs1::ean13  ?1\&.1?\fR
+package require \fBvaltype::gs1::ean13 ?1\&.1?\fR
 .sp
 \fBvaltype::gs1::ean13\fR \fBvalidate\fR \fIvalue\fR
 .sp

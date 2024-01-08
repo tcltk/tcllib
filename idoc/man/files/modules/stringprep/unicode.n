@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 unicode \- Implementation of Unicode normalization
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBunicode  1\&.1\fR
+package require \fBunicode 1\&.1\fR
 .sp
 \fB::unicode::fromstring\fR \fIstring\fR
 .sp

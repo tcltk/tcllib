@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 clock_iso8601 \- Parsing ISO 8601 dates/times
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBclock::iso8601  ?0\&.2?\fR
+package require \fBclock::iso8601 ?0\&.2?\fR
 .sp
 \fB::clock::iso8601 parse_date\fR \fIdate\fR \fIoptions\&.\&.\&.\fR
 .sp

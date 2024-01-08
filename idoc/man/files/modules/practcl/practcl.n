@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 practcl \- The Practcl Module
 .SH SYNOPSIS
-package require \fBTclOO  1\&.0\fR
+package require \fBTclOO 1\&.0\fR
 .sp
 proc \fBpractcl::cat\fR \fIfname\fR
 .sp

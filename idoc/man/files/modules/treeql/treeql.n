@@ -275,15 +275,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 treeql \- Query tree objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBstruct::list \fR
+package require \fBstruct::list\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
-package require \fBtreeql  ?1\&.3\&.2?\fR
+package require \fBtreeql ?1\&.3\&.2?\fR
 .sp
 \fBtreeql\fR \fIobjectname\fR \fB-tree\fR \fItree\fR ?\fB-query\fR \fIquery\fR? ?\fB-nodes\fR \fInodes\fR? ?\fIargs\fR\&.\&.\&.?
 .sp

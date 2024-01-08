@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 imap4 \- imap client-side tcl implementation of imap protocol
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBimap4  ?0\&.5\&.4?\fR
+package require \fBimap4 ?0\&.5\&.4?\fR
 .sp
 \fB::imap4::open\fR \fIhostname\fR ?\fIport\fR?
 .sp

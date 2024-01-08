@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::ast \- Abstract Syntax Tree Serialization
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::ast  ?1\&.2?\fR
+package require \fBpt::ast ?1\&.2?\fR
 .sp
 \fB::pt::ast\fR \fBverify\fR \fIserial\fR ?\fIcanonvar\fR?
 .sp

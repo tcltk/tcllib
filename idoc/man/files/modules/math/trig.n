@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::trig \- Trigonometric anf hyperbolic functions
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::trig  1\&.1\fR
+package require \fBmath::trig 1\&.1\fR
 .sp
 \fB::math::trig::radian_reduced\fR \fIangle\fR
 .sp

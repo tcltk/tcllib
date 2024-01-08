@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::ansi::code::macros \- Macro sequences
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::repeat \fR
+package require \fBtextutil::repeat\fR
 .sp
-package require \fBtextutil::tabify \fR
+package require \fBtextutil::tabify\fR
 .sp
-package require \fBterm::ansi::code::macros  ?0\&.2?\fR
+package require \fBterm::ansi::code::macros ?0\&.2?\fR
 .sp
 \fB::term::ansi::code::macros::names\fR
 .sp

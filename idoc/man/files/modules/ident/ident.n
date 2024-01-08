@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ident \- Ident protocol client
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBident  ?0\&.43?\fR
+package require \fBident ?0\&.43?\fR
 .sp
 \fB::ident::query\fR \fIsocket\fR ?\fIcallback\fR?
 .sp

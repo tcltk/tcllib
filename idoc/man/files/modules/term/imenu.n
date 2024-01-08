@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::interact::menu \- Terminal widget, menu
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::interact::menu  ?0\&.2?\fR
+package require \fBterm::interact::menu ?0\&.2?\fR
 .sp
 \fBterm::interact::menu\fR \fIobject\fR \fIdict\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

@@ -274,27 +274,27 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 httpd \- A TclOO and coroutine based web server
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBuuid \fR
+package require \fBuuid\fR
 .sp
-package require \fBclay \fR
+package require \fBclay\fR
 .sp
-package require \fBcoroutine \fR
+package require \fBcoroutine\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
-package require \fBfileutil::magic::filetype \fR
+package require \fBfileutil::magic::filetype\fR
 .sp
-package require \fBwebsocket \fR
+package require \fBwebsocket\fR
 .sp
-package require \fBmime \fR
+package require \fBmime\fR
 .sp
-package require \fBcron \fR
+package require \fBcron\fR
 .sp
-package require \fBuri \fR
+package require \fBuri\fR
 .sp
-package require \fBMarkdown \fR
+package require \fBMarkdown\fR
 .sp
 method \fBChannelCopy\fR \fIin\fR \fIout\fR ?\fIargs\fR?
 .sp

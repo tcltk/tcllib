@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::msgcat \- Message catalog management for the various document parsers
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmsgcat \fR
+package require \fBmsgcat\fR
 .sp
-package require \fBdoctools::msgcat  ?0\&.2?\fR
+package require \fBdoctools::msgcat ?0\&.2?\fR
 .sp
 \fB::doctools::msgcat::init\fR \fIprefix\fR
 .sp

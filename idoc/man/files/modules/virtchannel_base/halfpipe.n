@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::halfpipe \- In-memory channel, half of a fifo2
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBTclOO \fR
+package require \fBTclOO\fR
 .sp
-package require \fBtcl::chan::events  ?1\&.1?\fR
+package require \fBtcl::chan::events ?1\&.1?\fR
 .sp
-package require \fBtcl::chan::halfpipe  ?1\&.0\&.2?\fR
+package require \fBtcl::chan::halfpipe ?1\&.0\&.2?\fR
 .sp
 \fB::tcl::chan::halfpipe\fR ?\fB-option\fR \fIvalue\fR\&.\&.\&.?
 .sp

@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::fa::op \- Operations on finite automatons
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBstruct::list \fR
+package require \fBstruct::list\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
-package require \fBgrammar::fa::op  ?0\&.4\&.2?\fR
+package require \fBgrammar::fa::op ?0\&.4\&.2?\fR
 .sp
 \fB::grammar::fa::op::constructor\fR \fIcmd\fR
 .sp

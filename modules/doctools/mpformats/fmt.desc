@@ -3,7 +3,7 @@
 # -- Extraction of meta information from a manpage (package
 #    description), and associating it with package names.
 #
-# Copyright (c) 2005 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2005-2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 ################################################################
 
@@ -42,8 +42,8 @@ proc fmt_manpage_begin {title section version} {
     return
 }
 
-proc fmt_moddesc   {desc} {global data ; set data(shortdesc) $desc}
-proc fmt_titledesc {desc} {global data ; set data(desc)      $desc}
-proc fmt_require   {p {v {}}} {global data ; lappend data(require) $p ; return}
+proc fmt_moddesc   {desc}   {global data ; set data(shortdesc) $desc}
+proc fmt_titledesc {desc}   {global data ; set data(desc)      $desc}
+proc fmt_require   {p vs} {global data ; lappend data(require) $p ; return}
 
 ################################################################

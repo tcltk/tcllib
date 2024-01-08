@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tool \- TclOO Library (TOOL) Framework
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBsha1 \fR
+package require \fBsha1\fR
 .sp
-package require \fBdicttool \fR
+package require \fBdicttool\fR
 .sp
-package require \fBoo::meta \fR
+package require \fBoo::meta\fR
 .sp
-package require \fBoo::dialect \fR
+package require \fBoo::dialect\fR
 .sp
 tool::define \fBclass_method\fR \fIarglist\fR \fIbody\fR
 .sp

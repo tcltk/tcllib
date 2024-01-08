@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 sha256 \- SHA256 Message-Digest Algorithm
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsha256  ?1\&.0\&.5?\fR
+package require \fBsha256 ?1\&.0\&.5?\fR
 .sp
 \fB::sha2::sha256\fR ?\fB-hex|-bin\fR? [ \fB-channel channel\fR | \fB-file filename\fR | ?\fB--\fR? \fIstring\fR ]
 .sp

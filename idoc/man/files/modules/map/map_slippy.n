@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 map::slippy \- Common code for slippy based map packages
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBmap::slippy  ?0\&.9?\fR
+package require \fBmap::slippy ?0\&.9?\fR
 .sp
 \fB::map\fR \fBslippy geo box 2point\fR \fIzoom\fR \fIgeobox\fR
 .sp

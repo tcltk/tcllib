@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::cpu::gasm \- ME assembler
 .SH SYNOPSIS
-package require \fBgrammar::me::cpu::gasm  ?0\&.2?\fR
+package require \fBgrammar::me::cpu::gasm ?0\&.2?\fR
 .sp
 \fB::grammar::me::cpu::gasm::begin\fR \fIg\fR \fIn\fR ?\fImode\fR? ?\fInote\fR?
 .sp

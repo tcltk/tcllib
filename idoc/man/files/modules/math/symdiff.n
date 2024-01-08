@@ -275,11 +275,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::calculus::symdiff \- Symbolic differentiation for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::aycock  1\&.0\fR
+package require \fBgrammar::aycock 1\&.0\fR
 .sp
-package require \fBmath::calculus::symdiff  1\&.0\&.2\fR
+package require \fBmath::calculus::symdiff 1\&.0\&.2\fR
 .sp
 \fBmath::calculus::symdiff::symdiff\fR \fIexpression\fR \fIvariable\fR
 .sp

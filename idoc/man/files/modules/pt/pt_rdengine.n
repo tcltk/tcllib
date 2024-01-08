@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::rde \- Parsing Runtime Support, PARAM based
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::rde  ?1\&.2?\fR
+package require \fBpt::rde ?1\&.2?\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBstruct::stack  1\&.6\fR
+package require \fBstruct::stack 1\&.6\fR
 .sp
-package require \fBpt::ast  1\&.2\fR
+package require \fBpt::ast 1\&.2\fR
 .sp
 \fB::pt::rde\fR \fIobjectName\fR
 .sp

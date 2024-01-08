@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::cparam::configuration::tea \- C/PARAM, Canned configuration, TEA
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::cparam::configuration::tea  ?0\&.2?\fR
+package require \fBpt::cparam::configuration::tea ?0\&.2?\fR
 .sp
 \fB::pt::cparam::configuration::tea\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp

@@ -275,11 +275,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::exact \- Exact Real Arithmetic
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBgrammar::aycock  1\&.0\fR
+package require \fBgrammar::aycock 1\&.0\fR
 .sp
-package require \fBmath::exact  1\&.0\&.2\fR
+package require \fBmath::exact 1\&.0\&.2\fR
 .sp
 \fB::math::exact::exactexpr\fR \fIexpr\fR
 .sp

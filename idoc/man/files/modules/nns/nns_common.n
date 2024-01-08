@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nameserv::common \- Name service facility, shared definitions
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnameserv::common  ?0\&.2?\fR
+package require \fBnameserv::common ?0\&.2?\fR
 .sp
 \fB::nameserv::common::port\fR
 .sp

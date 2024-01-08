@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uevent::onidle \- Request merging and deferal to idle time
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBuevent::onidle  ?0\&.2?\fR
+package require \fBuevent::onidle ?0\&.2?\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
 \fB::uevent::onidle\fR \fIobjectName\fR \fIcommandprefix\fR
 .sp

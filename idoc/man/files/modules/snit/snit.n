@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 snit \- Snit's Not Incr Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  ?2\&.3\&.3?\fR
+package require \fBsnit ?2\&.3\&.3?\fR
 .sp
 \fBsnit::type\fR \fIname\fR \fIdefinition\fR
 .sp

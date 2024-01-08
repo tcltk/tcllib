@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 smtpd \- Tcl SMTP server implementation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsmtpd  ?1\&.6?\fR
+package require \fBsmtpd ?1\&.6?\fR
 .sp
 \fB::smtpd::start\fR ?\fImyaddr\fR? ?\fIport\fR?
 .sp

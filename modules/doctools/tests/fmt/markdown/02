@@ -26,6 +26,7 @@ TEST \- \.\.THE\_TITLE\.\.
 
 package require AAA  
 package require BBB VVV  
+package require CCC VA VB VC  
 
 # <a name='description'></a>DESCRIPTION
 

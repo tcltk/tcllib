@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::to::param \- PEG Conversion\&. Write PARAM format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::to::param  ?1\&.1?\fR
+package require \fBpt::peg::to::param ?1\&.1?\fR
 .sp
-package require \fBpt::peg \fR
+package require \fBpt::peg\fR
 .sp
-package require \fBpt::pe \fR
+package require \fBpt::pe\fR
 .sp
 \fBpt::peg::to::param\fR \fBreset\fR
 .sp

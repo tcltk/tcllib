@@ -273,15 +273,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil::magic::cgen \- Generator core for compiler of magic(5) files
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBfileutil::magic::cgen  ?1\&.2\&.0?\fR
+package require \fBfileutil::magic::cgen ?1\&.2\&.0?\fR
 .sp
-package require \fBfileutil::magic::rt  ?1\&.2\&.0?\fR
+package require \fBfileutil::magic::rt ?1\&.2\&.0?\fR
 .sp
-package require \fBstruct::tree \fR
+package require \fBstruct::tree\fR
 .sp
-package require \fBstruct::list \fR
+package require \fBstruct::list\fR
 .sp
 \fB::fileutil::magic::cgen::2tree\fR \fIscript\fR
 .sp

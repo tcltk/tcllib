@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::adjust \- Procedures to adjust, indent, and undent paragraphs
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::adjust  ?0\&.7\&.4?\fR
+package require \fBtextutil::adjust ?0\&.7\&.4?\fR
 .sp
 \fB::textutil::adjust::adjust\fR \fIstring\fR ?\fIoption value\&.\&.\&.\fR?
 .sp

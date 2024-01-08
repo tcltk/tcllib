@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 gpx \- Extracts waypoints, tracks and routes from GPX files
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgpx  ?1\&.1?\fR
+package require \fBgpx ?1\&.1?\fR
 .sp
 \fB::gpx::Create\fR \fIgpxFilename\fR ?\fIrawXML\fR?
 .sp

@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::to::json \- PEG Conversion\&. Write JSON format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::to::json  ?1\&.1?\fR
+package require \fBpt::peg::to::json ?1\&.1?\fR
 .sp
-package require \fBpt::peg \fR
+package require \fBpt::peg\fR
 .sp
-package require \fBjson::write \fR
+package require \fBjson::write\fR
 .sp
 \fBpt::peg::to::json\fR \fBreset\fR
 .sp

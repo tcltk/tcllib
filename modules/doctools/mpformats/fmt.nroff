@@ -2,7 +2,7 @@
 #
 # -- doctools NROFF formatting engine.
 #
-# Copyright (c) 2001-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [expand] definitions to convert a tcl based manpage definition into
 # a manpage based upon *roff markup. Additional definition files allow
@@ -124,10 +124,12 @@ proc fmt_para {} {
     nr_p
 }
 
-c_pass 2 fmt_require {pkg {version {}}} NOP
-c_pass 1 fmt_require {pkg {version {}}} {
-    if {$version != {}} {set version " $version"}
-    c_hold synopsis "package require [nr_bld]$pkg $version[nr_rst]\n[nr_vspace]"
+c_pass 2 fmt_require {pkg vs} NOP
+c_pass 1 fmt_require {pkg vs} {
+    set result "package require [nr_bld]$pkg"
+    foreach version $vs {append result " $version"}
+    append result "[nr_rst]\n[nr_vspace]"
+    c_hold synopsis $result
 }
 
 c_pass 1 fmt_usage {cmd args} {c_hold synopsis "$cmd [join $args " "]\n[nr_vspace]"}

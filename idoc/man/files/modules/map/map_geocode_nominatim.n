@@ -273,17 +273,17 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 map::geocode::nominatim \- Resolving geographical names with a Nominatim service
 .SH SYNOPSIS
-package require \fBTcl  8\&.6 9\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBhttp \fR
+package require \fBhttp\fR
 .sp
-package require \fBjson \fR
+package require \fBjson\fR
 .sp
-package require \fBuri \fR
+package require \fBuri\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBmap::geocode::nominatim  ?0\&.3?\fR
+package require \fBmap::geocode::nominatim ?0\&.3?\fR
 .sp
 \fB::map::geocode::nominatim\fR \fIrequestor\fR ?\fB-baseurl\fR \fIurl\fR? ?\fB-callback\fR \fIcallback\fR? ?\fB-error\fR \fIerror callback\fR?
 .sp

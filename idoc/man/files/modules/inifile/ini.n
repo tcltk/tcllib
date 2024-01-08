@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 inifile \- Parsing of Windows INI files
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBinifile  ?0\&.3\&.3?\fR
+package require \fBinifile ?0\&.3\&.3?\fR
 .sp
 \fB::ini::open\fR \fIfile\fR ?\fB-encoding\fR \fIencoding\fR? ?\fIaccess\fR?
 .sp

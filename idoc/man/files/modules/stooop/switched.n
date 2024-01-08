@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 switched \- switch/option management\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBswitched  ?2\&.2\&.2?\fR
+package require \fBswitched ?2\&.2\&.2?\fR
 .sp
 \fB<switched>\fR \fBcomplete\fR \fIthis\fR
 .sp

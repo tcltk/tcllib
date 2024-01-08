@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg \- Parsing Expression Grammar Serialization
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg  ?1\&.1?\fR
+package require \fBpt::peg ?1\&.1?\fR
 .sp
-package require \fBpt::pe \fR
+package require \fBpt::pe\fR
 .sp
 \fB::pt::peg\fR \fBverify\fR \fIserial\fR ?\fIcanonvar\fR?
 .sp

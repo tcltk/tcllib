@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nmea \- Process NMEA data
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnmea  ?1\&.1\&.0?\fR
+package require \fBnmea ?1\&.1\&.0?\fR
 .sp
 \fB::nmea::input\fR \fIsentence\fR
 .sp

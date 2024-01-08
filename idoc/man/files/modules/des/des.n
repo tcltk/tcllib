@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 des \- Implementation of the DES and triple-DES ciphers
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdes  1\&.2\fR
+package require \fBdes 1\&.2\fR
 .sp
 \fB::DES::des\fR ?\fI-mode [ecb|cbc|cfb|ofb]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-weak\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | \fIdata\fR ]
 .sp

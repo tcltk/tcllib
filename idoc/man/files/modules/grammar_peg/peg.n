@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::peg \- Create and manipulate parsing expression grammars
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBgrammar::peg  ?0\&.3?\fR
+package require \fBgrammar::peg ?0\&.3?\fR
 .sp
 \fB::grammar::peg\fR \fIpegName\fR ?\fB=\fR|\fB:=\fR|\fB<--\fR|\fBas\fR|\fBdeserialize\fR \fIsrc\fR?
 .sp

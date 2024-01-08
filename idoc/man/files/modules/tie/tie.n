@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tie \- Array persistence
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtie  ?1\&.3?\fR
+package require \fBtie ?1\&.3?\fR
 .sp
 \fB::tie::tie\fR \fIarrayvarname\fR \fIoptions\fR\&.\&.\&. \fIdstype\fR \fIdsname\fR\&.\&.\&.
 .sp

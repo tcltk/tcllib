@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 valtype::creditcard::visa \- Validation for VISA creditcard number
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  2\fR
+package require \fBsnit 2\fR
 .sp
-package require \fBvaltype::common \fR
+package require \fBvaltype::common\fR
 .sp
-package require \fBvaltype::luhn \fR
+package require \fBvaltype::luhn\fR
 .sp
-package require \fBvaltype::creditcard::visa  ?1\&.1?\fR
+package require \fBvaltype::creditcard::visa ?1\&.1?\fR
 .sp
 \fBvaltype::creditcard::visa\fR \fBvalidate\fR \fIvalue\fR
 .sp

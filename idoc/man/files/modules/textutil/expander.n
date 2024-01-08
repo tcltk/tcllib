@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::expander \- Procedures to process templates and expand text\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::expander  ?1\&.3\&.2?\fR
+package require \fBtextutil::expander ?1\&.3\&.2?\fR
 .sp
 \fB::textutil::expander\fR \fIexpanderName\fR
 .sp

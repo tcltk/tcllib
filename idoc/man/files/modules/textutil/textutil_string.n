@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::string \- Procedures to manipulate texts and strings\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::string  ?0\&.9?\fR
+package require \fBtextutil::string ?0\&.9?\fR
 .sp
 \fB::textutil::string::chop\fR \fIstring\fR
 .sp

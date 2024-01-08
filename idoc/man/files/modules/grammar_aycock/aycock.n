@@ -275,9 +275,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::aycock \- Aycock-Horspool-Earley parser generator for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::aycock  ?1\&.1?\fR
+package require \fBgrammar::aycock ?1\&.1?\fR
 .sp
 \fB::aycock::parser\fR \fIgrammar\fR ?\fB-verbose\fR?
 .sp

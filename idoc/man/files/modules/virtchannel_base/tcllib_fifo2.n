@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::fifo2 \- In-memory interconnected fifo channels
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBTclOO \fR
+package require \fBTclOO\fR
 .sp
-package require \fBtcl::chan::events  ?1\&.1?\fR
+package require \fBtcl::chan::events ?1\&.1?\fR
 .sp
-package require \fBtcl::chan::halfpipe  ?1\&.1?\fR
+package require \fBtcl::chan::halfpipe ?1\&.1?\fR
 .sp
-package require \fBtcl::chan::fifo2  ?1\&.1?\fR
+package require \fBtcl::chan::fifo2 ?1\&.1?\fR
 .sp
 \fB::tcl::chan::fifo2\fR
 .sp

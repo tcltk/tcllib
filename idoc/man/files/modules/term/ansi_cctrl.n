@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::ansi::code::ctrl \- ANSI control sequences
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::ansi::code  ?0\&.2?\fR
+package require \fBterm::ansi::code ?0\&.2?\fR
 .sp
-package require \fBterm::ansi::code::ctrl  ?0\&.3?\fR
+package require \fBterm::ansi::code::ctrl ?0\&.3?\fR
 .sp
 \fB::term::ansi::code::ctrl::names\fR
 .sp

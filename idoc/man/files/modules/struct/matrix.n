@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::matrix \- Create and manipulate matrix objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::matrix  ?2\&.2?\fR
+package require \fBstruct::matrix ?2\&.2?\fR
 .sp
 \fB::struct::matrix\fR ?\fImatrixName\fR? ?\fB=\fR|\fB:=\fR|\fBas\fR|\fBdeserialize\fR \fIsource\fR?
 .sp

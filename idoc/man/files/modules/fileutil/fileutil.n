@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil \- Procedures implementing some file utilities
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBfileutil  ?1\&.16\&.2?\fR
+package require \fBfileutil ?1\&.16\&.2?\fR
 .sp
 \fB::fileutil::lexnormalize\fR \fIpath\fR
 .sp

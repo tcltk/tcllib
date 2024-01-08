@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 logger::appender \- Collection of predefined appenders for logger
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlogger::appender  ?1\&.4?\fR
+package require \fBlogger::appender ?1\&.4?\fR
 .sp
 \fB::logger::appender::console\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

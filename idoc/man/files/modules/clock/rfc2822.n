@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 clock_rfc2822 \- Parsing RFC 2822 dates/times
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBclock::rfc2822  ?0\&.2?\fR
+package require \fBclock::rfc2822 ?0\&.2?\fR
 .sp
 \fB::clock::rfc2822 parse_date\fR \fIdate\fR
 .sp

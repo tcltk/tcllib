@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bench \- bench - Processing benchmark suites
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbench  ?0\&.5?\fR
+package require \fBbench ?0\&.5?\fR
 .sp
 \fB::bench::locate\fR \fIpattern\fR \fIpaths\fR
 .sp

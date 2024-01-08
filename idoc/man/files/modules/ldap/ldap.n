@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ldap \- LDAP client
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBldap  ?1\&.10\&.2?\fR
+package require \fBldap ?1\&.10\&.2?\fR
 .sp
 \fB::ldap::connect\fR \fIhost\fR ?\fIport\fR?
 .sp

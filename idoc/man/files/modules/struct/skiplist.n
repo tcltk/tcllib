@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::skiplist \- Create and manipulate skiplists
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::skiplist  ?1\&.4?\fR
+package require \fBstruct::skiplist ?1\&.4?\fR
 .sp
 \fBskiplistName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

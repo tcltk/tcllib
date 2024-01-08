@@ -2,7 +2,7 @@
 #
 # -- Engine to convert a doctools document into plain text.
 #
-# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # # ## ### ##### ######## #############
 ## Load shared code and modify it to our needs.
@@ -323,10 +323,10 @@ c_pass 2 fmt_para {} {
 c_pass 1 fmt_nl {} NOP
 c_pass 2 fmt_nl {} {CloseCurrent ; return }
 
-c_pass 2 fmt_require {pkg {version {}}} NOP
-c_pass 1 fmt_require {pkg {version {}}} {
+c_pass 2 fmt_require {pkg vs} NOP
+c_pass 1 fmt_require {pkg vs} {
     set result "package require $pkg"
-    if {$version != {}} {append result " $version"}
+    foreach version $vs {append result " $version"}
     c_hold require $result
     return
 }

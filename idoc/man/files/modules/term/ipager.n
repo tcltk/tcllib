@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::interact::pager \- Terminal widget, paging
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::interact::pager  ?0\&.2?\fR
+package require \fBterm::interact::pager ?0\&.2?\fR
 .sp
 \fBterm::interact::pager\fR \fIobject\fR \fItext\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

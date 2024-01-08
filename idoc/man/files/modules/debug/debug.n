@@ -275,9 +275,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 debug \- debug narrative - core
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdebug  ?1\&.0\&.7?\fR
+package require \fBdebug ?1\&.0\&.7?\fR
 .sp
 \fBdebug\&.\fR\fBtag\fR \fImessage\fR ?\fIlevel\fR?
 .sp

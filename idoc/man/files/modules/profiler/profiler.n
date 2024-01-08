@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 profiler \- Tcl source code profiler
 .SH SYNOPSIS
-package require \fBTcl  8\&.5 9\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBprofiler  ?0\&.7?\fR
+package require \fBprofiler ?0\&.7?\fR
 .sp
 \fB::profiler::init\fR
 .sp
