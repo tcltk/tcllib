@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'iso8601\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "clock_iso8601" n 0\&.1 tcllib "Date/Time Utilities"
+.TH "clock_iso8601" n 0\&.2 tcllib "Date/Time Utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ clock_iso8601 \- Parsing ISO 8601 dates/times
 .SH SYNOPSIS
 package require \fBTcl  8\&.5 9\fR
 .sp
-package require \fBclock::iso8601  ?0\&.1?\fR
+package require \fBclock::iso8601  ?0\&.2?\fR
 .sp
 \fB::clock::iso8601 parse_date\fR \fIdate\fR \fIoptions\&.\&.\&.\fR
 .sp
