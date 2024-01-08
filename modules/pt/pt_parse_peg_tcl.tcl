@@ -285,7 +285,7 @@ snit::type ::pt::parse::peg_tcl {
     proc sym_CharOctalFull {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     
@@ -305,7 +305,7 @@ snit::type ::pt::parse::peg_tcl {
         $myparser si:void_state_push
         $myparser si:next_char \134
         $myparser si:voidvoid_part
-        $myparser si:next_range 0 2
+        $myparser si:next_range 0 3
         $myparser si:voidvoid_part
         $myparser si:next_range 0 7
         $myparser si:voidvoid_part
@@ -2427,5 +2427,5 @@ snit::type ::pt::parse::peg_tcl {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::parse::peg_tcl 1.0.1
+package provide pt::parse::peg_tcl 1.0.2
 return

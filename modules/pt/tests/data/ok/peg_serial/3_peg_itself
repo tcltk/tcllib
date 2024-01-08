@@ -12,7 +12,7 @@ pt::grammar::peg {
 	COMMENT        {mode void     is {x {t #} {* {x {! {n EOL}} dot}} {n EOL}}}
 	CONTROL        {mode leaf     is {x {t <} {t c} {t o} {t n} {t t} {t r} {t o} {t l} {t >} {n WHITESPACE}}}
 	Char           {mode value    is {/ {n CharSpecial} {n CharOctalFull} {n CharOctalPart} {n CharUnicode} {n CharUnescaped}}}
-	CharOctalFull  {mode leaf     is {x {t \134} {.. 0 2} {.. 0 7} {.. 0 7}}}
+	CharOctalFull  {mode leaf     is {x {t \134} {.. 0 3} {.. 0 7} {.. 0 7}}}
 	CharOctalPart  {mode leaf     is {x {t \134} {.. 0 7} {? {.. 0 7}}}}
 	CharSpecial    {mode leaf     is {x {t \134} {/ {t n} {t r} {t t} {t '} {t \42} {t \133} {t \135} {t \134}}}}
 	CharUnescaped  {mode leaf     is {x {! {t \134}} dot}}

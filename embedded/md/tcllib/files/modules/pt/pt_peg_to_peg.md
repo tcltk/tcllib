@@ -176,7 +176,7 @@ It is formally specified by the grammar shown below, written in itself\. For a
 tutorial / introduction to the language please go and read the *[PEG Language
 Tutorial](pt\_peg\_language\.md)*\.
 
-    PEG pe-grammar-for-peg (Grammar)
+    PEG pe_grammar_for_peg (Grammar)
 
     	# --------------------------------------------------------------------
             # Syntactical constructs
@@ -217,7 +217,7 @@ Tutorial](pt\_peg\_language\.md)*\.
                             ;
 
     leaf:   CharSpecial     <- "\\" [nrt'"\[\]\\] ;
-    leaf:   CharOctalFull   <- "\\" [0-2][0-7][0-7] ;
+    leaf:   CharOctalFull   <- "\\" [0-3][0-7][0-7] ;
     leaf:   CharOctalPart   <- "\\" [0-7][0-7]? ;
     leaf:   CharUnicode     <- "\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
     leaf:   CharUnescaped   <- !"\\" . ;
@@ -287,13 +287,13 @@ Using higher\-level features of the notation, i\.e\. the character classes
 \(predefined and custom\), this example can be rewritten as
 
     PEG calculator (Expression)
-        Sign       <- [-+] 						;
-        Number     <- Sign? <ddigit>+				;
-        Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+        Sign       <- [-+]                                          ;
+        Number     <- Sign? <ddigit>+                               ;
+        Expression <- Term (AddOp Term)*                            ;
         MulOp      <- [*/]						;
-        Factor     <- Term (AddOp Term)*				;
+        Term       <- Factor (MulOp Factor)*                        ;
         AddOp      <- [-+]						;
-        Term       <- Number					;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 # <a name='section5'></a>PEG serialization format

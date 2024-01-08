@@ -606,7 +606,7 @@ read the \fIPEG Language Tutorial\fR\&.
 .CS
 
 
-PEG pe-grammar-for-peg (Grammar)
+PEG pe_grammar_for_peg (Grammar)
 
 	# --------------------------------------------------------------------
         # Syntactical constructs
@@ -647,7 +647,7 @@ leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
                         ;
 
 leaf:   CharSpecial     <- "\\\\" [nrt'"\\[\\]\\\\] ;
-leaf:   CharOctalFull   <- "\\\\" [0-2][0-7][0-7] ;
+leaf:   CharOctalFull   <- "\\\\" [0-3][0-7][0-7] ;
 leaf:   CharOctalPart   <- "\\\\" [0-7][0-7]? ;
 leaf:   CharUnicode     <- "\\\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
 leaf:   CharUnescaped   <- !"\\\\" \&. ;
@@ -725,13 +725,13 @@ classes (predefined and custom), this example can be rewritten as
 
 
 PEG calculator (Expression)
-    Sign       <- [-+] 						;
-    Number     <- Sign? <ddigit>+				;
-    Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+    Sign       <- [-+]                                          ;
+    Number     <- Sign? <ddigit>+                               ;
+    Expression <- Term (AddOp Term)*                            ;
     MulOp      <- [*/]						;
-    Factor     <- Term (AddOp Term)*				;
+    Term       <- Factor (MulOp Factor)*                        ;
     AddOp      <- [-+]						;
-    Term       <- Number					;
+    Factor     <- '(' Expression ')' / Number                   ;
 END;
 
 .CE

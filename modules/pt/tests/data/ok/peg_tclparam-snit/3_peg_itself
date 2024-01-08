@@ -285,7 +285,7 @@ snit::type ::PARSER {
     proc sym_CharOctalFull {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     
@@ -298,14 +298,14 @@ snit::type ::PARSER {
     proc sequence_44 {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     
         $myparser si:void_state_push
         $myparser si:next_char \134
         $myparser si:voidvoid_part
-        $myparser si:next_range 0 2
+        $myparser si:next_range 0 3
         $myparser si:voidvoid_part
         $myparser si:next_range 0 7
         $myparser si:voidvoid_part

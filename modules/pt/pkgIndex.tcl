@@ -20,7 +20,7 @@ package ifneeded pt::peg                1.1 [list source [file join $dir pt_pegr
 package ifneeded pt::peg::container     1.1 [list source [file join $dir pt_peg_container.tcl]]
 package ifneeded pt::peg::interp    1.0.2 [list source [file join $dir pt_peg_interp.tcl]]
 package ifneeded pt::peg::op        1.2.0 [list source [file join $dir pt_peg_op.tcl]]
-package ifneeded pt::parse::peg     1.0.2 [list source [file join $dir pt_parse_peg.tcl]]
+package ifneeded pt::parse::peg     1.0.3 [list source [file join $dir pt_parse_peg.tcl]]
 
 
 # Export/import managers. Assumes an untrusted environment.
@@ -58,7 +58,7 @@ package ifneeded pt::rde::nx  1.2.1.2 [list source [file join $dir pt_rdengine_n
 
 
 # PEG grammar specification, as CONTAINER
-package ifneeded pt::peg::container::peg 1.1 [list source [file join $dir pt_peg_container_peg.tcl]]
+package ifneeded pt::peg::container::peg 1.1.1 [list source [file join $dir pt_peg_container_peg.tcl]]
 
 # */PARAM support (canned configurations).
 package ifneeded pt::cparam::configuration::critcl  1.0.3 [list source [file join $dir pt_cparam_config_critcl.tcl]]

@@ -14,7 +14,7 @@
 package require Tcl 8.5 9
 package require critcl
 # @sak notprovided pt_parse_peg_c
-package provide    pt_parse_peg_c 1.0.1
+package provide    pt_parse_peg_c 1.0.2
 
 # Note: The implementation of the PARAM virtual machine
 #       underlying the C/PARAM code used below is inlined
@@ -2311,7 +2311,7 @@ namespace eval ::pt::parse {
            /*
             * x
             *     '\'
-            *     range (0 .. 2)
+            *     range (0 .. 3)
             *     range (0 .. 7)
             *     range (0 .. 7)
             */
@@ -2326,7 +2326,7 @@ namespace eval ::pt::parse {
            /*
             * x
             *     '\'
-            *     range (0 .. 2)
+            *     range (0 .. 3)
             *     range (0 .. 7)
             *     range (0 .. 7)
             */
@@ -2334,7 +2334,7 @@ namespace eval ::pt::parse {
             rde_param_i_state_push_void (p);
             rde_param_i_next_char (p, "\\", 33);
             if (rde_param_i_seq_void2void(p)) return;
-            rde_param_i_next_range (p, "0", "2", 34);
+            rde_param_i_next_range (p, "0", "3", 34);
             if (rde_param_i_seq_void2void(p)) return;
             rde_param_i_next_range (p, "0", "7", 35);
             if (rde_param_i_seq_void2void(p)) return;
