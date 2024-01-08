@@ -1,8 +1,8 @@
 ###
 # Tool to download file from the web
-# Enhacements to http
+# Enhancements to http
 ###
-package provide http::wget 0.2
+package provide http::wget 0.2.1
 package require http
 
 ::namespace eval ::http {}
@@ -16,20 +16,29 @@ proc ::http::_followRedirects {url args} {
         set token [geturl $url -validate 1]
         set ncode [ncode $token]
         if { $ncode eq "404" } {
-          error "URL Not found"
+	    error "URL Not found"
         }
         switch -glob $ncode {
-            30[1237] {### redirect - see below ###}
-            default  {cleanup $token ; return $url}
-        }
-        upvar #0 $token state
-        array set meta [set ${token}(meta)]
-        cleanup $token
-        if {![info exists meta(Location)]} {
-           return $url
-        }
-        set url $meta(Location)
-        unset meta
+            30[1237] {
+		### redirect - see below ###
+	    }
+	    default  {
+		cleanup $token
+		return $url
+	    }
+	}
+	upvar #0 $token state
+	array set meta [set ${token}(meta)]
+	cleanup $token
+
+	if {[info exists meta(Location)]} {
+	    set url $meta(Location)
+	} elseif {![info exists meta(location)]} {
+	    set url $meta(location)
+	} else {
+	    return $url
+	}
+	unset meta
     }
     return $url
 }
@@ -41,14 +50,13 @@ proc ::http::wget {url destfile {verbose 1}} {
     set tmpchan [open $destfile w]
     fconfigure $tmpchan -translation binary
     if { $verbose } {
-        puts [list  GETTING [file tail $destfile] from $url]
+	puts [list  GETTING [file tail $destfile] from $url]
     }
     set real_url [_followRedirects $url]
     set token [geturl $real_url -channel $tmpchan -binary yes]
     if {[ncode $token] != "200"} {
-      error "DOWNLOAD FAILED"
+	error "DOWNLOAD FAILED"
     }
     cleanup $token
     close $tmpchan
 }
-
