@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'map_slippy\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "map::slippy" n 0\&.9 tcllib "Mapping utilities"
+.TH "map::slippy" n 0\&.10 tcllib "Mapping utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ map::slippy \- Common code for slippy based map packages
 .SH SYNOPSIS
 package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBmap::slippy ?0\&.9?\fR
+package require \fBmap::slippy ?0\&.10?\fR
 .sp
 \fB::map\fR \fBslippy geo box 2point\fR \fIzoom\fR \fIgeobox\fR
 .sp

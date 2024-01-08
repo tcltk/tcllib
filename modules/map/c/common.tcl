@@ -48,8 +48,9 @@ critcl::ccode {
 
     static point* geos_2points (int zoom, int c, geo* geos) {
 	point* p = (point*) ckalloc (c * sizeof(point));
+	unsigned int k;
 
-	for (unsigned int k = 0; k < c; k++) geo_2point (zoom, &geos[k], &p[k]);
+	for (k = 0; k < c; k++) geo_2point (zoom, &geos[k], &p[k]);
 
 	return p;
     }
@@ -57,7 +58,7 @@ critcl::ccode {
     // - - -- --- ----- -------- -------------
 
     static void point_2geo (int zoom, point* p, geo* g) {
-        double x      = p->x;
+	double x      = p->x;
 	double y      = p->y;
 
 	int    length = OURTILESIZE * TILES (zoom);
@@ -71,8 +72,9 @@ critcl::ccode {
 
     static geo* points_2geos (int zoom, int c, point* points) {
 	geo* g = (geo*) ckalloc (c * sizeof(geo));
+	unsigned int k;
 
-	for (unsigned int k = 0; k < c; k++) point_2geo (zoom, &points[k], &g[k]);
+	for (k = 0; k < c; k++) point_2geo (zoom, &points[k], &g[k]);
 
 	return g;
     }
@@ -95,15 +97,16 @@ critcl::ccode {
     static double geo_distance_list (int closed, int c, geo* geos) {
 	// lat, lon are in degrees - convert all to radians
 
+	double d = 0;
+	double lata = DEGTORAD * geos[0].lat;
+	double lona = DEGTORAD * geos[0].lon;
+	unsigned int i;
+
 	if (c < 2) {
 	    return 0;
 	}
 
-	double d = 0;
-	double lata = DEGTORAD * geos[0].lat;
-	double lona = DEGTORAD * geos[0].lon;
-
-	for (unsigned int i = 1; i < c ; i++) {
+	for (i = 1; i < c ; i++) {
 	    double latb = DEGTORAD * geos[i].lat;
 	    double lonb = DEGTORAD * geos[i].lon;
 
@@ -126,6 +129,8 @@ critcl::ccode {
     }
 
     static geobox geo_bbox (int c, geo* geos) {
+	unsigned int i;
+
 	if (c == 0) {
 	    geobox bounding = { 0, 0, 0, 0 };
 	    return bounding;
@@ -138,7 +143,7 @@ critcl::ccode {
 	    .lon1 = geos[0].lon
 	};
 
-	for (unsigned int i = 1; i < c; i++) {
+	for (i = 1; i < c; i++) {
 	    bounding.lat0 = MIN (bounding.lat0, geos[i].lat);
 	    bounding.lon0 = MIN (bounding.lon0, geos[i].lon);
 	    bounding.lat1 = MAX (bounding.lat1, geos[i].lat);
@@ -150,6 +155,7 @@ critcl::ccode {
 
     static geo geo_center (int c, geo* geos) {
 	geo out = { 0, 0 };
+	unsigned int i;
 
 	if (c == 0) {
 	    return out;
@@ -160,7 +166,7 @@ critcl::ccode {
 	double lat1 = geos[0].lat;
 	double lon1 = geos[0].lon;
 
-	for (unsigned int i = 1; i < c; i++) {
+	for (i = 1; i < c; i++) {
 	    lat0 = MIN (lat0, geos[i].lat);
 	    lon0 = MIN (lon0, geos[i].lon);
 	    lat1 = MAX (lat1, geos[i].lat);
@@ -175,16 +181,17 @@ critcl::ccode {
 
     static double geo_diameter (int c, geo* geos) {
 	double diameter = 0;
+	unsigned int i, j;
 
 	if (c < 2) {
 	    return 0;
 	}
 
-	for (unsigned int i = 0; i < c-1; i++) {
+	for (i = 0; i < c-1; i++) {
 	    double lata = DEGTORAD * geos[i].lat;
 	    double lona = DEGTORAD * geos[i].lon;
 
-	    for (unsigned int j = i+1; j < c; j++) {
+	    for (j = i+1; j < c; j++) {
 		// inline 2 element geo distance
 		// note: going for replication of conversion for B point, instead of allocating memory
 		// i.e. trading space (and complexity of managing it) for time
@@ -207,13 +214,15 @@ critcl::ccode {
     }
 
     static double point_distance_list (int closed, int c, point* points) {
+	unsigned int i, k;
+
 	if (c < 2) {
 	    return 0;
 	}
 
 	double d = 0;
 
-	for (unsigned int i = 1, k = 0; i < c ; i++, k++) {
+	for (i = 1, k = 0; i < c ; i++, k++) {
 	    d += hypot (points[i].x - points[k].x,
 			points[i].y - points[k].y);
 	}
@@ -227,6 +236,8 @@ critcl::ccode {
     }
 
     static pointbox point_bbox (int c, point* points) {
+	unsigned int i;
+
 	if (c == 0) {
 	    pointbox bounding = { 0, 0, 0, 0 };
 	    return bounding;
@@ -239,7 +250,7 @@ critcl::ccode {
 	    .y1 = points[0].y,
 	};
 
-	for (unsigned int i = 1; i < c; i++) {
+	for (i = 1; i < c; i++) {
 	    bounding.x0 = MIN (bounding.x0, points[i].x);
 	    bounding.y0 = MIN (bounding.y0, points[i].y);
 	    bounding.x1 = MAX (bounding.x1, points[i].x);
@@ -250,6 +261,7 @@ critcl::ccode {
     }
 
     static point point_center (int c, point* points) {
+	unsigned int i;
 	point out = { 0, 0 };
 
 	if (c == 0) {
@@ -261,7 +273,7 @@ critcl::ccode {
 	double maxy = points[0].y;
 	double maxx = points[0].x;
 
-	for (unsigned int i = 1; i < c; i++) {
+	for (i = 1; i < c; i++) {
 	    miny = MIN (miny, points[i].y);
 	    minx = MIN (minx, points[i].x);
 	    maxy = MAX (maxy, points[i].y);
@@ -275,14 +287,15 @@ critcl::ccode {
     }
 
     static double point_diameter (int c, point* points) {
+	unsigned int i, j;
 	double diameter = 0;
 
 	if (c < 2) {
 	    return 0;
 	}
 
-	for (unsigned int i = 0; i < c-1; i++) {
-	    for (unsigned int j = i+1; j < c; j++) {
+	for (i = 0; i < c-1; i++) {
+	    for (j = i+1; j < c; j++) {
 		double d = hypot (points[i].x - points[j].x,
 				  points[i].y - points[j].y);
 		diameter = MAX (diameter, d);
@@ -305,14 +318,14 @@ critcl::ccode {
 #
 #     (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
 # s = -----------------------------
-#                 L^2
+#		  L^2
 # dist = |s|*L
 #
 # =>
 #
-#        | (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay) |
+#	 | (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay) |
 # dist = ---------------------------------
-#                       L
+#			L
 
 critcl::ccode {
     static double rdp_threshold (point* args, unsigned int i, unsigned int j) {
@@ -335,7 +348,7 @@ critcl::ccode {
 	double sphi = sin (phi);
 	double tmax = (fabs (cphi) + fabs (sphi))/s;
 	double poly = 1 - tmax + tmax * tmax;
-    	double px   = poly/s;
+	double px   = poly/s;
 	double a    = atan(fabs(sphi + cphi)*px);
 	double b    = atan(fabs(sphi - cphi)*px);
 	double pphi = MAX (a,b);
@@ -345,8 +358,9 @@ critcl::ccode {
     }
 
     static void rdp_find_farthest (point* args, unsigned int i, unsigned int j, double* d, unsigned int* k) {
-        double       maxd = 0;
+	double	     maxd = 0;
 	unsigned int maxk = 0;
+	unsigned int n;
 
 	// integrated distance to line, with common parts moved out of the loop,
 	// and splitting the loop per a==b vs a!=b.
@@ -357,7 +371,7 @@ critcl::ccode {
 	double by = args[j].y;
 
 	if ((ax == bx) && (ay == by)) {
-	    for (unsigned int n = i+1; n < j; n++) {
+	    for (n = i+1; n < j; n++) {
 		double cx = args[n].x;
 		double cy = args[n].y;
 		double d  = hypot(cx-ax,cy-ay);
@@ -374,7 +388,7 @@ critcl::ccode {
 
 	double hyp = hypot(bx-ax,by-ay);
 
-	for (unsigned int n = i+1; n < j; n++) {
+	for (n = i+1; n < j; n++) {
 	    double cx = args[n].x;
 	    double cy = args[n].y;
 	    double d  = fabs((ay-cy)*(bx-ax)-(ax-cx)*(by-ay));
@@ -382,7 +396,7 @@ critcl::ccode {
 	    if (d <= maxd) continue;
 	    maxd = d;
 	    maxk = n;
-        }
+	}
 
 	*d = maxd / hyp;
 	*k = maxk;

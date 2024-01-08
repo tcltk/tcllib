@@ -26,7 +26,7 @@ critcl::ccode {
     } geo;
 
     static int geo_unbox (Tcl_Interp* interp, Tcl_Obj* obj, geo* p) {
-	int       lc;
+	int	  lc;
 	Tcl_Obj** lv;
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
@@ -57,8 +57,9 @@ critcl::ccode {
 
     static Tcl_Obj* geo_box_list (int release, Tcl_Interp* interp, int c, geo* geos) {
 	Tcl_Obj** cl = (Tcl_Obj**) ckalloc (c * sizeof(Tcl_Obj*));
+	unsigned int k;
 
-	for (unsigned int k = 0; k < c; k++) \
+	for (k = 0; k < c; k++) \
 	    cl[k] = geo_box (interp, &geos[k]);
 
 	Tcl_Obj* r = Tcl_NewListObj(c, cl);

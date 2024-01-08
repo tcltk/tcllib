@@ -1,4 +1,4 @@
-[vset VERSION 0.9]
+[vset VERSION 0.10]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::slippy n [vset VERSION]]
 [keywords geodesy]

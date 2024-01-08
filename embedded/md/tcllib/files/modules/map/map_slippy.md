@@ -1,7 +1,7 @@
 
 [//000000001]: # (map::slippy \- Mapping utilities)
 [//000000002]: # (Generated from file 'map\_slippy\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (map::slippy\(n\) 0\.9 tcllib "Mapping utilities")
+[//000000003]: # (map::slippy\(n\) 0\.10 tcllib "Mapping utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,7 +37,7 @@ map::slippy \- Common code for slippy based map packages
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6 9  
-package require map::slippy ?0\.9?  
+package require map::slippy ?0\.10?  
 
 [__::map__ __slippy geo box 2point__ *zoom* *geobox*](#1)  
 [__::map__ __slippy geo box center__ *geobox*](#2)  
