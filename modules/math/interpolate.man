@@ -1,5 +1,6 @@
+[vset VERSION 1.1.4]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::interpolate n 1.2.1]
+[manpage_begin math::interpolate n [vset VERSION]]
 [keywords interpolation]
 [keywords math]
 [keywords {spatial interpolation}]
@@ -10,7 +11,7 @@
 [category  Mathematics]
 [require Tcl [opt "8.5 9"]]
 [require struct]
-[require math::interpolate [opt 1.2.1]]
+[require math::interpolate [opt [vset VERSION]]]
 
 [description]
 [para]

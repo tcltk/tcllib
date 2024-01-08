@@ -3,7 +3,7 @@
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\" Copyright (c) 2004 Kevn B\&. Kenny <kennykb@users\&.sourceforge\&.net>
 '\"
-.TH "math::interpolate" n 1\&.1 tcllib "Tcl Math Library"
+.TH "math::interpolate" n 1\&.1\&.4 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTcl  ?8\&.5 9?\fR
 .sp
 package require \fBstruct \fR
 .sp
-package require \fBmath::interpolate  ?1\&.1?\fR
+package require \fBmath::interpolate  ?1\&.1\&.4?\fR
 .sp
 \fB::math::interpolate::defineTable\fR \fIname\fR \fIcolnames\fR \fIvalues\fR
 .sp
