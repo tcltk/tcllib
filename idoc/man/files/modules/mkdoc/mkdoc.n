@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'mkdoc\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2019-2022, Detlef Groth <detlef(at)dgroth(dot)de>
+'\" Copyright (c) 2019-2024, Detlef Groth <detlef(at)dgroth(dot)de>
 '\"
-.TH "mkdoc" n 0\&.7\&.1 tcllib "Source code documentation using Markdown"
+.TH "mkdoc" n 0\&.7\&.2 tcllib "Source code documentation using Markdown"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -280,7 +280,7 @@ package require \fBMarkdown ?1\&.2\&.2?\fR
 .sp
 package require \fByaml ?0\&.4\&.2?\fR
 .sp
-package require \fBmkdoc ?0\&.7\&.1?\fR
+package require \fBmkdoc ?0\&.7\&.2?\fR
 .sp
 package require \fBhook\fR
 .sp
@@ -435,6 +435,6 @@ Technical Data and Computer Software Clause as DFARS 252\&.227-7013 and FAR 52\&
 Text processing
 .SH COPYRIGHT
 .nf
-Copyright (c) 2019-2022, Detlef Groth <detlef(at)dgroth(dot)de>
+Copyright (c) 2019-2024, Detlef Groth <detlef(at)dgroth(dot)de>
 
 .fi

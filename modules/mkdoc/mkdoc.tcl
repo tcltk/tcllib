@@ -19,7 +19,7 @@
 #	
 ##############################################################################
 #
-# Copyright (c) 2019-2022  Dr. Detlef Groth, E-mail: detlef(at)dgroth(dot)de
+# Copyright (c) 2019-2024  Dr. Detlef Groth, E-mail: detlef(at)dgroth(dot)de
 # 
 # This library is free software; you can use, modify, and redistribute it for
 # any purpose, provided that existing copyright notices are retained in all
@@ -125,7 +125,7 @@ package require yaml
 package require Markdown
 package require hook
 
-package provide mkdoc 0.7.1
+package provide mkdoc 0.7.2
 
 namespace eval mkdoc {
     variable deindent [list \n\t \n "\n    " \n]
@@ -303,7 +303,7 @@ proc mkdoc::mkdoc {filename outfile args} {
             } elseif {$yamlflag} {
                 append yamltext "$line\n"
             } else {
-                set line [regsub -all {!\[\]\((.+?)\)} $line "<image src=\"\\1\"></img>"]
+                set line [regsub -all {!\[\]\((.+?)\)} $line "<img src=\"\\1\"></img>"]
                 append mdhtml "$indent$line\n"
             }
         }
