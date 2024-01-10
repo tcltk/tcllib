@@ -79,7 +79,7 @@ namespace eval ::md4 {
     critcl::ccommand md4c {dummy interp objc objv} {
         MD4_CTX *ctx;
         unsigned char *data;
-        int size;
+        Tcl_Size size;
         Tcl_Obj *obj;
         
         if (objc < 2 || objc > 3) {

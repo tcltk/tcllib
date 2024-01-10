@@ -26,7 +26,7 @@
  */
 
 int
-qums_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qums_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     Q*  q = (Q*) cd;
     int m;

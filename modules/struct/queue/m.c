@@ -9,8 +9,8 @@
 #include "q.h"
 #include "ms.h"
 
-static int  qsize  (Q* q, int* u, int* r, int* a);
-static void qshift (Q* q);
+static Tcl_Size qsize  (Q* q, Tcl_Size* u, Tcl_Size* r, Tcl_Size* a);
+static void     qshift (Q* q);
 
 #undef QUEUE_DUMP
 /*#define QUEUE_DUMP 1*/
@@ -18,7 +18,7 @@ static void qshift (Q* q);
 #if QUEUE_DUMP
 static void qdump  (Q* q);
 #else
-#define qdump(q) /* Ignore */
+#define     qdump(q) /* Ignore */
 #endif
 
 /* .................................................. */
@@ -40,7 +40,7 @@ static void qdump  (Q* q);
  */
 
 int
-qum_CLEAR (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_CLEAR (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue clear
      *	       [0]   [1]
@@ -89,7 +89,7 @@ qum_CLEAR (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_DESTROY (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_DESTROY (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue destroy
      *	       [0]   [1]
@@ -122,19 +122,16 @@ qum_DESTROY (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
+qum_PEEK (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv, Tcl_Size get)
 {
     /* Syntax: queue peek|get ?n?
      *	       [0]  [1]       [2]
      */
 
-    int       listc = 0;
+    Tcl_Size  listc = 0, ungetc, queuec, appendc;
     Tcl_Obj** listv;
     Tcl_Obj*  r;
     int       n = 1;
-    int       ungetc;
-    int       queuec;
-    int       appendc;
 
     if ((objc != 2) && (objc != 3)) {
 	Tcl_WrongNumArgs (interp, 2, objv, "?n?");
@@ -212,7 +209,7 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
 	 * sources.
 	 */
 
-	int i = 0, j;
+	Tcl_Size  i = 0, j;
 	Tcl_Obj** resv = NALLOC(n,Tcl_Obj*);
 
 	if (ungetc) {
@@ -315,13 +312,13 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
  */
 
 int
-qum_PUT (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_PUT (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue push item...
      *	       [0]   [1]  [2]
      */
 
-    int i;
+    Tcl_Size i;
 
     if (objc < 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "item ?item ...?");
@@ -352,7 +349,7 @@ qum_PUT (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_UNGET (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_UNGET (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue unget item
      *	       [0]   [1]   [2]
@@ -372,7 +369,7 @@ qum_UNGET (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	 * using the unget stack.
 	 */
 
-	int queuec = 0;
+	Tcl_Size queuec = 0;
 	Tcl_ListObjLength (NULL, q->queue,  &queuec);
 
 	q->at --;
@@ -400,7 +397,7 @@ qum_UNGET (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_SIZE (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_SIZE (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue size
      *	       [0]   [1]
@@ -411,17 +408,17 @@ qum_SIZE (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    Tcl_SetObjResult  (interp, Tcl_NewIntObj (qsize (q, NULL, NULL, NULL)));
+    Tcl_SetObjResult (interp, Tcl_NewSizeIntObj (qsize (q, NULL, NULL, NULL)));
     return TCL_OK;
 }
 
 
-static int
-qsize (Q* q, int* u, int* r, int* a)
+static Tcl_Size
+qsize (Q* q, Tcl_Size* u, Tcl_Size* r, Tcl_Size* a)
 {
-    int ungetc  = 0;
-    int queuec  = 0;
-    int appendc = 0;
+    Tcl_Size ungetc  = 0;
+    Tcl_Size queuec  = 0;
+    Tcl_Size appendc = 0;
 
     Tcl_ListObjLength (NULL, q->unget,  &ungetc);
     Tcl_ListObjLength (NULL, q->queue,  &queuec);
@@ -437,8 +434,8 @@ qsize (Q* q, int* u, int* r, int* a)
 static void
 qshift (Q* q)
 {
-    int queuec = 0;
-    int appendc = 0;
+    Tcl_Size queuec  = 0;
+    Tcl_Size appendc = 0;
 
     qdump (q);
 
@@ -465,8 +462,7 @@ qshift (Q* q)
 static void
 qdump (Q* q)
 {
-    int k;
-    int       listc = 0;
+    Tcl_Size  listc = 0, k;
     Tcl_Obj** listv;
 
     fprintf(stderr,"qdump (%p, @%d)\n", q, q->at);fflush(stderr);

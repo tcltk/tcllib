@@ -14,7 +14,6 @@
 package require critcl 3.1.18.2	;# REQUIRED: `[]type` support.
 # TODO:                3.2
 
-critcl::tcl 8.6
 critcl::license {Andreas Kupries} {BSD licensed.}
 
 #package require critcl::cutil

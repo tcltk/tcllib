@@ -30,11 +30,11 @@
 
 int
 tms_getchildren (TN* n, int all,
-		 int cmdc, Tcl_Obj** cmdv,
+		 Tcl_Size cmdc, Tcl_Obj** cmdv,
 		 Tcl_Obj* tree, Tcl_Interp* interp)
 {
     int	      res;
-    int	      listc = 0;
+    Tcl_Size  listc = 0;
     Tcl_Obj** listv = NULL;
 
     if (all) {
@@ -97,6 +97,17 @@ tms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
 	return TCL_ERROR;
     }
 
+#if TCL_MAJOR_VERSION > 8
+    if (srcCmd.objProc2 == tms_objcmd) {
+	/* The source tree object is managed by this code also. We can
+	 * retrieve and copy the data directly.
+	 */
+
+	T* src = (T*) srcCmd.objClientData2;
+
+	return t_assign (t, src);
+    }
+#else
     if (srcCmd.objProc == tms_objcmd) {
 	/* The source tree object is managed by this code also. We can
 	 * retrieve and copy the data directly.
@@ -105,46 +116,45 @@ tms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
 	T* src = (T*) srcCmd.objClientData;
 
 	return t_assign (t, src);
-
-    } else {
-	/* The source tree is not managed by this package Use
-	 * (de)serialization to transfer the information We do not invoke the
-	 * command proc directly
-	 */
-
-	int	 res;
-	Tcl_Obj* ser;
-	Tcl_Obj* cmd [2];
-
-	/* Phase 1: Obtain serialization object by invoking the object method
-	 */
-
-	cmd [0] = srccmd;
-	cmd [1] = Tcl_NewStringObj ("serialize", -1);
-
-	Tcl_IncrRefCount (cmd [0]);
-	Tcl_IncrRefCount (cmd [1]);
-
-	res = Tcl_EvalObjv (interp, 2, cmd, 0);
-
-	Tcl_DecrRefCount (cmd [0]);
-	Tcl_DecrRefCount (cmd [1]);
-
-	if (res != TCL_OK) {
-	    return TCL_ERROR;
-	}
-
-	ser = Tcl_GetObjResult (interp);
-	Tcl_IncrRefCount (ser);
-	Tcl_ResetResult (interp);
-
-	/* Phase 2: Copy into ourselves using regular deserialization
-	 */
-
-	res = t_deserialize (t, interp, ser);
-	Tcl_DecrRefCount (ser);
-	return res;
     }
+#endif
+    /* The source tree is not managed by this package.
+     * Use (de)serialization to transfer the information.
+     * We do not invoke the command proc directly.
+     */
+
+    int	 res;
+    Tcl_Obj* ser;
+    Tcl_Obj* cmd [2];
+
+    /* Phase 1: Obtain serialization object by invoking the object method
+     */
+
+    cmd [0] = srccmd;
+    cmd [1] = Tcl_NewStringObj ("serialize", -1);
+
+    Tcl_IncrRefCount (cmd [0]);
+    Tcl_IncrRefCount (cmd [1]);
+
+    res = Tcl_EvalObjv (interp, 2, cmd, 0);
+
+    Tcl_DecrRefCount (cmd [0]);
+    Tcl_DecrRefCount (cmd [1]);
+
+    if (res != TCL_OK) {
+	return TCL_ERROR;
+    }
+
+    ser = Tcl_GetObjResult (interp);
+    Tcl_IncrRefCount (ser);
+    Tcl_ResetResult (interp);
+
+    /* Phase 2: Copy into ourselves using regular deserialization
+     */
+
+    res = t_deserialize (t, interp, ser);
+    Tcl_DecrRefCount (ser);
+    return res;
 }
 
 /*
@@ -178,6 +188,17 @@ tms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
 	return TCL_ERROR;
     }
 
+#if TCL_MAJOR_VERSION > 8
+    if (dstCmd.objProc2 == tms_objcmd) {
+	/* The destination tree object is managed by this code also We can
+	 * retrieve and copy the data directly.
+	 */
+
+	T* dest = (T*) dstCmd.objClientData2;
+
+	return t_assign (dest, t);
+    }
+#else
     if (dstCmd.objProc == tms_objcmd) {
 	/* The destination tree object is managed by this code also We can
 	 * retrieve and copy the data directly.
@@ -186,46 +207,46 @@ tms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
 	T* dest = (T*) dstCmd.objClientData;
 
 	return t_assign (dest, t);
-
-    } else {
-	/* The destination tree is not managed by this package Use
-	 * (de)serialization to transfer the information We do not invoke the
-	 * command proc directly.
-	 */
-
-	int	 res;
-	Tcl_Obj* ser;
-	Tcl_Obj* cmd [3];
-
-	/* Phase 1: Obtain our serialization */
-
-	ser = tms_serialize (t->root);
-
-	/* Phase 2: Copy into destination by invoking its deserialization
-	 * method
-	 */
-
-	cmd [0] = dstcmd;
-	cmd [1] = Tcl_NewStringObj ("deserialize", -1);
-	cmd [2] = ser;
-
-	Tcl_IncrRefCount (cmd [0]);
-	Tcl_IncrRefCount (cmd [1]);
-	Tcl_IncrRefCount (cmd [2]);
-
-	res = Tcl_EvalObjv (interp, 3, cmd, 0);
-
-	Tcl_DecrRefCount (cmd [0]);
-	Tcl_DecrRefCount (cmd [1]);
-	Tcl_DecrRefCount (cmd [2]); /* == ser, is gone now */
-
-	if (res != TCL_OK) {
-	    return TCL_ERROR;
-	}
-
-	Tcl_ResetResult (interp);
-	return TCL_OK;
     }
+#endif
+    
+    /* The destination tree is not managed by this package Use
+     * (de)serialization to transfer the information We do not invoke the
+     * command proc directly.
+     */
+
+    int	 res;
+    Tcl_Obj* ser;
+    Tcl_Obj* cmd [3];
+
+    /* Phase 1: Obtain our serialization */
+
+    ser = tms_serialize (t->root);
+
+    /* Phase 2: Copy into destination by invoking its deserialization
+     * method
+     */
+
+    cmd [0] = dstcmd;
+    cmd [1] = Tcl_NewStringObj ("deserialize", -1);
+    cmd [2] = ser;
+
+    Tcl_IncrRefCount (cmd [0]);
+    Tcl_IncrRefCount (cmd [1]);
+    Tcl_IncrRefCount (cmd [2]);
+
+    res = Tcl_EvalObjv (interp, 3, cmd, 0);
+
+    Tcl_DecrRefCount (cmd [0]);
+    Tcl_DecrRefCount (cmd [1]);
+    Tcl_DecrRefCount (cmd [2]); /* == ser, is gone now */
+
+    if (res != TCL_OK) {
+	return TCL_ERROR;
+    }
+
+    Tcl_ResetResult (interp);
+    return TCL_OK;
 }
 
 /*
@@ -287,7 +308,7 @@ tms_serialize (TN* n)
  */
 
 int
-tms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tms_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     T*	t = (T*) cd;
     int m;

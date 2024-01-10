@@ -142,9 +142,9 @@ namespace eval ::struct {
       }
 
       sd = st_new();
-      sd->cmd = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-				      stms_objcmd, (ClientData) sd,
-				      SDdeleteCmd);
+      sd->cmd = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+				       stms_objcmd, (ClientData) sd,
+				       SDdeleteCmd);
 
       Tcl_SetObjResult (interp, fqn);
       Tcl_DecrRefCount (fqn);

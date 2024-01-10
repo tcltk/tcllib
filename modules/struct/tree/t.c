@@ -62,9 +62,8 @@ t_structure (T* t)
 int
 t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 {
-    int	      listc;
+    Tcl_Size  listc, nodes;
     Tcl_Obj** listv;
-    int	      nodes;
 
     int	      root   = -1;
     int*      parent = NULL;
@@ -98,9 +97,8 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
      */
 
     {
-	int	  ac;
+	Tcl_Size  ac, i, j;
 	Tcl_Obj** av;
-	int i, j;
 
 	for (i = 0, j = 0;
 	     i < listc;
@@ -127,7 +125,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
      */
 
     {
-	int i, j;
+	Tcl_Size i, j;
 	CONST char* parent;
 
 	for (i = 0, j = 0, root = -1;
@@ -167,7 +165,8 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
      */
 
     {
-	int i, j, index, res;
+	int      res;
+	Tcl_Size i, j, index;
 	Tcl_Obj* p;
 
 	parent = NALLOC (nodes, int);
@@ -187,7 +186,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 		continue;
 
 	    p	= listv [PARENT(i)];
-	    res = Tcl_GetIntFromObj (interp, p, &index);
+	    res = Tcl_GetSizeIntFromObj (interp, p, &index);
 
 	    if (
 		(res != TCL_OK) ||
@@ -228,13 +227,12 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
      */
 
     {
-	int* tag = NALLOC (nodes, int);
-	int  i;
-	int  changed = 1; /* Flag that last iteration tagged new nodes */
-	int  done    = 0; /* #nodes tagged */
+	int*     tag = NALLOC (nodes, int);
+	Tcl_Size i;
+	int      changed = 1; /* Flag that last iteration tagged new nodes */
+	int      done    = 0; /* #nodes tagged */
 
 	for (i = 0; i < nodes; i++) {
-
 	    ASSERT_BOUNDS (i, nodes);
 	    tag [i] = 0;
 	}
@@ -278,7 +276,8 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
      */
 
     {
-	int	      i, j, new;
+	Tcl_Size      i, j;
+	int           new;
 	Tcl_HashTable nx;
 
 	Tcl_InitHashTable (&nx, TCL_STRING_KEYS);
@@ -313,7 +312,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
      */
 
     {
-	int i, j;
+	Tcl_Size i, j;
 	TN** nv = NALLOC (nodes, TN*);
 	TN* n;
 	TN* p;

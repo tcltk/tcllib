@@ -8,33 +8,34 @@
 /* .................................................. */
 
 static int walkdfspre  (Tcl_Interp* interp, GN* n, int dir,
-			Tcl_HashTable* v, int cc, Tcl_Obj** ev,
+			Tcl_HashTable* v, Tcl_Size cc, Tcl_Obj** ev,
 			Tcl_Obj* action);
 static int walkdfspost (Tcl_Interp* interp, GN* n, int dir,
-			Tcl_HashTable* v, int cc, Tcl_Obj** ev,
+			Tcl_HashTable* v, Tcl_Size cc, Tcl_Obj** ev,
 			Tcl_Obj* action);
 static int walkdfsboth (Tcl_Interp* interp, GN* n, int dir,
-			Tcl_HashTable* v, int cc, Tcl_Obj** ev,
+			Tcl_HashTable* v, Tcl_Size cc, Tcl_Obj** ev,
 			Tcl_Obj* enter, Tcl_Obj* leave);
 static int walkbfspre  (Tcl_Interp* interp, GN* n, int dir,
-			Tcl_HashTable* v, int cc, Tcl_Obj** ev,
+			Tcl_HashTable* v, Tcl_Size cc, Tcl_Obj** ev,
 			Tcl_Obj* action);
 
 static int walk_invoke (Tcl_Interp* interp, GN* n,
-			int cc, Tcl_Obj** ev, Tcl_Obj* action);
+			Tcl_Size cc, Tcl_Obj** ev, Tcl_Obj* action);
 
 static int walk_neighbours (GN* n, Tcl_HashTable* v, int dir,
-			    int* nc, GN*** nv);
+			    Tcl_Size* nc, GN*** nv);
 
 /* .................................................. */
 
 int
 g_walkoptions (Tcl_Interp* interp,
-	       int objc, Tcl_Obj* const* objv,
+	       Tcl_Size objc, Tcl_Obj* const* objv,
 	       int* type, int* order, int* dir,
-	       int* cc, Tcl_Obj*** cv)
+	       Tcl_Size* cc, Tcl_Obj*** cv)
 {
-    int       xcc, xtype, xorder, xdir, i;
+    int       xtype, xorder, xdir;
+    Tcl_Size  xcc, i;
     Tcl_Obj** xcv;
     Tcl_Obj*  wtype  = NULL;
     Tcl_Obj*  worder = NULL;
@@ -168,9 +169,10 @@ g_walkoptions (Tcl_Interp* interp,
 int
 g_walk (Tcl_Interp* interp, Tcl_Obj* go, GN* n,
 	int type, int order, int dir,
-	int cc, Tcl_Obj** cv)
+	Tcl_Size cc, Tcl_Obj** cv)
 {
-    int       ec, res, i;
+    int       res;
+    Tcl_Size  ec, i;
     Tcl_Obj** ev;
     Tcl_Obj*  la = NULL;
     Tcl_Obj*  lb = NULL;
@@ -262,7 +264,7 @@ g_walk (Tcl_Interp* interp, Tcl_Obj* go, GN* n,
 
 int
 walk_invoke (Tcl_Interp* interp, GN* n,
-	       int cc, Tcl_Obj** ev, Tcl_Obj* action)
+	     Tcl_Size cc, Tcl_Obj** ev, Tcl_Obj* action)
 {
     int res;
 
@@ -290,12 +292,12 @@ walk_invoke (Tcl_Interp* interp, GN* n,
 
 static int
 walk_neighbours (GN* n, Tcl_HashTable* vn, int dir,
-		 int* nc, GN*** nv)
+		 Tcl_Size* nc, GN*** nv)
 {
-    GLA* neigh;
-    GL*  il;
-    int  c, i;
-    GN** v;
+    GLA*     neigh;
+    GL*      il;
+    Tcl_Size c, i;
+    GN**     v;
 
     if (dir == WD_BACKWARD) {
 	neigh = &n->in;
@@ -353,7 +355,7 @@ walk_neighbours (GN* n, Tcl_HashTable* vn, int dir,
 
 static int
 walkdfspre (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
-	      int cc, Tcl_Obj** ev, Tcl_Obj* action)
+	    Tcl_Size cc, Tcl_Obj** ev, Tcl_Obj* action)
 {
     /* ok	- next node
      * error	- abort walking
@@ -362,8 +364,9 @@ walkdfspre (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
      * return	- abort walking
      */
 
-    int  nc, res, new;
-    GN** nv;
+    int      res, new;
+    Tcl_Size nc;
+    GN**     nv;
 
     /* Current node before neighbours, action is 'enter'. */
 
@@ -377,7 +380,7 @@ walkdfspre (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
     walk_neighbours  (n, v, dir, &nc, &nv);
 
     if (nc) {
-	int i;
+	Tcl_Size i;
 	for (i = 0; i < nc; i++) {
 	    /* Skip nodes already visited deeper in the recursion */
 	    if (Tcl_FindHashEntry (v, (char*) nv[i])) continue;
@@ -402,10 +405,11 @@ walkdfspre (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
 
 static int
 walkdfspost (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
-	      int cc, Tcl_Obj** ev, Tcl_Obj* action)
+	     Tcl_Size cc, Tcl_Obj** ev, Tcl_Obj* action)
 {
-    int  nc, res, new;
-    GN** nv;
+    int res, new;
+    Tcl_Size nc;
+    GN**     nv;
 
     /* Current node after neighbours, action is 'leave'. */
 
@@ -413,7 +417,7 @@ walkdfspost (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
     walk_neighbours  (n, v, dir, &nc, &nv);
 
     if (nc) {
-	int i;
+	Tcl_Size i;
 	for (i = 0; i < nc; i++) {
 	    /* Skip nodes already visited deeper in the recursion */
 	    if (Tcl_FindHashEntry (v, (char*) nv[i])) continue;
@@ -444,7 +448,7 @@ walkdfspost (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
 
 static int
 walkdfsboth (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
-	       int cc, Tcl_Obj** ev, Tcl_Obj* enter, Tcl_Obj* leave)
+	     Tcl_Size cc, Tcl_Obj** ev, Tcl_Obj* enter, Tcl_Obj* leave)
 {
     /* ok	- next node
      * error	- abort walking
@@ -453,8 +457,9 @@ walkdfsboth (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
      * return	- abort walking
      */
 
-    int  nc, res, new;
-    GN** nv;
+    int      res, new;
+    Tcl_Size nc;
+    GN**     nv;
 
     /* Current node before and after neighbours, action is 'enter' & 'leave'. */
 
@@ -468,7 +473,7 @@ walkdfsboth (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
     walk_neighbours  (n, v, dir, &nc, &nv);
 
     if (nc) {
-	int i;
+	Tcl_Size i;
 	for (i = 0; i < nc; i++) {
 	    /* Skip nodes already visited deeper in the recursion */
 	    if (Tcl_FindHashEntry (v, (char*) nv[i])) continue;
@@ -499,7 +504,7 @@ walkdfsboth (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
 
 static int
 walkbfspre (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
-	      int cc, Tcl_Obj** ev, Tcl_Obj* action)
+	    Tcl_Size cc, Tcl_Obj** ev, Tcl_Obj* action)
 {
     /* ok	- next node
      * error	- abort walking
@@ -508,9 +513,10 @@ walkbfspre (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
      * return	- abort walking
      */
 
-    int  nc, res, new;
-    GN** nv;
-    NLQ  q;
+    int      res, new;
+    Tcl_Size nc;
+    GN**     nv;
+    NLQ      q;
 
     g_nlq_init   (&q);
     g_nlq_append (&q, n);
@@ -533,7 +539,7 @@ walkbfspre (Tcl_Interp* interp, GN* n, int dir, Tcl_HashTable* v,
 	walk_neighbours  (n, v, dir, &nc, &nv);
 
 	if (nc) {
-	    int i;
+	    Tcl_Size i;
 	    for (i = 0; i < nc; i++) {
 		g_nlq_append (&q, nv [i]);
 	    }

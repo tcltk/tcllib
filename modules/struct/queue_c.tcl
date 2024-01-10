@@ -137,9 +137,9 @@ namespace eval ::struct {
       }
 
       qd = qu_new();
-      qd->cmd = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-				      qums_objcmd, (ClientData) qd,
-				      QDdeleteCmd);
+      qd->cmd = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+				       qums_objcmd, (ClientData) qd,
+				       QDdeleteCmd);
 
       Tcl_SetObjResult (interp, fqn);
       Tcl_DecrRefCount (fqn);

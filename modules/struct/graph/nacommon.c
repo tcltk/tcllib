@@ -109,7 +109,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 GN_GET_GC* gf, G* g)
 {
     const char* ky = Tcl_GetString (key);
-    int         listc;
+    Tcl_Size    listc;
     Tcl_Obj**   listv;
 
     /* Allocate result space, max needed: All nodes */
@@ -123,7 +123,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 * attribute.
 	 */
 
-	int	       i;
+	Tcl_Size       i;
 	GC*	       iter;
 	const char*    pattern = Tcl_GetString (detail);
 	Tcl_HashEntry* he;
@@ -161,9 +161,8 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 */
 
 	GC*	       iter;
-	int	       ec;
+	Tcl_Size       ec, i, j;
 	Tcl_Obj**      ev;
-	int	       i, j;
 	Tcl_HashEntry* he;
 
 	if (Tcl_ListObjGetElements (interp, detail, &ec, &ev) != TCL_OK) {
@@ -202,7 +201,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 * attribute.
 	 */
 
-	int	       i;
+	Tcl_Size       i;
 	GC*	       iter;
 	const char*    pattern = Tcl_GetString (detail);
 	Tcl_HashEntry* he;
@@ -237,7 +236,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 * nodes not having the attribute.
 	 */
 
-	int	       i;
+	Tcl_Size       i;
 	GC*	       iter;
 	Tcl_HashEntry* he;
 

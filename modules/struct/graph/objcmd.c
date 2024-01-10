@@ -23,7 +23,7 @@
  */
 
 int
-g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+g_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     G*	g = (G*) cd;
     int m;

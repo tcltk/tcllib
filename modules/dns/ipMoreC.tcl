@@ -29,8 +29,9 @@ critcl::ccode {
 }
 
 critcl::ccommand prefixToNativec {clientData interp objc objv} {
-    int elemLen, maskLen, ipLen, mask;
-	int rval,convertListc,i;
+	int maskLen, ipLen, mask;
+	int rval;
+	Tcl_Size elemLen, convertListc, i;
 	Tcl_Obj **convertListv;
 	Tcl_Obj *listPtr,*returnPtr, *addrList;
 	char *stringIP, *slashPos, *stringMask;
@@ -49,7 +50,7 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 
 
 	if (Tcl_ListObjGetElements (interp, objv[1],
-								&convertListc, &convertListv) != TCL_OK) {
+		&convertListc, &convertListv) != TCL_OK) {
 		return TCL_ERROR;
 	}
 	returnPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
@@ -123,10 +124,11 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
         int i;
         unsigned int ipaddr,ipMask, mask1mask2;
         unsigned int ipaddr2,ipMask2;
-        int compareListc,comparePrefixMaskc;
+        Tcl_Size compareListc, comparePrefixMaskc;
         int allSet,inlineSet,index;
         Tcl_Obj **compareListv,**comparePrefixMaskv, *listPtr;
-        Tcl_Obj *result;
+	Tcl_Obj *result;
+    
     static CONST char *options[] = {
                 "-all",     "-inline", "-ipv4", NULL
     };

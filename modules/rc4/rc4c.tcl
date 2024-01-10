@@ -10,8 +10,6 @@
 # To build this for tcllib use sak.tcl:
 #  tclsh sak.tcl critcl
 # generates a tcllibc module.
-#
-# $Id: rc4c.tcl,v 1.4 2009/05/07 00:14:02 patthoyts Exp $
 
 package require critcl
 # @sak notprovided rc4c
@@ -21,6 +19,7 @@ namespace eval ::rc4 {
 
     critcl::ccode {
         #include <string.h>
+        #include <stdarg.h>
 
         typedef struct RC4_CTX {
             unsigned char x;
@@ -87,7 +86,7 @@ namespace eval ::rc4 {
 #elif defined(_MSC_VER)
         __inline
 #endif
-        void swap (unsigned char *lhs, unsigned char *rhs) {
+        static void swap (unsigned char *lhs, unsigned char *rhs) {
             unsigned char t = *lhs;
             *lhs = *rhs;
             *rhs = t;
@@ -98,7 +97,7 @@ namespace eval ::rc4 {
         RC4_CTX *ctx;
         Tcl_Obj *obj;
         const unsigned char *k;
-        int n = 0, i = 0, j = 0, keylen;
+        Tcl_Size n = 0, i = 0, j = 0, keylen;
 
         if (objc != 2) {
             Tcl_WrongNumArgs(interp, 1, objv, "keystring");
@@ -132,7 +131,7 @@ namespace eval ::rc4 {
         Tcl_Obj *resObj = NULL;
         RC4_CTX *ctx = NULL;
         unsigned char *data, *res, x, y;
-        int size, n, i;
+        Tcl_Size size, n, i;
 
         if (objc != 3) {
             Tcl_WrongNumArgs(interp, 1, objv, "key data");

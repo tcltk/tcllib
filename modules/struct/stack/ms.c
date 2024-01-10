@@ -26,7 +26,7 @@
  */
 
 int
-stms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+stms_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     S*  s = (S*) cd;
     int m;

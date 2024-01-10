@@ -24,7 +24,7 @@ namespace eval ::base32 {
        */
 
       unsigned char* buf;
-      int           nbuf;
+      Tcl_Size       nbuf;
 
       unsigned char* out;
       unsigned char* at;
@@ -144,7 +144,7 @@ namespace eval ::base32 {
        */
 
       unsigned char* buf;
-      int           nbuf;
+      Tcl_Size       nbuf;
 
       unsigned char* out;
       unsigned char* at;

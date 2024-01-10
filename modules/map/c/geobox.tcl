@@ -26,7 +26,7 @@ critcl::ccode {
     } geobox;
 
     static int geobox_unbox (Tcl_Interp* interp, Tcl_Obj* obj, geobox* g) {
-	int	  lc;
+	Tcl_Size  lc;
 	Tcl_Obj** lv;
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
