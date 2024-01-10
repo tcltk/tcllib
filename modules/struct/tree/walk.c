@@ -32,11 +32,11 @@ static int t_walkbfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 
 int
 t_walkoptions (Tcl_Interp* interp, int n,
-	       int objc, Tcl_Obj* CONST* objv,
+	       Tcl_Size objc, Tcl_Obj* CONST* objv,
 	       int* type, int* order, int* remainder,
 	       char* usage)
 {
-    int i;
+    Tcl_Size i;
     Tcl_Obj* otype  = NULL;
     Tcl_Obj* oorder = NULL;
 
@@ -293,9 +293,8 @@ t_walkdfspre (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	 * child will be visited multiple times.
 	 */
 
-	int i;
-	int  nc = tdn->nchildren;
-	TN** nv = NALLOC (nc,TN*);
+	Tcl_Size i, nc = tdn->nchildren;
+	TN**        nv = NALLOC (nc,TN*);
 	memcpy (nv, tdn->child, nc*sizeof(TN*));
 
 	for (i = 0; i < nc; i++) {
@@ -335,10 +334,8 @@ t_walkdfspost (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	 * child will be visited multiple times.
 	 */
 
-	int i;
-
-	int  nc = tdn->nchildren;
-	TN** nv = NALLOC (nc,TN*);
+	Tcl_Size i, nc = tdn->nchildren;
+	TN**        nv = NALLOC (nc,TN*);
 	memcpy (nv, tdn->child, nc*sizeof(TN*));
 
 	for (i = 0; i < nc; i++) {
@@ -398,9 +395,8 @@ t_walkdfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	}
 
 	if (tdn->nchildren) {
-	    int i;
-	    int  nc = tdn->nchildren;
-	    TN** nv = NALLOC (nc,TN*);
+	    Tcl_Size i, nc = tdn->nchildren;
+	    TN**        nv = NALLOC (nc,TN*);
 	    memcpy (nv, tdn->child, nc*sizeof(TN*));
 
 	    for (i = 0; i < nc; i++) {
@@ -573,7 +569,7 @@ t_walkbfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	}
 
 	if (n->nchildren) {
-	    int i;
+	    Tcl_Size i;
 	    for (i = 0; i < n->nchildren; i++) {
 		nlq_append (&q,	 n->child [i]);
 		nlq_push   (&qb, n->child [i]);
@@ -634,7 +630,7 @@ t_walkbfspre (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	}
 
 	if (n->nchildren) {
-	    int i;
+	    Tcl_Size i;
 	    for (i = 0; i < n->nchildren; i++) {
 		nlq_append (&q, n->child [i]);
 	    }
@@ -665,7 +661,7 @@ t_walkbfspost (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	if (!n) break;
 
 	if (n->nchildren) {
-	    int i;
+	    Tcl_Size i;
 	    for (i = 0; i < n->nchildren; i++) {
 		nlq_append (&q,	 n->child [i]);
 		nlq_push   (&qb, n->child [i]);

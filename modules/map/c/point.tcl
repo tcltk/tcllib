@@ -26,7 +26,7 @@ critcl::ccode {
     } point;
 
     static int point_unbox (Tcl_Interp* interp, Tcl_Obj* obj, point* p) {
-	int	  lc;
+	Tcl_Size  lc;
 	Tcl_Obj** lv;
 
 	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;

@@ -8,8 +8,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: tree_c.tcl,v 1.6 2008/03/25 07:15:34 andreas_kupries Exp $
 
 package require critcl
 # @sak notprovided struct_treec
@@ -188,9 +186,9 @@ namespace eval ::struct {
         td = t_new ();
       }
 
-      td->cmd = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-                                      tms_objcmd, (ClientData) td,
-                                      TDdeleteCmd);
+      td->cmd = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+				       tms_objcmd, (ClientData) td,
+				       TDdeleteCmd);
 
       Tcl_SetObjResult (interp, fqn);
       Tcl_DecrRefCount (fqn);

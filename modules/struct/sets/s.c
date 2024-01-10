@@ -59,7 +59,7 @@ s_ltype (void)
 {
     static Tcl_ObjType* l;
     if (l == NULL) {
-	l = Tcl_GetObjType ("list");
+	l = (Tcl_ObjType*) Tcl_GetObjType ("list");
     }
     return l;
 }
@@ -165,10 +165,11 @@ from_any (Tcl_Interp* ip, Tcl_Obj* obj)
     /* Go through an intermediate list rep.
      */
 
-    int          lc, i, new;
+    int          new;
+    Tcl_Size     lc, i;
     Tcl_Obj**    lv;
-    Tcl_ObjType* oldTypePtr;
-    SPtr         s;
+    const Tcl_ObjType* oldTypePtr;
+    SPtr               s;
 
     if (Tcl_ListObjGetElements (ip, obj, &lc, &lv) != TCL_OK) {
 	return TCL_ERROR;
@@ -225,7 +226,7 @@ from_any (Tcl_Interp* ip, Tcl_Obj* obj)
 
 /* .................................................. */
 
-int
+Tcl_Size
 s_size (SPtr a)
 {
     return a->el.numEntries;

@@ -5,7 +5,7 @@
 #ifndef _G_ARC_H
 #define _G_ARC_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 #include <ds.h>
 
 void ga_shimmer (Tcl_Obj* o, GA* a);
@@ -27,7 +27,7 @@ void ga_mv_dst (GA* a, GN* ndst);
 void ga_err_duplicate (Tcl_Interp* interp, Tcl_Obj* a, Tcl_Obj* g);
 void ga_err_missing   (Tcl_Interp* interp, Tcl_Obj* a, Tcl_Obj* g);
 
-Tcl_Obj* ga_serial (GA* a, Tcl_Obj* empty, int nodeId);
+Tcl_Obj* ga_serial (GA* a, Tcl_Obj* empty, Tcl_Size nodeId);
 
 #endif /* _G_ARC_H */
 

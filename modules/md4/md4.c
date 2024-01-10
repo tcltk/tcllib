@@ -99,11 +99,11 @@ MD4_CTX *context;                                        /* context */
      context.
  */
 void MD4Update (context, input, inputLen)
-MD4_CTX *context;                                        /* context */
-unsigned char *input;                                /* input block */
-unsigned int inputLen;                     /* length of input block */
+     MD4_CTX*       context;                      /* context */
+     unsigned char* input;                        /* input block */
+     Tcl_Size       inputLen;                     /* length of input block */
 {
-  unsigned int i, index, partLen;
+  Tcl_Size i, index, partLen;
 
   /* Compute number of bytes mod 64 */
   index = (unsigned int)((context->count[0] >> 3) & 0x3F);

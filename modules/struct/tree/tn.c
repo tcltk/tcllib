@@ -9,7 +9,7 @@
 /* .................................................. */
 
 static void extend_children  (TNPtr n);
-static int  fill_descendants (TNPtr n, int lc, Tcl_Obj** lv, int at);
+static int  fill_descendants (TNPtr n, Tcl_Size lc, Tcl_Obj** lv, Tcl_Size at);
 
 /* .................................................. */
 
@@ -74,7 +74,7 @@ tn_delete (TNPtr n)
     Tcl_DeleteHashEntry (n->he);   n->he   = NULL;
 
     if (n->child) {
-	int i;
+	Tcl_Size i;
 
 	for (i = 0; i < n->nchildren; i++) {
 	    ASSERT_BOUNDS (i, n->nchildren);
@@ -192,7 +192,7 @@ tn_notleaf (TNPtr n)
 /* .................................................. */
 
 void
-tn_structure (TNPtr n, int depth)
+tn_structure (TNPtr n, Tcl_Size depth)
 {
     n->depth = depth;
     n->desc  = n->nchildren; /* #direct children */
@@ -200,7 +200,7 @@ tn_structure (TNPtr n, int depth)
     depth ++;
 
     if (n->nchildren) {
-	int i, maxh, h;
+	Tcl_Size i, maxh, h;
 
 	for (i = 0, maxh = -1;
 	     i < n->nchildren;
@@ -243,7 +243,7 @@ tn_detach (TNPtr n)
      * does retain its children. After this function is called the node
      * and its children are ready for tn_delete'. Or reinsertion in a
      * different place.
-   */
+     */
 
     TNPtr p = n->parent;
 
@@ -263,15 +263,15 @@ tn_detach (TNPtr n)
 
     } else {
 	/* The node is somewhere in the array of children of its
-     * parent. We know the exact location, through 'index'. All
-     * siblings to the right are moved down one slot, and their index
-     * is adjusted in the same way. This is an O(n)
-     * operation. Afterward we adjust the left/right references of the
-     * node's siblings, if there are any, and reset the node's sibling
-     * references as well.
-     */
+	 * parent. We know the exact location, through 'index'. All
+	 * siblings to the right are moved down one slot, and their index
+	 * is adjusted in the same way. This is an O(n)
+	 * operation. Afterward we adjust the left/right references of the
+	 * node's siblings, if there are any, and reset the node's sibling
+	 * references as well.
+	 */
 
-	int i;
+	Tcl_Size i;
 	for (i = n->index; i < (p->nchildren-1); i++) {
 
 	    ASSERT_BOUNDS (i,	p->nchildren);
@@ -284,7 +284,7 @@ tn_detach (TNPtr n)
 	/* Note regarding the decrement: As the node was _not_ the last
 	 * child we know that the condition 'nchildren > 0' still holds, and
 	 * that there is no need to free the 'child' array.
-     */
+	 */
 
 	if (n->left) {
 	    n->left->right = n->right;
@@ -302,7 +302,7 @@ tn_detach (TNPtr n)
 }
 
 TNPtr*
-tn_detachmany (TNPtr n, int len)
+tn_detachmany (TNPtr n, Tcl_Size len)
 {
     /* Detaches the node n and its 'len -1' right siblings from the tree
      * by removing them from their parent node. In toto 'len' nodes are
@@ -311,14 +311,14 @@ tn_detachmany (TNPtr n, int len)
      * retain their children. After this function is called thes node
      * and their children are ready for tn_delete'. Or reinsertion in a
      * different place.
-   *
-   * The operation fails with a panic if there are less children we
-   * can cut than requested. It also panics when trying to cut
-   * nothing.
-   *
-   * Note: This function does not reset the parent reference in the
-   * cut nodes.
-   */
+     *
+     * The operation fails with a panic if there are less children we
+     * can cut than requested. It also panics when trying to cut
+     * nothing.
+     *
+     * Note: This function does not reset the parent reference in the
+     * cut nodes.
+     */
 
     TNPtr* ch;
     TNPtr  p   = n->parent;
@@ -345,51 +345,51 @@ tn_detachmany (TNPtr n, int len)
 
     } else {
 	/* Copies the cut nodes into a result array. Shifts the right
-     * siblings down, if there are any.
-     */
+	 * siblings down, if there are any.
+	 */
 
-	int i, k;
+	Tcl_Size i, k;
 
 	ch = NALLOC (len, TNPtr);
 
-    /* Examples. We always have nchildren = 10.
-     *
-     * _______________________________
-     * at  = 2, len = 3.
-     * 
-     * 01 234 56789 i = 0, k = 2
-     *	  012	    i = 3, k = 5
-     *
-     * 01 234 56789 i = 2, k = 5
-     * 01 567 89    i = 7, k = 10
-     *
-     * _______________________________
-     * at  = 7, len = 3.
-     * 
-     * 0123456 789 i = 0, k = 7
-     *	       012 i = 3, k = 10
-     *
-     * 0123456 789 i = 7, k = 10
-     * 0123456	   nothing
-     *
-     * _______________________________
-     * at  = 6, len = 3.
-     * 
-     * 012345 678 9 i = 0, k = 6
-     *	      012   i = 3, k = 9
-     *
-     * 012345 678 9 i = 6, k = 9
-     * 012345 9	    i = 7, k = 10
-     *
-     * _______________________________
-     * at  = 6, len = 1.
-     * 
-     * 012345 6 789 i = 0, k = 6
-     *	      0	    i = 1, k = 7
-     *
-     * 012345 6 789 i = 6, k = 7
-     * 012345 7 89  i = 9, k = 10
-     */
+	/* Examples. We always have nchildren = 10.
+	 *
+	 * _______________________________
+	 * at  = 2, len = 3.
+	 * 
+	 * 01 234 56789 i = 0, k = 2
+	 *	  012	    i = 3, k = 5
+	 *
+	 * 01 234 56789 i = 2, k = 5
+	 * 01 567 89    i = 7, k = 10
+	 *
+	 * _______________________________
+	 * at  = 7, len = 3.
+	 * 
+	 * 0123456 789 i = 0, k = 7
+	 *	       012 i = 3, k = 10
+	 *
+	 * 0123456 789 i = 7, k = 10
+	 * 0123456	   nothing
+	 *
+	 * _______________________________
+	 * at  = 6, len = 3.
+	 * 
+	 * 012345 678 9 i = 0, k = 6
+	 *	      012   i = 3, k = 9
+	 *
+	 * 012345 678 9 i = 6, k = 9
+	 * 012345 9	    i = 7, k = 10
+	 *
+	 * _______________________________
+	 * at  = 6, len = 1.
+	 * 
+	 * 012345 6 789 i = 0, k = 6
+	 *	      0	    i = 1, k = 7
+	 *
+	 * 012345 6 789 i = 6, k = 7
+	 * 012345 7 89  i = 9, k = 10
+	 */
 
 	for (i = 0, k = at; i < len; i++, k++) {
 
@@ -426,7 +426,7 @@ tn_detachmany (TNPtr n, int len)
 }
 
 TNPtr*
-tn_detachchildren (TNPtr n, int* nc)
+tn_detachchildren (TNPtr n, Tcl_Size* nc)
 {
     TNPtr* children = n->child;
 
@@ -453,15 +453,15 @@ tn_append (TNPtr p, TNPtr n)
 
     tn_notleaf (p); 
 
-  /* Allocate/Extend child array as needed */
+    /* Allocate/Extend child array as needed */
 
     p->nchildren ++;
     extend_children (p);
 
-  /* Link the node into the parent and to its left sibling, if
-   * any. This overwrites any existing relationships. Make sure
-   * that the node n is either new or was cut before.
-   */
+    /* Link the node into the parent and to its left sibling, if
+     * any. This overwrites any existing relationships. Make sure
+     * that the node n is either new or was cut before.
+     */
 
     ASSERT_BOUNDS (at, p->nchildren);
 
@@ -485,15 +485,12 @@ tn_append (TNPtr p, TNPtr n)
 }
 
 void
-tn_appendmany (TNPtr p, int nc, TNPtr* nv)
+tn_appendmany (TNPtr p, Tcl_Size nc, TNPtr* nv)
 {
-    int i;
-
     /* Appending is O(1) */
-
     /* The node chosen as parent cannot be a leaf (anymore) */
 
-    int at = p->nchildren;
+    Tcl_Size i, at = p->nchildren;
 
     tn_notleaf (p); 
 
@@ -535,9 +532,9 @@ tn_appendmany (TNPtr p, int nc, TNPtr* nv)
 /* .................................................. */
 
 void
-tn_insert (TNPtr p, int at, TNPtr n)
+tn_insert (TNPtr p, Tcl_Size at, TNPtr n)
 {
-    int i, k;
+    Tcl_Size i, k;
 
     if (at >= p->nchildren) {
 	tn_append (p, n);
@@ -604,9 +601,10 @@ tn_insert (TNPtr p, int at, TNPtr n)
 }
 
 void
-tn_insertmany (TNPtr p, int at, int nc, TNPtr* nv)
+tn_insertmany (TNPtr p, Tcl_Size at, Tcl_Size nc, TNPtr* nv)
 {
-    int i, k;
+    Tcl_Size i, k;
+
     if (at >= p->nchildren) {
 	tn_appendmany (p, nc, nv);
 	return;
@@ -682,8 +680,8 @@ tn_cut (TNPtr n)
     TNPtr p  = n->parent; /* Remember the location of n in its */
     int at = n->index;	/* parent, this is the point there its
 			 * children are re-inserted */
-    int	 nc;
-    TNPtr* nv;
+    Tcl_Size nc;
+    TNPtr*   nv;
 
     nv = tn_detachchildren (n, &nc);
     tn_detach (n);
@@ -727,7 +725,7 @@ tn_dup (TPtr dst, TNPtr src)
     }
 
     if (src->nchildren) {
-	int i;
+	Tcl_Size i;
 
 	dstn->child	  = NALLOC (src->nchildren, TNPtr);
 	dstn->maxchildren = src->nchildren;
@@ -753,8 +751,8 @@ tn_set_attr (TNPtr n, Tcl_Interp* interp, Tcl_Obj* dict)
     Tcl_HashEntry* he;
     CONST char*	   key;
     Tcl_Obj*	   val;
-    int		   new, i;
-    int		   listc;
+    int		   new;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
 
     if (Tcl_ListObjGetElements (interp, dict, &listc, &listv) != TCL_OK) {
@@ -797,7 +795,7 @@ tn_extend_attr (TNPtr n)
 
 /* .................................................. */
 
-int
+Tcl_Size
 tn_depth (TNPtr n)
 {
     if (!n->tree->structure) {
@@ -806,7 +804,7 @@ tn_depth (TNPtr n)
     return n->depth;
 }
 
-int
+Tcl_Size
 tn_height (TNPtr n)
 {
     if (!n->tree->structure) {
@@ -815,7 +813,7 @@ tn_height (TNPtr n)
     return n->height;
 }
 
-int
+Tcl_Size
 tn_ndescendants (TNPtr n)
 {
     if (n == n->tree->root) {
@@ -841,10 +839,10 @@ tn_ndescendants (TNPtr n)
 }
 
 Tcl_Obj**
-tn_getdescendants (TNPtr n, int* nc)
+tn_getdescendants (TNPtr n, Tcl_Size* nc)
 {
     int	      end;
-    int	      lc = tn_ndescendants (n);
+    Tcl_Size  lc = tn_ndescendants (n);
     Tcl_Obj** lv;
 
     *nc = lc;
@@ -861,13 +859,13 @@ tn_getdescendants (TNPtr n, int* nc)
 }
 
 Tcl_Obj**
-tn_getchildren (TNPtr n, int* nc)
+tn_getchildren (TNPtr n, Tcl_Size* nc)
 {
     if (!n->nchildren) {
 	*nc = 0;
 	return NULL;
     } else {
-	int	  i;
+	Tcl_Size  i;
 	Tcl_Obj** lv;
 
 	*nc = n->nchildren;
@@ -885,12 +883,11 @@ tn_getchildren (TNPtr n, int* nc)
 }
 
 int
-tn_filternodes (int* nc,   Tcl_Obj** nv,
-		int  cmdc, Tcl_Obj** cmdv,
-		Tcl_Obj* tree, Tcl_Interp* interp)
+tn_filternodes (Tcl_Size* nc,   Tcl_Obj** nv,
+		Tcl_Size  cmdc, Tcl_Obj** cmdv,
+		Tcl_Obj*  tree, Tcl_Interp* interp)
 {
-    int i;
-    int	      ec;
+    Tcl_Size  ec, i;
     Tcl_Obj** ev;
 
     if (cmdc && (*nc > 0)) {
@@ -898,9 +895,9 @@ tn_filternodes (int* nc,   Tcl_Obj** nv,
 	 * Keep only the nodes passing the filter in the list.
 	 */
 
-	int	  lc = *nc;
-
-	int src, dst, res, flag;
+	Tcl_Size lc = *nc;
+	Tcl_Size src, dst;
+	int      res, flag;
 
 	/* Set up the command vector for the callback.
 	 * Two placeholders for tree and node arguments.
@@ -1055,9 +1052,9 @@ tn_get_attr (TNPtr tdn, Tcl_Obj* empty)
 }
 
 int
-tn_serialize (TNPtr tdn, int listc, Tcl_Obj** listv, int at, int parent, Tcl_Obj* empty)
+tn_serialize (TNPtr tdn, Tcl_Size listc, Tcl_Obj** listv, Tcl_Size at, Tcl_Size parent, Tcl_Obj* empty)
 {
-    int self = at;
+    Tcl_Size self = at;
 
     ASSERT_BOUNDS (at+0, listc);
     ASSERT_BOUNDS (at+1, listc);
@@ -1068,7 +1065,7 @@ tn_serialize (TNPtr tdn, int listc, Tcl_Obj** listv, int at, int parent, Tcl_Obj
     listv [at++] = tn_get_attr (tdn, empty);
 
     if (tdn->nchildren) {
-	int i;
+	Tcl_Size i;
 	for (i = 0; i < tdn->nchildren; i++) {
 	    at = tn_serialize (tdn->child [i], listc, listv, at, self, empty);
 	}
@@ -1077,12 +1074,13 @@ tn_serialize (TNPtr tdn, int listc, Tcl_Obj** listv, int at, int parent, Tcl_Obj
     return at;
 }
 
-/* .................................................. */static int
-fill_descendants (TNPtr n, int lc, Tcl_Obj** lv, int at)
+/* .................................................. */
+static int
+fill_descendants (TNPtr n, Tcl_Size lc, Tcl_Obj** lv, Tcl_Size at)
 {
     /* The descendants of the root are simply all nodes except the root
      * itself. That is easy to retrieve.
-   */
+     */
 
     if (n == n->tree->root) {
 	TNPtr iter;
@@ -1100,8 +1098,8 @@ fill_descendants (TNPtr n, int lc, Tcl_Obj** lv, int at)
 	    at++;
 	}
     } else if (n->child) {
-	int   i;
-	TNPtr c;
+	Tcl_Size i;
+	TNPtr    c;
 
 	for (i = 0; i < n->nchildren; i++) {
 	    c = n->child [i];

@@ -16,7 +16,7 @@ typedef enum NA_MODE {
 
 typedef struct NA {
     NA_MODE   mode;
-    int       nc;
+    Tcl_Size  nc;
     Tcl_Obj** nv;
     Tcl_Obj*  key;
     Tcl_Obj*  value;
@@ -24,14 +24,14 @@ typedef struct NA {
 } NA;
 
 typedef struct NARES {
-    int       c;
+    Tcl_Size  c;
     Tcl_Obj** v;
 } NARES;
 
 /* .................................................. */
 
-static int  filter_setup  (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g);
-static int  filter_run    (NA* na, Tcl_Interp* interp, int nodes, GCC* gx, GN_GET_GC* gf,
+static int  filter_setup  (NA* na, Tcl_Interp* interp, Tcl_Size oc, Tcl_Obj* const* ov, G* g);
+static int  filter_run    (NA* na, Tcl_Interp* interp, Tcl_Size nodes, GCC* gx, GN_GET_GC* gf,
 			   Tcl_Obj* go, G* g);
 static void filter_none   (Tcl_Interp* interp, GCC* gx, NARES* l);
 static void filter_kv     (Tcl_Interp* interp, GCC* gx, NARES* l,
@@ -41,24 +41,24 @@ static void filter_k      (Tcl_Interp* interp, GCC* gx, NARES* l,
 static int  filter_cmd    (Tcl_Interp* interp, GCC* gx, NARES* l,
 			   Tcl_Obj* cmd, Tcl_Obj* g);
 
-static void filter_mode_n (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_n_adj           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_n_emb           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_n_in            (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_n_inn           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_n_out           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_a (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_a_adj           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_a_emb           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_a_in            (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_a_inn           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
-static void filter_mode_a_out           (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_n (NA_MODE mode, GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_n_adj           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_n_emb           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_n_in            (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_n_inn           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_n_out           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_a (NA_MODE mode, GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_a_adj           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_a_emb           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_a_in            (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_a_inn           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
+static void filter_mode_a_out           (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g);
 
 /* .................................................. */
 
 int
 gc_filter (int nodes, Tcl_Interp* interp,
-	   int oc, Tcl_Obj* const* ov,
+	   Tcl_Size oc, Tcl_Obj* const* ov,
 	   GCC* gx, GN_GET_GC* gf, G* g)
 {
     NA na;
@@ -73,7 +73,7 @@ gc_filter (int nodes, Tcl_Interp* interp,
 /* .................................................. */
 
 static int
-filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
+filter_setup (NA* na, Tcl_Interp* interp, Tcl_Size oc, Tcl_Obj* const* ov, G* g)
 {
     /* Syntax: graph arcs                       | all arcs
      *         graph arcs -adj       NODE...    | arcs start|end in node in list
@@ -101,7 +101,7 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 	NA_INNER, -1,           NA_OUT, -1
     };
 
-    int             ac = oc;
+    Tcl_Size        ac = oc;
     Tcl_Obj* const* av = ov;
     int             r, seenodes;
 
@@ -208,7 +208,8 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 	 * remove duplicates in the same pass
 	 */
 
-	int i, j, new;
+	Tcl_Size i, j;
+	int      new;
 	Tcl_HashTable cn;
 	GN* n;
 
@@ -242,7 +243,7 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 /* .................................................. */
 
 static int
-filter_run (NA* na, Tcl_Interp* interp, int nodes, GCC* gx, GN_GET_GC* gf, Tcl_Obj* go, G* g)
+filter_run (NA* na, Tcl_Interp* interp, Tcl_Size nodes, GCC* gx, GN_GET_GC* gf, Tcl_Obj* go, G* g)
 {
     NARES l;
 
@@ -292,7 +293,7 @@ filter_run (NA* na, Tcl_Interp* interp, int nodes, GCC* gx, GN_GET_GC* gf, Tcl_O
 static void
 filter_none (Tcl_Interp* interp, GCC* gx, NARES* l)
 {
-    int i;
+    Tcl_Size i;
     GC* iter;
 
     for (i = 0, iter = gx->first;
@@ -309,7 +310,7 @@ filter_none (Tcl_Interp* interp, GCC* gx, NARES* l)
 /* .................................................. */
 
 static void
-filter_mode_a (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_a (NA_MODE mode, GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /*
      * NS = {node ...}, a set of nodes
@@ -338,7 +339,7 @@ filter_mode_a (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g
 /* .................................................. */
 
 static void
-filter_mode_a_adj (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_a_adj (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /* ARC/adj (NS) := ARC/in  (NS) + ARC/out (NS)
      * "Arcs touching the node set"
@@ -349,7 +350,8 @@ filter_mode_a_adj (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
      * that all arcs are in the result we stop immediately.
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     Tcl_HashTable ht;
     GN*           n;
@@ -395,7 +397,7 @@ filter_mode_a_adj (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_a_emb (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_a_emb (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /* ARC/emb (NS) := ARC/adj (NS) - ARC/inn (NS)
      *               = ARC/in  (NS) / ARc/out (NS)
@@ -408,7 +410,8 @@ filter_mode_a_emb (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
      * others.
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     Tcl_HashTable hti;
     Tcl_HashTable hto;
@@ -466,7 +469,7 @@ filter_mode_a_emb (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_a_in (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_a_in (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /* ARC/in  (NS) := { a | target(a) in NS }
      * "Arcs going into the node set"
@@ -474,7 +477,7 @@ filter_mode_a_in (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 
     /* Iterate over the nodes and collect all incoming arcs.  */
 
-    int i, j;
+    Tcl_Size i, j;
     GL* il;
     GN* n;
 
@@ -496,7 +499,7 @@ filter_mode_a_in (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_a_inn (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_a_inn (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /* ARC/inn (NS) := ARC/in  (NS) * ARC/out (NS)
      * "Arcs connecting nodes in the set"
@@ -508,7 +511,8 @@ filter_mode_a_inn (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
      * arcs, because then the intersection will remove nothing.
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     Tcl_HashTable ht;
     GN*           n;
@@ -546,7 +550,7 @@ filter_mode_a_inn (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_a_out (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_a_out (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /* ARC/out (NS) := { a | source(a) in NS }
      * "Arcs coming from the node set"
@@ -554,7 +558,7 @@ filter_mode_a_out (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 
     /* Iterate over the nodes and collect all outcoming arcs.  */
 
-    int i, j;
+    Tcl_Size i, j;
     GL* il;
     GN* n;
 
@@ -576,7 +580,7 @@ filter_mode_a_out (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_n (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_n (NA_MODE mode, GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /*
      * NODES/in  (NS) = { source(a) | a in ARC/in  (NS) }
@@ -598,7 +602,7 @@ filter_mode_n (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g
 /* .................................................. */
 
 static void
-filter_mode_n_adj (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_n_adj (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /*
      * NODES/adj (NS) = NODES/in (NS) + NODES/out (NS)
@@ -614,7 +618,8 @@ filter_mode_n_adj (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
      * immediately, it cannot get better.
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     Tcl_HashTable ht;
     GN*           n;
@@ -660,7 +665,7 @@ filter_mode_n_adj (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_n_emb (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_n_emb (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /*
      * NODES/emb (NS) = NODES/adj (NS) - NS
@@ -678,7 +683,8 @@ filter_mode_n_emb (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
      * table is used to skip over the nodes in the set itself.
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     Tcl_HashTable ht;
     Tcl_HashTable cn;
@@ -738,13 +744,14 @@ filter_mode_n_emb (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_n_in (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_n_in (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /*
      * NODES/in (NS) = { source(a) | a in ARC/in (NS) }
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     GN*           n;
     Tcl_HashTable ht;
@@ -776,7 +783,7 @@ filter_mode_n_in (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_n_inn (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_n_inn (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /*
      * NODES/inn (NS) = NODES/adj (NS) * NS
@@ -794,7 +801,8 @@ filter_mode_n_inn (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
      * table is used to skip over the nodes _not_ in the set itself.
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     Tcl_HashTable ht;
     Tcl_HashTable cn;
@@ -854,13 +862,14 @@ filter_mode_n_inn (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 /* .................................................. */
 
 static void
-filter_mode_n_out (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
+filter_mode_n_out (GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv, G* g)
 {
     /*
      * NODES/out (NS) = { target(a) | a in ARC/out (NS) }
      */
 
-    int           i, j, new;
+    int           new;
+    Tcl_Size      i, j;
     GL*           il;
     GN*           n;
     Tcl_HashTable ht;
@@ -903,9 +912,9 @@ filter_kv (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* 
     Tcl_HashEntry* he;
     const char*    key;
     const char*    value;
-    int            vlen;
+    Tcl_Size       vlen;
     const char*    cmp;
-    int            clen;
+    Tcl_Size       clen;
 
     /* Skip the step if there is nothing which can be filtered.  */
     if (l->c == 0) return;
@@ -918,7 +927,7 @@ filter_kv (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* 
 	 * passing the filter.
 	 */
 
-	int src, dst;
+	Tcl_Size src, dst;
 	GC* c;
 
 	for (src = 0, dst = 0; src < l->c; src++) {
@@ -947,7 +956,7 @@ filter_kv (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* 
 	 * all nodes/arcs passing the filter.
 	 */
 
-	int i;
+	Tcl_Size i;
 	GC* iter;
 
 	for (i = 0, iter = gx->first;
@@ -997,7 +1006,7 @@ filter_k (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* k
 	 * passing the filter.
 	 */
 
-	int src, dst;
+	Tcl_Size src, dst;
 	GC* c;
 
 	for (src = 0, dst = 0; src < l->c; src++) {
@@ -1023,7 +1032,7 @@ filter_k (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* k
 	 * all nodes/arcs passing the filter.
 	 */
 
-	int i;
+ 	Tcl_Size i;
 	GC* iter;
 
 	for (i = 0, iter = gx->first;
@@ -1057,14 +1066,13 @@ filter_cmd (Tcl_Interp* interp, GCC* gx, NARES* l, Tcl_Obj* cmd, Tcl_Obj* g)
      * (c) otherwise  => Filter found entities
      */
 
-    int       cmdc;
+    Tcl_Size  cmdc, i;
     Tcl_Obj** cmdv;
     int       code = TCL_ERROR;
-    int	      ec;
+    Tcl_Size  ec;
     Tcl_Obj** ev;
     int       flag;
     int       res;
-    int       i;
 
     if (Tcl_ListObjGetElements (interp, cmd, &cmdc, &cmdv) != TCL_OK) {
 	return TCL_ERROR;
@@ -1100,7 +1108,7 @@ filter_cmd (Tcl_Interp* interp, GCC* gx, NARES* l, Tcl_Obj* cmd, Tcl_Obj* g)
 	 * passing the filter.
 	 */
 
-	int src, dst;
+	Tcl_Size src, dst;
 
 	for (src = 0, dst = 0; src < l->c; src++) {
 	    /* Fill the placeholders */
@@ -1142,7 +1150,7 @@ filter_cmd (Tcl_Interp* interp, GCC* gx, NARES* l, Tcl_Obj* cmd, Tcl_Obj* g)
 	 * all nodes/arcs passing the filter.
 	 */
 
-	int i;
+	Tcl_Size i;
 	GC* iter;
 
 	for (i = 0, iter = gx->first;

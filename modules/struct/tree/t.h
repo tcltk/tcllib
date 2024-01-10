@@ -5,7 +5,7 @@
 #ifndef _T_H
 #define _T_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 #include <ds.h>
 
 TPtr t_new	 (void);
@@ -30,7 +30,7 @@ typedef int (*t_walk_function) (Tcl_Interp* interp,
 				Tcl_Obj* action);
 
 int t_walkoptions (Tcl_Interp* interp, int n,
-		   int objc, Tcl_Obj* CONST* objv,
+		   Tcl_Size objc, Tcl_Obj* CONST* objv,
 		   int* type, int* order, int* remainder,
 		   char* usage);
 

@@ -144,9 +144,9 @@ namespace eval ::struct {
 	    g = g_new ();
 	}
 
-	g->cmd = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-                                       g_objcmd, (ClientData) g,
-                                       gg_delete);
+	g->cmd = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+					g_objcmd, (ClientData) g,
+					gg_delete);
 
 	Tcl_SetObjResult (interp, fqn);
 	Tcl_DecrRefCount (fqn);

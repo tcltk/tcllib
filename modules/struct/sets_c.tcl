@@ -9,8 +9,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets_c.tcl,v 1.3 2008/03/25 07:15:34 andreas_kupries Exp $
-#
 #----------------------------------------------------------------------
 
 package require critcl

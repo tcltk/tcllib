@@ -88,12 +88,12 @@ gn_err_missing (Tcl_Interp* interp, Tcl_Obj* n, Tcl_Obj* g)
 Tcl_Obj*
 gn_serial_arcs (GN* n, Tcl_Obj* empty, Tcl_HashTable* cn)
 {
-    int       lc;
+    Tcl_Size  lc, i;
     Tcl_Obj** lv;
     Tcl_Obj*  arcs;
     GL*       il;
     GA*       a;
-    int       i, id;
+    long int  id;
     Tcl_HashEntry* he;
 
     /* Quick return if node has no outgoing arcs */

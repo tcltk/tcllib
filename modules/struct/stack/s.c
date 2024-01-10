@@ -30,13 +30,12 @@ st_delete (S* s)
 }
 
 int
-st_peek (S* s, Tcl_Interp* interp, int n, int pop, int listall, int revers, int ret)
+st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers, int ret)
 {
 
-    int       listc = 0;
+    Tcl_Size  listc = 0, i, j;
     Tcl_Obj** listv;
     Tcl_Obj*  r;
-    int       i, j;
 
     Tcl_ListObjGetElements (interp, s->stack, &listc, &listv);
 

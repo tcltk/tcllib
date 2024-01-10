@@ -83,7 +83,7 @@ namespace eval ::sha1 {
     critcl::ccommand sha1c {dummy ip objc objv} {
         SHA1_CTX* mp;
         unsigned char* data;
-        int size;
+        Tcl_Size size;
         Tcl_Obj* obj;
         
         if (objc < 2 || objc > 3) {

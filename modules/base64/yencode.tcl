@@ -65,7 +65,7 @@ if {[package provide critcl] != {}} {
         }
         critcl::ccommand CEncode {dummy interp objc objv} {
             Tcl_Obj *inputPtr, *resultPtr;
-            int len, rlen, xtra;
+            Tcl_Size len, rlen, xtra;
             unsigned char *input, *p, *r, v;
 
             if (objc !=  2) {
@@ -104,7 +104,7 @@ if {[package provide critcl] != {}} {
 
         critcl::ccommand CDecode {dummy interp objc objv} {
             Tcl_Obj *inputPtr, *resultPtr;
-            int len, rlen, esc;
+            Tcl_Size len, rlen, esc;
             unsigned char *input, *p, *r, v;
 
             if (objc !=  2) {

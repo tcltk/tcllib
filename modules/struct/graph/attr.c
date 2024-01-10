@@ -49,7 +49,7 @@ g_attr_serial (Tcl_HashTable* attr, Tcl_Obj* empty)
 int
 g_attr_serok (Tcl_Interp* interp, Tcl_Obj* aserial, const char* what)
 {
-    int	      lc;
+    Tcl_Size  lc;
     Tcl_Obj** lv;
 
     if (Tcl_ListObjGetElements (interp, aserial, &lc, &lv) != TCL_OK) {
@@ -73,8 +73,8 @@ g_attr_deserial (Tcl_HashTable** Astar, Tcl_Obj* dict)
     Tcl_HashEntry* he;
     CONST char*	   key;
     Tcl_Obj*	   val;
-    int		   new, i;
-    int		   listc;
+    int		   new;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     Tcl_HashTable* attr;
 
@@ -126,14 +126,13 @@ g_attr_delete (Tcl_HashTable** Astar)
 /* .................................................. */
 
 void
-g_attr_keys (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* pv)
+g_attr_keys (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Size pc, Tcl_Obj* const* pv)
 {
-    int		   listc;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     Tcl_HashEntry* he;
     Tcl_HashSearch hs;
     const char*	   key;
-    int		   i;
     const char*	   pattern;
     int		   matchall = 0;
 
@@ -240,13 +239,12 @@ g_attr_get (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Obj* key, Tcl_Obj* o, c
 /* .................................................. */
 
 void
-g_attr_getall (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* pv)
+g_attr_getall (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Size pc, Tcl_Obj* const* pv)
 {
     Tcl_HashEntry* he;
     Tcl_HashSearch hs;
     const char*	   key;
-    int		   i;
-    int		   listc;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     const char*	   pattern = NULL;
     int		   matchall = 0;

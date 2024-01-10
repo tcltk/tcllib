@@ -1966,9 +1966,9 @@ jsonlex(struct context *context)
 static void
 jsonerror(struct context *context, const char *message)
 {
-  char *fullmessage;
-  char *yytext;
-  int   yyleng;
+  char*    fullmessage;
+  char*    yytext;
+  Tcl_Size yyleng;
 
   if (context->has_error) return;
 
@@ -1976,12 +1976,18 @@ jsonerror(struct context *context, const char *message)
     yytext = Tcl_GetStringFromObj(context->obj, &yyleng);
     fullmessage = Tcl_Alloc(strlen(message) + 63 + yyleng);
 
-    sprintf(fullmessage, "%s %d bytes before end, around ``%.*s''",
-	    message, context->remaining, yyleng, yytext);
+    sprintf(fullmessage,
+	    "%s %" TCL_SIZE_MODIFIER "d bytes before end, around ``%.*s''",
+	    message, context->remaining, (int) yyleng, yytext);
+    /* Beware: The `%.*s` format accepts only `int` length information.
+     * Which means a string longer than 2GB will not print correctly.
+     * I am accepting this under the assumption that such a large string
+     * will not happen.
+     */
   } else {
     fullmessage = Tcl_Alloc(strlen(message) + 63);
 
-    sprintf(fullmessage, "%s %d bytes before end",
+    sprintf(fullmessage, "%s %" TCL_SIZE_MODIFIER "d bytes before end",
 	    message, context->remaining);
   }
 

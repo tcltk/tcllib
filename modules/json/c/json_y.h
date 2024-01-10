@@ -3,6 +3,8 @@
  * External to .y file for communication and use within the binding layer.
  */
 
+#include "tclpre9compat.h"
+
 struct context {
   /*
    * General state.
@@ -23,7 +25,7 @@ struct context {
    */
 
   const char	*text;      /* Text to parse */
-  int		 remaining; /* Number of characters left to parse. */
+  Tcl_Size	 remaining; /* Number of characters left to parse. */
 
   /*
    * Lexer -> Parser communication.
