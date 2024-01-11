@@ -66,68 +66,6 @@ proc ::crc::SumBsd {s {seed 0}} {
 }
 
 # -------------------------------------------------------------------------
-
-if {[package provide critcl] != {}} {
-    namespace eval ::crc {
-        critcl::ccommand SumSysV_c {dummy interp objc objv} {
-            int r = TCL_OK;
-            unsigned int t = 0;
-
-            if (objc < 2 || objc > 3) {
-                Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
-                return TCL_ERROR;
-            }
-            
-            if (objc == 3)
-                r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t);
-
-            if (r == TCL_OK) {
-                int cn, size;
-                unsigned char *data;
-
-                data = Tcl_GetByteArrayFromObj(objv[1], &size);
-                for (cn = 0; cn < size; cn++)
-                    t += data[cn];
-            }
-
-            t = t & 0xffffffffLU;
-            t = (t & 0xffff) + (t >> 16);
-            t = (t & 0xffff) + (t >> 16);
-
-            Tcl_SetObjResult(interp, Tcl_NewIntObj(t));
-            return r;
-        }
-
-        critcl::ccommand SumBsd_c {dummy interp objc objv} {
-            int r = TCL_OK;
-            unsigned int t = 0;
-
-            if (objc < 2 || objc > 3) {
-                Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
-                return TCL_ERROR;
-            }
-            
-            if (objc == 3)
-                r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t);
-
-            if (r == TCL_OK) {
-                int cn, size;
-                unsigned char *data;
-
-                data = Tcl_GetByteArrayFromObj(objv[1], &size);
-                for (cn = 0; cn < size; cn++) {
-                    t = (t & 1) ? ((t >> 1) + 0x8000) : (t >> 1);
-                    t = (t + data[cn]) & 0xFFFF;
-                }
-            }
-
-            Tcl_SetObjResult(interp, Tcl_NewIntObj(t & 0xFFFF));
-            return r;
-        }
-    }
-}
-
-# -------------------------------------------------------------------------
 # Switch from pure tcl to compiled if available.
 #
 if {[info commands ::crc::SumBsd_c] == {}} {
