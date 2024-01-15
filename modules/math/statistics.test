@@ -9,8 +9,8 @@
 # -------------------------------------------------------------------------
 
 source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
 
 testsNeedTcl     8.5;# statistics,linalg!
 testsNeedTcltest 2.1
@@ -31,6 +31,11 @@ set ::data_missing  [list 1.0 1.0 1.0 {} 1.0 {} {} 1.0 1.0 1.0 1.0 1.0 1.0]
 set ::data_linear   [list 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
 set ::data_empty    [list {} {} {}]
 set ::data_missing2 [list 1.0 2.0 3.0 {} 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+
+#
+# Make sure the random numbers are fixed
+#
+expr {rseed(1)}
 
 #
 # Create and register (in that order!) custom matching procedures
