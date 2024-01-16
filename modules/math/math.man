@@ -107,7 +107,7 @@ arguments are given, the number is an integer value between
 
 [call [cmd ::math::sigma] [arg value] [arg value] [opt [arg {value ...}]]]
 
-Return the population standard deviation of two or more numeric
+Return the sample standard deviation of two or more numeric
 values.
 
 [call [cmd ::math::stats] [arg value] [arg value] [opt [arg {value ...}]]]
