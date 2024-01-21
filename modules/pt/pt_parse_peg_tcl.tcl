@@ -298,7 +298,7 @@ snit::type ::pt::parse::peg_tcl {
     proc sequence_44 {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     

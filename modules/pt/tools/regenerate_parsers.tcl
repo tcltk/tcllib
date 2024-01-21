@@ -3,6 +3,9 @@
 
 package require Tcl 8.5 9
 
+#proc show-p {name} { set ver [package provide $name] ; puts "#%% $name $ver = [package ifneeded $name $ver]" }
+proc show-p {args} {}
+
 set     self      [file normalize [info script]]
 set     selfdir   [file dirname $self]
 set     module    [file dirname $selfdir]
@@ -12,6 +15,12 @@ package require pt::pgen 1.0.3
 package require pt::util
 package require fileutil
 package require try
+
+show-p pt::pgen
+show-p pt::util
+show-p fileutil
+show-p try	
+show-p pt::cparam::configuration::critcl
 
 set specification     [file join $module tests/data/ok/peg_peg/3_peg_itself]
 set new_parser_tcl    [file join $module pt_parse_peg_tcl.tcl-NEW]
@@ -43,7 +52,7 @@ set class             pt::parse::peg
 puts "Reading spec..."
 set spec [fileutil::cat $specification]
 
-set version 1.0.1
+set version 1.0.2
 
 puts "Generating $version ..."
 

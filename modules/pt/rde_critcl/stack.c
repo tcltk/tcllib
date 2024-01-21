@@ -11,8 +11,8 @@
  */
 
 typedef struct RDE_STACK_ {
-    long int            max;   /* Size of the cell array. */
-    long int            top;   /* Index of the topmost _unused_ cell in the
+    Tcl_Size            max;   /* Size of the cell array. */
+    Tcl_Size            top;   /* Index of the topmost _unused_ cell in the
 				* array === Index of the _next_ cell to use
 				* === Size of the stack. */
     RDE_STACK_CELL_FREE freeCellProc; 
@@ -40,7 +40,7 @@ SCOPE void
 rde_stack_del (RDE_STACK s)
 {
     if (s->freeCellProc && s->top) {
-	long int i;
+	Tcl_Size i;
 	for (i=0; i < s->top; i++) {
 	    ASSERT_BOUNDS(i,s->max);
 	    s->freeCellProc ( s->cell [i] );
@@ -55,7 +55,7 @@ SCOPE void
 rde_stack_push (RDE_STACK s, void* item)
 {
     if (s->top >= s->max) {
-	long int new  = s->max ? (2 * s->max) : RDE_STACK_INITIAL_SIZE;
+	Tcl_Size new  = s->max ? (2 * s->max) : RDE_STACK_INITIAL_SIZE;
 	void**   cell = (void**) ckrealloc ((char*) s->cell, new * sizeof(void*));
 	ASSERT (cell,"Memory allocation failure for RDE stack");
 	s->max  = new;
@@ -75,7 +75,7 @@ rde_stack_top (RDE_STACK s)
 }
 
 SCOPE void
-rde_stack_pop (RDE_STACK s, long int n)
+rde_stack_pop (RDE_STACK s, Tcl_Size n)
 {
     ASSERT (n >= 0, "Bad pop count");
     if (n == 0) return;
@@ -93,7 +93,7 @@ rde_stack_pop (RDE_STACK s, long int n)
 }
 
 SCOPE void
-rde_stack_trim (RDE_STACK s, long int n)
+rde_stack_trim (RDE_STACK s, Tcl_Size n)
 {
     ASSERT (n >= 0, "Bad trimsize");
 
@@ -109,7 +109,7 @@ rde_stack_trim (RDE_STACK s, long int n)
 }
 
 SCOPE void
-rde_stack_drop (RDE_STACK s, long int n)
+rde_stack_drop (RDE_STACK s, Tcl_Size n)
 {
     ASSERT (n >= 0, "Bad pop count");
     if (n == 0) return;
@@ -134,13 +134,13 @@ rde_stack_move (RDE_STACK dst, RDE_STACK src)
 }
 
 SCOPE void
-rde_stack_get (RDE_STACK s, long int* cn, void*** cc)
+rde_stack_get (RDE_STACK s, Tcl_Size* cn, void*** cc)
 {
     *cn = s->top;
     *cc = s->cell;
 }
 
-SCOPE long int
+SCOPE Tcl_Size
 rde_stack_size (RDE_STACK s)
 {
     return s->top;
