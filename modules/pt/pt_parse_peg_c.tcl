@@ -90,9 +90,7 @@ namespace eval ::pt::parse {
 	#define TRACE0(x)
 	#define TRACE(x)
 	#endif
-	#endif 
-	
-
+	#endif
 #line 1 "rde_critcl/stack.h"
 
 	#ifndef _RDE_DS_STACK_H
@@ -100,17 +98,13 @@ namespace eval ::pt::parse {
 	typedef void (*RDE_STACK_CELL_FREE) (void* cell);
 	typedef struct RDE_STACK_* RDE_STACK;
 	static const int RDE_STACK_INITIAL_SIZE = 256;
-	#endif 
-	
-
+	#endif
 #line 1 "rde_critcl/tc.h"
 
 	#ifndef _RDE_DS_TC_H
 	#define _RDE_DS_TC_H 1
 	typedef struct RDE_TC_* RDE_TC;
-	#endif 
-	
-
+	#endif
 #line 1 "rde_critcl/param.h"
 
 	#ifndef _RDE_DS_PARAM_H
@@ -118,18 +112,16 @@ namespace eval ::pt::parse {
 	typedef struct RDE_PARAM_* RDE_PARAM;
 	typedef struct ERROR_STATE {
 	    int       refCount;
-	    long int  loc;
-	    RDE_STACK msg; 
+	    Tcl_Size  loc;
+	    RDE_STACK msg;
 	} ERROR_STATE;
 	typedef struct NC_STATE {
-	    long int     CL;
-	    long int     ST;
+	    Tcl_Size     CL;
+	    Tcl_Size     ST;
 	    Tcl_Obj*     SV;
 	    ERROR_STATE* ER;
 	} NC_STATE;
-	#endif 
-	
-
+	#endif
 #line 1 "rde_critcl/util.c"
 
 	#ifdef RDE_TRACE
@@ -225,17 +217,14 @@ namespace eval ::pt::parse {
 	    fflush             (stdout);
 	}
 	#endif
-	
-
 #line 1 "rde_critcl/stack.c"
 
 	typedef struct RDE_STACK_ {
-	    long int            max;   
-	    long int            top;   
-	    RDE_STACK_CELL_FREE freeCellProc; 
-	    void**              cell;  
+	    Tcl_Size            max;
+	    Tcl_Size            top;   
+	    RDE_STACK_CELL_FREE freeCellProc;
+	    void**              cell;
 	} RDE_STACK_;
-	
 	SCOPE RDE_STACK
 	rde_stack_new (RDE_STACK_CELL_FREE freeCellProc)
 	{
@@ -250,7 +239,7 @@ namespace eval ::pt::parse {
 	rde_stack_del (RDE_STACK s)
 	{
 	    if (s->freeCellProc && s->top) {
-		long int i;
+		Tcl_Size i;
 		for (i=0; i < s->top; i++) {
 		    ASSERT_BOUNDS(i,s->max);
 		    s->freeCellProc ( s->cell [i] );
@@ -263,7 +252,7 @@ namespace eval ::pt::parse {
 	rde_stack_push (RDE_STACK s, void* item)
 	{
 	    if (s->top >= s->max) {
-		long int new  = s->max ? (2 * s->max) : RDE_STACK_INITIAL_SIZE;
+		Tcl_Size new  = s->max ? (2 * s->max) : RDE_STACK_INITIAL_SIZE;
 		void**   cell = (void**) ckrealloc ((char*) s->cell, new * sizeof(void*));
 		ASSERT (cell,"Memory allocation failure for RDE stack");
 		s->max  = new;
@@ -280,7 +269,7 @@ namespace eval ::pt::parse {
 	    return s->cell [s->top - 1];
 	}
 	SCOPE void
-	rde_stack_pop (RDE_STACK s, long int n)
+	rde_stack_pop (RDE_STACK s, Tcl_Size n)
 	{
 	    ASSERT (n >= 0, "Bad pop count");
 	    if (n == 0) return;
@@ -296,7 +285,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_stack_trim (RDE_STACK s, long int n)
+	rde_stack_trim (RDE_STACK s, Tcl_Size n)
 	{
 	    ASSERT (n >= 0, "Bad trimsize");
 	    if (s->freeCellProc) {
@@ -310,7 +299,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_stack_drop (RDE_STACK s, long int n)
+	rde_stack_drop (RDE_STACK s, Tcl_Size n)
 	{
 	    ASSERT (n >= 0, "Bad pop count");
 	    if (n == 0) return;
@@ -328,27 +317,24 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_stack_get (RDE_STACK s, long int* cn, void*** cc)
+	rde_stack_get (RDE_STACK s, Tcl_Size* cn, void*** cc)
 	{
 	    *cn = s->top;
 	    *cc = s->cell;
 	}
-	SCOPE long int
+	SCOPE Tcl_Size
 	rde_stack_size (RDE_STACK s)
 	{
 	    return s->top;
 	}
-	
-
 #line 1 "rde_critcl/tc.c"
 
 	typedef struct RDE_TC_ {
-	    int       max;   
-	    int       num;   
-	    char*     str;   
-	    RDE_STACK off;   
+	    Tcl_Size  max;
+	    Tcl_Size  num;
+	    char*     str;
+	    RDE_STACK off;
 	} RDE_TC_;
-	
 	SCOPE RDE_TC
 	rde_tc_new (void)
 	{
@@ -366,7 +352,7 @@ namespace eval ::pt::parse {
 	    ckfree (tc->str);
 	    ckfree ((char*) tc);
 	}
-	SCOPE long int
+	SCOPE Tcl_Size
 	rde_tc_size (RDE_TC tc)
 	{
 	    return rde_stack_size (tc->off);
@@ -378,13 +364,11 @@ namespace eval ::pt::parse {
 	    rde_stack_trim (tc->off,  0);
 	}
 	SCOPE char*
-	rde_tc_append (RDE_TC tc, char* string, long int len)
+	rde_tc_append (RDE_TC tc, char* string, Tcl_Size len)
 	{
-	    long int base = tc->num;
-	    long int off  = tc->num;
-	    char* ch;
-	    int clen;
-	    Tcl_UniChar uni;
+	    Tcl_Size base = tc->num;
+	    Tcl_Size off  = tc->num;
+	    char*    ch;
 	    if (len < 0) {
 		len = strlen (string);
 	    }
@@ -394,8 +378,8 @@ namespace eval ::pt::parse {
 	    }
 	    
 	    if ((tc->num + len) >= tc->max) {
-		int   new = len + (tc->max ? (2 * tc->max) : RDE_STACK_INITIAL_SIZE);
-		char* str = ckrealloc (tc->str, new * sizeof(char));
+		Tcl_Size new = len + (tc->max ? (2 * tc->max) : RDE_STACK_INITIAL_SIZE);
+		char*    str = ckrealloc (tc->str, new * sizeof(char));
 		ASSERT (str,"Memory allocation failure for token character array");
 		tc->max = new;
 		tc->str = str;
@@ -409,26 +393,28 @@ namespace eval ::pt::parse {
 	    
 	    ch = string;
 	    while (ch < (string + len)) {
+		Tcl_Size    clen;
+		Tcl_UniChar uni;
 		ASSERT_BOUNDS(off,tc->num);
-		rde_stack_push (tc->off,  (void*) off);
-		clen = Tcl_UtfToUniChar (ch, &uni);
+		rde_stack_push (tc->off,  (void*) (long int) off);
+		clen = Tcl_UtfToUniChar (ch, &uni); /* OK tcl9 */
 		off += clen;
 		ch  += clen;
 	    }
 	    return tc->str + base;
 	}
 	SCOPE void
-	rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
+	rde_tc_get (RDE_TC tc, Tcl_Size at, char** ch, Tcl_Size* len)
 	{
-	    long int  oc, off, end;
-	    void** ov;
+	    Tcl_Size oc, off, end;
+	    void**   ov;
 	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
-	    off = (long int) ov [at];
+	    off = (Tcl_Size) (long int) ov [at];
 	    if ((at+1) == oc) {
 		end = tc->num;
 	    } else {
-		end = (long int) ov [at+1];
+		end = (Tcl_Size) (long int) ov [at+1];
 	    }
 	    TRACE (("rde_tc_get (RDE_TC %p, @ %d) => %d.[%d ... %d]/%d",tc,at,end-off,off,end-1,tc->num));
 	    ASSERT_BOUNDS(off,tc->num);
@@ -437,18 +423,18 @@ namespace eval ::pt::parse {
 	    *len = end - off;
 	}
 	SCOPE void
-	rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
+	rde_tc_get_s (RDE_TC tc, Tcl_Size at, Tcl_Size last, char** ch, Tcl_Size* len)
 	{
-	    long int  oc, off, end;
-	    void** ov;
+	    Tcl_Size oc, off, end;
+	    void**   ov;
 	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
 	    ASSERT_BOUNDS(last,oc);
-	    off = (long int) ov [at];
+	    off = (Tcl_Size) (long int) ov [at];
 	    if ((last+1) == oc) {
 		end = tc->num;
 	    } else {
-		end = (long int) ov [last+1];
+		end = (Tcl_Size) (long int) ov [last+1];
 	    }
 	    TRACE (("rde_tc_get_s (RDE_TC %p, @ %d .. %d) => %d.[%d ... %d]/%d",tc,at,last,end-off,off,end-1,tc->num));
 	    ASSERT_BOUNDS(off,tc->num);
@@ -456,28 +442,26 @@ namespace eval ::pt::parse {
 	    *ch = tc->str + off;
 	    *len = end - off;
 	}
-	
-
 #line 1 "rde_critcl/param.c"
 
 	typedef struct RDE_PARAM_ {
 	    Tcl_Channel   IN;
 	    Tcl_Obj*      readbuf;
-	    char*         CC; 
-	    long int      CC_len;
+	    char*         CC;
+	    Tcl_Size      CC_len;
 	    RDE_TC        TC;
-	    long int      CL;
-	    RDE_STACK     LS; 
+	    Tcl_Size      CL;
+	    RDE_STACK     LS;
 	    ERROR_STATE*  ER;
-	    RDE_STACK     ES; 
-	    long int      ST;
+	    RDE_STACK     ES;
+	    Tcl_Size      ST;
 	    Tcl_Obj*      SV;
 	    Tcl_HashTable NC;
 	    
-	    RDE_STACK    ast  ; 
-	    RDE_STACK    mark ; 
+	    RDE_STACK    ast  ;
+	    RDE_STACK    mark ;
 	    
-	    long int numstr; 
+	    Tcl_Size numstr;
 	    char**  string;
 	    
 	    ClientData clientData;
@@ -501,7 +485,7 @@ namespace eval ::pt::parse {
 	} test_class_id;
 	static void ast_node_free    (void* n);
 	static void error_state_free (void* es);
-	static void error_set        (RDE_PARAM p, long int s);
+	static void error_set        (RDE_PARAM p, Tcl_Size s);
 	static void nc_clear         (RDE_PARAM p);
 	static int UniCharIsAscii    (int character);
 	static int UniCharIsHexDigit (int character);
@@ -536,17 +520,17 @@ namespace eval ::pt::parse {
 	    error_state_free ((p)->ER);	\
 	    (p)->ER = NULL
 	SCOPE RDE_PARAM
-	rde_param_new (long int nstr, char** strings)
+	rde_param_new (Tcl_Size nstr, char** strings)
 	{
 	    RDE_PARAM p;
 	    ENTER ("rde_param_new");
-	    TRACE (("\tINT %d strings @ %p", nstr, strings));
+	    TRACE (("\tINT %" TCL_SIZE_MODIFIER "d strings @ %p", nstr, strings));
 	    p = ALLOC (RDE_PARAM_);
 	    p->numstr = nstr;
 	    p->string = strings;
 	    p->readbuf = Tcl_NewObj ();
 	    Tcl_IncrRefCount (p->readbuf);
-	    TRACE (("\tTcl_Obj* readbuf %p used %d", p->readbuf,p->readbuf->refCount));
+	    TRACE (("\tTcl_Obj* readbuf %p used %d", p->readbuf, p->readbuf->refCount));
 	    Tcl_InitHashTable (&p->NC, TCL_ONE_WORD_KEYS);
 	    p->IN   = NULL;
 	    p->CL   = -1;
@@ -562,7 +546,7 @@ namespace eval ::pt::parse {
 	    p->mark = rde_stack_new (NULL);
 	    RETURN ("%p", p);
 	}
-	SCOPE void 
+	SCOPE void
 	rde_param_del (RDE_PARAM p)
 	{
 	    ENTER ("rde_param_del");
@@ -581,7 +565,7 @@ namespace eval ::pt::parse {
 	    ckfree ((char*) p);
 	    RETURNVOID;
 	}
-	SCOPE void 
+	SCOPE void
 	rde_param_reset (RDE_PARAM p, Tcl_Channel chan)
 	{
 	    ENTER ("rde_param_reset");
@@ -604,17 +588,17 @@ namespace eval ::pt::parse {
 	    RETURNVOID;
 	}
 	SCOPE void
-	rde_param_update_strings (RDE_PARAM p, long int nstr, char** strings)
+	rde_param_update_strings (RDE_PARAM p, Tcl_Size nstr, char** strings)
 	{
 	    ENTER ("rde_param_update_strings");
 	    TRACE (("RDE_PARAM %p", p));
-	    TRACE (("INT       %d strings", nstr));
+	    TRACE (("INT       %" TCL_SIZE_MODIFIER "d strings", nstr));
 	    p->numstr = nstr;
 	    p->string = strings;
 	    RETURNVOID;
 	}
 	SCOPE void
-	rde_param_data (RDE_PARAM p, char* buf, long int len)
+	rde_param_data (RDE_PARAM p, char* buf, Tcl_Size len)
 	{
 	    (void) rde_tc_append (p->TC, buf, len);
 	}
@@ -654,12 +638,12 @@ namespace eval ::pt::parse {
 	    return p->clientData;
 	}
 	SCOPE void
-	rde_param_query_amark (RDE_PARAM p, long int* mc, void*** mv)
+	rde_param_query_amark (RDE_PARAM p, Tcl_Size* mc, void*** mv)
 	{
 	    rde_stack_get (p->mark, mc, mv);
 	}
 	SCOPE void
-	rde_param_query_ast (RDE_PARAM p, long int* ac, Tcl_Obj*** av)
+	rde_param_query_ast (RDE_PARAM p, Tcl_Size* ac, Tcl_Obj*** av)
 	{
 	    rde_stack_get (p->ast, ac, (void***) av);
 	}
@@ -671,7 +655,7 @@ namespace eval ::pt::parse {
 		: "";
 	}
 	SCOPE const char*
-	rde_param_query_cc (RDE_PARAM p, long int* len)
+	rde_param_query_cc (RDE_PARAM p, Tcl_Size* len)
 	{
 	    *len = p->CC_len;
 	    return p->CC;
@@ -692,13 +676,12 @@ namespace eval ::pt::parse {
 	    Tcl_Obj* res;
 	    if (!er) {
 		
-		res = Tcl_NewStringObj ("", 0);
+		res = Tcl_NewStringObj ("", 0); /* OK tcl9 */
 	    } else {
 		Tcl_Obj* ov [2];
 		Tcl_Obj** mov;
-		long int  mc, i, j;
+		Tcl_Size  mc, i, j, lastid;
 		void** mv;
-		int lastid;
 		const char* msg;
 		rde_stack_get (er->msg, &mc, &mv);
 		
@@ -708,36 +691,36 @@ namespace eval ::pt::parse {
 		lastid = -1;
 		for (i=0, j=0; i < mc; i++) {
 		    ASSERT_BOUNDS (i,mc);
-		    if (((long int) mv [i]) == lastid) continue;
-		    lastid = (long int) mv [i];
-		    ASSERT_BOUNDS((long int) mv[i],p->numstr);
-		    msg = p->string [(long int) mv[i]]; 
+		    if (((Tcl_Size) (long int) mv [i]) == lastid) continue;
+		    lastid = (Tcl_Size) (long int) mv [i];
+		    ASSERT_BOUNDS((Tcl_Size) (long int) mv[i],p->numstr);
+		    msg = p->string [(Tcl_Size) (long int) mv[i]];
 		    ASSERT_BOUNDS (j,mc);
-		    mov [j] = Tcl_NewStringObj (msg, -1);
+		    mov [j] = Tcl_NewStringObj (msg, -1); /* OK tcl9 */
 		    j++;
 		}
 		
-		ov [0] = Tcl_NewIntObj  (er->loc);
-		ov [1] = Tcl_NewListObj (j, mov);
-		res = Tcl_NewListObj (2, ov);
+		ov [0] = Tcl_NewSizeIntObj  (er->loc); /* OK tcl9 */
+		ov [1] = Tcl_NewListObj (j, mov); /* OK tcl9 */
+		res = Tcl_NewListObj (2, ov); /* OK tcl9 */
 		ckfree ((char*) mov);
 	    }
 	    return res;
 	}
 	SCOPE void
-	rde_param_query_es (RDE_PARAM p, long int* ec, ERROR_STATE*** ev)
+	rde_param_query_es (RDE_PARAM p, Tcl_Size* ec, ERROR_STATE*** ev)
 	{
 	    rde_stack_get (p->ES, ec, (void***) ev);
 	}
 	SCOPE void
-	rde_param_query_ls (RDE_PARAM p, long int* lc, void*** lv)
+	rde_param_query_ls (RDE_PARAM p, Tcl_Size* lc, void*** lv)
 	{
 	    rde_stack_get (p->LS, lc, lv);
 	}
-	SCOPE long int
+	SCOPE Tcl_Size
 	rde_param_query_lstop (RDE_PARAM p)
 	{
-	    return (long int) rde_stack_top (p->LS);
+	    return (Tcl_Size) (long int) rde_stack_top (p->LS);
 	}
 	SCOPE Tcl_HashTable*
 	rde_param_query_nc (RDE_PARAM p)
@@ -755,20 +738,20 @@ namespace eval ::pt::parse {
 	    TRACE (("SV_QUERY %p => (%p)", (p), (p)->SV)); \
 	    return p->SV;
 	}
-	SCOPE long int
+	SCOPE Tcl_Size
 	rde_param_query_tc_size (RDE_PARAM p)
 	{
 	    return rde_tc_size (p->TC);
 	}
 	SCOPE void
-	rde_param_query_tc_get_s (RDE_PARAM p, long int at, long int last, char** ch, long int* len)
+	rde_param_query_tc_get_s (RDE_PARAM p, Tcl_Size at, Tcl_Size last, char** ch, Tcl_Size* len)
 	{
 	    rde_tc_get_s (p->TC, at, last, ch, len);
 	}
 	SCOPE const char*
-	rde_param_query_string (RDE_PARAM p, long int id)
+	rde_param_query_string (RDE_PARAM p, Tcl_Size id)
 	{
-	    TRACE (("rde_param_query_string (RDE_PARAM %p, %d/%d)", p, id, p->numstr));
+	    TRACE (("rde_param_query_string (RDE_PARAM %p, %" TCL_SIZE_MODIFIER "d/%" TCL_SIZE_MODIFIER "d)", p, id, p->numstr));
 	    ASSERT_BOUNDS(id,p->numstr);
 	    return p->string [id];
 	}
@@ -780,7 +763,7 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_param_i_ast_pop_rewind (RDE_PARAM p)
 	{
-	    long int trim = (long int) rde_stack_top (p->mark);
+	    Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 	    ENTER ("rde_param_i_ast_pop_rewind");
 	    TRACE (("RDE_PARAM %p",p));
 	    rde_stack_pop  (p->mark, 1);
@@ -794,7 +777,7 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_param_i_ast_rewind (RDE_PARAM p)
 	{
-	    long int trim = (long int) rde_stack_top (p->mark);
+	    Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 	    ENTER ("rde_param_i_ast_rewind");
 	    TRACE (("RDE_PARAM %p",p));
 	    rde_stack_trim (p->ast, trim);
@@ -807,7 +790,7 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_param_i_ast_push (RDE_PARAM p)
 	{
-	    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+	    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 	}
 	SCOPE void
 	rde_param_i_ast_value_push (RDE_PARAM p)
@@ -832,14 +815,14 @@ namespace eval ::pt::parse {
 	    ER_CLEAR (p);
 	}
 	SCOPE void
-	rde_param_i_error_nonterminal (RDE_PARAM p, long int s)
+	rde_param_i_error_nonterminal (RDE_PARAM p, Tcl_Size s)
 	{
 	    
 	    return;
 	#if 0
-	    long int pos;
+	    Tcl_Size pos;
 	    if (!p->ER) return;
-	    pos = 1 + (long int) rde_stack_top (p->LS);
+	    pos = 1 + (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    if (p->ER->loc != pos) return;
 	    error_set (p, s);
 	    p->ER->loc = pos;
@@ -890,7 +873,7 @@ namespace eval ::pt::parse {
 	    if (p->ER) { p->ER->refCount ++; }
 	}
 	static void
-	error_set (RDE_PARAM p, long int s)
+	error_set (RDE_PARAM p, Tcl_Size s)
 	{
 	    error_state_free (p->ER);
 	    p->ER = ALLOC (ERROR_STATE);
@@ -898,7 +881,7 @@ namespace eval ::pt::parse {
 	    p->ER->loc      = p->CL;
 	    p->ER->msg      = rde_stack_new (NULL);
 	    ASSERT_BOUNDS(s,p->numstr);
-	    rde_stack_push (p->ER->msg, (void*) s);
+	    rde_stack_push (p->ER->msg, (void*) (long int) s);
 	}
 	static void
 	error_state_free (void* esx)
@@ -918,23 +901,23 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_param_i_loc_pop_rewind (RDE_PARAM p)
 	{
-	    p->CL = (long int) rde_stack_top (p->LS);
+	    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    rde_stack_pop (p->LS, 1);
 	}
 	SCOPE void
 	rde_param_i_loc_push (RDE_PARAM p)
 	{
-	    rde_stack_push (p->LS, (void*) p->CL);
+	    rde_stack_push (p->LS, (void*) (long int) p->CL);
 	}
 	SCOPE void
 	rde_param_i_loc_rewind (RDE_PARAM p)
 	{
-	    p->CL = (long int) rde_stack_top (p->LS);
+	    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	}
 	SCOPE void
-	rde_param_i_input_next (RDE_PARAM p, long int m)
+	rde_param_i_input_next (RDE_PARAM p, Tcl_Size m)
 	{
-	    int leni;
+	    Tcl_Size leni;
 	    char* ch;
 	    ASSERT_BOUNDS(m,p->numstr);
 	    p->CL ++;
@@ -947,16 +930,16 @@ namespace eval ::pt::parse {
 		ER_CLEAR (p);
 		return;
 	    }
-	    if (!p->IN || 
+	    if (!p->IN ||
 		Tcl_Eof (p->IN) ||
-		(Tcl_ReadChars (p->IN, p->readbuf, 1, 0) <= 0)) {
+		(Tcl_ReadChars (p->IN, p->readbuf, 1, 0) <= 0)) { /* OK tcl9 */
 		
 		p->ST = 0;
 		error_set (p, m);
 		return;
 	    }
 	    
-	    ch = Tcl_GetStringFromObj (p->readbuf, &leni);
+	    ch = Tcl_GetStringFromObj (p->readbuf, &leni); /* OK tcl9 */
 	    ASSERT_BOUNDS (leni, TCL_UTF_MAX);
 	    p->CC = rde_tc_append (p->TC, ch, leni);
 	    p->CC_len = leni;
@@ -978,17 +961,17 @@ namespace eval ::pt::parse {
 	{
 	    p->ST = !p->ST;
 	}
-	SCOPE int 
-	rde_param_i_symbol_restore (RDE_PARAM p, long int s)
+	SCOPE int
+	rde_param_i_symbol_restore (RDE_PARAM p, Tcl_Size s)
 	{
 	    NC_STATE*      scs;
 	    Tcl_HashEntry* hPtr;
 	    Tcl_HashTable* tablePtr;
 	    
-	    hPtr = Tcl_FindHashEntry (&p->NC, (char*) p->CL);
+	    hPtr = Tcl_FindHashEntry (&p->NC, (char*) (long int) p->CL);
 	    if (!hPtr) { return 0; }
 	    tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
-	    hPtr = Tcl_FindHashEntry (tablePtr, (char*) s);
+	    hPtr = Tcl_FindHashEntry (tablePtr, (char*) (long int) s);
 	    if (!hPtr) { return 0; }
 	    
 	    scs = Tcl_GetHashValue (hPtr);
@@ -1002,18 +985,18 @@ namespace eval ::pt::parse {
 	    return 1;
 	}
 	SCOPE void
-	rde_param_i_symbol_save (RDE_PARAM p, long int s)
+	rde_param_i_symbol_save (RDE_PARAM p, Tcl_Size s)
 	{
-	    long int       at = (long int) rde_stack_top (p->LS);
+	    Tcl_Size       at = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    NC_STATE*      scs;
 	    Tcl_HashEntry* hPtr;
 	    Tcl_HashTable* tablePtr;
 	    int            isnew;
 	    ENTER ("rde_param_i_symbol_save");
 	    TRACE (("RDE_PARAM %p",p));
-	    TRACE (("INT       %d",s));
+	    TRACE (("INT       %" TCL_SIZE_MODIFIER "d",s));
 	    
-	    hPtr = Tcl_CreateHashEntry (&p->NC, (char*) at, &isnew);
+	    hPtr = Tcl_CreateHashEntry (&p->NC, (char*) (long int) at, &isnew);
 	    if (isnew) {
 		tablePtr = ALLOC (Tcl_HashTable);
 		Tcl_InitHashTable (tablePtr, TCL_ONE_WORD_KEYS);
@@ -1021,7 +1004,7 @@ namespace eval ::pt::parse {
 	    } else {
 		tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
 	    }
-	    hPtr = Tcl_CreateHashEntry (tablePtr, (char*) s, &isnew);
+	    hPtr = Tcl_CreateHashEntry (tablePtr, (char*) (long int) s, &isnew);
 	    if (isnew) {
 		
 		scs = ALLOC (NC_STATE);
@@ -1073,7 +1056,7 @@ namespace eval ::pt::parse {
 	    test_class (p, Tcl_UniCharIsControl, tc_control);
 	}
 	SCOPE void
-	rde_param_i_test_char (RDE_PARAM p, const char* c, long int msg)
+	rde_param_i_test_char (RDE_PARAM p, const char* c, Tcl_Size msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST = Tcl_UtfNcmp (p->CC, c, 1) == 0;
@@ -1115,7 +1098,7 @@ namespace eval ::pt::parse {
 	    test_class (p, Tcl_UniCharIsPunct, tc_punct);
 	}
 	SCOPE void
-	rde_param_i_test_range (RDE_PARAM p, const char* s, const char* e, long int msg)
+	rde_param_i_test_range (RDE_PARAM p, const char* s, const char* e, Tcl_Size msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST =
@@ -1152,7 +1135,7 @@ namespace eval ::pt::parse {
 	test_class (RDE_PARAM p, UniCharClass class, test_class_id id)
 	{
 	    Tcl_UniChar ch;
-	    Tcl_UtfToUniChar(p->CC, &ch);
+	    Tcl_UtfToUniChar(p->CC, &ch); /* OK tcl9 */
 	    ASSERT_BOUNDS(id,p->numstr);
 	    p->ST = !!class (ch);
 	    
@@ -1184,37 +1167,36 @@ namespace eval ::pt::parse {
 	    SV_CLEAR (p);
 	}
 	SCOPE void
-	rde_param_i_value_leaf (RDE_PARAM p, long int s)
+	rde_param_i_value_leaf (RDE_PARAM p, Tcl_Size s)
 	{
 	    Tcl_Obj* newsv;
 	    Tcl_Obj* ov [3];
-	    long int pos = 1 + (long int) rde_stack_top (p->LS);
+	    Tcl_Size pos = 1 + (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    ASSERT_BOUNDS(s,p->numstr);
-	    ov [0] = Tcl_NewStringObj (p->string[s], -1);
-	    ov [1] = Tcl_NewIntObj (pos);
-	    ov [2] = Tcl_NewIntObj (p->CL);
-	    newsv = Tcl_NewListObj (3, ov);
+	    ov [0] = Tcl_NewStringObj (p->string[s], -1); /* OK tcl9 */
+	    ov [1] = Tcl_NewSizeIntObj (pos); /* OK tcl9 */
+	    ov [2] = Tcl_NewSizeIntObj (p->CL); /* OK tcl9 */
+	    newsv = Tcl_NewListObj (3, ov); /* OK tcl9 */
 	    TRACE (("rde_param_i_value_leaf => '%s'",Tcl_GetString (newsv)));
 	    SV_SET (p, newsv);
 	}
 	SCOPE void
-	rde_param_i_value_reduce (RDE_PARAM p, long int s)
+	rde_param_i_value_reduce (RDE_PARAM p, Tcl_Size s)
 	{
 	    Tcl_Obj*  newsv;
-	    int       i, j;
 	    Tcl_Obj** ov;
-	    long int  ac;
+	    Tcl_Size  ac, i, j;
 	    Tcl_Obj** av;
-	    long int pos   = 1 + (long int) rde_stack_top (p->LS);
-	    long int mark  = (long int) rde_stack_top (p->mark);
-	    long int asize = rde_stack_size (p->ast);
-	    long int new   = asize - mark;
+	    Tcl_Size pos   = 1 + (Tcl_Size) (long int) rde_stack_top (p->LS);
+	    Tcl_Size mark  =     (Tcl_Size) (long int) rde_stack_top (p->mark);
+	    Tcl_Size asize = rde_stack_size (p->ast);
+	    Tcl_Size new   = asize - mark;
 	    ASSERT (new >= 0, "Bad number of elements to reduce");
 	    ov = NALLOC (3+new, Tcl_Obj*);
 	    ASSERT_BOUNDS(s,p->numstr);
-	    ov [0] = Tcl_NewStringObj (p->string[s], -1);
-	    ov [1] = Tcl_NewIntObj (pos);
-	    ov [2] = Tcl_NewIntObj (p->CL);
+	    ov [0] = Tcl_NewStringObj (p->string[s], -1); /* OK tcl9 */
+	    ov [1] = Tcl_NewSizeIntObj (pos); /* OK tcl9 */
+	    ov [2] = Tcl_NewSizeIntObj (p->CL); /* OK tcl9 */
 	    rde_stack_get (p->ast, &ac, (void***) &av);
 	    for (i = 3, j = mark; j < asize; i++, j++) {
 		ASSERT_BOUNDS (i, 3+new);
@@ -1222,7 +1204,7 @@ namespace eval ::pt::parse {
 		ov [i] = av [j];
 	    }
 	    ASSERT (i == 3+new, "Reduction result incomplete");
-	    newsv = Tcl_NewListObj (3+new, ov);
+	    newsv = Tcl_NewListObj (3+new, ov); /* OK tcl9 */
 	    TRACE (("rde_param_i_value_reduce => '%s'",Tcl_GetString (newsv)));
 	    SV_SET (p, newsv);
 	    ckfree ((char*) ov);
@@ -1233,14 +1215,14 @@ namespace eval ::pt::parse {
 	    
 	    const void** ael = (const void**) a;
 	    const void** bel = (const void**) b;
-	    long int avalue = (long int) *ael;
-	    long int bvalue = (long int) *bel;
+	    Tcl_Size avalue = (Tcl_Size) (long int) *ael;
+	    Tcl_Size bvalue = (Tcl_Size) (long int) *bel;
 	    if (avalue < bvalue) { return -1; }
 	    if (avalue > bvalue) { return  1; }
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_start (RDE_PARAM p, long int s)
+	rde_param_i_symbol_start (RDE_PARAM p, Tcl_Size s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) {
 		if (p->ST) {
@@ -1249,11 +1231,11 @@ namespace eval ::pt::parse {
 		}
 		return 1;
 	    }
-	    rde_stack_push (p->LS, (void*) p->CL);
+	    rde_stack_push (p->LS, (void*) (long int) p->CL);
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_start_d (RDE_PARAM p, long int s)
+	rde_param_i_symbol_start_d (RDE_PARAM p, Tcl_Size s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) {
 		if (p->ST) {
@@ -1262,27 +1244,27 @@ namespace eval ::pt::parse {
 		}
 		return 1;
 	    }
-	    rde_stack_push (p->LS,   (void*) p->CL);
-	    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+	    rde_stack_push (p->LS,   (void*) (long int) p->CL);
+	    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_void_start (RDE_PARAM p, long int s)
+	rde_param_i_symbol_void_start (RDE_PARAM p, Tcl_Size s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) return 1;
-	    rde_stack_push (p->LS, (void*) p->CL);
+	    rde_stack_push (p->LS, (void*) (long int) p->CL);
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_void_start_d (RDE_PARAM p, long int s)
+	rde_param_i_symbol_void_start_d (RDE_PARAM p, Tcl_Size s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) return 1;
-	    rde_stack_push (p->LS,   (void*) p->CL);
-	    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+	    rde_stack_push (p->LS,   (void*) (long int) p->CL);
+	    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 	    return 0;
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_reduce (RDE_PARAM p, long int s, long int m)
+	rde_param_i_symbol_done_d_reduce (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_reduce (p, s);
@@ -1299,7 +1281,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_leaf (RDE_PARAM p, long int s, long int m)
+	rde_param_i_symbol_done_leaf (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_leaf (p, s);
@@ -1315,7 +1297,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_leaf (RDE_PARAM p, long int s, long int m)
+	rde_param_i_symbol_done_d_leaf (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_leaf (p, s);
@@ -1332,7 +1314,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_void (RDE_PARAM p, long int s, long int m)
+	rde_param_i_symbol_done_void (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 	{
 	    SV_CLEAR (p);
 	    rde_param_i_symbol_save       (p, s);
@@ -1340,7 +1322,7 @@ namespace eval ::pt::parse {
 	    rde_stack_pop (p->LS, 1);
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_void (RDE_PARAM p, long int s, long int m)
+	rde_param_i_symbol_done_d_void (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 	{
 	    SV_CLEAR (p);
 	    rde_param_i_symbol_save       (p, s);
@@ -1349,112 +1331,112 @@ namespace eval ::pt::parse {
 	    rde_stack_pop (p->LS, 1);
 	}
 	SCOPE void
-	rde_param_i_next_char (RDE_PARAM p, const char* c, long int m)
+	rde_param_i_next_char (RDE_PARAM p, const char* c, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_char (p, c, m);
 	}
 	SCOPE void
-	rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, long int m)
+	rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_range (p, s, e, m);
 	}
 	SCOPE void
-	rde_param_i_next_alnum (RDE_PARAM p, long int m)
+	rde_param_i_next_alnum (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_alnum (p);
 	}
 	SCOPE void
-	rde_param_i_next_alpha (RDE_PARAM p, long int m)
+	rde_param_i_next_alpha (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_alpha (p);
 	}
 	SCOPE void
-	rde_param_i_next_ascii (RDE_PARAM p, long int m)
+	rde_param_i_next_ascii (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_ascii (p);
 	}
 	SCOPE void
-	rde_param_i_next_control (RDE_PARAM p, long int m)
+	rde_param_i_next_control (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_control (p);
 	}
 	SCOPE void
-	rde_param_i_next_ddigit (RDE_PARAM p, long int m)
+	rde_param_i_next_ddigit (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_ddigit (p);
 	}
 	SCOPE void
-	rde_param_i_next_digit (RDE_PARAM p, long int m)
+	rde_param_i_next_digit (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_digit (p);
 	}
 	SCOPE void
-	rde_param_i_next_graph (RDE_PARAM p, long int m)
+	rde_param_i_next_graph (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_graph (p);
 	}
 	SCOPE void
-	rde_param_i_next_lower (RDE_PARAM p, long int m)
+	rde_param_i_next_lower (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_lower (p);
 	}
 	SCOPE void
-	rde_param_i_next_print (RDE_PARAM p, long int m)
+	rde_param_i_next_print (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_print (p);
 	}
 	SCOPE void
-	rde_param_i_next_punct (RDE_PARAM p, long int m)
+	rde_param_i_next_punct (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_punct (p);
 	}
 	SCOPE void
-	rde_param_i_next_space (RDE_PARAM p, long int m)
+	rde_param_i_next_space (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_space (p);
 	}
 	SCOPE void
-	rde_param_i_next_upper (RDE_PARAM p, long int m)
+	rde_param_i_next_upper (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_upper (p);
 	}
 	SCOPE void
-	rde_param_i_next_wordchar (RDE_PARAM p, long int m)
+	rde_param_i_next_wordchar (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_wordchar (p);
 	}
 	SCOPE void
-	rde_param_i_next_xdigit (RDE_PARAM p, long int m)
+	rde_param_i_next_xdigit (RDE_PARAM p, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -1463,52 +1445,49 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_param_i_notahead_start_d (RDE_PARAM p)
 	{
-	    rde_stack_push (p->LS, (void*) p->CL);
-	    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+	    rde_stack_push (p->LS,   (void*) (long int) p->CL);
+	    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 	}
 	SCOPE void
 	rde_param_i_notahead_exit_d (RDE_PARAM p)
 	{
 	    if (p->ST) {
-		rde_param_i_ast_pop_rewind (p); 
+		rde_param_i_ast_pop_rewind (p);
 	    } else {
 		rde_stack_pop (p->mark, 1);
 	    }
-	    p->CL = (long int) rde_stack_top (p->LS);
+	    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    rde_stack_pop (p->LS, 1);
 	    p->ST = !p->ST;
 	}
 	SCOPE void
 	rde_param_i_notahead_exit (RDE_PARAM p)
 	{
-	    p->CL = (long int) rde_stack_top (p->LS);
+	    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    rde_stack_pop (p->LS, 1);
 	    p->ST = !p->ST;
 	}
 	SCOPE void
 	rde_param_i_state_push_2 (RDE_PARAM p)
 	{
-	    
-	    rde_stack_push (p->LS, (void*) p->CL);
+	    rde_stack_push (p->LS, (void*) (long int) p->CL);
 	    rde_stack_push (p->ES, p->ER);
 	    if (p->ER) { p->ER->refCount ++; }
 	}
 	SCOPE void
 	rde_param_i_state_push_void (RDE_PARAM p)
 	{
-	    rde_stack_push (p->LS, (void*) p->CL);
+	    rde_stack_push (p->LS, (void*) (long int) p->CL);
 	    ER_CLEAR (p);
 	    rde_stack_push (p->ES, p->ER);
-	    
 	}
 	SCOPE void
 	rde_param_i_state_push_value (RDE_PARAM p)
 	{
-	    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
-	    rde_stack_push (p->LS, (void*) p->CL);
+	    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
+	    rde_stack_push (p->LS,   (void*) (long int) p->CL);
 	    ER_CLEAR (p);
 	    rde_stack_push (p->ES, p->ER);
-	    
 	}
 	SCOPE void
 	rde_param_i_state_merge_ok (RDE_PARAM p)
@@ -1516,7 +1495,7 @@ namespace eval ::pt::parse {
 	    rde_param_i_error_pop_merge (p);
 	    if (!p->ST) {
 		p->ST = 1;
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    }
 	    rde_stack_pop (p->LS, 1);
 	}
@@ -1525,7 +1504,7 @@ namespace eval ::pt::parse {
 	{
 	    rde_param_i_error_pop_merge (p);
 	    if (!p->ST) {
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    }
 	    rde_stack_pop (p->LS, 1);
 	}
@@ -1534,9 +1513,9 @@ namespace eval ::pt::parse {
 	{
 	    rde_param_i_error_pop_merge (p);
 	    if (!p->ST) {
-		long int trim = (long int) rde_stack_top (p->mark);
+		Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 		rde_stack_trim (p->ast, trim);
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    }
 	    rde_stack_pop (p->mark, 1);
 	    rde_stack_pop (p->LS, 1);
@@ -1544,11 +1523,11 @@ namespace eval ::pt::parse {
 	SCOPE int
 	rde_param_i_kleene_close (RDE_PARAM p)
 	{
-	    int stop = !p->ST;
+	    int stop = p->ST == 0;
 	    rde_param_i_error_pop_merge (p);
 	    if (stop) {
 		p->ST = 1;
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    }
 	    rde_stack_pop (p->LS, 1);
 	    return stop;
@@ -1556,9 +1535,9 @@ namespace eval ::pt::parse {
 	SCOPE int
 	rde_param_i_kleene_abort (RDE_PARAM p)
 	{
-	    int stop = !p->ST;
+	    int stop = p->ST == 0;
 	    if (stop) {
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	    }
 	    rde_stack_pop (p->LS, 1);
 	    return stop;
@@ -1572,7 +1551,7 @@ namespace eval ::pt::parse {
 		if (p->ER) { p->ER->refCount ++; }
 		return 0;
 	    } else {
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 		rde_stack_pop (p->LS, 1);
 		return 1;
 	    }
@@ -1582,12 +1561,12 @@ namespace eval ::pt::parse {
 	{
 	    rde_param_i_error_pop_merge (p);
 	    if (p->ST) {
-		rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+		rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
 		return 0;
 	    } else {
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 		rde_stack_pop (p->LS, 1);
 		return 1;
 	    }
@@ -1601,10 +1580,10 @@ namespace eval ::pt::parse {
 		if (p->ER) { p->ER->refCount ++; }
 		return 0;
 	    } else {
-		long int trim = (long int) rde_stack_top (p->mark);
+		Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 		rde_stack_pop  (p->mark, 1);
 		rde_stack_trim (p->ast, trim);
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 		rde_stack_pop (p->LS, 1);
 		return 1;
 	    }
@@ -1616,7 +1595,7 @@ namespace eval ::pt::parse {
 	    if (p->ST) {
 		rde_stack_pop (p->LS, 1);
 	    } else {
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
 	    }
@@ -1629,8 +1608,8 @@ namespace eval ::pt::parse {
 	    if (p->ST) {
 		rde_stack_pop (p->LS, 1);
 	    } else {
-		rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
-		p->CL = (long int) rde_stack_top (p->LS);
+		rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
 	    }
@@ -1644,10 +1623,10 @@ namespace eval ::pt::parse {
 		rde_stack_pop (p->mark, 1);
 		rde_stack_pop (p->LS, 1);
 	    } else {
-		long int trim = (long int) rde_stack_top (p->mark);
+		Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 		rde_stack_pop  (p->mark, 1);
 		rde_stack_trim (p->ast, trim);
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
 	    }
@@ -1661,18 +1640,18 @@ namespace eval ::pt::parse {
 		rde_stack_pop (p->mark, 1);
 		rde_stack_pop (p->LS, 1);
 	    } else {
-		long int trim = (long int) rde_stack_top (p->mark);
+		Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 		rde_stack_trim (p->ast, trim);
-		p->CL = (long int) rde_stack_top (p->LS);
+		p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
 	    }
 	    return p->ST;
 	}
 	SCOPE void
-	rde_param_i_next_str (RDE_PARAM p, const char* str, long int m)
+	rde_param_i_next_str (RDE_PARAM p, const char* str, Tcl_Size m)
 	{
-	    int at = p->CL;
+	    Tcl_Size at = p->CL;
 	    
 	    while (*str) {
 		rde_param_i_input_next (p, m);
@@ -1691,7 +1670,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_next_class (RDE_PARAM p, const char* class, long int m)
+	rde_param_i_next_class (RDE_PARAM p, const char* class, Tcl_Size m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -1706,8 +1685,6 @@ namespace eval ::pt::parse {
 	    error_set (p, m);
 	    p->CL --;
 	}
-	
-
     }
 
     # # ## ### ###### ######## #############
@@ -1910,7 +1887,7 @@ namespace eval ::pt::parse {
             /*       31 = */   "n Char",
             /*       32 = */   "Char",
             /*       33 = */   "t \\\\",
-            /*       34 = */   ".. 0 2",
+            /*       34 = */   ".. 0 3",
             /*       35 = */   ".. 0 7",
             /*       36 = */   "n CharOctalFull",
             /*       37 = */   "CharOctalFull",
@@ -4779,13 +4756,14 @@ namespace eval ::pt::parse {
     critcl::ccode {
 	static int  COMPLETE (RDE_PARAM p, Tcl_Interp* interp);
 
-	static int parser_PARSE  (RDE_PARAM p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+	static int
+	parser_PARSE (RDE_PARAM p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	{
 	    int mode;
 	    Tcl_Channel chan;
 
 	    if (objc != 3) {
-		Tcl_WrongNumArgs (interp, 2, objv, "chan");
+		Tcl_WrongNumArgs (interp, 2, objv, "chan"); /* OK tcl9 */
 		return TCL_ERROR;
 	    }
 
@@ -4802,17 +4780,18 @@ namespace eval ::pt::parse {
 	    return COMPLETE (p, interp);
 	}
 
-	static int parser_PARSET (RDE_PARAM p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+	static int
+	parser_PARSET (RDE_PARAM p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	{
-	    char* buf;
-	    int   len;
+	    char*    buf;
+	    Tcl_Size len;
 
 	    if (objc != 3) {
-		Tcl_WrongNumArgs (interp, 2, objv, "text");
+		Tcl_WrongNumArgs (interp, 2, objv, "text"); /* OK tcl9 */
 		return TCL_ERROR;
 	    }
 
-	    buf = Tcl_GetStringFromObj (objv[2], &len);
+	    buf = Tcl_GetStringFromObj (objv[2], &len); /* OK tcl9 */
 
 	    rde_param_reset (p, NULL);
 	    rde_param_data  (p, buf, len);
@@ -4821,10 +4800,11 @@ namespace eval ::pt::parse {
 	}
 
 	/* See also rde_critcl/m.c, param_COMPLETE() */
-	static int COMPLETE (RDE_PARAM p, Tcl_Interp* interp)
+	static int
+	COMPLETE (RDE_PARAM p, Tcl_Interp* interp)
 	{
 	    if (rde_param_query_st (p)) {
-		long int  ac;
+		Tcl_Size  ac;
 		Tcl_Obj** av;
 
 		rde_param_query_ast (p, &ac, &av);
@@ -4834,10 +4814,10 @@ namespace eval ::pt::parse {
 
 		    memcpy(lv + 3, av, ac * sizeof (Tcl_Obj*));
 		    lv [0] = Tcl_NewObj ();
-		    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p));
-		    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p));
+		    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p)); /* OK tcl9 */
+		    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p)); /* OK tcl9 */
 
-		    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
+		    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv)); /* OK tcl9 */
 		    ckfree ((char*) lv);
 
 		} else if (ac == 0) {
@@ -4845,21 +4825,21 @@ namespace eval ::pt::parse {
 		     * Match, but no AST. This is possible if the grammar
 		     * consists of only the start expression.
 		     */
-		    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
+		    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1)); /* OK tcl9 */
 		} else {
 		    Tcl_SetObjResult (interp, av [0]);
 		}
 
 		return TCL_OK;
 	    } else {
-		Tcl_Obj* xv [1];
-		const ERROR_STATE* er = rde_param_query_er (p);
-		Tcl_Obj* res = rde_param_query_er_tcl (p, er);
+		Tcl_Obj*           xv [1];
+		const ERROR_STATE* er  = rde_param_query_er (p);
+		Tcl_Obj*           res = rde_param_query_er_tcl (p, er);
 		/* res = list (location, list(msg)) */
 
 		/* Stick the exception type-tag before the existing elements */
-		xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-		Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
+		xv [0] = Tcl_NewStringObj ("pt::rde",-1); /* OK tcl9 */
+		Tcl_ListObjReplace(interp, res, 0, 0, 1, xv); /* OK tcl9 */
 
 		Tcl_SetErrorCode (interp, "PT", "RDE", "SYNTAX", NULL);
 		Tcl_SetObjResult (interp, res);
@@ -4872,7 +4852,8 @@ namespace eval ::pt::parse {
     ## Object command, method dispatch.
 
     critcl::ccode {
-	static int parser_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+	static int
+	parser_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	{
 	    RDE_PARAM p = (RDE_PARAM) cd;
 	    int m, res;
@@ -4885,7 +4866,7 @@ namespace eval ::pt::parse {
 	    };
 
 	    if (objc < 2) {
-		Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
+		Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?"); /* OK tcl9 */
 		return TCL_ERROR;
 	    } else if (Tcl_GetIndexFromObj (interp, objv [1], methods, "option",
 					    0, &m) != TCL_OK) {
@@ -4900,7 +4881,7 @@ namespace eval ::pt::parse {
 	    switch (m) {
 		case M_DESTROY:
 		    if (objc != 2) {
-			Tcl_WrongNumArgs (interp, 2, objv, NULL);
+			Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 			return TCL_ERROR;
 		    }
 
@@ -4935,7 +4916,7 @@ namespace eval ::pt::parse {
 #define USAGE "?name?"
 
 	if ((objc != 2) && (objc != 1)) {
-	    Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+	    Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
@@ -4954,11 +4935,11 @@ namespace eval ::pt::parse {
 	    Tcl_IncrRefCount (fqn);
 
 	    if (!Tcl_StringMatch (Tcl_GetString (fqn), "::")) {
-		Tcl_AppendToObj (fqn, "::", -1);
+		Tcl_AppendToObj (fqn, "::", -1); /* OK tcl9 */
 	    }
-	    Tcl_AppendToObj (fqn, name, -1);
+	    Tcl_AppendToObj (fqn, name, -1); /* OK tcl9 */
 	} else {
-	    fqn = Tcl_NewStringObj (name, -1);
+	    fqn = Tcl_NewStringObj (name, -1); /* OK tcl9 */
 	    Tcl_IncrRefCount (fqn);
 	}
 	Tcl_ResetResult (interp);
@@ -4969,9 +4950,9 @@ namespace eval ::pt::parse {
 	    Tcl_Obj* err;
 
 	    err = Tcl_NewObj ();
-	    Tcl_AppendToObj    (err, "command \"", -1);
+	    Tcl_AppendToObj    (err, "command \"", -1); /* OK tcl9 */
 	    Tcl_AppendObjToObj (err, fqn);
-	    Tcl_AppendToObj    (err, "\" already exists", -1);
+	    Tcl_AppendToObj    (err, "\" already exists", -1); /* OK tcl9 */
 
 	    Tcl_DecrRefCount (fqn);
 	    Tcl_SetObjResult (interp, err);
@@ -4979,9 +4960,9 @@ namespace eval ::pt::parse {
 	}
 
 	parser = rde_param_new (sizeof(p_string)/sizeof(char*), (char**) p_string);
-	c = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-				  parser_objcmd, (ClientData) parser,
-				  PARSERdeleteCmd);
+	c = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+				   parser_objcmd, (ClientData) parser,
+				   PARSERdeleteCmd);
 	rde_param_clientdata (parser, (ClientData) c);
 	Tcl_SetObjResult (interp, fqn);
 	Tcl_DecrRefCount (fqn);
