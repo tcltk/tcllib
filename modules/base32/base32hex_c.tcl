@@ -38,11 +38,12 @@ namespace eval ::base32::hex {
 #define USAGEE "bitstring"
 
       if (objc != 2) {
-        Tcl_WrongNumArgs (interp, 1, objv, USAGEE);
+        Tcl_WrongNumArgs (interp, 1, objv, USAGEE); /* OK tcl9 */
         return TCL_ERROR;
       }
 
-      buf  = Tcl_GetByteArrayFromObj (objv[1], &nbuf);
+      buf  = Tcl_GetBytesFromObj (interp, objv[1], &nbuf); /* OK tcl9 */
+      if (buf == NULL) return TCL_ERROR;
       nout = ((nbuf+4)/5)*8;
       out  = (unsigned char*) Tcl_Alloc (nout*sizeof(char));
 
@@ -132,7 +133,7 @@ namespace eval ::base32::hex {
 	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewStringObj ((char*)out, nout));
+      Tcl_SetObjResult (interp, Tcl_NewStringObj ((char*)out, nout)); /* OK tcl9 */
       Tcl_Free ((char*) out);
       return TCL_OK;
     }
@@ -173,14 +174,14 @@ namespace eval ::base32::hex {
 #define USAGED "estring"
 
       if (objc != 2) {
-        Tcl_WrongNumArgs (interp, 1, objv, USAGED);
+        Tcl_WrongNumArgs (interp, 1, objv, USAGED); /* OK tcl9 */
         return TCL_ERROR;
       }
 
-      buf = (unsigned char*) Tcl_GetStringFromObj (objv[1], &nbuf);
+      buf = (unsigned char*) Tcl_GetStringFromObj (objv[1], &nbuf); /* OK tcl9 */
 
       if (nbuf % 8) {
-	Tcl_SetObjResult (interp, Tcl_NewStringObj ("Length is not a multiple of 8", -1));
+	Tcl_SetObjResult (interp, Tcl_NewStringObj ("Length is not a multiple of 8", -1)); /* OK tcl9 */
         return TCL_ERROR;
       }
 
@@ -205,7 +206,7 @@ namespace eval ::base32::hex {
 		     "Invalid character at index %d: \"=\" (padding found in the middle of the input)",
 		     j-1);
 	    Tcl_Free ((char*) out);
-	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1)); /* OK tcl9 */
 	    return TCL_ERROR;
 	  }
 
@@ -213,7 +214,7 @@ namespace eval ::base32::hex {
 	    char     msg [100];
 	    sprintf (msg,"Invalid character at index %d: \"%c\"",j,a);
 	    Tcl_Free ((char*) out);
-	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1)); /* OK tcl9 */
 	    return TCL_ERROR;
 	  }
 	}
@@ -238,12 +239,12 @@ namespace eval ::base32::hex {
 	  char     msg [100];
 	  sprintf (msg,"Invalid padding of length %d",pad);
 	  Tcl_Free ((char*) out);
-	  Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	  Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1)); /* OK tcl9 */
 	  return TCL_ERROR;
 	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out));
+      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out)); /* OK tcl9 */
       Tcl_Free ((char*) out);
       return TCL_OK;
     }

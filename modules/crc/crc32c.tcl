@@ -39,7 +39,7 @@ namespace eval ::crc {
         unsigned long t = 0xFFFFFFFFL;
 
         if (objc < 2 || objc > 3) {
-            Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
+            Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?"); /* OK tcl9 */
             return TCL_ERROR;
         }
         if (objc == 3) {
@@ -57,11 +57,12 @@ namespace eval ::crc {
                 r = TCL_ERROR;
             }
             if (r == TCL_OK) {
-                data = Tcl_GetByteArrayFromObj(objv[1], &size);
+                data = Tcl_GetBytesFromObj(interp, objv[1], &size); /* OK tcl9 */
+                if (data == NULL) return TCL_ERROR;
             }
             for (cn = 0; r == TCL_OK && cn < size; cn++) {
                 ndx = (t ^ data[cn]) & 0xFF;
-                r = Tcl_ListObjIndex(interp, tblPtr, ndx, &lkpPtr);
+                r = Tcl_ListObjIndex(interp, tblPtr, ndx, &lkpPtr); /* OK tcl9 */
                 if (r == TCL_OK) {
                     r = Tcl_GetLongFromObj(interp, lkpPtr, (long*) &lkp);
                 }

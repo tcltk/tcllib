@@ -71,23 +71,24 @@ if {[package provide critcl] != {}} {
             unsigned char *input, *p, *r;
 
             if (objc !=  2) {
-                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                Tcl_WrongNumArgs(interp, 1, objv, "data"); /* OK tcl9 */
                 return TCL_ERROR;
             }
 
             inputPtr = objv[1];
-            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+            input = Tcl_GetBytesFromObj(interp, inputPtr, &len); /* OK tcl9 */
+            if (input == NULL) return TCL_ERROR;
             if ((xtra = (3 - (len % 3))) != 3) {
                 if (Tcl_IsShared(inputPtr))
                     inputPtr = Tcl_DuplicateObj(inputPtr);
-                input = Tcl_SetByteArrayLength(inputPtr, len + xtra);
+                input = Tcl_SetByteArrayLength(inputPtr, len + xtra); /* OK tcl9 */
                 memset(input + len, 0, xtra);
                 len += xtra;
             }
 
             rlen = (len / 3) * 4;
             resultPtr = Tcl_NewObj();
-            r = Tcl_SetByteArrayLength(resultPtr, rlen);
+            r = Tcl_SetByteArrayLength(resultPtr, rlen); /* OK tcl9 */
             memset(r, 0, rlen);
 
             for (p = input; p < input + len; p += 3) {
@@ -108,17 +109,18 @@ if {[package provide critcl] != {}} {
             unsigned char *input, *p, *r;
 
             if (objc !=  2) {
-                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                Tcl_WrongNumArgs(interp, 1, objv, "data"); /* OK tcl9 */
                 return TCL_ERROR;
             }
 
             /* if input is not mod 4, extend it with nuls */
             inputPtr = objv[1];
-            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+            input = Tcl_GetBytesFromObj(interp, inputPtr, &len); /* OK tcl9 */
+            if (input == NULL) return TCL_ERROR;
             if ((xtra = (4 - (len % 4))) != 4) {
                 if (Tcl_IsShared(inputPtr))
                     inputPtr = Tcl_DuplicateObj(inputPtr);
-                input = Tcl_SetByteArrayLength(inputPtr, len + xtra);
+                input = Tcl_SetByteArrayLength(inputPtr, len + xtra); /* OK tcl9 */
                 memset(input + len, 0, xtra);
                 len += xtra;
             }
@@ -126,7 +128,7 @@ if {[package provide critcl] != {}} {
             /* output will be 1/3 smaller than input and a multiple of 3 */
             rlen = (len / 4) * 3;
             resultPtr = Tcl_NewObj();
-            r = Tcl_SetByteArrayLength(resultPtr, rlen);
+            r = Tcl_SetByteArrayLength(resultPtr, rlen); /* OK tcl9 */
             memset(r, 0, rlen);
 
             for (p = input; p < input + len; p += 4) {

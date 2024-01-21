@@ -69,13 +69,14 @@ if {[package provide critcl] != {}} {
             unsigned char *input, *p, *r, v;
 
             if (objc !=  2) {
-                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                Tcl_WrongNumArgs(interp, 1, objv, "data"); /* OK tcl9 */
                 return TCL_ERROR;
             }
 
             /* fetch the input data */
             inputPtr = objv[1];
-            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+            input = Tcl_GetBytesFromObj(interp, inputPtr, &len); /* OK tcl9 */
+            if (input == NULL) return TCL_ERROR;
 
             /* calculate the length of the encoded result */
             rlen = len;
@@ -87,7 +88,7 @@ if {[package provide critcl] != {}} {
 
             /* allocate the output buffer */
             resultPtr = Tcl_NewObj();
-            r = Tcl_SetByteArrayLength(resultPtr, rlen);
+            r = Tcl_SetByteArrayLength(resultPtr, rlen); /* OK tcl9 */
 
             /* encode the input */
             for (p = input; p < input + len; p++) {
@@ -108,17 +109,18 @@ if {[package provide critcl] != {}} {
             unsigned char *input, *p, *r, v;
 
             if (objc !=  2) {
-                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                Tcl_WrongNumArgs(interp, 1, objv, "data"); /* OK tcl9 */
                 return TCL_ERROR;
             }
 
             /* fetch the input data */
             inputPtr = objv[1];
-            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+            input = Tcl_GetBytesFromObj(interp, inputPtr, &len); /* OK tcl9 */
+            if (input == NULL) return TCL_ERROR;
 
             /* allocate the output buffer */
             resultPtr = Tcl_NewObj();
-            r = Tcl_SetByteArrayLength(resultPtr, len);
+            r = Tcl_SetByteArrayLength(resultPtr, len); /* OK tcl9 */
 
             /* encode the input */
             for (p = input, esc = 0, rlen = 0; p < input + len; p++) {
@@ -134,7 +136,7 @@ if {[package provide critcl] != {}} {
                 *r++ = v;
                 rlen++;
             }
-            Tcl_SetByteArrayLength(resultPtr, rlen);
+            Tcl_SetByteArrayLength(resultPtr, rlen); /* OK tcl9 */
             Tcl_SetObjResult(interp, resultPtr);
             return TCL_OK;
         }

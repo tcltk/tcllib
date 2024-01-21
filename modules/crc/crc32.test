@@ -6,9 +6,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32.test,v 1.12 2009/03/04 01:01:42 patthoyts Exp $
-
-# -------------------------------------------------------------------------
 
 source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
@@ -17,8 +14,11 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
+#puts crc...[info commands ::crc::*]/([info commands ::crc::Crc32_c])
+
 testing {
     useLocal crc32.tcl crc32 ::crc
+    useTcllibC
 }
 
 # -------------------------------------------------------------------------
@@ -88,6 +88,8 @@ set tests {
 foreach impl [implementations] {
     select_implementation $impl
     foreach {n msg expected} $tests {
+puts 2///$impl//$n
+        
         test crc32-$impl-2.$n "crc32 as unsigned integer ($impl)" {
             list [catch {::crc::crc32 $msg} err] $err
         } [list 0 $expected]
@@ -125,12 +127,22 @@ foreach impl [implementations] {
             list [catch {::crc::crc32 -format 0x%X $msg} err] $err
         } [list 0 $expected]
     }
+
     test crc32-$impl-3.8 "crc32 as hexadecimal string ($impl)" tcl8 {
         list [catch {::crc::crc32 -format 0x%X "\uFFFE\u0000\u0001\u0002"} err] $err
     } [list 0 "0xB0E8EEE5"]
+
     test crc32-$impl-3.8 "crc32 as hexadecimal string ($impl)" tcl9plus {
         list [catch {::crc::crc32 -format 0x%X "\uFFFE\u0000\u0001\u0002"} err] $err
     } [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
+
+    # And with the string properly encoded into bytes no error for either Tcl;
+    # and a different result (unencoded 8.6 sees just FE, encoded multiple bytes)
+    
+    test crc32-$impl-3.9 "crc32 as hexadecimal string ($impl)" {
+        list [catch {::crc::crc32 -format 0x%X [encoding convertto utf-8 "\uFFFE\u0000\u0001\u0002"]} err] $err
+    } [list 0 0xCEFFFEF5]
+
     reset_implementation
 }
 
@@ -148,6 +160,9 @@ proc crc::loaddata {filename} {
 
 foreach impl [implementations] {
     select_implementation $impl
+
+    puts 4///$impl//0
+    
     test crc32-$impl-4.0 "crc32 file option ($impl)" {
         set r1 [::crc::crc32 -file $crc::testfile]
         set r2 [::crc::crc32 [crc::loaddata $crc::testfile]]
@@ -177,6 +192,9 @@ set tests {
 foreach impl [implementations] {
     select_implementation $impl
     foreach {n seed msg expected} $tests {
+
+    puts 5///$impl//$n
+        
         test crc32-$impl-5.$n "crc32 initial seed option ($impl)" {
             list [catch {::crc::crc32 -seed $seed $msg} err] $err
         } [list 0 $expected]
@@ -202,6 +220,9 @@ set tests {
 foreach impl [implementations] {
     select_implementation $impl
     foreach {n msgA msgB expected} $tests {
+
+    puts 6///$impl//$n
+        
         test crc32-$impl-6.$n "crc32 using -seed ($impl)" {
             list [catch {
                 ::crc::crc32 -seed [expr {[::crc::crc32 $msgA] ^ 0xffffffff}] $msgB

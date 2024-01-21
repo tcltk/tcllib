@@ -23,15 +23,14 @@ critcl::ccode {
 
 critcl::ccode {
     static Tcl_Obj* delimit(double x, double factor) {
-
 	if (x == (double)(int)x) {
-	    return Tcl_NewIntObj ((int)x);
+	    return Tcl_NewIntObj ((int) x); /* OK tcl9 */
 	}
 
 	x = round(x * factor)/factor;
 
 	if (x == (double)(int)x) {
-	    return Tcl_NewIntObj ((int)x);
+	    return Tcl_NewIntObj ((int) x); /* OK tcl9 */
 	}
 	return Tcl_NewDoubleObj (x);
     }

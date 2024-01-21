@@ -25,11 +25,14 @@ critcl::ccode {
 	double y1;
     } pointbox;
 
-    static int pointbox_unbox (Tcl_Interp* interp, Tcl_Obj* obj, pointbox* p) {
+    static int
+    pointbox_unbox (Tcl_Interp* interp, Tcl_Obj* obj, pointbox* p)
+    {
 	Tcl_Size  lc;
 	Tcl_Obj** lv;
 
-	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjGetElements (interp, obj, &lc, &lv) != TCL_OK) /* OK tcl9 */
+	    return TCL_ERROR;
 	if (lc != 4) {
 	    Tcl_SetErrorCode (interp, "MAP", "SLIPPY", "INVALID", "POINTBOX", NULL);
 	    Tcl_AppendResult (interp, "Bad pointbox, expected list of 4", NULL);
@@ -51,13 +54,15 @@ critcl::ccode {
 	return TCL_OK;
     }
 
-    static Tcl_Obj* pointbox_box (Tcl_Interp* interp, pointbox* p) {
+    static Tcl_Obj*
+    pointbox_box (Tcl_Interp* interp, pointbox* p)
+    {
 	Tcl_Obj* cl[4];
 	cl [0] = Tcl_NewDoubleObj (p->x0);
 	cl [1] = Tcl_NewDoubleObj (p->y0);
 	cl [2] = Tcl_NewDoubleObj (p->x1);
 	cl [3] = Tcl_NewDoubleObj (p->y1);
-	return Tcl_NewListObj(4, cl);
+	return Tcl_NewListObj(4, cl); /* OK tcl9 */
     }
 }
 

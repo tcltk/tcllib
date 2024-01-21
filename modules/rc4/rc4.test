@@ -1,6 +1,4 @@
 # rc4.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
-#
-# $Id: rc4.test,v 1.12 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -260,6 +258,17 @@ test rc4-5.3 {check -command option with file input} {
         list $r $::rc4::_test
     } msg] $msg
 } {0 {{} f0b7907b2341}}
+
+# -------------------------------------------------------------------------
+
+set text "\uFFFE\u0000\u0001\u0002"
+set hash "7e6a4d1f4725"
+
+test rc4-5.0 "rc4 unicode hash \"$text\"" -body {
+    ::rc4::rc4 -hex -key 01234567 [encoding convertto utf-8 $text]
+} -result $hash ; # {}
+
+unset text hash
 
 # -------------------------------------------------------------------------
 
