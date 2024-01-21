@@ -6,9 +6,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sum.test,v 1.8 2006/10/09 21:41:40 andreas_kupries Exp $
-
-# -------------------------------------------------------------------------
 
 source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
@@ -71,6 +68,10 @@ test sum-2.9 {sum using BSD algorithm and unsigned integer} tcl8 {
 test sum-2.9 {sum using BSD algorithm and unsigned integer} tcl9plus {
     catch {::crc::sum -bsd "\uFFFE\u0000\u0001\u0002"}
 } 1
+
+test sum-2.10 {sum using BSD algorithm and unsigned integer} {
+    ::crc::sum -bsd [encoding convertto utf-8 "\uFFFE\u0000\u0001\u0002"]
+} 43053
 
 # -------------------------------------------------------------------------
 foreach {n msg expected} {

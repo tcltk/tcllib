@@ -62,10 +62,10 @@ namespace eval ::rc4 {
             char* str;
             TRACE("rc4_string_rep(%08x)\n", (long)obj);
             /* convert via a byte array to properly handle null bytes */
-            tmpObj = Tcl_NewByteArrayObj((unsigned char *)ctx, sizeof(RC4_CTX));
+            tmpObj = Tcl_NewByteArrayObj((unsigned char *)ctx, sizeof(RC4_CTX)); /* OK tcl9 */
             Tcl_IncrRefCount(tmpObj);
             
-            str = Tcl_GetStringFromObj(tmpObj, &obj->length);
+            str = Tcl_GetStringFromObj(tmpObj, &obj->length); /* OK tcl9 */
             obj->bytes = Tcl_Alloc(obj->length + 1);
             memcpy(obj->bytes, str, obj->length + 1);
             
@@ -100,11 +100,12 @@ namespace eval ::rc4 {
         Tcl_Size n = 0, i = 0, j = 0, keylen;
 
         if (objc != 2) {
-            Tcl_WrongNumArgs(interp, 1, objv, "keystring");
+            Tcl_WrongNumArgs(interp, 1, objv, "keystring"); /* OK tcl9 */
             return TCL_ERROR;
         }
         
-        k = Tcl_GetByteArrayFromObj(objv[1], &keylen);
+        k = Tcl_GetBytesFromObj(interp, objv[1], &keylen); /* OK tcl9 */
+	if (k == NULL) return TCL_ERROR;
 
         obj = Tcl_NewObj();
         ctx = (RC4_CTX *)Tcl_Alloc(sizeof(RC4_CTX));
@@ -134,7 +135,7 @@ namespace eval ::rc4 {
         Tcl_Size size, n, i;
 
         if (objc != 3) {
-            Tcl_WrongNumArgs(interp, 1, objv, "key data");
+            Tcl_WrongNumArgs(interp, 1, objv, "key data"); /* OK tcl9 */
             return TCL_ERROR;
         }
 
@@ -144,7 +145,8 @@ namespace eval ::rc4 {
         }
 
         ctx = objv[1]->internalRep.otherValuePtr;
-        data = Tcl_GetByteArrayFromObj(objv[2], &size);
+        data = Tcl_GetBytesFromObj(interp, objv[2], &size); /* OK tcl9 */
+	if (data == NULL) return TCL_ERROR;
         res = (unsigned char *)Tcl_Alloc(size);
 
         x = ctx->x;
@@ -159,7 +161,7 @@ namespace eval ::rc4 {
         ctx->x = x;
         ctx->y = y;
 
-        resObj = Tcl_NewByteArrayObj(res, size);
+        resObj = Tcl_NewByteArrayObj(res, size); /* OK tcl9 */
         Tcl_SetObjResult(interp, resObj);
         Tcl_Free((char*)res);
         return TCL_OK;

@@ -289,15 +289,17 @@ proc ::crc::crc32 {args} {
 #	this should not be called, but the test package manipulates the
 #	list of enabled accelerators.
 #
-proc ::crc::LoadAccelerator {name} {
+proc ::crc::LoadAccelerator {name} { #puts [info level 0]\t([info loaded])
     variable accel
     set r 0
     switch -exact -- $name {
         critcl {
             if {![catch {package require tcllibc}]
                 || ![catch {package require crcc}]} {
+                #puts ///[info commands ::crc::Crc32_c]
                 set r [expr {[info commands ::crc::Crc32_c] != {}}]
             }
+            #puts /$r/
         }
         trf {
             if {![catch {package require Trf}]} {
@@ -309,6 +311,7 @@ proc ::crc::LoadAccelerator {name} {
                 must be one of [join [array names accel] {, }]"
         }
     }
+    #puts [info level 0]=$r
     set accel($name) $r
 }
 

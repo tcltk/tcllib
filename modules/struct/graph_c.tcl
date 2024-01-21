@@ -55,7 +55,7 @@ namespace eval ::struct {
 	Tcl_CmdInfo ci;
 
 	if ((objc != 4) && (objc != 2) && (objc != 1)) {
-	    Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+	    Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
@@ -74,11 +74,11 @@ namespace eval ::struct {
 	    Tcl_IncrRefCount (fqn);
 
 	    if (!Tcl_StringMatch (Tcl_GetString (fqn), "::")) {
-		Tcl_AppendToObj (fqn, "::", -1);
+		Tcl_AppendToObj (fqn, "::", -1); /* OK tcl9 */
 	    }
-	    Tcl_AppendToObj (fqn, name, -1);
+	    Tcl_AppendToObj (fqn, name, -1); /* OK tcl9 */
 	} else {
-	    fqn = Tcl_NewStringObj (name, -1);
+	    fqn = Tcl_NewStringObj (name, -1); /* OK tcl9 */
 	    Tcl_IncrRefCount (fqn);
 	}
 
@@ -88,9 +88,9 @@ namespace eval ::struct {
 	    Tcl_Obj* err;
 
 	    err = Tcl_NewObj ();
-	    Tcl_AppendToObj    (err, "command \"", -1);
+	    Tcl_AppendToObj    (err, "command \"", -1); /* OK tcl9 */
 	    Tcl_AppendObjToObj (err, fqn);
-	    Tcl_AppendToObj    (err, "\" already exists, unable to create graph", -1);
+	    Tcl_AppendToObj    (err, "\" already exists, unable to create graph", -1); /* OK tcl9 */
 
 	    Tcl_DecrRefCount (fqn);
 	    Tcl_SetObjResult (interp, err);
@@ -115,7 +115,7 @@ namespace eval ::struct {
 	    if (Tcl_GetIndexFromObj (interp, type, types, "type", 0, &srctype) != TCL_OK) {
 		Tcl_DecrRefCount (fqn);
 		Tcl_ResetResult  (interp);
-		Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+		Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
 		return TCL_ERROR;
 	    }
 

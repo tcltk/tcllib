@@ -93,7 +93,7 @@ namespace eval ::struct {
 #define USAGE "?name?"
 
       if ((objc != 2) && (objc != 1)) {
-        Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+        Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
         return TCL_ERROR;
       }
 
@@ -112,11 +112,11 @@ namespace eval ::struct {
         Tcl_IncrRefCount (fqn);
 
         if (!Tcl_StringMatch (Tcl_GetString (fqn), "::")) {
-          Tcl_AppendToObj (fqn, "::", -1);
+          Tcl_AppendToObj (fqn, "::", -1); /* OK tcl9 */
         }
-        Tcl_AppendToObj (fqn, name, -1);
+        Tcl_AppendToObj (fqn, name, -1); /* OK tcl9 */
       } else {
-        fqn = Tcl_NewStringObj (name, -1);
+        fqn = Tcl_NewStringObj (name, -1); /* OK tcl9 */
         Tcl_IncrRefCount (fqn);
       }
       Tcl_ResetResult (interp);
@@ -127,9 +127,9 @@ namespace eval ::struct {
         Tcl_Obj* err;
 
         err = Tcl_NewObj ();
-        Tcl_AppendToObj    (err, "command \"", -1);
+        Tcl_AppendToObj    (err, "command \"", -1); /* OK tcl9 */
         Tcl_AppendObjToObj (err, fqn);
-        Tcl_AppendToObj    (err, "\" already exists, unable to create queue", -1);
+        Tcl_AppendToObj    (err, "\" already exists, unable to create queue", -1); /* OK tcl9 */
 
         Tcl_DecrRefCount (fqn);
         Tcl_SetObjResult (interp, err);

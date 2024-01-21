@@ -24,17 +24,19 @@ namespace eval ::crc {
         unsigned int t = 0;
 
         if (objc < 2 || objc > 3) {
-            Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
+            Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?"); /* OK tcl9 */
             return TCL_ERROR;
         }
         if (objc == 3) {
-            r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t);
+            r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t); /* OK tcl9 */
         }
         if (r == TCL_OK) {
             Tcl_Size cn, size;
             unsigned char *data;
 
-            data = Tcl_GetByteArrayFromObj(objv[1], &size);
+            data = Tcl_GetBytesFromObj(interp, objv[1], &size); /* OK tcl9 */
+            if (data == NULL) return TCL_ERROR;
+
             for (cn = 0; cn < size; cn++) t += data[cn];
         }
 
@@ -42,7 +44,7 @@ namespace eval ::crc {
         t = (t & 0xffff) + (t >> 16);
         t = (t & 0xffff) + (t >> 16);
 
-        Tcl_SetObjResult(interp, Tcl_NewIntObj(t));
+        Tcl_SetObjResult(interp, Tcl_NewIntObj(t)); /* OK tcl9 */
         return r;
     }
 
@@ -51,24 +53,26 @@ namespace eval ::crc {
         unsigned int t = 0;
 
         if (objc < 2 || objc > 3) {
-            Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
+            Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?"); /* OK tcl9 */
             return TCL_ERROR;
         }
         if (objc == 3) {
-            r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t);
+            r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t); /* OK tcl9 */
         }
         if (r == TCL_OK) {
             Tcl_Size cn, size;
             unsigned char *data;
 
-            data = Tcl_GetByteArrayFromObj(objv[1], &size);
+            data = Tcl_GetBytesFromObj(interp, objv[1], &size); /* OK tcl9 */
+            if (data == NULL) return TCL_ERROR;
+
             for (cn = 0; cn < size; cn++) {
                t = (t & 1) ? ((t >> 1) + 0x8000) : (t >> 1);
                t = (t + data[cn]) & 0xFFFF;
             }
         }
 
-        Tcl_SetObjResult(interp, Tcl_NewIntObj(t & 0xFFFF));
+        Tcl_SetObjResult(interp, Tcl_NewIntObj(t & 0xFFFF)); /* OK tcl9 */
         return r;
     }
 }

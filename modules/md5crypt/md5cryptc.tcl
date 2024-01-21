@@ -162,13 +162,13 @@ namespace eval ::md5crypt {
     critcl::cproc to64_c {Tcl_Interp* interp int v int n} ok {
         char s[5];
         to64(s, (unsigned int)v, n); 
-        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, n));
+        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, n)); /* OK tcl9 */
         return TCL_OK;
     }
 
     critcl::cproc md5crypt_c {Tcl_Interp* interp char* magic char* pw char* salt} ok {
         char* s = md5crypt(pw, salt, magic);
-        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, strlen(s)));
+        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, strlen(s))); /* OK tcl9 */
         return TCL_OK;
     }
 }

@@ -182,7 +182,7 @@ critcl::cproc ::map::slippy::critcl_geo_box_limit {
     cl [1] = delimit (gbox.lon0, 1000000);
     cl [2] = delimit (gbox.lat1, 1000000);
     cl [3] = delimit (gbox.lon1, 1000000);
-    return Tcl_NewListObj(4, cl);
+    return Tcl_NewListObj(4, cl); /* OK tcl9 */
 }
 
 critcl::cproc ::map::slippy::critcl_geo_box_inside {
@@ -408,7 +408,7 @@ critcl::cproc ::map::slippy::critcl_geo_limit {
     Tcl_Obj* cl[4];
     cl [0] = delimit (g.lat, 1000000);
     cl [1] = delimit (g.lon, 1000000);
-    return Tcl_NewListObj(2, cl);
+    return Tcl_NewListObj(2, cl); /* OK tcl9 */
 }
 
 critcl::cproc ::map::slippy::critcl_geo_distance {
@@ -497,7 +497,7 @@ critcl::cproc ::map::slippy::critcl_geo_2point_args {
 } object0 {
     if (args.c == 0) {
 	/* Pass the input, no need for transient helper memory */
-	return Tcl_NewListObj (0,0);
+	return Tcl_NewListObj (0,0); /* OK tcl9 */
     }
 
     return point_box_list (1, interp, args.c, geos_2points (zoom, args.c, args.v));
@@ -510,7 +510,7 @@ critcl::cproc ::map::slippy::critcl_geo_2point_list {
 } object0 {
     if (geos.c == 0) {
 	/* Pass the input, no need for transient helper memory */
-	return Tcl_NewListObj (0,0);
+	return Tcl_NewListObj (0,0); /* OK tcl9 */
     }
 
     return point_box_list (1, interp, geos.c, geos_2points (zoom, geos.c, geos.v));
@@ -724,7 +724,7 @@ critcl::cproc ::map::slippy::critcl_point_2geo_args {
 } object0 {
     if (args.c == 0) {
 	/* Pass the input, no need for transient helper memory */
-	return Tcl_NewListObj (0,0);
+	return Tcl_NewListObj (0,0); /* OK tcl9 */
     }
 
     return geo_box_list (1, interp, args.c, points_2geos (zoom, args.c, args.v));
@@ -737,7 +737,7 @@ critcl::cproc ::map::slippy::critcl_point_2geo_list {
 } object0 {
     if (points.c == 0) {
 	/* Pass the input, no need for transient helper memory */
-	return Tcl_NewListObj (0,0);
+	return Tcl_NewListObj (0,0); /* OK tcl9 */
     }
 
     return geo_box_list (1, interp, points.c, points_2geos (zoom, points.c, points.v));
@@ -826,7 +826,7 @@ critcl::cproc ::map::slippy::critcl_point_simplify_rdp {
     ckfree (keep);
 
     if (!into) {
-	return Tcl_NewListObj (0,0);
+	return Tcl_NewListObj (0,0); /* OK tcl9 */
     }
 
     return point_box_list (0, interp, into, points.v);

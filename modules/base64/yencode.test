@@ -6,9 +6,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: yencode.test,v 1.11 2008/12/12 04:57:46 andreas_kupries Exp $
-
-# -------------------------------------------------------------------------
 
 source [file join [file dirname [file dirname [
 	file join [pwd] [info script]]]] devtools testutilities.tcl]
@@ -83,6 +80,22 @@ if {[llength [info commands ::yencode::CEncode]]} {
         } [list 0 $in]
     }
 }
+
+# -------------------------------------------------------------------------
+## Higher unicode
+
+set text    "\uFFFE\u0000\u0001\u0002"
+set encoded "éè*+,"
+
+test yencode-4.0 "Encode \"$text\"" -body {
+    ::yencode::encode [encoding convertto utf-8 $text]
+} -result $encoded ; # {}
+
+test yencode-5.0 "Decode \"$encoded\"" -body {
+    encoding convertfrom utf-8 [::yencode::decode $encoded]
+} -result $text ; # {}
+
+unset text encoded
 
 # -------------------------------------------------------------------------
 

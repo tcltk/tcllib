@@ -56,7 +56,7 @@ namespace eval ::struct {
 	int m;
 
         if (objc < 2) {
-            Tcl_WrongNumArgs (interp, objc, objv, "cmd ?arg ...?");
+            Tcl_WrongNumArgs (interp, objc, objv, "cmd ?arg ...?"); /* OK tcl9 */
             return TCL_ERROR;
         } else if (Tcl_GetIndexFromObj (interp, objv [1], methods, "option",
             0, &m) != TCL_OK) {
