@@ -1,5 +1,8 @@
+2024-01-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+        * statistics.test: Correct mistake with srand function (pers.comm. A. Kupries)
+
 2024-01-15  Arjen Markus <arjenmarkus@users.sourceforge.net>
-        * statistics.test: Fix the seed of the random number generator as sporadically tests would fail (pers.comm. A. Kupries
+        * statistics.test: Fix the seed of the random number generator as sporadically tests would fail (pers.comm. A. Kupries)
         * math.man: Correct the description of the math::sigma procedure (ticket 30f909e66eee1aebdb6e6ea8de62a8fbf194cde7)
 
 2023-04-03  Arjen Markus <arjenmarkus@users.sourceforge.net>

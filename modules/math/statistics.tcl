@@ -30,15 +30,15 @@ package require math
 if {![llength [info commands ::lrepeat]]} {
     # Forward portability, emulate lrepeat
     proc ::lrepeat {n args} {
-	if {$n < 1} {
-	    return -code error "must have a count of at least 1"
-	}
-	set res {}
-	while {$n} {
-	    foreach x $args { lappend res $x }
-	    incr n -1
-	}
-	return $res
+        if {$n < 1} {
+            return -code error "must have a count of at least 1"
+        }
+        set res {}
+        while {$n} {
+            foreach x $args { lappend res $x }
+            incr n -1
+        }
+        return $res
     }
 }
 
@@ -51,14 +51,14 @@ namespace eval ::math::statistics {
     # Safer: change to short procedures
     #
     namespace export mean min max number var stdev pvar pstdev basic-stats corr \
-	    histogram histogram-alt interval-mean-stdev t-test-mean quantiles \
-	    test-normal lillieforsFit \
-	    autocorr crosscorr filter map samplescount median \
-	    test-2x2 print-2x2 control-xbar test_xbar \
-	    control-Rchart test-Rchart \
-	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank \
-	    test-Wilcoxon spearman-rank spearman-rank-extended \
-	    test-Duckworth test-anova-F test-Tukey-range test-Dunnett
+            histogram histogram-alt interval-mean-stdev t-test-mean quantiles \
+            test-normal lillieforsFit \
+            autocorr crosscorr filter map samplescount median \
+            test-2x2 print-2x2 control-xbar test_xbar \
+            control-Rchart test-Rchart \
+            test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank \
+            test-Wilcoxon spearman-rank spearman-rank-extended \
+            test-Duckworth test-anova-F test-Tukey-range test-Dunnett
     #
     # Error messages
     #
@@ -100,7 +100,7 @@ namespace eval ::math::statistics {
 #
 namespace eval ::math::statistics {
     foreach type {mean min max number stdev var pstdev pvar} {
-	proc $type { values } "BasicStats $type \$values"
+        proc $type { values } "BasicStats $type \$values"
     }
     proc basic-stats { values } "BasicStats all \$values"
 }
@@ -119,9 +119,9 @@ proc ::math::statistics::BasicStats { type values } {
     variable TOOFEWDATA
 
     if { [lsearch {all mean min max number stdev var pstdev pvar} $type] < 0 } {
-	return -code error \
-		-errorcode ARG -errorinfo [list unknown type of statistic -- $type] \
-		[list unknown type of statistic -- $type]
+        return -code error \
+                -errorcode ARG -errorinfo [list unknown type of statistic -- $type] \
+                [list unknown type of statistic -- $type]
     }
 
     set min    {}
@@ -136,35 +136,35 @@ proc ::math::statistics::BasicStats { type values } {
     set first  {}
 
     foreach value $values {
-	if { $value == {} } {
-	    continue
-	}
-	set value [expr {double($value)}]
+        if { $value == {} } {
+            continue
+        }
+        set value [expr {double($value)}]
 
-	if { $first == {} } {
-	    set first $value
-	}
+        if { $first == {} } {
+            set first $value
+        }
 
-	incr number
-	set  sum    [expr {$sum+$value}]
-	set  sumsq  [expr {$sumsq+($value-$first)*($value-$first)}]
+        incr number
+        set  sum    [expr {$sum+$value}]
+        set  sumsq  [expr {$sumsq+($value-$first)*($value-$first)}]
 
-	if { $min == {} || $value < $min } {
-	    set min $value
-	}
-	if { $max == {} || $value > $max } {
-	    set max $value
-	}
+        if { $min == {} || $value < $min } {
+            set min $value
+        }
+        if { $max == {} || $value > $max } {
+            set max $value
+        }
     }
 
     if { $number > 0 } {
-	set mean [expr {$sum/$number}]
+        set mean [expr {$sum/$number}]
     } else {
-	return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
     }
 
     if { $number > 1 } {
-	set var    [expr {($sumsq-($mean-$first)*($sum-$number*$first))/double($number-1)}]
+        set var    [expr {($sumsq-($mean-$first)*($sum-$number*$first))/double($number-1)}]
         #
         # Take care of a rare situation: uniform data might
         # cause a tiny negative difference
@@ -172,9 +172,9 @@ proc ::math::statistics::BasicStats { type values } {
         if { $var < 0.0 } {
            set var 0.0
         }
-	set stdev  [expr {sqrt($var)}]
+        set stdev  [expr {sqrt($var)}]
     }
-	set pvar [expr {($sumsq-($mean-$first)*($sum-$number*$first))/double($number)}]
+        set pvar [expr {($sumsq-($mean-$first)*($sum-$number*$first))/double($number)}]
         #
         # Take care of a rare situation: uniform data might
         # cause a tiny negative difference
@@ -182,7 +182,7 @@ proc ::math::statistics::BasicStats { type values } {
         if { $pvar < 0.0 } {
            set pvar 0.0
         }
-	set pstdev  [expr {sqrt($pvar)}]
+        set pstdev  [expr {sqrt($pvar)}]
 
     set all [list $mean $min $max $number $stdev $var $pstdev $pvar]
 
@@ -208,16 +208,16 @@ proc ::math::statistics::BasicStats { type values } {
 proc ::math::statistics::histogram { limits values {weights {}} } {
 
     if { [llength $limits] < 1 } {
-	return -code error -errorcode ARG -errorinfo {No limits given} {No limits given}
+        return -code error -errorcode ARG -errorinfo {No limits given} {No limits given}
     }
     if { [llength $weights] > 0 && [llength $values] != [llength $weights] } {
-	return -code error -errorcode ARG -errorinfo {Number of weights be equal to number of values} {Weights and values differ in length}
+        return -code error -errorcode ARG -errorinfo {Number of weights be equal to number of values} {Weights and values differ in length}
     }
 
     set limits [lsort -real -increasing $limits]
 
     for { set index 0 } { $index <= [llength $limits] } { incr index } {
-	set buckets($index) 0
+        set buckets($index) 0
     }
 
     set last [llength $limits]
@@ -228,29 +228,29 @@ proc ::math::statistics::histogram { limits values {weights {}} } {
     }
 
     foreach value $values weight $weights {
-	if { $value == {} } {
-	    continue
-	}
+        if { $value == {} } {
+            continue
+        }
 
-	set index 0
-	set found 0
-	foreach limit $limits {
-	    if { $value <= $limit } {
-		set found 1
-		set buckets($index) [expr $buckets($index)+$weight]
-		break
-	    }
-	    incr index
-	}
+        set index 0
+        set found 0
+        foreach limit $limits {
+            if { $value <= $limit } {
+                set found 1
+                set buckets($index) [expr $buckets($index)+$weight]
+                break
+            }
+            incr index
+        }
 
-	if { $found == 0 } {
-	    set buckets($last) [expr $buckets($last)+$weight]
-	}
+        if { $found == 0 } {
+            set buckets($last) [expr $buckets($last)+$weight]
+        }
     }
 
     set result {}
     for { set index 0 } { $index <= $last } { incr index } {
-	lappend result $buckets($index)
+        lappend result $buckets($index)
     }
 
     return $result
@@ -273,16 +273,16 @@ proc ::math::statistics::histogram { limits values {weights {}} } {
 proc ::math::statistics::histogram-alt { limits values {weights {}} } {
 
     if { [llength $limits] < 1 } {
-	return -code error -errorcode ARG -errorinfo {No limits given} {No limits given}
+        return -code error -errorcode ARG -errorinfo {No limits given} {No limits given}
     }
     if { [llength $weights] > 0 && [llength $values] != [llength $weights] } {
-	return -code error -errorcode ARG -errorinfo {Number of weights be equal to number of values} {Weights and values differ in length}
+        return -code error -errorcode ARG -errorinfo {Number of weights be equal to number of values} {Weights and values differ in length}
     }
 
     set limits [lsort -real -increasing $limits]
 
     for { set index 0 } { $index <= [llength $limits] } { incr index } {
-	set buckets($index) 0
+        set buckets($index) 0
     }
 
     set last [llength $limits]
@@ -293,29 +293,29 @@ proc ::math::statistics::histogram-alt { limits values {weights {}} } {
     }
 
     foreach value $values weight $weights {
-	if { $value == {} } {
-	    continue
-	}
+        if { $value == {} } {
+            continue
+        }
 
-	set index 0
-	set found 0
-	foreach limit $limits {
-	    if { $value < $limit } {
-		set found 1
-		set buckets($index) [expr $buckets($index)+$weight]
-		break
-	    }
-	    incr index
-	}
+        set index 0
+        set found 0
+        foreach limit $limits {
+            if { $value < $limit } {
+                set found 1
+                set buckets($index) [expr $buckets($index)+$weight]
+                break
+            }
+            incr index
+        }
 
-	if { $found == 0 } {
-	    set buckets($last) [expr $buckets($last)+$weight]
-	}
+        if { $found == 0 } {
+            set buckets($last) [expr $buckets($last)+$weight]
+        }
     }
 
     set result {}
     for { set index 0 } { $index <= $last } { incr index } {
-	lappend result $buckets($index)
+        lappend result $buckets($index)
     }
 
     return $result
@@ -342,33 +342,33 @@ proc ::math::statistics::corr { data1 data2 } {
     set sumprod 0.0
 
     foreach value1 $data1 value2 $data2 {
-	if { $value1 == {} || $value2 == {} } {
-	    continue
-	}
-	set  value1  [expr {double($value1)}]
-	set  value2  [expr {double($value2)}]
+        if { $value1 == {} || $value2 == {} } {
+            continue
+        }
+        set  value1  [expr {double($value1)}]
+        set  value2  [expr {double($value2)}]
 
-	set  sum1    [expr {$sum1+$value1}]
-	set  sum2    [expr {$sum2+$value2}]
-	set  sumsq1  [expr {$sumsq1+$value1*$value1}]
-	set  sumsq2  [expr {$sumsq2+$value2*$value2}]
-	set  sumprod [expr {$sumprod+$value1*$value2}]
-	incr number
+        set  sum1    [expr {$sum1+$value1}]
+        set  sum2    [expr {$sum2+$value2}]
+        set  sumsq1  [expr {$sumsq1+$value1*$value1}]
+        set  sumsq2  [expr {$sumsq2+$value2*$value2}]
+        set  sumprod [expr {$sumprod+$value1*$value2}]
+        incr number
     }
     if { $number > 0 } {
-	set numerator   [expr {$number*$sumprod-$sum1*$sum2}]
-	set denom1      [expr {sqrt($number*$sumsq1-$sum1*$sum1)}]
-	set denom2      [expr {sqrt($number*$sumsq2-$sum2*$sum2)}]
-	if { $denom1 != 0.0 && $denom2 != 0.0 } {
-	    set corr_coeff  [expr {$numerator/$denom1/$denom2}]
-	} elseif { $denom1 != 0.0 || $denom2 != 0.0 } {
-	    set corr_coeff  0.0 ;# Uniform against non-uniform
-	} else {
-	    set corr_coeff  1.0 ;# Both uniform
-	}
+        set numerator   [expr {$number*$sumprod-$sum1*$sum2}]
+        set denom1      [expr {sqrt($number*$sumsq1-$sum1*$sum1)}]
+        set denom2      [expr {sqrt($number*$sumsq2-$sum2*$sum2)}]
+        if { $denom1 != 0.0 && $denom2 != 0.0 } {
+            set corr_coeff  [expr {$numerator/$denom1/$denom2}]
+        } elseif { $denom1 != 0.0 || $denom2 != 0.0 } {
+            set corr_coeff  0.0 ;# Uniform against non-uniform
+        } else {
+            set corr_coeff  1.0 ;# Both uniform
+        }
 
     } else {
-	return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
     }
     return $corr_coeff
 }
@@ -564,7 +564,7 @@ proc ::math::statistics::t-test-mean { data est_mean est_stdev alpha } {
     variable TOOFEWDATA
 
     if { $est_stdev <= 0.0 } {
-	return -code error -errorcode ARG -errorinfo $NEGSTDEV $NEGSTDEV
+        return -code error -errorcode ARG -errorinfo $NEGSTDEV $NEGSTDEV
     }
 
     set allstats        [BasicStats all $data]
@@ -575,15 +575,15 @@ proc ::math::statistics::t-test-mean { data est_mean est_stdev alpha } {
     set sample_number   [lindex $allstats 3]
 
     if { $sample_number > 1 } {
-	set tzero   [expr {abs($sample_mean-$est_mean)/$est_stdev * \
-		sqrt($sample_number-1)}]
-	set degrees [expr {$sample_number-1}]
-	set prob    [cdf-students-t $degrees $tzero]
+        set tzero   [expr {abs($sample_mean-$est_mean)/$est_stdev * \
+                sqrt($sample_number-1)}]
+        set degrees [expr {$sample_number-1}]
+        set prob    [cdf-students-t $degrees $tzero]
 
-	return [expr {$prob<$alpha2}]
+        return [expr {$prob<$alpha2}]
 
     } else {
-	return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
     }
 }
 
@@ -612,15 +612,15 @@ proc ::math::statistics::interval-mean-stdev { data confidence } {
     set stdev    [lindex $allstats 4]
 
     if { $number > 1 } {
-	set degrees    [expr {$number-1}]
-	set student_t  [expr {sqrt([Inverse-cdf-toms322 1 $degrees $conf2])}]
-	set mean_lower [expr {$mean-$student_t*$stdev/sqrt($number)}]
-	set mean_upper [expr {$mean+$student_t*$stdev/sqrt($number)}]
-	set stdev_lower {}
-	set stdev_upper {}
-	return [list $mean_lower $mean_upper $stdev_lower $stdev_upper]
+        set degrees    [expr {$number-1}]
+        set student_t  [expr {sqrt([Inverse-cdf-toms322 1 $degrees $conf2])}]
+        set mean_lower [expr {$mean-$student_t*$stdev/sqrt($number)}]
+        set mean_upper [expr {$mean+$student_t*$stdev/sqrt($number)}]
+        set stdev_lower {}
+        set stdev_upper {}
+        return [list $mean_lower $mean_upper $stdev_lower $stdev_upper]
     } else {
-	return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
     }
 }
 
@@ -643,15 +643,15 @@ proc ::math::statistics::quantiles { arg1 arg2 {arg3 {}} } {
     variable TOOFEWDATA
 
     if { [catch {
-	if { $arg3 == {} } {
-	    set result \
-		    [::math::statistics::QuantilesRawData $arg1 $arg2]
-	} else {
-	    set result \
-		    [::math::statistics::QuantilesHistogram $arg1 $arg2 $arg3]
-	}
+        if { $arg3 == {} } {
+            set result \
+                    [::math::statistics::QuantilesRawData $arg1 $arg2]
+        } else {
+            set result \
+                    [::math::statistics::QuantilesHistogram $arg1 $arg2 $arg3]
+        }
     } msg] } {
-	return -code error -errorcode $msg $msg
+        return -code error -errorcode $msg $msg
     }
     return $result
 }
@@ -671,17 +671,17 @@ proc ::math::statistics::QuantilesRawData { data confidence } {
     variable OUTOFRANGE
 
     if { [llength $confidence] <= 0 } {
-	return -code error -errorcode ARG "$TOOFEWDATA - quantiles"
+        return -code error -errorcode ARG "$TOOFEWDATA - quantiles"
     }
 
     if { [llength $data] <= 0 } {
-	return -code error -errorcode ARG "$TOOFEWDATA - raw data"
+        return -code error -errorcode ARG "$TOOFEWDATA - raw data"
     }
 
     foreach cond $confidence {
-	if { $cond <= 0.0 || $cond >= 1.0 } {
-	    return -code error -errorcode ARG "$OUTOFRANGE - quantiles"
-	}
+        if { $cond <= 0.0 || $cond >= 1.0 } {
+            return -code error -errorcode ARG "$OUTOFRANGE - quantiles"
+        }
     }
 
     #
@@ -696,11 +696,11 @@ proc ::math::statistics::QuantilesRawData { data confidence } {
     set result      {}
     set number_data [llength $sorted_data]
     foreach cond $confidence {
-	set elem [expr {round($number_data*$cond)-1}]
-	if { $elem < 0 } {
-	    set elem 0
-	}
-	lappend result [lindex $sorted_data $elem]
+        set elem [expr {round($number_data*$cond)-1}]
+        if { $elem < 0 } {
+            set elem 0
+        }
+        lappend result [lindex $sorted_data $elem]
     }
 
     return $result
@@ -722,21 +722,21 @@ proc ::math::statistics::QuantilesHistogram { limits counts confidence } {
     variable OUTOFRANGE
 
     if { [llength $confidence] <= 0 } {
-	return -code error -errorcode ARG "$TOOFEWDATA - quantiles"
+        return -code error -errorcode ARG "$TOOFEWDATA - quantiles"
     }
 
     if { [llength $confidence] <= 0 } {
-	return -code error -errorcode ARG "$TOOFEWDATA - histogram limits"
+        return -code error -errorcode ARG "$TOOFEWDATA - histogram limits"
     }
 
     if { [llength $counts] <= [llength $limits] } {
-	return -code error -errorcode ARG "$TOOFEWDATA - histogram counts"
+        return -code error -errorcode ARG "$TOOFEWDATA - histogram counts"
     }
 
     foreach cond $confidence {
-	if { $cond <= 0.0 || $cond >= 1.0 } {
-	    return -code error -errorcode ARG "$OUTOFRANGE - quantiles"
-	}
+        if { $cond <= 0.0 || $cond >= 1.0 } {
+            return -code error -errorcode ARG "$OUTOFRANGE - quantiles"
+        }
     }
 
     #
@@ -745,8 +745,8 @@ proc ::math::statistics::QuantilesHistogram { limits counts confidence } {
     set sum 0
     set accumulated_counts {}
     foreach count $counts {
-	set sum [expr {$sum+$count}]
-	lappend accumulated_counts $sum
+        set sum [expr {$sum+$count}]
+        lappend accumulated_counts $sum
     }
     set total_counts $sum
 
@@ -757,29 +757,29 @@ proc ::math::statistics::QuantilesHistogram { limits counts confidence } {
     #
     set result      {}
     foreach cond $confidence {
-	set found       0
-	set bound       [expr {round($total_counts*$cond)}]
-	set lower_limit {}
-	set lower_count 0
-	foreach acc_count $accumulated_counts limit $limits {
-	    if { $acc_count >= $bound } {
-		set found 1
-		break
-	    }
-	    set lower_limit $limit
-	    set lower_count $acc_count
-	}
+        set found       0
+        set bound       [expr {round($total_counts*$cond)}]
+        set lower_limit {}
+        set lower_count 0
+        foreach acc_count $accumulated_counts limit $limits {
+            if { $acc_count >= $bound } {
+                set found 1
+                break
+            }
+            set lower_limit $limit
+            set lower_count $acc_count
+        }
 
-	if { $lower_limit == {} || $limit == {} || $found == 0 } {
-	    set quant $limit
-	    if { $limit == {} } {
-		set quant $lower_limit
-	    }
-	} else {
-	    set quant [expr {$limit+($lower_limit-$limit) *
-	    ($acc_count-$bound)/($acc_count-$lower_count)}]
-	}
-	lappend result $quant
+        if { $lower_limit == {} || $limit == {} || $found == 0 } {
+            set quant $limit
+            if { $limit == {} } {
+                set quant $lower_limit
+            }
+        } else {
+            set quant [expr {$limit+($lower_limit-$limit) *
+            ($acc_count-$bound)/($acc_count-$lower_count)}]
+        }
+        lappend result $quant
     }
 
     return $result
@@ -799,7 +799,7 @@ proc ::math::statistics::autocorr { data } {
     variable TOOFEWDATA
 
     if { [llength $data] <= 1 } {
-	return -code error -errorcode ARG "$TOOFEWDATA"
+        return -code error -errorcode ARG "$TOOFEWDATA"
     }
 
     return [crosscorr $data $data]
@@ -824,7 +824,7 @@ proc ::math::statistics::crosscorr { data1 data2 } {
     variable TOOFEWDATA
 
     if { [llength $data1] <= 1 || [llength $data2] <= 1 } {
-	return -code error -errorcode ARG "$TOOFEWDATA"
+        return -code error -errorcode ARG "$TOOFEWDATA"
     }
 
     #
@@ -842,7 +842,7 @@ proc ::math::statistics::crosscorr { data1 data2 } {
 
     set number_pairs $number1
     if { $number1 > $number2 } {
-	set number_pairs $number2
+        set number_pairs $number2
     }
     set number_values $number_pairs
     set number_delays [expr {$number_values/2.0}]
@@ -851,20 +851,20 @@ proc ::math::statistics::crosscorr { data1 data2 } {
 
     set result {}
     for { set delay 0 } { $delay < $number_delays } { incr delay } {
-	set sumcross 0.0
-	set no_cross 0
-	for { set idx 0 } { $idx < $number_values } { incr idx } {
-	    set value1 [lindex $data1 $idx]
-	    set value2 [lindex $data2 [expr {$idx+$delay}]]
-	    if { $value1 != {} && $value2 != {} } {
-		set  sumcross \
-			[expr {$sumcross+($value1-$vmean1)*($value2-$vmean2)}]
-		incr no_cross
-	    }
-	}
-	lappend result [expr {$sumcross/($no_cross*$scale)}]
+        set sumcross 0.0
+        set no_cross 0
+        for { set idx 0 } { $idx < $number_values } { incr idx } {
+            set value1 [lindex $data1 $idx]
+            set value2 [lindex $data2 [expr {$idx+$delay}]]
+            if { $value1 != {} && $value2 != {} } {
+                set  sumcross \
+                        [expr {$sumcross+($value1-$vmean1)*($value2-$vmean2)}]
+                incr no_cross
+            }
+        }
+        lappend result [expr {$sumcross/($no_cross*$scale)}]
 
-	incr number_values -1
+        incr number_values -1
     }
 
     return $result
@@ -886,10 +886,10 @@ proc ::math::statistics::mean-histogram-limits { mean stdev {number 8} } {
     variable NEGSTDEV
 
     if { $stdev <= 0.0 } {
-	return -code error -errorcode ARG "$NEGSTDEV"
+        return -code error -errorcode ARG "$NEGSTDEV"
     }
     if { $number < 1 } {
-	return -code error -errorcode ARG "Number of limits must be positive"
+        return -code error -errorcode ARG "Number of limits must be positive"
     }
 
     #
@@ -903,26 +903,26 @@ proc ::math::statistics::mean-histogram-limits { mean stdev {number 8} } {
     # number = 8: -3, -2, -1, -0.25, 0.25, 1, 2, 3
     #
     switch -- $number {
-	"1" { set limits {0.0} }
-	"2" { set limits {-0.25 0.25} }
-	"3" { set limits {-0.25 0.0 0.25} }
-	"4" { set limits {-1.0 -0.25 0.25 1.0} }
-	"5" { set limits {-1.0 -0.25 0.0 0.25 1.0} }
-	"6" { set limits {-2.0 -1.0 -0.25 0.25 1.0 2.0} }
-	"7" { set limits {-2.0 -1.0 -0.25 0.0 0.25 1.0 2.0} }
-	"8" { set limits {-3.0 -2.0 -1.0 -0.25 0.25 1.0 2.0 3.0} }
-	"9" { set limits {-3.0 -2.0 -1.0 -0.25 0.0 0.25 1.0 2.0 3.0} }
-	default {
-	    set dlim [expr {6.0/double($number-1)}]
-	    for {set i 0} {$i <$number} {incr i} {
-		lappend limits [expr {$dlim*($i-($number-1)/2.0)}]
-	    }
-	}
+        "1" { set limits {0.0} }
+        "2" { set limits {-0.25 0.25} }
+        "3" { set limits {-0.25 0.0 0.25} }
+        "4" { set limits {-1.0 -0.25 0.25 1.0} }
+        "5" { set limits {-1.0 -0.25 0.0 0.25 1.0} }
+        "6" { set limits {-2.0 -1.0 -0.25 0.25 1.0 2.0} }
+        "7" { set limits {-2.0 -1.0 -0.25 0.0 0.25 1.0 2.0} }
+        "8" { set limits {-3.0 -2.0 -1.0 -0.25 0.25 1.0 2.0 3.0} }
+        "9" { set limits {-3.0 -2.0 -1.0 -0.25 0.0 0.25 1.0 2.0 3.0} }
+        default {
+            set dlim [expr {6.0/double($number-1)}]
+            for {set i 0} {$i <$number} {incr i} {
+                lappend limits [expr {$dlim*($i-($number-1)/2.0)}]
+            }
+        }
     }
 
     set result {}
     foreach limit $limits {
-	lappend result [expr {$mean+$limit*$stdev}]
+        lappend result [expr {$mean+$limit*$stdev}]
     }
 
     return $result
@@ -944,16 +944,16 @@ proc ::math::statistics::minmax-histogram-limits { min max {number 8} } {
     variable NEGSTDEV
 
     if { $number < 1 } {
-	return -code error -errorcode ARG "Number of limits must be positive"
+        return -code error -errorcode ARG "Number of limits must be positive"
     }
     if { $min >= $max } {
-	return -code error -errorcode ARG "Minimum must be lower than maximum"
+        return -code error -errorcode ARG "Minimum must be lower than maximum"
     }
 
     set result {}
     set dlim [expr {($max-$min)/double($number-1)}]
     for {set i 0} {$i <$number} {incr i} {
-	lappend result [expr {$min+$dlim*$i}]
+        lappend result [expr {$min+$dlim*$i}]
     }
 
     return $result
@@ -1147,7 +1147,7 @@ proc ::math::statistics::median { data } {
         lindex $data [expr {($len-1)/2}]
     } else {
         expr {([lindex $data [expr {($len / 2) - 1}]] \
-		+ [lindex $data [expr {$len / 2}]]) / 2.0}
+                + [lindex $data [expr {$len / 2}]]) / 2.0}
     }
 }
 
@@ -1946,13 +1946,13 @@ if { [info exists ::argv0] && ([file tail [info script]] == [file tail $::argv0]
     #set maxvals 100001
     set maxvals 1001
     while { $novals < $maxvals } {
-	set values {}
-	for { set i 0 } { $i < $novals } { incr i } {
-	    lappend values [expr {rand()}]
-	}
-	puts [::math::statistics::basic-stats $values]
-	puts [::math::statistics::histogram {0.0 0.2 0.4 0.6 0.8 1.0} $values]
-	set novals [expr {$novals*10}]
+        set values {}
+        for { set i 0 } { $i < $novals } { incr i } {
+            lappend values [expr {rand()}]
+        }
+        puts [::math::statistics::basic-stats $values]
+        puts [::math::statistics::histogram {0.0 0.2 0.4 0.6 0.8 1.0} $values]
+        set novals [expr {$novals*10}]
     }
 
     puts "Normal distribution:"
@@ -1984,7 +1984,7 @@ if { [info exists ::argv0] && ([file tail [info script]] == [file tail $::argv0]
     #   puts [::math::statistics::test-mean $data 2.0 2.0 0.90]
 
     set rc [catch {
-	set m [::math::statistics::mean {}]
+        set m [::math::statistics::mean {}]
     } msg ] ; # {}
     puts "Result: $rc $msg"
 
