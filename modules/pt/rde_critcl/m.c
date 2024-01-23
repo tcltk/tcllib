@@ -901,6 +901,23 @@ param_I_loc_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST
 	return TCL_ERROR;
     }
 
+    rde_param_i_loc_push (p->p);
+
+    return TCL_OK;
+}
+
+int
+param_F_ast_pop_rewind (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
+{
+    /* Syntax: rde i:fail_ast_pop_rewind
+     *         [0] [1]
+     */
+
+    if (objc != 2) {
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
+	return TCL_ERROR;
+    }
+
     if (!rde_param_query_st (p->p)) {
 	rde_param_i_ast_pop_rewind (p->p);
     }
