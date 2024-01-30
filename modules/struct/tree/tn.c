@@ -19,7 +19,7 @@ tn_new (TPtr t, CONST char* name)
     TNPtr n = ALLOC (TN);
     int	  new;
 
-    n->name = Tcl_NewStringObj(name, -1);
+    n->name = Tcl_NewStringObj(name, TCL_AUTO_LENGTH); /* OK tcl9 */
     Tcl_IncrRefCount (n->name);
     tn_shimmer (n->name, n);
 
@@ -755,7 +755,7 @@ tn_set_attr (TNPtr n, Tcl_Interp* interp, Tcl_Obj* dict)
     Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
 
-    if (Tcl_ListObjGetElements (interp, dict, &listc, &listv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (interp, dict, &listc, &listv) != TCL_OK) { /* OK tcl9 */
 	Tcl_Panic ("Malformed nodes attributes, snuck through validation of serialization.");
     }
 
@@ -934,7 +934,7 @@ tn_filternodes (Tcl_Size* nc,   Tcl_Obj** nv,
 
 	    Tcl_IncrRefCount (ev [cmdc+1]);
 
-	    res = Tcl_EvalObjv (interp, ec, ev, 0);
+	    res = Tcl_EvalObjv (interp, ec, ev, 0); /* OK tcl9 */
 
 	    Tcl_DecrRefCount (ev [cmdc+1]);
 
@@ -1018,9 +1018,8 @@ tn_isancestorof (TNPtr na, TNPtr nb)
 Tcl_Obj*
 tn_get_attr (TNPtr tdn, Tcl_Obj* empty)
 {
-    int		   i;
     Tcl_Obj*	   res;
-    int		   listc;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     Tcl_HashSearch hs;
     Tcl_HashEntry* he;
@@ -1042,11 +1041,11 @@ tn_get_attr (TNPtr tdn, Tcl_Obj* empty)
 	ASSERT_BOUNDS (i,   listc);
 	ASSERT_BOUNDS (i+1, listc);
 
-	listv [i] = Tcl_NewStringObj (key, -1);	     i++;
+	listv [i] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); /* OK tcl9 */ i++;
 	listv [i] = (Tcl_Obj*) Tcl_GetHashValue(he); i++;
     }
 
-    res = Tcl_NewListObj (listc, listv);
+    res = Tcl_NewListObj (listc, listv); /* OK tcl9 */
     ckfree ((char*) listv);
     return res;
 }
@@ -1061,7 +1060,7 @@ tn_serialize (TNPtr tdn, Tcl_Size listc, Tcl_Obj** listv, Tcl_Size at, Tcl_Size 
     ASSERT_BOUNDS (at+2, listc);
 
     listv [at++] = tdn->name;
-    listv [at++] = (parent < 0 ? empty : Tcl_NewIntObj (parent));
+    listv [at++] = (parent < 0 ? empty : Tcl_NewSizeIntObj (parent)); /* OK tcl9 */
     listv [at++] = tn_get_attr (tdn, empty);
 
     if (tdn->nchildren) {

@@ -66,8 +66,8 @@ rde_ot_intern1 (RDE_STATE p, const char* operator, Tcl_Obj* detail)
      */
 
     Tcl_DStringInit          (&buf);
-    Tcl_DStringAppendElement (&buf, operator);
-    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail));
+    Tcl_DStringAppendElement (&buf, operator);			 /* OK tcl9 */
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail));	 /* OK tcl9 */
 
     id = Make (p, detail, Tcl_DStringValue (&buf));
 
@@ -95,9 +95,9 @@ rde_ot_intern2 (RDE_STATE p, const char* operator, Tcl_Obj* detail1, Tcl_Obj* de
      */
 
     Tcl_DStringInit          (&buf);
-    Tcl_DStringAppendElement (&buf, operator);
-    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail1));
-    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail2));
+    Tcl_DStringAppendElement (&buf, operator);			 /* OK tcl9 */
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail1));	 /* OK tcl9 */
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail2));	 /* OK tcl9 */
 
     id = Make (p, detail1, Tcl_DStringValue (&buf));
 

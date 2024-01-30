@@ -497,16 +497,16 @@ param_TOKENS (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* ob
 	to   = num - 1;
     } else if (objc == 3) {
 
-	if (Tcl_GetSizeIntFromObj (interp, objv [2], &from) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj (interp, objv [2], &from) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 	to = from;
 
     } else { /* objc == 4 */
-	if (Tcl_GetSizeIntFromObj (interp, objv [2], &from) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj (interp, objv [2], &from) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
-	if (Tcl_GetSizeIntFromObj (interp, objv [3], &to) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj (interp, objv [3], &to) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
     }

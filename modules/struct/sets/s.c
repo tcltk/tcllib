@@ -85,14 +85,14 @@ dup_rep (Tcl_Obj* obj, Tcl_Obj* dup)
 static void
 string_rep (Tcl_Obj* obj)
 {
-    SPtr s        = (SPtr) obj->internalRep.otherValuePtr;
-    int  numElems = s->el.numEntries;
+    SPtr     s        = (SPtr) obj->internalRep.otherValuePtr;
+    Tcl_Size numElems = s->el.numEntries;
 
     /* iterate hash table and generate list-like string rep */
 
 #   define LOCAL_SIZE 20
-    int localFlags[LOCAL_SIZE], *flagPtr;
-    int localLen  [LOCAL_SIZE], *lenPtr;
+    int      localFlags[LOCAL_SIZE], *flagPtr;
+    Tcl_Size localLen  [LOCAL_SIZE], *lenPtr;
     register int i;
     char *elem, *dst;
     int length;
@@ -112,8 +112,8 @@ string_rep (Tcl_Obj* obj)
 	flagPtr = localFlags;
 	lenPtr  = localLen;
     } else {
-	flagPtr = (int *) ckalloc((unsigned) numElems*sizeof(int));
-	lenPtr  = (int *) ckalloc((unsigned) numElems*sizeof(int));
+	flagPtr = (int      *) ckalloc((unsigned) numElems*sizeof(int));
+	lenPtr  = (Tcl_Size *) ckalloc((unsigned) numElems*sizeof(Tcl_Size));
     }
     obj->length = 1;
 
@@ -124,7 +124,7 @@ string_rep (Tcl_Obj* obj)
 	elem       = Tcl_GetHashKey (&s->el, he);
 	lenPtr [i] = strlen (elem);
 
-	obj->length += Tcl_ScanCountedElement(elem, lenPtr[i],
+	obj->length += Tcl_ScanCountedElement(elem, lenPtr[i], /* OK tcl9 */
 					&flagPtr[i]) + 1;
     }
 
@@ -141,7 +141,7 @@ string_rep (Tcl_Obj* obj)
 
 	elem = Tcl_GetHashKey (&s->el, he);
 
-	dst += Tcl_ConvertCountedElement(elem, lenPtr[i],
+	dst += Tcl_ConvertCountedElement(elem, lenPtr[i], /* OK tcl9 */
 					 dst, flagPtr[i]);
 	*dst = ' ';
 	dst++;
@@ -171,7 +171,7 @@ from_any (Tcl_Interp* ip, Tcl_Obj* obj)
     const Tcl_ObjType* oldTypePtr;
     SPtr               s;
 
-    if (Tcl_ListObjGetElements (ip, obj, &lc, &lv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (ip, obj, &lc, &lv) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -212,7 +212,7 @@ from_any (Tcl_Interp* ip, Tcl_Obj* obj)
     /*
      * Free the old internalRep before setting the new one. We do this as
      * late as possible to allow the conversion code, in particular
-     * Tcl_ListObjGetElements, to use that old internalRep.
+     * Tcl_ListObjGetElements, to use that old internalRep. -- OK tcl9
      */
 
     if ((oldTypePtr != NULL) && (oldTypePtr->freeIntRepProc != NULL)) {

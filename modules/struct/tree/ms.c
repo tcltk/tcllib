@@ -45,7 +45,7 @@ tms_getchildren (TN* n, int all,
 
     if (!listc) {
 	/* => (listv == NULL) */
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
 	return TCL_OK;
     }
 
@@ -57,9 +57,9 @@ tms_getchildren (TN* n, int all,
     }
 
     if (!listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);
@@ -131,12 +131,12 @@ tms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
      */
 
     cmd [0] = srccmd;
-    cmd [1] = Tcl_NewStringObj ("serialize", -1);
+    cmd [1] = Tcl_NewStringObj ("serialize", TCL_AUTO_LENGTH); /* OK tcl9 */
 
     Tcl_IncrRefCount (cmd [0]);
     Tcl_IncrRefCount (cmd [1]);
 
-    res = Tcl_EvalObjv (interp, 2, cmd, 0);
+    res = Tcl_EvalObjv (interp, 2, cmd, 0); /* OK tcl9 */
 
     Tcl_DecrRefCount (cmd [0]);
     Tcl_DecrRefCount (cmd [1]);
@@ -228,14 +228,14 @@ tms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
      */
 
     cmd [0] = dstcmd;
-    cmd [1] = Tcl_NewStringObj ("deserialize", -1);
+    cmd [1] = Tcl_NewStringObj ("deserialize", TCL_AUTO_LENGTH); /* OK tcl9 */
     cmd [2] = ser;
 
     Tcl_IncrRefCount (cmd [0]);
     Tcl_IncrRefCount (cmd [1]);
     Tcl_IncrRefCount (cmd [2]);
 
-    res = Tcl_EvalObjv (interp, 3, cmd, 0);
+    res = Tcl_EvalObjv (interp, 3, cmd, 0); /* OK tcl9 */
 
     Tcl_DecrRefCount (cmd [0]);
     Tcl_DecrRefCount (cmd [1]);
@@ -270,7 +270,7 @@ tms_serialize (TN* n)
 {
     Tcl_Obj*  ser;
     int	      end;
-    int	      listc;
+    Tcl_Size  listc;
     Tcl_Obj** listv;
     Tcl_Obj*  empty;
 
@@ -283,7 +283,7 @@ tms_serialize (TN* n)
 
     ASSERT (listc == end, "Bad serialization");
 
-    ser = Tcl_NewListObj (listc, listv);
+    ser = Tcl_NewListObj (listc, listv); /* OK tcl9 */
 
     Tcl_DecrRefCount (empty);
     ckfree((char*) listv);
@@ -336,7 +336,7 @@ tms_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* ob
     };
 
     if (objc < 2) {
-	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
+	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?"); /* OK tcl9 */
 	return TCL_ERROR;
     } else if (Tcl_GetIndexFromObj (interp, objv [1], methods, "option",
 				    0, &m) != TCL_OK) {

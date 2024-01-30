@@ -384,7 +384,7 @@ arguments are given, the number is an integer value between
 \fIvalue1\fR and \fIvalue2\fR\&.
 .TP
 \fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
-Return the population standard deviation of two or more numeric
+Return the sample standard deviation of two or more numeric
 values\&.
 .TP
 \fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?

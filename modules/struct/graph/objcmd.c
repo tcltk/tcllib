@@ -72,7 +72,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv
     };
 
     if (objc < 2) {
-	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
+	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?"); /* OK tcl9 */
 	return TCL_ERROR;
     } else if (Tcl_GetIndexFromObj (interp, objv [1], methods, "option",
 				    0, &m) != TCL_OK) {
@@ -89,7 +89,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv
     case M_APPEND:	return gm_APPEND      (g, interp, objc, objv);
     case M_ARC:
 	if (objc < 3) {
-	    Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
+	    Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?"); /* OK tcl9 */
 	    return TCL_ERROR;
 	} else if (Tcl_GetIndexFromObj (interp, objv [2], a_methods, "option",
 					0, &m) != TCL_OK) {
@@ -135,7 +135,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv
     case M_LAPPEND:	return gm_LAPPEND     (g, interp, objc, objv);
     case M_NODE:
 	if (objc < 3) {
-	    Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
+	    Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?"); /* OK tcl9 */
 	    return TCL_ERROR;
 	} else if (Tcl_GetIndexFromObj (interp, objv [2], n_methods, "option",
 					0, &m) != TCL_OK) {

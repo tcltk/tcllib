@@ -35,7 +35,7 @@ stm_CLEAR (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -47,7 +47,7 @@ stm_CLEAR (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_DecrRefCount (s->stack);
 
     s->max   = 0;
-    s->stack = Tcl_NewListObj (0,NULL);
+    s->stack = Tcl_NewListObj (0,NULL); /* OK tcl9 */
     Tcl_IncrRefCount (s->stack);
 
     return TCL_OK;
@@ -77,7 +77,7 @@ stm_DESTROY (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -111,17 +111,17 @@ stm_GET (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv, int reve
     Tcl_Size n;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    Tcl_ListObjLength (interp, s->stack, &n);
+    Tcl_ListObjLength (interp, s->stack, &n); /* OK tcl9 */
 
     if (n) {
 	return st_peek (s, interp, n, 0, 1, revers, 1
 			/* no pop, list all, <revers>, return result */);
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0,NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0,NULL)); /* OK tcl9 */
 	return TCL_OK;
     }
 }
@@ -153,11 +153,11 @@ stm_TRIM (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv, int ret
     Tcl_Size n, len;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "newsize");
+	Tcl_WrongNumArgs (interp, 2, objv, "newsize"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    if (Tcl_GetSizeIntFromObj(interp, objv[2], &n) != TCL_OK) {
+    if (Tcl_GetSizeIntFromObj(interp, objv[2], &n) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
     } else if (n < 0) {
 	Tcl_AppendResult (interp, "invalid size ",
@@ -166,13 +166,13 @@ stm_TRIM (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv, int ret
 	return TCL_ERROR;
     }
 
-    Tcl_ListObjLength (interp, s->stack, &len);
+    Tcl_ListObjLength (interp, s->stack, &len); /* OK tcl9 */
 
     if (len > n) {
 	return st_peek (s, interp, len-n, 1, 1, 0, ret
 			/* pop, list all, normal order, <ret> */);
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0,NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0,NULL)); /* OK tcl9 */
 	return TCL_OK;
     }
 }
@@ -207,12 +207,12 @@ stm_PEEK (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv, int pop
     Tcl_Size  n = 1;
 
     if ((objc != 2) && (objc != 3)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?n?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?n?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (objc == 3) {
-	if (Tcl_GetSizeIntFromObj(interp, objv[2], &n) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj(interp, objv[2], &n) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	} else if (n < 1) {
 	    Tcl_AppendResult (interp, "invalid item count ",
@@ -252,7 +252,7 @@ stm_PUSH (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Size i;
 
     if (objc < 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "item ?item ...?");
+	Tcl_WrongNumArgs (interp, 2, objv, "item ?item ...?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -291,18 +291,18 @@ stm_ROTATE (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj** tmp = NULL;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "count steps");
+	Tcl_WrongNumArgs (interp, 2, objv, "count steps"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    if (Tcl_GetSizeIntFromObj(interp, objv[2], &n) != TCL_OK) {
+    if (Tcl_GetSizeIntFromObj(interp, objv[2], &n) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
-    if (Tcl_GetSizeIntFromObj(interp, objv[3], &steps) != TCL_OK) {
+    if (Tcl_GetSizeIntFromObj(interp, objv[3], &steps) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    Tcl_ListObjGetElements (interp, s->stack, &listc, &listv);
+    Tcl_ListObjGetElements (interp, s->stack, &listc, &listv); /* OK tcl9 */
 
     if (n > listc) {
 	Tcl_AppendResult (interp, "insufficient items on stack to fill request",
@@ -362,11 +362,11 @@ stm_SIZE (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Size listc = 0;
 
     if ((objc != 2)) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    Tcl_ListObjLength (interp, s->stack, &listc);
+    Tcl_ListObjLength (interp, s->stack, &listc); /* OK tcl9 */
     Tcl_SetObjResult  (interp, Tcl_NewSizeIntObj (listc));
     return TCL_OK;
 }

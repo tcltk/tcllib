@@ -13,7 +13,7 @@ st_new (void)
     S* s = ALLOC (S);
 
     s->max   = 0;
-    s->stack = Tcl_NewListObj (0,NULL);
+    s->stack = Tcl_NewListObj (0,NULL); /* OK tcl9 */
     Tcl_IncrRefCount (s->stack);
 
     return s;
@@ -32,12 +32,11 @@ st_delete (S* s)
 int
 st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers, int ret)
 {
-
     Tcl_Size  listc = 0, i, j;
     Tcl_Obj** listv;
     Tcl_Obj*  r;
 
-    Tcl_ListObjGetElements (interp, s->stack, &listc, &listv);
+    Tcl_ListObjGetElements (interp, s->stack, &listc, &listv); /* OK tcl9 */
 
     if (n > listc) {
 	Tcl_AppendResult (interp,
@@ -54,7 +53,7 @@ st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers,
 
 	    ASSERT_BOUNDS (listc-n,listc);
 
-	    r = Tcl_NewListObj (n, listv + (listc - n));
+	    r = Tcl_NewListObj (n, listv + (listc - n)); /* OK tcl9 */
 
 	    /*
 	     * Note the double negation here. To get the normal order of the
@@ -63,7 +62,7 @@ st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers,
 	     */
 
 	    if ((n > 1) && !revers) {
-		Tcl_ListObjGetElements (interp, r, &listc, &listv);
+		Tcl_ListObjGetElements (interp, r, &listc, &listv); /* OK tcl9 */
 		for (i = 0, j = listc-1;
 		     i < j;
 		     i++, j--) {
@@ -83,7 +82,7 @@ st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers,
     }
 
     if (pop) {
-	Tcl_ListObjGetElements (interp, s->stack, &listc, &listv);
+	Tcl_ListObjGetElements (interp, s->stack, &listc, &listv); /* OK tcl9 */
 
 	if (n == listc) {
 	    /* Complete removal, like clear */
@@ -91,7 +90,7 @@ st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers,
 	    Tcl_DecrRefCount (s->stack);
 
 	    s->max   = 0;
-	    s->stack = Tcl_NewListObj (0,NULL);
+	    s->stack = Tcl_NewListObj (0,NULL); /* OK tcl9 */
 	    Tcl_IncrRefCount (s->stack);
 
 	} else if ((listc-n) < (s->max/2)) {
@@ -102,7 +101,7 @@ st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers,
 
 	    ASSERT_BOUNDS (listc-n,listc);
 
-	    r = Tcl_NewListObj (listc-n, listv);
+	    r = Tcl_NewListObj (listc-n, listv); /* OK tcl9 */
 	    Tcl_DecrRefCount (s->stack);
 	    s->stack = r;
 	    Tcl_IncrRefCount (s->stack);
@@ -113,7 +112,7 @@ st_peek (S* s, Tcl_Interp* interp, Tcl_Size n, int pop, int listall, int revers,
 
 	    ASSERT_BOUNDS (listc-n,listc);
 
-	    Tcl_ListObjReplace (interp, s->stack, listc-n, n, 0, NULL);
+	    Tcl_ListObjReplace (interp, s->stack, listc-n, n, 0, NULL); /* OK tcl9 */
 	}
     }
 

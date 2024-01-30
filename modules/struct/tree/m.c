@@ -50,7 +50,7 @@ tm_TASSIGN (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "source");
+	Tcl_WrongNumArgs (interp, 2, objv, "source"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -83,7 +83,7 @@ tm_TSET (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "dest");
+	Tcl_WrongNumArgs (interp, 2, objv, "dest"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -118,7 +118,7 @@ tm_ANCESTORS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     int	     depth;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -129,7 +129,7 @@ tm_ANCESTORS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
     depth = tn_depth (tn);
     if (depth == 0) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     } else {
 	Tcl_Size  i;
 	Tcl_Obj** anc = NALLOC (depth, Tcl_Obj*);
@@ -145,7 +145,7 @@ tm_ANCESTORS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	    /*Tcl_IncrRefCount (anc [i]);*/
 	}
 
-	Tcl_SetObjResult (interp, Tcl_NewListObj (i, anc));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (i, anc)); /* OK tcl9 */
 	ckfree ((char*) anc);
     }
 
@@ -181,7 +181,7 @@ tm_APPEND (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     CONST char*	   key;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node key value");
+	Tcl_WrongNumArgs (interp, 2, objv, "node key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -251,8 +251,8 @@ tm_ATTR (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     CONST char* key;
     int		type;
     Tcl_Obj*	detail = NULL;
-    int		listc = 0;
-    Tcl_Obj**	listv = NULL;
+    Tcl_Size	listc  = 0;
+    Tcl_Obj**	listv  = NULL;
 
     static CONST char* types [] = {
 	"-glob", "-nodes","-regexp", NULL
@@ -262,7 +262,7 @@ tm_ATTR (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     };
 
     if ((objc != 3) && (objc != 5)) {
-	Tcl_WrongNumArgs (interp, 2, objv,
+	Tcl_WrongNumArgs (interp, 2, objv, /* OK tcl9 */
 			  "key ?-nodes list|-glob pattern|-regexp pattern?");
 	return TCL_ERROR;
     }
@@ -276,7 +276,7 @@ tm_ATTR (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	if (Tcl_GetIndexFromObj (interp, objv [3], types, "type",
 				 0, &type) != TCL_OK) {
 	    Tcl_ResetResult (interp);
-	    Tcl_WrongNumArgs (interp, 2, objv,
+	    Tcl_WrongNumArgs (interp, 2, objv, /* OK tcl9 */
 			      "key ?-nodes list|-glob pattern|-regexp pattern?");
 	    return TCL_ERROR;
 	}
@@ -340,7 +340,7 @@ tm_ATTR (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	    Tcl_Obj**	   nodev;
 	    Tcl_HashEntry* he;
 
-	    if (Tcl_ListObjGetElements (interp, detail, &nodec, &nodev) != TCL_OK) {
+	    if (Tcl_ListObjGetElements (interp, detail, &nodec, &nodev) != TCL_OK) { /* OK tcl9 */
 		return TCL_ERROR;
 	    }
 
@@ -449,9 +449,9 @@ tm_ATTR (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     }
 
     if (listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);
@@ -499,7 +499,7 @@ tm_CHILDREN (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj** listv;
 
     if ((objc < 3) || (objc > 6)) {
-	Tcl_WrongNumArgs (interp, 2, objv, USAGE);
+	Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -508,7 +508,7 @@ tm_CHILDREN (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	/* -all present */
 
 	if ((objc != 4) && (objc != 6)) {
-	    Tcl_WrongNumArgs (interp, 2, objv, USAGE);
+	    Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
@@ -518,7 +518,7 @@ tm_CHILDREN (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	/* -all missing */
 
 	if ((objc != 3) && (objc != 5)) {
-	    Tcl_WrongNumArgs (interp, 2, objv, USAGE);
+	    Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
     }
@@ -526,16 +526,16 @@ tm_CHILDREN (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     if (objc == (node+3)) {
 	ASSERT_BOUNDS (node+1, objc);
 	if (strcmp ("filter", Tcl_GetString (objv [node+1]))) {
-	    Tcl_WrongNumArgs (interp, 2, objv, USAGE);
+	    Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
 	ASSERT_BOUNDS (node+2, objc);
-	if (Tcl_ListObjGetElements (interp, objv [node+2], &cmdc, &cmdv) != TCL_OK) {
+	if (Tcl_ListObjGetElements (interp, objv [node+2], &cmdc, &cmdv) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 	if (!cmdc) {
-	    Tcl_WrongNumArgs (interp, 2, objv, USAGE);
+	    Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
     }
@@ -583,7 +583,7 @@ tm_CUT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     int	     nchildren;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -630,7 +630,7 @@ tm_DELETE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -680,7 +680,7 @@ tm_DEPTH (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -723,20 +723,20 @@ tm_DESCENDANTS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj** cmdv = NULL;
 
     if ((objc < 2) || (objc > 5)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node ?filter cmd?");
+	Tcl_WrongNumArgs (interp, 2, objv, "node ?filter cmd?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (objc == 5) {
 	if (strcmp ("filter", Tcl_GetString (objv [3]))) {
-	    Tcl_WrongNumArgs (interp, 2, objv, "node ?filter cmd?");
+	    Tcl_WrongNumArgs (interp, 2, objv, "node ?filter cmd?"); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
-	if (Tcl_ListObjGetElements (interp, objv [4], &cmdc, &cmdv) != TCL_OK) {
+	if (Tcl_ListObjGetElements (interp, objv [4], &cmdc, &cmdv) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 	if (!cmdc) {
-	    Tcl_WrongNumArgs (interp, 2, objv, "node ?filter cmd?");
+	    Tcl_WrongNumArgs (interp, 2, objv, "node ?filter cmd?"); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
     }
@@ -778,7 +778,7 @@ tm_DESERIALIZE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     T* tser;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "serial");
+	Tcl_WrongNumArgs (interp, 2, objv, "serial"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -809,7 +809,7 @@ tm_DESTROY (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -845,13 +845,13 @@ tm_EXISTS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     tn = tn_get_node (t, objv [2], NULL, NULL);
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (tn != NULL));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (tn != NULL)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -884,7 +884,7 @@ tm_GET (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj*	   av;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node key");
+	Tcl_WrongNumArgs (interp, 2, objv, "node key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -902,11 +902,11 @@ tm_GET (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     if ((tn->attr == NULL) || (he == NULL)) {
 	Tcl_Obj* err = Tcl_NewObj ();
 
-	Tcl_AppendToObj	   (err, "invalid key \"", -1);
+	Tcl_AppendToObj	   (err, "invalid key \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, objv [3]);
-	Tcl_AppendToObj	   (err, "\" for node \"", -1);
+	Tcl_AppendToObj	   (err, "\" for node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, objv [2]);
-	Tcl_AppendToObj	   (err, "\"", -1);
+	Tcl_AppendToObj	   (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	Tcl_SetObjResult (interp, err);
 	return TCL_ERROR;
@@ -951,7 +951,7 @@ tm_GETALL (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     int		   matchall = 0;
 
     if ((objc != 3) && (objc != 4)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node ?pattern?");
+	Tcl_WrongNumArgs (interp, 2, objv, "node ?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -961,7 +961,7 @@ tm_GETALL (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     }
 
     if ((tn->attr == NULL) || (tn->attr->numEntries == 0)) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
 	return TCL_OK;
     }
 
@@ -985,7 +985,7 @@ tm_GETALL (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	    ASSERT_BOUNDS (i,	listc);
 	    ASSERT_BOUNDS (i+1, listc);
 
-	    listv [i++] = Tcl_NewStringObj (key, -1);
+	    listv [i++] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); /* OK tcl9 */
 	    listv [i++] = (Tcl_Obj*) Tcl_GetHashValue(he);
 	}
 
@@ -1003,7 +1003,7 @@ tm_GETALL (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 		ASSERT_BOUNDS (i,   listc);
 		ASSERT_BOUNDS (i+1, listc);
 
-		listv [i++] = Tcl_NewStringObj (key, -1);
+		listv [i++] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); /* OK tcl9 */
 		listv [i++] = (Tcl_Obj*) Tcl_GetHashValue(he);
 	    }
 	}
@@ -1013,9 +1013,9 @@ tm_GETALL (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     }
 
     if (listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);
@@ -1051,7 +1051,7 @@ tm_HEIGHT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1093,7 +1093,7 @@ tm_INDEX (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1139,7 +1139,7 @@ tm_INSERT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc < 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "parent index ?name...?");
+	Tcl_WrongNumArgs (interp, 2, objv, "parent index ?name...?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1193,9 +1193,9 @@ tm_INSERT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
 		Tcl_Obj* err = Tcl_NewObj ();
 
-		Tcl_AppendToObj	   (err, "node \"", -1);
+		Tcl_AppendToObj	   (err, "node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 		Tcl_AppendObjToObj (err, objv [i]);
-		Tcl_AppendToObj	   (err, "\" cannot be its own descendant", -1);
+		Tcl_AppendToObj	   (err, "\" cannot be its own descendant", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 		Tcl_SetObjResult (interp, err);
 		return TCL_ERROR;
@@ -1218,7 +1218,7 @@ tm_INSERT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	    }
 	}
 
-	Tcl_SetObjResult (interp, Tcl_NewListObj (objc-4,objv+4));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (objc-4,objv+4)); /* OK tcl9 */
 
     } else {
 	/* Create a single new node with a generated name, */
@@ -1228,7 +1228,7 @@ tm_INSERT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	TN*	    nn	 = tn_new (t, name);
 
 	tn_insert (tn, idx, nn);
-	Tcl_SetObjResult (interp, Tcl_NewListObj (1, &nn->name));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (1, &nn->name)); /* OK tcl9 */
     }
 
     return TCL_OK;
@@ -1262,7 +1262,7 @@ tm_ISLEAF (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1271,7 +1271,7 @@ tm_ISLEAF (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (tn->nchildren == 0));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (tn->nchildren == 0)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -1304,7 +1304,7 @@ tm_KEYEXISTS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     CONST char*	   key;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node key");
+	Tcl_WrongNumArgs (interp, 2, objv, "node key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1316,13 +1316,13 @@ tm_KEYEXISTS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     key = Tcl_GetString (objv [3]);
 
     if ((tn->attr == NULL) || (tn->attr->numEntries == 0)) {
-	Tcl_SetObjResult (interp, Tcl_NewIntObj (0));
+	Tcl_SetObjResult (interp, Tcl_NewIntObj (0)); /* OK tcl9 */
 	return TCL_OK;
     }
 
     he	= Tcl_FindHashEntry (tn->attr, key);
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (he != NULL));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (he != NULL)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -1360,7 +1360,7 @@ tm_KEYS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     int		   matchall = 0;
 
     if ((objc != 3) && (objc != 4)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node ?pattern?");
+	Tcl_WrongNumArgs (interp, 2, objv, "node ?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1370,7 +1370,7 @@ tm_KEYS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     }
 
     if ((tn->attr == NULL) || (tn->attr->numEntries == 0)) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
 	return TCL_OK;
     }
 
@@ -1390,7 +1390,7 @@ tm_KEYS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	     he = Tcl_NextHashEntry(&hs)) {
 
 	    ASSERT_BOUNDS (i, listc);
-	    listv [i++] = Tcl_NewStringObj (Tcl_GetHashKey (tn->attr, he), -1);
+	    listv [i++] = Tcl_NewStringObj (Tcl_GetHashKey (tn->attr, he), TCL_AUTO_LENGTH); /* OK tcl9 */
 	}
 
 	ASSERT (i == listc, "Bad key retrieval");
@@ -1406,7 +1406,7 @@ tm_KEYS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	    if (Tcl_StringMatch(key, pattern)) {
 		ASSERT_BOUNDS (i, listc);
 
-		listv [i++] = Tcl_NewStringObj (key, -1);
+		listv [i++] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); /* OK tcl9 */
 	    }
 	}
 
@@ -1415,9 +1415,9 @@ tm_KEYS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     }
 
     if (listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);
@@ -1454,7 +1454,7 @@ tm_LAPPEND (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj*	   av;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node key value");
+	Tcl_WrongNumArgs (interp, 2, objv, "node key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1473,7 +1473,7 @@ tm_LAPPEND (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	int new;
 	he = Tcl_CreateHashEntry(tn->attr, key, &new);
 
-	av = Tcl_NewListObj (0,NULL);
+	av = Tcl_NewListObj (0,NULL); /* OK tcl9 */
 	Tcl_IncrRefCount (av);
 	Tcl_SetHashValue (he, (ClientData) av);
 
@@ -1522,7 +1522,7 @@ tm_LEAVES (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Size listc;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1543,10 +1543,10 @@ tm_LEAVES (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
 	ASSERT (i == listc, "Bad list of leaves");
 
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
 	ckfree ((char*) listv);
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
     return TCL_OK;
 }
@@ -1580,7 +1580,7 @@ tm_MOVE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     TN**     listv;
 
     if (objc < 5) {
-	Tcl_WrongNumArgs (interp, 2, objv, "parentNode index node ?node...?");
+	Tcl_WrongNumArgs (interp, 2, objv, "parentNode index node ?node...?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1629,9 +1629,9 @@ tm_MOVE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
 	    Tcl_Obj* err = Tcl_NewObj ();
 
-	    Tcl_AppendToObj    (err, "node \"", -1);
+	    Tcl_AppendToObj    (err, "node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	    Tcl_AppendObjToObj (err, objv [i]);
-	    Tcl_AppendToObj    (err, "\" cannot be its own descendant", -1);
+	    Tcl_AppendToObj    (err, "\" cannot be its own descendant", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	    Tcl_SetObjResult (interp, err);
 	    ckfree ((char*) listv);
@@ -1678,7 +1678,7 @@ tm_NEXT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* res;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1723,7 +1723,7 @@ tm_NODES (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Size listc;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1743,10 +1743,10 @@ tm_NODES (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
 	ASSERT (i == listc, "Bad list of nodes");
 
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
 	ckfree ((char*) listv);
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
     return TCL_OK;
 }
@@ -1778,7 +1778,7 @@ tm_NUMCHILDREN (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     TN* tn;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1818,7 +1818,7 @@ tm_PARENT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     TN* tn;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1862,7 +1862,7 @@ tm_PREVIOUS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     TN* tn;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node");
+	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1909,7 +1909,7 @@ tm_RENAME (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     int	     nnew;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node newname");
+	Tcl_WrongNumArgs (interp, 2, objv, "node newname"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1922,11 +1922,11 @@ tm_RENAME (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     if (new != NULL) {
 	Tcl_Obj* err = Tcl_NewObj ();
 
-	Tcl_AppendToObj	   (err, "unable to rename node to \"", -1);
+	Tcl_AppendToObj	   (err, "unable to rename node to \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, objv [3]);
-	Tcl_AppendToObj	   (err, "\", node of that name already present in the tree \"", -1);
+	Tcl_AppendToObj	   (err, "\", node of that name already present in the tree \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, objv [0]);
-	Tcl_AppendToObj	   (err, "\"", -1);
+	Tcl_AppendToObj	   (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	Tcl_SetObjResult (interp, err);
 	return TCL_ERROR;
@@ -1978,7 +1978,7 @@ tm_ROOTNAME (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     TN* tn;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2013,7 +2013,7 @@ tm_SERIALIZE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     TN* tn;
 
     if ((objc != 2) && (objc != 3)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?node?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?node?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2062,7 +2062,7 @@ tm_SET (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	return tm_GET (t, interp, objc, objv);
     }
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node key ?value?");
+	Tcl_WrongNumArgs (interp, 2, objv, "node key ?value?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2118,7 +2118,7 @@ tm_SIZE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Size n;
 
     if ((objc != 2) && (objc != 3)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?node?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?node?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2174,7 +2174,7 @@ tm_SPLICE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     CONST char* name;
 
     if ((objc < 4) || (objc > 6)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "parent from ?to ?node??");
+	Tcl_WrongNumArgs (interp, 2, objv, "parent from ?to ?node??"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2204,11 +2204,11 @@ tm_SPLICE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 	    /* Already present, fail */
 	    Tcl_Obj* err = Tcl_NewObj ();
 
-	    Tcl_AppendToObj    (err, "node \"", -1);
+	    Tcl_AppendToObj    (err, "node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	    Tcl_AppendObjToObj (err, objv [5]);
-	    Tcl_AppendToObj    (err, "\" already exists in tree \"", -1);
+	    Tcl_AppendToObj    (err, "\" already exists in tree \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	    Tcl_AppendObjToObj (err, objv [0]);
-	    Tcl_AppendToObj    (err, "\"", -1);
+	    Tcl_AppendToObj    (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	    Tcl_SetObjResult (interp, err);
 	    return TCL_ERROR;
@@ -2266,7 +2266,7 @@ tm_SWAP (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     CONST char*   key;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "nodea nodeb");
+	Tcl_WrongNumArgs (interp, 2, objv, "nodea nodeb"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2291,9 +2291,9 @@ tm_SWAP (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     if (tna == tnb) {
 	Tcl_Obj* err = Tcl_NewObj ();
 
-	Tcl_AppendToObj	   (err, "cannot swap node \"", -1);
+	Tcl_AppendToObj	   (err, "cannot swap node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, objv [2]);
-	Tcl_AppendToObj	   (err, "\" with itself", -1);
+	Tcl_AppendToObj	   (err, "\" with itself", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	Tcl_SetObjResult (interp, err);
 	return TCL_ERROR;
@@ -2351,7 +2351,7 @@ tm_UNSET (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     CONST char*	   key;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node key");
+	Tcl_WrongNumArgs (interp, 2, objv, "node key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2411,7 +2411,7 @@ tm_WALK (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     if ((objc < 5) || (objc > 10)) {
-	Tcl_WrongNumArgs (interp, 2, objv, USAGE);
+	Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2427,7 +2427,7 @@ tm_WALK (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
     /* Remainder is 'loopvars script' */
 
-    if (Tcl_ListObjGetElements (interp, objv [rem], &lvc, &lvv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (interp, objv [rem], &lvc, &lvv) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
     if (lvc > 2) {
@@ -2506,7 +2506,7 @@ tm_WALKPROC (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 #define USAGE "node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"
 
     if ((objc < 4) || (objc > 9)) {
-	Tcl_WrongNumArgs (interp, 2, objv, USAGE);
+	Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2528,7 +2528,7 @@ tm_WALKPROC (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 			  NULL);
 	return TCL_ERROR;
     }
-    if (Tcl_ListObjGetElements (interp, objv [rem], &cc, &cv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (interp, objv [rem], &cc, &cv) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2578,7 +2578,7 @@ Tcl_ObjType EndOffsetType = {
 static int
 TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr, Tcl_Size endValue, Tcl_Size* indexPtr)
 {
-    if (Tcl_GetSizeIntFromObj (NULL, objPtr, indexPtr) == TCL_OK) {
+    if (Tcl_GetSizeIntFromObj (NULL, objPtr, indexPtr) == TCL_OK) { /* OK tcl9 */
 	return TCL_OK;
     }
 
@@ -2695,7 +2695,7 @@ SetEndOffsetFromAny(interp, objPtr)
 
     /* Check for a string rep of the right form. */
 
-    bytes = Tcl_GetStringFromObj(objPtr, &length);
+    bytes = Tcl_GetStringFromObj(objPtr, &length); /* OK tcl9 */
     if ((*bytes != 'e') || (strncmp(bytes, "end",
 				    (size_t)((length > 3) ? 3 : length)) != 0)) {
 	if (interp != NULL) {

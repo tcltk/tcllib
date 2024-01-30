@@ -20,9 +20,9 @@
 #define TOKEN1(tok)  TRACE (("TOKEN  %s (%s)\n", tok, Tcl_GetString(context->obj)))
 #define REDUCE(rule) TRACE (("REDUCE %s\n", rule))
 
-#define TRUE_O  (Tcl_NewStringObj("true", 4))
-#define FALSE_O (Tcl_NewStringObj("false", 5))
-#define NULL_O  (Tcl_NewStringObj("null", 4))
+#define TRUE_O  (Tcl_NewStringObj("true",  4)) /* OK tcl9 */
+#define FALSE_O (Tcl_NewStringObj("false", 5)) /* OK tcl9 */
+#define NULL_O  (Tcl_NewStringObj("null",  4)) /* OK tcl9 */
 
 typedef union YYSTYPE YYSTYPE;
 
@@ -98,7 +98,7 @@ list	: '[' values ']'
 
 values	: value
 	{	
-		$$ = Tcl_NewListObj(1, &$1);
+		$$ = Tcl_NewListObj(1, &$1); /* OK tcl9 */
 	}
 	| values ',' value
 	{
@@ -109,7 +109,18 @@ values	: value
 
 members	: member
 	{
-	        $$ = Tcl_NewListObj(0, NULL);
+	        $$ = Tcl_NewListObj(0, NULL);); /* OK tcl9 */
+	}
+	| values ',' value
+	{
+		Tcl_ListObjAppendElement(NULL, $1, $3);
+		$$ = $1;
+	}
+	;
+
+members	: member
+	{
+	        $$ = Tcl_NewListObj(0, NULL); /* OK tcl9 */
 		Tcl_ListObjAppendElement(NULL, $$, $1.key);
 		Tcl_ListObjAppendElement(NULL, $$, $1.val);
 	}
@@ -161,11 +172,11 @@ jsonparse (struct context* context)
 #define	STORESTRINGSEGMENT()				\
 	if (initialized) {				\
 		if (context->text != bp) {		\
-			Tcl_AppendToObj(context->obj,	\
+			Tcl_AppendToObj(context->obj, /* OK tcl9 */	\
 			    bp, context->text - bp);	\
 		}					\
 	} else {					\
-		context->obj = Tcl_NewStringObj(	\
+		context->obj = Tcl_NewStringObj( /* OK tcl9 */	\
 		    bp, context->text - bp);		\
 		initialized = 1;			\
 	}
@@ -250,19 +261,20 @@ jsonlexp(YYSTYPE *lvalp, struct context *context)
 	 * are:
 	 *       \"  \\  \/  \b  \f  \n  \r  \t  \uXXXX
 	 */
-	char	buf[TCL_UTF_MAX];
-	int	len, consumed;
+	char	 buf[TCL_UTF_MAX];
+	Tcl_Size len;
+	int      consumed;
 
 	STORESTRINGSEGMENT();
 
 	/*
 	 * Perform additional checks to restrict the set of accepted
 	 * escape sequence to what is allowed by json.org instead of
-	 * Tcl_UtfBackslash.
+	 * Tcl_UtfBackslash. -- OK tcl9
 	 */
 
 	if (!HAVE(1)) {
-	  Tcl_AppendToObj(context->obj, "\\", 1);
+	  Tcl_AppendToObj(context->obj, "\\", 1); /* OK tcl9 */
 	  yyerror(context,"incomplete escape at <<eof> error");
 	  TOKEN("incomplete escape at <<eof>> error");
 	  return -1;
@@ -279,30 +291,30 @@ jsonlexp(YYSTYPE *lvalp, struct context *context)
 	    break;
 	  case 'u':
 	    if (!HAVE(5)) {
-	      Tcl_AppendToObj(context->obj, "\\u", 2);
+	      Tcl_AppendToObj(context->obj, "\\u", 2); /* OK tcl9 */
 	      yyerror(context,"incomplete escape at <<eof> error");
 	      TOKEN("incomplete escape at <<eof>> error");
 	      return -1;
 	    }
 	    break;
 	  default:
-	    Tcl_AppendToObj(context->obj, context->text + 1, 1);
+	    Tcl_AppendToObj(context->obj, context->text + 1, 1); /* OK tcl9 */
 	    yyerror(context,"bad escape");
 	    TOKEN("bad escape");
 	    return -1;
 	}
 
 	/*
-	 * XXX Tcl_UtfBackslash() may be more
+	 * XXX Tcl_UtfBackslash() may be more -- OK tcl9
 	 * XXX permissive, than JSON standard.
 	 * XXX But that may be a good thing:
 	 * XXX "be generous in what you accept".
 	 */
-	len = Tcl_UtfBackslash(context->text,
+	len = Tcl_UtfBackslash(context->text, /* OK tcl9 */
 			       &consumed, buf);
 	DRAIN(consumed - 1);
 	bp = context->text + 1;
-	Tcl_AppendToObj(context->obj, buf, len);
+	Tcl_AppendToObj(context->obj, buf, len); /* OK tcl9 */
       }
       continue;
     }
@@ -370,7 +382,7 @@ jsonlexp(YYSTYPE *lvalp, struct context *context)
     if (end == context->text)
       goto bareword; /* Nothing parsed */
 
-    context->obj = Tcl_NewStringObj (context->text,
+    context->obj = Tcl_NewStringObj (context->text, /* OK tcl9 */
 				     end - context->text);
 
     context->remaining -= (end - context->text);
@@ -448,12 +460,12 @@ jsonlex(struct context *context)
 	int	len, consumed;
 
 	/*
-	 * XXX Tcl_UtfBackslash() may be more
+	 * XXX Tcl_UtfBackslash() may be more -- OK tcl9
 	 * XXX permissive, than JSON standard.
 	 * XXX But that may be a good thing:
 	 * XXX "be generous in what you accept".
 	 */
-	len = Tcl_UtfBackslash(context->text, &consumed, buf);
+	len = Tcl_UtfBackslash(context->text, &consumed, buf); /* OK tcl9 */
 	DRAIN(consumed - 1);
       }
       continue;
@@ -538,7 +550,7 @@ jsonerror(struct context *context, const char *message)
   if (context->has_error) return;
 
   if (context->obj) {
-    yytext = Tcl_GetStringFromObj(context->obj, &yyleng);
+    yytext = Tcl_GetStringFromObj(context->obj, &yyleng); /* OK tcl9 */
     fullmessage = Tcl_Alloc(strlen(message) + 63 + yyleng);
 
     sprintf(fullmessage,
