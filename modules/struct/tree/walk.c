@@ -82,7 +82,7 @@ t_walkoptions (Tcl_Interp* interp, int n,
     }
 
     if (i == objc) {
-	Tcl_WrongNumArgs (interp, 2, objv, usage);
+	Tcl_WrongNumArgs (interp, 2, objv, usage); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -135,8 +135,8 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 	    switch (order)
 		{
 		case WO_BOTH:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
-		    lb = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (lb);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
+		    lb = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (lb);
 
 		    res = t_walkdfsboth (interp, tdn, f, cs, avn, nvn, la, lb);
 
@@ -145,7 +145,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_IN:
-		    la = Tcl_NewStringObj ("visit",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("visit", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkdfsin	(interp, tdn, f, cs, avn, nvn, la);
 
@@ -153,7 +153,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_PRE:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkdfspre	(interp, tdn, f, cs, avn, nvn, la);
 
@@ -161,7 +161,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_POST:
-		    la = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkdfspost (interp, tdn, f, cs, avn, nvn, la);
 
@@ -174,8 +174,8 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 	    switch (order)
 		{
 		case WO_BOTH:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
-		    lb = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (lb);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
+		    lb = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (lb);
 
 		    res = t_walkbfsboth (interp, tdn, f, cs, avn, nvn, la, lb);
 
@@ -184,7 +184,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_PRE:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkbfspre	(interp, tdn, f, cs, avn, nvn, la);
 
@@ -192,7 +192,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_POST:
-		    la = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkbfspost (interp, tdn, f, cs, avn, nvn, la);
 
@@ -248,7 +248,7 @@ t_walk_invokecmd (Tcl_Interp* interp, TN* n, Tcl_Obj* dummy0,
     Tcl_IncrRefCount (ev [cc+1]);
     Tcl_IncrRefCount (ev [cc+2]);
 
-    res = Tcl_EvalObjv (interp, cc+3, ev, 0);
+    res = Tcl_EvalObjv (interp, cc+3, ev, 0); /* OK tcl9 */
 
     Tcl_DecrRefCount (ev [cc]);
     Tcl_DecrRefCount (ev [cc+1]);

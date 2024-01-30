@@ -126,11 +126,11 @@ tn_get_node (TPtr t, Tcl_Obj* node, Tcl_Interp* interp, Tcl_Obj* tree)
 
 	/* Keep any prefix ... */
 	Tcl_AppendObjToObj (err, Tcl_GetObjResult (interp));
-	Tcl_AppendToObj	   (err, "node \"", -1);
+	Tcl_AppendToObj	   (err, "node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, node);
-	Tcl_AppendToObj	   (err, "\" does not exist in tree \"", -1);
+	Tcl_AppendToObj	   (err, "\" does not exist in tree \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, tree);
-	Tcl_AppendToObj	   (err, "\"", -1);
+	Tcl_AppendToObj	   (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	Tcl_SetObjResult (interp, err);
     }

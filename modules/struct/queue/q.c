@@ -13,9 +13,9 @@ qu_new (void)
     Q* q = ALLOC (Q);
 
     q->at     = 0;
-    q->unget  = Tcl_NewListObj (0, NULL);
-    q->queue  = Tcl_NewListObj (0, NULL);
-    q->append = Tcl_NewListObj (0, NULL);
+    q->unget  = Tcl_NewListObj (0, NULL); /* OK tcl9 */
+    q->queue  = Tcl_NewListObj (0, NULL); /* OK tcl9 */
+    q->append = Tcl_NewListObj (0, NULL); /* OK tcl9 */
 
     Tcl_IncrRefCount (q->unget); 
     Tcl_IncrRefCount (q->queue); 

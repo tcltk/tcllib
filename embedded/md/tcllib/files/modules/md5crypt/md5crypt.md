@@ -81,9 +81,9 @@ The salt passed to either of the encryption schemes implemented here is checked
 to see if it begins with the encryption scheme magic string \(either "$1$" for
 MD5\-crypt or "$apr1$" for Apache crypt\)\. If so, this is removed\. The remaining
 characters up to the next $ and up to a maximum of 8 characters are then used as
-the salt\. The salt text should probably be restricted the set of ASCII
+the salt\. The salt text should probably be restricted to the set of ASCII
 alphanumeric characters plus "\./" \(dot and forward\-slash\) \- this is to preserve
-maximum compatability with the unix password file format\.
+maximum compatibility with the unix password file format\.
 
 If a password is being generated rather than checked from a password file then
 the __salt__ command may be used to generate a random salt\.

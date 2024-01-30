@@ -52,7 +52,7 @@ gc_setup (GC* c, GCC* gx, const char* name, G* g)
 {
     int new;
 
-    c->name = Tcl_NewStringObj (name, -1);
+    c->name = Tcl_NewStringObj (name, TCL_AUTO_LENGTH); /* OK tcl9 */
     Tcl_IncrRefCount (c->name);
 
     c->he = Tcl_CreateHashEntry(gx->map, name, &new);
@@ -165,7 +165,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	Tcl_Obj**      ev;
 	Tcl_HashEntry* he;
 
-	if (Tcl_ListObjGetElements (interp, detail, &ec, &ev) != TCL_OK) {
+	if (Tcl_ListObjGetElements (interp, detail, &ec, &ev) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
@@ -269,9 +269,9 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
     }
 
     if (listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);

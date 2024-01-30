@@ -170,9 +170,9 @@ is checked to see if it begins with the encryption scheme magic string
 (either &quot;$1$&quot; for MD5-crypt or &quot;$apr1$&quot; for Apache crypt). If so, this
 is removed. The remaining characters up to the next $ and up to a
 maximum of 8 characters are then used as the salt. The salt text
-should probably be restricted the set of ASCII alphanumeric characters
+should probably be restricted to the set of ASCII alphanumeric characters
 plus &quot;./&quot; (dot and forward-slash) - this is to preserve maximum
-compatability with the unix password file format.</p>
+compatibility with the unix password file format.</p>
 <p>If a password is being generated rather than checked from a password
 file then the <b class="cmd">salt</b> command may be used to generate a random salt.</p>
 </div>

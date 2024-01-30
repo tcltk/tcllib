@@ -44,7 +44,7 @@ qums_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
     };
 
     if (objc < 2) {
-	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
+	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?"); /* OK tcl9 */
 	return TCL_ERROR;
     } else if (Tcl_GetIndexFromObj (interp, objv [1], methods, "option",
 				    0, &m) != TCL_OK) {

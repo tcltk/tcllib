@@ -101,7 +101,7 @@ g_walkoptions (Tcl_Interp* interp,
     }
 
     if (i < objc) {
-	Tcl_WrongNumArgs (interp, 2, objv, W_USAGE);
+	Tcl_WrongNumArgs (interp, 2, objv, W_USAGE); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -112,7 +112,7 @@ g_walkoptions (Tcl_Interp* interp,
 			  Tcl_GetString (objv [0]), " walk ",
 			  W_USAGE, "\"", NULL);
 	return TCL_ERROR;
-    } else if (Tcl_ListObjGetElements (interp, wcmd, &xcc, &xcv) != TCL_OK) {
+    } else if (Tcl_ListObjGetElements (interp, wcmd, &xcc, &xcv) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     } else if (xcc == 0) {
 	goto no_command;
@@ -202,8 +202,8 @@ g_walk (Tcl_Interp* interp, Tcl_Obj* go, GN* n,
     case WG_DFS:
 	switch (order) {
 	case WO_BOTH:
-	    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
-	    lb = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (lb);
+	    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
+	    lb = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (lb);
 
 	    res = walkdfsboth (interp, n, dir, &v, cc, ev, la, lb);
 
@@ -212,7 +212,7 @@ g_walk (Tcl_Interp* interp, Tcl_Obj* go, GN* n,
 	    break;
 
 	case WO_PRE:
-	    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
+	    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 	    res = walkdfspre (interp, n, dir, &v, cc, ev, la);
 
@@ -220,7 +220,7 @@ g_walk (Tcl_Interp* interp, Tcl_Obj* go, GN* n,
 	    break;
 
 	case WO_POST:
-	    la = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (la);
+	    la = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 	    res = walkdfspost (interp, n, dir, &v, cc, ev, la);
 
@@ -234,7 +234,7 @@ g_walk (Tcl_Interp* interp, Tcl_Obj* go, GN* n,
 	case WO_BOTH:
 	case WO_POST: Tcl_Panic ("impossible combination bfs/(both|post)"); break;
 	case WO_PRE:
-	    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
+	    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 	    res = walkbfspre (interp, n, dir, &v, cc, ev, la);
 
@@ -280,7 +280,7 @@ walk_invoke (Tcl_Interp* interp, GN* n,
     Tcl_IncrRefCount (ev [cc+0]);
     Tcl_IncrRefCount (ev [cc+2]);
 
-    res = Tcl_EvalObjv (interp, cc+3, ev, 0);
+    res = Tcl_EvalObjv (interp, cc+3, ev, 0); /* OK tcl9 */
 
     Tcl_DecrRefCount (ev [cc+0]);
     Tcl_DecrRefCount (ev [cc+2]);

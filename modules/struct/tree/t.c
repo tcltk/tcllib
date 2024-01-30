@@ -80,7 +80,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 #define PARENT(i) ((i)+1)
 #define ATTR(i)	  ((i)+2)
 
-    if (Tcl_ListObjGetElements (interp, src, &listc, &listv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (interp, src, &listc, &listv) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
     if ((listc % 3) != 0) {
@@ -107,7 +107,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	    ASSERT_BOUNDS (ATTR(i), listc);
 	    ASSERT_BOUNDS (j,	    nodes);
 
-	    if (Tcl_ListObjGetElements (interp, listv [ATTR(i)],
+	    if (Tcl_ListObjGetElements (interp, listv [ATTR(i)], /* OK tcl9 */
 					&ac, &av) != TCL_OK) {
 		return TCL_ERROR;
 	    }
@@ -186,7 +186,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 		continue;
 
 	    p	= listv [PARENT(i)];
-	    res = Tcl_GetSizeIntFromObj (interp, p, &index);
+	    res = Tcl_GetSizeIntFromObj (interp, p, &index); /* OK tcl9 */
 
 	    if (
 		(res != TCL_OK) ||

@@ -144,7 +144,7 @@ more specialised packages:
 
   - <a name='9'></a>__::math::sigma__ *value* *value* ?*value \.\.\.*?
 
-    Return the population standard deviation of two or more numeric values\.
+    Return the sample standard deviation of two or more numeric values\.
 
   - <a name='10'></a>__::math::stats__ *value* *value* ?*value \.\.\.*?
 

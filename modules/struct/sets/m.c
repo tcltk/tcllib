@@ -39,7 +39,7 @@ sm_ADD (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST
     int         new = 0;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "Avar B");
+	Tcl_WrongNumArgs (interp, 2, objv, "Avar B"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -119,7 +119,7 @@ sm_CONTAINS (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* 
     CONST char* item;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "set item");
+	Tcl_WrongNumArgs (interp, 2, objv, "set item"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -130,7 +130,7 @@ sm_CONTAINS (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* 
     item = Tcl_GetString (objv [3]);
 
     Tcl_SetObjResult (interp,
-		      Tcl_NewIntObj (s_contains (s, item)));
+		      Tcl_NewIntObj (s_contains (s, item))); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -160,7 +160,7 @@ sm_DIFFERENCE (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj
     SPtr sa, sb;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "A B");
+	Tcl_WrongNumArgs (interp, 2, objv, "A B"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -203,15 +203,15 @@ sm_EMPTY (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CON
     SPtr s;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "set");
+	Tcl_WrongNumArgs (interp, 2, objv, "set"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (objv[2]->typePtr == s_ltype ()) {
 	Tcl_Size  lc;
 	Tcl_Obj** lv;
-	Tcl_ListObjGetElements(interp, objv[2], &lc, &lv);
-	Tcl_SetObjResult (interp, Tcl_NewIntObj (lc == 0));
+	Tcl_ListObjGetElements(interp, objv[2], &lc, &lv); /* OK tcl9 */
+	Tcl_SetObjResult (interp, Tcl_NewIntObj (lc == 0)); /* OK tcl9 */
 	return TCL_OK;
     }
 
@@ -220,7 +220,7 @@ sm_EMPTY (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CON
     }
 
     Tcl_SetObjResult (interp,
-		      Tcl_NewIntObj (s_empty (s)));
+		      Tcl_NewIntObj (s_empty (s))); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -251,7 +251,7 @@ sm_EQUAL (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CON
     SPtr sa, sb;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "A B");
+	Tcl_WrongNumArgs (interp, 2, objv, "A B"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -263,7 +263,7 @@ sm_EQUAL (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CON
     }
 
     Tcl_SetObjResult (interp,
-		      Tcl_NewIntObj (s_equal (sa, sb)));
+		      Tcl_NewIntObj (s_equal (sa, sb))); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -297,7 +297,7 @@ sm_EXCLUDE (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* C
     char*       key;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "Avar element");
+	Tcl_WrongNumArgs (interp, 2, objv, "Avar element"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -351,7 +351,7 @@ sm_INCLUDE (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* C
     Tcl_Obj*    val;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "Avar element");
+	Tcl_WrongNumArgs (interp, 2, objv, "Avar element"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -479,7 +479,7 @@ sm_INTERSECT3 (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj
     Tcl_Obj* lv [3];
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "A B");
+	Tcl_WrongNumArgs (interp, 2, objv, "A B"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -494,7 +494,7 @@ sm_INTERSECT3 (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj
     lv [1] = s_new (s_difference (sa, sb));
     lv [2] = s_new (s_difference (sb, sa));
 
-    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -526,7 +526,7 @@ sm_SIZE (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONS
     SPtr s;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "set");
+	Tcl_WrongNumArgs (interp, 2, objv, "set"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -566,7 +566,7 @@ sm_SUBSETOF (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* 
     SPtr sa, sb;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "A B");
+	Tcl_WrongNumArgs (interp, 2, objv, "A B"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -578,7 +578,7 @@ sm_SUBSETOF (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* 
     }
 
     Tcl_SetObjResult (interp,
-		      Tcl_NewIntObj (s_subsetof (sa, sb)));
+		      Tcl_NewIntObj (s_subsetof (sa, sb))); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -610,7 +610,7 @@ sm_SUBTRACT (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* 
     int         del;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "Avar B");
+	Tcl_WrongNumArgs (interp, 2, objv, "Avar B"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -683,7 +683,7 @@ sm_SYMDIFF (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* C
     SPtr sa, sb, xa, xb, u;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "A B");
+	Tcl_WrongNumArgs (interp, 2, objv, "A B"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 

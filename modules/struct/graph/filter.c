@@ -131,7 +131,7 @@ filter_setup (NA* na, Tcl_Interp* interp, Tcl_Size oc, Tcl_Obj* const* ov, G* g)
 	    case R_OUT:
 		if (na->mode != NA_NONE) {
 		    Tcl_SetObjResult (interp,
-		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-in\"|\"-out\"|\"-adj\"|\"-inner\"|\"-embedding\"", -1));
+		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-in\"|\"-out\"|\"-adj\"|\"-inner\"|\"-embedding\"", TCL_AUTO_LENGTH)); /* OK tcl9 */
 		    goto abort;
 		}
 		na->mode = mode [r];
@@ -141,7 +141,7 @@ filter_setup (NA* na, Tcl_Interp* interp, Tcl_Size oc, Tcl_Obj* const* ov, G* g)
 		if (oc < 2) goto wrongargs;
 		if (na->filter) {
 		    Tcl_SetObjResult (interp,
-		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-filter\"", -1));
+		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-filter\"", TCL_AUTO_LENGTH)); /* OK tcl9 */
 		    goto abort;
 		}
 		na->filter = ov [1];
@@ -153,7 +153,7 @@ filter_setup (NA* na, Tcl_Interp* interp, Tcl_Size oc, Tcl_Obj* const* ov, G* g)
 		if (oc < 2) goto wrongargs;
 		if (na->key) {
 		    Tcl_SetObjResult (interp,
-		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-key\"", -1));
+		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-key\"", TCL_AUTO_LENGTH)); /* OK tcl9 */
 		    goto abort;
 		}
 		na->key = ov [1];
@@ -165,7 +165,7 @@ filter_setup (NA* na, Tcl_Interp* interp, Tcl_Size oc, Tcl_Obj* const* ov, G* g)
 		if (oc < 2) goto wrongargs;
 		if (na->value) {
 		    Tcl_SetObjResult (interp,
-		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-value\"", -1));
+		      Tcl_NewStringObj ("invalid restriction: illegal multiple use of \"-value\"", TCL_AUTO_LENGTH)); /* OK tcl9 */
 		    goto abort;
 		}
 		na->value = ov [1];
@@ -189,14 +189,14 @@ filter_setup (NA* na, Tcl_Interp* interp, Tcl_Size oc, Tcl_Obj* const* ov, G* g)
 
     if (na->value && !na->key) {
 	Tcl_SetObjResult (interp,
-	  Tcl_NewStringObj ("invalid restriction: use of \"-value\" without \"-key\"", -1));
+	  Tcl_NewStringObj ("invalid restriction: use of \"-value\" without \"-key\"", TCL_AUTO_LENGTH)); /* OK tcl9 */
 	goto abort;
     }
 
     if ((na->mode != NA_NONE) && !na->nc) {
     wrongargs:
-	Tcl_WrongNumArgs (interp, 2, av,
-	  "?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?");
+	Tcl_WrongNumArgs (interp, 2, av, /* OK tcl9 */
+	  "?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?"); /* OK tcl9 */
 	goto abort;
     }
 
@@ -250,7 +250,7 @@ filter_run (NA* na, Tcl_Interp* interp, Tcl_Size nodes, GCC* gx, GN_GET_GC* gf, 
     if (!gx->n) {
 	/* Nothing to filter, ignore the filters */
 
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
 	return TCL_OK;
     }
 
@@ -283,7 +283,7 @@ filter_run (NA* na, Tcl_Interp* interp, Tcl_Size nodes, GCC* gx, GN_GET_GC* gf, 
     }
 
     ASSERT(l.c > -1, "No filters applied");
-    Tcl_SetObjResult (interp, Tcl_NewListObj (l.c, l.v));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (l.c, l.v)); /* OK tcl9 */
     ckfree ((char*) l.v);
     return TCL_OK;
 }
@@ -920,7 +920,7 @@ filter_kv (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* 
     if (l->c == 0) return;
 
     key   = Tcl_GetString (k);
-    value = Tcl_GetStringFromObj (v, &vlen);
+    value = Tcl_GetStringFromObj (v, &vlen); /* OK tcl9 */
 
     if (l->c > 0) {
 	/* Filter an existing set of nodes/arcs down to the set of nodes/arcs
@@ -937,7 +937,7 @@ filter_kv (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* 
 	    if (!c->attr->numEntries) continue;
 	    he = Tcl_FindHashEntry (c->attr, key);
 	    if (!he) continue;
-	    cmp = Tcl_GetStringFromObj ((Tcl_Obj*) Tcl_GetHashValue(he), &clen);
+	    cmp = Tcl_GetStringFromObj ((Tcl_Obj*) Tcl_GetHashValue(he), &clen); /* OK tcl9 */
 	    if ((vlen != clen) ||
 		(strcmp(value, cmp) != 0)) continue;
 
@@ -968,7 +968,7 @@ filter_kv (Tcl_Interp* interp, GCC* gx, NARES* l, GN_GET_GC* gf, G* g, Tcl_Obj* 
 	    if (!iter->attr->numEntries) continue;
 	    he = Tcl_FindHashEntry (iter->attr, key);
 	    if (!he) continue;
-	    cmp = Tcl_GetStringFromObj ((Tcl_Obj*) Tcl_GetHashValue(he), &clen);
+	    cmp = Tcl_GetStringFromObj ((Tcl_Obj*) Tcl_GetHashValue(he), &clen); /* OK tcl9 */
 	    if ((vlen != clen) ||
 		(strcmp(value, cmp) != 0)) continue;
 
@@ -1074,7 +1074,7 @@ filter_cmd (Tcl_Interp* interp, GCC* gx, NARES* l, Tcl_Obj* cmd, Tcl_Obj* g)
     int       flag;
     int       res;
 
-    if (Tcl_ListObjGetElements (interp, cmd, &cmdc, &cmdv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (interp, cmd, &cmdc, &cmdv) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1119,7 +1119,7 @@ filter_cmd (Tcl_Interp* interp, GCC* gx, NARES* l, Tcl_Obj* cmd, Tcl_Obj* g)
 
 	    /* Run the callback */
 	    Tcl_IncrRefCount (ev [cmdc+1]);
-	    res = Tcl_EvalObjv (interp, ec, ev, 0);
+	    res = Tcl_EvalObjv (interp, ec, ev, 0); /* OK tcl9 */
 	    Tcl_DecrRefCount (ev [cmdc+1]);
 
 	    /* Process the result */
@@ -1165,7 +1165,7 @@ filter_cmd (Tcl_Interp* interp, GCC* gx, NARES* l, Tcl_Obj* cmd, Tcl_Obj* g)
 
 	    /* Run the callback */
 	    Tcl_IncrRefCount (ev [cmdc+1]);
-	    res = Tcl_EvalObjv (interp, ec, ev, 0);
+	    res = Tcl_EvalObjv (interp, ec, ev, 0); /* OK tcl9 */
 	    Tcl_DecrRefCount (ev [cmdc+1]);
 
 	    /* Process the result */
