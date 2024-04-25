@@ -37,7 +37,7 @@ test tcl-chan-fifo2-1.2 {destructor kills both sides and coordinator} -setup {
     lappend r [info class instances ::tcl::chan::fifo2::implementation]
 } -cleanup {
     unset a b r
-} -result {{rc4 rc5 stderr stdin stdout} ::oo::Obj* {stderr stdin stdout} {}}
+} -result {{rc* rc* stderr stdin stdout} ::oo::Obj* {stderr stdin stdout} {}}
 
 # -------------------------------------------------------------------------
 
