@@ -220,40 +220,92 @@ proc ::tar::get {tar file args} {
 	"Tar \"$tar\": File \"$file\" not found"
 }
 
+proc ::tar::isabsolute {path} {
+    return [expr {[string match -nocase [file pathtype $path] "absolute"]}]
+}
+
+## Compose an absolute path from a given file name (that could also be an absolute path) and a target directory
+proc ::tar::path2absolute {name dir} {
+  if {$dir!=""} {
+      if {[::tar::isabsolute $name]} {
+          return [file join $dir [file tail $name]]
+      } else {
+          return [file join $dir $name]
+      }
+  } else {
+    return $name
+  }
+}
+
 proc ::tar::untar {tar args} {
     set nooverwrite 0
     set data 0
     set nomtime 0
     set noperms 0
     set chan 0
-    parseOpts {dir 1 file 1 glob 1 nooverwrite 0 nomtime 0 noperms 0 chan 0} $args
+    parseOpts {dir 1 file 1 glob 1 nooverwrite 0 nomtime 0 noperms 0 chan 0 files 1 dirs 1} $args
     if {![info exists dir]} {set dir [pwd]}
     set pattern *
-    if {[info exists file]} {
-        set pattern [string map {* \\* ? \\? \\ \\\\ \[ \\\[ \] \\\]} $file]
-    } elseif {[info exists glob]} {
-        set pattern $glob
+    # If the "files" option is used, then "file", "glob" and "dir" are ignored
+    # Also current implementation of "files" assumes that "prefix" is also not used in combination
+    if {[info exists files]} {
+      unset -nocomplain file
+      if {![info exists dirs]} {
+        set dirs [lrepeat [llength $files] $dir]
+      }
+      set dir ""
+    } else {
+      if {[info exists file]} {
+          set pattern [string map {* \\* ? \\? \\ \\\\ \[ \\\[ \] \\\]} $file]
+      } elseif {[info exists glob]} {
+          set pattern $glob
+      }
     }
 
     set ret {}
     if {$chan} {
-	set fh $tar
+      set fh $tar
     } else {
-	set fh [::open $tar]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+      set fh [::open $tar]
+      fconfigure $fh -encoding binary -translation lf -eofchar {}
     }
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
-	HandleLongLink $fh header
+        HandleLongLink $fh header
         if {$header(name) == ""} break
-	if {$header(prefix) != ""} {append header(prefix) /}
+        if {$header(prefix) != ""} {append header(prefix) /}
         set name [string trimleft $header(prefix)$header(name) /]
-        if {![string match $pattern $name] || ($nooverwrite && [file exists $name])} {
-            seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
-            continue
+        # Get target directory "dir2"
+        # This is also first stage of checking if "name" should be skipped from unpacking
+        if {[info exists files]} {
+          set skip 1
+          foreach file2 $files dir2 $dirs {
+            if {[string match $file2 $name]} {
+              set skip 0
+              break
+            }
+          }
+        } else {
+          set skip 0
+          set dir2 $dir
+        }
+        # This is also second stage of checking if "name" should be skipped from unpacking
+        if {$skip==0} {
+          # Compose the target full file path, if target directory is specified
+          set name2 [::tar::path2absolute $name $dir2]
+          # Check if this file should be skipped
+          if {$nooverwrite && [file exists $name2]} {
+            set skip 1
+          } else {
+            set skip [expr {![string match $pattern $name]}]
+          }
+          set name $name2
+        }
+        if {$skip} {
+          seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
+          continue
         }
 
-        set name [file join $dir $name]
         if {![file isdirectory [file dirname $name]]} {
             file mkdir [file dirname $name]
             lappend ret [file dirname $name] {}
@@ -292,7 +344,7 @@ proc ::tar::untar {tar args} {
         }
     }
     if {!$chan} {
-	close $fh
+      close $fh
     }
     return $ret
 }
@@ -443,7 +495,7 @@ proc ::tar::writefile {in out followlinks name} {
 proc ::tar::create {tar files args} {
     set dereference 0
     set chan 0
-    parseOpts {dereference 0 chan 0} $args
+    parseOpts {dereference 0 chan 0 progress 1} $args
 
     if {$chan} {
 	set fh $tar
@@ -451,8 +503,21 @@ proc ::tar::create {tar files args} {
 	set fh [::open $tar w+]
 	fconfigure $fh -encoding binary -translation lf -eofchar {}
     }
-    foreach x [recurseDirs $files $dereference] {
+    set files [recurseDirs $files $dereference]
+    if {$progress!=""} {
+        set count [llength $files]
+        eval [concat $progress $count 0]
+        set i 0
+    }
+    foreach x $files {
         writefile $x $fh $dereference $x
+        if {$progress!=""} {
+            incr i
+            eval [concat $progress $count $i]
+        }
+    }
+    if {$progress!=""} {
+        eval [concat $progress 0 0]
     }
     puts -nonewline $fh [string repeat \x00 1024]
 
