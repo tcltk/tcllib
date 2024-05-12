@@ -12,7 +12,7 @@ package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
 package require log  ; # tcllib | tracing
 
-package provide pop3d 1.1.0
+package provide pop3d 1.2.0
 
 namespace eval ::pop3d {
     # Data storage in the pop3d module

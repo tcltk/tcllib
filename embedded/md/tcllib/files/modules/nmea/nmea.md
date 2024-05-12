@@ -2,7 +2,7 @@
 [//000000001]: # (nmea \- NMEA protocol implementation)
 [//000000002]: # (Generated from file 'nmea\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2009, Aaron Faupell <afaupell@users\.sourceforge\.net>)
-[//000000004]: # (nmea\(n\) 1\.0\.0 tcllib "NMEA protocol implementation")
+[//000000004]: # (nmea\(n\) 1\.1\.0 tcllib "NMEA protocol implementation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,8 +35,8 @@ nmea \- Process NMEA data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require nmea ?1\.0\.0?  
+package require Tcl 8\.5 9  
+package require nmea ?1\.1\.0?  
 
 [__::nmea::input__ *sentence*](#1)  
 [__::nmea::open\_port__ *port* ?speed?](#2)  

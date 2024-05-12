@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc \- doctoc - Processing tables of contents
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::toc  ?1\&.2?\fR
+package require \fBdoctools::toc ?1\&.2?\fR
 .sp
 \fB::doctools::toc::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR \&.\&.\&.?
 .sp

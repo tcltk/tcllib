@@ -11,9 +11,8 @@
 Tcl_Obj*
 g_attr_serial (Tcl_HashTable* attr, Tcl_Obj* empty)
 {
-    int		   i;
     Tcl_Obj*	   res;
-    int		   listc;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     Tcl_HashSearch hs;
     Tcl_HashEntry* he;
@@ -35,11 +34,11 @@ g_attr_serial (Tcl_HashTable* attr, Tcl_Obj* empty)
 	ASSERT_BOUNDS (i,   listc);
 	ASSERT_BOUNDS (i+1, listc);
 
-	listv [i] = Tcl_NewStringObj (key, -1);	     i++;
-	listv [i] = (Tcl_Obj*) Tcl_GetHashValue(he); i++;
+	listv [i] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); i++; /* OK tcl9 */
+	listv [i] = (Tcl_Obj*) Tcl_GetHashValue(he);         i++;
     }
 
-    res = Tcl_NewListObj (listc, listv);
+    res = Tcl_NewListObj (listc, listv); /* OK tcl9 */
     ckfree ((char*) listv);
     return res;
 }
@@ -49,10 +48,10 @@ g_attr_serial (Tcl_HashTable* attr, Tcl_Obj* empty)
 int
 g_attr_serok (Tcl_Interp* interp, Tcl_Obj* aserial, const char* what)
 {
-    int	      lc;
+    Tcl_Size  lc;
     Tcl_Obj** lv;
 
-    if (Tcl_ListObjGetElements (interp, aserial, &lc, &lv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (interp, aserial, &lc, &lv) != TCL_OK) { /* OK tcl9 */
 	return 0;
     }
     if ((lc % 2) != 0) {
@@ -73,15 +72,15 @@ g_attr_deserial (Tcl_HashTable** Astar, Tcl_Obj* dict)
     Tcl_HashEntry* he;
     CONST char*	   key;
     Tcl_Obj*	   val;
-    int		   new, i;
-    int		   listc;
+    int		   new;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     Tcl_HashTable* attr;
 
     /* NULL can happen via 'g_attr_dup' */
     if (!dict) return;
 
-    Tcl_ListObjGetElements (NULL, dict, &listc, &listv);
+    Tcl_ListObjGetElements (NULL, dict, &listc, &listv); /* OK tcl9 */
 
     if (!listc) return;
 
@@ -126,19 +125,18 @@ g_attr_delete (Tcl_HashTable** Astar)
 /* .................................................. */
 
 void
-g_attr_keys (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* pv)
+g_attr_keys (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Size pc, Tcl_Obj* const* pv)
 {
-    int		   listc;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     Tcl_HashEntry* he;
     Tcl_HashSearch hs;
     const char*	   key;
-    int		   i;
     const char*	   pattern;
     int		   matchall = 0;
 
     if ((attr == NULL) || (attr->numEntries == 0)) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
 	return;
     }
 
@@ -158,7 +156,7 @@ g_attr_keys (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* pv
 	     he = Tcl_NextHashEntry(&hs)) {
 
 	    ASSERT_BOUNDS (i, listc);
-	    listv [i++] = Tcl_NewStringObj (Tcl_GetHashKey (attr, he), -1);
+	    listv [i++] = Tcl_NewStringObj (Tcl_GetHashKey (attr, he), TCL_AUTO_LENGTH); /* OK tcl9 */
 	}
 
 	ASSERT (i == listc, "Bad key retrieval");
@@ -174,7 +172,7 @@ g_attr_keys (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* pv
 	    if (Tcl_StringMatch(key, pattern)) {
 		ASSERT_BOUNDS (i, listc);
 
-		listv [i++] = Tcl_NewStringObj (key, -1);
+		listv [i++] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); /* OK tcl9 */
 	    }
 	}
 
@@ -183,9 +181,9 @@ g_attr_keys (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* pv
     }
 
     if (listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);
@@ -200,13 +198,13 @@ g_attr_kexists (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Obj* key)
     const char*	   ky = Tcl_GetString (key);
 
     if ((attr == NULL) || (attr->numEntries == 0)) {
-	Tcl_SetObjResult (interp, Tcl_NewIntObj (0));
+	Tcl_SetObjResult (interp, Tcl_NewIntObj (0)); /* OK tcl9 */
 	return;
     }
 
     he	= Tcl_FindHashEntry (attr, ky);
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (he != NULL));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (he != NULL)); /* OK tcl9 */
 }
 
 /* .................................................. */
@@ -222,11 +220,11 @@ g_attr_get (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Obj* key, Tcl_Obj* o, c
     if (!he) {
 	Tcl_Obj* err = Tcl_NewObj ();
 
-	Tcl_AppendToObj	   (err, "invalid key \"", -1);
+	Tcl_AppendToObj	   (err, "invalid key \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, key);
-	Tcl_AppendToObj    (err, sep, -1);
+	Tcl_AppendToObj    (err, sep, TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, o);
-	Tcl_AppendToObj	   (err, "\"", -1);
+	Tcl_AppendToObj	   (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	Tcl_SetObjResult (interp, err);
 	return TCL_ERROR;
@@ -240,19 +238,18 @@ g_attr_get (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Obj* key, Tcl_Obj* o, c
 /* .................................................. */
 
 void
-g_attr_getall (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* pv)
+g_attr_getall (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Size pc, Tcl_Obj* const* pv)
 {
     Tcl_HashEntry* he;
     Tcl_HashSearch hs;
     const char*	   key;
-    int		   i;
-    int		   listc;
+    Tcl_Size	   listc, i;
     Tcl_Obj**	   listv;
     const char*	   pattern = NULL;
     int		   matchall = 0;
 
     if ((attr == NULL) || (attr->numEntries == 0)) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
 	return;
     }
 
@@ -276,7 +273,7 @@ g_attr_getall (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* 
 	    ASSERT_BOUNDS (i,	listc);
 	    ASSERT_BOUNDS (i+1, listc);
 
-	    listv [i++] = Tcl_NewStringObj (key, -1);
+	    listv [i++] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); /* OK tcl9 */
 	    listv [i++] = (Tcl_Obj*) Tcl_GetHashValue(he);
 	}
 
@@ -294,7 +291,7 @@ g_attr_getall (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* 
 		ASSERT_BOUNDS (i,   listc);
 		ASSERT_BOUNDS (i+1, listc);
 
-		listv [i++] = Tcl_NewStringObj (key, -1);
+		listv [i++] = Tcl_NewStringObj (key, TCL_AUTO_LENGTH); /* OK tcl9 */
 		listv [i++] = (Tcl_Obj*) Tcl_GetHashValue(he);
 	    }
 	}
@@ -304,9 +301,9 @@ g_attr_getall (Tcl_HashTable* attr, Tcl_Interp* interp, int pc, Tcl_Obj* const* 
     }
 
     if (listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);
@@ -393,7 +390,7 @@ g_attr_lappend (Tcl_HashTable* attr, Tcl_Interp* interp, Tcl_Obj* key, Tcl_Obj* 
 	int new;
 	he = Tcl_CreateHashEntry(attr, ky, &new);
 
-	av = Tcl_NewListObj (0,NULL);
+	av = Tcl_NewListObj (0, NULL); /* OK tcl9 */
 	Tcl_IncrRefCount (av);
 	Tcl_SetHashValue (he, (ClientData) av);
 

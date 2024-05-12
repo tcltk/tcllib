@@ -2,7 +2,7 @@
 '\" Generated from file 'me_util\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::me::util" n 0\&.1 tcllib "Grammar operations and usage"
+.TH "grammar::me::util" n 0\&.2 tcllib "Grammar operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::util \- AST utilities
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::me::util  ?0\&.1?\fR
+package require \fBgrammar::me::util ?0\&.2?\fR
 .sp
 \fB::grammar::me::util::ast2tree\fR \fIast\fR \fItree\fR ?\fIroot\fR?
 .sp

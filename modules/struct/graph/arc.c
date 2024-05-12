@@ -93,19 +93,19 @@ ga_mv_dst (GA* a, GN* ndst)
 /* .................................................. */
 
 Tcl_Obj*
-ga_serial (GA* a, Tcl_Obj* empty, int nodeId)
+ga_serial (GA* a, Tcl_Obj* empty, Tcl_Size nodeId)
 {
     Tcl_Obj* lv [4];
 
     lv [0] = a->base.name;
-    lv [1] = Tcl_NewIntObj (nodeId);
+    lv [1] = Tcl_NewSizeIntObj (nodeId);
     lv [2] = g_attr_serial (a->base.attr, empty);
 
     if (a->weight) {
 	lv [3] = a->weight;
-	return Tcl_NewListObj (4, lv);
+	return Tcl_NewListObj (4, lv); /* OK tcl9 */
     } else {
-	return Tcl_NewListObj (3, lv);
+	return Tcl_NewListObj (3, lv); /* OK tcl9 */
     }
 }
 
@@ -116,11 +116,11 @@ ga_err_duplicate (Tcl_Interp* interp, Tcl_Obj* a, Tcl_Obj* g)
 {
     Tcl_Obj* err = Tcl_NewObj ();
 
-    Tcl_AppendToObj    (err, "arc \"", -1);
+    Tcl_AppendToObj    (err, "arc \"", TCL_AUTO_LENGTH); /* OK tcl9 */
     Tcl_AppendObjToObj (err, a);
-    Tcl_AppendToObj    (err, "\" already exists in graph \"", -1);
+    Tcl_AppendToObj    (err, "\" already exists in graph \"", TCL_AUTO_LENGTH); /* OK tcl9 */
     Tcl_AppendObjToObj (err, g);
-    Tcl_AppendToObj    (err, "\"", -1);
+    Tcl_AppendToObj    (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	    
     Tcl_SetObjResult (interp, err);
 }
@@ -134,11 +134,11 @@ ga_err_missing (Tcl_Interp* interp, Tcl_Obj* a, Tcl_Obj* g)
 
     /* Keep any prefix ... */
     Tcl_AppendObjToObj (err, Tcl_GetObjResult (interp));
-    Tcl_AppendToObj    (err, "arc \"", -1);
+    Tcl_AppendToObj    (err, "arc \"", TCL_AUTO_LENGTH); /* OK tcl9 */
     Tcl_AppendObjToObj (err, a);
-    Tcl_AppendToObj    (err, "\" does not exist in graph \"", -1);
+    Tcl_AppendToObj    (err, "\" does not exist in graph \"", TCL_AUTO_LENGTH); /* OK tcl9 */
     Tcl_AppendObjToObj (err, g);
-    Tcl_AppendToObj    (err, "\"", -1);
+    Tcl_AppendToObj    (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 
     Tcl_SetObjResult (interp, err);
 }

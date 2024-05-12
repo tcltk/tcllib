@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_to_api\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt_export_api" i 1 tcllib "Parser Tools"
+.TH "pt_export_api" i 1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt_export_api \- Parser Tools Export API
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
 \fBCONVERTER\fR \fBreset\fR
 .sp

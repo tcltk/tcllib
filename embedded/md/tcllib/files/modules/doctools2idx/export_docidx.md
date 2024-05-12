@@ -2,7 +2,7 @@
 [//000000001]: # (doctools::idx::export::docidx \- Documentation tools)
 [//000000002]: # (Generated from file 'plugin\.inc' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools::idx::export::docidx\(n\) 0\.2\.1 tcllib "Documentation tools")
+[//000000004]: # (doctools::idx::export::docidx\(n\) 0\.2\.2 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -41,8 +41,8 @@ doctools::idx::export::docidx \- docidx export plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require doctools::idx::export::docidx ?0\.2\.1?  
+package require Tcl 8\.5 9  
+package require doctools::idx::export::docidx ?0\.2\.2?  
 
 [__[export](\.\./\.\./\.\./\.\./index\.md\#export)__ *serial* *configuration*](#1)  
 

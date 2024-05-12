@@ -49,7 +49,7 @@ pt::peg::export::container \- PEG Export Plugin\. Write CONTAINER format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::export::container ?1?  
 package require pt::peg::to::container  
 

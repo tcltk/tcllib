@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_msgcat\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::msgcat" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::msgcat" n 0\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::msgcat \- Message catalog management for the various document parsers
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmsgcat \fR
+package require \fBmsgcat\fR
 .sp
-package require \fBdoctools::msgcat  ?0\&.1?\fR
+package require \fBdoctools::msgcat ?0\&.2?\fR
 .sp
 \fB::doctools::msgcat::init\fR \fIprefix\fR
 .sp

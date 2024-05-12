@@ -9,14 +9,14 @@
 
 package require pcx
 pcx::register uevent::onidle
-pcx::tcldep   0.1 needs tcl 8.4
+pcx::tcldep   0.2 needs tcl 8.4
 
 namespace eval ::uevent::onidle {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 0.1 std ::uevent::onidle \
+pcx::check 0.2 std ::uevent::onidle \
     {checkSimpleArgs 2 2 {
 	checkWord
 	checkWord

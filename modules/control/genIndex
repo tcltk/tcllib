@@ -1,6 +1,6 @@
 # Utility program to generate tclIndex file
 
-package require Tcl 8.3
+package require Tcl 8.5 9
 set home [file join [pwd] [file dirname [info script]]]
 cd $home
 set files [glob -nocomplain *.tcl]

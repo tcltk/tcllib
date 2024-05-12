@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil::magic::rt \- Runtime core for file type recognition engines written in pure Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBfileutil::magic::rt  ?2\&.0?\fR
+package require \fBfileutil::magic::rt ?2\&.0?\fR
 .sp
 \fB::fileutil::magic::rt::>\fR
 .sp

@@ -2,7 +2,7 @@
 '\" Generated from file 'wip\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2010 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "wip" n 2\&.2 tcllib "Word Interpreter"
+.TH "wip" n 2\&.3 tcllib "Word Interpreter"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 wip \- Word Interpreter
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBwip  ?2\&.2?\fR
+package require \fBwip ?2\&.3?\fR
 .sp
-package require \fBsnit  ?1\&.3?\fR
+package require \fBsnit ?1\&.4?\fR
 .sp
-package require \fBstruct::set \fR
+package require \fBstruct::set\fR
 .sp
 \fB::wip\fR \fIwipName\fR \fIengine\fR \fIarg\fR\&.\&.\&.
 .sp

@@ -13,18 +13,18 @@
 /* .................................................. */
 
 int
-param_AMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_AMARKED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde amarked
      *         [0] [1]
      */
 
-    long int mc, i;
+    Tcl_Size mc, i;
     void**   mv;
     Tcl_Obj** ov;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -33,11 +33,10 @@ param_AMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     ov = NALLOC (mc, Tcl_Obj*);
 
     for (i=0; i < mc; i++) {
-	ov [i] = Tcl_NewIntObj ((long int) mv [i]);
+	ov [i] = Tcl_NewSizeIntObj ((Tcl_Size) (long int) mv [i]);
     }
 
-    Tcl_SetObjResult (interp,
-		      Tcl_NewListObj (mc, ov));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (mc, ov)); /* OK tcl9 */
 
     ckfree ((char*) ov);
 
@@ -45,17 +44,17 @@ param_AMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_AST (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_AST (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde ast
      *         [0] [1]
      */
 
-    long int  ac;
+    Tcl_Size  ac;
     Tcl_Obj** av;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -67,48 +66,48 @@ param_AST (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_ASTS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_ASTS (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde asts
      *         [0] [1]
      */
 
-    long int  ac;
+    Tcl_Size  ac;
     Tcl_Obj** av;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     rde_param_query_ast (p->p, &ac, &av);
 
-    Tcl_SetObjResult (interp, Tcl_NewListObj (ac, av));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (ac, av)); /* OK tcl9 */
 
     return TCL_OK;
 }
 
 int
-param_CHAN (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_CHAN (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde chan
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     Tcl_SetObjResult (interp,
-		      Tcl_NewStringObj (rde_param_query_in (p->p),
+		      Tcl_NewStringObj (rde_param_query_in (p->p), /* OK tcl9 */
 					-1));
 
     return TCL_OK;
 }
 
 int
-param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* See also pt_cparam_config_critcl.tcl, COMPLETE().
      * Syntax: rde complete
@@ -116,12 +115,12 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (rde_param_query_st (p->p)) {
-	long int  ac;
+	Tcl_Size  ac;
 	Tcl_Obj** av;
 
 	rde_param_query_ast (p->p, &ac, &av);
@@ -131,17 +130,17 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
 	    memcpy(lv + 3, av, ac * sizeof (Tcl_Obj*));
 	    lv [0] = Tcl_NewObj ();
-	    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p->p));
-	    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p->p));
+	    lv [1] = Tcl_NewSizeIntObj (1 + rde_param_query_lstop (p->p));
+	    lv [2] = Tcl_NewSizeIntObj (    rde_param_query_cl    (p->p));
 
-	    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
+	    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv)); /* OK tcl9 */
 	    ckfree ((char*) lv);
 	} else if (ac == 0) {
 	    /*
 	     * Match, but no AST. This is possible if the grammar consists of
 	     * only the start expression.
 	     */
-	    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
+	    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1)); /* OK tcl9 */
 	} else {
 	    Tcl_SetObjResult (interp, av [0]);
 	}
@@ -155,8 +154,8 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	/* res = list (location, list(msg)) */
 
 	/* Stick the exception type-tag before the existing elements */
-	xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-	Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
+	xv [0] = Tcl_NewStringObj ("pt::rde",-1); /* OK tcl9 */
+	Tcl_ListObjReplace(interp, res, 0, 0, 1, xv); /* OK tcl9 */
 
 	Tcl_SetErrorCode (interp, "PT", "RDE", "SYNTAX", NULL);
 	Tcl_SetObjResult (interp, res);
@@ -165,42 +164,42 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_CURRENT (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_CURRENT (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde current
      *         [0] [1]
      */
 
     const char* ch;
-    long int    len;
+    Tcl_Size    len;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     ch = rde_param_query_cc (p->p, &len);
-    Tcl_SetObjResult (interp, Tcl_NewStringObj (ch, len));
+    Tcl_SetObjResult (interp, Tcl_NewStringObj (ch, len)); /* OK tcl9 */
 
     return TCL_OK;
 }
 
 int
-param_DATA (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_DATA (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde data DATA
      *         [0] [1]  [2]
      */
 
-    char* buf;
-    int len;
+    char*    buf;
+    Tcl_Size len;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "data");
+	Tcl_WrongNumArgs (interp, 2, objv, "data"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    buf = Tcl_GetStringFromObj (objv [2], &len);
+    buf = Tcl_GetStringFromObj (objv [2], &len); /* OK tcl9 */
 
     rde_param_data (p->p, buf, len);
 
@@ -208,14 +207,14 @@ param_DATA (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_DESTROY (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_DESTROY (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde destroy
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -224,18 +223,18 @@ param_DESTROY (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_EMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_EMARKED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde emarked
      *         [0] [1]
      */
 
-    long int      ec, i;
+    Tcl_Size      ec, i;
     ERROR_STATE** ev;
     Tcl_Obj**     ov;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -247,7 +246,7 @@ param_EMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	ov [i] = rde_param_query_er_tcl (p->p, ev [i]);
     }
 
-    Tcl_SetObjResult (interp, Tcl_NewListObj (ec, ov));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (ec, ov)); /* OK tcl9 */
 
     ckfree ((char*) ov);
 
@@ -255,14 +254,14 @@ param_EMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_ERROR (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_ERROR (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde error
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -273,18 +272,18 @@ param_ERROR (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_LMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_LMARKED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde lmarked
      *         [0] [1]
      */
 
-    long int  lc, i;
+    Tcl_Size  lc, i;
     void**    lv;
     Tcl_Obj** ov;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -293,63 +292,59 @@ param_LMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     ov = NALLOC (lc, Tcl_Obj*);
 
     for (i=0; i < lc; i++) {
-	ov [i] = Tcl_NewIntObj ((long int) lv [i]);
+	ov [i] = Tcl_NewSizeIntObj ((Tcl_Size) (long int) lv [i]);
     }
 
-    Tcl_SetObjResult (interp, Tcl_NewListObj (lc, ov));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (lc, ov)); /* OK tcl9 */
 
     ckfree ((char*) ov);
     return TCL_OK;
 }
 
 int
-param_LOCATION (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_LOCATION (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde location
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    Tcl_SetObjResult (interp,
-		      Tcl_NewIntObj (rde_param_query_cl (p->p)));
-
+    Tcl_SetObjResult (interp, Tcl_NewSizeIntObj (rde_param_query_cl (p->p)));
     return TCL_OK;
 }
 
 int
-param_OK (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_OK (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde ok
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    Tcl_SetObjResult (interp,
-		      Tcl_NewIntObj (rde_param_query_st (p->p)));
-
+    Tcl_SetObjResult (interp, Tcl_NewSizeIntObj (rde_param_query_st (p->p)));
     return TCL_OK;
 }
 
 int
-param_RESET (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_RESET (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde reset ?CHAN?
      *         [0] [1]   [2]
      */
 
-    int mode;
+    int         mode;
     Tcl_Channel chan;
 
     if ((objc != 3) && (objc != 2)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?chan?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?chan?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -361,10 +356,7 @@ param_RESET (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     if (objc == 2) {
 	chan = NULL;
     } else {
-	chan = Tcl_GetChannel(interp,
-			      Tcl_GetString (objv[2]),
-			      &mode);
-
+	chan = Tcl_GetChannel(interp, Tcl_GetString (objv[2]), &mode);
 	if (!chan) {
 	    return TCL_ERROR;
 	}
@@ -376,7 +368,7 @@ param_RESET (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_SCACHED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SCACHED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde scached
      *         [0] [1]
@@ -390,12 +382,12 @@ param_SCACHED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* kv [2];
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     nc  = rde_param_query_nc (p->p);
-    res = Tcl_NewListObj (0, NULL);
+    res = Tcl_NewListObj (0, NULL); /* OK tcl9 */
 
     for(he = Tcl_FirstHashEntry(nc, &hs);
 	he != NULL;
@@ -403,22 +395,21 @@ param_SCACHED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
 	Tcl_HashSearch hsc;
 	Tcl_HashEntry* hec;
-	long int loc = (long int) Tcl_GetHashKey (nc, he);
+	Tcl_Size       loc = (Tcl_Size) (long int) Tcl_GetHashKey (nc, he);
 
-	kv [0]   = Tcl_NewIntObj (loc);
+	kv [0]   = Tcl_NewSizeIntObj (loc);
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (he);
 
 	for(hec = Tcl_FirstHashEntry(tablePtr, &hsc);
 	    hec != NULL;
 	    hec = Tcl_NextHashEntry(&hsc)) {
 
-	    long int    symid = (long int) Tcl_GetHashKey (tablePtr, hec);
+	    Tcl_Size    symid = (Tcl_Size) (long int) Tcl_GetHashKey (tablePtr, hec);
 	    const char* sym   = rde_param_query_string (p->p, symid);
 
-	    kv [1] = Tcl_NewStringObj (sym,-1);
+	    kv [1] = Tcl_NewStringObj (sym,-1); /* OK tcl9 */
 
-	    Tcl_ListObjAppendElement (interp, res,
-				      Tcl_NewListObj (2, kv));
+	    Tcl_ListObjAppendElement (interp, res, Tcl_NewListObj (2, kv)); /* OK tcl9 */
 	}
     }
 
@@ -427,7 +418,7 @@ param_SCACHED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde symbols
      *         [0] [1]
@@ -442,12 +433,12 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* vv [4];
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     nc  = rde_param_query_nc (p->p);
-    res = Tcl_NewListObj (0, NULL);
+    res = Tcl_NewListObj (0, NULL); /* OK tcl9 */
 
     for(he = Tcl_FirstHashEntry(nc, &hs);
 	he != NULL;
@@ -455,9 +446,9 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
 	Tcl_HashSearch hsc;
 	Tcl_HashEntry* hec;
-	long int loc = (long int) Tcl_GetHashKey (nc, he);
+	Tcl_Size       loc = (Tcl_Size) (long int) Tcl_GetHashKey (nc, he);
 
-	kv [0]   = Tcl_NewIntObj (loc);
+	kv [0]   = Tcl_NewSizeIntObj (loc);
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (he);
 
 	for(hec = Tcl_FirstHashEntry(tablePtr, &hsc);
@@ -465,18 +456,18 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	    hec = Tcl_NextHashEntry(&hsc)) {
 
 	    NC_STATE*   scs   = Tcl_GetHashValue (hec);
-	    long int    symid = (long int) Tcl_GetHashKey (tablePtr, hec);
+	    Tcl_Size    symid = (Tcl_Size) (long int) Tcl_GetHashKey (tablePtr, hec);
 	    const char* sym   = rde_param_query_string (p->p, symid);
 
-	    kv [1] = Tcl_NewStringObj (sym,-1);
+	    kv [1] = Tcl_NewStringObj (sym,-1); /* OK tcl9 */
 
-	    vv [0] = Tcl_NewIntObj (scs->CL);
-	    vv [1] = Tcl_NewIntObj (scs->ST);
+	    vv [0] = Tcl_NewSizeIntObj (scs->CL);
+	    vv [1] = Tcl_NewSizeIntObj (scs->ST);
 	    vv [2] = rde_param_query_er_tcl (p->p, scs->ER);
 	    vv [3] = (scs->SV ? scs->SV : Tcl_NewObj ());
 
-	    Tcl_ListObjAppendElement (interp, res, Tcl_NewListObj (2, kv));
-	    Tcl_ListObjAppendElement (interp, res, Tcl_NewListObj (4, vv));
+	    Tcl_ListObjAppendElement (interp, res, Tcl_NewListObj (2, kv)); /* OK tcl9 */
+	    Tcl_ListObjAppendElement (interp, res, Tcl_NewListObj (4, vv)); /* OK tcl9 */
 	}
     }
 
@@ -486,16 +477,16 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_TOKENS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_TOKENS (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde tokens ?FROM ?TO??
      *         [0] [1]    [2]   [3]
      */
 
-    long int num, from, to;
+    Tcl_Size num, from, to;
 
     if ((objc < 2) || (objc > 4)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?from? ?to?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?from? ?to?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -506,16 +497,16 @@ param_TOKENS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	to   = num - 1;
     } else if (objc == 3) {
 
-	if (Tcl_GetLongFromObj (interp, objv [2], &from) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj (interp, objv [2], &from) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 	to = from;
 
     } else { /* objc == 4 */
-	if (Tcl_GetLongFromObj (interp, objv [2], &from) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj (interp, objv [2], &from) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
-	if (Tcl_GetLongFromObj (interp, objv [3], &to) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj (interp, objv [3], &to) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
     }
@@ -526,19 +517,19 @@ param_TOKENS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     if (to < from) {
 	Tcl_SetObjResult (interp, Tcl_NewObj ());
     } else {
-	long int len;
-	char* buf;
+	Tcl_Size len;
+	char*    buf;
 
 	rde_param_query_tc_get_s (p->p, from, to, &buf, &len);
 
-	Tcl_SetObjResult (interp, Tcl_NewStringObj (buf,len));
+	Tcl_SetObjResult (interp, Tcl_NewStringObj (buf,len)); /* OK tcl9 */
     }
 
     return TCL_OK;
 }
 
 int
-param_VALUE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_VALUE (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde value
      *         [0] [1]
@@ -547,7 +538,7 @@ param_VALUE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     Tcl_Obj* sv;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -564,14 +555,14 @@ param_VALUE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /* .................................................. */
 
 int
-param_F_continue (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_F_continue (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i:fail_continue
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -583,14 +574,14 @@ param_F_continue (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 }
 
 int
-param_F_return (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_F_return (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i:fail_return
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -602,14 +593,14 @@ param_F_return (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_O_continue (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_O_continue (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i:ok_continue
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -621,14 +612,14 @@ param_O_continue (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 }
 
 int
-param_O_return (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_O_return (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i:ok_return
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -640,14 +631,14 @@ param_O_return (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_I_st_fail (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_st_fail (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_status_fail
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -657,14 +648,14 @@ param_I_st_fail (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv
 }
 
 int
-param_I_st_neg (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_st_neg (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_status_negate
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -674,14 +665,14 @@ param_I_st_neg (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_I_st_ok (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_st_ok (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_status_ok
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -691,14 +682,14 @@ param_I_st_ok (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_I_er_clear (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_er_clear (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_error_clear
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -708,14 +699,14 @@ param_I_er_clear (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 }
 
 int
-param_I_er_clear_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_er_clear_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_error_clear
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -726,16 +717,16 @@ param_I_er_clear_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 }
 
 int
-param_I_er_nt (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_er_nt (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_error_nonterminal SYMBOL
      *         [0] [1]                 [2]
      */
 
-    long int sym;
+    Tcl_Size sym;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -755,14 +746,14 @@ param_I_er_nt (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 }
 
 int
-param_I_er_popmerge (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_er_popmerge (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_error_pop_merge
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -772,14 +763,14 @@ param_I_er_popmerge (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_I_er_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_er_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_error_push
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -789,14 +780,14 @@ param_I_er_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv
 }
 
 int
-param_F_loc_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_F_loc_pop_rewind (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i:fail_loc_pop_rewind
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -808,14 +799,14 @@ param_F_loc_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_loc_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_loc_pop_discard (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_loc_pop_discard
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -825,14 +816,14 @@ param_I_loc_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CON
 }
 
 int
-param_O_loc_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_O_loc_pop_discard (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_loc_pop_discard
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -844,14 +835,14 @@ param_O_loc_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CON
 }
 
 int
-param_I_loc_pop_rewdis (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_loc_pop_rewdis (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_loc_pop_rewind/discard
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -865,14 +856,14 @@ param_I_loc_pop_rewdis (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_loc_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_loc_pop_rewind (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_loc_pop_rewind
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -882,14 +873,14 @@ param_I_loc_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_loc_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_loc_rewind (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_loc_pop_rewind
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -899,14 +890,14 @@ param_I_loc_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_loc_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_loc_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_loc_pop_push
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -916,14 +907,14 @@ param_I_loc_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 }
 
 int
-param_F_ast_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_F_ast_pop_rewind (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i:fail_ast_pop_rewind
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -935,14 +926,14 @@ param_F_ast_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_ast_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_ast_pop_discard (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_pop_discard
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -952,14 +943,14 @@ param_I_ast_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CON
 }
 
 int
-param_O_ast_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_O_ast_pop_discard (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_pop_discard
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -971,14 +962,14 @@ param_O_ast_pop_discard (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CON
 }
 
 int
-param_I_ast_pop_disrew (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_ast_pop_disrew (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_pop_discard/rewind
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -992,14 +983,14 @@ param_I_ast_pop_disrew (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_ast_pop_rewdis (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_ast_pop_rewdis (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_pop_rewind/discard
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1013,14 +1004,14 @@ param_I_ast_pop_rewdis (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_ast_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_ast_pop_rewind (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_pop_rewind
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1030,14 +1021,14 @@ param_I_ast_pop_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_ast_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_ast_rewind (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_pop_rewind
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1047,14 +1038,14 @@ param_I_ast_rewind (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_ast_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_ast_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_push
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1064,14 +1055,14 @@ param_I_ast_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 }
 
 int
-param_O_ast_value_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_O_ast_value_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_ast_value_push
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1083,17 +1074,17 @@ param_O_ast_value_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_I_symbol_restore (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_symbol_restore (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_symbol_restore SYMBOL
      *         [0] [1]              [2]
      */
 
-    long int sym;
-    int found;
+    Tcl_Size sym;
+    int      found;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1105,22 +1096,22 @@ param_I_symbol_restore (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 
     sym = param_intern (p, Tcl_GetString (objv [2]));
     found = rde_param_i_symbol_restore (p->p, sym);
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (found));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (found)); /* OK tcl9 */
 
     return TCL_OK;
 }
 
 int
-param_I_symbol_save (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_symbol_save (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_symbol_save SYMBOL
      *         [0] [1]           [2]
      */
 
-    long int sym;
+    Tcl_Size sym;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1137,21 +1128,21 @@ param_I_symbol_save (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_I_value_cleaf (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_value_cleaf (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_value_clear/leaf SYMBOL
      *         [0] [1]                [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (!rde_param_query_st (p->p)) {
 	rde_param_i_value_clear (p->p);
     } else {
-	long int sym;
+	Tcl_Size sym;
 
 	/*
 	 * We cannot save the interned string id in the Tcl_Obj*, because this
@@ -1167,14 +1158,14 @@ param_I_value_cleaf (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_I_value_clear (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_value_clear (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_value_clear
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1184,21 +1175,21 @@ param_I_value_clear (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_I_value_creduce (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_value_creduce (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_value_clear/reduce SYMBOL
      *         [0] [1]                  [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (!rde_param_query_st (p->p)) {
 	rde_param_i_value_clear (p->p);
     } else {
-	long int sym;
+	Tcl_Size sym;
 
 	/*
 	 * We cannot save the interned string id in the Tcl_Obj*, because this
@@ -1214,16 +1205,16 @@ param_I_value_creduce (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 }
 
 int
-param_I_input_next (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_input_next (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_input_next MSG
      *         [0] [1]          [2]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "msg");
+	Tcl_WrongNumArgs (interp, 2, objv, "msg"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1238,14 +1229,14 @@ param_I_input_next (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_alnum (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_alnum (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_alnum
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1255,14 +1246,14 @@ param_I_test_alnum (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_alpha (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_alpha (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_alpha
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1272,14 +1263,14 @@ param_I_test_alpha (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_ascii (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_ascii (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_ascii
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1289,9 +1280,9 @@ param_I_test_ascii (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_char (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    long int msg;
+    Tcl_Size msg;
     char* ch;
 
     /* Syntax: rde i_test_char CHAR
@@ -1299,7 +1290,7 @@ param_I_test_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "tok");
+	Tcl_WrongNumArgs (interp, 2, objv, "tok"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1315,14 +1306,14 @@ param_I_test_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
 }
 
 int
-param_I_test_control (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_control (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_control
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1332,14 +1323,14 @@ param_I_test_control (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
 }
 
 int
-param_I_test_ddigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_ddigit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_ddigit
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1349,14 +1340,14 @@ param_I_test_ddigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_I_test_digit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_digit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_digit
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1366,14 +1357,14 @@ param_I_test_digit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_graph (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_graph (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_graph
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1383,14 +1374,14 @@ param_I_test_graph (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_lower (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_lower (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_lower
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1400,14 +1391,14 @@ param_I_test_lower (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_print (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_print (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_print
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1417,14 +1408,14 @@ param_I_test_print (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_punct (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_punct (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_punct
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1434,9 +1425,9 @@ param_I_test_punct (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_range (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    long int msg;
+    Tcl_Size msg;
     char* chs;
     char* che;
 
@@ -1445,7 +1436,7 @@ param_I_test_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
      */
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "toks toke");
+	Tcl_WrongNumArgs (interp, 2, objv, "toks toke"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1463,14 +1454,14 @@ param_I_test_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_space (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_space (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_space
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1480,14 +1471,14 @@ param_I_test_space (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_upper (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_upper (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_upper
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1497,14 +1488,14 @@ param_I_test_upper (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_I_test_wordchar (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_wordchar (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_wordchar
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1514,14 +1505,14 @@ param_I_test_wordchar (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 }
 
 int
-param_I_test_xdigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_I_test_xdigit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_xdigit
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1531,14 +1522,14 @@ param_I_test_xdigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_void_state_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_state_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_state_push
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1550,14 +1541,14 @@ param_SI_void_state_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CO
 }
 
 int
-param_SI_value_state_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_state_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:value_state_push
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1570,14 +1561,14 @@ param_SI_value_state_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* C
 }
 
 int
-param_SI_void_state_merge (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_state_merge (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_state_merge
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1592,14 +1583,14 @@ param_SI_void_state_merge (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* C
 }
 
 int
-param_SI_value_state_merge (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_state_merge (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:value_state_merge
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1616,14 +1607,14 @@ param_SI_value_state_merge (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
 }
 
 int
-param_SI_voidvoid_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_voidvoid_branch (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:voidvoid_branch
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1639,14 +1630,14 @@ param_SI_voidvoid_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CO
 }
 
 int
-param_SI_voidvalue_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_voidvalue_branch (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:voidvalue_branch
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1663,14 +1654,14 @@ param_SI_voidvalue_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* C
 }
 
 int
-param_SI_valuevoid_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_valuevoid_branch (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:valuevoid_branch
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1688,14 +1679,14 @@ param_SI_valuevoid_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* C
 }
 
 int
-param_SI_valuevalue_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_valuevalue_branch (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:valuevalue:branch
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1713,14 +1704,14 @@ param_SI_valuevalue_branch (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
 }
 
 int
-param_SI_voidvoid_part (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_voidvoid_part (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:voidvoid_part
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1735,14 +1726,14 @@ param_SI_voidvoid_part (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_SI_voidvalue_part (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_voidvalue_part (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:voidvalue_part
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1758,14 +1749,14 @@ param_SI_voidvalue_part (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CON
 }
 
 int
-param_SI_valuevalue_part (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_valuevalue_part (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:valuevalue_part
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1781,9 +1772,9 @@ param_SI_valuevalue_part (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CO
 }
 
 int
-param_SI_next_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_char (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    long int msg;
+    Tcl_Size msg;
     char* ch;
 
     /* Syntax: rde i_next_char CHAR
@@ -1791,7 +1782,7 @@ param_SI_next_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "tok");
+	Tcl_WrongNumArgs (interp, 2, objv, "tok"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1810,9 +1801,9 @@ param_SI_next_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 }
 
 int
-param_SI_next_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_range (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    long int msg;
+    Tcl_Size msg;
     char* chs;
     char* che;
 
@@ -1821,7 +1812,7 @@ param_SI_next_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      */
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "toks toke");
+	Tcl_WrongNumArgs (interp, 2, objv, "toks toke"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1841,16 +1832,16 @@ param_SI_next_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_alnum (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_alnum (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_alnum
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1864,16 +1855,16 @@ param_SI_next_alnum (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_alpha (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_alpha (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_alpha
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1887,16 +1878,16 @@ param_SI_next_alpha (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_ascii (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_ascii (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_ascii
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1910,16 +1901,16 @@ param_SI_next_ascii (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_control (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_control (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_control
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1933,16 +1924,16 @@ param_SI_next_control (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 }
 
 int
-param_SI_next_ddigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_ddigit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_ddigit
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1956,16 +1947,16 @@ param_SI_next_ddigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
 }
 
 int
-param_SI_next_digit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_digit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_digit
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1979,16 +1970,16 @@ param_SI_next_digit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_graph (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_graph (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_graph
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2002,16 +1993,16 @@ param_SI_next_graph (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_lower (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_lower (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_lower
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2025,16 +2016,16 @@ param_SI_next_lower (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_print (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_print (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_print
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2048,16 +2039,16 @@ param_SI_next_print (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_punct (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_punct (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_punct
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2071,16 +2062,16 @@ param_SI_next_punct (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_space (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_space (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_space
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2094,16 +2085,16 @@ param_SI_next_space (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_upper (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_upper (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_upper
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2117,16 +2108,16 @@ param_SI_next_upper (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 }
 
 int
-param_SI_next_wordchar (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_wordchar (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_wordchar
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2140,16 +2131,16 @@ param_SI_next_wordchar (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
 }
 
 int
-param_SI_next_xdigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_xdigit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:next_xdigit
      *         [0] [1]
      */
 
-    long int msg;
+    Tcl_Size msg;
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2163,14 +2154,14 @@ param_SI_next_xdigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
 }
 
 int
-param_SI_void2_state_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void2_state_push (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void2_state_push
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2181,14 +2172,14 @@ param_SI_void2_state_push (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* C
 }
 
 int
-param_SI_void_state_merge_ok (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_state_merge_ok (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_state_merge_ok
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2204,14 +2195,14 @@ param_SI_void_state_merge_ok (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj
 }
 
 int
-param_SI_value_notahead_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_notahead_start (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_notahead_start
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2222,14 +2213,14 @@ param_SI_value_notahead_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Ob
 }
 
 int
-param_SI_void_notahead_exit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_notahead_exit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_notahead_exit
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2240,14 +2231,14 @@ param_SI_void_notahead_exit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj*
 }
 
 int
-param_SI_value_notahead_exit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_notahead_exit (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:value_notahead_exit
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2263,14 +2254,14 @@ param_SI_value_notahead_exit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj
 }
 
 int
-param_SI_kleene_abort (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_kleene_abort (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:kleene_abort
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2284,14 +2275,14 @@ param_SI_kleene_abort (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 }
 
 int
-param_SI_kleene_close (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_kleene_close (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:kleene_close
      *         [0] [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2307,17 +2298,17 @@ param_SI_kleene_close (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 }
 
 int
-param_SI_value_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_symbol_start (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:value_symbol_start SYMBOL
      *         [0] [1]                  [2]
      */
 
-    long int sym;
-    int found;
+    Tcl_Size sym;
+    int      found;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2343,17 +2334,17 @@ param_SI_value_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj*
 }
 
 int
-param_SI_value_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:value_void_symbol_start SYMBOL
      *         [0] [1]                  [2]
      */
 
-    long int sym;
-    int found;
+    Tcl_Size sym;
+    int      found;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2376,17 +2367,17 @@ param_SI_value_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl
 }
 
 int
-param_SI_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_symbol_start SYMBOL
      *         [0] [1]                  [2]
      */
 
-    long int sym;
-    int found;
+    Tcl_Size sym;
+    int      found;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2411,17 +2402,17 @@ param_SI_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
 }
 
 int
-param_SI_void_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_void_symbol_start SYMBOL
      *         [0] [1]                  [2]
      */
 
-    long int sym;
-    int found;
+    Tcl_Size sym;
+    int      found;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2443,16 +2434,16 @@ param_SI_void_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_
 }
 
 int
-param_SI_reduce_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_reduce_symbol_end (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:reduce_symbol_end SYMBOL
      *         [0] [1]           [2]
      */
 
-    long int sym, msg;
+    Tcl_Size sym, msg;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2495,16 +2486,16 @@ param_SI_reduce_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
 }
 
 int
-param_SI_void_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_leaf_symbol_end SYMBOL
      *         [0] [1]           [2]
      */
 
-    long int sym, msg;
+    Tcl_Size sym, msg;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2546,16 +2537,16 @@ param_SI_void_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Ob
 }
 
 int
-param_SI_value_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:value_leaf_symbol_end SYMBOL
      *         [0] [1]           [2]
      */
 
-    long int sym, msg;
+    Tcl_Size sym, msg;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2598,16 +2589,16 @@ param_SI_value_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_O
 }
 
 int
-param_SI_value_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_value_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:value_clear_symbol_end SYMBOL
      *         [0] [1]           [2]
      */
 
-    long int sym, msg;
+    Tcl_Size sym, msg;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2641,16 +2632,16 @@ param_SI_value_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_
 }
 
 int
-param_SI_void_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_void_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde si:void_clear_symbol_end SYMBOL
      *         [0] [1]           [2]
      */
 
-    long int sym, msg;
+    Tcl_Size sym, msg;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
+	Tcl_WrongNumArgs (interp, 2, objv, "symbol"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2683,10 +2674,9 @@ param_SI_void_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_O
 }
 
 int
-param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    long int msg;
-    int len, i;
+    Tcl_Size msg, len;
     char* str;
 
     /* Syntax: rde i_next_char CHAR
@@ -2694,7 +2684,7 @@ param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "tok");
+	Tcl_WrongNumArgs (interp, 2, objv, "tok"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2702,7 +2692,7 @@ param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
      * interning: str + space + char
      */
 
-    str = Tcl_GetStringFromObj (objv [2], &len);
+    str = Tcl_GetStringFromObj (objv [2], &len); /* OK tcl9 */
     msg = rde_ot_intern1 (p, "str", objv [2]);
 
     rde_param_i_next_str (p->p, str, msg);
@@ -2710,10 +2700,9 @@ param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
 }
 
 int
-param_SI_next_class (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+param_SI_next_class (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    long int msg;
-    int len, i;
+    Tcl_Size msg, len;
     char* class;
 
     /* Syntax: rde i_next_char CHAR
@@ -2721,7 +2710,7 @@ param_SI_next_class (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "tok");
+	Tcl_WrongNumArgs (interp, 2, objv, "tok"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2729,7 +2718,7 @@ param_SI_next_class (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      * interning: cl + space + char
      */
 
-    class = Tcl_GetStringFromObj (objv [2], &len);
+    class = Tcl_GetStringFromObj (objv [2], &len); /* OK tcl9 */
     msg   = rde_ot_intern1 (p, "cl", objv [2]);
 
     rde_param_i_next_class (p->p, class, msg);

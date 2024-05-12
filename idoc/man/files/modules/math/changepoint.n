@@ -2,7 +2,7 @@
 '\" Generated from file 'changepoint\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2020 by Arjen Markus
 '\"
-.TH "math::changepoint" n 0\&.1 tcllib "Tcl Math Library"
+.TH "math::changepoint" n 0\&.2 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::changepoint \- Change point detection methods
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBTclOO \fR
+package require \fBTclOO\fR
 .sp
-package require \fBmath::statistics \fR
+package require \fBmath::statistics\fR
 .sp
-package require \fBmath::changepoint  ?0\&.1?\fR
+package require \fBmath::changepoint ?0\&.2?\fR
 .sp
 \fB::math::changepoint::cusum-detect\fR \fIdata\fR ?args?
 .sp

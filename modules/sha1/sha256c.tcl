@@ -9,7 +9,7 @@
 
 package require critcl;        # needs critcl
 # @sak notprovided sha256c
-package provide sha256c 1.0.4
+package provide sha256c 1.0.5
 			       
 critcl::cheaders sha256.h;     # FreeBSD SHA256 implementation
 critcl::csources sha256.c;     # FreeBSD SHA256 implementation
@@ -63,10 +63,10 @@ namespace eval ::sha2 {
             SHA256Final(&dup, buf);
             
             /* convert via a byte array to properly handle null bytes */
-            temp = Tcl_NewByteArrayObj(buf, sizeof buf);
+            temp = Tcl_NewByteArrayObj(buf, sizeof buf); /* OK tcl9 */
             Tcl_IncrRefCount(temp);
             
-            str = Tcl_GetStringFromObj(temp, &obj->length);
+            str = Tcl_GetStringFromObj(temp, &obj->length); /* OK tcl9 */
             obj->bytes = Tcl_Alloc(obj->length + 1);
             memcpy(obj->bytes, str, obj->length + 1);
             
@@ -94,7 +94,7 @@ namespace eval ::sha2 {
         Tcl_Obj* obj;
         
         if (objc > 1) {
-            Tcl_WrongNumArgs(ip, 1, objv, "");
+            Tcl_WrongNumArgs(ip, 1, objv, ""); /* OK tcl9 */
             return TCL_ERROR;
         }
         
@@ -121,7 +121,7 @@ namespace eval ::sha2 {
         Tcl_Obj* obj;
         
         if (objc > 1) {
-            Tcl_WrongNumArgs(ip, 1, objv, "");
+            Tcl_WrongNumArgs(ip, 1, objv, ""); /* OK tcl9 */
             return TCL_ERROR;
         }
         
@@ -144,11 +144,11 @@ namespace eval ::sha2 {
     critcl::ccommand sha256c_update {dummy ip objc objv} {
         SHA256_CTX* mp;
         unsigned char* data;
-        int size;
+        Tcl_Size size;
         Tcl_Obj* obj;
         
         if (objc != 3) {
-            Tcl_WrongNumArgs(ip, 1, objv, "data context");
+            Tcl_WrongNumArgs(ip, 1, objv, "data context"); /* OK tcl9 */
             return TCL_ERROR;
         }
         
@@ -165,7 +165,8 @@ namespace eval ::sha2 {
         Tcl_InvalidateStringRep(obj);
         mp = (SHA256_CTX*) obj->internalRep.otherValuePtr;
         
-        data = Tcl_GetByteArrayFromObj(objv[1], &size);
+        data = Tcl_GetBytesFromObj(ip, objv[1], &size); /* OK tcl9 */
+	if (data == NULL) return TCL_ERROR;
         SHA256Update(mp, data, size);
         
         Tcl_SetObjResult(ip, obj);

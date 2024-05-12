@@ -1,7 +1,7 @@
 
 [//000000001]: # (generator \- Tcl Generator Commands)
 [//000000002]: # (Generated from file 'generator\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (generator\(n\) 0\.2 tcllib "Tcl Generator Commands")
+[//000000003]: # (generator\(n\) 0\.3 tcllib "Tcl Generator Commands")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ generator \- Procedures for creating and using generators\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
-package require generator ?0\.2?  
+package require Tcl 8\.6 9  
+package require generator ?0\.3?  
 
 [__generator__ __define__ *name* *params* *body*](#1)  
 [__generator__ __yield__ *arg* ?*args\.\.*?](#2)  

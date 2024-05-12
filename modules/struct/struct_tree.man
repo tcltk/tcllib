@@ -12,7 +12,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]
 [category  {Data structures}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require struct::tree [opt 2.1.1]]
 [require struct::list [opt 1.5]]
 [description]

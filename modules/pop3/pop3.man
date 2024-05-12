@@ -1,4 +1,4 @@
-[vset VERSION 1.10]
+[vset VERSION 1.11]
 [manpage_begin pop3 n [vset VERSION]]
 [keywords email]
 [keywords mail]
@@ -12,7 +12,7 @@
 [moddesc   {Tcl POP3 Client Library}]
 [titledesc {Tcl client for POP3 email protocol}]
 [category  Networking]
-[require Tcl  8.5]
+[require Tcl  "8.5 9"]
 [require pop3 [opt [vset VERSION]]]
 [description]
 

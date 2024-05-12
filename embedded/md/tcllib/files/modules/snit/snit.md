@@ -2,7 +2,7 @@
 [//000000001]: # (snit \- Snit's Not Incr Tcl, OO system)
 [//000000002]: # (Generated from file 'snit\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003\-2009, by William H\. Duquette)
-[//000000004]: # (snit\(n\) 2\.3\.2 tcllib "Snit's Not Incr Tcl, OO system")
+[//000000004]: # (snit\(n\) 2\.3\.3 tcllib "Snit's Not Incr Tcl, OO system")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -69,8 +69,8 @@ snit \- Snit's Not Incr Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require snit ?2\.3\.2?  
+package require Tcl 8\.5 9  
+package require snit ?2\.3\.3?  
 
 [__snit::type__ *name* *definition*](#1)  
 [__typevariable__ *name* ?__\-array__? ?*value*?](#2)  

@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>mime - Mime</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">mime(n) 1.6.3 tcllib &quot;Mime&quot;</h1>
+<h1 class="doctools_title">mime(n) 1.7.2 tcllib &quot;Mime&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>mime - Manipulation of MIME body parts</p>
 </div>
@@ -127,8 +129,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">mime <span class="opt">?1.6.3?</span></b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">mime <span class="opt">?1.7.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::mime::initialize</b> <span class="opt">?<b class="option">-canonical</b> <i class="arg">type/subtype</i> <span class="opt">?<b class="option">-param</b> {<i class="arg">key value</i>}...?</span> <span class="opt">?<b class="option">-encoding</b> <i class="arg">value</i>?</span> <span class="opt">?<b class="option">-header</b> {<i class="arg">key value</i>}...?</span>?</span> (<b class="option">-file</b> <i class="arg">name</i> | <b class="option">-string</b> <i class="arg">value</i> | <b class="option">-parts</b> {<i class="arg">token1</i> ... <i class="arg">tokenN</i>})</a></li>
@@ -206,7 +208,7 @@ If <b class="const">write</b> is provided, deletes any existing headers whose na
 <i class="arg">key</i> and then creates a new header named <i class="arg">key</i> with the value of
 <i class="arg">value</i>.
 If <b class="const">delete</b> is provided any existing header having a name that matches
-<i class="arg">key</i> is deleted. 
+<i class="arg">key</i> is deleted.
 Returns a list of strings containing the previous value associated with the
 key.</p>
 <p>The value for <b class="option">-mode</b> is one of:</p>

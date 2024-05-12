@@ -7,7 +7,7 @@
 [keywords Validation Checking Testing {Type checking}]
 [keywords {Value checking} isA]
 [include [vset KEYWORDS].inc]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require snit 2]
 [require valtype::common]
 [include [vset REQUIRE].inc]

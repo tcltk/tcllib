@@ -437,7 +437,7 @@ proc ::logger::appender::genProcName {args} {
 }
 
 
-package provide logger::appender 1.3
+package provide logger::appender 1.4
 
 # ;;; Local Variables: ***
 # ;;; mode: tcl ***

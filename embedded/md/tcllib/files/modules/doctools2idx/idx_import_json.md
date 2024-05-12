@@ -39,7 +39,7 @@ doctools::idx::import::json \- JSON import plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require doctools::idx::import::json ?0\.2\.1?  
 package require doctools::idx::structure  
 package require json  

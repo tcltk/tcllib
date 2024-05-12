@@ -2,7 +2,7 @@
 [//000000001]: # (nameserv::auto \- Name service facility)
 [//000000002]: # (Generated from file 'nns\_auto\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (nameserv::auto\(n\) 0\.3 tcllib "Name service facility")
+[//000000004]: # (nameserv::auto\(n\) 0\.4 tcllib "Name service facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ nameserv::auto \- Name service facility, Client Extension
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require nameserv::auto ?0\.3?  
+package require Tcl 8\.5 9  
+package require nameserv::auto ?0\.4?  
 package require nameserv  
 
 # <a name='description'></a>DESCRIPTION

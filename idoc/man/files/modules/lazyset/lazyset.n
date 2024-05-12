@@ -2,7 +2,7 @@
 '\" Generated from file 'lazyset\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Roy Keene
 '\"
-.TH "lazyset" n 1 tcllib "Lazy evaluation for variables and arrays"
+.TH "lazyset" n 1\&.1 tcllib "Lazy evaluation for variables and arrays"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 lazyset \- Lazy evaluation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlazyset  ?1?\fR
+package require \fBlazyset ?1\&.1?\fR
 .sp
 \fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIvariableName\fR \fIcommandPrefix\fR
 .sp

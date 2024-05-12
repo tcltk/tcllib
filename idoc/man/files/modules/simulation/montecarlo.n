@@ -2,7 +2,7 @@
 '\" Generated from file 'montecarlo\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
-.TH "simulation::montecarlo" n 0\&.1 tcllib "Tcl Simulation Tools"
+.TH "simulation::montecarlo" n 0\&.2 tcllib "Tcl Simulation Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 simulation::montecarlo \- Monte Carlo simulations
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.4?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBsimulation::montecarlo  0\&.1\fR
+package require \fBsimulation::montecarlo 0\&.2\fR
 .sp
-package require \fBsimulation::random \fR
+package require \fBsimulation::random\fR
 .sp
-package require \fBmath::statistics \fR
+package require \fBmath::statistics\fR
 .sp
 \fB::simulation::montecarlo::getOption\fR \fIkeyword\fR
 .sp
@@ -362,7 +362,7 @@ a statistical distribution with "fat" tails\&.
 The package defines the following auxiliary procedures:
 .TP
 \fB::simulation::montecarlo::getOption\fR \fIkeyword\fR
-Get the value of an option given as part of the \fIsingeExperiment\fR command\&.
+Get the value of an option given as part of the \fIsingleExperiment\fR command\&.
 .RS
 .TP
 string \fIkeyword\fR

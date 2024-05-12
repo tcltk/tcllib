@@ -2,7 +2,7 @@
 [//000000001]: # (cron \- cron)
 [//000000002]: # (Generated from file 'cron\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2016\-2018 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (cron\(n\) 2\.1 tcllib "cron")
+[//000000004]: # (cron\(n\) 2\.2 tcllib "cron")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,8 +35,8 @@ cron \- Tool for automating the period callback of commands
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
-package require cron ?2\.1?  
+package require Tcl 8\.6 9  
+package require cron ?2\.2?  
 
 [__::cron::at__ *?processname?* *timecode* *command*](#1)  
 [__::cron::cancel__ *processname*](#2)  

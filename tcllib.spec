@@ -1,6 +1,6 @@
 # $Id: package_rpm.txt,v 1.1 2006/07/01 03:16:57 andreas_kupries Exp $
 
-%define version 1.20
+%define version 1.21
 %define directory /usr
 
 Summary: The standard Tcl library

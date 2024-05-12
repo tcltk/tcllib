@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'math\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math" n 1\&.2\&.5 tcllib "Tcl Math Library"
+.TH "math" n 1\&.2\&.6 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math \- Tcl Math Library
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath  ?1\&.2\&.5?\fR
+package require \fBmath ?1\&.2\&.6?\fR
 .sp
 \fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
@@ -384,7 +384,7 @@ arguments are given, the number is an integer value between
 \fIvalue1\fR and \fIvalue2\fR\&.
 .TP
 \fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
-Return the population standard deviation of two or more numeric
+Return the sample standard deviation of two or more numeric
 values\&.
 .TP
 \fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?

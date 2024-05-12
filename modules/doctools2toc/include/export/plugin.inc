@@ -4,7 +4,7 @@
 [moddesc   {Documentation tools}]
 [titledesc "[vset NAME] export plugin"]
 [category  {Text formatter plugin}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require doctools::toc::export::[vset PACKAGE] [opt [vset VERSION]]]
 [include format/[vset REQUIRE].inc]
 [keywords doctools toc {table of contents} serialization export [vset NAME]]

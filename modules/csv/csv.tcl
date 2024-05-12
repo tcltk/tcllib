@@ -3,18 +3,16 @@
 #	Tcl implementations of CSV reader and writer
 #
 # Copyright (c) 2001      by Jeffrey Hobbs
-# Copyright (c) 2001-2013 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2013,2022 by Andreas Kupries <andreas.kupries@gmail.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: csv.tcl,v 1.28 2011/11/23 02:22:10 andreas_kupries Exp $
 
-package require Tcl 8.4
-package provide csv 0.8.1
+package require Tcl 8.5 9
+package provide csv 0.10
 
 namespace eval ::csv {
-    namespace export join joinlist read2matrix read2queue report 
+    namespace export join joinlist read2matrix read2queue report
     namespace export split split2matrix split2queue writematrix writequeue
 }
 
@@ -484,7 +482,7 @@ proc ::csv::Split {alternate line sepChar {delChar \"}} {
 		endordouble {
 		    if {[string equal $token "${delChar}"]} {
 			# Doubled ", append to current value
-			append val ${delChar} 
+			append val ${delChar}
 			set state qvalue
 			continue
 		    }

@@ -2,7 +2,7 @@
 [//000000001]: # (math::bigfloat \- Tcl Math Library)
 [//000000002]: # (Generated from file 'bigfloat\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004\-2008, by Stephane Arnold <stephanearnold at yahoo dot fr>)
-[//000000004]: # (math::bigfloat\(n\) 2\.0\.3 tcllib "Tcl Math Library")
+[//000000004]: # (math::bigfloat\(n\) 2\.0\.5 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -51,8 +51,8 @@ math::bigfloat \- Arbitrary precision floating\-point numbers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require math::bigfloat ?2\.0\.3?  
+package require Tcl 8\.5 9  
+package require math::bigfloat ?2\.0\.5?  
 
 [__fromstr__ *number* ?*trailingZeros*?](#1)  
 [__tostr__ ?__\-nosci__? *number*](#2)  

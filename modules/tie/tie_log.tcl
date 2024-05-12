@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require log
 package require tie
@@ -91,4 +91,4 @@ snit::type ::tie::std::log {
 ## Ready to go
 
 ::tie::register ::tie::std::log as log
-package provide   tie::std::log 1.1
+package provide   tie::std::log 1.2

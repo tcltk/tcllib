@@ -7,7 +7,7 @@
 # RCS: @(#) $Id: base32_c.tcl,v 1.3 2008/01/28 22:58:18 andreas_kupries Exp $
 
 package require critcl
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::base32 {
     # Supporting code for the main command.
@@ -24,7 +24,7 @@ namespace eval ::base32 {
        */
 
       unsigned char* buf;
-      int           nbuf;
+      Tcl_Size       nbuf;
 
       unsigned char* out;
       unsigned char* at;
@@ -38,11 +38,12 @@ namespace eval ::base32 {
 #define USAGEE "bitstring"
 
       if (objc != 2) {
-        Tcl_WrongNumArgs (interp, 1, objv, USAGEE);
+        Tcl_WrongNumArgs (interp, 1, objv, USAGEE); /* OK tcl9 */
         return TCL_ERROR;
       }
 
-      buf  = Tcl_GetByteArrayFromObj (objv[1], &nbuf);
+      buf  = Tcl_GetBytesFromObj (interp, objv[1], &nbuf); /* OK tcl9 */
+      if (buf == NULL) return TCL_ERROR;
       nout = ((nbuf+4)/5)*8;
       out  = (unsigned char*) Tcl_Alloc (nout*sizeof(char));
 
@@ -132,7 +133,7 @@ namespace eval ::base32 {
 	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewStringObj ((char*)out, nout));
+      Tcl_SetObjResult (interp, Tcl_NewStringObj ((char*)out, nout)); /* OK tcl9 */
       Tcl_Free ((char*) out);
       return TCL_OK;
     }
@@ -144,7 +145,7 @@ namespace eval ::base32 {
        */
 
       unsigned char* buf;
-      int           nbuf;
+      Tcl_Size       nbuf;
 
       unsigned char* out;
       unsigned char* at;
@@ -173,14 +174,14 @@ namespace eval ::base32 {
 #define USAGED "estring"
 
       if (objc != 2) {
-        Tcl_WrongNumArgs (interp, 1, objv, USAGED);
+        Tcl_WrongNumArgs (interp, 1, objv, USAGED); /* OK tcl9 */
         return TCL_ERROR;
       }
 
-      buf = (unsigned char*) Tcl_GetStringFromObj (objv[1], &nbuf);
+      buf = (unsigned char*) Tcl_GetStringFromObj (objv[1], &nbuf); /* OK tcl9 */
 
       if (nbuf % 8) {
-	Tcl_SetObjResult (interp, Tcl_NewStringObj ("Length is not a multiple of 8", -1));
+	Tcl_SetObjResult (interp, Tcl_NewStringObj ("Length is not a multiple of 8", -1)); /* OK tcl9 */
         return TCL_ERROR;
       }
 
@@ -205,7 +206,7 @@ namespace eval ::base32 {
 		     "Invalid character at index %d: \"=\" (padding found in the middle of the input)",
 		     j-1);
 	    Tcl_Free ((char*) out);
-	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1)); /* OK tcl9 */
 	    return TCL_ERROR;
 	  }
 
@@ -213,7 +214,7 @@ namespace eval ::base32 {
 	    char     msg [100];
 	    sprintf (msg,"Invalid character at index %d: \"%c\"",j,a);
 	    Tcl_Free ((char*) out);
-	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1)); /* OK tcl9 */
 	    return TCL_ERROR;
 	  }
 	}
@@ -238,12 +239,12 @@ namespace eval ::base32 {
 	  char     msg [100];
 	  sprintf (msg,"Invalid padding of length %d",pad);
 	  Tcl_Free ((char*) out);
-	  Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	  Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1)); /* OK tcl9 */
 	  return TCL_ERROR;
 	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out));
+      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out)); /* OK tcl9 */
       Tcl_Free ((char*) out);
       return TCL_OK;
     }

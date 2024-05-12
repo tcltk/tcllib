@@ -2,7 +2,7 @@
 [//000000001]: # (struct::prioqueue \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'prioqueue\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003 Michael Schlenker <mic42@users\.sourceforge\.net>)
-[//000000004]: # (struct::prioqueue\(n\) 1\.4 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::prioqueue\(n\) 1\.5 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ struct::prioqueue \- Create and manipulate prioqueue objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require struct::prioqueue ?1\.4?  
+package require Tcl 8\.5 9  
+package require struct::prioqueue ?1\.5?  
 
 [__::struct::prioqueue__ ?__\-ascii&#124;\-dictionary&#124;\-integer&#124;\-real__? ?*prioqueueName*?](#1)  
 [*prioqueueName* __option__ ?*arg arg \.\.\.*?](#2)  

@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::random 1
+# Package tcl::chan::random 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -25,7 +25,7 @@
 # # ## ### ##### ######## #############
 
 package require tcl::chan::events
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require TclOO
 
 # # ## ### ##### ######## #############
@@ -76,5 +76,5 @@ oo::class create ::tcl::chan::random::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::random 1
+package provide tcl::chan::random 1.1
 return

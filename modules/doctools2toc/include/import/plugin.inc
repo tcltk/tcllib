@@ -5,7 +5,7 @@
 [moddesc   {Documentation tools}]
 [titledesc "[vset NAME] import plugin"]
 [category  {Text formatter plugin}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require doctools::toc::import::[vset PACKAGE] [opt [vset VERSION]]]
 [include format/[vset REQUIRE].inc]
 [keywords doctools toc {table of contents} deserialization import [vset NAME]]

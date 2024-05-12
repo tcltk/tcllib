@@ -1,7 +1,7 @@
 
 [//000000001]: # (imap4 \- imap client)
 [//000000002]: # (Generated from file 'imap4\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (imap4\(n\) 0\.5\.3 tcllib "imap client")
+[//000000003]: # (imap4\(n\) 0\.5\.4 tcllib "imap client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,8 +40,8 @@ imap4 \- imap client\-side tcl implementation of imap protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require imap4 ?0\.5\.3?  
+package require Tcl 8\.5 9  
+package require imap4 ?0\.5\.4?  
 
 [__::imap4::open__ *hostname* ?*port*?](#1)  
 [__::imap4::starttls__ *chan*](#2)  

@@ -2,7 +2,7 @@
 '\" Generated from file 'lambda\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Andreas Kupries, BSD licensed
 '\"
-.TH "lambda" n 1 tcllib "Utility commands for anonymous procedures"
+.TH "lambda" n 1\&.1 tcllib "Utility commands for anonymous procedures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 lambda \- Utility commands for anonymous procedures
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlambda  ?1?\fR
+package require \fBlambda ?1\&.1?\fR
 .sp
 \fB::lambda\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR\&.\&.\&.?
 .sp

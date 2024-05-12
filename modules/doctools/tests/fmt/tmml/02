@@ -15,10 +15,12 @@
 
 
 
+
 <synopsis>
 <syntax>
-package require <package>AAA</package> 
+package require <package>AAA</package>
 package require <package>BBB</package> VVV
+package require <package>CCC</package> VA VB VC
 </syntax>
 </synopsis>
 <section id='section1'>

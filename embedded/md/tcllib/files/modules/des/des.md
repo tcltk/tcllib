@@ -2,7 +2,7 @@
 [//000000001]: # (des \- Data Encryption Standard \(DES\))
 [//000000002]: # (Generated from file 'des\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (des\(n\) 1\.1 tcllib "Data Encryption Standard \(DES\)")
+[//000000004]: # (des\(n\) 1\.2 tcllib "Data Encryption Standard \(DES\)")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -47,8 +47,8 @@ des \- Implementation of the DES and triple\-DES ciphers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require des 1\.1  
+package require Tcl 8\.5 9  
+package require des 1\.2  
 
 [__::DES::des__ ?*\-mode \[ecb&#124;cbc&#124;cfb&#124;ofb\]*? ?*\-dir \[encrypt&#124;decrypt\]*? *\-key keydata* ?*\-iv vector*? ?*\-hex*? ?*\-weak*? ?*\-out channel*? ?*\-chunksize size*? \[ *\-in channel* &#124; *data* \]](#1)  
 [__::DES::Init__ *mode* *keydata* *iv* ?*weak*?](#2)  

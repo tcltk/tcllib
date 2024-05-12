@@ -1,7 +1,7 @@
 
 [//000000001]: # (map::geocode::nominatim \- Mapping utilities)
 [//000000002]: # (Generated from file 'map\_geocode\_nominatim\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (map::geocode::nominatim\(n\) 0\.1 tcllib "Mapping utilities")
+[//000000003]: # (map::geocode::nominatim\(n\) 0\.3 tcllib "Mapping utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,12 +34,12 @@ map::geocode::nominatim \- Resolving geographical names with a Nominatim service
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.6 9  
 package require http  
 package require json  
 package require uri  
 package require snit  
-package require map::geocode::nominatim ?0\.1?  
+package require map::geocode::nominatim ?0\.3?  
 
 [__::map::geocode::nominatim__ *requestor* ?__\-baseurl__ *url*? ?__\-callback__ *callback*? ?__\-error__ *error callback*?](#1)  
 [__$cmdprefix__ *result*](#2)  

@@ -65,9 +65,9 @@ typedef union {
 
 #ifdef __sparc_v9__
 void do_R01(my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e, CHAR64LONG16 *);
-void do_R2(my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e, CHAR64LONG16 *);
-void do_R3(my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e, CHAR64LONG16 *);
-void do_R4(my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e, CHAR64LONG16 *);
+void do_R2 (my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e, CHAR64LONG16 *);
+void do_R3 (my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e, CHAR64LONG16 *);
+void do_R4 (my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e, CHAR64LONG16 *);
 
 #define nR0(v,w,x,y,z,i) R0(*v,*w,*x,*y,*z,i)
 #define nR1(v,w,x,y,z,i) R1(*v,*w,*x,*y,*z,i)
@@ -120,7 +120,7 @@ do_R4(my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e,
  * Hash a single 512-bit block. This is the core of the algorithm.
  */
 void SHA1Transform(state, buffer)
-    my_int32_t state[5];
+    my_int32_t    state [5];
     const my_char buffer[64];
 {
     my_int32_t a, b, c, d, e;
@@ -211,11 +211,12 @@ void SHA1Init(context)
  * Run your data through this.
  */
 void SHA1Update(context, data, len)
-    SHA1_CTX *context;
-    const my_char *data;
-    my_int32_t len;
+    SHA1_CTX*      context;
+    const my_char* data;
+    Tcl_Size       len;
 {
-    my_int32_t i, j;
+    Tcl_Size   i;
+    my_int32_t j;
 
     _DIAGASSERT(context != 0);
     _DIAGASSERT(data != 0);
@@ -241,11 +242,11 @@ void SHA1Update(context, data, len)
  * Add padding and return the message digest.
  */
 void SHA1Final(digest, context)
-    my_char digest[20];
+    my_char   digest[20];
     SHA1_CTX* context;
 {
     my_int32_t i;
-    my_char finalcount[8];
+    my_char    finalcount[8];
 
     _DIAGASSERT(digest != 0);
     _DIAGASSERT(context != 0);

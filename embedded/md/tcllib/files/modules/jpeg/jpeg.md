@@ -5,7 +5,7 @@
 [//000000004]: # (Copyright &copy; 2007, Code:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000005]: # (Copyright &copy; 2004\-2009, Doc:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000006]: # (Copyright &copy; 2011, Code: Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000007]: # (jpeg\(n\) 0\.5 tcllib "JPEG image manipulation")
+[//000000007]: # (jpeg\(n\) 0\.6 tcllib "JPEG image manipulation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,8 +40,8 @@ jpeg \- JPEG querying and manipulation of meta data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require jpeg ?0\.5?  
+package require Tcl 8\.5 9  
+package require jpeg ?0\.6?  
 
 [__::jpeg::isJPEG__ *file*](#1)  
 [__::jpeg::imageInfo__ *file*](#2)  

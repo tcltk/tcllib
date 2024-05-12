@@ -12,7 +12,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::crc {
     namespace export cksum
@@ -191,7 +191,7 @@ proc ::crc::cksum {args} {
 
 # -------------------------------------------------------------------------
 
-package provide cksum 1.1.4
+package provide cksum 1.1.5
 
 # -------------------------------------------------------------------------
 # Local variables:

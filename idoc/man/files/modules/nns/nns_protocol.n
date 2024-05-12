@@ -2,7 +2,7 @@
 '\" Generated from file 'nns_protocol\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "nameserv::protocol" n 0\&.1 tcllib "Name service facility"
+.TH "nameserv::protocol" n 0\&.2 tcllib "Name service facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

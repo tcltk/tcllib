@@ -14,7 +14,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require struct::map
 package require doctools::toc::structure
 package require fileutil::paths
@@ -185,5 +185,5 @@ snit::type ::doctools::toc::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::import 0.2.1
+package provide doctools::toc::import 0.2.2
 return

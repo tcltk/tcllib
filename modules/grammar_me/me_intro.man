@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::me_intro n 0.1]
+[manpage_begin grammar::me_intro n 0.2]
 [keywords CFG]
 [keywords CFL]
 [keywords {context-free grammar}]

@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::chan::nullzero \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'nullzero\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::nullzero\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::chan::nullzero\(n\) 1\.1 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,10 +35,10 @@ tcl::chan::nullzero \- Null/Zero channel combination
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require TclOO  
-package require tcl::chan::events ?1?  
-package require tcl::chan::nullzero ?1?  
+package require tcl::chan::events ?1\.1?  
+package require tcl::chan::nullzero ?1\.1?  
 
 [__::tcl::chan::nullzero__](#1)  
 

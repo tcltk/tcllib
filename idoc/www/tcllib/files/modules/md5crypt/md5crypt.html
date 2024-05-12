@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>md5crypt - MD5-based password encryption</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">md5crypt(n) 1.1.0 tcllib &quot;MD5-based password encryption&quot;</h1>
+<h1 class="doctools_title">md5crypt(n) 1.2.0 tcllib &quot;MD5-based password encryption&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>md5crypt - MD5-based password encryption</p>
 </div>
@@ -129,9 +131,9 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.2</b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
 <li>package require <b class="pkgname">md5 2.0</b></li>
-<li>package require <b class="pkgname">md5crypt <span class="opt">?1.1.0?</span></b></li>
+<li>package require <b class="pkgname">md5crypt <span class="opt">?1.2.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::md5crypt::md5crypt</b> <i class="arg">password</i> <i class="arg">salt</i></a></li>
@@ -168,9 +170,9 @@ is checked to see if it begins with the encryption scheme magic string
 (either &quot;$1$&quot; for MD5-crypt or &quot;$apr1$&quot; for Apache crypt). If so, this
 is removed. The remaining characters up to the next $ and up to a
 maximum of 8 characters are then used as the salt. The salt text
-should probably be restricted the set of ASCII alphanumeric characters
+should probably be restricted to the set of ASCII alphanumeric characters
 plus &quot;./&quot; (dot and forward-slash) - this is to preserve maximum
-compatability with the unix password file format.</p>
+compatibility with the unix password file format.</p>
 <p>If a password is being generated rather than checked from a password
 file then the <b class="cmd">salt</b> command may be used to generate a random salt.</p>
 </div>

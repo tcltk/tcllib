@@ -2,7 +2,7 @@
 [//000000001]: # (term::ansi::code::macros \- Terminal control)
 [//000000002]: # (Generated from file 'ansi\_cmacros\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (term::ansi::code::macros\(n\) 0\.1 tcllib "Terminal control")
+[//000000004]: # (term::ansi::code::macros\(n\) 0\.2 tcllib "Terminal control")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,10 +39,10 @@ term::ansi::code::macros \- Macro sequences
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require textutil::repeat  
 package require textutil::tabify  
-package require term::ansi::code::macros ?0\.1?  
+package require term::ansi::code::macros ?0\.2?  
 
 [__::term::ansi::code::macros::names__](#1)  
 [__::term::ansi::code::macros::import__ ?*ns*? ?*arg*\.\.\.?](#2)  

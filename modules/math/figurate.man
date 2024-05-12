@@ -1,10 +1,10 @@
-[manpage_begin math::figurate n 1.0]
+[manpage_begin math::figurate n 1.1]
 [keywords {figurate numbers}]
 [keywords mathematics]
 [moddesc {Tcl Math Library}]
 [titledesc {Evaluate figurate numbers}]
 [category  Mathematics]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require math::figurate 1.0]
 [description]
 [para]
@@ -24,6 +24,9 @@ numbers:
 The [package math::figurate] package consists of a collection of procedures to
 evaluate a wide variety of figurate numbers. While all formulae are
 straightforward, the details are sometimes puzzling.
+
+[emph Note:] The procedures consider arguments lower than zero as to mean "no objects to be counted"
+and therefore return 0.
 
 [section "PROCEDURES"]
 The procedures can be arranged in a few categories: sums of integers raised to a

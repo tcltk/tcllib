@@ -2,7 +2,7 @@
 '\" Generated from file 'bench_read\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "bench::in" n 0\&.1 tcllib "Benchmarking/Performance tools"
+.TH "bench::in" n 0\&.2 tcllib "Benchmarking/Performance tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bench::in \- bench::in - Reading benchmark results
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcsv \fR
+package require \fBcsv\fR
 .sp
-package require \fBbench::in  ?0\&.1?\fR
+package require \fBbench::in ?0\&.2?\fR
 .sp
 \fB::bench::in::read\fR \fIfile\fR
 .sp

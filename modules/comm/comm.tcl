@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit ; # comm::future objects.
 
 namespace eval ::comm {
@@ -1594,8 +1594,7 @@ proc ::comm::CommRunHook {chan event} {
 
     # Perform the return code propagation promised
     # to the hook scripts.
-	return -options $options $options
-
+    return -options $options -code $code $res
 }
 
 # ### ### ### ######### ######### #########
@@ -1805,4 +1804,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.7
+package provide comm 4.7.2

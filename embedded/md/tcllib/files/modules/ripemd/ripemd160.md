@@ -2,7 +2,7 @@
 [//000000001]: # (ripemd160 \- RIPEMD Message\-Digest Algorithm)
 [//000000002]: # (Generated from file 'ripemd160\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (ripemd160\(n\) 1\.0\.5 tcllib "RIPEMD Message\-Digest Algorithm")
+[//000000004]: # (ripemd160\(n\) 1\.0\.6 tcllib "RIPEMD Message\-Digest Algorithm")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ ripemd160 \- RIPEMD\-160 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require ripemd160 ?1\.0\.5?  
+package require Tcl 8\.5 9  
+package require ripemd160 ?1\.0\.6?  
 
 [__::ripemd::ripemd160__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  
 [__::ripemd::hmac160__ ?*\-hex*? *\-key key* \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#2)  

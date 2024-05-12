@@ -1,11 +1,11 @@
 [example {
 PEG calculator (Expression)
-    Sign       <- [-+] 						;
-    Number     <- Sign? <ddigit>+				;
-    Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+    Sign       <- [-+]                                          ;
+    Number     <- Sign? <ddigit>+                               ;
+    Expression <- Term (AddOp Term)*                            ;
     MulOp      <- [*/]						;
-    Factor     <- Term (AddOp Term)*				;
+    Term       <- Factor (MulOp Factor)*                        ;
     AddOp      <- [-+]						;
-    Term       <- Number					;
+    Factor     <- '(' Expression ')' / Number                   ;
 END;
 }]

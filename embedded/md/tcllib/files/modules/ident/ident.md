@@ -2,7 +2,7 @@
 [//000000001]: # (ident \- Identification protocol client)
 [//000000002]: # (Generated from file 'ident\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Reinhard Max <max@tclers\.tk>)
-[//000000004]: # (ident\(n\) 0\.42 tcllib "Identification protocol client")
+[//000000004]: # (ident\(n\) 0\.43 tcllib "Identification protocol client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ ident \- Ident protocol client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require ident ?0\.42?  
+package require Tcl 8\.5 9  
+package require ident ?0\.43?  
 
 [__::ident::query__ *socket* ?*callback*?](#1)  
 

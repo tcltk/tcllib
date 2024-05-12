@@ -84,7 +84,7 @@ pt::grammar::peg
         CharOctalFull :: <leaf> :=
             x
                 '\'
-                range (0 .. 2)
+                range (0 .. 3)
                 range (0 .. 7)
                 range (0 .. 7)
         CharOctalPart :: <leaf> :=

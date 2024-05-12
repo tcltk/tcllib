@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin javascript n 1.0.2]
+[manpage_begin javascript n 1.0.3]
 [see_also html]
 [see_also ncgi]
 [keywords checkbox]
@@ -10,8 +10,8 @@
 [moddesc   {HTML and Java Script Generation}]
 [titledesc {Procedures to generate HTML and Java Script structures.}]
 [category  {CGI programming}]
-[require Tcl 8]
-[require javascript [opt 1.0.2]]
+[require Tcl "8.5 9"]
+[require javascript [opt 1.0.3]]
 [description]
 [para]
 

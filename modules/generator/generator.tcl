@@ -8,8 +8,8 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
 
-package require Tcl         8.6
-package provide generator   0.2
+package require Tcl         8.6-
+package provide generator   0.3
 
 namespace eval generator {
     namespace export {[a-z]*}

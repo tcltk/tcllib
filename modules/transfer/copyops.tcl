@@ -9,7 +9,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::transfer::copy {
     namespace export do chan string options
@@ -386,4 +386,4 @@ proc ::transfer::copy::Configure {chan settings} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::copy 0.3
+package provide transfer::copy 0.4

@@ -2,7 +2,7 @@
 '\" Generated from file 'ident\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Reinhard Max <max@tclers\&.tk>
 '\"
-.TH "ident" n 0\&.42 tcllib "Identification protocol client"
+.TH "ident" n 0\&.43 tcllib "Identification protocol client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ident \- Ident protocol client
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBident  ?0\&.42?\fR
+package require \fBident ?0\&.43?\fR
 .sp
 \fB::ident::query\fR \fIsocket\fR ?\fIcallback\fR?
 .sp

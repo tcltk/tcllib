@@ -2,7 +2,7 @@
 [//000000001]: # (otp \- RFC 2289 A One\-Time Password System)
 [//000000002]: # (Generated from file 'otp\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (otp\(n\) 1\.0\.0 tcllib "RFC 2289 A One\-Time Password System")
+[//000000004]: # (otp\(n\) 1\.1\.0 tcllib "RFC 2289 A One\-Time Password System")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -41,8 +41,8 @@ otp \- One\-Time Passwords
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require otp ?1\.0\.0?  
+package require Tcl 8\.5 9  
+package require otp ?1\.1\.0?  
 
 [__::otp::otp\-md4__ ?*\-hex*? ?*\-words*? *\-seed seed* *\-count count* *data*](#1)  
 [__::otp::otp\-md5__ ?*\-hex*? ?*\-words*? *\-seed seed* *\-count count* *data*](#2)  

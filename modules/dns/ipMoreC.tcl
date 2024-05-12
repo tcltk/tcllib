@@ -29,8 +29,9 @@ critcl::ccode {
 }
 
 critcl::ccommand prefixToNativec {clientData interp objc objv} {
-    int elemLen, maskLen, ipLen, mask;
-	int rval,convertListc,i;
+	int maskLen, ipLen, mask;
+	int rval;
+	Tcl_Size elemLen, convertListc, i;
 	Tcl_Obj **convertListv;
 	Tcl_Obj *listPtr,*returnPtr, *addrList;
 	char *stringIP, *slashPos, *stringMask;
@@ -43,23 +44,23 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 	/* printf ("\n objc = %d",objc); */
 
 	if (objc != 2) {
-		Tcl_WrongNumArgs(interp, 1, objv, "<ipaddress>/<mask>");
+		Tcl_WrongNumArgs(interp, 1, objv, "<ipaddress>/<mask>"); /* OK tcl9 */
 		return TCL_ERROR;
 	}
 
 
-	if (Tcl_ListObjGetElements (interp, objv[1],
-								&convertListc, &convertListv) != TCL_OK) {
+	if (Tcl_ListObjGetElements (interp, objv[1], /* OK tcl9 */
+		&convertListc, &convertListv) != TCL_OK) {
 		return TCL_ERROR;
 	}
-	returnPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+	returnPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL); /* OK tcl9 */
 	for (i = 0; i < convertListc; i++) {
 		/*  need to create a duplicate here because when we modify */
 		/*  the stringIP it'll mess up the original in the calling */
 		/*  context */
 		addrList = Tcl_DuplicateObj(convertListv[i]);
-		stringIP = Tcl_GetStringFromObj(addrList, &elemLen);
-		listPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+		stringIP = Tcl_GetStringFromObj(addrList, &elemLen); /* OK tcl9 */
+		listPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL); /* OK tcl9 */
 		/* printf ("\n  ### %s ### string \n", stringIP); */
 		/*  split the ip address and mask */
 		slashPos = strchr(stringIP, (int) '/');
@@ -101,11 +102,9 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 		inaddr = inaddr & mask;
 		sprintf(v4HEX,"0x%08X",inaddr);
 		/* printf ("\n\n ### %s",v4HEX); */
-		Tcl_ListObjAppendElement(interp, listPtr,
-								 Tcl_NewStringObj(v4HEX,-1));
+		Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewStringObj(v4HEX,-1)); /* OK tcl9 */
 		sprintf(v4HEX,"0x%08X",mask);
-		Tcl_ListObjAppendElement(interp, listPtr,
-								 Tcl_NewStringObj(v4HEX,-1));
+		Tcl_ListObjAppendElement(interp, listPtr, Tcl_NewStringObj(v4HEX,-1)); /* OK tcl9 */
 		Tcl_ListObjAppendElement(interp, returnPtr, listPtr);
 		Tcl_DecrRefCount(addrList);
 	}
@@ -123,10 +122,11 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
         int i;
         unsigned int ipaddr,ipMask, mask1mask2;
         unsigned int ipaddr2,ipMask2;
-        int compareListc,comparePrefixMaskc;
+        Tcl_Size compareListc, comparePrefixMaskc;
         int allSet,inlineSet,index;
         Tcl_Obj **compareListv,**comparePrefixMaskv, *listPtr;
-        Tcl_Obj *result;
+	Tcl_Obj *result;
+    
     static CONST char *options[] = {
                 "-all",     "-inline", "-ipv4", NULL
     };
@@ -140,7 +140,7 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
 
         /* printf ("\n objc = %d",objc); */
         if (objc < 3) {
-                Tcl_WrongNumArgs(interp, 1, objv, "?options? <hexIP> <hexMask> <hexList>");
+                Tcl_WrongNumArgs(interp, 1, objv, "?options? <hexIP> <hexMask> <hexList>"); /* OK tcl9 */
                 return TCL_ERROR;
         }
         for (i = 1; i < objc-3; i++) {
@@ -167,22 +167,23 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
         result = Tcl_GetObjResult (interp);
 
         /* set ipaddr and ipmask */
-        Tcl_GetIntFromObj(interp,objv[objc-3],(int*)&ipaddr);
-        Tcl_GetIntFromObj(interp,objv[objc-2],(int*)&ipMask);
+        Tcl_GetIntFromObj(interp,objv[objc-3],(int*)&ipaddr); /* OK tcl9 */
+        Tcl_GetIntFromObj(interp,objv[objc-2],(int*)&ipMask); /* OK tcl9 */
 
         /* split the 3rd argument into <ipaddr> <mask> pairs */
-        if (Tcl_ListObjGetElements (interp, objv[objc-1], &compareListc, &compareListv) != TCL_OK) {
+        if (Tcl_ListObjGetElements (interp, /* OK tcl9 */
+				    objv[objc-1], &compareListc, &compareListv) != TCL_OK) {
                 return TCL_ERROR;
         }
 /*       printf("comparing %x/%x \n",ipaddr,ipMask); */
 
         if (allSet || inlineSet) {
-                listPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
+                listPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL); /* OK tcl9 */
         }
 
         for (i = 0; i < compareListc; i++) {
 					    /* split the ipaddr2 and ipmask2  */
-                if (Tcl_ListObjGetElements (interp,
+                if (Tcl_ListObjGetElements (interp, /* OK tcl9 */
 					    compareListv[i],
 					    &comparePrefixMaskc,
 					    &comparePrefixMaskv) != TCL_OK) {
@@ -192,8 +193,8 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
 		    Tcl_AddErrorInfo(interp,"need format {{<ipaddr> <mask>} {<ipad..}}");
                         return TCL_ERROR;
                 }
-                Tcl_GetIntFromObj(interp,comparePrefixMaskv[0],(int*)&ipaddr2);
-                Tcl_GetIntFromObj(interp,comparePrefixMaskv[1],(int*)&ipMask2);
+                Tcl_GetIntFromObj(interp,comparePrefixMaskv[0],(int*)&ipaddr2); /* OK tcl9 */
+                Tcl_GetIntFromObj(interp,comparePrefixMaskv[1],(int*)&ipMask2); /* OK tcl9 */
 /*               printf(" with %x/%x \n",ipaddr2,ipMask2); */
                 mask1mask2 = ipMask & ipMask2;
 /*               printf("  mask1mask2 %x \n",mask1mask2); */
@@ -207,7 +208,7 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
 			} else {
 			    /* printf("\n appending %d",i+1); */
 			    Tcl_ListObjAppendElement(interp, listPtr,
-						     Tcl_NewIntObj(i+1));
+						     Tcl_NewIntObj(i+1)); /* OK tcl9 */
 			};
 		    } else {
 			if (inlineSet) {

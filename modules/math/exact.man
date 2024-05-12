@@ -1,4 +1,4 @@
-[vset VERSION 1.0.1]
+[vset VERSION 1.0.2]
 [manpage_begin math::exact n [vset VERSION]]
 [copyright "2015 Kevin B. Kenny <kennykb@acm.org>
 Redistribution permitted under the terms of the Open\
@@ -6,7 +6,7 @@ Publication License <http://www.opencontent.org/openpub/>"]
 [moddesc {Tcl Math Library}]
 [titledesc {Exact Real Arithmetic}]
 [category Mathematics]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require grammar::aycock 1.0]
 [require math::exact [vset VERSION]]
 [description]

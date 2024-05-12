@@ -1,7 +1,7 @@
 
 [//000000001]: # (counter \- Counters and Histograms)
 [//000000002]: # (Generated from file 'counter\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (counter\(n\) 2\.0\.4 tcllib "Counters and Histograms")
+[//000000003]: # (counter\(n\) 2\.0\.5 tcllib "Counters and Histograms")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -30,8 +30,8 @@ counter \- Procedures for counters and histograms
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
-package require counter ?2\.0\.4?  
+package require Tcl 8\.5 9  
+package require counter ?2\.0\.5?  
 
 [__::counter::init__ *tag args*](#1)  
 [__::counter::count__ *tag* ?*delta*? ?*instance*?](#2)  

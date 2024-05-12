@@ -1,7 +1,7 @@
 
 [//000000001]: # (ftpd \- Tcl FTP Server Package)
 [//000000002]: # (Generated from file 'ftpd\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (ftpd\(n\) 1\.3 tcllib "Tcl FTP Server Package")
+[//000000003]: # (ftpd\(n\) 1\.4 tcllib "Tcl FTP Server Package")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,8 +36,8 @@ ftpd \- Tcl FTP server implementation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require ftpd ?1\.3?  
+package require Tcl 8\.5 9  
+package require ftpd ?1\.4?  
 
 [__::ftpd::server__ ?*myaddr*?](#1)  
 [__::ftpd::config__ ?*option value*? ?*option value \.\.\.*?](#2)  

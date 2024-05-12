@@ -2,7 +2,7 @@
 '\" Generated from file 'trig\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Arjen Markus
 '\"
-.TH "math::trig" n 1\&.0\&.0 tcllib "Tcl Math Library"
+.TH "math::trig" n 1\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::trig \- Trigonometric anf hyperbolic functions
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::trig  1\&.0\&.0\fR
+package require \fBmath::trig 1\&.1\fR
 .sp
 \fB::math::trig::radian_reduced\fR \fIangle\fR
 .sp

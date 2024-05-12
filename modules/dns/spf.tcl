@@ -20,7 +20,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 package require dns;                    # tcllib 1.3
 package require logger;                 # tcllib 1.3
 package require ip;                     # tcllib 1.7
@@ -520,7 +520,7 @@ proc ::spf::MX {domain} {
 
 # -------------------------------------------------------------------------
 
-package provide spf 1.1.1
+package provide spf 1.1.2
 
 # -------------------------------------------------------------------------
 # Local Variables:

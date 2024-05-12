@@ -6,10 +6,10 @@
 #
 # Public domain
 
-# We need at least version 8.4 for the package and thus the
+# We need at least version 8.5 for the package and thus the
 # benchmarks.
 
-if {![package vsatisfies [package provide Tcl] 8.4]} return
+if {![package vsatisfies [package provide Tcl] 8.5]} return
 
 # ### ### ### ######### ######### ######### ###########################
 ## Setting up the environment ...

@@ -13,7 +13,7 @@
 # # ## ### ##### ######## ############# ######################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require valtype::common
 
@@ -34,7 +34,8 @@ snit::type ::valtype::iban {
 	IS 26 IE 22 IL 23 IT 27 KZ 20 KW 30 LV 21 LB 28 LI 21 LT 20 LU 20 MK 19 MT 31 MR 27 MU 30 MC 27
 	ME 22 NL 18 NO 15 PL 28 PS 29 PT 25 RO 24 SM 27 SA 24 RS 22 SK 24 SI 19 ST 25 ES 24 SE 24 CH 21 TN 24 TR 26
 	AE 23 GB 22 AZ 28 MD 24 PK 24 VG 24 GT 28 QA 29 JO 30 TL 23 XK 20 UA 29 SC 31 LC 32 BY 28 IQ 23
-    }
+	BI 27 DJ 27 EG 29 LY 25 RU 33 SD 18 VA 22
+	}
 
     typevariable charmap {
 	A 10 B 11 C 12 D 13 E 14 F 15 G 16 H 17 I 18 J 19 K 20 L 21 M 22
@@ -88,4 +89,4 @@ snit::type ::valtype::iban {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::iban 1.7
+package provide valtype::iban 1.8

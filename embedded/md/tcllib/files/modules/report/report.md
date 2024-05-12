@@ -1,8 +1,8 @@
 
 [//000000001]: # (report \- Matrix reports)
 [//000000002]: # (Generated from file 'report\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2002\-2014 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (report\(n\) 0\.3\.2 tcllib "Matrix reports")
+[//000000003]: # (Copyright &copy; 2002\-2014,2022 Andreas Kupries <andreas\.kupries@gmail\.com>)
+[//000000004]: # (report\(n\) 0\.5 tcllib "Matrix reports")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,8 +45,8 @@ report \- Create and manipulate report objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require report ?0\.3\.2?  
+package require Tcl 8\.5 9  
+package require report ?0\.5?  
 
 [__::report::report__ *reportName* *columns* ?__style__ *style arg\.\.\.*?](#1)  
 [__reportName__ *option* ?*arg arg \.\.\.*?](#2)  
@@ -455,4 +455,4 @@ Data structures
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2002\-2014 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2002\-2014,2022 Andreas Kupries <andreas\.kupries@gmail\.com>

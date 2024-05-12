@@ -3,7 +3,7 @@
 '\" Copyright (c) 200?, Colin McCormack, Wub Server Utilities
 '\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "debug::timestamp" n 1 tcllib "debug narrative"
+.TH "debug::timestamp" n 1\&.1 tcllib "debug narrative"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,11 +275,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 debug::timestamp \- debug narrative - timestamping
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdebug::timestamp  ?1?\fR
+package require \fBdebug::timestamp ?1\&.1?\fR
 .sp
-package require \fBdebug  ?1?\fR
+package require \fBdebug ?1\&.0\&.7?\fR
 .sp
 \fBdebug\fR \fBtimestamp\fR
 .sp

@@ -2,7 +2,7 @@
 '\" Generated from file 'mapproj\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007 Kevin B\&. Kenny <kennykb@acm\&.org>
 '\"
-.TH "mapproj" n 0\&.1 tcllib "Tcl Library"
+.TH "mapproj" n 1\&.1 tcllib "Tcl Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 mapproj \- Map projection routines
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.4?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::interpolate  ?1\&.0?\fR
+package require \fBmath::interpolate ?1\&.1?\fR
 .sp
-package require \fBmath::special  ?0\&.2\&.1?\fR
+package require \fBmath::special ?0\&.2\&.2?\fR
 .sp
-package require \fBmapproj  ?1\&.0?\fR
+package require \fBmapproj ?1\&.1?\fR
 .sp
 \fB::mapproj::toPlateCarree\fR \fIlambda_0\fR \fIphi_0\fR \fIlambda\fR \fIphi\fR
 .sp

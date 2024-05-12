@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'matrix\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002-2013,2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2002-2013,2019,2022 Andreas Kupries <andreas\&.kupries@gmail\&.com>
 '\"
-.TH "struct::matrix" n 2\&.0\&.4 tcllib "Tcl Data Structures"
+.TH "struct::matrix" n 2\&.2 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::matrix \- Create and manipulate matrix objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::matrix  ?2\&.0\&.4?\fR
+package require \fBstruct::matrix ?2\&.2?\fR
 .sp
 \fB::struct::matrix\fR ?\fImatrixName\fR? ?\fB=\fR|\fB:=\fR|\fBas\fR|\fBdeserialize\fR \fIsource\fR?
 .sp
@@ -528,6 +528,11 @@ computation\&.
 \fINote:\fR The command recognizes ANSI color control sequences
 and excludes them from the width of a line, as they are logically of
 zero width\&.
+.sp
+\fINote:\fR The command properly recognizes and accounts for Asian double-wide characters\&.
+.sp
+\fIIn other words\fR, the returned length is the number of terminal columns taken by the
+string, and not the number of characters\&.
 .TP
 \fImatrixName\fR \fBdelete column\fR \fIcolumn\fR
 Deletes the specified column from the matrix and shifts all columns
@@ -850,6 +855,6 @@ matrix
 Data structures
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002-2013,2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2002-2013,2019,2022 Andreas Kupries <andreas\&.kupries@gmail\&.com>
 
 .fi

@@ -2,7 +2,7 @@
 #
 #	Implementation of a matrix data structure for Tcl.
 #
-# Copyright (c) 2001-2013,2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2013,2019,2022 by Andreas Kupries <andreas.kupries@gmail.com>
 #
 # Heapsort code Copyright (c) 2003 by Edwin A. Suominen <ed@eepatents.com>,
 # based on concepts in "Introduction to Algorithms" by Thomas H. Cormen et al.
@@ -10,7 +10,8 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
+package require textutil::wcswidth	;# TermWidth, for _columnwidth and related places
 
 namespace eval ::struct {}
 
@@ -54,7 +55,7 @@ namespace eval ::struct::matrix {
 
 proc ::struct::matrix::matrix {args} {
     variable counter
-    
+
     set src     {}
     set srctype {}
 
@@ -163,7 +164,7 @@ proc ::struct::matrix::MatrixProc {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub _$cmd
     if {[llength [info commands ::struct::matrix::$sub]] == 0} {
@@ -233,7 +234,7 @@ proc ::struct::matrix::_add {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name add option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub __add_$cmd
     if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
@@ -267,7 +268,7 @@ proc ::struct::matrix::_delete {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name delete option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub __delete_$cmd
     if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
@@ -301,7 +302,7 @@ proc ::struct::matrix::_format {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name format option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub __format_$cmd
     if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
@@ -335,7 +336,7 @@ proc ::struct::matrix::_get {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name get option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub __get_$cmd
     if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
@@ -369,7 +370,7 @@ proc ::struct::matrix::_insert {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name insert option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub __insert_$cmd
     if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
@@ -521,7 +522,7 @@ proc ::struct::matrix::_set {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name set option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub __set_$cmd
     if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
@@ -638,7 +639,7 @@ proc ::struct::matrix::_swap {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name swap option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     set sub __swap_$cmd
     if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
@@ -929,12 +930,7 @@ proc ::struct::matrix::_columnwidth {name column} {
 	set width 0
 	for {set r 0} {$r < $rows} {incr r} {
 	    foreach line [split $data($column,$r) \n] {
-		# Look for ANSI color control sequences and remove
-		# them. Avoid counting their characters as such
-		# sequences as a whole represent a state change, and
-		# are logically of zero/no width.
-		regsub -all "\033\\\[\[0-9;\]*m" $line {} line
-		set len [string length $line]
+		set len [TermWidth $line]
 		if {$len > $width} {
 		    set width $len
 		}
@@ -1205,7 +1201,7 @@ proc ::struct::matrix::__format_2string {name {report {}}} {
 		set line [list]
 		for {set c 0} {$c < $cols} {incr c} {
 		    set val [__get_cell $name $c $r]
-		    lappend line "$val[string repeat " " [expr {$cw($c)-[string length $val]}]]"
+		    lappend line "$val[string repeat " " [expr {$cw($c)-[TermWidth $val]}]]"
 		}
 		lappend result [join $line " "]
 	    } else {
@@ -1214,7 +1210,7 @@ proc ::struct::matrix::__format_2string {name {report {}}} {
 		    set line [list]
 		    for {set c 0} {$c < $cols} {incr c} {
 			set val [lindex [split [__get_cell $name $c $r] \n] $h]
-			lappend line "$val[string repeat " " [expr {$cw($c)-[string length $val]}]]"
+			lappend line "$val[string repeat " " [expr {$cw($c)-[TermWidth $val]}]]"
 		    }
 		    lappend result [join $line " "]
 		}
@@ -1609,8 +1605,8 @@ proc ::struct::matrix::_link {name args} {
 	}
     }
 
-    trace variable array wu [list ::struct::matrix::MatTraceIn  $variable $name]
-    trace variable data  w  [list ::struct::matrix::MatTraceOut $variable $name]
+    trace add variable array {write unset} [list ::struct::matrix::MatTraceIn  $variable $name]
+    trace add variable data  write  [list ::struct::matrix::MatTraceOut $variable $name]
     return
 }
 
@@ -1754,7 +1750,7 @@ proc ::struct::matrix::_serialize {name args} {
 #
 # Results:
 #	None.
- 
+
 proc ::struct::matrix::__set_cell {name column row value} {
     set column [ChkColumnIndex $name $column]
     set row    [ChkRowIndex    $name $row]
@@ -2110,16 +2106,16 @@ proc ::struct::matrix::_transpose {name} {
     variable ${name}::columns
 
     if {$rows == 0} {
-	# Change the dimensions. 
+	# Change the dimensions.
 	# There is no data to shift.
 	# The row/col caches are empty too.
 
-	set rows    $columns 
+	set rows    $columns
 	set columns 0
 	return
 
     } elseif {$columns == 0} {
-	# Change the dimensions. 
+	# Change the dimensions.
 	# There is no data to shift.
 	# The row/col caches are empty too.
 
@@ -2216,8 +2212,8 @@ proc ::struct::matrix::_unlink {name avar} {
     upvar #0 $avar    array
     variable ${name}::data
 
-    trace vdelete array wu [list ::struct::matrix::MatTraceIn  $avar $name]
-    trace vdelete date  w  [list ::struct::matrix::MatTraceOut $avar $name]
+    trace remove variable array {write unset} [list ::struct::matrix::MatTraceIn  $avar $name]
+    trace remove variable data  write  [list ::struct::matrix::MatTraceOut $avar $name]
 
     unset link($avar)
     return
@@ -2489,7 +2485,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # 2. An individual element was unset:  Set the corresponding cell to the empty string.
     #    See SF Tcllib Bug #532791.
 
-    if {(![string compare $op u]) && ($idx == {})} {
+    if {(![string compare $op unset]) && ($idx == {})} {
 	# Possibility 1: Array was destroyed
 	$name unlink $avar
 	return
@@ -2509,7 +2505,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # Use standard method to propagate the change.
     # => Get automatically index checks, cache updates, ...
 
-    if {![string compare $op u]} {
+    if {![string compare $op unset]} {
 	# Unset possibility 2: Element was unset.
 	# Note: Setting the cell to the empty string will
 	# invoke MatTraceOut for this array and thus try
@@ -2689,12 +2685,12 @@ proc ::struct::matrix::CheckSerialization {ser rvar cvar dvar} {
 
     if {[llength $d] > $r} {
 	return -code error \
-		"error in serialization: data for to many rows."	
+		"error in serialization: data for to many rows."
     }
     foreach rv $d {
 	if {[llength $rv] > $c} {
 	    return -code error \
-		    "error in serialization: data for to many columns."	
+		    "error in serialization: data for to many columns."
 	}
     }
 
@@ -2778,6 +2774,26 @@ proc ::struct::matrix::DeleteColumns {name n} {
     return
 }
 
+# ::struct::matrix::TermWidth --
+#
+#	Computes the number of terminal columns taken by the input string.
+#	This discounts ANSI color codes as zero-width, and asian characters
+#	as double-width.
+#
+# Arguments:
+#	str	String to process
+#
+# Results:
+#	Number of terminal columns covered by string argument
+
+proc ::struct::matrix::TermWidth {str} {
+    # Look for ANSI color control sequences and remove them. Avoid counting their characters as such
+    # sequences as a whole represent a state change, and are logically of zero/no width.
+    # Further use wcswidth to account for double-wide Asian characters.
+
+    regsub -all "\033\\\[\[0-9;\]*m" $str {} str
+    return [textutil::wcswidth $str]
+}
 
 # ### ### ### ######### ######### #########
 ## Ready
@@ -2787,4 +2803,4 @@ namespace eval ::struct {
     namespace import -force matrix::matrix
     namespace export matrix
 }
-package provide struct::matrix 2.0.4
+package provide struct::matrix 2.2

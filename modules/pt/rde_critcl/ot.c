@@ -26,19 +26,18 @@ static Tcl_ObjType ot_type = {
     ot_from_any
 };
 
-static int      IsCached (RDE_STATE p, Tcl_Obj* obj, long int* id);
-static long int Make     (RDE_STATE p, Tcl_Obj* obj, const char* str);
+static int      IsCached (RDE_STATE p, Tcl_Obj* obj, Tcl_Size* id);
+static Tcl_Size Make     (RDE_STATE p, Tcl_Obj* obj, const char* str);
 
 
 /*
  * = = == === ===== ======== ============= =====================
  */
 
-long int
-rde_ot_intern0 (RDE_STATE p,
-		Tcl_Obj* detail)
+Tcl_Size
+rde_ot_intern0 (RDE_STATE p, Tcl_Obj* detail)
 {
-    long int id;
+    Tcl_Size id;
 
     TRACE (("rde_ot_intern0 (%p, %p = '%s')", p, detail, Tcl_GetString(detail)));
     if (IsCached (p, detail, &id)) {
@@ -49,12 +48,10 @@ rde_ot_intern0 (RDE_STATE p,
     return Make (p, detail, Tcl_GetString (detail));
 }
 
-long int
-rde_ot_intern1 (RDE_STATE p,
-		const char* operator,
-		Tcl_Obj* detail)
+Tcl_Size
+rde_ot_intern1 (RDE_STATE p, const char* operator, Tcl_Obj* detail)
 {
-    long int id;
+    Tcl_Size    id;
     Tcl_DString buf;
 
     TRACE (("rde_ot_intern1 (%p, '%s' %p = '%s')", p, operator, detail, Tcl_GetString(detail)));
@@ -68,9 +65,9 @@ rde_ot_intern1 (RDE_STATE p,
      * Using a DString.
      */
 
-    Tcl_DStringInit (&buf);
-    Tcl_DStringAppendElement (&buf, operator);
-    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail));
+    Tcl_DStringInit          (&buf);
+    Tcl_DStringAppendElement (&buf, operator);			 /* OK tcl9 */
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail));	 /* OK tcl9 */
 
     id = Make (p, detail, Tcl_DStringValue (&buf));
 
@@ -78,13 +75,10 @@ rde_ot_intern1 (RDE_STATE p,
     return id;
 }
 
-long int
-rde_ot_intern2 (RDE_STATE p,
-		const char* operator,
-		Tcl_Obj* detail1,
-		Tcl_Obj* detail2)
+Tcl_Size
+rde_ot_intern2 (RDE_STATE p, const char* operator, Tcl_Obj* detail1, Tcl_Obj* detail2)
 {
-    long int id;
+    Tcl_Size    id;
     Tcl_DString buf;
 
     TRACE (("rde_ot_intern2 (%p, '%s' %p = '%s', %p = '%s')", p, operator,
@@ -100,10 +94,10 @@ rde_ot_intern2 (RDE_STATE p,
      * Using a DString.
      */
 
-    Tcl_DStringInit (&buf);
-    Tcl_DStringAppendElement (&buf, operator);
-    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail1));
-    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail2));
+    Tcl_DStringInit          (&buf);
+    Tcl_DStringAppendElement (&buf, operator);			 /* OK tcl9 */
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail1));	 /* OK tcl9 */
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail2));	 /* OK tcl9 */
 
     id = Make (p, detail1, Tcl_DStringValue (&buf));
 
@@ -116,7 +110,7 @@ rde_ot_intern2 (RDE_STATE p,
  */
 
 static int
-IsCached (RDE_STATE p, Tcl_Obj* obj, long int* id)
+IsCached (RDE_STATE p, Tcl_Obj* obj, Tcl_Size* id)
 {
     /*
      * Quick exit if we have a cached and valid value.
@@ -133,10 +127,10 @@ IsCached (RDE_STATE p, Tcl_Obj* obj, long int* id)
     return 0;
 }
 
-static long int
+static Tcl_Size
 Make (RDE_STATE p, Tcl_Obj* obj, const char* str)
 {
-    long int    id = param_intern (p, str);
+    Tcl_Size    id = param_intern (p, str);
     RDE_STRING* rs = ALLOC (RDE_STRING);
 
     rs->next = p->sfirst;

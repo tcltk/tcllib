@@ -8,7 +8,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require debug
 
 namespace eval ::debug {
@@ -43,5 +43,5 @@ namespace eval ::debug::timestamp {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug::timestamp 1
+package provide debug::timestamp 1.1
 return

@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx \- Holding keyword indices
 .SH SYNOPSIS
-package require \fBdoctools::idx  ?2?\fR
+package require \fBdoctools::idx ?2?\fR
 .sp
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx::structure \fR
+package require \fBdoctools::idx::structure\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
 \fB::doctools::idx\fR \fIobjectName\fR
 .sp

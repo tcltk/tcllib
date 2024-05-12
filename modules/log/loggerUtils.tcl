@@ -41,7 +41,7 @@
 #
 # End of Header
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require logger
 package require logger::appender
 package require msgcat
@@ -531,7 +531,7 @@ proc ::logger::utils::autoApplyAppender {command command-string log op args} {
 }
 
 
-package provide logger::utils 1.3.1
+package provide logger::utils 1.3.2
 
 # ;;; Local Variables: ***
 # ;;; mode: tcl ***

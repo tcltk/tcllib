@@ -2,7 +2,7 @@
 '\" Generated from file 'smtp\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 1999-2000 Marshall T\&. Rose and others
 '\"
-.TH "smtp" n 1\&.5\&.1 tcllib "smtp client"
+.TH "smtp" n 1\&.5\&.2 tcllib "smtp client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 smtp \- Client-side tcl implementation of the smtp protocol
 .SH SYNOPSIS
-package require \fBTcl \fR
+package require \fBTcl\fR
 .sp
-package require \fBmime  ?1\&.5\&.4?\fR
+package require \fBmime ?1\&.5\&.4?\fR
 .sp
-package require \fBsmtp  ?1\&.5\&.1?\fR
+package require \fBsmtp ?1\&.5\&.2?\fR
 .sp
 \fB::smtp::sendmessage\fR \fItoken\fR \fIoption\fR\&.\&.\&.
 .sp

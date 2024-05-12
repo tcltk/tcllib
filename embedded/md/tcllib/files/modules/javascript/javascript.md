@@ -1,7 +1,7 @@
 
 [//000000001]: # (javascript \- HTML and Java Script Generation)
 [//000000002]: # (Generated from file 'javascript\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (javascript\(n\) 1\.0\.2 tcllib "HTML and Java Script Generation")
+[//000000003]: # (javascript\(n\) 1\.0\.3 tcllib "HTML and Java Script Generation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ javascript \- Procedures to generate HTML and Java Script structures\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
-package require javascript ?1\.0\.2?  
+package require Tcl 8\.5 9  
+package require javascript ?1\.0\.3?  
 
 [__::javascript::makeSelectorWidget__ *id leftLabel leftValueList rightLabel rightValueList rightNameList* ?*length*? ?*minWidth*?](#1)  
 [__::javascript::makeSubmitButton__ *name value*](#2)  

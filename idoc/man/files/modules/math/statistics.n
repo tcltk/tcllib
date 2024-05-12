@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'statistics\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::statistics" n 1 tcllib "Tcl Math Library"
+.TH "math::statistics" n 1\&.6 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::statistics \- Basic statistical functions and procedures
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::statistics  1\fR
+package require \fBmath::statistics 1\&.6\fR
 .sp
 \fB::math::statistics::mean\fR \fIdata\fR
 .sp
@@ -377,7 +377,7 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::tstat\fR \fIdof\fR ?alpha?
 .sp
-\fB::math::statistics::mv-wls\fR \fIwt1\fR \fIweights_and_values\fR
+\fB::math::statistics::mv-wls\fR \fIweights_and_values\fR
 .sp
 \fB::math::statistics::mv-ols\fR \fIvalues\fR
 .sp
@@ -1411,7 +1411,7 @@ Confidence level of the t-distribution\&. Defaults to 0\&.05\&.
 .RE
 .sp
 .TP
-\fB::math::statistics::mv-wls\fR \fIwt1\fR \fIweights_and_values\fR
+\fB::math::statistics::mv-wls\fR \fIweights_and_values\fR
 Carries out a weighted least squares linear regression for
 the data points provided, with weights assigned to each point\&.
 .sp
@@ -1457,6 +1457,42 @@ observation (as a sublist) and so on\&. The sublists of data are organised
 as lists of the value of the dependent variable y and the independent
 variables x1, x2 to xN\&.
 .RE
+.IP
+\fIExample of the use:\fR
+The weight factors are quite simple: 0\&.2 for negative values to indicate
+we put less trust in these observations and 1\&.0 for all positive values\&.
+.CS
+
+
+# Store the value of the unicode value for the "+/-" character
+set pm "\\u00B1"
+
+# Provide some data
+set data { 0\&.2 {  -\&.67  14\&.18  60\&.03 -7\&.5  }
+           1\&.0 { 36\&.97  15\&.52  34\&.24 14\&.61 }
+           0\&.2 {-29\&.57  21\&.85  83\&.36 -7\&.   }
+           0\&.2 {-16\&.9   11\&.79  51\&.67 -6\&.56 }
+           1\&.0 { 14\&.09  16\&.24  36\&.97 -12\&.84}
+           1\&.0 { 31\&.52  20\&.93  45\&.99 -25\&.4 }
+           1\&.0 { 24\&.05  20\&.69  50\&.27  17\&.27}
+           1\&.0 { 22\&.23  16\&.91  45\&.07  -4\&.3 }
+           1\&.0 { 40\&.79  20\&.49  38\&.92  -\&.73 }
+           0\&.2 {-10\&.35  17\&.24  58\&.77  18\&.78}}
+
+# Call the ols routine
+set results [::math::statistics::mv-ols $data]
+
+# Pretty-print the results
+puts "R-squared: [lindex $results 0]"
+puts "Adj R-squared: [lindex $results 1]"
+puts "Coefficients $pm s\&.e\&. -- \\[95% confidence interval\\]:"
+foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4] {
+    set lb [lindex $bounds 0]
+    set ub [lindex $bounds 1]
+    puts "   $val $pm $se -- \\[$lb to $ub\\]"
+}
+
+.CE
 .sp
 .TP
 \fB::math::statistics::mv-ols\fR \fIvalues\fR

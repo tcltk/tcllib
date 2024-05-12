@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require logger
 package require csv
 package require struct::matrix
@@ -155,9 +155,7 @@ proc ::bench::locate {pattern paths} {
 
     foreach path $paths {
 	foreach ip [glob -nocomplain [file join $path $pattern]] {
-	    if {[package vsatisfies [package provide Tcl] 8.4]} {
-		set ip [file normalize $ip]
-	    }
+            set ip [file normalize $ip]
 
 	    # Follow soft-links to the actual executable.
 	    while {[string equal link [file type $ip]]} {
@@ -550,4 +548,4 @@ namespace eval ::bench {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench 0.4
+package provide bench 0.5

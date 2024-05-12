@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::fourier \- Tcl Math Library)
 [//000000002]: # (Generated from file 'fourier\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::fourier\(n\) 1\.0\.2 tcllib "Tcl Math Library")
+[//000000003]: # (math::fourier\(n\) 1\.0\.3 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ math::fourier \- Discrete and fast fourier transforms
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require math::fourier 1\.0\.2  
+package require Tcl 8\.5 9  
+package require math::fourier 1\.0\.3  
 
 [__::math::fourier::dft__ *in\_data*](#1)  
 [__::math::fourier::inverse\_dft__ *in\_data*](#2)  

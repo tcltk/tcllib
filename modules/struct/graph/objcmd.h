@@ -5,9 +5,9 @@
 #ifndef _G_OBJCMD_H
 #define _G_OBJCMD_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 
-int g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
+int g_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv);
 
 #endif /* _G_OBJCMD_H */
 

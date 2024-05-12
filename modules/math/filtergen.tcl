@@ -33,7 +33,7 @@
 #       @licend  The above is the entire license notice
 #       for the JavaScript code in this page.
 #
-package require Tcl 8.6
+package require Tcl 8.6 9
 package require TclOO
 
 namespace eval ::math::filters {}
@@ -247,4 +247,4 @@ namespace eval ::math::filters {
     namespace export filterButterworth filter filterObject
 }
 
-package provide math::filters 0.1
+package provide math::filters 0.2

@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::export::json \- PEG Export Plugin\&. Write JSON format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::export::json  ?1?\fR
+package require \fBpt::peg::export::json ?1?\fR
 .sp
-package require \fBpt::peg::to::json \fR
+package require \fBpt::peg::to::json\fR
 .sp
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 .sp

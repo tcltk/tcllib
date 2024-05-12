@@ -35,7 +35,7 @@ page\_util\_quote \- page character quoting utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require page::util::quote ?0\.1?  
+package require page::util::quote ?0\.2?  
 package require snit  
 
 [__::page::util::quote::unquote__ *char*](#1)  

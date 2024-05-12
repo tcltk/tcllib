@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin rc4 n 1.1.0]
+[manpage_begin rc4 n 1.2.0]
 [see_also aes(n)]
 [see_also blowfish(n)]
 [see_also des(n)]
@@ -13,8 +13,8 @@
 [moddesc   {RC4 Stream Cipher}]
 [titledesc {Implementation of the RC4 stream cipher}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
-[require rc4 [opt 1.1.0]]
+[require Tcl "8.5 9"]
+[require rc4 [opt 1.2.0]]
 [description]
 [para]
 
@@ -94,7 +94,7 @@ This should be called to clean up resources associated with
 % set keydata [binary format H* 0123456789abcdef]
 % rc4::rc4 -hex -key $keydata HelloWorld
 3cf1ae8b7f1c670b612f
-% rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
+% rc4::rc4 -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
 HelloWorld
 }]
 

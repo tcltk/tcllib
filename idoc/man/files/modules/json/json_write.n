@@ -2,7 +2,7 @@
 '\" Generated from file 'json_write\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009-2013,2022 Andreas Kupries <andreas_kupries@sourceforge\&.net>
 '\"
-.TH "json::write" n 1\&.0\&.4 tcllib "JSON"
+.TH "json::write" n 1\&.0\&.5 tcllib "JSON"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 json::write \- JSON generation
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBjson::write  ?1\&.0\&.4?\fR
+package require \fBjson::write ?1\&.0\&.5?\fR
 .sp
 \fB::json::write\fR \fBindented\fR
 .sp

@@ -6,7 +6,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 namespace eval char {
     namespace export unquote quote
@@ -44,10 +44,10 @@ proc ::char::Unquote {ch} {
     }
 
     if {[regexp {^\\([0-2][0-7][0-7])$} $ch -> ocode]} {
-	return [format %c $ocode]
+	return [format %c 0o$ocode]
 
     } elseif {[regexp {^\\([0-7][0-7]?)$} $ch -> ocode]} {
-	return [format %c 0$ocode]
+	return [format %c 0o$ocode]
 
     } elseif {[regexp {^\\u([[:xdigit:]][[:xdigit:]]?[[:xdigit:]]?[[:xdigit:]]?)$} $ch -> hcode]} {
 	return [format %c 0x$hcode]
@@ -286,4 +286,4 @@ proc ::char::quote::Arg {cmdpfx str args} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide char 1.0.2
+package provide char 1.0.3

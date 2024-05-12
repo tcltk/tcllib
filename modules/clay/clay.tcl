@@ -6,7 +6,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package clay 0.8.6
+# Package clay 0.8.7
 # Meta platform     tcl
 # Meta summary      A minimalist framework for complex TclOO development
 # Meta description  This package introduces the method "clay" to both oo::object
@@ -24,7 +24,7 @@
 # Do not edit directly, tweak the source in build/ and rerun
 # build.tcl
 ###
-package provide clay 0.8.6
+package provide clay 0.8.7
 namespace eval ::clay {}
 
 ###
@@ -295,7 +295,7 @@ namespace eval ::clay {
 ###
 # START: core.tcl
 ###
-package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
+package require Tcl 8.6 9 ;# try in pipeline.tcl. Possibly other things.
 if {[info commands irmmd5] eq {}} {
   if {[catch {package require odielibc}]} {
     package require md5 2
@@ -344,6 +344,7 @@ proc ::clay::uuid::generate_tcl_machinfo {} {
   ###
   if {[file exists /dev/urandom]} {
     set fin [open /dev/urandom r]
+    fconfigure $fin -encoding binary  
     binary scan [read $fin 128] H* machinfo
     close $fin
   } elseif {[catch {package require nettool}]} {

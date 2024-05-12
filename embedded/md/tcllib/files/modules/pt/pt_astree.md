@@ -2,7 +2,7 @@
 [//000000001]: # (pt::ast \- Parser Tools)
 [//000000002]: # (Generated from file 'pt\_astree\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt::ast\(n\) 1\.1 tcllib "Parser Tools")
+[//000000004]: # (pt::ast\(n\) 1\.2 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,8 +39,8 @@ pt::ast \- Abstract Syntax Tree Serialization
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require pt::ast ?1\.1?  
+package require Tcl 8\.5 9  
+package require pt::ast ?1\.2?  
 
 [__::pt::ast__ __verify__ *serial* ?*canonvar*?](#1)  
 [__::pt::ast__ __verify\-as\-canonical__ *serial*](#2)  

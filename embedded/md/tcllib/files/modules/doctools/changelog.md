@@ -2,7 +2,7 @@
 [//000000001]: # (doctools::changelog \- Documentation tools)
 [//000000002]: # (Generated from file 'changelog\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003\-2013 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools::changelog\(n\) 1\.1 tcllib "Documentation tools")
+[//000000004]: # (doctools::changelog\(n\) 1\.2 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,9 +35,9 @@ doctools::changelog \- Processing text in Emacs ChangeLog format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require textutil  
-package require doctools::changelog ?1\.1?  
+package require doctools::changelog ?1\.2?  
 
 [__::doctools::changelog::scan__ *text*](#1)  
 [__::doctools::changelog::flatten__ *entries*](#2)  

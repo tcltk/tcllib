@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5                 ; # Required runtime.
+package require Tcl 8.5 9                 ; # Required runtime.
 package require pt::pe
 
 # # ## ### ##### ######## ############# #####################
@@ -376,5 +376,5 @@ namespace eval ::pt::peg {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::peg 1
+package provide pt::peg 1.1
 return

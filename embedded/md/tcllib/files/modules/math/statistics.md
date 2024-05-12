@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::statistics \- Tcl Math Library)
 [//000000002]: # (Generated from file 'statistics\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::statistics\(n\) 1 tcllib "Tcl Math Library")
+[//000000003]: # (math::statistics\(n\) 1\.6 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,8 +44,8 @@ math::statistics \- Basic statistical functions and procedures
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require math::statistics 1  
+package require Tcl 8\.5 9  
+package require math::statistics 1\.6  
 
 [__::math::statistics::mean__ *data*](#1)  
 [__::math::statistics::min__ *data*](#2)  
@@ -97,7 +97,7 @@ package require math::statistics 1
 [__::math::statistics::logistic\-model__ *xdata* *ydata*](#48)  
 [__::math::statistics::logistic\-probability__ *coeffs* *x*](#49)  
 [__::math::statistics::tstat__ *dof* ?alpha?](#50)  
-[__::math::statistics::mv\-wls__ *wt1* *weights\_and\_values*](#51)  
+[__::math::statistics::mv\-wls__ *weights\_and\_values*](#51)  
 [__::math::statistics::mv\-ols__ *values*](#52)  
 [__::math::statistics::pdf\-normal__ *mean* *stdev* *value*](#53)  
 [__::math::statistics::pdf\-lognormal__ *mean* *stdev* *value*](#54)  
@@ -1051,7 +1051,7 @@ Note: These procedures depend on the math::linearalgebra package\.
 
         Confidence level of the t\-distribution\. Defaults to 0\.05\.
 
-  - <a name='51'></a>__::math::statistics::mv\-wls__ *wt1* *weights\_and\_values*
+  - <a name='51'></a>__::math::statistics::mv\-wls__ *weights\_and\_values*
 
     Carries out a weighted least squares linear regression for the data points
     provided, with weights assigned to each point\.
@@ -1087,6 +1087,38 @@ Note: These procedures depend on the math::linearalgebra package\.
         observation \(as a sublist\) and so on\. The sublists of data are organised
         as lists of the value of the dependent variable y and the independent
         variables x1, x2 to xN\.
+
+    *Example of the use:* The weight factors are quite simple: 0\.2 for
+    negative values to indicate we put less trust in these observations and 1\.0
+    for all positive values\.
+
+        # Store the value of the unicode value for the "+/-" character
+        set pm "\u00B1"
+
+        # Provide some data
+        set data { 0.2 {  -.67  14.18  60.03 -7.5  }
+                   1.0 { 36.97  15.52  34.24 14.61 }
+                   0.2 {-29.57  21.85  83.36 -7.   }
+                   0.2 {-16.9   11.79  51.67 -6.56 }
+                   1.0 { 14.09  16.24  36.97 -12.84}
+                   1.0 { 31.52  20.93  45.99 -25.4 }
+                   1.0 { 24.05  20.69  50.27  17.27}
+                   1.0 { 22.23  16.91  45.07  -4.3 }
+                   1.0 { 40.79  20.49  38.92  -.73 }
+                   0.2 {-10.35  17.24  58.77  18.78}}
+
+        # Call the ols routine
+        set results [::math::statistics::mv-ols $data]
+
+        # Pretty-print the results
+        puts "R-squared: [lindex $results 0]"
+        puts "Adj R-squared: [lindex $results 1]"
+        puts "Coefficients $pm s.e. -- \[95% confidence interval\]:"
+        foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4] {
+            set lb [lindex $bounds 0]
+            set ub [lindex $bounds 1]
+            puts "   $val $pm $se -- \[$lb to $ub\]"
+        }
 
   - <a name='52'></a>__::math::statistics::mv\-ols__ *values*
 

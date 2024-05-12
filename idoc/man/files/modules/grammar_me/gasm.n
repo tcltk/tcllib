@@ -2,7 +2,7 @@
 '\" Generated from file 'gasm\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::me::cpu::gasm" n 0\&.1 tcllib "Grammar operations and usage"
+.TH "grammar::me::cpu::gasm" n 0\&.2 tcllib "Grammar operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::cpu::gasm \- ME assembler
 .SH SYNOPSIS
-package require \fBgrammar::me::cpu::gasm  ?0\&.1?\fR
+package require \fBgrammar::me::cpu::gasm ?0\&.2?\fR
 .sp
 \fB::grammar::me::cpu::gasm::begin\fR \fIg\fR \fIn\fR ?\fImode\fR? ?\fInote\fR?
 .sp

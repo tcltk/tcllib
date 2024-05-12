@@ -1,7 +1,7 @@
 
 [//000000001]: # (logger \- Object Oriented logging facility)
 [//000000002]: # (Generated from file 'logger\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (logger\(n\) 0\.9\.4 tcllib "Object Oriented logging facility")
+[//000000003]: # (logger\(n\) 0\.9\.5 tcllib "Object Oriented logging facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ logger \- System to control logging of events\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require logger ?0\.9\.4?  
+package require Tcl 8\.5 9  
+package require logger ?0\.9\.5?  
 
 [__logger::init__ *service*](#1)  
 [__logger::import__ ?__\-all__? ?__\-force__? ?__\-prefix__ *prefix*? ?__\-namespace__ *namespace*? *service*](#2)  

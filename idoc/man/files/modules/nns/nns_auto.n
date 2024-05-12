@@ -2,7 +2,7 @@
 '\" Generated from file 'nns_auto\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "nameserv::auto" n 0\&.3 tcllib "Name service facility"
+.TH "nameserv::auto" n 0\&.4 tcllib "Name service facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 nameserv::auto \- Name service facility, Client Extension
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBnameserv::auto  ?0\&.3?\fR
+package require \fBnameserv::auto ?0\&.4?\fR
 .sp
-package require \fBnameserv \fR
+package require \fBnameserv\fR
 .sp
 .BE
 .SH DESCRIPTION

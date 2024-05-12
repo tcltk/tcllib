@@ -7,7 +7,7 @@
 [moddesc   {Terminal control}]
 [titledesc {Output of ANSI control sequences to terminals}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::ansi::send [opt 0.2]]
 [description]
 

@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.2		;# uses [lindex $l end-$integer]
+package require Tcl 8.5 9		;# uses [lindex $l end-$integer]
 
 # @mdgen OWNER: tclIndex
 # @mdgen OWNER: misc.tcl
@@ -40,5 +40,5 @@ namespace eval ::math {
 	source [file join [file dirname [info script]] combinatorics.tcl]
     }
 
-    package provide [namespace tail [namespace current]] 1.2.5
+    package provide [namespace tail [namespace current]] 1.2.6
 }

@@ -2,7 +2,7 @@
 '\" Generated from file 'pluginmgr\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pluginmgr" n 0\&.3 tcllib "Plugin management"
+.TH "pluginmgr" n 0\&.4 tcllib "Plugin management"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pluginmgr \- Manage a plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpluginmgr  ?0\&.3?\fR
+package require \fBpluginmgr ?0\&.4?\fR
 .sp
 \fB::pluginmgr\fR \fIobjectName\fR ?\fIoption value\fR\&.\&.\&.?
 .sp

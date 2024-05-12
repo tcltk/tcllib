@@ -3,5 +3,5 @@
 [vset NAME    HTML]
 [vset REQUIRE html]
 [vset CONFIG  html]
-[vset VERSION 0.2]
+[vset VERSION 0.3]
 [include include/export/plugin.inc]

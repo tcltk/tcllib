@@ -79,7 +79,7 @@ g_newnodename (G* g)
 
     do {
 	g->ncounter ++;
-	sprintf (g->handle, "node%d", g->ncounter);
+	sprintf (g->handle, "node%" TCL_SIZE_MODIFIER "d", g->ncounter);
 
 	/* Check that there is no node using that name already */
 	he = Tcl_FindHashEntry (g->nodes.map, g->handle);
@@ -99,7 +99,7 @@ g_newarcname (G* g)
 
     do {
 	g->acounter ++;
-	sprintf (g->handle, "arc%d", g->acounter);
+	sprintf (g->handle, "arc%" TCL_SIZE_MODIFIER "d", g->acounter);
 
 	/* Check that there is no node using that name already */
 	he = Tcl_FindHashEntry (g->arcs.map, g->handle);
@@ -128,16 +128,16 @@ g_newarcname (G* g)
  */
 
 Tcl_Obj*
-g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* ov)
+g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, Tcl_Size oc, Tcl_Obj* const* ov)
 {
     Tcl_Obj*  ser;
     Tcl_Obj*  empty;
 
-    int       lc = 1 + 3 * (oc ? oc : g->nodes.n);
-    Tcl_Obj** lv = NALLOC (lc, Tcl_Obj*);
+    Tcl_Size  k, lc = 1 + 3 * (oc ? oc : g->nodes.n);
+    Tcl_Obj**    lv = NALLOC (lc, Tcl_Obj*);
 
     Tcl_HashTable cn;
-    int k, new;
+    int new;
     GN* n;
 
     /* Enumerate the nodes for the references used in arcs. FUTURE, TODO: Skip
@@ -150,7 +150,8 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* o
     if (oc) {
 	/* Enumerate the specified nodes, remove duplicates along the way */
 	Tcl_HashEntry* he;
-	int i, j, new;
+	Tcl_Size i, j;
+	int new;
 
 	j = 0;
 	for (i=0; i < oc; i++) {
@@ -170,7 +171,8 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* o
     } else {
 	/* Enumerate all nodes */
 	Tcl_HashEntry* he;
-	int j, new;
+	Tcl_Size j;
+	int new;
 
 	j = 0;
 	for (n = (GN*) g->nodes.first;
@@ -209,7 +211,7 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* o
 
     /* Put everything together, release scratch space */
 
-    ser = Tcl_NewListObj (lc, lv);
+    ser = Tcl_NewListObj (lc, lv); /* OK tcl9 */
 
     Tcl_DecrRefCount (empty);
     Tcl_DeleteHashTable(&cn);
@@ -241,20 +243,19 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
      * - Is its length a multiple of three modulo 1 ?
      */
 
-    int	      lc, i, j, k;
+    Tcl_Size  lc, i, j, k, nodes;
     Tcl_Obj** lv;
-    int	      ac;
+    Tcl_Size  ac;
     Tcl_Obj** av;
-    int	      axc, nref;
+    Tcl_Size  axc, nref;
     Tcl_Obj** axv;
-    int	      nodes;
     G*        new;
     GN*       n;
     GN*       ndst;
     GA*       a;
     int       code = TCL_ERROR;
 
-    if (Tcl_ListObjGetElements (interp, src, &lc, &lv) != TCL_OK) {
+    if (Tcl_ListObjGetElements (interp, src, &lc, &lv) != TCL_OK) { /* OK tcl9 */
 	return TCL_ERROR;
     }
     if ((lc % 3) != 1) {
@@ -286,13 +287,13 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	ASSERT_BOUNDS (i, lc-1);
 	i ++;
 	/* Check arc information */
-	if (Tcl_ListObjGetElements (interp, lv[i], &ac, &av) != TCL_OK) {
+	if (Tcl_ListObjGetElements (interp, lv[i], &ac, &av) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 	for (k=0; k < ac; k++) {
 	    ASSERT_BOUNDS (k, ac);
 	    /* Check each arc */
-	    if (Tcl_ListObjGetElements (interp, av[k], &axc, &axv) != TCL_OK) {
+	    if (Tcl_ListObjGetElements (interp, av[k], &axc, &axv) != TCL_OK) { /* OK tcl9 */
 		return TCL_ERROR;
 	    }
 	    if ((axc != 3) && (axc != 4)) {
@@ -306,7 +307,7 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
 		return TCL_ERROR;
 	    }
 	    /* Check node reference for arc destination */
-	    if ((Tcl_GetIntFromObj (interp, axv[1], &nref) != TCL_OK) ||
+	    if ((Tcl_GetSizeIntFromObj (interp, axv[1], &nref) != TCL_OK) || /* OK tcl9 */
 		(nref % 3) || (nref < 0) || (nref >= lc)) {
 		Tcl_ResetResult (interp);
 		Tcl_AppendResult (interp,
@@ -354,11 +355,11 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
     for (i=2; i < (lc-1); i += 3) {
 	ASSERT_BOUNDS (i, lc-1);
 	n = gn_get_node (new, lv[i-2], NULL, NULL);
-	Tcl_ListObjGetElements (interp, lv[i], &ac, &av);
+	Tcl_ListObjGetElements (interp, lv[i], &ac, &av); /* OK tcl9 */
 
 	for (k=0; k < ac; k++) {
 	    ASSERT_BOUNDS (k, ac);
-	    Tcl_ListObjGetElements (interp, av[k], &axc, &axv);
+	    Tcl_ListObjGetElements (interp, av[k], &axc, &axv); /* OK tcl9 */
 	    a = ga_get_arc (new, axv[0], NULL, NULL);
 	    if (a) {
 		Tcl_AppendResult (interp, 
@@ -366,7 +367,7 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
 				  Tcl_GetString (axv[0]),"\".", NULL);
 		goto done;
 	    }
-	    Tcl_GetIntFromObj (interp, axv[1], &nref);
+	    Tcl_GetSizeIntFromObj (interp, axv[1], &nref); /* OK tcl9 */
 	    ndst = gn_get_node (new, lv[nref], NULL, NULL);
 	    a = ga_new (new, Tcl_GetString (axv[0]), n, ndst);
 
@@ -391,10 +392,10 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	ASSERT_BOUNDS (i, lc-1);
 	i ++;
 	/* Check arc information */
-	Tcl_ListObjGetElements (interp, lv[i], &ac, &av);
+	Tcl_ListObjGetElements (interp, lv[i], &ac, &av); /* OK tcl9 */
 	for (k=0; k < ac; k++) {
 	    ASSERT_BOUNDS (k, ac);
-	    Tcl_ListObjGetElements (interp, av[k], &axc, &axv);
+	    Tcl_ListObjGetElements (interp, av[k], &axc, &axv); /* OK tcl9 */
 	    a = ga_get_arc (new, axv[0], NULL, NULL);
 	    g_attr_deserial (&a->base.attr, axv[2]);
 	}
@@ -458,6 +459,17 @@ g_ms_assign (Tcl_Interp* interp, G* g, Tcl_Obj* src)
 	return TCL_ERROR;
     }
 
+#if TCL_MAJOR_VERSION > 8
+    if (srcInfo.objProc2 == g_objcmd) {
+	/* The source graph object is managed by this code also. We can
+	 * retrieve and copy the data directly.
+	 */
+
+	G* gsrc = (G*) srcInfo.objClientData2;
+
+	return g_assign (g, gsrc);
+    }
+#else
     if (srcInfo.objProc == g_objcmd) {
 	/* The source graph object is managed by this code also. We can
 	 * retrieve and copy the data directly.
@@ -466,48 +478,48 @@ g_ms_assign (Tcl_Interp* interp, G* g, Tcl_Obj* src)
 	G* gsrc = (G*) srcInfo.objClientData;
 
 	return g_assign (g, gsrc);
-
-    } else {
-	/* The source graph is not managed by this package. Use
-	 * (de)serialization to transfer the information We do not invoke the
-	 * command proc directly
-	 */
-
-	int	 res;
-	Tcl_Obj* ser;
-	Tcl_Obj* cmd [2];
-
-	/* Phase 1: Obtain a serialization by invoking the relevant object
-	 * method
-	 */
-
-	cmd [0] = src;
-	cmd [1] = Tcl_NewStringObj ("serialize", -1);
-
-	Tcl_IncrRefCount (cmd [0]);
-	Tcl_IncrRefCount (cmd [1]);
-
-	res = Tcl_EvalObjv (interp, 2, cmd, 0);
-
-	Tcl_DecrRefCount (cmd [0]);
-	Tcl_DecrRefCount (cmd [1]);
-
-	if (res != TCL_OK) {
-	    return TCL_ERROR;
-	}
-
-	ser = Tcl_GetObjResult (interp);
-	Tcl_IncrRefCount (ser);
-	Tcl_ResetResult (interp);
-
-	/* Phase 2: Copy the serializtion into ourselves using the regular
-	 * deserialization functionality
-	 */
-
-	res = g_deserialize (g, interp, ser);
-	Tcl_DecrRefCount (ser);
-	return res;
     }
+#endif
+
+    /* The source graph is not managed by this package. Use
+     * (de)serialization to transfer the information We do not invoke the
+     * command proc directly
+     */
+
+    int	 res;
+    Tcl_Obj* ser;
+    Tcl_Obj* cmd [2];
+
+    /* Phase 1: Obtain a serialization by invoking the relevant object
+     * method
+     */
+
+    cmd [0] = src;
+    cmd [1] = Tcl_NewStringObj ("serialize", TCL_AUTO_LENGTH); /* OK tcl9 */
+
+    Tcl_IncrRefCount (cmd [0]);
+    Tcl_IncrRefCount (cmd [1]);
+
+    res = Tcl_EvalObjv (interp, 2, cmd, 0); /* OK tcl9 */
+
+    Tcl_DecrRefCount (cmd [0]);
+    Tcl_DecrRefCount (cmd [1]);
+
+    if (res != TCL_OK) {
+	return TCL_ERROR;
+    }
+
+    ser = Tcl_GetObjResult (interp);
+    Tcl_IncrRefCount (ser);
+    Tcl_ResetResult (interp);
+
+    /* Phase 2: Copy the serializtion into ourselves using the regular
+     * deserialization functionality
+     */
+
+    res = g_deserialize (g, interp, ser);
+    Tcl_DecrRefCount (ser);
+    return res;
 }
 
 /*
@@ -539,6 +551,17 @@ g_ms_set (Tcl_Interp* interp, Tcl_Obj* go, G* g, Tcl_Obj* dst)
 	return TCL_ERROR;
     }
 
+#if TCL_MAJOR_VERSION > 8
+    if (dstInfo.objProc2 == g_objcmd) {
+	/* The destination graph object is managed by this code also We can
+	 * retrieve and copy the data directly.
+	 */
+
+	G* gdest = (G*) dstInfo.objClientData2;
+
+	return g_assign (gdest, g);
+    }
+#else
     if (dstInfo.objProc == g_objcmd) {
 	/* The destination graph object is managed by this code also We can
 	 * retrieve and copy the data directly.
@@ -547,47 +570,46 @@ g_ms_set (Tcl_Interp* interp, Tcl_Obj* go, G* g, Tcl_Obj* dst)
 	G* gdest = (G*) dstInfo.objClientData;
 
 	return g_assign (gdest, g);
-
-    } else {
-	/* The destination graph is not managed by this package. Use
-	 * (de)serialization to transfer the information We do not invoke the
-	 * command proc directly.
-	 */
-
-	int	 res;
-	Tcl_Obj* ser;
-	Tcl_Obj* cmd [3];
-
-	/* Phase 1: Obtain our serialization */
-
-	ser = g_ms_serialize (interp, go, g, 0, NULL);
-
-	/* Phase 2: Copy into destination by invoking the regular
-	 * deserialization method
-	 */
-
-	cmd [0] = dst;
-	cmd [1] = Tcl_NewStringObj ("deserialize", -1);
-	cmd [2] = ser;
-
-	Tcl_IncrRefCount (cmd [0]);
-	Tcl_IncrRefCount (cmd [1]);
-	Tcl_IncrRefCount (cmd [2]);
-
-	res = Tcl_EvalObjv (interp, 3, cmd, 0);
-
-	Tcl_DecrRefCount (cmd [0]);
-	Tcl_DecrRefCount (cmd [1]);
-	Tcl_DecrRefCount (cmd [2]); /* == ser, is gone now */
-
-	if (res != TCL_OK) {
-	    return TCL_ERROR;
-	}
-
-	Tcl_ResetResult (interp);
-	return TCL_OK;
     }
-    return TCL_ERROR;
+#endif
+
+    /* The destination graph is not managed by this package. Use
+     * (de)serialization to transfer the information We do not invoke the
+     * command proc directly.
+     */
+
+    int	 res;
+    Tcl_Obj* ser;
+    Tcl_Obj* cmd [3];
+
+    /* Phase 1: Obtain our serialization */
+
+    ser = g_ms_serialize (interp, go, g, 0, NULL);
+
+    /* Phase 2: Copy into destination by invoking the regular
+     * deserialization method
+     */
+
+    cmd [0] = dst;
+    cmd [1] = Tcl_NewStringObj ("deserialize", TCL_AUTO_LENGTH); /* OK tcl9 */
+    cmd [2] = ser;
+
+    Tcl_IncrRefCount (cmd [0]);
+    Tcl_IncrRefCount (cmd [1]);
+    Tcl_IncrRefCount (cmd [2]);
+
+    res = Tcl_EvalObjv (interp, 3, cmd, 0); /* OK tcl9 */
+
+    Tcl_DecrRefCount (cmd [0]);
+    Tcl_DecrRefCount (cmd [1]);
+    Tcl_DecrRefCount (cmd [2]); /* == ser, is gone now */
+
+    if (res != TCL_OK) {
+	return TCL_ERROR;
+    }
+
+    Tcl_ResetResult (interp);
+    return TCL_OK;
 }
 
 

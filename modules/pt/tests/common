@@ -1,10 +1,8 @@
 # -*- tcl -*-
 # Code common to the various control files.
 #
-# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014,2024 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: common,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -280,6 +278,8 @@ proc match_node {ta a tb b} {
 ## - container -- interpreter loaded from a container
 ## - snit
 
+proc show-p {name} { set ver [package provide $name] ; puts "#%% $name $ver = [package ifneeded $name $ver]" }
+
 proc make-parser {format glabel grammar} {
     global pcounter
     if {![info exist pcounter]} { set pcounter 0 }
@@ -306,6 +306,14 @@ proc make-parser {format glabel grammar} {
 	lappend cmd -class $gc
     }
 
+    if {$debug} {
+	puts "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CMD $cmd"
+	puts "#%% [info nameofexecutable] [info patchlevel]"
+	show-p critcl
+	show-p pt::pgen
+	show-p pt::cparam::configuration::critcl
+    }
+    
     try {
 	set code [eval $cmd]
     } trap {PT RDE SYNTAX} {e o} {
@@ -368,8 +376,9 @@ proc make-parser {format glabel grammar} {
 	}
 	critcl {
 	    # Instantiate the parser class.
-	    # ATTENTION: We chop the last line of the code first,
-	    # unwanted "return" command.
+	    #
+	    # ATTENTION: We first remove the last line of the code, it
+	    # contains an unwanted "return" command.
 	    #
 	    # ATTENTION: We muck with [info script] to distinguish the
 	    # multiple parsers going through this file and procedure
@@ -390,6 +399,11 @@ proc make-parser {format glabel grammar} {
 	    # Hidden in the execution of the command instantiating the
 	    # parser is the compilation, link and load of the C
 	    # pieces, via $auto_index() and [unknown].
+
+	    if {$debug} {
+		parray ::auto_index GC*
+	    }
+	    
 	    set p [${gc}::${gc}_critcl]
 
 	    info script $here

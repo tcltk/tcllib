@@ -109,7 +109,7 @@ puts $fout [string map $modmap {# Tcl package index file, version 1.1
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+if {![package vsatisfies [package provide Tcl] 8.6 9]} {return}
 }]
 puts $fout [string map $modmap {
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]

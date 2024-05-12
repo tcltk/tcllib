@@ -32,7 +32,7 @@
 #   e.g. 41.61716028 -70.61758477 {ele 35.706 time 2010-06-17T16:02:28Z}
 #
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require tdom
 
 namespace eval gpx {
@@ -290,5 +290,5 @@ proc ::gpx::_GetAllAttributes {node} {
 }
 ################################################################
 
-package provide gpx 1
+package provide gpx 1.1
 return

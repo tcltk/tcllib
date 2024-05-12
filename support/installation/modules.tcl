@@ -88,11 +88,11 @@ Module  grammar_fa  _tcl  _man  _null
 Module  grammar_me  _tcl  _man  _null
 Module  grammar_peg _tcl  _man  _null
 Module  hook        _tcl  _man  _null
+Module  html        _tcl  _man  _null
+Module  htmlparse   _tcl  _man  _exa
 Module  http        _tcl  _man  _null
 Module  httpd       _tcl  _man  _exa
 Module  httpwget    _tcl  _null _null
-Module  html        _tcl  _man  _null
-Module  htmlparse   _tcl  _man  _exa
 Module  ident       _tcl  _man  _null
 Module  imap4       _tcl  _man  _null
 Module  inifile     _tcl  _man  _null
@@ -105,14 +105,15 @@ Module  lambda      _tcl  _man  _null
 Module  lazyset     _tcl  _man  _null
 Module  ldap        _tcl  _man _exa
 Module  log          _msg _man  {_exax logger}
-Module  markdown     _tcl  _man  _null
 Module  map         _tcl  _man  _null
 Module  mapproj     _tcl  _man _exa
+Module  markdown     _tcl  _man  _null
 Module  math         _tci _man _exa
 Module  md4         _tcl  _man  _null
 Module  md5         _tcl  _man  _null
 Module  md5crypt    _tcl  _man _null
 Module  mime        _tcl  _man _exa
+Module  mkdoc       _tcl  _man  _null
 Module  multiplexer _tcl  _man  _null
 Module  namespacex  _tcl  _man  _null
 Module  ncgi        _tcl  _man  _null
@@ -176,6 +177,7 @@ Module  yaml        _tcl  _man  _null
 Module  zip        _tcl  _null  _null
 
 Application  dtplite
+Application  mkdoc
 Application  nns
 Application  nnsd
 Application  nnslog

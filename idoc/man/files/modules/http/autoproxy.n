@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'autoproxy\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "autoproxy" n 1\&.7 tcllib "HTTP protocol helper modules"
+.TH "autoproxy" n 1\&.8\&.1 tcllib "HTTP protocol helper modules"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,11 +273,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 autoproxy \- Automatic HTTP proxy usage and authentication
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBhttp  ?2\&.0?\fR
+package require \fBhttp ?2\&.0?\fR
 .sp
-package require \fBautoproxy  ?1\&.7?\fR
+package require \fBautoproxy ?1\&.8\&.1?\fR
 .sp
 \fB::autoproxy::init\fR
 .sp

@@ -9,7 +9,7 @@
 
 package require pcx
 pcx::register ascii85
-pcx::tcldep   1.0 needs tcl 8.4
+pcx::tcldep   1.1 needs tcl 8.5
 
 namespace eval ::ascii85 {}
 
@@ -41,7 +41,7 @@ interp alias {} ascii85::checkData        {} checkWord ; #
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 1.0 std ::ascii85::decode \
+pcx::check 1.1 std ::ascii85::decode \
     {checkSimpleArgs 1 1 {
 	ascii85::checkData
     }}
@@ -50,7 +50,7 @@ pcx::check 1.0 std ::ascii85::decode \
 # Doc doesn't forbid it, code doesn't catch it.
 # May crash it however, i.e be a bug.
 # Check testsuite.
-pcx::check 1.0 std ::ascii85::encode \
+pcx::check 1.1 std ::ascii85::encode \
     {checkSimpleArgs 1 -1 {
 	{checkSwitches 1 {
 	    {-maxlen   ascii85::checkLineLength}

@@ -18,7 +18,7 @@
 
 # @mdgen NODEP: pt::peg::import::plugin
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require pt::peg::import::plugin ; # The presence of this
 					  # pseudo package indicates
 					  # execution inside of a
@@ -36,5 +36,5 @@ proc import {text} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::import::json 1
+package provide pt::peg::import::json 1.1
 return

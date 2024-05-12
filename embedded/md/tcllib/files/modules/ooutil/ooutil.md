@@ -2,7 +2,7 @@
 [//000000001]: # (oo::util \- Utility commands for TclOO)
 [//000000002]: # (Generated from file 'ooutil\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011\-2015 Andreas Kupries, BSD licensed)
-[//000000004]: # (oo::util\(n\) 1\.2\.2 tcllib "Utility commands for TclOO")
+[//000000004]: # (oo::util\(n\) 1\.2\.3 tcllib "Utility commands for TclOO")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,9 +39,9 @@ oo::util \- Utility commands for TclOO
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require TclOO  
-package require oo::util ?1\.2\.2?  
+package require oo::util ?1\.2\.3?  
 
 [__mymethod__ *method* ?*arg*\.\.\.?](#1)  
 [__classmethod__ *name* *arguments* *body*](#2)  

@@ -1,12 +1,12 @@
 # -*- tcl -*-
 # (c) 2015 Miguel Martínez López
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require TclOO       ; # For 8.5. Integrated with 8.6
 package require try         ; # For 8.5. Integrated with 8.6. Tcllib.
-package require huddle 0.1.7
+package require huddle 0.1.8
 
-package provide huddle::json 0.1
+package provide huddle::json 0.2
 
 
 namespace eval ::huddle {

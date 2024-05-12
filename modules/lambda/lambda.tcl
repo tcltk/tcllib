@@ -24,7 +24,7 @@
 # # ## ### ##### ######## ############# ####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 # # ## ### ##### ######## ############# #####################
 ## Public API implementation
@@ -39,5 +39,5 @@ proc lambda@ {ns arguments body args} {
 
 # # ## ### ##### ######## ############# ####################
 ## Ready
-package provide lambda 1
+package provide lambda 1.1
 

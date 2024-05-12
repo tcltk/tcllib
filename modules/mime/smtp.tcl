@@ -7,7 +7,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
 
-package require Tcl 8.3
+package require Tcl 8.5 9
 package require mime 1.4.1
 
 catch {
@@ -1500,7 +1500,7 @@ proc ::smtp::boolean {value} {
 
 # -------------------------------------------------------------------------
 
-package provide smtp 1.5.1
+package provide smtp 1.5.2
 
 # -------------------------------------------------------------------------
 # Local variables:

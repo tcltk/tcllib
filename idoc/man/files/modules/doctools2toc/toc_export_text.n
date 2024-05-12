@@ -2,7 +2,7 @@
 '\" Generated from file 'plugin\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::toc::export::text" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::toc::export::text" n 0\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc::export::text \- plain text export plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::toc::export::text  ?0\&.1?\fR
+package require \fBdoctools::toc::export::text ?0\&.2?\fR
 .sp
-package require \fBdoctools::text \fR
+package require \fBdoctools::text\fR
 .sp
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 .sp
