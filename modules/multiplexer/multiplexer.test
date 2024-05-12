@@ -15,7 +15,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -48,7 +48,7 @@ test multiplexer-2.1 {start multiplexer} {
     set res
 } {}
 
-test multiplexer-2.2 {start & destroy multiplexer} {tcl8.3plus} {
+test multiplexer-2.2 {start & destroy multiplexer} {
     set mp [multiplexer::create]
     set startchans [lsort [file channels]]
     ${mp}::Init 37465

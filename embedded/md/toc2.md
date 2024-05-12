@@ -7,6 +7,8 @@
 
       * [dtplite](tcllib/files/apps/dtplite\.md) Lightweight DocTools Markup Processor
 
+      * [mkdoc](tcllib/files/apps/mkdoc\.md) Source code documentation extractor/converter application
+
       * [nns](tcllib/files/apps/nns\.md) Name service facility, Commandline Client Application
 
       * [nnsd](tcllib/files/apps/nnsd\.md) Name service facility, Commandline Server Application

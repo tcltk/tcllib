@@ -161,11 +161,11 @@ namespace eval ::page::gen::peg::cpkg {
 	# ### ### ### ######### ######### #########
 	## Package Management - Ready
 
-	package provide @@ 0.1
+	package provide @@ 0.2
     }
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::gen::peg::cpkg 0.1
+package provide page::gen::peg::cpkg 0.2

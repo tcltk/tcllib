@@ -10,7 +10,7 @@
 [moddesc   {Terminal control}]
 [titledesc {ANSI control sequences}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require term::ansi::code       [opt 0.2]]
 [require term::ansi::code::ctrl [opt [vset VERSION]]]
 [description]

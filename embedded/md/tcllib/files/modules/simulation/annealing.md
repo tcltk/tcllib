@@ -2,7 +2,7 @@
 [//000000001]: # (simulation::annealing \- Tcl Simulation Tools)
 [//000000002]: # (Generated from file 'annealing\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
-[//000000004]: # (simulation::annealing\(n\) 0\.2 tcllib "Tcl Simulation Tools")
+[//000000004]: # (simulation::annealing\(n\) 0\.3 tcllib "Tcl Simulation Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,8 +35,8 @@ simulation::annealing \- Simulated annealing
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
-package require simulation::annealing 0\.2  
+package require Tcl ?8\.5 9?  
+package require simulation::annealing 0\.3  
 
 [__::simulation::annealing::getOption__ *keyword*](#1)  
 [__::simulation::annealing::hasOption__ *keyword*](#2)  

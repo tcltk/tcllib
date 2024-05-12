@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4              ; # Required runtime.
+package require Tcl 8.5 9              ; # Required runtime.
 package require snit                 ; # OO system.
 
 # # ## ### ##### ######## ############# #####################
@@ -284,5 +284,5 @@ snit::type ::doctools::idx::structure {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::idx::structure 0.1
+package provide doctools::idx::structure 0.2
 return

@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::figurate \- Tcl Math Library)
 [//000000002]: # (Generated from file 'figurate\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::figurate\(n\) 1\.0 tcllib "Tcl Math Library")
+[//000000003]: # (math::figurate\(n\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,7 +32,7 @@ math::figurate \- Evaluate figurate numbers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require math::figurate 1\.0  
 
 [__::math::figurate::sum\_sequence__ *n*](#1)  
@@ -90,7 +90,9 @@ simple example is the sum of integers 1, 2, \.\.\. up to n\. You can arrange 1,
 
 The __math::figurate__ package consists of a collection of procedures to
 evaluate a wide variety of figurate numbers\. While all formulae are
-straightforward, the details are sometimes puzzling\.
+straightforward, the details are sometimes puzzling\. *Note:* The procedures
+consider arguments lower than zero as to mean "no objects to be counted" and
+therefore return 0\.
 
 # <a name='section2'></a>PROCEDURES
 

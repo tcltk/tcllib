@@ -35,7 +35,7 @@ page\_util\_peg \- page PEG transformation utilities
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require page::util::peg ?0\.1?  
+package require page::util::peg ?0\.2?  
 package require snit  
 
 [__::page::util::peg::symbolNodeOf__ *tree* *node*](#1)  

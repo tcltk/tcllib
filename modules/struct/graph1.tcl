@@ -2151,4 +2151,4 @@ namespace eval ::struct {
     namespace import -force graph::graph
     namespace export graph
 }
-package provide struct::graph 1.2.1
+package provide struct::graph 1.2.2

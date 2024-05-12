@@ -2,7 +2,7 @@
 '\" Generated from file 'ntp_time\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "ntp_time" n 1\&.2\&.1 tcllib "Network Time Facilities"
+.TH "ntp_time" n 1\&.2\&.2 tcllib "Network Time Facilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ntp_time \- Tcl Time Service Client
 .SH SYNOPSIS
-package require \fBTcl  8\&.0\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtime  ?1\&.2\&.1?\fR
+package require \fBtime ?1\&.2\&.2?\fR
 .sp
 \fB::time::gettime\fR ?\fIoptions\fR? \fItimeserver\fR ?\fIport\fR?
 .sp

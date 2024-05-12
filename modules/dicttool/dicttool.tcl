@@ -152,4 +152,4 @@ if {[::info commands ::tcl::dict::isnull] eq {}} {
       [namespace ensemble configure dict -map] isnull ::tcl::dict::isnull]
 }
 
-package provide dicttool 1.1
+package provide dicttool 1.2

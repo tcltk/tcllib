@@ -2,7 +2,7 @@
 [//000000001]: # (deleg\_proc \- Interpreter utilities)
 [//000000002]: # (Generated from file 'deleg\_proc\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (deleg\_proc\(n\) 0\.2 tcllib "Interpreter utilities")
+[//000000004]: # (deleg\_proc\(n\) 0\.3 tcllib "Interpreter utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,8 +35,8 @@ deleg\_proc \- Creation of comm delegates \(procedures\)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require interp::delegate::proc ?0\.2?  
+package require Tcl 8\.5 9  
+package require interp::delegate::proc ?0\.3?  
 
 [__::interp::delegate::proc__ ?__\-async__? *name* *arguments* *comm* *id*](#1)  
 

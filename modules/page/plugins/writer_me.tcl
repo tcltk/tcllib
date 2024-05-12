@@ -112,4 +112,4 @@ proc page_wrun {chan data} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::writer::me 0.1
+package provide page::writer::me 0.2

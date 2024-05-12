@@ -38,14 +38,7 @@ test stack-${impl}-0.2 {stack errors} badTest {
     set msg
 } {wrong # args: should be "::mystack option ?arg arg ...?"}
 
-test stack-${impl}-0.3.0 {stack errors} tcl8.4minus {
-    stack mystack
-    catch {mystack foo} msg
-    mystack destroy
-    set msg
-} {bad option "foo": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*}
-
-test stack-${impl}-0.3.1.0 {stack errors} {tcl8.5plus !stack_oo} {
+test stack-${impl}-0.3.1.0 {stack errors} !stack_oo {
     stack mystack
     catch {mystack foo} msg
     mystack destroy
@@ -55,7 +48,7 @@ test stack-${impl}-0.3.1.0 {stack errors} {tcl8.5plus !stack_oo} {
        {bad option "foo": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*} \
       ]
 
-test stack-${impl}-0.3.1.1 {stack errors} {tcl8.5plus stack_oo} {
+test stack-${impl}-0.3.1.1 {stack errors} stack_oo {
     stack mystack
     catch {mystack foo} msg
     mystack destroy

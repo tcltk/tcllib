@@ -11,7 +11,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require pt::rde ; # Implementation of the PARAM
 			  # virtual machine underlying the

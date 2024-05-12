@@ -10,7 +10,7 @@
 # -------------------------------------------------------------------------
 # @mdgen EXCLUDE: md5cryptc.tcl
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 package require md5 2;                  # tcllib 1.5
 
 # Try and load a compiled extension to help.
@@ -143,7 +143,7 @@ if {[info commands ::md5crypt::md5crypt_c] == {}} {
 
 # -------------------------------------------------------------------------
 
-package provide md5crypt 1.1.0
+package provide md5crypt 1.2.0
 
 # -------------------------------------------------------------------------
 # Local Variables:

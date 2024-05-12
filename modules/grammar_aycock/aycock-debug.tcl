@@ -13,12 +13,12 @@
 #
 #----------------------------------------------------------------------
 
-package provide grammar::aycock::debug 1.0
-package require Tcl 8.4
+package provide grammar::aycock::debug 1.1
+package require Tcl 8.5 9
 
 # Bring in the runtime library
 
-package require grammar::aycock::runtime 1.0
+package require grammar::aycock::runtime 1.1
 
 # grammar::aycock::Terminals --
 #

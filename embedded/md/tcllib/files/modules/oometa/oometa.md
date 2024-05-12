@@ -2,7 +2,7 @@
 [//000000001]: # (oometa \- Data registry for TclOO frameworks)
 [//000000002]: # (Generated from file 'oometa\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2015 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (oometa\(n\) 0\.7\.1 tcllib "Data registry for TclOO frameworks")
+[//000000004]: # (oometa\(n\) 0\.7\.2 tcllib "Data registry for TclOO frameworks")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

@@ -2,7 +2,7 @@
 '\" Generated from file 'idx_structure\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::idx::structure" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::idx::structure" n 0\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::structure \- Docidx serialization utilities
 .SH SYNOPSIS
-package require \fBdoctools::idx::structure  ?0\&.1?\fR
+package require \fBdoctools::idx::structure ?0\&.2?\fR
 .sp
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
 \fB::doctools::idx::structure\fR \fBverify\fR \fIserial\fR ?\fIcanonvar\fR?
 .sp

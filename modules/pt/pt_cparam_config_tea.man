@@ -1,4 +1,4 @@
-[vset VERSION 0.1]
+[vset VERSION 0.2]
 [comment {-*- text -*- doctools manpage}]
 [manpage_begin pt::cparam::configuration::tea n [vset VERSION]]
 [include include/module.inc]

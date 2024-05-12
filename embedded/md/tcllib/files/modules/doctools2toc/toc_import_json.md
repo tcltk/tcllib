@@ -39,7 +39,7 @@ doctools::toc::import::json \- JSON import plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require doctools::toc::import::json ?0\.2\.1?  
 package require doctools::toc::structure  
 package require json  

@@ -83,7 +83,11 @@ clay::define httpd::content.fossil_node_scgi {
     set uri    [my request get REQUEST_URI]
     set prefix [my clay get prefix]
     set module [lindex [split $uri /] 2]
-    file mkdir ~/tmp
+    if {[package vsatisfies [package present Tcl] 9]} {
+      file mkdir [file tildeexpand ~/tmp]
+    } else {
+      file mkdir ~/tmp
+    }
     if {![info exists ::fossil_process($module)]} {
       package require processman
       package require nettool
@@ -98,8 +102,11 @@ clay::define httpd::content.fossil_node_scgi {
         tailcall my error 400 {Not Found}
       }
       set mport [my <server> port_listening]
-      set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
-
+      if {[package vsatisfies [package present Tcl] 9]} {
+        set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>[file home]/tmp/$module.err >[file home]/tmp/$module.log]
+      } else {
+        set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
+      }
       dict set ::fossil_process($module) port $port
       dict set ::fossil_process($module) handle $handle
       dict set ::fossil_process($module) cmd $cmd

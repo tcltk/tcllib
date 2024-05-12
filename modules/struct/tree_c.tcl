@@ -8,13 +8,11 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: tree_c.tcl,v 1.6 2008/03/25 07:15:34 andreas_kupries Exp $
 
 package require critcl
 # @sak notprovided struct_treec
 package provide struct_treec 2.1.1
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::struct {
     # Supporting code for the main command.
@@ -100,7 +98,7 @@ namespace eval ::struct {
 #define USAGE "?name ?=|:=|as|deserialize source??"
 
       if ((objc != 4) && (objc != 2) && (objc != 1)) {
-        Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+        Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
         return TCL_ERROR;
       }
 
@@ -119,11 +117,11 @@ namespace eval ::struct {
         Tcl_IncrRefCount (fqn);
 
         if (!Tcl_StringMatch (Tcl_GetString (fqn), "::")) {
-          Tcl_AppendToObj (fqn, "::", -1);
+          Tcl_AppendToObj (fqn, "::", -1); /* OK tcl9 */
         }
-        Tcl_AppendToObj (fqn, name, -1);
+        Tcl_AppendToObj (fqn, name, -1); /* OK tcl9 */
       } else {
-        fqn = Tcl_NewStringObj (name, -1);
+        fqn = Tcl_NewStringObj (name, -1); /* OK tcl9 */
         Tcl_IncrRefCount (fqn);
       }
       Tcl_ResetResult (interp);
@@ -134,9 +132,9 @@ namespace eval ::struct {
         Tcl_Obj* err;
 
         err = Tcl_NewObj ();
-        Tcl_AppendToObj    (err, "command \"", -1);
+        Tcl_AppendToObj    (err, "command \"", -1); /* OK tcl9 */
         Tcl_AppendObjToObj (err, fqn);
-        Tcl_AppendToObj    (err, "\" already exists, unable to create tree", -1);
+        Tcl_AppendToObj    (err, "\" already exists, unable to create tree", -1); /* OK tcl9 */
 
         Tcl_DecrRefCount (fqn);
         Tcl_SetObjResult (interp, err);
@@ -159,7 +157,7 @@ namespace eval ::struct {
                                  0, &srctype) != TCL_OK) {
           Tcl_DecrRefCount (fqn);
           Tcl_ResetResult (interp);
-          Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+          Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
           return TCL_ERROR;
         }
 
@@ -188,9 +186,9 @@ namespace eval ::struct {
         td = t_new ();
       }
 
-      td->cmd = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-                                      tms_objcmd, (ClientData) td,
-                                      TDdeleteCmd);
+      td->cmd = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+				       tms_objcmd, (ClientData) td,
+				       TDdeleteCmd);
 
       Tcl_SetObjResult (interp, fqn);
       Tcl_DecrRefCount (fqn);

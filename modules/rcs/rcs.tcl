@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites.
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 # ### ### ### ######### ######### #########
 ## API Implementation
@@ -278,4 +278,4 @@ proc ::rcs::applyRcsPatch {text patch} {
 # ### ### ### ######### ######### #########
 ## Ready for use.
 
-package provide rcs 0.1
+package provide rcs 0.2

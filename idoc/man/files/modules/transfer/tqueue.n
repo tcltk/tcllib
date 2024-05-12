@@ -2,7 +2,7 @@
 '\" Generated from file 'tqueue\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "transfer::copy::queue" n 0\&.1 tcllib "Data transfer facilities"
+.TH "transfer::copy::queue" n 0\&.2 tcllib "Data transfer facilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 transfer::copy::queue \- Queued transfers
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  ?1\&.0?\fR
+package require \fBsnit ?1\&.0?\fR
 .sp
-package require \fBstruct::queue  ?1\&.4?\fR
+package require \fBstruct::queue ?1\&.4?\fR
 .sp
-package require \fBtransfer::copy  ?0\&.2?\fR
+package require \fBtransfer::copy ?0\&.3?\fR
 .sp
-package require \fBtransfer::copy::queue  ?0\&.1?\fR
+package require \fBtransfer::copy::queue ?0\&.2?\fR
 .sp
 \fBtransfer::copy::queue\fR \fIobjectName\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

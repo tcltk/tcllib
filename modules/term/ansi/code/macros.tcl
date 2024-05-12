@@ -87,7 +87,7 @@ namespace eval ::term::ansi::code::macros {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code::macros 0.1
+package provide term::ansi::code::macros 0.2
 
 ##
 # ### ### ### ######### ######### #########

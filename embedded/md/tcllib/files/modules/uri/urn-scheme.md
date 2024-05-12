@@ -1,7 +1,7 @@
 
 [//000000001]: # (uri\_urn \- Tcl Uniform Resource Identifier Management)
 [//000000002]: # (Generated from file 'urn\-scheme\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (uri\_urn\(n\) 1\.0\.3 tcllib "Tcl Uniform Resource Identifier Management")
+[//000000003]: # (uri\_urn\(n\) 1\.0\.4 tcllib "Tcl Uniform Resource Identifier Management")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ uri\_urn \- URI utilities, URN scheme
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require uri::urn ?1\.0\.3?  
+package require Tcl 8\.5 9  
+package require uri::urn ?1\.0\.4?  
 
 [__uri::urn::quote__ *url*](#1)  
 [__uri::urn::unquote__ *url*](#2)  

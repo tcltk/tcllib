@@ -9,18 +9,18 @@
 
 package require pcx
 pcx::register textutil::repeat
-pcx::tcldep   0.7 needs tcl 8.2
+pcx::tcldep   0.8 needs tcl 8.2
 
 namespace eval ::textutil::repeat {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 0.7 std ::textutil::repeat::blank \
+pcx::check 0.8 std ::textutil::repeat::blank \
     {checkSimpleArgs 1 1 {
 	checkInt
     }}
-pcx::check 0.7 std ::textutil::repeat::strRepeat \
+pcx::check 0.8 std ::textutil::repeat::strRepeat \
     {checkSimpleArgs 2 2 {
 	checkWord
 	checkInt

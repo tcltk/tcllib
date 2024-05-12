@@ -41,8 +41,8 @@ doctools::idx::parse \- Parsing text in docidx format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require doctools::idx::parse ?0\.1?  
-package require Tcl 8\.4  
+package require doctools::idx::parse ?0\.2?  
+package require Tcl 8\.5 9  
 package require doctools::idx::structure  
 package require doctools::msgcat  
 package require doctools::tcl::parse  

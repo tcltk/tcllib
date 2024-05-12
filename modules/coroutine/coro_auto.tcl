@@ -2,10 +2,10 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine::auto 1.2
+# Package coroutine::auto 1.3
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
-# Meta require         {coroutine 1.3}
+# Meta require         {coroutine 1.4}
 # Meta license         BSD
 # Meta as::author      {Andreas Kupries}
 # Meta as::origin      http://wiki.tcl.tk/21555
@@ -23,8 +23,8 @@
 # # ## ### ##### ######## #############
 ## Requisites, and ensemble setup.
 
-package require Tcl 8.6
-package require coroutine 1.3
+package require Tcl 8.6 9
+package require coroutine 1.4
 
 namespace eval ::coroutine::auto {}
 
@@ -399,5 +399,5 @@ proc ::coroutine::auto::wrap_socket args {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1.2
+package provide coroutine::auto 1.3
 return

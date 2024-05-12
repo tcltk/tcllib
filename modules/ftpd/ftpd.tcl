@@ -14,7 +14,7 @@
 
 # Define the ftpd package version 1.2.5
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 namespace eval ::ftpd {
 
     # The listening port.
@@ -2004,7 +2004,7 @@ proc ::ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.3
+package provide ftpd 1.4
 
 
 ##

@@ -33,7 +33,7 @@ pop3d::udb \- Simple user database for pop3d
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require pop3d::udb ?1\.0\.1?  
 
 [__::pop3d::udb::new__ ?*dbName*?](#1)  

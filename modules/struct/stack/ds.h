@@ -5,7 +5,7 @@
 #ifndef _DS_H
 #define _DS_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 
 /* Forward declarations of references to stacks.
  */
@@ -19,10 +19,9 @@ typedef struct S* SPtr;
  */
 
 typedef struct S {
-    Tcl_Command cmd; /* Token of the object command for
-		      * the stack */
-    int      max;    /* Max number of objects in stack seen so far */
-    Tcl_Obj* stack;  /* List object holding the stack */
+    Tcl_Command cmd;   /* Token of the object command for the stack */
+    Tcl_Size    max;   /* Max number of objects in stack seen so far */
+    Tcl_Obj*    stack; /* List object holding the stack */
 } S;
 
 #endif /* _DS_H */

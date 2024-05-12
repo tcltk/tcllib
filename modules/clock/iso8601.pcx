@@ -9,7 +9,7 @@
 
 package require pcx
 pcx::register clock::iso8601
-pcx::tcldep   0.1 needs tcl 8.5
+pcx::tcldep   0.2 needs tcl 8.5
 
 namespace eval ::clock::iso8601 {}
 
@@ -17,7 +17,7 @@ namespace eval ::clock::iso8601 {}
 #pcx::scan <VERSION> <NAME> <RULE>
 
 # Switches are per clock scan (Tcl 8.5), restricted subset.
-pcx::check 0.1 std ::clock::iso8601::parse_date \
+pcx::check 0.2 std ::clock::iso8601::parse_date \
     {checkSimpleArgs 1 -1 {
 	checkWord
 	{checkSwitches 0 {
@@ -27,7 +27,7 @@ pcx::check 0.1 std ::clock::iso8601::parse_date \
 	    {-gmt      checkBoolean}
 	} {}}
     }}
-pcx::check 0.1 std ::clock::iso8601::parse_time \
+pcx::check 0.2 std ::clock::iso8601::parse_time \
     {checkSimpleArgs 1 -1 {
 	checkWord
 	{checkSwitches 0 {

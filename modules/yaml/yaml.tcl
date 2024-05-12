@@ -12,10 +12,10 @@
 #
 #
 
-package require Tcl 8.5
-package provide yaml 0.4.1
+package require Tcl 8.5 9
+package provide yaml 0.4.2
 package require cmdline
-package require huddle 0.1.7
+package require huddle 0.1.8
 
 namespace eval ::yaml {
     namespace export load setOptions dict2dump list2dump
@@ -145,8 +145,8 @@ proc ::yaml::dict2yaml {dict {indent 2} {wordwrap 40}} {
 }
 
 proc ::yaml::huddle2yaml {huddle {indent 2} {wordwrap 40}} {
-    set yaml::_dumpIndent   $indent
-    set yaml::_dumpWordWrap $wordwrap
+    set ::yaml::_dumpIndent   $indent
+    set ::yaml::_dumpWordWrap $wordwrap
 
     # Start at the base of the array and move through it.
     set out [join [list "---\n" [_imp_huddle2yaml $huddle] "\n"] ""]

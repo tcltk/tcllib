@@ -15,9 +15,9 @@
 #  Copyright (C) Mayo Foundation.  All Rights Reserved.
 #
 #-----------------------------------------------------------------
-package provide units 2.2.1
+package provide units 2.2.2
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 namespace eval ::units {
 

@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'dexec\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2007 Bogdan <rftghost@users\.sourceforge\.net>)
-[//000000005]: # (grammar::fa::dexec\(n\) 0\.2 tcllib "Finite automaton operations and usage")
+[//000000005]: # (grammar::fa::dexec\(n\) 0\.3 tcllib "Finite automaton operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,9 +42,9 @@ grammar::fa::dexec \- Execute deterministic finite automatons
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
-package require grammar::fa::dexec ?0\.2?  
+package require grammar::fa::dexec ?0\.3?  
 
 [__::grammar::fa::dexec__ *daName* *fa* ?__\-any__ *any*? ?__\-command__ *cmdprefix*?](#1)  
 [__daName__ *option* ?*arg arg \.\.\.*?](#2)  

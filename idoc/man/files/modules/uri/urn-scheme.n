@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'urn-scheme\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "uri_urn" n 1\&.0\&.3 tcllib "Tcl Uniform Resource Identifier Management"
+.TH "uri_urn" n 1\&.0\&.4 tcllib "Tcl Uniform Resource Identifier Management"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uri_urn \- URI utilities, URN scheme
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBuri::urn  ?1\&.0\&.3?\fR
+package require \fBuri::urn ?1\&.0\&.4?\fR
 .sp
 \fBuri::urn::quote\fR \fIurl\fR
 .sp

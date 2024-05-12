@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 if {[package vcompare [package present Tcl] 8.5] >= 0} {
     # Tcl 8.5+, extended package version numbers.
     # Require 1.3 and beyond, regardless of major version number.
@@ -1239,4 +1239,4 @@ snit::type ::grammar::fa {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa 0.5
+package provide grammar::fa 0.6

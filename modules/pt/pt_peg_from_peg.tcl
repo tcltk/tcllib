@@ -17,7 +17,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require pt::peg  ; # Verification that the input is proper.
 #package require pt::peg::interp
 #package require pt::peg::container::peg
@@ -390,5 +390,5 @@ proc pt::peg::from::peg::GEN::XDIGIT {s e} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::from::peg 1.0.3
+package provide pt::peg::from::peg 1.0.4
 return

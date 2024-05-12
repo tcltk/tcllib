@@ -4,7 +4,7 @@
 [//000000003]: # (Copyright &copy; 2004\-2008 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2004 Ed Hume <http://www\.hume\.com/contact\.us\.htm>)
 [//000000005]: # (Copyright &copy; 2008 Michael Buadin <relaxkmike@users\.sourceforge\.net>)
-[//000000006]: # (math::linearalgebra\(n\) 1\.1\.5 tcllib "Tcl Math Library")
+[//000000006]: # (math::linearalgebra\(n\) 1\.1\.7 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,8 +45,8 @@ math::linearalgebra \- Linear Algebra
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
-package require math::linearalgebra ?1\.1\.5?  
+package require Tcl ?8\.5 9?  
+package require math::linearalgebra ?1\.1\.7?  
 
 [__::math::linearalgebra::mkVector__ *ndim* *value*](#1)  
 [__::math::linearalgebra::mkUnitVector__ *ndim* *ndir*](#2)  

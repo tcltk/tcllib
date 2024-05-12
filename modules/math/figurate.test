@@ -433,7 +433,7 @@ test "figurate-1.3" "Centered square numbers" \
             lappend result [::math::figurate::centeredSquare $n]
         }
         set result
-    } -result {1 5 13  25 41 61  85 113 145 181}
+    } -result {0 1 5 13  25 41 61  85 113 145}
 
 test "figurate-1.4" "Centered cube numbers" \
     -match numbers -body {
@@ -443,7 +443,7 @@ test "figurate-1.4" "Centered cube numbers" \
             lappend result [::math::figurate::centeredCube $n]
         }
         set result
-    } -result {1 9 35  91 189 341  559 855 1241 1729}
+    } -result {0 1 9 35  91 189 341  559 855 1241}
 
 test "figurate-1.5" "Centered pentagonal numbers" \
     -match numbers -body {
@@ -453,7 +453,7 @@ test "figurate-1.5" "Centered pentagonal numbers" \
             lappend result [::math::figurate::centeredPentagonal $n]
         }
         set result
-    } -result {1 6 16  31 51 76  106 141 181 226}
+    } -result {0 1 6 16  31 51 76  106 141 181}
 
 test "figurate-1.6" "Centered hexagonal numbers" \
     -match numbers -body {
@@ -463,7 +463,7 @@ test "figurate-1.6" "Centered hexagonal numbers" \
             lappend result [::math::figurate::centeredHexagonal $n]
         }
         set result
-    } -result {1 7 19  37 61 91  127 169 217 271}
+    } -result {0 1 7 19  37 61 91  127 169 217}
 
 test "figurate-1.7" "Decagonal numbers" \
     -match numbers -body {
@@ -554,7 +554,7 @@ test "figurate-1.14" "Centered triangular numbers" \
             lappend result [::math::figurate::centeredTriangular $n]
         }
         set result
-    } -result {1 4 10 19 31 46 64 85 109 136}
+    } -result {0 1 4 10 19 31 46 64 85 109}
 
 
 # Skipping as trivial: square, cubic, biquadratic

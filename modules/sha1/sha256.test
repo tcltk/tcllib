@@ -4,8 +4,6 @@
 # This file contains a collection of tests for one or more of the Tcl
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
-#
-# RCS: @(#) $Id: sha256.test,v 1.6 2006/10/13 06:23:29 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -13,7 +11,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -83,6 +81,21 @@ TestAccelDo sha2 impl {
         } [list 0 $hash] ; # {}
         incr n
     }
+
+    set text "\uFFFE\u0000\u0001\u0002"
+    set hash "091190c96cd3aa8b0db5c92ff856b174156fa695d47dde3f9e08438f2e9c4740"
+
+    test sha256-$impl-5.0 "sha256 unicode hash \"$text\"" -body {
+        ::sha2::sha256 -hex [encoding convertto utf-8 $text]
+    } -result $hash ; # {}
+
+    set hash "64bb944266bd95aa08d9a65bf40f79f233e4f229dcc68254a45381de"
+
+    test sha224-$impl-5.0 "sha224 unicode hash \"$text\"" -body {
+        ::sha2::sha224 -hex [encoding convertto utf-8 $text]
+    } -result $hash ; # {}
+
+    unset text hash
 }
 
 # -------------------------------------------------------------------------

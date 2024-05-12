@@ -9,7 +9,7 @@
 
 # @mdgen EXCLUDE: graph_c.tcl
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::struct::graph {}
 
@@ -33,7 +33,6 @@ proc ::struct::graph::LoadAccelerator {key} {
     switch -exact -- $key {
 	critcl {
 	    # Critcl implementation of graph requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::graph_critcl]]
 	}
@@ -175,4 +174,4 @@ namespace eval ::struct {
     namespace export graph
 }
 
-package provide struct::graph 2.4.3
+package provide struct::graph 2.4.4

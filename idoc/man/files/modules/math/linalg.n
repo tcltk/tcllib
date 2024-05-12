@@ -4,7 +4,7 @@
 '\" Copyright (c) 2004 Ed Hume <http://www\&.hume\&.com/contact\&.us\&.htm>
 '\" Copyright (c) 2008 Michael Buadin <relaxkmike@users\&.sourceforge\&.net>
 '\"
-.TH "math::linearalgebra" n 1\&.1\&.5 tcllib "Tcl Math Library"
+.TH "math::linearalgebra" n 1\&.1\&.7 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::linearalgebra \- Linear Algebra
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.4?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::linearalgebra  ?1\&.1\&.5?\fR
+package require \fBmath::linearalgebra ?1\&.1\&.7?\fR
 .sp
 \fB::math::linearalgebra::mkVector\fR \fIndim\fR \fIvalue\fR
 .sp

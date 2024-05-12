@@ -38,14 +38,7 @@ test queue-${impl}-0.2 {queue errors} badTest {
     set msg
 } "wrong # args: should be \"$MY option ?arg arg ...?\""
 
-test queue-${impl}-0.3.0 {queue errors} tcl8.4minus {
-    queue myqueue
-    catch {myqueue foo} msg
-    myqueue destroy
-    set msg
-} {bad option "foo": must be clear, destroy, get, peek, put, size, or unget}
-
-test queue-${impl}-0.3.1.0 {queue errors} {tcl8.5plus !queue_oo} {
+test queue-${impl}-0.3.1.0 {queue errors} !queue_oo {
     queue myqueue
     catch {myqueue foo} msg
     myqueue destroy
@@ -55,7 +48,7 @@ test queue-${impl}-0.3.1.0 {queue errors} {tcl8.5plus !queue_oo} {
        {bad option "foo": must be clear, destroy, get, peek, put, size, or unget} \
       ]
 
-test queue-${impl}-0.3.1.1 {queue errors} {tcl8.5plus queue_oo} {
+test queue-${impl}-0.3.1.1 {queue errors} queue_oo {
     queue myqueue
     catch {myqueue foo} msg
     myqueue destroy

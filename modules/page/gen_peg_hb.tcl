@@ -76,4 +76,4 @@ namespace eval ::page::gen::peg::hb {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::gen::peg::hb 0.1
+package provide page::gen::peg::hb 0.2

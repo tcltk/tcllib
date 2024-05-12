@@ -35,7 +35,7 @@ page\_util\_norm\_peg \- page AST normalization, PEG
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require page::util::norm\_peg ?0\.1?  
+package require page::util::norm\_peg ?0\.2?  
 package require snit  
 
 [__::page::util::norm::peg__ *tree*](#1)  

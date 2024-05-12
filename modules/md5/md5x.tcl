@@ -16,7 +16,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::md5 {
     variable  accel
@@ -728,7 +728,7 @@ namespace eval ::md5 {
     unset    e
 }
 
-package provide md5 2.0.8
+package provide md5 2.0.9
 
 # -------------------------------------------------------------------------
 # Local Variables:

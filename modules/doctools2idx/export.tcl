@@ -14,7 +14,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require struct::map
 package require doctools::idx::structure
 package require pluginmgr
@@ -119,5 +119,5 @@ snit::type ::doctools::idx::export {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::export 0.2.1
+package provide doctools::idx::export 0.2.2
 return

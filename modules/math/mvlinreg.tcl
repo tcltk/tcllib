@@ -1,4 +1,4 @@
-# mvreglin.tcl --
+# mvlinreg.tcl --
 #     Addition to the statistics package
 #     Copyright 2007 Eric Kemp-Benedict
 #     Released under the BSD license under any terms

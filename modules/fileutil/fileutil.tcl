@@ -9,9 +9,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require cmdline
-package provide fileutil 1.16.1
+package provide fileutil 1.16.2
 
 namespace eval ::fileutil {
     namespace export \
@@ -196,237 +196,55 @@ proc ::fileutil::FADD {filename} {
     return
 }
 
-# The next three helper commands for fileutil::find depend strongly on
-# the version of Tcl, and partially on the platform.
+# Tcl 8.5+.
+# We have to check readability of "current" on our own, glob
+# changed to error out instead of returning nothing.
 
-# 1. The -directory and -types switches were added to glob in Tcl
-#    8.3. This means that we have to emulate them for Tcl 8.2.
-#
-# 2. In Tcl 8.3 using -types f will return only true files, but not
-#    links to files. This changed in 8.4+ where links to files are
-#    returned as well. So for 8.3 we have to handle the links
-#    separately (-types l) and also filter on our own.
-#    Note that Windows file links are hard links which are reported by
-#    -types f, but not -types l, so we can optimize that for the two
-#    platforms.
-#
-#    Note further that we have to handle broken links on our own. They
-#    are not returned by glob yet we want them in the output.
-#
-# 3. In Tcl 8.3 we also have a crashing bug in glob (SIGABRT, "stat on
-#    a known file") when trying to perform 'glob -types {hidden f}' on
-#    a directory without e'x'ecute permissions. We code around by
-#    testing if we can cd into the directory (stat might return enough
-#    information too (mode), but possibly also not portable).
-#
-#    For Tcl 8.2 and 8.4+ glob simply delivers an empty result
-#    (-nocomplain), without crashing. For them this command is defined
-#    so that the bytecode compiler removes it from the bytecode.
-#
-#    This bug made the ACCESS helper necessary.
-#    We code around the problem by testing if we can cd into the
-#    directory (stat might return enough information too (mode), but
-#    possibly also not portable).
+proc ::fileutil::ACCESS {args} {}
 
-if {[package vsatisfies [package present Tcl] 8.5]} {
-    # Tcl 8.5+.
-    # We have to check readability of "current" on our own, glob
-    # changed to error out instead of returning nothing.
-
-    proc ::fileutil::ACCESS {args} {}
-
-    proc ::fileutil::GLOBF {current} {
-	if {![file readable $current] ||
-	    [BadLink $current]} {
-	    return {}
-	}
-
-	set res [lsort -unique [concat \
-		     [glob -nocomplain -directory $current -types f          -- *] \
-		     [glob -nocomplain -directory $current -types {hidden f} -- *]]]
-
-	# Look for broken links (They are reported as neither file nor directory).
-	foreach l [lsort -unique [concat \
-		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
-	    if {[file isfile      $l]} continue
-	    if {[file isdirectory $l]} continue
-	    lappend res $l
-	}
-	return [lsort -unique $res]
+proc ::fileutil::GLOBF {current} {
+    if {![file readable $current] ||
+	[BadLink $current]} {
+	return {}
     }
 
-    proc ::fileutil::GLOBD {current} {
-	if {![file readable $current] ||
-	    [BadLink $current]} {
-	    return {}
-	}
+    set res [lsort -unique [concat \
+				[glob -nocomplain -directory $current -types f          -- *] \
+				[glob -nocomplain -directory $current -types {hidden f} -- *]]]
 
-	lsort -unique [concat \
-	   [glob -nocomplain -directory $current -types d          -- *] \
-	   [glob -nocomplain -directory $current -types {hidden d} -- *]]
+    # Look for broken links (They are reported as neither file nor directory).
+    foreach l [lsort -unique [concat \
+				  [glob -nocomplain -directory $current -types l          -- *] \
+				  [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
+	if {[file isfile      $l]} continue
+	if {[file isdirectory $l]} continue
+	lappend res $l
+    }
+    return [lsort -unique $res]
+}
+
+proc ::fileutil::GLOBD {current} {
+    if {![file readable $current] ||
+	[BadLink $current]} {
+	return {}
     }
 
-    proc ::fileutil::BadLink {current} {
-	if {[file type $current] ne "link"} { return no }
+    lsort -unique [concat \
+		       [glob -nocomplain -directory $current -types d          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden d} -- *]]
+}
 
-	set dst [file join [file dirname $current] [file readlink $current]]
+proc ::fileutil::BadLink {current} {
+    if {[file type $current] ne "link"} { return no }
 
-	if {![file exists   $dst] ||
-	    ![file readable $dst]} {
-	    return yes
-	}
+    set dst [file join [file dirname $current] [file readlink $current]]
 
-	return no
-    }
-} elseif {[package vsatisfies [package present Tcl] 8.4]} {
-    # Tcl 8.4+.
-    # (Ad 1) We have -directory, and -types,
-    # (Ad 2) Links are returned for -types f/d if they refer to files/dirs.
-    # (Ad 3) No bug to code around
-
-    proc ::fileutil::ACCESS {args} {}
-
-    proc ::fileutil::GLOBF {current} {
-	set res [lsort -unique [concat \
-		    [glob -nocomplain -directory $current -types f          -- *] \
-		    [glob -nocomplain -directory $current -types {hidden f} -- *]]]
-
-	# Look for broken links (They are reported as neither file nor directory).
-	foreach l [lsort -unique [concat \
-		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
-	    if {[file isfile      $l]} continue
-	    if {[file isdirectory $l]} continue
-	    lappend res $l
-	}
-	return [lsort -unique $res]
+    if {![file exists   $dst] ||
+	![file readable $dst]} {
+	return yes
     }
 
-    proc ::fileutil::GLOBD {current} {
-	lsort -unique [concat \
-	    [glob -nocomplain -directory $current -types d          -- *] \
-	    [glob -nocomplain -directory $current -types {hidden d} -- *]]
-    }
-
-} elseif {[package vsatisfies [package present Tcl] 8.3]} {
-    # 8.3.
-    # (Ad 1) We have -directory, and -types,
-    # (Ad 2) Links are NOT returned for -types f/d, collect separately.
-    #        No symbolic file links on Windows.
-    # (Ad 3) Bug to code around.
-
-    proc ::fileutil::ACCESS {current} {
-	if {[catch {
-	    set h [pwd] ; cd $current ; cd $h
-	}]} {return -code continue}
-	return
-    }
-
-    if {[string equal $::tcl_platform(platform) windows]} {
-	proc ::fileutil::GLOBF {current} {
-	    concat \
-		[glob -nocomplain -directory $current -types f          -- *] \
-		[glob -nocomplain -directory $current -types {hidden f} -- *]]
-	}
-    } else {
-	proc ::fileutil::GLOBF {current} {
-	    set l [concat \
-		       [glob -nocomplain -directory $current -types f          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden f} -- *]]
-
-	    foreach x [concat \
-			   [glob -nocomplain -directory $current -types l          -- *] \
-			   [glob -nocomplain -directory $current -types {hidden l} -- *]] {
-		if {[file isdirectory $x]} continue
-		# We have now accepted files, links to files, and broken links.
-		lappend l $x
-	    }
-
-	    return $l
-	}
-    }
-
-    proc ::fileutil::GLOBD {current} {
-	set l [concat \
-		   [glob -nocomplain -directory $current -types d          -- *] \
-		   [glob -nocomplain -directory $current -types {hidden d} -- *]]
-
-	foreach x [concat \
-		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *]] {
-	    if {![file isdirectory $x]} continue
-	    lappend l $x
-	}
-
-	return $l
-    }
-} else {
-    # 8.2.
-    # (Ad 1,2,3) We do not have -directory, nor -types. Full emulation required.
-
-    proc ::fileutil::ACCESS {args} {}
-
-    if {[string equal $::tcl_platform(platform) windows]} {
-	# Hidden files cannot be handled by Tcl 8.2 in glob. We have
-	# to punt.
-
-	proc ::fileutil::GLOBF {current} {
-	    set current \\[join [split $current {}] \\]
-	    set res {}
-	    foreach x [glob -nocomplain -- [file join $current *]] {
-		if {[file isdirectory $x]} continue
-		if {[catch {file type $x}]} continue
-		# We have now accepted files, links to files, and
-		# broken links. We may also have accepted a directory
-		# as well, if the current path was inaccessible. This
-		# however will cause 'file type' to throw an error,
-		# hence the second check.
-		lappend res $x
-	    }
-	    return $res
-	}
-
-	proc ::fileutil::GLOBD {current} {
-	    set current \\[join [split $current {}] \\]
-	    set res {}
-	    foreach x [glob -nocomplain -- [file join $current *]] {
-		if {![file isdirectory $x]} continue
-		lappend res $x
-	    }
-	    return $res
-	}
-    } else {
-	# Hidden files on Unix are dot-files. We emulate the switch
-	# '-types hidden' by using an explicit pattern.
-
-	proc ::fileutil::GLOBF {current} {
-	    set current \\[join [split $current {}] \\]
-	    set res {}
-	    foreach x [glob -nocomplain -- [file join $current *] [file join $current .*]] {
-		if {[file isdirectory $x]} continue
-		if {[catch {file type $x}]} continue
-		# We have now accepted files, links to files, and
-		# broken links. We may also have accepted a directory
-		# as well, if the current path was inaccessible. This
-		# however will cause 'file type' to throw an error,
-		# hence the second check.
-
-		lappend res $x
-	    }
-	    return $res
-	}
-
-	proc ::fileutil::GLOBD {current} {
-	    set current \\[join [split $current {}] \\]
-	    set res {}
-	    foreach x [glob -nocomplain -- $current/* [file join $current .*]] {
-		if {![file isdirectory $x]} continue
-		lappend res $x
-	    }
-	    return $res
-	}
-    }
+    return no
 }
 
 # ::fileutil::findByPattern --
@@ -1459,56 +1277,50 @@ proc ::fileutil::foreachLine {var filename cmd} {
 # Errors:
 #	Both of "-r" and "-t" cannot be specified.
 
-if {[package vsatisfies [package provide Tcl] 8.3]} {
-    namespace eval ::fileutil {
-	namespace export touch
+proc ::fileutil::touch {args} {
+    # Don't bother catching errors, just let them propagate up
+
+    set options {
+        {a          "set the atime only"}
+        {m          "set the mtime only"}
+        {c          "do not create non-existant files"}
+        {r.arg  ""  "use time from ref_file"}
+        {t.arg  -1  "use specified time"}
     }
-
-    proc ::fileutil::touch {args} {
-        # Don't bother catching errors, just let them propagate up
-
-        set options {
-            {a          "set the atime only"}
-            {m          "set the mtime only"}
-            {c          "do not create non-existant files"}
-            {r.arg  ""  "use time from ref_file"}
-            {t.arg  -1  "use specified time"}
-        }
-        set usage ": [lindex [info level 0] 0]\
+    set usage ": [lindex [info level 0] 0]\
                       \[options] filename ...\noptions:"
-        array set params [::cmdline::getoptions args $options $usage]
+    array set params [::cmdline::getoptions args $options $usage]
 
-        # process -a and -m options
-        set set_atime [set set_mtime "true"]
-        if {  $params(a) && ! $params(m)} {set set_mtime "false"}
-        if {! $params(a) &&   $params(m)} {set set_atime "false"}
+    # process -a and -m options
+    set set_atime [set set_mtime "true"]
+    if {  $params(a) && ! $params(m)} {set set_mtime "false"}
+    if {! $params(a) &&   $params(m)} {set set_atime "false"}
 
-        # process -r and -t
-        set has_t [expr {$params(t) != -1}]
-        set has_r [expr {[string length $params(r)] > 0}]
-        if {$has_t && $has_r} {
-            return -code error "Cannot specify both -r and -t"
-        } elseif {$has_t} {
-            set atime [set mtime $params(t)]
-        } elseif {$has_r} {
-            file stat $params(r) stat
-            set atime $stat(atime)
-            set mtime $stat(mtime)
-        } else {
-            set atime [set mtime [clock seconds]]
-        }
-
-        # do it
-        foreach filename $args {
-            if {! [file exists $filename]} {
-                if {$params(c)} {continue}
-                close [open $filename w]
-            }
-            if {$set_atime} {file atime $filename $atime}
-            if {$set_mtime} {file mtime $filename $mtime}
-        }
-        return
+    # process -r and -t
+    set has_t [expr {$params(t) != -1}]
+    set has_r [expr {[string length $params(r)] > 0}]
+    if {$has_t && $has_r} {
+        return -code error "Cannot specify both -r and -t"
+    } elseif {$has_t} {
+        set atime [set mtime $params(t)]
+    } elseif {$has_r} {
+        file stat $params(r) stat
+        set atime $stat(atime)
+        set mtime $stat(mtime)
+    } else {
+        set atime [set mtime [clock seconds]]
     }
+
+    # do it
+    foreach filename $args {
+        if {! [file exists $filename]} {
+            if {$params(c)} {continue}
+            close [open $filename w]
+        }
+        if {$set_atime} {file atime $filename $atime}
+        if {$set_mtime} {file mtime $filename $mtime}
+    }
+    return
 }
 
 # ::fileutil::fileType --
@@ -1921,7 +1733,7 @@ proc ::fileutil::MakeTempDir {config} {
 	if {[catch {
 	    file mkdir $path
 	    if {$::tcl_platform(platform) eq "unix"} {
-		file attributes $path -permissions 0700
+		file attributes $path -permissions 0o700
 	    }
 	}]} continue
 

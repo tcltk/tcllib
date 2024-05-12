@@ -21,7 +21,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 # For Tcl 8.{3,4} only snit1 of a suitable patchlevel is possible.
 package require snit 1.3
@@ -460,4 +460,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 1.2
+package provide wip 1.3

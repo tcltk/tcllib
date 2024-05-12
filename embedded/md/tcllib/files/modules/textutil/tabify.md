@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::tabify \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'tabify\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::tabify\(n\) 0\.7 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil::tabify\(n\) 0\.8 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ textutil::tabify \- Procedures to \(un\)tabify strings
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require textutil::tabify ?0\.7?  
+package require Tcl 8\.5 9  
+package require textutil::tabify ?0\.8?  
 
 [__::textutil::tabify::tabify__ *string* ?*num*?](#1)  
 [__::textutil::tabify::tabify2__ *string* ?*num*?](#2)  

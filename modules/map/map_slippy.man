@@ -1,5 +1,6 @@
+[vset VERSION 0.10]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::slippy n 0.5]
+[manpage_begin map::slippy n [vset VERSION]]
 [keywords geodesy]
 [keywords geography]
 [keywords latitute]
@@ -10,176 +11,387 @@
 [keywords zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Common code for slippy based map packages}]
-[require Tcl 8.4]
-[require Tk 8.4]
-[require map::slippy [opt 0.5]]
+[require Tcl "8.6 9"]
+[require map::slippy [opt [vset VERSION]]]
 [description]
 
-This package provides a number of methods doing things needed by all
-types of slippy-based map packages.
+This package provides a number of methods doing things needed by all types of slippy-based map
+packages.
+
+[para][strong BEWARE], [strong Attention] Version [strong 0.9] is [strong {NOT backward compatible}]
+with version 0.7 and earlier.  The entire API was [strong {heavily revised and changed}].
+
+[para][strong Note:] For the representation of locations in the various coordinate systems used by
+the commands of this package please read section [sectref {Coordinate systems}]. The command
+descriptions will not repeat them, and assume that they are understood already.
+
+[section {Coordinate systems}]
+[include inc/map_slippy_coordinates.inc]
 
 [section API]
 
 [list_begin definitions]
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box 2point}] [arg zoom] [arg geobox]]
 
-[call [cmd ::map::slippy] [method length] [arg level]]
+The command converts the geographical box [arg geobox] to a point box in the canvas, for the
+specified [arg zoom] level, and returns that box.
 
-This method returns the width/height of a slippy-based map at the
-specified zoom [arg level], in pixels. This is, in essence, the result
-of
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box center}] [arg geobox]]
+
+The command returns the center of the geographical box [arg geobox].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box corners}] [arg geobox]]
+
+This command returns a list containing the four corner locations implied by the geographical box
+[arg geobox]. The four points are top-left, bottom-left, top-right, and bottom-right, in that order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box diameter}] [arg geobox]]
+
+The command returns the diameter of the geographical box [arg geobox], in meters.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box dimensions}] [arg geobox]]
+
+The command returns the dimensions of the geographical box [arg geobox], width and height, in this
+order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box fit}] [arg geobox] \
+	[arg canvdim] [arg zmax] [opt [arg zmin]]]
+
+This command calculates the zoom level such that the [arg geobox] will fit into a viewport given by
+[arg canvdim] (a 2-element list containing the width and height of said viewport) and returns it.
+
+[para] The zoom level will be made to fit within the range [arg zmin]...[arg zmax].
+When [arg zmin] is not specified it will default to [const 0].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box inside}] [arg geobox] [arg geo]]
+
+The command tests if the geographical location [arg geo] is contained in the geographical
+box [arg geobox] or not. It returns [const true] if so, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box limit}] [arg geobox]]
+
+This command limits the geographical box to at most 6 decimals and returns the result.
+
+[para] For geographical coordinates 6 decimals is roughly equivalent to a grid of 11.1 cm.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box opposites}] [arg geobox]]
+
+This command returns a list containing the two principal corner locations implied by the
+geographical box [arg geobox]. The two points are top-left, and bottom-right, in that order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box perimeter}] [arg geobox]]
+
+The command returns the perimeter of the geographical box [arg geobox], in meters.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box valid}] [arg geobox]]
+
+This commands tests if the specified geographical box contains only valid latitudes
+and longitudes. It returns [const true] if the box is valid, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo box valid-list}] [arg geoboxes]]
+
+This commands tests if the list of geographical boxes contains only valid latitudes
+and longitudes. It returns [const true] if all the boxes are valid, and [const false]
+else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo distance}] [arg geo1] [arg geo2]]
+
+This command computes the great-circle distance between the two geographical locations in meters and
+returns that value.
+
+[para] The code is based on
+[uri https://wiki.tcl-lang.org/page/geodesy] take on the
+[uri https://en.wikipedia.org/wiki/Haversine_formula {haversine formula}].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo distance*}] [arg closed] [arg geo]...]
+
+An extension of [cmd {map slippy geo distance}] this command computes the cumulative distance along
+the path specified by the ordered set of geographical locations in meters, and returns it.
+
+[para] If the path is marked as [arg closed] (i.e. a polygon/loop) the result contains the distance
+between last and first element of the path as well, making the result the length of the perimeter of
+the area described by the locations.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo distance-list}] [arg closed] [arg geo-list]]
+
+As a variant of [cmd {map slippy geo distance*}] this command takes the path to compute the length
+of as a single list of geographical locations, instead of a varying number of arguments.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo limit}] [arg geo]]
+
+This command limits the geographical location to at most 6 decimals and returns the result.
+
+[para] For geographical coordinates 6 decimals is roughly equivalent to a grid of 11.1 cm.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo bbox}] [arg geo]...]
+[call [cmd ::map] [method {slippy geo bbox-list}] [arg geo-list]]
+
+These two commands compute the bounding box for the specified set of geographical locations and
+return a geographical box.
+
+[para] When no geographical locations are specified the box is "[const {0 0 0 0}]".
+
+[para] The locations are specified as either a varying number of arguments, or as a single list.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo center}] [arg geo]...]
+[call [cmd ::map] [method {slippy geo center-list}] [arg geo-list]]
+
+These two commands compute the center of the bounding box for the specified set of geographical
+locations.
+
+[para] When no geographical locations are specified the center is "[const {0 0}]".
+
+[para] The locations are specified as either a varying number of arguments, or as a single list.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo diameter}] [arg geo]...]
+[call [cmd ::map] [method {slippy geo diameter-list}] [arg geo-list]]
+
+These two commands compute the diameter for the specified set of geographical locations, in meters.
+
+The diameter is the maximum of the pair-wise distances between all locations.
+
+[para] When less than two geographical locations are specified the diameter is "[const 0]".
+
+[para] The locations are specified as either a varying number of arguments, or as a single list.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo 2point}] [arg zoom] [arg geo]]
+
+This command converts the geographical location [arg geo] to a point in the canvas, for the
+specified [arg zoom] level, and returns that point.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo 2point*}] [arg zoom] [arg geo]...]
+[call [cmd ::map] [method {slippy geo 2point-list}] [arg zoom] [arg geo-list]]
+
+These two commands are extensions of [cmd {map slippy geo 2point}] which take a series of
+geographical locations as either a varying number of arguments or a single list, convert them all to
+points as per the specified [arg zoom] level and return a list of the results.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo valid}] [arg geo]]
+
+This commands tests if the specified geographical location contains only valid latitudes and
+longitudes. It returns [const true] if the location is valid, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy geo valid-list}] [arg geos]]
+
+This commands tests if the list of geographical locations contains only valid latitudes and
+longitudes. It returns [const true] if all the locations are valid, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy length}] [arg level]]
+
+This command returns the width/height of a slippy-based map at the specified zoom [arg level], in
+pixels. This is, in essence, the result of
 
 [example {
-	expr { [tiles $level] * [tile size] }
+expr { [tiles $level] * [tile size] }
 }]
 
-[call [cmd ::map::slippy] [method tiles] [arg level]]
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy limit2}] [arg x]]
+[call [cmd ::map] [method {slippy limit3}] [arg x]]
+[call [cmd ::map] [method {slippy limit6}] [arg x]]
 
-This method returns the width/height of a slippy-based map at the
-specified zoom [arg level], in [term tiles].
+This command limits the value to at most 2, 3, or 6 decimals and returns the result.
 
-[call [cmd ::map::slippy] [method {tile size}]]
+[para] For geographical coordinates 6 decimals is roughly equivalent to a grid of 11.1 cm.
 
-This method returns the width/height of a tile in a slippy-based map,
-in pixels.
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box 2geo}] [arg zoom] [arg pointbox]]
 
-[call [cmd ::map::slippy] [method {tile valid}] [arg tile] \
+The command converts the point box [arg pointbox] to a geographical box in the canvas, as per the
+specified [arg zoom] level, and returns that box.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box center}] [arg pointbox]]
+
+The command returns the center of the [arg pointbox].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box corners}] [arg pointbox]]
+
+This command returns a list containing the four corner locations implied by the point box
+[arg pointbox]. The four points are top-left, bottom-left, top-right, and bottom-right, in that
+order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box diameter}] [arg pointbox]]
+
+The command returns the diameter of the [arg pointbox], in pixels.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box dimensions}] [arg pointbox]]
+
+The command returns the dimensions of the [arg pointbox], width and height, in this order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box inside}] [arg pointbox] [arg point]]
+
+The command tests if the [arg point] is contained in the [arg pointbox] or not.
+It returns [const true] if so, and [const false] else.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box opposites}] [arg pointbox]]
+
+This command returns a list containing the two principal corner locations implied by the point box
+[arg pointbox]. The two points are top-left, and bottom-right, in that order.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point box perimeter}] [arg pointbox]]
+
+The command returns the perimeter of the [arg pointbox], in pixels.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point distance}] [arg point1] [arg point2]]
+
+This command computes the euclidena distance between the two points in pixels and returns that
+value.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point distance*}] [arg closed] [arg point]...]
+
+An extension of [cmd {map slippy point distance}] this command computes the cumulative distance
+along the path specified by the ordered set of points, and returns it.
+
+[para] If the path is marked as [arg closed] (i.e. a polygon/loop) the result contains the distance
+between last and first element of the path as well, making the result the length of the perimeter of
+the area described by the locations.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point distance-list}] [arg closed] [arg point-list]]
+
+As a variant of [cmd {map slippy point distance*}] this command takes the path to compute the length
+of as a single list of points, instead of a varying number of arguments.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point bbox}] [arg point]...]
+[call [cmd ::map] [method {slippy point bbox-list}] [arg point-list]]
+
+These two commands compute the bounding box for the specified set of points and return a point box.
+
+[para] When no points are specified the box is "[const {0 0 0 0}]".
+
+[para] The locations are specified as either a varying number of arguments, or as a single list.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point center}] [arg point]...]
+[call [cmd ::map] [method {slippy point center-list}] [arg point-list]]
+
+These two commands compute the center of the bounding box for the specified set of points.
+
+[para] When no points are specified the center is "[const {0 0}]".
+
+[para] The locations are specified as either a varying number of arguments, or as a single list.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point diameter}] [arg point]...]
+[call [cmd ::map] [method {slippy point diameter-list}] [arg point-list]]
+
+These two commands compute the diameter for the specified set of points, in pixels.
+
+The diameter is the maximum of the pair-wise distances between all locations.
+
+[para] When less than two points are specified the diameter is "[const 0]".
+
+[para] The locations are specified as either a varying number of arguments, or as a single list.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point 2geo}] [arg zoom] [arg point]]
+
+This command converts the [arg point] in the canvas, for the specified [arg zoom] level, to a
+geograhical location, and returns that location.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point 2geo*}] [arg zoom] [arg point]...]
+[call [cmd ::map] [method {slippy point 2geo-list}] [arg zoom] [arg point-list]]
+
+These two commands are extensions of [cmd {map slippy point 2geo}] which take a series of points as
+either a varying number of arguments or a single list, convert them all to geographical locations as
+per the specified [arg zoom] level and return a list of the results.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+
+[call [cmd ::map] [method {slippy point simplify radial}] [arg threshold] [arg point-list]]
+
+This command takes a path of points (as a single list), simplifies the path using the
+[term {Radial Distance}] algorithm and returns the simplified path as list of points.
+
+[para] In essence the algorithm keeps only the first of adjacent points nearer to that first point
+than the threshold, and drops the others.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy point simplify rdp}] [arg point-list]]
+
+This command takes a patch of points (as a single list), simplifies it using the
+[strong non-parametric] [term Ramer-Douglas-Peucker] algorithm and returns the simplified path as
+list of points.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy pretty-distance}] [arg x]]
+
+This methods formats the distance [arg x] (in meters) for display and returns the resulting string
+(including the chosen unit).
+
+[para] Sub-kilometer distances are limited to 2 decimals, i.e. centimeters, whereas Kilometers are
+limited to 3 decimals, i.e. meters.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy tiles}] [arg level]]
+
+This command returns the width/height of a slippy-based map at the specified zoom [arg level], in
+[term tiles].
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy tile size}]]
+
+This command returns the width/height of a tile in a slippy-based map, in pixels.
+
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy tile valid}] [arg zoom] [arg row] [arg column] \
 	[arg levels] [opt [arg msgvar]]]
 
-This method checks whether [arg tile] described a valid tile in a
-slippy-based map containing that many zoom [arg levels]. The result is
-a boolean value, [const true] if the tile is valid, and [const false]
-otherwise. For the latter a message is left in the variable named by
-[arg msgvar], should it be specified.
+This command checks if the tile described by [arg zoom], [arg row], and [arg column] is valid for a
+slippy-based map having that many zoom [arg levels], or not.
 
-[para]
+The result is a boolean value, [const true] if the tile is valid, and [const false] otherwise.
 
-A tile identifier as stored in [arg tile] is a list containing zoom
-level, tile row, and tile column, in this order. The command
-essentially checks this, i.e. the syntax, that the zoom level is
-between 0 and "[arg levels]-1", and that the row/col information is
-within the boundaries for the zoom level, i.e. 0 ...
-"[lb]tiles $zoom[rb]-1".
+In the latter case a message is left in the variable named by [arg msgvar], should it be specified.
 
-[call [cmd ::map::slippy] [method {geo 2tile}] [arg geo]]
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy valid latitude}] [arg x]]
 
-Converts a geographical location at a zoom level ([arg geo], a list
-containing zoom level, latitude, and longitude, in this order) to a
-tile identifier (list containing zoom level, row, and column) at that
-level. The tile identifier uses pure integer numbers for the tile
-coordinates, for all geographic coordinates mapping to that tile.
+This commands tests if the argument [arg x] is a valid latitude value, and returns the boolean
+result of that test. I.e. [const true] if the value is valid, and [const false] else.
 
-[call [cmd ::map::slippy] [method {geo 2tile.float}] [arg geo]]
+[comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
+[call [cmd ::map] [method {slippy valid longitude}] [arg x]]
 
-Converts a geographical location at a zoom level ([arg geo], a list
-containing zoom level, latitude, and longitude, in this order) to a
-tile identifier (list containing zoom level, row, and column) at that
-level. The tile identifier uses floating point numbers for the tile
-coordinates, representing not only the tile the geographic coordinates
-map to, but also the fractional location inside of that tile.
-
-[call [cmd ::map::slippy] [method {geo 2point}] [arg geo]]
-
-Converts a geographical location at a zoom level ([arg geo], a list
-containing zoom level, latitude, and longitude, in this order) to a
-pixel position (list containing zoom level, y, and x) at that level.
-
-[call [cmd ::map::slippy] [method {tile 2geo}] [arg tile]]
-
-Converts a tile identifier at a zoom level ([arg tile], list
-containing zoom level, row, and column) to a geographical location
-(list containing zoom level, latitude, and longitude, in this order)
-at that level.
-
-[call [cmd ::map::slippy] [method {tile 2point}] [arg tile]]
-
-Converts a tile identifier at a zoom level ([arg tile], a list
-containing zoom level, row, and column, in this order) to a pixel
-position (list containing zoom level, y, and x) at that level.
-
-[call [cmd ::map::slippy] [method {point 2geo}] [arg point]]
-
-Converts a pixel position at a zoom level ([arg point], list
-containing zoom level, y, and x) to a geographical location (list
-containing zoom level, latitude, and longitude, in this order) at that
-level.
-
-[call [cmd ::map::slippy] [method {point 2tile}] [arg point]]
-
-Converts a pixel position at a zoom level ([arg point], a list
-containing zoom level, y, and x, in this order) to a tile identifier
-(list containing zoom level, row, and column) at that level.
-
-[call [cmd ::map::slippy] [method {fit geobox}] [arg canvdim] \
-     [arg geobox] [arg zmin] [arg zmax]]
-
-Calculates the zoom level (whithin the bounds [arg zmin] and
-[arg zmax]) such that [arg geobox] (a 4-element list containing the
-latitudes and longitudes lat0, lat1, lon0 and lon1 of a geo box,
-in this order) fits into a viewport given by [arg canvdim], a
-2-element list containing the width and height of the viewport, in
-this order.
+This commands tests if the argument [arg x] is a valid longitude value, and returns the boolean
+result of that test. I.e. [const true] if the value is valid, and [const false] else.
 
 [list_end]
-
-[section {Coordinate systems}]
-
-The commands of this package operate on three distinct coordinate
-systems, which are explained below.
-
-[subsection Geographic]
-
-[term Geographic]al coordinates are represented by [term Latitude] and
-[term Longitude], each of which is measured in degrees, as they are
-essentially angles.
-
-[para] [const Zero] longitude is the [term {Greenwich meridian}], with
-positive values going [term east], and negative values going
-[term west], for a total range of +/- 180 degrees. Note that +180 and
--180 longitude are the same [term meridian], opposite to greenwich.
-
-[para] [const zero] latitude the [term Equator], with positive values
-going [term north] and negative values going [term south]. While the
-true range is +/- 90 degrees the projection used by the package
-requires us to cap the range at +/- 85.05112877983284 degrees. This
-means that north and south pole are not representable and not part of
-any map.
-
-[subsection Tiles]
-
-While [sectref Geographic]al coordinates of the previous section are
-independent of zoom level the [term {tile coordinates}] are not.
-
-[para] Generally the integer part of tile coordinates represent the
-row and column number of the tile in question, wheras the fractional
-parts signal how far inside the tile the location in question is, with
-pure integer coordinates (no fractional part) representing the upper
-left corner of the tile.
-
-[para] The zero point of the map is at the upper left corner,
-regardless of zoom level, with larger coordinates going right (east)
-and down (south), and smaller coordinates going left (west) and up
-(north). Again regardless of zxoom level.
-
-[para] Negative tile coordinates are not allowed.
-
-[para] At zoom level 0 the whole map is represented by a single,
-putting the geographic zero at 1/2, 1/2 of tile coordinates, and the
-range of tile coordinates as [lb]0...1[rb].
-
-[para] To go from a zoom level N to the next deeper level N+1 each
-tile of level N is split into its four quadrants, which then are the
-tiles of level N+1.
-
-[para] This means that at zoom level N the map is sliced (horizontally
-and vertically) into 2^N stripes, for a total of 4^N tiles, with tile
-coordinates ranging from 0 to 2^N+1.
-
-[subsection Pixels/Points]
-
-[term {pixel coordinates}], also called [term {point coordinates}] are
-in essence [sectref Tiles {tile coordinates}] scaled by the size of
-the image representing a tile. This tile size currently has a fixed
-value, [const 256].
 
 [section References]
 

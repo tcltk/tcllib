@@ -826,5 +826,5 @@ namespace eval ::struct {
     namespace export record
 }
 
-package provide struct::record 1.2.2
+package provide struct::record 1.2.3
 return

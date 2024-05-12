@@ -1121,5 +1121,5 @@ if {![llength [info commands lassign]]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide jpeg 0.5
+package provide jpeg 0.6
 

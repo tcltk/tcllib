@@ -33,7 +33,7 @@ term::ansi::send \- Output of ANSI control sequences to terminals
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::ansi::send ?0\.2?  
 
 [__::term::ansi::send::import__ ?*ns*? *\.\.\.*](#1)  

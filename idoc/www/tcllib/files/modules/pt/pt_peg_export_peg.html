@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pt::peg::export::peg - Parser Tools</title>
 <style type="text/css"><!--
     HTML {
@@ -142,7 +144,7 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.5</b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
 <li>package require <b class="pkgname">pt::peg::export::peg <span class="opt">?1?</span></b></li>
 <li>package require <b class="pkgname">pt::peg::to::peg</b></li>
 </ul>
@@ -232,7 +234,7 @@ not lend themselves too.</p>
 itself. For a tutorial / introduction to the language please go and
 read the <i class="term"><a href="pt_peg_language.html">PEG Language Tutorial</a></i>.</p>
 <pre class="doctools_example">
-PEG pe-grammar-for-peg (Grammar)
+PEG pe_grammar_for_peg (Grammar)
 	# --------------------------------------------------------------------
         # Syntactical constructs
         Grammar         &lt;- WHITESPACE Header Definition* Final EOF ;
@@ -266,7 +268,7 @@ leaf:   Ident           &lt;- ([_:] / &lt;alpha&gt;) ([_:] / &lt;alnum&gt;)* ;
                         /  CharUnicode / CharUnescaped
                         ;
 leaf:   CharSpecial     &lt;- &quot;\\&quot; [nrt'&quot;\[\]\\] ;
-leaf:   CharOctalFull   &lt;- &quot;\\&quot; [0-2][0-7][0-7] ;
+leaf:   CharOctalFull   &lt;- &quot;\\&quot; [0-3][0-7][0-7] ;
 leaf:   CharOctalPart   &lt;- &quot;\\&quot; [0-7][0-7]? ;
 leaf:   CharUnicode     &lt;- &quot;\\&quot; 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
 leaf:   CharUnescaped   &lt;- !&quot;\\&quot; . ;
@@ -330,13 +332,13 @@ END;
 classes (predefined and custom), this example can be rewritten as</p>
 <pre class="doctools_example">
 PEG calculator (Expression)
-    Sign       &lt;- [-+] 						;
-    Number     &lt;- Sign? &lt;ddigit&gt;+				;
-    Expression &lt;- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+    Sign       &lt;- [-+]                                          ;
+    Number     &lt;- Sign? &lt;ddigit&gt;+                               ;
+    Expression &lt;- Term (AddOp Term)*                            ;
     MulOp      &lt;- [*/]						;
-    Factor     &lt;- Term (AddOp Term)*				;
+    Term       &lt;- Factor (MulOp Factor)*                        ;
     AddOp      &lt;- [-+]						;
-    Term       &lt;- Number					;
+    Factor     &lt;- '(' Expression ')' / Number                   ;
 END;
 </pre>
 </div>

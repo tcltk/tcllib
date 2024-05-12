@@ -9,7 +9,7 @@
 # We need at least version 8.2 for the package and thus the
 # benchmarks.
 
-if {![package vsatisfies [package provide Tcl] 8.2]} {
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     return
 }
 

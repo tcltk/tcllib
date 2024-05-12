@@ -2,9 +2,6 @@
 # base32.testsuite:  tests for std base32.
 #
 # Public domain
-#
-# RCS: @(#) $Id: base32.testsuite,v 1.1 2006/05/27 20:44:36 andreas_kupries Exp $
-
 # -------------------------------------------------------------------------
 
 ::tcltest::testConstraint base32_critcl [string equal $impl critcl]
@@ -31,7 +28,7 @@ test base32-${impl}-2.1 {Decode, wrong#args} -body {
 
 # -------------------------------------------------------------------------
 # 0 .. 6 are the official test vectors from RFC 3548
-# 7 .. 12 are the vectors I fot previous, non-conforming,
+# 7 .. 12 are the vectors I got from previous, non-conforming,
 #         implementation, updated for conformance.
 # 13 ..   are new vectors to cover the whole range of bytes
 
@@ -154,3 +151,22 @@ foreach {n input message} {
 	::base32::decode $input
     } -returnCodes error -result $message ; # {}
 }
+
+# -------------------------------------------------------------------------
+## Higher unicode
+
+set text    "\uFFFE\u0000\u0001\u0002"
+set encoded "56734AABAI======"
+
+test base32-${impl}-6.0 "Encode \"$text\"" -body {
+    ::base32::encode [encoding convertto utf-8 $text]
+} -result $encoded ; # {}
+
+test base32-${impl}-7.0 "Decode \"$encoded\"" -body {
+    encoding convertfrom utf-8 [::base32::decode $encoded]
+} -result $text ; # {}
+
+unset text encoded
+
+# -------------------------------------------------------------------------
+return

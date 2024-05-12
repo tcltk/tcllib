@@ -112,11 +112,11 @@ param_setcmd (RDE_STATE p, Tcl_Command c)
     RETURNVOID;
 }
 
-long int
+Tcl_Size
 param_intern (RDE_STATE p, const char* literal)
 {
-    long int res;
-    int isnew;
+    Tcl_Size res;
+    int      isnew;
     Tcl_HashEntry* hPtr;
 
     ENTER ("param_intern");
@@ -125,17 +125,17 @@ param_intern (RDE_STATE p, const char* literal)
 
     hPtr = Tcl_FindHashEntry (&p->str, literal);
     if (hPtr) {
-	res = (long int) Tcl_GetHashValue (hPtr);
+	res = (Tcl_Size) (long int) Tcl_GetHashValue (hPtr);
 	RETURN("CACHED %d",res);
     }
 
     hPtr = Tcl_CreateHashEntry(&p->str, literal, &isnew);
     ASSERT (isnew, "Should have found entry");
 
-    Tcl_SetHashValue (hPtr, p->numstr);
+    Tcl_SetHashValue (hPtr, (long int) p->numstr);
 
     if (p->numstr >= p->maxnum) {
-	long int new;
+	Tcl_Size new;
 	char**   str;
 
 	new  = 2 * (p->maxnum ? p->maxnum : 8);

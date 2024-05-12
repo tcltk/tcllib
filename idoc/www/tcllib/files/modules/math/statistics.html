@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>math::statistics - Tcl Math Library</title>
 <style type="text/css"><!--
     HTML {
@@ -105,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::statistics(n) 1 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::statistics(n) 1.6 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::statistics - Basic statistical functions and procedures</p>
 </div>
@@ -129,8 +131,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">math::statistics 1</b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">math::statistics 1.6</b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::statistics::mean</b> <i class="arg">data</i></a></li>
@@ -183,7 +185,7 @@
 <li><a href="#48"><b class="cmd">::math::statistics::logistic-model</b> <i class="arg">xdata</i> <i class="arg">ydata</i></a></li>
 <li><a href="#49"><b class="cmd">::math::statistics::logistic-probability</b> <i class="arg">coeffs</i> <i class="arg">x</i></a></li>
 <li><a href="#50"><b class="cmd">::math::statistics::tstat</b> <i class="arg">dof</i> <span class="opt">?alpha?</span></a></li>
-<li><a href="#51"><b class="cmd">::math::statistics::mv-wls</b> <i class="arg">wt1</i> <i class="arg">weights_and_values</i></a></li>
+<li><a href="#51"><b class="cmd">::math::statistics::mv-wls</b> <i class="arg">weights_and_values</i></a></li>
 <li><a href="#52"><b class="cmd">::math::statistics::mv-ols</b> <i class="arg">values</i></a></li>
 <li><a href="#53"><b class="cmd">::math::statistics::pdf-normal</b> <i class="arg">mean</i> <i class="arg">stdev</i> <i class="arg">value</i></a></li>
 <li><a href="#54"><b class="cmd">::math::statistics::pdf-lognormal</b> <i class="arg">mean</i> <i class="arg">stdev</i> <i class="arg">value</i></a></li>
@@ -896,7 +898,7 @@ the given confidence level.</p>
 <dt>float <i class="arg">alpha</i></dt>
 <dd><p>Confidence level of the t-distribution. Defaults to 0.05.</p></dd>
 </dl></dd>
-<dt><a name="51"><b class="cmd">::math::statistics::mv-wls</b> <i class="arg">wt1</i> <i class="arg">weights_and_values</i></a></dt>
+<dt><a name="51"><b class="cmd">::math::statistics::mv-wls</b> <i class="arg">weights_and_values</i></a></dt>
 <dd><p>Carries out a weighted least squares linear regression for
 the data points provided, with weights assigned to each point.</p>
 <p>The linear model is of the form</p>
@@ -925,7 +927,37 @@ for the first observation (as a sublist), the weight for the second
 observation (as a sublist) and so on. The sublists of data are organised
 as lists of the value of the dependent variable y and the independent
 variables x1, x2 to xN.</p></dd>
-</dl></dd>
+</dl>
+<p><em>Example of the use:</em>
+The weight factors are quite simple: 0.2 for negative values to indicate
+we put less trust in these observations and 1.0 for all positive values.</p>
+<pre class="doctools_example">
+# Store the value of the unicode value for the &quot;+/-&quot; character
+set pm &quot;\u00B1&quot;
+# Provide some data
+set data { 0.2 {  -.67  14.18  60.03 -7.5  }
+           1.0 { 36.97  15.52  34.24 14.61 }
+           0.2 {-29.57  21.85  83.36 -7.   }
+           0.2 {-16.9   11.79  51.67 -6.56 }
+           1.0 { 14.09  16.24  36.97 -12.84}
+           1.0 { 31.52  20.93  45.99 -25.4 }
+           1.0 { 24.05  20.69  50.27  17.27}
+           1.0 { 22.23  16.91  45.07  -4.3 }
+           1.0 { 40.79  20.49  38.92  -.73 }
+           0.2 {-10.35  17.24  58.77  18.78}}
+# Call the ols routine
+set results [::math::statistics::mv-ols $data]
+# Pretty-print the results
+puts &quot;R-squared: [lindex $results 0]&quot;
+puts &quot;Adj R-squared: [lindex $results 1]&quot;
+puts &quot;Coefficients $pm s.e. -- \[95% confidence interval\]:&quot;
+foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4] {
+    set lb [lindex $bounds 0]
+    set ub [lindex $bounds 1]
+    puts &quot;   $val $pm $se -- \[$lb to $ub\]&quot;
+}
+</pre>
+</dd>
 <dt><a name="52"><b class="cmd">::math::statistics::mv-ols</b> <i class="arg">values</i></a></dt>
 <dd><p>Carries out an ordinary least squares linear regression for
 the data points provided.</p>

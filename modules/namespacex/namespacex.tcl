@@ -12,7 +12,7 @@
 # # ## ### ##### ######## ############# ######################
 ## Requisites
 
-package require Tcl 8.5  ; # namespace ensembles, {*}
+package require Tcl 8.5 9  ; # namespace ensembles, {*}
 
 # The try command is used in the namespacex::import command. For
 # backward compatibility we will use the try package from tcllib if
@@ -332,4 +332,4 @@ proc ::namespacex::state::set {ns state} {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide namespacex 0.3
+package provide namespacex 0.4

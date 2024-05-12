@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4              ; # Required runtime.
+package require Tcl 8.5 9              ; # Required runtime.
 package require snit                 ; # OO system.
 
 # # ## ### ##### ######## ############# #####################
@@ -384,5 +384,5 @@ snit::type ::doctools::toc::structure {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::toc::structure 0.1
+package provide doctools::toc::structure 0.2
 return

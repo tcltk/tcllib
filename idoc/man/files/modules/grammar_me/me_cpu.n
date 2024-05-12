@@ -2,7 +2,7 @@
 '\" Generated from file 'me_cpu\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::me::cpu" n 0\&.2 tcllib "Grammar operations and usage"
+.TH "grammar::me::cpu" n 0\&.3 tcllib "Grammar operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::cpu \- Virtual machine implementation II for parsing token streams
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::me::cpu  ?0\&.2?\fR
+package require \fBgrammar::me::cpu ?0\&.3?\fR
 .sp
 \fB::grammar::me::cpu\fR \fImeName\fR \fImatchcode\fR
 .sp

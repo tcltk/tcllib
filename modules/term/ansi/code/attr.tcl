@@ -102,7 +102,7 @@ namespace eval ::term::ansi::code::attr {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code::attr 0.1
+package provide term::ansi::code::attr 0.2
 
 ##
 # ### ### ### ######### ######### #########

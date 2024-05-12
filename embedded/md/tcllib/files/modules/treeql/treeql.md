@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'treeql\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Colin McCormack <coldstore@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000005]: # (treeql\(n\) 1\.3\.1 tcllib "Tree Query Language")
+[//000000005]: # (treeql\(n\) 1\.3\.2 tcllib "Tree Query Language")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -64,11 +64,11 @@ treeql \- Query tree objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require snit  
 package require struct::list  
 package require struct::set  
-package require treeql ?1\.3\.1?  
+package require treeql ?1\.3\.2?  
 
 [__treeql__ *objectname* __\-tree__ *tree* ?__\-query__ *query*? ?__\-nodes__ *nodes*? ?*args*\.\.\.?](#1)  
 [*qo* __query__ *args*\.\.\.](#2)  

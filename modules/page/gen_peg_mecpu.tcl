@@ -286,4 +286,4 @@ namespace eval ::page::gen::peg::mecpu {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::gen::peg::mecpu 0.1
+package provide page::gen::peg::mecpu 0.2

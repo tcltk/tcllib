@@ -1,7 +1,7 @@
 
 [//000000001]: # (autoproxy \- HTTP protocol helper modules)
 [//000000002]: # (Generated from file 'autoproxy\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (autoproxy\(n\) 1\.7 tcllib "HTTP protocol helper modules")
+[//000000003]: # (autoproxy\(n\) 1\.8\.1 tcllib "HTTP protocol helper modules")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -48,9 +48,9 @@ autoproxy \- Automatic HTTP proxy usage and authentication
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require http ?2\.0?  
-package require autoproxy ?1\.7?  
+package require autoproxy ?1\.8\.1?  
 
 [__::autoproxy::init__](#1)  
 [__::autoproxy::cget__ *\-option*](#2)  

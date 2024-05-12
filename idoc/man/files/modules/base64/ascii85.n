@@ -2,7 +2,7 @@
 '\" Generated from file 'ascii85\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, Emiliano Gavilán
 '\"
-.TH "ascii85" n 1\&.0 tcllib "Text encoding & decoding binary data"
+.TH "ascii85" n 1\&.1 tcllib "Text encoding & decoding binary data"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 ascii85 \- ascii85-encode/decode binary data
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBascii85  ?1\&.0?\fR
+package require \fBascii85 ?1\&.1?\fR
 .sp
 \fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
 .sp

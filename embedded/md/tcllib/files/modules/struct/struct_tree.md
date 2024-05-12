@@ -43,7 +43,7 @@ struct::tree \- Create and manipulate tree objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require struct::tree ?2\.1\.1?  
 package require struct::list ?1\.5?  
 

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'pca\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::PCA" n 1\&.0 tcllib "Principal Components Analysis"
+.TH "math::PCA" n 1\&.1 tcllib "Principal Components Analysis"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::PCA \- Package for Principal Component Analysis
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.6?\fR
+package require \fBTcl ?8\&.6 9?\fR
 .sp
-package require \fBmath::linearalgebra  1\&.0\fR
+package require \fBmath::linearalgebra 1\&.1\fR
 .sp
 \fB::math::PCA::createPCA\fR \fIdata\fR ?args?
 .sp

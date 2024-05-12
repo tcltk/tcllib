@@ -32,7 +32,7 @@ namespace eval ::nameserv::common {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::common 0.1
+package provide nameserv::common 0.2
 
 ##
 # ### ### ### ######### ######### #########

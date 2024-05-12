@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'generator\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "generator" n 0\&.2 tcllib "Tcl Generator Commands"
+.TH "generator" n 0\&.3 tcllib "Tcl Generator Commands"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 generator \- Procedures for creating and using generators\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBgenerator  ?0\&.2?\fR
+package require \fBgenerator ?0\&.3?\fR
 .sp
 \fBgenerator\fR \fBdefine\fR \fIname\fR \fIparams\fR \fIbody\fR
 .sp

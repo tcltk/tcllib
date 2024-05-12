@@ -10,17 +10,16 @@
 # To build this for tcllib use sak.tcl:
 #  tclsh sak.tcl critcl
 # generates a tcllibc module.
-#
-# $Id: rc4c.tcl,v 1.4 2009/05/07 00:14:02 patthoyts Exp $
 
 package require critcl
 # @sak notprovided rc4c
-package provide rc4c 1.1.0
+package provide rc4c 1.2.0
 
 namespace eval ::rc4 {
 
     critcl::ccode {
         #include <string.h>
+        #include <stdarg.h>
 
         typedef struct RC4_CTX {
             unsigned char x;
@@ -63,10 +62,10 @@ namespace eval ::rc4 {
             char* str;
             TRACE("rc4_string_rep(%08x)\n", (long)obj);
             /* convert via a byte array to properly handle null bytes */
-            tmpObj = Tcl_NewByteArrayObj((unsigned char *)ctx, sizeof(RC4_CTX));
+            tmpObj = Tcl_NewByteArrayObj((unsigned char *)ctx, sizeof(RC4_CTX)); /* OK tcl9 */
             Tcl_IncrRefCount(tmpObj);
             
-            str = Tcl_GetStringFromObj(tmpObj, &obj->length);
+            str = Tcl_GetStringFromObj(tmpObj, &obj->length); /* OK tcl9 */
             obj->bytes = Tcl_Alloc(obj->length + 1);
             memcpy(obj->bytes, str, obj->length + 1);
             
@@ -87,7 +86,7 @@ namespace eval ::rc4 {
 #elif defined(_MSC_VER)
         __inline
 #endif
-        void swap (unsigned char *lhs, unsigned char *rhs) {
+        static void swap (unsigned char *lhs, unsigned char *rhs) {
             unsigned char t = *lhs;
             *lhs = *rhs;
             *rhs = t;
@@ -98,14 +97,15 @@ namespace eval ::rc4 {
         RC4_CTX *ctx;
         Tcl_Obj *obj;
         const unsigned char *k;
-        int n = 0, i = 0, j = 0, keylen;
+        Tcl_Size n = 0, i = 0, j = 0, keylen;
 
         if (objc != 2) {
-            Tcl_WrongNumArgs(interp, 1, objv, "keystring");
+            Tcl_WrongNumArgs(interp, 1, objv, "keystring"); /* OK tcl9 */
             return TCL_ERROR;
         }
         
-        k = Tcl_GetByteArrayFromObj(objv[1], &keylen);
+        k = Tcl_GetBytesFromObj(interp, objv[1], &keylen); /* OK tcl9 */
+	if (k == NULL) return TCL_ERROR;
 
         obj = Tcl_NewObj();
         ctx = (RC4_CTX *)Tcl_Alloc(sizeof(RC4_CTX));
@@ -132,10 +132,10 @@ namespace eval ::rc4 {
         Tcl_Obj *resObj = NULL;
         RC4_CTX *ctx = NULL;
         unsigned char *data, *res, x, y;
-        int size, n, i;
+        Tcl_Size size, n, i;
 
         if (objc != 3) {
-            Tcl_WrongNumArgs(interp, 1, objv, "key data");
+            Tcl_WrongNumArgs(interp, 1, objv, "key data"); /* OK tcl9 */
             return TCL_ERROR;
         }
 
@@ -145,7 +145,8 @@ namespace eval ::rc4 {
         }
 
         ctx = objv[1]->internalRep.otherValuePtr;
-        data = Tcl_GetByteArrayFromObj(objv[2], &size);
+        data = Tcl_GetBytesFromObj(interp, objv[2], &size); /* OK tcl9 */
+	if (data == NULL) return TCL_ERROR;
         res = (unsigned char *)Tcl_Alloc(size);
 
         x = ctx->x;
@@ -160,7 +161,7 @@ namespace eval ::rc4 {
         ctx->x = x;
         ctx->y = y;
 
-        resObj = Tcl_NewByteArrayObj(res, size);
+        resObj = Tcl_NewByteArrayObj(res, size); /* OK tcl9 */
         Tcl_SetObjResult(interp, resObj);
         Tcl_Free((char*)res);
         return TCL_OK;

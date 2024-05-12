@@ -17,7 +17,7 @@
 # # ## ### ##### ######## ############# ######################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require valtype::common
 
@@ -125,4 +125,4 @@ snit::type ::valtype::verhoeff {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::verhoeff 1
+package provide valtype::verhoeff 1.1

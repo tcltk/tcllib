@@ -47,7 +47,7 @@ page\_pluginmgr \- page plugin manager
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require page::pluginmgr ?0\.2?  
+package require page::pluginmgr ?0\.3?  
 package require fileutil  
 
 [__::page::pluginmgr::reportvia__ *cmd*](#1)  

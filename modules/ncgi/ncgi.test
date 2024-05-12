@@ -13,7 +13,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 2
 
 testing {
@@ -157,6 +157,12 @@ test ncgi-4.3 {ncgi::encode} {
 test ncgi-4.4 {ncgi::encode} {
     ncgi::encode "hello\nworld\r\tbar"
 } {hello%0D%0Aworld%0D%09bar}
+
+test ncgi-4.5 {ncgi::encode TIP 465} {
+    ncgi::decode [ncgi::encode "("]
+    # emacs: )
+} "("
+# emacs: )
 
 test ncgi-5.1 {ncgi::nvlist} {
     ncgi::reset "name=hello+world&name2=%7ewelch"

@@ -2,7 +2,7 @@
 '\" Generated from file 'connect\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "transfer::connect" n 0\&.2 tcllib "Data transfer facilities"
+.TH "transfer::connect" n 0\&.3 tcllib "Data transfer facilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 transfer::connect \- Connection setup
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  ?1\&.0?\fR
+package require \fBsnit ?1\&.0?\fR
 .sp
-package require \fBtransfer::connect  ?0\&.2?\fR
+package require \fBtransfer::connect ?0\&.3?\fR
 .sp
 \fBtransfer::connect\fR \fIobjectName\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

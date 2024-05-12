@@ -1,13 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term n 0.1]
+[manpage_begin term n 0.2]
 [keywords control]
 [keywords terminal]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {General terminal control}]
 [category  {Terminal control}]
-[require Tcl 8.4]
-[require term [opt 0.1]]
+[require Tcl "8.5 9"]
+[require term [opt 0.2]]
 [description]
 
 It is planned to have this package provide highlevel general terminal control

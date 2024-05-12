@@ -196,7 +196,7 @@ namespace eval ::term::interact::menu {
     term::ansi::send::import       vt
 }
 
-package provide term::interact::menu 0.1
+package provide term::interact::menu 0.2
 
 ##
 # ### ### ### ######### ######### #########

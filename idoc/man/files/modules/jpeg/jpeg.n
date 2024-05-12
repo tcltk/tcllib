@@ -5,7 +5,7 @@
 '\" Copyright (c) 2004-2009, Doc: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 2011, Code: Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "jpeg" n 0\&.5 tcllib "JPEG image manipulation"
+.TH "jpeg" n 0\&.6 tcllib "JPEG image manipulation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,9 +277,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 jpeg \- JPEG querying and manipulation of meta data
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBjpeg  ?0\&.5?\fR
+package require \fBjpeg ?0\&.6?\fR
 .sp
 \fB::jpeg::isJPEG\fR \fIfile\fR
 .sp

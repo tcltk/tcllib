@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin oometa n 0.7.1]
+[manpage_begin oometa n 0.7.2]
 [keywords TOOL]
 [copyright {2015 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Data registry for TclOO frameworks}]

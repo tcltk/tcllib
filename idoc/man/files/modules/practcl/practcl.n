@@ -2,7 +2,7 @@
 '\" Generated from file 'practcl\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "practcl" n 0\&.16\&.4 tcllib "The The Proper Rational API for C to Tool Command Language Module"
+.TH "practcl" n 0\&.16\&.5 tcllib "The The Proper Rational API for C to Tool Command Language Module"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 practcl \- The Practcl Module
 .SH SYNOPSIS
-package require \fBTclOO  1\&.0\fR
+package require \fBTclOO 1\&.0\fR
 .sp
 proc \fBpractcl::cat\fR \fIfname\fR
 .sp

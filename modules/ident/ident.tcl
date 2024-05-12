@@ -13,7 +13,7 @@
 # -------------------------------------------------------------------------
 # RCS: @(#) $Id: ident.tcl,v 1.2 2004/07/12 14:01:04 patthoyts Exp $
 
-package provide ident 0.42
+package provide ident 0.43
 
 namespace eval ident {
     namespace export query configure

@@ -1,4 +1,4 @@
-[vset COMM_VERSION 4.7]
+[vset COMM_VERSION 4.7.2]
 [manpage_begin comm n [vset COMM_VERSION]]
 [see_also send(n)]
 [keywords comm]
@@ -19,7 +19,7 @@
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (8.5 and later)}]
 [category  {Programming tools}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require comm [opt [vset COMM_VERSION]]]
 [description]
 

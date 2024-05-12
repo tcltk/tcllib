@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'tabify\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "textutil::tabify" n 0\&.7 tcllib "Text and string utilities, macro processing"
+.TH "textutil::tabify" n 0\&.8 tcllib "Text and string utilities, macro processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::tabify \- Procedures to (un)tabify strings
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::tabify  ?0\&.7?\fR
+package require \fBtextutil::tabify ?0\&.8?\fR
 .sp
 \fB::textutil::tabify::tabify\fR \fIstring\fR ?\fInum\fR?
 .sp

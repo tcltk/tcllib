@@ -3,8 +3,6 @@
 #
 # Copyright (c) 2006 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
-#
-# RCS: @(#) $Id: registry.test,v 1.1 2006/09/06 06:07:09 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -12,7 +10,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.3
+testsNeedTcl     8.5
 testsNeedTcltest 2.2
 
 support {

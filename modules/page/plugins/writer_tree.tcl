@@ -102,4 +102,4 @@ proc page_wrun {chan data} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::writer::tree 0.1
+package provide page::writer::tree 0.2

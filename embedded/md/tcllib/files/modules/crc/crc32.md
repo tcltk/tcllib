@@ -2,7 +2,7 @@
 [//000000001]: # (crc32 \- Cyclic Redundancy Checks)
 [//000000002]: # (Generated from file 'crc32\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Pat Thoyts)
-[//000000004]: # (crc32\(n\) 1\.3\.3 tcllib "Cyclic Redundancy Checks")
+[//000000004]: # (crc32\(n\) 1\.3\.4 tcllib "Cyclic Redundancy Checks")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,8 +45,8 @@ crc32 \- Perform a 32bit Cyclic Redundancy Check
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require crc32 ?1\.3\.3?  
+package require Tcl 8\.5 9  
+package require crc32 ?1\.3\.4?  
 
 [__::crc::crc32__ ?\-format *format*? ?\-seed *value*? \[ *\-channel chan* &#124; *\-filename file* &#124; *message* \]](#1)  
 [__::crc::Crc32Init__ ?*seed*?](#2)  

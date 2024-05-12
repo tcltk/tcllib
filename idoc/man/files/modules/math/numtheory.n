@@ -2,7 +2,7 @@
 '\" Generated from file 'numtheory\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
 '\"
-.TH "math::numtheory" n 1\&.1\&.3 tcllib "Tcl Math Library"
+.TH "math::numtheory" n 1\&.1\&.4 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::numtheory \- Number Theory
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.5?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::numtheory  ?1\&.1\&.3?\fR
+package require \fBmath::numtheory ?1\&.1\&.4?\fR
 .sp
 \fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 .sp

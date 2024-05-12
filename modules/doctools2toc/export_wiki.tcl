@@ -19,7 +19,7 @@
 
 # @mdgen NODEP: doctools::toc::export::plugin
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require doctools::toc::export::plugin ; # Presence of this
 						# pseudo package
 						# indicates execution
@@ -140,5 +140,5 @@ proc Map {id} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::wiki 0.1
+package provide doctools::toc::export::wiki 0.2
 return

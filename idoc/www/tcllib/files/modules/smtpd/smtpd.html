@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>smtpd - Tcl SMTP Server Package</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">smtpd(n) 1.5 tcllib &quot;Tcl SMTP Server Package&quot;</h1>
+<h1 class="doctools_title">smtpd(n) 1.6 tcllib &quot;Tcl SMTP Server Package&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>smtpd - Tcl SMTP server implementation</p>
 </div>
@@ -132,8 +134,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.3</b></li>
-<li>package require <b class="pkgname">smtpd <span class="opt">?1.5?</span></b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">smtpd <span class="opt">?1.6?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::smtpd::start</b> <span class="opt">?<i class="arg">myaddr</i>?</span> <span class="opt">?<i class="arg">port</i>?</span></a></li>
@@ -232,7 +234,7 @@ SMTP protocol. See the <span class="sectref"><a href="#section5">CALLBACKS</a></
 procedures.</p>
 <dl class="doctools_definitions">
 <dt><b class="option">-banner</b> <i class="arg">text</i></dt>
-<dd><p>Text of a custom banner message. The default banner is &quot;tcllib smtpd 1.5&quot;.
+<dd><p>Text of a custom banner message. The default banner is &quot;tcllib smtpd 1.6&quot;.
 Note that changing the banner does not affect the bracketing text
 in the full greeting, printing status 220, server-address, and timestamp.</p></dd>
 <dt><b class="option">-validate_host</b> <i class="arg">proc</i></dt>

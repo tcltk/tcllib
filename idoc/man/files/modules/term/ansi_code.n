@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::ansi::code \- Helper for control sequences
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::ansi::code  ?0\&.2?\fR
+package require \fBterm::ansi::code ?0\&.2?\fR
 .sp
 \fB::term::ansi::code::esc\fR \fIstr\fR
 .sp

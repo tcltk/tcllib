@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'textutil_split\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "textutil::split" n 0\&.8 tcllib "Text and string utilities, macro processing"
+.TH "textutil::split" n 0\&.9 tcllib "Text and string utilities, macro processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::split \- Procedures to split texts
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::split  ?0\&.8?\fR
+package require \fBtextutil::split ?0\&.9?\fR
 .sp
 \fB::textutil::split::splitn\fR \fIstring\fR ?\fIlen\fR?
 .sp

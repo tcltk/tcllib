@@ -6,7 +6,7 @@
 #
 # $Id: logtotext.tcl,v 1.2 2005/06/01 03:09:49 andreas_kupries Exp $
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require Tk
 package require logger
 

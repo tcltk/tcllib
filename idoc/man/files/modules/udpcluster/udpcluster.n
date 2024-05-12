@@ -2,7 +2,7 @@
 '\" Generated from file 'udpcluster\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "udpcluster" n 0\&.3\&.3 tcllib "Lightweight UDP based tool for cluster node discovery"
+.TH "udpcluster" n 0\&.3\&.4 tcllib "Lightweight UDP based tool for cluster node discovery"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,21 +274,21 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 udpcluster \- UDP Peer-to-Peer cluster
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBudpcluster  ?0\&.3\&.3?\fR
+package require \fBudpcluster ?0\&.3\&.4?\fR
 .sp
-package require \fBip \fR
+package require \fBip\fR
 .sp
-package require \fBnettool \fR
+package require \fBnettool\fR
 .sp
-package require \fBcomm \fR
+package require \fBcomm\fR
 .sp
-package require \fBinterp \fR
+package require \fBinterp\fR
 .sp
-package require \fBdicttool \fR
+package require \fBdicttool\fR
 .sp
-package require \fBcron \fR
+package require \fBcron\fR
 .sp
 .BE
 .SH DESCRIPTION

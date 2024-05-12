@@ -123,8 +123,6 @@
 
           + [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
-          + [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
-
           + [struct::pool](tcllib/files/modules/struct/pool\.md) Create and manipulate pool objects \(of discrete items\)
 
           + [struct::prioqueue](tcllib/files/modules/struct/prioqueue\.md) Create and manipulate prioqueue objects
@@ -255,11 +253,11 @@
 
           + [doctools\_plugin\_apiref](tcllib/files/modules/doctools/doctools\_plugin\_apiref\.md) doctools plugin API reference
 
-          + [dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
-
           + [dtplite](tcllib/files/apps/dtplite\.md) Lightweight DocTools Markup Processor
 
           + [mpexpand](tcllib/files/modules/doctools/mpexpand\.md) Markup processor
+
+          + [pkg\_dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
 
           + [tcldocstrip](tcllib/files/apps/tcldocstrip\.md) Tcl\-based Docstrip Processor
 
@@ -799,6 +797,10 @@
 
           + [mime](tcllib/files/modules/mime/mime\.md) Manipulation of MIME body parts
 
+          + [mkdoc](tcllib/files/modules/mkdoc/mkdoc\.md) Extracts and optionally converts Markdown comments in source code to HTML
+
+          + [mkdoc](tcllib/files/apps/mkdoc\.md) Source code documentation extractor/converter application
+
           + [rcs](tcllib/files/modules/rcs/rcs\.md) RCS low level utilities
 
           + [string::token](tcllib/files/modules/string/token\.md) Regex based iterative lexing
@@ -820,6 +822,8 @@
           + [textutil::tabify](tcllib/files/modules/textutil/tabify\.md) Procedures to \(un\)tabify strings
 
           + [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
+
+          + [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
 
           + [uuencode](tcllib/files/modules/base64/uuencode\.md) UU\-encode/decode binary data
 

@@ -8,8 +8,8 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+if {![package vsatisfies [package provide Tcl] 8.6 9]} {return}
 
 
-package ifneeded clay 0.8.6 [list source [file join $dir clay.tcl]]
+package ifneeded clay 0.8.7 [list source [file join $dir clay.tcl]]
 

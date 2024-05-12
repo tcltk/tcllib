@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'counter\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "counter" n 2\&.0\&.4 tcllib "Counters and Histograms"
+.TH "counter" n 2\&.0\&.5 tcllib "Counters and Histograms"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 counter \- Procedures for counters and histograms
 .SH SYNOPSIS
-package require \fBTcl  8\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcounter  ?2\&.0\&.4?\fR
+package require \fBcounter ?2\&.0\&.5?\fR
 .sp
 \fB::counter::init\fR \fItag args\fR
 .sp

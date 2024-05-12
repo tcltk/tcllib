@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 namespace eval ::json::write {
     namespace export \
@@ -208,5 +208,5 @@ namespace eval ::json::write {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json::write 1.0.4
+package provide json::write 1.0.5
 return

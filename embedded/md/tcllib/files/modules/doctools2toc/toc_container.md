@@ -46,7 +46,7 @@ doctools::toc \- Holding tables of contents
 # <a name='synopsis'></a>SYNOPSIS
 
 package require doctools::toc ?2?  
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require doctools::toc::structure  
 package require struct::tree  
 package require snit  

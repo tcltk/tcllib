@@ -2,7 +2,7 @@
 '\" Generated from file 'oometa\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "oometa" n 0\&.7\&.1 tcllib "Data registry for TclOO frameworks"
+.TH "oometa" n 0\&.7\&.2 tcllib "Data registry for TclOO frameworks"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

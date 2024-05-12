@@ -2,7 +2,7 @@
 [//000000001]: # (httpd \- Tcl Web Server)
 [//000000002]: # (Generated from file 'httpd\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2018 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (httpd\(n\) 4\.3\.5 tcllib "Tcl Web Server")
+[//000000004]: # (httpd\(n\) 4\.3\.6 tcllib "Tcl Web Server")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -77,7 +77,7 @@ httpd \- A TclOO and coroutine based web server
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require uuid  
 package require clay  
 package require coroutine  

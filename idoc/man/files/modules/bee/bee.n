@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bee \- BitTorrent Serialization Format Encoder/Decoder
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbee  ?0\&.1?\fR
+package require \fBbee ?0\&.1?\fR
 .sp
 \fB::bee::encodeString\fR \fIstring\fR
 .sp

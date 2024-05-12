@@ -2,7 +2,7 @@
 '\" Generated from file 'crc16\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, 2017, Pat Thoyts
 '\"
-.TH "crc16" n 1\&.1\&.4 tcllib "Cyclic Redundancy Checks"
+.TH "crc16" n 1\&.1\&.5 tcllib "Cyclic Redundancy Checks"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 crc16 \- Perform a 16bit Cyclic Redundancy Check
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcrc16  ?1\&.1\&.4?\fR
+package require \fBcrc16 ?1\&.1\&.5?\fR
 .sp
 \fB::crc::crc16\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .sp
@@ -289,6 +289,66 @@ package require \fBcrc16  ?1\&.1\&.4?\fR
 \fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .sp
 \fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::kermit\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::kermit\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::modbus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::modbus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::mcrf4xx\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::mcrf4xx\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::genibus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::genibus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::crc-x25\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::crc-x25\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::crc-sdlc\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::crc-sdlc\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::crc-usb\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::crc-usb\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::buypass\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::buypass\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::umts\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::umts\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::gsm\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::gsm\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::unknown2\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::unknown2\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::maxim\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::maxim\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::unknown3\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::unknown3\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::unknown4\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::unknown4\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.sp
+\fB::crc::cms\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.sp
+\fB::crc::cms\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -312,6 +372,66 @@ for the most common cases\&.
 \fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .TP
 \fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::kermit\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::kermit\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::modbus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::modbus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::mcrf4xx\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::mcrf4xx\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::genibus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::genibus\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::crc-x25\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::crc-x25\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::crc-sdlc\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::crc-sdlc\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::crc-usb\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::crc-usb\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::buypass\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::buypass\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::umts\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::umts\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::gsm\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::gsm\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::unknown2\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::unknown2\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::maxim\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::maxim\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::unknown3\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::unknown3\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::unknown4\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::unknown4\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
+.TP
+\fB::crc::cms\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
+.TP
+\fB::crc::cms\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 The command takes either string data or a file name and returns a checksum
 value calculated using the CRC algorithm\&. The command used sets up the
 CRC polynomial, initial value and bit ordering for the desired

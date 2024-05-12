@@ -49,7 +49,7 @@ doctools::toc \- doctoc \- Processing tables of contents
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require doctools::toc ?1\.2?  
 
 [__::doctools::toc::new__ *objectName* ?__\-option__ *value* \.\.\.?](#1)  

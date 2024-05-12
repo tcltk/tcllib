@@ -10,7 +10,7 @@
 # 
 # RCS: @(#) $Id: deleg_proc.tcl,v 1.2 2006/09/01 19:58:21 andreas_kupries Exp $
 
-package require Tcl 8.3
+package require Tcl 8.5 9
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -65,4 +65,4 @@ proc ::interp::delegate::proc {args} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide interp::delegate::proc 0.2
+package provide interp::delegate::proc 0.3

@@ -22,7 +22,7 @@
 # -------------------------------------------------------------------------
 # @mdgen EXCLUDE: sha1c.tcl
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable  accel
@@ -596,7 +596,7 @@ regsub -all -line \
     {[expr {($B << 30) | (($B >> 2) \& 0x3fffffff)}]} \
     ::sha1::SHA1Transform_body_tmp2
 
-if {[package vsatisfies [package provide Tcl] 8.5]} {
+if {[package vsatisfies [package provide Tcl] 8.5 9]} {
     proc ::sha1::SHA1Transform {token msg} $::sha1::SHA1Transform_body_tmp
 } else {
     proc ::sha1::SHA1Transform {token msg} $::sha1::SHA1Transform_body_tmp2
@@ -805,7 +805,7 @@ namespace eval ::sha1 {
     unset e
 }
 
-package provide sha1 2.0.4
+package provide sha1 2.0.5
 
 # -------------------------------------------------------------------------
 # Local Variables:

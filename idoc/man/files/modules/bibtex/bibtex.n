@@ -2,7 +2,7 @@
 '\" Generated from file 'bibtex\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 for documentation, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "bibtex" n 0\&.7 tcllib "bibtex"
+.TH "bibtex" n 0\&.8 tcllib "bibtex"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bibtex \- Parse bibtex files
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbibtex  ?0\&.7?\fR
+package require \fBbibtex ?0\&.8?\fR
 .sp
 \fB::bibtex::parse\fR ?\fIoptions\fR? ?\fItext\fR?
 .sp

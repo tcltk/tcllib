@@ -43,7 +43,7 @@
 #-----------------------------------------------------------------------------
 
 # needed for using wide()
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval asn {
     # Encoder commands
@@ -525,7 +525,7 @@ proc ::asn::asnPrintableString {string} {
 proc ::asn::asnIA5String {string} {
     # the IA5 string tag is 0x16
     # check for extended charachers
-    if {[string length $string]!=[string bytelength $string]} {
+    if {[string length $string]!=[string length [encoding convertto utf-8 $string]]} {
 	return -code error "Illegal character in IA5String"
     }
     set ascii [encoding convertto ascii $string]
@@ -707,7 +707,7 @@ proc ::asn::asnGetResponse {sock data_var} {
     }
 }
 
-if {[package vsatisfies [package present Tcl] 8.5.0]} {
+if {[package vsatisfies [package present Tcl] 8.5.0 9]} {
 ##############################################################################
 # Code for 8.5
 ##############################################################################
@@ -1562,7 +1562,7 @@ proc ::asn::defaultStringType {{type {}}} {
 proc ::asn::asnString {string} {
 	variable nonPrintableChars
 	variable nonNumericChars
-	if {[string length $string]!=[string bytelength $string]} {
+	if {[string length $string]!=[string length [encoding convertto utf-8 $string]]} {
 	# There are non-ascii character
 		variable defaultStringType
 		return [asn${defaultStringType}String $string]
@@ -1576,5 +1576,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.8.4
+package provide asn 0.8.5
 

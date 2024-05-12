@@ -1,14 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment { $Id: multiplexer.man,v 1.11 2009/01/29 06:16:20 andreas_kupries Exp $ }]
-[manpage_begin multiplexer n 0.2]
+[manpage_begin multiplexer n 0.3]
 [keywords chat]
 [keywords multiplexer]
 [moddesc   {One-to-many communication with sockets.}]
 [titledesc {One-to-many communication with sockets.}]
 [category  {Programming tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require logger]
-[require multiplexer [opt 0.2]]
+[require multiplexer [opt 0.3]]
 [description]
 
 The [package multiplexer] package provides a generic system for one-to-many

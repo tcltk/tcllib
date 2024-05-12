@@ -22,7 +22,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require pt::rde ; # Virtual machine geared to the parsing of PEGs.
 package require snit
 
@@ -382,4 +382,4 @@ snit::type ::pt::peg::interp {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::peg::interp 1.0.1
+package provide pt::peg::interp 1.0.2

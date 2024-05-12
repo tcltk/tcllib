@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt_introduction n 1]
+[manpage_begin pt_introduction n 1.1]
 [include include/module.inc]
 [titledesc {Introduction to Parser Tools}]
 [description]

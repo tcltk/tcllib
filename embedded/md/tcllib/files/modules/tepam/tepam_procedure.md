@@ -67,7 +67,7 @@ tepam::procedure \- TEPAM procedure, reference manual
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
+package require Tcl 8\.5 9  
 package require tepam ?0\.5?  
 
 [__tepam::procedure__ *name* *attributes* *body*](#1)  

@@ -4,7 +4,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4 ; #
+package require Tcl 8.5 9 ; #
 package require snit    ; # 
 
 # ### ### ### ######### ######### #########
@@ -48,4 +48,4 @@ snit::type uevent::onidle {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent::onidle 0.1
+package provide uevent::onidle 0.2

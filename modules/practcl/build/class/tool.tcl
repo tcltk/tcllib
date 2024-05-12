@@ -36,7 +36,11 @@ set ::auto_index(::practcl::LOCAL) {
     }
     method env-install {} {
       my unpack
-      set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
+      if {[package vsatisfies [package present Tcl] 9]} {
+        set prefix [my <project> define get prefix [file join [file normalize [file home]] tcl]]
+      } else {
+        set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
+      }
       set srcdir [my define get srcdir]
       ::practcl::dotclexec [file join $srcdir build.tcl] install [file join $prefix lib]
     }

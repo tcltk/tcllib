@@ -5,7 +5,7 @@
 #ifndef _DS_H
 #define _DS_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 
 /*
  * The data structures for a graph are mainly double-linked lists, combined
@@ -92,8 +92,8 @@ typedef struct GC {
  */
 
 typedef struct GLA {
-    GL* first; /* First interlink */
-    int n;     /* Number of interlinks */
+    GL*      first; /* First interlink */
+    Tcl_Size n;     /* Number of interlinks */
 } GLA;
 
 /*
@@ -133,7 +133,7 @@ typedef struct GA {
 typedef struct GCC {
     Tcl_HashTable* map;   /* Mapping names -> structure */
     GC*            first; /* Start of entity list */
-    int            n;     /* Length of the list */
+    Tcl_Size       n;     /* Length of the list */
 } GCC;
 
 /*
@@ -150,9 +150,9 @@ typedef struct G {
      * thread oblivious.
      */
 
-    char handle [50];
-    int  ncounter;	/* Counter used by the generator of node names */
-    int  acounter;	/* Counter used by the generator of arc names */
+    char     handle [50];
+    Tcl_Size ncounter;	/* Counter used by the generator of node names */
+    Tcl_Size acounter;	/* Counter used by the generator of arc names */
 } G;
 
 /*
@@ -160,7 +160,7 @@ typedef struct G {
  */
 
 typedef struct GG {
-    long int counter;  /* Graph id generator */
+    Tcl_Size counter;  /* Graph id generator */
     char     buf [50]; /* Buffer for handle construction */
 } GG;
 

@@ -166,4 +166,4 @@ snit::type ::transfer::data::destination {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::data::destination 0.2
+package provide transfer::data::destination 0.3

@@ -5,7 +5,7 @@
 ###
 #
 # Author: Sean Woods (for T&E Solutions)
-package require Tcl 8.6 ;# See coroutine
+package require Tcl 8.6 9 ;# See coroutine
 package require coroutine
 package require dicttool
 ::namespace eval ::cron {}
@@ -615,5 +615,5 @@ namespace eval ::cron {
 }
 
 ::cron::wake STARTUP
-package provide cron 2.1
+package provide cron 2.2
 

@@ -1,10 +1,10 @@
-[vset VERSION 0.1]
+[vset VERSION 0.2]
 [manpage_begin textutil::patch n [vset VERSION]]
 [keywords {diff, unified format} {unified format diff} patch {diff -ruN} git fossil]
 [moddesc   {Text and string utilities}]
 [titledesc {Application of uni-diff patches to directory trees}]
 [category  {Text processing}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require textutil::patch [opt [vset VERSION]]]
 [description]
 

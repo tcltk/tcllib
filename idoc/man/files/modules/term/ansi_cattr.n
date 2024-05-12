@@ -2,7 +2,7 @@
 '\" Generated from file 'ansi_cattr\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "term::ansi::code::attr" n 0\&.1 tcllib "Terminal control"
+.TH "term::ansi::code::attr" n 0\&.2 tcllib "Terminal control"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 term::ansi::code::attr \- ANSI attribute sequences
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBterm::ansi::code  ?0\&.1?\fR
+package require \fBterm::ansi::code ?0\&.2?\fR
 .sp
-package require \fBterm::ansi::code::attr  ?0\&.1?\fR
+package require \fBterm::ansi::code::attr ?0\&.2?\fR
 .sp
 \fB::term::ansi::code::attr::names\fR
 .sp

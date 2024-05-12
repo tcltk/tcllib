@@ -13,7 +13,7 @@ namespace eval ::term {}
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term 0.1
+package provide term 0.2
 
 ##
 # ### ### ### ######### ######### #########

@@ -28,7 +28,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require struct::matrix
 
 # ::math::interpolate --
@@ -664,4 +664,4 @@ proc ::math::interpolate::interp-cubic-splines {coeffs x} {
 #
 # Announce our presence
 #
-package provide math::interpolate 1.1.2
+package provide math::interpolate 1.1.4

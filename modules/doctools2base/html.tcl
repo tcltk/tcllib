@@ -6,7 +6,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4 ; # Required Core
+package require Tcl 8.5 9 ; # Required Core
 package require doctools::text ; # Basic generator state management.
 
 namespace eval         ::doctools::html {}
@@ -205,5 +205,5 @@ namespace eval ::doctools::html {
 }
 
 # # ## ### ##### ######## ############# #####################
-package provide doctools::html 0.1
+package provide doctools::html 0.2
 return

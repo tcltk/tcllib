@@ -54,7 +54,7 @@ proc ns4_setup {{parent {}}} {
     }
 }
 
-if {[package vsatisfies [package present Tcl] 8.6]} {
+if {[package vsatisfies [package present Tcl] 8.6 9]} {
     # 8.6+ args => ?arg ...?
     proc E {text} { string map [list "..." "?arg ...?"] $text }
 } else {
@@ -637,7 +637,7 @@ test namespacex-state-set-2.0.1 {namespacex state set, relative to non-global} -
     ns3_setup ::Q
 } -body {
     namespace eval ::Q {
-        namespacex state set X $ST
+        namespacex state set X $::ST
         dictsort [namespacex state get X]
     }
 } -cleanup {
@@ -673,7 +673,7 @@ test namespacex-state-set-2.1.2 {namespacex state set, relative to non-global} -
     ns2_setup ::Q
 } -body {
     namespace eval ::Q {
-        namespacex state set X $ST
+        namespacex state set X $::ST
         dictsort [namespacex state get X]
     }
 } -cleanup {
@@ -687,7 +687,7 @@ test namespacex-state-set-2.2 {namespacex state set, array handling} -setup {
     ns2_setup ::Q
 } -body {
     namespace eval ::Q {
-        namespacex state set X $ST
+        namespacex state set X $::ST
         dictsort [namespacex state get X]
     }
 } -cleanup {
@@ -699,7 +699,7 @@ test namespacex-state-set-2.3 {namespacex state set, old style} -setup {
     ns2_setup ::Q
 } -body {
     namespace eval ::Q {
-        namespacex state set X $ST
+        namespacex state set X $::ST
         dictsort [namespacex state get X]
     }
 } -cleanup {

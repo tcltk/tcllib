@@ -23,4 +23,4 @@ mcset en docidx/key/syntax		{Unexpected [key], not allowed here}
 
 mcset en docidx/ref/redef               {Bad redefinition of reference "%1$s", first (%2$s "%3$s"), now (%4$s "%5$s")}
 
-package provide doctools::msgcat::idx::en 0.1
+package provide doctools::msgcat::idx::en 0.2

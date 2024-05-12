@@ -1,7 +1,7 @@
 
 [//000000001]: # (fileutil::paths \- )
 [//000000002]: # (Generated from file 'paths\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (fileutil::paths\(n\) 1 tcllib "")
+[//000000003]: # (fileutil::paths\(n\) 1\.1 tcllib "")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -28,8 +28,8 @@ fileutil::paths \- Manage search path pools
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require fileutil::paths ?1?  
+package require Tcl 8\.5 9  
+package require fileutil::paths ?1\.1?  
 
 [__::fileutil::paths__ *poolName*](#1)  
 [__poolName__ __method__ ?*arg arg \.\.\.*?](#2)  

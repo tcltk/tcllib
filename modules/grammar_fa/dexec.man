@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::fa::dexec n 0.2]
+[manpage_begin grammar::fa::dexec n 0.3]
 [keywords automaton]
 [keywords execution]
 [keywords {finite automaton}]
@@ -16,9 +16,9 @@
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Execute deterministic finite automatons}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
-[require grammar::fa::dexec [opt 0.2]]
+[require grammar::fa::dexec [opt 0.3]]
 [description]
 [para]
 

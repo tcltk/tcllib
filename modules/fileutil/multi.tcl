@@ -25,4 +25,4 @@ proc ::fileutil::multi {args} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi 0.1
+package provide fileutil::multi 0.2

@@ -20,7 +20,7 @@
 #
 ########################################################################
 
-package require Tcl 8.3
+package require Tcl 8.5 9
 package require Tk
 package require ftp 2.0
 

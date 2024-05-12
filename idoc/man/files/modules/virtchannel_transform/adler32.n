@@ -2,7 +2,7 @@
 '\" Generated from file 'adler32\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::transform::adler32" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::transform::adler32" n 1\&.1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::transform::adler32 \- Adler32 transformation
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBtcl::transform::core  ?1?\fR
+package require \fBtcl::transform::core ?1\&.1?\fR
 .sp
-package require \fBtcl::transform::adler32  ?1?\fR
+package require \fBtcl::transform::adler32 ?1\&.1?\fR
 .sp
 \fB::tcl::transform::adler32\fR \fIchan\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 .sp

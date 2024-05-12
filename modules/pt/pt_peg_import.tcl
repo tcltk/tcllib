@@ -15,7 +15,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require fileutil::paths
 package require pt::peg
 package require pluginmgr
@@ -184,5 +184,5 @@ snit::type ::pt::peg::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::import 1.0.1
+package provide pt::peg::import 1.0.2
 return

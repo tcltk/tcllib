@@ -1,7 +1,7 @@
 
 [//000000001]: # (ftp \- ftp client)
 [//000000002]: # (Generated from file 'ftp\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (ftp\(n\) 2\.4\.13 tcllib "ftp client")
+[//000000003]: # (ftp\(n\) 2\.4\.14 tcllib "ftp client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,8 +36,8 @@ ftp \- Client\-side tcl implementation of the ftp protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require ftp ?2\.4\.13?  
+package require Tcl 8\.5 9  
+package require ftp ?2\.4\.14?  
 
 [__::ftp::Open__ *server* *user* *passwd* ?*options*?](#1)  
 [__::ftp::Close__ *handle*](#2)  

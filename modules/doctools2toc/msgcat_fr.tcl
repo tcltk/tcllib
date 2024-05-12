@@ -28,4 +28,4 @@ mcset fr doctoc/toc_end/syntax		{Unexpected [toc_end], not allowed here}
 
 mcset fr doctoc/redef                   {Bad reuse of label "%1$s"}
 
-package provide doctools::msgcat::toc::fr 0.1
+package provide doctools::msgcat::toc::fr 0.2

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.0.1]
+[vset VERSION 1.0.2]
 [manpage_begin pt::peg::export n [vset VERSION]]
 [include include/module.inc]
 [titledesc {PEG Export}]

@@ -2,7 +2,7 @@
 '\" Generated from file 'scram\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2013 Sergei Golovan <sgolovan@nes\&.ru>
 '\"
-.TH "SASL::SCRAM" n 0\&.1 tcllib "Simple Authentication and Security Layer (SASL)"
+.TH "SASL::SCRAM" n 0\&.2 tcllib "Simple Authentication and Security Layer (SASL)"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 SASL::SCRAM \- Implementation of SASL SCRAM mechanism for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBSASL::SCRAM  ?0\&.1?\fR
+package require \fBSASL::SCRAM ?0\&.2?\fR
 .sp
 .BE
 .SH DESCRIPTION

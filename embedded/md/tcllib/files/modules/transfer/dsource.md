@@ -2,7 +2,7 @@
 [//000000001]: # (transfer::data::source \- Data transfer facilities)
 [//000000002]: # (Generated from file 'dsource\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (transfer::data::source\(n\) 0\.2 tcllib "Data transfer facilities")
+[//000000004]: # (transfer::data::source\(n\) 0\.3 tcllib "Data transfer facilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,10 +43,10 @@ transfer::data::source \- Data source
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit ?1\.0?  
-package require transfer::copy ?0\.2?  
-package require transfer::data::source ?0\.2?  
+package require transfer::copy ?0\.3?  
+package require transfer::data::source ?0\.3?  
 
 [__transfer::data::source__ *objectName* ?*options*\.\.\.?](#1)  
 [*objectName* __method__ ?*arg arg \.\.\.*?](#2)  

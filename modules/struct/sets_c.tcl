@@ -9,14 +9,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets_c.tcl,v 1.3 2008/03/25 07:15:34 andreas_kupries Exp $
-#
 #----------------------------------------------------------------------
 
 package require critcl
 # @sak notprovided struct_setc
 package provide struct_setc 2.1.1
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::struct {
     # Supporting code for the main command.
@@ -58,7 +56,7 @@ namespace eval ::struct {
 	int m;
 
         if (objc < 2) {
-            Tcl_WrongNumArgs (interp, objc, objv, "cmd ?arg ...?");
+            Tcl_WrongNumArgs (interp, objc, objv, "cmd ?arg ...?"); /* OK tcl9 */
             return TCL_ERROR;
         } else if (Tcl_GetIndexFromObj (interp, objv [1], methods, "option",
             0, &m) != TCL_OK) {

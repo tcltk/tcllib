@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require SASL
 package require sha1
 package require base64
@@ -493,7 +493,7 @@ proc ::SASL::SCRAM::SHA-1:server {context clientrsp args} {
 
 # -------------------------------------------------------------------------
 
-package provide SASL::SCRAM 0.1
+package provide SASL::SCRAM 0.2
 
 # -------------------------------------------------------------------------
 #

@@ -8,7 +8,7 @@
 # 
 # RCS: @(#) $Id: interp.tcl,v 1.5 2011/11/08 02:40:31 andreas_kupries Exp $
 
-package require Tcl 8.3
+package require Tcl 8.5 9
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -84,4 +84,4 @@ proc ::interp::snitDictLink {path methoddict} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide interp 0.1.2
+package provide interp 0.1.3

@@ -5,7 +5,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require term::send
 package require term::ansi::code::ctrl
 
@@ -86,7 +86,7 @@ namespace eval ::term::ansi::send {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::send 0.2
+package provide term::ansi::send 0.3
 
 ##
 # ### ### ### ######### ######### #########

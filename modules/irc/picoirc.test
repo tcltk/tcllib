@@ -59,67 +59,67 @@ proc callbackResult {} {
 }
 
 test picoirc-1.0 {irc:// schema} -body {
-    ::picoirc::splituri irc://chat.freenode.net
+    ::picoirc::Splituri irc://chat.freenode.net
 } -result [list chat.freenode.net 6667 {} 0]
 
 test picoirc-1.1 {irc:// schema with port} -body {
-    ::picoirc::splituri irc://irc.choopa.net:6654
+    ::picoirc::Splituri irc://irc.choopa.net:6654
 } -result [list irc.choopa.net 6654 {} 0]
 
 test picoirc-1.2 {irc:// schema with channel} -body {
-    ::picoirc::splituri irc://chat.freenode.net/#tcl
+    ::picoirc::Splituri irc://chat.freenode.net/#tcl
 } -result [list chat.freenode.net 6667 #tcl 0]
 
 test picoirc-1.3 {irc:// schema with channel and port} -body {
-    ::picoirc::splituri irc://chat.freenode.net:5347/#go-nuts
+    ::picoirc::Splituri irc://chat.freenode.net:5347/#go-nuts
 } -result [list chat.freenode.net 5347 #go-nuts 0]
 
 test picoirc-1.4 {ircs:// schema} -body {
-    ::picoirc::splituri ircs://185.98.4.3
+    ::picoirc::Splituri ircs://185.98.4.3
 } -result [list 185.98.4.3 6697 {} 1]
 
 test picoirc-1.5 {ircs:// schema with port} -body {
-    ::picoirc::splituri ircs://chat.freenode.net:69654
+    ::picoirc::Splituri ircs://chat.freenode.net:69654
 } -result [list chat.freenode.net 69654 {} 1]
 
 test picoirc-1.6 {ircs:// schema with channel} -body {
-    ::picoirc::splituri ircs://chat.freenode.net/#tcl
+    ::picoirc::Splituri ircs://chat.freenode.net/#tcl
 } -result [list chat.freenode.net 6697 #tcl 1]
 
 test picoirc-1.7 {ircs:// schema with channel and port} -body {
-    ::picoirc::splituri ircs://chat.freenode.net:76556/#go-nuts
+    ::picoirc::Splituri ircs://chat.freenode.net:76556/#go-nuts
 } -result [list chat.freenode.net 76556 #go-nuts 1]
 
 test picoirc-1.8 {address} -body {
-    ::picoirc::splituri irc.freenode.net
+    ::picoirc::Splituri irc.freenode.net
 } -result [list irc.freenode.net 6667 {} 0]
 
 test picoirc-1.9 {address with port} -body {
-    ::picoirc::splituri 243.75.9.4:8697
+    ::picoirc::Splituri 243.75.9.4:8697
 } -result [list 243.75.9.4 8697 {} 0]
 
 test picoirc-1.10 {address with channel} -body {
-    ::picoirc::splituri #tcl@chat.freenode.net
+    ::picoirc::Splituri #tcl@chat.freenode.net
 } -result [list chat.freenode.net 6667 #tcl 0]
 
 test picoirc-1.11 {address with channel and port} -body {
-    ::picoirc::splituri #go-nuts@chat.freenode.net:765
+    ::picoirc::Splituri #go-nuts@chat.freenode.net:765
 } -result [list chat.freenode.net 765 #go-nuts 0]
 
 test picoirc-1.12 {irc:// schema with multiple channels} -body {
-    ::picoirc::splituri irc://chat.freenode.net/#tcl,#go-nuts,#twtxt
+    ::picoirc::Splituri irc://chat.freenode.net/#tcl,#go-nuts,#twtxt
 } -result [list chat.freenode.net 6667 {{#tcl} #go-nuts #twtxt} 0]
 
 test picoirc-1.13 {irc:// schema with channel and special params} -body {
-    ::picoirc::splituri irc://chat.freenode.net/#tcl,needkey,needpass
+    ::picoirc::Splituri irc://chat.freenode.net/#tcl,needkey,needpass
 } -result [list chat.freenode.net 6667 #tcl 0]
 
 test picoirc-1.14 {address with multiple channels} -body {
-    ::picoirc::splituri #tcl,#go-nuts,#twtxt@chat.freenode.net
+    ::picoirc::Splituri #tcl,#go-nuts,#twtxt@chat.freenode.net
 } -result [list chat.freenode.net 6667 {{#tcl} #go-nuts #twtxt} 0]
 
 test picoirc-1.15 {address with channel and special params} -body {
-    ::picoirc::splituri #tcl,needkey,needpass@chat.freenode.net
+    ::picoirc::Splituri #tcl,needkey,needpass@chat.freenode.net
 } -result [list chat.freenode.net 6667 #tcl 0]
 
 test picoirc-2.0 {channel message} -body {

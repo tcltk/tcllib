@@ -1,12 +1,12 @@
-[manpage_begin math n 1.2.5]
+[manpage_begin math n 1.2.6]
 [keywords math]
 [keywords statistics]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Tcl Math Library}]
 [category  Mathematics]
-[require Tcl 8.2]
-[require math [opt 1.2.5]]
+[require Tcl "8.5 9"]
+[require math [opt 1.2.6]]
 [description]
 [para]
 
@@ -107,7 +107,7 @@ arguments are given, the number is an integer value between
 
 [call [cmd ::math::sigma] [arg value] [arg value] [opt [arg {value ...}]]]
 
-Return the population standard deviation of two or more numeric
+Return the sample standard deviation of two or more numeric
 values.
 
 [call [cmd ::math::stats] [arg value] [arg value] [opt [arg {value ...}]]]

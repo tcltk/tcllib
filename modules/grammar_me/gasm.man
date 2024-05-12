@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::me::cpu::gasm n 0.1]
+[manpage_begin grammar::me::cpu::gasm n 0.2]
 [keywords assembler]
 [keywords grammar]
 [keywords graph]
@@ -10,7 +10,7 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {ME assembler}]
 [category  {Grammars and finite automata}]
-[require grammar::me::cpu::gasm [opt 0.1]]
+[require grammar::me::cpu::gasm [opt 0.2]]
 [description]
 
 This package provides a simple in-memory assembler. Its origin is that

@@ -2,7 +2,7 @@
 [//000000001]: # (pop3d::dbox \- Tcl POP3 Server Package)
 [//000000002]: # (Generated from file 'pop3d\_dbox\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pop3d::dbox\(n\) 1\.0\.2 tcllib "Tcl POP3 Server Package")
+[//000000004]: # (pop3d::dbox\(n\) 1\.0\.3 tcllib "Tcl POP3 Server Package")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ pop3d::dbox \- Simple mailbox database for pop3d
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require pop3d::dbox ?1\.0\.2?  
+package require Tcl 8\.5 9  
+package require pop3d::dbox ?1\.0\.3?  
 
 [__::pop3d::dbox::new__ ?*dbName*?](#1)  
 [__dbName__ *option* ?*arg arg \.\.\.*?](#2)  

@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2015,2024 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -15,7 +15,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require critcl
 # @sak notprovided pt_rde_critcl
 package provide pt_rde_critcl 1.3.4
@@ -106,7 +106,7 @@ namespace eval ::pt {
 #define USAGE "?name?"
 
       if ((objc != 2) && (objc != 1)) {
-        Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+        Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
         return TCL_ERROR;
       }
 
@@ -125,11 +125,11 @@ namespace eval ::pt {
         Tcl_IncrRefCount (fqn);
 
         if (!Tcl_StringMatch (Tcl_GetString (fqn), "::")) {
-          Tcl_AppendToObj (fqn, "::", -1);
+          Tcl_AppendToObj (fqn, "::", -1); /* OK tcl9 */
         }
-        Tcl_AppendToObj (fqn, name, -1);
+        Tcl_AppendToObj (fqn, name, -1); /* OK tcl9 */
       } else {
-        fqn = Tcl_NewStringObj (name, -1);
+        fqn = Tcl_NewStringObj (name, -1); /* OK tcl9 */
         Tcl_IncrRefCount (fqn);
       }
       Tcl_ResetResult (interp);
@@ -140,9 +140,9 @@ namespace eval ::pt {
         Tcl_Obj* err;
 
         err = Tcl_NewObj ();
-        Tcl_AppendToObj    (err, "command \"", -1);
+        Tcl_AppendToObj    (err, "command \"", -1); /* OK tcl9 */
         Tcl_AppendObjToObj (err, fqn);
-        Tcl_AppendToObj    (err, "\" already exists", -1);
+        Tcl_AppendToObj    (err, "\" already exists", -1); /* OK tcl9 */
 
         Tcl_DecrRefCount (fqn);
         Tcl_SetObjResult (interp, err);
@@ -150,9 +150,9 @@ namespace eval ::pt {
       }
 
       param = param_new ();
-      c = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-				paramms_objcmd, (ClientData) param,
-				PARAMdeleteCmd);
+      c = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+				 paramms_objcmd, (ClientData) param,
+				 PARAMdeleteCmd);
       param_setcmd (param, c);
 
       Tcl_SetObjResult (interp, fqn);

@@ -131,4 +131,4 @@ namespace eval ::base32::core {
 # ### ### ### ######### ######### #########
 #= Registration
 
-package provide base32::core 0.1
+package provide base32::core 0.2

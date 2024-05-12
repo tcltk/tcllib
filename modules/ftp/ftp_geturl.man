@@ -1,4 +1,4 @@
-[vset VERSION 0.2.2]
+[vset VERSION 0.2.3]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftp::geturl n [vset VERSION]]
 [see_also ftpd]
@@ -12,7 +12,7 @@
 [moddesc   {ftp client}]
 [titledesc {Uri handler for ftp urls}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require ftp::geturl [opt [vset VERSION]]]
 [description]
 

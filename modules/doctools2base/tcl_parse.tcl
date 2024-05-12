@@ -23,7 +23,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4         ; # Required runtime.
+package require Tcl 8.5 9         ; # Required runtime.
 package require snit            ; # OO system.
 package require fileutil        ; # File utilities.
 package require logger          ; # User feedback.
@@ -796,5 +796,5 @@ namespace eval ::doctools::tcl {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::tcl::parse 0.1
+package provide doctools::tcl::parse 0.2
 return

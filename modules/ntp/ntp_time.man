@@ -1,4 +1,4 @@
-[manpage_begin ntp_time n 1.2.1]
+[manpage_begin ntp_time n 1.2.2]
 [see_also ntp]
 [keywords NTP]
 [keywords {rfc 868}]
@@ -9,8 +9,8 @@
 [moddesc   {Network Time Facilities}]
 [titledesc {Tcl Time Service Client}]
 [category  Networking]
-[require Tcl 8.0]
-[require time [opt 1.2.1]]
+[require Tcl "8.5 9"]
+[require time [opt 1.2.2]]
 [description]
 [para]
 

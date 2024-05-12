@@ -49,7 +49,7 @@ pt::peg::export::json \- PEG Export Plugin\. Write JSON format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require pt::peg::export::json ?1?  
 package require pt::peg::to::json  
 

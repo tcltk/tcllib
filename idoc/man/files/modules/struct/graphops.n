@@ -4,7 +4,7 @@
 '\" Copyright (c) 2008 (docs) Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 2009 Michal Antoniewski <antoniewski\&.m@gmail\&.com>
 '\"
-.TH "struct::graph::op" n 0\&.11\&.3 tcllib "Tcl Data Structures"
+.TH "struct::graph::op" n 0\&.11\&.4 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::graph::op \- Operation for (un)directed graph objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBstruct::graph::op  ?0\&.11\&.3?\fR
+package require \fBstruct::graph::op ?0\&.11\&.4?\fR
 .sp
 \fBstruct::graph::op::toAdjacencyMatrix\fR \fIg\fR
 .sp

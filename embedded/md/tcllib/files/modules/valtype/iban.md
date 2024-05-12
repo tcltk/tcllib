@@ -2,7 +2,7 @@
 [//000000001]: # (valtype::iban \- Validation types)
 [//000000002]: # (Generated from file 'vtype\.inc' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (valtype::iban\(n\) 1\.7 tcllib "Validation types")
+[//000000004]: # (valtype::iban\(n\) 1\.8 tcllib "Validation types")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,10 +37,10 @@ valtype::iban \- Validation for IBAN
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require snit 2  
 package require valtype::common  
-package require valtype::iban ?1\.7?  
+package require valtype::iban ?1\.8?  
 
 [__valtype::iban__ __validate__ *value*](#1)  
 [__valtype::iban__ __checkdigit__ *value*](#2)  

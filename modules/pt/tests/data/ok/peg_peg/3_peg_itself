@@ -7,7 +7,7 @@ void: APOSTROPH     <- '\'' ;
 leaf: ASCII         <- '<' 'a' 's' 'c' 'i' 'i' '>' WHITESPACE ;
       Attribute     <- (VOID / LEAF) COLON ;
       Char          <- CharSpecial / CharOctalFull / CharOctalPart / CharUnicode / CharUnescaped ;
-leaf: CharOctalFull <- '\\' [0-2] [0-7] [0-7] ;
+leaf: CharOctalFull <- '\\' [0-3] [0-7] [0-7] ;
 leaf: CharOctalPart <- '\\' [0-7] [0-7]? ;
 leaf: CharSpecial   <- '\\' ('n' / 'r' / 't' / '\'' / '\"' / '\[' / '\]' / '\\') ;
 leaf: CharUnescaped <- !'\\' . ;

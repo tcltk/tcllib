@@ -10,7 +10,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.3
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -4177,7 +4177,7 @@ test stooop-47 {
             set ($this,o) $r
             set ($this,O) [new f]
         }
-        proc c::c {this copy} a {$a::($copy,m)} b 1 {
+        proc c::c {this copy} a {$::a::($copy,m)} b 1 {
             set ($this,o) $($copy,o)
             set ($this,O) [new f]
         }
@@ -4211,7 +4211,7 @@ test stooop-47 {
                 set ($this,o) $r
                 set ($this,O) [new F]
             }
-            proc C {this copy} A {$A::($copy,m)} B 1 {
+            proc C {this copy} A {$::A::($copy,m)} B 1 {
                 set ($this,o) $($copy,o)
                 set ($this,O) [new F]
             }
@@ -5559,7 +5559,7 @@ test stooop-64 {
         eval lappend ::result [dumpArrays a::]
 
         class A {
-            set A::(l) {}
+            set ::A::(l) {}
             proc A {this} {
                 lappend (l) $this
             }
@@ -6973,7 +6973,7 @@ test stooop-77 {
             set ($this,o) $r
             set ($this,O) [new z::f]
         }
-        proc z::c::c {this copy} z::a {$z::a::($copy,m)} z::b 1 {
+        proc z::c::c {this copy} z::a {$::z::a::($copy,m)} z::b 1 {
             set ($this,o) $($copy,o)
             set ($this,O) [new z::f]
         }
@@ -7008,7 +7008,7 @@ test stooop-77 {
                     set ($this,o) $r
                     set ($this,O) [new Z::F]
                 }
-                proc C {this copy} Z::A {$Z::A::($copy,m)} Z::B 1 {
+                proc C {this copy} Z::A {$::Z::A::($copy,m)} Z::B 1 {
                     set ($this,o) $($copy,o)
                     set ($this,O) [new Z::F]
                 }
@@ -8013,16 +8013,16 @@ test stooop-86 {
         proc a::a {this} {}
         proc a::~a {this} {}
         proc a::p {this} {
-            set b::($this,m) 0
+            set ::b::($this,m) 0
         }
         proc a::q {this} {
-            set b::(n) 0
+            set ::b::(n) 0
         }
         proc a::r {this} {
-            unset b::($this,m)
+            unset ::b::($this,m)
         }
         proc a::s {this} {
-            unset b::(n)
+            unset ::b::(n)
         }
         set o [new a]
         class b {}
@@ -8038,28 +8038,28 @@ test stooop-86 {
             proc A {this} {}
             proc ~A {this} {}
             proc p {this} {
-                set B::($this,m) 0
+                set ::B::($this,m) 0
             }
             proc q {this} {
-                set B::(n) 0
+                set ::B::(n) 0
             }
             proc r {this} {
-                unset B::($this,m)
+                unset ::B::($this,m)
             }
             proc s {this} {
-                unset B::(n)
+                unset ::B::(n)
             }
         }
         set o [new A]
         class B {
-            set ($o,m) 0
+            set ($::o,m) 0
             set (n) 0
         }
         class A {
-            catch {p $o} message; lappend ::result $message
-            catch {q $o} message; lappend ::result $message
-            catch {r $o} message; lappend ::result bug
-            catch {s $o} message; lappend ::result bug
+            catch {p $::o} message; lappend ::result $message
+            catch {q $::o} message; lappend ::result $message
+            catch {r $::o} message; lappend ::result bug
+            catch {s $::o} message; lappend ::result bug
         }
         delete $o
 
@@ -8068,16 +8068,16 @@ test stooop-86 {
         proc c::d::d {this} {}
         proc c::d::~d {this} {}
         proc c::d::p {this} {
-            set c::e::($this,m) 0
+            set ::c::e::($this,m) 0
         }
         proc c::d::q {this} {
-            set c::e::(n) 0
+            set ::c::e::(n) 0
         }
         proc c::d::r {this} {
-            unset c::e::($this,m)
+            unset ::c::e::($this,m)
         }
         proc c::d::s {this} {
-            unset c::e::(n)
+            unset ::c::e::(n)
         }
         class c::e {}
         set o [new c::d]
@@ -8094,28 +8094,28 @@ test stooop-86 {
                 proc D {this} {}
                 proc ~D {this} {}
                 proc p {this} {
-                    set C::E::($this,m) 0
+                    set ::C::E::($this,m) 0
                 }
                 proc q {this} {
-                    set C::E::(n) 0
+                    set ::C::E::(n) 0
                 }
                 proc r {this} {
-                    unset C::E::($this,m)
+                    unset ::C::E::($this,m)
                 }
                 proc s {this} {
-                    unset C::E::(n)
+                    unset ::C::E::(n)
                 }
             }
             set ::o [new D]
             class E {
-                set ($o,m) 0
+                set ($::o,m) 0
                 set (n) 0
             }
             class D {
-                catch {p $o} message; lappend ::result $message
-                catch {q $o} message; lappend ::result $message
-                catch {r $o} message; lappend ::result bug
-                catch {s $o} message; lappend ::result bug
+                catch {p $::o} message; lappend ::result $message
+                catch {q $::o} message; lappend ::result $message
+                catch {r $::o} message; lappend ::result bug
+                catch {s $::o} message; lappend ::result bug
             }
         }
         catch {C::D::p $o} message; lappend ::result $message
@@ -8129,24 +8129,24 @@ test stooop-86 {
     interp delete $interpreter
     set result
 } [list\
-    {can't set "b::(1,m)": class access violation in procedure ::a::p}\
-    {can't set "b::(n)": class access violation in procedure ::a::q}\
+    {can't set "::b::(1,m)": class access violation in procedure ::a::p}\
+    {can't set "::b::(n)": class access violation in procedure ::a::q}\
     bug\
     bug\
-    {can't set "B::(2,m)": class access violation in procedure ::A::p}\
-    {can't set "B::(n)": class access violation in procedure ::A::q}\
+    {can't set "::B::(2,m)": class access violation in procedure ::A::p}\
+    {can't set "::B::(n)": class access violation in procedure ::A::q}\
     bug\
     bug\
-    {can't set "c::e::(3,m)": class access violation in procedure ::c::d::p}\
-    {can't set "c::e::(n)": class access violation in procedure ::c::d::q}\
+    {can't set "::c::e::(3,m)": class access violation in procedure ::c::d::p}\
+    {can't set "::c::e::(n)": class access violation in procedure ::c::d::q}\
     bug\
     bug\
-    {can't set "C::E::(4,m)": class access violation in procedure ::C::D::p}\
-    {can't set "C::E::(n)": class access violation in procedure ::C::D::q}\
+    {can't set "::C::E::(4,m)": class access violation in procedure ::C::D::p}\
+    {can't set "::C::E::(n)": class access violation in procedure ::C::D::q}\
     bug\
     bug\
-    {can't set "C::E::(4,m)": class access violation in procedure ::C::D::p}\
-    {can't set "C::E::(n)": class access violation in procedure ::C::D::q}\
+    {can't set "::C::E::(4,m)": class access violation in procedure ::C::D::p}\
+    {can't set "::C::E::(n)": class access violation in procedure ::C::D::q}\
     bug\
     bug\
 ]
@@ -8168,10 +8168,10 @@ test stooop-87 {verify member writing and unsetting within class namespaces in m
         }
         proc a::~a {this} {}
         set o [new a]
-        catch {class b {incr a::(m)}} message; lappend ::result $message
-        catch {class b {incr a::($o,n)}} message; lappend ::result $message
-        catch {class b {unset a::(m)}} message; lappend ::result bug
-        catch {class b {unset a::($o,n)}} message; lappend ::result bug
+        catch {class b {incr ::a::(m)}} message; lappend ::result $message
+        catch {class b {incr ::a::($::o,n)}} message; lappend ::result $message
+        catch {class b {unset ::a::(m)}} message; lappend ::result bug
+        catch {class b {unset ::a::($::o,n)}} message; lappend ::result bug
         delete $o
 
         class A {
@@ -8183,10 +8183,10 @@ test stooop-87 {verify member writing and unsetting within class namespaces in m
         }
         set o [new A]
         class B {
-            catch {incr A::(m)} message; lappend ::result $message
-            catch {incr A::($o,n)} message; lappend ::result $message
-            catch {unset A::(m)} message; lappend ::result bug
-            catch {unset A::($o,n)} message; lappend ::result bug
+            catch {incr ::A::(m)} message; lappend ::result $message
+            catch {incr ::A::($::o,n)} message; lappend ::result $message
+            catch {unset ::A::(m)} message; lappend ::result bug
+            catch {unset ::A::($::o,n)} message; lappend ::result bug
         }
         delete $o
 
@@ -8199,10 +8199,10 @@ test stooop-87 {verify member writing and unsetting within class namespaces in m
         }
         proc c::d::~d {this} {}
         set o [new c::d]
-        catch {class c::e {incr c::d::(m)}} message; lappend ::result $message
-        catch {class c::e {incr c::d::($o,n)}} message; lappend ::result $message
-        catch {class c::e {unset c::d::(m)}} message; lappend ::result bug
-        catch {class c::e {unset c::d::($o,n)}} message; lappend ::result bug
+        catch {class c::e {incr ::c::d::(m)}} message; lappend ::result $message
+        catch {class c::e {incr ::c::d::($::o,n)}} message; lappend ::result $message
+        catch {class c::e {unset ::c::d::(m)}} message; lappend ::result bug
+        catch {class c::e {unset ::c::d::($::o,n)}} message; lappend ::result bug
         delete $o
 
         class C {
@@ -8215,16 +8215,16 @@ test stooop-87 {verify member writing and unsetting within class namespaces in m
             }
             set ::o [new D]
             class B {
-                catch {incr C::D::(m)} message; lappend ::result $message
-                catch {incr C::D::($o,n)} message; lappend ::result $message
-                catch {unset C::D::(m)} message; lappend ::result bug
-                catch {unset C::D::($o,n)} message; lappend ::result bug
+                catch {incr ::C::D::(m)} message; lappend ::result $message
+                catch {incr ::C::D::($::o,n)} message; lappend ::result $message
+                catch {unset ::C::D::(m)} message; lappend ::result bug
+                catch {unset ::C::D::($::o,n)} message; lappend ::result bug
             }
         }
-        catch {set C::D::(m)} message; lappend ::result $message
-        catch {set C::D::($o,n)} message; lappend ::result $message
-        catch {unset C::D::(m)} message; lappend ::result bug
-        catch {unset C::D::($o,n)} message; lappend ::result bug
+        catch {set ::C::D::(m)} message; lappend ::result $message
+        catch {set ::C::D::($::o,n)} message; lappend ::result $message
+        catch {unset ::C::D::(m)} message; lappend ::result bug
+        catch {unset ::C::D::($::o,n)} message; lappend ::result bug
         delete $o
 
         set ::result
@@ -8232,24 +8232,24 @@ test stooop-87 {verify member writing and unsetting within class namespaces in m
     interp delete $interpreter
     set result
 } [list\
-    {can't set "a::(m)": class access violation in class b namespace}\
-    {can't set "a::(1,n)": class access violation in class b namespace}\
+    {can't set "::a::(m)": class access violation in class b namespace}\
+    {can't set "::a::(1,n)": class access violation in class b namespace}\
     bug\
     bug\
-    {can't set "A::(m)": class access violation in class B namespace}\
-    {can't set "A::(2,n)": class access violation in class B namespace}\
+    {can't set "::A::(m)": class access violation in class B namespace}\
+    {can't set "::A::(2,n)": class access violation in class B namespace}\
     bug\
     bug\
-    {can't set "c::d::(m)": class access violation in class c::e namespace}\
-    {can't set "c::d::(3,n)": class access violation in class c::e namespace}\
+    {can't set "::c::d::(m)": class access violation in class c::e namespace}\
+    {can't set "::c::d::(3,n)": class access violation in class c::e namespace}\
     bug\
     bug\
-    {can't set "C::D::(m)": class access violation in class C::B namespace}\
-    {can't set "C::D::(4,n)": class access violation in class C::B namespace}\
+    {can't set "::C::D::(m)": class access violation in class C::B namespace}\
+    {can't set "::C::D::(4,n)": class access violation in class C::B namespace}\
     bug\
     bug\
-    {can't read "C::D::(m)": no such element in array}\
-    {can't read "C::D::(4,n)": no such element in array}\
+    {can't read "::C::D::(m)": no such element in array}\
+    {can't read "::C::D::(4,n)": no such element in array}\
     bug\
     bug\
 ]
@@ -8321,11 +8321,11 @@ test stooop-89 {
         proc a::~a {this} {}
         proc a::p {this} {
             incr (m)
-            incr b::(o)
+            incr ::b::(o)
         }
         proc a::q {object} {
             incr ($object,n)
-            incr b::($object,p)
+            incr ::b::($object,p)
         }
         class b {
             set (o) 0
@@ -8336,11 +8336,11 @@ test stooop-89 {
         proc b::~b {this} {}
         proc b::r {this} {
             incr (o)
-            incr a::(m)
+            incr ::a::(m)
         }
         proc b::s {object} {
             incr ($object,p)
-            incr a::($object,n)
+            incr ::a::($object,n)
         }
         set o [new b]
         catch {a::p $o} message; lappend ::result $message
@@ -8357,11 +8357,11 @@ test stooop-89 {
             proc ~A {this} {}
             proc p {this} {
                 incr (m)
-                incr B::(o)
+                incr ::B::(o)
             }
             proc q {object} {
                 incr ($object,n)
-                incr B::($object,p)
+                incr ::B::($object,p)
             }
         }
         class B {
@@ -8372,11 +8372,11 @@ test stooop-89 {
             proc ~B {this} {}
             proc r {this} {
                 incr (o)
-                incr A::(m)
+                incr ::A::(m)
             }
             proc s {object} {
                 incr ($object,p)
-                incr A::($object,n)
+                incr ::A::($object,n)
             }
         }
         set o [new B]
@@ -8396,11 +8396,11 @@ test stooop-89 {
         proc c::d::~d {this} {}
         proc c::d::p {this} {
             incr (m)
-            incr c::e::(o)
+            incr ::c::e::(o)
         }
         proc c::d::q {object} {
             incr ($object,n)
-            incr c::e::($object,p)
+            incr ::c::e::($object,p)
         }
         class c::e {
             set (o) 0
@@ -8411,11 +8411,11 @@ test stooop-89 {
         proc c::e::~e {this} {}
         proc c::e::r {this} {
             incr (o)
-            incr c::d::(m)
+            incr ::c::d::(m)
         }
         proc c::e::s {object} {
             incr ($object,p)
-            incr c::d::($object,n)
+            incr ::c::d::($object,n)
         }
         set o [new c::e]
         catch {c::d::p $o} message; lappend ::result $message
@@ -8433,11 +8433,11 @@ test stooop-89 {
                 proc ~D {this} {}
                 proc p {this} {
                     incr (m)
-                    incr C::E::(o)
+                    incr ::C::E::(o)
                 }
                 proc q {object} {
                     incr ($object,n)
-                    incr C::E::($object,p)
+                    incr ::C::E::($object,p)
                 }
             }
             class E {
@@ -8448,18 +8448,18 @@ test stooop-89 {
                 proc ~E {this} {}
                 proc r {this} {
                     incr (o)
-                    incr C::D::(m)
+                    incr ::C::D::(m)
                 }
                 proc s {object} {
                     incr ($object,p)
-                    incr C::D::($object,n)
+                    incr ::C::D::($object,n)
                 }
             }
             set ::o [new E]
-            catch {D::p $o} message; lappend ::result $message
-            catch {D::q $o} message; lappend ::result $message
-            catch {E::r $o} message; lappend ::result $message
-            catch {E::s $o} message; lappend ::result $message
+            catch {D::p $::o} message; lappend ::result $message
+            catch {D::q $::o} message; lappend ::result $message
+            catch {E::r $::o} message; lappend ::result $message
+            catch {E::s $::o} message; lappend ::result $message
         }
         catch {C::D::p $o} message; lappend ::result $message
         catch {C::D::q $o} message; lappend ::result $message
@@ -8472,26 +8472,26 @@ test stooop-89 {
     interp delete $interpreter
     set result
 } [list\
-    {can't set "b::(o)": class access violation in procedure ::a::p}\
-    {can't set "b::(1,p)": class access violation in procedure ::a::q}\
-    {can't set "a::(m)": class access violation in procedure ::b::r}\
-    {can't set "a::(1,n)": class access violation in procedure ::b::s}\
-    {can't set "B::(o)": class access violation in procedure ::A::p}\
-    {can't set "B::(2,p)": class access violation in procedure ::A::q}\
-    {can't set "A::(m)": class access violation in procedure ::B::r}\
-    {can't set "A::(2,n)": class access violation in procedure ::B::s}\
-    {can't set "c::e::(o)": class access violation in procedure ::c::d::p}\
-    {can't set "c::e::(3,p)": class access violation in procedure ::c::d::q}\
-    {can't set "c::d::(m)": class access violation in procedure ::c::e::r}\
-    {can't set "c::d::(3,n)": class access violation in procedure ::c::e::s}\
-    {can't set "C::E::(o)": class access violation in procedure ::C::D::p}\
-    {can't set "C::E::(4,p)": class access violation in procedure ::C::D::q}\
-    {can't set "C::D::(m)": class access violation in procedure ::C::E::r}\
-    {can't set "C::D::(4,n)": class access violation in procedure ::C::E::s}\
-    {can't set "C::E::(o)": class access violation in procedure ::C::D::p}\
-    {can't set "C::E::(4,p)": class access violation in procedure ::C::D::q}\
-    {can't set "C::D::(m)": class access violation in procedure ::C::E::r}\
-    {can't set "C::D::(4,n)": class access violation in procedure ::C::E::s}\
+    {can't set "::b::(o)": class access violation in procedure ::a::p}\
+    {can't set "::b::(1,p)": class access violation in procedure ::a::q}\
+    {can't set "::a::(m)": class access violation in procedure ::b::r}\
+    {can't set "::a::(1,n)": class access violation in procedure ::b::s}\
+    {can't set "::B::(o)": class access violation in procedure ::A::p}\
+    {can't set "::B::(2,p)": class access violation in procedure ::A::q}\
+    {can't set "::A::(m)": class access violation in procedure ::B::r}\
+    {can't set "::A::(2,n)": class access violation in procedure ::B::s}\
+    {can't set "::c::e::(o)": class access violation in procedure ::c::d::p}\
+    {can't set "::c::e::(3,p)": class access violation in procedure ::c::d::q}\
+    {can't set "::c::d::(m)": class access violation in procedure ::c::e::r}\
+    {can't set "::c::d::(3,n)": class access violation in procedure ::c::e::s}\
+    {can't set "::C::E::(o)": class access violation in procedure ::C::D::p}\
+    {can't set "::C::E::(4,p)": class access violation in procedure ::C::D::q}\
+    {can't set "::C::D::(m)": class access violation in procedure ::C::E::r}\
+    {can't set "::C::D::(4,n)": class access violation in procedure ::C::E::s}\
+    {can't set "::C::E::(o)": class access violation in procedure ::C::D::p}\
+    {can't set "::C::E::(4,p)": class access violation in procedure ::C::D::q}\
+    {can't set "::C::D::(m)": class access violation in procedure ::C::E::r}\
+    {can't set "::C::D::(4,n)": class access violation in procedure ::C::E::s}\
 ]
 
 test stooop-90 {
@@ -8509,10 +8509,10 @@ test stooop-90 {
         proc a::a {this} {}
         proc a::~a {this} {}
         proc a::p {this} {
-            array set b:: "$this,m 0"
+            array set ::b:: "$this,m 0"
         }
         proc a::q {this} {
-            array set b:: {n 0}
+            array set ::b:: {n 0}
         }
         set o [new a]
         class b {}
@@ -8525,19 +8525,19 @@ test stooop-90 {
             proc A {this} {}
             proc ~A {this} {}
             proc p {this} {
-                array set B:: "$this,m 0"
+                array set ::B:: "$this,m 0"
             }
             proc q {this} {
-                array set B:: {n 0}
+                array set ::B:: {n 0}
             }
         }
         set o [new A]
         class B {
-            array set B:: "$o,m 0 n 0"
+            array set ::B:: "$::o,m 0 n 0"
         }
         class A {
-            catch {p $o} message; lappend ::result $message
-            catch {q $o} message; lappend ::result $message
+            catch {p $::o} message; lappend ::result $message
+            catch {q $::o} message; lappend ::result $message
         }
         delete $o
 
@@ -8546,10 +8546,10 @@ test stooop-90 {
         proc c::d::d {this} {}
         proc c::d::~d {this} {}
         proc c::d::p {this} {
-            array set c::e:: "$this,m 0"
+            array set ::c::e:: "$this,m 0"
         }
         proc c::d::q {this} {
-            array set c::e:: {n 0}
+            array set ::c::e:: {n 0}
         }
         class c::e {}
         set o [new c::d]
@@ -8563,19 +8563,19 @@ test stooop-90 {
                 proc D {this} {}
                 proc ~D {this} {}
                 proc p {this} {
-                    array set C::E:: "$this,m 0"
+                    array set ::C::E:: "$this,m 0"
                 }
                 proc q {this} {
-                    array set C::E:: {n 0}
+                    array set ::C::E:: {n 0}
                 }
             }
             set ::o [new D]
             class E {
-                array set C::E:: "$o,m 0 n 0"
+                array set ::C::E:: "$::o,m 0 n 0"
             }
             class D {
-                catch {p $o} message; lappend ::result $message
-                catch {q $o} message; lappend ::result $message
+                catch {p $::o} message; lappend ::result $message
+                catch {q $::o} message; lappend ::result $message
             }
         }
         catch {C::D::p $o} message; lappend ::result $message
@@ -8587,16 +8587,16 @@ test stooop-90 {
     interp delete $interpreter
     set result
 } [list\
-    {can't set "b::(1,m)": class access violation in procedure ::a::p}\
-    {can't set "b::(n)": class access violation in procedure ::a::q}\
-    {can't set "B::(2,m)": class access violation in procedure ::A::p}\
-    {can't set "B::(n)": class access violation in procedure ::A::q}\
-    {can't set "c::e::(3,m)": class access violation in procedure ::c::d::p}\
-    {can't set "c::e::(n)": class access violation in procedure ::c::d::q}\
-    {can't set "C::E::(4,m)": class access violation in procedure ::C::D::p}\
-    {can't set "C::E::(n)": class access violation in procedure ::C::D::q}\
-    {can't set "C::E::(4,m)": class access violation in procedure ::C::D::p}\
-    {can't set "C::E::(n)": class access violation in procedure ::C::D::q}\
+    {can't set "::b::(1,m)": class access violation in procedure ::a::p}\
+    {can't set "::b::(n)": class access violation in procedure ::a::q}\
+    {can't set "::B::(2,m)": class access violation in procedure ::A::p}\
+    {can't set "::B::(n)": class access violation in procedure ::A::q}\
+    {can't set "::c::e::(3,m)": class access violation in procedure ::c::d::p}\
+    {can't set "::c::e::(n)": class access violation in procedure ::c::d::q}\
+    {can't set "::C::E::(4,m)": class access violation in procedure ::C::D::p}\
+    {can't set "::C::E::(n)": class access violation in procedure ::C::D::q}\
+    {can't set "::C::E::(4,m)": class access violation in procedure ::C::D::p}\
+    {can't set "::C::E::(n)": class access violation in procedure ::C::D::q}\
 ]
 
 test stooop-91 {

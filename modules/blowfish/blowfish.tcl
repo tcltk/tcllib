@@ -17,7 +17,7 @@
 # -------------------------------------------------------------------------
 #
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval blowfish {
     variable uid
@@ -745,7 +745,7 @@ namespace eval ::blowfish {
     unset e
 }
 
-package provide blowfish 1.0.5
+package provide blowfish 1.0.6
 
 # -------------------------------------------------------------------------
 #

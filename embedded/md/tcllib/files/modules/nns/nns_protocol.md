@@ -2,7 +2,7 @@
 [//000000001]: # (nameserv::protocol \- Name service facility)
 [//000000002]: # (Generated from file 'nns\_protocol\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (nameserv::protocol\(n\) 0\.1 tcllib "Name service facility")
+[//000000004]: # (nameserv::protocol\(n\) 0\.2 tcllib "Name service facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

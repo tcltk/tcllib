@@ -194,7 +194,7 @@ proc ::sak::validate::syntax::Setup {} {
 	interp eval $ip [list ::rename $c {}]
     }
 
-    if {![package vsatisfies [package present Tcl] 8.6]} {
+    if {![package vsatisfies [package present Tcl] 8.6 9]} {
 	interp eval $ip [list ::namespace delete ::tcl]
     }
     interp eval $ip [list ::rename namespace {}]

@@ -1,11 +1,10 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.27 2010/07/06 18:49:15 andreas_kupries Exp $
-#
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
 #
 # Copyright (C) 2001 Joe English <jenglish@sourceforge.net>.
+# Copyright (c) 2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 # Freely redistributable.
 #
 # See also <URL: http://tmml.sourceforge.net>
@@ -269,12 +268,14 @@ proc formatCall {cmd arglist} {
     return "$cmd [join $arglist { }]"	;# OR: wrap "..." command
 }
 
-c_pass 1 fmt_require {pkg {version {}}} {
-    c_hold synopsis [formatRequire $pkg $version]
+c_pass 1 fmt_require {pkg vs} {
+    c_hold synopsis [formatRequire $pkg $vs]
 }
-c_pass 2 fmt_require {pkg {version {}}} NOP
-proc formatRequire {pkg version} {
-    return "package require [wrap $pkg package] $version"
+c_pass 2 fmt_require {pkg vs} NOP
+proc formatRequire {pkg vs} {
+    set result "package require [wrap $pkg package]"
+    foreach version $vs {append result " $version"}
+    return $result
 }
 
 # Note: TMML apparently has no support for category data inside of the document.

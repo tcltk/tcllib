@@ -2,7 +2,7 @@
 [//000000001]: # (math::polynomials \- Tcl Math Library)
 [//000000002]: # (Generated from file 'polynomials\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
-[//000000004]: # (math::polynomials\(n\) 1\.0\.1 tcllib "Tcl Math Library")
+[//000000004]: # (math::polynomials\(n\) 1\.0\.2 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ math::polynomials \- Polynomial functions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.3?  
-package require math::polynomials ?1\.0\.1?  
+package require Tcl ?8\.5?  
+package require math::polynomials ?1\.0\.2?  
 
 [__::math::polynomials::polynomial__ *coeffs*](#1)  
 [__::math::polynomials::polynCmd__ *coeffs*](#2)  

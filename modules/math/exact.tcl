@@ -24,8 +24,8 @@
 #
 #-----------------------------------------------------------------------------
 
-package require Tcl 8.6
-package require grammar::aycock 1.0
+package require Tcl 8.6 9
+package require grammar::aycock 1.1
 
 namespace eval math::exact {
 
@@ -4045,7 +4045,7 @@ namespace eval ::math::exact {
 	$worker unref
 
 	set worker [[Log2Worker new] ref]
-	variable log2 [[$worker applyM {{1 1} {1 2}}] ref]
+	variable ::math::exact::log2 [[$worker applyM {{1 1} {1 2}}] ref]
 	$worker unref
 
     }
@@ -4055,6 +4055,6 @@ namespace eval ::math::exact {
     namespace export exactexpr abs1 signum1
 }
 
-package provide math::exact 1.0.1
+package provide math::exact 1.0.2
 
 #-----------------------------------------------------------------------

@@ -1,4 +1,4 @@
-[vset VERSION 1]
+[vset VERSION 1.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin defer n [vset VERSION]]
 [keywords golang]
@@ -7,7 +7,7 @@
 [moddesc {Defered execution ala Go}]
 [titledesc {Defered execution}]
 [category  {Utility}]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require defer [opt [vset VERSION]]]
 [description]
 

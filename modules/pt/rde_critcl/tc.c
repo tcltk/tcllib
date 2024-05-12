@@ -13,8 +13,8 @@
  */
 
 typedef struct RDE_TC_ {
-    int       max;   /* Max number of bytes in the cache */
-    int       num;   /* Current number of bytes in the cache */
+    Tcl_Size  max;   /* Max number of bytes in the cache */
+    Tcl_Size  num;   /* Current number of bytes in the cache */
     char*     str;   /* Character cache (utf8) */
     RDE_STACK off;   /* Offsets of characters in 'string' */
 } RDE_TC_;
@@ -46,7 +46,7 @@ rde_tc_del (RDE_TC tc)
     ckfree ((char*) tc);
 }
 
-SCOPE long int
+SCOPE Tcl_Size
 rde_tc_size (RDE_TC tc)
 {
     return rde_stack_size (tc->off);
@@ -61,13 +61,11 @@ rde_tc_clear (RDE_TC tc)
 }
 
 SCOPE char*
-rde_tc_append (RDE_TC tc, char* string, long int len)
+rde_tc_append (RDE_TC tc, char* string, Tcl_Size len)
 {
-    long int base = tc->num;
-    long int off  = tc->num;
-    char* ch;
-    int clen;
-    Tcl_UniChar uni;
+    Tcl_Size base = tc->num;
+    Tcl_Size off  = tc->num;
+    char*    ch;
 
     if (len < 0) {
 	len = strlen (string);
@@ -86,8 +84,8 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
      */
 
     if ((tc->num + len) >= tc->max) {
-	int   new = len + (tc->max ? (2 * tc->max) : RDE_STACK_INITIAL_SIZE);
-	char* str = ckrealloc (tc->str, new * sizeof(char));
+	Tcl_Size new = len + (tc->max ? (2 * tc->max) : RDE_STACK_INITIAL_SIZE);
+	char*    str = ckrealloc (tc->str, new * sizeof(char));
 	ASSERT (str,"Memory allocation failure for token character array");
 	tc->max = new;
 	tc->str = str;
@@ -107,10 +105,13 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
 
     ch = string;
     while (ch < (string + len)) {
-	ASSERT_BOUNDS(off,tc->num);
-	rde_stack_push (tc->off,  (void*) off);
+	Tcl_Size    clen;
+	Tcl_UniChar uni;
 
-	clen = Tcl_UtfToUniChar (ch, &uni);
+	ASSERT_BOUNDS(off,tc->num);
+	rde_stack_push (tc->off,  (void*) (long int) off);
+
+	clen = Tcl_UtfToUniChar (ch, &uni); /* OK tcl9 */
 
 	off += clen;
 	ch  += clen;
@@ -120,20 +121,20 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
 }
 
 SCOPE void
-rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
+rde_tc_get (RDE_TC tc, Tcl_Size at, char** ch, Tcl_Size* len)
 {
-    long int  oc, off, end;
-    void** ov;
+    Tcl_Size oc, off, end;
+    void**   ov;
 
     rde_stack_get (tc->off, &oc, &ov);
 
     ASSERT_BOUNDS(at,oc);
 
-    off = (long int) ov [at];
+    off = (Tcl_Size) (long int) ov [at];
     if ((at+1) == oc) {
 	end = tc->num;
     } else {
-	end = (long int) ov [at+1];
+	end = (Tcl_Size) (long int) ov [at+1];
     }
 
     TRACE (("rde_tc_get (RDE_TC %p, @ %d) => %d.[%d ... %d]/%d",tc,at,end-off,off,end-1,tc->num));
@@ -146,21 +147,21 @@ rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 }
 
 SCOPE void
-rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
+rde_tc_get_s (RDE_TC tc, Tcl_Size at, Tcl_Size last, char** ch, Tcl_Size* len)
 {
-    long int  oc, off, end;
-    void** ov;
+    Tcl_Size oc, off, end;
+    void**   ov;
 
     rde_stack_get (tc->off, &oc, &ov);
 
     ASSERT_BOUNDS(at,oc);
     ASSERT_BOUNDS(last,oc);
 
-    off = (long int) ov [at];
+    off = (Tcl_Size) (long int) ov [at];
     if ((last+1) == oc) {
 	end = tc->num;
     } else {
-	end = (long int) ov [last+1];
+	end = (Tcl_Size) (long int) ov [last+1];
     }
 
     TRACE (("rde_tc_get_s (RDE_TC %p, @ %d .. %d) => %d.[%d ... %d]/%d",tc,at,last,end-off,off,end-1,tc->num));

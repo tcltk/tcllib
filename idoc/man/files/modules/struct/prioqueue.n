@@ -2,7 +2,7 @@
 '\" Generated from file 'prioqueue\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003 Michael Schlenker <mic42@users\&.sourceforge\&.net>
 '\"
-.TH "struct::prioqueue" n 1\&.4 tcllib "Tcl Data Structures"
+.TH "struct::prioqueue" n 1\&.5 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::prioqueue \- Create and manipulate prioqueue objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::prioqueue  ?1\&.4?\fR
+package require \fBstruct::prioqueue ?1\&.5?\fR
 .sp
 \fB::struct::prioqueue\fR ?\fB-ascii|-dictionary|-integer|-real\fR? ?\fIprioqueueName\fR?
 .sp

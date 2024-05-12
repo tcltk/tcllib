@@ -53,7 +53,7 @@ pt \- Parser Tools Application
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 
 [__pt__ __generate__ *resultformat* ?*options\.\.\.*? *resultfile* *inputformat* *inputfile*](#1)  
 

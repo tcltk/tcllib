@@ -25,7 +25,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require cmdline
 
 # ### ### ### ######### ######### #########
@@ -497,5 +497,5 @@ namespace eval bibtex {
 
 # ### ### ### ######### ######### #########
 ## Ready to go
-package provide bibtex 0.7
+package provide bibtex 0.8
 # EOF

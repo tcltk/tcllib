@@ -10,9 +10,9 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
-package provide math::constants 1.0.2
+package provide math::constants 1.0.3
 
 # namespace constants
 #    Create a convenient namespace for the constants
@@ -182,11 +182,13 @@ namespace eval ::math::constants {
 if { [info exists ::argv0]
      && [string equal $::argv0 [info script]] } {
     ::math::constants::constants pi e ln10 onethird eps
-    set prec $::tcl_precision
-    if {![package vsatisfies [package provide Tcl] 8.5]} {
-        set ::tcl_precision 17
-    } else {
-        set ::tcl_precision 0
+    if {![package vsatisfies [package provide Tcl] 9]} {
+        set prec $::tcl_precision
+        if {![package vsatisfies [package provide Tcl] 8.5 9]} {
+            set ::tcl_precision 17
+        } else {
+            set ::tcl_precision 0
+        }
     }
     puts "$pi - [expr {1.0/$pi}]"
     puts $e
@@ -201,5 +203,7 @@ if { [info exists ::argv0]
     } else {
         puts "Difference: [set ee [expr {1.0+$eps}]] - 1.0 = [expr {$ee-1.0}]"
     }
-    set ::tcl_precision $prec
+    if {![package vsatisfies [package provide Tcl] 9]} {
+        set ::tcl_precision $prec
+    }
 }

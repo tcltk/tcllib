@@ -238,7 +238,11 @@
     ###
     set pkg [my define get pkg_name [my define get name]]
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     set srcdir [my define get srcdir]
     ::practcl::dotclexec [file join $srcdir installer.tcl] \
       -apps -app-path [file join $prefix apps] \
@@ -299,7 +303,11 @@
     ###
     set pkg [my define get pkg_name [my define get name]]
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     set srcdir [my define get srcdir]
     ::practcl::dotclexec [file join $srcdir make.tcl] install [file join $prefix lib $pkg]
   }

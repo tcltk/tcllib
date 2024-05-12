@@ -12,7 +12,7 @@
 
 # @mdgen EXCLUDE: queue_c.tcl
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 namespace eval ::struct::queue {}
 
 # ### ### ### ######### ######### #########
@@ -35,16 +35,12 @@ proc ::struct::queue::LoadAccelerator {key} {
     switch -exact -- $key {
 	critcl {
 	    # Critcl implementation of queue requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::queue_critcl]]
 	}
 	tcl {
 	    variable selfdir
-	    if {
-		[package vsatisfies [package provide Tcl] 8.5] &&
-		![catch {package require TclOO 0.6.1-}]
-	    } {
+	    if {![catch {package require TclOO 0.6.1-}]} {
 		source [file join $selfdir queue_oo.tcl]
 	    } else {
 		source [file join $selfdir queue_tcl.tcl]
@@ -184,4 +180,4 @@ namespace eval ::struct {
     namespace export queue
 }
 
-package provide struct::queue 1.4.5
+package provide struct::queue 1.4.6

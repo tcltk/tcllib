@@ -20,7 +20,7 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 
-package require Tcl 8.5 ;# ni/in operators
+package require Tcl 8.5 9 ;# ni/in operators
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
@@ -402,20 +402,20 @@ proc ::autoproxy::tls_connect {args} {
             if {$options(tls_package) eq "twapi"} {
                 set s [eval [linsert [lrange $args 0 end-3] 0 ::twapi::starttls $s -peersubject $peersubject]]
             } else {
-                eval [linsert [lrange $args 0 end-3] 0 ::tls::import $s]
+                eval [linsert [lrange $args 0 end-3] 0 ::tls::import $s -servername $peersubject]
             }
         } else {
             if {$options(tls_package) eq "twapi"} {
                 set s [eval [linsert [lrange $args 0 end-2] 0 ::twapi::starttls $s -peersubject $peersubject]]
             } else {
-                eval [linsert [lrange $args 0 end-2] 0 ::tls::import $s]
+                eval [linsert [lrange $args 0 end-2] 0 ::tls::import $s -servername $peersubject]
             }
         }
     } else {
         if {$options(tls_package) eq "twapi"} {
             set s [eval [linsert $args 0 ::twapi::tls_socket]]
         } else {
-            set s [eval [linsert $args 0 ::tls::socket]]
+            set s [eval [linsert $args 0 ::tls::socket -servername $peersubject]]
         }
     }
     return $s
@@ -578,7 +578,7 @@ proc ::autoproxy::tls_socket {args} {
 
 # -------------------------------------------------------------------------
 
-package provide autoproxy 1.7
+package provide autoproxy 1.8.1
 
 # -------------------------------------------------------------------------
 #

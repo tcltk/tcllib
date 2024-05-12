@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require tie
 
@@ -120,4 +120,4 @@ snit::type ::tie::std::array {
 ## Ready to go
 
 ::tie::register ::tie::std::array as array
-package provide   tie::std::array 1.1
+package provide   tie::std::array 1.2

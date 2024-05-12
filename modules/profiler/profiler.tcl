@@ -7,8 +7,8 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.3		;# uses [clock clicks -milliseconds]
-package provide profiler 0.6
+package require Tcl 8.5 9		;# uses [clock clicks -milliseconds]
+package provide profiler 0.7
 
 namespace eval ::profiler {}
 
@@ -295,14 +295,9 @@ proc ::profiler::profProc {name arglist body} {
     set statTime($name) {}
     set enabled($name) [expr {!$paused}]
 
-    if {[package vsatisfies [package provide Tcl] 8.4]} {
-        uplevel 1 [list ::_oldProc $name $arglist $body]
-        trace add execution $name {enter leave} \
-                 [list ::profiler::TraceHandler $name]
-    } else {
-        uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
-        uplevel 1 [list interp alias {} $name {} ::profiler::Handler $name]
-    }
+    uplevel 1 [list ::_oldProc $name $arglist $body]
+    trace add execution $name {enter leave} \
+        [list ::profiler::TraceHandler $name]
     return
 }
 

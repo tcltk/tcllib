@@ -16,7 +16,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::textutil::string {}
 
@@ -141,4 +141,4 @@ namespace eval ::textutil::string {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::string 0.8
+package provide textutil::string 0.9

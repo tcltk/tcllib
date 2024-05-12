@@ -126,7 +126,7 @@ snit::type ::term::receive::bind {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::receive::bind 0.1
+package provide term::receive::bind 0.2
 
 ##
 # ### ### ### ######### ######### #########

@@ -10,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.6 9
 package require http
 package require json
 package require uri
@@ -35,7 +35,7 @@ snit::type map::geocode::nominatim {
     option -baseurl "http://nominatim.openstreetmap.org/search"
     option -callback callbackdefault
     option -error errordefault
-    
+
 
     # No special constructor, so far
 
@@ -51,7 +51,7 @@ snit::type map::geocode::nominatim {
     # - display_name
     # - class
     # - type
-    # - icon 
+    # - icon
     # Most interesting should be display_name, lat, lon and boundingbox
     method search {query} {
         set query [http::formatQuery q $query format json]
@@ -88,4 +88,4 @@ snit::type map::geocode::nominatim {
     # none, so far
 }
 
-package provide map::geocode::nominatim 0.1
+package provide map::geocode::nominatim 0.3

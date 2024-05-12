@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package provide inifile 0.3.2
+package provide inifile 0.3.3
 
 namespace eval ini {
     variable nexthandle  0

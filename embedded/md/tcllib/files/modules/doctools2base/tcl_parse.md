@@ -39,7 +39,7 @@ doctools::tcl::parse \- Processing text in 'subst \-novariables' format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
 package require fileutil  
 package require logger  

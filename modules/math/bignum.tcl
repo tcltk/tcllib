@@ -48,7 +48,7 @@
 # TODO
 # - pow and powm should check if the exponent is zero in order to return one
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::math::bignum {}
 
@@ -897,4 +897,4 @@ namespace eval ::math::bignum {
 
 # Announce the package
 
-package provide math::bignum 3.1.1
+package provide math::bignum 3.1.2

@@ -1,4 +1,4 @@
-[vset VERSION 1.2.7]
+[vset VERSION 1.2.8]
 [manpage_begin uri n [vset VERSION]]
 [keywords {fetching information}]
 [keywords file]
@@ -21,7 +21,7 @@
 [moddesc   {Tcl Uniform Resource Identifier Management}]
 [titledesc {URI utilities}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require uri [opt [vset VERSION]]]
 [description]
 

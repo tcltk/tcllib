@@ -2,7 +2,7 @@
 [//000000001]: # (struct::set \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'struct\_set\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (struct::set\(n\) 2\.2\.3 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::set\(n\) 2\.2\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ struct::set \- Procedures for manipulating sets
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.0  
-package require struct::set ?2\.2\.3?  
+package require Tcl 8\.5 9  
+package require struct::set ?2\.2\.4?  
 
 [__::struct::set__ __empty__ *set*](#1)  
 [__::struct::set__ __size__ *set*](#2)  

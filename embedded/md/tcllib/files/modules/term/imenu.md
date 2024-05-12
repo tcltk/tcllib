@@ -2,7 +2,7 @@
 [//000000001]: # (term::interact::menu \- Terminal control)
 [//000000002]: # (Generated from file 'imenu\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (term::interact::menu\(n\) 0\.1 tcllib "Terminal control")
+[//000000004]: # (term::interact::menu\(n\) 0\.2 tcllib "Terminal control")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -41,8 +41,8 @@ term::interact::menu \- Terminal widget, menu
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require term::interact::menu ?0\.1?  
+package require Tcl 8\.5 9  
+package require term::interact::menu ?0\.2?  
 
 [__term::interact::menu__ *object* *dict* ?*options*\.\.\.?](#1)  
 [*object* __interact__](#2)  

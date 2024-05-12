@@ -40,12 +40,10 @@ namespace import ::tcltest::test
 namespace import ::tcltest::cleanupTests
 namespace import ::math::calculus::symdiff::*
 
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
 }
+set ::tcl_precision 0
 
 test symdiff-1.1 {derivative of a constant} {
     symdiff {1.0} a
@@ -447,7 +445,9 @@ test symdiff-30.0 {illustration of Newton's method - find a root of sin(x)-0.5 n
 } 0.5
 
 # End of test cases
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
 cleanupTests
 }
 

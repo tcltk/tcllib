@@ -33,7 +33,7 @@ term::ansi::code \- Helper for control sequences
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::ansi::code ?0\.2?  
 
 [__::term::ansi::code::esc__ *str*](#1)  

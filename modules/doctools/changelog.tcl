@@ -14,7 +14,7 @@
 # FUTURE --  => Connectivity to 'struct::matrix', Reports!
 
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require textutil
 
 namespace eval ::doctools {}
@@ -275,4 +275,4 @@ proc ::doctools::changelog::toDoctools {title module version entries} {
 #------------------------------------
 # Module initialization
 
-package provide doctools::changelog 1.1
+package provide doctools::changelog 1.2

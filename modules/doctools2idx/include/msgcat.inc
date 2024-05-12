@@ -4,7 +4,7 @@
 [moddesc   {Documentation tools}]
 [titledesc "Message catalog for the docidx parser ([vset NAME])"]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require msgcat]
 [require doctools::msgcat::idx::[vset PACKAGE] [opt 0.1]]
 [keywords doctools docidx {message catalog}]

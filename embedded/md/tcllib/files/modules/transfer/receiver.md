@@ -2,7 +2,7 @@
 [//000000001]: # (transfer::receiver \- Data transfer facilities)
 [//000000002]: # (Generated from file 'receiver\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (transfer::receiver\(n\) 0\.2 tcllib "Data transfer facilities")
+[//000000004]: # (transfer::receiver\(n\) 0\.3 tcllib "Data transfer facilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -47,11 +47,11 @@ transfer::receiver \- Data source
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit ?1\.0?  
-package require transfer::data::destination ?0\.2?  
-package require transfer::connect ?0\.2?  
-package require transfer::receiver ?0\.2?  
+package require transfer::data::destination ?0\.3?  
+package require transfer::connect ?0\.3?  
+package require transfer::receiver ?0\.3?  
 
 [__transfer::receiver__ *object* ?*options*\.\.\.?](#1)  
 [__transfer::receiver__ __stream channel__ *chan* *host* *port* ?*arg*\.\.\.?](#2)  

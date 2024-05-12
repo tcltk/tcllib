@@ -9,9 +9,9 @@
 ## BSD License
 ##
 # Package providing commands for the generation of a zip archive.
-# version 1.2.1
+# version 1.2.3
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 
 namespace eval ::zipfile {}
 namespace eval ::zipfile::decode {}
@@ -210,73 +210,90 @@ proc ::zipfile::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
 #        eg: zip my.zip -directory Subdir -runtime unzipsfx.exe *.txt
 #
 proc ::zipfile::mkzip::mkzip {filename args} {
-  array set opts {
-      -zipkit 0 -runtime "" -comment "" -directory ""
-      -exclude {CVS/* */CVS/* *~ ".#*" "*/.#*"}
-      -verbose 0
-  }
+    array set opts {
+	-zipkit 0
+	-runtime ""
+	-comment ""
+	-directory ""
+	-exclude {CVS/* */CVS/* *~ ".#*" "*/.#*"}
+	-verbose 0
+	-prepend-base-directory 0
+    }
 
-  while {[string match -* [set option [lindex $args 0]]]} {
-      switch -exact -- $option {
-          -verbose { set opts(-verbose) 1}
-          -zipkit  { set opts(-zipkit) 1 }
-          -comment { set opts(-comment) [encoding convertto utf-8 [pop args 1]] }
-          -runtime { set opts(-runtime) [pop args 1] }
-          -directory {set opts(-directory) [file normalize [pop args 1]] }
-          -exclude {set opts(-exclude) [pop args 1] }
-          -- { pop args ; break }
-          default {
-              break
-          }
-      }
-      pop args
-  }
+    while {[string match -* [set option [lindex $args 0]]]} {
+	switch -exact -- $option {
+	    -verbose               { set opts(-verbose) 1}
+	    -zipkit                { set opts(-zipkit) 1 }
+	    -comment               { set opts(-comment) [encoding convertto utf-8 [pop args 1]] }
+	    -runtime               { set opts(-runtime) [pop args 1] }
+	    -directory             { set opts(-directory) [file normalize [pop args 1]] }
+	    -exclude               { set opts(-exclude) [pop args 1] }
+	    -prepend-base-directory { set opts(-prepend-base-directory) 1 }
+	    -- { pop args ; break }
+	    default {
+		break
+	    }
+	}
+	pop args
+    }
 
-  set zf [::open $filename wb]
-  setbinary $zf
-  if {$opts(-runtime) ne ""} {
-      set rt [::open $opts(-runtime) rb]
-      setbinary $rt
-      fcopy $rt $zf
-      close $rt
-  } elseif {$opts(-zipkit)} {
-      set zkd "#!/usr/bin/env tclkit\n\# This is a zip-based Tcl Module\n"
-      append zkd "package require vfs::zip\n"
-      append zkd "vfs::zip::Mount \[info script\] \[info script\]\n"
-      append zkd "if {\[file exists \[file join \[info script\] main.tcl\]\]} \{\n"
-      append zkd "    source \[file join \[info script\] main.tcl\]\n"
-      append zkd "\}\n"
-      append zkd \x1A
-      puts -nonewline $zf $zkd
-  }
+    set zf [::open $filename wb]
+    setbinary $zf
+    if {$opts(-runtime) ne ""} {
+	set rt [::open $opts(-runtime) rb]
+	setbinary $rt
+	fcopy $rt $zf
+	close $rt
+    } elseif {$opts(-zipkit)} {
+	set zkd "#!/usr/bin/env tclkit\n\# This is a zip-based Tcl Module\n"
+	append zkd "package require vfs::zip\n"
+	append zkd "vfs::zip::Mount \[info script\] \[info script\]\n"
+	append zkd "if {\[file exists \[file join \[info script\] main.tcl\]\]} \{\n"
+	append zkd "    source \[file join \[info script\] main.tcl\]\n"
+	append zkd "\}\n"
+	append zkd \x1A
+	puts -nonewline $zf $zkd
+    }
 
-  set count 0
-  set cd ""
+    set count 0
+    set cd ""
 
-  if {$opts(-directory) ne ""} {
-      set paths [walk $opts(-directory) $opts(-exclude)]
-  } else {
-      set paths [glob -nocomplain {*}$args]
-  }
-  foreach path $paths {
-      if {[string is true $opts(-verbose)]} {
-        puts $path
-      }
-      append cd [add_file_to_archive $zf $opts(-directory) $path]
-      incr count
-  }
-  set cdoffset [tell $zf]
-  set endrec [binary format a4ssssiis PK\05\06 0 0 \
-                  $count $count [string length $cd] $cdoffset\
-                  [string length $opts(-comment)]]
-  append endrec $opts(-comment)
-  puts -nonewline $zf $cd
-  puts -nonewline $zf $endrec
-  close $zf
+    if {$opts(-directory) ne ""} {
+	set paths [walk $opts(-directory) $opts(-exclude)]
 
-  return
+	if {$opts(-prepend-base-directory) } {
+
+	    set directory_tail [file tail $opts(-directory)]
+
+	    set paths [lmap path $paths {
+		file join $directory_tail $path
+	    }]
+	    set paths [linsert $paths 0 $directory_tail]
+
+	    set opts(-directory) [file dirname $opts(-directory)]
+	}
+    } else {
+	set paths [glob -nocomplain {*}$args]
+    }
+    foreach path $paths {
+	if {[string is true $opts(-verbose)]} {
+	    puts $path
+	}
+	append cd [add_file_to_archive $zf $opts(-directory) $path]
+	incr count
+    }
+    set cdoffset [tell $zf]
+    set endrec [binary format a4ssssiis PK\05\06 0 0 \
+		    $count $count [string length $cd] $cdoffset\
+		    [string length $opts(-comment)]]
+    append endrec $opts(-comment)
+    puts -nonewline $zf $cd
+    puts -nonewline $zf $endrec
+    close $zf
+
+    return
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::mkzip 1.2.1
+package provide zipfile::mkzip 1.2.3

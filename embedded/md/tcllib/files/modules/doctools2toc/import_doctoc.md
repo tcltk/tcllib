@@ -39,7 +39,7 @@ doctools::toc::import::doctoc \- doctoc import plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require doctools::toc::import::doctoc ?0\.2\.1?  
 package require doctools::toc::parse  
 package require doctools::toc::structure  

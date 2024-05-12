@@ -1,7 +1,7 @@
 
 [//000000001]: # (nntp \- Tcl NNTP Client Library)
 [//000000002]: # (Generated from file 'nntp\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (nntp\(n\) 1\.5\.1 tcllib "Tcl NNTP Client Library")
+[//000000003]: # (nntp\(n\) 0\.2\.2 tcllib "Tcl NNTP Client Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ nntp \- Tcl client for the NNTP protocol
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require nntp ?0\.2\.1?  
+package require Tcl 8\.5 9  
+package require nntp ?0\.2\.2?  
 
 [__::nntp::nntp__ ?*host*? ?*port*? ?*nntpName*?](#1)  
 [*nntpName* __method__ ?*arg arg \.\.\.*?](#2)  

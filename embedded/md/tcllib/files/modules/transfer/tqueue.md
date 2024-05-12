@@ -2,7 +2,7 @@
 [//000000001]: # (transfer::copy::queue \- Data transfer facilities)
 [//000000002]: # (Generated from file 'tqueue\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (transfer::copy::queue\(n\) 0\.1 tcllib "Data transfer facilities")
+[//000000004]: # (transfer::copy::queue\(n\) 0\.2 tcllib "Data transfer facilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,11 +45,11 @@ transfer::copy::queue \- Queued transfers
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit ?1\.0?  
 package require struct::queue ?1\.4?  
-package require transfer::copy ?0\.2?  
-package require transfer::copy::queue ?0\.1?  
+package require transfer::copy ?0\.3?  
+package require transfer::copy::queue ?0\.2?  
 
 [__transfer::copy::queue__ *objectName* *outchannel* ?*options*\.\.\.?](#1)  
 [*objectName* __method__ ?*arg arg \.\.\.*?](#2)  

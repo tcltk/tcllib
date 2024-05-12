@@ -19,14 +19,14 @@
 
 # @mdgen EXCLUDE: base64c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 namespace eval ::base64 {
     namespace export encode decode
 }
 
-package provide base64 2.5
+package provide base64 2.6
 
-if {[package vsatisfies [package require Tcl] 8.6]} {
+if {[package vsatisfies [package require Tcl] 8.6 9]} {
     proc ::base64::encode {args} {
 	binary encode base64 -maxlen 76 {*}$args
     }

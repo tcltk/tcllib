@@ -482,4 +482,4 @@ proc ::pop3d::dbox::CheckDir {name} {
 ##########################
 # Module initialization
 
-package provide pop3d::dbox 1.0.2
+package provide pop3d::dbox 1.0.3

@@ -1,4 +1,4 @@
-[vset VERSION 1.6.3]
+[vset VERSION 1.7.2]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin mime n [vset VERSION]]
 [see_also ftp]
@@ -20,7 +20,7 @@
 [moddesc   {Mime}]
 [titledesc {Manipulation of MIME body parts}]
 [category  {Text processing}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require mime [opt [vset VERSION]]]
 [description]
 [para]
@@ -139,7 +139,7 @@ If [const write] is provided, deletes any existing headers whose names match
 [arg value].
 
 If [const delete] is provided any existing header having a name that matches
-[arg key] is deleted. 
+[arg key] is deleted.
 
 Returns a list of strings containing the previous value associated with the
 key.

@@ -33,7 +33,7 @@ dicttool \- Dictionary Tools
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require dicttool ?1\.0?  
 
 [__ladd__ *varname* *args*](#1)  

@@ -15,7 +15,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 # math::optimize --
 #    Namespace for the commands
@@ -1277,7 +1277,7 @@ proc ::math::optimize::SimplexNewTableau {tableau nextcol nextrow vector} {
 }
 
 # Now we can announce our presence
-package provide math::optimize 1.0.1
+package provide math::optimize 1.0.2
 
 if { ![info exists ::argv0] || [string compare $::argv0 [info script]] } {
     return
@@ -1304,11 +1304,13 @@ proc g {a b} {
     return $x4
 }
 
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
+    if {![package vsatisfies [package provide Tcl] 8.5 9]} {
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
 }
 
 puts "f"
@@ -1316,4 +1318,6 @@ puts [math::optimize::nelderMead f {1. 0.} -scale {0.1 0.01} -trace 1]
 puts "g"
 puts [math::optimize::nelderMead g {0. 0.} -scale {1. 1.} -trace 1]
 
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}

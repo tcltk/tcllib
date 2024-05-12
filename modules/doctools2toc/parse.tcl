@@ -20,7 +20,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                  ; # Required runtime.
+package require Tcl 8.5 9                  ; # Required runtime.
 package require doctools::toc::structure ; # Parse Tcl script, like subst.
 package require doctools::msgcat         ; # Error message L10N
 package require doctools::tcl::parse     ; # Parse Tcl script, like subst.
@@ -1054,5 +1054,5 @@ snit::type            ::doctools::toc::parse {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide doctools::toc::parse 0.1
+package provide doctools::toc::parse 0.2
 return

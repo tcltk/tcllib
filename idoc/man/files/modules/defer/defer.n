@@ -2,7 +2,7 @@
 '\" Generated from file 'defer\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2017, Roy Keene
 '\"
-.TH "defer" n 1 tcllib "Defered execution ala Go"
+.TH "defer" n 1\&.1 tcllib "Defered execution ala Go"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 defer \- Defered execution
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBdefer  ?1?\fR
+package require \fBdefer ?1\&.1?\fR
 .sp
 \fB::defer::defer\fR ?\fIcommand\fR? ?\fIarg1\fR? ?\fIarg2\fR? ?\fIargN\&.\&.\&.\fR?
 .sp

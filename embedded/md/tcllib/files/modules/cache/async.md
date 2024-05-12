@@ -2,7 +2,7 @@
 [//000000001]: # (cache::async \- In\-memory caches)
 [//000000002]: # (Generated from file 'async\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (cache::async\(n\) 0\.3\.1 tcllib "In\-memory caches")
+[//000000004]: # (cache::async\(n\) 0\.3\.2 tcllib "In\-memory caches")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ cache::async \- Asynchronous in\-memory cache
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require cache::async ?0\.3\.1?  
+package require Tcl 8\.5 9  
+package require cache::async ?0\.3\.2?  
 
 [__::cache::async__ *objectName* *commandprefix* ?*options*\.\.\.?](#1)  
 [*objectName* __get__ *key* *donecmdprefix*](#2)  

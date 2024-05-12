@@ -43,7 +43,7 @@ bee \- BitTorrent Serialization Format Encoder/Decoder
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require bee ?0\.1?  
 
 [__::bee::encodeString__ *string*](#1)  

@@ -2,7 +2,7 @@
 [//000000001]: # (smtpd \- Tcl SMTP Server Package)
 [//000000002]: # (Generated from file 'smtpd\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (smtpd\(n\) 1\.5 tcllib "Tcl SMTP Server Package")
+[//000000004]: # (smtpd\(n\) 1\.6 tcllib "Tcl SMTP Server Package")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -47,8 +47,8 @@ smtpd \- Tcl SMTP server implementation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require smtpd ?1\.5?  
+package require Tcl 8\.5 9  
+package require smtpd ?1\.6?  
 
 [__::smtpd::start__ ?*myaddr*? ?*port*?](#1)  
 [__::smtpd::stop__](#2)  
@@ -158,7 +158,7 @@ example below\.
       * __\-banner__ *text*
 
         Text of a custom banner message\. The default banner is "tcllib smtpd
-        1\.5"\. Note that changing the banner does not affect the bracketing text
+        1\.6"\. Note that changing the banner does not affect the bracketing text
         in the full greeting, printing status 220, server\-address, and
         timestamp\.
 

@@ -13,7 +13,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.0
+package require Tcl 8.5 9
 
 namespace eval ::struct::set {
     # Only export one command, the one used to instantiate a new tree

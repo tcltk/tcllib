@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TEST - ..THE_MODULE..</title>
 <style type="text/css"><!--
     HTML {
@@ -117,6 +119,7 @@
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">AAA</b></li>
 <li>package require <b class="pkgname">BBB VVV</b></li>
+<li>package require <b class="pkgname">CCC VA VB VC</b></li>
 </ul>
 </div>
 </div>

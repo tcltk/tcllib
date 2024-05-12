@@ -342,12 +342,13 @@ Text. The command is replaced with a right bracket. Use in free-form text.
 Required to avoid interpretation of a right bracket as the end of a markup
 command.
 
-[call [cmd require] [arg package] [opt [arg version]]]
+[call [cmd require] [arg package] [opt [arg version]...]]
 
 Document information. Header. This command registers its argument
 [arg package] as the name of a package or application required by the
-described package or application. A minimum version can be provided as
-well. This argument can be marked up. The usual markup is [cmd opt].
+described package or application. A set of required versions can be
+provided as well. This argument can be marked up. The usual markup
+is [cmd opt].
 
 [call [cmd section] [arg name]]
 

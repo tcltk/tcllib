@@ -37,7 +37,7 @@ yencode \- Y\-encode/decode binary data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require yencode ?1\.1\.2?  
 
 [__::yencode::encode__ *string*](#1)  

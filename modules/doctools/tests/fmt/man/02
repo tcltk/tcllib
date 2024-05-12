@@ -4,6 +4,7 @@
 [titledesc ..THE_TITLE..]
 [require AAA]
 [require BBB VVV]
+[require CCC VA VB VC]
 [keywords KEYA KEYZ]
 [see_also OTHER ELSE]
 [description]

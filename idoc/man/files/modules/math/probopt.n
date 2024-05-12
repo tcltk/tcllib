@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'probopt\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::probopt" n 1 tcllib "Tcl Math Library"
+.TH "math::probopt" n 1\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,11 +273,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::probopt \- Probabilistic optimisation methods
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBTclOO \fR
+package require \fBTclOO\fR
 .sp
-package require \fBmath::probopt  1\fR
+package require \fBmath::probopt 1\&.1\fR
 .sp
 \fB::math::probopt::pso\fR \fIfunction\fR \fIbounds\fR \fIargs\fR
 .sp

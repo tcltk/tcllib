@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 comm_wire \- The comm wire protocol
 .SH SYNOPSIS
-package require \fBcomm \fR
+package require \fBcomm\fR
 .sp
 .BE
 .SH DESCRIPTION

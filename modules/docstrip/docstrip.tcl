@@ -13,8 +13,8 @@
 ## **************************************
 ## the true source is the file from which this one was generated.
 ##
-package require Tcl 8.4
-package provide docstrip 1.2
+package require Tcl 8.5 9
+package provide docstrip 1.3
 namespace eval docstrip {
    namespace export extract sourcefrom
 }

@@ -18,7 +18,7 @@
 package require transfer::copy ; # Basic transfer facilities
 package require struct::queue  ; # Request queue
 package require snit           ; # OO system
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::transfer::copy::queue {
     namespace import ::transfer::copy::options
@@ -219,5 +219,5 @@ snit::type ::transfer::copy::queue {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::copy::queue 0.1
+package provide transfer::copy::queue 0.2
 

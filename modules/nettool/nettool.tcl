@@ -3,10 +3,10 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package require Tcl 8.5
-package provide nettool 0.5.2
+package require Tcl 8.5 9
+package provide nettool 0.5.3
 namespace eval ::nettool {}
-set ::nettool::version 0.5.2
+set ::nettool::version 0.5.3
 
 ###
 # START: core.tcl

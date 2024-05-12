@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 asn \- ASN\&.1 BER encoder/decoder
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBasn  ?0\&.8\&.4?\fR
+package require \fBasn ?0\&.8\&.5?\fR
 .sp
 \fB::asn::asnSequence\fR \fIevalue\fR\&.\&.\&.
 .sp

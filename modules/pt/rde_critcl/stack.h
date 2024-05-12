@@ -7,6 +7,7 @@
 #define _RDE_DS_STACK_H 1
 
 #include <util.h> /* Scoping */
+#include "tclpre9compat.h"
 
 /*
  * The stack data structure declared in this file is an array of void*
@@ -44,12 +45,12 @@ SCOPE void      rde_stack_del  (RDE_STACK s);
 
 SCOPE void*    rde_stack_top  (RDE_STACK s);
 SCOPE void     rde_stack_push (RDE_STACK s, void* item);
-SCOPE void     rde_stack_pop  (RDE_STACK s, long int n);
-SCOPE void     rde_stack_trim (RDE_STACK s, long int n);
-SCOPE void     rde_stack_drop (RDE_STACK s, long int n);
+SCOPE void     rde_stack_pop  (RDE_STACK s, Tcl_Size n);
+SCOPE void     rde_stack_trim (RDE_STACK s, Tcl_Size n);
+SCOPE void     rde_stack_drop (RDE_STACK s, Tcl_Size n);
 SCOPE void     rde_stack_move (RDE_STACK dst, RDE_STACK src);
-SCOPE void     rde_stack_get  (RDE_STACK s, long int* cn, void*** cc);
-SCOPE long int rde_stack_size (RDE_STACK s);
+SCOPE void     rde_stack_get  (RDE_STACK s, Tcl_Size* cn, void*** cc);
+SCOPE Tcl_Size rde_stack_size (RDE_STACK s);
 /* SKIP END */
 #endif /* _RDE_DS_STACK_H */
 

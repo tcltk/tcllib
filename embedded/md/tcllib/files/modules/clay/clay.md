@@ -2,7 +2,7 @@
 [//000000001]: # (clay \- Clay Framework)
 [//000000002]: # (Generated from file 'clay\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2018 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (clay\(n\) 0\.8\.6 tcllib "Clay Framework")
+[//000000004]: # (clay\(n\) 0\.8\.7 tcllib "Clay Framework")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -49,7 +49,7 @@ clay \- A minimalist framework for large scale OO Projects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require uuid  
 package require oo::dialect  
 

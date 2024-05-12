@@ -21,7 +21,7 @@ namespace eval ::tcllib::testutils {
 ## version is not met by the active interpreter.
 
 proc testsNeedTcl {version} {
-    if {[package vsatisfies [package provide Tcl] $version]} return
+    if {[package vsatisfies [package provide Tcl] $version 9]} return
 
     puts "    Aborting the tests found in \"[file tail [info script]]\""
     puts "    Requiring at least Tcl $version, have [package present Tcl]."
@@ -193,48 +193,46 @@ proc InitializeTclTest {} {
     # ### ### ### ######### ######### #########
     ## Define a set of standard constraints
 
-    ::tcltest::testConstraint tcl8.3only \
-	[expr {![package vsatisfies [package provide Tcl] 8.4]}]
-
-    ::tcltest::testConstraint tcl8.3plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
-
-    ::tcltest::testConstraint tcl8.4only \
-	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
-
-    ::tcltest::testConstraint tcl8.4plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
-
     ::tcltest::testConstraint tcl8.5only [expr {
-	![package vsatisfies [package provide Tcl] 8.6] &&
+	![package vsatisfies [package provide Tcl] 8.6 9] &&
 	 [package vsatisfies [package provide Tcl] 8.5]
     }]
 
-    ::tcltest::testConstraint tcl8.5plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
+    ::tcltest::testConstraint tcl8.6only [expr {
+	![package vsatisfies [package provide Tcl] 9] &&
+	 [package vsatisfies [package provide Tcl] 8.6]
+    }]
 
     ::tcltest::testConstraint tcl8.6plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
+	[expr {[package vsatisfies [package provide Tcl] 8.6 9]}]
+
+    ::tcltest::testConstraint tcl8.6not8.7 \
+	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
+	       ![package vsatisfies [package provide Tcl] 8.7]}]
 
     ::tcltest::testConstraint tcl8.6not10 \
-	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
+	[expr { [package vsatisfies [package provide Tcl] 8.6 9] &&
 	       ![package vsatisfies [package provide Tcl] 8.6.10]}]
 
     ::tcltest::testConstraint tcl8.6.10plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6.10]}]
+	[package vsatisfies [package provide Tcl] 8.6.10 9]
 
-    ::tcltest::testConstraint tcl8.4minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
+    ::tcltest::testConstraint tcl8.7plus \
+	[package vsatisfies [package provide Tcl] 8.7 9]
 
-    ::tcltest::testConstraint tcl8.5minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.6]}]
+    ::tcltest::testConstraint tcl9plus \
+	[package vsatisfies [package provide Tcl] 9]
+
+    ::tcltest::testConstraint tcl8 \
+	[package vsatisfies [package provide Tcl] 8.5]
+        
 
     # ### ### ### ######### ######### #########
     ## Cross-version code for the generation of the error messages created
     ## by Tcl procedures when called with the wrong number of arguments,
     ## either too many, or not enough.
 
-    if {[package vsatisfies [package provide Tcl] 8.6]} {
+    if {[package vsatisfies [package provide Tcl] 8.6 9]} {
 	# 8.6+
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -257,7 +255,7 @@ proc InitializeTclTest {} {
 	    }
 	    return $msg
 	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.5]} {
+    } else {
 	# 8.5
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -278,36 +276,6 @@ proc InitializeTclTest {} {
 	    } else {
 		set msg "wrong # args: should be \"$functionName\""
 	    }
-	    return $msg
-	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.4]} {
-	# 8.4+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    if {$argList != {}} {set argList " $argList"}
-	    set msg "wrong # args: should be \"$functionName$argList\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    # Create a different message for functions with no args.
-	    if {[llength $argList]} {
-		set msg "wrong # args: should be \"$functionName $argList\""
-	    } else {
-		set msg "wrong # args: should be \"$functionName\""
-	    }
-	    return $msg
-	}
-    } else {
-	# 8.2+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    set msg "no value given for parameter "
-	    append msg "\"[lindex $argList $missingIndex]\" to "
-	    append msg "\"$functionName\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    set msg "called \"$functionName\" with too many arguments"
 	    return $msg
 	}
     }
@@ -597,8 +565,11 @@ proc useTcllibC {} {
 	if {![catch {
 	    package require tcllibc
 	}]} {
-	    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
-	    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
+	    set v [package present tcllibc]
+	    set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
+
+	    puts "$::tcllib::testutils::tag E tcllibc $v"
+	    puts "$::tcllib::testutils::tag E tcllibc = $c"
 	    return 1
 	}
 
@@ -609,11 +580,132 @@ proc useTcllibC {} {
     uplevel #0 [list source $index]
     unset ::dir
 
-    package require tcllibc
+    if {![catch {
+	package require tcllibc
+    }]} {
+	set v [package present tcllibc]
+	set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
 
-    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
-    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
-    return 1
+	puts "$::tcllib::testutils::tag I tcllibc $v"
+	puts "$::tcllib::testutils::tag I tcllibc = $c"
+	return 1
+    }
+
+    puts "$::tcllib::testutils::tag - tcllibc n/a"
+    return 0
+}
+
+# # ## ### ##### ######## ############# #####################
+## Automated wrong#args checking based on command name and argument
+## list, with light annotations. Handles `args` and optional arguments
+## (`?x?`). Generates and runs all the needed test cases.
+
+proc syntax {spec basecmd {setup {}} {cleanup {}} {xlabel {}} {map {}}} {
+    # spec :: dict ( method -> methodargs )
+
+    set xtlabel {}
+    if {$xlabel ne {}} {
+	set xtlabel ${xlabel}-
+	append xlabel ": "
+    }
+
+    # Auto-detect how to join the methods with their base command,
+    # based on the separator used in the base command.
+    set gap [expr {[string match {*::*} $basecmd]
+		   ? "::"
+		   : " " }]
+
+    foreach {mcmd margs} $spec {
+	if {$mcmd eq "-"} continue
+
+	lassign [arg-counts $margs] required limit dargnames
+	# I.e. min arguments needed, and max allowed.
+	# `max == ""` implies infinity.
+
+	# Skip commands who need nothing, and accept an unlimited number of arguments.
+	# Such a command does not have a wrong#args condition, and we cannot test that.
+	if {($required == 0) && ($limit eq {})} continue
+
+	# Compute general common strings.
+
+	if {$dargnames ne {}} { set dargnames " $dargnames"}
+
+	if {$mcmd eq {}} {
+	    # Nothing to append to the base. We are testing the base here.
+	    set cmd "$basecmd"
+	} else {
+	    set cmd "$basecmd$gap$mcmd"
+	}
+	set expected "wrong # args: should be \"$cmd$dargnames\""
+	if {[llength $map]} { set expected [string map $map $expected] }
+
+	set tbase [string map {{ } - :: -} $basecmd]
+
+	# Assemble test cases from the min/max information.
+	set testcases {}
+	if {$required > 0} {
+	    lappend testcases {}
+	    for {set i 0} {$i < ($required - 1)} {incr i} {
+		lappend testcases [lrange $margs 0 $i]
+	    }
+	} else {
+	}
+	if {$limit ne {}} {
+	    lappend margs X
+	    lappend testcases $margs
+	}
+
+	# And run the cases ...
+	set k 0
+	foreach params $testcases {
+	    set tlabel "$xlabel$cmd ($params), wrong # args"
+	    set tname  ${tbase}-${xtlabel}${mcmd}-[join $params /]-1.${k}
+
+	    test $tname $tlabel -setup {
+		uplevel 1 $setup
+	    } -cleanup {
+		uplevel 1 $cleanup
+	    } -body {
+		{*}$cmd {*}$params
+	    } -returnCodes error -result $expected
+
+	    incr k
+	}
+    }
+    return
+}
+
+proc arg-counts {signature} {
+    set min [llength $signature]
+    set max $min
+
+    # TODO: Can Tcl handle optional arguments and infinite ?
+    # TODO: Can Tcl handle optional arguments in the middle?
+
+    # Arbitrary number of arguments after the required.
+    if {[lindex $signature end] eq "args"} {
+	set  max {}
+	incr min -1
+	set signature [lreplace $signature end end "?args...?"]
+	return [list $min $max [join $signature { }]]
+    }
+
+    # Ditto, different form. If this form is specified nothing is
+    # changed, and assumed to be what is reported by the command in
+    # question.
+    if {[lindex $signature end] eq "?args...?"} {
+	set  max {}
+	incr min -1
+	return [list $min $max [join $signature { }]]
+    }
+
+    # Optional arguments, can be only at the end.
+    foreach arg [lreverse $signature] {
+	if {![string match {\?*\?} $arg]} break
+	incr min -1
+    }
+
+    return [list $min $max [join $signature { }]]
 }
 
 # ### ### ### ######### ######### #########
@@ -725,7 +817,9 @@ proc TestAccelDo {namespace var script} {
     upvar 1 $var impl
     foreach impl [${namespace}::Implementations] {
 	${namespace}::SwitchTo $impl
+	testConstraint $impl 1
 	uplevel 1 $script
+	testConstraint $impl 0
     }
     return
 }
@@ -741,7 +835,7 @@ proc TestAccelExit {namespace} {
 
 proc TestFiles pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
@@ -756,7 +850,7 @@ proc TestFiles pattern {
 
 proc TestFilesGlob pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {

@@ -9,19 +9,19 @@
 
 package require pcx
 pcx::register textutil::split
-pcx::tcldep   0.7 needs tcl 8.2
+pcx::tcldep   0.8 needs tcl 8.2
 
 namespace eval ::textutil::split {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 0.7 std ::textutil::split::splitn \
+pcx::check 0.8 std ::textutil::split::splitn \
     {checkSimpleArgs 1 2 {
 	checkWord
 	checkNatNum
     }}
-pcx::check 0.7 std ::textutil::split::splitx \
+pcx::check 0.8 std ::textutil::split::splitx \
     {checkSimpleArgs 1 2 {
 	checkWord
 	checkRegexp

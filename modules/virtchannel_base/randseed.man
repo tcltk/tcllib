@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::randomseed n 1]
+[manpage_begin tcl::randomseed n 1.1]
 [keywords /dev/random]
 [keywords merge]
 [keywords random]
@@ -11,9 +11,9 @@
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
 [titledesc {Utilities for random channels}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require TclOO]
-[require tcl::randomseed [opt 1]]
+[require tcl::randomseed [opt 1.1]]
 [description]
 [para]
 

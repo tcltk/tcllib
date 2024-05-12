@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'figurate\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::figurate" n 1\&.0 tcllib "Tcl Math Library"
+.TH "math::figurate" n 1\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::figurate \- Evaluate figurate numbers
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBmath::figurate  1\&.0\fR
+package require \fBmath::figurate 1\&.0\fR
 .sp
 \fB::math::figurate::sum_sequence\fR \fIn\fR
 .sp
@@ -377,6 +377,8 @@ numbers:
 The \fBmath::figurate\fR package consists of a collection of procedures to
 evaluate a wide variety of figurate numbers\&. While all formulae are
 straightforward, the details are sometimes puzzling\&.
+\fINote:\fR The procedures consider arguments lower than zero as to mean "no objects to be counted"
+and therefore return 0\&.
 .SH PROCEDURES
 The procedures can be arranged in a few categories: sums of integers raised to a
 particular power, sums of odd integers and general figurate numbers, for

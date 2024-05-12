@@ -39,19 +39,16 @@ if {$regular==1} then {
     namespace import tcltest::customMatch
     set basedir [file normalize [file dirname [info script]]]
     set ::auto_path [linsert $::auto_path 0 $basedir]
-    package require -exact math::linearalgebra 1.1.3
+    package require -exact math::linearalgebra 1.1.7
 }
 # -------------------------------------------------------------------------
 
 namespace import -force ::math::linearalgebra::*
 
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    # 8.4 or less - Remove, 8.5+ required already
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
-}
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
+} 
+set ::tcl_precision 0
 
 #
 # Returns 1 if the expected value is close to the actual value,
@@ -927,7 +924,9 @@ test conforming-7 "Non-conforming matmul - vector-matrix" -body {
 # Additional tests: procedures by Federico Ferri
 #source ferri/ferri.test
 
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
 
 if {$regular==1} then {
     testsuiteCleanup

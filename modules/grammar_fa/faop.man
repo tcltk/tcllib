@@ -13,11 +13,11 @@
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Operations on finite automatons}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
 [require struct::list]
 [require struct::set]
-[require grammar::fa::op [opt 0.4.1]]
+[require grammar::fa::op [opt 0.4.2]]
 [description]
 [para]
 

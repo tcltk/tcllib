@@ -8,7 +8,7 @@
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Pseudo-random number generators}]
 [category  Mathematics]
-[require Tcl [opt 8.4]]
+[require Tcl [opt "8.5 9"]]
 [require simulation::random 0.4]
 
 [description]

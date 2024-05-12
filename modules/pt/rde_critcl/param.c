@@ -20,17 +20,17 @@ typedef struct RDE_PARAM_ {
     Tcl_Channel   IN;
     Tcl_Obj*      readbuf;
     char*         CC; /* [TCL_UTF_MAX] */
-    long int      CC_len;
+    Tcl_Size      CC_len;
 
     RDE_TC        TC;
 
-    long int      CL;
-    RDE_STACK     LS; /* long int :: locations */
+    Tcl_Size      CL;
+    RDE_STACK     LS; /* Tcl_Size :: locations */
 
     ERROR_STATE*  ER;
     RDE_STACK     ES; /* ERROR_STATE* :: errors */
 
-    long int      ST;
+    Tcl_Size      ST;
     Tcl_Obj*      SV;
 
     Tcl_HashTable NC;
@@ -42,7 +42,7 @@ typedef struct RDE_PARAM_ {
      */
 
     RDE_STACK    ast  ; /* Tcl_Obj* :: ast (node) */
-    RDE_STACK    mark ; /* long int :: markers */
+    RDE_STACK    mark ; /* Tcl_Size :: markers */
 
     /* Various non PARAM state needed, the only part. An array of all the
      * strings needed by this state instance. The instruction implementations
@@ -50,7 +50,7 @@ typedef struct RDE_PARAM_ {
      * needed. This field is NOT owned by the state.
      */
 
-    long int numstr; /* String table (error messages), and its size */
+    Tcl_Size numstr; /* String table (error messages), and its size */
     char**  string;
 
     /*
@@ -90,7 +90,7 @@ typedef enum test_class_id {
 
 static void ast_node_free    (void* n);
 static void error_state_free (void* es);
-static void error_set        (RDE_PARAM p, long int s);
+static void error_set        (RDE_PARAM p, Tcl_Size s);
 static void nc_clear         (RDE_PARAM p);
 
 static int UniCharIsAscii    (int character);
@@ -141,12 +141,12 @@ static int  er_int_compare (const void* a, const void* b);
  */
 
 SCOPE RDE_PARAM
-rde_param_new (long int nstr, char** strings)
+rde_param_new (Tcl_Size nstr, char** strings)
 {
     RDE_PARAM p;
 
     ENTER ("rde_param_new");
-    TRACE (("\tINT %d strings @ %p", nstr, strings));
+    TRACE (("\tINT %" TCL_SIZE_MODIFIER "d strings @ %p", nstr, strings));
 
     p = ALLOC (RDE_PARAM_);
     p->numstr = nstr;
@@ -155,7 +155,7 @@ rde_param_new (long int nstr, char** strings)
     p->readbuf = Tcl_NewObj ();
     Tcl_IncrRefCount (p->readbuf);
 
-    TRACE (("\tTcl_Obj* readbuf %p used %d", p->readbuf,p->readbuf->refCount));
+    TRACE (("\tTcl_Obj* readbuf %p used %d", p->readbuf, p->readbuf->refCount));
 
     Tcl_InitHashTable (&p->NC, TCL_ONE_WORD_KEYS);
 
@@ -234,11 +234,11 @@ rde_param_reset (RDE_PARAM p, Tcl_Channel chan)
 }
 
 SCOPE void
-rde_param_update_strings (RDE_PARAM p, long int nstr, char** strings)
+rde_param_update_strings (RDE_PARAM p, Tcl_Size nstr, char** strings)
 {
     ENTER ("rde_param_update_strings");
     TRACE (("RDE_PARAM %p", p));
-    TRACE (("INT       %d strings", nstr));
+    TRACE (("INT       %" TCL_SIZE_MODIFIER "d strings", nstr));
 
     p->numstr = nstr;
     p->string = strings;
@@ -247,7 +247,7 @@ rde_param_update_strings (RDE_PARAM p, long int nstr, char** strings)
 }
 
 SCOPE void
-rde_param_data (RDE_PARAM p, char* buf, long int len)
+rde_param_data (RDE_PARAM p, char* buf, Tcl_Size len)
 {
     (void) rde_tc_append (p->TC, buf, len);
 }
@@ -305,13 +305,13 @@ rde_param_query_clientdata (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_query_amark (RDE_PARAM p, long int* mc, void*** mv)
+rde_param_query_amark (RDE_PARAM p, Tcl_Size* mc, void*** mv)
 {
     rde_stack_get (p->mark, mc, mv);
 }
 
 SCOPE void
-rde_param_query_ast (RDE_PARAM p, long int* ac, Tcl_Obj*** av)
+rde_param_query_ast (RDE_PARAM p, Tcl_Size* ac, Tcl_Obj*** av)
 {
     rde_stack_get (p->ast, ac, (void***) av);
 }
@@ -325,7 +325,7 @@ rde_param_query_in (RDE_PARAM p)
 }
 
 SCOPE const char*
-rde_param_query_cc (RDE_PARAM p, long int* len)
+rde_param_query_cc (RDE_PARAM p, Tcl_Size* len)
 {
     *len = p->CC_len;
     return p->CC;
@@ -353,13 +353,12 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 	 * Consider keeping one of these around in the main object state, for
 	 * quick return.
 	 */
-	res = Tcl_NewStringObj ("", 0);
+	res = Tcl_NewStringObj ("", 0); /* OK tcl9 */
     } else {
 	Tcl_Obj* ov [2];
 	Tcl_Obj** mov;
-	long int  mc, i, j;
+	Tcl_Size  mc, i, j, lastid;
 	void** mv;
-	int lastid;
 	const char* msg;
 
 	rde_stack_get (er->msg, &mc, &mv);
@@ -384,14 +383,14 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 	for (i=0, j=0; i < mc; i++) {
 	    ASSERT_BOUNDS (i,mc);
 
-	    if (((long int) mv [i]) == lastid) continue;
-	    lastid = (long int) mv [i];
+	    if (((Tcl_Size) (long int) mv [i]) == lastid) continue;
+	    lastid = (Tcl_Size) (long int) mv [i];
 
-	    ASSERT_BOUNDS((long int) mv[i],p->numstr);
-	    msg = p->string [(long int) mv[i]]; /* inlined query_string */
+	    ASSERT_BOUNDS((Tcl_Size) (long int) mv[i],p->numstr);
+	    msg = p->string [(Tcl_Size) (long int) mv[i]]; /* inlined query_string */
 
 	    ASSERT_BOUNDS (j,mc);
-	    mov [j] = Tcl_NewStringObj (msg, -1);
+	    mov [j] = Tcl_NewStringObj (msg, -1); /* OK tcl9 */
 	    j++;
 	}
 
@@ -399,10 +398,10 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 	 * Assemble the result.
 	 */
 
-	ov [0] = Tcl_NewIntObj  (er->loc);
-	ov [1] = Tcl_NewListObj (j, mov);
+	ov [0] = Tcl_NewSizeIntObj  (er->loc); /* OK tcl9 */
+	ov [1] = Tcl_NewListObj (j, mov); /* OK tcl9 */
 
-	res = Tcl_NewListObj (2, ov);
+	res = Tcl_NewListObj (2, ov); /* OK tcl9 */
 
 	ckfree ((char*) mov);
     }
@@ -411,21 +410,21 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 }
 
 SCOPE void
-rde_param_query_es (RDE_PARAM p, long int* ec, ERROR_STATE*** ev)
+rde_param_query_es (RDE_PARAM p, Tcl_Size* ec, ERROR_STATE*** ev)
 {
     rde_stack_get (p->ES, ec, (void***) ev);
 }
 
 SCOPE void
-rde_param_query_ls (RDE_PARAM p, long int* lc, void*** lv)
+rde_param_query_ls (RDE_PARAM p, Tcl_Size* lc, void*** lv)
 {
     rde_stack_get (p->LS, lc, lv);
 }
 
-SCOPE long int
+SCOPE Tcl_Size
 rde_param_query_lstop (RDE_PARAM p)
 {
-    return (long int) rde_stack_top (p->LS);
+    return (Tcl_Size) (long int) rde_stack_top (p->LS);
 }
 
 SCOPE Tcl_HashTable*
@@ -447,22 +446,22 @@ rde_param_query_sv (RDE_PARAM p)
     return p->SV;
 }
 
-SCOPE long int
+SCOPE Tcl_Size
 rde_param_query_tc_size (RDE_PARAM p)
 {
     return rde_tc_size (p->TC);
 }
 
 SCOPE void
-rde_param_query_tc_get_s (RDE_PARAM p, long int at, long int last, char** ch, long int* len)
+rde_param_query_tc_get_s (RDE_PARAM p, Tcl_Size at, Tcl_Size last, char** ch, Tcl_Size* len)
 {
     rde_tc_get_s (p->TC, at, last, ch, len);
 }
 
 SCOPE const char*
-rde_param_query_string (RDE_PARAM p, long int id)
+rde_param_query_string (RDE_PARAM p, Tcl_Size id)
 {
-    TRACE (("rde_param_query_string (RDE_PARAM %p, %d/%d)", p, id, p->numstr));
+    TRACE (("rde_param_query_string (RDE_PARAM %p, %" TCL_SIZE_MODIFIER "d/%" TCL_SIZE_MODIFIER "d)", p, id, p->numstr));
 
     ASSERT_BOUNDS(id,p->numstr);
 
@@ -482,7 +481,7 @@ rde_param_i_ast_pop_discard (RDE_PARAM p)
 SCOPE void
 rde_param_i_ast_pop_rewind (RDE_PARAM p)
 {
-    long int trim = (long int) rde_stack_top (p->mark);
+    Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 
     ENTER ("rde_param_i_ast_pop_rewind");
     TRACE (("RDE_PARAM %p",p));
@@ -500,7 +499,7 @@ rde_param_i_ast_pop_rewind (RDE_PARAM p)
 SCOPE void
 rde_param_i_ast_rewind (RDE_PARAM p)
 {
-    long int trim = (long int) rde_stack_top (p->mark);
+    Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 
     ENTER ("rde_param_i_ast_rewind");
     TRACE (("RDE_PARAM %p",p));
@@ -517,7 +516,7 @@ rde_param_i_ast_rewind (RDE_PARAM p)
 SCOPE void
 rde_param_i_ast_push (RDE_PARAM p)
 {
-    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 }
 
 SCOPE void
@@ -553,7 +552,7 @@ rde_param_i_error_clear (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_error_nonterminal (RDE_PARAM p, long int s)
+rde_param_i_error_nonterminal (RDE_PARAM p, Tcl_Size s)
 {
     /*
      * Disabled. Generate only low-level errors until we have worked out how
@@ -563,9 +562,9 @@ rde_param_i_error_nonterminal (RDE_PARAM p, long int s)
      */
     return;
 #if 0
-    long int pos;
+    Tcl_Size pos;
     if (!p->ER) return;
-    pos = 1 + (long int) rde_stack_top (p->LS);
+    pos = 1 + (Tcl_Size) (long int) rde_stack_top (p->LS);
     if (p->ER->loc != pos) return;
     error_set (p, s);
     p->ER->loc = pos;
@@ -661,7 +660,7 @@ rde_param_i_error_push (RDE_PARAM p)
 }
 
 static void
-error_set (RDE_PARAM p, long int s)
+error_set (RDE_PARAM p, Tcl_Size s)
 {
     error_state_free (p->ER);
 
@@ -672,7 +671,7 @@ error_set (RDE_PARAM p, long int s)
 
     ASSERT_BOUNDS(s,p->numstr);
 
-    rde_stack_push (p->ER->msg, (void*) s);
+    rde_stack_push (p->ER->msg, (void*) (long int) s);
 }
 
 static void
@@ -702,20 +701,20 @@ rde_param_i_loc_pop_discard (RDE_PARAM p)
 SCOPE void
 rde_param_i_loc_pop_rewind (RDE_PARAM p)
 {
-    p->CL = (long int) rde_stack_top (p->LS);
+    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     rde_stack_pop (p->LS, 1);
 }
 
 SCOPE void
 rde_param_i_loc_push (RDE_PARAM p)
 {
-    rde_stack_push (p->LS, (void*) p->CL);
+    rde_stack_push (p->LS, (void*) (long int) p->CL);
 }
 
 SCOPE void
 rde_param_i_loc_rewind (RDE_PARAM p)
 {
-    p->CL = (long int) rde_stack_top (p->LS);
+    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 }
 
 /*
@@ -723,9 +722,9 @@ rde_param_i_loc_rewind (RDE_PARAM p)
  */
 
 SCOPE void
-rde_param_i_input_next (RDE_PARAM p, long int m)
+rde_param_i_input_next (RDE_PARAM p, Tcl_Size m)
 {
-    int leni;
+    Tcl_Size leni;
     char* ch;
 
     ASSERT_BOUNDS(m,p->numstr);
@@ -755,7 +754,7 @@ rde_param_i_input_next (RDE_PARAM p, long int m)
 
     if (!p->IN || 
 	Tcl_Eof (p->IN) ||
-	(Tcl_ReadChars (p->IN, p->readbuf, 1, 0) <= 0)) {
+	(Tcl_ReadChars (p->IN, p->readbuf, 1, 0) <= 0)) { /* OK tcl9 */
 	/*
 	 * As we are outside of the known range we tried to read a character
 	 * from the input, to extend the token cache with. That failed.
@@ -771,7 +770,7 @@ rde_param_i_input_next (RDE_PARAM p, long int m)
      * current.
      */
 
-    ch = Tcl_GetStringFromObj (p->readbuf, &leni);
+    ch = Tcl_GetStringFromObj (p->readbuf, &leni); /* OK tcl9 */
     ASSERT_BOUNDS (leni, TCL_UTF_MAX);
 
     p->CC = rde_tc_append (p->TC, ch, leni);
@@ -808,7 +807,7 @@ rde_param_i_status_negate (RDE_PARAM p)
  */
 
 SCOPE int 
-rde_param_i_symbol_restore (RDE_PARAM p, long int s)
+rde_param_i_symbol_restore (RDE_PARAM p, Tcl_Size s)
 {
     NC_STATE*      scs;
     Tcl_HashEntry* hPtr;
@@ -818,11 +817,11 @@ rde_param_i_symbol_restore (RDE_PARAM p, long int s)
      * 2-level hash table keyed by location, and symbol ...
      */
 
-    hPtr = Tcl_FindHashEntry (&p->NC, (char*) p->CL);
+    hPtr = Tcl_FindHashEntry (&p->NC, (char*) (long int) p->CL);
     if (!hPtr) { return 0; }
 
     tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
-    hPtr = Tcl_FindHashEntry (tablePtr, (char*) s);
+    hPtr = Tcl_FindHashEntry (tablePtr, (char*) (long int) s);
     if (!hPtr) { return 0; }
 
     /*
@@ -847,9 +846,9 @@ rde_param_i_symbol_restore (RDE_PARAM p, long int s)
 }
 
 SCOPE void
-rde_param_i_symbol_save (RDE_PARAM p, long int s)
+rde_param_i_symbol_save (RDE_PARAM p, Tcl_Size s)
 {
-    long int       at = (long int) rde_stack_top (p->LS);
+    Tcl_Size       at = (Tcl_Size) (long int) rde_stack_top (p->LS);
     NC_STATE*      scs;
     Tcl_HashEntry* hPtr;
     Tcl_HashTable* tablePtr;
@@ -857,13 +856,13 @@ rde_param_i_symbol_save (RDE_PARAM p, long int s)
 
     ENTER ("rde_param_i_symbol_save");
     TRACE (("RDE_PARAM %p",p));
-    TRACE (("INT       %d",s));
+    TRACE (("INT       %" TCL_SIZE_MODIFIER "d",s));
 
     /*
      * 2-level hash table keyed by location, and symbol ...
      */
 
-    hPtr = Tcl_CreateHashEntry (&p->NC, (char*) at, &isnew);
+    hPtr = Tcl_CreateHashEntry (&p->NC, (char*) (long int) at, &isnew);
 
     if (isnew) {
 	tablePtr = ALLOC (Tcl_HashTable);
@@ -873,7 +872,7 @@ rde_param_i_symbol_save (RDE_PARAM p, long int s)
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
     }
 
-    hPtr = Tcl_CreateHashEntry (tablePtr, (char*) s, &isnew);
+    hPtr = Tcl_CreateHashEntry (tablePtr, (char*) (long int) s, &isnew);
 
     if (isnew) {
 	/*
@@ -951,7 +950,7 @@ rde_param_i_test_control (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_test_char (RDE_PARAM p, const char* c, long int msg)
+rde_param_i_test_char (RDE_PARAM p, const char* c, Tcl_Size msg)
 {
     ASSERT_BOUNDS(msg,p->numstr);
 
@@ -1002,7 +1001,7 @@ rde_param_i_test_punct (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_test_range (RDE_PARAM p, const char* s, const char* e, long int msg)
+rde_param_i_test_range (RDE_PARAM p, const char* s, const char* e, Tcl_Size msg)
 {
     ASSERT_BOUNDS(msg,p->numstr);
 
@@ -1046,7 +1045,7 @@ static void
 test_class (RDE_PARAM p, UniCharClass class, test_class_id id)
 {
     Tcl_UniChar ch;
-    Tcl_UtfToUniChar(p->CC, &ch);
+    Tcl_UtfToUniChar(p->CC, &ch); /* OK tcl9 */
 
     ASSERT_BOUNDS(id,p->numstr);
 
@@ -1093,19 +1092,19 @@ rde_param_i_value_clear (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_value_leaf (RDE_PARAM p, long int s)
+rde_param_i_value_leaf (RDE_PARAM p, Tcl_Size s)
 {
     Tcl_Obj* newsv;
     Tcl_Obj* ov [3];
-    long int pos = 1 + (long int) rde_stack_top (p->LS);
+    Tcl_Size pos = 1 + (Tcl_Size) (long int) rde_stack_top (p->LS);
 
     ASSERT_BOUNDS(s,p->numstr);
 
-    ov [0] = Tcl_NewStringObj (p->string[s], -1);
-    ov [1] = Tcl_NewIntObj (pos);
-    ov [2] = Tcl_NewIntObj (p->CL);
+    ov [0] = Tcl_NewStringObj (p->string[s], -1); /* OK tcl9 */
+    ov [1] = Tcl_NewSizeIntObj (pos); /* OK tcl9 */
+    ov [2] = Tcl_NewSizeIntObj (p->CL); /* OK tcl9 */
 
-    newsv = Tcl_NewListObj (3, ov);
+    newsv = Tcl_NewListObj (3, ov); /* OK tcl9 */
 
     TRACE (("rde_param_i_value_leaf => '%s'",Tcl_GetString (newsv)));
 
@@ -1113,18 +1112,17 @@ rde_param_i_value_leaf (RDE_PARAM p, long int s)
 }
 
 SCOPE void
-rde_param_i_value_reduce (RDE_PARAM p, long int s)
+rde_param_i_value_reduce (RDE_PARAM p, Tcl_Size s)
 {
     Tcl_Obj*  newsv;
-    int       i, j;
     Tcl_Obj** ov;
-    long int  ac;
+    Tcl_Size  ac, i, j;
     Tcl_Obj** av;
 
-    long int pos   = 1 + (long int) rde_stack_top (p->LS);
-    long int mark  = (long int) rde_stack_top (p->mark);
-    long int asize = rde_stack_size (p->ast);
-    long int new   = asize - mark;
+    Tcl_Size pos   = 1 + (Tcl_Size) (long int) rde_stack_top (p->LS);
+    Tcl_Size mark  =     (Tcl_Size) (long int) rde_stack_top (p->mark);
+    Tcl_Size asize = rde_stack_size (p->ast);
+    Tcl_Size new   = asize - mark;
 
     ASSERT (new >= 0, "Bad number of elements to reduce");
 
@@ -1132,9 +1130,9 @@ rde_param_i_value_reduce (RDE_PARAM p, long int s)
 
     ASSERT_BOUNDS(s,p->numstr);
 
-    ov [0] = Tcl_NewStringObj (p->string[s], -1);
-    ov [1] = Tcl_NewIntObj (pos);
-    ov [2] = Tcl_NewIntObj (p->CL);
+    ov [0] = Tcl_NewStringObj (p->string[s], -1); /* OK tcl9 */
+    ov [1] = Tcl_NewSizeIntObj (pos); /* OK tcl9 */
+    ov [2] = Tcl_NewSizeIntObj (p->CL); /* OK tcl9 */
 
     rde_stack_get (p->ast, &ac, (void***) &av);
     for (i = 3, j = mark; j < asize; i++, j++) {
@@ -1144,7 +1142,7 @@ rde_param_i_value_reduce (RDE_PARAM p, long int s)
     }
 
     ASSERT (i == 3+new, "Reduction result incomplete");
-    newsv = Tcl_NewListObj (3+new, ov);
+    newsv = Tcl_NewListObj (3+new, ov); /* OK tcl9 */
 
     TRACE (("rde_param_i_value_reduce => '%s'",Tcl_GetString (newsv)));
 
@@ -1161,14 +1159,14 @@ er_int_compare (const void* a, const void* b)
 {
     /* a, b = pointers to element, as void*.
      * Actual element type is (void*), and
-     * actually stored data is (long int).
+     * actually stored data is (Tcl_Size).
      */
 
     const void** ael = (const void**) a;
     const void** bel = (const void**) b;
 
-    long int avalue = (long int) *ael;
-    long int bvalue = (long int) *bel;
+    Tcl_Size avalue = (Tcl_Size) (long int) *ael;
+    Tcl_Size bvalue = (Tcl_Size) (long int) *bel;
 
     if (avalue < bvalue) { return -1; }
     if (avalue > bvalue) { return  1; }
@@ -1181,7 +1179,7 @@ er_int_compare (const void* a, const void* b)
  */
 
 SCOPE int
-rde_param_i_symbol_start (RDE_PARAM p, long int s)
+rde_param_i_symbol_start (RDE_PARAM p, Tcl_Size s)
 {
     if (rde_param_i_symbol_restore (p, s)) {
 	if (p->ST) {
@@ -1191,12 +1189,12 @@ rde_param_i_symbol_start (RDE_PARAM p, long int s)
 	return 1;
     }
 
-    rde_stack_push (p->LS, (void*) p->CL);
+    rde_stack_push (p->LS, (void*) (long int) p->CL);
     return 0;
 }
 
 SCOPE int
-rde_param_i_symbol_start_d (RDE_PARAM p, long int s)
+rde_param_i_symbol_start_d (RDE_PARAM p, Tcl_Size s)
 {
     if (rde_param_i_symbol_restore (p, s)) {
 	if (p->ST) {
@@ -1206,32 +1204,32 @@ rde_param_i_symbol_start_d (RDE_PARAM p, long int s)
 	return 1;
     }
 
-    rde_stack_push (p->LS,   (void*) p->CL);
-    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+    rde_stack_push (p->LS,   (void*) (long int) p->CL);
+    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
     return 0;
 }
 
 SCOPE int
-rde_param_i_symbol_void_start (RDE_PARAM p, long int s)
+rde_param_i_symbol_void_start (RDE_PARAM p, Tcl_Size s)
 {
     if (rde_param_i_symbol_restore (p, s)) return 1;
 
-    rde_stack_push (p->LS, (void*) p->CL);
+    rde_stack_push (p->LS, (void*) (long int) p->CL);
     return 0;
 }
 
 SCOPE int
-rde_param_i_symbol_void_start_d (RDE_PARAM p, long int s)
+rde_param_i_symbol_void_start_d (RDE_PARAM p, Tcl_Size s)
 {
     if (rde_param_i_symbol_restore (p, s)) return 1;
 
-    rde_stack_push (p->LS,   (void*) p->CL);
-    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+    rde_stack_push (p->LS,   (void*) (long int) p->CL);
+    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
     return 0;
 }
 
 SCOPE void
-rde_param_i_symbol_done_d_reduce (RDE_PARAM p, long int s, long int m)
+rde_param_i_symbol_done_d_reduce (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 {
     if (p->ST) {
 	rde_param_i_value_reduce (p, s);
@@ -1252,7 +1250,7 @@ rde_param_i_symbol_done_d_reduce (RDE_PARAM p, long int s, long int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_leaf (RDE_PARAM p, long int s, long int m)
+rde_param_i_symbol_done_leaf (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 {
     if (p->ST) {
 	rde_param_i_value_leaf (p, s);
@@ -1272,7 +1270,7 @@ rde_param_i_symbol_done_leaf (RDE_PARAM p, long int s, long int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_d_leaf (RDE_PARAM p, long int s, long int m)
+rde_param_i_symbol_done_d_leaf (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 {
     if (p->ST) {
 	rde_param_i_value_leaf (p, s);
@@ -1293,7 +1291,7 @@ rde_param_i_symbol_done_d_leaf (RDE_PARAM p, long int s, long int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_void (RDE_PARAM p, long int s, long int m)
+rde_param_i_symbol_done_void (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 {
     SV_CLEAR (p);
     rde_param_i_symbol_save       (p, s);
@@ -1303,7 +1301,7 @@ rde_param_i_symbol_done_void (RDE_PARAM p, long int s, long int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_d_void (RDE_PARAM p, long int s, long int m)
+rde_param_i_symbol_done_d_void (RDE_PARAM p, Tcl_Size s, Tcl_Size m)
 {
     SV_CLEAR (p);
     rde_param_i_symbol_save       (p, s);
@@ -1318,7 +1316,7 @@ rde_param_i_symbol_done_d_void (RDE_PARAM p, long int s, long int m)
  */
 
 SCOPE void
-rde_param_i_next_char (RDE_PARAM p, const char* c, long int m)
+rde_param_i_next_char (RDE_PARAM p, const char* c, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1326,7 +1324,7 @@ rde_param_i_next_char (RDE_PARAM p, const char* c, long int m)
 }
 
 SCOPE void
-rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, long int m)
+rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1334,7 +1332,7 @@ rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, long int m)
 }
 
 SCOPE void
-rde_param_i_next_alnum (RDE_PARAM p, long int m)
+rde_param_i_next_alnum (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1342,7 +1340,7 @@ rde_param_i_next_alnum (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_alpha (RDE_PARAM p, long int m)
+rde_param_i_next_alpha (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1350,7 +1348,7 @@ rde_param_i_next_alpha (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_ascii (RDE_PARAM p, long int m)
+rde_param_i_next_ascii (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1358,7 +1356,7 @@ rde_param_i_next_ascii (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_control (RDE_PARAM p, long int m)
+rde_param_i_next_control (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1366,7 +1364,7 @@ rde_param_i_next_control (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_ddigit (RDE_PARAM p, long int m)
+rde_param_i_next_ddigit (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1374,7 +1372,7 @@ rde_param_i_next_ddigit (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_digit (RDE_PARAM p, long int m)
+rde_param_i_next_digit (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1382,7 +1380,7 @@ rde_param_i_next_digit (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_graph (RDE_PARAM p, long int m)
+rde_param_i_next_graph (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1390,7 +1388,7 @@ rde_param_i_next_graph (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_lower (RDE_PARAM p, long int m)
+rde_param_i_next_lower (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1398,7 +1396,7 @@ rde_param_i_next_lower (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_print (RDE_PARAM p, long int m)
+rde_param_i_next_print (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1406,7 +1404,7 @@ rde_param_i_next_print (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_punct (RDE_PARAM p, long int m)
+rde_param_i_next_punct (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1414,7 +1412,7 @@ rde_param_i_next_punct (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_space (RDE_PARAM p, long int m)
+rde_param_i_next_space (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1422,7 +1420,7 @@ rde_param_i_next_space (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_upper (RDE_PARAM p, long int m)
+rde_param_i_next_upper (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1430,7 +1428,7 @@ rde_param_i_next_upper (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_wordchar (RDE_PARAM p, long int m)
+rde_param_i_next_wordchar (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1438,7 +1436,7 @@ rde_param_i_next_wordchar (RDE_PARAM p, long int m)
 }
 
 SCOPE void
-rde_param_i_next_xdigit (RDE_PARAM p, long int m)
+rde_param_i_next_xdigit (RDE_PARAM p, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1448,8 +1446,8 @@ rde_param_i_next_xdigit (RDE_PARAM p, long int m)
 SCOPE void
 rde_param_i_notahead_start_d (RDE_PARAM p)
 {
-    rde_stack_push (p->LS, (void*) p->CL);
-    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+    rde_stack_push (p->LS,   (void*) (long int) p->CL);
+    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 }
 
 SCOPE void
@@ -1460,7 +1458,7 @@ rde_param_i_notahead_exit_d (RDE_PARAM p)
     } else {
 	rde_stack_pop (p->mark, 1);
     }
-    p->CL = (long int) rde_stack_top (p->LS);
+    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     rde_stack_pop (p->LS, 1);
     p->ST = !p->ST;
 }
@@ -1468,7 +1466,7 @@ rde_param_i_notahead_exit_d (RDE_PARAM p)
 SCOPE void
 rde_param_i_notahead_exit (RDE_PARAM p)
 {
-    p->CL = (long int) rde_stack_top (p->LS);
+    p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     rde_stack_pop (p->LS, 1);
     p->ST = !p->ST;
 }
@@ -1481,7 +1479,7 @@ SCOPE void
 rde_param_i_state_push_2 (RDE_PARAM p)
 {
     /* loc_push + error_push */
-    rde_stack_push (p->LS, (void*) p->CL);
+    rde_stack_push (p->LS, (void*) (long int) p->CL);
     rde_stack_push (p->ES, p->ER);
     if (p->ER) { p->ER->refCount ++; }
 }
@@ -1489,7 +1487,7 @@ rde_param_i_state_push_2 (RDE_PARAM p)
 SCOPE void
 rde_param_i_state_push_void (RDE_PARAM p)
 {
-    rde_stack_push (p->LS, (void*) p->CL);
+    rde_stack_push (p->LS, (void*) (long int) p->CL);
     ER_CLEAR (p);
     rde_stack_push (p->ES, p->ER);
     /* if (p->ER) { p->ER->refCount ++; } */
@@ -1498,8 +1496,8 @@ rde_param_i_state_push_void (RDE_PARAM p)
 SCOPE void
 rde_param_i_state_push_value (RDE_PARAM p)
 {
-    rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
-    rde_stack_push (p->LS, (void*) p->CL);
+    rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
+    rde_stack_push (p->LS,   (void*) (long int) p->CL);
     ER_CLEAR (p);
     rde_stack_push (p->ES, p->ER);
     /* if (p->ER) { p->ER->refCount ++; } */
@@ -1516,7 +1514,7 @@ rde_param_i_state_merge_ok (RDE_PARAM p)
 
     if (!p->ST) {
 	p->ST = 1;
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     }
     rde_stack_pop (p->LS, 1);
 }
@@ -1527,7 +1525,7 @@ rde_param_i_state_merge_void (RDE_PARAM p)
     rde_param_i_error_pop_merge (p);
 
     if (!p->ST) {
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     }
     rde_stack_pop (p->LS, 1);
 }
@@ -1538,9 +1536,9 @@ rde_param_i_state_merge_value (RDE_PARAM p)
     rde_param_i_error_pop_merge (p);
 
     if (!p->ST) {
-	long int trim = (long int) rde_stack_top (p->mark);
+	Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 	rde_stack_trim (p->ast, trim);
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     }
     rde_stack_pop (p->mark, 1);
     rde_stack_pop (p->LS, 1);
@@ -1553,12 +1551,12 @@ rde_param_i_state_merge_value (RDE_PARAM p)
 SCOPE int
 rde_param_i_kleene_close (RDE_PARAM p)
 {
-    int stop = !p->ST;
+    int stop = p->ST == 0;
     rde_param_i_error_pop_merge (p);
 
     if (stop) {
 	p->ST = 1;
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     }
 
     rde_stack_pop (p->LS, 1);
@@ -1568,10 +1566,10 @@ rde_param_i_kleene_close (RDE_PARAM p)
 SCOPE int
 rde_param_i_kleene_abort (RDE_PARAM p)
 {
-    int stop = !p->ST;
+    int stop = p->ST == 0;
 
     if (stop) {
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
     }
 
     rde_stack_pop (p->LS, 1);
@@ -1592,7 +1590,7 @@ rde_param_i_seq_void2void (RDE_PARAM p)
 	if (p->ER) { p->ER->refCount ++; }
 	return 0;
     } else {
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	rde_stack_pop (p->LS, 1);
 	return 1;
     }
@@ -1604,12 +1602,12 @@ rde_param_i_seq_void2value (RDE_PARAM p)
     rde_param_i_error_pop_merge (p);
 
     if (p->ST) {
-	rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
+	rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
 	rde_stack_push (p->ES, p->ER);
 	if (p->ER) { p->ER->refCount ++; }
 	return 0;
     } else {
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	rde_stack_pop (p->LS, 1);
 	return 1;
     }
@@ -1625,12 +1623,12 @@ rde_param_i_seq_value2value (RDE_PARAM p)
 	if (p->ER) { p->ER->refCount ++; }
 	return 0;
     } else {
-	long int trim = (long int) rde_stack_top (p->mark);
+	Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 
 	rde_stack_pop  (p->mark, 1);
 	rde_stack_trim (p->ast, trim);
 
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 	rde_stack_pop (p->LS, 1);
 	return 1;
     }
@@ -1648,7 +1646,7 @@ rde_param_i_bra_void2void (RDE_PARAM p)
     if (p->ST) {
 	rde_stack_pop (p->LS, 1);
     } else {
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 
 	rde_stack_push (p->ES, p->ER);
 	if (p->ER) { p->ER->refCount ++; }
@@ -1665,8 +1663,8 @@ rde_param_i_bra_void2value (RDE_PARAM p)
     if (p->ST) {
 	rde_stack_pop (p->LS, 1);
     } else {
-	rde_stack_push (p->mark, (void*) rde_stack_size (p->ast));
-	p->CL = (long int) rde_stack_top (p->LS);
+	rde_stack_push (p->mark, (void*) (long int) rde_stack_size (p->ast));
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 
 	rde_stack_push (p->ES, p->ER);
 	if (p->ER) { p->ER->refCount ++; }
@@ -1684,11 +1682,11 @@ rde_param_i_bra_value2void (RDE_PARAM p)
 	rde_stack_pop (p->mark, 1);
 	rde_stack_pop (p->LS, 1);
     } else {
-	long int trim = (long int) rde_stack_top (p->mark);
+	Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 	rde_stack_pop  (p->mark, 1);
 	rde_stack_trim (p->ast, trim);
 
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 
 	rde_stack_push (p->ES, p->ER);
 	if (p->ER) { p->ER->refCount ++; }
@@ -1706,10 +1704,10 @@ rde_param_i_bra_value2value (RDE_PARAM p)
 	rde_stack_pop (p->mark, 1);
 	rde_stack_pop (p->LS, 1);
     } else {
-	long int trim = (long int) rde_stack_top (p->mark);
+	Tcl_Size trim = (Tcl_Size) (long int) rde_stack_top (p->mark);
 	rde_stack_trim (p->ast, trim);
 
-	p->CL = (long int) rde_stack_top (p->LS);
+	p->CL = (Tcl_Size) (long int) rde_stack_top (p->LS);
 
 	rde_stack_push (p->ES, p->ER);
 	if (p->ER) { p->ER->refCount ++; }
@@ -1723,9 +1721,9 @@ rde_param_i_bra_value2value (RDE_PARAM p)
  */
 
 SCOPE void
-rde_param_i_next_str (RDE_PARAM p, const char* str, long int m)
+rde_param_i_next_str (RDE_PARAM p, const char* str, Tcl_Size m)
 {
-    int at = p->CL;
+    Tcl_Size at = p->CL;
 
     /* Future: Place match string into a shared table of constants, like error
      * messages, indexed by code. Precomputed length information.
@@ -1757,7 +1755,7 @@ rde_param_i_next_str (RDE_PARAM p, const char* str, long int m)
 }
 
 SCOPE void
-rde_param_i_next_class (RDE_PARAM p, const char* class, long int m)
+rde_param_i_next_class (RDE_PARAM p, const char* class, Tcl_Size m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;

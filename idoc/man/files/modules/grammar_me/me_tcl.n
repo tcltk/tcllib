@@ -2,7 +2,7 @@
 '\" Generated from file 'me_tcl\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::me::tcl" n 0\&.1 tcllib "Grammar operations and usage"
+.TH "grammar::me::tcl" n 0\&.2 tcllib "Grammar operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::me::tcl \- Virtual machine implementation I for parsing token streams
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::me::tcl  ?0\&.1?\fR
+package require \fBgrammar::me::tcl ?0\&.2?\fR
 .sp
 \fB::grammar::me::tcl\fR \fBcmd\fR \fI\&.\&.\&.\fR
 .sp

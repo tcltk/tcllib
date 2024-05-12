@@ -6,7 +6,7 @@
 [moddesc   {Extensions to the standard "dict" command}]
 [category Utilities]
 [titledesc {Dictionary Tools}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require dicttool [opt [vset VERSION]]]
 [description]
 [para]

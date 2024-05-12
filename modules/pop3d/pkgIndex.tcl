@@ -8,9 +8,7 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded pop3d::udb  1.1   [list source [file join $dir pop3d_udb.tcl]]
-
-if {![package vsatisfies [package provide Tcl] 8.3]} {return}
-package ifneeded pop3d       1.1.0 [list source [file join $dir pop3d.tcl]]
-package ifneeded pop3d::dbox 1.0.2 [list source [file join $dir pop3d_dbox.tcl]]
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
+package ifneeded pop3d::udb  1.2   [list source [file join $dir pop3d_udb.tcl]]
+package ifneeded pop3d       1.2.0 [list source [file join $dir pop3d.tcl]]
+package ifneeded pop3d::dbox 1.0.3 [list source [file join $dir pop3d_dbox.tcl]]

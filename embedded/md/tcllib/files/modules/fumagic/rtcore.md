@@ -37,7 +37,7 @@ pure Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require fileutil::magic::rt ?2\.0?  
 
 [__::fileutil::magic::rt::>__](#1)  

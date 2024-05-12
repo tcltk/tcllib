@@ -2,7 +2,7 @@
 [//000000001]: # (pt\_parser\_api \- Parser Tools)
 [//000000002]: # (Generated from file 'pt\_parser\_api\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt\_parser\_api\(i\) 1 tcllib "Parser Tools")
+[//000000004]: # (pt\_parser\_api\(i\) 1\.1 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -47,7 +47,7 @@ pt\_parser\_api \- Parser API
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 
 [__className__ ?*objectName*?](#1)  
 [*objectName* __destroy__](#2)  

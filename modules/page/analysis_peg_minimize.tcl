@@ -47,5 +47,5 @@ proc ::page::analysis::peg::minimize {t} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::analysis::peg::minimize 0.1
+package provide page::analysis::peg::minimize 0.2
 

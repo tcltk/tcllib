@@ -54,7 +54,7 @@ namespace eval ::term::receive {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::receive 0.1
+package provide term::receive 0.2
 
 ##
 # ### ### ### ######### ######### #########

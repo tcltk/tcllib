@@ -135,7 +135,7 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
 
 # -------------------------------------------------------------------------
 
-package provide uri::urn 1.0.3
+package provide uri::urn 1.0.4
 
 # -------------------------------------------------------------------------
 # Local Variables:

@@ -5,10 +5,5 @@
 # Replacement:
 # - fileutil::paths
 
-package require Tcl 8.4
-package require fileutil::paths
-
-proc ::paths {args} { uplevel 1 [linsert $args 0 ::fileutil::paths] }
-
-package provide paths 1
+error "The package paths is stage 2 deprecated. Use fileutil::paths instead."
 return

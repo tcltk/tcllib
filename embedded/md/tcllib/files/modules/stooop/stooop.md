@@ -1,7 +1,7 @@
 
 [//000000001]: # (stooop \- Simple Tcl Only Object Oriented Programming)
 [//000000002]: # (Generated from file 'stooop\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (stooop\(n\) 4\.4\.1 tcllib "Simple Tcl Only Object Oriented Programming")
+[//000000003]: # (stooop\(n\) 4\.4\.2 tcllib "Simple Tcl Only Object Oriented Programming")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ stooop \- Object oriented extension\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require stooop ?4\.4\.1?  
+package require Tcl 8\.5 9  
+package require stooop ?4\.4\.2?  
 
 [__::stooop::class__ *name body*](#1)  
 [__::stooop::new__ *class* ?*arg arg \.\.\.*?](#2)  

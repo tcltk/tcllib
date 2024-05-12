@@ -17,7 +17,7 @@
 # more details.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.3
+package require Tcl 8.3-9
 package require smtpd
 
 # In this example application we just print received mail to stdout.

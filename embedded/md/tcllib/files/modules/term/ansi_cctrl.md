@@ -39,7 +39,7 @@ term::ansi::code::ctrl \- ANSI control sequences
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require term::ansi::code ?0\.2?  
 package require term::ansi::code::ctrl ?0\.3?  
 

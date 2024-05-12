@@ -10,7 +10,7 @@
 # # ## ### ##### ######## #############
 ## Requisites
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 
 ## Versions of asn lower than 0.8.4 are known to have defects
 package require asn 0.8.4
@@ -520,7 +520,7 @@ proc ::pki::rsa::serialize_public_key {keylist} {
 			::asn::asnBitString $pubkey_bitstring]
 		]
 
-	return [list data $ret begin -----BEGIN PUBLIC KEY----- end -----END PUBLIC KEY-----]
+	return [list data $ret begin "-----BEGIN PUBLIC KEY-----" end "-----END PUBLIC KEY-----"]
 }
 
 
@@ -3318,4 +3318,4 @@ if {[info commands ::asn::asnGetVisibleString] eq ""} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.20
+package provide pki 0.22

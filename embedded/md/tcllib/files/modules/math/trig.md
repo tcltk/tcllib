@@ -2,7 +2,7 @@
 [//000000001]: # (math::trig \- Tcl Math Library)
 [//000000002]: # (Generated from file 'trig\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2018 Arjen Markus)
-[//000000004]: # (math::trig\(n\) 1\.0\.0 tcllib "Tcl Math Library")
+[//000000004]: # (math::trig\(n\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,8 +35,8 @@ math::trig \- Trigonometric anf hyperbolic functions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require math::trig 1\.0\.0  
+package require Tcl 8\.5 9  
+package require math::trig 1\.1  
 
 [__::math::trig::radian\_reduced__ *angle*](#1)  
 [__::math::trig::degree\_reduced__ *angle*](#2)  

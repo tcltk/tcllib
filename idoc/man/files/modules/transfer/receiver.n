@@ -2,7 +2,7 @@
 '\" Generated from file 'receiver\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "transfer::receiver" n 0\&.2 tcllib "Data transfer facilities"
+.TH "transfer::receiver" n 0\&.3 tcllib "Data transfer facilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 transfer::receiver \- Data source
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  ?1\&.0?\fR
+package require \fBsnit ?1\&.0?\fR
 .sp
-package require \fBtransfer::data::destination  ?0\&.2?\fR
+package require \fBtransfer::data::destination ?0\&.3?\fR
 .sp
-package require \fBtransfer::connect  ?0\&.2?\fR
+package require \fBtransfer::connect ?0\&.3?\fR
 .sp
-package require \fBtransfer::receiver  ?0\&.2?\fR
+package require \fBtransfer::receiver ?0\&.3?\fR
 .sp
 \fBtransfer::receiver\fR \fIobject\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

@@ -3,5 +3,5 @@
 [vset NAME    wiki]
 [vset REQUIRE text]
 [vset CONFIG  wiki]
-[vset VERSION 0.2]
+[vset VERSION 0.3]
 [include include/export/plugin.inc]

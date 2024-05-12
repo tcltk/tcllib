@@ -685,7 +685,7 @@ ok_80:
 sym_CharOctalFull:
 # x
 #     '\'
-#     range (0 .. 2)
+#     range (0 .. 3)
 #     range (0 .. 7)
 #     range (0 .. 7)
 
@@ -708,7 +708,7 @@ found_95:
 sequence_92:
 # x
 #     '\'
-#     range (0 .. 2)
+#     range (0 .. 3)
 #     range (0 .. 7)
 #     range (0 .. 7)
 
@@ -755,10 +755,10 @@ char_85:
          return
 
 range_87:
-# range (0 .. 2)
+# range (0 .. 3)
 
-         input_next        ".. 0 2"
-     ok! test_range        "0"   "2"
+         input_next        ".. 0 3"
+     ok! test_range        "0"   "3"
          return
 
 range_89:

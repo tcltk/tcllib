@@ -2,7 +2,7 @@
 [//000000001]: # (mapproj \- Tcl Library)
 [//000000002]: # (Generated from file 'mapproj\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007 Kevin B\. Kenny <kennykb@acm\.org>)
-[//000000004]: # (mapproj\(n\) 0\.1 tcllib "Tcl Library")
+[//000000004]: # (mapproj\(n\) 1\.1 tcllib "Tcl Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,10 +37,10 @@ mapproj \- Map projection routines
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
-package require math::interpolate ?1\.0?  
-package require math::special ?0\.2\.1?  
-package require mapproj ?1\.0?  
+package require Tcl ?8\.5 9?  
+package require math::interpolate ?1\.1?  
+package require math::special ?0\.2\.2?  
+package require mapproj ?1\.1?  
 
 [__::mapproj::toPlateCarree__ *lambda\_0* *phi\_0* *lambda* *phi*](#1)  
 [__::mapproj::fromPlateCarree__ *lambda\_0* *phi\_0* *x* *y*](#2)  

@@ -24,7 +24,7 @@
 
 # @mdgen EXCLUDE: md5c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 namespace eval ::md5 {
 }
 
@@ -454,4 +454,4 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
     }
 }
 
-package provide md5 1.4.5
+package provide md5 1.4.6

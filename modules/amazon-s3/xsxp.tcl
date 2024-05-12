@@ -76,7 +76,7 @@
 # Outputs to stdout a nested-list notation of the parsed XML.
 
 package require xml
-package provide xsxp 1.0
+package provide xsxp 1.1
 
 namespace eval xsxp {
 

@@ -1,4 +1,4 @@
-[vset VERSION 1.0.3]
+[vset VERSION 1.0.4]
 [manpage_begin uri_urn n [vset VERSION]]
 [keywords {rfc 2141}]
 [keywords uri]
@@ -7,7 +7,7 @@
 [moddesc   {Tcl Uniform Resource Identifier Management}]
 [titledesc {URI utilities, URN scheme}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require uri::urn [opt [vset VERSION]]]
 [description]
 

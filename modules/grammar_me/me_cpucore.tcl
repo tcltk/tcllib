@@ -1153,4 +1153,4 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide grammar::me::cpu::core 0.2
+package provide grammar::me::cpu::core 0.3

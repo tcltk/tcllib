@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::receive n 0.1]
+[manpage_begin term::receive n 0.2]
 [keywords {character input}]
 [keywords control]
 [keywords {get character}]
@@ -10,8 +10,8 @@
 [moddesc   {Terminal control}]
 [titledesc {General input from terminals}]
 [category  {Terminal control}]
-[require Tcl 8.4]
-[require term::receive [opt 0.1]]
+[require Tcl "8.5 9"]
+[require term::receive [opt 0.2]]
 [description]
 
 This package provides the most primitive commands for receiving

@@ -20,7 +20,7 @@ Packages - [Table Of Contents](md/toc.md)
 The download links are on the referenced pages.
 
    * [Trunk Head](head.md)
-   * [Current Release](../../../technote/cd3a11c3065120d491009e64a19f7676176045cd) __1.20 (Dec 1, 2019)__
+   * [Current Release](../../../technote/7a047636411e9c9d8e1410ddee0fb02d1458a7c0) __1.21 (May 7, 2022)__
    * [Past Releases](../../../wiki?name=Past+Releases)
    * [Development Snapshots](../../../wiki?name=Development+Snapshots)
    * [@ SourceForge](https://sourceforge.net/projects/tcllib/files/)

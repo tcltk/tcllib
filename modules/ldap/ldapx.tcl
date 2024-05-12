@@ -3,19 +3,17 @@
 #
 # (c) 2006-2018 Pierre David (pdagog@gmail.com)
 #
-# $Id: ldapx.tcl,v 1.12 2008/02/07 21:19:39 pdav Exp $
-#
 # History:
 #   2006/08/08 : pda : design
 #
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit		;# tcllib
-package require uri 1.1.5	;# tcllib
+package require uri 1.1.6	;# tcllib
 package require base64		;# tcllib
-package require ldap 1.9.2	;# tcllib, low level code for LDAP directories
+package require ldap 1.10.2	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 1.2
+package provide ldapx 1.3
 
 ##############################################################################
 # LDAPENTRY object type

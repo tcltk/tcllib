@@ -330,7 +330,7 @@ proc ::struct::list::test::main {} {
 
 	# In 8.6+ assign is the native lassign and it does nothing gracefully,
 	# per TIP 323, making assign-4.4 not an error anymore.
-	test assign-4.4 {assign method} {!tcl8.6plus} {
+    test assign-4.4 {assign method} tcl8.5only {
 		catch {assign {foo bar}} msg ; set msg
 	} $err
 
@@ -630,40 +630,20 @@ proc ::struct::list::test::main {} {
 
 	interp alias {} repeat {} ::struct::list::list repeat
 
-	if {[package vcompare [package provide Tcl] 8.5] < 0} {
-		# 8.4
-		set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 0]
-	} elseif {![package vsatisfies [package provide Tcl] 8.6]} {
-		# 8.5+
-		#set err [tcltest::wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 0]
-		set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value ?value ...?} 0]
-	} else {
-		# 8.6+
-		set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {count ?value ...?} 1]
-	}
 	test repeat-4.1 {repeat command} {
 		catch {repeat} msg
 		set msg
-	} $err
+	} [tcltest::byConstraint [list \
+            tcl8.6plus [tcltest::wrongNumArgs {::struct::list::Lrepeat} {count ?value ...?} 1] \
+            tcl8.5only [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value ?value ...?} 0]]]
 
 
-	if {[package vcompare [package provide Tcl] 8.5] < 0} {
-		# 8.4
-		set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 1]
-	} elseif {![package vsatisfies [package provide Tcl] 8.6]} {
-		# 8.5+
-		#set err [tcltest::wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 1]
-		set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value ?value ...?} 1]
-	} else {
-		# 8.6+
-		set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {count ?value ...?} 1]
-	}
 	# In 8.6+ repeat is the native lrepeat and it does nothing gracefully,
 	# per TIP 323, making repeat-4.2 not an error anymore.
-	test repeat-4.2 {repeat command} {!tcl8.6plus} {
+	test repeat-4.2 {repeat command} tcl8.5only {
 		catch {repeat a} msg
 		set msg
-	} $err
+	} [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value ?value ...?} 1]
 
 	test repeat-4.3 {repeat command} {
 		catch {repeat a b} msg
@@ -672,22 +652,18 @@ proc ::struct::list::test::main {} {
 
 	# In 8.6+ repeat is the native lrepeat and it does nothing gracefully,
 	# per TIP 323, making repeat-4.2 not an error anymore.
-	test repeat-4.4 {repeat command} {!tcl8.6plus} {
+	test repeat-4.4 {repeat command} tcl8.5only {
 		catch {repeat 0 b} msg
 		set msg
 	} {must have a count of at least 1}
 
-	if {![package vsatisfies [package provide Tcl] 8.6]} {
-		# before 8.6
-		set err {must have a count of at least 1}
-	} else {
-		# 8.6+, native lrepeat changed error message.
-		set err {bad count "-1": must be integer >= 0}
-	}
 	test repeat-4.5 {repeat command} {
 		catch {repeat -1 b} msg
 		set msg
-	} $err
+	} [tcltest::byConstraint {
+            tcl8.6plus {bad count "-1": must be integer >= 0}
+            tcl8.5only {must have a count of at least 1}
+        }]
 
 	test repeat-4.6 {repeat command} {
 		repeat 1 b c
@@ -1289,4 +1265,4 @@ proc ::struct::list::test::main {} {
 	}
 }
 
-package provide struct::list::test 1.8.4 
+package provide struct::list::test 1.8.5

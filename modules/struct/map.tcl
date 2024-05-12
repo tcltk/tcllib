@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require snit
 
 # ### ### ### ######### ######### #########
@@ -100,5 +100,5 @@ snit::type ::struct::map::I {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide struct::map 1
+package provide struct::map 1.1
 return

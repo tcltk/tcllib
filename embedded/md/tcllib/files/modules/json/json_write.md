@@ -2,7 +2,7 @@
 [//000000001]: # (json::write \- JSON)
 [//000000002]: # (Generated from file 'json\_write\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009\-2013,2022 Andreas Kupries <andreas\_kupries@sourceforge\.net>)
-[//000000004]: # (json::write\(n\) 1\.0\.4 tcllib "JSON")
+[//000000004]: # (json::write\(n\) 1\.0\.5 tcllib "JSON")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ json::write \- JSON generation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require json::write ?1\.0\.4?  
+package require Tcl 8\.5 9  
+package require json::write ?1\.0\.5?  
 
 [__::json::write__ __indented__](#1)  
 [__::json::write__ __indented__ *flag*](#2)  

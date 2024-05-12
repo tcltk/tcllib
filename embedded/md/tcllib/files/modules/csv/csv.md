@@ -41,7 +41,7 @@ csv \- Procedures to handle CSV data\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require csv ?0\.8\.1?  
 
 [__::csv::iscomplete__ *data*](#1)  

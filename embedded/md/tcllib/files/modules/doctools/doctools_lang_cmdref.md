@@ -77,7 +77,7 @@ doctools\_lang\_cmdref \- doctools language command reference
 [__[package](\.\./\.\./\.\./\.\./index\.md\#package)__ *text*](#38)  
 [__para__](#39)  
 [__rb__](#40)  
-[__require__ *package* ?*version*?](#41)  
+[__require__ *package* ?*version*\.\.\.?](#41)  
 [__section__ *name*](#42)  
 [__sectref__ *id* ?*text*?](#43)  
 [__sectref\-external__ *text*](#44)  
@@ -443,12 +443,12 @@ are relatively short\. A beginner should read the much more informally written
     Required to avoid interpretation of a right bracket as the end of a markup
     command\.
 
-  - <a name='41'></a>__require__ *package* ?*version*?
+  - <a name='41'></a>__require__ *package* ?*version*\.\.\.?
 
     Document information\. Header\. This command registers its argument
     *package* as the name of a package or application required by the
-    described package or application\. A minimum version can be provided as well\.
-    This argument can be marked up\. The usual markup is __opt__\.
+    described package or application\. A set of required versions can be provided
+    as well\. This argument can be marked up\. The usual markup is __opt__\.
 
   - <a name='42'></a>__section__ *name*
 

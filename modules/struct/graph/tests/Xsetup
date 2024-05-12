@@ -40,25 +40,15 @@ switch -exact -- $impl {
 
 	proc tmE {tcl critcl} {return $critcl}
 
-	if {[package vsatisfies [package present Tcl] 8.5]} {
-	    proc tmWrongA {m loarg n {xarg {}}} {
-		if {[llength $m] > 1} {set m [lindex $m 1]}
-		return [tcltest::wrongNumArgs "CMD $m" $loarg $n]
-	    }
+        proc tmWrongA {m loarg n {xarg {}}} {
+            if {[llength $m] > 1} {set m [lindex $m 1]}
+            return [tcltest::wrongNumArgs "CMD $m" $loarg $n]
+        }
 
-	    proc tmTooManyA {m loarg {xarg {}}} {
-		if {[llength $m] > 1} {set m [lindex $m 1]}
-		return [tcltest::tooManyArgs "CMD $m" $loarg]
-	    }
-	} else {
-	    proc tmWrongA {m loarg n {xarg {}}} {
-		return [tcltest::wrongNumArgs "mygraph $m" $loarg $n]
-	    }
-
-	    proc tmTooManyA {m loarg {xarg {}}} {
-		return [tcltest::tooManyArgs "mygraph $m" $loarg]
-	    }
-	}
+        proc tmTooManyA {m loarg {xarg {}}} {
+            if {[llength $m] > 1} {set m [lindex $m 1]}
+            return [tcltest::tooManyArgs "CMD $m" $loarg]
+        }
     }
     tcl {
 	set MY ::mygraph

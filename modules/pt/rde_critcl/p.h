@@ -5,7 +5,7 @@
 #ifndef _P_H
 #define _P_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 
 typedef struct RDE_STATE_* RDE_STATE;
 

@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt::peg::container::peg n 1]
+[manpage_begin pt::peg::container::peg n 1.1]
 [include include/module.inc]
 [titledesc {PEG Storage. Canned PEG grammar specification}]
 [require snit]

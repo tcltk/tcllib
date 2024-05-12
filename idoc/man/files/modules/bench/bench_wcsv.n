@@ -2,7 +2,7 @@
 '\" Generated from file 'bench_wcsv\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "bench::out::csv" n 0\&.1\&.2 tcllib "Benchmarking/Performance tools"
+.TH "bench::out::csv" n 0\&.1\&.3 tcllib "Benchmarking/Performance tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 bench::out::csv \- bench::out::csv - Formatting benchmark results as CSV
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbench::out::csv  ?0\&.1\&.2?\fR
+package require \fBbench::out::csv ?0\&.1\&.3?\fR
 .sp
 \fB::bench::out::csv\fR \fIbench_result\fR
 .sp

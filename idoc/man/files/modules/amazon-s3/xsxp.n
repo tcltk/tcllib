@@ -2,7 +2,7 @@
 '\" Generated from file 'xsxp\&.man' by tcllib/doctools with format 'nroff'
 '\" 2006 Darren New\&. All Rights Reserved\&.
 '\"
-.TH "xsxp" n 1\&.0 tcllib "Amazon S3 Web Service Utilities"
+.TH "xsxp" n 1\&.1 tcllib "Amazon S3 Web Service Utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 xsxp \- eXtremely Simple Xml Parser
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBxsxp  1\fR
+package require \fBxsxp 1\&.1\fR
 .sp
-package require \fBxml \fR
+package require \fBxml\fR
 .sp
 \fBxsxp::parse\fR \fIxml\fR
 .sp

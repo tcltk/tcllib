@@ -111,4 +111,4 @@ proc page_rrun {} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::reader::ser 0.1
+package provide page::reader::ser 0.2

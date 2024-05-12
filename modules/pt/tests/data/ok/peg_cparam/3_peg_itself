@@ -198,7 +198,7 @@ static char const* <<string-table>> [178] = {
     /*       31 = */   "n Char",
     /*       32 = */   "Char",
     /*       33 = */   "t \\\\",
-    /*       34 = */   ".. 0 2",
+    /*       34 = */   ".. 0 3",
     /*       35 = */   ".. 0 7",
     /*       36 = */   "n CharOctalFull",
     /*       37 = */   "CharOctalFull",
@@ -599,7 +599,7 @@ static char const* <<string-table>> [178] = {
    /*
     * x
     *     '\'
-    *     range (0 .. 2)
+    *     range (0 .. 3)
     *     range (0 .. 7)
     *     range (0 .. 7)
     */
@@ -614,7 +614,7 @@ static char const* <<string-table>> [178] = {
    /*
     * x
     *     '\'
-    *     range (0 .. 2)
+    *     range (0 .. 3)
     *     range (0 .. 7)
     *     range (0 .. 7)
     */
@@ -622,7 +622,7 @@ static char const* <<string-table>> [178] = {
     rde_param_i_state_push_void (<<state>>);
     rde_param_i_next_char (<<state>>, "\\", 33);
     if (rde_param_i_seq_void2void(<<state>>)) return;
-    rde_param_i_next_range (<<state>>, "0", "2", 34);
+    rde_param_i_next_range (<<state>>, "0", "3", 34);
     if (rde_param_i_seq_void2void(<<state>>)) return;
     rde_param_i_next_range (<<state>>, "0", "7", 35);
     if (rde_param_i_seq_void2void(<<state>>)) return;

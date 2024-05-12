@@ -9,7 +9,7 @@
 
 package require pcx
 pcx::register clock::rfc2822
-pcx::tcldep   0.1 needs tcl 8.5
+pcx::tcldep   0.2 needs tcl 8.5
 
 namespace eval ::clock::rfc2822 {}
 
@@ -17,7 +17,7 @@ namespace eval ::clock::rfc2822 {}
 #pcx::scan <VERSION> <NAME> <RULE>
 
 # Switches are per clock scan (Tcl 8.5), restricted subset.
-pcx::check 0.1 std ::clock::rfc2822::parse_date \
+pcx::check 0.2 std ::clock::rfc2822::parse_date \
     {checkSimpleArgs 1 1 {
 	checkWord
     }}

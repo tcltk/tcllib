@@ -3,7 +3,7 @@
 '\" Copyright (c) 2004 Salvatore Sanfilippo <antirez at invece dot org>
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>
 '\"
-.TH "math::bignum" n 3\&.1 tcllib "Tcl Math Library"
+.TH "math::bignum" n 3\&.1\&.2 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,9 +275,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::bignum \- Arbitrary precision integer numbers
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.4?\fR
+package require \fBTcl ?8\&.5 9?\fR
 .sp
-package require \fBmath::bignum  ?3\&.1?\fR
+package require \fBmath::bignum ?3\&.1\&.2?\fR
 .sp
 \fB::math::bignum::fromstr\fR \fIstring\fR ?\fIradix\fR?
 .sp

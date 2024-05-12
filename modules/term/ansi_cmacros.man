@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::ansi::code::macros n 0.1]
+[manpage_begin term::ansi::code::macros n 0.2]
 [keywords ansi]
 [keywords control]
 [keywords frame]
@@ -9,10 +9,10 @@
 [moddesc   {Terminal control}]
 [titledesc {Macro sequences}]
 [category  {Terminal control}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require textutil::repeat]
 [require textutil::tabify]
-[require term::ansi::code::macros [opt 0.1]]
+[require term::ansi::code::macros [opt 0.2]]
 [description]
 
 This package provides higher level control sequences for more complex

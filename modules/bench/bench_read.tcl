@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require csv
 
 namespace eval ::bench::in {}
@@ -159,4 +159,4 @@ proc ::bench::in::RDtext {chan} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::in 0.1
+package provide bench::in 0.2

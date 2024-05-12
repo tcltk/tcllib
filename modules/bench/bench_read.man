@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin bench::in n 0.1]
+[manpage_begin bench::in n 0.2]
 [see_also bench]
 [see_also bench::out::csv]
 [see_also bench::out::text]
@@ -17,9 +17,9 @@
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench::in - Reading benchmark results}]
 [category  {Benchmark tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require csv]
-[require bench::in [opt 0.1]]
+[require bench::in [opt 0.2]]
 [description]
 
 This package provides a command for reading benchmark results from

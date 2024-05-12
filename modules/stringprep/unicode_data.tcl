@@ -19,7 +19,7 @@
 # into a page of characters.  The upper bits comprise the page number.
 #
 
-package provide unicode::data 1.0.0
+package provide unicode::data 1.1.0
 
 namespace eval ::unicode::data {
 

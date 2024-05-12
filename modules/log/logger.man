@@ -1,4 +1,4 @@
-[vset VERSION 0.9.4]
+[vset VERSION 0.9.5]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin logger n [vset VERSION]]
 [keywords log]
@@ -8,7 +8,7 @@
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [category  {Programming tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require logger [opt [vset VERSION]]]
 [description]
 

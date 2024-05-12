@@ -13,7 +13,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::SASL {
     variable uid
@@ -673,7 +673,7 @@ proc ::SASL::OTP:client {context challenge args} {
 
 # -------------------------------------------------------------------------
 
-package provide SASL 1.3.3
+package provide SASL 1.3.4
 
 # -------------------------------------------------------------------------
 #

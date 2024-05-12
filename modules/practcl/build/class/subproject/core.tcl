@@ -15,7 +15,11 @@
     my unpack
     set os [::practcl::local_os]
 
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    if {[package vsatisfies [package present Tcl] 9]} {
+      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
+    } else {
+      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    }
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options
     puts [list [self] OS [dict get $os TEACUP_OS] options $options]

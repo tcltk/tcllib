@@ -113,4 +113,4 @@ proc page_wrun {chan data} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::writer::mecpu 0.1.1
+package provide page::writer::mecpu 0.1.2

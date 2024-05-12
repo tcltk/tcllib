@@ -40,7 +40,11 @@ proc ::sak::registry::Refresh {} {
 namespace eval ::sak::registry {
     variable _here    [file dirname [info script]]
 
-    variable statedir [file join ~ .Tcllib]
+    if {[package vsatisfies [package present Tcl] 9]} {
+        variable statedir [file join [file home] .Tcllib]
+    } else {
+        variable statedir [file join ~ .Tcllib]
+    }
     variable state    [file join $statedir Registry]
     variable _local   {}
 }

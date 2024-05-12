@@ -1,4 +1,4 @@
-[manpage_begin md5 n 2.0.8]
+[manpage_begin md5 n 2.0.9]
 [see_also md4]
 [see_also sha1]
 [keywords hashing]
@@ -12,8 +12,8 @@
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
-[require md5 [opt 2.0.7]]
+[require Tcl "8.5 9"]
+[require md5 [opt 2.0.9]]
 [description]
 [para]
 

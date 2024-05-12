@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::repeat \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'repeat\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::repeat\(n\) 0\.7\.1 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil::repeat\(n\) 0\.8 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ textutil::repeat \- Procedures to repeat strings\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require textutil::repeat ?0\.7?  
+package require Tcl 8\.5 9  
+package require textutil::repeat ?0\.8?  
 
 [__::textutil::repeat::strRepeat__ *text* *num*](#1)  
 [__::textutil::repeat::blank__ *num*](#2)  

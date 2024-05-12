@@ -5,7 +5,7 @@
 #ifndef _DS_H
 #define _DS_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 
 /* Forward declarations of references to trees & nodes.
  */
@@ -40,8 +40,8 @@ typedef struct TN {
     TNPtr* child;	/* Array of children. Can
 			 * be NULL. leaf node implies
 			 * NULL, and vice versa */
-    int	   nchildren;	/* # nodes used in previous array */
-    int	   maxchildren; /* Size of previous array */
+    Tcl_Size nchildren;   /* # nodes used in previous array */
+    Tcl_Size maxchildren; /* Size of previous array */
 
     TNPtr left;	  /* Sibling to the left, NULL if no such  */
     TNPtr right;  /* Sibling to the right, NULL if no such */
@@ -55,14 +55,13 @@ typedef struct TN {
      * structure
      */
 
-    int index;	/* Index of node in 'child' array of its
-		 * parent */
-    int depth;	/* Distance to root node.
-		 * 0 <=> root */
-    int height; /* Distance to deepest child.
-		 * 0 <=> Leaf. */
-    int desc;	/* #Descendants */
-
+    Tcl_Size index;	/* Index of node in 'child' array of its
+			 * parent */
+    Tcl_Size depth;	/* Distance to root node.
+			 * 0 <=> root */
+    Tcl_Size height;	/* Distance to deepest child.
+			 * 0 <=> Leaf. */
+    Tcl_Size desc;	/* #Descendants */
 } TN;
 
 /* Tree structure

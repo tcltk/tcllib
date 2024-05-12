@@ -19,7 +19,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package  require Tcl 8.5
+package  require Tcl 8.5 9
 package  require pt::peg             ; # Verification that the input
 				       # is proper.
 package  require pt::pe              ; # Walking an expression.
@@ -1269,5 +1269,5 @@ namespace eval ::pt::peg::to::tclparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::tclparam 1.0.3
+package provide pt::peg::to::tclparam 1.0.4
 return

@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014,2022 by Andreas Kupries <andreas.kupries@gmail.com>
 # Grammars / Parsing Expression Grammars / Parser Generator
 
 # ### ### ### ######### ######### #########
@@ -11,7 +11,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require fileutil
 package require pt::peg::from::json    ; # Frontends: json, and PEG text form
 package require pt::peg::from::peg     ; #
@@ -21,11 +21,11 @@ package require pt::peg::to::peg       ; #
 package require pt::peg::to::param     ; # PARAM assembly, raw
 package require pt::peg::to::tclparam  ; # PARAM assembly, embedded into Tcl
 package require pt::peg::to::cparam    ; # PARAM assembly, embedded into C
-package require pt::tclparam::configuration::snit  1.0.2 ; # PARAM/Tcl, snit::type
-package require pt::tclparam::configuration::tcloo 1.0.4 ; # PARAM/Tcl, TclOO class
-package require pt::cparam::configuration::critcl  1.0.2 ; # PARAM/C, in critcl
-package require pt::cparam::configuration::tea   ; # PARAM/C, in TEA
-package require pt::tclparam::configuration::nx 1.0.0 ; # PARAM/Tcl, NX class
+package require pt::tclparam::configuration::snit  1.0.3 ; # PARAM/Tcl, snit::type
+package require pt::tclparam::configuration::tcloo 1.0.5 ; # PARAM/Tcl, TclOO class
+package require pt::cparam::configuration::critcl  1.0.3 ; # PARAM/C, in critcl
+package require pt::cparam::configuration::tea           ; # PARAM/C, in TEA
+package require pt::tclparam::configuration::nx 1.0.2    ; # PARAM/Tcl, NX class
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -57,7 +57,7 @@ proc ::pt::pgen::peg {input args} {
 ## Internals - Generating the parser.
 
 namespace eval ::pt::pgen::Write {
-    namespace export json peg container param snit oo critcl c tea nx
+    namespace export json peg container param snit snit-sa oo oo-sa critcl c tea nx
     namespace ensemble create
 }
 
@@ -97,6 +97,21 @@ proc ::pt::pgen::Write::snit {args} {
     return [pt::peg::to::tclparam convert [lindex $args end]]
 }
 
+proc ::pt::pgen::Write::snit-sa {args} {
+    # args = (option value)... grammar
+    pt::peg::to::tclparam configure {*}[Package [Version [Class [lrange $args 0 end-1]]]]
+    ClassPackageDefaults
+
+    pt::tclparam::configuration::snit def \
+	$class $package $version \
+	{pt::peg::to::tclparam configure}
+
+    set parser [pt::peg::to::tclparam convert [lindex $args end]]
+    set parser [string map [list {package require pt::rde} [Runtime pt::rde]] $parser]
+    
+    return $parser
+}
+
 proc ::pt::pgen::Write::oo {args} {
     # args = (option value)... grammar
     pt::peg::to::tclparam configure {*}[Package [Version [Class [lrange $args 0 end-1]]]]
@@ -107,6 +122,21 @@ proc ::pt::pgen::Write::oo {args} {
 	{pt::peg::to::tclparam configure}
 
     return [pt::peg::to::tclparam convert [lindex $args end]]
+}
+
+proc ::pt::pgen::Write::oo-sa {args} {
+    # args = (option value)... grammar
+    pt::peg::to::tclparam configure {*}[Package [Version [Class [lrange $args 0 end-1]]]]
+    ClassPackageDefaults
+
+    pt::tclparam::configuration::tcloo def \
+	$class $package $version \
+	{pt::peg::to::tclparam configure}
+
+    set parser [pt::peg::to::tclparam convert [lindex $args end]]
+    set parser [string map [list {package require pt::rde::oo} [Runtime pt::rde::oo]] $parser]
+    
+    return $parser
 }
 
 proc ::pt::pgen::Write::nx {args} {
@@ -155,6 +185,20 @@ proc ::pt::pgen::Write::c {args} {
     # args = (option value)... grammar
     pt::peg::to::cparam configure {*}[lrange $args 0 end-1]
     return [pt::peg::to::cparam convert [lindex $args end]]
+}
+
+proc ::pt::pgen::Write::Runtime {pkg} {
+    set version     [lindex [lsort -dict [package versions $pkg]] end]
+    set runtimefile [lindex [package ifneeded $pkg $version] end]
+    set chan        [open $runtimefile r]
+    set runtime     [read $chan]
+    close $chan
+
+    # Remove a trailing global return
+    set runtime [string map [list "\nreturn" "\n"] $runtime]
+    
+    set sep "# # ## ### ##### ######## ############# #####################"
+    return "\n$sep\n## $pkg RUNTIME START\n##\n\n$runtime\n\n##\n## $pkg RUNTIME END\n$sep\n\n"
 }
 
 # ### ### ### ######### ######### #########
@@ -231,4 +275,4 @@ proc ::pt::pgen::Write::Version {optiondict} {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::pgen 1.1
+package provide pt::pgen 1.4

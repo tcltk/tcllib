@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>math::calculus - Tcl Math Library</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::calculus(n) 0.8.2 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::calculus(n) 1.1 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::calculus - Integration and ordinary differential equations</p>
 </div>
@@ -128,8 +130,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">math::calculus 0.8.2</b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">math::calculus 1.1</b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::calculus::integral</b> <i class="arg">begin</i> <i class="arg">end</i> <i class="arg">nosteps</i> <i class="arg">func</i></a></li>
@@ -148,6 +150,10 @@
 <li><a href="#14"><b class="cmd">::math::calculus::newtonRaphson</b> <i class="arg">func</i> <i class="arg">deriv</i> <i class="arg">initval</i></a></li>
 <li><a href="#15"><b class="cmd">::math::calculus::newtonRaphsonParameters</b> <i class="arg">maxiter</i> <i class="arg">tolerance</i></a></li>
 <li><a href="#16"><b class="cmd">::math::calculus::regula_falsi</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></li>
+<li><a href="#17"><b class="cmd">::math::calculus::root_bisection</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></li>
+<li><a href="#18"><b class="cmd">::math::calculus::root_secant</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></li>
+<li><a href="#19"><b class="cmd">::math::calculus::root_brent</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></li>
+<li><a href="#20"><b class="cmd">::math::calculus::root_chandrupatla</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></li>
 </ul>
 </div>
 </div>
@@ -388,6 +394,76 @@ to lie</p></dd>
 <dt>float <i class="arg">eps</i></dt>
 <dd><p>Relative allowed error (defaults to 1.0e-4)</p></dd>
 </dl></dd>
+<dt><a name="17"><b class="cmd">::math::calculus::root_bisection</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></dt>
+<dd><p>Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.</p>
+<p>The method used is the so-called <em>bisection</em>. For properties: see the <em>regula falsi</em> procedure.</p>
+<dl class="doctools_arguments">
+<dt>command <i class="arg">f</i></dt>
+<dd><p>Name of the command that evaluates the function for
+which the zero is to be returned</p></dd>
+<dt>float <i class="arg">xb</i></dt>
+<dd><p>Start of the interval in which the zero is supposed
+to lie</p></dd>
+<dt>float <i class="arg">xe</i></dt>
+<dd><p>End of the interval</p></dd>
+<dt>float <i class="arg">eps</i></dt>
+<dd><p>Relative allowed error (defaults to 1.0e-7)</p></dd>
+</dl></dd>
+<dt><a name="18"><b class="cmd">::math::calculus::root_secant</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></dt>
+<dd><p>Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.</p>
+<p>The method used is the so-called <em>secant</em> method. For properties: see the <em>regula falsi</em> procedure.
+Note that this method is not guaranteed to produce a zero, but it is fast.</p>
+<dl class="doctools_arguments">
+<dt>command <i class="arg">f</i></dt>
+<dd><p>Name of the command that evaluates the function for
+which the zero is to be returned</p></dd>
+<dt>float <i class="arg">xb</i></dt>
+<dd><p>Start of the interval in which the zero is supposed
+to lie</p></dd>
+<dt>float <i class="arg">xe</i></dt>
+<dd><p>End of the interval</p></dd>
+<dt>float <i class="arg">eps</i></dt>
+<dd><p>Relative allowed error (defaults to 1.0e-7)</p></dd>
+</dl></dd>
+<dt><a name="19"><b class="cmd">::math::calculus::root_brent</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></dt>
+<dd><p>Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.</p>
+<p>The method used is the so-called <em>Brent</em> method. For properties: see the <em>regula falsi</em> procedure.</p>
+<dl class="doctools_arguments">
+<dt>command <i class="arg">f</i></dt>
+<dd><p>Name of the command that evaluates the function for
+which the zero is to be returned</p></dd>
+<dt>float <i class="arg">xb</i></dt>
+<dd><p>Start of the interval in which the zero is supposed
+to lie</p></dd>
+<dt>float <i class="arg">xe</i></dt>
+<dd><p>End of the interval</p></dd>
+<dt>float <i class="arg">eps</i></dt>
+<dd><p>Relative allowed error (defaults to 1.0e-7)</p></dd>
+</dl></dd>
+<dt><a name="20"><b class="cmd">::math::calculus::root_chandrupatla</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></dt>
+<dd><p>Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.</p>
+<p>The method used is the so-called <em>Chandrupatla</em> method. It is a variant of the Brent method and
+is reputed to be faster. See <a href="https://www.embeddedrelated.com/showarticle/855.php">https://www.embeddedrelated.com/showarticle/855.php</a> for a discussion.</p>
+<dl class="doctools_arguments">
+<dt>command <i class="arg">f</i></dt>
+<dd><p>Name of the command that evaluates the function for
+which the zero is to be returned</p></dd>
+<dt>float <i class="arg">xb</i></dt>
+<dd><p>Start of the interval in which the zero is supposed
+to lie</p></dd>
+<dt>float <i class="arg">xe</i></dt>
+<dd><p>End of the interval</p></dd>
+<dt>float <i class="arg">eps</i></dt>
+<dd><p>Relative allowed error (defaults to 1.0e-7)</p></dd>
+</dl></dd>
 </dl>
 <p><em>Notes:</em></p>
 <p>Several of the above procedures take the <em>names</em> of procedures as
@@ -424,6 +500,10 @@ procedure. For instance:</p>
 <li><p>Other types of boundary conditions (zero gradient, zero flux)</p></li>
 <li><p>Other schematisation of the first-order term (now central
 differences are used, but upstream differences might be useful too).</p></li>
+<li><p>The various root finding methods differ in robustness, ease of use and convergence rates. While the Newton-Raphson
+method is quite fast (quadratic convergence), it is not guaranteed to produce an answer. The methods
+that bracket the root, require two starting points, but except for the secant method are guaranteed to
+deliver a good estimate.</p></li>
 </ul>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>

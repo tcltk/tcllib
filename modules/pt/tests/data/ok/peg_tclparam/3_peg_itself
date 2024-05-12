@@ -228,7 +228,7 @@
 <<def>> <<ns>>sym_CharOctalFull {} {
     # x
     #     '\'
-    #     range (0 .. 2)
+    #     range (0 .. 3)
     #     range (0 .. 7)
     #     range (0 .. 7)
 
@@ -241,14 +241,14 @@
 <<def>> <<ns>>sequence_44 {} {
     # x
     #     '\'
-    #     range (0 .. 2)
+    #     range (0 .. 3)
     #     range (0 .. 7)
     #     range (0 .. 7)
 
     <<runtime>> si:void_state_push
     <<runtime>> si:next_char \134
     <<runtime>> si:voidvoid_part
-    <<runtime>> si:next_range 0 2
+    <<runtime>> si:next_range 0 3
     <<runtime>> si:voidvoid_part
     <<runtime>> si:next_range 0 7
     <<runtime>> si:voidvoid_part

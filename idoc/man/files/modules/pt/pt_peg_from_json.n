@@ -2,7 +2,7 @@
 '\" Generated from file 'from\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::from::json" n 1 tcllib "Parser Tools"
+.TH "pt::peg::from::json" n 1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::from::json \- PEG Conversion\&. Read JSON format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::from::json  ?1?\fR
+package require \fBpt::peg::from::json ?1\&.1?\fR
 .sp
-package require \fBpt::peg \fR
+package require \fBpt::peg\fR
 .sp
-package require \fBjson \fR
+package require \fBjson\fR
 .sp
 \fBpt::peg::from::json\fR \fBconvert\fR \fItext\fR
 .sp

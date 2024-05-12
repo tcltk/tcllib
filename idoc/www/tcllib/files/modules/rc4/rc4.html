@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>rc4 - RC4 Stream Cipher</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">rc4(n) 1.1.0 tcllib &quot;RC4 Stream Cipher&quot;</h1>
+<h1 class="doctools_title">rc4(n) 1.2.0 tcllib &quot;RC4 Stream Cipher&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>rc4 - Implementation of the RC4 stream cipher</p>
 </div>
@@ -130,8 +132,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">rc4 <span class="opt">?1.1.0?</span></b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">rc4 <span class="opt">?1.2.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::rc4::rc4</b> <span class="opt">?<i class="arg">-hex</i>?</span> <i class="arg">-key keyvalue</i> <span class="opt">?<i class="arg">-command lst</i>?</span> <span class="opt">?<i class="arg">-out channel</i>?</span> [ <i class="arg">-in channel</i> | <i class="arg">-infile filename</i> | <i class="arg">string</i> ]</a></li>
@@ -190,7 +192,7 @@ data and is used to initialize the cipher internal state.</p></dd>
 % set keydata [binary format H* 0123456789abcdef]
 % rc4::rc4 -hex -key $keydata HelloWorld
 3cf1ae8b7f1c670b612f
-% rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
+% rc4::rc4 -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
 HelloWorld
 </pre>
 <pre class="doctools_example">

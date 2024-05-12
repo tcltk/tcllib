@@ -1,7 +1,7 @@
 
 [//000000001]: # (ftp::geturl \- ftp client)
 [//000000002]: # (Generated from file 'ftp\_geturl\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (ftp::geturl\(n\) 0\.2\.2 tcllib "ftp client")
+[//000000003]: # (ftp::geturl\(n\) 0\.2\.3 tcllib "ftp client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ ftp::geturl \- Uri handler for ftp urls
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require ftp::geturl ?0\.2\.2?  
+package require Tcl 8\.5 9  
+package require ftp::geturl ?0\.2\.3?  
 
 [__::ftp::geturl__ *url*](#1)  
 

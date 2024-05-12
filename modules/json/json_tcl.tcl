@@ -9,7 +9,7 @@
 #   $Id: json.tcl,v 1.7 2011/11/10 21:05:58 andreas_kupries Exp $
 #
 
-if {![package vsatisfies [package provide Tcl] 8.5]} {
+if {![package vsatisfies [package provide Tcl] 8.5 9]} {
     package require dict
 }
 

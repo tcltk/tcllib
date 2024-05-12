@@ -1,7 +1,7 @@
 
 [//000000001]: # (switched \- Simple Tcl Only Object Oriented Programming)
 [//000000002]: # (Generated from file 'switched\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (switched\(n\) 2\.2\.1 tcllib "Simple Tcl Only Object Oriented Programming")
+[//000000003]: # (switched\(n\) 2\.2\.2 tcllib "Simple Tcl Only Object Oriented Programming")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -30,8 +30,8 @@ switched \- switch/option management\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require switched ?2\.2\.1?  
+package require Tcl 8\.5 9  
+package require switched ?2\.2\.2?  
 
 [__<switched>__ __complete__ *this*](#1)  
 [__<switched>__ __options__ *this*](#2)  

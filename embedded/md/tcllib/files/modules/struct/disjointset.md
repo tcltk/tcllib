@@ -1,7 +1,7 @@
 
 [//000000001]: # (struct::disjointset \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'disjointset\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (struct::disjointset\(n\) 1\.1 tcllib "Tcl Data Structures")
+[//000000003]: # (struct::disjointset\(n\) 1\.2 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ struct::disjointset \- Disjoint set data structure
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
-package require struct::disjointset ?1\.1?  
+package require Tcl 8\.6 9  
+package require struct::disjointset ?1\.2?  
 
 [__::struct::disjointset__ *disjointsetName*](#1)  
 [*disjointsetName* *option* ?*arg arg \.\.\.*?](#2)  

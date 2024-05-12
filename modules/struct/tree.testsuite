@@ -1093,14 +1093,14 @@ test tree-${impl}-3.9.18 {extended node names with spaces check} {
     set msg
 } [list ":\n\t " 1 1 0 [list root ":\n\t " yummy] data root foo]
 
-test tree-${impl}-3.9.19a {insert fails for a bad index} {!tcl8.5plus||tree_critcl} {
+test tree-${impl}-3.9.19a {insert fails for a bad index} tree_critcl {
     tree mytree
     catch {mytree insert root foo new-node} msg
     mytree destroy
     set msg
 } {bad index "foo": must be integer or end?-integer?}
 
-test tree-${impl}-3.9.19b {insert fails for a bad index} {tcl8.5plus&&!tree_critcl} {
+test tree-${impl}-3.9.19b {insert fails for a bad index} !tree_critcl {
     tree mytree
     catch {mytree insert root foo new-node} msg
     mytree destroy
@@ -1276,7 +1276,7 @@ test tree-${impl}-3.11.13 {move node down one} {
     set result
 } {{IT::EM 0} {IT::EM 2} {IT::EM 1} {IT::EM 3}}
 
-test tree-${impl}-3.11.14a {move fails for a bad index} {!tcl8.5plus||tree_critcl} {
+test tree-${impl}-3.11.14a {move fails for a bad index} tree_critcl {
     tree mytree
     mytree insert root end node-to-move
     catch {mytree move root foo node-to-move} msg
@@ -1284,7 +1284,7 @@ test tree-${impl}-3.11.14a {move fails for a bad index} {!tcl8.5plus||tree_critc
     set msg
 } {bad index "foo": must be integer or end?-integer?}
 
-test tree-${impl}-3.11.14b {move fails for a bad index} {tcl8.5plus&&!tree_critcl} {
+test tree-${impl}-3.11.14b {move fails for a bad index} !tree_critcl {
     tree mytree
     mytree insert root end node-to-move
     catch {mytree move root foo node-to-move} msg
@@ -2174,19 +2174,12 @@ test tree-${impl}-3.18.8 {descendants, filter result not boolean} {
 
 ############################################################
 
-test tree-${impl}-3.19.1a {nodes, wrong # args} {tcl8.4plus} {
+test tree-${impl}-3.19.1a {nodes, wrong # args} {
     tree mytree
     catch {mytree nodes {IT::EM 0} foo} result
     mytree destroy
     set result
 } [tmWrong nodes {} 0]
-
-test tree-${impl}-3.19.1b {nodes, wrong # args} {!tcl8.4plus} {
-    tree mytree
-    catch {mytree nodes {IT::EM 0} foo} result
-    mytree destroy
-    set result
-} [tmTooMany nodes {node}]
 
 test tree-${impl}-3.19.2 {nodes of initial tree} {
     tree mytree
@@ -2215,19 +2208,12 @@ test tree-${impl}-3.19.3 {nodes} {
 
 ############################################################
 
-test tree-${impl}-3.20.1a {leaves, wrong # args} {tcl8.4plus} {
+test tree-${impl}-3.20.1a {leaves, wrong # args} {
     tree mytree
     catch {mytree leaves {IT::EM 0} foo} result
     mytree destroy
     set result
 } [tmWrong leaves {} 0]
-
-test tree-${impl}-3.20.1b {leaves, wrong # args} {!tcl8.4plus} {
-    tree mytree
-    catch {mytree leaves {IT::EM 0} foo} result
-    mytree destroy
-    set result
-} [tmTooMany leaves {node}]
 
 test tree-${impl}-3.20.2 {leaves of initial tree} {
     tree mytree

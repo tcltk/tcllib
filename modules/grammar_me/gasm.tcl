@@ -204,4 +204,4 @@ namespace eval grammar::me::cpu::gasm {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide grammar::me::cpu::gasm 0.1
+package provide grammar::me::cpu::gasm 0.2

@@ -97,7 +97,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 
 
@@ -1014,6 +1014,6 @@ proc ::fileutil::magic::rt::Init {} {
 # ### ### ### ######### ######### #########
 ## Ready for use.
 
-package provide fileutil::magic::rt 3.0
+package provide fileutil::magic::rt 3.1
 
 # EOF

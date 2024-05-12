@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require csv
 
 namespace eval ::bench::out {}
@@ -98,4 +98,4 @@ proc ::bench::out::csv {data} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::out::csv 0.1.2
+package provide bench::out::csv 0.1.3

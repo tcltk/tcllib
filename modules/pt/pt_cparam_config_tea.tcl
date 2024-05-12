@@ -1,5 +1,6 @@
 # -*- tcl -*-
 # Copyright (c) 2014 Christian Gollwitzer <auriocus@gmx.de>
+# Copyright (c) 2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # TODO: Refactor this and pt::cparam::configuration::critcl to avoid
 # TODO: duplication of the supporting code (creation of the RDE
@@ -23,7 +24,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5              ; # Required runtime.
+package require Tcl 8.5 9              ; # Required runtime.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -93,9 +94,9 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 	**
 	* * ** *** ***** ******** ************* *********************/
 		#include <string.h>
-		#include <tcl.h>
 		#include <stdlib.h>
 		#include <ctype.h>
+		#include <tclpre9compat.h>
 		#define SCOPE static
 
 @@RUNTIME@@
@@ -153,13 +154,13 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 
 		static int  COMPLETE (RDE_PARAM p, Tcl_Interp* interp);
 
-		static int parser_PARSE  (RDE_PARAM p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+		static int parser_PARSE (RDE_PARAM p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 		{
 		    int mode;
 		    Tcl_Channel chan;
 
 		    if (objc != 3) {
-			Tcl_WrongNumArgs (interp, 2, objv, "chan");
+			Tcl_WrongNumArgs (interp, 2, objv, "chan"); /* OK tcl9 */
 			return TCL_ERROR;
 		    }
 
@@ -176,17 +177,17 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		    return COMPLETE (p, interp);
 		}
 
-		static int parser_PARSET (RDE_PARAM p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+		static int parser_PARSET (RDE_PARAM p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 		{
-		    char* buf;
-		    int   len;
+		    char*    buf;
+		    Tcl_Size len;
 
 		    if (objc != 3) {
-			Tcl_WrongNumArgs (interp, 2, objv, "text");
+			Tcl_WrongNumArgs (interp, 2, objv, "text"); /* OK tcl9 */
 			return TCL_ERROR;
 		    }
 
-		    buf = Tcl_GetStringFromObj (objv[2], &len);
+		    buf = Tcl_GetStringFromObj (objv[2], &len); /* OK tcl9 */
 
 		    rde_param_reset (p, NULL);
 		    rde_param_data  (p, buf, len);
@@ -198,7 +199,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		static int COMPLETE (RDE_PARAM p, Tcl_Interp* interp)
 		{
 		    if (rde_param_query_st (p)) {
-			long int  ac;
+			Tcl_Size  ac;
 			Tcl_Obj** av;
 
 			rde_param_query_ast (p, &ac, &av);
@@ -208,10 +209,10 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 
 			    memcpy(lv + 3, av, ac * sizeof (Tcl_Obj*));
 			    lv [0] = Tcl_NewObj ();
-			    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p));
-			    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p));
+			    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p)); /* OK tcl9 */
+			    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p)); /* OK tcl9 */
 
-			    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
+			    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv)); /* OK tcl9 */
 			    ckfree ((char*) lv);
 
 			} else if (ac == 0) {
@@ -219,7 +220,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 			     * Match, but no AST. This is possible if the grammar
 			     * consists of only the start expression.
 			     */
-			    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
+			    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1)); /* OK tcl9 */
 			} else {
 			    Tcl_SetObjResult (interp, av [0]);
 			}
@@ -232,8 +233,8 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 			/* res = list (location, list(msg)) */
 
 			/* Stick the exception type-tag before the existing elements */
-			xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-			Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
+			xv [0] = Tcl_NewStringObj ("pt::rde",-1); /* OK tcl9 */
+			Tcl_ListObjReplace(interp, res, 0, 0, 1, xv); /* OK tcl9 */
 
 			Tcl_SetErrorCode (interp, "PT", "RDE", "SYNTAX", NULL);
 			Tcl_SetObjResult (interp, res);
@@ -245,7 +246,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 	    /* * ** *** ***** ******** *************
 	    ** Object command, method dispatch.
 	    */
-		static int parser_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+		static int parser_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 		{
 		    RDE_PARAM p = (RDE_PARAM) cd;
 		    int m, res;
@@ -258,7 +259,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		    };
 
 		    if (objc < 2) {
-			Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
+			Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?"); /* OK tcl9 */
 			return TCL_ERROR;
 		    } else if (Tcl_GetIndexFromObj (interp, objv [1], methods, "option",
 						    0, &m) != TCL_OK) {
@@ -273,7 +274,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		    switch (m) {
 			case M_DESTROY:
 			    if (objc != 2) {
-				Tcl_WrongNumArgs (interp, 2, objv, NULL);
+				Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 				return TCL_ERROR;
 			    }
 
@@ -293,7 +294,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 	    /** * ** *** ***** ******** *************
 	    * Class command, i.e. object construction.
 	    */
-	    static int ParserClassCmd (ClientData dummy, Tcl_Interp *interp, int objc, Tcl_Obj * const*objv) {
+	    static int ParserClassCmd (ClientData dummy, Tcl_Interp *interp, Tcl_Size objc, Tcl_Obj * const*objv) {
 		/*
 		 * Syntax: No arguments beyond the name
 		 */
@@ -307,7 +308,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 #define USAGE "?name?"
 
 		if ((objc != 2) && (objc != 1)) {
-		    Tcl_WrongNumArgs (interp, 1, objv, USAGE);
+		    Tcl_WrongNumArgs (interp, 1, objv, USAGE); /* OK tcl9 */
 		    return TCL_ERROR;
 		}
 
@@ -326,11 +327,11 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		    Tcl_IncrRefCount (fqn);
 
 		    if (!Tcl_StringMatch (Tcl_GetString (fqn), "::")) {
-			Tcl_AppendToObj (fqn, "::", -1);
+			Tcl_AppendToObj (fqn, "::", -1); /* OK tcl9 */
 		    }
-		    Tcl_AppendToObj (fqn, name, -1);
+		    Tcl_AppendToObj (fqn, name, -1); /* OK tcl9 */
 		} else {
-		    fqn = Tcl_NewStringObj (name, -1);
+		    fqn = Tcl_NewStringObj (name, -1); /* OK tcl9 */
 		    Tcl_IncrRefCount (fqn);
 		}
 		Tcl_ResetResult (interp);
@@ -341,9 +342,9 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		    Tcl_Obj* err;
 
 		    err = Tcl_NewObj ();
-		    Tcl_AppendToObj    (err, "command \"", -1);
+		    Tcl_AppendToObj    (err, "command \"", -1); /* OK tcl9 */
 		    Tcl_AppendObjToObj (err, fqn);
-		    Tcl_AppendToObj    (err, "\" already exists", -1);
+		    Tcl_AppendToObj    (err, "\" already exists", -1); /* OK tcl9 */
 
 		    Tcl_DecrRefCount (fqn);
 		    Tcl_SetObjResult (interp, err);
@@ -351,9 +352,9 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		}
 
 		parser = rde_param_new (sizeof(p_string)/sizeof(char*), (char**) p_string);
-		c = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-					  parser_objcmd, (ClientData) parser,
-					  PARSERdeleteCmd);
+		c = Tcl_CreateObjCommand2 (interp, Tcl_GetString (fqn),
+					   parser_objcmd, (ClientData) parser,
+					   PARSERdeleteCmd);
 		rde_param_clientdata (parser, (ClientData) c);
 		Tcl_SetObjResult (interp, fqn);
 		Tcl_DecrRefCount (fqn);
@@ -367,7 +368,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		    return TCL_ERROR;
 	    }
 
-	    if (Tcl_CreateObjCommand(interp, "@@CLASS@@", ParserClassCmd , NULL, NULL) == NULL) {
+	    if (Tcl_CreateObjCommand2(interp, "@@CLASS@@", ParserClassCmd , NULL, NULL) == NULL) {
 		    Tcl_SetResult(interp, "Can't create constructor", NULL);
 		    return TCL_ERROR;
 	    }
@@ -430,12 +431,23 @@ proc ::pt::cparam::configuration::tea::GetRuntime {} {
 	    if {$skip} continue
 	    lappend n $l
 	}
-	set d [join $n \n]
 
 	# Strip comments, trailing whitespace, empty lines.
+	set t {}
+	foreach l $n {
+	    set l [string map {{/* OK tcl9 */} @@oktcl9@@} $l]
+	    set l [regsub -all {/\*.*?\*/} $l {}]
+	    set l [regsub -all {//.*?$}    $l {}]
+	    set l [string trimright $l]
+	    if {$l eq {}} continue
+	    lappend t $l
+	}
+
+	set d [join $t \n]
 	set d [regsub -all {/\*.*?\*/} $d {}]
-	set d [regsub -all {//.*?\n}   $d {}]
-	set d [regsub -all {[ 	]+$}   $d {}]
+	set d [string map {@@oktcl9@@ {/* OK tcl9 */}} $d]
+	set d [string trimright $d]
+
 	while {1} {
 	    set n [string map [list \n\n \n] $d]
 	    if {$n eq $d} break
@@ -461,5 +473,5 @@ namespace eval ::pt::cparam::configuration::tea {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::cparam::configuration::tea 0.1
+package provide pt::cparam::configuration::tea 0.2
 return

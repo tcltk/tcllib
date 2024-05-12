@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'interpolate\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2004 Kevn B\. Kenny <kennykb@users\.sourceforge\.net>)
-[//000000005]: # (math::interpolate\(n\) 1\.1 tcllib "Tcl Math Library")
+[//000000005]: # (math::interpolate\(n\) 1\.1\.4 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,9 +40,9 @@ math::interpolate \- Interpolation routines
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.4?  
+package require Tcl ?8\.5 9?  
 package require struct  
-package require math::interpolate ?1\.1?  
+package require math::interpolate ?1\.1\.4?  
 
 [__::math::interpolate::defineTable__ *name* *colnames* *values*](#1)  
 [__::math::interpolate::interp\-1d\-table__ *name* *xval*](#2)  

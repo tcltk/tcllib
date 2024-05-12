@@ -5,7 +5,7 @@
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {UU-encode/decode binary data}]
 [category  {Text processing}]
-[require Tcl 8]
+[require Tcl "8.5 9"]
 [require uuencode [opt 1.1.4]]
 [description]
 [para]

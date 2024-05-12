@@ -59,7 +59,7 @@ namespace eval ::struct::pool {
 
 # A small helper routine to generate structured errors
 
-if {[package vsatisfies [package present Tcl] 8.5]} {
+if {[package vsatisfies [package present Tcl] 8.5 9]} {
     # Tcl 8.5+, have expansion operator and syntax. And option -level.
     proc ::struct::pool::Error {error args} {
 	variable Errors
@@ -712,4 +712,4 @@ namespace eval ::struct {
     namespace import -force pool::pool
     namespace export pool
 }
-package provide struct::pool 1.2.3
+package provide struct::pool 1.2.4

@@ -2,7 +2,7 @@
 # Parsing Expression Grammar 'TEMPLATE'.
 # Generated for unknown, from file 'TEST'
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require pt::peg::container
 
@@ -41,7 +41,7 @@ snit::type TEMPLATE {
 
         $myg add   CharOctalFull
         $myg mode  CharOctalFull leaf
-        $myg rule  CharOctalFull {x {t \134} {.. 0 2} {.. 0 7} {.. 0 7}}
+        $myg rule  CharOctalFull {x {t \134} {.. 0 3} {.. 0 7} {.. 0 7}}
 
         $myg add   CharOctalPart
         $myg mode  CharOctalPart leaf

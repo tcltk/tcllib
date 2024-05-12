@@ -2,7 +2,7 @@
 '\" Generated from file 'expander\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) William H\&. Duquette, http://www\&.wjduquette\&.com/expand
 '\"
-.TH "textutil::expander" n 1\&.3\&.1 tcllib "Text and string utilities, macro processing"
+.TH "textutil::expander" n 1\&.3\&.2 tcllib "Text and string utilities, macro processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 textutil::expander \- Procedures to process templates and expand text\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtextutil::expander  ?1\&.3\&.1?\fR
+package require \fBtextutil::expander ?1\&.3\&.2?\fR
 .sp
 \fB::textutil::expander\fR \fIexpanderName\fR
 .sp

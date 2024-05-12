@@ -9,20 +9,20 @@
 
 package require pcx
 pcx::register base32::core
-pcx::tcldep   0.1 needs tcl 8.4
+pcx::tcldep   0.2 needs tcl 8.5
 
 namespace eval ::base32::core {}
 
 pcx::message invalidStringLength {String is not a multiple of 8 characters long} err
 
-pcx::check 0.1 std ::base32::core::define \
+pcx::check 0.2 std ::base32::core::define \
     {checkSimpleArgs 4 4 {
 	checkDict
 	checkVarNameWrite
 	checkVarNameWrite
 	checkVarNameWrite
     }}
-pcx::check 0.1 std ::base32::core::valid \
+pcx::check 0.2 std ::base32::core::valid \
     {checkSimpleArgs 3 3 {
 	base32::core::checkEString
 	checkRegexp

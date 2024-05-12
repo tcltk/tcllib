@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::transform::limitsize 1
+# Package tcl::transform::limitsize 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -36,7 +36,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 package require tcl::transform::core
 
 # # ## ### ##### ######## #############
@@ -84,5 +84,5 @@ oo::class create ::tcl::transform::limitsize::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::transform::limitsize 1
+package provide tcl::transform::limitsize 1.1
 return

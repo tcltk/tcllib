@@ -4,7 +4,7 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2000 by Ajuba Solutions
+# Copyright (c) 2000 by Ajuba Solutions, 2023 AK
 # All rights reserved.
 
 # -------------------------------------------------------------------------
@@ -14,7 +14,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 support {
     # This code loads md5x, i.e. md5 v2. Proper testing should do one
@@ -307,7 +307,7 @@ test mime-4.12 {Test qp_encode in encoded_word mode with question marks} {
 test mime-4.13 {Test qp_encode in no_softbreak mode} {
     mime::qp_encode "This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility" 0 1
 } "This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility"
- 
+
 
 
 test mime-5.1 {Test word_encode with quoted-printable method} {
@@ -635,7 +635,6 @@ b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
 
 # -------------------------------------------------------------------------
 
-
 test mime-13.0 {
     issue a16b1095974e071d
 } {
@@ -648,6 +647,30 @@ so plain
     set tok [mime::initialize -string $msg]
 	mime::getbody $tok
 } "so plain\n"
+
+# -------------------------------------------------------------------------
+
+test mime-14.0 {ticket 5f455d6343} -setup {
+    set part  [mime::initialize \
+		   -canonical application/x-simile \
+		   -header [list "Content-Description" "Run Status"] \
+		   -encoding base64 -string "This is a test"]
+    set whole [mime::initialize -canonical multipart/mixed -parts [list $part]]
+
+    set saved checkmime.msg
+    set stm [open $saved w]
+    mime::copymessage $whole $stm
+    close $stm
+
+} -body {
+    set stm [open $saved r]
+    set str [read $stm]
+    close $stm
+    set restore [mime::initialize -string $str]
+} -cleanup {
+    mime::finalize $restore
+    unset part whole saved stm str
+} -match glob -result "::mime::*"
 
 # -------------------------------------------------------------------------
 

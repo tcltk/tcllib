@@ -434,4 +434,4 @@ namespace eval ::struct {
     namespace import -force skiplist::skiplist
     namespace export skiplist
 }
-package provide struct::skiplist 1.3
+package provide struct::skiplist 1.4

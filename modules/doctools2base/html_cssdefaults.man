@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::html::cssdefaults n 0.1]
+[manpage_begin doctools::html::cssdefaults n 0.2]
 [keywords CSS]
 [keywords doctools]
 [keywords export]
@@ -10,8 +10,8 @@
 [moddesc   {Documentation tools}]
 [titledesc {Default CSS style for HTML export plugins}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
-[require doctools::html::cssdefaults [opt 0.1]]
+[require Tcl "8.5 9"]
+[require doctools::html::cssdefaults [opt 0.2]]
 [description]
 
 This package provides a single command providing access to the text of

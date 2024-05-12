@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::fuzzy \- Fuzzy comparison of floating-point numbers
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.3?\fR
+package require \fBTcl ?8\&.3?\fR
 .sp
-package require \fBmath::fuzzy  ?0\&.2?\fR
+package require \fBmath::fuzzy ?0\&.2?\fR
 .sp
 \fB::math::fuzzy::teq\fR \fIvalue1\fR \fIvalue2\fR
 .sp

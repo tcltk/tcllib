@@ -2,7 +2,7 @@
 [//000000001]: # (uevent \- User events)
 [//000000002]: # (Generated from file 'uevent\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2012 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (uevent\(n\) 0\.3\.1 tcllib "User events")
+[//000000004]: # (uevent\(n\) 0\.3\.2 tcllib "User events")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ uevent \- User events
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require uevent ?0\.3\.1?  
+package require Tcl 8\.5 9  
+package require uevent ?0\.3\.2?  
 package require logger  
 
 [__::uevent::bind__ *tag* *event* *command*](#1)  

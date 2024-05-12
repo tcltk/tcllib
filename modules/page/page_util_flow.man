@@ -10,7 +10,7 @@
 [moddesc   {Parser generator tools}]
 [titledesc {page dataflow/treewalker utility}]
 [category  {Page Parser Generator}]
-[require page::util::flow [opt 0.1]]
+[require page::util::flow [opt 0.2]]
 [require snit]
 [description]
 [para]

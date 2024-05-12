@@ -5,7 +5,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require comm             ; # Generic message transport
 package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
@@ -426,7 +426,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.4.2
+package provide nameserv 0.4.3
 
 ##
 # ### ### ### ######### ######### #########

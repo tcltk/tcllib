@@ -167,4 +167,4 @@ proc Next {} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::reader::lemon 0.1
+package provide page::reader::lemon 0.2

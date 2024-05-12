@@ -73,7 +73,7 @@ snit::type a_pe_grammar {
             ASCII         {x {t <} {t a} {t s} {t c} {t i} {t i} {t >} {n WHITESPACE}}
             Attribute     {x {/ {n VOID} {n LEAF}} {n COLON}}
             Char          {/ {n CharSpecial} {n CharOctalFull} {n CharOctalPart} {n CharUnicode} {n CharUnescaped}}
-            CharOctalFull {x {t \134} {.. 0 2} {.. 0 7} {.. 0 7}}
+            CharOctalFull {x {t \134} {.. 0 3} {.. 0 7} {.. 0 7}}
             CharOctalPart {x {t \134} {.. 0 7} {? {.. 0 7}}}
             CharSpecial   {x {t \134} {/ {t n} {t r} {t t} {t '} {t \42} {t \133} {t \135} {t \134}}}
             CharUnescaped {x {! {t \134}} dot}

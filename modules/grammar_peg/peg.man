@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::peg n 0.1]
+[manpage_begin grammar::peg n 0.3]
 [keywords {context-free languages}]
 [keywords expression]
 [keywords grammar]
@@ -17,9 +17,9 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {Create and manipulate parsing expression grammars}]
 [category  {Grammars and finite automata}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
-[require grammar::peg [opt 0.1]]
+[require grammar::peg [opt 0.3]]
 [description]
 [para]
 

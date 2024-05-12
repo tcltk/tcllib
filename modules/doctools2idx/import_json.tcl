@@ -20,7 +20,7 @@
 # @sak notprovided dict
 # @mdgen NODEP: doctools::idx::import::plugin
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require doctools::idx::import::plugin ; # The presence of this
 						# pseudo package
 						# indicates execution
@@ -74,5 +74,5 @@ proc import {text configuration} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::import::json 0.1
+package provide doctools::idx::import::json 0.2
 return

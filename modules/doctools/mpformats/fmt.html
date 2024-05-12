@@ -2,7 +2,7 @@
 #
 # fmt.html
 #
-# Copyright (c) 2001-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # Definitions to convert a tcl based manpage definition into
 # a manpage based upon HTML markup.
@@ -86,6 +86,8 @@ c_pass 2 fmt_manpage_begin {title section version} {
     if {![Get raw]} {
 	append  hdr [markup {<!DOCTYPE html>}]
 	append  hdr [tag html] [tag head] \n
+        append  hdr [taga meta {charset UTF-8}] \n
+	append  hdr [taga meta {name viewport content {width=device-width, initial-scale=1}}] \n
 	append  hdr [tag_ title $pagetitle] \n
 
 	if {![Extend hdr ByParameter meta]} {
@@ -179,9 +181,9 @@ c_pass 2 fmt_subsection {name id} {
 proc fmt_nl   {} {para_open}
 proc fmt_para {} {para_open}
 
-c_pass 2 fmt_require {pkg {version {}}} NOP
-c_pass 1 fmt_require {pkg {version {}}} {
-    if {$version != {}} { append pkg " " $version }
+c_pass 2 fmt_require {pkg vs} NOP
+c_pass 1 fmt_require {pkg vs} {
+    foreach version $vs {append pkg " " $version}
     c_hold require [tag_ li "package require [bold $pkg pkgname]"]
     return
 }

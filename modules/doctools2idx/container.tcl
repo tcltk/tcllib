@@ -17,7 +17,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require doctools::idx::structure
 package require snit
 
@@ -401,5 +401,5 @@ snit::type ::doctools::idx {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx 2
+package provide doctools::idx 2.1
 return

@@ -17,7 +17,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require doctools::toc::structure
 package require snit
 package require struct::tree
@@ -541,5 +541,5 @@ snit::type ::doctools::toc {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc 2
+package provide doctools::toc 2.1
 return

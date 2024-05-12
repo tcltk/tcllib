@@ -5,7 +5,7 @@
 # # ## ### ##### ######## ############# ####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require TclOO
 
 # # ## ### ##### ######## ############# #####################
@@ -186,4 +186,4 @@ proc ::oo::Helpers::link {args} {
 # # ## ### ##### ######## ############# ####################
 ## Ready
 
-package provide oo::util 1.2.2
+package provide oo::util 1.2.3

@@ -1,6 +1,8 @@
 #ifndef MD5_H
 #define MD5_H
 
+#include "tclpre9compat.h"
+
 /*
  ***********************************************************************
  ** md5.h -- header file for implementation of MD5                    **
@@ -59,7 +61,7 @@ typedef struct {
 } MD5_CTX;
 
 void MD5Init   (MD5_CTX *mdContext);
-void MD5Update (MD5_CTX *mdContext, unsigned char *buf, unsigned int len);
+void MD5Update (MD5_CTX *mdContext, unsigned char *buf, Tcl_Size len);
 void MD5Final  (unsigned char digest[16], MD5_CTX *mdContext);
 void Transform (UINT4 *buf, UINT4 *in);
 

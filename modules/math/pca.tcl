@@ -1,7 +1,7 @@
 # pca.tcl --
 #     Package for principal component analysis
 #
-package require Tcl 8.6
+package require Tcl 8.6 9
 package require math::linearalgebra
 
 namespace eval ::math::PCA {
@@ -362,7 +362,7 @@ proc ::math::PCA::Transform {observations correlation} {
     return [list $result $mean $scale]
 }
 
-package provide math::PCA 1.0
+package provide math::PCA 1.1
 
 # Test
 if {0} {

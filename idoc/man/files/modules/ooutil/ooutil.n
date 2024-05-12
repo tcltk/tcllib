@@ -2,7 +2,7 @@
 '\" Generated from file 'ooutil\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011-2015 Andreas Kupries, BSD licensed
 '\"
-.TH "oo::util" n 1\&.2\&.2 tcllib "Utility commands for TclOO"
+.TH "oo::util" n 1\&.2\&.3 tcllib "Utility commands for TclOO"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 oo::util \- Utility commands for TclOO
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBTclOO \fR
+package require \fBTclOO\fR
 .sp
-package require \fBoo::util  ?1\&.2\&.2?\fR
+package require \fBoo::util ?1\&.2\&.3?\fR
 .sp
 \fBmymethod\fR \fImethod\fR ?\fIarg\fR\&.\&.\&.?
 .sp

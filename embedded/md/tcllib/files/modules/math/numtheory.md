@@ -2,7 +2,7 @@
 [//000000001]: # (math::numtheory \- Tcl Math Library)
 [//000000002]: # (Generated from file 'numtheory\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>)
-[//000000004]: # (math::numtheory\(n\) 1\.1\.3 tcllib "Tcl Math Library")
+[//000000004]: # (math::numtheory\(n\) 1\.1\.4 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ math::numtheory \- Number Theory
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
-package require math::numtheory ?1\.1\.3?  
+package require Tcl ?8\.5 9?  
+package require math::numtheory ?1\.1\.4?  
 
 [__math::numtheory::isprime__ *N* ?*option* *value* \.\.\.?](#1)  
 [__math::numtheory::firstNprimes__ *N*](#2)  

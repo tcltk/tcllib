@@ -68,6 +68,7 @@ test tcl-chan-variable-2.2 {seek from end, eof, empty, tell} -setup {
 test tcl-chan-variable-2.3 {seek from end, eof, non-empty, tell} -setup {
     set content ""
     set c [tcl::chan::variable content]
+    chan configure $c -translation lf
     puts $c Hello
 } -body {
     seek $c 0 end
@@ -80,6 +81,7 @@ test tcl-chan-variable-2.3 {seek from end, eof, non-empty, tell} -setup {
 test tcl-chan-variable-2.4 {seek from end, non-eof, non-empty, tell} -setup {
     set content ""
     set c [tcl::chan::variable content]
+    chan configure $c -translation lf
     puts $c Hello
 } -body {
     seek $c -6 end

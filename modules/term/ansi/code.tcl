@@ -50,7 +50,7 @@ namespace eval ::term::ansi::code {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code 0.2
+package provide term::ansi::code 0.3
 
 ##
 # ### ### ### ######### ######### #########

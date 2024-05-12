@@ -35,7 +35,7 @@ page\_util\_norm\_lemon \- page AST normalization, LEMON
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require page::util::norm\_lemon ?0\.1?  
+package require page::util::norm\_lemon ?0\.2?  
 package require snit  
 
 [__::page::util::norm::lemon__ *tree*](#1)  

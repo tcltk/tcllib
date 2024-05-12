@@ -17,7 +17,7 @@
 
 <synopsis>
 <syntax>
-package require <package>AAA</package> 
+package require <package>AAA</package>
 package require <package>BBB</package> VVV
 package require <package>CCC</package> <o>VVV</o>
 CMDNAME ...

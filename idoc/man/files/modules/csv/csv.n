@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 csv \- Procedures to handle CSV data\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBcsv  ?0\&.8\&.1?\fR
+package require \fBcsv ?0\&.8\&.1?\fR
 .sp
 \fB::csv::iscomplete\fR \fIdata\fR
 .sp

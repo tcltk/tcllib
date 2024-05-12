@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pop3d::udb \- Simple user database for pop3d
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpop3d::udb  ?1\&.0\&.1?\fR
+package require \fBpop3d::udb ?1\&.0\&.1?\fR
 .sp
 \fB::pop3d::udb::new\fR ?\fIdbName\fR?
 .sp

@@ -11,7 +11,7 @@
 
 # @mdgen EXCLUDE: tree_c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require struct::list
 
 namespace eval ::struct::tree {}
@@ -36,7 +36,6 @@ proc ::struct::tree::LoadAccelerator {key} {
     switch -exact -- $key {
 	critcl {
 	    # Critcl implementation of tree requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::tree_critcl]]
 	}
@@ -180,4 +179,4 @@ namespace eval ::struct {
     namespace export tree
 }
 
-package provide struct::tree 2.1.2
+package provide struct::tree 2.1.3

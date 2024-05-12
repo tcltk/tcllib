@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::changelog n 1.1]
+[manpage_begin doctools::changelog n 1.2]
 [keywords changelog]
 [keywords doctools]
 [keywords emacs]
@@ -7,9 +7,9 @@
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in Emacs ChangeLog format}]
 [category  {Documentation tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require textutil]
-[require doctools::changelog [opt 1.1]]
+[require doctools::changelog [opt 1.2]]
 [description]
 
 This package provides Tcl commands for the processing and reformatting

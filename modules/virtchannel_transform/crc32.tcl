@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::transform::crc32 1
+# Package tcl::transform::crc32 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -32,7 +32,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 package require tcl::transform::core
 
 # # ## ### ##### ######## #############
@@ -99,5 +99,5 @@ oo::class create ::tcl::transform::crc32::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::transform::crc32 1
+package provide tcl::transform::crc32 1.1
 return

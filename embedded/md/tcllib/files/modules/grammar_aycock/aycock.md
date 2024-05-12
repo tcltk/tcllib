@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'aycock\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 by Kevin B\. Kenny <kennykb@acm\.org>)
 [//000000004]: # (Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
-[//000000005]: # (grammar::aycock\(n\) 1\.0 tcllib "Aycock\-Horspool\-Earley parser generator for Tcl")
+[//000000005]: # (grammar::aycock\(n\) 1\.1 tcllib "Aycock\-Horspool\-Earley parser generator for Tcl")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,8 +42,8 @@ grammar::aycock \- Aycock\-Horspool\-Earley parser generator for Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require grammar::aycock ?1\.0?  
+package require Tcl 8\.5 9  
+package require grammar::aycock ?1\.1?  
 
 [__::aycock::parser__ *grammar* ?__\-verbose__?](#1)  
 [*parserName* __parse__ *symList* *valList* ?*clientData*?](#2)  

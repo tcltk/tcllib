@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_tclparam_config_tcloo\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::tclparam::configuration::tcloo" n 1\&.0\&.4 tcllib "Parser Tools"
+.TH "pt::tclparam::configuration::tcloo" n 1\&.0\&.5 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::tclparam::configuration::tcloo \- Tcl/PARAM, Canned configuration, Tcloo
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::tclparam::configuration::tcloo  ?1\&.0\&.4?\fR
+package require \fBpt::tclparam::configuration::tcloo ?1\&.0\&.5?\fR
 .sp
 \fB::pt::tclparam::configuration::tcloo\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp

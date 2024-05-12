@@ -297,4 +297,4 @@ proc ::pop3d::udb::_read {name path} {
 ##########################
 # Module initialization
 
-package provide pop3d::udb 1.1
+package provide pop3d::udb 1.2

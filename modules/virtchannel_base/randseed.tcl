@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::randomseed 1
+# Package tcl::randomseed 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -19,7 +19,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 # # ## ### ##### ######## #############
 
@@ -54,5 +54,5 @@ proc ::tcl::combine {a b} {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::randomseed 1
+package provide tcl::randomseed 1.1
 return

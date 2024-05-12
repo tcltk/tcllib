@@ -14,7 +14,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -59,7 +59,7 @@ TestAccelDo struct::set impl {
 
     switch -exact -- $impl {
 	critcl {
-	    if {[package vsatisfies [package present Tcl] 8.5]} {
+	    if {[package vsatisfies [package present Tcl] 8.5 9]} {
 		proc tmWrong {m loarg n} {
 		    return [tcltest::wrongNumArgs "setop $m" $loarg $n]
 		}
@@ -86,20 +86,16 @@ TestAccelDo struct::set impl {
 	    }
 	}
 	tcl {
-	    if {[package vsatisfies [package present Tcl] 8.6]} {
+	    if {[package vsatisfies [package present Tcl] 8.6 9]} {
 		# In 8.6 head Tcl again reports what the alias resolved to
 		proc Nothing {} {
 		    return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
 		}
-	    } elseif {[package vsatisfies [package present Tcl] 8.5]} {
+	    } else {
 		# In 8.5 head the alias itself is reported, not what it
 		# resolved to.
 		proc Nothing {} {
 		    return [tcltest::wrongNumArgs setop {cmd args} 0]
-		}
-	    } else {
-		proc Nothing {} {
-		    return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
 		}
 	    }
 

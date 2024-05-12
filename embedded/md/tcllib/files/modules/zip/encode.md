@@ -2,7 +2,7 @@
 [//000000001]: # (zipfile::encode \- Zip archive handling)
 [//000000002]: # (Generated from file 'encode\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008\-2009 Andreas Kupries)
-[//000000004]: # (zipfile::encode\(n\) 0\.4 tcllib "Zip archive handling")
+[//000000004]: # (zipfile::encode\(n\) 0\.5 tcllib "Zip archive handling")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,14 +37,14 @@ zipfile::encode \- Generation of zip archives
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require logger  
 package require Trf  
 package require crc32  
 package require snit  
 package require zlibtcl  
 package require fileutil  
-package require zipfile::encode ?0\.4?  
+package require zipfile::encode ?0\.5?  
 
 [__::zipfile::encode__ ?*objectName*?](#1)  
 [__<encoder>__ __comment:__ *text*](#2)  

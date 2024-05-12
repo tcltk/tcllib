@@ -2,7 +2,7 @@
 [//000000001]: # (math::machineparameters \- tclrep)
 [//000000002]: # (Generated from file 'machineparameters\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008 Michael Baudin <michael\.baudin@sourceforge\.net>)
-[//000000004]: # (math::machineparameters\(n\) 1\.0 tcllib "tclrep")
+[//000000004]: # (math::machineparameters\(n\) 0\.2 tcllib "tclrep")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,9 +37,9 @@ math::machineparameters \- Compute double precision machine parameters\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
-package require math::machineparameters 0\.1  
+package require math::machineparameters 0\.2  
 
 [__machineparameters__ create *objectname* ?*options*\.\.\.?](#1)  
 [*objectname* __configure__ ?*options*\.\.\.?](#2)  

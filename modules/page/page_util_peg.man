@@ -10,7 +10,7 @@
 [moddesc   {Parser generator tools}]
 [titledesc {page PEG transformation utilities}]
 [category  {Page Parser Generator}]
-[require page::util::peg [opt 0.1]]
+[require page::util::peg [opt 0.2]]
 [require snit]
 [description]
 [para]

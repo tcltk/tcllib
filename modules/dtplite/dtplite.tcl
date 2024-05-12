@@ -1,6 +1,6 @@
 # -*- tcl -*- \
 # @@ Meta Begin
-# Application dtplite 1.3.1
+# Application dtplite 1.3.2
 # Meta platform     tcl
 # Meta summary      Lightweight DocTools Processor
 # Meta description  This application is a simple processor
@@ -19,7 +19,7 @@
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.3.1
+package provide dtplite 1.3.2
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -143,7 +143,7 @@ package provide dtplite 1.3.1
 
 package require doctools      1.4.11 ; # 'image' support, -ibase support
 package require doctools::idx 1.0.4 ;
-package require doctools::toc 1.1.3 ;
+package require doctools::toc 1.3 ;
 package require fileutil
 package require textutil::repeat
 

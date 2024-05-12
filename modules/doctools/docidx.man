@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 1.1]
+[vset PACKAGE_VERSION 1.3]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::idx n [vset PACKAGE_VERSION]]
 [see_also docidx_intro]
@@ -23,7 +23,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {docidx - Processing indices}]
 [category  {Documentation tools}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require doctools::idx [opt [vset PACKAGE_VERSION]]]
 [description]
 

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'logger\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "logger" n 0\&.9\&.4 tcllib "Object Oriented logging facility"
+.TH "logger" n 0\&.9\&.5 tcllib "Object Oriented logging facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 logger \- System to control logging of events\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlogger  ?0\&.9\&.4?\fR
+package require \fBlogger ?0\&.9\&.5?\fR
 .sp
 \fBlogger::init\fR \fIservice\fR
 .sp

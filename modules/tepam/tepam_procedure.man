@@ -10,7 +10,7 @@
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM procedure, reference manual}]
 [category {Procedures, arguments, parameters, options}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require tepam [opt 0.5]]
 
 [description]

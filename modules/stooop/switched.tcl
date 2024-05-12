@@ -6,7 +6,7 @@
 # $Id: switched.tcl,v 1.5 2006/09/19 23:36:18 andreas_kupries Exp $
 
 package require stooop
-package provide switched 2.2.1
+package provide switched 2.2.2
 
 
 ::stooop::class switched {

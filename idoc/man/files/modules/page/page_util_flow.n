@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 page_util_flow \- page dataflow/treewalker utility
 .SH SYNOPSIS
-package require \fBpage::util::flow  ?0\&.1?\fR
+package require \fBpage::util::flow ?0\&.2?\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
 \fB::page::util::flow\fR \fIstart\fR \fIflowvar\fR \fInodevar\fR \fIscript\fR
 .sp

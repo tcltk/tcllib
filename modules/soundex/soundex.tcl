@@ -9,7 +9,7 @@
 # 
 # RCS: @(#) $Id: soundex.tcl,v 1.3 2004/01/15 06:36:14 andreas_kupries Exp $
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::soundex {}
 
@@ -93,4 +93,4 @@ proc ::soundex::knuth {in} {
     return [string range ${key}0000 0 3]
 }
 
-package provide soundex 1.0
+package provide soundex 1.1

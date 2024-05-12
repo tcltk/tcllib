@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_peg_introduction\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::pegrammar" n 1 tcllib "Parser Tools"
+.TH "pt::pegrammar" n 1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::pegrammar \- Introduction to Parsing Expression Grammars
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
 .BE
 .SH DESCRIPTION

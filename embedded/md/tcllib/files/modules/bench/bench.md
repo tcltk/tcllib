@@ -2,7 +2,7 @@
 [//000000001]: # (bench \- Benchmarking/Performance tools)
 [//000000002]: # (Generated from file 'bench\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (bench\(n\) 0\.4 tcllib "Benchmarking/Performance tools")
+[//000000004]: # (bench\(n\) 0\.5 tcllib "Benchmarking/Performance tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ bench \- bench \- Processing benchmark suites
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require bench ?0\.4?  
+package require Tcl 8\.5 9  
+package require bench ?0\.5?  
 
 [__::bench::locate__ *pattern* *paths*](#1)  
 [__::bench::run__ ?*option value*\.\.\.? *interp\_list* *file*\.\.\.](#2)  

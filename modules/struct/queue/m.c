@@ -9,8 +9,8 @@
 #include "q.h"
 #include "ms.h"
 
-static int  qsize  (Q* q, int* u, int* r, int* a);
-static void qshift (Q* q);
+static Tcl_Size qsize  (Q* q, Tcl_Size* u, Tcl_Size* r, Tcl_Size* a);
+static void     qshift (Q* q);
 
 #undef QUEUE_DUMP
 /*#define QUEUE_DUMP 1*/
@@ -18,7 +18,7 @@ static void qshift (Q* q);
 #if QUEUE_DUMP
 static void qdump  (Q* q);
 #else
-#define qdump(q) /* Ignore */
+#define     qdump(q) /* Ignore */
 #endif
 
 /* .................................................. */
@@ -40,14 +40,14 @@ static void qdump  (Q* q);
  */
 
 int
-qum_CLEAR (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_CLEAR (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue clear
      *	       [0]   [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -61,9 +61,9 @@ qum_CLEAR (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     Tcl_DecrRefCount (q->append);
 
     q->at     = 0;
-    q->unget  = Tcl_NewListObj (0,NULL);
-    q->queue  = Tcl_NewListObj (0,NULL);
-    q->append = Tcl_NewListObj (0,NULL);
+    q->unget  = Tcl_NewListObj (0,NULL); /* OK tcl9 */
+    q->queue  = Tcl_NewListObj (0,NULL); /* OK tcl9 */
+    q->append = Tcl_NewListObj (0,NULL); /* OK tcl9 */
 
     Tcl_IncrRefCount (q->unget); 
     Tcl_IncrRefCount (q->queue); 
@@ -89,14 +89,14 @@ qum_CLEAR (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_DESTROY (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_DESTROY (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue destroy
      *	       [0]   [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -122,27 +122,24 @@ qum_DESTROY (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
+qum_PEEK (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv, Tcl_Size get)
 {
     /* Syntax: queue peek|get ?n?
      *	       [0]  [1]       [2]
      */
 
-    int       listc = 0;
+    Tcl_Size  listc = 0, ungetc, queuec, appendc;
     Tcl_Obj** listv;
     Tcl_Obj*  r;
-    int       n = 1;
-    int       ungetc;
-    int       queuec;
-    int       appendc;
+    Tcl_Size  n = 1;
 
     if ((objc != 2) && (objc != 3)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?n?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?n?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (objc == 3) {
-	if (Tcl_GetIntFromObj(interp, objv[2], &n) != TCL_OK) {
+	if (Tcl_GetSizeIntFromObj(interp, objv[2], &n) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	} else if (n < 1) {
 	    Tcl_AppendResult (interp, "invalid item count ",
@@ -183,16 +180,16 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
     if (n == 1) {
 	if (ungetc) {
 	    /* Pull from unget stack */
-	    Tcl_ListObjGetElements (interp, q->unget, &listc, &listv);
+	    Tcl_ListObjGetElements (interp, q->unget, &listc, &listv); /* OK tcl9 */
 	    r = listv [listc-1];
 	    Tcl_SetObjResult (interp, r);
 	    if (get) {
 		/* XXX AK : Should maintain max size info, and proper index, for discard. */
-		Tcl_ListObjReplace (interp, q->unget, listc-1, 1, 0, NULL);
+		Tcl_ListObjReplace (interp, q->unget, listc-1, 1, 0, NULL); /* OK tcl9 */
 	    }
 	} else {
 	    qshift (q);
-	    Tcl_ListObjGetElements (interp, q->queue, &listc, &listv);
+	    Tcl_ListObjGetElements (interp, q->queue, &listc, &listv); /* OK tcl9 */
 	    ASSERT_BOUNDS(q->at,listc);
 	    r = listv [q->at];
 	    Tcl_SetObjResult (interp, r);
@@ -212,11 +209,11 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
 	 * sources.
 	 */
 
-	int i = 0, j;
+	Tcl_Size  i = 0, j;
 	Tcl_Obj** resv = NALLOC(n,Tcl_Obj*);
 
 	if (ungetc) {
-	    Tcl_ListObjGetElements (interp, q->unget, &listc, &listv);
+	    Tcl_ListObjGetElements (interp, q->unget, &listc, &listv); /* OK tcl9 */
 	    /*
 	     * Note how we are iterating backward in listv. unget is managed
 	     * as a stack, avoiding mem-copy operations and both push and pop.
@@ -231,13 +228,13 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
 	    }
 	    if (get) {
 		/* XXX AK : Should maintain max size info, and proper index, for discard. */
-		Tcl_ListObjReplace (interp, q->unget, j, i, 0, NULL);
+		Tcl_ListObjReplace (interp, q->unget, j, i, 0, NULL); /* OK tcl9 */
 		/* XXX CHECK index calcs. */
 	    }
 	}
 	if (i < n) {
 	    qshift (q);
-	    Tcl_ListObjGetElements (interp, q->queue, &listc, &listv);
+	    Tcl_ListObjGetElements (interp, q->queue, &listc, &listv); /* OK tcl9 */
 	    for (j = q->at;
 		 j < listc && i < n; 
 		 j++, i++) {
@@ -252,7 +249,7 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
 		qshift (q);
 	    } else if (i < n) {
 		/* XX */
-		Tcl_ListObjGetElements (interp, q->append, &listc, &listv);
+		Tcl_ListObjGetElements (interp, q->append, &listc, &listv); /* OK tcl9 */
 		for (j = 0;
 		     j < listc && i < n; 
 		     j++, i++) {
@@ -273,7 +270,7 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
 	if (i < n) {
 	    ASSERT(get,"Impossible 2nd return pull witohut get");
 	    qshift (q);
-	    Tcl_ListObjGetElements (interp, q->queue, &listc, &listv);
+	    Tcl_ListObjGetElements (interp, q->queue, &listc, &listv); /* OK tcl9 */
 	    for (j = q->at;
 		 j < listc && i < n; 
 		 j++, i++) {
@@ -286,7 +283,7 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
 	    qshift (q);
 	}
 
-	r = Tcl_NewListObj (n, resv);
+	r = Tcl_NewListObj (n, resv); /* OK tcl9 */
 	Tcl_SetObjResult (interp, r);
 
 	for (i=0;i<n;i++) {
@@ -315,16 +312,16 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
  */
 
 int
-qum_PUT (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_PUT (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue push item...
      *	       [0]   [1]  [2]
      */
 
-    int i;
+    Tcl_Size i;
 
     if (objc < 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "item ?item ...?");
+	Tcl_WrongNumArgs (interp, 2, objv, "item ?item ...?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -352,14 +349,14 @@ qum_PUT (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_UNGET (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_UNGET (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue unget item
      *	       [0]   [1]   [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "item");
+	Tcl_WrongNumArgs (interp, 2, objv, "item"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -372,12 +369,12 @@ qum_UNGET (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	 * using the unget stack.
 	 */
 
-	int queuec = 0;
-	Tcl_ListObjLength (NULL, q->queue,  &queuec);
+	Tcl_Size queuec = 0;
+	Tcl_ListObjLength (NULL, q->queue,  &queuec); /* OK tcl9 */
 
 	q->at --;
 	ASSERT_BOUNDS(q->at,queuec);
-	Tcl_ListObjReplace (interp, q->queue, q->at, 1, 1, &objv[2]);
+	Tcl_ListObjReplace (interp, q->queue, q->at, 1, 1, &objv[2]); /* OK tcl9 */
     }
 
     return TCL_OK;
@@ -400,32 +397,32 @@ qum_UNGET (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-qum_SIZE (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+qum_SIZE (Q* q, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: queue size
      *	       [0]   [1]
      */
 
     if ((objc != 2)) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
-    Tcl_SetObjResult  (interp, Tcl_NewIntObj (qsize (q, NULL, NULL, NULL)));
+    Tcl_SetObjResult (interp, Tcl_NewSizeIntObj (qsize (q, NULL, NULL, NULL)));
     return TCL_OK;
 }
 
 
-static int
-qsize (Q* q, int* u, int* r, int* a)
+static Tcl_Size
+qsize (Q* q, Tcl_Size* u, Tcl_Size* r, Tcl_Size* a)
 {
-    int ungetc  = 0;
-    int queuec  = 0;
-    int appendc = 0;
+    Tcl_Size ungetc  = 0;
+    Tcl_Size queuec  = 0;
+    Tcl_Size appendc = 0;
 
-    Tcl_ListObjLength (NULL, q->unget,  &ungetc);
-    Tcl_ListObjLength (NULL, q->queue,  &queuec);
-    Tcl_ListObjLength (NULL, q->append, &appendc);
+    Tcl_ListObjLength (NULL, q->unget,  &ungetc ); /* OK tcl9 */
+    Tcl_ListObjLength (NULL, q->queue,  &queuec ); /* OK tcl9 */
+    Tcl_ListObjLength (NULL, q->append, &appendc); /* OK tcl9 */
 
     if (u) *u = ungetc;
     if (r) *r = queuec;
@@ -437,25 +434,25 @@ qsize (Q* q, int* u, int* r, int* a)
 static void
 qshift (Q* q)
 {
-    int queuec = 0;
-    int appendc = 0;
+    Tcl_Size queuec  = 0;
+    Tcl_Size appendc = 0;
 
     qdump (q);
 
     /* The queue is not done yet, no shift */
-    Tcl_ListObjLength (NULL, q->queue, &queuec);
+    Tcl_ListObjLength (NULL, q->queue, &queuec); /* OK tcl9 */
     if (q->at < queuec) return;
 
     /* The queue is done, however there is nothing
      * to shift into it, so we don't
      */
-    Tcl_ListObjLength (NULL, q->append, &appendc);
+    Tcl_ListObjLength (NULL, q->append, &appendc); /* OK tcl9 */
     if (!appendc) return;
 
     q->at = 0;
     Tcl_DecrRefCount (q->queue);
     q->queue  = q->append;
-    q->append = Tcl_NewListObj (0,NULL);
+    q->append = Tcl_NewListObj (0,NULL); /* OK tcl9 */
     Tcl_IncrRefCount (q->append);
 
     qdump (q);
@@ -465,26 +462,25 @@ qshift (Q* q)
 static void
 qdump (Q* q)
 {
-    int k;
-    int       listc = 0;
+    Tcl_Size  listc = 0, k;
     Tcl_Obj** listv;
 
     fprintf(stderr,"qdump (%p, @%d)\n", q, q->at);fflush(stderr);
 
     fprintf(stderr,"\tunget %p\n", q->unget);fflush(stderr);
-    Tcl_ListObjGetElements (NULL, q->unget, &listc, &listv);
+    Tcl_ListObjGetElements (NULL, q->unget, &listc, &listv); /* OK tcl9 */
     for (k=0; k < listc; k++) {
 	fprintf(stderr,"\tunget %p [%d] = %p '%s' /%d\n", q->unget, k, listv[k], Tcl_GetString(listv[k]), listv[k]->refCount);fflush(stderr);
     }
 
     fprintf(stderr,"\tqueue %p\n", q->queue);fflush(stderr);
-    Tcl_ListObjGetElements (NULL, q->queue, &listc, &listv);
+    Tcl_ListObjGetElements (NULL, q->queue, &listc, &listv); /* OK tcl9 */
     for (k=0; k < listc; k++) {
 	fprintf(stderr,"\tqueue %p [%d] = %p '%s' /%d\n", q->queue, k, listv[k], Tcl_GetString(listv[k]), listv[k]->refCount);fflush(stderr);
     }
 
     fprintf(stderr,"\tapp.. %p\n", q->append);fflush(stderr);
-    Tcl_ListObjGetElements (NULL, q->append, &listc, &listv);
+    Tcl_ListObjGetElements (NULL, q->append, &listc, &listv); /* OK tcl9 */
     for (k=0; k < listc; k++) {
 	fprintf(stderr,"\tapp.. %p [%d] = %p '%s' /%d\n", q->append, k, listv[k], Tcl_GetString(listv[k]), listv[k]->refCount);fflush(stderr);
     }

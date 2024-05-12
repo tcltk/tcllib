@@ -40,7 +40,7 @@ math::optimize \- Optimisation routines
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require math::optimize ?1\.0?  
 
 [__::math::optimize::minimum__ *begin* *end* *func* *maxerr*](#1)  

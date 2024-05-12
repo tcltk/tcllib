@@ -1,4 +1,4 @@
-[vset VERSION 0.7.3]
+[vset VERSION 0.7.4]
 [manpage_begin textutil::adjust n [vset VERSION]]
 [see_also regexp(n)]
 [see_also split(n)]
@@ -15,7 +15,7 @@
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to adjust, indent, and undent paragraphs}]
 [category  {Text processing}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require textutil::adjust [opt [vset VERSION]]]
 [description]
 

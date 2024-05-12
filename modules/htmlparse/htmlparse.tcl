@@ -16,7 +16,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # See the file license.terms.
 
-package require Tcl       8.2
+package require Tcl       8.5 9
 package require struct::stack
 package require cmdline   1.1
 
@@ -1441,4 +1441,4 @@ proc ::htmlparse::Reorder {tree node} {
 
 # ### ######### ###########################
 
-package provide htmlparse 1.2.2
+package provide htmlparse 1.2.3

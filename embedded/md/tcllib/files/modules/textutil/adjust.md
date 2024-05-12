@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::adjust \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'adjust\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil::adjust\(n\) 0\.7\.3 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil::adjust\(n\) 0\.7\.4 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ textutil::adjust \- Procedures to adjust, indent, and undent paragraphs
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require textutil::adjust ?0\.7\.3?  
+package require Tcl 8\.5 9  
+package require textutil::adjust ?0\.7\.4?  
 
 [__::textutil::adjust::adjust__ *string* ?*option value\.\.\.*?](#1)  
 [__::textutil::adjust::readPatterns__ *filename*](#2)  

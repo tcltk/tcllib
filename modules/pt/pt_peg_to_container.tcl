@@ -17,7 +17,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require pt::peg ; # Verification that the input is
 				     # proper.
 package require pt::pe             ; # Conversion of expressions.
@@ -341,5 +341,5 @@ namespace eval ::pt::peg::to::container {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::container 1
+package provide pt::peg::to::container 1.1
 return

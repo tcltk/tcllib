@@ -34,7 +34,7 @@ fileutil::magic::cfront \- Generator core for compiler of magic\(5\) files
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.5 9  
 package require fileutil::magic::cfront ?1\.2\.0?  
 package require fileutil::magic::cgen ?1\.2\.0?  
 package require fileutil::magic::rt ?1\.2\.0?  

@@ -13,9 +13,9 @@
 #
 # Originally by Brent Welch, with help from Dan Kuchler and Melissa Chawla
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require ncgi
-package provide html 1.5
+package provide html 1.6
 
 namespace eval ::html {
 

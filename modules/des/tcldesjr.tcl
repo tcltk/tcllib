@@ -1052,4 +1052,4 @@ namespace eval des {
     }; # End of createKeys.
 }; # End of des namespace eval.
 
-package provide tclDESjr 1.0.0
+package provide tclDESjr 1.1

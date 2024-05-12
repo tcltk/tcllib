@@ -14,7 +14,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {
@@ -34,7 +34,7 @@ test no-op-0.0 {no-op return value} {
 test no-op-1.0 {no-op argument substitution} {
     set bcount 0
     set b x
-    trace variable b r {incr bcount ;#}
+    trace add variable b read {incr bcount ;#}
     set acount 0
     proc a args {incr ::acount}
     list [no-op a $b {a} {a $b} [a] [a $b] {[a]}] $acount $bcount

@@ -52,7 +52,7 @@ gc_setup (GC* c, GCC* gx, const char* name, G* g)
 {
     int new;
 
-    c->name = Tcl_NewStringObj (name, -1);
+    c->name = Tcl_NewStringObj (name, TCL_AUTO_LENGTH); /* OK tcl9 */
     Tcl_IncrRefCount (c->name);
 
     c->he = Tcl_CreateHashEntry(gx->map, name, &new);
@@ -109,7 +109,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 GN_GET_GC* gf, G* g)
 {
     const char* ky = Tcl_GetString (key);
-    int         listc;
+    Tcl_Size    listc;
     Tcl_Obj**   listv;
 
     /* Allocate result space, max needed: All nodes */
@@ -123,7 +123,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 * attribute.
 	 */
 
-	int	       i;
+	Tcl_Size       i;
 	GC*	       iter;
 	const char*    pattern = Tcl_GetString (detail);
 	Tcl_HashEntry* he;
@@ -161,12 +161,11 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 */
 
 	GC*	       iter;
-	int	       ec;
+	Tcl_Size       ec, i, j;
 	Tcl_Obj**      ev;
-	int	       i, j;
 	Tcl_HashEntry* he;
 
-	if (Tcl_ListObjGetElements (interp, detail, &ec, &ev) != TCL_OK) {
+	if (Tcl_ListObjGetElements (interp, detail, &ec, &ev) != TCL_OK) { /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
@@ -202,7 +201,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 * attribute.
 	 */
 
-	int	       i;
+	Tcl_Size       i;
 	GC*	       iter;
 	const char*    pattern = Tcl_GetString (detail);
 	Tcl_HashEntry* he;
@@ -237,7 +236,7 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
 	 * nodes not having the attribute.
 	 */
 
-	int	       i;
+	Tcl_Size       i;
 	GC*	       iter;
 	Tcl_HashEntry* he;
 
@@ -270,9 +269,9 @@ gc_attr (GCC* gx, int mode, Tcl_Obj* detail, Tcl_Interp* interp, Tcl_Obj* key,
     }
 
     if (listc) {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (listc, listv)); /* OK tcl9 */
     } else {
-	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (0, NULL)); /* OK tcl9 */
     }
 
     ckfree ((char*) listv);

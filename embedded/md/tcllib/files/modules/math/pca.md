@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::PCA \- Principal Components Analysis)
 [//000000002]: # (Generated from file 'pca\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::PCA\(n\) 1\.0 tcllib "Principal Components Analysis")
+[//000000003]: # (math::PCA\(n\) 1\.1 tcllib "Principal Components Analysis")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ math::PCA \- Package for Principal Component Analysis
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.6?  
-package require math::linearalgebra 1\.0  
+package require Tcl ?8\.6 9?  
+package require math::linearalgebra 1\.1  
 
 [__::math::PCA::createPCA__ *data* ?args?](#1)  
 [__$pca using__ ?number?&#124;?\-minproportion value?](#2)  

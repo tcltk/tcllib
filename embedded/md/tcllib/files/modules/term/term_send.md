@@ -2,7 +2,7 @@
 [//000000001]: # (term::send \- Terminal control)
 [//000000002]: # (Generated from file 'term\_send\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (term::send\(n\) 0\.1 tcllib "Terminal control")
+[//000000004]: # (term::send\(n\) 0\.3 tcllib "Terminal control")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ term::send \- General output to terminals
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require term::send ?0\.1?  
+package require Tcl 8\.5 9  
+package require term::send ?0\.2?  
 
 [__::term::send::wrch__ *chan* *str*](#1)  
 [__::term::send::wr__ *str*](#2)  

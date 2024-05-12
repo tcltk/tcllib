@@ -10,7 +10,7 @@
 #       tcltest test cases for romannumeral.tcl
 
 # Note:
-#    Assumes Tcl 8.3
+#    Assumes Tcl 8.5
 #    The tests assume tcltest 2.2
 
 # -------------------------------------------------------------------------

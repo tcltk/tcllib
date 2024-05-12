@@ -53,23 +53,23 @@ namespace eval ::md5crypt {
             putchar('\n');
         }
         
-        static char * md5crypt(const char *pw,
-                               const char *salt,
-                               const char *magic)
+        static char * md5crypt(const char* pw,    Tcl_Size plen,
+                               const char* salt,  Tcl_Size slen,
+                               const char* magic, Tcl_Size mlen)
         {
-            static char     passwd[120], *p;
+            static char                passwd[120], *p;
             static const unsigned char *sp,*ep;
-            unsigned char	final[16];
-            int sl,pl,i;
-            MD5_CTX	ctx,ctx1;
+            unsigned char	       final[16];
+            int                        sl, pl, i;
+            MD5_CTX	               ctx, ctx1;
             unsigned long l;
             
             /* Refine the Salt first */
             sp = (const unsigned char *)salt;
             
             /* If it starts with the magic string, then skip that */
-            if(!strncmp((const char *)sp,(const char *)magic,strlen((const char *)magic)))
-                sp += strlen((const char *)magic);
+            if(!strncmp((const char *)sp,(const char *)magic, mlen))
+	    sp += mlen;
             
             /* It stops at the first '$', max 8 chars */
             for(ep=sp;*ep && *ep != '$' && ep < (sp+8);ep++)
@@ -81,22 +81,22 @@ namespace eval ::md5crypt {
             MD5Init(&ctx);
             
             /* The password first, since that is what is most unknown */
-            MD5Update(&ctx,(unsigned char *)pw,strlen(pw));
+            MD5Update(&ctx,(unsigned char *)pw, plen);
             
             /* Then our magic string */
-            MD5Update(&ctx,(unsigned char *)magic,strlen((const char *)magic));
+            MD5Update(&ctx,(unsigned char *)magic,mlen);
             
             /* Then the raw salt */
             MD5Update(&ctx,(unsigned char*)sp,sl);
             
             /* Then just as many characters of the MD5(pw,salt,pw) */
             MD5Init(&ctx1);
-            MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
-            MD5Update(&ctx1,(unsigned char *)sp,sl);
-            MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
+            MD5Update(&ctx1,(unsigned char *)pw, plen);
+            MD5Update(&ctx1,(unsigned char *)sp, sl);
+            MD5Update(&ctx1,(unsigned char *)pw, plen);
             MD5Final(final,&ctx1);
             
-            for(pl = strlen(pw); pl > 0; pl -= 16) {
+            for(pl = plen; pl > 0; pl -= 16) {
                 int tl = pl > 16 ? 16 : pl;
                 MD5Update(&ctx,final,pl>16 ? 16 : pl);
             }
@@ -105,7 +105,7 @@ namespace eval ::md5crypt {
             memset(final,0,sizeof final);
             
             /* Then something really weird... */
-            for (i = strlen(pw); i ; i >>= 1) {
+            for (i = plen; i ; i >>= 1) {
                 if(i&1)
                     MD5Update(&ctx, final, 1);
                 else
@@ -126,20 +126,20 @@ namespace eval ::md5crypt {
             for(i=0;i<1000;i++) {
                 MD5Init(&ctx1);
                 if(i & 1)
-                    MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
+                    MD5Update(&ctx1,(unsigned char *)pw, plen);
                 else
                     MD5Update(&ctx1,final,16);
                 
                 if(i % 3)
-                    MD5Update(&ctx1,(unsigned char *)sp,sl);
+                    MD5Update(&ctx1,(unsigned char *)sp, sl);
                 
                 if(i % 7)
-                    MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
+                    MD5Update(&ctx1,(unsigned char *)pw, plen);
                 
                 if(i & 1)
                     MD5Update(&ctx1,final,16);
                 else
-                    MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
+                    MD5Update(&ctx1,(unsigned char *)pw, plen);
                 MD5Final(final,&ctx1);
             }
 
@@ -159,16 +159,24 @@ namespace eval ::md5crypt {
             return passwd;
         }            
     }
+
     critcl::cproc to64_c {Tcl_Interp* interp int v int n} ok {
         char s[5];
         to64(s, (unsigned int)v, n); 
-        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, n));
+        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, n)); /* OK tcl9 */
         return TCL_OK;
     }
 
-    critcl::cproc md5crypt_c {Tcl_Interp* interp char* magic char* pw char* salt} ok {
-        char* s = md5crypt(pw, salt, magic);
-        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, strlen(s)));
+    critcl::cproc md5crypt_c {
+	Tcl_Interp* interp
+	pstring     magic
+	pstring     pw
+	pstring     salt
+    } ok {
+        char* s = md5crypt(pw.s,    pw.len,
+			   salt.s,  salt.len,
+			   magic.s, magic.len);
+        Tcl_SetObjResult(interp, Tcl_NewStringObj(s, TCL_AUTO_LENGTH)); /* OK tcl9 */
         return TCL_OK;
     }
 }

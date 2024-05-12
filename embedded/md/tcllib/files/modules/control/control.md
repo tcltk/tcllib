@@ -1,7 +1,7 @@
 
 [//000000001]: # (control \- Tcl Control Flow Commands)
 [//000000002]: # (Generated from file 'control\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (control\(n\) 0\.1\.3 tcllib "Tcl Control Flow Commands")
+[//000000003]: # (control\(n\) 0\.1\.4 tcllib "Tcl Control Flow Commands")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,8 +36,8 @@ control \- Procedures for control flow structures\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require control ?0\.1\.3?  
+package require Tcl 8\.5 9  
+package require control ?0\.1\.4?  
 
 [__control::control__ *command* *option* ?*arg arg \.\.\.*?](#1)  
 [__control::assert__ *expr* ?*arg arg \.\.\.*?](#2)  

@@ -6,7 +6,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4 ; # Required Core
+package require Tcl 8.5 9 ; # Required Core
 
 namespace eval ::doctools::text {}
 
@@ -212,5 +212,5 @@ namespace eval ::doctools::text {
 }
 
 # # ## ### ##### ######## ############# #####################
-package provide doctools::text 0.1
+package provide doctools::text 0.2
 return

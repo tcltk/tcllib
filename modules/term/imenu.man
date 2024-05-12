@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::interact::menu n 0.1]
+[manpage_begin term::interact::menu n 0.2]
 [keywords control]
 [keywords menu]
 [keywords terminal]
@@ -8,8 +8,8 @@
 [moddesc   {Terminal control}]
 [titledesc {Terminal widget, menu}]
 [category  {Terminal control}]
-[require Tcl 8.4]
-[require term::interact::menu [opt 0.1]]
+[require Tcl "8.5 9"]
+[require term::interact::menu [opt 0.2]]
 [description]
 
 This package provides a class for the creation of a simple menu
