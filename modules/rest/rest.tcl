@@ -470,6 +470,9 @@ proc ::rest::_call {callback headers url query body error_body} {
     if {$callback != ""} {
         lappend opts -command [list ::rest::_callback {*}$callback]
     }
+    if {[dict exists $config timeout]} {
+        lappend opts -timeout [dict get $config timeout]
+    }
 
     #puts "headers $headers"
     #puts "opts $opts"
