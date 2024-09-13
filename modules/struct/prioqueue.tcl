@@ -338,19 +338,20 @@ proc ::struct::prioqueue::_put {name args} {
     # check for prio type before adding
     switch -exact -- $queues_sorting($name) {
         0    {
-        foreach {item prio} $args {
-        if {![string is integer -strict $prio]} {
-            error "priority \"$prio\" is not an integer type value"
-        }
-        }
-    }
+	    foreach {item prio} $args {
+		##nagelfar ignore
+		if {![string is integer -strict $prio]} {
+		    error "priority \"$prio\" is not an integer type value"
+		}
+	    }
+	}
         1    {
-        foreach {item prio} $args {
-        if {![string is double -strict $prio]} {
-            error "priority \"$prio\" is not a real type value"
-        }
-        }
-    }
+	    foreach {item prio} $args {
+		if {![string is double -strict $prio]} {
+		    error "priority \"$prio\" is not a real type value"
+		}
+	    }
+	}
         default {
         #no restrictions for -ascii and -dictionary
     }

@@ -2350,6 +2350,7 @@ proc ::struct::tree::CheckSerialization {ser avar pvar cvar rnvar} {
 	    continue
 	}
 	# Parent reference ok ?
+	##nagelfar ignore
 	if {
 	    ![string is integer -strict $parent] ||
 	    ($parent % 3) ||

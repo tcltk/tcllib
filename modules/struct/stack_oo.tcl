@@ -110,6 +110,7 @@ oo::class create ::struct::stack::stack_oo {
     #	item	List of items trimmed, may be empty.
 
     method trim {newsize} {
+	##nagelfar ignore
 	if { ![string is integer -strict $newsize]} {
 	    return -code error "expected integer but got \"$newsize\""
 	} elseif { $newsize < 0 } {
@@ -134,6 +135,7 @@ oo::class create ::struct::stack::stack_oo {
     }
 
     method trim* {newsize} {
+	##nagelfar ignore
 	if { ![string is integer -strict $newsize]} {
 	    return -code error "expected integer but got \"$newsize\""
 	} elseif { $newsize < 0 } {

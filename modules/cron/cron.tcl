@@ -92,6 +92,7 @@ proc ::cron::at args {
     }
   }
   variable processTable
+  ##nagelfar ignore
   if {[string is integer -strict $timecode]} {
     set scheduled [expr {$timecode*1000}]
   } else {

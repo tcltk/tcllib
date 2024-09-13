@@ -1002,6 +1002,7 @@ proc ::struct::list::Lrepeatn {value args} {
 if { [package vcompare [package provide Tcl] 8.5] < 0 } {
 
     proc ::struct::list::Lrepeat {positiveCount value args} {
+	##nagelfar ignore
 	if {![string is integer -strict $positiveCount]} {
 	    return -code error "expected integer but got \"$positiveCount\""
 	} elseif {$positiveCount < 1} {

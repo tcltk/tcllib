@@ -137,6 +137,7 @@ namespace eval generator {
 
     proc Resolve {level name} {
         if {[string match ::* $name]} { return $name }
+	##nagelfar ignore
         if {[string is integer -strict $level] && $level >= 0} { incr level }
         set ns [uplevel $level { namespace current }]
         if {$ns eq "::"} { return ::$name }
