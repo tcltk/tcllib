@@ -21,15 +21,18 @@
 # Meta license      BSD
 # @@ Meta End
 namespace eval ::clay::dialect {
-  namespace export create
-  # Allow test rigs to overwrite the flags before invoking this script
-  foreach {flag test} {
-    tip470 {package vsatisfies [package provide Tcl] 8.7}
-  } {
-    if {![info exists ::clay::dialect::has($flag)]} {
-      set ::clay::dialect::has($flag) [eval $test]
+    namespace export create
+    # Allow test rigs to overwrite the flags before invoking this script
+    variable flag
+    variable test
+    foreach {flag test} {
+	tip470 {package vsatisfies [package provide Tcl] 8.7}
+    } {
+	if {![info exists ::clay::dialect::has($flag)]} {
+	    set ::clay::dialect::has($flag) [eval $test]
+	}
     }
-  }
+    unset flag test
 }
 
 
