@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009,2024 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Verification of serialized PEGs, and conversion between
 # serializations and other data structures.
@@ -201,7 +201,7 @@ proc ::pt::peg::merge {seriala serialb} {
 	    array set sdb $rb($symbol)
 
 	    if {$sda(mode) ne $sdb(mode)} {
-		return -code "Merge error for nonterminal \"$symbol\", semantic mode mismatch"
+		return -code error "Merge error for nonterminal \"$symbol\", semantic mode mismatch"
 	    }
 
 	    # Merge parsing expressions, if not identical ...
@@ -376,5 +376,5 @@ namespace eval ::pt::peg {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::peg 1.1
+package provide pt::peg 1.1.1
 return

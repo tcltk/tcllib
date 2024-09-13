@@ -16,8 +16,8 @@ package ifneeded pt::pe        1.0.3 [list source [file join $dir pt_pexpression
 package ifneeded pt::pe::op    1.0.2 [list source [file join $dir pt_pexpr_op.tcl]]
 
 # Parsing Expression Grammar support.
-package ifneeded pt::peg                1.1 [list source [file join $dir pt_pegrammar.tcl]]
-package ifneeded pt::peg::container     1.1 [list source [file join $dir pt_peg_container.tcl]]
+package ifneeded pt::peg            1.1.1 [list source [file join $dir pt_pegrammar.tcl]]
+package ifneeded pt::peg::container 1.1   [list source [file join $dir pt_peg_container.tcl]]
 package ifneeded pt::peg::interp    1.0.2 [list source [file join $dir pt_peg_interp.tcl]]
 package ifneeded pt::peg::op        1.2.0 [list source [file join $dir pt_peg_op.tcl]]
 package ifneeded pt::parse::peg     1.0.3 [list source [file join $dir pt_parse_peg.tcl]]
