@@ -390,6 +390,7 @@ proc ::ip::toHex {ip} {
 # End of Header
 
 proc ::ip::maskToInt {mask} {
+    ##nagelfar ignore
     if {[string is integer -strict $mask]} {
         set maskInt [expr {(0xFFFFFFFF << (32 - $mask))}]
     } else {
@@ -517,6 +518,7 @@ proc ::ip::maskToLength {mask args} {
 	}
     }
     #pick the fastest method for either format
+    ##nagelfar ignore
     if {[string is integer -strict $mask]} {
 	binary scan [binary format I [expr {$mask}]] B32 maskB
 	if {[regexp -all {^1+} $maskB ones]} {
@@ -648,9 +650,11 @@ proc ::ip::nextNet {prefix mask args} {
 	    }
 	}
     }
+    ##nagelfar ignore
     if {![string is integer -strict $prefix]} {
 	set prefix [toInteger $prefix]
     }
+    ##nagelfar ignore
     if {![string is integer -strict $mask] || ($mask < 33 && $mask > 0)} {
 	set mask [maskToInt $mask]
     }
@@ -1119,6 +1123,7 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
     } else {
 	set prefixList [list $prefixList]
     }
+    ##nagelfar ignore
     if {![string is integer -strict $ipaddr]} {
 	set ipaddr [prefixToNative $ipaddr]
     }
