@@ -24,7 +24,7 @@ namespace eval ::base64 {
     namespace export encode decode
 }
 
-package provide base64 2.6
+package provide base64 2.6.1
 
 if {[package vsatisfies [package require Tcl] 8.6 9]} {
     proc ::base64::encode {args} {
@@ -180,7 +180,8 @@ if {![catch {package require Trf 2.0}]} {
 	variable base64_tmp
 	variable i
 
-	set i 0
+	variable i 0
+	variable char
 	foreach char {A B C D E F G H I J K L M N O P Q R S T U V W X Y Z \
 		a b c d e f g h i j k l m n o p q r s t u v w x y z \
 		0 1 2 3 4 5 6 7 8 9 + /} {
