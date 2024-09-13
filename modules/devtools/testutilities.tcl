@@ -220,6 +220,10 @@ proc InitializeTclTest {} {
     ::tcltest::testConstraint tcl8.7plus \
 	[package vsatisfies [package provide Tcl] 8.7 9]
 
+    ::tcltest::testConstraint tcl8.7not9 \
+	[expr { [package vsatisfies [package provide Tcl] 8.8] &&
+	       ![package vsatisfies [package provide Tcl] 9]}]
+
     ::tcltest::testConstraint tcl9plus \
 	[package vsatisfies [package provide Tcl] 9]
 
