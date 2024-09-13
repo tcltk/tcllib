@@ -1,8 +1,8 @@
 '\"
-'\" Generated from file 'tcllib_throw\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2015 Miguel Martínez López, BSD licensed
+'\" Generated from file 'tcllib_fhome\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2024 Andreas Kupries, BSD licensed
 '\"
-.TH "throw" n 1\&.1 tcllib "Forward compatibility implementation of [throw]"
+.TH "file::home" n 1 tcllib "Forward compatibility implementation of [file home]"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,38 +272,29 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-throw \- throw - Throw an error exception with a message
+file::home \- file home - Return home directory of current or other user
 .SH SYNOPSIS
-package require \fBTcl 8\&.5 9\fR
+package require \fBTcl 8\&.x\fR
 .sp
-package require \fBthrow ?1\&.1?\fR
+package require \fBfhome ?1?\fR
 .sp
-\fB::throw\fR \fIerror_code\fR \fIerror_message\fR
+\fBfile\fR \fBhome\fR ?\fIuser\fR?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This package provides a forward-compatibility implementation of Tcl
-8\&.6's \fBthrow\fR command (TIP 329), for Tcl 8\&.5\&. The code was
-directly pulled from Tcl 8\&.6 revision ?, when try/finally was
-implemented as Tcl procedure instead of in C\&.
+9's \fBfile home\fR command (TIP 602), for Tcl 8\&.x\&.
 .TP
-\fB::throw\fR \fIerror_code\fR \fIerror_message\fR
-throw is merely a reordering of the arguments of the error command\&. It throws an error with the indicated
-error code and error message\&.
+\fBfile\fR \fBhome\fR ?\fIuser\fR?
+Without argument, return the home directory of the current user\&.
+.sp
+With argument, return the home directory of the specified \fIuser\fR\&.
 .PP
-.SH EXAMPLES
-.PP
-.CS
-
-
-\fBthrow\fR {MYERROR CODE} "My error message"
-
-.CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
-Please report such in the category \fItry\fR of the
+Please report such in the category \fIfile\fR of the
 \fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
@@ -315,14 +306,10 @@ Note further that \fIattachments\fR are strongly preferred over
 inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
-.SH "SEE ALSO"
-error(n)
-.SH KEYWORDS
-error, return, throw
 .SH CATEGORY
 Utility
 .SH COPYRIGHT
 .nf
-Copyright (c) 2015 Miguel Martínez López, BSD licensed
+Copyright (c) 2024 Andreas Kupries, BSD licensed
 
 .fi
