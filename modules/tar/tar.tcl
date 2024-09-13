@@ -8,11 +8,9 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: tar.tcl,v 1.17 2012/09/11 17:22:24 andreas_kupries Exp $
 
 package require Tcl 8.5 9
-package provide tar 0.12
+package provide tar 0.12.1
 
 namespace eval ::tar {}
 
@@ -141,8 +139,7 @@ proc ::tar::contents {file args} {
     if {$chan} {
 	set fh $file
     } else {
-	set fh [::open $file]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+	set fh [::open $file rb]
     }
     set ret {}
     while {![eof $fh]} {
@@ -165,8 +162,7 @@ proc ::tar::stat {tar {file {}} args} {
     if {$chan} {
 	set fh $tar
     } else {
-	set fh [::open $tar]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+	set fh [::open $tar rb]
     }
     set ret {}
     while {![eof $fh]} {
@@ -194,8 +190,7 @@ proc ::tar::get {tar file args} {
     if {$chan} {
 	set fh $tar
     } else {
-	set fh [::open $tar]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+	set fh [::open $tar rb]
     }
     while {![eof $fh]} {
 	set data [read $fh 512]
@@ -239,8 +234,7 @@ proc ::tar::untar {tar args} {
     if {$chan} {
 	set fh $tar
     } else {
-	set fh [::open $tar]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+	set fh [::open $tar rb]
     }
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
@@ -259,12 +253,11 @@ proc ::tar::untar {tar args} {
             lappend ret [file dirname $name] {}
         }
         if {[string match {[0346]} $header(type)]} {
-            if {[catch {::open $name w+} new]} {
+            if {[catch {::open $name wb+} new]} {
                 # sometimes if we dont have write permission we can still delete
                 catch {file delete -force $name}
-                set new [::open $name w+]
+                set new [::open $name wb+]
             }
-            fconfigure $new -encoding binary -translation lf -eofchar {}
             fcopy $fh $new -size $header(size)
             close $new
             lappend ret $name $header(size)
@@ -432,8 +425,7 @@ proc ::tar::writefile {in out followlinks name} {
      puts -nonewline $out [formatHeader $name [statFile $in $followlinks]]
      set size 0
      if {[file type $in] == "file" || ($followlinks && [file type $in] == "link")} {
-         set in [::open $in]
-         fconfigure $in -encoding binary -translation lf -eofchar {}
+         set in [::open $in rb]
          set size [fcopy $in $out]
          close $in
      }
@@ -448,8 +440,7 @@ proc ::tar::create {tar files args} {
     if {$chan} {
 	set fh $tar
     } else {
-	set fh [::open $tar w+]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+	set fh [::open $tar wb+]
     }
     foreach x [recurseDirs $files $dereference] {
         writefile $x $fh $dereference $x
@@ -468,8 +459,7 @@ proc ::tar::add {tar files args} {
     set quick 0
     parseOpts {dereference 0 prefix 1 quick 0} $args
     
-    set fh [::open $tar r+]
-    fconfigure $fh -encoding binary -translation lf -eofchar {}
+    set fh [::open $tar rb+]
     
     if {$quick} then {
         seek $fh -1024 end
@@ -495,11 +485,8 @@ proc ::tar::add {tar files args} {
 proc ::tar::remove {tar files} {
     set n 0
     while {[file exists $tar$n.tmp]} {incr n}
-    set tfh [::open $tar$n.tmp w]
-    set fh [::open $tar r]
-
-    fconfigure $fh  -encoding binary -translation lf -eofchar {}
-    fconfigure $tfh -encoding binary -translation lf -eofchar {}
+    set tfh [::open $tar$n.tmp wb]
+    set fh  [::open $tar rb]
 
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
