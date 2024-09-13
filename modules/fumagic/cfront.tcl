@@ -9,8 +9,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: cfront.tcl,v 1.7 2008/03/22 01:10:32 andreas_kupries Exp $
 
 #####
 #
@@ -34,7 +32,7 @@ package require fileutil::magic::rt   ; # Runtime (typemap)
 package require struct::list          ; # lrepeat.
 package require struct::tree          ; #
 
-package provide fileutil::magic::cfront 1.3.1
+package provide fileutil::magic::cfront 1.3.2
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -65,19 +63,20 @@ namespace eval ::fileutil::magic::cfront {
 	pstring [list {*}$stringmodifiers B H h L l J] \
 	regex {c s l} \
     ]
-    set numeric_modifier_allowed {regex search}
-
+    variable numeric_modifier_allowed {regex search}
     variable types_numeric_short
+    variable name
+    variable shortname
+    
     foreach {shortname name} {
 	dC byte d1 byte C byte 1 byte ds short d2 short S short 2 short dI long
 	dL long d4 long I long L long 4 long d8 quad 8 quad dQ quad Q quad
     } {
-	dict set types_numeric_short $shortname $name
+	dict set types_numeric_short  $shortname  $name
 	dict set types_numeric_short u$shortname u$name
     }
-
-    variable types_numeric_all [list {*}[
-	array names typemap] {*}[dict keys $types_numeric_short]]
+    ##nagelfar ignore
+    variable types_numeric_all [list {*}[array names typemap] {*}[dict keys $types_numeric_short]]
 
     variable types_string_short [dict create s string] 
     variable types_string_short [dict create us ustring] 
@@ -137,6 +136,7 @@ proc ::fileutil::magic::cfront::compile {args} {
 
     foreach arg $args {
    	if {[file type $arg] eq  {directory}} {
+	    ##nagelfar ignore
    	    foreach file [glob [file join $arg *]] {
 		if {[file tail $file] eq {make}} {
 		    set chan [open $file r+]
