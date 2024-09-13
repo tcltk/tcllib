@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin bench n 0.5]
+[vset VERSION 0.6]
+[manpage_begin bench n [vset VERSION]]
 [see_also bench_intro]
 [see_also bench_lang_intro]
 [see_also bench_lang_spec]
@@ -16,7 +17,7 @@
 [titledesc {bench - Processing benchmark suites}]
 [category  {Benchmark tools}]
 [require Tcl "8.5 9"]
-[require bench [opt 0.5]]
+[require bench [opt [vset VERSION]]]
 [description]
 
 This package provides commands for the execution of benchmarks written
