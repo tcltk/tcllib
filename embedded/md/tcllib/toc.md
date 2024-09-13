@@ -223,6 +223,8 @@
 
   - [dtplite](tcllib/files/apps/dtplite\.md) Lightweight DocTools Markup Processor
 
+  - [file::home](tcllib/files/modules/try/tcllib\_fhome\.md) file home \- Return home directory of current or other user
+
   - [fileutil](tcllib/files/modules/fileutil/fileutil\.md) Procedures implementing some file utilities
 
   - [fileutil::magic::cfront](tcllib/files/modules/fumagic/cfront\.md) Generator core for compiler of magic\(5\) files

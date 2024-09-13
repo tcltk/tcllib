@@ -3,7 +3,7 @@
 '\" Copyright (c) 2000, Eric Melski
 '\" Copyright (c) 2001, Miguel Sofer
 '\"
-.TH "base64" n 2\&.6 tcllib "Text encoding & decoding binary data"
+.TH "base64" n 2\&.6\&.1 tcllib "Text encoding & decoding binary data"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ base64 \- base64-encode/decode binary data
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBbase64 ?2\&.6?\fR
+package require \fBbase64 ?2\&.6\&.1?\fR
 .sp
 \fB::base64::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
 .sp

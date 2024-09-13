@@ -379,6 +379,7 @@ modules/transfer/receiver.man
 modules/transfer/tqueue.man
 modules/transfer/transmitter.man
 modules/treeql/treeql.man
+modules/try/tcllib_fhome.man
 modules/try/tcllib_throw.man
 modules/try/tcllib_try.man
 modules/udpcluster/udpcluster.man
