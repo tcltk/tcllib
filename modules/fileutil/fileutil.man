@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 1.16.2]
+[vset PACKAGE_VERSION 1.16.3]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil n [vset PACKAGE_VERSION]]
 [keywords cat]

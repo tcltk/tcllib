@@ -21,11 +21,7 @@ namespace eval ::fileutil::decode {
 
 proc ::fileutil::decode::open {fname} {
     variable chan
-    set chan [::open $fname r]
-    fconfigure $chan \
-	-translation binary \
-	-encoding    binary \
-	-eofchar     {}
+    set chan [::open $fname rb]
     return
 }
 
