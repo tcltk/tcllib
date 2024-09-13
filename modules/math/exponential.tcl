@@ -129,9 +129,11 @@ proc ::math::special::exponential_Ei { x { eps 1.0e-10 } } {
 proc ::math::special::exponential_En { n x { epsilon 1.0e-10 } } {
     variable psi
     variable gamma
+    ##nagelfar ignore
     if { ![string is integer -strict $n] || $n < 0 } {
         return -code error "expected a non-negative integer but found \"$n\""
     }
+    set n [format %d $n]
     if { ![string is double -strict $x] } {
         return -code error "expected a floating point number but found \"$x\""
     }
@@ -345,90 +347,103 @@ proc ::math::special::exponential_Ci {x} {
 #    Reproduce tables 5.1, 5.2 from Abramowitz & Stegun,
 
 if { [info exists ::argv0] && ![string compare $::argv0 [info script]] } {
-namespace eval ::math::special {
-for { set i 0.01 } { $i < 0.505 } { set i [expr { $i + 0.01 }] } {
-    set ei [exponential_Ei $i]
-    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
-    puts [format "%9.6f\t%.10g\t%.10g" $i \
-              [expr {($ei - log($i) - 0.57721566490153286)/$i} ] \
-              [expr {($e1 + log($i) + 0.57721566490153286) / $i }]]
-}
-puts {}
-for { set i 0.5 } { $i < 2.005 } { set i [expr { $i + 0.01 }] } {
-    set ei [exponential_Ei $i]
-    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
-    puts [format "%9.6f\t%.10g\t%.10g" $i $ei $e1]
-}
-puts {}
-for {} { $i < 10.05 } { set i [expr { $i + 0.1 }] } {
-    set ei [exponential_Ei $i]
-    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
-    puts [format "%9.6f\t%.10g\t%.10g" $i \
-              [expr { $i * exp(-$i) * $ei }] \
-              [expr { $i * exp($i) * $e1 }]]
+    namespace eval ::math::special {
+	variable e1
+	variable ei
+	variable en
+	variable i
+	variable line
+	variable n
+	variable ooi
+	variable oox
+	variable result
+	variable ri
+	variable rx
+	variable x
 
-}
-puts {}
-for {set ooi 0.1} { $ooi > 0.0046 } { set ooi [expr { $ooi - 0.005 }] } {
-    set i [expr { 1.0 / $ooi }]
-    set ri [expr { round($i) }]
-    set ei [exponential_Ei $i]
-    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
-    puts [format "%9.6f\t%.10g\t%.10g\t%d" $i \
-              [expr { $i * exp(-$i) * $ei }] \
-              [expr { $i * exp($i) * $e1 }] \
-              $ri]
-}
-puts {}
+	for { set i 0.01 } { $i < 0.505 } { set i [expr { $i + 0.01 }] } {
+	    set ei [exponential_Ei $i]
+	    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
+	    puts [format "%9.6f\t%.10g\t%.10g" $i \
+		      [expr {($ei - log($i) - 0.57721566490153286)/$i} ] \
+		      [expr {($e1 + log($i) + 0.57721566490153286) / $i }]]
+	}
+	puts {}
+	for { set i 0.5 } { $i < 2.005 } { set i [expr { $i + 0.01 }] } {
+	    set ei [exponential_Ei $i]
+	    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
+	    puts [format "%9.6f\t%.10g\t%.10g" $i $ei $e1]
+	}
+	puts {}
+	for {} { $i < 10.05 } { set i [expr { $i + 0.1 }] } {
+	    set ei [exponential_Ei $i]
+	    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
+	    puts [format "%9.6f\t%.10g\t%.10g" $i \
+		      [expr { $i * exp(-$i) * $ei }] \
+		      [expr { $i * exp($i) * $e1 }]]
 
-# Reproduce table 5.4 from Abramowitz and Stegun
+	}
+	puts {}
+	for {set ooi 0.1} { $ooi > 0.0046 } { set ooi [expr { $ooi - 0.005 }] } {
+	    set i [expr { 1.0 / $ooi }]
+	    set ri [expr { round($i) }]
+	    set ei [exponential_Ei $i]
+	    set e1 [expr { - [exponential_Ei [expr { - $i }]] }]
+	    puts [format "%9.6f\t%.10g\t%.10g\t%d" $i \
+		      [expr { $i * exp(-$i) * $ei }] \
+		      [expr { $i * exp($i) * $e1 }] \
+		      $ri]
+	}
+	puts {}
 
-for { set x 0.00 } { $x < 0.505 } { set x [expr { $x + 0.01 }] } {
-    set line [format %4.2f $x]
-    if { $x == 0.00 } {
-        append line { } 1.0000000
-    } else {
-        append line { } [format %9.7f \
-                             [expr { [exponential_En 2 $x] - $x * log($x) }]]
-    }
-    foreach n { 3 4 10 20 } {
-        append line { } [format %9.7f [exponential_En $n $x]]
-    }
-    puts $line
-}
-puts {}
-for { set x 0.50 } { $x < 2.005 } { set x [expr { $x + 0.01 }] } {
-    set line [format %4.2f $x]
-    foreach n { 2 3 4 10 20 } {
-        append line { } [format %9.7f [exponential_En $n $x]]
-    }
-    puts $line
-}
-puts {}
+	# Reproduce table 5.4 from Abramowitz and Stegun
 
-for { set oox 0.5 } { $oox > 0.1025 } { set oox [expr { $oox - 0.05 }] } {
-    set line [format %4.2f $oox]
-    set x [expr { 1.0 / $oox }]
-    set rx [expr { round( $x ) }]
-    foreach n { 2 3 4 10 20 } {
-        set en [exponential_En $n [expr { 1.0 / $oox }]]
-        append line { } [format %9.7f [expr { ( $x + $n ) * exp($x) * $en }]]
+	for { set x 0.00 } { $x < 0.505 } { set x [expr { $x + 0.01 }] } {
+	    set line [format %4.2f $x]
+	    if { $x == 0.00 } {
+		append line { } 1.0000000
+	    } else {
+		append line { } [format %9.7f \
+				     [expr { [exponential_En 2 $x] - $x * log($x) }]]
+	    }
+	    foreach n { 3 4 10 20 } {
+		append line { } [format %9.7f [exponential_En $n $x]]
+	    }
+	    puts $line
+	}
+	puts {}
+	for { set x 0.50 } { $x < 2.005 } { set x [expr { $x + 0.01 }] } {
+	    set line [format %4.2f $x]
+	    foreach n { 2 3 4 10 20 } {
+		append line { } [format %9.7f [exponential_En $n $x]]
+	    }
+	    puts $line
+	}
+	puts {}
+
+	for { set oox 0.5 } { $oox > 0.1025 } { set oox [expr { $oox - 0.05 }] } {
+	    set line [format %4.2f $oox]
+	    set x [expr { 1.0 / $oox }]
+	    set rx [expr { round( $x ) }]
+	    foreach n { 2 3 4 10 20 } {
+		set en [exponential_En $n [expr { 1.0 / $oox }]]
+		append line { } [format %9.7f [expr { ( $x + $n ) * exp($x) * $en }]]
+	    }
+	    append line { } [format %3d $rx]
+	    puts $line
+	}
+	for { set oox 0.10 } { $oox > 0.005 } { set oox [expr { $oox - 0.01 }] } {
+	    set line [format %4.2f $oox]
+	    set x [expr { 1.0 / $oox }]
+	    set rx [expr { round( $x ) }]
+	    foreach n { 2 3 4 10 20 } {
+		set en [exponential_En $n $x]
+		append line { } [format %9.7f [expr { ( $x + $n ) * exp($x) * $en }]]
+	    }
+	    append line { } [format %3d $rx]
+	    puts $line
+	}
+	puts {}
+	catch {exponential_Ei 0.0} result; puts $result
     }
-    append line { } [format %3d $rx]
-    puts $line
-}
-for { set oox 0.10 } { $oox > 0.005 } { set oox [expr { $oox - 0.01 }] } {
-    set line [format %4.2f $oox]
-    set x [expr { 1.0 / $oox }]
-    set rx [expr { round( $x ) }]
-    foreach n { 2 3 4 10 20 } {
-        set en [exponential_En $n $x]
-        append line { } [format %9.7f [expr { ( $x + $n ) * exp($x) * $en }]]
-    }
-    append line { } [format %3d $rx]
-    puts $line
-}
-puts {}
-catch {exponential_Ei 0.0} result; puts $result
-}
 }

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::special n 0.5.3]
+[manpage_begin math::special n 0.5.4]
 [keywords {Bessel functions}]
 [keywords {error function}]
 [keywords math]

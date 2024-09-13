@@ -800,9 +800,11 @@ proc ::math::calculus::romberg { f a b args } {
     if { ![string is double -strict $params(-abserror)] } {
 	return -code error [expectDouble $params(-abserror)]
     }
+    ##nagelfar ignore
     if { ![string is integer -strict $params(-degree)] } {
 	return -code error [expectInteger $params(-degree)]
     }
+    ##nagelfar ignore
     if { ![string is integer -strict $params(-maxiter)] } {
 	return -code error [expectInteger $params(-maxiter)]
     }

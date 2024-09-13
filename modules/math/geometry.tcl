@@ -510,9 +510,6 @@ proc ::math::geometry::lengthOfPolyline {polyline} {
     return $length
 }
 
-
-
-
 # ::math::geometry::movePointInDirection
 #
 #       Move a point in a given direction.
