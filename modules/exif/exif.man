@@ -1,4 +1,5 @@
-[manpage_begin exif n 1.1.3]
+[vset VERSION 1.1.4]
+[manpage_begin exif n [vset VERSION]]
 [keywords exif]
 [keywords jpeg]
 [keywords {maker note}]
@@ -7,7 +8,7 @@
 [titledesc {Tcl EXIF extracts and parses EXIF fields from digital images}]
 [category  {File formats}]
 [require Tcl "8.5 9"]
-[require exif [opt 1.1.3]]
+[require exif [opt [vset VERSION]]]
 [description]
 [para]
 
