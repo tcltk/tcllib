@@ -1,7 +1,7 @@
 
 [//000000001]: # (rest \- A framework for RESTful web services)
 [//000000002]: # (Generated from file 'rest\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (rest\(n\) 1\.6 tcllib "A framework for RESTful web services")
+[//000000003]: # (rest\(n\) 1\.7 tcllib "A framework for RESTful web services")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ rest \- define REST web APIs and call them inline or asychronously
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require rest ?1\.6?  
+package require rest ?1\.7?  
 
 [__::rest::simple__ *url* *query* ?*config*? ?*body*?](#1)  
 [__::rest::get__ *url* *query* ?*config*? ?*body*?](#2)  
@@ -107,6 +107,8 @@ or process the returned data yourself
       * __headers__
 
       * __method__
+
+      * __timeout__
 
     Two quick examples:
 
@@ -466,6 +468,13 @@ Example, Yahoo Weather:
         response body on error\.
 
         See __callback__ above for more information\.
+
+      * __timeout__
+
+        The value of this option determines whether to set a timeout on the HTTP
+        call\. By default, no timeout is set\.
+
+        Timeout value is accepted in milliseconds\.
 
 # <a name='section4'></a>Examples
 

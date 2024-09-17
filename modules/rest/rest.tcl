@@ -10,7 +10,7 @@ package require json
 package require tdom
 package require base64
 
-package provide rest 1.6
+package provide rest 1.7
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -469,6 +469,9 @@ proc ::rest::_call {callback headers url query body error_body} {
     }
     if {$callback != ""} {
         lappend opts -command [list ::rest::_callback {*}$callback]
+    }
+    if {[dict exists $config timeout]} {
+        lappend opts -timeout [dict get $config timeout]
     }
 
     #puts "headers $headers"
