@@ -308,6 +308,26 @@ This package will use \fBcryptkit\fR or \fBTrf\fR to
 accelerate the digest computation if either package is available\&. In
 the absence of an accelerator package the pure-Tcl implementation will
 be used\&.
+.PP
+\fIBEWARE\fR
+The commands in this package expect binary data as their input\&.
+When a \fB-file\fR is provided then this is ensured by the commands
+themselves, as they open the referenced file in binary mode\&.
+When literal data, or a \fB-channel\fR are provided instead, then the
+command's \fIcaller is responsible\fR for ensuring this fact\&.
+The necessary conversion command is \fBencoding convertto utf-8 $string\fR\&.
+.PP
+\fIATTENTION\fR, there is a \fITcl 9 COMPATIBILITY ISSUE\fR here\&.
+.PP
+\fITcl 8\&.x silently mishandles\fR non-binary input by cutting it
+internally to size\&. I\&.e\&. by only using the low byte of a higher unicode point\&.
+No error is thrown, the \fIresult is simply wrong\fR\&.
+.PP
+\fITcl 9 throws an error\fR instead, i\&.e\&.
+.CS
+
+expected byte sequence but character <location> was \&.\&.\&.
+.CE
 .SH COMMANDS
 .TP
 \fB::ripemd::ripemd160\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]

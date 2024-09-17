@@ -32,6 +32,8 @@ This package also includes support for creating keyed message-digests
 using the HMAC algorithm from RFC 2104 (3) with SHA256 as the
 message-digest.
 
+[para][include ../common-text/hash-compatibility-warning.inc]
+
 [section {COMMANDS}]
 
 [list_begin definitions]

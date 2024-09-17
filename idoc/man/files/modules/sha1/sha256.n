@@ -314,6 +314,26 @@ algorithm\&.
 This package also includes support for creating keyed message-digests
 using the HMAC algorithm from RFC 2104 (3) with SHA256 as the
 message-digest\&.
+.PP
+\fIBEWARE\fR
+The commands in this package expect binary data as their input\&.
+When a \fB-file\fR is provided then this is ensured by the commands
+themselves, as they open the referenced file in binary mode\&.
+When literal data, or a \fB-channel\fR are provided instead, then the
+command's \fIcaller is responsible\fR for ensuring this fact\&.
+The necessary conversion command is \fBencoding convertto utf-8 $string\fR\&.
+.PP
+\fIATTENTION\fR, there is a \fITcl 9 COMPATIBILITY ISSUE\fR here\&.
+.PP
+\fITcl 8\&.x silently mishandles\fR non-binary input by cutting it
+internally to size\&. I\&.e\&. by only using the low byte of a higher unicode point\&.
+No error is thrown, the \fIresult is simply wrong\fR\&.
+.PP
+\fITcl 9 throws an error\fR instead, i\&.e\&.
+.CS
+
+expected byte sequence but character <location> was \&.\&.\&.
+.CE
 .SH COMMANDS
 .TP
 \fB::sha2::sha256\fR ?\fB-hex|-bin\fR? [ \fB-channel channel\fR | \fB-file filename\fR | ?\fB--\fR? \fIstring\fR ]

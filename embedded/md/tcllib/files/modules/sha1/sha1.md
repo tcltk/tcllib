@@ -68,6 +68,23 @@ applications\.
 This package also includes support for creating keyed message\-digests using the
 HMAC algorithm from RFC 2104 \(3\) with SHA1 as the message\-digest\.
 
+*BEWARE* The commands in this package expect binary data as their input\. When
+a __\-file__ is provided then this is ensured by the commands themselves, as
+they open the referenced file in binary mode\. When literal data, or a
+__\-channel__ are provided instead, then the command's *caller is
+responsible* for ensuring this fact\. The necessary conversion command is
+__encoding convertto utf\-8 $string__\.
+
+*ATTENTION*, there is a *Tcl 9 COMPATIBILITY ISSUE* here\.
+
+*Tcl 8\.x silently mishandles* non\-binary input by cutting it internally to
+size\. I\.e\. by only using the low byte of a higher unicode point\. No error is
+thrown, the *result is simply wrong*\.
+
+*Tcl 9 throws an error* instead, i\.e\.
+
+    expected byte sequence but character <location> was ...
+
 # <a name='section2'></a>COMMANDS
 
   - <a name='1'></a>__::sha1::sha1__ ?__\-hex&#124;\-bin__? \[ __\-channel channel__ &#124; __\-file filename__ &#124; ?__\-\-__? *string* \]

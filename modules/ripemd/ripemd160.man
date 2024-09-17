@@ -35,6 +35,8 @@ accelerate the digest computation if either package is available. In
 the absence of an accelerator package the pure-Tcl implementation will
 be used.
 
+[para][include ../common-text/hash-compatibility-warning.inc]
+
 [section {COMMANDS}]
 
 [list_begin definitions]
