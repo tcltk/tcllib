@@ -2,7 +2,7 @@
 '\" Generated from file 'yencode\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
-.TH "yencode" n 1\&.1\&.2 tcllib "Text encoding & decoding binary data"
+.TH "yencode" n 1\&.1\&.4 tcllib "Text encoding & decoding binary data"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ yencode \- Y-encode/decode binary data
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fByencode ?1\&.1\&.2?\fR
+package require \fByencode ?1\&.1\&.4?\fR
 .sp
 \fB::yencode::encode\fR \fIstring\fR
 .sp

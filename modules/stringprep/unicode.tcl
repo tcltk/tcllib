@@ -286,5 +286,4 @@ proc ::unicode::composeCanonical {uclist} {
 
 ########################################################################
 
-package provide unicode 1.1.0
-
+package provide unicode 1.1.1
