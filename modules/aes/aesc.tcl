@@ -56,7 +56,7 @@ package require critcl
 package provide aesc 0.0.1
 
 namespace eval ::aes {
-	critcl::tcl 8.6
+	critcl::tcl 9 
 	critcl::ccode {
 		#include <stdint.h>
 		#include <string.h>
@@ -64,16 +64,16 @@ namespace eval ::aes {
 		typedef enum aes_mode {ECB ,CBC} aes_mode;
 
 		int aes_decryptBlock(Tcl_Interp *interp ,Tcl_Obj *handle ,int n
-			,unsigned char *bytes ,uint_fast32_t iv[4] ,int i, Tcl_Obj *WPtr
+			,unsigned char *bytes ,uint_fast32_t iv[4] ,Tcl_Size i, Tcl_Obj *WPtr
 			, aes_mode mode);
 		int aes_addRoundKey(Tcl_Interp *interp ,Tcl_Obj *handle ,int round 
 			,int Nb ,uint_fast32_t data[4] ,Tcl_Obj *WPtr);
 		int aes_prepare(Tcl_Interp *interp ,Tcl_Obj *handle ,Tcl_Obj *data
-			,unsigned char **bytes , int *len ,uint_fast32_t iv[4] ,aes_mode *moden, Tcl_Obj **Wptr
+			,unsigned char **bytes , Tcl_Size *len ,uint_fast32_t iv[4] ,aes_mode *moden, Tcl_Obj **Wptr
 			, int *nPtr,Tcl_Obj **resObjPtr);
 		void aes_clamp32(uint_fast32_t data[4]);
 		int aes_encryptBlock(Tcl_Interp *interp ,Tcl_Obj *handle
-			,unsigned char *bytes ,uint_fast32_t iv[4] , int i ,Tcl_Obj *WPtr
+			,unsigned char *bytes ,uint_fast32_t iv[4] , Tcl_Size i ,Tcl_Obj *WPtr
 			,int n ,aes_mode moden);
 		uint_fast32_t aes_GFMult2(uint_fast32_t number);
 		uint_fast32_t aes_GFMult3(uint_fast32_t number);
@@ -196,11 +196,12 @@ namespace eval ::aes {
 
 
 		int aes_decryptBlock(Tcl_Interp *interp, Tcl_Obj *handle ,int n
-			, unsigned char *bytes ,uint_fast32_t iv[4] ,int i
+			, unsigned char *bytes ,uint_fast32_t iv[4] ,Tcl_Size i
 			,Tcl_Obj *WPtr ,aes_mode mode) {
 
 			Tcl_Obj *formattedPtr;
-			int k = i, status;
+			int status;
+			Tcl_Size k = i;
 			uint_fast8_t j;
 			uint_fast32_t data[4] ,newdata[4], newiv[4];
 
@@ -253,10 +254,11 @@ namespace eval ::aes {
 
 
 		int aes_encryptBlock(Tcl_Interp *interp ,Tcl_Obj *handle
-			,unsigned char *bytes ,uint_fast32_t iv[4] , int i ,Tcl_Obj *WPtr
+			,unsigned char *bytes ,uint_fast32_t iv[4] , Tcl_Size i ,Tcl_Obj *WPtr
 			,int n ,aes_mode moden) {
 
-			int k = i ,status;
+			int status;
+			Tcl_Size k = i;
 			uint8_t j;
 			uint_fast32_t data[4] ,newiv[4];
 
@@ -427,11 +429,11 @@ namespace eval ::aes {
 
 
 		int aes_prepare(Tcl_Interp *interp ,Tcl_Obj *handle, Tcl_Obj *dataPtr
-			,unsigned char **bytes ,int *lenPtr ,uint_fast32_t iv[4]
+			,unsigned char **bytes ,Tcl_Size *lenPtr ,uint_fast32_t iv[4]
 			,aes_mode *moden ,Tcl_Obj **WPtr ,int *nPtr ,Tcl_Obj **resObjPtr) {
 
 			char *modePtr;
-			int i ,status = TCL_OK ,word;
+			int i ,owned = 0, status = TCL_OK ,word;
 			uint_fast32_t uword;
 			Tcl_Obj *itemPtr ,*IPtr ,*MPtr ,*NrPtr;
 			static Tcl_Obj *IName ,*MName ,*NrNamePtr ,*WNamePtr;
@@ -450,6 +452,7 @@ namespace eval ::aes {
 
 			if (Tcl_IsShared(dataPtr)) {
 				*resObjPtr = Tcl_DuplicateObj(dataPtr);
+				owned = 1;
 			} else {
 				*resObjPtr = dataPtr;
 			}
@@ -470,10 +473,7 @@ namespace eval ::aes {
 				return status;
 			}
 
-			/* to do
-			 * use Tcl_GetBytesFromObj(interp, dataPtr, len);
-			*/
-			*bytes = Tcl_GetByteArrayFromObj(dataPtr, lenPtr);
+			*bytes = Tcl_GetBytesFromObj(interp ,dataPtr, lenPtr);
 			if (bytes == NULL) {
 				Tcl_SetObjResult(interp ,Tcl_NewStringObj(
 					"data must not include characters with\
@@ -530,7 +530,10 @@ namespace eval ::aes {
 
 			goto success;
 			failure:
-				Tcl_DecrRefCount(resObjPtr);
+				if (owned) {
+					Tcl_DecrRefCount(*resObjPtr);
+				}
+				*resObjPtr = NULL;
 			success:
 				return status;
 		}
@@ -580,7 +583,8 @@ namespace eval ::aes {
 		Tcl_Interp* interp Tcl_Obj* handle Tcl_Obj* data
 	} ok {
 		unsigned char *bytes;
-		int i ,len ,n ,status = TCL_OK;
+		int n ,status = TCL_OK;
+		Tcl_Size i, len;
 		uint_fast32_t iv[4] = {0 ,0 ,0 ,0};
 		aes_mode moden;
 		Tcl_Obj *resObjPtr ,*WPtr;
@@ -598,7 +602,7 @@ namespace eval ::aes {
 		}
 		goto success;
 		failure:
-			Tcl_DecrRefCount(resObjPtr);
+			Tcl_BounceRefCount(resObjPtr);
 			return status;
 		success:
 			Tcl_SetByteArrayObj(resObjPtr ,bytes ,len);
@@ -612,7 +616,8 @@ namespace eval ::aes {
 	} ok {
 		char *modePtr;
 		unsigned char *bytes;
-		int i ,j ,len ,n,status = TCL_OK;
+		int j, n,status = TCL_OK;
+		Tcl_Size i, len;
 		uint_fast32_t uword ,iv[4] = {0 ,0 ,0 ,0};
 		Tcl_Obj *resObjPtr ,*itemPtr ,*listPtr ,*MPtr ,*WPtr;
 		aes_mode moden;
