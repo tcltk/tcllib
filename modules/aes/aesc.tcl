@@ -61,18 +61,31 @@ namespace eval ::aes {
 		#include <stdint.h>
 		#include <string.h>
 
+		#define AES_IVSIZE 16
+
 		typedef enum aes_mode {ECB ,CBC} aes_mode;
 
-		int aes_decryptBlock(Tcl_Interp *interp ,Tcl_Obj *handle ,int n
+		typedef struct aes_ctxt {
+			aes_mode mode;
+			int Nk;   /* number of 32-bit segments in the key */
+			int Nr;
+			int Nb;
+			uint_fast32_t K;
+		} aes_ctxt;
+
+
+		int aes_decrypt(Tcl_Interp *interp ,int n ,unsigned char *bytes
+			,int len ,uint_fast32_t* iv ,Tcl_Obj *Wptr ,aes_mode);
+		int aes_decryptBlock(Tcl_Interp *interp ,int n
 			,unsigned char *bytes ,uint_fast32_t iv[4] ,Tcl_Size i, Tcl_Obj *WPtr
 			, aes_mode mode);
-		int aes_addRoundKey(Tcl_Interp *interp ,Tcl_Obj *handle ,int round 
+		int aes_addRoundKey(Tcl_Interp *interp ,int round 
 			,int Nb ,uint_fast32_t data[4] ,Tcl_Obj *WPtr);
 		int aes_prepare(Tcl_Interp *interp ,Tcl_Obj *handle ,Tcl_Obj *data
 			,unsigned char **bytes , Tcl_Size *len ,uint_fast32_t iv[4] ,aes_mode *moden, Tcl_Obj **Wptr
 			, int *nPtr,Tcl_Obj **resObjPtr);
 		void aes_clamp32(uint_fast32_t data[4]);
-		int aes_encryptBlock(Tcl_Interp *interp ,Tcl_Obj *handle
+		int aes_encryptBlock(Tcl_Interp *interp
 			,unsigned char *bytes ,uint_fast32_t iv[4] , Tcl_Size i ,Tcl_Obj *WPtr
 			,int n ,aes_mode moden);
 		uint_fast32_t aes_GFMult2(uint_fast32_t number);
@@ -153,11 +166,11 @@ namespace eval ::aes {
 		};
 
 
-		int aes_addRoundKey(Tcl_Interp * interp ,Tcl_Obj *handle ,int round
+		int aes_addRoundKey(Tcl_Interp * interp ,int round
 			,int Nb, uint_fast32_t data[4] ,Tcl_Obj *WPtr) {
 			static Tcl_Obj *Nbname;
 			Tcl_Obj *item;
-			int i, n ,status ,w, word;
+			int i ,n ,status ,w, word;
 			uint_fast32_t uword;
 			n = round * Nb;
 
@@ -195,7 +208,20 @@ namespace eval ::aes {
 		}
 
 
-		int aes_decryptBlock(Tcl_Interp *interp, Tcl_Obj *handle ,int n
+		int aes_decrypt(Tcl_Interp *interp ,int n ,unsigned char *bytes
+			,int len ,uint_fast32_t* iv ,Tcl_Obj *WPtr ,aes_mode moden) {
+			int i ,status;
+			for (i = 0 ;i < len ;i+= 16) {
+				status = aes_decryptBlock(interp ,n ,bytes ,iv ,i ,WPtr ,moden);
+				if (status != TCL_OK) {
+					return TCL_ERROR;
+				}
+			}
+			return TCL_OK;
+		}
+
+
+		int aes_decryptBlock(Tcl_Interp *interp, int n
 			, unsigned char *bytes ,uint_fast32_t iv[4] ,Tcl_Size i
 			,Tcl_Obj *WPtr ,aes_mode mode) {
 
@@ -209,14 +235,14 @@ namespace eval ::aes {
 				newiv[j] = data[j] =  bytes[k++] << 24 | bytes[k++] << 16
 					| bytes[k++] << 8 | bytes[k++];
 			}
-			status = aes_addRoundKey(interp ,handle ,n ,4 ,data ,WPtr);
+			status = aes_addRoundKey(interp ,n ,4 ,data ,WPtr);
 			if (status != TCL_OK) {
 				return status;
 			};
 			for (n-- ;n > 0 ;n--) {
 				aes_invShiftRows(data);
 				aes_invSubBytes(data);
-				status = aes_addRoundKey(interp ,handle ,n ,4 ,data ,WPtr);
+				status = aes_addRoundKey(interp ,n ,4 ,data ,WPtr);
 				if (status != TCL_OK) {
 					return status;
 				}
@@ -224,7 +250,7 @@ namespace eval ::aes {
 			}
 			aes_invShiftRows(data);
 			aes_invSubBytes(data);
-			status = aes_addRoundKey(interp ,handle ,n ,4 ,data ,WPtr);
+			status = aes_addRoundKey(interp ,n ,4 ,data ,WPtr);
 			if (status != TCL_OK) {
 				return status;
 			}
@@ -253,7 +279,7 @@ namespace eval ::aes {
 		}
 
 
-		int aes_encryptBlock(Tcl_Interp *interp ,Tcl_Obj *handle
+		int aes_encryptBlock(Tcl_Interp *interp
 			,unsigned char *bytes ,uint_fast32_t iv[4] , Tcl_Size i ,Tcl_Obj *WPtr
 			,int n ,aes_mode moden) {
 
@@ -276,7 +302,7 @@ namespace eval ::aes {
 					break;
 			}
 
-			status = aes_addRoundKey(interp ,handle ,0 ,4 ,data ,WPtr);
+			status = aes_addRoundKey(interp ,0 ,4 ,data ,WPtr);
 
 			if (status != TCL_OK) {
 				return status;
@@ -285,11 +311,11 @@ namespace eval ::aes {
 				aes_subBytes(data);
 				aes_shiftRows(data);
 				aes_mixColumns(data);
-				aes_addRoundKey(interp ,handle ,j ,4 ,data ,WPtr);
+				aes_addRoundKey(interp ,j ,4 ,data ,WPtr);
 			}
 			aes_subBytes(data);
 			aes_shiftRows(data);
-			aes_addRoundKey(interp ,handle ,j ,4 ,data ,WPtr);
+			aes_addRoundKey(interp ,j ,4 ,data ,WPtr);
 
 			/* Bug 2993029:
 			* Force all elements of data into the 32bit range.
@@ -594,8 +620,7 @@ namespace eval ::aes {
 			return status;
 		}
 		for (i = 0 ;i < len ;i+= 16) {
-			status = aes_encryptBlock(
-				interp ,handle ,bytes ,iv ,i ,WPtr ,n ,moden);
+			status = aes_encryptBlock(interp ,bytes ,iv ,i ,WPtr ,n ,moden);
 			if (status != TCL_OK) {
 				goto failure;
 			}
@@ -632,13 +657,8 @@ namespace eval ::aes {
 			goto failure2;
 		}
 
-		for (i = 0 ;i < len ;i+= 16) {
-			status = aes_decryptBlock(
-				interp ,handle ,n ,bytes ,iv ,i ,WPtr ,moden);
-			if (status != TCL_OK) {
-				goto failure;
-			}
-		}
+		aes_decrypt(interp ,n ,bytes ,len ,iv ,WPtr ,moden);
+
 		for (j = 0; j < 4; j++) {
 			listPtr = Tcl_NewListObj(0, NULL);
 			itemPtr = Tcl_NewIntObj(iv[j]);
@@ -658,5 +678,7 @@ namespace eval ::aes {
 			return TCL_OK;
 	}
 
+	#critcl::debug symbols
 	critcl::load
+
 }

@@ -1,4 +1,4 @@
-# aes.tcl - 
+# aes.tcl -
 #
 # Copyright (c) 2005 Thorsten Schloermann
 # Copyright (c) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
@@ -7,10 +7,9 @@
 #
 # A Tcl implementation of the Advanced Encryption Standard (US FIPS PUB 197)
 #
-# AES is a block cipher with a block size of 128 bits and a variable
-# key size of 128, 192 or 256 bits.
-# The algorithm works on each block as a 4x4 state array. There are 4 steps
-# in each round:
+# AES is a block cipher with a block size of 128 bits and a key size of 128,
+# 192, or 256 bits.  The algorithm operates on each block as a 4x4 state array.
+# There are 4 steps in each round:
 #   SubBytes    a non-linear substitution step using a predefined S-box
 #   ShiftRows   cyclic transposition of rows in the state matrix
 #   MixColumns  transformation upon columns in the state matrix
@@ -25,7 +24,7 @@ package require Tcl 8.5 9
 
 namespace eval ::aes {
     variable uid
-    if {![info exists uid]} { set uid 0 }
+    if {![info exists uid]} {set uid 0}
 
     namespace export aes
 
@@ -73,45 +72,47 @@ namespace eval ::aes {
 
 
 proc ::aes::Accelerate args {
-	switch [llength $args] {
-		0 {}
-		1 {}
-		default {
-			return -code error [list {wrong # args} {should be} \
-				{Accelerate ?on?}]
+    switch [llength $args] {
+        0 {}
+        1 {}
+        default {
+            return -code error [list {wrong # args} {should be} \
+                {Accelerate ?on?}]
+        }
+    }
+    if {[llength $args]} {
+        lassign $args on
+        set saved [namespace export]
+        namespace export *
+        if {$on} {
+            package require aesc
+        }
+        try {
+            namespace eval tmp {
+                namespace export *
+                namespace import [namespace parent]::*
+            }
+            if {[namespace which [namespace current]::Decrypt] ne {}} {
+                rename [namespace current]::Decrypt {}
+            }
+            if {[namespace which [namespace current]::Encrypt] ne {}} {
+                rename [namespace current]::Encrypt {}
+            }
 
-		}
-	}
-	if {[llength $args]} {
-		lassign $args on
-		set saved [namespace export]
-		namespace export *
-		try {
-			namespace eval tmp {
-				namespace export *
-				namespace import [namespace parent]::*
-			}
-			if {[namespace which [namespace current]::Decrypt] ne {}} {
-				rename ::aes::Decrypt {}
-			}
-			if {[namespace which [namespace current]::Encrypt] ne {}} {
-				rename ::aes::Encrypt {}
-			}
-
-			if {$on} {
-				rename tmp::DecryptAccelerated Decrypt 
-				rename tmp::EncryptAccelerated Encrypt 
-			} else {
-				rename tmp::DecryptTcl Decrypt 
-				rename tmp::EncryptTcl Encrypt 
-			}
-			namespace delete tmp 
-		} finally {
-			namespace export $saved
-		}
-	} 
-	expr {[namespace tail [
-		namespace origin Encrypt]] eq {EncryptAccelerated}}
+            if {$on} {
+                rename tmp::DecryptAccelerated Decrypt
+                rename tmp::EncryptAccelerated Encrypt
+            } else {
+                rename tmp::DecryptTcl Decrypt
+                rename tmp::EncryptTcl Encrypt
+            }
+            namespace delete tmp
+        } finally {
+            namespace export $saved
+        }
+    }
+    expr {[namespace tail [
+        namespace origin Encrypt]] eq {EncryptAccelerated}}
 }
 
 # aes::Init --
@@ -171,12 +172,12 @@ proc ::aes::Reset {Key iv} {
     }
     return
 }
-    
+
 # aes::Final --
 #
 #	Clean up the key state
 #
-proc ::aes::Final {Key} {
+proc ::aes::Final Key {
     # FRINK: nocheck
     unset $Key
 }
@@ -238,15 +239,15 @@ proc ::aes::DecryptBlock {Key block} {
     set data1 [InvSubBytes $data1]
     set data1 [AddRoundKey $Key $n $data1]
     set data [AddRoundKey $Key $n [InvSubBytes [InvShiftRows $data]]]
-    
+
     if {$state(M) eq {cbc}} {
         lassign $data     d0 d1 d2 d3
         lassign $state(I) s0 s1 s2 s3
         set data [list \
-                      [expr {($d0 ^ $s0) & 0xffffffff}] \
-                      [expr {($d1 ^ $s1) & 0xffffffff}] \
-                      [expr {($d2 ^ $s2) & 0xffffffff}] \
-                      [expr {($d3 ^ $s3) & 0xffffffff}] ]
+            [expr {($d0 ^ $s0) & 0xffffffff}] \
+            [expr {($d1 ^ $s1) & 0xffffffff}] \
+            [expr {($d2 ^ $s2) & 0xffffffff}] \
+            [expr {($d3 ^ $s3) & 0xffffffff}] ]
     } else {
         # Bug 2993029:
         # The integrated clamping we see above only happens for CBC mode.
@@ -268,7 +269,7 @@ proc ::aes::Clamp32 {data} {
 }
 
 # 5.2: KeyExpansion
-proc ::aes::ExpandKey {Key} {
+proc ::aes::ExpandKey Key {
     upvar #0 $Key state
     set Rcon [list 0x00000000 0x01000000 0x02000000 0x04000000 0x08000000 \
                    0x10000000 0x20000000 0x40000000 0x80000000 0x1b000000 \
@@ -285,7 +286,7 @@ proc ::aes::ExpandKey {Key} {
             set sub [SubWord [RotWord $temp]]
             set rc [lindex $Rcon [expr {$i/$state(Nk)}]]
             set temp [expr {$sub ^ $rc}]
-        } elseif {$state(Nk) > 6 && ($i % $state(Nk)) == 4} { 
+        } elseif {$state(Nk) > 6 && ($i % $state(Nk)) == 4} {
             set temp [SubWord $temp]
         }
         lappend W [expr {[lindex $W $j] ^ $temp}]
@@ -294,7 +295,7 @@ proc ::aes::ExpandKey {Key} {
 }
 
 # 5.2: Key Expansion: Apply S-box to each byte in the 32 bit word
-proc ::aes::SubWord {w} {
+proc ::aes::SubWord w {
     variable sbox
     set s3 [lindex $sbox [expr {($w >> 24) & 255}]]
     set s2 [lindex $sbox [expr {($w >> 16) & 255}]]
@@ -303,7 +304,7 @@ proc ::aes::SubWord {w} {
     return [expr {($s3 << 24) | ($s2 << 16) | ($s1 << 8) | $s0}]
 }
 
-proc ::aes::InvSubWord {w} {
+proc ::aes::InvSubWord w {
     variable xobs
     set s3 [lindex $xobs [expr {($w >> 24) & 255}]]
     set s2 [lindex $xobs [expr {($w >> 16) & 255}]]
@@ -313,24 +314,24 @@ proc ::aes::InvSubWord {w} {
 }
 
 # 5.2: Key Expansion: Rotate a 32bit word by 8 bits
-proc ::aes::RotWord {w} {
+proc ::aes::RotWord w {
     return [expr {(($w << 8) | (($w >> 24) & 0xff)) & 0xffffffff}]
 }
 
 # 5.1.1: SubBytes() Transformation
-proc ::aes::SubBytes {words} {
+proc ::aes::SubBytes words {
     lassign $words w0 w1 w2 w3
     list [SubWord $w0] [SubWord $w1] [SubWord $w2] [SubWord $w3]
 }
 
 # 5.3.2: InvSubBytes() Transformation
-proc ::aes::InvSubBytes {words} {
+proc ::aes::InvSubBytes words {
     lassign $words w0 w1 w2 w3
     list [InvSubWord $w0] [InvSubWord $w1] [InvSubWord $w2] [InvSubWord $w3]
 }
 
 # 5.1.2: ShiftRows() Transformation
-proc ::aes::ShiftRows {words} {
+proc ::aes::ShiftRows words {
     for {set n0 0} {$n0 < 4} {incr n0} {
         set n1 [expr {($n0 + 1) % 4}]
         set n2 [expr {($n0 + 2) % 4}]
@@ -346,7 +347,7 @@ proc ::aes::ShiftRows {words} {
 
 
 # 5.3.1: InvShiftRows() Transformation
-proc ::aes::InvShiftRows {words} {
+proc ::aes::InvShiftRows words {
     for {set n0 0} {$n0 < 4} {incr n0} {
         set n1 [expr {($n0 + 1) % 4}]
         set n2 [expr {($n0 + 2) % 4}]
@@ -361,7 +362,7 @@ proc ::aes::InvShiftRows {words} {
 }
 
 # 5.1.3: MixColumns() Transformation
-proc ::aes::MixColumns {words} {
+proc ::aes::MixColumns words {
     set r {}
     foreach w $words {
         set r0 [expr {(($w >> 24) & 255)}]
@@ -380,7 +381,7 @@ proc ::aes::MixColumns {words} {
 }
 
 # 5.3.3: InvMixColumns() Transformation
-proc ::aes::InvMixColumns {words} {
+proc ::aes::InvMixColumns words {
     set r {}
     foreach w $words {
         set r0 [expr {(($w >> 24) & 255)}]
@@ -409,60 +410,60 @@ proc ::aes::AddRoundKey {Key round words} {
     }
     return $r
 }
-    
+
 # -------------------------------------------------------------------------
 # ::aes::GFMult*
 #
 #	some needed functions for multiplication in a Galois-field
 #
-proc ::aes::GFMult2 {number} {
+proc ::aes::GFMult2 number {
     # this is a tabular representation of xtime (multiplication by 2)
     # it is used instead of calculation to prevent timing attacks
     set xtime {
         0x00 0x02 0x04 0x06 0x08 0x0a 0x0c 0x0e 0x10 0x12 0x14 0x16 0x18 0x1a 0x1c 0x1e
-        0x20 0x22 0x24 0x26 0x28 0x2a 0x2c 0x2e 0x30 0x32 0x34 0x36 0x38 0x3a 0x3c 0x3e 
+        0x20 0x22 0x24 0x26 0x28 0x2a 0x2c 0x2e 0x30 0x32 0x34 0x36 0x38 0x3a 0x3c 0x3e
         0x40 0x42 0x44 0x46 0x48 0x4a 0x4c 0x4e 0x50 0x52 0x54 0x56 0x58 0x5a 0x5c 0x5e
-        0x60 0x62 0x64 0x66 0x68 0x6a 0x6c 0x6e 0x70 0x72 0x74 0x76 0x78 0x7a 0x7c 0x7e 
-        0x80 0x82 0x84 0x86 0x88 0x8a 0x8c 0x8e 0x90 0x92 0x94 0x96 0x98 0x9a 0x9c 0x9e 
-        0xa0 0xa2 0xa4 0xa6 0xa8 0xaa 0xac 0xae 0xb0 0xb2 0xb4 0xb6 0xb8 0xba 0xbc 0xbe 
-        0xc0 0xc2 0xc4 0xc6 0xc8 0xca 0xcc 0xce 0xd0 0xd2 0xd4 0xd6 0xd8 0xda 0xdc 0xde 
-        0xe0 0xe2 0xe4 0xe6 0xe8 0xea 0xec 0xee 0xf0 0xf2 0xf4 0xf6 0xf8 0xfa 0xfc 0xfe 
-        0x1b 0x19 0x1f 0x1d 0x13 0x11 0x17 0x15 0x0b 0x09 0x0f 0x0d 0x03 0x01 0x07 0x05 
-        0x3b 0x39 0x3f 0x3d 0x33 0x31 0x37 0x35 0x2b 0x29 0x2f 0x2d 0x23 0x21 0x27 0x25 
-        0x5b 0x59 0x5f 0x5d 0x53 0x51 0x57 0x55 0x4b 0x49 0x4f 0x4d 0x43 0x41 0x47 0x45 
-        0x7b 0x79 0x7f 0x7d 0x73 0x71 0x77 0x75 0x6b 0x69 0x6f 0x6d 0x63 0x61 0x67 0x65 
-        0x9b 0x99 0x9f 0x9d 0x93 0x91 0x97 0x95 0x8b 0x89 0x8f 0x8d 0x83 0x81 0x87 0x85 
-        0xbb 0xb9 0xbf 0xbd 0xb3 0xb1 0xb7 0xb5 0xab 0xa9 0xaf 0xad 0xa3 0xa1 0xa7 0xa5 
-        0xdb 0xd9 0xdf 0xdd 0xd3 0xd1 0xd7 0xd5 0xcb 0xc9 0xcf 0xcd 0xc3 0xc1 0xc7 0xc5 
+        0x60 0x62 0x64 0x66 0x68 0x6a 0x6c 0x6e 0x70 0x72 0x74 0x76 0x78 0x7a 0x7c 0x7e
+        0x80 0x82 0x84 0x86 0x88 0x8a 0x8c 0x8e 0x90 0x92 0x94 0x96 0x98 0x9a 0x9c 0x9e
+        0xa0 0xa2 0xa4 0xa6 0xa8 0xaa 0xac 0xae 0xb0 0xb2 0xb4 0xb6 0xb8 0xba 0xbc 0xbe
+        0xc0 0xc2 0xc4 0xc6 0xc8 0xca 0xcc 0xce 0xd0 0xd2 0xd4 0xd6 0xd8 0xda 0xdc 0xde
+        0xe0 0xe2 0xe4 0xe6 0xe8 0xea 0xec 0xee 0xf0 0xf2 0xf4 0xf6 0xf8 0xfa 0xfc 0xfe
+        0x1b 0x19 0x1f 0x1d 0x13 0x11 0x17 0x15 0x0b 0x09 0x0f 0x0d 0x03 0x01 0x07 0x05
+        0x3b 0x39 0x3f 0x3d 0x33 0x31 0x37 0x35 0x2b 0x29 0x2f 0x2d 0x23 0x21 0x27 0x25
+        0x5b 0x59 0x5f 0x5d 0x53 0x51 0x57 0x55 0x4b 0x49 0x4f 0x4d 0x43 0x41 0x47 0x45
+        0x7b 0x79 0x7f 0x7d 0x73 0x71 0x77 0x75 0x6b 0x69 0x6f 0x6d 0x63 0x61 0x67 0x65
+        0x9b 0x99 0x9f 0x9d 0x93 0x91 0x97 0x95 0x8b 0x89 0x8f 0x8d 0x83 0x81 0x87 0x85
+        0xbb 0xb9 0xbf 0xbd 0xb3 0xb1 0xb7 0xb5 0xab 0xa9 0xaf 0xad 0xa3 0xa1 0xa7 0xa5
+        0xdb 0xd9 0xdf 0xdd 0xd3 0xd1 0xd7 0xd5 0xcb 0xc9 0xcf 0xcd 0xc3 0xc1 0xc7 0xc5
         0xfb 0xf9 0xff 0xfd 0xf3 0xf1 0xf7 0xf5 0xeb 0xe9 0xef 0xed 0xe3 0xe1 0xe7 0xe5
     }
     lindex $xtime $number
 }
 
-proc ::aes::GFMult3 {number} {
+proc ::aes::GFMult3 number {
     # multliply by 2 (via GFMult2) and add the number again on the result (via XOR)
     expr {$number ^ [GFMult2 $number]}
 }
 
-proc ::aes::GFMult09 {number} {
+proc ::aes::GFMult09 number {
     # 09 is: (02*02*02) + 01
     expr {[GFMult2 [GFMult2 [GFMult2 $number]]] ^ $number}
 }
 
-proc ::aes::GFMult0b {number} {
+proc ::aes::GFMult0b number {
     # 0b is: (02*02*02) + 02 + 01
     #return [expr [GFMult2 [GFMult2 [GFMult2 $number]]] ^ [GFMult2 $number] ^ $number]
     #set g0 [GFMult2 $number]
     expr {[GFMult09 $number] ^ [GFMult2 $number]}
 }
 
-proc ::aes::GFMult0d {number} {
+proc ::aes::GFMult0d number {
     # 0d is: (02*02*02) + (02*02) + 01
     set temp [GFMult2 [GFMult2 $number]]
     expr {[GFMult2 $temp] ^ ($temp ^ $number)}
 }
 
-proc ::aes::GFMult0e {number} {
+proc ::aes::GFMult0e number {
     # 0e is: (02*02*02) + (02*02) + 02
     set temp [GFMult2 [GFMult2 $number]]
     expr {[GFMult2 $temp] ^ ($temp ^ [GFMult2 $number])}
@@ -515,7 +516,7 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     upvar #0 $Key state
 
     #puts ||CHUNK.X||i=$in|o=$out|c=$chunksize|eof=[eof $in]
-    
+
     if {[eof $in]} {
         chan event $in readable {}
         set state(reading) 0
@@ -534,7 +535,7 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     }
 
     #puts ||CHUNK.P||i=$in|o=$out|c=$chunksize|eof=[eof $in]||[string length $data]||$data||
-    
+
     if {$out eq {}} {
         append state(output) [$state(cmd) $Key $data]
     } else {
@@ -576,7 +577,7 @@ proc ::aes::Pop {varname {nth 0}} {
     return $r
 }
 
-proc ::aes::aes {args} {
+proc ::aes::aes args {
     array set opts {-dir encrypt -mode cbc -key {} -in {} -out {} -chunksize 4096 -hex 0}
     set opts(-iv) [string repeat \0 16]
     set modes {ecb cbc}
@@ -642,19 +643,19 @@ proc ::aes::aes {args} {
 
         upvar 1 $Key state
         set state(reading) 1
-        if {[string equal $opts(-dir) "encrypt"]} {
+        if {[string equal $opts(-dir) encrypt]} {
             set state(cmd) Encrypt
         } else {
             set state(cmd) Decrypt
         }
-        set state(output) ""
+        set state(output) {} 
         chan event $opts(-in) readable $readcmd
-        if {[info commands ::tkwait] != {}} {
+        if {[info commands ::tkwait] ne {}} {
             tkwait variable [subst $Key](reading)
         } else {
             vwait [subst $Key](reading)
         }
-        if {$opts(-out) == {}} {
+        if {$opts(-out) eq {}} {
             set r $state(output)
         }
         Final $Key
@@ -666,7 +667,6 @@ proc ::aes::aes {args} {
     return $r
 }
 
-catch {package require aesc}
 # 0 by default because use of the accelerated routines incurs fees.
 aes::Accelerate 0
 

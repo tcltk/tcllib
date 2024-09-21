@@ -190,5 +190,5 @@ critcl::api header sha256.h
 	uint8_t *hash
 }
 
-#::critcl::debug symbols
+::critcl::debug symbols
 ::critcl::load
