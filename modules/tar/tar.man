@@ -1,5 +1,5 @@
 [comment {-*- mode: tcl ; fill-column: 80 -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.12.1]
+[vset PACKAGE_VERSION 0.13]
 [manpage_begin tar n [vset PACKAGE_VERSION]]
 [keywords archive]
 [keywords {tape archive}]
@@ -15,7 +15,7 @@
 (contents, stats, get, untar) support the GNU LongName extension (header type
 'L') for large paths.
 
-[para] 
+[para]
 
 [section BEWARE]
 
@@ -48,11 +48,34 @@ For all commands, when using [option -chan] ...
 
 [list_end]
 
+Regarding support for gzip compression:
+
+[list_begin enumerated]
+
+[enum] Errors are thrown when attempting to read from compressed tar archives
+       while compression support (i.e. [cmd ::zlib]) is not available.
+
+[enum] Errors are thrown when attempting to read an uncompressed tar archive
+       when compression is requested by the user ([option -gzip]).
+
+[para] No errors are thrown when attempting to read a compressed tar archive
+       when compression was not requested, and is supported. In that case the
+       commands automatically activate the code handling the compression.
+
+[enum] Errors are thrown when attempting to edit compressed tar archives.
+       See the commands [cmd tar::add], and [cmd tar::remove].
+       This is not supported.
+
+[enum] Creation of compressed tar archives however is supported, as this
+       sequentially writes the archive, allowing for streaming compression.
+
+[list_end]
+
 [section COMMANDS]
 
 [list_begin definitions]
 
-[call [cmd ::tar::contents] [arg tarball] [opt [option -chan]]]
+[call [cmd ::tar::contents] [arg tarball] [opt [option -chan]] [opt [option -gzip]]]
 
 Returns a list of the files contained in [arg tarball]. The order is not sorted and depends on the order
 files were stored in the archive.
@@ -62,7 +85,7 @@ If the option [option -chan] is present [arg tarball] is interpreted as an open 
 It is assumed that the channel was opened for reading, and configured for binary input.
 The command will [emph not] close the channel.
 
-[call [cmd ::tar::stat] [arg tarball] [opt file] [opt [option -chan]]]
+[call [cmd ::tar::stat] [arg tarball] [opt file] [opt [option -chan]] [opt [option -gzip]]]
 
 Returns a nested dict containing information on the named [opt file] in [arg tarball],
 or all files if none is specified. The top level are pairs of filename and info. The info is a dict with the keys
@@ -117,7 +140,7 @@ puts "Extracted $file ($size bytes)"
 }
 }]
 
-[call [cmd ::tar::get] [arg tarball] [arg fileName] [opt [option -chan]]]
+[call [cmd ::tar::get] [arg tarball] [arg fileName] [opt [option -chan]] [opt [option -gzip]]]
 
 Returns the contents of [arg fileName] from the [arg tarball].
 
