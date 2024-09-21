@@ -71,48 +71,55 @@ namespace eval ::aes {
 }
 
 
-proc ::aes::Accelerate args {
-    switch [llength $args] {
-        0 {}
-        1 {}
-        default {
-            return -code error [list {wrong # args} {should be} \
-                {Accelerate ?on?}]
-        }
-    }
-    if {[llength $args]} {
-        lassign $args on
-        set saved [namespace export]
-        namespace export *
-        if {$on} {
-            package require aesc
-        }
-        try {
-            namespace eval tmp {
-                namespace export *
-                namespace import [namespace parent]::*
-            }
-            if {[namespace which [namespace current]::Decrypt] ne {}} {
-                rename [namespace current]::Decrypt {}
-            }
-            if {[namespace which [namespace current]::Encrypt] ne {}} {
-                rename [namespace current]::Encrypt {}
-            }
+proc aes::Implementations {} {
+	lappend res tcl
+	if {[namespace which [namespace current]::EncryptAccelerated] ne {}} {
+		lappend res critcl
+	}
+	return $res
+}
 
-            if {$on} {
+
+proc ::aes::LoadAccelerator {} {
+	package require aesc
+}
+
+
+proc aes::KnownImplementations {} {
+    return {critcl tcl}
+}
+
+
+proc ::aes::SwitchTo key {
+	set saved [namespace export]
+	namespace export *
+	namespace eval tmp {
+		namespace export *
+		namespace import [namespace parent]::*
+	}
+	try {
+		if {[namespace which [namespace current]::Decrypt] ne {}} {
+			rename [namespace current]::Decrypt {}
+		}
+		if {[namespace which [namespace current]::Encrypt] ne {}} {
+			rename [namespace current]::Encrypt {}
+		}
+
+		switch $key {
+			critcl {
+				LoadAccelerator
                 rename tmp::DecryptAccelerated Decrypt
                 rename tmp::EncryptAccelerated Encrypt
-            } else {
+			}
+			tcl {
                 rename tmp::DecryptTcl Decrypt
                 rename tmp::EncryptTcl Encrypt
-            }
-            namespace delete tmp
-        } finally {
-            namespace export $saved
-        }
-    }
-    expr {[namespace tail [
-        namespace origin Encrypt]] eq {EncryptAccelerated}}
+			}
+		}
+	} finally {
+		namespace delete tmp
+		namespace export $saved
+	}
 }
 
 # aes::Init --
@@ -668,7 +675,7 @@ proc ::aes::aes args {
 }
 
 # 0 by default because use of the accelerated routines incurs fees.
-aes::Accelerate 0
+aes::SwitchTo tcl
 
 # -------------------------------------------------------------------------
 

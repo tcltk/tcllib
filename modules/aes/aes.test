@@ -27,8 +27,8 @@ testing {
 
 apply [list {} {
     foreach accelerate {0 1} {
-	aes::Accelerate $accelerate
 	if {$accelerate} {
+	    aes::LoadAccelerator
 	    set impl critcl
 	} else {
 	    set impl Tcl
