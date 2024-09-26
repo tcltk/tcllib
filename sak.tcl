@@ -681,6 +681,7 @@ proc gd-gen-tap {} {
 	    # A single package in the module. And only one version of
 	    # it as well. Otherwise we are in the multi-pkg branch.
 
+	    foreach {p vlist} {{} {}} break	   
 	    foreach {p vlist} [ppackages $m] break
 	    set desc ""
 	    catch {set desc [string trim [lindex $pd($p) 1]]}
