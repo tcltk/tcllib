@@ -1,10 +1,20 @@
 # aes.tcl -
-#
+
 # Copyright (c) 2005 Thorsten Schloermann
 # Copyright (c) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
 # Copyright (c) 2013 Andreas Kupries
-# Copyright (c) 2022 Nathan Coulter <org.tcl-lang.tcllib@pooryorick.com>
 #
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+# Copyright (c) 2022-2024 Nathan Coulter <org.tcl-lang.tcllib@pooryorick.com>
+#	ethereum 0x0b5049C148b00a216B29641ab16953b6060Ef8A6
+#
+# See the file "license_fsul.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
 # A Tcl implementation of the Advanced Encryption Standard (US FIPS PUB 197)
 #
 # AES is a block cipher with a block size of 128 bits and a key size of 128,
@@ -14,11 +24,6 @@
 #   ShiftRows   cyclic transposition of rows in the state matrix
 #   MixColumns  transformation upon columns in the state matrix
 #   AddRoundKey application of round specific sub-key
-#
-# -------------------------------------------------------------------------
-# See the file "license.terms" for information on usage and redistribution
-# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# -------------------------------------------------------------------------
 
 package require Tcl 8.5 9
 
@@ -105,15 +110,23 @@ proc ::aes::SwitchTo key {
 			rename [namespace current]::Encrypt {}
 		}
 
+		foreach proc {Decrypt Encrypt Final Init} {
+			catch {rename [namespace current]::$proc {}}
+		}
+
 		switch $key {
 			critcl {
 				LoadAccelerator
                 rename tmp::DecryptAccelerated Decrypt
                 rename tmp::EncryptAccelerated Encrypt
+                rename tmp::FinalAccelerated Final
+                rename tmp::InitAccelerated Init
 			}
 			tcl {
                 rename tmp::DecryptTcl Decrypt
                 rename tmp::EncryptTcl Encrypt
+                rename tmp::FinalTcl Final
+                rename tmp::InitTcl Init
 			}
 		}
 	} finally {
@@ -122,7 +135,7 @@ proc ::aes::SwitchTo key {
 	}
 }
 
-# aes::Init --
+# aes::InitTcl --
 #
 #	Initialise our AES state and calculate the key schedule. An initialization
 #	vector is maintained in the state for modes that require one. The key must
@@ -132,9 +145,22 @@ proc ::aes::SwitchTo key {
 #	Nr: number of rounds (depends on key-length)
 #	Nb: columns of the text-block, is always 4 in AES
 #
-proc ::aes::Init {mode key iv} {
+proc ::aes::InitTcl {mode key iv} {
+    variable uid
+    set Key [namespace current]::[incr uid]
+    upvar #0 $Key state
     switch -exact -- $mode {
-        ecb - cbc { }
+		cbc {
+			if {$iv eq {}} {
+				set iv [string repeat \0 16]
+			}
+		}
+        ecb {
+			if {$iv ne {}} {
+				error [list {In ecb mode an initialization vector is not used.}]
+			}
+			set iv [string repeat \0 16]
+		}
         cfb - ofb {
             return -code error "$mode mode not implemented"
         }
@@ -143,6 +169,10 @@ proc ::aes::Init {mode key iv} {
                 must be one of ecb or cbc."
         }
     }
+
+	if {[binary scan $iv Iu4 state(I)] != 1} {
+		return -code error "invalid initialization vector: must be 16 bytes"
+	}
 
     set size [expr {[string length $key] << 3}]
     switch -exact -- $size {
@@ -155,12 +185,6 @@ proc ::aes::Init {mode key iv} {
         }
     }
 
-    variable uid
-    set Key [namespace current]::[incr uid]
-    upvar #0 $Key state
-    if {[binary scan $iv Iu4 state(I)] != 1} {
-        return -code error "invalid initialization vector: must be 16 bytes"
-    }
     array set state [list M $mode K $key Nk $Nk Nr $Nr Nb $Nb W {}]
     ExpandKey $Key
     return $Key
@@ -174,17 +198,19 @@ proc ::aes::Init {mode key iv} {
 #
 proc ::aes::Reset {Key iv} {
     upvar #0 $Key state
-    if {[binary scan $iv Iu4 state(I)] != 1} {
-        return -code error "invalid initialization vector: must be 16 bytes"
-    }
+	if {$state(M) eq cbc} {
+		if {[binary scan $iv Iu4 state(I)] != 1} {
+			return -code error "invalid initialization vector: must be 16 bytes"
+		}
+	}
     return
 }
 
-# aes::Final --
+# aes::FinalTcl --
 #
 #	Clean up the key state
 #
-proc ::aes::Final Key {
+proc ::aes::FinalTcl Key {
     # FRINK: nocheck
     unset $Key
 }
@@ -255,13 +281,13 @@ proc ::aes::DecryptBlock {Key block} {
             [expr {($d1 ^ $s1) & 0xffffffff}] \
             [expr {($d2 ^ $s2) & 0xffffffff}] \
             [expr {($d3 ^ $s3) & 0xffffffff}] ]
+		set state(I) $iv
     } else {
         # Bug 2993029:
         # The integrated clamping we see above only happens for CBC mode.
         set data [Clamp32 $data]
     }
 
-    set state(I) $iv
     binary format Iu4 $data
 }
 
@@ -519,14 +545,13 @@ proc ::aes::DecryptTcl {Key data} {
 # -------------------------------------------------------------------------
 # chan event handler for chunked file reading.
 #
-proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
-    upvar #0 $Key state
-
+proc ::aes::Chunk {
+	Key in {out {}} {chunksize 4096} chanreading outputvar cmd} {
     #puts ||CHUNK.X||i=$in|o=$out|c=$chunksize|eof=[eof $in]
 
     if {[eof $in]} {
         chan event $in readable {}
-        set state(reading) 0
+        set $chanreading 0
     }
 
     set data [read $in $chunksize]
@@ -544,9 +569,9 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     #puts ||CHUNK.P||i=$in|o=$out|c=$chunksize|eof=[eof $in]||[string length $data]||$data||
 
     if {$out eq {}} {
-        append state(output) [$state(cmd) $Key $data]
+        append $outputvar [$cmd $Key $data]
     } else {
-        puts -nonewline $out [$state(cmd) $Key $data]
+        puts -nonewline $out [$cmd $Key $data]
     }
 }
 
@@ -580,14 +605,14 @@ proc ::aes::Pad {data blocksize {fill \0}} {
 proc ::aes::Pop {varname {nth 0}} {
     upvar 1 $varname args
     set r [lindex $args $nth]
-    set args [lreplace $args $nth $nth]
+    set args [lreplace $args[set args {}] $nth $nth]
     return $r
 }
 
 proc ::aes::aes args {
     array set opts {-dir encrypt -mode cbc -key {} -in {} -out {} -chunksize 4096 -hex 0}
-    set opts(-iv) [string repeat \0 16]
     set modes {ecb cbc}
+	set opts(-iv) {}
     set dirs {encrypt decrypt}
     while {([llength $args] > 1) && [string match -* [set option [lindex $args 0]]]} {
         switch -exact -- $option {
@@ -644,27 +669,39 @@ proc ::aes::aes args {
 
         set Key [Init $opts(-mode) $opts(-key) $opts(-iv)]
 
-        set readcmd [list [namespace origin Chunk] \
-                         $Key $opts(-in) $opts(-out) \
-                         $opts(-chunksize)]
+        set readcmd [list ::apply [list {
+			Key in out chunksize readingvar outputvar readcmd
+		} {
+			Chunk $Key $in $out $chunksize $readingvar $outputvar $readcmd
+		} [namespace current]] $Key $opts(-in) $opts(-out) $opts(-chunksize)]
 
-        upvar 1 $Key state
-        set state(reading) 1
-        if {[string equal $opts(-dir) encrypt]} {
-            set state(cmd) Encrypt
-        } else {
-            set state(cmd) Decrypt
-        }
-        set state(output) {} 
-        chan event $opts(-in) readable $readcmd
-        if {[info commands ::tkwait] ne {}} {
-            tkwait variable [subst $Key](reading)
-        } else {
-            vwait [subst $Key](reading)
-        }
-        if {$opts(-out) eq {}} {
-            set r $state(output)
-        }
+
+		set chanstatens [namespace eval [info cmdcount]_chan {
+			namespace current
+		}]
+		try {
+			set chanreading ${chanstatens}::reading
+			set chanoutput ${chanstatens}::output
+			lappend readcmd $chanreading $chanoutput
+			set $chanreading 1
+			if {[string equal $opts(-dir) encrypt]} {
+				lappend readcmd Encrypt
+			} else {
+				lappend readcmd Decrypt
+			}
+			set state(output) {} 
+			chan event $opts(-in) readable $readcmd
+			if {[info commands ::tkwait] ne {}} {
+				tkwait variable $chanreading
+			} else {
+				vwait $chanreading 
+			}
+			if {$opts(-out) eq {}} {
+				set r [set $chanoutput]
+			}
+		} finally {
+			namespace delete $chanstatens
+		}
         Final $Key
     }
 
@@ -679,7 +716,7 @@ aes::SwitchTo tcl
 
 # -------------------------------------------------------------------------
 
-package provide aes 1.2.2
+package provide aes 1.2.3
 
 # -------------------------------------------------------------------------
 # Local variables:

@@ -1,59 +1,17 @@
 # aesc.tcl -
-#
+
 # A critcl C implementation of AES
 #
-# Copyright (C) 2022 Nathan Coulter <org.tcl-lang.core.tcllib@pooryorick.com>
-#
-# License
-#
-#	The Free Software Utilization License
-#
-#	Version 2
-#
-#	This work is provided under the terms of The 3-Clause BSD License, combined
-#	with the following additional terms, whose intent is to provide for payment
-#	commensurate with the use of this work to the copyright holder(s) of this
-#	work or their assignees.
-#
-#	Redistributions of the source code of any work derived from this work or
-#	including this work or parts of it must be accompanied by a copy of the
-#	source code of this work, or by some means of automatically and freely
-#	reproducing the source code of this work from the source code of the
-#	derived work.
-#
-#	This work is free in the sense that it places no restriction on what the
-#	user may do with it.  It is also free of charge for the purposes of
-#	evaluating, testing, and demonstrating it.
-#	
-#	For productive use of this work, including providing a service that allows
-#	others to make productive use of it, you agree to pay to the copyright
-#	holder(s) of this work, or their assignee(s), an amount equal to at least the
-#	amount you pay for the computing resources used to utilize this program or
-#	any part of it.  If you own the computing resources, the amount you pay for
-#	those resources is the cost to you of operating them, plus the prorated
-#	portion of the cost of acquiring, owning and maintaining them that is
-#	applicable the utilization of this program or any part of it.  Payment for
-#	each utilization shall be made no later than 180 days after utilization.
-#	
-#	If it is not possible to pay the copyright holder(s) of this work or their
-#	assignees, you may instead transfer payment to the Free Software
-#	Foundation, accompanied by instructions to forward, if possible, payment to
-#	the copyright holder(s) of this work, after deducting a reasonable amount
-#	for their services.  If such payment is not possible, or if Free Software
-#	Foundation fails to remain a legitimate and effective steward of such
-#	payments, you may instead transfer payment to an organization deemed to be
-#	a legitimate an effective steward of such payments.
-#	
-#	This license automatically extends in its entirety to the holder of each
-#	copy of this work, parts of this work, and every work derived from this
-#	work.
-#
-#
+# Copyright (C) 2022-2024 Nathan Coulter <org.tcl-lang.core.tcllib@pooryorick.com> 
+#	ethereum 0x0b5049C148b00a216B29641ab16953b6060Ef8A6
 
-package require Tcl 8.6-
+# See the file "license_fsul.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+package require Tcl 9
 package require critcl
 # @sak notprovided aesc
-package provide aesc 0.0.1
+package provide aesc 0.2.0
 
 namespace eval ::aes {
 	critcl::tcl 9 
@@ -63,31 +21,48 @@ namespace eval ::aes {
 
 		#define AES_IVSIZE 16
 
-		typedef enum aes_mode {ECB ,CBC} aes_mode;
+
+		static Tcl_FreeInternalRepProc	AesFreeInternalRep;
+		static Tcl_UpdateStringProc		AesUpdateStringRep;
+
+		typedef enum aes_mode {CBC, ECB} aes_mode;
+		char *aes_mode_strings[] = {"cbc" ,"ecb"};
+
+		static Tcl_ObjType aesObjType =  {
+			"aes",
+			AesFreeInternalRep,
+			NULL,
+			AesUpdateStringRep,
+			NULL,
+			0, NULL
+		};
+
+		static Tcl_ObjType *aesObjTypePtr = &aesObjType;
 
 		typedef struct aes_ctxt {
 			aes_mode mode;
-			int Nk;   /* number of 32-bit segments in the key */
-			int Nr;
-			int Nb;
-			uint_fast32_t K;
+			int Nk;	/* number of 32-bit segments in the key */
+			int Nr;	/* number of rounds (depends on key length) */
+			int Nb; /* columns of the text-block, is always 4 in AES */
+			uint_fast32_t I[4];
+			uint_fast32_t *WPtr;
 		} aes_ctxt;
 
-
-		int aes_decrypt(Tcl_Interp *interp ,int n ,unsigned char *bytes
-			,int len ,uint_fast32_t* iv ,Tcl_Obj *Wptr ,aes_mode);
-		int aes_decryptBlock(Tcl_Interp *interp ,int n
-			,unsigned char *bytes ,uint_fast32_t iv[4] ,Tcl_Size i, Tcl_Obj *WPtr
-			, aes_mode mode);
 		int aes_addRoundKey(Tcl_Interp *interp ,int round 
-			,int Nb ,uint_fast32_t data[4] ,Tcl_Obj *WPtr);
-		int aes_prepare(Tcl_Interp *interp ,Tcl_Obj *handle ,Tcl_Obj *data
-			,unsigned char **bytes , Tcl_Size *len ,uint_fast32_t iv[4] ,aes_mode *moden, Tcl_Obj **Wptr
-			, int *nPtr,Tcl_Obj **resObjPtr);
+			,int Nb ,uint_fast32_t data[4] ,uint_fast32_t WPtr[]);
+		int aes_expandkey(aes_ctxt* ctxt ,char *keystring); 
+		int aes_decrypt(Tcl_Interp *interp ,int n ,unsigned char *bytes
+			,int len ,uint_fast32_t* iv ,uint_fast32_t WPtr[] ,aes_mode);
+		int aes_decryptBlock(Tcl_Interp *interp ,int n
+			,unsigned char *bytes ,uint_fast32_t iv[4] ,Tcl_Size i, uint_fast32_t WPtr[]
+			,aes_mode mode);
+		aes_ctxt* aes_fetchCtxt(Tcl_Interp *interp ,Tcl_Obj *ctxtObjPtr);
+		int aes_prepare(Tcl_Interp *interp ,aes_ctxt *ctxtPtr ,Tcl_Obj *data
+			,unsigned char **bytes , Tcl_Size *len , Tcl_Obj **resObjPtr);
 		void aes_clamp32(uint_fast32_t data[4]);
 		int aes_encryptBlock(Tcl_Interp *interp
-			,unsigned char *bytes ,uint_fast32_t iv[4] , Tcl_Size i ,Tcl_Obj *WPtr
-			,int n ,aes_mode moden);
+			,unsigned char *bytes ,aes_ctxt *ctxtPtr, Tcl_Size i
+			,uint_fast32_t WPtr[] ,int n ,aes_mode moden);
 		uint_fast32_t aes_GFMult2(uint_fast32_t number);
 		uint_fast32_t aes_GFMult3(uint_fast32_t number);
 		uint_fast32_t aes_GFMult09(uint_fast32_t number);
@@ -100,9 +75,10 @@ namespace eval ::aes {
 		void aes_invSubBytes(uint_fast32_t data[4]);
 		uint_fast32_t aes_invSubWord(uint_fast32_t word);
 		void aes_mixColumns(uint_fast32_t data[4]);
+		uint_fast32_t aes_RotWord (uint_fast32_t w);
 		void aes_shiftRows(uint_fast32_t data[4]);
 		void aes_subBytes(uint_fast32_t data[4]);
-		uint_fast32_t aes_subWord(uint_fast32_t word);
+		uint_fast32_t aes_SubWord(uint_fast32_t word);
 
 		uint_fast8_t sbox[] = {
 			 0x63 ,0x7c ,0x77 ,0x7b ,0xf2 ,0x6b ,0x6f ,0xc5 ,0x30 ,0x01 ,0x67 ,0x2b ,0xfe ,0xd7 ,0xab ,0x76
@@ -165,32 +141,52 @@ namespace eval ::aes {
 			0xfb, 0xf9, 0xff, 0xfd, 0xf3, 0xf1, 0xf7, 0xf5, 0xeb, 0xe9, 0xef, 0xed, 0xe3, 0xe1, 0xe7, 0xe5
 		};
 
+		uint32_t Rcon[] = {
+			0x00000000 ,0x01000000 ,0x02000000 ,0x04000000 ,0x08000000
+			,0x10000000 ,0x20000000 ,0x40000000 ,0x80000000 ,0x1b000000
+			,0x36000000 ,0x6c000000 ,0xd8000000 ,0xab000000 ,0x4d000000
+		};
+
+
+		static void
+		AesFreeInternalRep(
+			Tcl_Obj *objPtr
+		) {
+			aes_ctxt *ctxtPtr = aes_fetchCtxt(NULL ,objPtr);
+			if (ctxtPtr->WPtr) {
+				Tcl_Free(ctxtPtr->WPtr);
+			}
+			Tcl_Free(ctxtPtr);
+			return;
+		}
+
+
+		static void
+		AesUpdateStringRep(
+			Tcl_Obj *objPtr
+		) {
+			aes_ctxt *ctxtPtr = aes_fetchCtxt(NULL ,objPtr);
+			char *tmpbytes = objPtr->bytes;
+			Tcl_Size tmplength = objPtr->length;
+			Tcl_Obj *tmpPtr = Tcl_ObjPrintf("aes context %p" ,ctxtPtr);
+			objPtr->bytes = tmpPtr->bytes;
+			objPtr->length = tmpPtr->length;
+			tmpPtr->bytes = tmpbytes; 
+			tmpPtr->length = tmplength;
+			Tcl_DecrRefCount(tmpPtr);
+			return;
+		}
+
 
 		int aes_addRoundKey(Tcl_Interp * interp ,int round
-			,int Nb, uint_fast32_t data[4] ,Tcl_Obj *WPtr) {
-			static Tcl_Obj *Nbname;
+			,int Nb, uint_fast32_t data[4] ,uint_fast32_t WPtr[]) {
 			Tcl_Obj *item;
-			int i ,n ,status ,w, word;
+			int i ,n ,status ,w;
 			uint_fast32_t uword;
 			n = round * Nb;
 
-
-			if (Nbname == NULL) {
-				Nbname = Tcl_NewStringObj("Nb" , -1);
-			}
-
 			for (i = 0 ;i < Nb ;i++) {
-				status = Tcl_ListObjIndex(interp ,WPtr ,n ,&item);
-				
-				if (status != TCL_OK) {
-					return status;
-				}
-				status = Tcl_GetIntFromObj(interp ,item ,&word);
-				if (status != TCL_OK) {
-					return status;
-				}
-				/* it is assumed that the size of word is 32 bytes */
-				uword = (uint_fast32_t)word;
+				uword = WPtr[n];
 				data[i] = data[i] ^ uword;
 				n++;
 			}
@@ -209,7 +205,7 @@ namespace eval ::aes {
 
 
 		int aes_decrypt(Tcl_Interp *interp ,int n ,unsigned char *bytes
-			,int len ,uint_fast32_t* iv ,Tcl_Obj *WPtr ,aes_mode moden) {
+			,int len ,uint_fast32_t* iv ,uint_fast32_t WPtr[] ,aes_mode moden) {
 			int i ,status;
 			for (i = 0 ;i < len ;i+= 16) {
 				status = aes_decryptBlock(interp ,n ,bytes ,iv ,i ,WPtr ,moden);
@@ -223,7 +219,7 @@ namespace eval ::aes {
 
 		int aes_decryptBlock(Tcl_Interp *interp, int n
 			, unsigned char *bytes ,uint_fast32_t iv[4] ,Tcl_Size i
-			,Tcl_Obj *WPtr ,aes_mode mode) {
+			,uint_fast32_t WPtr[] ,aes_mode mode) {
 
 			Tcl_Obj *formattedPtr;
 			int status;
@@ -279,14 +275,15 @@ namespace eval ::aes {
 		}
 
 
-		int aes_encryptBlock(Tcl_Interp *interp
-			,unsigned char *bytes ,uint_fast32_t iv[4] , Tcl_Size i ,Tcl_Obj *WPtr
-			,int n ,aes_mode moden) {
+		int aes_encryptBlock(Tcl_Interp *interp ,unsigned char *bytes
+			,aes_ctxt *ctxtPtr, Tcl_Size i ,uint_fast32_t WPtr[] ,int n
+			,aes_mode moden) {
 
 			int status;
 			Tcl_Size k = i;
 			uint8_t j;
 			uint_fast32_t data[4] ,newiv[4];
+			uint_fast32_t *IPtr = ctxtPtr->I;
 
 			for (j = 0 ;j < 4 ;j++) {
 				newiv[j] = data[j] =  bytes[k++] << 24 | bytes[k++] << 16
@@ -295,10 +292,10 @@ namespace eval ::aes {
 
 			switch (moden) {
 				case CBC:
-					data[0] = data[0] ^ iv[0];
-					data[1] = data[1] ^ iv[1];
-					data[2] = data[2] ^ iv[2];
-					data[3] = data[3] ^ iv[3];
+					data[0] = data[0] ^ IPtr[0];
+					data[1] = data[1] ^ IPtr[1];
+					data[2] = data[2] ^ IPtr[2];
+					data[3] = data[3] ^ IPtr[3];
 					break;
 			}
 
@@ -329,7 +326,7 @@ namespace eval ::aes {
 				bytes[k++] = data[j] >> 8 & 255;
 				bytes[k++] = data[j] & 255;
 			}
-			memcpy(iv ,data ,sizeof(data));
+			memcpy(IPtr ,data ,sizeof(data));
 			return TCL_OK;
 		}
 
@@ -374,6 +371,56 @@ namespace eval ::aes {
 			temp = aes_GFMult2(aes_GFMult2(number));
 			return aes_GFMult2(temp) ^ (temp ^ aes_GFMult2(number));
 		}
+
+
+		int aes_expandkey(aes_ctxt* ctxtPtr ,char *keystring) {
+			uint_fast32_t mask = 0xffffffff;
+			uint_fast32_t rc ,sub ,temp;
+			uint_fast32_t h ,i ,j ,max;
+			max = ctxtPtr->Nb * (ctxtPtr->Nr + 1);
+			uint_fast32_t *W = Tcl_Alloc(sizeof(uint_fast32_t) * (ctxtPtr->Nk + max));
+			ctxtPtr->WPtr = W;
+
+			for (i = 0 ,j = 0; i < ctxtPtr->Nk; i++, j+=4) {
+				int chanmode;
+				temp = (uint8_t)keystring[j] << 24;
+				temp += (uint8_t)keystring[j+1] << 16;
+				temp += (uint8_t)keystring[j+2] << 8;
+				temp += (uint8_t)keystring[j+3];
+				W[i] = temp;
+			}
+
+			h= i - 1;
+			j = 0;
+			for (;i < max; i+= 1 ,h += 1 ,j += 1) {
+				temp = W[h];
+				if ((i % ctxtPtr->Nk) == 0) {
+					sub = aes_SubWord(aes_RotWord(temp));
+					rc = Rcon[i/ctxtPtr->Nk];
+					temp = sub ^ rc;
+				} else if (ctxtPtr->Nk > 6 && (i % ctxtPtr->Nk) == 4) {
+					temp = aes_SubWord(temp);
+				}
+				W[i] = W[j] ^ temp;
+			}
+			return TCL_OK;
+		}
+
+
+		aes_ctxt* aes_fetchCtxt(Tcl_Interp *interp ,Tcl_Obj *ctxtObjPtr) {
+			aes_ctxt *ctxtPtr;
+			Tcl_ObjInternalRep *ir = Tcl_FetchInternalRep(ctxtObjPtr ,aesObjTypePtr);
+			if (!ir) {
+				if (interp) {
+					Tcl_SetObjResult(interp, Tcl_NewStringObj(
+						"value does not provide an aes context", -1));
+				}
+				return NULL;
+			}
+			ctxtPtr = ir->twoPtrValue.ptr1;
+			return ctxtPtr;
+		}
+
 
 
 		void aes_invMixColumns(uint_fast32_t data[4]) {
@@ -454,27 +501,10 @@ namespace eval ::aes {
 		}
 
 
-		int aes_prepare(Tcl_Interp *interp ,Tcl_Obj *handle, Tcl_Obj *dataPtr
-			,unsigned char **bytes ,Tcl_Size *lenPtr ,uint_fast32_t iv[4]
-			,aes_mode *moden ,Tcl_Obj **WPtr ,int *nPtr ,Tcl_Obj **resObjPtr) {
+		int aes_prepare(Tcl_Interp *interp ,aes_ctxt *ctxtPtr, Tcl_Obj *dataPtr
+			,unsigned char **bytes ,Tcl_Size *lenPtr ,Tcl_Obj **resObjPtr) {
 
-			char *modePtr;
-			int i ,owned = 0, status = TCL_OK ,word;
-			uint_fast32_t uword;
-			Tcl_Obj *itemPtr ,*IPtr ,*MPtr ,*NrPtr;
-			static Tcl_Obj *IName ,*MName ,*NrNamePtr ,*WNamePtr;
-			if (IName == NULL) {
-				IName = Tcl_NewStringObj("I" , -1);
-			}
-			if (MName == NULL) {
-				MName  = Tcl_NewStringObj("M" , -1);
-			}
-			if (NrNamePtr == NULL) {
-				NrNamePtr = Tcl_NewStringObj("Nr" , -1);
-			}
-			if (WNamePtr == NULL) {
-				WNamePtr = Tcl_NewStringObj("W" , -1);
-			}
+			int i ,owned = 0, status = TCL_OK;
 
 			if (Tcl_IsShared(dataPtr)) {
 				*resObjPtr = Tcl_DuplicateObj(dataPtr);
@@ -483,23 +513,7 @@ namespace eval ::aes {
 				*resObjPtr = dataPtr;
 			}
 
-			*WPtr = Tcl_ObjGetVar2(interp ,handle, WNamePtr, TCL_LEAVE_ERR_MSG);
-			if (*WPtr == NULL) {
-				status = TCL_ERROR;
-				goto failure;
-			}
-
-			NrPtr = Tcl_ObjGetVar2(
-				interp ,handle, NrNamePtr, TCL_LEAVE_ERR_MSG);
-			if (NrPtr == NULL) {
-				return TCL_ERROR;
-			}
-			status = Tcl_GetIntFromObj(interp ,NrPtr ,nPtr);
-			if (status != TCL_OK) {
-				return status;
-			}
-
-			*bytes = Tcl_GetBytesFromObj(interp ,dataPtr, lenPtr);
+			*bytes = Tcl_GetBytesFromObj(interp ,*resObjPtr, lenPtr);
 			if (bytes == NULL) {
 				Tcl_SetObjResult(interp ,Tcl_NewStringObj(
 					"data must not include characters with\
@@ -513,46 +527,6 @@ namespace eval ::aes {
 				status =  TCL_ERROR;
 				goto failure;
 			}
-			MPtr = Tcl_ObjGetVar2(interp ,handle, MName, TCL_LEAVE_ERR_MSG);
-			if (MPtr == NULL) {
-				status = TCL_ERROR;
-				goto failure;
-			}
-			modePtr = Tcl_GetStringFromObj(MPtr , NULL);
-			if (strcmp(modePtr ,"ecb") == 0) {
-				*moden = ECB;
-			} else if (strcmp(modePtr ,"cbc") == 0) {
-				*moden = CBC;
-			} else {
-				Tcl_SetObjResult(interp , Tcl_NewStringObj(
-					"mode not implemented" ,-1));
-				status = TCL_ERROR;
-				goto failure;
-			}
-
-			switch (*moden) {
-				case CBC:
-					IPtr = Tcl_ObjGetVar2(
-						interp ,handle, IName, TCL_LEAVE_ERR_MSG);
-					if (IPtr == NULL) {
-						status = TCL_ERROR;
-						goto failure;
-					}
-					for (i = 0 ;i < 4 ;i++) {
-						status = Tcl_ListObjIndex(interp ,IPtr ,i ,&itemPtr);
-						if (status != TCL_OK) {
-							goto failure;
-						}
-						status = Tcl_GetIntFromObj(interp ,itemPtr ,&word);
-						if (status != TCL_OK) {
-							goto failure;
-						}
-						/* it is assumed that the size of word is 32 bytes */
-						uword = (uint_fast32_t)word;
-						iv[i] = uword;
-					}
-					break;
-			}
 
 			goto success;
 			failure:
@@ -562,6 +536,11 @@ namespace eval ::aes {
 				*resObjPtr = NULL;
 			success:
 				return status;
+		}
+
+
+		uint_fast32_t aes_RotWord (uint_fast32_t w) {
+			return ((w << 8) | ((w >> 24) & 0xff)) & 0xffffffff;
 		}
 
 
@@ -584,15 +563,15 @@ namespace eval ::aes {
 
 
 		void aes_subBytes(uint_fast32_t data[4]) {
-			data[0] = aes_subWord(data[0]);
-			data[1] = aes_subWord(data[1]);
-			data[2] = aes_subWord(data[2]);
-			data[3] = aes_subWord(data[3]);
+			data[0] = aes_SubWord(data[0]);
+			data[1] = aes_SubWord(data[1]);
+			data[2] = aes_SubWord(data[2]);
+			data[3] = aes_SubWord(data[3]);
 			return;
 		}
 
 
-		uint_fast32_t aes_subWord(uint_fast32_t word) {
+		uint_fast32_t aes_SubWord(uint_fast32_t word) {
 			uint_fast32_t s0 ,s1 ,s2 ,s3;
 			s3 = sbox[(word >> 24) & 255];
 			s2 = sbox[(word >> 16) & 255];
@@ -601,7 +580,6 @@ namespace eval ::aes {
 			return (s3 << 24) | (s2 << 16) | (s1 << 8) | s0;
 		}
 
-
 	}
 
 
@@ -609,18 +587,20 @@ namespace eval ::aes {
 		Tcl_Interp* interp Tcl_Obj* handle Tcl_Obj* data
 	} ok {
 		unsigned char *bytes;
-		int n ,status = TCL_OK;
+		int status = TCL_OK;
 		Tcl_Size i, len;
-		uint_fast32_t iv[4] = {0 ,0 ,0 ,0};
-		aes_mode moden;
-		Tcl_Obj *resObjPtr ,*WPtr;
-		status = aes_prepare(interp ,handle ,data ,&bytes ,&len ,iv ,&moden
-			,&WPtr ,&n ,&resObjPtr);
+		Tcl_Obj *resObjPtr;
+		aes_ctxt *ctxtPtr = aes_fetchCtxt(interp , handle);
+		if (!ctxtPtr) {
+			return TCL_ERROR;
+		}
+		status = aes_prepare(interp ,ctxtPtr ,data ,&bytes ,&len ,&resObjPtr);
 		if (status != TCL_OK) {
 			return status;
 		}
 		for (i = 0 ;i < len ;i+= 16) {
-			status = aes_encryptBlock(interp ,bytes ,iv ,i ,WPtr ,n ,moden);
+			status = aes_encryptBlock(
+				interp ,bytes ,ctxtPtr ,i ,ctxtPtr->WPtr ,ctxtPtr->Nr ,ctxtPtr->mode);
 			if (status != TCL_OK) {
 				goto failure;
 			}
@@ -643,28 +623,23 @@ namespace eval ::aes {
 		unsigned char *bytes;
 		int j, n,status = TCL_OK;
 		Tcl_Size i, len;
-		uint_fast32_t uword ,iv[4] = {0 ,0 ,0 ,0};
-		Tcl_Obj *resObjPtr ,*itemPtr ,*listPtr ,*MPtr ,*WPtr;
-		aes_mode moden;
+		uint_fast32_t uword ,*iv;
+		Tcl_Obj *resObjPtr ,*itemPtr ,*listPtr ,*MPtr;
+		aes_ctxt *ctxtPtr;
 		static Tcl_Obj *IName;
-		if (IName == NULL) {
-			IName = Tcl_NewStringObj("I" , -1);
-		} 
+		ctxtPtr = aes_fetchCtxt(interp , handle);
+		if (!ctxtPtr) {
+			return TCL_ERROR;
+		}
+		iv = ctxtPtr->I;
 
-		status = aes_prepare(interp ,handle ,data ,&bytes ,&len , iv ,&moden
-			,&WPtr ,&n ,&resObjPtr);
+		status = aes_prepare(interp ,ctxtPtr ,data ,&bytes ,&len ,&resObjPtr);
 		if (status != TCL_OK) {
 			goto failure2;
 		}
 
-		aes_decrypt(interp ,n ,bytes ,len ,iv ,WPtr ,moden);
-
-		for (j = 0; j < 4; j++) {
-			listPtr = Tcl_NewListObj(0, NULL);
-			itemPtr = Tcl_NewIntObj(iv[j]);
-			Tcl_ListObjAppendElement(interp ,listPtr ,itemPtr);
-		}
-		Tcl_ObjSetVar2(interp ,handle, IName, listPtr ,TCL_LEAVE_ERR_MSG);
+		aes_decrypt(interp ,ctxtPtr->Nr ,bytes ,len ,ctxtPtr->I ,ctxtPtr->WPtr
+			,ctxtPtr->mode);
 
 		Tcl_SetObjResult(interp ,resObjPtr);
 		goto success;
@@ -678,7 +653,112 @@ namespace eval ::aes {
 			return TCL_OK;
 	}
 
-	#critcl::debug symbols
+
+	critcl::cproc FinalAccelerated {
+		Tcl_Interp* interp Tcl_Obj* objPtr
+	} ok {
+		Tcl_FreeInternalRep(objPtr);
+		return TCL_OK;
+	}
+
+	critcl::cproc InitAccelerated {
+		Tcl_Interp* interp Tcl_Obj* mode Tcl_Obj* keyPtr Tcl_Obj* IPtr
+	} object0 {
+		int i ,j ,modeidx ,Nk ,Nr ,Nb = 4;
+		uint_fast32_t ivval ,ivval2;
+		Tcl_Obj *resultPtr;
+		Tcl_Size ivlength, keylength;
+		Tcl_ObjInternalRep ir;
+		aes_ctxt *ctxtPtr;
+
+		if (Tcl_IsShared(keyPtr)) {
+			keyPtr = Tcl_DuplicateObj(keyPtr);
+		}
+
+		char *keystring = Tcl_GetBytesFromObj(interp ,keyPtr ,&keylength);
+		if (!keystring) {
+			return NULL;
+		}
+		switch (keylength << 3) {
+			case 128:
+				Nk=4; Nr=10;
+				break;
+			case 192:
+				Nk=6; Nr=12;
+				break;
+			case 256:
+				Nk=8; Nr=14;
+				break;
+			default:
+				Tcl_SetObjResult(interp, Tcl_NewStringObj(
+					"{the length of the key in bytes must be one of} {128 192 256}", -1));
+				return NULL;
+		}
+
+		ctxtPtr = Tcl_Alloc(sizeof(aes_ctxt));
+		char *ivstring = Tcl_GetBytesFromObj(interp ,IPtr ,&ivlength);
+		Tcl_GetIndexFromObj(interp, mode, aes_mode_strings, "option", TCL_EXACT, &modeidx);
+		switch (modeidx) {
+			case CBC:
+				if (ivlength == 0) {
+					for (j = 0; j < 4; j++) {
+						ctxtPtr->I[j] = 0;
+					}
+				} else {
+					if (ivlength != 16) {
+						Tcl_SetObjResult(interp, Tcl_NewStringObj(
+							"the length of iv must be 16 bytes", -1));
+						goto failure;
+					}
+
+					for (i = 0, j = 0; i < 4; i++ , j+=4) {
+						ivval = ((uint8_t)ivstring[j+0]) << 24;
+						ivval += ((uint8_t)ivstring[j+1]) << 16;
+						ivval += ((uint8_t)ivstring[j+2]) << 8;
+						ivval += ((uint8_t)ivstring[j+3]) << 0;
+						ctxtPtr->I[i] = ivval;
+					}
+				}
+				break;
+			case ECB:
+				if (ivlength != 0) {
+					Tcl_SetObjResult(interp, Tcl_NewStringObj(
+						"In ECB mod an initialization vector is not used", -1));
+					goto failure;
+				}
+				for (j = 0; j < 4; j++) {
+					ctxtPtr->I[j] = 0;
+				}
+				break;
+			default:
+				if (interp != NULL) {
+					Tcl_SetObjResult(interp, Tcl_NewStringObj(
+						"mode must be either \"cbc\" or \"ecb\"", -1));
+					goto failure;
+				}
+				break;
+		}
+
+		ctxtPtr->mode = modeidx;
+		ctxtPtr->Nk = Nk;
+		ctxtPtr->Nr = Nr;
+		ctxtPtr->Nb = Nb;
+
+		aes_expandkey(ctxtPtr ,keystring);
+
+		ir.twoPtrValue.ptr1 = ctxtPtr;
+		resultPtr = Tcl_NewObj();
+		Tcl_InvalidateStringRep(resultPtr);
+		Tcl_StoreInternalRep(resultPtr, aesObjTypePtr, &ir);
+		Tcl_GetStringFromObj(resultPtr ,NULL);
+		return resultPtr;
+
+		failure:
+			Tcl_Free(ctxtPtr);
+			return NULL;
+	}
+
+	critcl::debug symbols
 	critcl::load
 
 }

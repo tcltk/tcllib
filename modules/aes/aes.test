@@ -1,5 +1,15 @@
 # aes.test - Copyright (c) 2005 Thorsten Schloermann
+
+# Copyright (C) 2022-204 Nathan Coulter <org.tcl-lang.core.tcllib@pooryorick.com> 
+#	ethereum 0x0b5049C148b00a216B29641ab16953b6060Ef8A6
+
+# You may distribute and/or modify this program under the terms of the Software
+# Utilization License version 3 or (at your option) any later version.
 #
+# See the file "license_fsul.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+
 # the test-values are taken from:
 #     http://csrc.nist.gov/CryptoToolkit/aes/rijndael/rijndael-vals.zip
 #     where only the first 12 entries of Know Answer Test for variable key and
@@ -17,7 +27,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.5-
+testsNeedTcl     8.6-
 testsNeedTcltest 2
 
 testing {
@@ -28,9 +38,10 @@ testing {
 apply [list {} {
     foreach accelerate {0 1} {
 	if {$accelerate} {
-	    aes::LoadAccelerator
+	    aes::SwitchTo critcl
 	    set impl critcl
 	} else {
+	    aes::SwitchTo tcl
 	    set impl Tcl
 	}
 
@@ -48,7 +59,7 @@ apply [list {} {
 	    binary scan $enc H* r
 	    set r
 	} -cleanup {
-	    unset txt key enc r
+	    catch {unset txt key enc r}
 	} -result 69c4e0d86a7b0430d8cdb78070b4c55a
 
 	test [list aes-fips-C.1d $impl] {Test vector for AES-128 from FIPS-197 Appendix C.1} -setup {
