@@ -603,6 +603,9 @@ tcllib
 \fBdtplite\fR
 \fIfiles/apps/dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
+\fBfile::home\fR
+\fIfiles/modules/try/tcllib_fhome\&.n\fR: file home - Return home directory of current or other user
+.TP
 \fBfileutil\fR
 \fIfiles/modules/fileutil/fileutil\&.n\fR: Procedures implementing some file utilities
 .TP

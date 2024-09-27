@@ -1,4 +1,4 @@
-[vset VERSION 1.0.6]
+[vset VERSION 1.0.7]
 [manpage_begin ripemd160 n [vset VERSION]]
 [see_also md4]
 [see_also md5]
@@ -34,6 +34,8 @@ This package will use [package cryptkit] or [package Trf] to
 accelerate the digest computation if either package is available. In
 the absence of an accelerator package the pure-Tcl implementation will
 be used.
+
+[para][include ../common-text/hash-compatibility-warning.inc]
 
 [section {COMMANDS}]
 

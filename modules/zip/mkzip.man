@@ -1,4 +1,4 @@
-[vset ZIP_mkzip_VERSION 1.2.3]
+[vset ZIP_mkzip_VERSION 1.2.4]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin zipfile::mkzip n [vset ZIP_mkzip_VERSION]]
 [keywords decompression zip]

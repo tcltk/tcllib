@@ -105,6 +105,7 @@ proc ::pt::peg::to::tclparam::configure {args} {
 		    }
 		}
 		indent {
+		    ##nagelfar ignore
 		    if {![string is integer -strict $value] || ($value < 0)} {
 			return -code error "Expected int > 0, got \"$value\""
 		    }

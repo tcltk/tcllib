@@ -33,6 +33,8 @@ used. If no accelerator package can be found then the pure-tcl
 implementation is used. The programming interface remains the same in
 all cases.
 
+[para][include ../common-text/hash-compatibility-warning.inc]
+
 [section {COMMANDS}]
 
 [list_begin definitions]

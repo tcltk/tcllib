@@ -731,6 +731,26 @@ proc ::struct::list::test::main {} {
 		expr {[equal $a $b] == [equal $b $a]}
 	} 1
 
+	test equal-4.10 {equal command, -simple} {
+		equal -simple [list [list a]] {{a}}
+	} 1
+
+	test equal-4.11 {equal command, too many arguments} -body {
+	    equal -simple a b c
+	} -returnCodes error -result {too many arguments after options}
+
+	test equal-4.12 {equal command, too many arguments} -body {
+	    equal a b c
+	} -returnCodes error -result {too many arguments after options}
+
+	test equal-4.13 {equal command, bad option} -body {
+	    equal -x a a
+	} -returnCodes error -result {Bad option "-x", expected -simple, or --}
+
+	test equal-4.14 {equal command, option break} -body {
+	    equal -- -a -a
+	} -result 1
+
 	#----------------------------------------------------------------------
 
 	interp alias {} delete {} ::struct::list::list delete

@@ -1,7 +1,7 @@
 ###
 # Bits stolen from fileutil
 ###
-
+package require file::home	;# tcllib file home forward compatibility
 
 ###
 # Search for the pattern [emph pattern] amongst $files
@@ -95,7 +95,7 @@ proc ::practcl::file_relative {base dst} {
 
     if {[package vsatisfies [package present Tcl] 9]} {
         set base [file tildeexpand $base]
-        set dst [file tildeexpand $dst]
+        set dst  [file tildeexpand $dst]
     }
     if {![string equal [file pathtype $base] [file pathtype $dst]]} {
       return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"

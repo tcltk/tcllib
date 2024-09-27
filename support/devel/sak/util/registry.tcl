@@ -3,7 +3,8 @@
 ##
 # ###
 
-getpackage pregistry registry/registry.tcl
+getpackage pregistry  registry/registry.tcl
+getpackage file::home try/fhome.tcl	;# file home forward compatibility
 
 namespace eval ::sak::registry {}
 
@@ -39,12 +40,7 @@ proc ::sak::registry::Refresh {} {
 
 namespace eval ::sak::registry {
     variable _here    [file dirname [info script]]
-
-    if {[package vsatisfies [package present Tcl] 9]} {
-        variable statedir [file join [file home] .Tcllib]
-    } else {
-        variable statedir [file join ~ .Tcllib]
-    }
+    variable statedir [file join [file home] .Tcllib]
     variable state    [file join $statedir Registry]
     variable _local   {}
 }

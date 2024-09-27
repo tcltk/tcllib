@@ -8,7 +8,7 @@ package ifneeded fileutil::magic::rt 3.1 [list source [file join $dir rtcore.tcl
 
 # Compiler packages
 package ifneeded fileutil::magic::cgen   1.3.1 [list source [file join $dir cgen.tcl]]
-package ifneeded fileutil::magic::cfront 1.3.1 [list source [file join $dir cfront.tcl]]
+package ifneeded fileutil::magic::cfront 1.3.2 [list source [file join $dir cfront.tcl]]
 
 
 

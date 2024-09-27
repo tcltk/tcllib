@@ -42,6 +42,7 @@ foreach file {
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 # These files can be loaded in any order
+##nagelfar ignore
 foreach file [lsort -dictionary [glob [file join $srcdir *.tcl]]] {
   if {[file tail $file] in $loaded} continue
   lappend loaded $file

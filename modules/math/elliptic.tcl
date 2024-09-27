@@ -14,7 +14,7 @@ namespace eval ::math::special {
     namespace export cn sn dn elliptic_K elliptic_E
 
     ::math::constants::constants pi
-
+    ##nagelfar ignore
     variable halfpi [expr {$pi/2.0}]
     variable tol
 

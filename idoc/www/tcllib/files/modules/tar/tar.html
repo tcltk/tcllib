@@ -107,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">tar(n) 0.12 tcllib &quot;Tar file handling&quot;</h1>
+<h1 class="doctools_title">tar(n) 0.13 tcllib &quot;Tar file handling&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>tar - Tar file creation, extraction &amp; manipulation</p>
 </div>
@@ -127,13 +127,13 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5 9</b></li>
-<li>package require <b class="pkgname">tar <span class="opt">?0.12?</span></b></li>
+<li>package require <b class="pkgname">tar <span class="opt">?0.13?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::tar::contents</b> <i class="arg">tarball</i> <span class="opt">?<b class="option">-chan</b>?</span></a></li>
-<li><a href="#2"><b class="cmd">::tar::stat</b> <i class="arg">tarball</i> <span class="opt">?file?</span> <span class="opt">?<b class="option">-chan</b>?</span></a></li>
+<li><a href="#1"><b class="cmd">::tar::contents</b> <i class="arg">tarball</i> <span class="opt">?<b class="option">-chan</b>?</span> <span class="opt">?<b class="option">-gzip</b>?</span></a></li>
+<li><a href="#2"><b class="cmd">::tar::stat</b> <i class="arg">tarball</i> <span class="opt">?file?</span> <span class="opt">?<b class="option">-chan</b>?</span> <span class="opt">?<b class="option">-gzip</b>?</span></a></li>
 <li><a href="#3"><b class="cmd">::tar::untar</b> <i class="arg">tarball</i> <i class="arg">args</i></a></li>
-<li><a href="#4"><b class="cmd">::tar::get</b> <i class="arg">tarball</i> <i class="arg">fileName</i> <span class="opt">?<b class="option">-chan</b>?</span></a></li>
+<li><a href="#4"><b class="cmd">::tar::get</b> <i class="arg">tarball</i> <i class="arg">fileName</i> <span class="opt">?<b class="option">-chan</b>?</span> <span class="opt">?<b class="option">-gzip</b>?</span></a></li>
 <li><a href="#5"><b class="cmd">::tar::create</b> <i class="arg">tarball</i> <i class="arg">files</i> <i class="arg">args</i></a></li>
 <li><a href="#6"><b class="cmd">::tar::add</b> <i class="arg">tarball</i> <i class="arg">files</i> <i class="arg">args</i></a></li>
 <li><a href="#7"><b class="cmd">::tar::remove</b> <i class="arg">tarball</i> <i class="arg">files</i></a></li>
@@ -165,16 +165,31 @@
        unstack the transformation before seeking the channel back to a suitable
        position, and (b) for restacking it after.</p></li>
 </ol>
+<p>Regarding support for gzip compression:</p>
+<ol class="doctools_enumerated">
+<li><p>Errors are thrown when attempting to read from compressed tar archives
+       while compression support (i.e. <b class="cmd">::zlib</b>) is not available.</p></li>
+<li><p>Errors are thrown when attempting to read an uncompressed tar archive
+       when compression is requested by the user (<b class="option">-gzip</b>).</p>
+<p>No errors are thrown when attempting to read a compressed tar archive
+       when compression was not requested, and is supported. In that case the
+       commands automatically activate the code handling the compression.</p></li>
+<li><p>Errors are thrown when attempting to edit compressed tar archives.
+       See the commands <b class="cmd">tar::add</b>, and <b class="cmd">tar::remove</b>.
+       This is not supported.</p></li>
+<li><p>Creation of compressed tar archives however is supported, as this
+       sequentially writes the archive, allowing for streaming compression.</p></li>
+</ol>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">COMMANDS</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::tar::contents</b> <i class="arg">tarball</i> <span class="opt">?<b class="option">-chan</b>?</span></a></dt>
+<dt><a name="1"><b class="cmd">::tar::contents</b> <i class="arg">tarball</i> <span class="opt">?<b class="option">-chan</b>?</span> <span class="opt">?<b class="option">-gzip</b>?</span></a></dt>
 <dd><p>Returns a list of the files contained in <i class="arg">tarball</i>. The order is not sorted and depends on the order
 files were stored in the archive.</p>
 <p>If the option <b class="option">-chan</b> is present <i class="arg">tarball</i> is interpreted as an open channel.
 It is assumed that the channel was opened for reading, and configured for binary input.
 The command will <em>not</em> close the channel.</p></dd>
-<dt><a name="2"><b class="cmd">::tar::stat</b> <i class="arg">tarball</i> <span class="opt">?file?</span> <span class="opt">?<b class="option">-chan</b>?</span></a></dt>
+<dt><a name="2"><b class="cmd">::tar::stat</b> <i class="arg">tarball</i> <span class="opt">?file?</span> <span class="opt">?<b class="option">-chan</b>?</span> <span class="opt">?<b class="option">-gzip</b>?</span></a></dt>
 <dd><p>Returns a nested dict containing information on the named <span class="opt">?file?</span> in <i class="arg">tarball</i>,
 or all files if none is specified. The top level are pairs of filename and info. The info is a dict with the keys
 &quot;<b class="const">mode</b> <b class="const">uid</b> <b class="const">gid</b> <b class="const">size</b> <b class="const">mtime</b> <b class="const">type</b> <b class="const">linkname</b> <b class="const">uname</b> <b class="const">gname</b>
@@ -218,7 +233,7 @@ puts &quot;Extracted $file ($size bytes)&quot;
 }
 </pre>
 </dd>
-<dt><a name="4"><b class="cmd">::tar::get</b> <i class="arg">tarball</i> <i class="arg">fileName</i> <span class="opt">?<b class="option">-chan</b>?</span></a></dt>
+<dt><a name="4"><b class="cmd">::tar::get</b> <i class="arg">tarball</i> <i class="arg">fileName</i> <span class="opt">?<b class="option">-chan</b>?</span> <span class="opt">?<b class="option">-gzip</b>?</span></a></dt>
 <dd><p>Returns the contents of <i class="arg">fileName</i> from the <i class="arg">tarball</i>.</p>
 <pre class="doctools_example">
 % set readme [::tar::get tarball.tar doc/README] {

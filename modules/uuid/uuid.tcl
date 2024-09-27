@@ -47,8 +47,7 @@ proc ::uuid::generate_tcl_machinfo {} {
   # If we have /dev/urandom just stream 128 bits from that
   ###
   if {[file exists /dev/urandom]} {
-    set fin [open /dev/urandom r]
-    fconfigure $fin -encoding binary  
+    set fin [open /dev/urandom rb]
     binary scan [read $fin 128] H* machinfo
     close $fin
   } elseif {[catch {package require nettool}]} {
@@ -237,7 +236,7 @@ namespace eval ::uuid {
     unset e
 }
 
-package provide uuid 1.0.8
+package provide uuid 1.0.9
 
 # -------------------------------------------------------------------------
 # Local variables:

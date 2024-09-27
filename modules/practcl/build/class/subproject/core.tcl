@@ -1,3 +1,4 @@
+package require file::home	;# tcllib file home forward compatibility
 
 ::clay::define ::practcl::subproject.core {
   superclass ::practcl::subproject.binary
@@ -15,11 +16,7 @@
     my unpack
     set os [::practcl::local_os]
 
-    if {[package vsatisfies [package present Tcl] 9]} {
-      set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
-    } else {
-      set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
-    }
+    set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options
     puts [list [self] OS [dict get $os TEACUP_OS] options $options]

@@ -4,6 +4,7 @@
 
 package require Tcl 8.5 9
 package require cron 2.0
+package require file::home	;# tcllib file home forward compatibility
 
 ::namespace eval ::processman {}
 
@@ -186,11 +187,7 @@ proc ::processman::events {} {
 proc ::processman::find_exe name {
     global tcl_platform
     if {$tcl_platform(platform)=="windows"} {set suffix .exe} {set suffix {}}
-    if {[package vsatisfies [package present Tcl] 9]} {
-        set thisDir [file join [file home] irm/bin$name]
-    }  else {
-        set thisDir ~/irm/bin/$name
-    }
+    set thisDir [file join [file home] irm/bin$name]
     foreach f [list $name $thisDir ./$name/$name ./$name  ../$name/$name ../../$name/$name] {
 	if {[file executable $f]} break
 	append f $suffix
@@ -205,6 +202,7 @@ proc ::processman::find_exe name {
 
 proc ::processman::PIDLIST id {
     variable process_list
+    ##nagelfar ignore
     if {[string is integer -strict $id]} {
 	return $id
     }
@@ -225,6 +223,7 @@ proc ::processman::kill id {
     foreach pid [PIDLIST $id] {
 	kill_subprocess $pid
     }
+    ##nagelfar ignore
     if {![string is integer $id]} {
 	dict set process_list $id {}
 	dict unset process_binding $id
@@ -286,6 +285,7 @@ proc ::processman::process_list {} {
 proc ::processman::running id {
     variable process_list
     set pidlist {}
+    ##nagelfar ignore
     if {![string is integer -strict $id]} {
 	if {$id eq "self"} {
 	    return [pid]
@@ -344,5 +344,5 @@ namespace eval ::processman {
 
 ::cron::every processman 60 ::processman::events
 
-package provide odie::processman 0.7
-package provide processman 0.7
+package provide odie::processman 0.8
+package provide processman 0.8

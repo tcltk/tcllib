@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 2.3.3]
+[vset VERSION 2.3.4]
+[manpage_begin snit n [vset VERSION]]
 [keywords adaptors]
 [keywords BWidget]
 [keywords C++]
@@ -17,7 +18,7 @@
 [titledesc  {Snit's Not Incr Tcl}]
 [category  {Programming tools}]
 [require Tcl "8.5 9"]
-[require snit [opt 2.3.3]]
+[require snit [opt [vset VERSION]]]
 [description]
 [para]
 

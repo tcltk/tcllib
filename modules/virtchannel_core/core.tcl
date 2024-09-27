@@ -22,7 +22,9 @@
 # # ## ### ##### ######## #############
 
 package require Tcl 8.5 9
-package require TclOO
+if {[catch {package require tcl::oo}]} {
+	package require TclOO
+}
 
 # # ## ### ##### ######## #############
 

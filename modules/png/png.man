@@ -1,4 +1,4 @@
-[vset VERSION 0.4]
+[vset VERSION 0.4.1]
 [manpage_begin png n [vset VERSION]]
 [keywords comment]
 [keywords image]

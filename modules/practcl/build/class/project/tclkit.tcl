@@ -1,3 +1,5 @@
+package require file::home	;# tcllib file home forward compatibility
+
 ###
 # A toplevel project that produces a self-contained executable
 ###
@@ -215,11 +217,7 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
 }
     append thread_init_script \n [list set ::starkit::thread_init $thread_init_script]
     append main_init_script \n [list set ::starkit::thread_init $thread_init_script]
-    if {[package vsatisfies [package present Tcl] 9]} {
-      set thisDir [file tildeexpand ~/.tclshrc]
-    } else {
-      set thisDir ~/.tclshrc
-    }   
+    set thisDir [file join [file home] .tclshrc]
     append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName $thisDir]]
 
 
@@ -353,11 +351,7 @@ set dir [file dirname $::PKGIDXFILE]
 if {$::tcl_platform(platform) eq "windows"} {
   set ::starkit::localHome [file join [file normalize $::env(LOCALAPPDATA)] tcl]
 } else {
-  if {[package vsatisfies [package present Tcl] 9]} {
-    set ::starkit::localHome [file normalize [file tildeexpand ~/tcl]]
-  } else {
-    set ::starkit::localHome [file normalize ~/tcl]
-  }
+    set ::starkit::localHome [file normalize [file join [file home] tcl]]
 }
 set ::tcl_teapot [file join $::starkit::localHome teapot $::tcl_teapot_profile]
 lappend ::auto_path $::tcl_teapot

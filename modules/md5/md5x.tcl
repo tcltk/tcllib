@@ -104,7 +104,7 @@ proc ::md5::MD5Update {token data} {
     }
 
     # Update the state values
-    incr state(n) [string length $data]
+    incr   state(n) [string length $data]
     append state(i) $data
 
     # Calculate the hash for any complete blocks
@@ -162,10 +162,9 @@ proc ::md5::MD5Final {token} {
         incr pad 64
     }
 
-    #puts "P $pad|bits=[expr {8 * $state(n)}]"
-
+    # puts "P $pad|bits=[expr {8 * $state(n)}]"
     append state(i) [binary format a$pad \x80]
-
+    
     # RFC1321:3.2 - Append length in bits as little-endian wide int.
     append state(i) [binary format ii [expr {8 * $state(n)}] 0]
 
@@ -268,7 +267,7 @@ set ::md5::MD5Hash_body {
     variable $token
     upvar 0 $token state
 
-    #puts TR__=[Hex $msg]([string length $msg])
+    # puts TR__=[Hex $msg]([string length $msg])
 
     # RFC1321:3.4 - Process Message in 16-Word Blocks
     binary scan $msg i* blocks

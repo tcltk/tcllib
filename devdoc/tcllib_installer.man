@@ -6,17 +6,18 @@
 
 [para]
 
-The audience of this document is anyone wishing to build and install
-the packages found in Tcllib, for either themselves, or others.
+This document is targeted at anybody wishing to build and install the
+packages found in Tcllib, for either themselves, or others.
 
 [para]
 
-For developers intending to work on the packages themselves we
-additionally provide
+We additionally provide
 
 [list_begin enum]
 [enum] [term {Tcllib - The Developer's Guide}].
 [list_end]
+
+for developers wishing to work on the packages themselves. 
 
 [para]
 

@@ -2,7 +2,7 @@
 [//000000001]: # (math::constants \- Tcl Math Library)
 [//000000002]: # (Generated from file 'constants\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
-[//000000004]: # (math::constants\(n\) 1\.0\.3 tcllib "Tcl Math Library")
+[//000000004]: # (math::constants\(n\) 1\.0\.4 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ math::constants \- Mathematical and numerical constants
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.3?  
-package require math::constants ?1\.0\.3?  
+package require math::constants ?1\.0\.4?  
 
 [__::math::constants::constants__ *args*](#1)  
 [__::math::constants::print\-constants__ *args*](#2)  

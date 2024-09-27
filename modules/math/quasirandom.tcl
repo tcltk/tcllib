@@ -40,6 +40,7 @@ namespace eval ::math::quasirandom {
         my variable use_radius
         my variable effective_dim
 
+	##nagelfar ignore
         if { ( ![string is integer -strict $dimin] || $dimin <= 0 ) && $dimin ni {circle disk sphere ball} } {
             return -code error "The dimension argument should be a positive integer value or one of circle, disk, sphere or ball"
         }
@@ -268,6 +269,7 @@ namespace eval ::math::quasirandom {
             return $step
         }
 
+	##nagelfar ignore
         if { ![string is integer -strict $value] } {
             return -code error "The value for the option $key should be an integer value"
         }
@@ -285,6 +287,7 @@ namespace eval ::math::quasirandom {
             return $evaluations
         }
 
+	##nagelfar ignore
         if { ![string is integer -strict $value] || $value <= 0 } {
             return -code error "The value for the option $key should be a positive integer value"
         }
@@ -319,6 +322,7 @@ namespace eval ::math::quasirandom {
         foreach {key value} $args {
             switch -- $key {
             "-evaluations" {
+		 ##nagelfar ignore
                  if { ![string is integer -strict $value] || $value <= 0 } {
                      return -code error "The value for the option $key should be a positive integer value"
                  }
@@ -387,6 +391,7 @@ namespace eval ::math::quasirandom {
         foreach {key value} $args {
             switch -- $key {
             "-evaluations" {
+		 ##nagelfar ignore
                  if { ![string is integer -strict $value] || $value <= 0 } {
                      return -code error "The value for the option $key should be a positive integer value"
                  }

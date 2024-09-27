@@ -141,6 +141,7 @@ proc ::websocket::close { sock { code 1000 } { reason "" } } {
     }
     set Connection(state) CLOSED
 
+    ##nagelfar ignore
     if { $code == "" || ![string is integer $code] } {
 	send $sock 8
 	${log}::info "Closing web socket"
@@ -675,6 +676,7 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
     # integer opcodes for internal use or for future extensions of the
     # protocol.
     set opcode -1;
+    ##nagelfar ignore
     if { [string is integer $type] } {
 	set opcode $type
     } else {
@@ -1416,6 +1418,7 @@ proc ::websocket::open { url handler args } {
 	    ti* {
 		# We implement the timeout ourselves to be able to
 		# properly cleanup.
+		##nagelfar ignore
 		if { [string is integer $v] && $v > 0 } {
 		    set timeout $v
 		}

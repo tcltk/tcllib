@@ -2,7 +2,7 @@
 # library.
 
 package require critcl
-package provide tcllibc 0.4
+package provide tcllibc 2.0
 
 namespace eval ::tcllib {
     critcl::ccode {

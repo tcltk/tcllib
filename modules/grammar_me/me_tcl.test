@@ -510,7 +510,7 @@ test mevmtcl-ict_match_tokclass-1.1 {Call with too many arguments} \
     } -result {wrong # args: should be "grammar::me::tcl::ict_match_tokclass code msg"}
 
 if {[package vsatisfies [package provide Tcl] 9]} {
-    set expResult {bad class "gargle": must be alnum, alpha, ascii, control, boolean, dict, digit, double, entier, false, graph, integer, list, lower, print, punct, space, true, upper, unicode, wideinteger, wordchar, or xdigit}
+    set expResult {bad class "gargle": must be alnum, alpha, ascii, control, boolean, dict, digit, double, entier, false, graph, integer, list, lower, print, punct, space, true, upper, wideinteger, wordchar, or xdigit}
 } elseif {[package vsatisfies [package provide Tcl] 8.6]} {
     set expResult {bad class "gargle": must be alnum, alpha, ascii, control, boolean, digit, double, entier, false, graph, integer, list, lower, print, punct, space, true, upper, wideinteger, wordchar, or xdigit}
 } else {

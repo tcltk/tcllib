@@ -68,6 +68,23 @@ Alternatively if __cryptkit__ is available this will be used\. If no
 accelerator package can be found then the pure\-tcl implementation is used\. The
 programming interface remains the same in all cases\.
 
+*BEWARE* The commands in this package expect binary data as their input\. When
+a __\-file__ is provided then this is ensured by the commands themselves, as
+they open the referenced file in binary mode\. When literal data, or a
+__\-channel__ are provided instead, then the command's *caller is
+responsible* for ensuring this fact\. The necessary conversion command is
+__encoding convertto utf\-8 $string__\.
+
+*ATTENTION*, there is a *Tcl 9 COMPATIBILITY ISSUE* here\.
+
+*Tcl 8\.x silently mishandles* non\-binary input by cutting it internally to
+size\. I\.e\. by only using the low byte of a higher unicode point\. No error is
+thrown, the *result is simply wrong*\.
+
+*Tcl 9 throws an error* instead, i\.e\.
+
+    expected byte sequence but character <location> was ...
+
 # <a name='section2'></a>COMMANDS
 
   - <a name='1'></a>__::md4::md4__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]

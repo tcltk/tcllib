@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::me::cpu::core n 0.3]
+[vset VERSION 0.4]
+[manpage_begin grammar::me::cpu::core n [vset VERSION]]
 [keywords grammar]
 [keywords parsing]
 [keywords {virtual machine}]
@@ -8,7 +9,7 @@
 [titledesc {ME virtual machine state manipulation}]
 [category  {Grammars and finite automata}]
 [require Tcl "8.5 9"]
-[require grammar::me::cpu::core [opt 0.3]]
+[require grammar::me::cpu::core [opt [vset VERSION]]]
 [description]
 [para]
 

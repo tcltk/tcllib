@@ -9,6 +9,8 @@ set ::auto_index(::practcl::LOCAL) {
   ::practcl::LOCAL define set [::practcl::local_os]
   ::practcl::LOCAL define set LOCAL 1
 
+  package require file::home	;# tcllib file home forward compatibility
+
   # Until something better comes along, use ::practcl::LOCAL
   # as our main project
   # Add tclconfig as a project of record
@@ -36,11 +38,7 @@ set ::auto_index(::practcl::LOCAL) {
     }
     method env-install {} {
       my unpack
-      if {[package vsatisfies [package present Tcl] 9]} {
-        set prefix [my <project> define get prefix [file join [file normalize [file home]] tcl]]
-      } else {
-        set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
-      }
+      set prefix [my <project> define get prefix [file join [file normalize [file home]] tcl]]
       set srcdir [my define get srcdir]
       ::practcl::dotclexec [file join $srcdir build.tcl] install [file join $prefix lib]
     }

@@ -75,7 +75,7 @@ namespace eval ::struct::record {
     ##  nested records. This is kind of a hack, and probably can be
     ##  handled better
     ##
-    set _level 0
+    variable _level 0
 
     namespace export record
 }
@@ -826,5 +826,5 @@ namespace eval ::struct {
     namespace export record
 }
 
-package provide struct::record 1.2.3
+package provide struct::record 1.2.4
 return

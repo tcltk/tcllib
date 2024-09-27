@@ -8,10 +8,8 @@
 # Copyright (c) 2007 Alexey Shchepin
 # Copyright (c) 2008 Sergei Golovan
 #
-# RCS: @(#) $Id: stringprep_data.tcl,v 1.2 2009/11/02 00:26:44 patthoyts Exp $
-#
 
-package provide stringprep::data 1.0.2
+package provide stringprep::data 1.0.3
 
 namespace eval ::stringprep::data {
 
@@ -21,7 +19,7 @@ namespace eval ::stringprep::data {
 # into a page of characters.  The upper bits comprise the page number.
 #
 
-set OFFSET_BITS 7
+variable OFFSET_BITS 7
 
 #
 # The pageMap is indexed by page number and returns an alternate page number
@@ -29,6 +27,7 @@ set OFFSET_BITS 7
 # to the same alternate page number.
 #
 
+variable pageMap
 array unset pageMap
 array set pageMap [list \
     0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 \
@@ -234,7 +233,7 @@ array set pageMap [list \
     8695 78 8696 78 8697 78 8698 78 8699 78 8700 78 8701 78 8702 78 8703 106 \
    ]
 
-set COMMON_PAGE_MAP 16
+variable COMMON_PAGE_MAP 16
 
 #
 # The groupMap is indexed by combining the alternate page number with
@@ -242,7 +241,7 @@ set COMMON_PAGE_MAP 16
 # set of character attributes.
 #
 
-set groupMap [list \
+variable groupMap [list \
     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 \
     2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 \
     3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 2 2 2 2 2 2 4 4 4 4 4 \
@@ -774,7 +773,7 @@ set groupMap [list \
 #		highest field so we can easily sign extend.
 #
 
-set groups [list \
+variable groups [list \
     32 8 0 66052 512 64 16 2 1587716 1540 2564 3588 5636 -247292 -548348 \
     430596 422404 420356 162308 414212 416260 424452 432644 428548 \
     436740 438788 446980 444932 449028 4612 7684 -198140 -114172 -265724 \
@@ -812,7 +811,7 @@ set groups [list \
 # Table for characters that lowercased to multiple ones
 #
 
-set multiCaseTable [list \
+variable multiCaseTable [list \
     {115 115} \
     {105 775} \
     {700 110} \
@@ -981,17 +980,17 @@ set multiCaseTable [list \
 # Unicode character.
 #
 
-set A1Mask  [expr {1 << 0}]
-set B1Mask  [expr {1 << 1}]
-set B3Mask  [expr {1 << 2}]
-set C11Mask [expr {1 << 3}]
-set C12Mask [expr {1 << 4}]
-set C21Mask [expr {1 << 5}]
-set C22Mask [expr {1 << 6}]
-set C39Mask [expr {1 << 7}]
-set D1Mask  [expr {1 << 8}]
-set D2Mask  [expr {1 << 9}]
-set MCMask  [expr {1 << 10}]
+variable A1Mask  [expr {1 << 0}]
+variable B1Mask  [expr {1 << 1}]
+variable B3Mask  [expr {1 << 2}]
+variable C11Mask [expr {1 << 3}]
+variable C12Mask [expr {1 << 4}]
+variable C21Mask [expr {1 << 5}]
+variable C22Mask [expr {1 << 6}]
+variable C39Mask [expr {1 << 7}]
+variable D1Mask  [expr {1 << 8}]
+variable D2Mask  [expr {1 << 9}]
+variable MCMask  [expr {1 << 10}]
 
 #
 # The following procs extract the fields of the character info.
