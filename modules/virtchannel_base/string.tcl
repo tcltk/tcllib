@@ -26,7 +26,9 @@
 # # ## ### ##### ######## #############
 
 package require Tcl 8.5 9
-if {[catch {package require tcl::oo}]} {
+try {
+	package require tcl::oo
+} trap {TCL PACKAGE UNFOUND} {tres topts} {
 	package require TclOO
 }
 package require tcl::chan::events

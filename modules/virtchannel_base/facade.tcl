@@ -35,7 +35,11 @@
 ## TODO document that facada takes ownership of the channel.
 
 package require Tcl 8.5 9
-package require TclOO
+try {
+	package require tcl::oo
+} trap {TCL PACKAGE UNFOUND} {tres topts} {
+	package require TclOO
+}
 package require logger
 package require tcl::chan::core
 
