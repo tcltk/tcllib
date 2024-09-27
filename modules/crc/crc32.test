@@ -88,8 +88,6 @@ set tests {
 foreach impl [implementations] {
     select_implementation $impl
     foreach {n msg expected} $tests {
-puts 2///$impl//$n
-        
         test crc32-$impl-2.$n "crc32 as unsigned integer ($impl)" {
             list [catch {::crc::crc32 $msg} err] $err
         } [list 0 $expected]
@@ -160,8 +158,6 @@ proc crc::loaddata {filename} {
 
 foreach impl [implementations] {
     select_implementation $impl
-
-    puts 4///$impl//0
     
     test crc32-$impl-4.0 "crc32 file option ($impl)" {
         set r1 [::crc::crc32 -file $crc::testfile]
@@ -191,10 +187,7 @@ set tests {
 }
 foreach impl [implementations] {
     select_implementation $impl
-    foreach {n seed msg expected} $tests {
-
-    puts 5///$impl//$n
-        
+    foreach {n seed msg expected} $tests {        
         test crc32-$impl-5.$n "crc32 initial seed option ($impl)" {
             list [catch {::crc::crc32 -seed $seed $msg} err] $err
         } [list 0 $expected]
@@ -220,9 +213,6 @@ set tests {
 foreach impl [implementations] {
     select_implementation $impl
     foreach {n msgA msgB expected} $tests {
-
-    puts 6///$impl//$n
-        
         test crc32-$impl-6.$n "crc32 using -seed ($impl)" {
             list [catch {
                 ::crc::crc32 -seed [expr {[::crc::crc32 $msgA] ^ 0xffffffff}] $msgB

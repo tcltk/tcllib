@@ -2,7 +2,7 @@
 '\" Generated from file 'ascii85\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, Emiliano Gavilán
 '\"
-.TH "ascii85" n 1\&.1 tcllib "Text encoding & decoding binary data"
+.TH "ascii85" n 1\&.1\&.1 tcllib "Text encoding & decoding binary data"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

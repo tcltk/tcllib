@@ -899,6 +899,8 @@
 
           + [defer](tcllib/files/modules/defer/defer\.md) Defered execution
 
+          + [file::home](tcllib/files/modules/try/tcllib\_fhome\.md) file home \- Return home directory of current or other user
+
           + [lambda](tcllib/files/modules/lambda/lambda\.md) Utility commands for anonymous procedures
 
           + [lazyset](tcllib/files/modules/lazyset/lazyset\.md) Lazy evaluation
@@ -1936,6 +1938,8 @@
               - [treeql](tcllib/files/modules/treeql/treeql\.md) Query tree objects
 
           + [try]()
+
+              - [file::home](tcllib/files/modules/try/tcllib\_fhome\.md) file home \- Return home directory of current or other user
 
               - [throw](tcllib/files/modules/try/tcllib\_throw\.md) throw \- Throw an error exception with a message
 

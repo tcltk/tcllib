@@ -140,8 +140,7 @@ test rc4-3.5 {rc4 check hyphen handling} {
 
 test rc4-4.0 {check file reading} {
     list [catch {
-        set f [open [set path [makeFile {} rc4test.data]] w]
-        fconfigure $f -translation lf -eofchar {} -encoding binary
+        set f [open [set path [makeFile {} rc4test.data]] wb]
         puts -nonewline $f "\0\1\2"
         close $f
         set res [rc4::rc4 -hex -key 01234567 -infile $path]
@@ -152,13 +151,11 @@ test rc4-4.0 {check file reading} {
 
 test rc4-4.1 {check channel reading} {
     list [catch {
-        set f [open [set path [makeFile {} rc4test.data]] w]
-        fconfigure $f -translation lf -eofchar {} -encoding binary
+        set f [open [set path [makeFile {} rc4test.data]] wb]
         puts -nonewline $f "\0\1\2"
         close $f
 
-        set f [open $path r]
-        fconfigure $f -translation lf -eofchar {} -encoding binary
+        set f [open $path rb]
         set r [rc4::rc4 -hex -key 01234567 -in $f]
         close $f
         removeFile rc4test.data
@@ -168,8 +165,7 @@ test rc4-4.1 {check channel reading} {
 
 test rc4-4.2 {check channel output} {
     list [catch {
-        set f [open [makeFile {} rc4test.data] w+]
-        fconfigure $f -translation lf -eofchar {} -encoding binary
+        set f [open [makeFile {} rc4test.data] wb+]
         set r [rc4::rc4 -hex -key 01234567 -out $f "abcdef"]
         seek $f 0
         set s [rc4::Hex [read $f]]
@@ -181,12 +177,10 @@ test rc4-4.2 {check channel output} {
 
 test rc4-4.3 {check channel input and output} {
     list [catch {
-        set f [open [makeFile {} rc4test.data] w+]
-        fconfigure $f -translation lf -eofchar {} -encoding binary
+        set f [open [makeFile {} rc4test.data] wb+]
         puts -nonewline $f "abcdef"
         seek $f 0
-        set g [open [makeFile {} rc4test2.data] w+]
-        fconfigure $g -translation lf -eofchar {} -encoding binary
+        set g [open [makeFile {} rc4test2.data] wb+]
         set r [rc4::rc4 -hex -key 01234567 -in $f -out $g]
         close $f
         seek $g 0
@@ -227,8 +221,7 @@ test rc4-5.1 {check -command option (-hex should be ignored)} {
 test rc4-5.2 {check -command option with channel input} {
     set ::rc4::_test unset
     list [catch {
-        set f [open [makeFile {} rc4test.data] w+]
-        fconfigure $f -translation lf -eofchar {} -encoding binary        
+        set f [open [makeFile {} rc4test.data] wb+]
         puts -nonewline $f "abcdef"
         seek $f 0
         set id [after 1000 {set ::rc4::_test timeout}]
@@ -245,8 +238,7 @@ test rc4-5.2 {check -command option with channel input} {
 test rc4-5.3 {check -command option with file input} {
     set ::rc4::_test unset
     list [catch {
-        set f [open [set path [makeFile {} rc4test.data]] w]
-        fconfigure $f -translation lf -eofchar {} -encoding binary        
+        set f [open [set path [makeFile {} rc4test.data]] wb]
         puts -nonewline $f "abcdef"
         close $f
         set id [after 1000 {set ::rc4::_test timeout}]

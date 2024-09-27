@@ -11,8 +11,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: Makefile.in,v 1.101 2007/08/21 22:04:14 andreas_kupries Exp $
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -20,7 +18,13 @@
 # correct.
 #========================================================================
 
-SHELL		= @SHELL@
+SHELL      = @SHELL@
+PACKAGE    = @PACKAGE@
+VERSION    = @VERSION@
+CYGPATH    = @CYGPATH@
+TCLSH_PROG = @TCLSH_PROG@
+PKGNAME    = @PACKAGE@@VERSION@
+PKGCNAME   = @PACKAGE@c@VERSION@
 
 srcdir		= @srcdir@
 top_srcdir	= @top_srcdir@
@@ -29,16 +33,12 @@ exec_prefix	= @exec_prefix@
 libdir		= @libdir@
 mandir		= @mandir@
 bindir		= @bindir@
+incdir		= @includedir@
 
 DESTDIR		=
-pkglibdir	= $(libdir)/@PACKAGE@@VERSION@
+pkglibdir	= $(libdir)/$(PKGNAME)
+shlibdir	= $(libdir)/$(PKGCNAME)
 top_builddir	= .
-
-PACKAGE = @PACKAGE@
-VERSION = @VERSION@
-CYGPATH = @CYGPATH@
-
-TCLSH_PROG = @TCLSH_PROG@
 
 CONFIG_CLEAN_FILES =
 
@@ -46,16 +46,25 @@ CONFIG_CLEAN_FILES =
 # Start of user-definable TARGETS section
 #========================================================================
 
-all:
+all:	install
+
 doc:     html-doc nroff-doc
 
-install:
+install: install-tcl install-binaries
+
+install-tcl:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
 		-no-examples -no-html \
 		-pkg-path   `$(CYGPATH) $(DESTDIR)$(pkglibdir)` \
 		-app-path   `$(CYGPATH) $(DESTDIR)$(bindir)` \
 		-nroff-path `$(CYGPATH) $(DESTDIR)$(mandir)/mann` \
 		-no-wait -no-gui
+
+install-binaries:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` critcl \
+	  -includedir `$(CYGPATH) $(DESTDIR)$(incdir)` \
+	  -libdir     `$(CYGPATH) $(DESTDIR)$(libdir)` \
+	  -pkg $(PKGCNAME)
 
 install-libraries:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \

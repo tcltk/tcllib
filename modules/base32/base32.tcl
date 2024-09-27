@@ -6,8 +6,6 @@
 #
 # Management code for switching between Tcl and C accelerated
 # implementations.
-#
-# RCS: @(#) $Id: base32.tcl,v 1.2 2006/10/13 05:39:49 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: base32_c.tcl
 
@@ -179,4 +177,4 @@ namespace eval ::base32 {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide base32 0.1
+package provide base32 0.2

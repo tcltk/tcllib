@@ -284,7 +284,7 @@ package require \fBtry ?1\&.1?\fR
 .SH DESCRIPTION
 .PP
 This package provides a forward-compatibility implementation of Tcl
-8\&.6's try/finally command (TIP 329), for Tcl 8\&.5\&. The code was
+8\&.6's \fBtry\fR/\fBfinally\fR command (TIP 329), for Tcl 8\&.5\&. The code was
 directly pulled from Tcl 8\&.6 revision ?, when try/finally was
 implemented as Tcl procedure instead of in C\&.
 .TP

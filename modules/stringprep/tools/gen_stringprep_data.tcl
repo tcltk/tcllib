@@ -14,12 +14,9 @@
 # Modified for Tcl stringprep by Sergei Golovan
 #
 # Usage: gen_stringprep_data.tcl infile outdir
-# 
-# RCS: @(#) $Id: gen_stringprep_data.tcl,v 1.2 2009/11/02 00:26:44 patthoyts Exp $
-
 
 namespace eval uni {
-    set shift 7;		# number of bits of data within a page
+    variable shift 7;		# number of bits of data within a page
 				# This value can be adjusted to find the
 				# best split to minimize table size
 
@@ -318,10 +315,8 @@ proc uni::main {} {
 # Copyright (c) 2007 Alexey Shchepin
 # Copyright (c) 2008 Sergei Golovan
 #
-# RCS: @(#) \$Id\$
-#
 
-package provide stringprep::data 1.0.1
+package provide stringprep::data 1.0.3
 
 namespace eval ::stringprep::data {
 
@@ -331,7 +326,7 @@ namespace eval ::stringprep::data {
 # into a page of characters.  The upper bits comprise the page number.
 #
 
-set OFFSET_BITS $shift
+variable OFFSET_BITS $shift
 
 #
 # The pageMap is indexed by page number and returns an alternate page number
@@ -339,6 +334,7 @@ set OFFSET_BITS $shift
 # to the same alternate page number.
 #
 
+variable pageMap
 array unset pageMap
 array set pageMap \[list \\"
     array unset tmp
@@ -371,7 +367,7 @@ array set pageMap \[list \\"
     }
     puts $f "$line\]
 
-set COMMON_PAGE_MAP $max_id
+variable COMMON_PAGE_MAP $max_id
 
 #
 # The groupMap is indexed by combining the alternate page number with
@@ -379,7 +375,7 @@ set COMMON_PAGE_MAP $max_id
 # set of character attributes.
 #
 
-set groupMap \[list \\"
+variable groupMap \[list \\"
     set line "    "
     set lasti [expr {[llength $pages] - 1}]
     for {set i 0} {$i <= $lasti} {incr i} {
@@ -428,7 +424,7 @@ set groupMap \[list \\"
 #		highest field so we can easily sign extend.
 #
 
-set groups \[list \\"
+variable groups \[list \\"
     set line "    "
     set last [expr {[llength $groups] - 1}]
     for {set i 0} {$i <= $last} {incr i} {
@@ -449,7 +445,7 @@ set groups \[list \\"
 # Table for characters that lowercased to multiple ones
 #
 
-set multiCaseTable \[list \\"
+variable multiCaseTable \[list \\"
     set last [expr {[llength $multicasemap] - 1}]
     for {set i 0} {$i <= $last} {incr i} {
 	set val [lindex $multicasemap $i]
@@ -465,17 +461,17 @@ set multiCaseTable \[list \\"
 # Unicode character.
 #
 
-set A1Mask  \[expr {1 << 0}\]
-set B1Mask  \[expr {1 << 1}\]
-set B3Mask  \[expr {1 << 2}\]
-set C11Mask \[expr {1 << 3}\]
-set C12Mask \[expr {1 << 4}\]
-set C21Mask \[expr {1 << 5}\]
-set C22Mask \[expr {1 << 6}\]
-set C39Mask \[expr {1 << 7}\]
-set D1Mask  \[expr {1 << 8}\]
-set D2Mask  \[expr {1 << 9}\]
-set MCMask  \[expr {1 << 10}\]
+variable A1Mask  \[expr {1 << 0}\]
+variable B1Mask  \[expr {1 << 1}\]
+variable B3Mask  \[expr {1 << 2}\]
+variable C11Mask \[expr {1 << 3}\]
+variable C12Mask \[expr {1 << 4}\]
+variable C21Mask \[expr {1 << 5}\]
+variable C22Mask \[expr {1 << 6}\]
+variable C39Mask \[expr {1 << 7}\]
+variable D1Mask  \[expr {1 << 8}\]
+variable D2Mask  \[expr {1 << 9}\]
+variable MCMask  \[expr {1 << 10}\]
 
 #
 # The following procs extract the fields of the character info.

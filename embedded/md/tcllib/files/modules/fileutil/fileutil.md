@@ -1,7 +1,7 @@
 
 [//000000001]: # (fileutil \- file utilities)
 [//000000002]: # (Generated from file 'fileutil\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (fileutil\(n\) 1\.16\.2 tcllib "file utilities")
+[//000000003]: # (fileutil\(n\) 1\.16\.3 tcllib "file utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ fileutil \- Procedures implementing some file utilities
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require fileutil ?1\.16\.2?  
+package require fileutil ?1\.16\.3?  
 
 [__::fileutil::lexnormalize__ *path*](#1)  
 [__::fileutil::fullnormalize__ *path*](#2)  

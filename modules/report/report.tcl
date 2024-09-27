@@ -96,6 +96,7 @@ proc ::report::report {name columns args} {
     if { [llength [info commands ::$name]] } {
 	error "command \"$name\" already exists, unable to create report"
     }
+    ##nagelfar ignore
     if {![string is integer $columns]} {
 	return -code error "columns: expected integer greater than zero, got \"$columns\""
     } elseif {$columns <= 0} {
@@ -769,6 +770,7 @@ proc ::report::_tcaption {name {size {}}} {
     if {$size == {}} {
 	return $tcaption
     }
+    ##nagelfar ignore
     if {![string is integer $size]} {
 	return -code error "size: expected integer greater than or equal to zero, got \"$size\""
     }
@@ -808,6 +810,7 @@ proc ::report::_bcaption {name {size {}}} {
     if {$size == {}} {
 	return $bcaption
     }
+    ##nagelfar ignore
     if {![string is integer $size]} {
 	return -code error "size: expected integer greater than or equal to zero, got \"$size\""
     }
@@ -855,6 +858,7 @@ proc ::report::_size {name column {size {}}} {
 	set csize($column) $size
 	return ""
     }
+    ##nagelfar ignore
     if {![string is integer $size]} {
 	return -code error "expected integer greater than zero, got \"$size\""
     }
@@ -895,6 +899,7 @@ proc ::report::_sizes {name {sizes {}}} {
 	if {[string equal $size dyn]} {
 	    continue
 	}
+	##nagelfar ignore
 	if {![string is integer $size]} {
 	    return -code error "expected integer greater than zero, got \"$size\""
 	}

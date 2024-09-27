@@ -235,6 +235,7 @@ proc ::math::PCA::createPCA {data args} {
          } elseif { [llength $args] == 1 } {
 
              set numberUsed [lindex $args 0]
+	     ##nagelfar ignore
              if { ![string is integer $numberUsed] || $numberUsed < 1 || $numberUsed > $numberComponents } {
                  return -code error "Number of components to be used must be between 1 and $numberComponents"
              }

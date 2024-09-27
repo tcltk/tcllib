@@ -2,7 +2,7 @@
 [//000000001]: # (struct::set \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'struct\_set\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (struct::set\(n\) 2\.2\.4 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::set\(n\) 2\.2\.5 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

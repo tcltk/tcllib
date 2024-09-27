@@ -2,7 +2,7 @@
 '\" Generated from file 'tcl_parse\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::tcl::parse" n 1 tcllib "Documentation tools"
+.TH "doctools::tcl::parse" n 0\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -290,7 +290,7 @@ package require \fBstruct::set\fR
 .sp
 package require \fBtreeql\fR
 .sp
-package require \fBdoctools::tcl::parse\fR
+package require \fBdoctools::tcl::parse ?0\&.2?\fR
 .sp
 \fB::doctools::tcl::parse\fR \fBtext\fR \fItree\fR \fItext\fR ?\fIroot\fR?
 .sp

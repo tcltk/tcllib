@@ -2,7 +2,7 @@
 '\" Generated from file 'unicode_data\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007, Sergei Golovan <sgolovan@nes\&.ru>
 '\"
-.TH "unicode::data" n 1\&.1\&.0 tcllib "Preparation of Internationalized Strings"
+.TH "unicode::data" n 1\&.1\&.1 tcllib "Preparation of Internationalized Strings"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ unicode::data \- unicode data tables, generated, internal
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBunicode::data 1\&.1\&.0\fR
+package require \fBunicode::data 1\&.1\&.1\fR
 .sp
 .BE
 .SH DESCRIPTION

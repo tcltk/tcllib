@@ -2669,10 +2669,12 @@ proc ::struct::matrix::CheckSerialization {ser rvar cvar dvar} {
 
     # Check rows/columns information
 
+    ##nagelfar ignore
     if {![string is integer -strict $r] || ($r < 0)} {
 	return -code error \
 		"error in serialization: bad number of rows \"$r\"."
     }
+    ##nagelfar ignore
     if {![string is integer -strict $c] || ($c < 0)} {
 	return -code error \
 		"error in serialization: bad number of columns \"$c\"."

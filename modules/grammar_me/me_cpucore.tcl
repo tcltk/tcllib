@@ -858,6 +858,8 @@ namespace eval grammar::me::cpu::core {
     variable tclass {}
     variable tccode
 
+    variable x
+    variable code    
     foreach {x code} {
 	0 alnum
 	1 alpha
@@ -877,6 +879,9 @@ namespace eval grammar::me::cpu::core {
     # Mapping between instruction codes and names.
     variable iname
 
+    variable z
+    variable insn
+    variable notes
     foreach {z insn x notes} {
 	0  ict_advance            1	{-- TESTED}
 	1  ict_match_token        2	{-- TESTED}
@@ -925,6 +930,7 @@ proc ::grammar::me::cpu::core::INDEX {list i label} {
     } elseif {[regexp {^end-([0-9]+)$} $i -> n]} {
 	set i [expr {[llength $list] - $n -1}]
     }
+    ##nagelfar ignore
     if {
 	![string is integer -strict $i] ||
 	($i < 0) ||
@@ -1153,4 +1159,4 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide grammar::me::cpu::core 0.3
+package provide grammar::me::cpu::core 0.4

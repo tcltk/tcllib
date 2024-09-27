@@ -19,11 +19,7 @@ namespace eval ::zipfile::encode {}
 namespace eval ::zipfile::mkzip {}
 
 proc ::zipfile::mkzip::setbinary chan {
-  fconfigure $chan \
-      -encoding    binary \
-      -translation binary \
-      -eofchar     {}
-
+  fconfigure $chan -translation binary
 }
 
 # zip::timet_to_dos
@@ -296,4 +292,4 @@ proc ::zipfile::mkzip::mkzip {filename args} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::mkzip 1.2.3
+package provide zipfile::mkzip 1.2.4

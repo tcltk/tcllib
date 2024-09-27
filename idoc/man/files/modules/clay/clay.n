@@ -2,7 +2,7 @@
 '\" Generated from file 'clay\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "clay" n 0\&.8\&.7 tcllib "Clay Framework"
+.TH "clay" n 0\&.8\&.8 tcllib "Clay Framework"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

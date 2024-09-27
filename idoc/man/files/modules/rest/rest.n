@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'rest\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "rest" n 1\&.6 tcllib "A framework for RESTful web services"
+.TH "rest" n 1\&.7 tcllib "A framework for RESTful web services"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ rest \- define REST web APIs and call them inline or asychronously
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBrest ?1\&.6?\fR
+package require \fBrest ?1\&.7?\fR
 .sp
 \fB::rest::simple\fR \fIurl\fR \fIquery\fR ?\fIconfig\fR? ?\fIbody\fR?
 .sp
@@ -357,6 +357,8 @@ The \fIconfig\fR dictionary supports the following keys
 \fBheaders\fR
 .TP
 \fBmethod\fR
+.TP
+\fBtimeout\fR
 .RE
 .sp
 Two quick examples:
@@ -708,6 +710,12 @@ when encountering an HTTP error, or not\&. The default is to not return
 the response body on error\&.
 .sp
 See \fBcallback\fR above for more information\&.
+.TP
+\fBtimeout\fR
+The value of this option determines whether to set a timeout on the HTTP
+call\&. By default, no timeout is set\&.
+.sp
+Timeout value is accepted in milliseconds\&.
 .RE
 .PP
 .SH EXAMPLES

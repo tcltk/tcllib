@@ -52,7 +52,8 @@ namespace eval ::math::filters {}
 #
 proc ::math::filters::filterButterworth {lowpass order samplefreq cutofffreq} {
 
-    if { $order <= 0 || ! [string is integer $order] } {
+    ##nagelfar ignore
+    if { ![string is integer $order] || $order <= 0 } {
         return -code error "The order must be a positive integer"
     }
     if { $samplefreq <= 0.0 || $cutofffreq <= 0.0 } {
@@ -247,4 +248,4 @@ namespace eval ::math::filters {
     namespace export filterButterworth filter filterObject
 }
 
-package provide math::filters 0.2
+package provide math::filters 0.3

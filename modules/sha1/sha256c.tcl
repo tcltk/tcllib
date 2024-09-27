@@ -4,8 +4,6 @@
 #   (Rewriting the sha1c wrapper to 256).
 #
 # Wrapper for the Secure Hashing Algorithm (SHA256)
-#
-# $Id: sha256c.tcl,v 1.5 2009/05/07 00:35:10 patthoyts Exp $
 
 package require critcl;        # needs critcl
 # @sak notprovided sha256c
@@ -179,7 +177,6 @@ critcl::api header sha256.h
 ::critcl::api function void SHA256Init {
 	SHA256Context *sc
 }
-
 ::critcl::api function void SHA256Update {
 	SHA256Context *sc
 	{const void} *data

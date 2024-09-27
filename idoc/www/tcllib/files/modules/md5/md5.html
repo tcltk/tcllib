@@ -157,9 +157,9 @@ attack. MD5 should be used in preference to MD4 for new applications.</p>
 <p>If you have <b class="package">critcl</b> and have built the <b class="package">tcllibc</b>
 package then the implementation of the hashing function will be
 performed by compiled code. Alternatively if you have either
-<b class="package">cryptkit</b> or <b class="package">Trf</b> then either of these can be used to
+<b class="package">cryptkit</b> or <b class="package">Trf</b> then either of these is used to
 accelerate the digest computation. If no suitable compiled package is
-available then the pure-Tcl implementation wil be used. The
+available then the pure-Tcl implementation is used. The
 programming interface remains the same in all cases.</p>
 <p><em>Note</em> the previous version of this package always returned a
 hex encoded string. This has been changed to simplify the programming
@@ -167,11 +167,24 @@ interface and to make this version more compatible with other
 implementations. To obtain the previous usage, either explicitly
 specify package version 1 or use the <i class="arg">-hex</i> option to the
 <b class="cmd">md5</b> command.</p>
+<p><em>BEWARE</em>
+The commands in this package expect binary data as their input.
+When a <b class="option">-file</b> is provided then this is ensured by the commands
+themselves, as they open the referenced file in binary mode.
+When literal data, or a <b class="option">-channel</b> are provided instead, then the
+command's <em>caller is responsible</em> for ensuring this fact.
+The necessary conversion command is <b class="cmd">encoding convertto utf-8 $string</b>.</p>
+<p><em>ATTENTION</em>, there is a <em>Tcl 9 COMPATIBILITY ISSUE</em> here.</p>
+<p><em>Tcl 8.x silently mishandles</em> non-binary input by cutting it
+internally to size. I.e. by only using the low byte of a higher unicode point.
+No error is thrown, the <em>result is simply wrong</em>.</p>
+<p><em>Tcl 9 throws an error</em> instead, i.e.</p>
+<pre class="doctools_example">expected byte sequence but character &lt;location&gt; was ...</pre>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::md5::md5</b> <span class="opt">?<i class="arg">-hex</i>?</span> [ <i class="arg">-channel channel</i> | <i class="arg">-file filename</i> | <i class="arg">string</i> ]</a></dt>
-<dd><p>Calculate the MD5 digest of the data given in string. This is returned
+<dd><p>Calculate the MD5 digest of the binary data given in string. This is returned
 as a binary string by default. Giving the <i class="arg">-hex</i> option will
 return a hexadecimal encoded version of the digest.</p>
 <p>The data to be hashed can be specified either as a string argument to

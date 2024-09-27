@@ -20,7 +20,7 @@ package require Tcl 8.5 9
 # Define the snit namespace and save the library directory
 
 namespace eval ::snit:: {
-    set library [file dirname [info script]]
+    variable library [file dirname [info script]]
 }
 
 source [file join $::snit::library main1.tcl]
@@ -29,4 +29,4 @@ source [file join $::snit::library main1.tcl]
 
 source [file join $::snit::library validate.tcl]
 
-package provide snit 1.4.2
+package provide snit 1.4.3

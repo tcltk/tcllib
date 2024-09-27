@@ -2,7 +2,7 @@
 [//000000001]: # (struct::record \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'record\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Brett Schwarz <brett\_schwarz@yahoo\.com>)
-[//000000004]: # (struct::record\(n\) 1\.2\.3 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::record\(n\) 1\.2\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -52,7 +52,7 @@ struct::record \- Define and create records \(similar to 'C' structures\)
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require struct::record ?1\.2\.3?  
+package require struct::record ?1\.2\.4?  
 
 [__record define__ *recordName* *recordMembers* ?*instanceName1 instanceName2 \.\.\.*?](#1)  
 [__record show__ *record*](#2)  

@@ -535,8 +535,9 @@ proc ::ripemd::ripemd160::<<< {v n} {
 namespace eval ::ripemd::ripemd160 {
 
     # Inline function FF and FFF
-    set Split {(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\d+)}
+    variable Split {(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\d+)}
     
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+FFF?\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -545,6 +546,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
     
     # Inline function GG
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+GG\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -554,6 +556,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline function GGG
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+GGG\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -563,6 +566,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline function HH
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+HH\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -572,6 +576,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline function HHH
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+HHH\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -581,6 +586,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline function II
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+II\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -590,6 +596,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline function III
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+III\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -599,6 +606,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline function JJ
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+JJ\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -608,6 +616,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline function JJJ
+    ##nagelfar ignore
     regsub -all -line \
         "^\\s+JJJ\\s+$Split$" \
         $RIPEMD160Hash_body \
@@ -617,6 +626,7 @@ namespace eval ::ripemd::ripemd160 {
         RIPEMD160Hash_body
 
     # Inline simple <<<
+    ##nagelfar ignore
     regsub -all -line \
         {\[<<< (\$\S+)\s+(\d+)\]$} \
         $RIPEMD160Hash_body \
@@ -855,12 +865,10 @@ namespace eval ::ripemd::ripemd160 {
     unset e
 }
 
-package provide ripemd160 1.0.6
+package provide ripemd160 1.0.7
 
 # -------------------------------------------------------------------------
 # Local Variables:
 #   mode: tcl
 #   indent-tabs-mode: nil
 # End:
-
-

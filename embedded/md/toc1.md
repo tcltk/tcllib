@@ -979,6 +979,8 @@
 
       * [try]()
 
+          + [file::home](tcllib/files/modules/try/tcllib\_fhome\.md) file home \- Return home directory of current or other user
+
           + [throw](tcllib/files/modules/try/tcllib\_throw\.md) throw \- Throw an error exception with a message
 
           + [try](tcllib/files/modules/try/tcllib\_try\.md) try \- Trap and process errors and exceptions

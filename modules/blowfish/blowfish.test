@@ -64,8 +64,7 @@ proc do-chan {data script} {
     upvar 1 in in msg msg
 
     set p  [makeBinaryFile $data IN]
-    set in [open $p r]
-    fconfigure $in -translation binary -encoding binary
+    set in [open $p rb]
             
     set r [list [catch {
         uplevel 1 $script

@@ -68,6 +68,7 @@ proc ::math::special::J1 {x} {
 proc ::math::special::Jn {n x} {
     variable pi
 
+    ##nagelfar ignore
     if { ![string is integer -strict $n] } {
          return -code error "Order argument must be integer"
     }
@@ -145,6 +146,7 @@ proc ::math::special::J-1/2 {x} {
 namespace eval ::math::special {}
 
 proc ::math::special::I_n {n x} {
+    ##nagelfar ignore
     if { ! [string is integer $n] || $n < 0 } {
         error "Wrong order: must be positive integer or zero"
     }

@@ -2,7 +2,7 @@
 '\" Generated from file 'me_cpucore\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::me::cpu::core" n 0\&.3 tcllib "Grammar operations and usage"
+.TH "grammar::me::cpu::core" n 0\&.4 tcllib "Grammar operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ grammar::me::cpu::core \- ME virtual machine state manipulation
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::me::cpu::core ?0\&.3?\fR
+package require \fBgrammar::me::cpu::core ?0\&.4?\fR
 .sp
 \fB::grammar::me::cpu::core\fR \fBdisasm\fR \fIasm\fR
 .sp

@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.8.6
+set version 0.8.8
 set module clay
 set filename clay
 if {[file exists [file join $moddir .. .. scripts practcl.tcl]]} {
@@ -77,6 +77,7 @@ foreach file {
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 # These files can be loaded in any order
+##nagelfar ignore
 foreach file [lsort -dictionary [glob [file join $srcdir *.tcl]]] {
   if {[file tail $file] in $loaded} continue
   lappend loaded $file

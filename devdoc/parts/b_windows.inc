@@ -16,3 +16,8 @@ perform installation.
 }]
 
 inside it.
+
+[emph Note] that this installer handles only the Tcl packages,
+applications, and the documentation.
+
+It does [emph not] handle the binary Tcllibc.

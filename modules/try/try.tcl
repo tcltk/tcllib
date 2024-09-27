@@ -51,6 +51,7 @@ namespace eval ::tcl::control {
 		"on" {
 		    incr i
 		    set code [lindex $args $i]
+		    ##nagelfar ignore
 		    if {[dict exists $magicCodes $code]} {
 			set code [dict get $magicCodes $code]
 		    } elseif {![string is integer -strict $code]} {

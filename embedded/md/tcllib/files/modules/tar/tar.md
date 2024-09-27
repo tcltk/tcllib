@@ -1,7 +1,7 @@
 
 [//000000001]: # (tar \- Tar file handling)
 [//000000002]: # (Generated from file 'tar\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (tar\(n\) 0\.12 tcllib "Tar file handling")
+[//000000003]: # (tar\(n\) 0\.13 tcllib "Tar file handling")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,12 +35,12 @@ tar \- Tar file creation, extraction & manipulation
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require tar ?0\.12?  
+package require tar ?0\.13?  
 
-[__::tar::contents__ *tarball* ?__\-chan__?](#1)  
-[__::tar::stat__ *tarball* ?file? ?__\-chan__?](#2)  
+[__::tar::contents__ *tarball* ?__\-chan__? ?__\-gzip__?](#1)  
+[__::tar::stat__ *tarball* ?file? ?__\-chan__? ?__\-gzip__?](#2)  
 [__::tar::untar__ *tarball* *args*](#3)  
-[__::tar::get__ *tarball* *fileName* ?__\-chan__?](#4)  
+[__::tar::get__ *tarball* *fileName* ?__\-chan__? ?__\-gzip__?](#4)  
 [__::tar::create__ *tarball* *files* *args*](#5)  
 [__::tar::add__ *tarball* *files* *args*](#6)  
 [__::tar::remove__ *tarball* *files*](#7)  
@@ -78,9 +78,27 @@ For all commands, when using __\-chan__ \.\.\.
      unstack the transformation before seeking the channel back to a suitable
      position, and \(b\) for restacking it after\.
 
+Regarding support for gzip compression:
+
+  1. Errors are thrown when attempting to read from compressed tar archives
+     while compression support \(i\.e\. __::zlib__\) is not available\.
+
+  1. Errors are thrown when attempting to read an uncompressed tar archive when
+     compression is requested by the user \(__\-gzip__\)\.
+
+     No errors are thrown when attempting to read a compressed tar archive when
+     compression was not requested, and is supported\. In that case the commands
+     automatically activate the code handling the compression\.
+
+  1. Errors are thrown when attempting to edit compressed tar archives\. See the
+     commands __tar::add__, and __tar::remove__\. This is not supported\.
+
+  1. Creation of compressed tar archives however is supported, as this
+     sequentially writes the archive, allowing for streaming compression\.
+
 # <a name='section3'></a>COMMANDS
 
-  - <a name='1'></a>__::tar::contents__ *tarball* ?__\-chan__?
+  - <a name='1'></a>__::tar::contents__ *tarball* ?__\-chan__? ?__\-gzip__?
 
     Returns a list of the files contained in *tarball*\. The order is not
     sorted and depends on the order files were stored in the archive\.
@@ -89,7 +107,7 @@ For all commands, when using __\-chan__ \.\.\.
     channel\. It is assumed that the channel was opened for reading, and
     configured for binary input\. The command will *not* close the channel\.
 
-  - <a name='2'></a>__::tar::stat__ *tarball* ?file? ?__\-chan__?
+  - <a name='2'></a>__::tar::stat__ *tarball* ?file? ?__\-chan__? ?__\-gzip__?
 
     Returns a nested dict containing information on the named ?file? in
     *tarball*, or all files if none is specified\. The top level are pairs of
@@ -151,7 +169,7 @@ For all commands, when using __\-chan__ \.\.\.
         puts "Extracted $file ($size bytes)"
         }
 
-  - <a name='4'></a>__::tar::get__ *tarball* *fileName* ?__\-chan__?
+  - <a name='4'></a>__::tar::get__ *tarball* *fileName* ?__\-chan__? ?__\-gzip__?
 
     Returns the contents of *fileName* from the *tarball*\.
 

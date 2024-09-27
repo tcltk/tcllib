@@ -6,16 +6,13 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: png.tcl,v 1.11 2012/07/09 16:35:04 afaupell Exp $
 
-package provide png 0.4
+package provide png 0.4.1
 
 namespace eval ::png {}
 
 proc ::png::_openPNG {file {mode r}} {
-    set fh [open $file $mode]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file ${mode}b]
     if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
     return $fh
 }
@@ -167,8 +164,7 @@ proc ::png::removeComments {file} {
         }
     }
     close $fh
-    set fh [open $file w]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file wb]
     puts -nonewline $fh $data
     close $fh
 }
@@ -298,8 +294,7 @@ proc ::png::write {file in} {
 
 proc ::png::_write {file chunks} {
     package require crc32
-    set fh [open $file w+]
-    fconfigure $fh -encoding binary -translation binary
+    set fh [open $file wb+]
     puts -nonewline $fh "\x89PNG\r\n\x1a\n"
     foreach chunk $chunks {
         puts -nonewline $fh [binary format Ia4 [string length [lindex $chunk 1]] [lindex $chunk 0]]

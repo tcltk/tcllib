@@ -6,8 +6,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: pluginmgr.tcl,v 1.8 2009/03/31 02:14:40 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Description
@@ -25,6 +23,7 @@
 
 package require Tcl 8.5 9
 package require snit
+package require file::home	;# file home forward compatibility
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -390,12 +389,7 @@ snit::type ::pluginmgr {
 	set prefix {}
 	foreach part $name {
 	    lappend prefix $part
-            if {[package vsatisfies [package present Tcl] 9]} {
-                set pd [file join [file home] .[join $prefix /] plugin]
-            } else {
-                set pd [file join ~ .[join $prefix /] plugin]
-            }
-
+	    set pd [file join [file home] .[join $prefix /] plugin]
 	    #puts "+? path($pd)"
 
 	    if {[file exists $pd]} {
@@ -407,12 +401,7 @@ snit::type ::pluginmgr {
 	    # also more consistent with the environment variables
 	    # above, where we also use plugins, plural.
 
-            if {[package vsatisfies [package present Tcl] 9]} {
-                set pd [file join [file home] .[join $prefix /] plugins]
-            } else {
-                set pd [file join ~ .[join $prefix /] plugins]
-            }
-
+	    set pd [file join [file home] .[join $prefix /] plugins]
 	    #puts "+? path($pd)"
 
 	    if {[file exists $pd]} {
@@ -426,4 +415,4 @@ snit::type ::pluginmgr {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pluginmgr 0.4
+package provide pluginmgr 0.5

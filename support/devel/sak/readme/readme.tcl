@@ -18,7 +18,7 @@ proc ::sak::readme::usage {} {
     exit 1
 }
 
-proc ::sak::readme::run {theformat} {
+proc ::sak::readme::run {theformat intro depr} {
     global package_name package_version
 
     set pname [string totitle $package_name]
@@ -26,7 +26,11 @@ proc ::sak::readme::run {theformat} {
     getpackage struct::set      struct/sets.tcl
     getpackage struct::matrix   struct/matrix.tcl
     getpackage textutil::adjust textutil/adjust.tcl
+    getpackage fileutil         fileutil/fileutil.tcl
 
+    if {$intro ne {}} { set intro [fileutil::cat $intro] }
+    if {$depr  ne {}} { set depr  [fileutil::cat $depr ] }
+    
     # Future: Consolidate with ... review ...
     # Determine which packages are potentially changed, from the set
     # of modules touched since the last release, as per the fossil
@@ -220,6 +224,12 @@ proc ::sak::readme::run {theformat} {
 
     CNT add row [list $np {packages, total} in $nm {modules, total}]
 
+    # .... emit the collected information ....
+
+    if {$intro ne {}} {
+	puts $intro
+    }
+    
     Table CNT Overview {
 	CNT delete row 0 ; # strip title row
     } {
@@ -238,6 +248,10 @@ proc ::sak::readme::run {theformat} {
 	SepMD NEW {} [lrange [Clean NEW 1 0] 1 end-1]
     }
 
+    if {$depr ne {}} {
+	puts $depr
+    }
+    
     Table CHG "Changes from $pname $old_version to $package_version" {
 	Sep CHG - [Clean CHG 1 0]
     } {
@@ -272,7 +286,6 @@ proc ::sak::readme::run {theformat} {
     }
 
     puts stderr [ISS format 2string]
-
 
     puts stderr [=red "Issues found ([llength $issues])"]
     puts stderr "  Please run \"./sak.tcl review\" to resolve,"

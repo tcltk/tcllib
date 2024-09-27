@@ -11,7 +11,7 @@
 
 package require Tcl 8.5 9
 package require cmdline
-package provide fileutil 1.16.2
+package provide fileutil 1.16.3
 
 namespace eval ::fileutil {
     namespace export \
@@ -798,7 +798,7 @@ proc ::fileutil::insertIntoFile {args} {
     Spec ReadWritable $args opts fname at data
 
     set max [file size $fname]
-    CheckLocation $at $max insertion
+    CheckLocation $at $max insertion ; set at [format %d $at]
 
     if {[string length $data] == 0} {
 	# Another degenerate case, inserting nothing.
@@ -853,8 +853,8 @@ proc ::fileutil::removeFromFile {args} {
     Spec ReadWritable $args opts fname at n
 
     set max [file size $fname]
-    CheckLocation    $at $max removal
-    CheckLength   $n $at $max removal
+    CheckLocation    $at $max removal ; set at [format %d $at]
+    CheckLength   $n $at $max removal ; set n  [format %d $n]
 
     if {$n == 0} {
 	# Another degenerate case, removing nothing.
@@ -911,8 +911,8 @@ proc ::fileutil::replaceInFile {args} {
     Spec ReadWritable $args opts fname at n data
 
     set max [file size $fname]
-    CheckLocation    $at $max replacement
-    CheckLength   $n $at $max replacement
+    CheckLocation    $at $max replacement ; set at [format %d $at]
+    CheckLength   $n $at $max replacement ; set n  [format %d $n]
 
     if {
 	($n == 0) &&
@@ -1191,6 +1191,7 @@ proc ::fileutil::SetOptions {c opts} {
 }
 
 proc ::fileutil::CheckLocation {at max label} {
+    ##nagelfar ignore
     if {![string is integer -strict $at]} {
 	return -code error \
 		"Expected integer but got \"$at\""
@@ -1204,6 +1205,7 @@ proc ::fileutil::CheckLocation {at max label} {
 }
 
 proc ::fileutil::CheckLength {n at max label} {
+    ##nagelfar ignore
     if {![string is integer -strict $n]} {
 	return -code error \
 		"Expected integer but got \"$n\""

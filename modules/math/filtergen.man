@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::filters n 0.2]
+[vset VERSION 0.3]
+[manpage_begin math::filters n [vset VERSION]]
 [keywords digital]
 [keywords filtering]
 [copyright {2020 by Arjen Markus}]
@@ -8,7 +9,7 @@
 [category  Mathematics]
 [require Tcl "8.6 9"]
 [require TclOO]
-[require math::filters [opt 0.2]]
+[require math::filters [opt [vset VERSION]]]
 
 [description]
 [para]

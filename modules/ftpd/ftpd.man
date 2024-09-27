@@ -1,4 +1,4 @@
-[vset VERSION 1.4]
+[vset VERSION 1.4.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftpd n [vset VERSION]]
 [keywords ftp]

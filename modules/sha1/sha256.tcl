@@ -83,8 +83,8 @@ proc ::sha2::LoadAccelerator {name} {
             set r 1
         }
         critcl {
-            if {![catch {package require tcllibc}]
-                || ![catch {package require sha256c}]} {
+            if {![catch {package require sha256c}] ||
+                ![catch {package require tcllibc}]} {
                 set r [expr {[info commands ::sha2::sha256c_update] != {}}]
             }
         }
@@ -824,7 +824,7 @@ namespace eval ::sha2 {
     unset e
 }
 
-package provide sha256 1.0.5
+package provide sha256 1.0.6
 
 # -------------------------------------------------------------------------
 # Local Variables:

@@ -5,5 +5,5 @@
 if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 
 package ifneeded xsxp 1.1   [list source [file join $dir xsxp.tcl]]
-package ifneeded S3   1.0.4 [list source [file join $dir S3.tcl]]
+package ifneeded S3   1.0.5 [list source [file join $dir S3.tcl]]
 

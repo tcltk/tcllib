@@ -35,7 +35,7 @@ ops, plus the math for it, would be faster than running through the tree of cond
 
 For `binary` and `ternay` the size of the code is actually more strongly influenced by the chosen
 formatting than the Tcl commands themselves. I.e. a good chunk of the overhead comes from formatting
-the Tcl code readability. Forsaking that brings both down to the size of `linear`.
+the Tcl code for readability. Forsaking that brings both down to the size of `linear`.
 
 Because of that code size is ignored now, and `binary` is chosen for speed. It is a tick faster than
 `ternary`. The reason for that is currently not known.

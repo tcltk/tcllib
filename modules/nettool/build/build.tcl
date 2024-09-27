@@ -63,9 +63,11 @@ while {[gets $fin line]>=0} {
   set usage [lindex $lline 3]
 
   }] continue
+  ##nagelfar ignore
   if {![string is integer -strict $port]} {
     set startport [lindex [split $port -] 0]
     set endport [lindex [split $port -] 1]
+    ##nagelfar ignore
     if {[string is integer -strict $startport] && [string is integer -strict $endport]} {
       for {set i $startport} {$i<=$endport}  {incr i}  {
         record $service $i $type $usage
@@ -142,6 +144,7 @@ foreach file {
 }
 
 # These files can be loaded in any order
+##nagelfar ignore
 foreach file [glob [file join $srcdir *.tcl]] {
   if {[file tail $file] in $loaded} continue
   lappend loaded $file

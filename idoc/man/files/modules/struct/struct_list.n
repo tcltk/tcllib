@@ -3,7 +3,7 @@
 '\" Copyright (c) 2003-2005 by Kevin B\&. Kenny\&. All rights reserved
 '\" Copyright (c) 2003-2012 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "struct::list" n 1\&.8\&.6 tcllib "Tcl Data Structures"
+.TH "struct::list" n 1\&.9 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ struct::list \- Procedures for manipulating lists
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::list ?1\&.8\&.6?\fR
+package require \fBstruct::list ?1\&.9?\fR
 .sp
 \fB::struct::list\fR \fBlongestCommonSubsequence\fR \fIsequence1\fR \fIsequence2\fR ?\fImaxOccurs\fR?
 .sp
@@ -315,7 +315,7 @@ package require \fBstruct::list ?1\&.8\&.6?\fR
 .sp
 \fB::struct::list\fR \fBiota\fR \fIn\fR
 .sp
-\fB::struct::list\fR \fBequal\fR \fIa\fR \fIb\fR
+\fB::struct::list\fR \fBequal\fR ?\fB-simple\fR? ?\fB--\fR? \fIa\fR \fIb\fR
 .sp
 \fB::struct::list\fR \fBrepeat\fR \fIsize\fR \fIelement1\fR ?\fIelement2\fR \fIelement3\fR\&.\&.\&.?
 .sp
@@ -723,11 +723,15 @@ of the list contain the number \fBi\fR\&.
 .sp
 For "\fIn\fR == \fB0\fR" an empty list will be returned\&.
 .TP
-\fB::struct::list\fR \fBequal\fR \fIa\fR \fIb\fR
+\fB::struct::list\fR \fBequal\fR ?\fB-simple\fR? ?\fB--\fR? \fIa\fR \fIb\fR
 The subcommand compares the two lists \fIa\fR and \fIb\fR for
 equality\&. In other words, they have to be of the same length and have
-to contain the same elements in the same order\&. If an element is a
-list the same definition of equality applies recursively\&.
+to contain the same elements in the same order\&.
+.sp
+By default equality checks are applied recursively to list elements which are lists themselves\&.
+This behaviour is disabled when specifying the option \fB-simple\fR\&.
+.sp
+The option \fB--\fR disables option processing even if the following argument looks like such\&.
 .sp
 A boolean value will be returned as the result of the command\&.
 This value will be \fBtrue\fR if the two lists are equal, and

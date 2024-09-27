@@ -83,6 +83,7 @@ proc ::bee::encodeString {string} {
 #	The bee-encoded form of the integer number.
 
 proc ::bee::encodeNumber {num} {
+    ##nagelfar ignore
     if {![string is integer -strict $num]} {
 	return -code error "Expected integer number, got \"$num\""
     }
@@ -217,6 +218,7 @@ proc ::bee::decode {value {evar {}} {start 0}} {
 	}
 	incr end -1 ; # Get last character before closing 'e'.
 	set num [string range $value $start $end]
+	##nagelfar ignore
 	if {
 	    [regexp {^-0+$} $num] ||
 	    ![string is integer -strict $num] ||
@@ -228,7 +230,7 @@ proc ::bee::decode {value {evar {}} {start 0}} {
 	# ........ ; # the next bee-value behind the current one.
 
 	#puts " ($num) @$end"
-	return $num
+	return [format %d $num]
 
     } elseif {($type eq "l") || ($type eq "d")} {
 	#puts -nonewline $type\n ; flush stdout
@@ -274,6 +276,7 @@ proc ::bee::decode {value {evar {}} {start 0}} {
 	set length [string range $value $start $end]
 	incr end 2 ;# Skip to beginning of the string after the colon
 
+	##nagelfar ignore
 	if {![string is integer -strict $length]} {
 	    return -code error "Expected integer number for string length, got \"$length\""
 	} elseif {$length < 0} {
@@ -285,6 +288,7 @@ proc ::bee::decode {value {evar {}} {start 0}} {
 	}
 
 	#puts -nonewline \[$length\] ; flush stdout
+	set length [format %d $length]
 	if {$length > 0} {
 	    set  start $end
 	    incr end $length
@@ -355,6 +359,7 @@ proc ::bee::decodeIndices {value {evar {}} {start 0}} {
 	}
 	incr end -1 ; # Get last character before closing 'e'.
 	set num [string range $value $start $end]
+	##nagelfar ignore
 	if {
 	    [regexp {^-0+$} $num] ||
 	    ![string is integer -strict $num] ||
@@ -458,6 +463,7 @@ proc ::bee::decodeIndices {value {evar {}} {start 0}} {
 	set length [string range $value $start $end]
 	incr end 2 ;# Skip to beginning of the string after the colon
 
+	##nagelfar ignore
 	if {![string is integer -strict $length]} {
 	    return -code error "Expected integer number for string length, got \"$length\""
 	} elseif {$length < 0} {
@@ -468,6 +474,7 @@ proc ::bee::decodeIndices {value {evar {}} {start 0}} {
 	    return -code error "String not large enough for value"
 	}
 
+	set length [format %d $length]
 	#puts -nonewline \[$length\] ; flush stdout
 	incr end -1
 	if {$length > 0} {
@@ -773,6 +780,7 @@ proc ::bee::Parse {token} {
 	    } elseif {$ch eq "e"} {
 		# Integer closes. Validate and report.
 		#puts validate
+		##nagelfar ignore
 		if {
 		    [regexp {^-0+$} $value] ||
 		    ![string is integer -strict $value] ||
@@ -780,7 +788,7 @@ proc ::bee::Parse {token} {
 		} {
 		    return -code error "Expected integer number, got \"$value\""
 		}
-
+		set value [format %d $value]
 		if {[Complete $token $value]} {return}
 		set value ""
 		set current intro
@@ -801,6 +809,7 @@ proc ::bee::Parse {token} {
 		# then perform data processing.
 
 		set num $value
+		##nagelfar ignore
 		if {
 		    [regexp {^-0+$} $num] ||
 		    ![string is integer -strict $num] ||
@@ -808,7 +817,7 @@ proc ::bee::Parse {token} {
 		} {
 		    return -code error "Expected integer number as string length, got \"$num\""
 		}
-
+		set num [format %d $num]
 		set value ""
 
 		# We may have already part of the data in
@@ -987,4 +996,4 @@ proc ::bee::decodePush {token string} {
 }
 
 
-package provide bee 0.2
+package provide bee 0.3

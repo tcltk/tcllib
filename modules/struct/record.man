@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[vset VERSION 1.2.3]
+[vset VERSION 1.2.4]
 [manpage_begin struct::record n [vset VERSION]]
 [keywords {data structures}]
 [keywords record]

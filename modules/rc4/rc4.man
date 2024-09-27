@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin rc4 n 1.2.0]
+[vset VERSION 1.2.0]
+[manpage_begin rc4 n [vset VERSION]]
 [see_also aes(n)]
 [see_also blowfish(n)]
 [see_also des(n)]
@@ -14,7 +15,7 @@
 [titledesc {Implementation of the RC4 stream cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl "8.5 9"]
-[require rc4 [opt 1.2.0]]
+[require rc4 [opt [vset VERSION]]]
 [description]
 [para]
 

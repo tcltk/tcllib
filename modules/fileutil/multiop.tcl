@@ -509,6 +509,7 @@ snit::type ::fileutil::multi::op {
 		# that the source is the destination. We avoid the
 		# trouble by copying the contents of the source,
 		# instead of the directory itself.
+		##nagelfar ignore
 		foreach path [glob -directory $s *] {
 		    file copy -force $path $d
 		}

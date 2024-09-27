@@ -24,7 +24,7 @@
 # version 1.3:   added wasserstein-distance, kl-divergence and logit regression
 
 package require Tcl 8.5 9 ; # 8.5+ feature in test-anova-F and others: **-operator
-package provide math::statistics 1.6.0
+package provide math::statistics 1.6.1
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
@@ -99,10 +99,12 @@ namespace eval ::math::statistics {
 #
 #
 namespace eval ::math::statistics {
+    variable type
     foreach type {mean min max number stdev var pstdev pvar} {
         proc $type { values } "BasicStats $type \$values"
     }
     proc basic-stats { values } "BasicStats all \$values"
+    unset type
 }
 
 # BasicStats --

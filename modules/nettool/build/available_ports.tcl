@@ -2,7 +2,7 @@
 # topic: 868a79cedf28924191fd86aa85f6dd1d
 ###
 namespace eval ::nettool {
-  set blocks {}
+  variable blocks {}
 }
 
 lappend ::nettool::blocks 1028 1028

@@ -495,6 +495,7 @@ proc ::struct::tree::_insert {name parentNode index args} {
     variable ${name}::children
 
     # Make sure the index is numeric
+    ##nagelfar ignore
     if { ![string is integer $index] } {
 	# If the index is not numeric, make it numeric by lsearch'ing for
 	# the value at index, then incrementing index (because "end" means
@@ -593,6 +594,7 @@ proc ::struct::tree::_move {name parentNode index node args} {
     variable ${name}::children
 
     # Make sure the index is numeric
+    ##nagelfar ignore
     if { ![string is integer $index] } {
 	# If the index is not numeric, make it numeric by lsearch'ing for
 	# the value at index, then incrementing index (because "end" means

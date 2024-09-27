@@ -4,7 +4,7 @@
 # build.tcl
 ###
 package require Tcl 8.5 9
-package provide nettool 0.5.3
+package provide nettool 0.5.4
 namespace eval ::nettool {}
 set ::nettool::version 0.5.3
 
@@ -186,7 +186,7 @@ proc ::nettool::user_data_root {appname} {
 # topic: 868a79cedf28924191fd86aa85f6dd1d
 ###
 namespace eval ::nettool {
-  set blocks {}
+  variable blocks {}
 }
 
 lappend ::nettool::blocks 1028 1028

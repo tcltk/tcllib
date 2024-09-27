@@ -3202,6 +3202,7 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 	    }
 
 	    # Destination reference ok ?
+	    ##nagelfar ignore
 	    if {
 		![string is integer -strict $dst] ||
 		($dst % 3) ||

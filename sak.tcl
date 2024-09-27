@@ -681,6 +681,7 @@ proc gd-gen-tap {} {
 	    # A single package in the module. And only one version of
 	    # it as well. Otherwise we are in the multi-pkg branch.
 
+	    foreach {p vlist} {{} {}} break	   
 	    foreach {p vlist} [ppackages $m] break
 	    set desc ""
 	    catch {set desc [string trim [lindex $pd($p) 1]]}
@@ -1545,15 +1546,17 @@ proc __critcl {} {
         # -debug and -clean only work with critcl >= v04
         switch -exact -- $option {
             -keep  { append flags " -keep" }
-            -debug {
-		append flags " -debug [lindex $argv 1]"
+	    -I -
+	    -L -
+	    -libdir -
+	    -includedir -
+	    -debug -
+	    -pkg -
+	    -target {
+		append flags " $option [lindex $argv 1]"
 		set argv [lreplace $argv 0 0]
 	    }
             -clean { append flags " -clean" }
-            -target {
-		append flags " -target [lindex $argv 1]"
-		set argv [lreplace $argv 0 0]
-	    }
             -- { set argv [lreplace $argv 0 0]; break }
             default { break }
         }
@@ -1663,8 +1666,6 @@ proc __critcl-modules {} {
 proc critcl_module {pkg {extra ""}} {
     global critcl distribution critclmodules critcldefault
 
-    lappend extra -cache [pwd]/.critcl
-
     if {$pkg == $critcldefault} {
 	set files {}
 	foreach f $critclmodules($critcldefault) {
@@ -1682,9 +1683,13 @@ proc critcl_module {pkg {extra ""}} {
         }
     }
     set target [file join $distribution modules]
+
+    if {"-libdir" ni $extra} { lappend extra -libdir [list $target] }
+    if {"-pkg"    ni $extra} { lappend extra -pkg    [list $pkg]    }
+    
     catch {
-        puts "$critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files"
-        eval exec $critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files 
+        puts "$critcl -cache [pwd]/.critcl -force $extra $files"
+        eval exec $critcl -cache [pwd]/.critcl -force $extra $files 
     } r
     puts $r
     return

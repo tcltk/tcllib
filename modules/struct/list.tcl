@@ -9,8 +9,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.27 2011/09/17 14:35:36 mic42 Exp $
-#
 #----------------------------------------------------------------------
 
 package require Tcl 8.5 9
@@ -944,12 +942,39 @@ proc ::struct::list::Ldelete {var item} {
 # Side effects:
 #       None
 
-proc ::struct::list::Lequal {a b} {
+proc ::struct::list::Lequal {a b args} {
+    # Author of this command is "Richard Suchenwirth"
+
+    set args [::lreverse [::lassign [::lreverse [::list $a $b {*}$args]] a b]]
+    # a b args --> args a b
+    set recurse 1
+    while {[string match -* [set o [::lindex $args 0]]]} {
+	set args [::lrange $args 1 end]
+	switch -exact -- $o {
+	    --      break
+	    -simple { set recurse 0 }
+	    default {
+		return -code error "Bad option \"$o\", expected -simple, or --"
+	    }
+	}
+    }
+    if {[::llength $args]} {
+	return -code error "too many arguments after options"
+    }
+    return [EqualCore $recurse $a $b]
+}
+
+proc ::struct::list::EqualCore {recurse a b} {
     # Author of this command is "Richard Suchenwirth"
 
     if {[::llength $a] != [::llength $b]} {return 0}
     if {[::lindex $a 0] == $a && [::lindex $b 0] == $b} {return [string equal $a $b]}
-    foreach i $a j $b {if {![Lequal $i $j]} {return 0}}
+
+    if {$recurse} {
+	foreach i $a j $b {if {![EqualCore $recurse $i $j]} {return 0}}
+    } else {
+	foreach i $a j $b {if {$i ne $j} {return 0}}
+    }
     return 1
 }
 
@@ -1002,6 +1027,7 @@ proc ::struct::list::Lrepeatn {value args} {
 if { [package vcompare [package provide Tcl] 8.5] < 0 } {
 
     proc ::struct::list::Lrepeat {positiveCount value args} {
+	##nagelfar ignore
 	if {![string is integer -strict $positiveCount]} {
 	    return -code error "expected integer but got \"$positiveCount\""
 	} elseif {$positiveCount < 1} {
@@ -1831,4 +1857,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.8.6
+package provide struct::list 1.9

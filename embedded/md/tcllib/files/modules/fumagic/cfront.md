@@ -1,7 +1,7 @@
 
 [//000000001]: # (fileutil::magic::cfront \- file utilities)
 [//000000002]: # (Generated from file 'cfront\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (fileutil::magic::cfront\(n\) 1\.2\.0 tcllib "file utilities")
+[//000000003]: # (fileutil::magic::cfront\(n\) 1\.3\.2 tcllib "file utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ fileutil::magic::cfront \- Generator core for compiler of magic\(5\) files
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require fileutil::magic::cfront ?1\.2\.0?  
+package require fileutil::magic::cfront ?1\.3\.2?  
 package require fileutil::magic::cgen ?1\.2\.0?  
 package require fileutil::magic::rt ?1\.2\.0?  
 package require struct::list  

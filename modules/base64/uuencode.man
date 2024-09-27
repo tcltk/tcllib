@@ -1,4 +1,4 @@
-[manpage_begin uuencode n 1.1.4]
+[manpage_begin uuencode n 1.1.6]
 [keywords encoding]
 [keywords uuencode]
 [copyright {2002, Pat Thoyts}]
@@ -6,7 +6,7 @@
 [titledesc {UU-encode/decode binary data}]
 [category  {Text processing}]
 [require Tcl "8.5 9"]
-[require uuencode [opt 1.1.4]]
+[require uuencode [opt 1.1.6]]
 [description]
 [para]
 

@@ -45,9 +45,9 @@ package require try ?1\.1?
 # <a name='description'></a>DESCRIPTION
 
 This package provides a forward\-compatibility implementation of Tcl 8\.6's
-try/finally command \(TIP 329\), for Tcl 8\.5\. The code was directly pulled from
-Tcl 8\.6 revision ?, when try/finally was implemented as Tcl procedure instead of
-in C\.
+__try__/__finally__ command \(TIP 329\), for Tcl 8\.5\. The code was
+directly pulled from Tcl 8\.6 revision ?, when try/finally was implemented as Tcl
+procedure instead of in C\.
 
   - <a name='1'></a>__::try__ *body* ?*handler\.\.\.*? ?__finally__ *script*?
 

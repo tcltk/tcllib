@@ -5,8 +5,6 @@
 # generates output for errors.  No output means no errors were found.
 #
 # Copyright (c) 2004-2008 by Andreas Kupries
-#
-# RCS: @(#) $Id: sets.testsuite,v 1.6 2008/03/09 04:38:47 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -18,8 +16,10 @@ test set-${impl}-1.0 {nothing} {
 test set-${impl}-1.1 {bogus} {
     catch {setop foo} msg
     set msg
-} {bad option "foo": must be add, contains, difference, empty, equal, exclude, include, intersect, intersect3, size, subsetof, subtract, symdiff, or union}
-
+} [dict get {
+    tcl    {unknown or ambiguous subcommand "foo": must be add, contains, difference, empty, equal, exclude, include, intersect, intersect3, size, subsetof, subtract, symdiff, or union}
+    critcl {bad option "foo": must be add, contains, difference, empty, equal, exclude, include, intersect, intersect3, size, subsetof, subtract, symdiff, or union}
+} $impl]
 
 test set-${impl}-2.0 {emptiness} {
     catch {setop empty} msg
@@ -42,7 +42,6 @@ test set-${impl}-2.3 {emptiness} {
 test set-${impl}-2.4 {emptiness} {
     setop empty $sa
 } 0
-
 
 test set-${impl}-3.0 {size} {
     catch {setop size} msg

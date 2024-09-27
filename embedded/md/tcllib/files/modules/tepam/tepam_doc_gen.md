@@ -2,7 +2,7 @@
 [//000000001]: # (tepam::doc\_gen \- Tcl's Enhanced Procedure and Argument Manager)
 [//000000002]: # (Generated from file 'tepam\_doc\_gen\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2013, Andreas Drollinger)
-[//000000004]: # (tepam::doc\_gen\(n\) 0\.1\.2 tcllib "Tcl's Enhanced Procedure and Argument Manager")
+[//000000004]: # (tepam::doc\_gen\(n\) 0\.1\.3 tcllib "Tcl's Enhanced Procedure and Argument Manager")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -55,7 +55,7 @@ tepam::doc\_gen \- TEPAM DOC Generation, reference manual
 
 package require Tcl 8\.5 9  
 package require tepam 0\.5  
-package require tepam::doc\_gen ?0\.1\.2?  
+package require tepam::doc\_gen ?0\.1\.3?  
 
 [__tepam::doc\_gen::generate__ ?\-format *format*? ?\-style *style*? ?\-header\_footer? ?\-dest\_file *dest\_file*? *name*](#1)  
 [__tepam::doc\_gen::patch__ ?\-format *format*? ?\-style *style*? ?\-search\_pattern *search\_pattern*? ?\-src\_string *src\_string* &#124; \-src\_file *src\_file*? ?\-dest\_file *dest\_file*? ?name?](#2)  

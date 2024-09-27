@@ -278,14 +278,14 @@ package itself\&. It is a collection of (semi-independent) \fITcl\fR
 packages that provide utility functions useful to a large collection
 of Tcl programmers\&.
 .PP
-The audience of this document is anyone wishing to build and install
-the packages found in Tcllib, for either themselves, or others\&.
+This document is targeted at anybody wishing to build and install the
+packages found in Tcllib, for either themselves, or others\&.
 .PP
-For developers intending to work on the packages themselves we
-additionally provide
+We additionally provide
 .IP [1]
 \fITcllib - The Developer's Guide\fR\&.
 .PP
+for developers wishing to work on the packages themselves\&.
 .PP
 Please read \fITcllib - How To Get The Sources\fR first, if that
 was not done already\&. Here we assume that the sources are already
@@ -355,20 +355,26 @@ It is only required when trying to build the C-based
 \fIaccelerators\fR for a number of packages, as explained in
 \fBCritcl & Accelerators\fR
 .PP
-Tcllib's build system looks for it in the ,
-using the name \fBcritcl\fR\&. This is for Unix\&.
-On Windows on the other hand the search is more complex\&. First we look
-for a proper application \fBcritcl\&.exe\fR\&. When that is not found
-we look for a combination of interpreter (\fBtclkitsh\&.exe\fR,
-\fBtclsh\&.exe\fR) and starkit (\fBcritcl\&.kit\fR, \fBcritcl\fR)
-instead\&. \fINote\fR that the choice of starkit can be overriden via
-the environment variable \&.
+\fIBeware\fR: The C accelerators are \fIbuilt by default\fR\&.
 .PP
-Tcllib requires Critcl version 2 or higher\&.
+For Unix Tcllib's build system (\fBsak\&.tcl\fR) looks for it in
+the , using the name \fBcritcl\fR\&.
 .PP
-The github repository providing releases of version 2 and
-higher, and the associated sources, can be found at
-\fIhttps://andreas-kupries\&.github\&.io/critcl\fR\&.
+On Windows on the other hand the search is more complex\&.
+The build system looks first looks for a proper application
+\fBcritcl\&.exe\fR\&.
+When that is not found it looks for a combination of
+interpreter (\fBtclkitsh\&.exe\fR, \fBtclsh\&.exe\fR) and
+starkit (\fBcritcl\&.kit\fR, \fBcritcl\fR) instead\&.
+\fINote\fR that the choice of starkit can be overriden via the
+environment variable \&.
+.PP
+Tcllib 1\&.21 and older requires Critcl version 2 or higher\&.
+.PP
+Tcllib 2\&.0 and newer on the other hand requires Critcl version 3\&.3 or higher\&.
+.PP
+The \fICritcl\fR [https://andreas-kupries\&.github\&.io/critcl]
+provides these releases and the associated sources\&.
 .PP
 Any branch of the repository can be used (if not using the
 prebuild starkit or starpack), although the use of the stable branch
@@ -377,9 +383,9 @@ prebuild starkit or starpack), although the use of the stable branch
 At the above url is also an explanation on how to build and
 install Critcl, including a list of its dependencies\&.
 .PP
-Its instructions will not be repeated here\&. If there are
-problems with these directions please file a ticket against the
-\fICritcl\fR project, and not Tcllib\&.
+Its instructions will not be repeated here\&.
+If there are problems with these directions please file a ticket
+against the \fICritcl\fR project, and not Tcllib\&.
 .SH "BUILD & INSTALLATION INSTRUCTIONS"
 As Tcllib is mainly a bundle of packages written in pure Tcl building
 it is the same as installing it\&. The exceptions to this have their own
@@ -406,6 +412,8 @@ of files to make
 
   \&./configure
   make install
+  # or just
+  make
 
 .CE
 a suitable way of installing it\&.
@@ -413,7 +421,22 @@ This is a standard non-interactive install automatically figuring out
 where to place everything, i\&.e\&. packages, applications, and the
 manpages\&.
 .PP
-To get a graphical installer invoke
+\fIThis includes the Tcllibc binary package\fR\&.
+Therefore requires an installation of Critcl\&.
+.PP
+To install only specific parts of the project use
+.CS
+
+
+  make install-binaries      # Tcllibc\&. Requires an installation of Critcl\&.
+  make install-tcl           # Tcl packages and applications\&.
+  make install-libraries     # Tcl packages alone\&.
+  make install-applications  # Applications alone\&.
+  make install-doc           # Nroff manpages\&.
+
+.CE
+.PP
+For a graphical installer invoke
 .CS
 
 
@@ -421,6 +444,9 @@ To get a graphical installer invoke
 
 .CE
 instead\&.
+\fINote\fR however that this installer handles only the Tcl packages,
+applications, and the documentation\&.
+It does \fInot\fR handle the binary Tcllibc\&.
 .SS "INSTALLING ON WINDOWS"
 In a Windows environment we have the \fBinstaller\&.tcl\fR script to
 perform installation\&.
@@ -439,17 +465,22 @@ open a DOS window, i\&.e\&. \fBcmd\&.exe\fR, and then to invoke
 
 .CE
 inside it\&.
+\fINote\fR that this installer handles only the Tcl packages,
+applications, and the documentation\&.
+It does \fInot\fR handle the binary Tcllibc\&.
 .SS "CRITCL & ACCELERATORS"
 While the majority of Tcllib consists of packages written in pure Tcl
 a number of packages also have \fIaccelerators\fR associated with them\&.
-These are \fBcritcl\fR-based C packages whose use will boost the
-performance of the packages using them\&.
-These accelerators are optional, and they are not built by default\&.
+.PP
+These are \fBcritcl\fR-based C packages whose use will boost
+the performance of the packages using them\&.
+While they are built by default on Unix (see \fImake install\fR),
+they are not required, they are \fIoptional\fR\&.
+.PP
+When building the accelerators the normally optional dependency
+on \fBcritcl\fR becomes required\&.
 If they are built according to the instructions below then they will
 also be installed as well\&.
-.PP
-To build the accelerators the normally optional dependency on
-\fBcritcl\fR becomes required\&.
 .PP
 To build and install Tcllib with the accelerators in a
 Unix-like environment invoke:
@@ -457,14 +488,17 @@ Unix-like environment invoke:
 
 
   \&./configure
-  make critcl  # Builds the shared library and package holding
-               # the accelerators, tcllibc
-  make install # Installs all packages, including the new tcllibc\&.
+  make
+  # or
+  make install
+  # or
+  make install-binaries
 
 .CE
 .PP
 The underlying tool is "\fIsak\&.tcl\fR" in the toplevel directory
-of Tcllib and the command \fBmake critcl\fR is just a wrapper around
+of Tcllib and the \fBmake install-binaries\fR target is just
+a wrapper around
 .CS
 
 
@@ -481,6 +515,16 @@ Therefore in a Windows environment instead invoke
 
 .CE
 from within a DOS window, i\&.e\&. \fBcmd\&.exe\fR\&.
+.PP
+\fIBeware\fR that the directory tree generated by this command
+sequence differs from the directory tree generated by
+\fBmake install\fR and variants\&.
+.PP
+\fBmake install\fR generates two package directories, one for
+Tcllib, the other for Tcllibc\&.
+.PP
+The above sequence on the other hand places Tcllibc into a
+sub-directory of the Tcllib package directory\&.
 .SS TOOLING
 The core of Tcllib's build system is the script "\fIinstaller\&.tcl\fR"
 found in the toplevel directory of a checkout or release\&.

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset LIST_VERSION 1.8.6]
+[vset LIST_VERSION 1.9]
 [manpage_begin struct::list n [vset LIST_VERSION]]
 [keywords assign]
 [keywords common]
@@ -498,15 +498,20 @@ of the list contain the number [const i].
 
 For "[arg n] == [const 0]" an empty list will be returned.
 
-[call [cmd ::struct::list] [method equal] [arg a] [arg b]]
+[call [cmd ::struct::list] [method equal] [opt [option -simple]] [opt [option --]] [arg a] [arg b]]
 
 The subcommand compares the two lists [arg a] and [arg b] for
 equality. In other words, they have to be of the same length and have
-to contain the same elements in the same order. If an element is a
-list the same definition of equality applies recursively.
+to contain the same elements in the same order.
 
 [para]
+By default equality checks are applied recursively to list elements which are lists themselves.
+This behaviour is disabled when specifying the option [option -simple].
 
+[para]
+The option [option --] disables option processing even if the following argument looks like such.
+
+[para]
 A boolean value will be returned as the result of the command.
 This value will be [const true] if the two lists are equal, and
 [const false] else.

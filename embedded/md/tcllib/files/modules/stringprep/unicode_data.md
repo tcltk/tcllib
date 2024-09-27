@@ -2,7 +2,7 @@
 [//000000001]: # (unicode::data \- Preparation of Internationalized Strings)
 [//000000002]: # (Generated from file 'unicode\_data\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007, Sergei Golovan <sgolovan@nes\.ru>)
-[//000000004]: # (unicode::data\(n\) 1\.1\.0 tcllib "Preparation of Internationalized Strings")
+[//000000004]: # (unicode::data\(n\) 1\.1\.1 tcllib "Preparation of Internationalized Strings")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,7 +32,7 @@ unicode::data \- unicode data tables, generated, internal
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require unicode::data 1\.1\.0  
+package require unicode::data 1\.1\.1  
 
 # <a name='description'></a>DESCRIPTION
 

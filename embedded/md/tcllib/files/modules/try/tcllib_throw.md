@@ -44,9 +44,10 @@ package require throw ?1\.1?
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides a forward\-compatibility implementation of Tcl 8\.6's throw
-command \(TIP 329\), for Tcl 8\.5\. The code was directly pulled from Tcl 8\.6
-revision ?, when try/finally was implemented as Tcl procedure instead of in C\.
+This package provides a forward\-compatibility implementation of Tcl 8\.6's
+__throw__ command \(TIP 329\), for Tcl 8\.5\. The code was directly pulled from
+Tcl 8\.6 revision ?, when try/finally was implemented as Tcl procedure instead of
+in C\.
 
   - <a name='1'></a>__::throw__ *error\_code* *error\_message*
 

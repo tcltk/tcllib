@@ -30,7 +30,7 @@ package require Tcl 8.5 9
 package require fileutil ; # Required by importFile.
 package require uri
 
-package provide ncgi 1.4.5
+package provide ncgi 1.4.6
 
 namespace eval ::ncgi {
 
@@ -211,7 +211,7 @@ proc ::ncgi::query {} {
 	    if {[info exists env(CONTENT_LENGTH)] &&
 		    [string length $env(CONTENT_LENGTH)] != 0} {
  		## added by Steve Cassidy to try to fix binary file upload
- 		fconfigure stdin -translation binary -encoding binary
+ 		fconfigure stdin -translation binary
 		set query [read stdin $env(CONTENT_LENGTH)]
 	    }
 	}
@@ -1022,11 +1022,12 @@ proc ::ncgi::importFile {cmd var {filename {}}} {
 		}
 
 		# write out the data only if it's not been done already
-		if {[catch {open $_tmpfiles($var) w} h]} {
+		if {[catch {
+		    open $_tmpfiles($var) wb
+		} h]} {
 		    error "Can't open temporary file in ncgi::importFile ($h)"
 		} 
 
-		fconfigure $h -translation binary -encoding binary
 		puts -nonewline $h $contents 
 		close $h
 	    }

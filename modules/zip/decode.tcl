@@ -192,8 +192,7 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 	    go     $fd(fileloc)
 	    nbytes $fd(csize)
 
-	    set out [::open $dst w]
-	    fconfigure $out -translation binary -encoding binary -eofchar {}
+	    set out [::open $dst wb]
 	    puts -nonewline $out [getval]
 	    ::close $out
 	}
@@ -201,8 +200,7 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 	    go     $fd(fileloc)
 	    nbytes $fd(csize)
 
-	    set out [::open $dst w]
-	    fconfigure $out -translation binary -encoding binary -eofchar {}
+	    set out [::open $dst wb]
             if {$::zipfile::decode::native_zip_functs} {
               puts -nonewline $out \
 		[zlib inflate [getval]]
@@ -747,5 +745,5 @@ proc ::zipfile::decode::LocateEndCore {path fdv} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.10
+package provide zipfile::decode 0.10.1
 return

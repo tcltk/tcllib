@@ -11,9 +11,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the file 'license.terms' for
 # more details.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ident.tcl,v 1.2 2004/07/12 14:01:04 patthoyts Exp $
 
-package provide ident 0.43
+package provide ident 0.44
 
 namespace eval ident {
     namespace export query configure
@@ -77,7 +76,7 @@ proc ident::query {socket {command {}}} {
 	    return
 	}
     }
-    fconfigure $sock -encoding binary -buffering line -blocking $blocking
+    fconfigure $sock -translation binary -buffering line -blocking $blocking
     puts $sock "$peer_port,$sock_port"
     if {$blocking} {
 	gets $sock answer

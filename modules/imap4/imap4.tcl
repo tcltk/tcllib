@@ -55,7 +55,7 @@
 #   20130212: Missing chan parameter added to all imaptotcl* procs -ger
 
 package require Tcl 8.5 9
-package provide imap4 0.5.4
+package provide imap4 0.5.5
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -122,7 +122,7 @@ namespace eval imap4 {
             }
             set chan [socket $hostname $port]
         }
-        fconfigure $chan -encoding binary -translation binary
+        fconfigure $chan -translation binary
         # Intialize the connection state array
         initinfo $chan
         # Get the banner
@@ -651,6 +651,7 @@ namespace eval imap4 {
         set rangelist [split $range :]
         switch -- [llength $rangelist] {
             1 {
+		##nagelfar ignore
                 if {![string is integer $range]} {
                     error "Invalid range"
                 }
@@ -665,6 +666,7 @@ namespace eval imap4 {
                 if {![string length $end]} {
                     set end [mboxinfo $chan exists]
                 }
+		##nagelfar ignore
                 if {![string is integer $start] || ![string is integer $end]} {
                     error "Invalid range"
                 }
@@ -1111,6 +1113,7 @@ namespace eval imap4 {
                 SMALLER -
                 LARGER {
                     set len [lpop expr]
+		    ##nagelfar ignore
                     if {![string is integer $len]} {
                         error "Invalid integer follows '$token' in IMAP search"
                     }

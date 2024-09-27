@@ -71,12 +71,14 @@ proc ::pt::ast::Verify {ast} {
 
     lassign $ast type start end
 
+    ##nagelfar ignore
     if {![string is integer -strict $start]} {
 	return -code error $ourprefix[format $ourbadstart $start]
     } elseif {$start < 0} {
 	return -code error $ourprefix[format $ourbadstart $start]
     }
 
+    ##nagelfar ignore
     if {![string is integer -strict $end] || ($end < 0)} {
 	return -code error $ourprefix[format $ourbadend $end]
     }
@@ -181,9 +183,11 @@ proc ::pt::ast::new {sym start end args} {
     variable ourbadend
     variable ourbadrange
 
+    ##nagelfar ignore
     if {![string is integer -strict $start] || ($start < 0)} {
 	return -code error [format $ourbadstart $start]
     }
+    ##nagelfar ignore
     if {![string is integer -strict $end] || ($end < 0)} {
 	return -code error [format $ourbadend $end]
     }
@@ -197,6 +201,7 @@ proc ::pt::ast::new {sym start end args} {
 proc ::pt::ast::new0 {sym start args} {
     variable ourbadstart
 
+    ##nagelfar ignore
     if {![string is integer -strict $start] || ($start < 0)} {
 	return -code error [format $ourbadstart $start]
     }

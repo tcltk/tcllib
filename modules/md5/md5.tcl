@@ -25,8 +25,7 @@
 # @mdgen EXCLUDE: md5c.tcl
 
 package require Tcl 8.5 9
-namespace eval ::md5 {
-}
+namespace eval ::md5 {}
 
 if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
     # Trf is available, so implement the functionality provided here
@@ -315,15 +314,19 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
 
     namespace eval ::md5 {
 	#proc md5pure::F {x y z} {expr {(($x & $y) | ((~$x) & $z))}}
+	##nagelfar ignore
 	regsub -all -- {\[ *F +(\$.) +(\$.) +(\$.) *\]} $md5body {((\1 \& \2) | ((~\1) \& \3))} md5body
 
 	#proc md5pure::G {x y z} {expr {(($x & $z) | ($y & (~$z)))}}
+	##nagelfar ignore
 	regsub -all -- {\[ *G +(\$.) +(\$.) +(\$.) *\]} $md5body {((\1 \& \3) | (\2 \& (~\3)))} md5body
 
 	#proc md5pure::H {x y z} {expr {$x ^ $y ^ $z}}
+	##nagelfar ignore
 	regsub -all -- {\[ *H +(\$.) +(\$.) +(\$.) *\]} $md5body {(\1 ^ \2 ^ \3)} md5body
 
 	#proc md5pure::I {x y z} {expr {$y ^ ($x | (~$z))}}
+	##nagelfar ignore
 	regsub -all -- {\[ *I +(\$.) +(\$.) +(\$.) *\]} $md5body {(\2 ^ (\1 | (~\3)))} md5body
 
 	# bitwise left-rotate
@@ -352,6 +355,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
 	    }
 	}
 	# inline <<<
+	##nagelfar ignore
 	regsub -all -- {\[ *<<< +\[ *expr +({[^\}]*})\] +([0-9]+) *\]} $md5body {(([set x [expr \1]] << \2) |  (($x >> R\2) \& S\2))} md5body
 
 	# now replace the R and S
@@ -401,10 +405,12 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
 	} {
 	    lappend map \$$tName $tVal
 	}
+	##nagelfar ignore
 	set md5body [string map $map $md5body]
 	
 
 	# Finally, define the proc
+	##nagelfar ignore
 	proc md5 {msg} $md5body
 
 	# unset auxiliary variables

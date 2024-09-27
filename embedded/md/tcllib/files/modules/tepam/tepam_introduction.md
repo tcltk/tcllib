@@ -2,7 +2,7 @@
 [//000000001]: # (tepam \- Tcl's Enhanced Procedure and Argument Manager)
 [//000000002]: # (Generated from file 'tepam\_introduction\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009\-2013, Andreas Drollinger)
-[//000000004]: # (tepam\(n\) 0\.5\.0 tcllib "Tcl's Enhanced Procedure and Argument Manager")
+[//000000004]: # (tepam\(n\) 0\.5\.4 tcllib "Tcl's Enhanced Procedure and Argument Manager")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

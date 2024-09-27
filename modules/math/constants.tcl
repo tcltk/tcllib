@@ -6,13 +6,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: constants.tcl,v 1.9 2011/01/18 07:49:53 arjenmarkus Exp $
-#
 #----------------------------------------------------------------------
 
 package require Tcl 8.5 9
 
-package provide math::constants 1.0.3
+package provide math::constants 1.0.4
 
 # namespace constants
 #    Create a convenient namespace for the constants
@@ -164,6 +162,10 @@ proc ::math::constants::find_eps { } {
 #   so that for instance 3.0*(1.0/3.0) is exactly 1.0
 #
 namespace eval ::math::constants {
+    variable const
+    variable value
+    variable descr
+
     foreach {const value descr} $constants {
         # FRINK: nocheck
         set [namespace current]::$const [expr 0.0+$value]

@@ -470,6 +470,7 @@ namespace eval tepam::doc_gen {
    ##########################################################################
 
    # Various document generation options will be stored in the array variable 'Option'.
+   variable  Option
    array set Option {}
    
    ###### Text ######
@@ -733,7 +734,7 @@ namespace eval tepam::doc_gen {
 }; # End namespace tepam::doc
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam::doc_gen 0.1.2
+package provide tepam::doc_gen 0.1.3
 
 ##########################################################################
 # Id: tepam_doc.tcl

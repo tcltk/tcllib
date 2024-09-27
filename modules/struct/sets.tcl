@@ -9,8 +9,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.17 2008/03/09 04:24:37 andreas_kupries Exp $
-#
 #----------------------------------------------------------------------
 
 # @mdgen EXCLUDE: sets_c.tcl
@@ -184,4 +182,4 @@ namespace eval ::struct {
     namespace export set
 }
 
-package provide struct::set 2.2.4
+package provide struct::set 2.2.5

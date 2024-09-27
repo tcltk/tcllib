@@ -263,6 +263,7 @@ proc ::struct::stack::I::trim {name newsize} {
     variable stacks
     upvar 0  stacks($name) mystack
 
+    ##nagelfar ignore
     if { ![string is integer -strict $newsize]} {
 	return -code error "expected integer but got \"$newsize\""
     } elseif { $newsize < 0 } {
@@ -287,6 +288,7 @@ proc ::struct::stack::I::trim {name newsize} {
 }
 
 proc ::struct::stack::I::trim* {name newsize} {
+    ##nagelfar ignore
     if { ![string is integer -strict $newsize]} {
 	return -code error "expected integer but got \"$newsize\""
     } elseif { $newsize < 0 } {

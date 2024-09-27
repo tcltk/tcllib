@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt::peg n 1.1]
+[manpage_begin pt::peg n 1.1.1]
 [include include/module.inc]
 [titledesc {Parsing Expression Grammar Serialization}]
 [require pt::peg [opt 1.1]]

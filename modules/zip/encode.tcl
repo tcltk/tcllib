@@ -294,18 +294,20 @@ snit::type            ::zipfile::encode {
     }
 
     proc str {ch text} {
+	set     old [list -encoding    [fconfigure $sock -encoding]]
+	lappend old       -translation [fconfigure $sock -translation]
+	lappend old       -eofchar     [fconfigure $sock -eofchar]
+	
 	fconfigure $ch -encoding utf-8
 	# write the string as utf-8 to keep its bytes, exactly.
 	puts -nonewline $ch $text
-	fconfigure $ch -encoding binary
+
+	fconfigure $ch {*}$old
 	return
     }
 
     proc setbinary {ch} {
-	fconfigure $ch \
-	    -encoding    binary \
-	    -translation binary \
-	    -eofchar     {}
+	fconfigure $ch -translation binary
 	return $ch
     }
 
@@ -368,5 +370,5 @@ snit::type            ::zipfile::encode {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::encode 0.5
+package provide zipfile::encode 0.5.1
 return

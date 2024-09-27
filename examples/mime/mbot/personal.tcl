@@ -9,6 +9,7 @@
 #
 
 package require Tcl 8.5 9
+package require file::home	;# tcllib file home forward compatibility
 
 global options
 
@@ -466,11 +467,7 @@ if {[catch {
         if {[catch { id convert user $userName }]} {
             cleanup "userName doesn't exist: $userName"
         }
-        if {[package vsatisfies [package present Tcl] 9]} {
-            set thisDir [file home $userName]
-        } else {
-            set thisDir ~$userName
-        }
+	set thisDir [file home $userName]
         if {([catch { file isdirectory $thisDir } result]) \
                 || (!$result)} {
             cleanup "userName doesn't have a home directory: $userName"

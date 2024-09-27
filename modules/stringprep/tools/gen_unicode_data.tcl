@@ -16,15 +16,12 @@
 # Modified for Tcl stringprep by Sergei Golovan
 # 
 # Usage: gen_unicode_data.tcl infile1 infile2 outdir 
-# 
-# RCS: @(#) $Id: gen_unicode_data.tcl,v 1.1 2008/01/29 02:18:10 patthoyts Exp $
-
 
 namespace eval uni {
-    set cclass_shift 2
-    set decomp_shift 3
-    set comp_shift 1
-    set shift 5;		# number of bits of data within a page
+    variable cclass_shift 2
+    variable decomp_shift 3
+    variable comp_shift 1
+    variable shift 5;		# number of bits of data within a page
 				# This value can be adjusted to find the
 				# best split to minimize table size
 
@@ -415,8 +412,6 @@ proc uni::main {} {
 #
 # See the file \"license.terms\" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) \$Id\$
 
 #
 # A 16-bit Unicode character is split into two parts in order to index
@@ -424,7 +419,7 @@ proc uni::main {} {
 # into a page of characters.  The upper bits comprise the page number.
 #
 
-package provide unicode::data 1.0.0
+package provide unicode::data 1.1.1
 
 namespace eval ::unicode::data {
 
@@ -436,6 +431,7 @@ set CCLASS_OFFSET_BITS $cclass_shift
 # to the same alternate page number.
 #
 
+variable cclassPageMap
 array unset cclassPageMap
 array set cclassPageMap \[list \\"
     array unset tmp
@@ -468,14 +464,14 @@ array set cclassPageMap \[list \\"
     }
     puts $f "$line\]
 
-set CCLASS_COMMON_PAGE_MAP $max_id
+variable CCLASS_COMMON_PAGE_MAP $max_id
 
 #
 # The cclassGroupMap is indexed by combining the alternate page number with
 # the page offset and returns a combining class number.
 #
 
-set cclassGroupMap \[list \\"
+variable cclassGroupMap \[list \\"
     set line "    "
     set lasti [expr {[llength $cclass_pages] - 1}]
     for {set i 0} {$i <= $lasti} {incr i} {
@@ -513,7 +509,7 @@ proc GetUniCharCClass {uc} {
 }
 
 
-set DECOMP_OFFSET_BITS $decomp_shift
+variable DECOMP_OFFSET_BITS $decomp_shift
 
 #
 # The pageMap is indexed by page number and returns an alternate page number
@@ -521,6 +517,7 @@ set DECOMP_OFFSET_BITS $decomp_shift
 # to the same alternate page number.
 #
 
+variable decompPageMap
 array unset decompPageMap
 array set decompPageMap \[list \\"
     array unset tmp
@@ -553,7 +550,7 @@ array set decompPageMap \[list \\"
     }
     puts $f "$line\]
 
-set DECOMP_COMMON_PAGE_MAP $max_id
+variable DECOMP_COMMON_PAGE_MAP $max_id
 
 #
 # The decompGroupMap is indexed by combining the alternate page number with
@@ -561,7 +558,7 @@ set DECOMP_COMMON_PAGE_MAP $max_id
 # shift of decomposition sequence in decompList
 #
 
-set decompGroupMap \[list \\"
+variable decompGroupMap \[list \\"
     set line "    "
     set lasti [expr {[llength $decomp_pages] - 1}]
     for {set i 0} {$i <= $lasti} {incr i} {
@@ -584,7 +581,7 @@ set decompGroupMap \[list \\"
 # List of decomposition sequences
 #
 
-set decompList \[list \\"
+variable decompList \[list \\"
     set line "    "
     set last [expr {[llength $decomp_list] - 1}]
     for {set i 0} {$i <= $last} {incr i} {
@@ -601,8 +598,8 @@ set decompList \[list \\"
     }
     puts $f "$line\]
 
-set DECOMP_COMPAT_MASK [expr {1 << 16}]
-set DECOMP_INFO_BITS 17
+variable DECOMP_COMPAT_MASK [expr {1 << 16}]
+variable DECOMP_INFO_BITS 17
 
 #
 # This macro extracts the information about a character from the
@@ -648,7 +645,7 @@ proc GetDecompList {info} {
     lrange \$decompList \$decomp_shift \[expr {\$decomp_shift + \$decomp_len - 1}\]
 }
 
-set COMP_OFFSET_BITS $comp_shift
+variable COMP_OFFSET_BITS $comp_shift
 
 #
 # The pageMap is indexed by page number and returns an alternate page number
@@ -656,6 +653,7 @@ set COMP_OFFSET_BITS $comp_shift
 # to the same alternate page number.
 #
 
+variable compPageMap
 array unset compPageMap
 array set compPageMap \[list \\"
     array unset tmp
@@ -688,7 +686,7 @@ array set compPageMap \[list \\"
     }
     puts $f "$line\]
 
-set COMP_COMMON_PAGE_MAP $max_id
+variable COMP_COMMON_PAGE_MAP $max_id
 
 #
 # The groupMap is indexed by combining the alternate page number with
@@ -696,7 +694,7 @@ set COMP_COMMON_PAGE_MAP $max_id
 # set of character attributes.
 #
 
-set compGroupMap \[list \\"
+variable compGroupMap \[list \\"
     set line "    "
     set lasti [expr {[llength $comp_pages] - 1}]
     for {set i 0} {$i <= $lasti} {incr i} {
@@ -719,7 +717,7 @@ set compGroupMap \[list \\"
 # Lists of compositions for characters that appears only in one composition
 #
 
-set compFirstList \[list \\"
+variable compFirstList \[list \\"
     set line "    "
     set last [expr {[llength $comp_first_list] - 1}]
     for {set i 0} {$i <= $last} {incr i} {
@@ -736,7 +734,7 @@ set compFirstList \[list \\"
     }
     puts $f "$line\]
 
-set compSecondList \[list \\"
+variable compSecondList \[list \\"
     set line "    "
     set last [expr {[llength $comp_second_list] - 1}]
     for {set i 0} {$i <= $last} {incr i} {
@@ -757,6 +755,7 @@ set compSecondList \[list \\"
 # Compositions matrix
 #
 
+variable compBothMap
 array unset compBothMap
 array set compBothMap \[list \\"
     set lastx [expr {[llength $comp_x_list] - 1}]
@@ -796,10 +795,10 @@ proc GetUniCharCompInfo {uc} {
 		   (\$uc & ((1 << \$COMP_OFFSET_BITS) - 1))}\]
 }
 
-set COMP_SINGLE_MASK [expr {1 << 16}]
-set COMP_SECOND_MASK [expr {1 << 17}]
-set COMP_MASK [expr {(1 << 16) - 1}]
-set COMP_LENGTH1 [llength $comp_x_list]
+variable COMP_SINGLE_MASK [expr {1 << 16}]
+variable COMP_SECOND_MASK [expr {1 << 17}]
+variable COMP_MASK [expr {(1 << 16) - 1}]
+variable COMP_LENGTH1 [llength $comp_x_list]
 
 proc GetCompFirst {uc info} {
     variable COMP_SINGLE_MASK

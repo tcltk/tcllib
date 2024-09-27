@@ -1,4 +1,4 @@
-[vset VERSION 0.5.4]
+[vset VERSION 0.5.5]
 [manpage_begin imap4 n [vset VERSION]]
 [see_also ftp]
 [see_also http]

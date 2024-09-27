@@ -1,4 +1,4 @@
-[manpage_begin yencode n 1.1.2]
+[manpage_begin yencode n 1.1.4]
 [keywords encoding]
 [keywords ydecode]
 [keywords yEnc]
@@ -8,7 +8,7 @@
 [titledesc {Y-encode/decode binary data}]
 [category  {Text processing}]
 [require Tcl "8.5 9"]
-[require yencode [opt 1.1.2]]
+[require yencode [opt 1.1.4]]
 [description]
 [para]
 

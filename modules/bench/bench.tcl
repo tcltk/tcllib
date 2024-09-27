@@ -7,8 +7,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: bench.tcl,v 1.14 2008/10/08 03:30:48 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -71,10 +69,11 @@ proc ::bench::run {args} {
 		set errors $val
 	    }
 	    -threads {
-		if {![string is int -strict $val] || ($val < 0)} {
+		##nagelfar ignore
+		if {![string is integer -strict $val] || ($val < 0)} {
 		    return -code error "Expected int >= 0, got \"$val\""
 		}
-		set threads [lindex $args 1]
+		set threads [format %d $val]
 	    }
 	    -match {
 		set match [lindex $args 1]
@@ -83,10 +82,11 @@ proc ::bench::run {args} {
 		set rmatch [lindex $args 1]
 	    }
 	    -iters {
-		if {![string is int -strict $val] || ($val <= 0)} {
+		##nagelfar ignore
+		if {![string is integer -strict $val] || ($val <= 0)} {
 		    return -code error "Expected int > 0, got \"$val\""
 		}
-		set iters   [lindex $args 1]
+		set iters [format %d $val]
 	    }
 	    -pkgdir {
 		CheckPkgDirArg  $val
@@ -257,9 +257,11 @@ proc ::bench::merge {args} {
 
 proc ::bench::norm {data col} {
 
+    ##nagelfar ignore
     if {![string is integer -strict $col]} {
 	return -code error "Ref.column: Expected integer, but got \"$col\""
     }
+    set col [format %d $col]
     if {$col < 1} {
 	return -code error "Ref.column out of bounds"
     }
@@ -318,9 +320,11 @@ proc ::bench::norm {data col} {
 
 proc ::bench::edit {data col new} {
 
+    ##nagelfar ignore
     if {![string is integer -strict $col]} {
 	return -code error "Ref.column: Expected integer, but got \"$col\""
     }
+    set col [format %d $col]
     if {$col < 1} {
 	return -code error "Ref.column out of bounds"
     }
@@ -365,10 +369,11 @@ proc ::bench::edit {data col new} {
 #	The changed data set.
 
 proc ::bench::del {data col} {
-
+    ##nagelfar ignore
     if {![string is integer -strict $col]} {
 	return -code error "Ref.column: Expected integer, but got \"$col\""
     }
+    set col [format %d $col]
     if {$col < 1} {
 	return -code error "Ref.column out of bounds"
     }
@@ -548,4 +553,4 @@ namespace eval ::bench {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench 0.5
+package provide bench 0.6

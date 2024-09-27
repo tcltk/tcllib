@@ -1,6 +1,7 @@
 ###
 # Build utility functions
 ###
+package require file::home	;# tcllib file home forward compatibility
 
 ###
 # Generate a proc if no command already exists by that name
@@ -260,11 +261,7 @@ proc ::practcl::local_os {} {
 
   # Look for a local preference file
   set pathlist {}
-  if {[package vsatisfies [package present Tcl] 9]} {
-    set userhome [file normalize [file tildeexpand ~/tcl]]
-  } else {
-    set userhome [file normalize ~/tcl]
-  }
+  set userhome [file normalize [file join [file home] tcl]]
   set local_install [file join $userhome lib]
   switch $OS {
     windows {
@@ -274,23 +271,18 @@ proc ::practcl::local_os {} {
       }
     }
     macosx {
-      if {[package vsatisfies [package present Tcl] 9]} {
-        set userhome [file join [file normalize [file tildeexpand {~/Library/Application Support/}]] Tcl]
-        if {[file exists [file tildeexpand {~/Library/Application Support/ActiveState/Teapot/repository/}]]} {
-          dict set result teapot [file normalize [file tildeexpand {~/Library/Application Support/ActiveState/Teapot/repository/}]]
+	set home     [file home]
+	set nhome    [file normalize $home]
+        set userhome [file join $nhome Library {Application Support} Tcl]
+	set repo     [file join $home  Library {Application Support} ActiveState Teapot repository]
+	set local    [file normalize [file join $home Library Tcl]]
+
+        if {[file exists $repo]} {
+	    dict set result teapot [file normalize $repo]
         }
-        dict set result local_install [file normalize [file tildeexpand ~/Library/Tcl]]
+        dict set result local_install $local
         if {![dict exists $result sandbox]} {
-          dict set result sandbox       [file normalize [file tildeexpand ~/Library/Tcl/sandbox]]
-        }
-      } else {
-        set userhome [file join [file normalize {~/Library/Application Support/}] Tcl]
-        if {[file exists {~/Library/Application Support/ActiveState/Teapot/repository/}]} {
-          dict set result teapot [file normalize {~/Library/Application Support/ActiveState/Teapot/repository/}]
-        }
-        dict set result local_install [file normalize ~/Library/Tcl]
-        if {![dict exists $result sandbox]} {
-          dict set result sandbox       [file normalize ~/Library/Tcl/sandbox]
+	    dict set result sandbox [file normalize [file join $local sandbox]]
         }
     }
     default {

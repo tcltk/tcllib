@@ -2,7 +2,7 @@
 '\" Generated from file 'tepam_doc_gen\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2013, Andreas Drollinger
 '\"
-.TH "tepam::doc_gen" n 0\&.1\&.2 tcllib "Tcl's Enhanced Procedure and Argument Manager"
+.TH "tepam::doc_gen" n 0\&.1\&.3 tcllib "Tcl's Enhanced Procedure and Argument Manager"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBtepam 0\&.5\fR
 .sp
-package require \fBtepam::doc_gen ?0\&.1\&.2?\fR
+package require \fBtepam::doc_gen ?0\&.1\&.3?\fR
 .sp
 \fBtepam::doc_gen::generate\fR ?-format \fIformat\fR? ?-style \fIstyle\fR? ?-header_footer? ?-dest_file \fIdest_file\fR? \fIname\fR
 .sp

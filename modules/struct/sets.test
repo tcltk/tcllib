@@ -69,7 +69,7 @@ TestAccelDo struct::set impl {
 		}
 
 		proc Nothing {} {
-		    return [tcltest::wrongNumArgs {setop} {cmd ?arg ...?} 0]
+		    return [tcltest::wrongNumArgs setop {cmd ?arg ...?} 0]
 		}
 	    } else {
 		proc tmWrong {m loarg n} {
@@ -81,30 +81,21 @@ TestAccelDo struct::set impl {
 		}
 
 		proc Nothing {} {
-		    return [tcltest::wrongNumArgs {::struct::set} {cmd ?arg ...?} 0]
+		    return [tcltest::wrongNumArgs ::struct::set {cmd ?arg ...?} 0]
 		}
 	    }
 	}
 	tcl {
-	    if {[package vsatisfies [package present Tcl] 8.6 9]} {
-		# In 8.6 head Tcl again reports what the alias resolved to
-		proc Nothing {} {
-		    return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
-		}
-	    } else {
-		# In 8.5 head the alias itself is reported, not what it
-		# resolved to.
-		proc Nothing {} {
-		    return [tcltest::wrongNumArgs setop {cmd args} 0]
-		}
+	    proc Nothing {} {
+		return [tcltest::wrongNumArgs setop {subcommand args} 0]
 	    }
 
 	    proc tmWrong {m loarg n} {
-		return [tcltest::wrongNumArgs "::struct::set::S_$m" $loarg $n]
+		return [tcltest::wrongNumArgs "setop $m" $loarg $n]
 	    }
 
 	    proc tmTooMany {m loarg} {
-		return [tcltest::tooManyArgs "::struct::set::S_$m" $loarg]
+		return [tcltest::tooManyArgs "setop $m" $loarg]
 	    }
 	}
     }

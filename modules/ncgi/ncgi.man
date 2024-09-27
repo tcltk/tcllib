@@ -1,4 +1,4 @@
-[vset VERSION 1.4.5]
+[vset VERSION 1.4.6]
 [manpage_begin ncgi n [vset VERSION]]
 [see_also html]
 [keywords CGI]

@@ -1,4 +1,4 @@
-[vset VERSION 1.0.5]
+[vset VERSION 1.0.6]
 [manpage_begin sha256 n [vset VERSION]]
 [see_also md4]
 [see_also md5]
@@ -31,6 +31,8 @@ algorithm.
 This package also includes support for creating keyed message-digests
 using the HMAC algorithm from RFC 2104 (3) with SHA256 as the
 message-digest.
+
+[para][include ../common-text/hash-compatibility-warning.inc]
 
 [section {COMMANDS}]
 

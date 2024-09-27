@@ -19,6 +19,7 @@ namespace eval ::math::special {
 #    Polynomial definition
 #
 proc ::math::special::legendre {n} {
+    ##nagelfar ignore
     if { ! [string is integer -strict $n] || $n < 0 } {
         return -code error "Degree must be a non-negative integer"
     }
@@ -97,6 +98,7 @@ proc ::math::special::laguerre {alpha n} {
     if { ! [string is double -strict $alpha] } {
         return -code error "Parameter must be a double"
     }
+    ##nagelfar ignore
     if { ! [string is integer -strict $n] || $n < 0 } {
         return -code error "Degree must be a non-negative integer"
     }
@@ -134,6 +136,7 @@ proc ::math::special::laguerre {alpha n} {
 #    Polynomial definition
 #
 proc ::math::special::hermite {n} {
+    ##nagelfar ignore
     if { ! [string is integer -strict $n] || $n < 0 } {
         return -code error "Degree must be a non-negative integer"
     }

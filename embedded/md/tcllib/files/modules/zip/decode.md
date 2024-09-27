@@ -2,7 +2,7 @@
 [//000000001]: # (zipfile::decode \- Zip archive handling)
 [//000000002]: # (Generated from file 'decode\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008\-2022 Andreas Kupries)
-[//000000004]: # (zipfile::decode\(n\) 0\.10 tcllib "Zip archive handling")
+[//000000004]: # (zipfile::decode\(n\) 0\.10\.1 tcllib "Zip archive handling")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ package require Tcl 8\.5 9
 package require fileutil::decode 0\.2\.1  
 package require Trf  
 package require zlibtcl  
-package require zipfile::decode ?0\.10?  
+package require zipfile::decode ?0\.10\.1?  
 
 [__::zipfile::decode::archive__](#1)  
 [__::zipfile::decode::close__](#2)  

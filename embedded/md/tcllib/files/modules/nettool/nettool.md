@@ -2,7 +2,7 @@
 [//000000001]: # (nettool \- nettool)
 [//000000002]: # (Generated from file 'nettool\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2015\-2018 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (nettool\(n\) 0\.5\.3 tcllib "nettool")
+[//000000004]: # (nettool\(n\) 0\.5\.4 tcllib "nettool")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ nettool \- Tools for networked applications
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require nettool ?0\.5\.3?  
+package require nettool ?0\.5\.4?  
 package require twapi 3\.1  
 package require ip 0\.2  
 package require platform 0\.2  

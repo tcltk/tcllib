@@ -48,7 +48,7 @@ proc ascii85::encode {args} {
                 must be -maxlen or -wrapchar"
         }
     }
-
+    ##nagelfar ignore
     if {![string is integer -strict $opts(-maxlen)]
         || $opts(-maxlen) < 0} {
         return -code error "expected positive integer but got\
@@ -60,8 +60,8 @@ proc ascii85::encode {args} {
         return ""
     }
 
-    # shorten the names
-    set ml $opts(-maxlen)
+    # shorten the names, and normalize numeric values.
+    set ml [format %d $opts(-maxlen)]
     set wc $opts(-wrapchar)
 
     # if maxlen is zero, don't wrap the output
@@ -150,8 +150,7 @@ proc ascii85::encode4bytes {b1 b2 b3 b4} {
 #   This is a convenience command
 
 proc ascii85::encodefile {fname} {
-    set fd [open $fname]
-    fconfigure $fd -encoding binary -translation binary
+    set fd [open $fname rb]
     return [encode [read $fd]][close $fd]
 }
 
@@ -268,4 +267,4 @@ proc ascii85::pad {chars len padchar} {
     return $chars
 }
 
-package provide ascii85 1.1
+package provide ascii85 1.1.1

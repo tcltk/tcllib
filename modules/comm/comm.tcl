@@ -660,24 +660,23 @@ proc ::comm::commConfigure {chan {force 0} args} {
 		set skip 1
 	    }
 	    p {
-		if {
-		    ![string equal $optval ""] &&
-		    ![string is integer $optval]
-		} {
+		##nagelfar ignore
+		if {![string is integer -strict $optval]} {
 		    return -code error \
 			"Non-port to configuration option: -$var"
 		}
 		# FRINK: nocheck
-		set $var $optval
+		set $var [format %d $optval]
 		set skip 1
 	    }
 	    i {
+		##nagelfar ignore
 		if {![string is integer $optval]} {
 		    return -code error \
 			"Non-integer to configuration option: -$var"
 		}
 		# FRINK: nocheck
-		set $var $optval
+		set $var [format %d $optval]
 		set skip 1
 	    }
 	    enc {
@@ -1804,4 +1803,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.7.2
+package provide comm 4.7.3

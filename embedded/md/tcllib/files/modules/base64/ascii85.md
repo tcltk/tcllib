@@ -2,7 +2,7 @@
 [//000000001]: # (ascii85 \- Text encoding & decoding binary data)
 [//000000002]: # (Generated from file 'ascii85\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010, Emiliano Gavilán)
-[//000000004]: # (ascii85\(n\) 1\.1 tcllib "Text encoding & decoding binary data")
+[//000000004]: # (ascii85\(n\) 1\.1\.1 tcllib "Text encoding & decoding binary data")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
