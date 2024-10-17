@@ -12,7 +12,7 @@
 [moddesc   {CSV processing}]
 [titledesc {Procedures to handle CSV data.}]
 [category  {Text processing}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require csv [opt [vset VERSION]]]
 [description]
 

@@ -681,6 +681,7 @@ proc gd-gen-tap {} {
 	    # A single package in the module. And only one version of
 	    # it as well. Otherwise we are in the multi-pkg branch.
 
+	    foreach {p vlist} {{} {}} break	   
 	    foreach {p vlist} [ppackages $m] break
 	    set desc ""
 	    catch {set desc [string trim [lindex $pd($p) 1]]}
@@ -1535,54 +1536,9 @@ proc checkmod {} {
 proc __critcl {} {
     global argv critcl critclmodules critcldefault critclnotes tcl_platform
     if {$tcl_platform(platform) == "windows"} {
-
-	# Windows is a bit more complicated. We have to choose an
-	# interpreter, and a starkit for it, and call both.
-	#
-	# We prefer tclkitsh, but try to make do with a tclsh. That
-	# one will have to have all the necessary packages to support
-	# starkits. ActiveTcl for example.
-
-	set interpreter {}
-	foreach i {critcl.exe tclkitsh tclsh} {
-	    set interpreter [auto_execok $i]
-	    if {$interpreter != {}} break
-	}
-
-	if {$interpreter == {}} {
-            return -code error \
-		    "failed to find either tclkitsh.exe or tclsh.exe in path"
-	}
-
-	# The critcl starkit can come out of the environment, or we
-	# try to locate it using several possible names. We try to
-	# find it if and only if we did not find a critcl starpack
-	# before.
-
-	if {[file tail $interpreter] == "critcl.exe"} {
-	    set critcl $interpreter
-	} else {
-	    set kit {}
-            if {[info exists ::env(CRITCL)]} {
-                set kit $::env(CRITCL)
-            } else {
-		foreach k {critcl.kit critcl} {
-		    set kit [auto_execok $k]
-		    if {$kit != {}} break
-		}
-            }
-
-            if {$kit == {}} {
-                return -code error "failed to find critcl.kit or critcl in \
-                  path.\n\
-                  You may wish to set the CRITCL environment variable to the\
-                  location of your critcl(.kit) file."
-            }
-            set critcl [concat $interpreter $kit]
-        }
+	set critcl [critcl-app-windows]
     } else {
-        # My, isn't it simpler under unix.
-        set critcl [auto_execok critcl]
+	set critcl [critcl-app-unix]
     }
 
     set flags ""
@@ -1590,15 +1546,17 @@ proc __critcl {} {
         # -debug and -clean only work with critcl >= v04
         switch -exact -- $option {
             -keep  { append flags " -keep" }
-            -debug {
-		append flags " -debug [lindex $argv 1]"
+	    -I -
+	    -L -
+	    -libdir -
+	    -includedir -
+	    -debug -
+	    -pkg -
+	    -target {
+		append flags " $option [lindex $argv 1]"
 		set argv [lreplace $argv 0 0]
 	    }
             -clean { append flags " -clean" }
-            -target {
-		append flags " -target [lindex $argv 1]"
-		set argv [lreplace $argv 0 0]
-	    }
             -- { set argv [lreplace $argv 0 0]; break }
             default { break }
         }
@@ -1631,6 +1589,67 @@ proc __critcl {} {
     return
 }
 
+proc critcl-app-unix {} {
+    # My, isn't it simpler under unix.
+
+    # Look for a critcl sibling to the executing shell
+    set shdir [file dirname [info nameofexecutable]]
+    set shapp [file join $shdir critcl]
+    if {[file exists $shapp]} { return $shapp }
+
+    # Look for critcl in the path
+    set critcl [auto_execok critcl]
+}
+
+proc critcl-app-windows {} {
+    # Windows is a bit more complicated. We have to choose an
+    # interpreter, and a starkit for it, and call both.
+    #
+    # We prefer tclkitsh, but try to make do with a tclsh. That
+    # one will have to have all the necessary packages to support
+    # starkits. ActiveTcl for example.
+
+    set interpreter {}
+    foreach i {critcl.exe tclkitsh tclsh} {
+	set interpreter [auto_execok $i]
+	if {$interpreter != {}} break
+    }
+
+    if {$interpreter == {}} {
+	return -code error \
+	    "failed to find either tclkitsh.exe or tclsh.exe in path"
+    }
+
+    # The critcl starkit can come out of the environment, or we
+    # try to locate it using several possible names. We try to
+    # find it if and only if we did not find a critcl starpack
+    # before.
+
+    if {[file tail $interpreter] == "critcl.exe"} {
+	set critcl $interpreter
+    } else {
+	set kit {}
+	if {[info exists ::env(CRITCL)]} {
+	    set kit $::env(CRITCL)
+	} else {
+	    foreach k {critcl.kit critcl} {
+		set kit [auto_execok $k]
+		if {$kit != {}} break
+	    }
+	}
+
+	if {$kit == {}} {
+	    return -code error "failed to find critcl.kit or critcl in \
+                  path.\n\
+                  You may wish to set the CRITCL environment variable to the\
+                  location of your critcl(.kit) file."
+	}
+	set critcl [concat $interpreter $kit]
+    }
+
+    return $critcl
+}
+
 # Prints a list of all the modules supporting critcl enhancement.
 proc __critcl-modules {} {
     global critclmodules critcldefault
@@ -1646,8 +1665,6 @@ proc __critcl-modules {} {
 
 proc critcl_module {pkg {extra ""}} {
     global critcl distribution critclmodules critcldefault
-
-    lappend extra -cache [pwd]/.critcl
 
     if {$pkg == $critcldefault} {
 	set files {}
@@ -1666,9 +1683,13 @@ proc critcl_module {pkg {extra ""}} {
         }
     }
     set target [file join $distribution modules]
+
+    if {"-libdir" ni $extra} { lappend extra -libdir [list $target] }
+    if {"-pkg"    ni $extra} { lappend extra -pkg    [list $pkg]    }
+    
     catch {
-        puts "$critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files"
-        eval exec $critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files 
+        puts "$critcl -cache [pwd]/.critcl -force $extra $files"
+        eval exec $critcl -cache [pwd]/.critcl -force $extra $files 
     } r
     puts $r
     return

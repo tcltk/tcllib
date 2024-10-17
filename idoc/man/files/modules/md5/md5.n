@@ -2,7 +2,7 @@
 '\" Generated from file 'md5\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "md5" n 2\&.0\&.8 tcllib "MD5 Message-Digest Algorithm"
+.TH "md5" n 2\&.0\&.9 tcllib "MD5 Message-Digest Algorithm"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 md5 \- MD5 Message-Digest Algorithm
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmd5  ?2\&.0\&.7?\fR
+package require \fBmd5 ?2\&.0\&.9?\fR
 .sp
 \fB::md5::md5\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp
@@ -307,9 +307,9 @@ attack\&. MD5 should be used in preference to MD4 for new applications\&.
 If you have \fBcritcl\fR and have built the \fBtcllibc\fR
 package then the implementation of the hashing function will be
 performed by compiled code\&. Alternatively if you have either
-\fBcryptkit\fR or \fBTrf\fR then either of these can be used to
+\fBcryptkit\fR or \fBTrf\fR then either of these is used to
 accelerate the digest computation\&. If no suitable compiled package is
-available then the pure-Tcl implementation wil be used\&. The
+available then the pure-Tcl implementation is used\&. The
 programming interface remains the same in all cases\&.
 .PP
 \fINote\fR the previous version of this package always returned a
@@ -318,10 +318,30 @@ interface and to make this version more compatible with other
 implementations\&. To obtain the previous usage, either explicitly
 specify package version 1 or use the \fI-hex\fR option to the
 \fBmd5\fR command\&.
+.PP
+\fIBEWARE\fR
+The commands in this package expect binary data as their input\&.
+When a \fB-file\fR is provided then this is ensured by the commands
+themselves, as they open the referenced file in binary mode\&.
+When literal data, or a \fB-channel\fR are provided instead, then the
+command's \fIcaller is responsible\fR for ensuring this fact\&.
+The necessary conversion command is \fBencoding convertto utf-8 $string\fR\&.
+.PP
+\fIATTENTION\fR, there is a \fITcl 9 COMPATIBILITY ISSUE\fR here\&.
+.PP
+\fITcl 8\&.x silently mishandles\fR non-binary input by cutting it
+internally to size\&. I\&.e\&. by only using the low byte of a higher unicode point\&.
+No error is thrown, the \fIresult is simply wrong\fR\&.
+.PP
+\fITcl 9 throws an error\fR instead, i\&.e\&.
+.CS
+
+expected byte sequence but character <location> was \&.\&.\&.
+.CE
 .SH COMMANDS
 .TP
 \fB::md5::md5\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
-Calculate the MD5 digest of the data given in string\&. This is returned
+Calculate the MD5 digest of the binary data given in string\&. This is returned
 as a binary string by default\&. Giving the \fI-hex\fR option will
 return a hexadecimal encoded version of the digest\&.
 .sp

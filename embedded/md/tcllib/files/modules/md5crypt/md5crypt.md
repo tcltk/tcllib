@@ -2,7 +2,7 @@
 [//000000001]: # (md5crypt \- MD5\-based password encryption)
 [//000000002]: # (Generated from file 'md5crypt\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (md5crypt\(n\) 1\.1\.0 tcllib "MD5\-based password encryption")
+[//000000004]: # (md5crypt\(n\) 1\.2\.0 tcllib "MD5\-based password encryption")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -41,9 +41,9 @@ md5crypt \- MD5\-based password encryption
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require md5 2\.0  
-package require md5crypt ?1\.1\.0?  
+package require md5crypt ?1\.2\.0?  
 
 [__::md5crypt::md5crypt__ *password* *salt*](#1)  
 [__::md5crypt::aprcrypt__ *password* *salt*](#2)  
@@ -81,9 +81,9 @@ The salt passed to either of the encryption schemes implemented here is checked
 to see if it begins with the encryption scheme magic string \(either "$1$" for
 MD5\-crypt or "$apr1$" for Apache crypt\)\. If so, this is removed\. The remaining
 characters up to the next $ and up to a maximum of 8 characters are then used as
-the salt\. The salt text should probably be restricted the set of ASCII
+the salt\. The salt text should probably be restricted to the set of ASCII
 alphanumeric characters plus "\./" \(dot and forward\-slash\) \- this is to preserve
-maximum compatability with the unix password file format\.
+maximum compatibility with the unix password file format\.
 
 If a password is being generated rather than checked from a password file then
 the __salt__ command may be used to generate a random salt\.

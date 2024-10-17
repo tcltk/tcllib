@@ -18,7 +18,7 @@
 
 # @mdgen NODEP: doctools::toc::export::plugin
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require doctools::toc::export::plugin ; # Presence of this
 						# pseudo package
 						# indicates execution
@@ -214,5 +214,5 @@ proc .TH {name} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::nroff 0.2
+package provide doctools::toc::export::nroff 0.3
 return

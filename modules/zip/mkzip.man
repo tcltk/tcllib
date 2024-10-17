@@ -1,4 +1,4 @@
-[vset ZIP_mkzip_VERSION 1.2.1]
+[vset ZIP_mkzip_VERSION 1.2.4]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin zipfile::mkzip n [vset ZIP_mkzip_VERSION]]
 [keywords decompression zip]
@@ -6,7 +6,7 @@
 [moddesc {Zip archive creation}]
 [titledesc {Build a zip archive}]
 [category  File]
-[require Tcl 8.6]
+[require Tcl "8.6 9"]
 [require zipfile::mkzip [opt [vset ZIP_mkzip_VERSION]]]
 [description]
 [para]
@@ -23,6 +23,7 @@ archives.
 	[opt "[option -runtime] [arg prefix]"] \
 	[opt "[option -comment] [arg string]"] \
 	[opt "[option -directory] [arg rootpath]"] \
+	[opt "[option -prepend-base-directory] [arg bool]"] \
 	[opt "[option -exclude] [arg exclude]"] \
 	[opt [option --]] [opt [arg path]...]]
 
@@ -74,6 +75,14 @@ archive.
 [opt_def -directory path]
 This option specifies the directory to place into the generated
 archive. If specified any argument [arg path]s are [emph ignored].
+
+[opt_def -prepend-base-directory bool]
+When this option is set the tail of the [option -directory] path is
+prepended to all paths added to the archive.
+
+[para] The option is ignored when option [option -directory] is not specified.
+
+[para] By default this option is [const false].
 
 [opt_def -exclude list]
 This option specifies a list of glob patterns. All paths matching at

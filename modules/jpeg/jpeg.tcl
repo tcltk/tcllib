@@ -6,8 +6,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: jpeg.tcl,v 1.19 2011/05/06 13:39:27 patthoyts Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -133,8 +131,7 @@ namespace eval ::jpeg {}
 # open a file, check jpeg signature, and a return a file handle
 # at the start of the first marker
 proc ::jpeg::openJFIF {file {mode r}} {
-    set fh [open $file $mode]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file ${mode}b]
     # jpeg sig is FFD8, FF is start of first marker
     if {[read $fh 3] != "\xFF\xD8\xFF"} { close $fh; return -code error "not a jpg file" }
     # rewind to first marker
@@ -242,8 +239,7 @@ proc ::jpeg::removeComments {file} {
     }
     append data [read $fh]
     close $fh
-    set fh [open $file w]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file wb]
     puts -nonewline $fh $data
     close $fh
 }
@@ -277,8 +273,7 @@ proc ::jpeg::stripJPEG {file} {
     append data [read $fh]
 
     close $fh
-    set fh [open $file w+]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file wb+]
     # write a jpeg file sig, a jfif header, and all the remaining data
     puts -nonewline $fh \xFF\xD8$jfif$data
     close $fh
@@ -430,8 +425,7 @@ proc ::jpeg::removeExif {file} {
     }
     append data [read $fh]
     close $fh
-    set fh [open $file w]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file wb]
     puts -nonewline $fh "\xFF\xD8"
     if {[lindex $markers 0 0] != "e0"} {
         puts -nonewline $fh [binary format a2Sa5cccSScc "\xFF\xE0" 16 "JFIF\x00" 1 2 1 72 72 0 0]
@@ -1121,5 +1115,4 @@ if {![llength [info commands lassign]]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide jpeg 0.5
-
+package provide jpeg 0.7

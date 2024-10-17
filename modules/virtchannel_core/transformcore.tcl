@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::transform::core 1
+# Package tcl::transform::core 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -21,7 +21,7 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 
 # # ## ### ##### ######## #############
 
@@ -67,5 +67,5 @@ oo::class create ::tcl::transform::core {
 }
 
 # # ## ### #####
-package provide tcl::transform::core 1
+package provide tcl::transform::core 1.1
 return

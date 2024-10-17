@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>rest - A framework for RESTful web services</title>
 <style type="text/css"><!--
     HTML {
@@ -105,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">rest(n) 1.4 tcllib &quot;A framework for RESTful web services&quot;</h1>
+<h1 class="doctools_title">rest(n) 1.7 tcllib &quot;A framework for RESTful web services&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>rest - define REST web APIs and call them inline or asychronously</p>
 </div>
@@ -126,8 +128,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">rest <span class="opt">?1.4?</span></b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">rest <span class="opt">?1.7?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::rest::simple</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
@@ -197,6 +199,8 @@ dictionary must be present, however it is allowed to be empty.</p>
 <dt><b class="const">headers</b></dt>
 <dd></dd>
 <dt><b class="const">method</b></dt>
+<dd></dd>
+<dt><b class="const">timeout</b></dt>
 <dd></dd>
 </dl>
 <p>Two quick examples:</p>
@@ -375,6 +379,9 @@ No authentication is done if the option is not specified.</p>
 the procedure <b class="cmd">basic_auth</b> in the namespace of interface. This
 procedure takes two arguments, the username and password, in this
 order.</p></dd>
+<dt><b class="const">bearer</b></dt>
+<dd><p>The user may configure a bearer token as authentication. The value is
+the token passed to the HTTP authorization header.</p></dd>
 <dt><b class="const">sign</b></dt>
 <dd><p>The value must actually be a list with the second element the name of
 a procedure which will be called to perform request signing.</p></dd>
@@ -469,6 +476,10 @@ otherwise.</p>
 when encountering an HTTP error, or not. The default is to not return
 the response body on error.</p>
 <p>See <b class="const">callback</b> above for more information.</p></dd>
+<dt><b class="const">timeout</b></dt>
+<dd><p>The value of this option determines whether to set a timeout on the HTTP
+call. By default, no timeout is set.</p>
+<p>Timeout value is accepted in milliseconds.</p></dd>
 </dl></dd>
 </dl>
 </div>

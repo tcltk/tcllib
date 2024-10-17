@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::transform::limitsize \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'limitsize\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::transform::limitsize\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::transform::limitsize\(n\) 1\.1 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,9 +35,9 @@ tcl::transform::limitsize \- limiting input
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
-package require tcl::transform::core ?1?  
-package require tcl::transform::limitsize ?1?  
+package require Tcl 8\.6 9  
+package require tcl::transform::core ?1\.1?  
+package require tcl::transform::limitsize ?1\.1?  
 
 [__::tcl::transform::limitsize__ *chan* *max*](#1)  
 

@@ -17,7 +17,7 @@
 #   - https://dl.acm.org/citation.cfm?doid=364099.364331
 #
 
-package require Tcl 8.6
+package require Tcl 8.6 9
 
 # Initialize the disjointset structure namespace. Note that any
 # missing parent namespace (::struct) will be automatically created as
@@ -381,5 +381,5 @@ namespace eval ::struct {
     namespace export disjointset
 }
 
-package provide struct::disjointset 1.1
+package provide struct::disjointset 1.2
 return

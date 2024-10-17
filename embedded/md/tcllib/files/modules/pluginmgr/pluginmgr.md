@@ -2,7 +2,7 @@
 [//000000001]: # (pluginmgr \- Plugin management)
 [//000000002]: # (Generated from file 'pluginmgr\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pluginmgr\(n\) 0\.3 tcllib "Plugin management")
+[//000000004]: # (pluginmgr\(n\) 0\.5 tcllib "Plugin management")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ pluginmgr \- Manage a plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require pluginmgr ?0\.3?  
+package require Tcl 8\.5 9  
+package require pluginmgr ?0\.5?  
 
 [__::pluginmgr__ *objectName* ?*option value*\.\.\.?](#1)  
 [__::pluginmgr::paths__ *objectName* *name*\.\.\.](#2)  

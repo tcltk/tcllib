@@ -2,7 +2,7 @@
 '\" Generated from file 'tiff\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005-2006, Aaron Faupell <afaupell@users\&.sourceforge\&.net>
 '\"
-.TH "tiff" n 0\&.2\&.1 tcllib "TIFF image manipulation"
+.TH "tiff" n 0\&.2\&.3 tcllib "TIFF image manipulation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tiff \- TIFF reading, writing, and querying and manipulation of meta data
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtiff  ?0\&.2\&.1?\fR
+package require \fBtiff ?0\&.2\&.3?\fR
 .sp
 \fB::tiff::isTIFF\fR \fIfile\fR
 .sp

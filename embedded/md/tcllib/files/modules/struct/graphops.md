@@ -4,7 +4,7 @@
 [//000000003]: # (Copyright &copy; 2008 Alejandro Paz <vidriloco@gmail\.com>)
 [//000000004]: # (Copyright &copy; 2008 \(docs\) Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000005]: # (Copyright &copy; 2009 Michal Antoniewski <antoniewski\.m@gmail\.com>)
-[//000000006]: # (struct::graph::op\(n\) 0\.11\.3 tcllib "Tcl Data Structures")
+[//000000006]: # (struct::graph::op\(n\) 0\.11\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -55,8 +55,8 @@ struct::graph::op \- Operation for \(un\)directed graph objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
-package require struct::graph::op ?0\.11\.3?  
+package require Tcl 8\.6 9  
+package require struct::graph::op ?0\.11\.4?  
 
 [__struct::graph::op::toAdjacencyMatrix__ *g*](#1)  
 [__struct::graph::op::toAdjacencyList__ *G* ?*options*\.\.\.?](#2)  

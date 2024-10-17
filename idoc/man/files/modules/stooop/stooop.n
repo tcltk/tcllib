@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'stooop\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "stooop" n 4\&.4\&.1 tcllib "Simple Tcl Only Object Oriented Programming"
+.TH "stooop" n 4\&.4\&.2 tcllib "Simple Tcl Only Object Oriented Programming"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 stooop \- Object oriented extension\&.
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstooop  ?4\&.4\&.1?\fR
+package require \fBstooop ?4\&.4\&.2?\fR
 .sp
 \fB::stooop::class\fR \fIname body\fR
 .sp

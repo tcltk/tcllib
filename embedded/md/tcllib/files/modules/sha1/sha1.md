@@ -2,7 +2,7 @@
 [//000000001]: # (sha1 \- SHA\-x Message\-Digest Algorithm)
 [//000000002]: # (Generated from file 'sha1\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (sha1\(n\) 2\.0\.4 tcllib "SHA\-x Message\-Digest Algorithm")
+[//000000004]: # (sha1\(n\) 2\.0\.5 tcllib "SHA\-x Message\-Digest Algorithm")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ sha1 \- SHA1 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require sha1 ?2\.0\.4?  
+package require Tcl 8\.5 9  
+package require sha1 ?2\.0\.5?  
 
 [__::sha1::sha1__ ?__\-hex&#124;\-bin__? \[ __\-channel channel__ &#124; __\-file filename__ &#124; ?__\-\-__? *string* \]](#1)  
 [__::sha1::hmac__ *key* *string*](#2)  
@@ -67,6 +67,23 @@ applications\.
 
 This package also includes support for creating keyed message\-digests using the
 HMAC algorithm from RFC 2104 \(3\) with SHA1 as the message\-digest\.
+
+*BEWARE* The commands in this package expect binary data as their input\. When
+a __\-file__ is provided then this is ensured by the commands themselves, as
+they open the referenced file in binary mode\. When literal data, or a
+__\-channel__ are provided instead, then the command's *caller is
+responsible* for ensuring this fact\. The necessary conversion command is
+__encoding convertto utf\-8 $string__\.
+
+*ATTENTION*, there is a *Tcl 9 COMPATIBILITY ISSUE* here\.
+
+*Tcl 8\.x silently mishandles* non\-binary input by cutting it internally to
+size\. I\.e\. by only using the low byte of a higher unicode point\. No error is
+thrown, the *result is simply wrong*\.
+
+*Tcl 9 throws an error* instead, i\.e\.
+
+    expected byte sequence but character <location> was ...
 
 # <a name='section2'></a>COMMANDS
 

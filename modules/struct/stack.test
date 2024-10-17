@@ -49,7 +49,7 @@ TestAccelDo struct::stack impl {
 	tcl {
 	    set MY ::mystack
 
-	    if {[package vsatisfies [package provide Tcl] 8.5]} {
+	    if {[package vsatisfies [package provide Tcl] 8.5 9]} {
 		if {[catch {package present TclOO}]} {
 		    # Without TclOO
 		    proc tmWrong {m loarg n {xarg {}}} {

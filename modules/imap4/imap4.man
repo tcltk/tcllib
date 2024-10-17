@@ -1,4 +1,4 @@
-[vset VERSION 0.5.3]
+[vset VERSION 0.5.5]
 [manpage_begin imap4 n [vset VERSION]]
 [see_also ftp]
 [see_also http]
@@ -17,7 +17,7 @@
 [moddesc   {imap client}]
 [titledesc {imap client-side tcl implementation of imap protocol}]
 [category Networking]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require imap4 [opt [vset VERSION]]]
 
 [description]

@@ -2,7 +2,7 @@
 '\" Generated from file 'units\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2000-2005 Mayo Foundation
 '\"
-.TH "units" n 1\&.2 tcllib "Convert and manipulate quantities with units"
+.TH "units" n 2\&.2\&.3 tcllib "Convert and manipulate quantities with units"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 units \- unit conversion
 .SH SYNOPSIS
-package require \fBTcl  8\&.1\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBunits  ?2\&.1?\fR
+package require \fBunits ?2\&.2\&.3?\fR
 .sp
 \fB::units::convert\fR \fIvalue\fR \fItargetUnits\fR
 .sp

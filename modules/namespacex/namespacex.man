@@ -1,4 +1,4 @@
-[vset VERSION 0.2]
+[vset VERSION 0.4]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin namespacex n [vset VERSION]]
 [keywords {extended namespace}]
@@ -13,7 +13,7 @@
 [copyright {2010 Documentation, Andreas Kupries}]
 [moddesc   {Namespace utility commands}]
 [titledesc {Namespace utility commands}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require namespacex [opt [vset VERSION]]]
 [description]
 

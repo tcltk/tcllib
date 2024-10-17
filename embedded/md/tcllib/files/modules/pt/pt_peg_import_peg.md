@@ -2,7 +2,7 @@
 [//000000001]: # (pt::peg::import::peg \- Parser Tools)
 [//000000002]: # (Generated from file 'plugin\.inc' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt::peg::import::peg\(n\) 1 tcllib "Parser Tools")
+[//000000004]: # (pt::peg::import::peg\(n\) 1\.1 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -47,8 +47,8 @@ pt::peg::import::peg \- PEG Import Plugin\. Read PEG format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require pt::peg::import::peg ?1?  
+package require Tcl 8\.5 9  
+package require pt::peg::import::peg ?1\.1?  
 package require pt::peg::to::peg  
 
 [__[import](\.\./\.\./\.\./\.\./index\.md\#import)__ *text*](#1)  
@@ -107,7 +107,7 @@ It is formally specified by the grammar shown below, written in itself\. For a
 tutorial / introduction to the language please go and read the *[PEG Language
 Tutorial](pt\_peg\_language\.md)*\.
 
-    PEG pe-grammar-for-peg (Grammar)
+    PEG pe_grammar_for_peg (Grammar)
 
     	# --------------------------------------------------------------------
             # Syntactical constructs
@@ -148,7 +148,7 @@ Tutorial](pt\_peg\_language\.md)*\.
                             ;
 
     leaf:   CharSpecial     <- "\\" [nrt'"\[\]\\] ;
-    leaf:   CharOctalFull   <- "\\" [0-2][0-7][0-7] ;
+    leaf:   CharOctalFull   <- "\\" [0-3][0-7][0-7] ;
     leaf:   CharOctalPart   <- "\\" [0-7][0-7]? ;
     leaf:   CharUnicode     <- "\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
     leaf:   CharUnescaped   <- !"\\" . ;
@@ -218,13 +218,13 @@ Using higher\-level features of the notation, i\.e\. the character classes
 \(predefined and custom\), this example can be rewritten as
 
     PEG calculator (Expression)
-        Sign       <- [-+] 						;
-        Number     <- Sign? <ddigit>+				;
-        Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+        Sign       <- [-+]                                          ;
+        Number     <- Sign? <ddigit>+                               ;
+        Expression <- Term (AddOp Term)*                            ;
         MulOp      <- [*/]						;
-        Factor     <- Term (AddOp Term)*				;
+        Term       <- Factor (MulOp Factor)*                        ;
         AddOp      <- [-+]						;
-        Term       <- Number					;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 # <a name='section4'></a>PEG serialization format

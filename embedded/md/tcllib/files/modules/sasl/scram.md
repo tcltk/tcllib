@@ -2,7 +2,7 @@
 [//000000001]: # (SASL::SCRAM \- Simple Authentication and Security Layer \(SASL\))
 [//000000002]: # (Generated from file 'scram\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2013 Sergei Golovan <sgolovan@nes\.ru>)
-[//000000004]: # (SASL::SCRAM\(n\) 0\.1 tcllib "Simple Authentication and Security Layer \(SASL\)")
+[//000000004]: # (SASL::SCRAM\(n\) 0\.2 tcllib "Simple Authentication and Security Layer \(SASL\)")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ SASL::SCRAM \- Implementation of SASL SCRAM mechanism for Tcl
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require SASL::SCRAM ?0\.1?  
+package require Tcl 8\.5 9  
+package require SASL::SCRAM ?0\.2?  
 
 # <a name='description'></a>DESCRIPTION
 

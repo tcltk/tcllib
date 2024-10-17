@@ -81,9 +81,9 @@
 #
 # Copyright 2008 Michael Baudin
 #
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require snit
-package provide math::machineparameters 0.1
+package provide math::machineparameters 0.2
 
 snit::type machineparameters {
   # Epsilon is the smallest value so that 1+epsilon>1 is false

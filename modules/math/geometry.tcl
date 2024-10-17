@@ -14,7 +14,7 @@
 
 namespace eval ::math::geometry {}
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require math
 
 ###
@@ -509,9 +509,6 @@ proc ::math::geometry::lengthOfPolyline {polyline} {
     }
     return $length
 }
-
-
-
 
 # ::math::geometry::movePointInDirection
 #
@@ -1569,4 +1566,4 @@ namespace eval ::math::geometry {
 source [file join [file dirname [info script]] geometry_circle.tcl]
 source [file join [file dirname [info script]] geometry_ext.tcl]
 
-package provide math::geometry 1.4.1
+package provide math::geometry 1.4.2

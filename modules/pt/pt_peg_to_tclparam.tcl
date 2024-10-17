@@ -19,7 +19,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package  require Tcl 8.5
+package  require Tcl 8.5 9
 package  require pt::peg             ; # Verification that the input
 				       # is proper.
 package  require pt::pe              ; # Walking an expression.
@@ -105,6 +105,7 @@ proc ::pt::peg::to::tclparam::configure {args} {
 		    }
 		}
 		indent {
+		    ##nagelfar ignore
 		    if {![string is integer -strict $value] || ($value < 0)} {
 			return -code error "Expected int > 0, got \"$value\""
 		    }
@@ -1269,5 +1270,5 @@ namespace eval ::pt::peg::to::tclparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::tclparam 1.0.3
+package provide pt::peg::to::tclparam 1.0.4
 return

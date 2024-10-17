@@ -66,7 +66,7 @@ proc f_setupcircle {} {
 
     if {
 	[string equal $::tcl_platform(platform) windows] &&
-	[package vsatisfies [package require Tcl] 8.4]
+	[package vsatisfies [package require Tcl] 8.5 9]
     } {
 	if {[string equal $::tcl_platform(platform) windows]} {
 	    # Windows doesn't like the .. in the target, it needs an
@@ -121,7 +121,7 @@ proc f_setupcircle2 {} {
 
     if {
 	[string equal $::tcl_platform(platform) windows] &&
-	[package vsatisfies [package require Tcl] 8.4]
+	[package vsatisfies [package require Tcl] 8.5 9]
     } {
 	if {[string equal $::tcl_platform(platform) windows]} {
 	    # Windows doesn't like the .. in the target, it needs an
@@ -176,7 +176,7 @@ proc f_setupbroken {} {
 
     if {
 	[string equal $::tcl_platform(platform) windows] &&
-	[package vsatisfies [package require Tcl] 8.4]
+	[package vsatisfies [package require Tcl] 8.5 9]
     } {
 	makeFile {} [file dirname $fthree]/BROKEN
 
@@ -282,7 +282,7 @@ proc f_link {src target} {
 
     if {
 	[string equal $::tcl_platform(platform) windows] &&
-	[package vsatisfies [package require Tcl] 8.4]
+	[package vsatisfies [package require Tcl] 8.5 9]
     } {
 	if {[string equal $::tcl_platform(platform) windows]} {
 	    # Windows doesn't like the .. in the target, it needs an

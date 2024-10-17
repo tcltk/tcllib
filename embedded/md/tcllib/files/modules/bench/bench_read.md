@@ -2,7 +2,7 @@
 [//000000001]: # (bench::in \- Benchmarking/Performance tools)
 [//000000002]: # (Generated from file 'bench\_read\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (bench::in\(n\) 0\.1 tcllib "Benchmarking/Performance tools")
+[//000000004]: # (bench::in\(n\) 0\.2 tcllib "Benchmarking/Performance tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,9 +37,9 @@ bench::in \- bench::in \- Reading benchmark results
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
+package require Tcl 8\.5 9  
 package require csv  
-package require bench::in ?0\.1?  
+package require bench::in ?0\.2?  
 
 [__::bench::in::read__ *file*](#1)  
 

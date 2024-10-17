@@ -4,7 +4,7 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2000 by Ajuba Solutions
+# Copyright (c) 2000 by Ajuba Solutions, 2023 AK
 # Copyright (c) 2018 Poor Yorick
 # All rights reserved.
 
@@ -15,7 +15,7 @@ source [file join [
 ] devtools testutilities.tcl]
 
 testsNeedTcl     8.6.9
-testsNeedTcltest 2 
+testsNeedTcltest 2.0
 
 support {
     # This code loads md5x, i.e. md5 v2. Proper testing should do one
@@ -520,8 +520,7 @@ set n 15
 while {$n < 23} {
     test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {cleanly {
 	word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
-    }} "=?UTF-8?Q?Here_is_a_triple_byte_encoded_character_?=
- =?UTF-8?Q?=E3=81=AF?="
+    }} =?UTF-8?Q?Here_is_a_triple_byte_encoded_character_?=
     incr n
 }
 
@@ -725,7 +724,7 @@ foreach {n stamp date} {
     5  68248620 {Thu, 28 Feb 2002 21:57:00 +0000}
     6 126218520 {Wed, 31 Dec 2003 20:42:00 +0000}
 } {
-    test mime-10.$n "Test formatting dates (RFC 822)" {
+    test mime-10.$n "Test formatting dates (RFC 822), $date" {
 	# To verify that clock scan gets the expected value.
 	set stamp_test [expr {[datetime $date clock] - $epoch}]
 	# Parse and re-format should get us the original.
@@ -810,7 +809,6 @@ b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
 
 # -------------------------------------------------------------------------
 
-
 test mime-13.0 {cleanly {
     issue a16b1095974e071d
 }} {
@@ -823,6 +821,30 @@ so plain
     set tok [.new {} -string $msg]
     [$tok body raw] read 
 } "so plain\n"
+
+# -------------------------------------------------------------------------
+
+test mime-14.0 {ticket 5f455d6343} -setup {
+    set part  [mime::initialize \
+		   -canonical application/x-simile \
+		   -header [list "Content-Description" "Run Status"] \
+		   -encoding base64 -string "This is a test"]
+    set whole [mime::initialize -canonical multipart/mixed -parts [list $part]]
+
+    set saved checkmime.msg
+    set stm [open $saved w]
+    mime::copymessage $whole $stm
+    close $stm
+
+} -body {
+    set stm [open $saved r]
+    set str [read $stm]
+    close $stm
+    set restore [mime::initialize -string $str]
+} -cleanup {
+    mime::finalize $restore
+    unset part whole saved stm str
+} -match glob -result "::mime::*"
 
 # -------------------------------------------------------------------------
 

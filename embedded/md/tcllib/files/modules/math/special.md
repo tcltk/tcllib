@@ -2,7 +2,7 @@
 [//000000001]: # (math::special \- Tcl Math Library)
 [//000000002]: # (Generated from file 'special\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
-[//000000004]: # (math::special\(n\) 0\.4 tcllib "Tcl Math Library")
+[//000000004]: # (math::special\(n\) 0\.5\.4 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -41,8 +41,8 @@ math::special \- Special mathematical functions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
-package require math::special ?0\.5?  
+package require Tcl ?8\.5 9?  
+package require math::special ?0\.5\.3?  
 
 [__::math::special::eulerNumber__ *index*](#1)  
 [__::math::special::bernoulliNumber__ *index*](#2)  

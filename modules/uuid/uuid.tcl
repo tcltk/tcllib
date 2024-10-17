@@ -11,7 +11,7 @@
 # Usage: uuid::uuid generate
 #        uuid::uuid equal $idA $idB
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 namespace eval uuid {
     variable accel
@@ -47,7 +47,7 @@ proc ::uuid::generate_tcl_machinfo {} {
   # If we have /dev/urandom just stream 128 bits from that
   ###
   if {[file exists /dev/urandom]} {
-    set fin [open /dev/urandom r]
+    set fin [open /dev/urandom rb]
     binary scan [read $fin 128] H* machinfo
     close $fin
   } elseif {[catch {package require nettool}]} {
@@ -236,7 +236,7 @@ namespace eval ::uuid {
     unset e
 }
 
-package provide uuid 1.0.7
+package provide uuid 1.0.9
 
 # -------------------------------------------------------------------------
 # Local variables:

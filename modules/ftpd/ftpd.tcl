@@ -8,13 +8,10 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: ftpd.tcl,v 1.34 2011/08/09 20:55:38 andreas_kupries Exp $
-#
 
 # Define the ftpd package version 1.2.5
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 namespace eval ::ftpd {
 
     # The listening port.
@@ -1758,9 +1755,10 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    # Patched Mark O'Connor
 	    #
-	    set fhandle [open $path a]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary -encoding binary
+		set fhandle [open $path ab]
+	    } else {
+		set fhandle [open $path a]
 	    }
 	    return $fhandle
         }
@@ -1768,9 +1766,10 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    # Patched Mark O'Connor
 	    #
-	    set fhandle [open $path r]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary -encoding binary
+		set fhandle [open $path rb]
+	    } else {
+		set fhandle [open $path r]
 	    }
 	    return $fhandle
 	}
@@ -1778,9 +1777,10 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    # Patched Mark O'Connor
 	    #
-	    set fhandle [open $path w]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary -encoding binary
+		set fhandle [open $path wb]
+	    } else {
+		set fhandle [open $path w]
 	    }
 	    return $fhandle
 	}
@@ -1964,7 +1964,7 @@ proc ::ftpd::fsFile::PermBits {file mode} {
     } else {
         set permissions [string index $type 0]
     }
-    foreach j [split [format %03o [expr {$mode&0777}]] {}] {
+    foreach j [split [format %03o [expr {$mode&0o777}]] {}] {
         append permissions $s($j)
     }
 
@@ -2004,7 +2004,7 @@ proc ::ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.3
+package provide ftpd 1.4.1
 
 
 ##

@@ -3,7 +3,7 @@
 # (C) 2009, 2019 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::halfpipe 1
+# Package tcl::chan::halfpipe 1.0.3
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009,2019
 # Meta as::license BSD
@@ -21,8 +21,12 @@
 # @@ Meta End
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
-package require TclOO
+package require Tcl 8.5 9
+try {
+	package require tcl::oo
+} trap {TCL PACKAGE UNFOUND} {tres topts} {
+	package require TclOO
+}
 package require tcl::chan::events
 
 # # ## ### ##### ######## #############
@@ -39,6 +43,7 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 
     method initialize {args} {
 	my allow write
+	set eof 0
 	next {*}$args
     }
 
@@ -57,8 +62,8 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 	# <=> n <= max-at
 
 	if {$n <= ($max - $at)} {
-	    # The request is less than what we have left in the read
-	    # buffer, we take it, and move the read pointer forward.
+	    # There is enough data in the buffer to fill the request, so take
+	    # it from there and move the read pointer forward.
 
 	    append result [string range $read $at $last]
 	    incr at $n
@@ -99,13 +104,10 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 		set size 0
 	    }
 	}
-
 	my Readable
-
-	if {$result eq {}} {
+	if {$result eq {} && !$eof} {
 	    return -code error EAGAIN
 	}
-
 	return $result
     }
 
@@ -116,18 +118,24 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 
     # # ## ### ##### ######## #############
 
-    method put {bytes} {
+    method put bytes {
 	append write $bytes
 	set n [string length $bytes]
-	incr size $n
+	if {$n == 0} {
+	    my variable eof
+	    set eof 1
+	} else {
+	    incr size $n
+	}
 	my Readable
 	return $n
     }
 
     # # ## ### ##### ######## #############
 
-    variable at read write size options
+    variable at eof read write size options
     # at      : first location in read buffer not yet read
+    # eof     : indicates whether the end of the data has been reached 
     # read    : read buffer
     # write   : buffer for received data, i.e.
     #           written into the halfpipe from
@@ -168,7 +176,7 @@ oo::class create ::tcl::chan::halfpipe::implementation {
     }
 
     method Readable {} {
-	if {$size} {
+	if {$size || $eof} {
 	    my allow read
 	} else {
 	    my variable channel
@@ -186,5 +194,5 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::halfpipe 1.0.1
+package provide tcl::chan::halfpipe 1.0.3
 return

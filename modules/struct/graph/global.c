@@ -24,7 +24,7 @@ gg_new (Tcl_Interp* interp)
   }
 	    
   gg->counter ++;
-  sprintf (gg->buf, "graph%ld", gg->counter);
+  sprintf (gg->buf, "graph%" TCL_SIZE_MODIFIER "d", gg->counter);
   return gg->buf;
 }
 

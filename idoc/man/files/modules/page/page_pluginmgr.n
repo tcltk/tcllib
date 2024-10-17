@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 page_pluginmgr \- page plugin manager
 .SH SYNOPSIS
-package require \fBpage::pluginmgr  ?0\&.2?\fR
+package require \fBpage::pluginmgr ?0\&.3?\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
 \fB::page::pluginmgr::reportvia\fR \fIcmd\fR
 .sp

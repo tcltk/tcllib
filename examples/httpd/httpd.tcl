@@ -7,6 +7,7 @@ set DEMOROOT [file join $DIR htdocs]
 set tcllibroot  [file normalize [file join $DIR .. ..]]
 set auto_path [linsert $auto_path 0 [file normalize [file join $tcllibroot modules]]]
 package require httpd 4.1
+package require file::home	;# tcllib file home forward compatibility
 ###
 # This script creates two toplevel domains:
 # * Hosting the tcllib embedded documentation as static content
@@ -83,7 +84,11 @@ clay::define httpd::content.fossil_node_scgi {
     set uri    [my request get REQUEST_URI]
     set prefix [my clay get prefix]
     set module [lindex [split $uri /] 2]
-    file mkdir ~/tmp
+    if {[package vsatisfies [package present Tcl] 9]} {
+	file mkdir [file join [file home] tmp]
+    } else {
+      file mkdir ~/tmp
+    }
     if {![info exists ::fossil_process($module)]} {
       package require processman
       package require nettool
@@ -98,8 +103,7 @@ clay::define httpd::content.fossil_node_scgi {
         tailcall my error 400 {Not Found}
       }
       set mport [my <server> port_listening]
-      set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
-
+      set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>[file home]/tmp/$module.err >[file home]/tmp/$module.log]
       dict set ::fossil_process($module) port $port
       dict set ::fossil_process($module) handle $handle
       dict set ::fossil_process($module) cmd $cmd

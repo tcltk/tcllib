@@ -9,14 +9,14 @@
 
 package require pcx
 pcx::register textutil::adjust
-pcx::tcldep   0.7 needs tcl 8.2
+pcx::tcldep   0.8 needs tcl 8.5
 
 namespace eval ::textutil::adjust {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 0.7 std ::textutil::adjust::adjust \
+pcx::check 0.8 std ::textutil::adjust::adjust \
     {checkSimpleArgs 1 -1 {
 	checkWord
 	{checkSwitches 1 {
@@ -27,24 +27,24 @@ pcx::check 0.7 std ::textutil::adjust::adjust \
 	    {-strictlength checkBoolean}
 	} {}}
     }}
-pcx::check 0.7 std ::textutil::adjust::getPredefined \
+pcx::check 0.8 std ::textutil::adjust::getPredefined \
     {checkSimpleArgs 1 1 {
 	checkFileName
     }}
-pcx::check 0.7 std ::textutil::adjust::indent \
+pcx::check 0.8 std ::textutil::adjust::indent \
     {checkSimpleArgs 2 3 {
 	checkWord
 	checkWord
 	checkInt
     }}
-pcx::check 0.7 std ::textutil::adjust::listPredefined \
+pcx::check 0.8 std ::textutil::adjust::listPredefined \
     {checkSimpleArgs 0 0 {
     }}
-pcx::check 0.7 std ::textutil::adjust::readPatterns \
+pcx::check 0.8 std ::textutil::adjust::readPatterns \
     {checkSimpleArgs 1 1 {
 	checkFileName
     }}
-pcx::check 0.7 std ::textutil::adjust::undent \
+pcx::check 0.8 std ::textutil::adjust::undent \
     {checkSimpleArgs 1 1 {
 	checkWord
     }}

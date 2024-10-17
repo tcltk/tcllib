@@ -2,7 +2,7 @@
 '\" Generated from file 'loggerAppender\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
 '\"
-.TH "logger::appender" n 1\&.2 tcllib "Object Oriented logging facility"
+.TH "logger::appender" n 1\&.4 tcllib "Object Oriented logging facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 logger::appender \- Collection of predefined appenders for logger
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBlogger::appender  ?1\&.2?\fR
+package require \fBlogger::appender ?1\&.4?\fR
 .sp
 \fB::logger::appender::console\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR\&.\&.\&.?
 .sp

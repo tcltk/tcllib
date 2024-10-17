@@ -2,7 +2,7 @@
 # Parsing Expression Grammar 'PEG'.
 # Definition of a human-readable form of parsing expression grammar specification.
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require snit
 package require pt::peg::container
 
@@ -81,7 +81,7 @@ snit::type pt::peg::container::peg {
             ASCII         {x {t <} {t a} {t s} {t c} {t i} {t i} {t >} {n WHITESPACE}}
             Attribute     {x {/ {n VOID} {n LEAF}} {n COLON}}
             Char          {/ {n CharSpecial} {n CharOctalFull} {n CharOctalPart} {n CharUnicode} {n CharUnescaped}}
-            CharOctalFull {x {t \134} {.. 0 2} {.. 0 7} {.. 0 7}}
+            CharOctalFull {x {t \134} {.. 0 3} {.. 0 7} {.. 0 7}}
             CharOctalPart {x {t \134} {.. 0 7} {? {.. 0 7}}}
             CharSpecial   {x {t \134} {/ {t n} {t r} {t t} {t '} {t \42} {t \133} {t \135} {t \134}}}
             CharUnescaped {x {! {t \134}} dot}
@@ -142,5 +142,5 @@ snit::type pt::peg::container::peg {
     delegate method * to myg
 }
 
-package provide pt::peg::container::peg 1
+package provide pt::peg::container::peg 1.1.1
 return

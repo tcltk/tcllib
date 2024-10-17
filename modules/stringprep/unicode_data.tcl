@@ -10,8 +10,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: unicode_data.tcl,v 1.1 2008/01/29 02:18:10 patthoyts Exp $
 
 #
 # A 16-bit Unicode character is split into two parts in order to index
@@ -19,11 +17,11 @@
 # into a page of characters.  The upper bits comprise the page number.
 #
 
-package provide unicode::data 1.0.0
+package provide unicode::data 1.1.1
 
 namespace eval ::unicode::data {
 
-set CCLASS_OFFSET_BITS 2
+variable CCLASS_OFFSET_BITS 2
 
 #
 # The cclassPageMap is indexed by page number and returns an alternate page number
@@ -31,6 +29,7 @@ set CCLASS_OFFSET_BITS 2
 # to the same alternate page number.
 #
 
+variable cclassPageMap
 array unset cclassPageMap
 array set cclassPageMap [list \
     192 1 193 1 194 1 195 1 196 1 197 2 198 3 199 4 200 5 201 6 202 7 203 4 \
@@ -50,14 +49,14 @@ array set cclassPageMap [list \
     17039 86 29785 87 29786 88 29787 89 29788 90 29790 91 29791 4 29792 92 \
     29793 93 29794 24 29802 39 29803 32 29840 39 29841 51]
 
-set CCLASS_COMMON_PAGE_MAP 0
+variable CCLASS_COMMON_PAGE_MAP 0
 
 #
 # The cclassGroupMap is indexed by combining the alternate page number with
 # the page offset and returns a combining class number.
 #
 
-set cclassGroupMap [list \
+variable cclassGroupMap [list \
     0 0 0 0 230 230 230 230 230 232 220 220 220 220 232 216 220 220 220 \
     220 220 202 202 220 220 220 220 202 202 220 220 220 1 1 1 1 1 220 220 \
     220 220 230 230 230 230 240 230 220 220 220 230 230 230 220 220 0 230 \
@@ -96,7 +95,7 @@ proc GetUniCharCClass {uc} {
 }
 
 
-set DECOMP_OFFSET_BITS 3
+variable DECOMP_OFFSET_BITS 3
 
 #
 # The pageMap is indexed by page number and returns an alternate page number
@@ -104,6 +103,7 @@ set DECOMP_OFFSET_BITS 3
 # to the same alternate page number.
 #
 
+variable decompPageMap
 array unset decompPageMap
 array set decompPageMap [list \
     20 1 21 2 22 3 23 4 24 5 25 6 26 7 27 8 28 9 29 10 30 11 31 12 32 13 \
@@ -207,7 +207,7 @@ array set decompPageMap [list \
     24375 725 24376 726 24377 727 24378 728 24379 729 24380 730 24381 731 \
     24382 732 24383 733 24384 734 24385 735 24386 736 24387 737]
 
-set DECOMP_COMMON_PAGE_MAP 0
+variable DECOMP_COMMON_PAGE_MAP 0
 
 #
 # The decompGroupMap is indexed by combining the alternate page number with
@@ -215,7 +215,7 @@ set DECOMP_COMMON_PAGE_MAP 0
 # shift of decomposition sequence in decompList
 #
 
-set decompGroupMap [list \
+variable decompGroupMap [list \
     -1 -1 -1 -1 -1 -1 -1 -1 196608 -1 -1 -1 -1 -1 -1 -1 327681 -1 196611 \
     -1 -1 -1 -1 327684 -1 -1 196614 196615 327688 196618 -1 -1 327691 196621 \
     196622 -1 458767 458770 458773 -1 262168 262170 262172 262174 262176 \
@@ -753,7 +753,7 @@ set decompGroupMap [list \
 # List of decomposition sequences
 #
 
-set decompList [list \
+variable decompList [list \
     32 32 776 97 32 772 50 51 32 769 956 32 807 49 111 49 8260 52 49 8260 \
     50 51 8260 52 65 768 65 769 65 770 65 771 65 776 65 778 67 807 69 768 \
     69 769 69 770 69 776 73 768 73 769 73 770 73 776 78 771 79 768 79 769 \
@@ -1166,8 +1166,8 @@ set decompList [list \
     40000 40189 19662 19693 40295 172238 19704 172293 172558 172689 19798 \
     40702 40709 40719 40726 173568]
 
-set DECOMP_COMPAT_MASK 65536
-set DECOMP_INFO_BITS 17
+variable DECOMP_COMPAT_MASK 65536
+variable DECOMP_INFO_BITS 17
 
 #
 # This macro extracts the information about a character from the
@@ -1213,7 +1213,7 @@ proc GetDecompList {info} {
     lrange $decompList $decomp_shift [expr {$decomp_shift + $decomp_len - 1}]
 }
 
-set COMP_OFFSET_BITS 1
+variable COMP_OFFSET_BITS 1
 
 #
 # The pageMap is indexed by page number and returns an alternate page number
@@ -1221,6 +1221,7 @@ set COMP_OFFSET_BITS 1
 # to the same alternate page number.
 #
 
+variable compPageMap
 array unset compPageMap
 array set compPageMap [list \
     30 1 31 2 32 3 33 4 34 5 35 6 36 7 37 8 38 9 39 10 40 11 41 12 42 13 \
@@ -1259,7 +1260,7 @@ array set compPageMap [list \
     6240 294 6242 295 6243 296 6244 297 6247 298 6249 299 6250 300 6252 301 \
     6253 302 6263 303 6264 304 6265 305 6270 306]
 
-set COMP_COMMON_PAGE_MAP 0
+variable COMP_COMMON_PAGE_MAP 0
 
 #
 # The groupMap is indexed by combining the alternate page number with
@@ -1267,7 +1268,7 @@ set COMP_COMMON_PAGE_MAP 0
 # set of character attributes.
 #
 
-set compGroupMap [list \
+variable compGroupMap [list \
     -1 -1 65568 65648 65749 -1 -1 30 91 141 65 121 65712 38 94 1 65611 \
     124 44 100 12 76 77 -1 48 105 17 84 136 54 113 23 24 -1 -1 140 64 120 \
     71 123 65577 99 10 75 129 47 104 16 15 83 135 -1 110 22 86 137 59 117 \
@@ -1313,7 +1314,7 @@ set compGroupMap [list \
 # Lists of compositions for characters that appears only in one composition
 #
 
-set compFirstList [list \
+variable compFirstList [list \
     {824 8817} {837 8119} {837 8116} {3530 3549} {770 7896} {837 8090} \
     {776 1243} {837 8114} {837 8076} {783 1143} {780 494} {6965 6971} \
     {824 8772} {824 8742} {769 7727} {769 7688} {824 8777} {837 8178} \
@@ -1356,7 +1357,7 @@ set compFirstList [list \
     {776 1031} {837 8085} {824 8815} {837 8071} {837 8107} {824 8654} \
     {772 479} {775 7784} {776 1269} {824 8837}]
 
-set compSecondList [list \
+variable compSecondList [list \
     {3545 3548} {3545 3550} {3398 3404} {2503 2507} {2503 2508} \
     {2887 2891} {2887 2888} {2887 2892} {3270 3274} {3270 3272} \
     {1575 1570} {1575 1573}]
@@ -1365,6 +1366,7 @@ set compSecondList [list \
 # Compositions matrix
 #
 
+variable compBothMap
 array unset compBothMap
 array set compBothMap [list \
     0 8179 1 8060 2 974 4 8032 6 8033 18 8182 145 204 146 205 147 206 149 296 \
@@ -1484,10 +1486,10 @@ proc GetUniCharCompInfo {uc} {
 		   ($uc & ((1 << $COMP_OFFSET_BITS) - 1))}]
 }
 
-set COMP_SINGLE_MASK 65536
-set COMP_SECOND_MASK 131072
-set COMP_MASK 65535
-set COMP_LENGTH1 144
+variable COMP_SINGLE_MASK 65536
+variable COMP_SECOND_MASK 131072
+variable COMP_MASK 65535
+variable COMP_LENGTH1 144
 
 proc GetCompFirst {uc info} {
     variable COMP_SINGLE_MASK

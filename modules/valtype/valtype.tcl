@@ -9,7 +9,7 @@
 # # ## ### ##### ######## ############# ######################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 namespace eval ::valtype::common {}
 
 # # ## ### ##### ######## ############# ######################
@@ -74,4 +74,4 @@ namespace eval ::valtype::common {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide valtype::common 1
+package provide valtype::common 1.1

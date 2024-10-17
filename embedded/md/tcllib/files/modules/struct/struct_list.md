@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'struct\_list\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003\-2005 by Kevin B\. Kenny\. All rights reserved)
 [//000000004]: # (Copyright &copy; 2003\-2012 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000005]: # (struct::list\(n\) 1\.8\.4 tcllib "Tcl Data Structures")
+[//000000005]: # (struct::list\(n\) 1\.9 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,8 +42,8 @@ struct::list \- Procedures for manipulating lists
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require struct::list ?1\.8\.4?  
+package require Tcl 8\.5 9  
+package require struct::list ?1\.9?  
 
 [__::struct::list__ __longestCommonSubsequence__ *sequence1* *sequence2* ?*maxOccurs*?](#1)  
 [__::struct::list__ __longestCommonSubsequence2__ *sequence1 sequence2* ?*maxOccurs*?](#2)  
@@ -63,7 +63,7 @@ package require struct::list ?1\.8\.4?
 [__::struct::list__ __fold__ *sequence* *initialvalue* *cmdprefix*](#16)  
 [__::struct::list__ __shift__ *listvar*](#17)  
 [__::struct::list__ __iota__ *n*](#18)  
-[__::struct::list__ __equal__ *a* *b*](#19)  
+[__::struct::list__ __equal__ ?__\-simple__? ?__\-\-__? *a* *b*](#19)  
 [__::struct::list__ __repeat__ *size* *element1* ?*element2* *element3*\.\.\.?](#20)  
 [__::struct::list__ __repeatn__ *value* *size*\.\.\.](#21)  
 [__::struct::list__ __dbJoin__ ?__\-inner__&#124;__\-left__&#124;__\-right__&#124;__\-full__? ?__\-keys__ *varname*? \{*keycol* *table*\}\.\.\.](#22)  
@@ -87,39 +87,30 @@ provided here can be reached through a subcommand of this command\.
 
   - <a name='1'></a>__::struct::list__ __longestCommonSubsequence__ *sequence1* *sequence2* ?*maxOccurs*?
 
-    Returns the longest common subsequence of elements in the two lists
-    *sequence1* and *sequence2*\. If the *maxOccurs* parameter is provided,
-    the common subsequence is restricted to elements that occur no more than
+    Returns a list of indices into *sequence1* and a corresponding list where
+    each item is an index into *sequence2* of the matching value according to
+    the longest common subsequences algorithm\. If *maxOccurs* is provided, the
+    common subsequence is restricted to elements that occur no more than
     *maxOccurs* times in *sequence2*\.
-
-    The return value is a list of two lists of equal length\. The first sublist
-    is of indices into *sequence1*, and the second sublist is of indices into
-    *sequence2*\. Each corresponding pair of indices corresponds to equal
-    elements in the sequences; the sequence returned is the longest possible\.
 
   - <a name='2'></a>__::struct::list__ __longestCommonSubsequence2__ *sequence1 sequence2* ?*maxOccurs*?
 
-    Returns an approximation to the longest common sequence of elements in the
-    two lists *sequence1* and *sequence2*\. If the *maxOccurs* parameter is
-    omitted, the subsequence computed is exactly the longest common subsequence;
-    otherwise, the longest common subsequence is approximated by first
-    determining the longest common sequence of only those elements that occur no
-    more than *maxOccurs* times in *sequence2*, and then using that result
-    to align the two lists, determining the longest common subsequences of the
-    sublists between the two elements\.
+    Returns the longest common subsequence of elements in the two lists
+    *sequence1* and *sequence2*\. If *maxOccurs* is provided, the result is
+    only an approximation, where the longest common subsequence is approximated
+    by first determining the longest common sequence of only those elements that
+    occur no more than *maxOccurs* times in *sequence2*, and then using that
+    result to align the two lists, determining the longest common subsequences
+    of the sublists between the two elements\.
 
-    As with __longestCommonSubsequence__, the return value is a list of two
-    lists of equal length\. The first sublist is of indices into *sequence1*,
-    and the second sublist is of indices into *sequence2*\. Each corresponding
-    pair of indices corresponds to equal elements in the sequences\. The sequence
-    approximates the longest common subsequence\.
+    The result is the same as for __longestCommonSubsequence__\.
 
   - <a name='3'></a>__::struct::list__ __lcsInvert__ *lcsData* *len1* *len2*
 
-    This command takes a description of a longest common subsequence
-    \(*lcsData*\), inverts it, and returns the result\. Inversion means here that
-    as the input describes which parts of the two sequences are identical the
-    output describes the differences instead\.
+    Takes a description of a longest common subsequence \(*lcsData*\), inverts
+    it, and returns the result\. Inversion means here that as the input describes
+    which parts of the two sequences are identical the output describes the
+    differences instead\.
 
     To be fully defined the lengths of the two sequences have to be known and
     are specified through *len1* and *len2*\.
@@ -428,12 +419,18 @@ provided here can be reached through a subcommand of this command\.
 
     For "*n* == __0__" an empty list will be returned\.
 
-  - <a name='19'></a>__::struct::list__ __equal__ *a* *b*
+  - <a name='19'></a>__::struct::list__ __equal__ ?__\-simple__? ?__\-\-__? *a* *b*
 
     The subcommand compares the two lists *a* and *b* for equality\. In other
     words, they have to be of the same length and have to contain the same
-    elements in the same order\. If an element is a list the same definition of
-    equality applies recursively\.
+    elements in the same order\.
+
+    By default equality checks are applied recursively to list elements which
+    are lists themselves\. This behaviour is disabled when specifying the option
+    __\-simple__\.
+
+    The option __\-\-__ disables option processing even if the following
+    argument looks like such\.
 
     A boolean value will be returned as the result of the command\. This value
     will be __true__ if the two lists are equal, and __false__ else\.

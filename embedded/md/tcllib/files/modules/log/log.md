@@ -2,7 +2,7 @@
 [//000000001]: # (log \- Logging facility)
 [//000000002]: # (Generated from file 'log\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2001\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (log\(n\) 1\.4 tcllib "Logging facility")
+[//000000004]: # (log\(n\) 1\.5 tcllib "Logging facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ log \- Procedures to log messages of libraries and applications\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
-package require log ?1\.4?  
+package require Tcl 8\.5 9  
+package require log ?1\.5?  
 
 [__::log::levels__](#1)  
 [__::log::lv2longform__ *level*](#2)  

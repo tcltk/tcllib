@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ripemd128 - RIPEMD Message-Digest Algorithm</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">ripemd128(n) 1.0.5 tcllib &quot;RIPEMD Message-Digest Algorithm&quot;</h1>
+<h1 class="doctools_title">ripemd128(n) 1.0.6 tcllib &quot;RIPEMD Message-Digest Algorithm&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>ripemd128 - RIPEMD-128 Message-Digest Algorithm</p>
 </div>
@@ -130,8 +132,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">ripemd128 <span class="opt">?1.0.5?</span></b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">ripemd128 <span class="opt">?1.0.6?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::ripemd::ripemd128</b> <span class="opt">?<i class="arg">-hex</i>?</span> [ <i class="arg">-channel channel</i> | <i class="arg">-file filename</i> | <i class="arg">string</i> ]</a></li>
@@ -158,6 +160,19 @@ RIPEMD-160 or SHA1 should be considered.</p>
 accelerate the digest computation if available. In
 the absence of an accelerator package the pure-Tcl implementation will
 be used.</p>
+<p><em>BEWARE</em>
+The commands in this package expect binary data as their input.
+When a <b class="option">-file</b> is provided then this is ensured by the commands
+themselves, as they open the referenced file in binary mode.
+When literal data, or a <b class="option">-channel</b> are provided instead, then the
+command's <em>caller is responsible</em> for ensuring this fact.
+The necessary conversion command is <b class="cmd">encoding convertto utf-8 $string</b>.</p>
+<p><em>ATTENTION</em>, there is a <em>Tcl 9 COMPATIBILITY ISSUE</em> here.</p>
+<p><em>Tcl 8.x silently mishandles</em> non-binary input by cutting it
+internally to size. I.e. by only using the low byte of a higher unicode point.
+No error is thrown, the <em>result is simply wrong</em>.</p>
+<p><em>Tcl 9 throws an error</em> instead, i.e.</p>
+<pre class="doctools_example">expected byte sequence but character &lt;location&gt; was ...</pre>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">

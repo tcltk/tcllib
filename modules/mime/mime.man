@@ -1,4 +1,4 @@
-[vset VERSION 1.6.3]
+[vset VERSION 1.7.2]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin mime n [vset VERSION]]
 [see_also ftp]
@@ -20,12 +20,12 @@
 [moddesc   {Mime}]
 [titledesc {Manipulation of Internet messages}]
 [category  {Text processing}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require mime [opt [vset VERSION]]]
 [description]
 [para]
 
-Provides commands to create and manipulate Internet messages.
+[package mime] provides commands to create and manipulate Internet messages.
 
 [list_begin definitions]
 
@@ -216,10 +216,7 @@ If [const write] is provided, first deletes any existing headers matching
 [arg name].
 
 If [const delete] is provided, deletes any existing header matching [arg name].
-
-Returns a list of strings containing the previous value associated with the
 key.
-
 
 [para]
 

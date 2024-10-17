@@ -2,7 +2,7 @@
 '\" Generated from file 'uuid\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "uuid" n 1\&.0\&.6 tcllib "uuid"
+.TH "uuid" n 1\&.0\&.9 tcllib "uuid"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uuid \- UUID generation and comparison
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBuuid  ?1\&.0\&.6?\fR
+package require \fBuuid ?1\&.0\&.9?\fR
 .sp
 \fB::uuid::uuid generate\fR
 .sp

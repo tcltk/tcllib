@@ -2,7 +2,7 @@
 [//000000001]: # (nameserv \- Name service facility)
 [//000000002]: # (Generated from file 'nns\_client\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (nameserv\(n\) 0\.4\.2 tcllib "Name service facility")
+[//000000004]: # (nameserv\(n\) 0\.4\.3 tcllib "Name service facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -47,8 +47,8 @@ nameserv \- Name service facility, Client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require nameserv ?0\.4\.2?  
+package require Tcl 8\.5 9  
+package require nameserv ?0\.4\.3?  
 package require comm  
 package require logger  
 

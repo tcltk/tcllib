@@ -2,7 +2,7 @@
 '\" Generated from file 'me_intro\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "grammar::me_intro" n 0\&.1 tcllib "Grammar operations and usage"
+.TH "grammar::me_intro" n 0\&.2 tcllib "Grammar operations and usage"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

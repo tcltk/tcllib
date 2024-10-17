@@ -2,7 +2,7 @@
 [//000000001]: # (bee \- BitTorrent)
 [//000000002]: # (Generated from file 'bee\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (bee\(n\) 0\.1 tcllib "BitTorrent")
+[//000000004]: # (bee\(n\) 0\.3 tcllib "BitTorrent")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ bee \- BitTorrent Serialization Format Encoder/Decoder
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require bee ?0\.1?  
+package require Tcl 8\.5 9  
+package require bee ?0\.3?  
 
 [__::bee::encodeString__ *string*](#1)  
 [__::bee::encodeNumber__ *integer*](#2)  

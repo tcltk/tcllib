@@ -5,7 +5,7 @@
 ###
 #
 # Author: Sean Woods (for T&E Solutions)
-package require Tcl 8.6 ;# See coroutine
+package require Tcl 8.6 9 ;# See coroutine
 package require coroutine
 package require dicttool
 ::namespace eval ::cron {}
@@ -92,6 +92,7 @@ proc ::cron::at args {
     }
   }
   variable processTable
+  ##nagelfar ignore
   if {[string is integer -strict $timecode]} {
     set scheduled [expr {$timecode*1000}]
   } else {
@@ -615,5 +616,5 @@ namespace eval ::cron {
 }
 
 ::cron::wake STARTUP
-package provide cron 2.1
+package provide cron 2.2
 

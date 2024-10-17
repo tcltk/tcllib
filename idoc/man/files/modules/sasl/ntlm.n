@@ -2,7 +2,7 @@
 '\" Generated from file 'ntlm\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005-2006, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "SASL::NTLM" n 1\&.1\&.2 tcllib "Simple Authentication and Security Layer (SASL)"
+.TH "SASL::NTLM" n 1\&.1\&.4 tcllib "Simple Authentication and Security Layer (SASL)"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 SASL::NTLM \- Implementation of SASL NTLM mechanism for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBSASL::NTLM  ?1\&.1\&.2?\fR
+package require \fBSASL::NTLM ?1\&.1\&.4?\fR
 .sp
 .BE
 .SH DESCRIPTION

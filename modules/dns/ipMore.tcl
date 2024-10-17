@@ -1,6 +1,4 @@
 #temporary home until this gets cleaned up for export to tcllib ip module
-# $Id: ipMore.tcl,v 1.4 2006/01/22 00:27:22 andreas_kupries Exp $
-
 
 ##Library Header
 #
@@ -392,6 +390,7 @@ proc ::ip::toHex {ip} {
 # End of Header
 
 proc ::ip::maskToInt {mask} {
+    ##nagelfar ignore
     if {[string is integer -strict $mask]} {
         set maskInt [expr {(0xFFFFFFFF << (32 - $mask))}]
     } else {
@@ -519,6 +518,7 @@ proc ::ip::maskToLength {mask args} {
 	}
     }
     #pick the fastest method for either format
+    ##nagelfar ignore
     if {[string is integer -strict $mask]} {
 	binary scan [binary format I [expr {$mask}]] B32 maskB
 	if {[regexp -all {^1+} $maskB ones]} {
@@ -650,9 +650,11 @@ proc ::ip::nextNet {prefix mask args} {
 	    }
 	}
     }
+    ##nagelfar ignore
     if {![string is integer -strict $prefix]} {
 	set prefix [toInteger $prefix]
     }
+    ##nagelfar ignore
     if {![string is integer -strict $mask] || ($mask < 33 && $mask > 0)} {
 	set mask [maskToInt $mask]
     }
@@ -1121,6 +1123,7 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
     } else {
 	set prefixList [list $prefixList]
     }
+    ##nagelfar ignore
     if {![string is integer -strict $ipaddr]} {
 	set ipaddr [prefixToNative $ipaddr]
     }
@@ -1169,36 +1172,17 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
 # End of Header
 #            ip address in <ipprefix> format, dotted form, or integer form
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    # 8.3+
-    proc ip::cmpDotIP {ipaddr1 ipaddr2} {
-	# convert dotted to list of integers
-	set ipaddr1 [split $ipaddr1 .]
-	set ipaddr2 [split $ipaddr2 .]
-	foreach a $ipaddr1 b $ipaddr2 {
-	    #ipMore::log::debug "$ipInt1 $ipInt2"
-	    if { $a < $b}  {
-		return -1
-	    } elseif {$a >$b} {
-		return 1
-	    }
-	}
-	return 0
-    }
-} else {
-    # 8.4+
-    proc ip::cmpDotIP {ipaddr1 ipaddr2} {
-	# convert dotted to decimal
-	set ipInt1 [::ip::toHex $ipaddr1]
-	set ipInt2 [::ip::toHex $ipaddr2]
-	#ipMore::log::debug "$ipInt1 $ipInt2"
-	if { $ipInt1 < $ipInt2}  {
-	    return -1
-	} elseif {$ipInt1 >$ipInt2 } {
-	    return 1
-	} else {
-	    return 0
-	}
+proc ip::cmpDotIP {ipaddr1 ipaddr2} {
+    # convert dotted to decimal
+    set ipInt1 [::ip::toHex $ipaddr1]
+    set ipInt2 [::ip::toHex $ipaddr2]
+    #ipMore::log::debug "$ipInt1 $ipInt2"
+    if { $ipInt1 < $ipInt2}  {
+        return -1
+    } elseif {$ipInt1 >$ipInt2 } {
+        return 1
+    } else {
+        return 0
     }
 }
 

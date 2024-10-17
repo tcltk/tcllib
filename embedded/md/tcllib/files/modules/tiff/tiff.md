@@ -2,7 +2,7 @@
 [//000000001]: # (tiff \- TIFF image manipulation)
 [//000000002]: # (Generated from file 'tiff\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005\-2006, Aaron Faupell <afaupell@users\.sourceforge\.net>)
-[//000000004]: # (tiff\(n\) 0\.2\.1 tcllib "TIFF image manipulation")
+[//000000004]: # (tiff\(n\) 0\.2\.3 tcllib "TIFF image manipulation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,8 +39,8 @@ tiff \- TIFF reading, writing, and querying and manipulation of meta data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require tiff ?0\.2\.1?  
+package require Tcl 8\.5 9  
+package require tiff ?0\.2\.3?  
 
 [__::tiff::isTIFF__ *file*](#1)  
 [__::tiff::byteOrder__ *file*](#2)  

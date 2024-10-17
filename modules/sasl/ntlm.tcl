@@ -11,13 +11,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 package require SASL 1.0;               # tcllib 1.7
 package require des 1.0;                # tcllib 1.8
 package require md4;                    # tcllib 1.4
 
 namespace eval ::SASL {
     namespace eval NTLM {
+        variable  NTLMFlags
         array set NTLMFlags {
             unicode        0x00000001
             oem            0x00000002
@@ -366,7 +367,7 @@ if {[llength [package provide SASL]] != 0} {
     ::SASL::register NTLM 50 ::SASL::NTLM::NTLM
 }
 
-package provide SASL::NTLM 1.1.2
+package provide SASL::NTLM 1.1.4
 
 # -------------------------------------------------------------------------
 #

@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt \- Parser Tools Application
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
 \fBpt\fR \fBgenerate\fR \fIresultformat\fR ?\fIoptions\&.\&.\&.\fR? \fIresultfile\fR \fIinputformat\fR \fIinputfile\fR
 .sp

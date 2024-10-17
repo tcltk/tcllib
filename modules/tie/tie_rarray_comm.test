@@ -1,12 +1,10 @@
 # Tests for the tie module.                              -*- tcl -*- 
 #
-# Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2021 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
 # This is a tie for remote array ties, actually using separate
 # processes. This is based on the package "comm", also in Tcllib.
-#
-# RCS: @(#) $Id: tie_rarray_comm.test,v 1.11 2007/08/01 22:53:18 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 

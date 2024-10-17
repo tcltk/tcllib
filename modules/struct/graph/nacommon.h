@@ -6,7 +6,7 @@
 #define _G_NACOMMON_H 1
 /* .................................................. */
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 #include <ds.h>
 
 /* .................................................. */
@@ -24,7 +24,7 @@ void        gc_delete (GC* c);
 void        gc_rename (GC* c, GCC* gx, Tcl_Obj* newname, Tcl_Interp* interp);
 
 int         gc_filter (int nodes, Tcl_Interp* interp,
-		       int oc, Tcl_Obj* const* ov,
+		       Tcl_Size oc, Tcl_Obj* const* ov,
 		       GCC* gx, GN_GET_GC* gf, G* g);
 
 /* .................................................. */

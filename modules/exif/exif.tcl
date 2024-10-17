@@ -19,8 +19,7 @@
 # Usage of this version:
 #     exif::analyze $stream ?$thumbnail?
 # Stream should be an open file handle
-# rewound to the start. It gets set to
-# binary mode and is left at EOF or 
+# rewound to the start and in binary mode. It is left at EOF or 
 # possibly pointing at image data.
 # You have to open and close the
 # stream yourself.
@@ -43,9 +42,9 @@
 # LICENSE: Standard BSD License.
 
 # There's probably something here I'm using without knowing it.
-package require Tcl 8.3
+package require Tcl 8.5 9
 
-package provide exif 1.1.2 ; # first release
+package provide exif 1.1.4 ; # first release
 
 namespace eval ::exif {
     namespace export analyze analyzeFile fieldnames
@@ -76,7 +75,7 @@ proc ::exif::streq {s1 s2} {
 }
 
 proc ::exif::analyzeFile {file {thumbnail {}}} {
-    set stream [open $file]
+    set stream [open $file rb]
     set res [analyze $stream $thumbnail]
     close $stream
     return $res
@@ -85,7 +84,7 @@ proc ::exif::analyzeFile {file {thumbnail {}}} {
 proc ::exif::analyze {stream {thumbnail {}}} {
     variable jpeg_markers
     array set result {}
-    fconfigure $stream -translation binary -encoding binary
+    #fconfigure $stream -translation binary -encoding binary
     while {![eof $stream]} {
         set ch [read $stream 1]
         if {1 != [string length $ch]} {error "End of file reached @1"}
@@ -204,10 +203,9 @@ proc ::exif::app1 {data thumbnail} {
 		$thumb_result(JpegIFOffset) \
 		[expr {$thumb_result(JpegIFOffset) + $thumb_result(JpegIFByteCount) - 1}]]
 
-        set         to [open $thumbnail w]
-        fconfigure $to -translation binary -encoding binary
-	puts       $to $jpg
-        close      $to
+        set              to [open $thumbnail wb]
+	puts -nonewline $to $jpg
+        close           $to
 
         #can be used (with a JPG-aware TK) to add the image to the result array
 	#set result(THUMB) [image create photo -file $thumbnail]
@@ -929,7 +927,7 @@ if {0} {
     # Trivial usage example
     set x [exif::fieldnames]
     puts "fieldnames = $x"
-    set f [open [lindex $argv 0]]
+    set f [open [lindex $argv 0] rb]
     array set v [exif::analyze $f]
     close $f
     parray v

@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'json\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006 ActiveState Software Inc\.)
 [//000000004]: # (Copyright &copy; 2009 Thomas Maeder, Glue Software Engineering AG)
-[//000000005]: # (json\(n\) 1\.3\.4 tcllib "JSON")
+[//000000005]: # (json\(n\) 1\.3\.6 tcllib "JSON")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,8 +40,8 @@ json \- JSON parser
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require json ?1\.3\.4?  
+package require Tcl 8\.5 9  
+package require json ?1\.3\.6?  
 
 [__::json::json2dict__ *txt*](#1)  
 [__::json::many\-json2dict__ *txt* ?*max*?](#2)  

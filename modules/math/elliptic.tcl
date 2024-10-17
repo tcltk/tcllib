@@ -14,7 +14,7 @@ namespace eval ::math::special {
     namespace export cn sn dn elliptic_K elliptic_E
 
     ::math::constants::constants pi
-
+    ##nagelfar ignore
     variable halfpi [expr {$pi/2.0}]
     variable tol
 
@@ -223,11 +223,13 @@ puts "1/cosh(1): [::math::special::cn 1.0 0.999] -- [expr {1.0/cosh(1.0)}]"
 # some tests --
 #
 if { 0 } {
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
+    if {![package vsatisfies [package provide Tcl] 8.5 9]} {
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
 }
 #foreach k {0.0 0.1 0.2 0.4 0.6 0.8 0.9} {
 #    puts "$k: [::math::special::elliptic_K $k]"
@@ -237,6 +239,8 @@ foreach k2 {0.0 0.1 0.2 0.4 0.6 0.8 0.9} {
     puts "$k2: [::math::special::elliptic_K $k] \
 [::math::special::elliptic_E $k]"
 }
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
 }
 

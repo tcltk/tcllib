@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin counter n 2.0.4]
+[vset VERSION 2.0.6]
+[manpage_begin counter n [vset VERSION]]
 [keywords counting]
 [keywords histogram]
 [keywords statistics]
@@ -7,8 +8,8 @@
 [moddesc   {Counters and Histograms}]
 [titledesc {Procedures for counters and histograms}]
 [category  {Data structures}]
-[require Tcl 8]
-[require counter [opt 2.0.4]]
+[require Tcl "8.5 9"]
+[require counter [opt [vset VERSION]]]
 [description]
 [para]
 

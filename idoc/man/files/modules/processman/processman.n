@@ -2,7 +2,7 @@
 '\" Generated from file 'processman\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "processman" n 0\&.1 tcllib "processman"
+.TH "processman" n 0\&.8 tcllib "processman"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 processman \- Tool for automating the period callback of commands
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtwapi  3\&.1\fR
+package require \fBtwapi 3\&.1\fR
 .sp
-package require \fBcron  1\&.1\fR
+package require \fBcron 1\&.1\fR
 .sp
-package require \fBprocessman  ?0\&.1?\fR
+package require \fBprocessman ?0\&.8?\fR
 .sp
 \fB::processman::find_exe\fR \fIname\fR
 .sp

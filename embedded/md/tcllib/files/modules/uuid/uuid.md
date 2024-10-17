@@ -2,7 +2,7 @@
 [//000000001]: # (uuid \- uuid)
 [//000000002]: # (Generated from file 'uuid\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (uuid\(n\) 1\.0\.6 tcllib "uuid")
+[//000000004]: # (uuid\(n\) 1\.0\.9 tcllib "uuid")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,8 +39,8 @@ uuid \- UUID generation and comparison
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require uuid ?1\.0\.6?  
+package require Tcl 8\.5 9  
+package require uuid ?1\.0\.9?  
 
 [__::uuid::uuid generate__](#1)  
 [__::uuid::uuid equal__ *id1* *id2*](#2)  

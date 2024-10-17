@@ -17,6 +17,11 @@ testing {
     useLocal bee.tcl bee
 }
 
+tcltest::testConstraint tcl8 1
+if {[package vsatisfies [package present Tcl] 9]} {
+    tcltest::testConstraint tcl8 0
+}
+
 # -------------------------------------------------------------------------
 # encoder ............................................................
 
@@ -61,7 +66,7 @@ test bee-2.4 {encoder, integer, non-numeric} {
     set msg
 } {Expected integer number, got "spam"}
 
-test bee-2.5 {encoder, integer, bad octal} {
+test bee-2.5 {encoder, integer, bad octal} tcl8 {
     catch {bee::encodeNumber 009} msg
     set msg
 } {Expected integer number, got "009"}

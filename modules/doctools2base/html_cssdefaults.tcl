@@ -7,7 +7,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4 ; # Required Core
+package require Tcl 8.5 9 ; # Required Core
 
 namespace eval ::doctools::html::cssdefaults {
     # Contents of the file we carry
@@ -154,5 +154,5 @@ TH {
 }
 }
 
-package provide doctools::html::cssdefaults 0.1
+package provide doctools::html::cssdefaults 0.2
 return

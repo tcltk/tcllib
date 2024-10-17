@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>math::exact - Tcl Math Library</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::exact(n) 1.0.1 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::exact(n) 1.0.2 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::exact - Exact Real Arithmetic</p>
 </div>
@@ -128,9 +130,9 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.6</b></li>
+<li>package require <b class="pkgname">Tcl 8.6 9</b></li>
 <li>package require <b class="pkgname">grammar::aycock 1.0</b></li>
-<li>package require <b class="pkgname">math::exact 1.0.1</b></li>
+<li>package require <b class="pkgname">math::exact 1.0.2</b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::exact::exactexpr</b> <i class="arg">expr</i></a></li>
@@ -214,13 +216,13 @@ available.</p></li>
 <p>The following functions are available for use within exact real expressions.</p>
 <dl class="doctools_definitions">
 <dt><b class="const">acos(</b><i class="arg">x</i><b class="const">)</b></dt>
-<dd><p>The inverse cosine of <i class="arg">x</i>. The result is expressed in radians. 
+<dd><p>The inverse cosine of <i class="arg">x</i>. The result is expressed in radians.
 The absolute value of <i class="arg">x</i> must be less than 1.</p></dd>
 <dt><b class="const">acosh(</b><i class="arg">x</i><b class="const">)</b></dt>
-<dd><p>The inverse hyperbolic cosine of <i class="arg">x</i>. 
+<dd><p>The inverse hyperbolic cosine of <i class="arg">x</i>.
 <i class="arg">x</i> must be greater than 1.</p></dd>
 <dt><b class="const">asin(</b><i class="arg">x</i><b class="const">)</b></dt>
-<dd><p>The inverse sine of <i class="arg">x</i>. The result is expressed in radians. 
+<dd><p>The inverse sine of <i class="arg">x</i>. The result is expressed in radians.
 The absolute value of <i class="arg">x</i> must be less than 1.</p></dd>
 <dt><b class="const">asinh(</b><i class="arg">x</i><b class="const">)</b></dt>
 <dd><p>The inverse hyperbolic sine of <i class="arg">x</i>.</p></dd>

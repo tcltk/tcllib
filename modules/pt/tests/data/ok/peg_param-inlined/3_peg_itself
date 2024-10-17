@@ -610,7 +610,7 @@ ok_66:
 sym_CharOctalFull:
 # x
 #     '\'
-#     range (0 .. 2)
+#     range (0 .. 3)
 #     range (0 .. 7)
 #     range (0 .. 7)
 
@@ -633,7 +633,7 @@ found_78:
 sequence_75:
 # x
 #     '\'
-#     range (0 .. 2)
+#     range (0 .. 3)
 #     range (0 .. 7)
 #     range (0 .. 7)
 
@@ -649,8 +649,8 @@ sequence_75:
    fail! jump              failed_76
          error_push
 
-         input_next        ".. 0 2"
-     ok! test_range        "0"   "2"
+         input_next        ".. 0 3"
+     ok! test_range        "0"   "3"
 
          error_pop_merge
    fail! jump              failed_76

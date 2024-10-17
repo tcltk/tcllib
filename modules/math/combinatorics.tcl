@@ -16,7 +16,7 @@
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.0
+package require Tcl 8.5 9
 
 namespace eval ::math {
 
@@ -229,6 +229,7 @@ proc ::math::factorial { x } {
 
     # Common case: factorial of a small integer
 
+    ##nagelfar ignore
     if { [string is integer -strict $x]
 	 && $x >= 0
 	 && $x < [llength $factorialList] } {
@@ -293,6 +294,7 @@ proc ::math::choose { n k } {
 
     # Use a precomputed table for small integer args
 
+    ##nagelfar ignore
     if { [string is integer -strict $n]
 	 && $n >= 0 && $n < 34
 	 && [string is integer -strict $k]
@@ -323,6 +325,7 @@ proc ::math::choose { n k } {
 
     # Handle k out of range
 
+    ##nagelfar ignore
     if { [string is integer -strict $k] && [string is integer -strict $n]
 	 && ( $k < 0 || $k > $n ) } {
 	return 0
@@ -351,6 +354,7 @@ proc ::math::choose { n k } {
 
     # Round to integer if both args are integers and the result fits
 
+    ##nagelfar ignore
     if { $r <= 2147483647.5
 	       && [string is integer -strict $n]
 	       && [string is integer -strict $k] } {

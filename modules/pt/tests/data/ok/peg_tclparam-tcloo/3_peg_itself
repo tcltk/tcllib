@@ -11,7 +11,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require TclOO
 package require pt::rde::oo ; # OO-based implementation of the
 			      # PARAM virtual machine
@@ -271,7 +271,7 @@ oo::class create PARSER {
     method sym_CharOctalFull {} {
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     
@@ -284,14 +284,14 @@ oo::class create PARSER {
     method sequence_44 {} {
         # x
         #     '\'
-        #     range (0 .. 2)
+        #     range (0 .. 3)
         #     range (0 .. 7)
         #     range (0 .. 7)
     
         my si:void_state_push
         my si:next_char \134
         my si:voidvoid_part
-        my si:next_range 0 2
+        my si:next_range 0 3
         my si:voidvoid_part
         my si:next_range 0 7
         my si:voidvoid_part

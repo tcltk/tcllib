@@ -2,7 +2,7 @@
 [//000000001]: # (md5 \- MD5 Message\-Digest Algorithm)
 [//000000002]: # (Generated from file 'md5\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (md5\(n\) 2\.0\.8 tcllib "MD5 Message\-Digest Algorithm")
+[//000000004]: # (md5\(n\) 2\.0\.9 tcllib "MD5 Message\-Digest Algorithm")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ md5 \- MD5 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require md5 ?2\.0\.7?  
+package require Tcl 8\.5 9  
+package require md5 ?2\.0\.9?  
 
 [__::md5::md5__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  
 [__::md5::hmac__ ?*\-hex*? *\-key key* \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#2)  
@@ -67,9 +67,9 @@ applications\.
 If you have __critcl__ and have built the __tcllibc__ package then the
 implementation of the hashing function will be performed by compiled code\.
 Alternatively if you have either __cryptkit__ or __Trf__ then either of
-these can be used to accelerate the digest computation\. If no suitable compiled
-package is available then the pure\-Tcl implementation wil be used\. The
-programming interface remains the same in all cases\.
+these is used to accelerate the digest computation\. If no suitable compiled
+package is available then the pure\-Tcl implementation is used\. The programming
+interface remains the same in all cases\.
 
 *Note* the previous version of this package always returned a hex encoded
 string\. This has been changed to simplify the programming interface and to make
@@ -77,13 +77,30 @@ this version more compatible with other implementations\. To obtain the previous
 usage, either explicitly specify package version 1 or use the *\-hex* option to
 the __md5__ command\.
 
+*BEWARE* The commands in this package expect binary data as their input\. When
+a __\-file__ is provided then this is ensured by the commands themselves, as
+they open the referenced file in binary mode\. When literal data, or a
+__\-channel__ are provided instead, then the command's *caller is
+responsible* for ensuring this fact\. The necessary conversion command is
+__encoding convertto utf\-8 $string__\.
+
+*ATTENTION*, there is a *Tcl 9 COMPATIBILITY ISSUE* here\.
+
+*Tcl 8\.x silently mishandles* non\-binary input by cutting it internally to
+size\. I\.e\. by only using the low byte of a higher unicode point\. No error is
+thrown, the *result is simply wrong*\.
+
+*Tcl 9 throws an error* instead, i\.e\.
+
+    expected byte sequence but character <location> was ...
+
 # <a name='section2'></a>COMMANDS
 
   - <a name='1'></a>__::md5::md5__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]
 
-    Calculate the MD5 digest of the data given in string\. This is returned as a
-    binary string by default\. Giving the *\-hex* option will return a
-    hexadecimal encoded version of the digest\.
+    Calculate the MD5 digest of the binary data given in string\. This is
+    returned as a binary string by default\. Giving the *\-hex* option will
+    return a hexadecimal encoded version of the digest\.
 
     The data to be hashed can be specified either as a string argument to the
     __md5__ command, or as a filename or a pre\-opened channel\. If the

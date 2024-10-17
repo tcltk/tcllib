@@ -2,7 +2,7 @@
 '\" Generated from file 'tool\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "tool" n 0\&.4\&.2 tcllib "Standardized OO Framework for development"
+.TH "tool" n 0\&.8 tcllib "Standardized OO Framework for development"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tool \- TclOO Library (TOOL) Framework
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBsha1 \fR
+package require \fBsha1\fR
 .sp
-package require \fBdicttool \fR
+package require \fBdicttool\fR
 .sp
-package require \fBoo::meta \fR
+package require \fBoo::meta\fR
 .sp
-package require \fBoo::dialect \fR
+package require \fBoo::dialect\fR
 .sp
 tool::define \fBclass_method\fR \fIarglist\fR \fIbody\fR
 .sp

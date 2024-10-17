@@ -3,7 +3,7 @@
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Registry like data store}]
 [titledesc {Registry like data store}]
-[require Tcl 8.3]
+[require Tcl "8.5 9"]
 [require pregistry [opt 0.1]]
 [description]
 [para]

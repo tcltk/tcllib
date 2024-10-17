@@ -18,7 +18,7 @@ proc ::sak::readme::usage {} {
     exit 1
 }
 
-proc ::sak::readme::run {theformat} {
+proc ::sak::readme::run {theformat intro depr} {
     global package_name package_version
 
     set pname [string totitle $package_name]
@@ -26,7 +26,11 @@ proc ::sak::readme::run {theformat} {
     getpackage struct::set      struct/sets.tcl
     getpackage struct::matrix   struct/matrix.tcl
     getpackage textutil::adjust textutil/adjust.tcl
+    getpackage fileutil         fileutil/fileutil.tcl
 
+    if {$intro ne {}} { set intro [fileutil::cat $intro] }
+    if {$depr  ne {}} { set depr  [fileutil::cat $depr ] }
+    
     # Future: Consolidate with ... review ...
     # Determine which packages are potentially changed, from the set
     # of modules touched since the last release, as per the fossil
@@ -220,9 +224,18 @@ proc ::sak::readme::run {theformat} {
 
     CNT add row [list $np {packages, total} in $nm {modules, total}]
 
+    # .... emit the collected information ....
+
+    if {$intro ne {}} {
+	puts $intro
+    }
+    
     Table CNT Overview {
 	CNT delete row 0 ; # strip title row
-    } {}
+    } {
+	set align [lreplace $align 0 0 r]
+	set align [lreplace $align 3 3 r]
+    }
     
     Table LEG Legend {
 	Sep LEG - 1
@@ -235,6 +248,10 @@ proc ::sak::readme::run {theformat} {
 	SepMD NEW {} [lrange [Clean NEW 1 0] 1 end-1]
     }
 
+    if {$depr ne {}} {
+	puts $depr
+    }
+    
     Table CHG "Changes from $pname $old_version to $package_version" {
 	Sep CHG - [Clean CHG 1 0]
     } {
@@ -270,7 +287,6 @@ proc ::sak::readme::run {theformat} {
 
     puts stderr [ISS format 2string]
 
-
     puts stderr [=red "Issues found ([llength $issues])"]
     puts stderr "  Please run \"./sak.tcl review\" to resolve,"
     puts stderr "  then run \"./sak.tcl readme\" again."
@@ -289,10 +305,18 @@ proc ::sak::readme::Table {obj title {pretxt {}} {premd {}}} {
 	    puts [Indent "    " [Detrail [$obj format 2string]]]
 	}
 	md {
+	    upvar 1 align align
+	    # Column alignment setup.
+	    set align [lrepeat [$obj columns] l]
+	    
 	    uplevel 1 $premd
 	    # Header row, then separator, then the remainder.
 	    puts |[join [$obj get row 0] |]|
-	    puts |[join [lrepeat [$obj columns] ---] |]|
+	    puts |[join [string map {
+		c ---
+		l :---
+		r ---:
+	    } $align] |]|
 	    set n [$obj rows]
 	    for {set i 1} {$i < $n} {incr i} {
 		puts |[join [$obj get row $i] |]|

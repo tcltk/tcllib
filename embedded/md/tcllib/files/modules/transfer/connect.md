@@ -2,7 +2,7 @@
 [//000000001]: # (transfer::connect \- Data transfer facilities)
 [//000000002]: # (Generated from file 'connect\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (transfer::connect\(n\) 0\.2 tcllib "Data transfer facilities")
+[//000000004]: # (transfer::connect\(n\) 0\.3 tcllib "Data transfer facilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -47,9 +47,9 @@ transfer::connect \- Connection setup
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit ?1\.0?  
-package require transfer::connect ?0\.2?  
+package require transfer::connect ?0\.3?  
 
 [__transfer::connect__ *objectName* ?*options*\.\.\.?](#1)  
 [*objectName* __method__ ?*arg arg \.\.\.*?](#2)  

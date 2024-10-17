@@ -2,7 +2,7 @@
 [//000000001]: # (grammar::peg \- Grammar operations and usage)
 [//000000002]: # (Generated from file 'peg\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (grammar::peg\(n\) 0\.1 tcllib "Grammar operations and usage")
+[//000000004]: # (grammar::peg\(n\) 0\.3 tcllib "Grammar operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,9 +45,9 @@ grammar::peg \- Create and manipulate parsing expression grammars
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
-package require grammar::peg ?0\.1?  
+package require grammar::peg ?0\.3?  
 
 [__::grammar::peg__ *pegName* ?__=__&#124;__:=__&#124;__<\-\-__&#124;__as__&#124;__deserialize__ *src*?](#1)  
 [*pegName* __destroy__](#2)  

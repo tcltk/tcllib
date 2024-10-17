@@ -6,22 +6,20 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: unicode.tcl,v 1.1 2008/01/29 02:18:10 patthoyts Exp $
 
-package require unicode::data 1.0
+package require unicode::data 1.1.1
 
 namespace eval ::unicode {
     # Hangul constants
-    set SBase 0xac00
-    set LBase 0x1100
-    set VBase 0x1161
-    set TBase 0x11a7
-    set LCount 19
-    set VCount 21
-    set TCount 28
-    set NCount [expr {$VCount * $TCount}]
-    set SCount [expr {$LCount * $NCount}]
+    variable SBase 0xac00
+    variable LBase 0x1100
+    variable VBase 0x1161
+    variable TBase 0x11a7
+    variable LCount 19
+    variable VCount 21
+    variable TCount 28
+    variable NCount [expr {$VCount * $TCount}]
+    variable SCount [expr {$LCount * $NCount}]
 }
 
 ########################################################################
@@ -288,5 +286,4 @@ proc ::unicode::composeCanonical {uclist} {
 
 ########################################################################
 
-package provide unicode 1.0.0
-
+package provide unicode 1.1.1

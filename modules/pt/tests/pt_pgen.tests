@@ -22,8 +22,8 @@ foreach {format notes} {
 } {
     # Choose test constraint based on the current format.
     switch -exact -- $format {
-	critcl  { set cons critcl }
-	oo      { set cons tcloo  }
+	critcl  { set cons hcritcl }
+	oo      { set cons htcloo  }
 	default { set cons {}     }
     }
 
@@ -31,8 +31,8 @@ foreach {format notes} {
 	# Make parser instance. Shared across tests. Amortize the time
 	# spent on dynamically making it.
 
-	if {!(($format eq "critcl" && ![tcltest::testConstraint critcl]) ||
-	      ($format eq "oo"     && ![tcltest::testConstraint tcloo]))} {
+	if {!(($format eq "critcl" && ![tcltest::testConstraint hcritcl]) ||
+	      ($format eq "oo"     && ![tcltest::testConstraint htcloo]))} {
 	    set p [make-parser $format $glabel $grdata]
 	} else {
 	    set p {}
@@ -95,8 +95,8 @@ foreach {format notes} {
 	# Make parser instance. Shared across tests.
 	# Amortize the time spent on dynamically making it.
 
-	if {!(($format eq "critcl" && ![tcltest::testConstraint critcl]) ||
-	      ($format eq "oo"     && ![tcltest::testConstraint tcloo]))} {
+	if {!(($format eq "critcl" && ![tcltest::testConstraint hcritcl]) ||
+	      ($format eq "oo"     && ![tcltest::testConstraint htcloo]))} {
 	    set p [make-parser $format $glabel $grdata]
 	} else {
 	    set p {}

@@ -8,17 +8,17 @@
 #
 # RCS: @(#) $Id: treeql.tcl,v 1.10 2006/09/19 23:36:18 andreas_kupries Exp $
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 # Select the implementation based on the version of the Tcl core
 # executing this code. For 8.5 we are using features like
 # word-expansion to simplify the various evaluations.
 
 set dir [file dirname [info script]]
-if {[package vsatisfies [package provide Tcl] 8.5]} {
+if {[package vsatisfies [package provide Tcl] 8.5 9]} {
     source [file join $dir treeql85.tcl]
 } else {
     source [file join $dir treeql84.tcl]
 }
 
-package provide treeql 1.3.1
+package provide treeql 1.3.2

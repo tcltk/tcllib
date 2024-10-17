@@ -2,7 +2,7 @@
 [//000000001]: # (ldapx \- LDAP extended object interface)
 [//000000002]: # (Generated from file 'ldapx\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2018 Pierre David <pdav@users\.sourceforge\.net>)
-[//000000004]: # (ldapx\(n\) 1\.2 tcllib "LDAP extended object interface")
+[//000000004]: # (ldapx\(n\) 1\.3 tcllib "LDAP extended object interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -71,8 +71,8 @@ ldapx \- LDAP extended object interface
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require ldapx ?1\.2?  
+package require Tcl 8\.5 9  
+package require ldapx ?1\.3?  
 
 [*e* __reset__](#1)  
 [*e* __dn__ ?*newdn*?](#2)  

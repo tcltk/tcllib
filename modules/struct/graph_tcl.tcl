@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require struct::list
 package require struct::set
 
@@ -3202,6 +3202,7 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 	    }
 
 	    # Destination reference ok ?
+	    ##nagelfar ignore
 	    if {
 		![string is integer -strict $dst] ||
 		($dst % 3) ||

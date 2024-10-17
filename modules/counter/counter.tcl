@@ -6,10 +6,8 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: counter.tcl,v 1.23 2005/09/30 05:36:38 andreas_kupries Exp $
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::counter {
 
@@ -301,7 +299,7 @@ proc ::counter::reset {tag args} {
             unset histogram
         }
         }
-        set args [list -timehist $counter::secsPerMinute]
+        set args [list -timehist $::counter::secsPerMinute]
     }
     default {#ignore}
     }
@@ -1262,4 +1260,4 @@ proc ::counter::Identity {x} {
     return $x
 }
 
-package provide counter 2.0.4
+package provide counter 2.0.6

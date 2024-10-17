@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::quasirandom \- Tcl Math Library)
 [//000000002]: # (Generated from file 'quasirandom\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::quasirandom\(n\) 1 tcllib "Tcl Math Library")
+[//000000003]: # (math::quasirandom\(n\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,9 +35,9 @@ methods
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require TclOO  
-package require math::quasirandom 1  
+package require math::quasirandom 1\.1  
 
 [__::math::quasirandom::qrpoint create__ *NAME* *DIM* ?ARGS?](#1)  
 [__gen next__](#2)  

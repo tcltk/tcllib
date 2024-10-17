@@ -6,7 +6,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package clay 0.8.6
+# Package clay 0.8.8
 # Meta platform     tcl
 # Meta summary      A minimalist framework for complex TclOO development
 # Meta description  This package introduces the method "clay" to both oo::object
@@ -24,7 +24,7 @@
 # Do not edit directly, tweak the source in build/ and rerun
 # build.tcl
 ###
-package provide clay 0.8.6
+package provide clay 0.8.8
 namespace eval ::clay {}
 
 ###
@@ -295,7 +295,7 @@ namespace eval ::clay {
 ###
 # START: core.tcl
 ###
-package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
+package require Tcl 8.6 9 ;# try in pipeline.tcl. Possibly other things.
 if {[info commands irmmd5] eq {}} {
   if {[catch {package require odielibc}]} {
     package require md5 2
@@ -343,7 +343,7 @@ proc ::clay::uuid::generate_tcl_machinfo {} {
   # If we have /dev/urandom just stream 128 bits from that
   ###
   if {[file exists /dev/urandom]} {
-    set fin [open /dev/urandom r]
+    set fin [open /dev/urandom rb]
     binary scan [read $fin 128] H* machinfo
     close $fin
   } elseif {[catch {package require nettool}]} {
@@ -770,14 +770,17 @@ proc ::dictargs::method {name argspec body} {
 # START: dialect.tcl
 ###
 namespace eval ::clay::dialect {
-  namespace export create
-  foreach {flag test} {
-    tip470 {package vsatisfies [package provide Tcl] 8.7}
-  } {
-    if {![info exists ::clay::dialect::has($flag)]} {
-      set ::clay::dialect::has($flag) [eval $test]
+    namespace export create
+    variable flag
+    variable test
+    foreach {flag test} {
+	tip470 {package vsatisfies [package provide Tcl] 8.7}
+    } {
+	if {![info exists ::clay::dialect::has($flag)]} {
+	    set ::clay::dialect::has($flag) [eval $test]
+	}
     }
-  }
+    unset flag test
 }
 proc ::clay::dialect::Push {class} {
   ::variable class_stack

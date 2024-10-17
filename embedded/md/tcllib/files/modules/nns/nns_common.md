@@ -2,7 +2,7 @@
 [//000000001]: # (nameserv::common \- Name service facility)
 [//000000002]: # (Generated from file 'nns\_common\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (nameserv::common\(n\) 0\.1 tcllib "Name service facility")
+[//000000004]: # (nameserv::common\(n\) 0\.2 tcllib "Name service facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ nameserv::common \- Name service facility, shared definitions
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
-package require nameserv::common ?0\.1?  
+package require Tcl 8\.5 9  
+package require nameserv::common ?0\.2?  
 
 [__::nameserv::common::port__](#1)  
 

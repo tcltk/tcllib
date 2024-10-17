@@ -22,7 +22,7 @@ source [file join \
 
 testsNeedTcl     8.5
 testsNeedTcltest 1.0
-testsNeed     Tk 8.3
+testsNeed     Tk 8.5
 
 catch {namespace delete ::tepam}
 testing {

@@ -10,7 +10,7 @@
 # whereas the facade has access to even this.
 
 # @@ Meta Begin
-# Package tcl::chan::facade 1.0.1
+# Package tcl::chan::facade 1.0.2
 # Meta as::author {Colin McCormack}
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2011
@@ -34,8 +34,12 @@
 ## TODO log integration.
 ## TODO document that facada takes ownership of the channel.
 
-package require Tcl 8.5
-package require TclOO
+package require Tcl 8.5 9
+try {
+	package require tcl::oo
+} trap {TCL PACKAGE UNFOUND} {tres topts} {
+	package require TclOO
+}
 package require logger
 package require tcl::chan::core
 
@@ -230,5 +234,5 @@ oo::class create ::tcl::chan::facade::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::facade 1.0.1
+package provide tcl::chan::facade 1.0.2
 return

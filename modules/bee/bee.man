@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin bee n 0.1]
+[vset VERSION 0.3]
+[manpage_begin bee n [vset VERSION]]
 [keywords bee]
 [keywords BitTorrent]
 [keywords bittorrent]
@@ -9,8 +10,8 @@
 [moddesc   {BitTorrent}]
 [titledesc {BitTorrent Serialization Format Encoder/Decoder}]
 [category  Networking]
-[require Tcl 8.4]
-[require bee [opt 0.1]]
+[require Tcl "8.5 9"]
+[require bee [opt [vset VERSION]]]
 [description]
 [para]
 

@@ -15,7 +15,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 ##########################################################################
 
-package require Tcl 8.3
+package require Tcl 8.5 9
 
 namespace eval tepam {
    # Exports the major commands from this package:
@@ -29,28 +29,28 @@ namespace eval tepam {
    
    # Set the following variable to 0 (false) prior to the procedure definition, to
    # use first the unnamed arguments and then the named arguments.
-   set named_arguments_first 1
+   variable named_arguments_first 1
    
    # Setting the following variable to 0 will disable the automatic argument name
    # extension feature.
-   set auto_argument_name_completion 1
+   variable auto_argument_name_completion 1
 
    # Set the following variable prior to the procedure definition to:
    #   - 0 (false): to disable command logging
    #   - 1 (true): to log all commands anytime
    #   - "interactive": to log only interactively called commands
-   set command_log "interactive"
+   variable command_log "interactive"
    
    # Set the following variable to "short" to generate small interactive dialog boxes.
-   set interactive_display_format "extended"
+   variable interactive_display_format "extended"
 
    # The following variable defines the maximum line length a created help text can have:
-   set help_line_length 80
+   variable help_line_length 80
 
    ######## Internal variables ########
 
    if {![info exists ProcedureList]} {
-      set ProcedureList {}
+      variable ProcedureList {}
    }
 
    ######## PureProcName ########
@@ -71,7 +71,7 @@ namespace eval tepam {
 
    ######## Procedure help text ########
    
-   set ProcedureHelp {
+   variable ProcedureHelp {
       procedure <ProcedureName> <ProcedureAttributes> <ProcedureBody>
 
       <ProcedureAttributes> = {
@@ -1412,6 +1412,7 @@ namespace eval tepam {
    # Application specific entry widget procedures can use this array variable to store their own 
    # data, using as index the widget path provided to the procedure, e.g. 
    # argument_dialogbox($W,<sub_index>):
+   variable  argument_dialogbox
    array set argument_dialogbox {}
    
    # Special elements of this array variable can be specified for testing purposes:
@@ -1431,12 +1432,13 @@ namespace eval tepam {
    # well as its entered data are stored inside this variable when the data are acknowledged and 
    # the form is closed. This allows the form to restore its previous state once it is called 
    # another time.
+   variable last_parameters
    array set last_parameters {}
    
 
    ######## Argument_dialogbox help text ########
 
-   set ArgumentDialogboxHelp {
+   variable ArgumentDialogboxHelp {
       argument_dialogbox \
          [-title <DialogBoxTitle>]
          [-window <DialogBoxWindow>]
@@ -2723,7 +2725,7 @@ namespace eval tepam {
 }; # End namespace tepam
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam 0.5.2
+package provide tepam 0.5.4
 
 ##########################################################################
 # Id: tepam.tcl

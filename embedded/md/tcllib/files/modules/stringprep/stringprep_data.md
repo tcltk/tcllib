@@ -2,7 +2,7 @@
 [//000000001]: # (stringprep::data \- Preparation of Internationalized Strings)
 [//000000002]: # (Generated from file 'stringprep\_data\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2007\-2009, Sergei Golovan <sgolovan@nes\.ru>)
-[//000000004]: # (stringprep::data\(n\) 1\.0\.1 tcllib "Preparation of Internationalized Strings")
+[//000000004]: # (stringprep::data\(n\) 1\.0\.3 tcllib "Preparation of Internationalized Strings")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -31,8 +31,8 @@ stringprep::data \- stringprep data tables, generated, internal
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require stringprep::data 1\.0\.1  
+package require Tcl 8\.5 9  
+package require stringprep::data 1\.0\.3  
 
 # <a name='description'></a>DESCRIPTION
 

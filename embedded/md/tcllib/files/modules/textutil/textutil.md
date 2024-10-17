@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'textutil\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (textutil\(n\) 0\.8 tcllib "Text and string utilities, macro processing")
+[//000000003]: # (textutil\(n\) 0\.10 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ textutil \- Procedures to manipulate texts and strings\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require textutil ?0\.8?  
+package require Tcl 8\.5 9  
+package require textutil ?0\.10?  
 
 [__::textutil::adjust__ *string args*](#1)  
 [__::textutil::adjust::readPatterns__ *filename*](#2)  

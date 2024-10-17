@@ -1,7 +1,7 @@
 
 [//000000001]: # (struct::stack \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'stack\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (struct::stack\(n\) 1\.5\.3 tcllib "Tcl Data Structures")
+[//000000003]: # (struct::stack\(n\) 1\.5\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -30,8 +30,8 @@ struct::stack \- Create and manipulate stack objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require struct::stack ?1\.5\.3?  
+package require Tcl 8\.5 9  
+package require struct::stack ?1\.5\.4?  
 
 [*stackName* __option__ ?*arg arg \.\.\.*?](#1)  
 [*stackName* __clear__](#2)  

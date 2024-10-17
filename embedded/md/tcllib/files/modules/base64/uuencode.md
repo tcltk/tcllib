@@ -2,7 +2,7 @@
 [//000000001]: # (uuencode \- Text encoding & decoding binary data)
 [//000000002]: # (Generated from file 'uuencode\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Pat Thoyts)
-[//000000004]: # (uuencode\(n\) 1\.1\.4 tcllib "Text encoding & decoding binary data")
+[//000000004]: # (uuencode\(n\) 1\.1\.6 tcllib "Text encoding & decoding binary data")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ uuencode \- UU\-encode/decode binary data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
-package require uuencode ?1\.1\.4?  
+package require Tcl 8\.5 9  
+package require uuencode ?1\.1\.6?  
 
 [__::uuencode::encode__ *string*](#1)  
 [__::uuencode::decode__ *string*](#2)  

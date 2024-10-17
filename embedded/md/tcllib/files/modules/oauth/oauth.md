@@ -2,7 +2,7 @@
 [//000000001]: # (oauth \- oauth)
 [//000000002]: # (Generated from file 'oauth\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2014 Javi P\. <hxm@eggdrop\.es>)
-[//000000004]: # (oauth\(n\) 1\.0\.3 tcllib "oauth")
+[//000000004]: # (oauth\(n\) 1\.0\.4 tcllib "oauth")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ oauth \- oauth API base signature
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require oauth ?1\.0\.3?  
+package require Tcl 8\.5 9  
+package require oauth ?1\.0\.4?  
 
 [__::oauth::config__](#1)  
 [__::oauth::config__ ?*options*\.\.\.?](#2)  

@@ -11,7 +11,7 @@
 
 # @mdgen EXCLUDE: ipMoreC.tcl
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ip {
     namespace export is version normalize equal type contract mask collapse subtract
@@ -388,7 +388,8 @@ proc ::ip::IPv6? {ip} {
 proc ::ip::Mask4 {ip {bits {}}} {
     if {[string length $bits] < 1} { set bits 32 }
     binary scan $ip I ipx
-    if {[string is integer $bits]} {
+    ##nagelfar ignore
+    if {[string is integer -strict $bits]} {
         set mask [expr {(0xFFFFFFFF << (32 - $bits)) & 0xFFFFFFFF}]
     } else {
         binary scan [Normalize4 $bits] I mask
@@ -398,8 +399,9 @@ proc ::ip::Mask4 {ip {bits {}}} {
 
 proc ::ip::Mask6 {ip {bits {}}} {
     if {[string length $bits] < 1} { set bits 128 }
-    if {[string is integer $bits]} {
-        set mask [binary format B128 [string repeat 1 $bits]]
+    ##nagelfar ignore
+    if {[string is integer -strict $bits]} {
+        set mask [binary format B128 [string repeat 1 [format %d $bits]]]
     } else {
         binary scan [Normalize6 $bits] I4 mask
     }
@@ -548,7 +550,7 @@ source [file join [file dirname [info script]] ipMore.tcl]
 
 # -------------------------------------------------------------------------
 
-package provide ip 1.4
+package provide ip 1.5.1
 
 # -------------------------------------------------------------------------
 # Local Variables:

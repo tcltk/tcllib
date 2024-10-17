@@ -2,7 +2,7 @@
 [//000000001]: # (math::roman \- Tcl Math Library)
 [//000000002]: # (Generated from file 'roman\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Kenneth Green <kenneth\.green@gmail\.com>)
-[//000000004]: # (math::roman\(\) 1\.0 tcllib "Tcl Math Library")
+[//000000004]: # (math::roman\(\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,8 +35,8 @@ math::roman \- Tools for creating and manipulating roman numerals
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.3  
-package require math::roman ?1\.0?  
+package require Tcl 8\.5 9  
+package require math::roman ?1\.1?  
 
 [__::math::roman::toroman__ *i*](#1)  
 [__::math::roman::tointeger__ *r*](#2)  

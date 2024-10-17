@@ -43,13 +43,14 @@ itself\. It is a collection of \(semi\-independent\)
 *[Tcl](\.\./\.\./\.\./index\.md\#tcl)* packages that provide utility functions
 useful to a large collection of Tcl programmers\.
 
-The audience of this document is anyone wishing to build and install the
-packages found in Tcllib, for either themselves, or others\.
+This document is targeted at anybody wishing to build and install the packages
+found in Tcllib, for either themselves, or others\.
 
-For developers intending to work on the packages themselves we additionally
-provide
+We additionally provide
 
   1. *[Tcllib \- The Developer's Guide](tcllib\_devguide\.md)*\.
+
+for developers wishing to work on the packages themselves\.
 
 Please read *[Tcllib \- How To Get The Sources](tcllib\_sources\.md)* first,
 if that was not done already\. Here we assume that the sources are already
@@ -119,18 +120,24 @@ The __critcl__ tool is an *optional* dependency\.
 It is only required when trying to build the C\-based *accelerators* for a
 number of packages, as explained in [Critcl & Accelerators](#subsection5)
 
-Tcllib's build system looks for it in the , using the name __critcl__\. This
-is for Unix\. On Windows on the other hand the search is more complex\. First we
-look for a proper application __critcl\.exe__\. When that is not found we look
-for a combination of interpreter \(__tclkitsh\.exe__, __tclsh\.exe__\) and
-starkit \(__critcl\.kit__, __critcl__\) instead\. *Note* that the choice
-of starkit can be overriden via the environment variable \.
+*Beware*: The C accelerators are *built by default*\.
 
-Tcllib requires Critcl version 2 or higher\.
+For Unix Tcllib's build system \(__sak\.tcl__\) looks for it in the , using the
+name __critcl__\.
 
-The github repository providing releases of version 2 and higher, and the
-associated sources, can be found at
-[http://andreas\-kupries\.github\.com/critcl](http://andreas\-kupries\.github\.com/critcl)\.
+On Windows on the other hand the search is more complex\. The build system looks
+first looks for a proper application __critcl\.exe__\. When that is not found
+it looks for a combination of interpreter \(__tclkitsh\.exe__,
+__tclsh\.exe__\) and starkit \(__critcl\.kit__, __critcl__\) instead\.
+*Note* that the choice of starkit can be overriden via the environment
+variable \.
+
+Tcllib 1\.21 and older requires Critcl version 2 or higher\.
+
+Tcllib 2\.0 and newer on the other hand requires Critcl version 3\.3 or higher\.
+
+The [Critcl](https://andreas\-kupries\.github\.io/critcl) provides these
+releases and the associated sources\.
 
 Any branch of the repository can be used \(if not using the prebuild starkit or
 starpack\), although the use of the stable branch *master* is recommended\.
@@ -167,16 +174,30 @@ make
 
     ./configure
     make install
+    # or just
+    make
 
 a suitable way of installing it\. This is a standard non\-interactive install
 automatically figuring out where to place everything, i\.e\. packages,
 applications, and the manpages\.
 
-To get a graphical installer invoke
+*This includes the Tcllibc binary package*\. Therefore requires an installation
+of Critcl\.
+
+To install only specific parts of the project use
+
+    make install-binaries      # Tcllibc. Requires an installation of Critcl.
+    make install-tcl           # Tcl packages and applications.
+    make install-libraries     # Tcl packages alone.
+    make install-applications  # Applications alone.
+    make install-doc           # Nroff manpages.
+
+For a graphical installer invoke
 
     ./installer.tcl
 
-instead\.
+instead\. *Note* however that this installer handles only the Tcl packages,
+applications, and the documentation\. It does *not* handle the binary Tcllibc\.
 
 ## <a name='subsection4'></a>Installing on Windows
 
@@ -193,30 +214,34 @@ are to open a DOS window, i\.e\. __cmd\.exe__, and then to invoke
 
     ./installer.tcl
 
-inside it\.
+inside it\. *Note* that this installer handles only the Tcl packages,
+applications, and the documentation\. It does *not* handle the binary Tcllibc\.
 
 ## <a name='subsection5'></a>Critcl & Accelerators
 
 While the majority of Tcllib consists of packages written in pure Tcl a number
-of packages also have *accelerators* associated with them\. These are
-__critcl__\-based C packages whose use will boost the performance of the
-packages using them\. These accelerators are optional, and they are not built by
-default\. If they are built according to the instructions below then they will
-also be installed as well\.
+of packages also have *accelerators* associated with them\.
 
-To build the accelerators the normally optional dependency on __critcl__
-becomes required\.
+These are __critcl__\-based C packages whose use will boost the performance
+of the packages using them\. While they are built by default on Unix \(see *make
+install*\), they are not required, they are *optional*\.
+
+When building the accelerators the normally optional dependency on
+__critcl__ becomes required\. If they are built according to the instructions
+below then they will also be installed as well\.
 
 To build and install Tcllib with the accelerators in a Unix\-like environment
 invoke:
 
     ./configure
-    make critcl  # Builds the shared library and package holding
-                 # the accelerators, tcllibc
-    make install # Installs all packages, including the new tcllibc.
+    make
+    # or
+    make install
+    # or
+    make install-binaries
 
 The underlying tool is "sak\.tcl" in the toplevel directory of Tcllib and the
-command __make critcl__ is just a wrapper around
+__make install\-binaries__ target is just a wrapper around
 
     ./sak.tcl critcl
 
@@ -226,6 +251,15 @@ Therefore in a Windows environment instead invoke
     ./installer.tcl
 
 from within a DOS window, i\.e\. __cmd\.exe__\.
+
+*Beware* that the directory tree generated by this command sequence differs
+from the directory tree generated by __make install__ and variants\.
+
+__make install__ generates two package directories, one for Tcllib, the
+other for Tcllibc\.
+
+The above sequence on the other hand places Tcllibc into a sub\-directory of the
+Tcllib package directory\.
 
 ## <a name='subsection6'></a>Tooling
 

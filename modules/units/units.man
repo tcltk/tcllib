@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin units n 1.2]
+[vset VERSION 2.2.3]
+[manpage_begin units n [vset VERSION]]
 [keywords angle]
 [keywords constants]
 [keywords conversion]
@@ -9,8 +10,8 @@
 [copyright {2000-2005 Mayo Foundation}]
 [moddesc   {Convert and manipulate quantities with units}]
 [titledesc {unit conversion}]
-[require Tcl 8.1]
-[require units [opt 2.1]]
+[require Tcl "8.5 9"]
+[require units [opt [vset VERSION]]]
 [description]
 [para]
 

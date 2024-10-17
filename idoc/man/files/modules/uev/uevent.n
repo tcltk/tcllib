@@ -2,7 +2,7 @@
 '\" Generated from file 'uevent\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2012 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "uevent" n 0\&.3\&.1 tcllib "User events"
+.TH "uevent" n 0\&.3\&.2 tcllib "User events"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uevent \- User events
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBuevent  ?0\&.3\&.1?\fR
+package require \fBuevent ?0\&.3\&.2?\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
 \fB::uevent::bind\fR \fItag\fR \fIevent\fR \fIcommand\fR
 .sp

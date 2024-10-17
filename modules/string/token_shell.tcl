@@ -4,7 +4,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require string::token
 
 # # ## ### ##### ######## ############# #####################
@@ -168,5 +168,5 @@ proc ::string::token::shell {args} {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide string::token::shell 1.2
+package provide string::token::shell 1.3
 return

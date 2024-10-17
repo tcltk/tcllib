@@ -773,9 +773,9 @@ test yaml-21.2 "explicit_tags float" -body {
 } -result {123.0}
 
 test yaml-21.2 "explicit_tags float" -body {
-    set y {!!float 123_0}
+    set y {!!float 123=0}
     yaml::yaml2dict $y
-} -returnCodes error -result {expected floating-point number but got "123_0"}
+} -returnCodes error -result {expected floating-point number but got "123=0"}
 
 
 # ... Tests of addStrings ...

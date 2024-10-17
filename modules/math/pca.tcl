@@ -1,7 +1,7 @@
 # pca.tcl --
 #     Package for principal component analysis
 #
-package require Tcl 8.6
+package require Tcl 8.6 9
 package require math::linearalgebra
 
 namespace eval ::math::PCA {
@@ -235,6 +235,7 @@ proc ::math::PCA::createPCA {data args} {
          } elseif { [llength $args] == 1 } {
 
              set numberUsed [lindex $args 0]
+	     ##nagelfar ignore
              if { ![string is integer $numberUsed] || $numberUsed < 1 || $numberUsed > $numberComponents } {
                  return -code error "Number of components to be used must be between 1 and $numberComponents"
              }
@@ -362,7 +363,7 @@ proc ::math::PCA::Transform {observations correlation} {
     return [list $result $mean $scale]
 }
 
-package provide math::PCA 1.0
+package provide math::PCA 1.1
 
 # Test
 if {0} {

@@ -9,7 +9,7 @@
 package require critcl
 # @sak notprovided jsonc
 package provide jsonc 1.1.2
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 #critcl::cheaders -g
 #critcl::debug memory symbols
@@ -29,11 +29,11 @@ namespace eval ::json {
 	struct context context = { NULL };
 
 	if (objc != 2) {
-	    Tcl_WrongNumArgs(I, 1, objv, "json");
+	    Tcl_WrongNumArgs(I, 1, objv, "json"); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
-	context.text   = Tcl_GetStringFromObj(objv[1], &context.remaining);
+	context.text   = Tcl_GetStringFromObj(objv[1], &context.remaining); /* OK tcl9 */
 	context.I      = I;
 	context.has_error = 0;
 	context.result = TCL_ERROR;
@@ -50,15 +50,15 @@ namespace eval ::json {
 	int                      max;
 	int                      found;
 
-	Tcl_Obj* result = Tcl_NewListObj (0, NULL);
+	Tcl_Obj* result = Tcl_NewListObj (0, NULL); /* OK tcl9 */
 
 	if ((objc < 2) || (objc > 3)) {
-	    Tcl_WrongNumArgs(I, 1, objv, "jsonText ?max?");
+	    Tcl_WrongNumArgs(I, 1, objv, "jsonText ?max?"); /* OK tcl9 */
 	    return TCL_ERROR;
 	}
 
 	if (objc == 3) {
-	    if (Tcl_GetIntFromObj(I, objv[2], &max) != TCL_OK) {
+	    if (Tcl_GetIntFromObj(I, objv[2], &max) != TCL_OK) { /* OK tcl9 */
 		return TCL_ERROR;
 	    }
 	    if (max <= 0) {
@@ -74,7 +74,7 @@ namespace eval ::json {
 	    max = -1;
 	}
 
-	context.text   = Tcl_GetStringFromObj(objv[1], &context.remaining);
+	context.text   = Tcl_GetStringFromObj(objv[1], &context.remaining); /* OK tcl9 */
 	context.I      = I;
 	context.has_error = 0;
 	found  = 0;

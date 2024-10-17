@@ -8,8 +8,8 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
 
-package require Tcl         8.6
-package provide generator   0.2
+package require Tcl         8.6 9
+package provide generator   0.3
 
 namespace eval generator {
     namespace export {[a-z]*}
@@ -137,6 +137,7 @@ namespace eval generator {
 
     proc Resolve {level name} {
         if {[string match ::* $name]} { return $name }
+	##nagelfar ignore
         if {[string is integer -strict $level] && $level >= 0} { incr level }
         set ns [uplevel $level { namespace current }]
         if {$ns eq "::"} { return ::$name }

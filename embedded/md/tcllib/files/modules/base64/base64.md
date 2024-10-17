@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'base64\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2000, Eric Melski)
 [//000000004]: # (Copyright &copy; 2001, Miguel Sofer)
-[//000000005]: # (base64\(n\) 2\.5 tcllib "Text encoding & decoding binary data")
+[//000000005]: # (base64\(n\) 2\.6\.1 tcllib "Text encoding & decoding binary data")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -42,8 +42,8 @@ base64 \- base64\-encode/decode binary data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8  
-package require base64 ?2\.5?  
+package require Tcl 8\.5 9  
+package require base64 ?2\.6\.1?  
 
 [__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*](#1)  
 [__::base64::decode__ *string*](#2)  

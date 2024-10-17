@@ -2,7 +2,7 @@
 [//000000001]: # (rc4 \- RC4 Stream Cipher)
 [//000000002]: # (Generated from file 'rc4\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2003, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (rc4\(n\) 1\.1\.0 tcllib "RC4 Stream Cipher")
+[//000000004]: # (rc4\(n\) 1\.2\.0 tcllib "RC4 Stream Cipher")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ rc4 \- Implementation of the RC4 stream cipher
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require rc4 ?1\.1\.0?  
+package require Tcl 8\.5 9  
+package require rc4 ?1\.2\.0?  
 
 [__::rc4::rc4__ ?*\-hex*? *\-key keyvalue* ?*\-command lst*? ?*\-out channel*? \[ *\-in channel* &#124; *\-infile filename* &#124; *string* \]](#1)  
 [__::rc4::RC4Init__ *keydata*](#2)  
@@ -106,7 +106,7 @@ restrictions this cipher is sometimes known as ARCFOUR\.
     % set keydata [binary format H* 0123456789abcdef]
     % rc4::rc4 -hex -key $keydata HelloWorld
     3cf1ae8b7f1c670b612f
-    % rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
+    % rc4::rc4 -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
     HelloWorld
 
     set Key [rc4::RC4Init "key data"]

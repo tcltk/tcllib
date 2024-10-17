@@ -26,6 +26,8 @@
 #ifndef md4_h_INCLUDE
 #define md4_h_INCLUDE
 
+#include "tclpre9compat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,10 +69,9 @@ typedef struct {
   unsigned char buffer[64];                         /* input buffer */
 } MD4_CTX;
 
-void MD4Init PROTO_LIST ((MD4_CTX *));
-void MD4Update PROTO_LIST
-  ((MD4_CTX *, unsigned char *, unsigned int));
-void MD4Final PROTO_LIST ((unsigned char [16], MD4_CTX *));
+void MD4Init   PROTO_LIST ((MD4_CTX *));
+void MD4Update PROTO_LIST ((MD4_CTX *, unsigned char *, Tcl_Size));
+void MD4Final  PROTO_LIST ((unsigned char [16], MD4_CTX *));
 
 #ifdef __cplusplus
 }

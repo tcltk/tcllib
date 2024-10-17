@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'token\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "string::token" n 1 tcllib "Text and string utilities"
+.TH "string::token" n 1\&.1 tcllib "Text and string utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,11 +273,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 string::token \- Regex based iterative lexing
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstring::token  ?1?\fR
+package require \fBstring::token ?1\&.1?\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
 \fB::string token text\fR \fIlex\fR \fIstring\fR
 .sp

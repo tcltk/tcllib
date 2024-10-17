@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_cparam_config_tea\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::cparam::configuration::tea" n 0\&.1 tcllib "Parser Tools"
+.TH "pt::cparam::configuration::tea" n 0\&.2 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::cparam::configuration::tea \- C/PARAM, Canned configuration, TEA
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::cparam::configuration::tea  ?0\&.1?\fR
+package require \fBpt::cparam::configuration::tea ?0\&.2?\fR
 .sp
 \fB::pt::cparam::configuration::tea\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp

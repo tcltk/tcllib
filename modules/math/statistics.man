@@ -1,4 +1,4 @@
-[vset VERSION 1]
+[vset VERSION 1.6.1]
 [manpage_begin math::statistics n [vset VERSION]]
 [keywords {data analysis}]
 [keywords mathematics]
@@ -6,7 +6,7 @@
 [moddesc {Tcl Math Library}]
 [titledesc {Basic statistical functions and procedures}]
 [category  Mathematics]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require math::statistics [vset VERSION]]
 [description]
 [para]
@@ -743,7 +743,7 @@ Confidence level of the t-distribution. Defaults to 0.05.
 [list_end]
 [para]
 
-[call [cmd ::math::statistics::mv-wls] [arg wt1] [arg weights_and_values]]
+[call [cmd ::math::statistics::mv-wls] [arg weights_and_values]]
 Carries out a weighted least squares linear regression for
 the data points provided, with weights assigned to each point.
 
@@ -784,6 +784,40 @@ as lists of the value of the dependent variable y and the independent
 variables x1, x2 to xN.
 
 [list_end]
+
+[emph "Example of the use:"]
+The weight factors are quite simple: 0.2 for negative values to indicate
+we put less trust in these observations and 1.0 for all positive values.
+
+[example {
+# Store the value of the unicode value for the "+/-" character
+set pm "\u00B1"
+
+# Provide some data
+set data { 0.2 {  -.67  14.18  60.03 -7.5  }
+           1.0 { 36.97  15.52  34.24 14.61 }
+           0.2 {-29.57  21.85  83.36 -7.   }
+           0.2 {-16.9   11.79  51.67 -6.56 }
+           1.0 { 14.09  16.24  36.97 -12.84}
+           1.0 { 31.52  20.93  45.99 -25.4 }
+           1.0 { 24.05  20.69  50.27  17.27}
+           1.0 { 22.23  16.91  45.07  -4.3 }
+           1.0 { 40.79  20.49  38.92  -.73 }
+           0.2 {-10.35  17.24  58.77  18.78}}
+
+# Call the ols routine
+set results [::math::statistics::mv-ols $data]
+
+# Pretty-print the results
+puts "R-squared: [lindex $results 0]"
+puts "Adj R-squared: [lindex $results 1]"
+puts "Coefficients $pm s.e. -- \[95% confidence interval\]:"
+foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4] {
+    set lb [lindex $bounds 0]
+    set ub [lindex $bounds 1]
+    puts "   $val $pm $se -- \[$lb to $ub\]"
+}
+}]
 [para]
 
 [call [cmd ::math::statistics::mv-ols] [arg values]]

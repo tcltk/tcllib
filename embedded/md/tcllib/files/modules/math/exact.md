@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'exact\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2015 Kevin B\. Kenny <kennykb@acm\.org>)
 [//000000004]: # (Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
-[//000000005]: # (math::exact\(n\) 1\.0\.1 tcllib "Tcl Math Library")
+[//000000005]: # (math::exact\(n\) 1\.0\.2 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,9 +40,9 @@ math::exact \- Exact Real Arithmetic
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require grammar::aycock 1\.0  
-package require math::exact 1\.0\.1  
+package require math::exact 1\.0\.2  
 
 [__::math::exact::exactexpr__ *expr*](#1)  
 [*number* __ref__](#2)  

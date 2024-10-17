@@ -25,4 +25,4 @@ mcset de doctoc/toc_end/syntax		{[toc_end] ist hier nicht erlaubt}
 
 mcset de doctoc/redef                   {Fehlerhafte Wiederverwendung des Labels "%1$s"}
 
-package provide doctools::msgcat::toc::de 0.1
+package provide doctools::msgcat::toc::de 0.2

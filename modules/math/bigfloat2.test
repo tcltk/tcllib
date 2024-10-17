@@ -36,7 +36,9 @@ proc assert {name version code result} {
 interp alias {} zero {} string repeat 0
 # S.ARNOLD 08/01/2005
 # trying to set the precision of the comparisons to 15 digits
-set old_precision $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set old_precision $::tcl_precision
+}
 set ::tcl_precision 15
 proc Zero {x} {
     global tcl_precision
@@ -122,6 +124,14 @@ proc testSuite {} {
 	} $rx
     }
     unset k
+
+    test bigfloat2-fromstr-5.0 {fromstr zero exponent} {
+	fromstr 1.0e0
+    } {F 524288 -19 52430}
+
+    test bigfloat2-fromstr-6.0 {fromstr zero exponent} {
+	tostr [fromstr 1.0e0]
+    } 1.
 
     ################################################################################
     # fromdouble with precision
@@ -654,5 +664,9 @@ rename Zero ""
 
 testsuiteCleanup
 
-set ::tcl_precision $old_precision
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $old_precision
+} else {
+    unset ::tcl_precision
+}
 return

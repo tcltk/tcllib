@@ -9,7 +9,7 @@
 # 
 # RCS: @(#) $Id: stack_oo.tcl,v 1.4 2010/09/10 17:31:04 andreas_kupries Exp $
 
-package require Tcl   8.5
+package require Tcl   8.5 9
 package require TclOO 0.6.1- ; # This includes 1 and higher.
 
 # Cleanup first
@@ -110,6 +110,7 @@ oo::class create ::struct::stack::stack_oo {
     #	item	List of items trimmed, may be empty.
 
     method trim {newsize} {
+	##nagelfar ignore
 	if { ![string is integer -strict $newsize]} {
 	    return -code error "expected integer but got \"$newsize\""
 	} elseif { $newsize < 0 } {
@@ -134,6 +135,7 @@ oo::class create ::struct::stack::stack_oo {
     }
 
     method trim* {newsize} {
+	##nagelfar ignore
 	if { ![string is integer -strict $newsize]} {
 	    return -code error "expected integer but got \"$newsize\""
 	} elseif { $newsize < 0 } {

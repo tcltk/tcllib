@@ -2,15 +2,13 @@
 #
 #	Implementation of report objects for Tcl.
 #
-# Copyright (c) 2001-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2014,2022 by Andreas Kupries <andreas.kupries@gmail.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: report.tcl,v 1.8 2004/01/15 06:36:13 andreas_kupries Exp $
 
-package require Tcl 8.2
-package provide report 0.3.2
+package require Tcl 8.5 9
+package provide report 0.5
 
 namespace eval ::report {
     # Data storage in the report module
@@ -98,6 +96,7 @@ proc ::report::report {name columns args} {
     if { [llength [info commands ::$name]] } {
 	error "command \"$name\" already exists, unable to create report"
     }
+    ##nagelfar ignore
     if {![string is integer $columns]} {
 	return -code error "columns: expected integer greater than zero, got \"$columns\""
     } elseif {$columns <= 0} {
@@ -500,7 +499,7 @@ proc ::report::ReportProc {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
 
     if {[info exists tcode($cmd)]} {
@@ -583,29 +582,29 @@ proc ::report::CheckVerticals {name} {
 	# have found an inconsistent definition.
 
 	set     res [list]
-	lappend res [string length $vTemplate(data,$c)]
+	lappend res [TermWidth $vTemplate(data,$c)]
 
 	if {$tcaption > 0} {
-	    lappend res [string length $vTemplate(topdata,$c)]
+	    lappend res [TermWidth $vTemplate(topdata,$c)]
 	    if {($tcaption > 1) && $enabled(topdatasep)} {
-		lappend res [string length $vTemplate(topdatasep,$c)]
+		lappend res [TermWidth $vTemplate(topdatasep,$c)]
 	    }
 	    if {$enabled(topcapsep)} {
-		lappend res [string length $vTemplate(topcapsep,$c)]
+		lappend res [TermWidth $vTemplate(topcapsep,$c)]
 	    }
 	}
 	if {$bcaption > 0} {
-	    lappend res [string length $vTemplate(botdata,$c)]
+	    lappend res [TermWidth $vTemplate(botdata,$c)]
 	    if {($bcaption > 1) && $enabled(botdatasep)} {
-		lappend res [string length $vTemplate(botdatasep,$c)]
+		lappend res [TermWidth $vTemplate(botdatasep,$c)]
 	    }
 	    if {$enabled(botcapsep)} {
-		lappend res [string length $vTemplate(botcapsep,$c)]
+		lappend res [TermWidth $vTemplate(botcapsep,$c)]
 	    }
 	}
 	foreach t {top datasep bottom} {
 	    if {$enabled($t)} {
-		lappend res [string length $vTemplate($t,$c)]
+		lappend res [TermWidth $vTemplate($t,$c)]
 	    }
 	}
 
@@ -649,7 +648,7 @@ proc ::report::_tAction {name template cmd args} {
 	    upvar ::report::report${name}::template  tpl
 	    upvar ::report::report${name}::hTemplate hTemplate
 	    upvar ::report::report${name}::vTemplate vTemplate
-	    upvar ::report::report${name}::enabled   enabled	    
+	    upvar ::report::report${name}::enabled   enabled
 
 	    if {$tcode($template)} {
 		# Separator template, expected size = 2*colums+1
@@ -771,6 +770,7 @@ proc ::report::_tcaption {name {size {}}} {
     if {$size == {}} {
 	return $tcaption
     }
+    ##nagelfar ignore
     if {![string is integer $size]} {
 	return -code error "size: expected integer greater than or equal to zero, got \"$size\""
     }
@@ -810,6 +810,7 @@ proc ::report::_bcaption {name {size {}}} {
     if {$size == {}} {
 	return $bcaption
     }
+    ##nagelfar ignore
     if {![string is integer $size]} {
 	return -code error "size: expected integer greater than or equal to zero, got \"$size\""
     }
@@ -857,6 +858,7 @@ proc ::report::_size {name column {size {}}} {
 	set csize($column) $size
 	return ""
     }
+    ##nagelfar ignore
     if {![string is integer $size]} {
 	return -code error "expected integer greater than zero, got \"$size\""
     }
@@ -897,6 +899,7 @@ proc ::report::_sizes {name {sizes {}}} {
 	if {[string equal $size dyn]} {
 	    continue
 	}
+	##nagelfar ignore
 	if {![string is integer $size]} {
 	    return -code error "expected integer greater than zero, got \"$size\""
 	}
@@ -1208,8 +1211,8 @@ proc ::report::ColumnSizes {name matrix statevar} {
 
 	set state(s,$c) $size
 
-	incr size [string length $lpad($c)]
-	incr size [string length $rpad($c)]
+	incr size [TermWidth $lpad($c)]
+	incr size [TermWidth $rpad($c)]
 
 	set state(s/pad,$c) $size
     }
@@ -1247,14 +1250,14 @@ proc ::report::Separator {tcode name matrix statevar} {
 	for {set c 0} {$c < $cs} {incr c} {
 	    append str $vt($tcode,$c)
 	    set fill $ht($tcode,$c)
-	    set flen [string length $fill]
+	    set flen [TermWidth $fill]
 	    set rep  [expr {($state(s/pad,$c)/$flen)+1}]
 	    append str [string range [string repeat $fill $rep] 0 [expr {$state(s/pad,$c)-1}]]
 	}
 	append str $vt($tcode,$cs)
 	set state($tcode) $str
     }
-    return $state($tcode)\n
+    return [string trimright $state($tcode)]\n
 }
 
 # ::report::FormatData --
@@ -1290,14 +1293,17 @@ proc ::report::FormatData {tcode name statevar line rh} {
 	    append str $vt($tcode,$c)$lpad($c)[FormatCell $cell $state(s,$c) $cjust($c)]$rpad($c)
 	    incr c
 	}
-	append str $vt($tcode,$cs)\n
+	append str $vt($tcode,$cs)
+	set    str [string trimright $str]
+	append str \n
+	
 	return $str
     } else {
 	array set str {}
 	for {set l 1} {$l <= $rh} {incr l} {set str($l) ""}
 
 	# - Future - Vertical justification of cells less tall than rowheight
-	# - Future - Vertical cutff aftert n lines, auto-repeat of captions
+	# - Future - Vertical cutoff after N lines, auto-repeat of captions
 	# - Future - => Higher level, not here, use virtual matrices for this
 	# - Future -  and count the generated lines
 
@@ -1312,7 +1318,9 @@ proc ::report::FormatData {tcode name statevar line rh} {
 	}
 	set strout ""
 	for {set l 1} {$l <= $rh} {incr l} {
-	    append strout $str($l)$vt($tcode,$cs)\n
+	    append strout $str($l)$vt($tcode,$cs)
+	    set    strout [string trimright $strout]
+	    append strout \n
 	}
 	return $strout
     }
@@ -1332,7 +1340,7 @@ proc ::report::FormatData {tcode name statevar line rh} {
 #	The formatted string for the supplied cell.
 
 proc ::report::FormatCell {value size just} {
-    set vlen [string length [StripAnsiColor $value]]
+    set vlen [TermWidth $value]
 
     if {$vlen == $size} {
 	# Value fits exactly, justification is irrelevant
@@ -1377,10 +1385,10 @@ proc ::report::FormatCell {value size just} {
     }
 }
 
-proc ::report::StripAnsiColor {string} {
+proc ::report::TermWidth {string} {
     # Look for ANSI color control sequences and remove them. Avoid
     # counting their characters as such sequences as a whole represent
     # a state change, and are logically of zero/no width.
     regsub -all "\033\\\[\[0-9;\]*m" $string {} string
-    return $string
+    return [textutil::wcswidth $string]
 }

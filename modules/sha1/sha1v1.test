@@ -7,8 +7,6 @@
 #
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
-#
-# RCS: @(#) $Id: sha1v1.test,v 1.2 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -205,8 +203,7 @@ set vectors \
 foreach {n pattern repeat hash} $vectors {
     test sha1-7.$n "file hashing" {
         list [catch {
-            set f [open $testfile w]
-            fconfigure $f -encoding binary -translation binary
+            set f [open $testfile wb]
             puts -nonewline $f [string repeat $pattern $repeat]
             close $f
             sha1::sha1 -hex -file $testfile

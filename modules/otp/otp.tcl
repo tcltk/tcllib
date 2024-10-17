@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------------
 
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 
 namespace eval ::otp {
     namespace export otp-md4 otp-md5 otp-sha1 otp-rmd160
@@ -421,7 +421,7 @@ proc ::otp::otp-rmd160 {args} {
 
 # -------------------------------------------------------------------------
 
-package provide otp 1.0.0
+package provide otp 1.1.0
 
 # -------------------------------------------------------------------------
 # Local Variables:

@@ -1,4 +1,4 @@
-[vset VERSION 1.1.4]
+[vset VERSION 1.1.5]
 [manpage_begin crc16 n [vset VERSION]]
 [see_also cksum(n)]
 [see_also crc32(n)]
@@ -15,7 +15,7 @@
 [moddesc   {Cyclic Redundancy Checks}]
 [titledesc {Perform a 16bit Cyclic Redundancy Check}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require crc16 [opt [vset VERSION]]]
 [description]
 [para]
@@ -43,6 +43,66 @@ for the most common cases.
 [call [cmd ::crc::xmodem] [opt "-format [arg format]"] \
   [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
 [call [cmd ::crc::xmodem] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::kermit] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::kermit] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::modbus] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::modbus] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::mcrf4xx] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::mcrf4xx] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::genibus] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::genibus] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::crc-x25] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::crc-x25] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::crc-sdlc] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::crc-sdlc] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::crc-usb] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::crc-usb] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::buypass] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::buypass] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::umts] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::umts] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::gsm] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::gsm] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::unknown2] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::unknown2] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::maxim] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::maxim] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::unknown3] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::unknown3] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::unknown4] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::unknown4] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::cms] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [const --] [arg message]]
+[call [cmd ::crc::cms] [opt "-format [arg format]"] \
   [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
 
 The command takes either string data or a file name and returns a checksum

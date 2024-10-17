@@ -34,7 +34,7 @@ fileutil::magic::filetype \- Procedures implementing file\-type recognition
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.6  
+package require Tcl 8\.6 9  
 package require fileutil::magic::filetype ?2\.0?  
 
 [__::fileutil::magic::filetype__ *filename*](#1)  

@@ -1,4 +1,5 @@
 apps/dtplite.man
+apps/mkdoc.man
 apps/nns.man
 apps/nnsd.man
 apps/nnslog.man
@@ -189,6 +190,7 @@ modules/math/combinatorics.man
 modules/math/constants.man
 modules/math/decimal.man
 modules/math/exact.man
+modules/math/figurate.man
 modules/math/filtergen.man
 modules/math/fourier.man
 modules/math/fuzzy.man
@@ -216,6 +218,7 @@ modules/md5/md5.man
 modules/md5crypt/md5crypt.man
 modules/mime/mime.man
 modules/mime/smtp.man
+modules/mkdoc/mkdoc.man
 modules/multiplexer/multiplexer.man
 modules/namespacex/namespacex.man
 modules/ncgi/ncgi.man
@@ -324,7 +327,6 @@ modules/struct/graph.man
 modules/struct/graph1.man
 modules/struct/graphops.man
 modules/struct/matrix.man
-modules/struct/matrix1.man
 modules/struct/pool.man
 modules/struct/prioqueue.man
 modules/struct/queue.man
@@ -362,6 +364,7 @@ modules/textutil/textutil.man
 modules/textutil/textutil_split.man
 modules/textutil/textutil_string.man
 modules/textutil/trim.man
+modules/textutil/wcswidth.man
 modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man
@@ -376,6 +379,7 @@ modules/transfer/receiver.man
 modules/transfer/tqueue.man
 modules/transfer/transmitter.man
 modules/treeql/treeql.man
+modules/try/tcllib_fhome.man
 modules/try/tcllib_throw.man
 modules/try/tcllib_try.man
 modules/udpcluster/udpcluster.man

@@ -10,46 +10,36 @@ namespace eval ::tcllib::testutils {
 }
 
 # ### ### ### ######### ######### #########
-## Commands for common functions and boilerplate actions required by
-## many testsuites of Tcllib modules and packages in a central place
-## for easier maintenance.
+## Procedures for common functions and boilerplate actions required by many
+## test suites of Tcllib modules and packages.
 
+
 # ### ### ### ######### ######### #########
-## Declare the minimal version of Tcl required to run the package
-## tested by this testsuite, and its dependencies.
+## Declares the minimal version of Tcl and the dependencies required by the
+## package tested by this test suite.  Must be called immediately after loading
+## the utilities.  Bails out of the calling level if the required minimum
+## version is not met by the active interpreter.
 
 proc testsNeedTcl {version} {
-    # This command ensures that a minimum version of Tcl is used to
-    # run the tests in the calling testsuite. If the minimum is not
-    # met by the active interpreter we forcibly bail out of the
-    # testsuite calling the command. The command has to be called
-    # immediately after loading the utilities.
-
-    if {[package vsatisfies [package provide Tcl] $version]} return
+    if {[package vsatisfies [package provide Tcl] $version 9]} return
 
     puts "    Aborting the tests found in \"[file tail [info script]]\""
     puts "    Requiring at least Tcl $version, have [package present Tcl]."
 
-    # This causes a 'return' in the calling scope.
+    # Effect a 'return' at the caller's level.
     return -code return
 }
 
+
 # ### ### ### ######### ######### #########
-## Declare the minimum version of Tcltest required to run the
-## testsuite.
+## Declares the minimum version of Tcltest required to run the test suite.
+## Must be called after loading the utilities.  Loads a suitable version of The
+## only procedure that may preceed it is 'testNeedTcl' above.  Tcltest if the
+## package has not been loaded yet.  Bail out of the test script that called
+## this procedure if the loaded version of tcltest does not meet the given
+## minimum version,
 
 proc testsNeedTcltest {version} {
-    # This command ensure that a minimum version of the Tcltest
-    # support package is used to run the tests in the calling
-    # testsuite. If the minimum is not met by the loaded package we
-    # forcibly bail out of the testsuite calling the command. The
-    # command has to be called after loading the utilities. The only
-    # command allowed to come before it is 'testNeedTcl' above.
-
-    # Note that this command will try to load a suitable version of
-    # Tcltest if the package has not been loaded yet.
-
-
     regexp {^([^-]*)} $version -> minversion
     if {[lsearch [namespace children] ::tcltest] == -1} {
 	if {[catch {
@@ -75,16 +65,15 @@ proc testsNeedTcltest {version} {
     puts "    Aborting the tests found in [file tail [info script]]."
     puts $msg
 
-    # This causes a 'return' in the calling scope.
+    # Effect a return at the level of the caller.
     return -code return
 }
 
 proc testsNeed {name {version {}}} {
-    # This command ensures that a minimum version of package <name> is
-    # used to run the tests in the calling testsuite. If the minimum
-    # is not met by the active interpreter we forcibly bail out of the
-    # testsuite calling the command. The command has to be called
-    # immediately after loading the utilities.
+    # Must be called immediately after loading the utilities.  Loads the named
+    # package if it is not already loaded.  If the version of the loaded
+    # package does not meet the given minimum version, bail out of the test
+    # suite that called the procedure.
 
     if {$version != {}} {
 	if {[catch {
@@ -92,7 +81,7 @@ proc testsNeed {name {version {}}} {
 	}]} {
 	    puts "    Aborting the tests found in \"[file tail [info script]]\""
 	    puts "    Requiring at least \"$name $version\", package not found."
-	    
+
 	    return -code return
 	}
 
@@ -109,7 +98,7 @@ proc testsNeed {name {version {}}} {
 	}]} {
 	    puts "    Aborting the tests found in \"[file tail [info script]]\""
 	    puts "    Requiring \"$name\", package not found."
-	    
+
 	    return -code return
 	}
     }
@@ -117,20 +106,17 @@ proc testsNeed {name {version {}}} {
 
 # ### ### ### ######### ######### #########
 
-## Save/restore the environment, for testsuites which have to
-## manipulate it to (1) either achieve the effects they test
-## for/against, or (2) to shield themselves against manipulation by
-## the environment. We have examples for both in 'fileutil' (1), and
-## 'doctools' (2).
+## Saves/restores the environment for test suites which manipulate it either to
+## achieve the effects they test for/against, or to shield themselves against
+## manipulation by the environment.  'fileutil' is an example of the first, and
+## 'doctools' is an example of the second.
 ##
-## Saving is done automatically at the beginning of a test file,
-## through this module. Restoration is done semi-automatically.  We
-## __cannot__ hook into the tcltest cleanup hook It is already used by
-## all.tcl to transfer the information from the slave doing the actual
-## tests to the master. Here the hook is only an alias, and
-## unmodifiable. We create a new cleanup command which runs both our
-## environment cleanup, and the regular one. All .test files are
-## modified to use the new cleanup.
+## The environment is automatically saved at the beginning of a test file, and
+## restoration is semi-automatic.  The tcltest cleanup hook is an unmodifiable
+## alias used by all.tcl to transfer results from the slave iterpreter running
+## the tests to the master interpreter, so create instead a new cleanup
+## command which runs both our environment cleanup and the regular one. All
+## .test files are modified to use the new cleanup.
 
 proc ::tcllib::testutils::SaveEnvironment {} {
     global env
@@ -163,12 +149,11 @@ proc array_unset {a {pattern *}} {
 }
 
 # ### ### ### ######### ######### #########
-## Newer versions of the Tcltest support package for testsuite provide
-## various features which make the creation and maintenance of
-## testsuites much easier. I consider it important to have these
-## features even if an older version of Tcltest is loaded. To this end
-## we now provide emulations and implementations, conditional on the
-## version of Tcltest found to be active.
+## Newer versions of Tcltest provide various features which make it easier to
+## create and maintain a test suite.  I consider it important to have these
+## features even if an older version of Tcltest is loaded, so we now provide
+## emulations and implementations for versions that are missing this
+## functionality.
 
 # ### ### ### ######### ######### #########
 ## Easy definition and initialization of test constraints.
@@ -185,13 +170,13 @@ proc InitializeTclTest {} {
 	}
 	return -code error "No result available. Failed to match any of the constraints ([join [lsort -dict [dict keys $dict]] ,])."
     }
-    
+
     if {![package vsatisfies [package provide tcltest] 2.0]} {
 	# Tcltest 2.0+ provides a documented public API to define and
-	# initialize a test constraint. For earlier versions of the
-	# package the user has to directly set a non-public undocumented
-	# variable in the package's namespace. We create a command doing
-	# this and emulating the public API.
+	# initialize a test constraint. For earlier versions the user has to
+	# directly set a non-public undocumented variable in the package's
+	# namespace.  The following procedures do this, adhering the public
+	# API.
 
 	proc ::tcltest::testConstraint {c args} {
 	    variable testConstraints
@@ -216,48 +201,50 @@ proc InitializeTclTest {} {
     # ### ### ### ######### ######### #########
     ## Define a set of standard constraints
 
-    ::tcltest::testConstraint tcl8.3only \
-	[expr {![package vsatisfies [package provide Tcl] 8.4]}]
-
-    ::tcltest::testConstraint tcl8.3plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
-
-    ::tcltest::testConstraint tcl8.4only \
-	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
-
-    ::tcltest::testConstraint tcl8.4plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
-
     ::tcltest::testConstraint tcl8.5only [expr {
-	![package vsatisfies [package provide Tcl] 8.6] &&
+	![package vsatisfies [package provide Tcl] 8.6 9] &&
 	 [package vsatisfies [package provide Tcl] 8.5]
     }]
 
-    ::tcltest::testConstraint tcl8.5plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
+    ::tcltest::testConstraint tcl8.6only [expr {
+	![package vsatisfies [package provide Tcl] 9] &&
+	 [package vsatisfies [package provide Tcl] 8.6]
+    }]
 
     ::tcltest::testConstraint tcl8.6plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
+	[expr {[package vsatisfies [package provide Tcl] 8.6 9]}]
+
+    ::tcltest::testConstraint tcl8.6not8.7 \
+	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
+	       ![package vsatisfies [package provide Tcl] 8.7]}]
 
     ::tcltest::testConstraint tcl8.6not10 \
-	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
+	[expr { [package vsatisfies [package provide Tcl] 8.6 9] &&
 	       ![package vsatisfies [package provide Tcl] 8.6.10]}]
 
     ::tcltest::testConstraint tcl8.6.10plus \
-	[expr {[package vsatisfies [package provide Tcl] 8.6.10]}]
+	[package vsatisfies [package provide Tcl] 8.6.10 9]
 
-    ::tcltest::testConstraint tcl8.4minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
+    ::tcltest::testConstraint tcl8.7plus \
+	[package vsatisfies [package provide Tcl] 8.7 9]
 
-    ::tcltest::testConstraint tcl8.5minus \
-	[expr {![package vsatisfies [package provide Tcl] 8.6]}]
+    ::tcltest::testConstraint tcl8.7not9 \
+	[expr { [package vsatisfies [package provide Tcl] 8.8] &&
+	       ![package vsatisfies [package provide Tcl] 9]}]
+
+    ::tcltest::testConstraint tcl9plus \
+	[package vsatisfies [package provide Tcl] 9]
+
+    ::tcltest::testConstraint tcl8 \
+	[package vsatisfies [package provide Tcl] 8.5]
+        
 
     # ### ### ### ######### ######### #########
     ## Cross-version code for the generation of the error messages created
     ## by Tcl procedures when called with the wrong number of arguments,
     ## either too many, or not enough.
 
-    if {[package vsatisfies [package provide Tcl] 8.6]} {
+    if {[package vsatisfies [package provide Tcl] 8.6 9]} {
 	# 8.6+
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -280,7 +267,7 @@ proc InitializeTclTest {} {
 	    }
 	    return $msg
 	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.5]} {
+    } else {
 	# 8.5
 	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
@@ -292,7 +279,7 @@ proc InitializeTclTest {} {
 	}
 
 	proc ::tcltest::tooManyArgs {functionName argList} {
-	    # create a different message for functions with no args
+	    # Create a different message for functions with no args.
 	    if {[llength $argList]} {
 		if {[string match args [lindex $argList end]]} {
 		    set argList [lreplace $argList end end ...]
@@ -301,36 +288,6 @@ proc InitializeTclTest {} {
 	    } else {
 		set msg "wrong # args: should be \"$functionName\""
 	    }
-	    return $msg
-	}
-    } elseif {[package vsatisfies [package provide Tcl] 8.4]} {
-	# 8.4+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    if {$argList != {}} {set argList " $argList"}
-	    set msg "wrong # args: should be \"$functionName$argList\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    # create a different message for functions with no args
-	    if {[llength $argList]} {
-		set msg "wrong # args: should be \"$functionName $argList\""
-	    } else {
-		set msg "wrong # args: should be \"$functionName\""
-	    }
-	    return $msg
-	}
-    } else {
-	# 8.2+
-	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	    set msg "no value given for parameter "
-	    append msg "\"[lindex $argList $missingIndex]\" to "
-	    append msg "\"$functionName\""
-	    return $msg
-	}
-
-	proc ::tcltest::tooManyArgs {functionName argList} {
-	    set msg "called \"$functionName\" with too many arguments"
 	    return $msg
 	}
     }
@@ -342,14 +299,14 @@ proc InitializeTclTest {} {
 
 	# The 'makeFile' in Tcltest 1.0 returns a list of all the
 	# paths generated so far, whereas the 'makeFile' in 2.0+
-	# returns only the path of the newly generated file. We
+	# returns only the path of the newly-generated file. We
 	# standardize on the more useful behaviour of 2.0+. If 1.x is
-	# present we have to create an emulation layer to get the
-	# wanted result.
+	# present we create an emulation layer to get the
+	# desired result.
 
-	# 1.0 is not fully correctly described. If the file was
-	# created before no list is returned at all. We force things
-	# by adding a line to the old procedure which makes the result
+	# 1.0 is not fully described correctly. If the file was
+	# created before, no list is returned at all. Force things
+	# here by adding a line to the old procedure which makes the result
 	# unconditional (the name of the file/dir created).
 
 	# The same change applies to 'makeDirectory'
@@ -401,7 +358,7 @@ proc InitializeTclTest {} {
 }
 
 # ### ### ### ######### ######### #########
-## Command to construct wrong/args messages for Snit methods.
+## Constructs wrong/args messages for Snit methods.
 
 proc snitErrors {} {
     if {[package vsatisfies [package provide snit] 2]} {
@@ -432,11 +389,10 @@ proc snitErrors {} {
 }
 
 # ### ### ### ######### ######### #########
-## Commands to load files from various locations within the local
-## Tcllib, and the loading of local Tcllib packages. None of them goes
-## through the auto-loader, nor the regular package management, to
-## avoid contamination of the testsuite by packages and code outside
-## of the Tcllib under test.
+## Procedures that load files from various locations within the local Tcllib
+## or that load local Tcllib packages.  To avoid contamination of the test
+## suite by packages and code outside of the Tcllib under test, none of them go
+## through the auto-loader nor use the regular package management procedures.
 
 proc asset args {
     set localPath [file join [uplevel 1 [
@@ -518,7 +474,7 @@ proc useKeep {fname pname args} {
     # Keep = Keep the existing namespace of the package.
     #      = Do not delete it. This is required if the
     #        namespace contains commands created by a
-    #        binary package, like 'tcllibc'. They cannot
+    #        binary package, like 'tcllibc', as they cannot
     #        be re-created.
     ##
     ## catch {namespace delete $nsname}
@@ -562,7 +518,7 @@ proc useLocalKeep {fname pname args} {
     # Keep = Keep the existing namespace of the package.
     #      = Do not delete it. This is required if the
     #        namespace contains commands created by a
-    #        binary package, like 'tcllibc'. They cannot
+    #        binary package, like 'tcllibc', as they cannot
     #        be re-created.
     ##
     ## catch {namespace delete $nsname}
@@ -600,6 +556,7 @@ proc support {script} {
 
 proc testing script {
     InitializeTclTest
+
     set ::tcllib::testutils::tag *
     catch {
 	uplevel 1 $script
@@ -620,8 +577,11 @@ proc useTcllibC {} {
 	if {![catch {
 	    package require tcllibc
 	}]} {
-	    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
-	    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
+	    set v [package present tcllibc]
+	    set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
+
+	    puts "$::tcllib::testutils::tag E tcllibc $v"
+	    puts "$::tcllib::testutils::tag E tcllibc = $c"
 	    return 1
 	}
 
@@ -632,11 +592,132 @@ proc useTcllibC {} {
     uplevel #0 [list source $index]
     unset ::dir
 
-    package require tcllibc
+    if {![catch {
+	package require tcllibc
+    }]} {
+	set v [package present tcllibc]
+	set c [string map [list \n ";"] [package ifneeded tcllibc $v]]
 
-    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
-    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
-    return 1
+	puts "$::tcllib::testutils::tag I tcllibc $v"
+	puts "$::tcllib::testutils::tag I tcllibc = $c"
+	return 1
+    }
+
+    puts "$::tcllib::testutils::tag - tcllibc n/a"
+    return 0
+}
+
+# # ## ### ##### ######## ############# #####################
+## Automated wrong#args checking based on command name and argument
+## list, with light annotations. Handles `args` and optional arguments
+## (`?x?`). Generates and runs all the needed test cases.
+
+proc syntax {spec basecmd {setup {}} {cleanup {}} {xlabel {}} {map {}}} {
+    # spec :: dict ( method -> methodargs )
+
+    set xtlabel {}
+    if {$xlabel ne {}} {
+	set xtlabel ${xlabel}-
+	append xlabel ": "
+    }
+
+    # Auto-detect how to join the methods with their base command,
+    # based on the separator used in the base command.
+    set gap [expr {[string match {*::*} $basecmd]
+		   ? "::"
+		   : " " }]
+
+    foreach {mcmd margs} $spec {
+	if {$mcmd eq "-"} continue
+
+	lassign [arg-counts $margs] required limit dargnames
+	# I.e. min arguments needed, and max allowed.
+	# `max == ""` implies infinity.
+
+	# Skip commands who need nothing, and accept an unlimited number of arguments.
+	# Such a command does not have a wrong#args condition, and we cannot test that.
+	if {($required == 0) && ($limit eq {})} continue
+
+	# Compute general common strings.
+
+	if {$dargnames ne {}} { set dargnames " $dargnames"}
+
+	if {$mcmd eq {}} {
+	    # Nothing to append to the base. We are testing the base here.
+	    set cmd "$basecmd"
+	} else {
+	    set cmd "$basecmd$gap$mcmd"
+	}
+	set expected "wrong # args: should be \"$cmd$dargnames\""
+	if {[llength $map]} { set expected [string map $map $expected] }
+
+	set tbase [string map {{ } - :: -} $basecmd]
+
+	# Assemble test cases from the min/max information.
+	set testcases {}
+	if {$required > 0} {
+	    lappend testcases {}
+	    for {set i 0} {$i < ($required - 1)} {incr i} {
+		lappend testcases [lrange $margs 0 $i]
+	    }
+	} else {
+	}
+	if {$limit ne {}} {
+	    lappend margs X
+	    lappend testcases $margs
+	}
+
+	# And run the cases ...
+	set k 0
+	foreach params $testcases {
+	    set tlabel "$xlabel$cmd ($params), wrong # args"
+	    set tname  ${tbase}-${xtlabel}${mcmd}-[join $params /]-1.${k}
+
+	    test $tname $tlabel -setup {
+		uplevel 1 $setup
+	    } -cleanup {
+		uplevel 1 $cleanup
+	    } -body {
+		{*}$cmd {*}$params
+	    } -returnCodes error -result $expected
+
+	    incr k
+	}
+    }
+    return
+}
+
+proc arg-counts {signature} {
+    set min [llength $signature]
+    set max $min
+
+    # TODO: Can Tcl handle optional arguments and infinite ?
+    # TODO: Can Tcl handle optional arguments in the middle?
+
+    # Arbitrary number of arguments after the required.
+    if {[lindex $signature end] eq "args"} {
+	set  max {}
+	incr min -1
+	set signature [lreplace $signature end end "?args...?"]
+	return [list $min $max [join $signature { }]]
+    }
+
+    # Ditto, different form. If this form is specified nothing is
+    # changed, and assumed to be what is reported by the command in
+    # question.
+    if {[lindex $signature end] eq "?args...?"} {
+	set  max {}
+	incr min -1
+	return [list $min $max [join $signature { }]]
+    }
+
+    # Optional arguments, can be only at the end.
+    foreach arg [lreverse $signature] {
+	if {![string match {\?*\?} $arg]} break
+	incr min -1
+    }
+
+    return [list $min $max [join $signature { }]]
 }
 
 # ### ### ### ######### ######### #########
@@ -644,11 +725,9 @@ proc useTcllibC {} {
 
 # - dictsort -
 #
-#  Sort a dictionary by its keys. I.e. reorder the contents of the
-#  dictionary so that in its list representation the keys are found in
-#  ascending alphabetical order. In other words, this command creates
-#  a canonical list representation of the input dictionary, suitable
-#  for direct comparison.
+#  Sorts a dictionary by its keys so that in its list representation the keys
+#  are found in ascending alphabetical order, making it easier to directly
+#  compare another dictionary
 #
 # Arguments:
 #	dict:	The dictionary to sort.
@@ -666,16 +745,16 @@ proc dictsort {dict} {
 }
 
 # ### ### ### ######### ######### #########
-## Putting strings together, if they cannot be expressed easily as one
-## string due to quoting problems.
+## Puts strings together.  Useful when the strings cannot be expressed easily as
+## one string due to quoting problems.
 
 proc cat {args} {
     return [join $args ""]
 }
 
 # ### ### ### ######### ######### #########
-## Mini-logging facility, can also be viewed as an accumulator for
-## complex results.
+## Mini-logging facility.  Can also be viewed as an accumulator for complex
+## results.
 #
 # res!      : clear accumulator.
 # res+      : add arguments to accumulator.
@@ -704,12 +783,10 @@ proc res?lines {} {
 }
 
 # ### ### ### ######### ######### #########
-## Helper commands to deal with packages
-## which have multiple implementations, i.e.
-## their pure Tcl base line and one or more
-## accelerators. We are assuming a specific
-## API for accessing the data about available
-## accelerators, switching between them, etc.
+## Procedures that help deal with packages that have multiple implementations,
+## i.e.  their pure Tcl implementation along with one or more accelerators.
+## Assumes a specific API for accessing the data about available accelerators,
+## switching between them, etc.
 
 # == Assumed API ==
 #
@@ -718,20 +795,20 @@ proc res?lines {} {
 #
 # Implementations --
 #   Returns list of activated implementations.
-#   A subset of 'KnownImplementations'
+#   A subset of 'KnownImplementations'.
 #
 # Names --
-#   Returns dict mapping all known implementations
+#   Returns a dict mapping all known implementations
 #   to human-readable strings for output during a
-#   test run
+#   test run.
 #
 # LoadAccelerator accel --
 #   Tries to make the implementation named
-#   'accel' available for use. Result is boolean.
-#   True indicates a successful activation.
+#   'accel' available for use.  True if
+#   successful, and false otherwise.
 #
 # SwitchTo accel --
-#   Activate the implementation named 'accel'.
+#   Activates the implementation named 'accel'.
 #   The empty string disables all implementations.
 
 proc TestAccelInit {namespace} {
@@ -752,7 +829,9 @@ proc TestAccelDo {namespace var script} {
     upvar 1 $var impl
     foreach impl [${namespace}::Implementations] {
 	${namespace}::SwitchTo $impl
+	testConstraint $impl 1
 	uplevel 1 $script
+	testConstraint $impl 0
     }
     return
 }
@@ -768,7 +847,7 @@ proc TestAccelExit {namespace} {
 
 proc TestFiles pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
@@ -783,7 +862,7 @@ proc TestFiles pattern {
 
 proc TestFilesGlob pattern {
     set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
-    if {[package vsatisfies [package provide Tcl] 8.3]} {
+    if {[package vsatisfies [package provide Tcl] 8.3 9]} {
 	# 8.3+ -directory ok
 	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {

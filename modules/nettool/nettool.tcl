@@ -3,10 +3,10 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package require Tcl 8.5
-package provide nettool 0.5.2
+package require Tcl 8.5 9
+package provide nettool 0.5.4
 namespace eval ::nettool {}
-set ::nettool::version 0.5.2
+set ::nettool::version 0.5.3
 
 ###
 # START: core.tcl
@@ -186,7 +186,7 @@ proc ::nettool::user_data_root {appname} {
 # topic: 868a79cedf28924191fd86aa85f6dd1d
 ###
 namespace eval ::nettool {
-  set blocks {}
+  variable blocks {}
 }
 
 lappend ::nettool::blocks 1028 1028

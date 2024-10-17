@@ -7,7 +7,7 @@
 # Package to help the writing of file decoders. Provides generic
 # low-level support commands.
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 
 namespace eval ::fileutil::decode {
     namespace export mark go rewind at
@@ -21,11 +21,7 @@ namespace eval ::fileutil::decode {
 
 proc ::fileutil::decode::open {fname} {
     variable chan
-    set chan [::open $fname r]
-    fconfigure $chan \
-	-translation binary \
-	-encoding    binary \
-	-eofchar     {}
+    set chan [::open $fname rb]
     return
 }
 
@@ -203,5 +199,5 @@ namespace eval ::fileutil::decode {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide fileutil::decode 0.2.1
+package provide fileutil::decode 0.2.2
 return

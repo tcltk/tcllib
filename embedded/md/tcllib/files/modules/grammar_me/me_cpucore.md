@@ -2,7 +2,7 @@
 [//000000001]: # (grammar::me::cpu::core \- Grammar operations and usage)
 [//000000002]: # (Generated from file 'me\_cpucore\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005\-2006 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (grammar::me::cpu::core\(n\) 0\.2 tcllib "Grammar operations and usage")
+[//000000004]: # (grammar::me::cpu::core\(n\) 0\.4 tcllib "Grammar operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,8 +39,8 @@ grammar::me::cpu::core \- ME virtual machine state manipulation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require grammar::me::cpu::core ?0\.2?  
+package require Tcl 8\.5 9  
+package require grammar::me::cpu::core ?0\.4?  
 
 [__::grammar::me::cpu::core__ __disasm__ *asm*](#1)  
 [__::grammar::me::cpu::core__ __asm__ *asm*](#2)  

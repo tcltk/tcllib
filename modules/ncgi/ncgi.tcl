@@ -168,7 +168,6 @@ proc ::ncgi::delete token {
     namespace delete [namespace ensemble configure $token -namespace]
 }
 
-
 # ::ncgi::decode
 #
 #	Decodes data in www-url-encoded format.
@@ -220,6 +219,7 @@ proc ::ncgi::encode string {
     regsub -all -- \[^a-zA-Z0-9\] $string {$map(&)} string
     # This quotes cases like $map([) or $map($) => $map(\[) ...
     regsub -all -- {[][{})\\]\)} $string {\\&} string
+    set string [string map {$map(() $map(\\()} $string]
     return [subst -nocommand $string]
 }
 

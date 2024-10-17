@@ -32,6 +32,8 @@ testing {
 
 setup_plugins
 
+set mytestdir data
+
 # -------------------------------------------------------------------------
 
 source [localPath tests/pt_peg_import.tests]

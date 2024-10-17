@@ -170,4 +170,4 @@ proc ::page::util::quote::quote'tclcom {ch} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::util::quote 0.1
+package provide page::util::quote 0.2

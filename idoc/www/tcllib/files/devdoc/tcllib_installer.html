@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>tcllib_install_guide - </title>
 <style type="text/css"><!--
     HTML {
@@ -133,13 +135,13 @@
 package itself. It is a collection of (semi-independent) <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>
 packages that provide utility functions useful to a large collection
 of Tcl programmers.</p>
-<p>The audience of this document is anyone wishing to build and install
-the packages found in Tcllib, for either themselves, or others.</p>
-<p>For developers intending to work on the packages themselves we
-additionally provide</p>
+<p>This document is targeted at anybody wishing to build and install the
+packages found in Tcllib, for either themselves, or others.</p>
+<p>We additionally provide</p>
 <ol class="doctools_enumerated">
 <li><p><i class="term"><a href="tcllib_devguide.html">Tcllib - The Developer's Guide</a></i>.</p></li>
 </ol>
+<p>for developers wishing to work on the packages themselves.</p>
 <p>Please read <i class="term"><a href="tcllib_sources.html">Tcllib - How To Get The Sources</a></i> first, if that
 was not done already. Here we assume that the sources are already
 available in a directory of your choice.</p>
@@ -199,26 +201,29 @@ distribution, and <em>not</em> <i class="term"><a href="../../../index.html#tcll
 <p>It is only required when trying to build the C-based
 <i class="term">accelerators</i> for a number of packages, as explained in
 <span class="sectref"><a href="#subsection5">Critcl &amp; Accelerators</a></span></p>
-<p>Tcllib's build system looks for it in the ,
-using the name <b class="syscmd">critcl</b>. This is for Unix.
-On Windows on the other hand the search is more complex. First we look
-for a proper application <b class="syscmd">critcl.exe</b>. When that is not found
-we look for a combination of interpreter (<b class="syscmd">tclkitsh.exe</b>,
-<b class="syscmd">tclsh.exe</b>) and starkit (<b class="syscmd">critcl.kit</b>, <b class="syscmd">critcl</b>)
-instead. <em>Note</em> that the choice of starkit can be overriden via
-the environment variable .</p>
-<p>Tcllib requires Critcl version 2 or higher.</p>
-<p>The github repository providing releases of version 2 and
-higher, and the associated sources, can be found at
-<a href="http://andreas-kupries.github.com/critcl">http://andreas-kupries.github.com/critcl</a>.</p>
+<p><em>Beware</em>: The C accelerators are <em>built by default</em>.</p>
+<p>For Unix Tcllib's build system (<b class="cmd">sak.tcl</b>) looks for it in
+the , using the name <b class="syscmd">critcl</b>.</p>
+<p>On Windows on the other hand the search is more complex.
+       The build system looks first looks for a proper application
+       <b class="syscmd">critcl.exe</b>.
+       When that is not found it looks for a combination of
+       interpreter (<b class="syscmd">tclkitsh.exe</b>, <b class="syscmd">tclsh.exe</b>) and
+       starkit (<b class="syscmd">critcl.kit</b>, <b class="syscmd">critcl</b>) instead.
+       <em>Note</em> that the choice of starkit can be overriden via the
+       environment variable .</p>
+<p>Tcllib 1.21 and older requires Critcl version 2 or higher.</p>
+<p>Tcllib 2.0 and newer on the other hand requires Critcl version 3.3 or higher.</p>
+<p>The <a href="https://andreas-kupries.github.io/critcl">Critcl</a>
+provides these releases and the associated sources.</p>
 <p>Any branch of the repository can be used (if not using the
 prebuild starkit or starpack), although the use of the stable branch
 <em>master</em> is recommended.</p>
 <p>At the above url is also an explanation on how to build and
 install Critcl, including a list of its dependencies.</p>
-<p>Its instructions will not be repeated here. If there are
-problems with these directions please file a ticket against the
-<i class="term">Critcl</i> project, and not Tcllib.</p>
+<p>Its instructions will not be repeated here.
+If there are problems with these directions please file a ticket
+against the <i class="term">Critcl</i> project, and not Tcllib.</p>
 </div>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Build &amp; Installation Instructions</a></h2>
@@ -242,16 +247,31 @@ of files to make</p>
 <pre class="doctools_example">
   ./configure
   make install
+  # or just
+  make
 </pre>
 <p>a suitable way of installing it.
 This is a standard non-interactive install automatically figuring out
 where to place everything, i.e. packages, applications, and the
 manpages.</p>
-<p>To get a graphical installer invoke</p>
+<p><em>This includes the Tcllibc binary package</em>.
+Therefore requires an installation of Critcl.</p>
+<p>To install only specific parts of the project use</p>
+<pre class="doctools_example">
+  make install-binaries      # Tcllibc. Requires an installation of Critcl.
+  make install-tcl           # Tcl packages and applications.
+  make install-libraries     # Tcl packages alone.
+  make install-applications  # Applications alone.
+  make install-doc           # Nroff manpages.
+</pre>
+<p>For a graphical installer invoke</p>
 <pre class="doctools_example">
   ./installer.tcl
 </pre>
-<p>instead.</p>
+<p>instead.
+<em>Note</em> however that this installer handles only the Tcl packages,
+applications, and the documentation.
+It does <em>not</em> handle the binary Tcllibc.</p>
 </div>
 <div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Installing on Windows</a></h3>
 <p>In a Windows environment we have the <b class="cmd">installer.tcl</b> script to
@@ -265,28 +285,35 @@ perform installation.</p>
 <pre class="doctools_example">
   ./installer.tcl
 </pre>
-<p>inside it.</p>
+<p>inside it.
+<em>Note</em> that this installer handles only the Tcl packages,
+applications, and the documentation.
+It does <em>not</em> handle the binary Tcllibc.</p>
 </div>
 <div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Critcl &amp; Accelerators</a></h3>
 <p>While the majority of Tcllib consists of packages written in pure Tcl
-a number of packages also have <i class="term">accelerators</i> associated with them.
-These are <b class="syscmd">critcl</b>-based C packages whose use will boost the
-performance of the packages using them.
-These accelerators are optional, and they are not built by default.
+a number of packages also have <i class="term">accelerators</i> associated with them.</p>
+<p>These are <b class="syscmd">critcl</b>-based C packages whose use will boost
+       the performance of the packages using them.
+While they are built by default on Unix (see <em>make install</em>),
+they are not required, they are <em>optional</em>.</p>
+<p>When building the accelerators the normally optional dependency
+       on <b class="syscmd">critcl</b> becomes required.
 If they are built according to the instructions below then they will
 also be installed as well.</p>
-<p>To build the accelerators the normally optional dependency on
-       <b class="syscmd">critcl</b> becomes required.</p>
 <p>To build and install Tcllib with the accelerators in a
        Unix-like environment invoke:</p>
 <pre class="doctools_example">
   ./configure
-  make critcl  # Builds the shared library and package holding
-               # the accelerators, tcllibc
-  make install # Installs all packages, including the new tcllibc.
+  make
+  # or
+  make install
+  # or
+  make install-binaries
 </pre>
 <p>The underlying tool is &quot;<b class="file">sak.tcl</b>&quot; in the toplevel directory
-of Tcllib and the command <b class="cmd">make critcl</b> is just a wrapper around</p>
+       of Tcllib and the <b class="cmd">make install-binaries</b> target is just
+       a wrapper around</p>
 <pre class="doctools_example">
   ./sak.tcl critcl
 </pre>
@@ -296,6 +323,13 @@ of Tcllib and the command <b class="cmd">make critcl</b> is just a wrapper aroun
   ./installer.tcl
 </pre>
 <p>from within a DOS window, i.e. <b class="syscmd">cmd.exe</b>.</p>
+<p><em>Beware</em> that the directory tree generated by this command
+       sequence differs from the directory tree generated by
+       <b class="cmd">make install</b> and variants.</p>
+<p><b class="cmd">make install</b> generates two package directories, one for
+       Tcllib, the other for Tcllibc.</p>
+<p>The above sequence on the other hand places Tcllibc into a
+       sub-directory of the Tcllib package directory.</p>
 </div>
 <div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">Tooling</a></h3>
 <p>The core of Tcllib's build system is the script &quot;<b class="file">installer.tcl</b>&quot;

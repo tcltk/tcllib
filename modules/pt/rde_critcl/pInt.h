@@ -12,7 +12,7 @@
 typedef struct RDE_STRING {
     struct RDE_STRING* next;
     Tcl_Obj*           self;
-    int                id;
+    Tcl_Size           id;
 } RDE_STRING;
 
 typedef struct RDE_STATE_ {
@@ -28,16 +28,16 @@ typedef struct RDE_STATE_ {
     /* And the counter mapping from ids to strings, this is handed to the
      * PARAM for use.
      */
-    long int maxnum; /* NOTE -- */
-    long int numstr; /* This is, essentially, an RDE_STACK (char* elements) */
+    Tcl_Size maxnum; /* NOTE -- */
+    Tcl_Size numstr; /* This is, essentially, an RDE_STACK (char* elements) */
     char**   string; /* Convert over to that instead of replicating the code */
 
 #ifdef RDE_TRACE
-    int icount;  /* Instruction counter, when tracing */
+    Tcl_Size icount;  /* Instruction counter, when tracing */
 #endif
 } RDE_STATE_;
 
-long int param_intern (RDE_STATE p, const char* literal);
+Tcl_Size param_intern (RDE_STATE p, const char* literal);
 
 #endif /* _P_H */
 

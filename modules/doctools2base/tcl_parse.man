@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::tcl::parse n 1]
+[manpage_begin doctools::tcl::parse n 0.2]
 [keywords command]
 [keywords doctools]
 [keywords parser]
@@ -10,7 +10,7 @@
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in 'subst -novariables' format}]
 [category  {Documentation tools}]
-[require Tcl 8.4]
+[require Tcl "8.5 9"]
 [require snit]
 [require fileutil]
 [require logger]
@@ -18,7 +18,7 @@
 [require struct::stack]
 [require struct::set]
 [require treeql]
-[require doctools::tcl::parse]
+[require doctools::tcl::parse [opt 0.2]]
 [description]
 
 This package provides commands for parsing text with embedded Tcl

@@ -2,7 +2,7 @@
 '\" Generated from file 'to\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::to::peg" n 1\&.0\&.2 tcllib "Parser Tools"
+.TH "pt::peg::to::peg" n 1\&.0\&.3 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,15 +274,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::peg::to::peg \- PEG Conversion\&. Write PEG format
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBpt::peg::to::peg  ?1\&.0\&.2?\fR
+package require \fBpt::peg::to::peg ?1\&.0\&.3?\fR
 .sp
-package require \fBpt::peg \fR
+package require \fBpt::peg\fR
 .sp
-package require \fBpt::pe \fR
+package require \fBpt::pe\fR
 .sp
-package require \fBtext::write \fR
+package require \fBtext::write\fR
 .sp
 \fBpt::peg::to::peg\fR \fBreset\fR
 .sp
@@ -401,7 +401,7 @@ read the \fIPEG Language Tutorial\fR\&.
 .CS
 
 
-PEG pe-grammar-for-peg (Grammar)
+PEG pe_grammar_for_peg (Grammar)
 
 	# --------------------------------------------------------------------
         # Syntactical constructs
@@ -442,7 +442,7 @@ leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
                         ;
 
 leaf:   CharSpecial     <- "\\\\" [nrt'"\\[\\]\\\\] ;
-leaf:   CharOctalFull   <- "\\\\" [0-2][0-7][0-7] ;
+leaf:   CharOctalFull   <- "\\\\" [0-3][0-7][0-7] ;
 leaf:   CharOctalPart   <- "\\\\" [0-7][0-7]? ;
 leaf:   CharUnicode     <- "\\\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
 leaf:   CharUnescaped   <- !"\\\\" \&. ;
@@ -520,13 +520,13 @@ classes (predefined and custom), this example can be rewritten as
 
 
 PEG calculator (Expression)
-    Sign       <- [-+] 						;
-    Number     <- Sign? <ddigit>+				;
-    Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+    Sign       <- [-+]                                          ;
+    Number     <- Sign? <ddigit>+                               ;
+    Expression <- Term (AddOp Term)*                            ;
     MulOp      <- [*/]						;
-    Factor     <- Term (AddOp Term)*				;
+    Term       <- Factor (MulOp Factor)*                        ;
     AddOp      <- [-+]						;
-    Term       <- Number					;
+    Factor     <- '(' Expression ')' / Number                   ;
 END;
 
 .CE

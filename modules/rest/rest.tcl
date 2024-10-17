@@ -4,13 +4,13 @@
 #
 # Copyright (c) 2009 Aaron Faupell
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require http 2.7
 package require json
 package require tdom
 package require base64
 
-package provide rest 1.4
+package provide rest 1.7
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -56,7 +56,9 @@ proc ::rest::simple {url query args} {
         set auth [dict get $config auth]
         if {[lindex $auth 0] == "basic"} {
             lappend headers Authorization "Basic [base64::encode [lindex $auth 1]:[lindex $auth 2]]"
-        }
+	} elseif {[lindex $auth 0] == "bearer"} {
+            lappend headers Authorization "Bearer [lindex $auth 1]"
+	}
     }
     if {[dict exists $config content-type]} {
         lappend headers Content-type [join [dict get $config content-type] \;]
@@ -467,6 +469,9 @@ proc ::rest::_call {callback headers url query body error_body} {
     }
     if {$callback != ""} {
         lappend opts -command [list ::rest::_callback {*}$callback]
+    }
+    if {[dict exists $config timeout]} {
+        lappend opts -timeout [dict get $config timeout]
     }
 
     #puts "headers $headers"

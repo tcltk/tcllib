@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.4]
+[vset VERSION 1.7]
 [manpage_begin rest n [vset VERSION]]
 [moddesc   {A framework for RESTful web services}]
 [titledesc {define REST web APIs and call them inline or asychronously}]
-[require Tcl 8.5]
+[require Tcl "8.5 9"]
 [require rest [opt [vset VERSION]]]
 [description]
 
@@ -55,6 +55,7 @@ dictionary must be present, however it is allowed to be empty.
 [def [const format]]
 [def [const headers]]
 [def [const method]]
+[def [const timeout]]
 
 [comment {-- TODO -- describe the meaning of the various keys -- }]
 [list_end]
@@ -331,6 +332,11 @@ the procedure [cmd basic_auth] in the namespace of interface. This
 procedure takes two arguments, the username and password, in this
 order.
 
+[def [const bearer]]
+
+The user may configure a bearer token as authentication. The value is
+the token passed to the HTTP authorization header.
+
 [def [const sign]]
 
 The value must actually be a list with the second element the name of
@@ -464,6 +470,14 @@ when encountering an HTTP error, or not. The default is to not return
 the response body on error.
 
 [para] See [const callback] above for more information.
+
+[comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
+[def [const timeout]]
+
+The value of this option determines whether to set a timeout on the HTTP
+call. By default, no timeout is set.
+
+[para] Timeout value is accepted in milliseconds.
 
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
 [list_end]

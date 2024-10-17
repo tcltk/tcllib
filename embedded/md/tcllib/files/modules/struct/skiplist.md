@@ -2,7 +2,7 @@
 [//000000001]: # (struct::skiplist \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'skiplist\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2000 Keith Vetter)
-[//000000004]: # (struct::skiplist\(n\) 1\.3 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::skiplist\(n\) 1\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ struct::skiplist \- Create and manipulate skiplists
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require struct::skiplist ?1\.3?  
+package require Tcl 8\.5 9  
+package require struct::skiplist ?1\.4?  
 
 [__skiplistName__ *option* ?*arg arg \.\.\.*?](#1)  
 [*skiplistName* __delete__ *node* ?*node*\.\.\.?](#2)  

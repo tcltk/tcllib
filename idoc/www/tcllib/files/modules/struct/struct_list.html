@@ -1,4 +1,6 @@
 <!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>struct::list - Tcl Data Structures</title>
 <style type="text/css"><!--
     HTML {
@@ -107,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">struct::list(n) 1.8.4 tcllib &quot;Tcl Data Structures&quot;</h1>
+<h1 class="doctools_title">struct::list(n) 1.9 tcllib &quot;Tcl Data Structures&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>struct::list - Procedures for manipulating lists</p>
 </div>
@@ -129,8 +131,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">struct::list <span class="opt">?1.8.4?</span></b></li>
+<li>package require <b class="pkgname">Tcl 8.5 9</b></li>
+<li>package require <b class="pkgname">struct::list <span class="opt">?1.9?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence</b> <i class="arg">sequence1</i> <i class="arg">sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></li>
@@ -151,7 +153,7 @@
 <li><a href="#16"><b class="cmd">::struct::list</b> <b class="method">fold</b> <i class="arg">sequence</i> <i class="arg">initialvalue</i> <i class="arg">cmdprefix</i></a></li>
 <li><a href="#17"><b class="cmd">::struct::list</b> <b class="method">shift</b> <i class="arg">listvar</i></a></li>
 <li><a href="#18"><b class="cmd">::struct::list</b> <b class="method">iota</b> <i class="arg">n</i></a></li>
-<li><a href="#19"><b class="cmd">::struct::list</b> <b class="method">equal</b> <i class="arg">a</i> <i class="arg">b</i></a></li>
+<li><a href="#19"><b class="cmd">::struct::list</b> <b class="method">equal</b> <span class="opt">?<b class="option">-simple</b>?</span> <span class="opt">?<b class="option">--</b>?</span> <i class="arg">a</i> <i class="arg">b</i></a></li>
 <li><a href="#20"><b class="cmd">::struct::list</b> <b class="method">repeat</b> <i class="arg">size</i> <i class="arg">element1</i> <span class="opt">?<i class="arg">element2</i> <i class="arg">element3</i>...?</span></a></li>
 <li><a href="#21"><b class="cmd">::struct::list</b> <b class="method">repeatn</b> <i class="arg">value</i> <i class="arg">size</i>...</a></li>
 <li><a href="#22"><b class="cmd">::struct::list</b> <b class="method">dbJoin</b> <span class="opt">?<b class="option">-inner</b>|<b class="option">-left</b>|<b class="option">-right</b>|<b class="option">-full</b>?</span> <span class="opt">?<b class="option">-keys</b> <i class="arg">varname</i>?</span> {<i class="arg">keycol</i> <i class="arg">table</i>}...</a></li>
@@ -176,33 +178,24 @@ this command.</p>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence</b> <i class="arg">sequence1</i> <i class="arg">sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></dt>
-<dd><p>Returns the longest common subsequence of elements in the two lists
-<i class="arg">sequence1</i> and <i class="arg">sequence2</i>. If the <i class="arg">maxOccurs</i> parameter
-is provided, the common subsequence is restricted to elements that
-occur no more than <i class="arg">maxOccurs</i> times in <i class="arg">sequence2</i>.</p>
-<p>The return value is a list of two lists of equal length. The first
-sublist is of indices into <i class="arg">sequence1</i>, and the second sublist is
-of indices into <i class="arg">sequence2</i>.  Each corresponding pair of indices
-corresponds to equal elements in the sequences; the sequence returned
-is the longest possible.</p></dd>
+<dd><p>Returns a list of indices into <i class="arg">sequence1</i> and a corresponding list where
+each item is an index into <i class="arg">sequence2</i> of the matching value according to the
+longest common subsequences algorithm.  If <i class="arg">maxOccurs</i> is provided, the
+common subsequence is restricted to elements that occur no more than
+<i class="arg">maxOccurs</i> times in <i class="arg">sequence2</i>.</p></dd>
 <dt><a name="2"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence2</b> <i class="arg">sequence1 sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></dt>
-<dd><p>Returns an approximation to the longest common sequence of elements in
+<dd><p>Returns the longest common subsequence of elements in
 the two lists <i class="arg">sequence1</i> and <i class="arg">sequence2</i>.
-If the <i class="arg">maxOccurs</i> parameter is omitted, the subsequence computed
-is exactly the longest common subsequence; otherwise, the longest
-common subsequence is approximated by first determining the longest
-common sequence of only those elements that occur no more than
+If <i class="arg">maxOccurs</i> is provided, the result is only an
+approximation, where the longest common subsequence is approximated by first
+determining the longest common sequence of only those elements that occur no
+more than
 <i class="arg">maxOccurs</i> times in <i class="arg">sequence2</i>, and then using that result
 to align the two lists, determining the longest common subsequences of
 the sublists between the two elements.</p>
-<p>As with <b class="method">longestCommonSubsequence</b>, the return value is a list
-of two lists of equal length.  The first sublist is of indices into
-<i class="arg">sequence1</i>, and the second sublist is of indices into
-<i class="arg">sequence2</i>.  Each corresponding pair of indices corresponds to
-equal elements in the sequences.  The sequence approximates the
-longest common subsequence.</p></dd>
+<p>The result is the same as for <b class="method">longestCommonSubsequence</b>.</p></dd>
 <dt><a name="3"><b class="cmd">::struct::list</b> <b class="method">lcsInvert</b> <i class="arg">lcsData</i> <i class="arg">len1</i> <i class="arg">len2</i></a></dt>
-<dd><p>This command takes a description of a longest common subsequence
+<dd><p>Takes a description of a longest common subsequence
 (<i class="arg">lcsData</i>), inverts it, and returns the result. Inversion means
 here that as the input describes which parts of the two sequences are
 identical the output describes the differences instead.</p>
@@ -475,11 +468,13 @@ nothing.</p></dd>
 in the range <b class="const">[0,n)</b>. The element at index <b class="variable">i</b>
 of the list contain the number <b class="const">i</b>.</p>
 <p>For &quot;<i class="arg">n</i> == <b class="const">0</b>&quot; an empty list will be returned.</p></dd>
-<dt><a name="19"><b class="cmd">::struct::list</b> <b class="method">equal</b> <i class="arg">a</i> <i class="arg">b</i></a></dt>
+<dt><a name="19"><b class="cmd">::struct::list</b> <b class="method">equal</b> <span class="opt">?<b class="option">-simple</b>?</span> <span class="opt">?<b class="option">--</b>?</span> <i class="arg">a</i> <i class="arg">b</i></a></dt>
 <dd><p>The subcommand compares the two lists <i class="arg">a</i> and <i class="arg">b</i> for
 equality. In other words, they have to be of the same length and have
-to contain the same elements in the same order. If an element is a
-list the same definition of equality applies recursively.</p>
+to contain the same elements in the same order.</p>
+<p>By default equality checks are applied recursively to list elements which are lists themselves.
+This behaviour is disabled when specifying the option <b class="option">-simple</b>.</p>
+<p>The option <b class="option">--</b> disables option processing even if the following argument looks like such.</p>
 <p>A boolean value will be returned as the result of the command.
 This value will be <b class="const">true</b> if the two lists are equal, and
 <b class="const">false</b> else.</p></dd>

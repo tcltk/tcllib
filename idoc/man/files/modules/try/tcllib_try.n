@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_try\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Donal K\&. Fellows, BSD licensed
 '\"
-.TH "try" n 1 tcllib "Forward compatibility implementation of [try]"
+.TH "try" n 1\&.1 tcllib "Forward compatibility implementation of [try]"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 try \- try - Trap and process errors and exceptions
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtry  ?1?\fR
+package require \fBtry ?1\&.1?\fR
 .sp
 \fB::try\fR \fIbody\fR ?\fIhandler\&.\&.\&.\fR? ?\fBfinally\fR \fIscript\fR?
 .sp
@@ -284,7 +284,7 @@ package require \fBtry  ?1?\fR
 .SH DESCRIPTION
 .PP
 This package provides a forward-compatibility implementation of Tcl
-8\&.6's try/finally command (TIP 329), for Tcl 8\&.5\&. The code was
+8\&.6's \fBtry\fR/\fBfinally\fR command (TIP 329), for Tcl 8\&.5\&. The code was
 directly pulled from Tcl 8\&.6 revision ?, when try/finally was
 implemented as Tcl procedure instead of in C\&.
 .TP

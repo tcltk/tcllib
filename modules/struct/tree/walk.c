@@ -32,11 +32,11 @@ static int t_walkbfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 
 int
 t_walkoptions (Tcl_Interp* interp, int n,
-	       int objc, Tcl_Obj* CONST* objv,
+	       Tcl_Size objc, Tcl_Obj* CONST* objv,
 	       int* type, int* order, int* remainder,
 	       char* usage)
 {
-    int i;
+    Tcl_Size i;
     Tcl_Obj* otype  = NULL;
     Tcl_Obj* oorder = NULL;
 
@@ -82,7 +82,7 @@ t_walkoptions (Tcl_Interp* interp, int n,
     }
 
     if (i == objc) {
-	Tcl_WrongNumArgs (interp, 2, objv, usage);
+	Tcl_WrongNumArgs (interp, 2, objv, usage); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -135,8 +135,8 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 	    switch (order)
 		{
 		case WO_BOTH:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
-		    lb = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (lb);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
+		    lb = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (lb);
 
 		    res = t_walkdfsboth (interp, tdn, f, cs, avn, nvn, la, lb);
 
@@ -145,7 +145,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_IN:
-		    la = Tcl_NewStringObj ("visit",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("visit", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkdfsin	(interp, tdn, f, cs, avn, nvn, la);
 
@@ -153,7 +153,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_PRE:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkdfspre	(interp, tdn, f, cs, avn, nvn, la);
 
@@ -161,7 +161,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_POST:
-		    la = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkdfspost (interp, tdn, f, cs, avn, nvn, la);
 
@@ -174,8 +174,8 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 	    switch (order)
 		{
 		case WO_BOTH:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
-		    lb = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (lb);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
+		    lb = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (lb);
 
 		    res = t_walkbfsboth (interp, tdn, f, cs, avn, nvn, la, lb);
 
@@ -184,7 +184,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_PRE:
-		    la = Tcl_NewStringObj ("enter",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("enter", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkbfspre	(interp, tdn, f, cs, avn, nvn, la);
 
@@ -192,7 +192,7 @@ t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,
 		    break;
 
 		case WO_POST:
-		    la = Tcl_NewStringObj ("leave",-1); Tcl_IncrRefCount (la);
+		    la = Tcl_NewStringObj ("leave", TCL_AUTO_LENGTH); /* OK tcl9 */ Tcl_IncrRefCount (la);
 
 		    res = t_walkbfspost (interp, tdn, f, cs, avn, nvn, la);
 
@@ -248,7 +248,7 @@ t_walk_invokecmd (Tcl_Interp* interp, TN* n, Tcl_Obj* dummy0,
     Tcl_IncrRefCount (ev [cc+1]);
     Tcl_IncrRefCount (ev [cc+2]);
 
-    res = Tcl_EvalObjv (interp, cc+3, ev, 0);
+    res = Tcl_EvalObjv (interp, cc+3, ev, 0); /* OK tcl9 */
 
     Tcl_DecrRefCount (ev [cc]);
     Tcl_DecrRefCount (ev [cc+1]);
@@ -293,9 +293,8 @@ t_walkdfspre (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	 * child will be visited multiple times.
 	 */
 
-	int i;
-	int  nc = tdn->nchildren;
-	TN** nv = NALLOC (nc,TN*);
+	Tcl_Size i, nc = tdn->nchildren;
+	TN**        nv = NALLOC (nc,TN*);
 	memcpy (nv, tdn->child, nc*sizeof(TN*));
 
 	for (i = 0; i < nc; i++) {
@@ -335,10 +334,8 @@ t_walkdfspost (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	 * child will be visited multiple times.
 	 */
 
-	int i;
-
-	int  nc = tdn->nchildren;
-	TN** nv = NALLOC (nc,TN*);
+	Tcl_Size i, nc = tdn->nchildren;
+	TN**        nv = NALLOC (nc,TN*);
 	memcpy (nv, tdn->child, nc*sizeof(TN*));
 
 	for (i = 0; i < nc; i++) {
@@ -398,9 +395,8 @@ t_walkdfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	}
 
 	if (tdn->nchildren) {
-	    int i;
-	    int  nc = tdn->nchildren;
-	    TN** nv = NALLOC (nc,TN*);
+	    Tcl_Size i, nc = tdn->nchildren;
+	    TN**        nv = NALLOC (nc,TN*);
 	    memcpy (nv, tdn->child, nc*sizeof(TN*));
 
 	    for (i = 0; i < nc; i++) {
@@ -573,7 +569,7 @@ t_walkbfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	}
 
 	if (n->nchildren) {
-	    int i;
+	    Tcl_Size i;
 	    for (i = 0; i < n->nchildren; i++) {
 		nlq_append (&q,	 n->child [i]);
 		nlq_push   (&qb, n->child [i]);
@@ -634,7 +630,7 @@ t_walkbfspre (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	}
 
 	if (n->nchildren) {
-	    int i;
+	    Tcl_Size i;
 	    for (i = 0; i < n->nchildren; i++) {
 		nlq_append (&q, n->child [i]);
 	    }
@@ -665,7 +661,7 @@ t_walkbfspost (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	if (!n) break;
 
 	if (n->nchildren) {
-	    int i;
+	    Tcl_Size i;
 	    for (i = 0; i < n->nchildren; i++) {
 		nlq_append (&q,	 n->child [i]);
 		nlq_push   (&qb, n->child [i]);

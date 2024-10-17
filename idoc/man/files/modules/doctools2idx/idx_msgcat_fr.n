@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::msgcat::idx::fr \- Message catalog for the docidx parser (FR)
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmsgcat \fR
+package require \fBmsgcat\fR
 .sp
-package require \fBdoctools::msgcat::idx::fr  ?0\&.1?\fR
+package require \fBdoctools::msgcat::idx::fr ?0\&.1?\fR
 .sp
 .BE
 .SH DESCRIPTION

@@ -15,7 +15,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require textutil::repeat
 package require textutil::string
 
@@ -85,6 +85,7 @@ proc ::textutil::adjust::Configure {args} {
 		}
 	    }
 	    -length {
+		##nagelfar ignore
 		if { ![ string is integer $value ] } then {
 		    error "expected positive integer but got \"$value\""
 		}
@@ -504,6 +505,7 @@ proc ::textutil::adjust::Hyphenation { str } {
 
 proc ::textutil::adjust::listPredefined {} {
     variable here
+    ##nagelfar ignore
     return [glob -type f -directory $here -tails *.tex]
 }
 
@@ -758,4 +760,4 @@ namespace eval ::textutil::adjust {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::adjust 0.7.3
+package provide textutil::adjust 0.7.4

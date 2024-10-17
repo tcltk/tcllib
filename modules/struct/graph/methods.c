@@ -21,7 +21,7 @@
  */
 
 static int TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr,
-			      int endValue, int* indexPtr);
+			      Tcl_Size endValue, Tcl_Size* indexPtr);
 
 /* .................................................. */
 
@@ -47,14 +47,14 @@ static int TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr,
  */
 
 int
-gm_GASSIGN (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_GASSIGN (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph =   source
      *	       [0]   [1] [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "source");
+	Tcl_WrongNumArgs (interp, 2, objv, "source"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -80,14 +80,14 @@ gm_GASSIGN (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_GSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_GSET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph --> dest(ination)
      *	       [0]  [1]  [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "dest");
+	Tcl_WrongNumArgs (interp, 2, objv, "dest"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -112,14 +112,14 @@ gm_GSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_APPEND (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph append key value
      *	       [0]  [1]	    [2]	[3]
      */
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "key value");
+	Tcl_WrongNumArgs (interp, 2, objv, "key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -146,7 +146,7 @@ gm_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_ARCS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_ARCS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arcs                       | all arcs
      *         graph arcs -in        NODE...    | arcs end in node in list
@@ -186,7 +186,7 @@ gm_ARCS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_APPEND (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc append ARC KEY VALUE
      *	       [0]   [1] [2]    [3] [4] [5]
@@ -195,7 +195,7 @@ gm_arc_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 6) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc key value");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -225,18 +225,18 @@ gm_arc_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_GETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_GETUNWEIGH (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc getunweighted
      *	       [0]   [1] [2]
      */
 
-    GA* a;
+    GA*       a;
+    Tcl_Size  rc;
     Tcl_Obj** rv;
-    int       rc;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 3, objv, NULL);
+	Tcl_WrongNumArgs (interp, 3, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -251,7 +251,7 @@ gm_arc_GETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 	rv [rc++] = a->base.name;
     }
 
-    Tcl_SetObjResult (interp, Tcl_NewListObj (rc, rv));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (rc, rv)); /* OK tcl9 */
 
     ckfree ((char*) rv);
     return TCL_OK;
@@ -275,7 +275,7 @@ gm_arc_GETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_GETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_GETWEIGHT (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc getweight ARC
      *	       [0]   [1] [2]       [3]
@@ -284,7 +284,7 @@ gm_arc_GETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -320,7 +320,7 @@ gm_arc_GETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_SETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_SETUNWEIGH (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc setunweighted ?weight?
      *	       [0]   [1] [2]           [3]
@@ -330,14 +330,14 @@ gm_arc_SETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     Tcl_Obj* weight;
 
     if ((objc != 3) && (objc != 4)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "?weight?");
+	Tcl_WrongNumArgs (interp, 3, objv, "?weight?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (objc == 4) {
 	weight = objv [3];
     } else {
-	weight = Tcl_NewIntObj (0);
+	weight = Tcl_NewIntObj (0); /* OK tcl9 */
     }
 
     for (a = (GA*) g->arcs.first; a ; a = (GA*) a->base.next) {
@@ -368,7 +368,7 @@ gm_arc_SETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_SETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_SETWEIGHT (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc setweight ARC WEIGHT
      *	       [0]   [1] [2]       [3] [4]
@@ -377,7 +377,7 @@ gm_arc_SETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc weight");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc weight"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -413,7 +413,7 @@ gm_arc_SETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_UNSETWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_UNSETWEIGH (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc unsetweight ARC
      *	       [0]   [1] [2]         [3]
@@ -422,7 +422,7 @@ gm_arc_UNSETWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -455,7 +455,7 @@ gm_arc_UNSETWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_HASWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_HASWEIGHT (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc hasweight ARC
      *	       [0]   [1] [2]       [3]
@@ -464,14 +464,14 @@ gm_arc_HASWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     a = ga_get_arc (g, objv [3], interp, objv [0]);
     FAIL (a);
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (a->weight != NULL));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (a->weight != NULL)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -493,18 +493,18 @@ gm_arc_HASWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_WEIGHTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_WEIGHTS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc weights
      *	       [0]   [1] [2]
      */
 
     GA* a;
+    Tcl_Size  rc, rcmax;
     Tcl_Obj** rv;
-    int       rc, rcmax;
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 3, objv, NULL);
+	Tcl_WrongNumArgs (interp, 3, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -522,7 +522,7 @@ gm_arc_WEIGHTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 	rv [rc++] = a->weight;
     }
 
-    Tcl_SetObjResult (interp, Tcl_NewListObj (rc, rv));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (rc, rv)); /* OK tcl9 */
 
     ckfree ((char*) rv);
     return TCL_OK;
@@ -546,7 +546,7 @@ gm_arc_WEIGHTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_ATTR (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_ATTR (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc attr KEY
      *         graph arc attr KEY -arcs   LIST
@@ -566,7 +566,7 @@ gm_arc_ATTR (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     Tcl_Obj* detail;
 
     if ((objc != 4) && (objc != 6)) {
-	Tcl_WrongNumArgs (interp, 3, objv,
+	Tcl_WrongNumArgs (interp, 3, objv, /* OK tcl9 */
 			  "key ?-arcs list|-glob pattern|-regexp pattern?");
 	return TCL_ERROR;
     }
@@ -605,18 +605,19 @@ gm_arc_ATTR (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_DELETE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_DELETE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc  delete ARC ARC...
      *	       [0]   [1]  [2]    [3] [4+]
      */
 
     GA* a;
-    int i, new;
+    Tcl_Size i;
+    int new;
     Tcl_HashTable seen;
 
     if (objc < 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc arc...");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc arc..."); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -660,7 +661,7 @@ gm_arc_DELETE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_EXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_EXISTS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc exists NAME
      *	       [0]   [1] [2]    [3]
@@ -669,13 +670,13 @@ gm_arc_EXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     a = ga_get_arc (g, objv [3], NULL, NULL);
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (a != NULL));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (a != NULL)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -697,7 +698,7 @@ gm_arc_EXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_FLIP (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_FLIP (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc flip ARC
      *	       [0]   [1] [2]  [3]
@@ -708,7 +709,7 @@ gm_arc_FLIP (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* dst;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -743,7 +744,7 @@ gm_arc_FLIP (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_GET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc get ARC KEY
      *	       [0]   [1] [2] [3] [4]
@@ -752,7 +753,7 @@ gm_arc_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc key");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -781,7 +782,7 @@ gm_arc_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_GETALL (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc getall ARC ?PATTERN?
      *	       [0]   [1] [2]    [3] [4]
@@ -790,7 +791,7 @@ gm_arc_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if ((objc != 4) && (objc != 5)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc ?pattern?");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc ?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -819,7 +820,7 @@ gm_arc_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_INSERT (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc insert SOURCE TARGET ?ARC?
      *	       [0]   [1] [2]    [3]    [4]    [5]
@@ -831,7 +832,7 @@ gm_arc_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     const char* name;
 
     if ((objc != 5) && (objc != 6)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "source target ?arc?");
+	Tcl_WrongNumArgs (interp, 3, objv, "source target ?arc?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -867,7 +868,7 @@ gm_arc_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     }
 
     a = ga_new (g, name, src, dst);
-    Tcl_SetObjResult (interp, Tcl_NewListObj (1, &a->base.name));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (1, &a->base.name)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -889,7 +890,7 @@ gm_arc_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_KEYEXISTS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc keyexists ARC KEY
      *	       [0]   [1] [2]       [3] [4]
@@ -898,7 +899,7 @@ gm_arc_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA*	a;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc key");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -927,7 +928,7 @@ gm_arc_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_KEYS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc keys ARC ?PATTERN?
      *	       [0]  [1]	 [2]  [3] [4]
@@ -936,7 +937,7 @@ gm_arc_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if ((objc != 4) && (objc != 5)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc ?pattern?");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc ?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -965,7 +966,7 @@ gm_arc_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_LAPPEND (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc lappend ARC KEY VALUE
      *	       [0]   [1] [2]     [3] [4] [5]
@@ -974,7 +975,7 @@ gm_arc_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 6) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc key value");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1004,7 +1005,7 @@ gm_arc_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_MOVE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_MOVE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc move ARC NEWSRC NEWDST
      *	       [0]   [1] [2]  [3] [4]    [5]
@@ -1015,7 +1016,7 @@ gm_arc_MOVE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* ndst;
 
     if (objc != 6) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc newsource newtarget");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc newsource newtarget"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1051,7 +1052,7 @@ gm_arc_MOVE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_MOVE_SRC (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_MOVE_SRC (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc move ARC NEWSRC
      *	       [0]   [1] [2]  [3] [4]
@@ -1061,7 +1062,7 @@ gm_arc_MOVE_SRC (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* nsrc;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc newsource");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc newsource"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1093,7 +1094,7 @@ gm_arc_MOVE_SRC (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_MOVE_TARG (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_MOVE_TARG (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc move ARC NEWDST
      *	       [0]   [1] [2]  [3] [4]
@@ -1103,7 +1104,7 @@ gm_arc_MOVE_TARG (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* ndst;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc newtarget");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc newtarget"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1135,7 +1136,7 @@ gm_arc_MOVE_TARG (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_RENAME (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_RENAME (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc rename ARC NEW
      *	       [0]   [1] [2]    [3] [4]
@@ -1144,7 +1145,7 @@ gm_arc_RENAME (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GC* c;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc newname");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc newname"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1179,7 +1180,7 @@ gm_arc_RENAME (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_SET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc set ARC KEY ?VALUE?
      *	       [0]   [1] [2] [3] [4] [5]
@@ -1188,7 +1189,7 @@ gm_arc_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if ((objc != 5) && (objc != 6)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc key ?value?");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc key ?value?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1223,7 +1224,7 @@ gm_arc_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_SOURCE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_SOURCE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc source ARC
      *	       [0]   [1] [2]    [3]
@@ -1232,7 +1233,7 @@ gm_arc_SOURCE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1261,7 +1262,7 @@ gm_arc_SOURCE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_TARGET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_TARGET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc target ARC
      *	       [0]   [1] [2]    [3]
@@ -1270,7 +1271,7 @@ gm_arc_TARGET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1299,7 +1300,7 @@ gm_arc_TARGET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_NODES (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_NODES (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc target ARC
      *	       [0]   [1] [2]    [3]
@@ -1309,7 +1310,7 @@ gm_arc_NODES (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     Tcl_Obj* nv[2];
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1319,7 +1320,7 @@ gm_arc_NODES (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     nv[0] = a->start->n->base.name;
     nv[1] = a->end->n->base.name;
 
-    Tcl_SetObjResult (interp, Tcl_NewListObj (2, nv));
+    Tcl_SetObjResult (interp, Tcl_NewListObj (2, nv)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -1341,7 +1342,7 @@ gm_arc_NODES (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_arc_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_arc_UNSET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc unset ARC KEY
      *	       [0]   [1] [2]   [3] [4]
@@ -1350,7 +1351,7 @@ gm_arc_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "arc key");
+	Tcl_WrongNumArgs (interp, 3, objv, "arc key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1379,7 +1380,7 @@ gm_arc_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_DESERIALIZE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_DESERIALIZE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph deserialize serial
      *	       [0]   [1]	 [2]
@@ -1392,7 +1393,7 @@ gm_DESERIALIZE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "serial");
+	Tcl_WrongNumArgs (interp, 2, objv, "serial"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1416,14 +1417,14 @@ gm_DESERIALIZE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_DESTROY (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_DESTROY (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph destroy
      *	       [0]   [1]
      */
 
     if (objc != 2) {
-	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1448,14 +1449,14 @@ gm_DESTROY (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_GET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph get key
      *	       [0]   [1] [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "key");
+	Tcl_WrongNumArgs (interp, 2, objv, "key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1481,14 +1482,14 @@ gm_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_GETALL (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph getall ?pattern?
      *	       [0]   [1]    [2]
      */
 
     if ((objc != 2) && (objc != 3)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?pattern?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1514,14 +1515,14 @@ gm_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_KEYEXISTS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph keyexists key
      *	       [0]  [1]	       [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "key");
+	Tcl_WrongNumArgs (interp, 2, objv, "key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1547,14 +1548,14 @@ gm_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_KEYS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph keys ?pattern?
      *	       [0]  [1]	  [2]
      */
 
     if ((objc != 2) && (objc != 3)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "?pattern?");
+	Tcl_WrongNumArgs (interp, 2, objv, "?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1580,14 +1581,14 @@ gm_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_LAPPEND (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph lappend key value
      *	       [0]  [1]	     [2] [3]
      */
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "key value");
+	Tcl_WrongNumArgs (interp, 2, objv, "key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1614,7 +1615,7 @@ gm_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_NODES (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_NODES (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* nwa = nodes with arc, st = starting, en = ending
      *
@@ -1656,7 +1657,7 @@ gm_NODES (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_APPEND (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node append NODE KEY VALUE
      *	       [0]   [1]  [2]    [3]  [4] [5]
@@ -1665,7 +1666,7 @@ gm_node_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if (objc != 6) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node key value");
+	Tcl_WrongNumArgs (interp, 3, objv, "node key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1695,7 +1696,7 @@ gm_node_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_ATTR (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_ATTR (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node attr KEY
      *         graph node attr KEY -nodes   LIST
@@ -1715,7 +1716,7 @@ gm_node_ATTR (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     Tcl_Obj* detail;
 
     if ((objc != 4) && (objc != 6)) {
-	Tcl_WrongNumArgs (interp, 3, objv,
+	Tcl_WrongNumArgs (interp, 3, objv, /* OK tcl9 */
 			  "key ?-nodes list|-glob pattern|-regexp pattern?");
 	return TCL_ERROR;
     }
@@ -1754,7 +1755,7 @@ gm_node_ATTR (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_DEGREE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_DEGREE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node degree -in|-out NODE
      *	       [0]   [1]  [2]    [3]      [4]
@@ -1765,7 +1766,7 @@ gm_node_DEGREE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 
     GN*      n;
     int      dmode;
-    int      degree;
+    Tcl_Size degree;
     Tcl_Obj* node;
 
     static const char* dmode_s [] = {
@@ -1776,7 +1777,7 @@ gm_node_DEGREE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     };
 
     if ((objc != 4) && (objc != 5)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "?-in|-out? node");
+	Tcl_WrongNumArgs (interp, 3, objv, "?-in|-out? node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1801,7 +1802,7 @@ gm_node_DEGREE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     case D_ALL: degree = n->in.n + n->out.n; break;
     }
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (degree));
+    Tcl_SetObjResult (interp, Tcl_NewSizeIntObj (degree)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -1823,18 +1824,19 @@ gm_node_DEGREE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_DELETE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_DELETE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node delete NODE NODE...
      *	       [0]   [1]  [2]    [3]  [4+]
      */
 
-    int i, new;
+    Tcl_Size i;
+    int new;
     GN* n;
     Tcl_HashTable seen;
 
     if (objc < 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node node...");
+	Tcl_WrongNumArgs (interp, 3, objv, "node node..."); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1878,7 +1880,7 @@ gm_node_DELETE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_EXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_EXISTS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node exists NAME
      *	       [0]   [1]  [2]    [3]
@@ -1887,13 +1889,13 @@ gm_node_EXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node");
+	Tcl_WrongNumArgs (interp, 3, objv, "node"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     n = gn_get_node (g, objv [3], NULL, NULL);
 
-    Tcl_SetObjResult (interp, Tcl_NewIntObj (n != NULL));
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (n != NULL)); /* OK tcl9 */
     return TCL_OK;
 }
 
@@ -1915,7 +1917,7 @@ gm_node_EXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_GET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node get ARC KEY
      *	       [0]   [1]  [2] [3] [4]
@@ -1924,7 +1926,7 @@ gm_node_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node key");
+	Tcl_WrongNumArgs (interp, 3, objv, "node key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1953,7 +1955,7 @@ gm_node_GET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_GETALL (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph arc getall ARC ?PATTERN?
      *	       [0]   [1] [2]    [3] [4]
@@ -1962,7 +1964,7 @@ gm_node_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if ((objc != 4) && (objc != 5)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node ?pattern?");
+	Tcl_WrongNumArgs (interp, 3, objv, "node ?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -1991,7 +1993,7 @@ gm_node_GETALL (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_INSERT (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node insert ?NODE...?
      *	       [0]   [1]  [2]    [3]
@@ -2000,12 +2002,13 @@ gm_node_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if (objc < 3) {
-	Tcl_WrongNumArgs (interp, 3, objv, "?node...?");
+	Tcl_WrongNumArgs (interp, 3, objv, "?node...?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
     if (objc >= 4) {
-	int       lc, i, new;
+	int       new;
+	Tcl_Size  lc, i;
 	Tcl_Obj** lv;
 	Tcl_HashTable seen;
 
@@ -2034,14 +2037,14 @@ gm_node_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 	    lv [i-3] = n->base.name;
 	}
 
-	Tcl_SetObjResult (interp, Tcl_NewListObj (lc, lv));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (lc, lv)); /* OK tcl9 */
 	ckfree ((char*) lv);
 
     } else {
 	/* Create a single new node with a generated name, then insert it. */
 
 	n = gn_new (g, g_newnodename (g));
-	Tcl_SetObjResult (interp, Tcl_NewListObj (1, &n->base.name));
+	Tcl_SetObjResult (interp, Tcl_NewListObj (1, &n->base.name)); /* OK tcl9 */
     }
 
     return TCL_OK;
@@ -2065,7 +2068,7 @@ gm_node_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_KEYEXISTS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node keyexists ARC KEY
      *	       [0]   [1]  [2]       [3] [4]
@@ -2074,7 +2077,7 @@ gm_node_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node key");
+	Tcl_WrongNumArgs (interp, 3, objv, "node key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2103,7 +2106,7 @@ gm_node_KEYEXISTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_KEYS (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node keys NODE ?PATTERN?
      *	       [0]  [1]	  [2]  [3]  [4]
@@ -2112,7 +2115,7 @@ gm_node_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if ((objc != 4) && (objc != 5)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node ?pattern?");
+	Tcl_WrongNumArgs (interp, 3, objv, "node ?pattern?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2141,7 +2144,7 @@ gm_node_KEYS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_LAPPEND (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node lappend NODE KEY VALUE
      *	       [0]   [1]  [2]     [3]  [4] [5]
@@ -2150,7 +2153,7 @@ gm_node_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GN* n;
 
     if (objc != 6) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node key value");
+	Tcl_WrongNumArgs (interp, 3, objv, "node key value"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2180,7 +2183,7 @@ gm_node_LAPPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_OPPOSITE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_OPPOSITE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node opposite NODE ARC
      *	       [0]   [1]  [2]      [3]  [4]
@@ -2190,7 +2193,7 @@ gm_node_OPPOSITE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GA* a;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node arc");
+	Tcl_WrongNumArgs (interp, 3, objv, "node arc"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2207,13 +2210,13 @@ gm_node_OPPOSITE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     } else {
 	Tcl_Obj* err = Tcl_NewObj ();
 
-	Tcl_AppendToObj	   (err, "node \"", -1);
+	Tcl_AppendToObj	   (err, "node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, n->base.name);
-	Tcl_AppendToObj	   (err, "\" and arc \"", -1);
+	Tcl_AppendToObj	   (err, "\" and arc \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, a->base.name);
-	Tcl_AppendToObj	   (err, "\" are not connected in graph \"", -1);
+	Tcl_AppendToObj	   (err, "\" are not connected in graph \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, objv [0]);
-	Tcl_AppendToObj	   (err, "\"", -1);
+	Tcl_AppendToObj	   (err, "\"", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	Tcl_SetObjResult (interp, err);
 	return TCL_ERROR;
@@ -2240,7 +2243,7 @@ gm_node_OPPOSITE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_RENAME (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_RENAME (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node rename NODE NEW
      *	       [0]   [1]  [2]    [3]  [4]
@@ -2249,7 +2252,7 @@ gm_node_RENAME (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GC* c;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node newname");
+	Tcl_WrongNumArgs (interp, 3, objv, "node newname"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2284,7 +2287,7 @@ gm_node_RENAME (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_SET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node set NODE KEY ?VALUE?
      *	       [0]   [1]  [2] [3]  [4] [5]
@@ -2293,7 +2296,7 @@ gm_node_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GC* c;
 
     if ((objc != 5) && (objc != 6)) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node key ?value?");
+	Tcl_WrongNumArgs (interp, 3, objv, "node key ?value?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2328,7 +2331,7 @@ gm_node_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_node_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_node_UNSET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph node unset NODE KEY
      *	       [0]   [1]  [2]   [3]  [4]
@@ -2337,7 +2340,7 @@ gm_node_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     GC* c;
 
     if (objc != 5) {
-	Tcl_WrongNumArgs (interp, 3, objv, "node key");
+	Tcl_WrongNumArgs (interp, 3, objv, "node key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2366,7 +2369,7 @@ gm_node_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_SERIALIZE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_SERIALIZE (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph serialize NODE...
      *	       [0]   [1]       [2]
@@ -2405,14 +2408,14 @@ gm_SERIALIZE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_SET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph set key ?value?
      *	       [0]  [1]  [2] [3]
      */
 
     if ((objc != 3) && (objc != 4)) {
-	Tcl_WrongNumArgs (interp, 2, objv, "key ?value?");
+	Tcl_WrongNumArgs (interp, 2, objv, "key ?value?"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2443,7 +2446,7 @@ gm_SET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_SWAP (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_SWAP (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph swap a   b
      *	       [0]  [1]	  [2] [3]
@@ -2454,7 +2457,7 @@ gm_SWAP (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     const char*   key;
 
     if (objc != 4) {
-	Tcl_WrongNumArgs (interp, 2, objv, "node1 node2");
+	Tcl_WrongNumArgs (interp, 2, objv, "node1 node2"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2467,9 +2470,9 @@ gm_SWAP (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     if (na == nb) {
 	Tcl_Obj* err = Tcl_NewObj ();
 
-	Tcl_AppendToObj	   (err, "cannot swap node \"", -1);
+	Tcl_AppendToObj	   (err, "cannot swap node \"", TCL_AUTO_LENGTH); /* OK tcl9 */
 	Tcl_AppendObjToObj (err, objv [2]);
-	Tcl_AppendToObj	   (err, "\" with itself", -1);
+	Tcl_AppendToObj	   (err, "\" with itself", TCL_AUTO_LENGTH); /* OK tcl9 */
 
 	Tcl_SetObjResult (interp, err);
 	return TCL_ERROR;
@@ -2515,14 +2518,14 @@ gm_SWAP (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_UNSET (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph unset key
      *	       [0]  [1]	   [2]
      */
 
     if (objc != 3) {
-	Tcl_WrongNumArgs (interp, 2, objv, "key");
+	Tcl_WrongNumArgs (interp, 2, objv, "key"); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2548,7 +2551,7 @@ gm_UNSET (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
  */
 
 int
-gm_WALK (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+gm_WALK (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 {
     /* Syntax: graph walk NODE ?-type TYPE? ?-order ORDER? ?-dir DIR? -command CMD
      *	       [0]   [1]  [2]  [3]    [4]   [5]     [6]    [7]   [8]  [9]      [10]
@@ -2560,12 +2563,13 @@ gm_WALK (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
      * bfs => !post && !both
      */
 
-    int       cc, type, order, dir;
+    int       type, order, dir;
+    Tcl_Size  cc;
     Tcl_Obj** cv;
     GN*       n;
 
     if (objc < 5) {
-	Tcl_WrongNumArgs (interp, 2, objv, W_USAGE);
+	Tcl_WrongNumArgs (interp, 2, objv, W_USAGE); /* OK tcl9 */
 	return TCL_ERROR;
     }
 
@@ -2598,9 +2602,8 @@ gm_WALK (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 
 #define UCHAR(c) ((unsigned char) (c))
 
-static void UpdateStringOfEndOffset _ANSI_ARGS_((Tcl_Obj* objPtr));
-static int SetEndOffsetFromAny _ANSI_ARGS_((Tcl_Interp* interp,
-					    Tcl_Obj* objPtr));
+static void UpdateStringOfEndOffset (Tcl_Obj* objPtr);
+static int  SetEndOffsetFromAny     (Tcl_Interp* interp, Tcl_Obj* objPtr);
 
 static int TclCheckBadOctal (Tcl_Interp *interp, const char *value);
 static int TclFormatInt     (char *buffer, long n);
@@ -2615,9 +2618,9 @@ Tcl_ObjType EndOffsetTypeGraph = {
 };
 
 static int
-TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr, int endValue, int* indexPtr)
+TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr, Tcl_Size endValue, Tcl_Size* indexPtr)
 {
-    if (Tcl_GetIntFromObj (NULL, objPtr, indexPtr) == TCL_OK) {
+    if (Tcl_GetSizeIntFromObj (NULL, objPtr, indexPtr) == TCL_OK) { /* OK tcl9 */
 	return TCL_OK;
     }
 
@@ -2720,11 +2723,11 @@ SetEndOffsetFromAny(interp, objPtr)
      Tcl_Interp* interp;	/* Tcl interpreter or NULL */
      Tcl_Obj* objPtr;		/* Pointer to the object to parse */
 {
-    int offset;			/* Offset in the "end-offset" expression */
-    Tcl_ObjType* oldTypePtr = objPtr->typePtr;
+    Tcl_Size     offset;	/* Offset in the "end-offset" expression */
+    const Tcl_ObjType* oldTypePtr = objPtr->typePtr;
     /* Old internal rep type of the object */
     register char* bytes;	/* String rep of the object */
-    int length;			/* Length of the object's string rep */
+    Tcl_Size       length;	/* Length of the object's string rep */
 
     /* If it's already the right type, we're fine. */
 
@@ -2734,7 +2737,7 @@ SetEndOffsetFromAny(interp, objPtr)
 
     /* Check for a string rep of the right form. */
 
-    bytes = Tcl_GetStringFromObj(objPtr, &length);
+    bytes = Tcl_GetStringFromObj(objPtr, &length); /* OK tcl9 */
     if ((*bytes != 'e') || (strncmp(bytes, "end",
 				    (size_t)((length > 3) ? 3 : length)) != 0)) {
 	if (interp != NULL) {
@@ -2756,9 +2759,21 @@ SetEndOffsetFromAny(interp, objPtr)
 	 * This is our limited string expression evaluator.  Pass everything
 	 * after "end-" to Tcl_GetInt, then reverse for offset.
 	 */
+#if TCL_MAJOR_VERSION > 8
+	/* We have no GetSizeInt from a C string, just from Tcl_Obj.
+	 * Go through a temp obj.
+	 */
+	Tcl_Obj* tmp = Tcl_NewStringObj (bytes+4, length-4); /* OK tcl9 */
+	if (Tcl_GetSizeIntFromObj(interp, tmp, &offset) != TCL_OK) { /* OK tcl9 */
+	    Tcl_DecrRefCount (tmp);
+	    return TCL_ERROR;
+	}
+	Tcl_DecrRefCount (tmp);
+#else
 	if (Tcl_GetInt(interp, bytes+4, &offset) != TCL_OK) {
 	    return TCL_ERROR;
 	}
+#endif
 	offset = -offset;
     } else {
 	/*

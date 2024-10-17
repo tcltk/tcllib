@@ -1,14 +1,8 @@
 # -*- tcl -*-
 # report.test:  tests for the report structure.
 #
-# This file contains a collection of tests for one or more of the Tcl
-# built-in commands.  Sourcing this file into Tcl runs the tests and
-# generates output for errors.  No output means no errors were found.
-#
-# Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001, 2022 by Andreas Kupries <andreas.kupries@gmail.com>
 # All rights reserved.
-#
-# RCS: @(#) $Id: report.test,v 1.11 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,10 +11,11 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 support {
-    use struct/matrix.tcl struct::matrix
+    use textutil/wcswidth.tcl textutil::wcswidth
+    use struct/matrix.tcl     struct::matrix
 }
 testing {
     useLocal report.tcl report
@@ -65,11 +60,7 @@ test report-2.2 {style definition errors} {
 test report-2.3 {style definition errors} {
     catch {::report::defstyle foo {} {} bla} result
     set result
-} [if {[info tclversion] < 8.4} {
-    set msg {called "::report::defstyle" with too many arguments}
-} else {
-    set msg {wrong # args: should be "::report::defstyle styleName arguments body"}
-}]
+} {wrong # args: should be "::report::defstyle styleName arguments body"}
 
 test report-2.4 {style definition errors} {
     catch {::report::defstyle plain {} {}} result
@@ -829,15 +820,14 @@ test report-27.4 {formatting} {
 
     set result
 } {000VERSIONS:             2:8.4a31:8.4a31:8.4a3%
-001CATCH return ok       7      13     53.85   
-002CATCH return error    68     91     74.73   
-003CATCH no catch used   7      14     50.00   
-004IF if true numeric    12     33     36.36   
-005IF elseif true numeric15     47     31.91   
+001CATCH return ok       7      13     53.85
+002CATCH return error    68     91     74.73
+003CATCH no catch used   7      14     50.00
+004IF if true numeric    12     33     36.36
+005IF elseif true numeric15     47     31.91
 }
 
 test report-27.5 {formatting} {
-
     ::struct::matrix mymatrix
     mymatrix add columns 5
     mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
@@ -930,13 +920,13 @@ test report-27.7 {formatting} {
 
     set result
 } {-+-/-/-/+-/-/-/-/-/-/-/-/-/-/-/-/+-/-/-/-/-+-/-/-/-/-+-/-/-/-+-
- | 000  |              VERSIONS: | 2:8.4a3 | 1:8.4a3 | .4a3% | 
+ | 000  |              VERSIONS: | 2:8.4a3 | 1:8.4a3 | .4a3% |
 =+*=*=*=+*=*=*=*=*=*=*=*=*=*=*=*=+*=*=*=*=*+*=*=*=*=*+*=*=*=*+=
- | 001  |        CATCH return ok |       7 |      13 | 53.85 | 
- | 002  |     CATCH return error |      68 |      91 | 74.73 | 
- | 003  |    CATCH no catch used |       7 |      14 | 50.00 | 
- | 004  |     IF if true numeric |      12 |      33 | 36.36 | 
- | 005  | IF elseif true numeric |      15 |      47 | 31.91 | 
+ | 001  |        CATCH return ok |       7 |      13 | 53.85 |
+ | 002  |     CATCH return error |      68 |      91 | 74.73 |
+ | 003  |    CATCH no catch used |       7 |      14 | 50.00 |
+ | 004  |     IF if true numeric |      12 |      33 | 36.36 |
+ | 005  | IF elseif true numeric |      15 |      47 | 31.91 |
 -+------+------------------------+---------+---------+-------+-
 }
 
@@ -978,13 +968,13 @@ test report-27.7.1 {formatting} {
 
     set result
 } {-+-/-+-/-/-/-+-/-/-/-/-+-/-/-/-/-+-/-/-/-+-
- |00 | VERSI | 2:8.4a3 | 1:8.4a3 | .4a3% | 
+ |00 | VERSI | 2:8.4a3 | 1:8.4a3 | .4a3% |
 =+*=*+*=*=*=*+*=*=*=*=*+*=*=*=*=*+*=*=*=*+=
- |00 | CATCH |       7 |      13 | 53.85 | 
- |00 | CATCH |      68 |      91 | 74.73 | 
- |00 | CATCH |       7 |      14 | 50.00 | 
- |00 | IF if |      12 |      33 | 36.36 | 
- |00 | IF el |      15 |      47 | 31.91 | 
+ |00 | CATCH |       7 |      13 | 53.85 |
+ |00 | CATCH |      68 |      91 | 74.73 |
+ |00 | CATCH |       7 |      14 | 50.00 |
+ |00 | IF if |      12 |      33 | 36.36 |
+ |00 | IF el |      15 |      47 | 31.91 |
 -+---+-------+---------+---------+-------+-
 }
 
@@ -1016,6 +1006,30 @@ true numeric}    15      47    31.91}
 |   |true numeric       |       |       |        |
 +---+-------------------+-------+-------+--------+
 }
+
+test report-27.9 {formatting, double-wide, colored} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        橡      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row [list 005 {IF elseif true numeric} 15 \033\[1m47\033\[0m 31.91]
+
+    report myreport 5 ; # style plain
+    set result [myreport printmatrix mymatrix]
+    myreport destroy
+    mymatrix destroy
+
+    set result
+} "000VERSIONS:             2:8.4a31:8.4a31:8.4a3%
+001CATCH return ok       7      13     53.85
+002CATCH return error    橡     91     74.73
+003CATCH no catch used   7      14     50.00
+004IF if true numeric    12     33     36.36
+005IF elseif true numeric15     \033\[1m47\033\[0m     31.91
+"
 
 # And now all of above again, for printing into a channel.
 
@@ -1099,11 +1113,11 @@ test report-28.5 {formatting} {
     removeFile rep1
     set res
 } {000VERSIONS:             2:8.4a31:8.4a31:8.4a3%
-001CATCH return ok       7      13     53.85   
-002CATCH return error    68     91     74.73   
-003CATCH no catch used   7      14     50.00   
-004IF if true numeric    12     33     36.36   
-005IF elseif true numeric15     47     31.91   }
+001CATCH return ok       7      13     53.85
+002CATCH return error    68     91     74.73
+003CATCH no catch used   7      14     50.00
+004IF if true numeric    12     33     36.36
+005IF elseif true numeric15     47     31.91}
 
 test report-28.6 {formatting} {
 
@@ -1208,13 +1222,13 @@ test report-28.8 {formatting} {
     removeFile rep4
     set res
 } {-+-/-/-/+-/-/-/-/-/-/-/-/-/-/-/-/+-/-/-/-/-+-/-/-/-/-+-/-/-/-+-
- | 000  |              VERSIONS: | 2:8.4a3 | 1:8.4a3 | .4a3% | 
+ | 000  |              VERSIONS: | 2:8.4a3 | 1:8.4a3 | .4a3% |
 =+*=*=*=+*=*=*=*=*=*=*=*=*=*=*=*=+*=*=*=*=*+*=*=*=*=*+*=*=*=*+=
- | 001  |        CATCH return ok |       7 |      13 | 53.85 | 
- | 002  |     CATCH return error |      68 |      91 | 74.73 | 
- | 003  |    CATCH no catch used |       7 |      14 | 50.00 | 
- | 004  |     IF if true numeric |      12 |      33 | 36.36 | 
- | 005  | IF elseif true numeric |      15 |      47 | 31.91 | 
+ | 001  |        CATCH return ok |       7 |      13 | 53.85 |
+ | 002  |     CATCH return error |      68 |      91 | 74.73 |
+ | 003  |    CATCH no catch used |       7 |      14 | 50.00 |
+ | 004  |     IF if true numeric |      12 |      33 | 36.36 |
+ | 005  | IF elseif true numeric |      15 |      47 | 31.91 |
 -+------+------------------------+---------+---------+-------+-}
 
 test report-28.9 {formatting, rowheight > 1} {
@@ -1248,8 +1262,6 @@ true numeric}    15      47    31.91}
 |005|IF elseif          |15     |47     |31.91   |
 |   |true numeric       |       |       |        |
 +---+-------------------+-------+-------+--------+}
-
-
 
 test report-28.10 {formatting, rowheight > 1} {
     ::struct::matrix mymatrix
@@ -1363,5 +1375,33 @@ true numeric}    15      47    31.91}
 |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
 +---+-------------------+-------+-------+--------+
 }
+
+
+test report-28.13 {formatting, double-wide, colored} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        橡      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row [list 005 {IF elseif true numeric} 15 \033\[1m47\033\[0m 31.91]
+
+    set f [open [makeFile {} rep1] w]
+    report myreport 5 ; # style plain
+    myreport printmatrix2channel mymatrix $f
+    myreport destroy
+    mymatrix destroy
+    close $f
+
+    set res [viewFile rep1]
+    removeFile rep1
+    set res
+} "000VERSIONS:             2:8.4a31:8.4a31:8.4a3%
+001CATCH return ok       7      13     53.85
+002CATCH return error    橡     91     74.73
+003CATCH no catch used   7      14     50.00
+004IF if true numeric    12     33     36.36
+005IF elseif true numeric15     \033\[1m47\033\[0m     31.91"
 
 testsuiteCleanup

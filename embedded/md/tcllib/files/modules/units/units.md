@@ -2,7 +2,7 @@
 [//000000001]: # (units \- Convert and manipulate quantities with units)
 [//000000002]: # (Generated from file 'units\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2000\-2005 Mayo Foundation)
-[//000000004]: # (units\(n\) 1\.2 tcllib "Convert and manipulate quantities with units")
+[//000000004]: # (units\(n\) 2\.2\.3 tcllib "Convert and manipulate quantities with units")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -53,8 +53,8 @@ units \- unit conversion
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.1  
-package require units ?2\.1?  
+package require Tcl 8\.5 9  
+package require units ?2\.2\.3?  
 
 [__::units::convert__ *value* *targetUnits*](#1)  
 [__::units::reduce__ *unitString*](#2)  

@@ -231,6 +231,12 @@ proc main {} {try {
 		ncgi encode "hello\nworld\r\tbar"
 	} {hello%0D%0Aworld%0D%09bar}
 
+	test ncgi-4.5 {ncgi::encode TIP 465} {
+		ncgi::decode [ncgi::encode "("]
+		# emacs: )
+	} "("
+	# emacs: )
+
 
 	test ncgi-5.1 {ncgi::query parse} {
 		withncgi querystring name=hello+world&name2=%7ewelch {

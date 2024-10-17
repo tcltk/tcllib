@@ -1,7 +1,7 @@
 
 [//000000001]: # (math::combinatorics \- Tcl Math Library)
 [//000000002]: # (Generated from file 'combinatorics\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::combinatorics\(n\) 2\.0 tcllib "Tcl Math Library")
+[//000000003]: # (math::combinatorics\(n\) 2\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -30,11 +30,11 @@ math::combinatorics \- Combinatorial functions in the Tcl Math Library
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require math ?1\.2\.3?  
-package require Tcl 8\.6  
+package require Tcl 8\.5 9  
+package require math ?1\.2\.6?  
+package require Tcl 8\.6 9  
 package require TclOO  
-package require math::combinatorics ?2\.0?  
+package require math::combinatorics ?2\.1?  
 
 [__::math::ln\_Gamma__ *z*](#1)  
 [__::math::factorial__ *x*](#2)  

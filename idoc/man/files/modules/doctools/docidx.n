@@ -2,7 +2,7 @@
 '\" Generated from file 'docidx\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::idx" n 1\&.1 tcllib "Documentation tools"
+.TH "doctools::idx" n 1\&.2\&.1 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx \- docidx - Processing indices
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx  ?1\&.1?\fR
+package require \fBdoctools::idx ?1\&.2\&.1?\fR
 .sp
 \fB::doctools::idx::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR \&.\&.\&.?
 .sp

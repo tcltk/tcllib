@@ -13,9 +13,9 @@
 ## **************************************
 ## the true source is the file from which this one was generated.
 ##
-package require Tcl 8.4
-package require docstrip 1.2
-package provide docstrip::util 1.3.1
+package require Tcl 8.5 9
+package require docstrip 1.3
+package provide docstrip::util 1.3.3
 namespace eval docstrip::util {
    namespace export ddt2man guard patch thefile\
      packages_provided index_from_catalogue modules_from_catalogue\
@@ -616,7 +616,9 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
       } {-*} {
          lappend lines - [string range $line 1 end]
       } @@* {
-         if {[string is integer $end2]} then {
+	 ##nagelfar ignore
+	 if {[string is integer $end2]} then {
+	    set end2 [format %d $end2]
             lappend res [list $start1 $end1 $start2 $end2 $lines]
          }
          set len2 [set len1 ,1]
@@ -639,7 +641,9 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
          append warning "Could not parse line:  " $line \n
       }
    }
+   ##nagelfar ignore
    if {[string is integer $end2]} then {
+      set end2 [format %d $end2]
       lappend res [list $start1 $end1 $start2 $end2 $lines]
    }
    return $res

@@ -3,8 +3,10 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package require Tcl 8.6
-package provide practcl 0.16.4
+package require Tcl 8.6 9
+package require file::home	;# tcllib file home forward compatibility
+
+package provide practcl 0.16.6
 namespace eval ::practcl {}
 
 ###
@@ -17,7 +19,7 @@ namespace eval ::practcl {}
 ###
 # START: clay/clay.tcl
 ###
-package provide clay 0.8.6
+package provide clay 0.8.8
 namespace eval ::clay {
 }
 namespace eval ::clay {
@@ -278,7 +280,7 @@ namespace eval ::clay {
   variable option_class {}
   variable core_classes {::oo::class ::oo::object}
 }
-package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
+package require Tcl 8.6 9 ;# try in pipeline.tcl. Possibly other things.
 if {[info commands irmmd5] eq {}} {
   if {[catch {package require odielibc}]} {
     package require md5 2
@@ -718,14 +720,17 @@ proc ::dictargs::method {name argspec body} {
   oo::define $class method $name [list [list args [list dictargs $argspec]]] $result
 }
 namespace eval ::clay::dialect {
-  namespace export create
-  foreach {flag test} {
-    tip470 {package vsatisfies [package provide Tcl] 8.7}
-  } {
-    if {![info exists ::clay::dialect::has($flag)]} {
-      set ::clay::dialect::has($flag) [eval $test]
+    namespace export create
+    variable flag
+    variable test
+    foreach {flag test} {
+	tip470 {package vsatisfies [package provide Tcl] 8.7}
+    } {
+	if {![info exists ::clay::dialect::has($flag)]} {
+	    set ::clay::dialect::has($flag) [eval $test]
+	}
     }
-  }
+    unset flag test
 }
 proc ::clay::dialect::Push {class} {
   ::variable class_stack
@@ -2767,7 +2772,7 @@ proc ::practcl::local_os {} {
 
   # Look for a local preference file
   set pathlist {}
-  set userhome [file normalize ~/tcl]
+  set userhome [file normalize [file join [file home] tcl]]
   set local_install [file join $userhome lib]
   switch $OS {
     windows {
@@ -2777,14 +2782,19 @@ proc ::practcl::local_os {} {
       }
     }
     macosx {
-      set userhome [file join [file normalize {~/Library/Application Support/}] Tcl]
-      if {[file exists {~/Library/Application Support/ActiveState/Teapot/repository/}]} {
-        dict set result teapot [file normalize {~/Library/Application Support/ActiveState/Teapot/repository/}]
-      }
-      dict set result local_install [file normalize ~/Library/Tcl]
-      if {![dict exists $result sandbox]} {
-        dict set result sandbox       [file normalize ~/Library/Tcl/sandbox]
-      }
+	set home     [file home]
+	set nhome    [file normalize $home]
+        set userhome [file join $nhome Library {Application Support} Tcl]
+	set repo     [file join $home  Library {Application Support} ActiveState Teapot repository]
+	set local    [file normalize [file join $home Library Tcl]]
+
+        if {[file exists $repo]} {
+	    dict set result teapot [file normalize $repo]
+        }
+        dict set result local_install $local
+        if {![dict exists $result sandbox]} {
+	    dict set result sandbox [file normalize [file join $local sandbox]]
+        }
     }
     default {
     }
@@ -3612,7 +3622,7 @@ proc ::practcl::installDir {d1 d2} {
     } elseif {[file isfile $f]} {
 	    file copy -force $f [file join $d2 $ftail]
 	    if {$::tcl_platform(platform) eq {unix}} {
-        file attributes [file join $d2 $ftail] -permissions 0644
+        file attributes [file join $d2 $ftail] -permissions 0o644
 	    } else {
         file attributes [file join $d2 $ftail] -readonly 1
 	    }
@@ -3620,7 +3630,7 @@ proc ::practcl::installDir {d1 d2} {
   }
 
   if {$::tcl_platform(platform) eq {unix}} {
-    file attributes $d2 -permissions 0755
+    file attributes $d2 -permissions 0o755
   } else {
     file attributes $d2 -readonly 1
   }
@@ -3635,7 +3645,7 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
     file copy -force $d1 $d2
     set ftail [file tail $d1]
     if {$::tcl_platform(platform) eq {unix}} {
-      file attributes [file join $d2 $ftail] -permissions 0644
+      file attributes [file join $d2 $ftail] -permissions 0o644
     } else {
       file attributes [file join $d2 $ftail] -readonly 1
     }
@@ -3647,7 +3657,7 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
       } elseif {[file isfile $f]} {
         file copy -force $f [file join $d2 $ftail]
         if {$::tcl_platform(platform) eq {unix}} {
-          file attributes [file join $d2 $ftail] -permissions 0644
+          file attributes [file join $d2 $ftail] -permissions 0o644
         } else {
           file attributes [file join $d2 $ftail] -readonly 1
         }
@@ -7322,7 +7332,8 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
 }
     append thread_init_script \n [list set ::starkit::thread_init $thread_init_script]
     append main_init_script \n [list set ::starkit::thread_init $thread_init_script]
-    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
+    set thisdir [file join [file home] .tclshrc]
+    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName $thisdir]]
 
 
     practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $thread_init_script]);"
@@ -7451,7 +7462,7 @@ set dir [file dirname $::PKGIDXFILE]
 if {$::tcl_platform(platform) eq "windows"} {
   set ::starkit::localHome [file join [file normalize $::env(LOCALAPPDATA)] tcl]
 } else {
-  set ::starkit::localHome [file normalize ~/tcl]
+    set ::starkit::localHome [file normalize [file join [file home] tcl]]
 }
 set ::tcl_teapot [file join $::starkit::localHome teapot $::tcl_teapot_profile]
 lappend ::auto_path $::tcl_teapot
@@ -8074,7 +8085,7 @@ oo::objdefine ::practcl::distribution.git {
     ###
     set pkg [my define get pkg_name [my define get name]]
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
     set srcdir [my define get srcdir]
     ::practcl::dotclexec [file join $srcdir installer.tcl] \
       -apps -app-path [file join $prefix apps] \
@@ -8128,7 +8139,7 @@ oo::objdefine ::practcl::distribution.git {
     ###
     set pkg [my define get pkg_name [my define get name]]
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
     set srcdir [my define get srcdir]
     ::practcl::dotclexec [file join $srcdir make.tcl] install [file join $prefix lib $pkg]
   }
@@ -8175,7 +8186,7 @@ oo::objdefine ::practcl::distribution.git {
     set os [::practcl::local_os]
     my define set os $os
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
     set srcdir [my define get srcdir]
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options
@@ -8361,8 +8372,7 @@ oo::objdefine ::practcl::distribution.git {
   method env-install {} {
     my unpack
     set os [::practcl::local_os]
-
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options
     puts [list [self] OS [dict get $os TEACUP_OS] options $options]
@@ -8418,7 +8428,7 @@ set ::auto_index(::practcl::LOCAL) {
     }
     method env-install {} {
       my unpack
-      set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
+      set prefix [my <project> define get prefix [file join [file normalize [file home]] tcl]]
       set srcdir [my define get srcdir]
       ::practcl::dotclexec [file join $srcdir build.tcl] install [file join $prefix lib]
     }

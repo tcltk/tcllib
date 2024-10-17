@@ -1,6 +1,8 @@
 ###
 # A subordinate binary package
 ###
+package require file::home	;# tcllib file home forward compatibility
+
 ::clay::define ::practcl::subproject.binary {
   superclass ::practcl::subproject
 
@@ -22,7 +24,7 @@
     set os [::practcl::local_os]
     my define set os $os
     my unpack
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set prefix [my <project> define get prefix [file normalize [file join [file home] tcl]]]
     set srcdir [my define get srcdir]
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options

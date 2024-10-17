@@ -4,11 +4,9 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
-# 
-# RCS: @(#) $Id: nntp.tcl,v 1.13 2004/05/03 22:56:25 andreas_kupries Exp $
 
-package require Tcl 8.2
-package provide nntp 0.2.1
+package require Tcl 8.5 9
+package provide nntp 0.2.3
 
 namespace eval ::nntp {
     # The socks variable holds the handle to the server connections
@@ -865,8 +863,10 @@ proc ::nntp::fetch {name} {
     set sock $data(sock)
 
     if {$data(binary)} {
-	set oldenc [fconfigure $sock -encoding]
-	fconfigure $sock -encoding binary
+	set     old [list -encoding    [fconfigure $sock -encoding]]
+	lappend old       -translation [fconfigure $sock -translation]
+	lappend old       -eofchar     [fconfigure $sock -eofchar]
+	fconfigure $sock -translation binary
     }
 
     set result [list ]
@@ -885,7 +885,7 @@ proc ::nntp::fetch {name} {
     }
 
     if {$data(binary)} {
-	fconfigure $sock -encoding $oldenc
+	fconfigure $sock {*}$old
     }
 
     return $result

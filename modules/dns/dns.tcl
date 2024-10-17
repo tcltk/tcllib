@@ -30,7 +30,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2;                # tcl minimum version
+package require Tcl 8.5 9;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
@@ -61,7 +61,10 @@ namespace eval ::dns {
     }
 
     # We can use either ceptcl or tcludp for UDP support.
-    if {![catch {package require udp 1.0.4} msg]} { ;# tcludp 1.0.4+
+    variable msg
+    if {![catch {
+        package require udp 1.0.4
+    } msg]} { ;# tcludp 1.0.4+
         # If TclUDP 1.0.4 or better is available, use it.
         set options(protocol) udp
     } else {
@@ -1455,7 +1458,7 @@ proc ::uri::SplitDns {uri} {
     array set parts {nameserver {} query {} class {} type {} port {}}
 
     # validate the uri
-    if {[regexp -- $dns::schemepart $uri r] == 1} {
+    if {[regexp -- $schemepart $uri r] == 1} {
 
         # deal with the optional class and type specifiers
         if {[regexp -indices -- "${classOrTypeSpec}$" $uri range]} {
@@ -1511,9 +1514,11 @@ proc ::uri::JoinDns {args} {
 
 # -------------------------------------------------------------------------
 
-catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
+catch {
+    dns::configure -nameserver [lindex [dns::nameservers] 0]
+}
 
-package provide dns 1.5.0
+package provide dns 1.6.1
 
 # -------------------------------------------------------------------------
 # Local Variables:

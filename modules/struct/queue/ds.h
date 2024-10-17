@@ -5,7 +5,7 @@
 #ifndef _DS_H
 #define _DS_H 1
 
-#include "tcl.h"
+#include "tclpre9compat.h"
 
 /* Forward declarations of references to queues.
  */
@@ -16,12 +16,11 @@ typedef struct Q* QPtr;
  */
 
 typedef struct Q {
-    Tcl_Command cmd; /* Token of the object command for
-		      * the queue */
-    Tcl_Obj* unget;  /* List object unget elements */
-    Tcl_Obj* queue;  /* List object holding the main queue */
-    Tcl_Obj* append; /* List object holding new elements */
-    int at;          /* Index of next element to return from the main queue */
+    Tcl_Command cmd;    /* Token of the object command managing the queue */
+    Tcl_Obj*    unget;  /* List object holding unget elements */
+    Tcl_Obj*    queue;  /* List object holding the main queue */
+    Tcl_Obj*    append; /* List object holding new elements */
+    Tcl_Size    at;     /* Index of next element to return from main queue */
 } Q;
 
 #endif /* _DS_H */

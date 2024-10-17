@@ -6,7 +6,8 @@
 # Hold harmless the author, and any lawful use is allowed.
 #
 
-package require Tcl 8.3
+package require Tcl 8.5 9
+package require file::home	;# tcllib file home forward compatibility
 global options
 
 
@@ -162,13 +163,14 @@ if {[catch {
         if {[catch { id convert user $userName }]} {
             cleanup "userName doesn't exist: $userName"
         }
-        if {([catch { file isdirectory ~$userName } result]) \
+	set thisDir [file home $userName]
+        if {([catch { file isdirectory $thisDir } result]) \
                 || (!$result)} {
             cleanup "userName doesn't have a home directory: $userName"
         }
 
         umask 0077
-        cd ~$userName
+        cd $thisDir
     }
 
     if {![file exists $configFile]} {

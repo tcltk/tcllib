@@ -1,13 +1,10 @@
-# json_write.test - Copyright (C) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# json_write.test - Copyright (C) 2009,2022 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # Tests for the Tcllib json::write package
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# -------------------------------------------------------------------------
-# RCS: @(#) $Id: json_write.test,v 1.1 2009/11/25 04:41:01 andreas_kupries Exp $
-
 # -------------------------------------------------------------------------
 
 source [file join \
@@ -50,6 +47,30 @@ proc gen {serial} {
             [json::write object \
                  is   [json::write string $is] \
                  mode [json::write string $mode]]
+    }
+
+    # Assemble the final result ...
+    return [json::write object grammar \
+                [json::write object \
+                     rules [json::write object {*}$rules] \
+                     start [json::write string $g(start)]]]
+}
+
+proc gen2 {serial} {
+    # Use object-strings method to simplify
+    
+    array set g $serial
+    array set g $g(grammar)
+    unset     g(grammar)
+
+    # Assemble the rules ...
+    set rules {}
+    foreach {symbol def} $g(rules) {
+        lassign $def _ is _ mode
+        lappend rules $symbol \
+            [json::write object-strings \
+                 is   $is \
+                 mode $mode]
     }
 
     # Assemble the final result ...
@@ -193,7 +214,7 @@ test json-write-3.1 {indented, !aligned} -setup {
     }
 }}
 
-test json-write-3.1 {!indented, !aligned} -setup {
+test json-write-3.2 {!indented, !aligned} -setup {
     json::write indented 0
     json::write aligned  0
 } -body {
@@ -201,11 +222,28 @@ test json-write-3.1 {!indented, !aligned} -setup {
 } -result {{"grammar":{"rules":{"A":{"is":"/ {t +} {t -}","mode":"value"},"D":{"is":"/ {t 0} {t 1} ","mode":"value"},"E":{"is":"/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}","mode":"value"},"F":{"is":"x {n T} {* {x {n A} {n T}}}","mode":"value"},"M":{"is":"/ {t *} {t /}","mode":"value"},"N":{"is":"x {? {n S}} {+ {n D}}","mode":"value"},"S":{"is":"/ {t +} {t -}","mode":"value"},"T":{"is":"n N","mode":"value"}},"start":"n Expression"}}}
 
 
+test json-write-3.3 {!indented, !aligned, object-string under the hood} -setup {
+    json::write indented 0
+    json::write aligned  0
+} -body {
+    gen2 $data
+} -result {{"grammar":{"rules":{"A":{"is":"/ {t +} {t -}","mode":"value"},"D":{"is":"/ {t 0} {t 1} ","mode":"value"},"E":{"is":"/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}","mode":"value"},"F":{"is":"x {n T} {* {x {n A} {n T}}}","mode":"value"},"M":{"is":"/ {t *} {t /}","mode":"value"},"N":{"is":"x {? {n S}} {+ {n D}}","mode":"value"},"S":{"is":"/ {t +} {t -}","mode":"value"},"T":{"is":"n N","mode":"value"}},"start":"n Expression"}}}
+
 # -------------------------------------------------------------------------
 
 test json-write-4.0 {string quoting} -body {
     json::write string "a\"b\\c\bd\fe\nf\rg\th\0i\1j\2k\3l\177m"
 } -result "\"a\\\"b\\\\c\\bd\\fe\\nf\\rg\\th\\u0000i\\u0001j\\u0002k\\u0003l\\u007fm\""
+
+# -------------------------------------------------------------------------
+
+test json-write-5.0 {array} -body {
+    json::write array [json::write string a] [json::write string b]
+} -result {["a","b"]}
+
+test json-write-5.1 {array-strings} -body {
+    json::write array-strings a b
+} -result {["a","b"]}
 
 # -------------------------------------------------------------------------
 unset data

@@ -2,7 +2,7 @@
 '\" Generated from file 'qcomplex\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
-.TH "math::complexnumbers" n 1\&.0\&.2 tcllib "Tcl Math Library"
+.TH "math::complexnumbers" n 1\&.0\&.3 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::complexnumbers \- Straightforward complex number package
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBmath::complexnumbers  ?1\&.0\&.2?\fR
+package require \fBmath::complexnumbers ?1\&.0\&.3?\fR
 .sp
 \fB::math::complexnumbers::+\fR \fIz1\fR \fIz2\fR
 .sp

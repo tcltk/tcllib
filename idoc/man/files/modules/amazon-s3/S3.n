@@ -2,7 +2,7 @@
 '\" Generated from file 'S3\&.man' by tcllib/doctools with format 'nroff'
 '\" 2006,2008 Darren New\&. All Rights Reserved\&. See LICENSE\&.TXT for terms\&.
 '\"
-.TH "S3" n 1\&.0\&.3 tcllib "Amazon S3 Web Service Utilities"
+.TH "S3" n 1\&.0\&.5 tcllib "Amazon S3 Web Service Utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,17 +274,17 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 S3 \- Amazon S3 Web Service Interface
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBS3  ?1\&.0\&.3?\fR
+package require \fBS3 ?1\&.0\&.5?\fR
 .sp
-package require \fBsha1  1\&.0\fR
+package require \fBsha1 1\&.1\fR
 .sp
-package require \fBmd5  2\&.0\fR
+package require \fBmd5 2\&.1\fR
 .sp
-package require \fBbase64  2\&.3\fR
+package require \fBbase64 2\&.4\fR
 .sp
-package require \fBxsxp  1\&.0\fR
+package require \fBxsxp 1\&.1\fR
 .sp
 \fBS3::Configure\fR ?\fB-reset\fR \fIboolean\fR? ?\fB-retries\fR \fIinteger\fR? ?\fB-accesskeyid\fR \fIidstring\fR? ?\fB-secretaccesskey\fR \fIidstring\fR? ?\fB-service-access-point\fR \fIFQDN\fR? ?\fB-use-tls\fR \fIboolean\fR? ?\fB-default-compare\fR \fIalways|never|exists|missing|newer|date|checksum|different\fR? ?\fB-default-separator\fR \fIstring\fR? ?\fB-default-acl\fR \fIprivate|public-read|public-read-write|authenticated-read|keep|calc\fR? ?\fB-default-bucket\fR \fIbucketname\fR?
 .sp

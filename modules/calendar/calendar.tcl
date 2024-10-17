@@ -6,7 +6,7 @@
 #   	'calendar' package.  The package provides various commands for
 #	manipulating dates and times.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 
 namespace eval ::calendar {
     variable home [file join [pwd] [file dirname [info script]]]
@@ -14,5 +14,5 @@ namespace eval ::calendar {
 	lappend ::auto_path $home
     }
 
-    package provide [namespace tail [namespace current]] 0.2
+    package provide [namespace tail [namespace current]] 0.4
 }

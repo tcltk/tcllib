@@ -274,25 +274,25 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::parse \- Parsing text in docidx format
 .SH SYNOPSIS
-package require \fBdoctools::idx::parse  ?0\&.1?\fR
+package require \fBdoctools::idx::parse ?0\&.2?\fR
 .sp
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBdoctools::idx::structure \fR
+package require \fBdoctools::idx::structure\fR
 .sp
-package require \fBdoctools::msgcat \fR
+package require \fBdoctools::msgcat\fR
 .sp
-package require \fBdoctools::tcl::parse \fR
+package require \fBdoctools::tcl::parse\fR
 .sp
-package require \fBfileutil \fR
+package require \fBfileutil\fR
 .sp
-package require \fBlogger \fR
+package require \fBlogger\fR
 .sp
-package require \fBsnit \fR
+package require \fBsnit\fR
 .sp
-package require \fBstruct::list \fR
+package require \fBstruct::list\fR
 .sp
-package require \fBstruct::stack \fR
+package require \fBstruct::stack\fR
 .sp
 \fB::doctools::idx::parse\fR \fBtext\fR \fItext\fR
 .sp

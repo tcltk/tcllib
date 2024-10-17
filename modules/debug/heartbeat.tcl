@@ -5,7 +5,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 package require debug
 
 namespace eval ::debug {
@@ -64,5 +64,5 @@ namespace eval ::debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug::heartbeat 1.0.1
+package provide debug::heartbeat 1.0.2
 return

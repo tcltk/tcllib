@@ -11,7 +11,7 @@
 [moddesc   {Parser generator tools}]
 [titledesc {page AST normalization, PEG}]
 [category  {Page Parser Generator}]
-[require page::util::norm_peg [opt 0.1]]
+[require page::util::norm_peg [opt 0.2]]
 [require snit]
 [description]
 [para]

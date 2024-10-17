@@ -41,6 +41,7 @@ proc ::grammar::me::util::ast2tree {ast tree {root {}}} {
 	    "Terminal node \"[lrange $ast 0 2]\" has children"
     }
     foreach {s e} $range break
+    ##nagelfar ignore
     if {
 	![string is integer -strict $s] || ($s < 0) ||
 	![string is integer -strict $e] || ($e < 0)
@@ -92,6 +93,7 @@ proc ::grammar::me::util::ast2etree {ast mcmd tree {root {}}} {
 	    "Terminal node \"[lrange $ast 0 2]\" has children"
     }
     foreach {s e} $range break
+    ##nagelfar ignore
     if {
 	![string is integer -strict $s] || ($s < 0) ||
 	![string is integer -strict $e] || ($e < 0)
@@ -155,6 +157,7 @@ proc ::grammar::me::util::tree2ast {tree {root {}}} {
     }
 
     foreach {s e} $range break
+    ##nagelfar ignore
     if {
 	![string is integer -strict $s] || ($s < 0) ||
 	![string is integer -strict $e] || ($e < 0)
@@ -185,4 +188,4 @@ proc ::grammar::me::util::tree2ast {tree {root {}}} {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::me::util 0.1
+package provide grammar::me::util 0.2

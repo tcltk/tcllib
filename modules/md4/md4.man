@@ -1,4 +1,4 @@
-[vset VERSION 1.0.7]
+[vset VERSION 1.0.8]
 [manpage_begin md4 n [vset VERSION]]
 [see_also md5]
 [see_also sha1]
@@ -13,7 +13,7 @@
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD4 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require md4 [opt [vset VERSION]]]
 [description]
 [para]
@@ -32,6 +32,8 @@ code. Alternatively if [package cryptkit] is available this will be
 used. If no accelerator package can be found then the pure-tcl
 implementation is used. The programming interface remains the same in
 all cases.
+
+[para][include ../common-text/hash-compatibility-warning.inc]
 
 [section {COMMANDS}]
 

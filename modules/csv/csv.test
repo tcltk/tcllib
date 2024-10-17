@@ -4,7 +4,7 @@
 # Sourcing this file into Tcl runs the tests and generates output for errors.
 # No output means no errors were found.
 #
-# Copyright (c) 2001-2011 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2011,2022 by Andreas Kupries <andreas.kupries@gmail.com>
 # All rights reserved.
 
 # -------------------------------------------------------------------------
@@ -14,7 +14,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 support {
     use struct/queue.tcl  struct::queue

@@ -6,17 +6,14 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: tiff.tcl,v 1.5 2008/03/24 03:48:59 andreas_kupries Exp $
 
-package provide tiff 0.2.1
+package provide tiff 0.2.3
 
 namespace eval ::tiff {}
 
 proc ::tiff::openTIFF {file {mode r}} {
     variable byteOrder
-    set fh [open $file $mode]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file ${mode}b]
     binary scan [read $fh 2] H4 byteOrder
     if {$byteOrder == "4949"} {
         set byteOrder little
@@ -224,8 +221,7 @@ proc ::tiff::getImage {file {image 0}} {
         set w $tags(0100)
         set h $tags(0101)
         set i [image create photo -height $h -width $w]
-        set fh [open $file]
-        fconfigure $fh -translation binary -encoding binary -eofchar {}
+        set fh [open $file rb]
 
         set y 0
         set x 0
@@ -248,8 +244,7 @@ proc ::tiff::getImage {file {image 0}} {
         set w $tags(0100)
         set h $tags(0101)
         set i [image create photo -height $h -width $w]
-        set fh [open $file]
-        fconfigure $fh -translation binary -encoding binary -eofchar {}
+        set fh [open $file rb]
 
         set map {}
         set third [expr {[llength $tags(0140)] / 3}]
@@ -411,8 +406,7 @@ proc ::tiff::_value {data} {
 }
 
 proc ::tiff::_new {file byteOrder} {
-    set fh [open $file w]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
+    set fh [open $file wb]
     if {$byteOrder == "big"} {
         puts -nonewline $fh [binary format H4 4d4d]
     } else {

@@ -1,4 +1,5 @@
-AC_INIT(ChangeLog)
+AC_INIT
+AC_CONFIG_SRCDIR([ChangeLog])
 
 case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT* | *CYGWIN_98* | *CYGWIN_95*)
@@ -47,4 +48,5 @@ AC_SUBST(VERSION)
 
 # ### ######### ###########################
 
-AC_OUTPUT([Makefile])
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

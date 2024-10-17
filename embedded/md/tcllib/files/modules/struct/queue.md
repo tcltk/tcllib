@@ -1,7 +1,7 @@
 
 [//000000001]: # (struct::queue \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'queue\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (struct::queue\(n\) 1\.4\.5 tcllib "Tcl Data Structures")
+[//000000003]: # (struct::queue\(n\) 1\.4\.6 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -30,8 +30,8 @@ struct::queue \- Create and manipulate queue objects
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require struct::queue ?1\.4\.5?  
+package require Tcl 8\.5 9  
+package require struct::queue ?1\.4\.6?  
 
 [*queueName* __option__ ?*arg arg \.\.\.*?](#1)  
 [*queueName* __clear__](#2)  

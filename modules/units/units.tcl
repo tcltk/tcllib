@@ -15,9 +15,9 @@
 #  Copyright (C) Mayo Foundation.  All Rights Reserved.
 #
 #-----------------------------------------------------------------
-package provide units 2.2.1
+package provide units 2.2.3
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 namespace eval ::units {
 
@@ -343,6 +343,7 @@ proc ::units::ReduceList { factor unitString } {
     if { [set index [string first "^" $subunit]] >= 0 } {
       set subunitname [string range $subunit 0 [expr {$index-1}]]
       set exponent [string range $subunit [expr {$index+1}] end]
+      ##nagelfar ignore
       if { ! [string is integer -strict $exponent] } {
         error "invalid integer exponent"
       }
@@ -520,7 +521,7 @@ proc ::units::ReduceList { factor unitString } {
 #-----------------------------------------------------------------
 namespace eval ::units {
 
-    set PrefixList {
+    variable PrefixList {
 	yotta        1e24
 	zetta        1e21
 	exa          1e18
@@ -564,9 +565,10 @@ namespace eval ::units {
 	y            yocto
     }
 
+    variable  PrefixTable
     array set PrefixTable $PrefixList
 
-    set SIunits {
+    variable SIunits {
 	meter        -primitive
 	gram         -primitive
 	second       -primitive
@@ -595,7 +597,8 @@ namespace eval ::units {
 	gray         meter^2/second^2
 	sievert      meter^2/second^2
     }
-    set SIabbrevs {
+
+    variable SIabbrevs {
 	m            meter
 	g            gram
 	s            second
@@ -626,7 +629,7 @@ namespace eval ::units {
 
     #  Selected non-SI units from Appendix B of the Guide for
     #  the use of the International System of Units
-    set nonSIunits {
+    variable nonSIunits {
 	angstrom              1.0E-10meter
 	astronomicalUnit      1.495979E11meter
 	atmosphere            1.01325E5pascal
@@ -661,7 +664,8 @@ namespace eval ::units {
 	yard                  9.144E-1meter
 	year                  3.1536E7second
     }
-    set nonSIabbrevs {
+    
+    variable nonSIabbrevs {
 	AU           astronomicalUnit
 	ft           foot
 	gr           grain
@@ -679,6 +683,9 @@ namespace eval ::units {
 	yd           yard
     }
 
+    variable name
+    variable value
+    
     foreach {name value} $SIunits {
 	dict set UnitList $name $value
     }
@@ -691,4 +698,6 @@ namespace eval ::units {
     foreach {name value} $nonSIabbrevs {
 	dict set UnitList $name $value
     }
+
+    unset name value ;# maybe place this kind of init into an apply block.
 }

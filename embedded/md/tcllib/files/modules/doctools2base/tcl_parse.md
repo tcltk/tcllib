@@ -2,7 +2,7 @@
 [//000000001]: # (doctools::tcl::parse \- Documentation tools)
 [//000000002]: # (Generated from file 'tcl\_parse\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools::tcl::parse\(n\) 1 tcllib "Documentation tools")
+[//000000004]: # (doctools::tcl::parse\(n\) 0\.2 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ doctools::tcl::parse \- Processing text in 'subst \-novariables' format
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
+package require Tcl 8\.5 9  
 package require snit  
 package require fileutil  
 package require logger  
@@ -47,7 +47,7 @@ package require struct::list
 package require struct::stack  
 package require struct::set  
 package require treeql  
-package require doctools::tcl::parse  
+package require doctools::tcl::parse ?0\.2?  
 
 [__::doctools::tcl::parse__ __text__ *tree* *text* ?*root*?](#1)  
 [__::doctools::tcl::parse__ __file__ *tree* *path* ?*root*?](#2)  

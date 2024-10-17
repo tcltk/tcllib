@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tclDESjr \- Implementation of the DES and triple-DES ciphers
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBtclDESjr  1\&.1\fR
+package require \fBtclDESjr 1\&.1\fR
 .sp
 .BE
 .SH DESCRIPTION

@@ -6,7 +6,7 @@
 
 # @mdgen EXCLUDE: jsonc.tcl
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 namespace eval ::json {}
 
 # ### ### ### ######### ######### #########
@@ -230,7 +230,7 @@ namespace eval ::json {
     variable tokenREv "$singleCharTokenRE|$stringREv|$wordTokenRE|$numberRE"
 
     # 0..n white space characters
-    set whiteSpaceRE {[[:space:]]*}
+    variable whiteSpaceRE {[[:space:]]*}
 
     # Regular expression for validating a JSON text
     variable validJsonRE "^(?:${whiteSpaceRE}(?:$tokenREv))*${whiteSpaceRE}$"
@@ -282,4 +282,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.3.4
+package provide json 1.3.6

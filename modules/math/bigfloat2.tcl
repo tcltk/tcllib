@@ -5,7 +5,7 @@
 # See the file named license.terms.
 ########################################################################
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 # this line helps when I want to source this file again and again
 catch {namespace delete ::math::bigfloat}
@@ -1027,6 +1027,7 @@ proc ::math::bigfloat::fromstr {number {addzeros 0}} {
         # trim the number with left-side 0's
         set found [string length $expsign]
         set exp $expsign[string trimleft [string range $exp $found end] 0]
+	if {$exp eq $expsign} { set exp ${expsign}0 }
         set mantissa [lindex $tab 0]
     } else {
         set exp 0
@@ -2203,21 +2204,14 @@ proc ::math::bigfloat::tanh {x} {
 
 # exporting public interface
 namespace eval ::math::bigfloat {
-    foreach function {
-        add mul sub div mod pow
-        iszero compare equal
-        fromstr tostr fromdouble todouble
-        int2float isInt isFloat
-        exp log sqrt round ceil floor
-        sin cos tan cotan asin acos atan
-        cosh sinh tanh abs opp
-        pi deg2rad rad2deg
-    } {
-        namespace export $function
-    }
+    namespace export \
+        add mul sub div mod pow iszero compare equal  fromstr tostr \
+	fromdouble todouble int2float isInt isFloat exp log sqrt round \
+	ceil floor sin cos tan cotan asin acos atan cosh sinh tanh abs \
+	opp pi deg2rad rad2deg
 }
 
 # (AM) No "namespace import" - this should be left to the user!
 #namespace import ::math::bigfloat::*
 
-package provide math::bigfloat 2.0.3
+package provide math::bigfloat 2.0.6

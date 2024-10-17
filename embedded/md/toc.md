@@ -123,8 +123,6 @@
 
           + [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
-          + [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
-
           + [struct::pool](tcllib/files/modules/struct/pool\.md) Create and manipulate pool objects \(of discrete items\)
 
           + [struct::prioqueue](tcllib/files/modules/struct/prioqueue\.md) Create and manipulate prioqueue objects
@@ -255,11 +253,11 @@
 
           + [doctools\_plugin\_apiref](tcllib/files/modules/doctools/doctools\_plugin\_apiref\.md) doctools plugin API reference
 
-          + [dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
-
           + [dtplite](tcllib/files/apps/dtplite\.md) Lightweight DocTools Markup Processor
 
           + [mpexpand](tcllib/files/modules/doctools/mpexpand\.md) Markup processor
+
+          + [pkg\_dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
 
           + [tcldocstrip](tcllib/files/apps/tcldocstrip\.md) Tcl\-based Docstrip Processor
 
@@ -386,6 +384,8 @@
           + [math::decimal](tcllib/files/modules/math/decimal\.md) General decimal arithmetic
 
           + [math::exact](tcllib/files/modules/math/exact\.md) Exact Real Arithmetic
+
+          + [math::figurate](tcllib/files/modules/math/figurate\.md) Evaluate figurate numbers
 
           + [math::filters](tcllib/files/modules/math/filtergen\.md) Digital filters
 
@@ -633,7 +633,7 @@
 
           + [cmdline](tcllib/files/modules/cmdline/cmdline\.md) Procedures to process command lines and options\.
 
-          + [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.3 and later\)
+          + [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.5 and later\)
 
           + [comm\_wire](tcllib/files/modules/comm/comm\_wire\.md) The comm wire protocol
 
@@ -797,6 +797,10 @@
 
           + [mime](tcllib/files/modules/mime/mime\.md) Manipulation of MIME body parts
 
+          + [mkdoc](tcllib/files/modules/mkdoc/mkdoc\.md) Extracts and optionally converts Markdown comments in source code to HTML
+
+          + [mkdoc](tcllib/files/apps/mkdoc\.md) Source code documentation extractor/converter application
+
           + [rcs](tcllib/files/modules/rcs/rcs\.md) RCS low level utilities
 
           + [string::token](tcllib/files/modules/string/token\.md) Regex based iterative lexing
@@ -818,6 +822,8 @@
           + [textutil::tabify](tcllib/files/modules/textutil/tabify\.md) Procedures to \(un\)tabify strings
 
           + [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
+
+          + [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
 
           + [uuencode](tcllib/files/modules/base64/uuencode\.md) UU\-encode/decode binary data
 
@@ -893,6 +899,8 @@
 
           + [defer](tcllib/files/modules/defer/defer\.md) Defered execution
 
+          + [file::home](tcllib/files/modules/try/tcllib\_fhome\.md) file home \- Return home directory of current or other user
+
           + [lambda](tcllib/files/modules/lambda/lambda\.md) Utility commands for anonymous procedures
 
           + [lazyset](tcllib/files/modules/lazyset/lazyset\.md) Lazy evaluation
@@ -940,6 +948,8 @@
       * [Applications]()
 
           + [dtplite](tcllib/files/apps/dtplite\.md) Lightweight DocTools Markup Processor
+
+          + [mkdoc](tcllib/files/apps/mkdoc\.md) Source code documentation extractor/converter application
 
           + [nns](tcllib/files/apps/nns\.md) Name service facility, Commandline Client Application
 
@@ -1035,7 +1045,7 @@
 
           + [comm]()
 
-              - [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.3 and later\)
+              - [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.5 and later\)
 
               - [comm\_wire](tcllib/files/modules/comm/comm\_wire\.md) The comm wire protocol
 
@@ -1247,7 +1257,7 @@
 
           + [dtplite]()
 
-              - [dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
+              - [pkg\_dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
 
           + [fileutil]()
 
@@ -1455,6 +1465,8 @@
 
               - [math::exact](tcllib/files/modules/math/exact\.md) Exact Real Arithmetic
 
+              - [math::figurate](tcllib/files/modules/math/figurate\.md) Evaluate figurate numbers
+
               - [math::filters](tcllib/files/modules/math/filtergen\.md) Digital filters
 
               - [math::fourier](tcllib/files/modules/math/fourier\.md) Discrete and fast fourier transforms
@@ -1508,6 +1520,10 @@
               - [mime](tcllib/files/modules/mime/mime\.md) Manipulation of MIME body parts
 
               - [smtp](tcllib/files/modules/mime/smtp\.md) Client\-side tcl implementation of the smtp protocol
+
+          + [mkdoc]()
+
+              - [mkdoc](tcllib/files/modules/mkdoc/mkdoc\.md) Extracts and optionally converts Markdown comments in source code to HTML
 
           + [multiplexer]()
 
@@ -1803,8 +1819,6 @@
 
               - [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
-              - [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
-
               - [struct::pool](tcllib/files/modules/struct/pool\.md) Create and manipulate pool objects \(of discrete items\)
 
               - [struct::prioqueue](tcllib/files/modules/struct/prioqueue\.md) Create and manipulate prioqueue objects
@@ -1883,6 +1897,8 @@
 
               - [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
 
+              - [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
+
           + [tie]()
 
               - [tie](tcllib/files/modules/tie/tie\.md) Array persistence
@@ -1922,6 +1938,8 @@
               - [treeql](tcllib/files/modules/treeql/treeql\.md) Query tree objects
 
           + [try]()
+
+              - [file::home](tcllib/files/modules/try/tcllib\_fhome\.md) file home \- Return home directory of current or other user
 
               - [throw](tcllib/files/modules/try/tcllib\_throw\.md) throw \- Throw an error exception with a message
 

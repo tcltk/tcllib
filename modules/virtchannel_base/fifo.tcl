@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::fifo 1
+# Package tcl::chan::fifo 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -20,8 +20,12 @@
 # @@ Meta End
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
-package require TclOO
+package require Tcl 8.5 9
+try {
+	package require tcl::oo
+} trap {TCL PACKAGE UNFOUND} {tres topts} {
+	package require TclOO
+}
 package require tcl::chan::events
 
 # # ## ### ##### ######## #############
@@ -134,5 +138,5 @@ oo::class create ::tcl::chan::fifo::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::fifo 1
+package provide tcl::chan::fifo 1.1
 return

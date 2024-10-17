@@ -25,7 +25,7 @@ testing {
 tcltest::testConstraint tcl86 0
 tcltest::testConstraint trf   0
 
-if {[package vsatisfies [package present Tcl] 8.6]} {
+if {[package vsatisfies [package present Tcl] 8.6 9]} {
     puts "> Core based"
     tcltest::testConstraint tcl86 1
 } elseif {![catch {package present Trf}]} {
@@ -202,7 +202,6 @@ test base64-4.0 {base64 -- sf bug 2976290} {trf} {
     } msg] $msg
 } {1 {illegal character found in input}}
 
-
 test base64-4.1 {base64 -- sf bug 2976290} {!tcl86 !trf} {
     list [catch {
 	::base64::decode s
@@ -220,6 +219,22 @@ test base64-4.1 {base64 -- sf bug 2976290} {trf} {
 	::base64::decode s
     } msg] $msg
 } {1 {illegal character found in input}}
+
+# -------------------------------------------------------------------------
+## Higher unicode
+
+set text    "\uFFFE\u0000\u0001\u0002"
+set encoded "77++AAEC"
+
+test base64-5.0 "Encode \"$text\"" -body {
+    ::base64::encode [encoding convertto utf-8 $text]
+} -result $encoded ; # {}
+
+test base64-6.0 "Decode \"$encoded\"" -body {
+    encoding convertfrom utf-8 [::base64::decode $encoded]
+} -result $text ; # {}
+
+unset text encoded
 
 # -------------------------------------------------------------------------
 

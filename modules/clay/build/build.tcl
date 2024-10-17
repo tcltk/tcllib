@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.8.6
+set version 0.8.8
 set module clay
 set filename clay
 if {[file exists [file join $moddir .. .. scripts practcl.tcl]]} {
@@ -77,6 +77,7 @@ foreach file {
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 # These files can be loaded in any order
+##nagelfar ignore
 foreach file [lsort -dictionary [glob [file join $srcdir *.tcl]]] {
   if {[file tail $file] in $loaded} continue
   lappend loaded $file
@@ -109,7 +110,7 @@ puts $fout [string map $modmap {# Tcl package index file, version 1.1
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+if {![package vsatisfies [package provide Tcl] 8.6 9]} {return}
 }]
 puts $fout [string map $modmap {
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]

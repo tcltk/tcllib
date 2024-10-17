@@ -85,7 +85,7 @@
 
       * [comm]()
 
-          + [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.3 and later\)
+          + [comm](tcllib/files/modules/comm/comm\.md) A remote communication facility for Tcl \(8\.5 and later\)
 
           + [comm\_wire](tcllib/files/modules/comm/comm\_wire\.md) The comm wire protocol
 
@@ -297,7 +297,7 @@
 
       * [dtplite]()
 
-          + [dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
+          + [pkg\_dtplite](tcllib/files/modules/dtplite/pkg\_dtplite\.md) Lightweight DocTools Markup Processor
 
       * [fileutil]()
 
@@ -505,6 +505,8 @@
 
           + [math::exact](tcllib/files/modules/math/exact\.md) Exact Real Arithmetic
 
+          + [math::figurate](tcllib/files/modules/math/figurate\.md) Evaluate figurate numbers
+
           + [math::filters](tcllib/files/modules/math/filtergen\.md) Digital filters
 
           + [math::fourier](tcllib/files/modules/math/fourier\.md) Discrete and fast fourier transforms
@@ -558,6 +560,10 @@
           + [mime](tcllib/files/modules/mime/mime\.md) Manipulation of MIME body parts
 
           + [smtp](tcllib/files/modules/mime/smtp\.md) Client\-side tcl implementation of the smtp protocol
+
+      * [mkdoc]()
+
+          + [mkdoc](tcllib/files/modules/mkdoc/mkdoc\.md) Extracts and optionally converts Markdown comments in source code to HTML
 
       * [multiplexer]()
 
@@ -853,8 +859,6 @@
 
           + [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
-          + [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
-
           + [struct::pool](tcllib/files/modules/struct/pool\.md) Create and manipulate pool objects \(of discrete items\)
 
           + [struct::prioqueue](tcllib/files/modules/struct/prioqueue\.md) Create and manipulate prioqueue objects
@@ -933,6 +937,8 @@
 
           + [textutil::trim](tcllib/files/modules/textutil/trim\.md) Procedures to trim strings
 
+          + [textutil::wcswidth](tcllib/files/modules/textutil/wcswidth\.md) Procedures to compute terminal width of strings
+
       * [tie]()
 
           + [tie](tcllib/files/modules/tie/tie\.md) Array persistence
@@ -972,6 +978,8 @@
           + [treeql](tcllib/files/modules/treeql/treeql\.md) Query tree objects
 
       * [try]()
+
+          + [file::home](tcllib/files/modules/try/tcllib\_fhome\.md) file home \- Return home directory of current or other user
 
           + [throw](tcllib/files/modules/try/tcllib\_throw\.md) throw \- Throw an error exception with a message
 

@@ -10,13 +10,11 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: pop3.tcl,v 1.38 2012/01/10 20:02:22 andreas_kupries Exp $
 
-package require Tcl 8.4
+package require Tcl 8.5 9
 package require cmdline
 package require log
-package provide pop3 1.9
+package provide pop3 1.11
 
 namespace eval ::pop3 {
 
@@ -103,6 +101,7 @@ proc ::pop3::delete {chan start {end -1}} {
     set last 0
     catch {set last [::pop3::last $chan]}
 
+    ##nagelfar ignore
     if {![string is integer $start]} {
 	if {[string match $start "next"]} {
 	    set start $last
@@ -119,6 +118,7 @@ proc ::pop3::delete {chan start {end -1}} {
 	set start 1
     }
     
+    ##nagelfar ignore
     if {![string is integer $end]} {
 	if {$end == "end"} {
 	    set end $count
@@ -446,6 +446,7 @@ proc ::pop3::retrieve {chan start {end -1}} {
     set last 0
     catch {set last [::pop3::last $chan]}
 
+    ##nagelfar ignore
     if {![string is integer $start]} {
 	if {[string match $start "next"]} {
 	    set start $last
@@ -462,6 +463,7 @@ proc ::pop3::retrieve {chan start {end -1}} {
 	set start 1
     }
     
+    ##nagelfar ignore
     if {![string is integer $end]} {
 	if {$end == "end"} {
 	    set end $count

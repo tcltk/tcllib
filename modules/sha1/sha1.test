@@ -7,8 +7,6 @@
 #
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
-#
-# RCS: @(#) $Id: sha1.test,v 1.13 2006/10/13 06:23:28 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -149,8 +147,7 @@ set vectors \
 foreach {n pattern repeat hash} $vectors {
     test sha1-7.$n "file hashing" {
         list [catch {
-            set f [open $testfile w]
-            fconfigure $f -encoding binary -translation binary
+            set f [open $testfile wb]
             puts -nonewline $f [string repeat $pattern $repeat]
             close $f
             sha1::sha1 -hex -file $testfile
@@ -187,6 +184,15 @@ TestAccelDo sha1 impl {
         } [list 0 $hash] ; # {}
         incr n
     }
+
+    set text "\uFFFE\u0000\u0001\u0002"
+    set hash "723d9bf9584b15370bf4bbf78dc9fb6ff9f161b1"
+
+    test sha1-$impl-5.0 "sha1 unicode hash \"$text\"" -body {
+        ::sha1::sha1 -hex [encoding convertto utf-8 $text]
+    } -result $hash ; # {}
+
+    unset text hash
 }
 
 # -------------------------------------------------------------------------

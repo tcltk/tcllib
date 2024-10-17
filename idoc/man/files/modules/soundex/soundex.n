@@ -4,7 +4,7 @@
 '\" Copyright (c) 2003, Documentation: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 1998, Tcl port: Evan Rempel <erempel@uvic\&.ca>
 '\"
-.TH "soundex" n 1\&.0 tcllib "Soundex"
+.TH "soundex" n 1\&.1 tcllib "Soundex"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 soundex \- Soundex
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsoundex  ?1\&.0?\fR
+package require \fBsoundex ?1\&.1?\fR
 .sp
 \fB::soundex::knuth\fR \fIstring\fR
 .sp

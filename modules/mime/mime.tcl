@@ -21,6 +21,7 @@
 #
 
 # new string features and inline scan are used, requiring 8.3.
+package require Tcl 8.5 9
 
 # Fix for 00d04c4f12l, base64 transchan over a refchan: segmentation fault,
 # requires 8.6.9
@@ -362,13 +363,10 @@ proc ::mime::addchan {token chan} {
 proc ::mime::addr_next token {
     # FRINK: nocheck
     upvar 0 $token state
-    set nocomplain [package vsatisfies [package provide Tcl] 8.4]
     foreach prop {comment domain error group local memberP phrase route} {
-        if {$nocomplain} {
-            unset -nocomplain state($prop)
-        } else {
-            catch {unset state($prop)}
-        }
+	if {[info exists state($prop)]} {
+	    unset state($prop)
+	}
     }
 
     switch [set code [catch {mime::addr_specification $token} result copts]] {
@@ -3865,7 +3863,8 @@ proc ::mime::word_encode {charset method string {args}} {
         return {}
     }
 
-    set string_bytelength [string bytelength $unencoded_string]
+    set string_bytelength \
+        [string length [::encoding convertto utf-8 $unencoded_string]]
 
     # the 7 is for =?, ?Q?, ?= delimiters of the encoded word
     set maxlength [expr {$options(-maxlength) - [string length $encodings($charset)] - 7}]

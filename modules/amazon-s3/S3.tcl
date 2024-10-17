@@ -24,7 +24,7 @@
 # 1.0.0 - added SetAcl, GetAcl, and -acl keep option.
 #
 
-package require Tcl 8.5
+package require Tcl 8.5 9
 
 # This is by Darren New too.
 # It is a SAX package to format XML for easy retrieval.
@@ -38,7 +38,7 @@ package require sha1
 package require md5
 package require base64
 
-package provide S3 1.0.3
+package provide S3 1.0.5
 
 namespace eval S3 {
     variable config          ; # A dict holding the current configuration.
@@ -357,7 +357,7 @@ proc S3::REST {orig} {
     } else {
 	dict set thunk S3chan [socket -async $EndPoint 80]
     }
-    fconfigure [dict get $thunk S3chan] -translation binary -encoding binary
+    fconfigure [dict get $thunk S3chan] -translation binary
 
     dict set thunk verb [dict get $thunk orig verb]
     dict set thunk resource [S3::encode_url [dict get $thunk orig resource]]
@@ -458,7 +458,7 @@ proc S3::send_body {thunk} {
 	    S3::fail $thunk "S3 could not open infile - $caught" "" \
 		[list S3 local [dict get $thunk infile] $errorCode]
 	}
-	fconfigure $inchan -translation binary -encoding binary
+	fconfigure $inchan -translation binary
 	fileevent $s3 readable {}
 	fileevent $s3 writable {}
 	if {[catch {fcopy $inchan $s3 ; flush $s3 ; close $inchan} caught]} {
@@ -474,9 +474,9 @@ proc S3::send_body {thunk} {
 	    S3::fail $thunk "S3 could not open infile - $caught" "" \
 		[list S3 local [dict get $thunk infile] $errorCode]
 	}
-	fconfigure $inchan -buffering none -translation binary -encoding binary
+	fconfigure $inchan -buffering none -translation binary
 	fconfigure $s3 -buffering none -translation binary \
-	    -encoding binary -blocking 0 ; # Doesn't work without this?
+	     -blocking 0 ; # Doesn't work without this?
 	dict set thunk inchan $inchan ; # So we can close it.
         fcopy $inchan $s3 -command \
 	    [list S3::nextdo read_headers $thunk readable]
@@ -1299,7 +1299,7 @@ proc S3::Get {args} {
 	set pre_exists [file exists [dict get $myargs -file]]
 	if {[catch {
 	    set x [open [dict get $myargs -file] w]
-	    fconfigure $x -translation binary -encoding binary
+	    fconfigure $x -translation binary
 	} caught]} {
 	    error "Get could not create file [dict get $myargs -file]" "" \
 		[list S3 local -file $errorCode]

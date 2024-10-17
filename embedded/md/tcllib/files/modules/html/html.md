@@ -1,7 +1,7 @@
 
 [//000000001]: # (html \- HTML Generation)
 [//000000002]: # (Generated from file 'html\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (html\(n\) 1\.5 tcllib "HTML Generation")
+[//000000003]: # (html\(n\) 1\.6 tcllib "HTML Generation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -32,8 +32,8 @@ html \- Procedures to generate HTML structures
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require html ?1\.5?  
+package require Tcl 8\.5 9  
+package require html ?1\.6?  
 
 [__::html::author__ *author*](#1)  
 [__::html::bodyTag__ *args*](#2)  

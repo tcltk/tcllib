@@ -2,7 +2,7 @@
 [//000000001]: # (ripemd128 \- RIPEMD Message\-Digest Algorithm)
 [//000000002]: # (Generated from file 'ripemd128\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (ripemd128\(n\) 1\.0\.5 tcllib "RIPEMD Message\-Digest Algorithm")
+[//000000004]: # (ripemd128\(n\) 1\.0\.6 tcllib "RIPEMD Message\-Digest Algorithm")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,8 +43,8 @@ ripemd128 \- RIPEMD\-128 Message\-Digest Algorithm
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require ripemd128 ?1\.0\.5?  
+package require Tcl 8\.5 9  
+package require ripemd128 ?1\.0\.6?  
 
 [__::ripemd::ripemd128__ ?*\-hex*? \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#1)  
 [__::ripemd::hmac128__ ?*\-hex*? *\-key key* \[ *\-channel channel* &#124; *\-file filename* &#124; *string* \]](#2)  
@@ -68,6 +68,23 @@ then RIPEMD\-160 or SHA1 should be considered\.
 This package will use __Trf__ to accelerate the digest computation if
 available\. In the absence of an accelerator package the pure\-Tcl implementation
 will be used\.
+
+*BEWARE* The commands in this package expect binary data as their input\. When
+a __\-file__ is provided then this is ensured by the commands themselves, as
+they open the referenced file in binary mode\. When literal data, or a
+__\-channel__ are provided instead, then the command's *caller is
+responsible* for ensuring this fact\. The necessary conversion command is
+__encoding convertto utf\-8 $string__\.
+
+*ATTENTION*, there is a *Tcl 9 COMPATIBILITY ISSUE* here\.
+
+*Tcl 8\.x silently mishandles* non\-binary input by cutting it internally to
+size\. I\.e\. by only using the low byte of a higher unicode point\. No error is
+thrown, the *result is simply wrong*\.
+
+*Tcl 9 throws an error* instead, i\.e\.
+
+    expected byte sequence but character <location> was ...
 
 # <a name='section2'></a>COMMANDS
 

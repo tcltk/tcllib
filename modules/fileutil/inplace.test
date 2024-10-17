@@ -96,11 +96,11 @@ removeFile {cat [2]}
 
 test cat-1.5.3 {cat, bad arguments, unreadable file} {unixOnly notRoot} {
     set path [makeFile {} {cat [2]}]
-    file attributes $path -permissions 0000
+    file attributes $path -permissions 0o000
 
     catch {fileutil::cat $path} msg
 
-    file attributes $path -permissions 0600
+    file attributes $path -permissions 0o600
     removeFile {cat [2]}
     set msg
 } "Cannot read file \"$xpath\", read access is denied"
@@ -126,11 +126,11 @@ test cat-1.5.5 {cat, bad arguments, directory} {unixOnly} {
 
 test writefile-1.0 {writeFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
-    file attributes $path -permissions 0000
+    file attributes $path -permissions 0o000
 
     catch {fileutil::writeFile $path {}} msg
 
-    file attributes $path -permissions 0600
+    file attributes $path -permissions 0o600
     removeFile unwritable
 
     string map [list $path @] $msg
@@ -225,11 +225,11 @@ test writefile-2.3 {writeFile, translation 2} {
 
 test appendtofile-1.0 {appendToFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
-    file attributes $path -permissions 0000
+    file attributes $path -permissions 0o000
 
     catch {fileutil::appendToFile $path {}} msg
 
-    file attributes $path -permissions 0600
+    file attributes $path -permissions 0o600
     removeFile unwritable
 
     string map [list $path @] $msg
@@ -327,11 +327,11 @@ test appendtofile-2.3 {appendToFile, translation 2} {
 
 test insertintofile-1.0 {insertIntoFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
-    file attributes $path -permissions 0000
+    file attributes $path -permissions 0o000
 
     catch {fileutil::insertIntoFile $path 0 {}} msg
 
-    file attributes $path -permissions 0600
+    file attributes $path -permissions 0o600
     removeFile unwritable
 
     string map [list $path @] $msg
@@ -508,11 +508,11 @@ test insertintofile-2.5 {insertIntoFile, translation 2} {
 
 test removefromfile-1.0 {removeFromFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
-    file attributes $path -permissions 0000
+    file attributes $path -permissions 0o000
 
     catch {fileutil::removeFromFile $path 0 {}} msg
 
-    file attributes $path -permissions 0600
+    file attributes $path -permissions 0o600
     removeFile unwritable
 
     string map [list $path @] $msg
@@ -706,11 +706,11 @@ test removefromfile-2.3 {removeFromFile, remove nothing} {
 
 test replaceinfile-1.0 {replaceInFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
-    file attributes $path -permissions 0000
+    file attributes $path -permissions 0o000
 
     catch {fileutil::replaceInFile $path 0 0 {}} msg
 
-    file attributes $path -permissions 0600
+    file attributes $path -permissions 0o600
     removeFile unwritable
 
     string map [list $path @] $msg
@@ -1039,11 +1039,11 @@ test replaceinfile-2.12 {replaceInFile, replacement in the middle, shrink} {
 
 test updateinplace-1.0 {updateInPlace, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
-    file attributes $path -permissions 0000
+    file attributes $path -permissions 0o000
 
     catch {fileutil::updateInPlace $path {string map {}}} msg
 
-    file attributes $path -permissions 0600
+    file attributes $path -permissions 0o600
     removeFile unwritable
 
     string map [list $path @] $msg

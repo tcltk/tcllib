@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::core 1
+# Package tcl::chan::core 1.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -21,8 +21,12 @@
 
 # # ## ### ##### ######## #############
 
-package require Tcl 8.5
-package require TclOO
+package require Tcl 8.5 9
+try {
+	package require tcl::oo
+} trap {TCL PACKAGE UNFOUND} {tres topts} {
+	package require TclOO
+}
 
 # # ## ### ##### ######## #############
 
@@ -69,5 +73,5 @@ oo::class create ::tcl::chan::core {
 }
 
 # # ## ### #####
-package provide tcl::chan::core 1
+package provide tcl::chan::core 1.1
 return

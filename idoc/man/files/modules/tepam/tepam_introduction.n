@@ -2,7 +2,7 @@
 '\" Generated from file 'tepam_introduction\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009-2013, Andreas Drollinger
 '\"
-.TH "tepam" n 0\&.5\&.0 tcllib "Tcl's Enhanced Procedure and Argument Manager"
+.TH "tepam" n 0\&.5\&.4 tcllib "Tcl's Enhanced Procedure and Argument Manager"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

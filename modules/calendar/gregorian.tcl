@@ -8,12 +8,10 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: gregorian.tcl,v 1.5 2004/01/15 06:36:12 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.2;		# Not tested with earlier releases
+package require Tcl 8.5 9;		# Not tested with earlier releases
 
 #----------------------------------------------------------------------
 #
@@ -110,13 +108,13 @@ namespace eval ::calendar::CommonCalendar {
     # [lindex $daysInPriorMonths 13] gives the number of days in a common
     # year.
 
-    variable daysInPriorMonths
-    variable daysInPriorMonthsInLeapYear
+    variable d
+    variable dly
+    variable dp 0
+    variable dply 0
+    variable daysInPriorMonths [list {} 0]
+    variable daysInPriorMonthsInLeapYear [list {} 0]
 
-    set dp 0
-    set dply 0
-    set daysInPriorMonths [list {} 0]
-    set daysInPriorMonthsInLeapYear [list {} 0]
     foreach d $daysInMonth dly $daysInMonthInLeapYear {
 	lappend daysInPriorMonths [incr dp $d]
 	lappend daysInPriorMonthsInLeapYear [incr dply $dly]

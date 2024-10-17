@@ -48,7 +48,7 @@ test multiplexer-2.1 {start multiplexer} {
     set res
 } {}
 
-test multiplexer-2.2 {start & destroy multiplexer} {tcl8.3plus} {
+test multiplexer-2.2 {start & destroy multiplexer} {
     set mp [multiplexer::create]
     set startchans [lsort [file channels]]
     ${mp}::Init 37465

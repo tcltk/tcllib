@@ -2,7 +2,7 @@
 '\" Generated from file 'mkzip\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Pat Thoyts
 '\"
-.TH "zipfile::mkzip" n 1\&.2\&.1 tcllib "Zip archive creation"
+.TH "zipfile::mkzip" n 1\&.2\&.4 tcllib "Zip archive creation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 zipfile::mkzip \- Build a zip archive
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl 8\&.6 9\fR
 .sp
-package require \fBzipfile::mkzip  ?1\&.2\&.1?\fR
+package require \fBzipfile::mkzip ?1\&.2\&.4?\fR
 .sp
-\fB::zipfile::mkzip::mkzip\fR \fIzipfile\fR ?\fB-zipkit\fR? ?\fB-runtime\fR \fIprefix\fR? ?\fB-comment\fR \fIstring\fR? ?\fB-directory\fR \fIrootpath\fR? ?\fB-exclude\fR \fIexclude\fR? ?\fB--\fR? ?\fIpath\fR\&.\&.\&.?
+\fB::zipfile::mkzip::mkzip\fR \fIzipfile\fR ?\fB-zipkit\fR? ?\fB-runtime\fR \fIprefix\fR? ?\fB-comment\fR \fIstring\fR? ?\fB-directory\fR \fIrootpath\fR? ?\fB-prepend-base-directory\fR \fIbool\fR? ?\fB-exclude\fR \fIexclude\fR? ?\fB--\fR? ?\fIpath\fR\&.\&.\&.?
 .sp
 .BE
 .SH DESCRIPTION
@@ -287,7 +287,7 @@ This package utilizes the zlib functions in Tcl 8\&.6 to build zip
 archives\&.
 .SH API
 .TP
-\fB::zipfile::mkzip::mkzip\fR \fIzipfile\fR ?\fB-zipkit\fR? ?\fB-runtime\fR \fIprefix\fR? ?\fB-comment\fR \fIstring\fR? ?\fB-directory\fR \fIrootpath\fR? ?\fB-exclude\fR \fIexclude\fR? ?\fB--\fR? ?\fIpath\fR\&.\&.\&.?
+\fB::zipfile::mkzip::mkzip\fR \fIzipfile\fR ?\fB-zipkit\fR? ?\fB-runtime\fR \fIprefix\fR? ?\fB-comment\fR \fIstring\fR? ?\fB-directory\fR \fIrootpath\fR? ?\fB-prepend-base-directory\fR \fIbool\fR? ?\fB-exclude\fR \fIexclude\fR? ?\fB--\fR? ?\fIpath\fR\&.\&.\&.?
 From \fIhttp://wiki\&.tcl\&.tk/15158\fR
 .sp
 This command constructs a zip archive from a directory tree
@@ -343,6 +343,14 @@ archive\&.
 \fB-directory\fR path
 This option specifies the directory to place into the generated
 archive\&. If specified any argument \fIpath\fRs are \fIignored\fR\&.
+.TP
+\fB-prepend-base-directory\fR bool
+When this option is set the tail of the \fB-directory\fR path is
+prepended to all paths added to the archive\&.
+.sp
+The option is ignored when option \fB-directory\fR is not specified\&.
+.sp
+By default this option is \fBfalse\fR\&.
 .TP
 \fB-exclude\fR list
 This option specifies a list of glob patterns\&. All paths matching at

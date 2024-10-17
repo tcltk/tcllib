@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin simulation::montecarlo n 0.1]
+[manpage_begin simulation::montecarlo n 0.2]
 [keywords math]
 [keywords {montecarlo simulation}]
 [keywords {stochastic modelling}]
@@ -7,8 +7,8 @@
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Monte Carlo simulations}]
 [category  Mathematics]
-[require Tcl [opt 8.4]]
-[require simulation::montecarlo 0.1]
+[require Tcl [opt "8.5 9"]]
+[require simulation::montecarlo 0.2]
 [require simulation::random]
 [require math::statistics]
 
@@ -79,7 +79,7 @@ The package defines the following auxiliary procedures:
 
 [call [cmd ::simulation::montecarlo::getOption] [arg keyword]]
 
-Get the value of an option given as part of the [term singeExperiment] command.
+Get the value of an option given as part of the [term singleExperiment] command.
 
 [list_begin arguments]
 [arg_def string keyword] Given keyword (without leading minus)

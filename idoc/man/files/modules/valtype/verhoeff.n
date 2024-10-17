@@ -2,7 +2,7 @@
 '\" Generated from file 'vtype\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "valtype::verhoeff" n 1 tcllib "Validation types"
+.TH "valtype::verhoeff" n 1\&.1 tcllib "Validation types"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 valtype::verhoeff \- Validation for plain number with a VERHOEFF checkdigit
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  2\fR
+package require \fBsnit 2\fR
 .sp
-package require \fBvaltype::common \fR
+package require \fBvaltype::common\fR
 .sp
-package require \fBvaltype::verhoeff  ?1?\fR
+package require \fBvaltype::verhoeff ?1\&.1?\fR
 .sp
 \fBvaltype::verhoeff\fR \fBvalidate\fR \fIvalue\fR
 .sp

@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_random\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::random" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::random" n 1\&.1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::random \- Random channel
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBTclOO \fR
+package require \fBTclOO\fR
 .sp
-package require \fBtcl::chan::events  ?1?\fR
+package require \fBtcl::chan::events ?1\&.1?\fR
 .sp
-package require \fBtcl::chan::random  ?1?\fR
+package require \fBtcl::chan::random ?1\&.1?\fR
 .sp
 \fB::tcl::chan::random\fR \fIseed\fR
 .sp

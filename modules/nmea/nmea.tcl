@@ -6,8 +6,8 @@
 #
 # RCS: @(#) $Id: nmea.tcl,v 1.5 2009/01/09 06:49:25 afaupell Exp $
 
-package require Tcl 8.4
-package provide nmea 1.0.0
+package require Tcl 8.5 9
+package provide nmea 1.1.0
 
 namespace eval ::nmea {
     array set ::nmea::nmea [list checksum 1 log {} rate 0]
@@ -27,6 +27,7 @@ proc ::nmea::open_file {file {rate {}}} {
     variable nmea
     if {[info exists nmea(fh)]} { ::nmea::close }
     set nmea(fh) [open $file]
+    ##nagelfar ignore
     if {[string is integer -strict $rate]} {
         if {$rate < 0} { set rate 0 }
         set nmea(rate) $rate
@@ -99,6 +100,7 @@ proc ::nmea::configure {opt {val {}}} {
     switch -exact -- $opt {
         rate {
             if {$val == ""} { return $nmea(rate) }
+	    ##nagelfar ignore
             if {![string is integer $val]} { return -code error "rate must be an integer value" }
             if {$val <= 0} {
                 foreach x [after info] {

@@ -10,7 +10,7 @@ read the [manpage {PEG Language Tutorial}].
 
 [para]
 [example {
-PEG pe-grammar-for-peg (Grammar)
+PEG pe_grammar_for_peg (Grammar)
 
 	# --------------------------------------------------------------------
         # Syntactical constructs
@@ -51,7 +51,7 @@ leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
                         ;
 
 leaf:   CharSpecial     <- "\\" [nrt'"\[\]\\] ;
-leaf:   CharOctalFull   <- "\\" [0-2][0-7][0-7] ;
+leaf:   CharOctalFull   <- "\\" [0-3][0-7][0-7] ;
 leaf:   CharOctalPart   <- "\\" [0-7][0-7]? ;
 leaf:   CharUnicode     <- "\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
 leaf:   CharUnescaped   <- !"\\" . ;

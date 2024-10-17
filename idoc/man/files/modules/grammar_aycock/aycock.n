@@ -3,7 +3,7 @@
 '\" Copyright (c) 2006 by Kevin B\&. Kenny <kennykb@acm\&.org>
 '\" Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
 '\"
-.TH "grammar::aycock" n 1\&.0 tcllib "Aycock-Horspool-Earley parser generator for Tcl"
+.TH "grammar::aycock" n 1\&.1 tcllib "Aycock-Horspool-Earley parser generator for Tcl"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,9 +275,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 grammar::aycock \- Aycock-Horspool-Earley parser generator for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBgrammar::aycock  ?1\&.0?\fR
+package require \fBgrammar::aycock ?1\&.1?\fR
 .sp
 \fB::aycock::parser\fR \fIgrammar\fR ?\fB-verbose\fR?
 .sp

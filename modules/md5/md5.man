@@ -1,4 +1,4 @@
-[manpage_begin md5 n 2.0.8]
+[manpage_begin md5 n 2.0.9]
 [see_also md4]
 [see_also sha1]
 [keywords hashing]
@@ -12,8 +12,8 @@
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
-[require md5 [opt 2.0.7]]
+[require Tcl "8.5 9"]
+[require md5 [opt 2.0.9]]
 [description]
 [para]
 
@@ -29,9 +29,9 @@ attack. MD5 should be used in preference to MD4 for new applications.
 If you have [package critcl] and have built the [package tcllibc]
 package then the implementation of the hashing function will be
 performed by compiled code. Alternatively if you have either
-[package cryptkit] or [package Trf] then either of these can be used to
+[package cryptkit] or [package Trf] then either of these is used to
 accelerate the digest computation. If no suitable compiled package is
-available then the pure-Tcl implementation wil be used. The
+available then the pure-Tcl implementation is used. The
 programming interface remains the same in all cases.
 
 [para]
@@ -43,6 +43,8 @@ implementations. To obtain the previous usage, either explicitly
 specify package version 1 or use the [arg "-hex"] option to the
 [cmd "md5"] command.
 
+[para][include ../common-text/hash-compatibility-warning.inc]
+
 [section {COMMANDS}]
 
 [list_begin definitions]
@@ -52,7 +54,7 @@ specify package version 1 or use the [arg "-hex"] option to the
         [lb] [arg "-channel channel"] | \
         [arg "-file filename"] | [arg "string"] [rb]]
 
-Calculate the MD5 digest of the data given in string. This is returned
+Calculate the MD5 digest of the binary data given in string. This is returned
 as a binary string by default. Giving the [arg "-hex"] option will
 return a hexadecimal encoded version of the digest.
 

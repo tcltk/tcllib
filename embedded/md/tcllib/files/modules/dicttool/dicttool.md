@@ -2,7 +2,7 @@
 [//000000001]: # (dicttool \- Extensions to the standard "dict" command)
 [//000000002]: # (Generated from file 'dicttool\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2017 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (dicttool\(n\) 1\.0 tcllib "Extensions to the standard "dict" command")
+[//000000004]: # (dicttool\(n\) 1\.2 tcllib "Extensions to the standard "dict" command")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,8 +33,8 @@ dicttool \- Dictionary Tools
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require dicttool ?1\.0?  
+package require Tcl 8\.5 9  
+package require dicttool ?1\.2?  
 
 [__ladd__ *varname* *args*](#1)  
 [__ldelete__ *varname* *args*](#2)  

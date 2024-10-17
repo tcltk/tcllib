@@ -2,7 +2,7 @@
 [//000000001]: # (throw \- Forward compatibility implementation of \[throw\])
 [//000000002]: # (Generated from file 'tcllib\_throw\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2015 Miguel Martínez López, BSD licensed)
-[//000000004]: # (throw\(n\) 1 tcllib "Forward compatibility implementation of \[throw\]")
+[//000000004]: # (throw\(n\) 1\.1 tcllib "Forward compatibility implementation of \[throw\]")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,16 +37,17 @@ throw \- throw \- Throw an error exception with a message
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
-package require throw ?1?  
+package require Tcl 8\.5 9  
+package require throw ?1\.1?  
 
 [__::throw__ *error\_code* *error\_message*](#1)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides a forward\-compatibility implementation of Tcl 8\.6's throw
-command \(TIP 329\), for Tcl 8\.5\. The code was directly pulled from Tcl 8\.6
-revision ?, when try/finally was implemented as Tcl procedure instead of in C\.
+This package provides a forward\-compatibility implementation of Tcl 8\.6's
+__throw__ command \(TIP 329\), for Tcl 8\.5\. The code was directly pulled from
+Tcl 8\.6 revision ?, when try/finally was implemented as Tcl procedure instead of
+in C\.
 
   - <a name='1'></a>__::throw__ *error\_code* *error\_message*
 

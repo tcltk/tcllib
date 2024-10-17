@@ -173,7 +173,7 @@ test do-1.12 {stack traces for errors in the first iteration} {
 "a"}
 
 # ----------------------------------------
-test do-1.14 {stack traces for errors in subsequent iterations} tcl8.3plus {
+test do-1.14 {stack traces for errors in subsequent iterations} {
     proc a {} b
     proc b {} {
 	set i 10
@@ -229,19 +229,14 @@ test do-2.2 {wrong no of arguments} {
 
 # ----------------------------------------
 
-if {[package vsatisfies [package provide Tcl] 8.6]} {
+if {[package vsatisfies [package provide Tcl] 8.6 9]} {
     # 8.6+
     set do23res {1 {wrong # args: should be "do body ?arg ...?"
     while executing
 "do"}}
-} elseif {[package vsatisfies [package provide Tcl] 8.5]} {
-    # 8.5+
-    set do23res {1 {wrong # args: should be "do body ..."
-    while executing
-"do"}}
 } else {
-    # 8.4-
-    set do23res {1 {wrong # args: should be "do body args"
+    # 8.5
+    set do23res {1 {wrong # args: should be "do body ..."
     while executing
 "do"}}
 }

@@ -9,52 +9,21 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets_tcl.tcl,v 1.4 2008/03/09 04:38:47 andreas_kupries Exp $
-#
 #----------------------------------------------------------------------
 
-package require Tcl 8.0
-
-namespace eval ::struct::set {
-    # Only export one command, the one used to instantiate a new tree
-    namespace export set_tcl
-}
+package require Tcl 8.5 9
 
 ##########################
 # Public functions
 
-# ::struct::set::set --
+# ::struct::set::set_tcl --
 #
 #	Command that access all set commands.
 #
-# Arguments:
-#	cmd	Name of the subcommand to dispatch to.
-#	args	Arguments for the subcommand.
-#
-# Results:
-#	Whatever the result of the subcommand is.
-
-proc ::struct::set::set_tcl {cmd args} {
-    # Do minimal args checks here
-    if { [llength [info level 0]] == 1 } {
-	return -code error "wrong # args: should be \"$cmd ?arg arg ...?\""
-    }
-    ::set sub S_$cmd
-    if { [llength [info commands ::struct::set::$sub]] == 0 } {
-	::set optlist [info commands ::struct::set::S_*]
-	::set xlist {}
-	foreach p $optlist {
-	    lappend xlist [string range $p 17 end]
-	}
-	return -code error \
-		"bad option \"$cmd\": must be [linsert [join [lsort $xlist] ", "] "end-1" "or"]"
-    }
-    return [uplevel 1 [linsert $args 0 ::struct::set::$sub]]
-}
+# Ensemble.
 
 ##########################
 # Implementations of the functionality.
-#
 
 # ::struct::set::S_empty --
 #
@@ -444,9 +413,18 @@ proc ::struct::set::K {x y} {::set x}
 # ### ### ### ######### ######### #########
 ## Ready
 
-namespace eval ::struct {
+namespace eval ::struct::set {
     # Put 'set::set' into the general structure namespace
     # for pickup by the main management.
-
-    namespace import -force set::set_tcl
+    
+    # use a lambda to build the map so we don't pollute the namespace
+    namespace ensemble create -command ::struct::set_tcl -map [apply {{cmds} {
+	foreach cmd [lsort $cmds] {
+	    dict set map [string range [namespace tail $cmd] 2 end] $cmd
+	}
+	return $map
+    }} [info commands [namespace current]::S_*]]
 }
+
+# ### ### ### ######### ######### #########
+return

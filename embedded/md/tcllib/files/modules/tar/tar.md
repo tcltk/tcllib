@@ -1,7 +1,7 @@
 
 [//000000001]: # (tar \- Tar file handling)
 [//000000002]: # (Generated from file 'tar\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (tar\(n\) 0\.11 tcllib "Tar file handling")
+[//000000003]: # (tar\(n\) 0\.13 tcllib "Tar file handling")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -22,7 +22,11 @@ tar \- Tar file creation, extraction & manipulation
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [BEWARE](#section2)
+
+  - [COMMANDS](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [Keywords](#keywords)
 
@@ -30,23 +34,71 @@ tar \- Tar file creation, extraction & manipulation
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require tar ?0\.11?  
+package require Tcl 8\.5 9  
+package require tar ?0\.13?  
 
-[__::tar::contents__ *tarball* ?__\-chan__?](#1)  
-[__::tar::stat__ *tarball* ?file? ?__\-chan__?](#2)  
+[__::tar::contents__ *tarball* ?__\-chan__? ?__\-gzip__?](#1)  
+[__::tar::stat__ *tarball* ?file? ?__\-chan__? ?__\-gzip__?](#2)  
 [__::tar::untar__ *tarball* *args*](#3)  
-[__::tar::get__ *tarball* *fileName* ?__\-chan__?](#4)  
+[__::tar::get__ *tarball* *fileName* ?__\-chan__? ?__\-gzip__?](#4)  
 [__::tar::create__ *tarball* *files* *args*](#5)  
 [__::tar::add__ *tarball* *files* *args*](#6)  
 [__::tar::remove__ *tarball* *files*](#7)  
 
 # <a name='description'></a>DESCRIPTION
 
-Note: Starting with version 0\.8 the tar reader commands \(contents, stats, get,
-untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
+*Note*: Starting with version 0\.8 the tar reader commands \(contents, stats,
+get, untar\) support the GNU LongName extension \(header type 'L'\) for large
+paths\.
 
-  - <a name='1'></a>__::tar::contents__ *tarball* ?__\-chan__?
+# <a name='section2'></a>BEWARE
+
+For all commands, when using __\-chan__ \.\.\.
+
+  1. It is assumed that the channel was opened for reading, and configured for
+     binary input\.
+
+  1. It is assumed that the channel position is at the beginning of a legal tar
+     file\.
+
+  1. The commands will *modify* the channel position as they perform their
+     task\.
+
+  1. The commands will *not* close the channel\.
+
+  1. In other words, the commands leave the channel in a state very likely
+     unsuitable for use by further __tar__ commands\. Still doing so will
+     very likely results in errors, bad data, etc\. pp\.
+
+  1. It is the responsibility of the user to seek the channel back to a suitable
+     position\.
+
+  1. When using a channel transformation which is not generally seekable, for
+     example __gunzip__, then it is the responsibility of the user to \(a\)
+     unstack the transformation before seeking the channel back to a suitable
+     position, and \(b\) for restacking it after\.
+
+Regarding support for gzip compression:
+
+  1. Errors are thrown when attempting to read from compressed tar archives
+     while compression support \(i\.e\. __::zlib__\) is not available\.
+
+  1. Errors are thrown when attempting to read an uncompressed tar archive when
+     compression is requested by the user \(__\-gzip__\)\.
+
+     No errors are thrown when attempting to read a compressed tar archive when
+     compression was not requested, and is supported\. In that case the commands
+     automatically activate the code handling the compression\.
+
+  1. Errors are thrown when attempting to edit compressed tar archives\. See the
+     commands __tar::add__, and __tar::remove__\. This is not supported\.
+
+  1. Creation of compressed tar archives however is supported, as this
+     sequentially writes the archive, allowing for streaming compression\.
+
+# <a name='section3'></a>COMMANDS
+
+  - <a name='1'></a>__::tar::contents__ *tarball* ?__\-chan__? ?__\-gzip__?
 
     Returns a list of the files contained in *tarball*\. The order is not
     sorted and depends on the order files were stored in the archive\.
@@ -55,7 +107,7 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
     channel\. It is assumed that the channel was opened for reading, and
     configured for binary input\. The command will *not* close the channel\.
 
-  - <a name='2'></a>__::tar::stat__ *tarball* ?file? ?__\-chan__?
+  - <a name='2'></a>__::tar::stat__ *tarball* ?file? ?__\-chan__? ?__\-gzip__?
 
     Returns a nested dict containing information on the named ?file? in
     *tarball*, or all files if none is specified\. The top level are pairs of
@@ -117,7 +169,7 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
         puts "Extracted $file ($size bytes)"
         }
 
-  - <a name='4'></a>__::tar::get__ *tarball* *fileName* ?__\-chan__?
+  - <a name='4'></a>__::tar::get__ *tarball* *fileName* ?__\-chan__? ?__\-gzip__?
 
     Returns the contents of *fileName* from the *tarball*\.
 
@@ -187,7 +239,7 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
         % ::tar::contents new.tar
         file3
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
 other problems\. Please report such in the category *tar* of the [Tcllib

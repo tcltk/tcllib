@@ -8,7 +8,7 @@
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Simple user database for pop3d}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl "8.5 9"]
 [require pop3d::udb [opt 1.0.1]]
 [description]
 [para]

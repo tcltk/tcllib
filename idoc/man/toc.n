@@ -346,7 +346,7 @@ tcllib
 \fIfiles/modules/cmdline/cmdline\&.n\fR: Procedures to process command lines and options\&.
 .TP
 \fBcomm\fR
-\fIfiles/modules/comm/comm\&.n\fR: A remote communication facility for Tcl (8\&.3 and later)
+\fIfiles/modules/comm/comm\&.n\fR: A remote communication facility for Tcl (8\&.5 and later)
 .TP
 \fBcomm_wire\fR
 \fIfiles/modules/comm/comm_wire\&.n\fR: The comm wire protocol
@@ -603,8 +603,8 @@ tcllib
 \fBdtplite\fR
 \fIfiles/apps/dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
-\fBdtplite\fR
-\fIfiles/modules/dtplite/pkg_dtplite\&.n\fR: Lightweight DocTools Markup Processor
+\fBfile::home\fR
+\fIfiles/modules/try/tcllib_fhome\&.n\fR: file home - Return home directory of current or other user
 .TP
 \fBfileutil\fR
 \fIfiles/modules/fileutil/fileutil\&.n\fR: Procedures implementing some file utilities
@@ -813,6 +813,9 @@ tcllib
 \fBmath::exact\fR
 \fIfiles/modules/math/exact\&.n\fR: Exact Real Arithmetic
 .TP
+\fBmath::figurate\fR
+\fIfiles/modules/math/figurate\&.n\fR: Evaluate figurate numbers
+.TP
 \fBmath::filters\fR
 \fIfiles/modules/math/filtergen\&.n\fR: Digital filters
 .TP
@@ -878,6 +881,12 @@ tcllib
 .TP
 \fBmime\fR
 \fIfiles/modules/mime/mime\&.n\fR: Manipulation of MIME body parts
+.TP
+\fBmkdoc\fR
+\fIfiles/apps/mkdoc\&.n\fR: Source code documentation extractor/converter application
+.TP
+\fBmkdoc\fR
+\fIfiles/modules/mkdoc/mkdoc\&.n\fR: Extracts and optionally converts Markdown comments in source code to HTML
 .TP
 \fBmpexpand\fR
 \fIfiles/modules/doctools/mpexpand\&.n\fR: Markup processor
@@ -971,6 +980,9 @@ tcllib
 .TP
 \fBpicoirc\fR
 \fIfiles/modules/irc/picoirc\&.n\fR: Small and simple embeddable IRC client\&.
+.TP
+\fBpkg_dtplite\fR
+\fIfiles/modules/dtplite/pkg_dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
 \fBpki\fR
 \fIfiles/modules/pki/pki\&.n\fR: Implementation of the public key cipher
@@ -1230,9 +1242,6 @@ tcllib
 \fBstruct::matrix\fR
 \fIfiles/modules/struct/matrix\&.n\fR: Create and manipulate matrix objects
 .TP
-\fBstruct::matrix_v1\fR
-\fIfiles/modules/struct/matrix1\&.n\fR: Create and manipulate matrix objects
-.TP
 \fBstruct::pool\fR
 \fIfiles/modules/struct/pool\&.n\fR: Create and manipulate pool objects (of discrete items)
 .TP
@@ -1463,6 +1472,9 @@ tcllib
 .TP
 \fBtextutil::trim\fR
 \fIfiles/modules/textutil/trim\&.n\fR: Procedures to trim strings
+.TP
+\fBtextutil::wcswidth\fR
+\fIfiles/modules/textutil/wcswidth\&.n\fR: Procedures to compute terminal width of strings
 .TP
 \fBthrow\fR
 \fIfiles/modules/try/tcllib_throw\&.n\fR: throw - Throw an error exception with a message

@@ -6,8 +6,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: stringprep.tcl,v 1.2 2009/11/02 00:26:44 patthoyts Exp $
 
 package require stringprep::data 1.0
 package require unicode 1.0
@@ -62,11 +60,26 @@ proc ::stringprep::register {profile args} {
 		set c39count 0
 		foreach tab $val {
 		    switch -- $tab {
-			A.1 { set mask [expr {$mask | $data::A1Mask}] }
-			C.1.1 { set mask [expr {$mask | $data::C11Mask}] }
-			C.1.2 { set mask [expr {$mask | $data::C12Mask}] }
-			C.2.1 { set mask [expr {$mask | $data::C21Mask}] }
-			C.2.2 { set mask [expr {$mask | $data::C22Mask}] }
+			A.1 {
+			    ##nagelfar ignore
+			    set mask [expr {$mask | $data::A1Mask}]
+			}
+			C.1.1 {
+			    ##nagelfar ignore
+			    set mask [expr {$mask | $data::C11Mask}]
+			}
+			C.1.2 {
+			    ##nagelfar ignore
+			    set mask [expr {$mask | $data::C12Mask}]
+			}
+			C.2.1 {
+			    ##nagelfar ignore
+			    set mask [expr {$mask | $data::C21Mask}]
+			}
+			C.2.2 {
+			    ##nagelfar ignore
+			    set mask [expr {$mask | $data::C22Mask}]
+			}
 			C.3 - C.4 - C.5 - C.6 - C.7 - C.8 -
 			C.9 { incr c39count }
 			default {
@@ -82,6 +95,7 @@ proc ::stringprep::register {profile args} {
 			    all C.3--C.9 tables or none of them"
 		}
 		if {$c39count > 0} {
+		    ##nagelfar ignore
 		    set mask [expr {$mask | $data::C39Mask}]
 		}
 		set props(-prohibited) $mask
@@ -89,6 +103,7 @@ proc ::stringprep::register {profile args} {
 	    -prohibitedList {
 		if {[catch {
 			foreach uc $val {
+			    ##nagelfar ignore
 			    if {![string is integer -strict $uc]} {
 				error not_integer
 			    } else {
@@ -176,9 +191,15 @@ proc ::stringprep::map {profile uclist} {
     set B2 0
     foreach tab $props(-mapping) {
 	switch -- $tab {
-	    B.1 { set B1Mask $data::B1Mask }
+	    B.1 {
+		##nagelfar ignore
+		set B1Mask $data::B1Mask
+	    }
 	    B.2 { set B2 1 }
-	    B.3 { set B3Mask $data::B3Mask }
+	    B.3 {
+		##nagelfar ignore
+		set B3Mask $data::B3Mask
+	    }
 	}
     }
 
@@ -192,6 +213,7 @@ proc ::stringprep::map {profile uclist} {
 	}
 
 	if {$B2 || ($info & $B3Mask)} {
+	    ##nagelfar ignore
 	    if {$info & $data::MCMask} {
 		set res [concat $res [data::GetMC $info]]
 	    } else {
@@ -254,14 +276,17 @@ proc ::stringprep::prohibited_bidi {profile uclist} {
     }
 
     set info [data::GetUniCharInfo [lindex $uclist 0]]
+    ##nagelfar ignore
     set first_ral [expr {$info & $data::D1Mask}]
     set last_ral 0
     set have_ral 0
     set have_l 0
     foreach uc $uclist {
 	set info [data::GetUniCharInfo $uc]
+	##nagelfar ignore
 	set last_ral [expr {$info & $data::D1Mask}]
 	set have_ral [expr {$have_ral || $last_ral}]
+	##nagelfar ignore
 	set have_l   [expr {$have_l || ($info & $data::D2Mask)}]
     }
     if {$have_ral && (!$first_ral || !$last_ral || $have_l)} {
@@ -273,6 +298,6 @@ proc ::stringprep::prohibited_bidi {profile uclist} {
 
 ########################################################################
 
-package provide stringprep 1.0.1
+package provide stringprep 1.0.3
 
 ########################################################################

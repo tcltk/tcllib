@@ -75,7 +75,7 @@ test find-1.5.0 {handling of circular links} {unix} {
 	[tempPath {find 1/find 2/file 3}] \
 	[tempPath {find 1/find 2/file* 2}]]
 
-test find-1.5.1 {handling of circular links} {win tcl8.4plus} {
+test find-1.5.1 {handling of circular links} win {
     f_setupcircle
     set res [lsort [fileutil::find [tempPath {find 1}]]]
     f_cleanup
@@ -131,7 +131,7 @@ test find-1.10.0 {handling of broken links} {unix} {
 	[tempPath {find 1/find 2/file 3}] \
 	[tempPath {find 1/find 2/file* 2}]]
 
-test find-1.10.1 {handling of broken links} {win tcl8.4plus} {
+test find-1.10.1 {handling of broken links} win {
     f_setupbroken
     set res [lsort [fileutil::find [tempPath {find 1}]]]
     f_cleanup
@@ -154,7 +154,7 @@ test find-1.11.0 {find result, circular links, unix} -setup {
 
 test find-1.11.1 {find result, circular links, windows, 8.4+} -setup {
     f_setupcircle3
-} -constraints {win tcl8.4plus} -body {
+} -constraints win -body {
     join [lsort [fileutil::find [tempPath z]]] \n
 } -cleanup {
     f_cleanup3
@@ -218,7 +218,7 @@ test find-1.12.0 {Traverse pathological circularity, unix} -setup {
 
 test find-1.12.1 {Traverse pathological circularity, windows, 8.4+} -setup {
     f_setup_crossindex
-} -constraints {win tcl8.4plus} -body {
+} -constraints win -body {
     join [lsort [fileutil::find [tempPath s]]] \n
 } -cleanup {
     f_cleanup_crossindex

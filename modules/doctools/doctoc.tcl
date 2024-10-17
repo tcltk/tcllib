@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.2
+package require Tcl 8.5 9
 package require textutil::expander
 
 # @mdgen OWNER: api_toc.tcl
@@ -591,6 +591,7 @@ proc ::doctools::toc::SetupFormatter {name format} {
 	interp delete $mpip
 	error "$format error: Unable to query for number of passes"
     }
+    ##nagelfar ignore
     if {![string is integer $passes] || ($passes < 1)} {
 	interp delete $mpip
 	error "$format error: illegal number of passes \"$passes\""
@@ -633,7 +634,7 @@ proc ::doctools::toc::SetupFormatter {name format} {
 
     set format_ip  $mpip
     set formatfile $format
-    set xpasses    $passes
+    set xpasses    [format %d $passes]
     set xparam     $parameters
     return
 }
@@ -963,4 +964,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.2
+package provide doctools::toc 1.3.1

@@ -19,6 +19,7 @@ namespace eval ::math::special {
 #    Polynomial definition
 #
 proc ::math::special::legendre {n} {
+    ##nagelfar ignore
     if { ! [string is integer -strict $n] || $n < 0 } {
         return -code error "Degree must be a non-negative integer"
     }
@@ -97,6 +98,7 @@ proc ::math::special::laguerre {alpha n} {
     if { ! [string is double -strict $alpha] } {
         return -code error "Parameter must be a double"
     }
+    ##nagelfar ignore
     if { ! [string is integer -strict $n] || $n < 0 } {
         return -code error "Degree must be a non-negative integer"
     }
@@ -134,6 +136,7 @@ proc ::math::special::laguerre {alpha n} {
 #    Polynomial definition
 #
 proc ::math::special::hermite {n} {
+    ##nagelfar ignore
     if { ! [string is integer -strict $n] || $n < 0 } {
         return -code error "Degree must be a non-negative integer"
     }
@@ -165,11 +168,13 @@ proc ::math::special::hermite {n} {
 # some tests --
 #
 if { 0 } {
-set prec $::tcl_precision
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    set ::tcl_precision 17
-} else {
-    set ::tcl_precision 0
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set prec $::tcl_precision
+    if {![package vsatisfies [package provide Tcl] 8.5 9]} {
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
 }
 
 puts "Legendre:"
@@ -196,5 +201,7 @@ foreach n {0 1 2 3 4} {
     puts [::math::special::hermite $n]
 }
 
-set ::tcl_precision $prec
+if {![package vsatisfies [package provide Tcl] 9]} {
+    set ::tcl_precision $prec
+}
 }

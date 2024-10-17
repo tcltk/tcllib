@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'stack\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "struct::stack" n 1\&.5\&.3 tcllib "Tcl Data Structures"
+.TH "struct::stack" n 1\&.5\&.4 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::stack \- Create and manipulate stack objects
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBstruct::stack  ?1\&.5\&.3?\fR
+package require \fBstruct::stack ?1\&.5\&.4?\fR
 .sp
 \fIstackName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp

@@ -2,7 +2,7 @@
 [//000000001]: # (yencode \- Text encoding & decoding binary data)
 [//000000002]: # (Generated from file 'yencode\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Pat Thoyts)
-[//000000004]: # (yencode\(n\) 1\.1\.2 tcllib "Text encoding & decoding binary data")
+[//000000004]: # (yencode\(n\) 1\.1\.4 tcllib "Text encoding & decoding binary data")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,8 +37,8 @@ yencode \- Y\-encode/decode binary data
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.2  
-package require yencode ?1\.1\.2?  
+package require Tcl 8\.5 9  
+package require yencode ?1\.1\.4?  
 
 [__::yencode::encode__ *string*](#1)  
 [__::yencode::decode__ *string*](#2)  

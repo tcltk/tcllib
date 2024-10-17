@@ -1,4 +1,5 @@
-[manpage_begin jpeg n 0.5]
+[vset VERSION 0.7]
+[manpage_begin jpeg n [vset VERSION]]
 [keywords comment]
 [keywords exif]
 [keywords image]
@@ -12,8 +13,8 @@
 [moddesc   {JPEG image manipulation}]
 [titledesc {JPEG querying and manipulation of meta data}]
 [category  {File formats}]
-[require Tcl 8.2]
-[require jpeg [opt 0.5]]
+[require Tcl "8.5 9"]
+[require jpeg [opt [vset VERSION]]]
 [description]
 [para]
 

@@ -2,7 +2,7 @@
 '\" Generated from file 'deleg_method\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "deleg_method" n 0\&.2 tcllib "Interpreter utilities"
+.TH "deleg_method" n 0\&.3 tcllib "Interpreter utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 deleg_method \- Creation of comm delegates (snit methods)
 .SH SYNOPSIS
-package require \fBTcl  8\&.3\fR
+package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBsnit  ?1\&.1?\fR
+package require \fBsnit ?1\&.1?\fR
 .sp
-package require \fBinterp::delegate::method  ?0\&.2?\fR
+package require \fBinterp::delegate::method ?0\&.3?\fR
 .sp
 \fB::interp::delegate::method\fR ?\fB-async\fR? \fIname\fR \fIarguments\fR \fIcomm\fR \fIid\fR
 .sp

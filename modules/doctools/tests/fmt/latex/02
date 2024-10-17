@@ -10,6 +10,7 @@
 \begin{flushleft}
 package require {\bf AAA}
 package require {\bf BBB VVV}
+package require {\bf CCC VA VB VC}
 \end{flushleft}
 \section{Description}\label{section1}
 \section{See Also}\label{see-also}
