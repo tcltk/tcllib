@@ -12,7 +12,12 @@ The [syscmd critcl] tool is an [emph optional] dependency.
 [para] For Unix Tcllib's build system ([cmd sak.tcl]) looks for it in
 the [variable PATH], using the name [syscmd critcl].
 
-[para] On Windows on the other hand the search is more complex.
+On Windows, the build system looks for [cmd critcl] or [cmd critcl.tclapp]
+in the same directory as the current executable. If not found,
+it looks for a batch file or executable invocable as [cmd critcl].
+
+[para] For [cmd tcllib] versions prior to 2.0 on Windows,
+the search is more complex.
 
        The build system looks first looks for a proper application
        [syscmd critcl.exe].
