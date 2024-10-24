@@ -16,6 +16,9 @@ namespace eval ::base32 {
 	#critcl::debug memory symbols
     }
 
+    # Avoid sprintf warnings on Windows. No-op on other platforms
+    critcl::cflags -D_CRT_SECURE_NO_WARNINGS
+
     # Main commands, encoder & decoder
 
     critcl::ccommand critcl_encode {dummy interp objc objv} {

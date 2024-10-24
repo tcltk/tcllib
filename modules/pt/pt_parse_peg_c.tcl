@@ -29,6 +29,9 @@ namespace eval ::pt::parse {
     # # ## ### ##### ######## ############# #####################
     ## Supporting code for the main command.
 
+    # Avoid sprintf warnings on Windows. No-op on other platforms
+    critcl::cflags -D_CRT_SECURE_NO_WARNINGS
+
     catch {
 	#critcl::cflags -g
 	#critcl::debug memory symbols

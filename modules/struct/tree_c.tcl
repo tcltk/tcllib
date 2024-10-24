@@ -22,6 +22,9 @@ namespace eval ::struct {
 	#critcl::debug memory symbols
     }
 
+    # Avoid sprintf warnings on Windows. No-op on other platforms
+    critcl::cflags -D_CRT_SECURE_NO_WARNINGS
+
     critcl::cheaders tree/*.h
     critcl::csources tree/*.c
 

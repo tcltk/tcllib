@@ -15,6 +15,9 @@ critcl::csources md5.c;                 # The RSA MD5 implementation.
 
 namespace eval ::md5 {
 
+    # Avoid sprintf warnings on Windows. No-op on other platforms
+    critcl::cflags -D_CRT_SECURE_NO_WARNINGS
+
     critcl::ccode {
         #include <string.h>
         #include "md5.h"

@@ -24,6 +24,9 @@ package require critcl
 # @sak notprovided md5cryptc
 package provide md5cryptc 1.0
 
+# Avoid sprintf warnings on Windows. No-op on other platforms
+critcl::cflags -D_CRT_SECURE_NO_WARNINGS
+
 critcl::cheaders ../md5/md5.h
 #critcl::csources ../md5/md5.c
 

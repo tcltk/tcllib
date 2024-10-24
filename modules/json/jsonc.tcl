@@ -13,6 +13,10 @@ package require Tcl 8.5 9
 
 #critcl::cheaders -g
 #critcl::debug memory symbols
+
+# Avoid sprintf warnings on Windows. No-op on other platforms
+critcl::cflags -D_CRT_SECURE_NO_WARNINGS
+
 critcl::cheaders -Ic c/*.h
 critcl::csources c/*.c
 

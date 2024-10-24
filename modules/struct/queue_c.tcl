@@ -19,6 +19,9 @@ package require Tcl 8.5 9
 namespace eval ::struct {
     # Supporting code for the main command.
 
+    # Avoid sprintf warnings on Windows. No-op on other platforms
+    critcl::cflags -D_CRT_SECURE_NO_WARNINGS
+
     critcl::cheaders queue/*.h
     critcl::csources queue/*.c
 
