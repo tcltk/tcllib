@@ -75,11 +75,17 @@ typedef struct _SHA256Context SHA256_CTX;
 extern "C" {
 #endif
 
-void SHA256Init (SHA256Context *sc);
-void SHA256Update (SHA256Context *sc, const void *data, uint32_t len);
-void SHA256Final (SHA256Context *sc, uint8_t hash[SHA256_HASH_SIZE]);
+/*
+ * MS C complains about duplicate prototypes with mismatching linkage.
+ * due to redeclaration in sha256Decls.h
+ */
+#ifndef _MSC_VER
+    void SHA256Init (SHA256Context *sc);
+    void SHA256Update (SHA256Context *sc, const void *data, uint32_t len);
+    void SHA256Final (SHA256Context *sc, uint8_t hash[SHA256_HASH_SIZE]);
 
-void SHA224Init (SHA256Context *sc);
+    void SHA224Init (SHA256Context *sc);
+#endif
 
 #ifdef __cplusplus
 }
