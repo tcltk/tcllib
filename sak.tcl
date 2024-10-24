@@ -1602,52 +1602,17 @@ proc critcl-app-unix {} {
 }
 
 proc critcl-app-windows {} {
-    # Windows is a bit more complicated. We have to choose an
-    # interpreter, and a starkit for it, and call both.
-    #
-    # We prefer tclkitsh, but try to make do with a tclsh. That
-    # one will have to have all the necessary packages to support
-    # starkits. ActiveTcl for example.
+    # My, isn't it simpler under unix. Not really :-)
 
-    set interpreter {}
-    foreach i {critcl.exe tclkitsh tclsh} {
-	set interpreter [auto_execok $i]
-	if {$interpreter != {}} break
+    # Look for a critcl sibling to the executing shell
+    set shdir [file dirname [info nameofexecutable]]
+    foreach shapp {critcl critcl.tclapp} {
+        set shapp [file join $shdir $shapp]
+        if {[file exists $shapp]} { return [list [info nameofexecutable] $shapp] }
     }
 
-    if {$interpreter == {}} {
-	return -code error \
-	    "failed to find either tclkitsh.exe or tclsh.exe in path"
-    }
-
-    # The critcl starkit can come out of the environment, or we
-    # try to locate it using several possible names. We try to
-    # find it if and only if we did not find a critcl starpack
-    # before.
-
-    if {[file tail $interpreter] == "critcl.exe"} {
-	set critcl $interpreter
-    } else {
-	set kit {}
-	if {[info exists ::env(CRITCL)]} {
-	    set kit $::env(CRITCL)
-	} else {
-	    foreach k {critcl.kit critcl} {
-		set kit [auto_execok $k]
-		if {$kit != {}} break
-	    }
-	}
-
-	if {$kit == {}} {
-	    return -code error "failed to find critcl.kit or critcl in \
-                  path.\n\
-                  You may wish to set the CRITCL environment variable to the\
-                  location of your critcl(.kit) file."
-	}
-	set critcl [concat $interpreter $kit]
-    }
-
-    return $critcl
+    # Look for critcl in the path
+    set critcl [auto_execok critcl]
 }
 
 # Prints a list of all the modules supporting critcl enhancement.
