@@ -17,7 +17,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5 ;# Required by mime.tcl
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 support {
     use md5/md5x.tcl  md5

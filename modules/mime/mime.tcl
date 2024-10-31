@@ -1,5 +1,3 @@
-# mime.tcl - MIME body parts
-#
 # (c) 1999-2000 Marshall T. Rose
 # (c) 2000      Brent Welch
 # (c) 2000      Sandeep Tamhankar
@@ -10,22 +8,30 @@
 # (c) 2002-2003 David Welton
 # (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
-# (c) 2013-2021 Poor Yorick
-#
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# Copyright (c) 2018-2024 Poor Yorick
+#
+# You may distribute and/or modify this program under the terms of the GNU
+# Affero General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+#
+# See the file "COPYING" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# mime.tcl - MIME body parts
 #
 # Influenced by Borenstein's/Rose's safe-tcl (circa 1993) and Darren New's
 # unpublished package of 1999.
-#
 
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.5 9
 
 # Fix for 00d04c4f12l, base64 transchan over a refchan: segmentation fault,
 # requires 8.6.9
-package require Tcl 8.6.9
+package require Tcl 8.6.9-
 
 package require {mime qp}
 package require namespacex
@@ -50,7 +56,7 @@ if {[catch {package require Trf 2.0}]} {
     ##
     # The `__ignored__` arguments are expected to be `--` options on
     # the caller's side. (See the uses in `copymessageaux`,
-    # `buildmessageaux`, `parsepart`, and `getbody`).
+    # `serialize`, `parsepart`, and `getbody`).
 
     package require base64 2.0
     set ::major [lindex [split [package require md5] .] 0]
@@ -344,8 +350,16 @@ proc ::mime::addchan {token chan} {
     if {[$chan configure -encoding] ne {binary}} {
 	$chan configure -translation auto
     }
+    if {[set current [$chan tell]] < 0} {
+	set chan [makeseekable $chan]
+    }
+    incr channels($chan)
+    dropchan $token
     set fd $chan
-    incr channels($fd)
+    if {!$state(closechan)} {
+	error [
+	    list {need permission to close the channel in to make it seekable}]
+    }
     return
 }
 
@@ -936,6 +950,7 @@ proc ::mime::body_decoded _ {
 	error [list {not a leaf part} $token]
     }
     if {$state(canonicalP)} { 
+	#{to do} {shouldn't this also get decoded?}
 	$state(fd) seek 0 
 	return $state(fd)
     } else {
@@ -1352,7 +1367,7 @@ proc ::mime::encoding _ {
     }
 
     if {[set current [$chan tell]] < 0} {
-	makeseekable $token
+	set chan [makeseekable $chan]
 	set current [$chan tell]
     }
     set chanconfig [$chan configure]
@@ -1502,7 +1517,13 @@ proc ::mime::contentid _ {
 	}
 	set id [::sha2::sha256 -hex $ids]
     } else {
-	set chan [$_ body decoded]
+	if {[info exists bodychan]} {
+	    #use the transfer-encoded form of the body to generate the id so that
+	    #each different encoding gets its own id
+	    set chan $state(bodychan)
+	} else {
+	    set chan $state(fd)
+	}
 	set config [$chan configure]
 	if {[dict exists $config -chan]} {
 	    dict unset config -chan
@@ -1525,7 +1546,7 @@ proc ::mime::dropchan token {
     upvar 0 state(fd) fd
 
     if {[info exists fd]} {
-	if {[incr channels($fd) -1] == 0} {
+	if {[incr channels($fd) -1] <= 0} {
 	    unset channels($fd)
 	    if {$state(closechan)} {
 		$fd close
@@ -1618,9 +1639,9 @@ proc ::mime::messageid _ {
     set sha [::sha2::SHA256Init]
     foreach {key val} [lsort -stride 2 [$_ header get]] {
 	lassign $val value params
-	::sha2::SHA256Update $sha $key$value
+	::sha2::SHA256Update $sha [::encoding convertto utf-8 $key$value]
 	foreach {pkey pval} $params {
-	    ::sha2::SHA256Update $sha $pkey$pval
+	    ::sha2::SHA256Update $sha [::encoding convertto utf-8 $pkey$pval]
 	}
     }
     set hash [::sha2::SHA256Final $sha]
@@ -1694,7 +1715,7 @@ proc ::mime::getsize _ {
 	set size 0
 	if {$state(canonicalP)} {
 	    if {[set current [$inputchan tell]] < 0} {
-		makeseekable $token
+		set inputchan [makeseekable $inputchan]
 	    }
 	    set current [$inputchan tell]
 	    $inputchan seek 0 end
@@ -2471,8 +2492,6 @@ proc ::mime::.new args {
     variable mime
     if {[llength $args] % 2} {
 	set args [lassign $args[set args {}] name]
-    } elseif {[llength $args]} {
-	error [list {wrong # args}]
     } else {
 	set name {}
     }
@@ -2543,7 +2562,7 @@ proc ::mime::.new args {
 
 # ::mime::initializeaux --
 #
-#    Creates a MIME part, and returnes the MIME token for that part.
+#    Creates a MIME part and returns the MIME token for that part.
 #
 # Arguments:
 #    args   Args can be any one of the following:
@@ -2833,17 +2852,18 @@ proc ::mime::initializeaux {_ args} {
 }
 
 
-proc mime::makeseekable token {
-    upvar 0 $token state
-    upvar 0 state(bodychan) bodychan state(fd) inputchan 
-    set chan2 [::tcllib::chan::base [info cmdcount]_chan [file tempfile]]
-    chan configure $chan2 -translation binary
-    chan copy $inputchan $chan2
-    incr size [tell $chan2]
-    seek $chan2 0
-    close $inputchan
-    set inputchan [::tcllib::chan::base [info cmdcount]_chan $chan2]
-    return
+proc mime::makeseekable chan {
+    if {[set current [$chan tell]] >= 0} {
+        return $chan
+    }
+    set chan2 [::tcllib::chan::base new [info cmdcount]_chan]
+    $chan2 .init [file tempfile] 
+    $chan2 configure -translation binary
+    $chan copy [$chan2 configure -chan]
+    incr size [$chan2 tell]
+    $chan2 seek 0
+    $chan close
+    return $chan2
 }
 
 
@@ -2927,7 +2947,7 @@ proc ::mime::parsepartaux _ {
 		lappend warnings [list {unknown charset} [
 		dict get $params charset] {using binary translation instead}]
 	    # but still do line automatic translation
-	    $fd configure -encoding binary -translation auto
+	    $fd configure -encoding iso8859-1 -translation auto
 	} else {
 	    $fd configure -encoding [reversemapencoding [dict get $params charset]]
 	}
@@ -2991,9 +3011,10 @@ proc ::mime::parsepartaux _ {
 
 		    # do not brace this expression 
 		    if $iseof {
-			# either saw the closing boundary or reached the end of the file
+			# reached the end of the file
 			break
 		    } elseif {[string first --$boundary-- $line] >= 0} {
+			# saw the closing boundary
 			set state(sawclosing) 1
 			break
 		    } else {
@@ -3009,9 +3030,9 @@ proc ::mime::parsepartaux _ {
 			if {$childstate(eof)} break
 		    }
 	    } else {
-		# Accumulate data in case the terminating boundary occurs starting
-		# boundary was found, so that a part can be generated from data
-		# seen so far.
+		# Accumulate data in case the terminating boundary occurs
+		# before starting boundary was found, so that a part can be
+		# generated from data seen so far.
 		if $iseof {
 		    $bodychan puts -nonewline $line
 		} else {
@@ -3693,7 +3714,7 @@ proc ::mime::serialize_chan {_ channel level} {
 	    $state(fd) seek 0
 	    $state(fd) copy [$channel configure -chan]
 	    while {[incr transforms -1] >= 0} {
-		$channel $channel
+		$channel pop
 	    }
 	} else {
 	    $state(bodychan) seek 0
