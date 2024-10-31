@@ -437,7 +437,7 @@ proc ::pop3d::dbox::_get {name mbox msgId} {
 
     set mailfile [lindex $state($dir) $msgId]
 
-    set token [::mime::initialize -file $mailfile]
+    set token [::mime::.new -file $mailfile]
     return $token
 }
 

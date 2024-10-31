@@ -5,11 +5,18 @@
 # Copyright (c) 2000 Ajuba Solutions.
 # Copyright (c) 2012 Richard Hipp, Andreas Kupries
 # Copyright (c) 2013-2014 Andreas Kupries
-# Copyright (c) 2018 Poor Yorick 
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
+# Copyright (c) 2018-2024 Poor Yorick
+#
+# You may distribute and/or modify this program under the terms of the GNU
+# Affero General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+#
+# See the file "COPYING" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 # Please note that Don Libes' has a "cgi.tcl" that implements version 1.0
 # of the cgi package.  That implementation provides a bunch of cgi_ procedures
@@ -24,7 +31,7 @@
 # of decoding them.
 
 # We use newer string routines
-package require Tcl 8.6
+package require Tcl 8.6-
 package require {chan base}
 package require fileutil ; # Required by importFile.
 package require mime 3.0-
@@ -177,7 +184,7 @@ proc ::ncgi::delete token {
 #
 # Results:
 #	The decoded value.
-proc ::ncgi::DecodeHex {hex} {
+proc ::ncgi::DecodeHex hex {
     return [binary decode hex $hex]
 }
 
@@ -187,9 +194,11 @@ proc ::ncgi::decode str {
     set str [string map [list + { } "\\" "\\\\" \[ \\\[ \] \\\]] $str]
 
     # prepare to process all %-escapes
+    regsub -all -nocase -- {%([E][A-F0-9])%([89AB][A-F0-9])%([89AB][A-F0-9])%([89AB][A-F0-9])} \
+	$str {[encoding convertfrom utf-8 [DecodeHex \1\2\3]]} str
     regsub -all -nocase -- {%([E][A-F0-9])%([89AB][A-F0-9])%([89AB][A-F0-9])} \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2\3]]} str
-    regsub -all -nocase -- {%([CDcd][A-F0-9])%([89AB][A-F0-9])} \
+    regsub -all -nocase -- {%([CD][A-F0-9])%([89AB][A-F0-9])} \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2]]} str
     regsub -all -nocase -- {%([A-F0-9][A-F0-9])} $str {\\u00\1} str
 
@@ -640,8 +649,7 @@ proc ::ncgi::query_string token {
     namespace upvar $token env env querystring querystring
 
     if {[info exists querystring]} {
-	# This ensures you can call ncgi::query more than once,
-	# and that you can use it with ncgi::reset
+	# This ensures you can call ncgi::query more than once.
 	return $querystring
     }
 

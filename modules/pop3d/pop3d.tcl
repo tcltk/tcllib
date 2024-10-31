@@ -1101,8 +1101,8 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 	# We do "."-stuffing here. This is not in the scope of the
 	# MIME library we use, but a transport dependent thing.
 
-	set msg [string trimright [string map [list "\n." "\n.."] \
-				       [mime::buildmessage $token]] \n]
+	set msg [string trimright [string map [list "\n." "\n.."] [
+	    mime::serialize $token]] \n]
 	log::log debug "($msg)"
 	puts $sock $msg
 	puts $sock .
@@ -1117,7 +1117,7 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 	# a regexp/if combo to decide wether to attach the terminator
 	# not.
 
-	set msg [split [mime::buildmessage $token] \n]
+	set msg [split [mime::serialize $token] \n]
 	set i 0
 	incr limit -1
 	while {[lindex $msg $i] != {}} {

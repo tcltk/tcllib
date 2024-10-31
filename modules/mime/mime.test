@@ -5,8 +5,16 @@
 # generates output for errors.  No output means no errors were found.
 #
 # Copyright (c) 2000 by Ajuba Solutions, 2023 AK
-# Copyright (c) 2018 Poor Yorick
 # All rights reserved.
+
+# Copyright (c) 2018-2024 Poor Yorick
+#
+# You may distribute and/or modify this program under the terms of the GNU
+# Affero General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+#
+# See the file "COPYING" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 # -------------------------------------------------------------------------
 
@@ -14,7 +22,7 @@ source [file join [
 	file dirname [file dirname [file join [pwd] [info script]]]
 ] devtools testutilities.tcl]
 
-testsNeedTcl     8.6.9
+testsNeedTcl     9.0-
 testsNeedTcltest 2.0
 
 support {
@@ -44,18 +52,28 @@ proc channamescmp names {
 }
 
 
-proc cleanly script {
+proc cleanly args {
+    if {![llength $args]} {
+	error [list {wrong # args}]
+    }
+    set script [lindex $args end]
+    set args [lrange $args[set args {}] 0 end-1]
+    if {[llength $args] % 2} {
+	error [list {wrong # args}]
+    }
     set ns [info cmdcount]
+    set names {}
+    set values {}
+    while {[llength $args]} {
+	set args [lassign $args[set args {}] name value]
+	lappend names $name
+	lappend values $value
+    }
     namespace eval $ns {
 	namespace path [namespace parent]
     }
-    catch {namespace eval $ns $script} cres copts
-    foreach name [info vars ${ns}::*] {
-	set val [set $name]
-	if {[namespace which $val] ne {} && [string match ::mime* $val]} {
-	    rename $val {}
-	}
-    }
+
+    catch {apply [list $names $script $ns] {*}$values} cres copts
     namespace delete $ns
     return -options $copts $cres
 }
@@ -255,8 +273,8 @@ msg1}
     catch {$tok serialize} err1a
     list $err1 $err1a
 }} "msg1 {MIME-Version: 2.0\r
-Message-ID: <d956986793d51d614044c01a7e7650665330a4a170d071aff1de6dceda8c8b0d@|>\r
-Content-ID: <289e5175e02c788c2d442cfe81d6be0533d8c13e253ef763fda45d37accfe4d4@|>\r
+Message-ID: <7938b12d5fca6dac4d93058a53bd042eb6489fe781dc7c1d9e4d3fb2a0298568@|>\r
+Content-ID: <6d940d16b5e44281d818537093e2d718cf63b738bd80db235246918456966ad1@|>\r
 Content-Type: text/plain\r
 \r
 msg1}"
@@ -283,49 +301,52 @@ foo}
     catch {mime1 serialize} err3a copts
     list $err3 $err3a
 }} "foo {MIME-Version: 1.0\r
-Message-ID: <fb8bfc091f5ff55264834b7ea21278fbcb7bf875b20ddeae2f5e4eb662de2129@|>\r
-Content-ID: <2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae@|>\r
+Message-ID: <022a8d8e0087a026961cc81f97548a5961bc4bafad4c5d9619dc36553ee49064@|>\r
+Content-ID: <ff40a450d9fe90ddc6b0398c197809bf1c75166c9e18ad928c717927e96ba83f@|>\r
 Content-Type: text/plain\r
 \r
 foo}"
 
 
-foreach name {file chan} {
-    test mime-3.7.$name {Test mime with a bad email [SF Bug 631314 ]} {cleanly {
-	with.$name [localPath test-assets badmail1.txt] {
-	    set res {}
-	    lappend res [llength [$tok property parts]]
-	    set ctok [lindex [$tok property parts] 0]
-	    lappend res [dictsort [$tok property]]
-	    lappend res [dictsort [$ctok property]]
-	    $tok .destroy
-	    string map [list $ctok CHILD] $res
-	}
-    }} {1 {content multipart/mixed encoding {} params {boundary ----------CSFNU9QKPGZL79} parts CHILD size 0} {content application/octet-stream encoding {} params {} size 0}}
+cleanly {
+    foreach name {file chan} {
+	test mime-3.7.$name {Test mime with a bad email [SF Bug 631314 ]} [list cleanly name $name {
+	    with.$name [localPath test-assets badmail1.txt] {
+		set res {}
+		lappend res [llength [$tok property parts]]
+		set ctok [lindex [$tok property parts] 0]
+		lappend res [dictsort [$tok property]]
+		lappend res [dictsort [$ctok property]]
+		$tok .destroy
+		string map [list $ctok CHILD] $res
+	    }
+	}] {1 {content multipart/mixed encoding {} params {boundary ----------CSFNU9QKPGZL79} parts CHILD size 0} {content application/octet-stream encoding {} params {} size 0}}
+    }
+
+
+    foreach name {file chan} {
+	test mime-3.8.1.$name {Test mime with another bad email [SF Bug 631314 ]} -body [list cleanly name $name {
+	    with.$name [localPath test-assets badmail2.txt] {
+		set ctok [lindex [$tok property parts] 0]
+	    }
+	}] -returnCodes 1 -result {end-of-string encountered while parsing multipart/form-data}
+    }
+
+
+    foreach name {file chan} {
+	test mime-3.8.2.$name {Test mime with another bad email [SF Bug 631314 ]} [list cleanly name $name {
+	    with.$name [localPath test-assets badmail2.txt] -relax finalboundary {
+		set res {}
+		set ctok [lindex [$tok property parts] 0]
+		lappend res [dictsort [$tok property]]
+		lappend res [dictsort [$ctok property]]
+		$tok .destroy
+		string map [list $ctok CHILD] $res
+	    }
+	}] {{content multipart/related encoding {} params {boundary ----=_NextPart_000_0000_2CBA2CBA.150C56D2} parts CHILD size 879} {content text/html encoding base64 params {} size 879}}
+    }
 }
 
-foreach name {file chan} {
-
-    test mime-3.8.1.$name {Test mime with another bad email [SF Bug 631314 ]} -body {cleanly {
-	with.$name [localPath test-assets badmail2.txt] {
-	    set ctok [lindex [$tok property parts] 0]
-	}
-    }} -returnCodes 1 -result {end-of-string encountered while parsing multipart/form-data}
-}
-
-foreach name {file chan} {
-
-    test mime-3.8.2.$name {Test mime with another bad email [SF Bug 631314 ]} {cleanly {
-	with.$name [localPath test-assets badmail2.txt] -relax finalboundary {
-	    set res {}
-	    set ctok [lindex [$tok property parts] 0]
-	    lappend res [dictsort [$tok property]]
-	    lappend res [dictsort [$ctok property]]
-	    $tok .destroy
-	    string map [list $ctok CHILD] $res
-	}
-    }} {{content multipart/related encoding {} params {boundary ----=_NextPart_000_0000_2CBA2CBA.150C56D2} parts CHILD size 879} {content text/html encoding base64 params {} size 879}}
-}
 
 
 test mime-3.9 {Parse a MIME message with a charset encoded body and use [body decoded] to get it back} {cleanly {
@@ -373,8 +394,7 @@ This is a message in the scribble charset that tcl does not recognise.}
     lappend res [[$tok body decoded] configure -encoding]
     catch {[$tok body decoded] read} errmsg
     lappend res $errmsg
-}} {{text/plain {charset SCRIBBLE}} binary {This is a message in the scribble charset that tcl does not recognise.}}
-
+}} {{text/plain {charset SCRIBBLE}} iso8859-1 {This is a message in the scribble charset that tcl does not recognise.}}
 
 
 test mime-4.1 {Test qp::encode with a > 76 character string containing special chars.} {cleanly {
@@ -504,9 +524,9 @@ test mime-5.9 {Test word_encode with quoted-printable method and multibyte chara
 
 set n 10
 while {$n < 14} {
-    test mime-5.$n {Test word_encode with quoted-printable method and multibyte character across encoded word boundary} {cleanly {
+    test mime-5.$n {Test word_encode with quoted-printable method and multibyte character across encoded word boundary} [list cleanly n $n {
 	word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF" -maxlength [expr 42 + $n]
-    }} "=?EUC-JP?Q?Following_me_is_a_multibyte_character_?=
+    }] "=?EUC-JP?Q?Following_me_is_a_multibyte_character_?=
  =?EUC-JP?Q?=A4=CF?="
     incr n
 }
@@ -518,31 +538,32 @@ test mime-5.14 {Test word_encode with quoted-printable method and multibyte char
 
 set n 15
 while {$n < 23} {
-    test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {cleanly {
+    test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} [list cleanly n $n {
 	word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
-    }} =?UTF-8?Q?Here_is_a_triple_byte_encoded_character_?=
+    }] "=?UTF-8?Q?Here_is_a_triple_byte_encoded_character_?=
+ =?UTF-8?Q?=E3=81=AF?="
     incr n
 }
 
 while {$n < 25} {
-    test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {cleanly {
+    test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} [list cleanly n $n {
 	word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
-    }} =?UTF-8?Q?Here_is_a_triple_byte_encoded_character_=E3=81=AF?=
+    }] =?UTF-8?Q?Here_is_a_triple_byte_encoded_character_=E3=81=AF?=
     incr n
 }
 
 while {$n < 29} {
-    test mime-5.$n {Test word_encode with base64 method across encoded word boundaries} {cleanly {
+    test mime-5.$n {Test word_encode with base64 method across encoded word boundaries} [list cleanly n $n {
 	word_encode euc-jp base64 "There is a multibyte character \xA4\xCF" -maxlength [expr 28 + $n]
-    }} "=?EUC-JP?B?VGhlcmUgaXMgYSBtdWx0aWJ5dGUgY2hhcmFjdGVy?=
+    }] "=?EUC-JP?B?VGhlcmUgaXMgYSBtdWx0aWJ5dGUgY2hhcmFjdGVy?=
  =?EUC-JP?B?IKTP?="
     incr n
 }
 
 while {$n < 33} {
-    test mime-5.$n {Test word_encode with base64 method and triple byte character across encoded word boundary} {cleanly {
+    test mime-5.$n {Test word_encode with base64 method and triple byte character across encoded word boundary} [list cleanly n $n {
 	word_encode utf-8 base64 "Here is a multibyte character \xE3\x81\xAF" -maxlength [expr 23 + $n]
-    }} "=?UTF-8?B?SGVyZSBpcyBhIG11bHRpYnl0ZSBjaGFyYWN0ZXIg?=
+    }] "=?UTF-8?B?SGVyZSBpcyBhIG11bHRpYnl0ZSBjaGFyYWN0ZXIg?=
  =?UTF-8?B?44Gv?="
     incr n
 }
@@ -664,17 +685,20 @@ foreach {n encoded expected} {
     13 {} 
     {}
 } {
-    test mime-6.$n {Test field_decode (from RFC 2047, part 8)} {cleanly {
+    test mime-6.$n {Test field_decode (from RFC 2047, part 8)} [
+	list cleanly n $n encoded $encoded expected $expected {
+
 	field_decode $encoded
-    }} $expected ; # {}
+    }] $expected
 }
 
 foreach {bug n encoded expected} {
     764702 1 {(=?utf-8?Q?H=C3=BCrz?=)} {(Hürz)}
 } {
-    test mime-7.$n "Test field_decode (from SF Tcllib bug $bug)" {cleanly {
-	field_decode $encoded
-    }} $expected ; # {}
+    test mime-7.$n "Test field_decode (from SF Tcllib bug $bug)" [
+	list cleanly encoded $encoded {
+	    field_decode $encoded
+	}] $expected
 }
 
 
@@ -690,28 +714,32 @@ test mime-8.2 {Test reversemapencoding+mapencoding with alias} {cleanly {
 }} UTF-8
 
 
-foreach name {file chan} {
-    test mime-9.0.$name {Test chunk handling of serialize and helpers} {cleanly {
-	set in [makeFile [set data [string repeat [string repeat {123456789 } 10]\n 350]] input.txt]
-	set mi [makeFile {} mime.txt]
+cleanly {
+    foreach name {file chan} {
+	test mime-9.0.$name {Test chunk handling of serialize and helpers} [
+	    list cleanly name $name {
 
-	with.$name $in -canonical text/plain {
-	    [::tcllib::chan::base new chan1] .init [open $mi w]
-	    chan1 configure -translation binary
-	    $tok serialize -chan chan1 
-	    chan1 close
+	    set in [makeFile [set data [string repeat [string repeat {123456789 } 10]\n 350]] input.txt]
+	    set mi [makeFile {} mime.txt]
 
-	    with.$name $mi {
-		set newdata [[$tok body raw] read]
-		set res [string compare $data $newdata]
+	    with.$name $in -canonical text/plain {
+		[::tcllib::chan::base new chan1] .init [open $mi w]
+		chan1 configure -translation binary
+		$tok serialize -chan chan1 
+		chan1 close
 
-		removeFile input.txt
-		removeFile mime.txt
-		unset data newdata tok in mi
-		set res
+		with.$name $mi {
+		    set newdata [[$tok body raw] read]
+		    set res [string compare $data $newdata]
+
+		    removeFile input.txt
+		    removeFile mime.txt
+		    unset data newdata tok in mi
+		    set res
+		}
 	    }
-	}
-    }} 0
+	}] 0
+    }
 }
 
 set ::env(TZ) UTC0
@@ -776,8 +804,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
     set data [viewFile $out]
     file delete $in $out
     set data
-}} {Message-ID: <f60c78370648168a30158b8cda876db2f875d1531e86e5594c5a108dcf5209db@|>
-Content-ID: <93755e1312eacd488b6170673caa5e7a9a9445ce82ff11c934055bd1f907b229@|>
+}} {Message-ID: <f0349bb839fb06cd4d858de88c094b8922a43956a8c0c1a192fb9a2863ad96a5@|>
+Content-ID: <2d33a7fd638536de66c1ae9fce46cb98e4356a363e593148a130e45c390313ca@|>
 Content-Type: application/octet-stream
 	; name=a0036.dss
 Content-Disposition: attachment
@@ -825,30 +853,28 @@ so plain
 # -------------------------------------------------------------------------
 
 test mime-14.0 {ticket 5f455d6343} -setup {
-    set part  [mime::initialize \
-		   -canonical application/x-simile \
-		   -header [list "Content-Description" "Run Status"] \
-		   -encoding base64 -string "This is a test"]
-    set whole [mime::initialize -canonical multipart/mixed -parts [list $part]]
+    set part  [.new -canonical application/x-simile \
+	-headers [list "Content-Description" "Run Status"] \
+	-encoding base64 -string "This is a test"]
+    set whole [.new -canonical multipart/mixed -parts [list $part]]
 
     set saved checkmime.msg
     set stm [open $saved w]
-    mime::copymessage $whole $stm
+    mime::serialize $whole -chan $stm
     close $stm
-
 } -body {
     set stm [open $saved r]
     set str [read $stm]
     close $stm
-    set restore [mime::initialize -string $str]
+    set restore [.new -string $str]
 } -cleanup {
-    mime::finalize $restore
+    $restore .destroy
     unset part whole saved stm str
 } -match glob -result "::mime::*"
 
 # -------------------------------------------------------------------------
 
-test mime-14.0 {cleanly {
+test mime-14.1 {cleanly {
 	hostname argument to parseaddress
 }} {
 	set parsed [parseaddress hostname fakedomain.fake {Here <h>}] 
@@ -859,7 +885,7 @@ test mime-14.0 {cleanly {
 
 
 
-test mime-14.1 {cleanly {
+test mime-14.2 {cleanly {
 	special characters in local part
 }} {
 	set parsed [parseaddress hostname fakedomain.fake foo<>bar@grill.com]
@@ -868,12 +894,12 @@ test mime-14.1 {cleanly {
 	error {expecting mailbox in local-part (found >)} friendly foo group {} \
 	local {} memberP 0 phrase foo proper {foo <>} route {}]]
 
-test mime-14.2 {cleanly {
+test mime-14.3 {
 	special characters in local part
-}} {
-	set parsed [parseaddress hostname fakedomain.fake {"foobar"@grill.com}]
+} {cleanly {
+    set parsed [parseaddress hostname fakedomain.fake {"foobar"@grill.com}]
     list [llength $parsed] [lindex $parsed 0]
-} [list 1 [
+}} [list 1 [
     list address {"foobar"@grill.com} comment {} domain grill.com error {} \
     friendly foobar group {} local {"foobar"} memberP 0 phrase {} \
     proper {"foobar"@grill.com} route {}]]
@@ -918,8 +944,7 @@ so plain
 
 
 set char [encoding convertfrom utf-8 \xE3\x81\xAF]
-test mime-16.1 {cleanly {
-}} {
+test mime-16.1 {} {
     set res {}
     set mime [.new {} -canonical text/plain -string {dawg one}]
     $mime header set Content-Disposition attachment [list param1 $char]
@@ -930,7 +955,7 @@ test mime-16.1 {cleanly {
     return $res
 
 } [list "MIME-Version: 1.0\r
-Message-ID: <c7aa6d4b48aa9fcfe18d9c24adf71de96efbaaf2e261eb1de738ef45f453d1a4@|>\r
+Message-ID: <056eb988475329e0d14defde74ba007f9b56e6f0d3a04ad773528dec1336ff26@|>\r
 Content-ID: <086570e97284c5bc5145f32689a5342363b10b64963446293b83930fa8a9fa45@|>\r
 Content-Type: text/plain\r
 Content-Disposition: attachment\r
@@ -938,7 +963,7 @@ Content-Disposition: attachment\r
 \r
 dawg one" \
 [list Content-ID {<086570e97284c5bc5145f32689a5342363b10b64963446293b83930fa8a9fa45@|> {}} Content-Type {text/plain {}} \
-    Message-ID {<c7aa6d4b48aa9fcfe18d9c24adf71de96efbaaf2e261eb1de738ef45f453d1a4@|> {}} \
+    Message-ID {<056eb988475329e0d14defde74ba007f9b56e6f0d3a04ad773528dec1336ff26@|> {}} \
     Content-Disposition [list attachment [list param1 $char]]]
 
 ]
@@ -1031,7 +1056,7 @@ test mime-19.1 {
 "
 
 
-test mime-19.1 {
+test {mime cookie serialization} {
 	cookie serialization
 } {
 	set mime [.new {} -spec http -string {}]
@@ -1063,11 +1088,14 @@ test mime-19.2 {
 
 
 testsuiteCleanup
-set [namespace current]::done 1
 return
 }
 
-after 0 [list ::coroutine [info cmdcount]_main [namespace which main]]
+after 0 [list ::coroutine [info cmdcount]_main ::apply [list {} {
+    variable done
+    catch main cres copts
+    set done [list $copts $cres]
+} [namespace current]]]
 vwait [namespace current]::done
-return
+return -options {*}$done
 
