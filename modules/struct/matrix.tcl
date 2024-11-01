@@ -2687,12 +2687,12 @@ proc ::struct::matrix::CheckSerialization {ser rvar cvar dvar} {
 
     if {[llength $d] > $r} {
 	return -code error \
-		"error in serialization: data for to many rows."
+		"error in serialization: data for too many rows."
     }
     foreach rv $d {
 	if {[llength $rv] > $c} {
 	    return -code error \
-		    "error in serialization: data for to many columns."
+		    "error in serialization: data for too many columns."
 	}
     }
 
