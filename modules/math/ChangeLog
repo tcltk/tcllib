@@ -1,3 +1,6 @@
+2024-11-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
+        * statistics.tcl: Check if the x and y values for the linear model show variation
+
 2024-11-15  Arjen Markus <arjenmarkus@users.sourceforge.net>
         * elliptic.tcl: Correct the description of dn (pers.comm. K. Koehler)
 

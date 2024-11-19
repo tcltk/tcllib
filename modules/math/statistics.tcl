@@ -1002,6 +1002,10 @@ proc ::math::statistics::linear-model { xdata ydata {intercept 1} } {
    set sumy2 0.0
    set sumxy 0.0
    set df    0
+   set minx  [expr {Inf}]
+   set miny  [expr {Inf}]
+   set maxx  [expr {-Inf}]
+   set maxy  [expr {-Inf}]
    foreach x $xdata y $ydata {
       if { $x != "" && $y != "" } {
          set sumx  [expr {$sumx+$x}]
@@ -1010,13 +1014,18 @@ proc ::math::statistics::linear-model { xdata ydata {intercept 1} } {
          set sumy2 [expr {$sumy2+$y*$y}]
          set sumxy [expr {$sumxy+$x*$y}]
          incr df
+
+         set minx  [expr {min($x,$minx)}]
+         set miny  [expr {min($y,$miny)}]
+         set maxx  [expr {max($x,$maxx)}]
+         set maxy  [expr {max($y,$maxy)}]
       }
    }
 
    if { $df <= 2 } {
       return -code error -errorcode ARG "$TOOFEWDATA: too few valid data"
    }
-   if { $sumx2 == 0.0 } {
+   if { $minx == $maxx || $miny == $maxy } {
       return -code error -errorcode ARG "$TOOFEWDATA: independent values are all the same"
    }
 
