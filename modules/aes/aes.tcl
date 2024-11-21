@@ -9,12 +9,6 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-# Copyright (c) 2022-2024 Nathan Coulter <org.tcl-lang.tcllib@pooryorick.com>
-#	ethereum 0x0b5049C148b00a216B29641ab16953b6060Ef8A6
-#
-# See the file "license_fsul.terms" for information on usage and redistribution
-# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-
 # A Tcl implementation of the Advanced Encryption Standard (US FIPS PUB 197)
 #
 # AES is a block cipher with a block size of 128 bits and a key size of 128,

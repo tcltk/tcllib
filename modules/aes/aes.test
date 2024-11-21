@@ -1,15 +1,5 @@
 # aes.test - Copyright (c) 2005 Thorsten Schloermann
 
-# Copyright (C) 2022-204 Nathan Coulter <org.tcl-lang.core.tcllib@pooryorick.com> 
-#	ethereum 0x0b5049C148b00a216B29641ab16953b6060Ef8A6
-
-# You may distribute and/or modify this program under the terms of the Software
-# Utilization License version 3 or (at your option) any later version.
-#
-# See the file "license_fsul.terms" for information on usage and redistribution
-# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-
-
 # the test-values are taken from:
 #     http://csrc.nist.gov/CryptoToolkit/aes/rijndael/rijndael-vals.zip
 #     where only the first 12 entries of Know Answer Test for variable key and

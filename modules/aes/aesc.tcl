@@ -3,9 +3,8 @@
 # A critcl C implementation of AES
 #
 # Copyright (C) 2022-2024 Nathan Coulter <org.tcl-lang.core.tcllib@pooryorick.com> 
-#	ethereum 0x0b5049C148b00a216B29641ab16953b6060Ef8A6
 
-# See the file "license_fsul.terms" for information on usage and redistribution
+# See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 9
