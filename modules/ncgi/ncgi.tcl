@@ -9,15 +9,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-# Copyright (c) 2018-2024 Poor Yorick
-#
-# You may distribute and/or modify this program under the terms of the GNU
-# Affero General Public License as published by the Free Software Foundation,
-# either version 3 of the License, or (at your option) any later version.
-#
-# See the file "COPYING" for information on usage and redistribution
-# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-
 # Please note that Don Libes' has a "cgi.tcl" that implements version 1.0
 # of the cgi package.  That implementation provides a bunch of cgi_ procedures
 # (it doesn't use the ::cgi:: namespace) and has a wealth of procedures for

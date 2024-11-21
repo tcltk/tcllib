@@ -1,3 +1,5 @@
+# mime.tcl - MIME body parts
+#
 # (c) 1999-2000 Marshall T. Rose
 # (c) 2000      Brent Welch
 # (c) 2000      Sandeep Tamhankar
@@ -11,17 +13,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-
-# Copyright (c) 2018-2024 Poor Yorick
-#
-# You may distribute and/or modify this program under the terms of the GNU
-# Affero General Public License as published by the Free Software Foundation,
-# either version 3 of the License, or (at your option) any later version.
-#
-# See the file "COPYING" for information on usage and redistribution
-# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-
-# mime.tcl - MIME body parts
 #
 # Influenced by Borenstein's/Rose's safe-tcl (circa 1993) and Darren New's
 # unpublished package of 1999.
