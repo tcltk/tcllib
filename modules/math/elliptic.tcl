@@ -188,7 +188,7 @@ proc ::math::special::sn { u k } {
 }
 
 # dn --
-#     Compute the elliptic function sn
+#     Compute the elliptic function dn
 #
 # Arguments:
 #     u           Independent variable
