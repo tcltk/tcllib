@@ -18,7 +18,7 @@ notably Butterworth and Chebyshev low-pass and high-pass filters. The procedures
 allow to filter an entire data series as well as filter data one
 by one.
 
-Note: [url https://en.wikipedia.org/wiki/Digital_filter] and other pages on Wikipedia describe
+Note: [uri https://en.wikipedia.org/wiki/Digital_filter] and other pages on Wikipedia describe
 the principles and design considerations of these digital filters.
 
 Note: This is a reimplementation compared to version 0.3, which was based on GPL-licensed code.
@@ -54,7 +54,7 @@ Filter the entire data series based on the filter coefficients.
 [list_end]
 
 
-[call [cmd ::math::filters::filterChebyshev] [arg lowpass] [arg order] [arg samplefreq] [arg cutofffreq] [opt epsilon]]
+[call [cmd ::math::filters::filterChebyshev] [arg lowpass] [arg order] [arg samplefreq] [arg cutofffreq] [opt [arg epsilon]]]
 
 Determine the coefficients for a Chebyshev filter of given (even) order. The coefficients are returned as
 a nested list, suitable for the [term filter] command or method, For this type of filters an extra parameter
@@ -65,7 +65,7 @@ can be given, the so-called ripple factor. This controls the smoothness of the g
 [arg_def integer order] The order of the filter to be generated - it must be even
 [arg_def double samplefreq] Sampling frequency of the data series
 [arg_def double cutofffreq] Cut-off frequency for the filter (must be less than half the sampling frequency)
-[opt_def double epsilon] Ripple factor, defaults to 0.1
+[arg_def double epsilon] Ripple factor, defaults to 0.1
 [list_end]
 
 
