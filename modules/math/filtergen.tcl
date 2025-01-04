@@ -2,36 +2,20 @@
 #     Package for digital filters
 #     filterButterworth:
 #         Generate the coefficients for a low-pass or high-pass Butterworth filter
+#     filterChebyshev:
+#         Generate the coefficients for a low-pass or high-pass Chebyshev filter
 #     filter:
 #         Filter an entire series of data
 #     filterObject:
 #         Class to create filters
 #
-#     Derived from: https://www.meme.net.au/butterworth.html
+#     Derived from: https://github.com/adis300/filter-c, which has an MIT license
+#     (Note: the original code had a small error, this has been corrected here)
 #
-#     Here is the license notice from this webpage:
+#     More information on Chebyshev filters: https://en.wikipedia.org/wiki/Chebyshev_filter
 #
-#       @licstart  The following is the entire license notice for the
-#       JavaScript code in this page.
-#
-#       Copyright (C) 2013 Glenn McIntosh
-#
-#       The JavaScript code in this page is free software: you can
-#       redistribute it and/or modify it under the terms of the GNU
-#       General Public License (GNU GPL) as published by the Free Software
-#       Foundation, either version 3 of the License, or (at your option)
-#       any later version.  The code is distributed WITHOUT ANY WARRANTY;
-#       without even the implied warranty of MERCHANTABILITY or FITNESS
-#       FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-#
-#       As additional permission under GNU GPL version 3 section 7, you
-#       may distribute non-source (e.g., minimized or compacted) forms of
-#       that code without the copy of the GNU GPL normally required by
-#       section 4, provided you include this license notice and a URL
-#       through which recipients can access the Corresponding Source.
-#
-#       @licend  The above is the entire license notice
-#       for the JavaScript code in this page.
+#     Note:
+#     We can implement band pass/stop filters from the same source.
 #
 package require Tcl 8.6 9
 package require TclOO
@@ -48,67 +32,98 @@ namespace eval ::math::filters {}
 #     cutofffreq           Cut-off frequency (3 dB point)
 #
 # Returns:
-#     List (nexted list) of coefficients for x and y and the scale factor
+#     List (nested list) of coefficients for x and y and the scale factor
 #
 proc ::math::filters::filterButterworth {lowpass order samplefreq cutofffreq} {
 
     ##nagelfar ignore
-    if { ![string is integer $order] || $order <= 0 } {
-        return -code error "The order must be a positive integer"
+    if { ![string is integer $order] || $order <= 0 || $order % 2 != 0 } {
+        return -code error "The order must be an even positive integer"
     }
     if { $samplefreq <= 0.0 || $cutofffreq <= 0.0 } {
         return -code error "The frequencies must be positive"
     }
-    if { $samplefreq < $cutofffreq } {
-        return -code error "The cutoff frequency must be lower than the sample frequency"
+    if { $samplefreq < 2.0 * $cutofffreq } {
+        return -code error "The cutoff frequency must be higher than half the sample frequency"
     }
 
     set pi     [expr {acos(-1.0)}]
-    set cutoff [expr {-$cutofffreq / double($samplefreq) * 2.0 * $pi}]
 
-    set yf0    [lrepeat [expr {$order+1}] 0.0]
-    set yf1    $yf0
-    set xf     $yf0
+    set a      [expr {tan($pi * $cutofffreq / $samplefreq)}]
+    set a2     [expr {$a**2}]
 
-    lset yf0   0 -1.0
-    lset yf1   0  0.0
-    lset xf    0  1.0
+    set s      [expr {1.0 * $samplefreq}]
+    set order  [expr {$order / 2}]
 
-    set scale  1.0
-    set invert [expr {$lowpass == 1? 1.0 : -1.0}]
-
-    for {set i 1} {$i <= $order} {incr i} {
-        set angle  [expr {($i-0.5) / $order * $pi}]
-        set sinsin [expr {1.0 - sin($cutoff) * sin($angle)}]
-        set rcof0  [expr {-cos($cutoff) / $sinsin}]
-        set rcof1  [expr { sin($cutoff) * cos($angle) / $sinsin}]
-
-        lset yf0 $i 0.0
-        lset yf1 $i 0.0
-
-        for {set j $i} {$j > 0} {incr j -1} {
-            set yf0jm1 [lindex $yf0 [expr {$j-1}]]
-            set yf1jm1 [lindex $yf1 [expr {$j-1}]]
-            set yf0j   [lindex $yf0 $j]
-            set yf1j   [lindex $yf1 $j]
-
-            lset yf0 $j [expr {$yf0j + $rcof0 * $yf0jm1 + $rcof1 * $yf1jm1}]
-            lset yf1 $j [expr {$yf1j + $rcof0 * $yf1jm1 - $rcof1 * $yf0jm1}]
-        }
-
-        set  scale [expr {$scale * $sinsin * 2.0 / (1.0 - cos($cutoff) * $invert)}]
-        set  xfim1 [lindex $xf [expr {$i-1}]]
-        lset xf $i [expr {$xfim1 * $invert * ($order-$i+1)/double($i)}]
+    for {set i 0} {$i < $order} {incr i} {
+        set r [expr {sin($pi * (2.0 * $i + 1.0) / (4.0 * $order))}]
+        set s [expr {$a2 + 2.0 * $a * $r + 1.0}]
+        lappend A  [expr {$a2 / $s}]
+        lappend d1 [expr {2.0 * (1.0 - $a2) / $s}]
+        lappend d2 [expr {-($a2 - 2.0 * $a * $r + 1.0) / $s}]
     }
 
-    set scale [expr {sqrt($scale)}]
+    set coeffw1 [expr {$lowpass ? 2.0 : -2.0}]
+    set scale   [expr {1.0}]
 
-    for {set i 1} {$i <= $order} {incr i} {
-        set  yf0i   [lindex $yf0 $i]
-        lset yf0 $i [expr {$yf0i * $scale}]
+    return [list $coeffw1 $scale $A $d1 $d2]
+}
+
+# filterChebyshev --
+#     Generate the coefficients for a low-pass/high-pass Chebyshev filter
+#
+# Arguments:
+#     lowpass              Low-pass if 1, high-pass if 0
+#     order                Order of the filter
+#     samplefreq           Sample frequency
+#     cutofffreq           Cut-off frequency (3 dB point)
+#     epsilon              Ripple factor (defaults to 0.1)
+#
+# Returns:
+#     List (nested list) of coefficients for x and y and the scale factor
+#
+proc ::math::filters::filterChebyshev {lowpass order samplefreq cutofffreq {epsilon 0.1}} {
+
+    ##nagelfar ignore
+    if { ![string is integer $order] || $order <= 0 || $order % 2 != 0 } {
+        return -code error "The order must be an even positive integer"
+    }
+    if { $samplefreq <= 0.0 || $cutofffreq <= 0.0 } {
+        return -code error "The frequencies must be positive"
+    }
+    if { $samplefreq < 2.0 * $cutofffreq } {
+        return -code error "The cutoff frequency must be higher than half the sample frequency"
+    }
+    if { $epsilon <= 0.0 } {
+        return -code error "The ripple factor should be positive"
     }
 
-    return [list $xf [lrange $yf0 1 end] $scale]
+    set pi     [expr {acos(-1.0)}]
+
+    set a      [expr {tan($pi * $cutofffreq / $samplefreq)}]
+    set a2     [expr {$a**2}]
+
+    set s      [expr {1.0 * $samplefreq}]
+    set order  [expr {$order / 2}]
+
+    set u      [expr {log((1.0 + sqrt(1.0 + $epsilon**2)) / $epsilon)}]
+    set cu     [expr {cosh($u / (2.0 * $order))}]
+    set su     [expr {sinh($u / (2.0 * $order))}]
+
+    for {set i 0} {$i < $order} {incr i} {
+        set b [expr {sin($pi * (2.0 * $i + 1.0) / (4.0 * $order)) * $su}]
+        set c [expr {cos($pi * (2.0 * $i + 1.0) / (4.0 * $order)) * $cu}]
+        set c [expr {$b**2 + $c**2}]
+        set s [expr {$a2 * $c + 2.0 * $a * $b + 1.0}]
+        lappend A  [expr {$a2 / (4.0 * $s)}]
+        lappend d1 [expr {2.0 * (1.0 - $a2 * $c) / $s}]
+        lappend d2 [expr {-($a2 * $c - 2.0 * $a * $b + 1.0) / $s}]
+    }
+
+    set coeffw1 [expr {$lowpass ? 2.0 : -2.0}]
+    set scale   [expr {2.0 / $epsilon}]
+
+    return [list $coeffw1 $scale $A $d1 $d2]
 }
 
 # filter --
@@ -125,34 +140,29 @@ proc ::math::filters::filterButterworth {lowpass order samplefreq cutofffreq} {
 #     The initial part of the filtered data is a list of zeroes
 #
 proc ::math::filters::filter {coeff data} {
-    lassign $coeff xcoeff ycoeff scale
+    lassign $coeff coeffw1 scale list_A list_d1 list_d2
 
     set filtered {}
 
-    set yv [lrepeat [llength $ycoeff] [expr {0.0}]]
+    set n       [llength $list_A]
+    set list_w0 [lrepeat $n [expr {0.0}]]
+    set list_w1 $list_w0
+    set list_w2 $list_w0
 
-    set noxcoeff [llength $xcoeff]
-    set xcoeff   [lreverse $xcoeff]
-    set ycoeff   [lreverse $ycoeff]
+    for {set j 0} {$j < [llength $data]} {incr j} {
+        set x [lindex $data $j]
 
-    for {set i 0} {$i <= [llength $data]-$noxcoeff} {incr i} {
-        set xv [lrange $data $i [expr {$i+$noxcoeff-1}]]
-
-        set f  [expr {0.0}]
-
-        foreach x $xv c $xcoeff {
-            set f [expr {$f + $c * $x}]
+        set i 0
+        foreach A $list_A d1 $list_d1 d2 $list_d2 w1 $list_w1 w2 $list_w2 {
+            set  w0 [expr {$d1 * $w1 + $d2 * $w2 + $x}]
+            set  x  [expr {$A * ($w0 + $coeffw1 * $w1 + $w2)}]
+            lset list_w0 $i $w0
+            lset list_w2 $i $w1
+            lset list_w1 $i $w0
+            incr i
         }
 
-        foreach y $yv c $ycoeff {
-            set f [expr {$f + $c * $y}]
-        }
-
-        set f [expr {$f / $scale}]
-
-        lappend filtered $f
-
-        set yv [concat [lrange $yv 1 end] $f]
+        lappend filtered [expr {$scale * $x}]
     }
 
     return $filtered
@@ -163,7 +173,9 @@ proc ::math::filters::filter {coeff data} {
 #
 # Arguments:
 #     coeff           Filter coefficients, as generated by filtergen
-#     yinit           (Optional) initial y-values
+#
+# Note:
+#     Dropping the optional initial values
 #
 ::oo::class create ::math::filters::filterObject {
     variable xcoeff
@@ -175,70 +187,60 @@ proc ::math::filters::filter {coeff data} {
 
     #
     # Constructor:
-    # - the arguments coeff and, optionally, yinit
+    # - the arguments coeff as provided by the filter generator
     # - prepare everything
     #
-    constructor {coeff {yinit {}}} {
-        variable xcoeff
-        variable ycoeff
+    constructor {coeff} {
+        variable coeffw1
         variable scale
-        variable yv
-        variable xv
-        variable yv_org
-        variable xv_org
+        variable list_A
+        variable list_d1
+        variable list_d2
+        variable list_w0
+        variable list_w1
+        variable list_w2
 
-        lassign $coeff xcoeff ycoeff scale
+        lassign $coeff coeffw1 scale list_A list_d1 list_d2
 
-        set xcoeff   [lreverse $xcoeff]
-        set ycoeff   [lreverse $ycoeff]
-
-        if { $yinit eq {} } {
-            set yv [lrepeat [llength $ycoeff] [expr {0.0}]]
-        } else {
-            if { [llength $yinit] != [llength $ycoeff] } {
-                return -code error "Length of initial y-values must be equal to the number of y coefficients"
-            }
-            set yv $yinit
-        }
-        set xv [lrepeat [llength $xcoeff] [expr {0.0}]]
-
-        set xv_org $xv
-        set yv_org $yv
+        set n       [llength $list_A]
+        set list_w0 [lrepeat $n [expr {0.0}]]
+        set list_w1 $list_w0
+        set list_w2 $list_w0
     }
 
     method filter {x} {
-        variable xcoeff
-        variable ycoeff
+        variable coeffw1
         variable scale
-        variable yv
-        variable xv
+        variable list_A
+        variable list_d1
+        variable list_d2
+        variable list_w0
+        variable list_w1
+        variable list_w2
 
-        set xv [concat [lrange $xv 1 end] $x]
-        set f  [expr {0.0}]
-
-        foreach x $xv c $xcoeff {
-            set f [expr {$f + $c * $x}]
+        set i 0
+        foreach A $list_A d1 $list_d1 d2 $list_d2 w1 $list_w1 w2 $list_w2 {
+            set  w0 [expr {$d1 * $w1 + $d2 * $w2 + $x}]
+            set  x  [expr {$A * ($w0 + $coeffw1 * $w1 + $w2)}]
+            lset list_w0 $i $w0
+            lset list_w2 $i $w1
+            lset list_w1 $i $w0
+            incr i
         }
 
-        foreach y $yv c $ycoeff {
-            set f [expr {$f + $c * $y}]
-        }
-
-        set f  [expr {$f / $scale}]
-
-        set yv [concat [lrange $yv 1 end] $f]
-
-        return $f
+        return [expr {$scale * $x}]
     }
 
     method reset {} {
-        variable yv
-        variable xv
-        variable xv_org
-        variable yv_org
+        variable list_A
+        variable list_w0
+        variable list_w1
+        variable list_w2
 
-        set xv $xv_org
-        set yv $yv_org
+        set n       [llength $list_A]
+        set list_w0 [lrepeat $n [expr {0.0}]]
+        set list_w1 $list_w0
+        set list_w2 $list_w0
     }
 }
 
@@ -248,4 +250,4 @@ namespace eval ::math::filters {
     namespace export filterButterworth filter filterObject
 }
 
-package provide math::filters 0.3
+package provide math::filters 0.4
