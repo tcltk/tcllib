@@ -12,7 +12,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.5 9
-package provide tar 0.13
+package provide tar 0.14
 
 # # ## ### ##### ######## ############# #####################
 ##

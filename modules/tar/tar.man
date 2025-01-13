@@ -1,5 +1,5 @@
 [comment {-*- mode: tcl ; fill-column: 80 -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.13]
+[vset PACKAGE_VERSION 0.14]
 [manpage_begin tar n [vset PACKAGE_VERSION]]
 [keywords archive]
 [keywords {tape archive}]
