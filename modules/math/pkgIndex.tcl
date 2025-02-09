@@ -32,4 +32,4 @@ package ifneeded math::figurate          1.1   [list source [file join $dir figu
 package ifneeded math::filters           0.3   [list source [file join $dir filtergen.tcl]]
 package ifneeded math::probopt           1.1   [list source [file join $dir probopt.tcl]]
 package ifneeded math::changepoint       0.2   [list source [file join $dir changepoint.tcl]]
-package ifneeded math::combinatorics     2.1   [list source [file join $dir combinatoricsExt.tcl]]
+package ifneeded math::combinatorics     2.1.1 [list source [file join $dir combinatoricsExt.tcl]]
