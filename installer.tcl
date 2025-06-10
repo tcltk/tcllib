@@ -294,16 +294,18 @@ proc defaults {} {
 	    # Starkit
 	    set libdir [file join [file dirname [file dirname [info nameofexecutable]]] lib]
 	} else {
+	    puts "$::auto_path"
 	    # Unwrapped.
 	    foreach path $::auto_path {
-		if {[string match "^//zipfs:" $path]} {
+		puts $path
+		if {[string match "*zipfs:*" $path]} {
 		    continue
 		}
 		set libdir $path
 		break
 	    }
 	}
-
+	puts "libdir is $libdir"
 	set basedir [file dirname $libdir]
 	set bindir  [file join $basedir bin]
 
