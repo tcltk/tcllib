@@ -1,3 +1,11 @@
+2025-02-09  Arjen Markus <arjenmarkus@users.sourceforge.net>
+        * combinatoricsExt.tcl: Fix a typo (ticket e99fe133e61b7868a4c2f7d9c2e6cb2f164a7246)
+
+2025-01-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
+        * filtergen.tcl: Replace the existing implementation by one based on an MIT license, add Chebyshev filters
+        * filtergen.man: Document the new Chebyshev filters
+        * filtergen.test: Added tests for the Chebyshev filters
+
 2024-11-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
         * statistics.tcl: Check if the x and y values for the linear model show variation
 

@@ -10,7 +10,7 @@
 #
 package require Tcl 8.6 9
 package require TclOO
-package provide math::combinatorics 2.1
+package provide math::combinatorics 2.1.1
 
 # ::math::combinatorics --
 #     Encompassing namespace and auxiliary variables
@@ -50,7 +50,7 @@ proc ::math::combinatorics::permutations {n} {
         return [lindex $factorial $n]
     }
 
-    set newfactorial [lindex $$factorial end]
+    set newfactorial [lindex $factorial end]
 
     for {set k [llength $factorial]} { $k <= $n} {incr k} {
         set newfactorial [expr {$newfactorial * $k}]

@@ -126,7 +126,7 @@ test tar-tkt-9f4c0e3e95-1.0 {Ticket 9f4c0e3e95, A} -setup {
     unset tarfile
 } -result {zero-two}
 
-test tar-tkt-9f4c0e3e95-1.1 {Ticket 9f4c0e3e95, B, } -setup {
+test tar-tkt-9f4c0e3e95-1.1 {Ticket 9f4c0e3e95, B} -setup {
     set tarfile [setup-tkt-9f4c0e3e95]
 } -body {
     tar::get $tarfile 0b10
@@ -134,6 +134,18 @@ test tar-tkt-9f4c0e3e95-1.1 {Ticket 9f4c0e3e95, B, } -setup {
     cleanup-tkt-9f4c0e3e95
     unset tarfile
 } -returnCodes error -result {Tar "tartest/t.tar": File "0b10" not found}
+
+# -------------------------------------------------------------------------
+
+test tar-tkt-b01462dff7-1.0 {Ticket b01462dff7} -setup {
+    set tarfile [localPath tests/b01462dff7.tar]
+} -body {
+    tar::untar $tarfile ; set _ "" ;# squash and ignore untar result
+} -cleanup {
+    # remove the extracted files
+    file delete cp.html fields.c grammar.lsp sum xargs.1
+    unset tarfile _
+} -result {}
 
 # -------------------------------------------------------------------------
 testsuiteCleanup
