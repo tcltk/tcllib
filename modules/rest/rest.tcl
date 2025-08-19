@@ -4,13 +4,13 @@
 #
 # Copyright (c) 2009 Aaron Faupell
 
-package require Tcl 8.5 9
+package require Tcl 8.5 9+
 package require http 2.7
 package require json
 package require tdom
 package require base64
 
-package provide rest 1.7
+package provide rest 1.8
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -43,14 +43,20 @@ proc ::rest::simple {url query args} {
 
     DetermineMethod config
 
-    if {[string first " " $query] > 0} {
-        # if query has a space assume it is a list of key value pairs, and do the formatting
+#### CLIF FIX
+    # if query has a space assume it might be a list of key value pairs, 
+    #   and do the formatting
+    # Unless there's a space and it's a single list element,
+    #   then it's more likely a json encoded string, so don't touch it.
+
+  if {([string first " " $query] > 0) && ([llength $query] > 1)} {
         set query [::http::formatQuery {*}$query]
     } elseif {[string first ? $url] > 0 && $query == ""} {
         # if the url contains a query string and query empty then split it to the correct vars
         set query [join [lrange [split $url ?] 1 end] ?]
         set url [lindex [split $url ?] 0]
     }
+#### CLIF FIX
 
     if {[dict exists $config auth]} {
         set auth [dict get $config auth]
@@ -148,6 +154,7 @@ proc ::rest::create_interface {name} {
 
     namespace eval ::$name {}
     foreach call [array names in] {
+
         set config $in($call)
         set proc [list]
 
@@ -232,7 +239,30 @@ proc ::rest::create_interface {name} {
             lappend proc "set query \[::${name}::[lindex [dict get $config auth] 1] \$query]"
         }
 
-        lappend proc {set query [::http::formatQuery {*}$query]}
+#        lappend proc {set query [::http::formatQuery {*}$query]}
+# CLIF FIX
+        # If there's headers, and if there's content-type,
+	# and if that's application/json, use json format
+	# else use formatQuery
+        if {[dict exists $config headers]} {
+	  set headers [string tolower [dict get $config headers]]
+	  if {[dict exists $headers content-type]} {
+	    set ctype [dict get $headers content-type]
+	    switch $ctype {
+	      application/json {
+                lappend proc {set query [json::write object-string {*}$query]}
+	      }
+	      application/x-www-form-urlencoded -
+	      default {
+                lappend proc {set query [::http::formatQuery {*}$query]}
+	      }
+	    }
+	  }
+	} else {
+          lappend proc {set query [::http::formatQuery {*}$query]}
+	}
+	
+# CLIF FIX
 
         # if this is an async call (has defined a callback)
         # then end the main proc here by returning the http token
@@ -438,7 +468,7 @@ proc ::rest::parameters {url args} {
 #       the data from the http reply, or an http token if the request was async
 #
 proc ::rest::_call {callback headers url query body error_body} {
-    #puts "_call [list $callback $headers $url $query $body $error_body]"
+    puts "_call [list C: $callback\n H: $headers\n U $url\n Q $query\n B $body\n E $error_body]"
     # get the settings from the calling proc
     upvar config config
 
@@ -478,7 +508,14 @@ proc ::rest::_call {callback headers url query body error_body} {
     #puts "opts $opts"
     #puts "geturl $url"
     #return
-    set t        [http::geturl $url -headers $headers {*}$opts]
+
+# CLIF FIX
+    if {$headers ne ""} {
+      set t        [http::geturl $url -headers $headers {*}$opts]
+    } else {
+      set t        [http::geturl $url {*}$opts]
+    }
+# CLIF FIX
     set data     [http::data  $t]
     set httpCode [http::ncode $t]
 
@@ -492,7 +529,14 @@ proc ::rest::_call {callback headers url query body error_body} {
 	set retList [list HTTP $httpCode]
         if {[string match {30[123]} $httpCode]} {
             upvar #0 $t a
-            lappend retList [dict get $a(meta) Location]
+
+### CLIF FIX ###
+	    if {[dict exists $a(meta) Location]} {
+              lappend retList [dict get $a(meta) Location]
+	    } else {
+	      lappend retList "Moved to undefined location"
+	    }
+### CLIF FIX ###
         }
         if {$error_body} {lappend retList $data}
         return -code error $retList
