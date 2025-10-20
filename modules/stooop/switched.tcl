@@ -46,9 +46,9 @@ package provide switched 2.2.2
         }
         # check validity of constructor options, which always take precedence
         # for initialization
-        foreach {option value} $($this,arguments) {
-            if {[catch {string compare $($this,$option) $value} different]} {
-                error "$($this,_derived): unknown option \"$option\""
+        foreach {option value} [set ($this,arguments)] {
+            if {[catch {string compare [set ($this,$option)] $value} different]} {
+                error "[set ($this,_derived)]: unknown option \"$option\""
             }
             if {$different} {
                 set ($this,$option) $value
@@ -59,7 +59,7 @@ package provide switched 2.2.2
         # all option values are initialized before any of the set procedures are
         # called
         foreach option [array names initialize] {
-            $($this,_derived)::set$option $this $($this,$option)
+	    [set ($this,_derived)]::set$option $this [set ($this,$option)]
         }
         set ($this,complete) 1
     }
@@ -71,7 +71,7 @@ package provide switched 2.2.2
         foreach {option value} $args {
             # check all options validity before doing anything else
             if {![info exists ($this,$option)]} {
-                error "$($this,_derived): unknown option \"$option\""
+                error "[set ($this,_derived)]: unknown option \"$option\""
             }
         }
         if {[llength $args]==1} {
@@ -85,15 +85,15 @@ package provide switched 2.2.2
         # option data member is set prior to invoking the procedure in case
         # other procedures are invoked and expect the new value
         foreach {option value} $args {
-            if {![string equal $($this,$option) $value]} {
-                $($this,_derived)::set$option $this [set ($this,$option) $value]
+            if {![string equal [set ($this,$option)] $value]} {
+                [set ($this,_derived)]::set$option $this [set ($this,$option) $value]
             }
         }
     }
 
     proc cget {this option} {
-        if {[catch {set value $($this,$option)}]} {
-            error "$($this,_derived): unknown option \"$option\""
+        if {[catch {set value [set ($this,$option)]}]} {
+            error "[set ($this,_derived)]: unknown option \"$option\""
         }
         return $value                   ;# return specified option current value
     }
@@ -102,11 +102,11 @@ package provide switched 2.2.2
         foreach description [options $this] {
             if {[string equal [lindex $description 0] $option]} {
                 if {[llength $description]<3} {              ;# no initial value
-                    lappend description $($this,$option) ;# append current value
+                    lappend description [set ($this,$option)] ;# append current value
                     return $description
                 } else {
                     # set current value:
-                    return [lreplace $description 2 2 $($this,$option)]
+                    return [lreplace $description 2 2 [set ($this,$option)]
                 }
             }
         }
@@ -118,12 +118,12 @@ package provide switched 2.2.2
         foreach description [options $this] {
             if {[llength $description]<3} {                  ;# no initial value
                 # append current value:
-                lappend description $($this,[lindex $description 0])
+                lappend description [set ($this,[lindex $description 0])]
                 lappend descriptions $description
             } else {
                 # set current value:
                 lappend descriptions [lreplace\
-                    $description 2 2 $($this,[lindex $description 0])\
+                    $description 2 2 [set ($this,[lindex $description 0])]\
                 ]
             }
         }

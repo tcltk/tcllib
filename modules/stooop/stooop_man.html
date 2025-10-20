@@ -94,7 +94,7 @@ After some time writing Tcl/Tk code, I felt that I needed a way to improve the s
 <p>Tcl version 8.2 and above supports the empty name array syntax, as in:
 
 <pre>set (m) 0 ;# set member m of array {} to 0
-set n $(m) ;# which actually sets n to 0</pre>
+set n [set (m)] ;# which actually sets n to 0</pre>
 
 This feature greatly simplifies class member manipulation in stooop classes and significantly improves performance. Stooop version 4.0 and above also uses this feature internally for further improvements, without sacrificing backward compatibility: code written against stooop versions 3.7 and below still works with stooop version 4.0 and above, but can be gradually moved to the simpler syntax when convenient.<br>
 Stooop 4.1 and above will only work out of the box with Tcl 8.3 and above.
@@ -321,9 +321,9 @@ Often, static member procedures access static member data (see <a href="#datasta
 <p>The copy constructor takes 2 arguments: the <i>this</i> object identifier used to initialize the data members of the object to be copied to, and the <i>copy</i> identifier of the object to be copied from, as in:
 
 <pre>proc plane::plane {this copy} {
-    set ($this,wingspan) $($copy,wingspan)
-    set ($this,length) $($copy,length)
-    set ($this,engine) [new $($copy,engine)]
+    set ($this,wingspan) [set ($copy,wingspan)]
+    set ($this,length) [set ($copy,length)]
+    set ($this,engine) [new [set ($copy,engine)]]
 }</pre>
 
 As in regular member procedures, the first parameter name must be <b>this</b>, whereas the second parameter must be named <b>copy</b> to differentiate from the class constructor. In other words, the copy constructor always takes 2 and only 2 arguments (named this and copy).
@@ -362,7 +362,7 @@ proc shape::shape {this x y} {
     set ($this,x) $x
     set ($this,y) $y
     # now read them
-    puts "coordinates: $($this,x), $($this,y)"
+    puts "coordinates: [set ($this,x)], [set ($this,y)]"
 }</pre>
 In order to access other classes data, whether they are base classes or
 not, a fully qualified name is always required, whereas no special declaration
@@ -390,7 +390,7 @@ proc circle::circle {this x y diameter} shape {$x $y} {
 }
 proc circle::print {this} {
     puts "circle $this data:"
-    puts "diameter: $($this,diameter)"
+    puts "diameter: [set ($this,diameter)]"
     puts "coordinates: $shape::($this,x), $shape::($this,y)"
 }</pre>
 
@@ -441,7 +441,7 @@ This works because all data for the class (static and non static) is held in the
             ...
         }
         proc print {this} {
-            puts "wheel of $($this,diameter) diameter"
+            puts "wheel of [set ($this,diameter)] diameter"
         }
         ...
     }

@@ -455,7 +455,7 @@ $check(code)
         # for user defined copy constructor, copy derived class member if it
         # exists
         append constructorBody \
-"::catch {::set (\$this,_derived) \$(\$[::lindex $arguments 1],_derived)}
+"::catch {::set (\$this,_derived) \[set (\$[::lindex $arguments 1],_derived)]}
 "
     }
     # finally append user defined procedure body:
@@ -506,7 +506,7 @@ _proc ::stooop::memberProcedureDeclaration {\
             _proc ${fullClass}::$procedure $arguments \
 "::variable {}
 $check(code)
-::uplevel 1 \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]
+::uplevel 1 \[set (\$this,_derived)]::$procedure \[::lrange \[::info level 0\] 1 end\]
 "
         } else {                                  ;# regular virtual declaration
             # setup access to class data
@@ -521,8 +521,8 @@ $body
             _proc ${fullClass}::$procedure $arguments \
 "::variable {}
 $check(code)
-if {!\[::catch {::info body \$(\$this,_derived)::$procedure}\]} {
-::return \[::uplevel 1 \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]\]
+if {!\[::catch {::info body \[set (\$this,_derived)]::$procedure}\]} {
+::return \[::uplevel 1 \[set (\$this,_derived)]::$procedure \[::lrange \[::info level 0\] 1 end\]\]
 }
 ::uplevel 1 ${fullClass}::_$procedure \[::lrange \[::info level 0\] 1 end\]
 "

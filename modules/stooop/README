@@ -19,10 +19,10 @@ class circle {
         set ($this,id) [$canvas create oval 0 0 $diameter $diameter]
     }
     proc ~circle {this} {
-        $($this,canvas) delete $($this,id)
+        [set ($this,canvas)] delete [set ($this,id)]
     }
     proc move {this x y} {
-        $($this,canvas) move $($this,id) $x $y
+        [set ($this,canvas)] move [set ($this,id)] $x $y
     }
 }
 

@@ -30,8 +30,8 @@
     proc in {this data} {
         variable ${this}data
         tidyUp $this
-        if {[array size ${this}data] >= $($this,size)} {
-            unset ${this}data($($this,first))
+        if {[array size ${this}data] >= [set ($this,size)]} {
+            unset ${this}data([set ($this,first)])
             incr ($this,first)
         }
         set ${this}data([incr ($this,last)]) $data
@@ -40,7 +40,7 @@
     proc tidyUp {this} {                       ;# warning: for internal use only
         variable ${this}data
         catch {
-            unset ${this}data($($this,unset))
+            unset ${this}data([set ($this,unset)])
             unset ($this,unset)
         }
     }
@@ -54,7 +54,7 @@
     }
 
     proc isEmpty {this} {
-        return [expr {$($this,last) < $($this,first)}]
+        return [expr {[set ($this,last)] < [set ($this,first)]}]
     }
 
     ::stooop::virtual proc out {this}

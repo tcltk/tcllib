@@ -45,11 +45,11 @@ test stooop-0 {
     $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
         set (0) 0
-        lappend ::result $(0)
+        lappend ::result [set (0)]
         namespace eval n {
             variable {}
             set (1) 1
-            lappend ::result $(1)
+            lappend ::result [set (1)]
         }
 
         set ::result
@@ -3860,7 +3860,7 @@ test stooop-43 {
             set ($this,x) 0
         }
         proc a::a {this copy} {
-            set ($this,x) [expr $($copy,x)+1]
+            set ($this,x) [expr [set ($copy,x)]+1]
         }
         new [new a]
         eval lappend ::result [dumpArrays a::]
@@ -3870,7 +3870,7 @@ test stooop-43 {
                 set ($this,x) 0
             }
             proc A {this copy} {
-                set ($this,x) [expr $($copy,x)+1]
+                set ($this,x) [expr [set ($copy,x)]+1]
             }
         }
         new [new A]
@@ -4178,7 +4178,7 @@ test stooop-47 {
             set ($this,O) [new f]
         }
         proc c::c {this copy} a {$::a::($copy,m)} b 1 {
-            set ($this,o) $($copy,o)
+            set ($this,o) [set ($copy,o)]
             set ($this,O) [new f]
         }
         class d {}
@@ -4212,7 +4212,7 @@ test stooop-47 {
                 set ($this,O) [new F]
             }
             proc C {this copy} A {$::A::($copy,m)} B 1 {
-                set ($this,o) $($copy,o)
+                set ($this,o) [set ($copy,o)]
                 set ($this,O) [new F]
             }
         }
@@ -4302,7 +4302,7 @@ test stooop-48 {
             variable ${this}x
             variable ${copy}x
             array set ${this}x [array get ${copy}x]
-            set ($this,y) $($copy,y)
+            set ($this,y) [set ($copy,y)]
         }
         new [new a]
         eval lappend ::result [dumpArrays a:: a::1x a::2x]
@@ -4317,7 +4317,7 @@ test stooop-48 {
                 variable ${this}x
                 variable ${copy}x
                 array set ${this}x [array get ${copy}x]
-                set ($this,y) $($copy,y)
+                set ($this,y) [set ($copy,y)]
             }
         }
         new [new A]
@@ -4334,7 +4334,7 @@ test stooop-48 {
             variable ${this}x
             variable ${copy}x
             array set ${this}x [array get ${copy}x]
-            set ($this,y) $($copy,y)
+            set ($this,y) [set ($copy,y)]
         }
         new [new b::c]
         eval lappend ::result [dumpArrays b::c:: b::c::5x b::c::6x]
@@ -4350,7 +4350,7 @@ test stooop-48 {
                     variable ${this}x
                     variable ${copy}x
                     array set ${this}x [array get ${copy}x]
-                    set ($this,y) $($copy,y)
+                    set ($this,y) [set ($copy,y)]
                 }
             }
             new [new C]
@@ -5394,7 +5394,7 @@ test stooop-62 {
         }
         class a {
             proc q {this} {
-                lappend ::result $($this,m)
+                lappend ::result [set ($this,m)]
             }
         }
         set o [new a]
@@ -5411,7 +5411,7 @@ test stooop-62 {
             }
             class c {
                 proc q {this} {
-                    lappend ::result $($this,m)
+                    lappend ::result [set ($this,m)]
                 }
             }
             set o [new c]
@@ -5900,7 +5900,7 @@ test stooop-69 {
             set ($this,x) 0
         }
         proc a::b::b {this copy} {
-            set ($this,x) [expr $($copy,x)+1]
+            set ($this,x) [expr [set ($copy,x)]+1]
         }
         new [new a::b]
         eval lappend ::result [dumpArrays a::b::]
@@ -5912,7 +5912,7 @@ test stooop-69 {
                     set ($this,x) 0
                 }
                 proc B {this copy} {
-                    set ($this,x) [expr $($copy,x)+1]
+                    set ($this,x) [expr [set ($copy,x)]+1]
                 }
             }
             new [new B]
@@ -6974,7 +6974,7 @@ test stooop-77 {
             set ($this,O) [new z::f]
         }
         proc z::c::c {this copy} z::a {$::z::a::($copy,m)} z::b 1 {
-            set ($this,o) $($copy,o)
+            set ($this,o) [set ($copy,o)]
             set ($this,O) [new z::f]
         }
         class z::d {}
@@ -7009,7 +7009,7 @@ test stooop-77 {
                     set ($this,O) [new Z::F]
                 }
                 proc C {this copy} Z::A {$::Z::A::($copy,m)} Z::B 1 {
-                    set ($this,o) $($copy,o)
+                    set ($this,o) [set ($copy,o)]
                     set ($this,O) [new Z::F]
                 }
             }
