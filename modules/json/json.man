@@ -48,7 +48,10 @@ limits. A value of "[arg max] == 0" does not make sense and will cause the
 command to throw an error.
 
 [list_end]
-[para]
+[para] If the JSON formatted text contains nested lists and dicts then
+so will the returned dict. In such cases accessing a data value may
+require a [emph mixture] of using dict get and lindex. (See the second
+example.)
 
 [section EXAMPLES]
 [para]
@@ -81,6 +84,41 @@ single item with multiple elements.
 ]
 =>
 {Country US Latitude 37.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122.3959} {Country US Latitude 37.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122.026020}
+}]
+
+[para]
+
+An example of a JSON dict which contains an entry whose value is a list
+of dicts.
+
+[para]
+[example {{
+  "items": [
+     {
+      "snippet": {
+        "title": "In The Shade",
+        "channelTitle": "Flox - Topic"
+      },
+      "statistics": {
+        "viewCount": "274"
+      }
+    }
+  ]
+}
+=>
+items {{snippet {title {In The Shade} channelTitle {Flox - Topic}} statistics {viewCount 274}}}
+}]
+[para]
+
+Assuming that the JSON formatted text is in variable [var jdata], it can
+be converted to a [type dict] and elements extracted.
+
+[para]
+[example {
+set d [json::json2dict $jdata]
+set title [dict get [lindex [dict get $d items] 0] snippet title]
+=>
+In The Shade
 }]
 [para]
 
