@@ -35,7 +35,7 @@ This revision
 	 In other words, Tcllibc is now __built by default__, requiring a Critcl
 	 installation.
 
-	 Eben so, Tcllibc is __still optional__, and Tcllib can still be built
+	 Even so, Tcllibc is __still optional__, and Tcllib can still be built
 	 and installed without it.
 
        - To install only Tcllib use the new target `install-tcl`.
