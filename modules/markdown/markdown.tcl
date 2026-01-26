@@ -441,7 +441,7 @@ namespace eval Markdown {
 
                     append result $buffer
                 }
-                {(?:^\s{0,3}|[^\\]+)\|} {
+                {(?:^\s{0,3}|[^\\`]+)\|(?:[^`])} {
                     # SIMPLE TABLES
                     set cell_align {}
                     set row_count 0

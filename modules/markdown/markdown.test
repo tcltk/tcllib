@@ -1091,6 +1091,48 @@ tcltest::test markdown-7.5 {HTML before a table} -body {
     </table>
 }]\n
 
+tcltest::test markdown-7.6 {Markdown table without leading pipe} -body {
+    Markdown::convert [unindent {
+       fruit| price
+       -----|-----:
+       apple|2.05
+       pear|1.37
+       orange|3.09
+    }]
+} -result [unindent {
+<table class="table">
+<thead>
+  <tr>
+    <th>fruit</th>
+    <th style="text-align: right">price</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>apple</td>
+    <td style="text-align: right">2.05</td>
+  </tr>
+  <tr>
+    <td>pear</td>
+    <td style="text-align: right">1.37</td>
+  </tr>
+  <tr>
+    <td>orange</td>
+    <td style="text-align: right">3.09</td>
+  </tr>
+</tbody>
+</table>
+
+}]
+
+tcltest::test markdown-7.7 {Markdown no table after pipe in backticks} -body {
+    Markdown::convert [unindent {
+       This is a pipe symbol `||`.
+    }]
+} -result [unindent {
+<p>This is a pipe symbol <code>||</code>.</p>
+}]
+
 tcltest::test markdown-8.1 {HTML blocks} -body {
     Markdown::convert "<div>\n</div>\n\n# Hello!"
 } -result <div>\n</div>\n\n<h1>Hello!</h1>
