@@ -257,7 +257,7 @@ created as well, using [arg instanceName].
 instance.
 
 During the instantiation, while values for that instance may be given,
-when done, [strong all] values must be given, and be given as
+when done, [emph all] values must be given, and be given as
 key/value pairs, like for method [method configure]. Nested records
 have to be in list format.
 
