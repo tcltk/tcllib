@@ -1,0 +1,146 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin tcllib_doc_policy n 1]
+[titledesc {Tcl Documentation Policy Notes}]
+[category  {Documentation tools}]
+[description]
+
+[para]
+This document provides some notes on creating and maintaining Tcl
+documentation (excluding the use of the doctools and markup language.)
+
+[section Audience]
+
+[para]
+Documentation must cater for both experienced and inexperienced programmers.
+
+[para]
+Those with the most experience can often get what they need simply by
+reading a command's signature—providing helpful names are used. Contrast
+the unhelpful:
+
+[example {
+lremove l ?i …?
+}]
+
+with the useful:
+
+[example {
+lremove listval ?index1 …?
+}]
+
+[para]
+Both experienced and inexperienced developers will often need more
+information. For example:
+
+[para]
+“Returns a new copy of [arg listval] that does [emph not] include the
+values at the given index positions ([arg index1] …).”
+
+[para]
+This would then be followed by any additional details, particularly
+corner cases and caveats.
+
+[para]
+Of course, inexperienced programmers will also need at least one example.
+
+[section Language]
+
+[para]
+The dominant language of programming and API documentation outside of Asia
+is US English, so that is the language that should be used in Tcl's
+documentation.
+
+[para]
+The UTF-8 encoding should be used.
+
+[para]
+Characters should be restricted to the BMP (Basic Multilingual Plane), but
+excluding surrogates, noncharacters, and private use codes. Although Tcl
+itself is [emph not] limited to the BMP, it may be that some parts of the
+documentation tool chain, or some documentation readers (e.g., web browsers)
+are limited to the BMP.
+
+[section Style]
+
+[para]
+Every documentation page has a long-established fixed structure which ought
+to be respected.
+
+[para]
+For [cmd proc]s that return a value, an initial (or only) description line
+should begin with “Returns”.
+
+[para]
+For [cmd proc]s that return a Boolean as a [const 1] or [const 0], the
+style should normally be along the lines of either:
+
+[example {
+Returns [const 1] (true) when …; otherwise returns [const 0] (false).
+}]
+
+[para]
+or where more explanation is helpful:
+
+[example {
+Returns [const 1] (true) when …, or returns [const 0] (false) when ….
+}]
+
+[para]
+(The “true” and “false” should [emph not] be highlighted.)
+
+[para]
+Naturally this should be followed by any necessary information about the
+arguments. Note also, that in some cases it will make more sense to
+reverse the order of returns (i.e., [const 0] (false) first).
+
+[para]
+For [cmd proc]s that don't return a value, try to begin the description
+with a verb, for example, “Adds”, “Removes”.
+
+[section Names]
+
+[para]
+It is very important to distinguish between a variable's [emph name] and
+its [emph value].
+
+[para]
+Currently Tcl's documentation is inconsistent in its handling of this
+difference. This may create dissonance when reading since it may force the
+reader to think for a moment about whether a parameter is a varible name or
+value.
+
+[para]
+Suggestion going forward: use a suffix of [arg name] for variable names
+and a suffix of [arg val] for variable values.
+
+[example {
+# Original
+linsert list index ?element element ...?
+# Proposed
+linsert listval index ?value …?
+
+# Original
+lappend varName ?value value value ...?
+# Proposed
+lappend listname ?value …?
+
+# Original
+dict info dictionaryValue
+# Proposed
+dict info dictval
+
+# Original
+dict set dictionaryVariable key ?key ...? value
+# Proposed
+dict set dictname key ?key …? value
+}]
+
+[para]
+An ellipsis is sufficient to indicate that multiple values of the same
+kind as the first value may be passed.
+
+[para]
+As a rule, use the generic term [arg value] rather than “item” or
+“element”.
+
+[manpage_end]
