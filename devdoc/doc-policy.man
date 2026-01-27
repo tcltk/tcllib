@@ -67,8 +67,8 @@ Every documentation page has a long-established fixed structure which ought
 to be respected.
 
 [para]
-For [cmd proc]s that return a value, an initial (or only) description line
-should begin with “Returns”.
+For [cmd proc]s whose primary concern is to return a value, an initial
+(or only) description line should begin with “Returns”.
 
 [para]
 For [cmd proc]s that return a Boolean as a [const 1] or [const 0], the
@@ -91,11 +91,12 @@ Returns [const 1] (true) when …, or returns [const 0] (false) when ….
 [para]
 Naturally this should be followed by any necessary information about the
 arguments. Note also, that in some cases it will make more sense to
-reverse the order of returns (i.e., [const 0] (false) first).
+reverse the order of returns (i.e., putting the [const 0] (false) first).
 
 [para]
-For [cmd proc]s that don't return a value, try to begin the description
-with a verb, for example, “Adds”, “Removes”.
+For [cmd proc]s where the primary concern is to perform an action,
+whether or not they return a value, try to begin the description with a
+verb, for example, “Appends”, “Removes”.
 
 [section Names]
 
