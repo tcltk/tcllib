@@ -1125,12 +1125,104 @@ tcltest::test markdown-7.6 {Markdown table without leading pipe} -body {
 
 }]
 
-tcltest::test markdown-7.7 {Markdown no table after pipe in backticks} -body {
+tcltest::test markdown-7.7 {Markdown no table after one pipe in backticks} -body {
+    Markdown::convert [unindent {
+       This is a pipe symbol `|`.
+    }]
+} -result [unindent {
+<p>This is a pipe symbol <code>|</code>.</p>
+}]
+
+tcltest::test markdown-7.8 {Markdown no table after two pipes in backticks} -body {
     Markdown::convert [unindent {
        This is a pipe symbol `||`.
     }]
 } -result [unindent {
 <p>This is a pipe symbol <code>||</code>.</p>
+}]
+
+tcltest::test markdown-7.9 {Markdown no table after literal pipes} -body {
+    Markdown::convert [unindent {
+       This is a pipe symbol \| and this too: "\|".
+    }]
+} -result [unindent {
+<p>This is a pipe symbol | and this too: &quot;|&quot;.</p>
+}]
+
+tcltest::test markdown-7.10 {Table with 1-3 spaces in the beginning of the line} -body {
+Markdown::convert {
+   | Foo | Bar | Baz |
+  |-----|-----|-----|
+ |   1 |   2 |   3 |
+}
+} -result [unindent {
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Foo</th>
+        <th>Bar</th>
+        <th>Baz</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+      </tr>
+    </tbody>
+    </table>
+
+}]
+
+tcltest::test markdown-7.11 {Table with horizontal alignment of the columns} -body {
+    Markdown::convert [unindent {
+        | Foo  | Bar  | Baz   |
+        |-----:|:-----|:-----:|
+        |    1 | 2    |   3   |
+    }]
+} -result [unindent {
+    <table class="table">
+    <thead>
+      <tr>
+        <th style="text-align: right">Foo</th>
+        <th style="text-align: left">Bar</th>
+        <th style="text-align: center">Baz</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: right">1</td>
+        <td style="text-align: left">2</td>
+        <td style="text-align: center">3</td>
+      </tr>
+    </tbody>
+    </table>
+
+}]
+
+tcltest::test markdown-7.12 {Table with only one pipe in the middle} -body {
+Markdown::convert {
+   Foo  | Bar
+   -----|-----
+    1   | 2
+}
+} -result [unindent {
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Foo</th>
+        <th>Bar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>2</td>
+      </tr>
+    </tbody>
+    </table>
+
 }]
 
 tcltest::test markdown-8.1 {HTML blocks} -body {
