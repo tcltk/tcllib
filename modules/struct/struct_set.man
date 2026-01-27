@@ -12,7 +12,7 @@
 [keywords union]
 [copyright {2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
-[titledesc {Procedures for manipulating sets}]
+[titledesc {Commands for manipulating sets}]
 [category  {Data structures}]
 [require Tcl "8.5 9"]
 [require struct::set [opt 2.2.4]]
@@ -25,106 +25,124 @@ processing finite sets.
 
 [para]
 
-It exports only a single command, [cmd struct::set]. All
-functionality provided here can be reached through a subcommand of
-this command.
+It exports only a single command, [cmd struct::set]. All the
+functionality is available through this command’s subcommands.
+
+[para]
+
+A new empty set can be created using [cmd {::struct::set add}]
+[arg {setname {}}].
 
 [para]
 
 [emph Note:] As of version 2.2 of this package a critcl based C
-implementation is available. This implementation however requires Tcl
-8.4 to run.
+implementation will be used where available, with Tcl 8.4 or later.
 
 [section COMMANDS]
+
+[para]
+In the following, [arg set], [arg set1], and [arg set2] are [type set]
+values and [arg setname] is the name of a [type set].
+
 [list_begin definitions]
 
 [call [cmd ::struct::set] [method empty] [arg set]]
 
-Returns a boolean value indicating if the [arg set] is
-empty ([const true]), or not ([const false]).
+Returns [const 1] (true) if the [arg set] is empty; otherwise returns
+[const 0] (false).
 
 [call [cmd ::struct::set] [method size] [arg set]]
 
-Returns an integer number greater than or equal to zero. This is the
-number of elements in the [arg set]. In other words, its cardinality.
+Returns the [arg set]’s cardinality, i.e., the number of elements in the
+[arg set]. This could be zero.
 
-[call [cmd ::struct::set] [method contains] [arg set] [arg item]]
+[call [cmd ::struct::set] [method contains] [arg set] [arg value]]
 
-Returns a boolean value indicating if the [arg set] contains the
-element [arg item] ([const true]), or not ([const false]).
+Returns [const 1] (true) if the [arg set] contains the
+element [arg value]; otherwise returns [const 0] (false).
 
 [call [cmd ::struct::set] [method union] [opt [arg set1]...]]
 
-Computes the set containing the union of [arg set1], [arg set2],
-etc., i.e. "[arg set1] + [arg set2] + ...", and returns this set
-as the result of the command.
+Returns a [type set] consisting of the union of the given [type set]s,
+i.e. [arg set1] ∪ [arg set2] ∪ …. The resulting [type set] will contain
+every value in every given [type set], with no duplicates.
 
 [call [cmd ::struct::set] [method intersect] [opt [arg set1]...]]
 
-Computes the set containing the intersection of [arg set1],
-[arg set2], etc., i.e. "[arg set1] * [arg set2] * ...", and
-returns this set as the result of the command.
+Returns a [type set] consisting of the intersection of the given
+[type set]s, i.e. [arg set1] ∩ [arg set2] ∩ …. The resulting [type set] will
+contain every value that [emph every] one of the given [type set]s has in
+common, with no duplicates.
 
 [call [cmd ::struct::set] [method difference] [arg set1] [arg set2]]
 
-Computes the set containing the difference of [arg set1] and
-[arg set2], i.e. ("[arg set1] - [arg set2]") and returns this
-set as the result of the command.
+Returns a [type set] consisting of the difference between [arg set1] and
+[arg set2], i.e., [arg set1] - [arg set2]. The resulting [type set] will
+contain every value that is in [arg set1] but that is [emph not] in
+[arg set2].
 
 [call [cmd ::struct::set] [method symdiff] [arg set1] [arg set2]]
 
-Computes the set containing the symmetric difference of [arg set1] and
-[arg set2], i.e. ("([arg set1] - [arg set2]) + ([arg set2] - [arg set1])")
-and returns this set as the result of the command.
+Returns a [type set] consisting of the symmetric difference between
+[arg set1] and [arg set2], i.e., [arg set1] Δ [arg set2]. The resulting
+[type set] will contain every value that is in [arg set1] [emph or] is in
+[arg set2], but [emph not] in both.
 
 [call [cmd ::struct::set] [method intersect3] [arg set1] [arg set2]]
 
-This command is a combination of the methods [method intersect] and
+Returns a combination of the methods [method intersect] and
 [method difference].
 
-It returns a three-element list containing "[arg set1]*[arg set2]",
-"[arg set1]-[arg set2]", and "[arg set2]-[arg set1]", in this
-order. In other words, the intersection of the two parameter sets, and
-their differences.
+[para]
+The return value is a three-element list containing "[arg set1] ∩
+[arg set2]", "[arg set1] - [arg set2]", and "[arg set2] - [arg set1]",
+in this order. In other words, the intersection of [arg set1] and
+[arg set2], and their differences.
 
 [call [cmd ::struct::set] [method equal] [arg set1] [arg set2]]
 
-Returns a boolean value indicating if the two sets are equal
-([const true]) or not ([const false]).
+Returns [const 1] (true) if the two [type set]s contain exactly the same
+values; otherwise returns [const 0] (false).
 
-[call [cmd ::struct::set] [method include] [arg svar] [arg item]]
+[call [cmd ::struct::set] [method include] [arg setname] [arg value]]
 
-The element [arg item] is added to the set specified by the variable
-name in [arg svar]. The return value of the command is empty. This is
-the equivalent of [cmd lappend] for sets. If the variable named by
-[arg svar] does not exist it will be created.
+Adds element [arg value] to the [type set] called [arg setname], creating
+[arg setname] if it doesn’t exist. Harmlessly does nothing if [arg value] is
+already in [type set] [arg setname]. Returns nothing. This command can be
+used to create new [type set]s. 
 
-[call [cmd ::struct::set] [method exclude] [arg svar] [arg item]]
+[comment {this is not equivalent to lappend since lappend returns the
+list and this returns nothing}]
 
-The element [arg item] is removed from the set specified by the
-variable name in [arg svar]. The return value of the command is
-empty. This is a near-equivalent of [cmd lreplace] for sets.
+[call [cmd ::struct::set] [method exclude] [arg setname] [arg value]]
 
-[call [cmd ::struct::set] [method add] [arg svar] [arg set]]
+Removes element [arg value] from the [type set] called [arg setname].
+If [arg value] isn’t in [arg setname], the command
+harmlessly does nothing. Returns nothing. 
 
-All the element of [arg set] are added to the set specified by the
-variable name in [arg svar]. The return value of the command is
-empty. This is like the method [method include], but for the addition
-of a whole set. If the variable named by [arg svar] does not exist it
-will be created.
+[comment {this command is not equivalent to lreplace}]
 
-[call [cmd ::struct::set] [method subtract] [arg svar] [arg set]]
+[call [cmd ::struct::set] [method add] [arg setname] [arg set]]
 
-All the element of [arg set] are removed from the set specified by the
-variable name in [arg svar]. The return value of the command is
-empty. This is like the method [method exclude], but for the removal
-of a whole set.
+Adds every element from the [type set] value [arg set] to the [type set]
+called [arg setname], excluding duplicates. The [type set] [arg setname] is
+created if it doesn’t exist. Returns nothing.
+
+[para]
+Use [cmd {::struct::set add}] [arg {setname {}}] to create a new empty
+set. Use [cmd {::struct::set include}] to add individual values.
+
+[call [cmd ::struct::set] [method subtract] [arg setname] [arg set]]
+
+Removes every element from the [type set] value [arg set] from the
+[type set] called [arg setname]. Returns nothing. Use
+[cmd {::struct::set exclude}] to remove individual values.
 
 [call [cmd ::struct::set] [method subsetof] [arg A] [arg B]]
 
-Returns a boolean value indicating if the set [arg A] is a true
-subset of or equal to the set [arg B] ([const true]), or not
-([const false]).
+Returns [const 1] (true) if [arg A] ⊆ [arg B], i.e., if [type set]
+[arg A] is a true subset of or equal to the [type set] [arg B];
+otherwise returns [const 0] (false).
 
 [list_end]
 
