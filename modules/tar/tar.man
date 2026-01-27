@@ -11,7 +11,7 @@
 [require tar [opt [vset PACKAGE_VERSION]]]
 [description]
 
-[para] [strong Note]: Starting with version 0.8 the tar reader commands
+[para] [emph Note]: Starting with version 0.8 the tar reader commands
 (contents, stats, get, untar) support the GNU LongName extension (header type
 'L') for large paths.
 

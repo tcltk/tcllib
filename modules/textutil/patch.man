@@ -33,7 +33,7 @@ nothing is done to the files in [arg basedirectory].
 [para] All activities during the application of the patch, including
 the inability to apply a hunk are reported through the command prefix
 [arg reportcmd] instead. Files with problems are left unchanged.  Note
-however that this does [strong {not prevent}] changes to files with no
+however that this does [emph {not prevent}] changes to files with no
 problems, before and after the problematic file(s).
 
 [para] The command prefix is called in 3 possible forms:

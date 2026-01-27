@@ -36,7 +36,7 @@ if such is desired or required, is the responsibility of the caller.
 
 This command works in a fashion like the standard C based [cmd getopt]
 function.  Given an option string and a pointer to an array of args
-this command will process the [strong {first argument}] and return
+this command will process the [emph {first argument}] and return
 info on how to proceed. The command returns 1 if an option was found,
 0 if no more options were found, and -1 if an error occurred.
 
