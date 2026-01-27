@@ -26,7 +26,7 @@ encoding of base64 data. These are
 
 [para] Beware that while these are signature compatible with the
 commands provided by this package, the decoders are
-[strong {not behaviourally compatible}].
+[emph {not behaviourally compatible}].
 
 [para] The core decoder command accepts the option [option -strict],
 enabling the user to choose between strict and lax modes. In the
@@ -38,7 +38,7 @@ hand implement a mix of the above, and the user cannot choose. Partial
 data at the end of the input is reported as error, and invalid
 characters are ignored.
 
-[para] [strong Beware] of these differences when switching code from
+[para] [emph Beware] of these differences when switching code from
 one to other.
 
 [section API]

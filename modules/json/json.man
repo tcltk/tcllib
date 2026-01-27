@@ -16,36 +16,47 @@
 [para]
 
 The [package json] package provides a simple Tcl-only library for parsing the
-JSON [uri http://www.json.org/] data exchange format as specified in RFC 4627
-[uri http://www.ietf.org/rfc/rfc4627.txt].
+[uri http://www.json.org/ JSON] data exchange format as specified in 
+[uri http://www.ietf.org/rfc/rfc4627.txt {RFC 4627}].
 
 There is some ambiguity in parsing JSON because JSON has type information that
-is not maintained by the Tcl conversion.  The [package json] package returns
-data as a Tcl [cmd dict].  Either the [package dict] package or Tcl 8.5 is
-required for use.
+is not maintained by this module's conversion. Furthermore, JSON
+[const null] values are converted to the string literal "null" (see
+[uri https://core.tcl-lang.org/tcllib/tktview/2aa0cebb88 ticket]).
+The [package json] package returns
+data either as a Tcl [type dict] or a [type list] which itself may
+contain nested [type dict]s or [type list]s. (Either the [package dict]
+package or Tcl 8.5 or later is required for use.)
+
+[para]
+For an alternative Tcl-only type-preserving implementation, see the
+[uri https://wiki.tcl-lang.org/page/typed-json typed-json] module.
 
 [section COMMANDS]
 
 [list_begin definitions]
 
-[call [cmd ::json::json2dict] [arg txt]]
+[call [cmd ::json::json2dict] [arg json_txt]]
 
-Parse JSON formatted text [arg txt] into a Tcl dict and return
-the value.
+[para]
+Returns a [type dict] or [type list] (which itself may
+contain nested [type dict]s and/or [type list]s) which is the result of
+parsing the JSON formatted text passed in [arg json_txt].
 
-[para] If [arg txt] contains more than one JSON entity only the
+[para] If [arg json_txt] contains more than one JSON entity only the
 first one is returned.
 
+[call [cmd ::json::many-json2dict] [arg json_txt] [opt [arg max]]]
 
-[call [cmd ::json::many-json2dict] [arg txt] [opt [arg max]]]
+[para]
+Returns a [type list] (which itself will contain nested [type dict]s
+and/or [type list]s) which is the result of parsing all the JSON
+entities (or if [arg max] is specified, the first [arg max] entities), in
+the JSON formatted text passed in [arg json_txt].
 
-Parse JSON formatted text [arg txt] containing multiple JSON entities
-into a list of dictionaries and return that list.
-
-[para] If [arg max] is specified exactly that many entities are extracted
-from [arg txt]. By default the command will attempt to extract all, without
-limits. A value of "[arg max] == 0" does not make sense and will cause the
-command to throw an error.
+[para]
+If [arg max] is specified it must be a positive integer [const {> 0}] or
+the command will throw and error.
 
 [list_end]
 [para] If the JSON formatted text contains nested lists and dicts then

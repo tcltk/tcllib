@@ -53,8 +53,8 @@ the [const Example] section.
     #' ```
 }]
 
-[para] [strong {DANGER, BEWARE}].
-Failing to open the [arg infile] causes the command to [strong exit] the entire process.
+[para] [emph {DANGER, BEWARE}].
+Failing to open the [arg infile] causes the command to [emph exit] the entire process.
 
 [para] Use of this command in a general context is not recommended.
 
@@ -116,8 +116,8 @@ as well.
 
 [para] [emph Note], the double-quotes around the path are part of the syntax.
 
-[para] [strong Beware] further that relative paths are resolved relative to the current
-working directory, and [strong not] relative to the location of the including file.
+[para] [emph Beware] further that relative paths are resolved relative to the current
+working directory, and [emph not] relative to the location of the including file.
 
 [section "Bugs, Ideas, Feedback"]
 
@@ -152,7 +152,7 @@ purpose, and non-infringement.
 This software is provided on an "as is" basis, and the authors and distributors have no
 obligation to provide maintenance, support, updates, enhancements, or modifications.
 
-[para] [strong {RESTRICTED RIGHTS}]: Use, duplication or disclosure by the government is
+[para] [emph {RESTRICTED RIGHTS}]: Use, duplication or disclosure by the government is
 subject to the restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
 Technical Data and Computer Software Clause as DFARS 252.227-7013 and FAR 52.227-19.
 

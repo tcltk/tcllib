@@ -18,10 +18,10 @@
 This package provides a number of methods doing things needed by all types of slippy-based map
 packages.
 
-[para][strong BEWARE], [strong Attention] Version [strong 0.9] is [strong {NOT backward compatible}]
-with version 0.7 and earlier.  The entire API was [strong {heavily revised and changed}].
+[para][emph BEWARE], [emph Attention] Version [emph 0.9] is [emph {NOT backward compatible}]
+with version 0.7 and earlier.  The entire API was [emph {heavily revised and changed}].
 
-[para][strong Note:] For the representation of locations in the various coordinate systems used by
+[para][emph Note:] For the representation of locations in the various coordinate systems used by
 the commands of this package please read section [sectref {Coordinate systems}]. The command
 descriptions will not repeat them, and assume that they are understood already.
 
@@ -345,7 +345,7 @@ than the threshold, and drops the others.
 [call [cmd ::map] [method {slippy point simplify rdp}] [arg point-list]]
 
 This command takes a patch of points (as a single list), simplifies it using the
-[strong non-parametric] [term Ramer-Douglas-Peucker] algorithm and returns the simplified path as
+[emph non-parametric] [term Ramer-Douglas-Peucker] algorithm and returns the simplified path as
 list of points.
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]

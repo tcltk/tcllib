@@ -28,6 +28,10 @@ manipulated with the [method cget] and [method configure] methods.
 sub commands (see below). It also obeys the namespace in which the
 record was defined, hence the objects returned are fully qualified.
 
+[para] [emph {Note: Tcl 9 users may find Tcl's built-in object-oriented
+functionality is more convenient and versatile than using this
+package.}]
+
 [list_begin definitions]
 
 [call [cmd {record define}] [arg recordName] [arg recordMembers] \
@@ -257,7 +261,7 @@ created as well, using [arg instanceName].
 instance.
 
 During the instantiation, while values for that instance may be given,
-when done, [strong all] values must be given, and be given as
+when done, [emph all] values must be given, and be given as
 key/value pairs, like for method [method configure]. Nested records
 have to be in list format.
 
