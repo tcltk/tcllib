@@ -52,7 +52,7 @@ Reset the language counters.
 
 [para]
 
-This markdown converter supports the original markdown by Gruber and Swartz (see their [uri https://daringfireball.net/projects/markdown/syntax {syntax}] page for details):
+This markdown converter supports the original markdown by Gruber and Swartz(see their [uri https://daringfireball.net/projects/markdown/syntax {syntax}] page for details):
 
 [list_begin itemized]
 
@@ -106,7 +106,8 @@ horizontal rules
 
 [list_end]
 
-In addition, the following extended markdown syntax is supported, taken from PHP Markdown Extra and GFM (Github Flavoured Markdown):
+In addition, the following extended markdown sytax is supported, taken from [uri https://michelf.ca/projects/php-markdown/extra/ {PHP Markdown Extra}] and
+[uri https://github.github.com/gfm/ {GFM (Github Flavoured Markdown)}]:
 
 [list_begin itemized]
 
