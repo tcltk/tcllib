@@ -136,6 +136,48 @@ expression \\s.
 [list_end]
 [list_end]
 
+[section EXAMPLES]
+[para]
+
+An example of a command line parsed into its constituent words.
+
+[example {
+const CMDLINE "grep --include=*.{tcl,tm,tk} -rl * | grep -v \"The Cloud\""
+foreach word [string token shell $CMDLINE] {
+    puts "word='$word'"
+}
+=>
+word='grep'
+word='--include=*.{tcl,tm,tk}'
+word='-rl'
+word='*'
+word='|'
+word='grep'
+word='-v'
+word='The Cloud'
+}]
+[para]
+
+An example of a command line parsed into its constituent words, with
+tokens and string indices.
+
+[example {
+const CMDLINE "grep --include=*.{tcl,tm,tk} -rl * | grep -v \"The Cloud\""
+foreach element [string token shell -indices $CMDLINE] {
+    lassign $element token i j word
+    puts "token=$token i=$i j=$j word='$word'"
+}
+=>
+token=PLAIN i=0 j=3 word='grep'
+token=PLAIN i=5 j=27 word='--include=*.{tcl,tm,tk}'
+token=PLAIN i=29 j=31 word='-rl'
+token=PLAIN i=33 j=33 word='*'
+token=PLAIN i=35 j=35 word='|'
+token=PLAIN i=37 j=40 word='grep'
+token=PLAIN i=42 j=43 word='-v'
+token=D:QUOTED i=45 j=55 word='The Cloud'
+}]
+
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]
 [manpage_end]

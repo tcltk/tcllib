@@ -11,44 +11,54 @@
 [description]
 [para]
 The [package dicttool] package enhances the standard [emph dict] command with several new
-commands. In addition, the package also defines several "creature comfort" list commands as well.
-Each command checks to see if a command already exists of the same name before adding itself,
-just in case any of these slip into the core.
+commands. In addition, the package also defines several convenient list commands.
+(Each command only adds itself if a command of the same name doesn’t already exist,
+in case any of these are added to the core.)
 
 [list_begin definitions]
 [call [cmd ladd] [arg varname] [arg args]]
 
-This command will add a new instance of each element in [arg args] to [arg varname], but only if that element
-is not already present.
+This command adds every element in [arg args] to [arg varname], but only if that element
+is not already present (whether as a key or a value). Use an even number
+of [arg args] to keep [arg varname] as a [type dict].
 
 [call [cmd ldelete] [arg varname] [arg args]]
 
-This command will delete all instances of each element in [arg args] from [arg varname].
+This command deletes every element in [arg args] from [arg varname]. Use an even number
+of [arg args] to keep [arg varname] as a [type dict].
 
 [call [cmd {dict getnull}] [arg args]]
 
 Operates like [cmd {dict get}], however if the key [arg args] does not exist, it returns an empty
 list instead of throwing an error.
 
-[call [cmd {dict print}] [arg dict]]
+[para]
+An alternative to this command is [cmd {dict getwithdefault}] [emph {or
+its alias}] [cmd {dict getdef}]. Using [cmd {dict getdef}] with a
+default of an empty list, [arg {{}}], is equivalent to using [cmd {dict getnull}].
 
-This command will produce a string representation of [arg dict], with each nested branch on
-a newline, and indented with two spaces for every level.
+[call [cmd {dict print}] [arg varname]]
+
+Returns a “pretty printed” string representation of
+[type dict] [arg varname], with each nested branch on a newline, and
+indented with two spaces for every level.
 
 [call [cmd {dict is_dict}] [arg value]]
 
-This command will return true if [arg value] can be interpreted as a dict. The command operates in
-such a way as to not force an existing dict representation to shimmer into another internal rep.
+Returns 1 if [arg value] can be interpreted as a dict;
+otherwise 0. (The command does [emph not] force an existing dict
+representation to change into another internal representation.)
 
-[call [cmd rmerge] [arg args]]
+[call [cmd {dict rmerge}] [arg args]]
 
-Return a dict which is the product of a recursive merge of all of the arguments. Unlike [cmd {dict merge}],
+Returns a [type dict] which is the result of a recursive merge of all of
+the [type dict] arguments. Unlike [cmd {dict merge}],
 this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
 will be interpreted as a literal value, and not descended into further.
 
 [example {
 
-set items [dict merge {
+set items [dict rmerge {
   option {color {default: green}}
 } {
   option {fruit {default: mango}}
@@ -56,20 +66,21 @@ set items [dict merge {
   option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
 }]
 puts [dict print $items]
-}]
-
-Prints the following result:
-[example {
+=>
 option {
   color {
     default: blue
   }
   fruit {
+    default: mango
     widget: select
     values: {mango apple cherry grape}
   }
 }
 }]
+[para]
+If the [cmd {dict merge}] command had been used above, the [emph fruit]
+item’s [emph default] key-value entry would have been lost.
 
 [list_end]
 
