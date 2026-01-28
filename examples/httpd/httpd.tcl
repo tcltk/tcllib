@@ -87,7 +87,7 @@ clay::define httpd::content.fossil_node_scgi {
     if {[package vsatisfies [package present Tcl] 9]} {
 	file mkdir [file join [file home] tmp]
     } else {
-      file mkdir ~/tmp
+      file mkdir [file home]/tmp
     }
     if {![info exists ::fossil_process($module)]} {
       package require processman
