@@ -31,7 +31,7 @@ functionality is available through this command’s subcommands.
 [para]
 
 A new empty set can be created using [cmd {::struct::set add}]
-[arg {setname {}}].
+[arg {setVar {}}].
 
 [para]
 
@@ -42,7 +42,7 @@ implementation will be used where available, with Tcl 8.4 or later.
 
 [para]
 In the following, [arg set], [arg set1], and [arg set2] are [type set]
-values and [arg setname] is the name of a [type set].
+values and [arg setVar] is a [type set]’s variable name.
 
 [list_begin definitions]
 
@@ -104,38 +104,38 @@ in this order. In other words, the intersection of [arg set1] and
 Returns [const 1] (true) if the two [type set]s contain exactly the same
 values; otherwise returns [const 0] (false).
 
-[call [cmd ::struct::set] [method include] [arg setname] [arg value]]
+[call [cmd ::struct::set] [method include] [arg setVar] [arg value]]
 
-Adds element [arg value] to the [type set] called [arg setname], creating
-[arg setname] if it doesn’t exist. Harmlessly does nothing if [arg value] is
-already in [type set] [arg setname]. Returns nothing. This command can be
+Adds element [arg value] to the [type set] called [arg setVar], creating
+[arg setVar] if it doesn’t exist. Harmlessly does nothing if [arg value] is
+already in [type set] [arg setVar]. Returns nothing. This command can be
 used to create new [type set]s. 
 
 [comment {this is not equivalent to lappend since lappend returns the
 list and this returns nothing}]
 
-[call [cmd ::struct::set] [method exclude] [arg setname] [arg value]]
+[call [cmd ::struct::set] [method exclude] [arg setVar] [arg value]]
 
-Removes element [arg value] from the [type set] called [arg setname].
-If [arg value] isn’t in [arg setname], the command
+Removes element [arg value] from the [type set] called [arg setVar].
+If [arg value] isn’t in [arg setVar], the command
 harmlessly does nothing. Returns nothing. 
 
 [comment {this command is not equivalent to lreplace}]
 
-[call [cmd ::struct::set] [method add] [arg setname] [arg set]]
+[call [cmd ::struct::set] [method add] [arg setVar] [arg set]]
 
 Adds every element from the [type set] value [arg set] to the [type set]
-called [arg setname], excluding duplicates. The [type set] [arg setname] is
+called [arg setVar], excluding duplicates. The [type set] [arg setVar] is
 created if it doesn’t exist. Returns nothing.
 
 [para]
-Use [cmd {::struct::set add}] [arg {setname {}}] to create a new empty
+Use [cmd {::struct::set add}] [arg {setVar {}}] to create a new empty
 set. Use [cmd {::struct::set include}] to add individual values.
 
-[call [cmd ::struct::set] [method subtract] [arg setname] [arg set]]
+[call [cmd ::struct::set] [method subtract] [arg setVar] [arg set]]
 
 Removes every element from the [type set] value [arg set] from the
-[type set] called [arg setname]. Returns nothing. Use
+[type set] called [arg setVar]. Returns nothing. Use
 [cmd {::struct::set exclude}] to remove individual values.
 
 [call [cmd ::struct::set] [method subsetof] [arg A] [arg B]]
@@ -145,6 +145,34 @@ Returns [const 1] (true) if [arg A] ⊆ [arg B], i.e., if [type set]
 otherwise returns [const 0] (false).
 
 [list_end]
+
+[section EXAMPLES]
+[para]
+Creating and populating a new [type set] from scratch. The
+[var earth_metals] [type set] will be created on the first
+iteration of the loop and added to on subsequent iterations.
+
+[example {
+foreach element {Be Mg Ca Sr Ba Ra} {
+    struct::set include earth_metals $element
+}}]
+
+[para]
+Creating a [type set] by unioning a couple of existing [type set]s.
+
+[example {
+set metals [struct::set union $alkali_metals $earth_metals]
+}]
+
+[para]
+Querying a [type set]’s properties.
+
+[example {
+if {[struct::set empty $metals]} {
+    puts "empty"
+} else {
+    puts "[struct::set size $metals] elements"
+}}]
 
 [section REFERENCES]
 

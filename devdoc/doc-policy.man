@@ -111,31 +111,32 @@ reader to think for a moment about whether a parameter is a varible name or
 value.
 
 [para]
-Suggestion going forward: use a suffix of [arg name] for variable names
-and either no suffix or a suffix of [arg val] for variable values.
+Suggestion going forward: use a suffix of [arg Var] for variable names
+and either no suffix or a suffix of [arg Val] or [arg Value] for
+variable values.
 
 [example {
 # Original
 linsert list index ?element element ...?
 # Proposed
-linsert listval index ?value …?
+linsert listVal index ?value …?
 # -or-
 linsert list index ?value …?
 
 # Original
 lappend varName ?value value value ...?
 # Proposed
-lappend listname ?value …?
+lappend listVar ?value …?
 
 # Original
 dict info dictionaryValue
 # Proposed
-dict info dictval
+dict info dictVal
 
 # Original
 dict set dictionaryVariable key ?key ...? value
 # Proposed
-dict set dictname key ?key …? value
+dict set dictVar key ?key …? value
 }]
 
 [para]
@@ -144,8 +145,8 @@ kind as the first value may be passed.
 
 [para]
 Alternatively, specify in the Commands section. For example,
-“In the following [arg dictvar] is the name of a [type dict] variable
-and [arg dictval] is a [type dict] value.
+“In the following [arg dictVar] is the name of a [type dict] variable
+and [arg dictVal] is a [type dict] value.
 
 [para]
 As a rule, use the generic term [arg value] rather than “item” or
