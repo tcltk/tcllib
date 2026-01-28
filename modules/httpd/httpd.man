@@ -12,6 +12,7 @@
 [keywords httpserver]
 [keywords services]
 [require Tcl "8.6 9"]
+[comment {the only require that is needed for the minimal example is httpd}]
 [require uuid]
 [require clay]
 [require coroutine]
@@ -25,8 +26,8 @@
 [description]
 [para]
 
-This module implements a web server, suitable for embedding in an
-application. The server is object oriented, and contains all of the
+This module implements a web server suitable for embedding in an
+application. The server is object oriented, and contains all
 fundamentals needed for a full service website.
 
 [para]
@@ -38,6 +39,8 @@ Starting a web service requires starting a class of type
 to service, and [cmd httpd::reply] derived classes to generate them.
 
 [example {
+package require httpd
+
 oo::class create ::reply.hello {
   method content {} {
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
@@ -45,12 +48,14 @@ oo::class create ::reply.hello {
     my puts </BODY></HTML>
   }
 }
-::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root ~/htdocs
-HTTPD plugin dispatch httpd::server::dispatch
+::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root [file home]/htdocs
+HTTPD plugin dispatch ::httpd::plugin.dict_dispatch
 HTTPD uri add * /hello [list mixin reply.hello]
+vwait forever
 }]
 
-The bare module does have facilities to hose a files from a file system. Files that end in a .tml will be substituted in the style of Tclhttpd:
+The bare module has facilities to host files from a file system. Files
+that end in a [const .tml] will be substituted in the style of Tclhttpd:
 
 [example {
 <!-- hello.tml -->
@@ -61,7 +66,8 @@ The time is now [clock format [clock seconds]]
 [my html_footer]
 }]
 
-A complete example of an httpd server is in the /examples directory of Tcllib. It also show how to dispatch URIs to other processes via SCGI and HTTP proxies.
+A complete httpd server example in the Tcllib’s /examples directory.
+This also shows how to dispatch URIs to other processes via SCGI and HTTP proxies.
 
 [example {
 cd ~/tcl/sandbox/tcllib
