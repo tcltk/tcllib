@@ -2,7 +2,7 @@
 [manpage_begin base32::hex n 0.2]
 [keywords base32]
 [keywords hex]
-[keywords rfc3548]
+[keywords rfc4648]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {base32 extended hex encoding}]

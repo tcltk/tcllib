@@ -15,9 +15,9 @@
 
 This package provides commands for encoding and decoding binary strings
 to and from the standard base32 encoding as specified in
-[uri https://datatracker.ietf.org/doc/html/rfc3548 {RFC 3548}].
-[emph {(Note that this RFC has been superceded by}]
-[uri https://datatracker.ietf.org/doc/html/rfc3548 {RFC 4648}][emph .)]
+[uri https://datatracker.ietf.org/doc/html/rfc4648 {RFC 4648}].
+[emph {(and also the older}]
+[uri https://datatracker.ietf.org/doc/html/rfc3548 {RFC 3548}][emph .)]
 
 [section API]
 
