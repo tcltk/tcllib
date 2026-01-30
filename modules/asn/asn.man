@@ -192,13 +192,13 @@ General notes:
 [enum]
 Nearly all getter (decoder) commands take two arguments. These arguments are
 variable names, [emph except] for [cmd ::asn::asnGetResponse]. The
-[arg data_var] variable contains the encoded ASN values to decode. When
+[arg dataVar] variable contains the encoded ASN values to decode. When
 a value getter (decoder) is called, the value is stored in the second
 variable, and the remaining input is stored back in the first
-[arg data_var] variable.
+[arg dataVar] variable.
 
 [enum]
-When getting (decoding), the [arg data_var] variable is modified first,
+When getting (decoding), the [arg dataVar] variable is modified first,
 before the decoded value is stored in the second variable. This means
 that if both arguments refer to the same variable, it will always
 contain the decoded value after the call, and not the remainder of the
@@ -208,51 +208,51 @@ input.
 
 [para]
 [list_begin definitions]
-[call [cmd ::asn::asnPeekByte] [arg data_var] [arg byte_var]]
+[call [cmd ::asn::asnPeekByte] [arg dataVar] [arg byteVar]]
 
 Return a copy of the first byte of the data, without modifing
-[arg data_var]. This can be used to check for implicit tags.
+[arg dataVar]. This can be used to check for implicit tags.
 
-[call [cmd ::asn::asnGetLength] [arg data_var] [arg length_var]]
+[call [cmd ::asn::asnGetLength] [arg dataVar] [arg lengthVar]]
 
 Decode the length information for a block of BER data. The tag has already
 to be removed from the data.
 
-[call [cmd ::asn::asnGetResponse] [arg chan] [arg data_var]]
+[call [cmd ::asn::asnGetResponse] [arg chan] [arg dataVar]]
 
 Reads an encoded ASN [emph sequence] from the channel [arg chan] and
-stores it into the variable called [arg data_var].
+stores it into the variable called [arg dataVar].
 
-[call [cmd ::asn::asnGetInteger] [arg data_var] [arg int_var]]
+[call [cmd ::asn::asnGetInteger] [arg dataVar] [arg intVar]]
 
 Decodes the integer value encoded at the start of the data stored in the
-variable called [arg data_var]. The integer is stored in the variable
-called [arg int_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The integer is stored in the variable
+called [arg intVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded integer an error is thrown.
 
-[call [cmd ::asn::asnGetEnumeration] [arg data_var] [arg enum_var]]
+[call [cmd ::asn::asnGetEnumeration] [arg dataVar] [arg enumVar]]
 
 Decodes the enumeration ID value encoded at the start of the data stored in the
-variable called [arg data_var]. The enumeration ID is stored in the variable
-called [arg enum_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The enumeration ID is stored in the variable
+called [arg enumVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded enumeration ID an error is thrown.
 
-[call [cmd ::asn::asnGetOctetString] [arg data_var] [arg string_var]]
+[call [cmd ::asn::asnGetOctetString] [arg dataVar] [arg stringVar]]
 
 Decodes the string value encoded at the start of the data stored in the
-variable called [arg data_var]. The string is stored in the variable
-called [arg string_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The string is stored in the variable
+called [arg stringVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded string an error is thrown.
 
-[call [cmd ::asn::asnGetString] [arg data_var] [arg string_var] [opt [arg type_var]]]
+[call [cmd ::asn::asnGetString] [arg dataVar] [arg stringVar] [opt [arg typeVar]]]
 
 Decodes the user-readable string value encoded at the start of the data stored in the
-variable called [arg data_var]. The string is stored in the variable
-called [arg string_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The string is stored in the variable
+called [arg stringVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded string an error is thrown.
 
 [para]
@@ -266,7 +266,7 @@ below for the type-specific conversion commands.
 
 [para]
 
-If the optional third argument [arg type_var] is supplied, then the
+If the optional third argument [arg typeVar] is supplied, then the
 incoming string’s type is stored in the variable it names.
 
 [para]
@@ -280,140 +280,140 @@ create the appropriate function
 "asn::asnGetSome[var UnsupportedString]" in your application if
 neccessary.
 
-[call [cmd ::asn::asnGetNumericString] [arg data_var] [arg string_var]]
+[call [cmd ::asn::asnGetNumericString] [arg dataVar] [arg stringVar]]
 
 Decodes the numeric string value encoded at the start of the data stored in the
-variable called [arg data_var]. The numeric string is stored in the variable
-called [arg string_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The numeric string is stored in the variable
+called [arg stringVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded numeric string an error is thrown.
 
-[call [cmd ::asn::asnGetPrintableString] [arg data_var] [arg string_var]]
+[call [cmd ::asn::asnGetPrintableString] [arg dataVar] [arg stringVar]]
 
 Decodes the printable string value encoded at the start of the data stored in the
-variable called [arg data_var]. The printable string is stored in the variable
-called [arg string_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The printable string is stored in the variable
+called [arg stringVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded printable string an error is thrown.
 
-[call [cmd ::asn::asnGetIA5String] [arg data_var] [arg string_var]]
+[call [cmd ::asn::asnGetIA5String] [arg dataVar] [arg stringVar]]
 
 Decodes the IA5 (US-ASCII) string value encoded at the start of the data stored in the
-variable called [arg data_var]. The IA5 string is stored in the variable
-called [arg string_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The IA5 string is stored in the variable
+called [arg stringVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded IA5 string an error is thrown.
 
-[call [cmd ::asn::asnGetBMPString] [arg data_var] [arg string_var]]
+[call [cmd ::asn::asnGetBMPString] [arg dataVar] [arg stringVar]]
 
 Decodes the BMP (two-byte unicode—UCS2) string value encoded at the start of the data stored in the
-variable called [arg data_var]. The BMP string is converted into a proper
+variable called [arg dataVar]. The BMP string is converted into a proper
 Tcl string which is then stored in the variable
-called [arg string_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+called [arg stringVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded BMP string an error is thrown.
 
-[call [cmd ::asn::asnGetUTF8String] [arg data_var] [arg string_var]]
+[call [cmd ::asn::asnGetUTF8String] [arg dataVar] [arg stringVar]]
 
 Decodes the UTF8 string value encoded at the start of the data stored in the
-variable called [arg data_var]. The UTF8 string is converted into a proper
+variable called [arg dataVar]. The UTF8 string is converted into a proper
 Tcl string which is then stored in the variable
-called [arg string_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+called [arg stringVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded UTF8 string an error is thrown.
 
-[call [cmd ::asn::asnGetUTCTime] [arg data_var] [arg utc_var]]
+[call [cmd ::asn::asnGetUTCTime] [arg dataVar] [arg utcVar]]
 
 Decodes the UTC time value encoded at the start of the data stored in the
-variable called [arg data_var]. The UTC time value is stored in the variable
-called [arg utc_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. The
-value stored in [arg utc_var] is a string; to get an actual time value,
+variable called [arg dataVar]. The UTC time value is stored in the variable
+called [arg utcVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. The
+value stored in [arg utcVar] is a string; to get an actual time value,
 use the  [cmd {clock scan}] command. If the value at the start is not an
 encoded UTC time value an error is thrown.
 
-[call [cmd ::asn::asnGetBitString] [arg data_var] [arg bits_var]]
+[call [cmd ::asn::asnGetBitString] [arg dataVar] [arg bitsVar]]
 
 Decodes the bit string value encoded at the start of the data stored in the
-variable called [arg data_var]. The bit string is stored in the variable
-called [arg bits_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. The
-value stored in [arg bits_var] is a string that contains only [const {"0"}]
+variable called [arg dataVar]. The bit string is stored in the variable
+called [arg bitsVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. The
+value stored in [arg bitsVar] is a string that contains only [const {"0"}]
 and [const {"1"}] characters. If
 the value at the start is not an encoded bit string an error is thrown.
 
-[call [cmd ::asn::asnGetObjectIdentifier] [arg data_var] [arg oid_var]]
+[call [cmd ::asn::asnGetObjectIdentifier] [arg dataVar] [arg oidVar]]
 
 Decodes the object identifier (OID) value encoded at the start of the data stored in the
-variable called [arg data_var]. The OID is stored in the variable
-called [arg oid_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. The
-value stored in [arg oid_var] is a list of integers. If
+variable called [arg dataVar]. The OID is stored in the variable
+called [arg oidVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. The
+value stored in [arg oidVar] is a list of integers. If
 the value at the start is not an encoded OID an error is thrown.
 
-[call [cmd ::asn::asnGetBoolean] [arg data_var] [arg bool_var]]
+[call [cmd ::asn::asnGetBoolean] [arg dataVar] [arg boolVar]]
 
 Decodes the Boolean value encoded at the start of the data stored in the
-variable called [arg data_var]. The Boolean is stored in the variable
-called [arg bool_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. The
-value stored in [arg bool_var] is either [const 0] or [const 1]. If
+variable called [arg dataVar]. The Boolean is stored in the variable
+called [arg boolVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. The
+value stored in [arg boolVar] is either [const 0] or [const 1]. If
 the value at the start is not an encoded Boolean an error is thrown.
 
-[call [cmd ::asn::asnGetNull] [arg data_var]]
+[call [cmd ::asn::asnGetNull] [arg dataVar]]
 
 Decodes the NULL value encoded at the start of the data stored in the
-variable called [arg data_var] and removes the decoded bytes from the
-start of the data in [arg data_var], ready for the next value to be
+variable called [arg dataVar] and removes the decoded bytes from the
+start of the data in [arg dataVar], ready for the next value to be
 decoded. If the value at the start is not an encoded NULL value an error
 is thrown.
 
-[call [cmd ::asn::asnGetSequence] [arg data_var] [arg sequence_var]]
+[call [cmd ::asn::asnGetSequence] [arg dataVar] [arg sequenceVar]]
 
 Decodes the ASN sequence value encoded at the start of the data stored in the
-variable called [arg data_var]. The ASN sequence is stored in the variable
-called [arg sequence_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The ASN sequence is stored in the variable
+called [arg sequenceVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded ASN sequence an error is thrown.
 
 [para]
 
-The value in [arg sequence_var] is encoded binary and must be
+The value in [arg sequenceVar] is encoded binary and must be
 further decoded according to the definition of the sequence, using the
 other decoder “asnGet…” commands.
 
-[call [cmd ::asn::asnGetSet] [arg data_var] [arg set_var]]
+[call [cmd ::asn::asnGetSet] [arg dataVar] [arg setVar]]
 
 Decodes the ASN set value encoded at the start of the data stored in the
-variable called [arg data_var]. The ASN set is stored in the variable
-called [arg set_var], and the decoded bytes are removed from the start of
-the data in [arg data_var], ready for the next value to be decoded. If
+variable called [arg dataVar]. The ASN set is stored in the variable
+called [arg setVar], and the decoded bytes are removed from the start of
+the data in [arg dataVar], ready for the next value to be decoded. If
 the value at the start is not an encoded ASN set an error is thrown.
 
 [para]
 
-The value in [arg set_var] is encoded binary and must be
+The value in [arg setVar] is encoded binary and must be
 further decoded according to the definition of the sequence, using the
 other decoder “asnGet…” commands.
 
-[call [cmd ::asn::asnGetApplication] [arg data_var] [arg appNumber_var] \
-[opt [arg content_var]] [opt [arg encodingType_var]]]
+[call [cmd ::asn::asnGetApplication] [arg dataVar] [arg appNumberVar] \
+[opt [arg contentVar]] [opt [arg encodingTypeVar]]]
 
 Decodes the ASN application construct value encoded at the start of the
-data stored in the variable called [arg data_var]. The ASN application
-construct’s ID is stored in the variable called [arg appNumber_var], and
+data stored in the variable called [arg dataVar]. The ASN application
+construct’s ID is stored in the variable called [arg appNumberVar], and
 the decoded bytes are removed from the start of the data in
-[arg data_var], ready for the next value to be decoded. If the value at
+[arg dataVar], ready for the next value to be decoded. If the value at
 the start is not an encoded ASN application construct an error is thrown.
 
 [para]
-If a [arg content_var] is specified, then the command places all data
+If a [arg contentVar] is specified, then the command places all data
 associated with the ASN application construct into the named variable,
 in the binary form which can be processed using the this package’s
 decoder commands.
 
 [para]
-If a [arg encodingType_var] is specified, then that variable is set to
+If a [arg encodingTypeVar] is specified, then that variable is set to
 [const 1] if the encoding is constructed and [const 0] if it is
 primitive.
 
@@ -423,25 +423,25 @@ it is the responsibility of the caller to decode the
 remainder of the ASN application construct based on the ID retrieved by
 this command, using the package’s decoder commands.
 
-[call [cmd ::asn::asnGetContext] [arg data_var] [arg contextNumber_var] \
-[opt [arg content_var]] [opt [arg encodingType_var]]]
+[call [cmd ::asn::asnGetContext] [arg dataVar] [arg contextNumberVar] \
+[opt [arg contentVar]] [opt [arg encodingTypeVar]]]
 
 Decodes the ASN context tag construct encoded at the start of the data
-stored in the variable called [arg data_var]. The ASN context tag
-construct’s ID is stored in the variable called [arg contextNumber_var],
+stored in the variable called [arg dataVar]. The ASN context tag
+construct’s ID is stored in the variable called [arg contextNumberVar],
 and the decoded bytes are removed from the start of the data in
-[arg data_var], ready for the next value to be decoded. If the value at
+[arg dataVar], ready for the next value to be decoded. If the value at
 the start is not an encoded ASN context tag construct an error is
 thrown.
 
 [para]
-If a [arg content_var] is specified, then the command places all data
+If a [arg contentVar] is specified, then the command places all data
 associated with the ASN context tag construct into the named variable,
 in the binary form which can be processed using the this package’s
 decoder commands.
 
 [para]
-If a [arg encodingType_var] is specified, then that variable is set to
+If a [arg encodingTypeVar] is specified, then that variable is set to
 [const 1] if the encoding is constructed and [const 0] if it is
 primitive.
 
@@ -467,13 +467,13 @@ primitive values.
 To assist with this the package provides three helper functions:
 
 [list_begin definitions]
-[call [cmd ::asn::asnPeekTag] [arg data_var] [arg tag_var] [arg tagtype_var] [arg constr_var]]
+[call [cmd ::asn::asnPeekTag] [arg dataVar] [arg tagVar] [arg tagtypeVar] [arg constrVar]]
 
 The [cmd ::asn::asnPeekTag] command can be used to take a peek at the
 data and decode the tag value, without removing it from the data. The
-[arg tag_var] is set to the tag number. The [arg tagtype_var] is set to
+[arg tagVar] is set to the tag number. The [arg tagtypeVar] is set to
 the tag’s class, which is one of [const UNIVERSAL], [const CONTEXT],
-[const APPLICATION], or [const PRIVATE]. The [arg constr_var] is set to 1
+[const APPLICATION], or [const PRIVATE]. The [arg constrVar] is set to 1
 if the tag is for a constructed value, or to 0 for a primitive. The
 command returns the tag’s length.
 
@@ -490,9 +490,9 @@ or [const 0] for a primitive encoding. The default is [const P]. (The
 use of [const 1] and [const 0] makes it easy to use this command with
 the values returned by [cmd ::asn::asnPeekTag].)
 
-[call [cmd ::asn::asnRetag] [arg data_var] [arg newTag]]
+[call [cmd ::asn::asnRetag] [arg dataVar] [arg newTag]]
 
-Replaces the tag at the start of the data in [arg data_var] with
+Replaces the tag at the start of the data in [arg dataVar] with
 [arg newTag]. The new tag can be created using the [cmd ::asn::asnTag]
 command.
 
@@ -502,6 +502,35 @@ command.
 
 Examples that show this package in use can be found in the
 implementation of the [package ldap] package.
+
+[para]
+When encoding text it is best to [emph avoid] [cmd ::asn::asnUTF8String]
+since in rare cases it may not work correctly. For pure 7-bit ASCII it
+is easiest to encode using [cmd ::asn::asnIA5String]. Outside the 7-bit
+ASCII range convert Tcl strings into UCS2 (i.e., utf-16le) and encode
+with [cmd ::asn::asnBMPString]. For decoding any string use
+[cmd ::asn::asnGetString]; however, for each UCS2 string, remember to
+convert it back to a Tcl string.
+
+[example {
+# Encode
+set eflag [::asn::asnBoolean 1]
+set etotal [::asn::asnInteger 734]
+set line [encoding convertto utf-16le "€2 ÷ 3 → €⅔ ✔"]
+set eline [::asn::asnBMPString $line]
+set enote [::asn::asnIA5String "7-bit ASCII ~^"]
+set encoded [::asn::asnSequence $eflag $etotal $eline $enote]
+# Decode
+::asn::asnGetSequence encoded sequence
+::asn::asnGetBoolean sequence flag
+::asn::asnGetInteger sequence total
+::asn::asnGetString sequence bmp_line
+set line [encoding convertfrom utf-16le $bmp_line]
+::asn::asnGetString sequence note
+puts "flag=$flag total=$total line='$line' note='$note'"
+=>
+flag=1 total=734 line='€2 ÷ 3 → €⅔ ✔' note='7-bit ASCII ~^'
+}]
 
 [vset CATEGORY asn]
 [include ../common-text/feedback.inc]

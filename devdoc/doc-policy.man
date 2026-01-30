@@ -8,6 +8,13 @@
 This document provides some notes on creating and maintaining Tcl
 documentation (excluding the use of the doctools and markup language.)
 
+[para]
+The Tcllib and Tklib documentation should aim to use the same structure
+and conventions as that used by the Tcl/Tk documentation. For example,
+every package or class or command document should have an examples
+section, although this does [emph not] preclude having inline examples
+(e.g., for subcommands or methods) when appropriate.
+
 [section Audience]
 
 [para]
@@ -112,16 +119,15 @@ value.
 
 [para]
 Suggestion going forward: use a suffix of [arg Var] for variable names
-and either no suffix or a suffix of [arg Val] or [arg Value] for
-variable values.
+and no suffix for variable values.
 
 [example {
 # Original
 linsert list index ?element element ...?
 # Proposed
-linsert listVal index ?value …?
-# -or-
 linsert list index ?value …?
+# -or- to avoid confusion with the list type
+linsert alist index ?value …?
 
 # Original
 lappend varName ?value value value ...?
@@ -131,7 +137,9 @@ lappend listVar ?value …?
 # Original
 dict info dictionaryValue
 # Proposed
-dict info dictVal
+dict info dict
+# -or- to avoid confusion with the dict type
+dict info adict
 
 # Original
 dict set dictionaryVariable key ?key ...? value
@@ -144,12 +152,26 @@ An ellipsis is sufficient to indicate that multiple values of the same
 kind as the first value may be passed.
 
 [para]
-Alternatively, specify in the Commands section. For example,
+For single [type list]s and [type dict]s it may be preferable to use
+[var alist] and [var adict] to avoid confusion with the types
+themselves. This problem doesn't arise when there are two or more since
+we can then write [arg list1] [arg list2] etc.
+
+[para]
+It would also be helpful to hint in the Commands section. For example,
 “In the following [arg dictVar] is the name of a [type dict] variable
-and [arg dictVal] is a [type dict] value.
+and [arg adict] is a [type dict] value.
 
 [para]
 As a rule, use the generic term [arg value] rather than “item” or
 “element”.
+
+[section Cryptography]
+
+[para]
+Cryptographic—and any other security-sensitive examples—[emph must]
+show secure practice. In all likelihood this means that such examples
+ought to be added or edited only by those who have expertise in this
+area.
 
 [manpage_end]
