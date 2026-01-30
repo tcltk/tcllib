@@ -74,11 +74,15 @@ Every documentation page has a long-established fixed structure which ought
 to be respected.
 
 [para]
-For [cmd proc]s whose primary concern is to return a value, an initial
+For commands that take optional arguments the documentation should
+explain each optional argument and state its default value.
+
+[para]
+For commands whose primary concern is to return a value, an initial
 (or only) description line should begin with “Returns”.
 
 [para]
-For [cmd proc]s that return a Boolean as a [const 1] or [const 0], the
+For commands that return a Boolean as a [const 1] or [const 0], the
 style should normally be along the lines of either:
 
 [example {
@@ -101,9 +105,14 @@ arguments. Note also, that in some cases it will make more sense to
 reverse the order of returns (i.e., putting the [const 0] (false) first).
 
 [para]
-For [cmd proc]s where the primary concern is to perform an action,
+For commands where the primary concern is to perform an action,
 whether or not they return a value, try to begin the description with a
 verb, for example, “Appends”, “Removes”.
+
+[para]
+For commands that can throw errors, each kind of error it may throw
+should be mentioned, along with the conditions under which it will be
+thrown.
 
 [section Names]
 

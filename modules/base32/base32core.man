@@ -18,9 +18,8 @@ mappings at the end of a string.
 
 [para]
 
-This is in essence an internal package to be used by implementors of a
-base32 en- and decoder. A regular user has no need of this package at
-all.
+[emph {This is essentially an internal package to be used by implementors
+of base32 encoders and decoders. Regular users do not need this package.}]
 
 [section API]
 
