@@ -202,10 +202,34 @@ foreach {k input result notes} {
     # skipping knownbugs
     if {$notes eq ".FAIL"} continue
     
-    test basic-1.$k "escaped characters: ($input)" -body {
+    test basic-1.5.$k "escaped characters: ($input)" -body {
 	convert "x $input x"
     } -result "\n    <p>x ${result} x</p>\n"
 }
+
+test basic-1.6 "emphasis without backslash" -body {Markdown::convert {*a/b*}} -result {<p><em>a/b</em></p>}
+test basic-1.6.1 "no emphasis " -body {Markdown::convert {inline with * a/b *}} -result {<p>inline with * a/b *</p>}
+test basic-1.6.2 "no emphasis with single asterisk" -body {Markdown::convert {inline with * a/b* blah}} -result {<p>inline with * a/b* blah</p>}
+
+test basic-1.7 "emphasis with backslash in quotes" -body {Markdown::convert {*a\\b*}} -result {<p><em>a\b</em></p>}
+test basic-1.7.1 "emphasis with backslash in curly braces" -body {Markdown::convert {*a\b*}} -result {<p><em>ab</em></p>}
+
+test basic-1.8 "emphasis with escaped asterisk" -body {Markdown::convert {*a\\b\**}} -result {<p><em>a\b*</em></p>}
+
+test basic-1.9 "emphasis with backslash normal character" -body {Markdown::convert {*a\\b\c*}} -result {<p><em>a\bc</em></p>}
+test basic-1.9.1 "no emphasis with backslash normal character" -body {Markdown::convert {a\\b\c}} -result {<p>a\bc</p>}
+
+test basic-1.10 "emphasis with backslash as first character" -body {Markdown::convert {*\\a\\b\c*}} -result {<p><em>\a\bc</em></p>}
+
+test basic-1.11 "emphasis with embedded escaped asterisks at both ends" -body {Markdown::convert {*\*hello\**}} -result {<p><em>*hello*</em></p>}
+
+test basic-1.12 "emphasis with embedded escaped asterisks at one end" -body {Markdown::convert {*\*hello*}} -result {<p><em>*hello</em></p>}
+test basic-1.12.1 "emphasis with embedded escaped asterisks at one end" -body {Markdown::convert {*hello\**}} -result {<p><em>hello*</em></p>}
+
+test basic-1.13 "emphasis with embedded asterisk" -body {Markdown::convert {*hel*lo*}} -result {<p><em>hel</em>lo*</p>}
+
+test basic-1.14 "emphasis with non-matching asterisk due to whitespace" -body {Markdown::convert {*hel *lo*}} -result {<p><em>hel </em>lo*</p>}
+
 
 test bquote-1.1 {simple blockquote} -body {
     convert {
