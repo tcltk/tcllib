@@ -3,6 +3,7 @@
 [keywords base32]
 [keywords rfc3548]
 [keywords rfc4648]
+[see_also encoding]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {base32 standard encoding}]
@@ -15,9 +16,9 @@
 
 This package provides commands for encoding and decoding binary strings
 to and from the standard base32 encoding as specified in
-[uri https://datatracker.ietf.org/doc/html/rfc4648 {RFC 4648}].
+[uri https://datatracker.ietf.org/doc/html/rfc4648 {RFC 4648}]
 [emph {(and also the older}]
-[uri https://datatracker.ietf.org/doc/html/rfc3548 {RFC 3548}][emph .)]
+[uri https://datatracker.ietf.org/doc/html/rfc3548 {RFC 3548}])[emph .]
 
 [section API]
 
@@ -31,6 +32,10 @@ its result.
 [para]
 The result may be padded at the end with [const =] characters to ensure
 that the result’s length is a multiple of eight.
+
+[para]
+The encoder will throw an error if [arg bstring] is neither a binary string,
+nor a string containing only 7-bit ASCII.
 
 [call [cmd ::base32::decode] [arg estring]]
 
@@ -99,7 +104,7 @@ base32='4KBKYMRAYO3SAMZA4KDJEIHCQKWOFBMUEDRJZFBAKRRWYL2UNM======' 1
 }]
 
 If the original string is 7-bit ASCII the conversions to and from raw
-bytes using the [cmd encoding] command are not needed. For example:
+bytes using the built-in [cmd encoding] command are not needed. For example:
 
 [example {
 set ascii_line "7-bit ASCII ~^"

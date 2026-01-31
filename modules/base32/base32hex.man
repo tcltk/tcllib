@@ -3,6 +3,8 @@
 [keywords base32]
 [keywords hex]
 [keywords rfc4648]
+[see_also encoding]
+[see_also binary]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {base32 extended hex encoding}]
@@ -18,9 +20,8 @@ to and from the extended hex base32 encoding as specified in
 [uri https://datatracker.ietf.org/doc/html/rfc4648 {RFC 4648}].
 
 [para]
-See also Tcl’s
-[uri https://www.tcl-lang.org/man/tcl9.0/TclCmd/binary.html binary]
-command’s [cmd hex] subcommand.
+(Note that Tcl’s built-in [cmd binary] command provides simple encoding and
+decoding of bytes to and from pairs of hex digits.)
 
 [section API]
 
@@ -34,6 +35,10 @@ Returns an extended hex base32-encoded version of the binary string
 [para]
 The result may be padded at the end with [const =] characters to ensure
 that the result’s length is a multiple of eight.
+
+[para]
+The encoder will throw an error if [arg bstring] is neither a binary string,
+nor a string containing only 7-bit ASCII.
 
 [call [cmd ::base32::hex::decode] [arg estring]]
 
