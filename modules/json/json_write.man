@@ -64,6 +64,21 @@ that [var indented] is set as well.
 If this flag is not set, the output is formatted as per the value of
 [var indented], without trying to align the values for object keys.
 
+[call [cmd ::json::write] [method usetdom]]
+
+This method returns the current state of the usetdom setting.
+The result is 1, if tdom is used to format JSON strings.
+Otherwise, the internal routine is used.
+
+[call [cmd ::json::write] [method usetdom] [arg flag]]
+
+Sets the usetdom property.
+If flag is true, tdom is used to format JSON strings.
+Otherwise, an internal formatter is used.
+If tdom formatting is specified, the package is requested with minimum
+version 0.9.6.
+An error is raised, if the package require fails.
+
 [call [cmd ::json::write] [method string] [arg s]]
 
 This method takes the string [arg s] and returns it properly quoted

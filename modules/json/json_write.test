@@ -80,6 +80,12 @@ proc gen2 {serial} {
                      start [json::write string $g(start)]]]
 }
 
+set lusetdom {0}
+lappend auto_path {C:\oehhar\elmicron\projekte\el1093_common\ilib_winx64\tdom}
+if {0 == [catch {json::write usetdom 1}]} {
+	lappend lusetdom 1
+}
+
 # -------------------------------------------------------------------------
 # Tests
 # -------------------------------------------------------------------------
@@ -124,7 +130,12 @@ test json-write-2.4 {argument errors} -body {
 
 # -------------------------------------------------------------------------
 
-test json-write-3.0 {indented, aligned} -setup {
+# Make a run without and eventually with tdom
+foreach usetdom $lusetdom {
+
+json::write usetdom $usetdom
+
+test json-write-3.0.$usetdom {indented, aligned} -setup {
     json::write indented 1
     json::write aligned  1
 } -body {
@@ -169,7 +180,7 @@ test json-write-3.0 {indented, aligned} -setup {
     }
 }}
 
-test json-write-3.1 {indented, !aligned} -setup {
+test json-write-3.1.$usetdom {indented, !aligned} -setup {
     json::write indented 1
     json::write aligned  0
 } -body {
@@ -214,7 +225,7 @@ test json-write-3.1 {indented, !aligned} -setup {
     }
 }}
 
-test json-write-3.2 {!indented, !aligned} -setup {
+test json-write-3.2.$usetdom {!indented, !aligned} -setup {
     json::write indented 0
     json::write aligned  0
 } -body {
@@ -222,7 +233,7 @@ test json-write-3.2 {!indented, !aligned} -setup {
 } -result {{"grammar":{"rules":{"A":{"is":"/ {t +} {t -}","mode":"value"},"D":{"is":"/ {t 0} {t 1} ","mode":"value"},"E":{"is":"/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}","mode":"value"},"F":{"is":"x {n T} {* {x {n A} {n T}}}","mode":"value"},"M":{"is":"/ {t *} {t /}","mode":"value"},"N":{"is":"x {? {n S}} {+ {n D}}","mode":"value"},"S":{"is":"/ {t +} {t -}","mode":"value"},"T":{"is":"n N","mode":"value"}},"start":"n Expression"}}}
 
 
-test json-write-3.3 {!indented, !aligned, object-string under the hood} -setup {
+test json-write-3.3.$usetdom {!indented, !aligned, object-string under the hood} -setup {
     json::write indented 0
     json::write aligned  0
 } -body {
@@ -231,19 +242,25 @@ test json-write-3.3 {!indented, !aligned, object-string under the hood} -setup {
 
 # -------------------------------------------------------------------------
 
-test json-write-4.0 {string quoting} -body {
+# This currently failes for tdom, as \177 (=\x7f) is not escaped.
+# The test output shows "\7F". The real output is the unescaped value.
+
+test json-write-4.0.$usetdom {string quoting} -body {
     json::write string "a\"b\\c\bd\fe\nf\rg\th\0i\1j\2k\3l\177m"
 } -result "\"a\\\"b\\\\c\\bd\\fe\\nf\\rg\\th\\u0000i\\u0001j\\u0002k\\u0003l\\u007fm\""
 
 # -------------------------------------------------------------------------
 
-test json-write-5.0 {array} -body {
+test json-write-5.0.$usetdom {array} -body {
     json::write array [json::write string a] [json::write string b]
 } -result {["a","b"]}
 
-test json-write-5.1 {array-strings} -body {
+test json-write-5.1.$usetdom {array-strings} -body {
     json::write array-strings a b
 } -result {["a","b"]}
+
+# loop over tdom usage
+}
 
 # -------------------------------------------------------------------------
 unset data

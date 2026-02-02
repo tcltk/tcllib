@@ -14,7 +14,8 @@ package require Tcl 8.5 9
 
 namespace eval ::json::write {
     namespace export \
-	string array array-strings object object-strings indented aligned
+	string array array-strings object object-strings indented aligned\
+	usetdom
 
     namespace ensemble create
 }
@@ -60,7 +61,13 @@ proc ::json::write::aligned {{bool {}}} {
 
 proc ::json::write::string {s} {
     variable quotes
-    return "\"[::string map $quotes $s]\""
+    variable useTDOM
+    if {$useTDOM} {
+	set res [dom jsonEscape $s]
+    } else {
+	set res [::string map $quotes $s]
+    }
+	return "\"$res\""
 }
 
 proc ::json::write::array {args} {
@@ -164,6 +171,27 @@ proc ::json::write::AlignLeft {fieldlen str} {
     #return $str[::string repeat { } [expr {$fieldlen - [::string length $str]}]]
 }
 
+# Switch or query  the use of the tdom jsonEscape command is used for string
+# formatting.
+proc ::json::write::usetdom {{bool {}}} {
+    variable useTDOM
+    switch -exact -- [llength [info level 0]] {
+	1 {}
+	2 {
+	    set useTDOM 0
+	    if {$bool} {
+		package require tdom 0.9.6-
+		set useTDOM 1
+	    }
+	}
+	default {
+	    return -code error {wrong # args: should be "json::write usetdom ?bool?"}
+	}
+    }
+    return $useTDOM
+}
+
+
 # ### ### ### ######### ######### #########
 
 namespace eval ::json::write {
@@ -203,10 +231,12 @@ namespace eval ::json::write {
 	     \x94 \\u0094 \x95 \\u0095 \x96 \\u0096 \x97 \\u0097 \
 	     \x98 \\u0098 \x99 \\u0099 \x9a \\u009a \x9b \\u009b \
 	     \x9c \\u009c \x9d \\u009d \x9e \\u009e \x9f \\u009f ]
+
+    variable useTDOM 0
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json::write 1.0.5
+package provide json::write 1.1.0
 return
