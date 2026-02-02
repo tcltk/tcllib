@@ -93,26 +93,27 @@ base32, taking account of the fact that the base32 commands work in
 terms of binary strings.
 
 [example {
-set old_line "€2 ÷ 3 → €⅔ ✔ Tcl/Tk"
-set bytes [encoding convertto utf-8 $old_line]
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
 set enc32 [::base32::encode $bytes]
 set dec32 [::base32::decode $enc32]
-set new_line [encoding convertfrom utf-8 $dec32]
-puts "base32='$enc32' [expr {$old_line eq $new_line}]"
+set line [encoding convertfrom utf-8 $dec32]
+puts "base32='$enc32' [expr {$UTF8_LINE eq $line}]"
 =>
-base32='4KBKYMRAYO3SAMZA4KDJEIHCQKWOFBMUEDRJZFBAKRRWYL2UNM======' 1
+base32='Z2KMHNZA4KAJYVLUMYWTRYUATUQOFGM64KCKI===' 1
 }]
 
 If the original string is 7-bit ASCII the conversions to and from raw
 bytes using the built-in [cmd encoding] command are not needed. For example:
 
 [example {
-set ascii_line "7-bit ASCII ~^"
-set enc32 [::base32::encode $ascii_line]
-set new_line [::base32::decode $enc32]
-puts "base32='$enc32' [expr {$ascii_line eq $new_line}]"
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set enc32 [::base32::encode $ASCII_LINE]
+set dec32 [::base32::decode $enc32]
+set line [encoding convertfrom utf-8 $dec32]
+puts "base32='$enc32' [expr {$ASCII_LINE eq $line}]"
 =>
-base32='G4WWE2LUEBAVGQ2JJEQH4XQ=' 1
+base32='EEQDOLLCNF2CAQKTINEUSID3PZPH2===' 1
 }]
 
 [vset CATEGORY base32]

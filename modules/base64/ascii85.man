@@ -10,56 +10,77 @@
 [description]
 [para]
 
-This package provides procedures to encode binary data into ascii85 and back.
+This package provides commands for encoding and decoding binary strings
+to and from the ascii85 encoding. (This encoding is also known as
+base85.)
 
 [list_begin definitions]
 
-[call [cmd ::ascii85::encode] [opt "[option -maxlen] [arg maxlen]"] [opt "[option -wrapchar] [arg wrapchar]"] [arg string]]
+[call [cmd ::ascii85::encode] [opt "[option -maxlen] [arg maxlen]"] \
+[opt "[option -wrapchar] [arg wrapchar]"] [arg bstring]]
 
-Ascii85 encodes the given binary [arg string] and returns the encoded
-result. Inserts the character [arg wrapchar] every [arg maxlen]
-characters of output. [arg wrapchar] defaults to newline. [arg maxlen]
-defaults to [const 76].
-
-[para]
-
-[emph {Note well}]: If your string is not simple ascii you should fix
-the string encoding before doing ascii85 encoding. See the examples.
+Returns an ascii85-encoded version of the binary string [arg bstring] as
+its result.
 
 [para]
+The result string contains the [arg wrapchar] character after every
+[arg maxlen] characters of output. The [arg wrapchar] defaults to
+newline and [arg maxlen] defaults to 76. To prevent wrapping, set
+[arg maxlen] to [const 0].
 
-The command will throw an error for negative values of [arg maxlen],
-or if [arg maxlen] is not an integer number.
+[para]
+The command will throw an error if [arg maxlen] is not an integer or is
+negative, or if [arg bstring] is neither a binary string, nor a string
+containing only 7-bit ASCII.
 
-[call [cmd ::ascii85::decode] [arg "string"]]
+[call [cmd ::ascii85::decode] [arg estring]]
 
-Ascii85 decodes the given [arg "string"] and returns the binary data.
-The decoder ignores whitespace in the string, as well as tabs and
-newlines.
+Returns a binary string that has been ascii85-decoded from the
+[arg estring]. Any whitespace (spaces, tabs, newlines) in [arg estring]
+is ignored.
 
 [list_end]
 
 [section {EXAMPLES}]
 
-[example {
-% ascii85::encode "Hello, world"
-87cURD_*#TDfTZ)
-}]
+This example shows how to encode and decode a Tcl string to and from
+ascii85, taking account of the fact that the ascii85 commands work in
+terms of binary strings.
 
 [example {
-% ascii85::encode [string repeat xyz 24]
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set enc85 [::ascii85::encode $bytes]
+set dec85 [::ascii85::decode $enc85]
+set line [encoding convertfrom utf-8 $dec85]
+puts "ascii85='$enc85' [expr {$UTF8_LINE eq $line}]"
+=>
+ascii85='cBQ5U+Q@pA<HMh)39#IZ+QAf\ie4*' 1
+}]
+
+If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in [cmd encoding] command are not needed. For example:
+
+[example {
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set enc85 [::ascii85::encode $ASCII_LINE]
+set dec85 [::ascii85::decode $enc85]
+set line [encoding convertfrom utf-8 $dec85]
+puts "ascii85='$enc85' [expr {$ASCII_LINE eq $line}]"
+=>
+ascii85='+Wr]q@VKp,5uU-B8K`A/?@;' 1
+}]
+
+Wrapping can be prevented so that no whitespace is introduced:
+
+[example {
+ascii85::encode [string repeat xyz 24]
+=>
 G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G
 ^4U[H$X^\H?a^]
-% ascii85::encode -wrapchar "" [string repeat xyz 24]
+ascii85::encode -maxlen 0 [string repeat xyz 24]
+=>
 G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]
-}]
-
-[example {
-# NOTE: ascii85 encodes BINARY strings.
-% set chemical [encoding convertto utf-8 "C\u2088H\u2081\u2080N\u2084O\u2082"]
-% set encoded [ascii85::encode $chemical]
-6fN]R8E,5Pidu\UiduhZidua
-% set caffeine [encoding convertfrom utf-8 [ascii85::decode $encoded]]
 }]
 
 [section References]

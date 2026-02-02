@@ -11,85 +11,154 @@
 [para]
 
 This package provides a Tcl-only implementation of the
-[syscmd uuencode(1)] and [syscmd uudecode(1)] commands. This encoding
-packs binary data into printable ASCII characters.
+[uri https://www.man7.org/linux/man-pages/man1/uuencode.1p.html \
+[syscmd uuencode(1p)]] and
+[uri https://www.man7.org/linux/man-pages/man1/uudecode.1p.html \
+[syscmd uudecode(1p)]] commands.
+This encoding packs binary data into printable 7-bit ASCII characters.
 
 [list_begin definitions]
 
-[call [cmd ::uuencode::encode] [arg string]]
+[call [cmd ::uuencode::encode] [arg bstring]]
 
-returns the uuencoded data. This will encode all the data passed in
-even if this is longer than the uuencode maximum line length. If the
-number of input bytes is not a multiple of 3 then additional 0 bytes
-are added to pad the string.
+Returns a uuencoded version of the binary string [arg bstring] as
+its result.
 
-[call [cmd ::uuencode::decode] [arg string]]
+[para]
+All the given bytes are encoded even if they exceed the uuencode maximum
+line length. If the number of input bytes is not a multiple of 3 then
+the string is padded with additional [const \\x00] NUL bytes.
 
-Decodes the given encoded data. This will return any padding
-characters as well and it is the callers responsibility to deal with
-handling the actual length of the encoded data. (see uuencode).
+[para]
+The command will throw an error if [arg bstring] is neither a binary
+string, nor a string containing only 7-bit ASCII.
 
-[call [cmd ::uuencode::uuencode] [opt "[option -name] [arg string]"] [opt "[option -mode] [arg octal]"] "([option -file] [arg filename] | [opt [option --]] [arg string])"]
+[call [cmd ::uuencode::decode] [arg estring]]
 
-[call [cmd ::uuencode::uudecode] "([option -file] [arg filename] | [opt [option --]] [arg string])"]
+Returns a binary string that has been uuencode-decoded from the
+[arg estring], including any padding [const \\x00] NUL bytes at the end.
 
-UUDecode a file or block of data. A file may contain more than one
-embedded file so the result is a list where each element is a three
-element list of filename, mode value and data.
+[call [cmd ::uuencode::uuencode] [opt "[option -name] [arg string]"] \
+[opt "[option -mode] [arg octal]"] "([option -file] [arg filename] | \
+[opt [option --]] [arg bstring])"]
+
+Returns a wrapped uuencoded version of the data in the file specified by
+[option -file] [arg filename] or by the binary string [arg bstring] as
+its result.
+
+[para]
+Each wrapped uuencoded result consists of a header, body, and footer. The
+header is a line starting with [const begin] followed by a suggested
+file mode and suggested filename. The body consists of lines of
+uuencoded data, each prefixed with a line length character. The footer
+is [const end] on its own line. See
+[uri https://www.man7.org/linux/man-pages/man1/uuencode.1p.html \
+[syscmd uuencode(1)]].
+
+[call [cmd ::uuencode::uudecode] "([option -file] [arg filename] | \
+[opt [option --]] [arg estring])"]
+
+Returns a list of 3-element lists of filename, file mode,
+uuencode-decoded bytes, from the file specified by [option -file]
+[arg filename] or from the [arg estring].
 
 [list_end]
 
-[section OPTIONS]
+[subsection Options]
 
 [list_begin definitions]
 
-[def "-filename name"]
+[def "[option -file] [arg filename]"]
 
-Cause the uuencode or uudecode commands to read their data from the
-named file rather that taking a string parameter.
+Cause the [cmd uuencode] or [cmd uudecode] commands to read their data
+from the named file rather that taking a binary string parameter.
 
-[def "-name string"]
+[def "[option -name] [arg string]"]
 
 The uuencoded data header line contains the suggested file name to be
 used when unpacking the data. Use this option to change this from the
 default of "data.dat".
 
-[def "-mode octal"]
+[def "[option -mode] [arg octal]"]
 
 The uuencoded data header line contains a suggested permissions bit
 pattern expressed as an octal string. To change the default of 0644
 you can set this option. For instance, 0755 would be suitable for an
-executable. See [syscmd chmod(1)].
+executable. See
+[uri https://www.man7.org/linux/man-pages/man1/chmod.1.html \
+[syscmd chmod(1)]].
 
 [list_end]
 
-[section EXAMPLES]
+[section Examples]
+
+The examples use the subcommand [cmd {string trimright}] to trim any
+[const \\x00] NUL bytes that may have been added during encoding.
+[emph {Note however, that if the original binary strings might end
+with}] [const \\x00] NUL [emph {bytes, a more sophisticated approach
+will be needed.}]
+
+[para]
+This example shows how to uuencode and uudecode a Tcl string, taking
+account of the fact that the uuencode commands work in terms of binary
+strings.
 
 [para]
 [example {
-% set d [uuencode::encode "Hello World!"]
-2&5L;&\\@5V]R;&0A
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set encuu [::uuencode::encode $bytes]
+set decuu [string trimright [::uuencode::decode $encuu] \x00]
+set line [encoding convertfrom utf-8 $decuu]
+puts "uuencode='$encuu' [expr {$UTF8_LINE eq $line}]"
+=>
+uuencode='SI3#MR#B@)Q5=&8M..*`G2#BF9[BA*0`' 1
 }]
 
-[para]
-[example {
-% uuencode::uudecode $d
-Hello World!
-}]
+If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in [cmd encoding] command are not needed. For example:
 
 [para]
 [example {
-% set d [uuencode::uuencode -name hello.txt "Hello World"]
-begin 644 hello.txt
-+2&5L;&\@5V]R;&0`
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set encuu [::uuencode::encode $ASCII_LINE]
+set decuu [string trimright [::uuencode::decode $encuu] \x00]
+set line [encoding convertfrom utf-8 $decuu]
+puts "uuencode='$encuu' [expr {$ASCII_LINE eq $line}]"
+=>
+uuencode='(2`W+6)I="!!4T-)22![?EY]' 1
+}]
+
+This example shows how to create a uuencoded byte string and write it to
+a file.
+
+[para]
+[example {
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set encuu [::uuencode::uuencode -name test.uu $bytes]
+writeFile test.uu binary $encuu
+puts $encuu
+=>
+begin 644 test.uu
+7SI3#MR#B@)Q5=&8M..*`G2#BF9[BA*0`
 `
 end
 }]
 
+This example shows how to read a file containing one or more uuencoded
+files.
+
 [para]
 [example {
-% uuencode::uudecode $d
-{hello.txt 644 {Hello World}}
+foreach lst [::uuencode::uudecode -file test.uu] {
+    lassign $lst name mode decuu
+    set decuu [string trimright $decuu \x00]
+    set line [encoding convertfrom utf-8 $decuu]
+    puts "name=$name mode=$mode line='$line'"
+}
+=>
+name=test.uu mode=644 line='Δ÷ “Utf-8” ♞ℤ'
 }]
 
 [vset CATEGORY base64]
