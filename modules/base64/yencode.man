@@ -12,77 +12,154 @@
 [description]
 [para]
 
-This package provides a Tcl-only implementation of the yEnc file
-encoding. This is a recently introduced method of encoding binary
-files for transmission through Usenet. This encoding packs binary data
+This package provides a Tcl-only implementation of the yEncode file
+encoding used for Usenet messages. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
 escapes characters special to the [term NNTP] posting protocols. See
-[uri http://www.yenc.org/] for details concerning the algorithm.
+[uri http://www.yenc.org] for the encoding’s details.
 
 [list_begin definitions]
 
-[call [cmd ::yencode::encode] [arg string]]
+[call [cmd ::yencode::encode] [arg bstring]]
 
-returns the yEnc encoded data.
+Returns a yEncoded version of the binary string [arg bstring] as
+its result.
 
-[call [cmd ::yencode::decode] [arg "string"]]
+[para]
+The command will throw an error if [arg bstring] is neither a binary
+string, nor a string containing only 7-bit ASCII.
 
-Decodes the given yEnc encoded data.
+[call [cmd ::yencode::decode] [arg "estring"]]
+
+Returns a binary string that has been yEncode-decoded from the
+[arg estring].
 
 [call [cmd ::yencode::yencode] \
   [opt "[option -name] [arg string]"] \
   [opt "[option -line] [arg integer]"] \
   [opt "[option -crc32] [arg boolean]"] \
-  "([option -file] [arg filename] | [opt [option --]] [arg string])"]
+  "([option -file] [arg filename] | [opt [option --]] [arg bstring])"]
 
-Encode a file or block of data.
+Returns a wrapped yEncoded version of the data in the file specified by
+[option -file] [arg filename] or by the binary string [arg bstring] as
+its result.
+
+[para]
+Each wrapped yEncoded result consists of a header, body, and trailer.
+The header is a line starting with [const =ybegin] followed by a line
+length of form [const line=][emph length], the size of the original data
+(in bytes) of form [const size=][emph size], and the name of the
+original file of form [const name=][emph filename], all space-separated.
+The body is the yEncoded data. The trailer is a line starting with
+[const =yend] followed by the size of the original data of form
+[const size=][emph size], and optionally (but recommended), a CRC32
+checksum value of form [const crc32=][emph checksum], all
+space-separated.
 
 [call [cmd ::yencode::ydecode] \
-  "([option -file] [arg filename] | [opt [option --]] [arg string])"]
+  "([option -file] [arg filename] | [opt [option --]] [arg estring])"]
 
-Decode a file or block of data. A file may contain more than one
-embedded file so the result is a list where each element is a three
-element list of filename, file size and data.
+Returns a list of 3-element lists of filename, file size,
+yEncode-decoded bytes, from the file specified by [option -file]
+[arg filename] or from the [arg estring].
 
 [list_end]
 
-[section OPTIONS]
+[subsection Options]
 
 [list_begin definitions]
 
-[def "-filename name"]
+[def "[option -file] [arg filename]"]
 
-Cause the yencode or ydecode commands to read their data from the
-named file rather that taking a string parameter.
+Cause the [cmd yencode] or [cmd ydecode] commands to read their data
+from the named file rather that taking a binary string parameter.
 
-[def "-name string"]
+[def "[option -name] [arg string]"]
 
-The encoded data header line contains the suggested file name to be
+The yEncoded data header line contains the original file name to be
 used when unpacking the data. Use this option to change this from the
-default of "data.dat".
+default of "default.bin".
 
-[def "-line integer"]
+[def "[option -line] [arg integer]"]
 
-The yencoded data header line contains records the line length used
-during the encoding. Use this option to select a line length other
-that the default of 128. Note that NNTP imposes a 1000 character line
-length limit and some gateways may have trouble with more than 255
-characters per line.
+The yEncoded header line specifies the line length used for the
+encoding, and which defaults to 128. Use this option to set a different
+line length. Note that NNTP imposes a 1000 character line length limit
+and some systems may have trouble with more than 255 characters per
+line.
 
-[def "-crc32 boolean"]
+[def "[option -crc32] [arg boolean]"]
 
-The yEnc specification recommends the inclusion of a cyclic redundancy
-check value in the footer. Use this option to change the default from
-[arg true] to [arg false].
+When encoding this package puts a cyclic redundancy
+check (CRC) value in the trailer as recommended in the yEncode
+specification. This can be prevented by using this option and passing a
+false value for [arg boolean], e.g., [const 0].
 
 [list_end]
 
+[section Examples]
+
+[emph {The yEncoded data is not shown in the examples because it is just
+raw bytes.}]
+
+[para]
+This example shows how to yEncode and yEncode-decode a Tcl string, taking
+account of the fact that the yEncode commands work in terms of binary
+strings.
+
 [para]
 [example {
-% set d [yencode::yencode -file testfile.txt]
-=ybegin line=128 size=584 name=testfile.txt
- -o- data not shown -o-
-=yend size=584 crc32=ded29f4f
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set ency [::yencode::encode $bytes]
+set decy [::yencode::decode $ency]
+set line [encoding convertfrom utf-8 $decy]
+puts "[expr {$UTF8_LINE eq $line}]"
+=>
+1
+}]
+
+If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in [cmd encoding] command are not needed. For example:
+
+[para]
+[example {
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set ency [::yencode::encode $ASCII_LINE]
+set decy [::yencode::decode $ency]
+set line [encoding convertfrom utf-8 $decy]
+puts "[expr {$ASCII_LINE eq $line}]"
+=>
+1
+}]
+
+This example shows how to create a yEncoded byte string and write it to
+a file.
+
+[para]
+[example {
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set ency [::yencode::yencode -name test.y $bytes]
+writeFile test.y binary $ency
+puts $ency
+=>
+=ybegin line=128 size=23 name=test.y
+    … raw binary data elided …
+=yend size=23 crc32=fc01071
+}]
+
+This example shows how to read a file containing one or more yEncoded
+files.
+
+[para]
+[example {
+foreach lst [::yencode::ydecode $ency] {
+    lassign $lst name size decy
+    set line [encoding convertfrom utf-8 $decy]
+    puts "name=$name size=$size line='$line'"
+}
+=>
+name=test.y size=23 line='Δ÷ “Utf-8” ♞ℤ'
 }]
 
 [section References]
