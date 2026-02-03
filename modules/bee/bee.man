@@ -15,20 +15,20 @@
 [description]
 [para]
 
-The [package bee] package provides de- and encoder commands for data
-in bencoding (speak 'bee'), the serialization format for data and
-messages used by the BitTorrent protocol.
+This package provides encoding and decoding commands for data in Bencode
+(spoken as “bee-encode”), the BitTorrent protocol’s serialization format
+used for data and messages.
 
 [para]
 
-[section {PUBLIC API}]
+[section API]
 
-[subsection ENCODER]
+[subsection Encoder]
 
-The package provides one encoder command for each of the basic forms,
-and two commands per container, one taking a proper tcl data structure
-to encode in the container, the other taking the same information as
-several arguments.
+This package provides an encoder command for each value type (string and
+integer), and two commands per collection type (list and dict), one
+taking a complete Tcl collection to encode, the other taking the same
+data given as arguments.
 
 [para]
 [list_begin definitions]
@@ -41,80 +41,110 @@ Returns the bee-encoding of the [arg string].
 
 Returns the bee-encoding of the [arg integer] number.
 
-[call [cmd ::bee::encodeListArgs] [arg value]...]
+[para]
+This command will throw an error if [arg integer] is not an integer.
 
-Takes zero or more bee-encoded values and returns the bee-encoding of
-their list.
+[call [cmd ::bee::encodeListArgs] [opt [arg {beevalue ...}]]]
 
-[call [cmd ::bee::encodeList] [arg list]]
+Returns a bee-encoded list of the given zero or more bee-encoded
+[arg beevalue]s.
 
-Takes a list of bee-encoded values and returns the bee-encoding of the
-list.
+[call [cmd ::bee::encodeList] [arg listofbees]]
 
-[call [cmd ::bee::encodeDictArgs] [arg key] [arg value]...]
+Returns a bee-encoded list of the given Tcl list, [arg listofbees], of
+bee-encoded values.
 
-Takes zero or more pairs of keys and values and returns the
-bee-encoding of the dictionary they form. The values are expected to
-be already bee-encoded, but the keys must not be. Their encoding will
-be done by the command itself.
+[call [cmd ::bee::encodeDictArgs] [opt [arg {key beevalue ...}]]]
 
-[call [cmd ::bee::encodeDict] [arg dict]]
+Returns a bee-encoded dict of the given zero or more pairs of Tcl string
+keys and bee-encoded [arg beevalue]s.
 
-Takes a dictionary list of string keys and bee-encoded values and
-returns the bee-encoding of the list. Note that the keys in the input
-must not be bee-encoded already. This will be done by the command
-itself.
+[para]
+This command will bee-encode each string key itself.
+
+[call [cmd ::bee::encodeDict] [arg dictofbees]]
+
+Returns a bee-encoded dict of the given Tcl dict, [arg dictofbees],
+whose keys must be Tcl strings and whose values must be bee-encoded
+values.
+
+[para]
+This command will bee-encode each string key itself.
 
 [list_end]
 [para]
 
-[subsection DECODER]
+[subsection Decoder]
 
-The package provides two main decoder commands, one for decoding a
-string expected to contain a complete data structure, the other for
-the incremental decoding of bee-values arriving on a channel. The
-latter command is asynchronous and provides the completed decoded
-values to the user through a command callback.
+This package provides decoding commands for bee-encoded strings and for
+bee-encoded data received over a channel.
+
+[para]
+The commands for decoding a bee-encoded string expect the string to
+contain one or more complete bee-encoded values (which may themselves
+contain nested bee-encoded lists and dicts).
+
+[para]
+The command for the incremental decoding of bee-values arriving on a
+channel is asynchronous and provides the completed decoded values via a
+callback.
 
 [para]
 [list_begin definitions]
 
-[call [cmd ::bee::decode] [arg string] [opt [arg endvar]] [opt [arg start]]]
+[call [cmd ::bee::decode] [arg beestring] [opt [arg endVar]] \
+[opt [arg start]]]
 
-Takes the bee-encoding in the string and returns one decoded value. In
-the case of this being a container all contained values are decoded
-recursively as well and the result is a properly nested tcl list
-and/or dictionary.
+Returns a bee-decoded value from the [arg beestring], starting from
+index position [arg start] if given—or from its default of [const 0],
+and sets [arg endVar] if given.
+
+[para]
+If the bee-encoded value is a string or integer, the equivalent Tcl
+string or integer is returned.
+
+[para]
+If the bee-encoded value is a collection (a bee-list or a bee-dict),
+then a corresponding Tcl list or Tcl dict is returned. And in either of
+these cases, all contained values (including nested bee-lists and
+bee-dicts) are all bee-decoded, so that the result is a Tcl list or dict
+with all the nested values fully bee-decoded into Tcl lists, dicts,
+strings, or integers, as appropriate.
+
+[para]
+If the option [arg endVar] is given, it is the name of a variable used
+to store the index position of the first character in the [arg beestring]
+that [emph follows] the value that’s just been decoded, i.e., the start
+position of the next value to decode. This is useful if the
+[arg beestring] contains two or more bee-encoded values concatenated
+together (as opposed to a single bee-encoded list of bee-encoded
+values). See the last example in the [sectref Examples].
+
+[para]
+The optional [arg start] is the index position from which the next
+bee-encoded value will be read and decoded.
+
+[call [cmd ::bee::decodeIndices] [arg beestring] [opt [arg endVar]] \
+[opt [arg start]]]
+
+Returns a list based on the bee-decoded value from the [arg beestring],
+starting from index position [arg start] if given—or from its default of
+[const 0], and sets [arg endVar] if given. The meaning and use of
+[arg endVar] and [arg start] are exactly the same as for
+[cmd ::bee::decode].
+
+[para]
+The returned list’s elements depend on the type of the bee-decoded
+value. In all cases though, the first element is a type name (one of 
+[const string] [const integer] [const list] [const dict]), and the
+second and third elements are the start and end index positions in the
+[arg beestring] for the bee-encoded value. For bee-lists and bee-dicts
+there is a fourth element which provides details of their contained
+bee-values.
 
 [para]
 
-If the optional [arg endvar] is set then it is the name of a variable
-to store the index of the first character [emph after] the decoded
-value into. In other words, if the string contains more than one value
-then [arg endvar] can be used to obtain the position of the bee-value
-after the bee-value currently decoded. together with [arg start], see
-below, it is possible to iterate over the string to extract all
-contained values.
-
-[para]
-
-The optional [arg start] index defaults to [const 0], i.e. the
-beginning of the string. It is the index of the first character of the
-bee-encoded value to extract.
-
-[call [cmd ::bee::decodeIndices] [arg string] [opt [arg endvar]] [opt [arg start]]]
-
-Takes the same arguments as [cmd ::bee::decode] and returns the same
-information in [arg endvar]. The result however is different. Instead
-of the tcl value contained in the [arg string] it returns a list
-describing the value with respect to type and location (indices for
-the first and last character of the bee-value). In case of a container
-the structure also contains the same information for all the embedded
-values.
-
-[para]
-
-Formally the results for the various types of bee-values are:
+Formally the result lists for the various types of bee-values are:
 
 [list_begin definitions]
 [def string]
@@ -123,48 +153,56 @@ A list containing three elements:
 
 [list_begin itemized]
 [item]
-The constant string [const string], denoting the type of the value.
+A constant string indicating the value’s type, for strings it is
+[const string].
 
 [item]
-An integer number greater than or equal to zero. This is the index of
-the first character of the bee-value in the input [arg string].
+The index position ([emph {>= 0}]) of the first character of the bee-value
+in the given [arg beestring].
 
 [item]
-An integer number greater than or equal to zero. This is the index of
-the last character of the bee-value in the input [arg string].
+The index position ([emph {>= 0}]) of the last character of the bee-value
+in the given [arg beestring].
 
 [list_end]
 [para]
 
-[emph Note] that this information is present in the results for all
-four types of bee-values, with only the first element changing
-according to the type of the value.
+[emph {Every result list, for every bee-value, begins with these three
+elements.}]
 
 [def integer]
 
-The result is like for strings, except that the type element contains
-the constant string [const integer].
+A list containing the constant string [const integer] and—just the same
+as for strings—the start and end index positions of the bee-value in the
+[arg beestring].
 
 [def list]
 
-The result is like before, with two exceptions: One, the type element
-contains the constant string [const list]. And two, the result
-actually contains four elements. The last element is new, and contains
-the index data as described here for all elements of the bee-list.
+A list containing the constant string [const list] and—just the same
+as for strings—the start and end index positions of the bee-value in the
+[arg beestring].
+
+[para]
+In addition the list has a fourth element, which itself contains
+the index data as described here for all the elements of the bee-list.
 
 [def dictionary]
 
-The result is like for strings, except that the type element contains
-the constant string [const dict]. A fourth element is present as well,
-with a slightly different structure than for lists. The element is a
-dictionary mapping from the strings keys of the bee-dictionary to a
-list containing two elements. The first of them is the index
-information for the key, and the second element is the index
-information for the value the key maps to. This structure is the only
-which contains not only index data, but actual values from the
-bee-string. While the index information of the keys is unique enough,
-i.e. serviceable as keys, they are not easy to navigate when trying to
-find particular element. Using the actual keys makes this much easier.
+A list containing the constant string [const dict] and—just the same
+as for strings—the start and end index positions of the bee-value in the
+[arg beestring].
+
+[para]
+In addition the dict has a fourth element. This element is a dictionary
+mapping from each of the bee-dict’s string keys to a 2-element list of
+2-element lists. The list’s first element’s list contains the index
+positions for the key, and the second element’s list contains the index
+positions for the value the key maps to. This structure is the only one
+which contains not only index positions, but actual values from the
+[arg beestring]. While each key’s index positions are unique,
+i.e., usable as a key, they are not easy to navigate when trying to find
+a particular element. Using actual keys makes navigation much easier, which
+is why they’re provided.
 
 [list_end]
 [para]
@@ -266,7 +304,7 @@ determine if it should decode another bee-value or not.
 [list_end]
 [para]
 
-[section {FORMAT DEFINITION}]
+[section {Format Definition}]
 
 Data in the bee serialization format is constructed from two basic
 forms, and two container forms. The basic forms are strings and
@@ -337,7 +375,79 @@ By wrapping an integer number into [const i]...[const e] the format
 makes sure that they are different from strings, which all begin with
 a digit.
 
-[section EXAMPLES]
+[section Examples]
+
+This example shows how to bee-encode and bee-decode individual strings
+and integers.
+
+[para]
+[example {
+const LABEL "Δ÷ “Utf-8” ♞ℤ"
+set labelbeeEnc [::bee::encodeString $LABEL]
+set labelbeeDec [::bee::decode $labelbeeEnc]
+puts "labelbeeEnc='$labelbeeEnc' eq LABEL → [expr {$labelbeeDec eq $LABEL}]"
+set xbeeEnc [::bee::encodeNumber 834]
+set ybeeEnc [::bee::encodeNumber -172]
+set ybeeDec [::bee::decode $ybeeEnc]
+puts "ybeeEnc='$ybeeEnc' == -172 → [expr {$ybeeDec == -172}]"
+=>
+labelbeeEnc='13:Δ÷ “Utf-8” ♞ℤ' eq LABEL → 1
+ybeeEnc='i-172e' == -172 → 1
+}]
+
+This example shows how to bee-encode collections of bee-encoded values.
+
+[para]
+[example {
+set pointbeeEnc [::bee::encodeList [list $xbeeEnc $ybeeEnc]]
+set placebeeEnc [::bee::encodeDictArgs label $labelbeeEnc point $pointbeeEnc]
+puts "pointbeeEnc='$pointbeeEnc'"
+puts "placebeeEnc='$placebeeEnc'"
+=>
+pointbeeEnc='li834ei-172ee'
+placebeeEnc='d5:label13:Δ÷ “Utf-8” ♞ℤ5:pointli834ei-172eee'
+}]
+
+This example shows how to bee-decode collections of bee-encoded values.
+
+[para]
+[example {
+set placebeeDec [::bee::decode $placebeeEnc]
+set label [dict get $placebeeDec label]
+puts "label='$label' eq LABEL → [expr {$label eq $LABEL}]"
+lassign [dict get $placebeeDec point] x y
+puts "x=$x == 834 → [expr {$x == 834}] • y=$y == -172 → [expr {$y == -172}]"
+=>
+label='Δ÷ “Utf-8” ♞ℤ' eq LABEL → 1
+x=834 == 834 → 1 • y=-172 == -172 → 1
+}]
+
+This example shows how to bee-decode using the
+[cmd ::bee::decodeIndices] command.
+
+[para]
+[example {
+set labelbeeDecInd [::bee::decodeIndices $labelbeeEnc]
+lassign $labelbeeDecInd type i j
+set label [::bee::decode [string range $labelbeeEnc $i $j]]
+puts "labelbeeDecInd type=$type i=$i j=$j label='$label'"
+=>
+labelbeeDecInd type=string i=0 j=15 label='Δ÷ “Utf-8” ♞ℤ'
+}]
+
+This example shows how to bee-encode and then bee-decode a sequence of
+[emph separate] bee-encoded values.
+
+[para]
+[example {
+set stream [::bee::encodeString "€⅔•"][::bee::encodeNumber -91][::bee::encodeString "α-ω"][::bee::encodeNumber 68]
+for {set i 0} {$i < [string length $stream]} {} {
+    lappend items [::bee::decode $stream i $i]
+}
+puts "stream='$stream' items={$items} size=[llength $items]"
+=>
+stream='3:€⅔•i-91e3:α-ωi68e' items={€⅔• -91 α-ω 68} size=4
+}]
 
 [vset CATEGORY bee]
 [include ../common-text/feedback.inc]
