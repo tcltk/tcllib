@@ -40,46 +40,68 @@ ascii85 \- ascii85\-encode/decode binary data
 package require Tcl 8\.5 9  
 package require ascii85 ?1\.1?  
 
-[__::ascii85::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*](#1)  
-[__::ascii85::decode__ *string*](#2)  
+[__::ascii85::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *bstring*](#1)  
+[__::ascii85::decode__ *estring*](#2)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides procedures to encode binary data into ascii85 and back\.
+This package provides commands for encoding and decoding binary strings to and
+from the ascii85 encoding\. \(This encoding is also known as base85\.\)
 
-  - <a name='1'></a>__::ascii85::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*
+  - <a name='1'></a>__::ascii85::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *bstring*
 
-    Ascii85 encodes the given binary *string* and returns the encoded result\.
-    Inserts the character *wrapchar* every *maxlen* characters of output\.
-    *wrapchar* defaults to newline\. *maxlen* defaults to __76__\.
+    Returns an ascii85\-encoded version of the binary string *bstring* as its
+    result\.
 
-    *Note well*: If your string is not simple ascii you should fix the string
-    encoding before doing ascii85 encoding\. See the examples\.
+    The result string contains the *wrapchar* character after every *maxlen*
+    characters of output\. The *wrapchar* defaults to newline and *maxlen*
+    defaults to 76\. To prevent wrapping, set *maxlen* to __0__\.
 
-    The command will throw an error for negative values of *maxlen*, or if
-    *maxlen* is not an integer number\.
+    The command will throw an error if *maxlen* is not an integer or is
+    negative, or if *bstring* is neither a binary string, nor a string
+    containing only 7\-bit ASCII\.
 
-  - <a name='2'></a>__::ascii85::decode__ *string*
+  - <a name='2'></a>__::ascii85::decode__ *estring*
 
-    Ascii85 decodes the given *string* and returns the binary data\. The
-    decoder ignores whitespace in the string, as well as tabs and newlines\.
+    Returns a binary string that has been ascii85\-decoded from the *estring*\.
+    Any whitespace \(spaces, tabs, newlines\) in *estring* is ignored\.
 
 # <a name='section2'></a>EXAMPLES
 
-    % ascii85::encode "Hello, world"
-    87cURD_*#TDfTZ)
+This example shows how to encode and decode a Tcl string to and from ascii85,
+taking account of the fact that the ascii85 commands work in terms of binary
+strings\.
 
-    % ascii85::encode [string repeat xyz 24]
+    const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+    set bytes [encoding convertto utf-8 $UTF8_LINE]
+    set enc85 [::ascii85::encode $bytes]
+    set dec85 [::ascii85::decode $enc85]
+    set line [encoding convertfrom utf-8 $dec85]
+    puts "ascii85='$enc85' [expr {$UTF8_LINE eq $line}]"
+    =>
+    ascii85='cBQ5U+Q@pA<HMh)39#IZ+QAf\ie4*' 1
+
+If the original string is 7\-bit ASCII the conversions to and from raw bytes
+using the built\-in __[encoding](\.\./\.\./\.\./\.\./index\.md\#encoding)__ command
+are not needed\. For example:
+
+    const ASCII_LINE "! 7-bit ASCII {~^}"
+    set enc85 [::ascii85::encode $ASCII_LINE]
+    set dec85 [::ascii85::decode $enc85]
+    set line [encoding convertfrom utf-8 $dec85]
+    puts "ascii85='$enc85' [expr {$ASCII_LINE eq $line}]"
+    =>
+    ascii85='+Wr]q@VKp,5uU-B8K`A/?@;' 1
+
+Wrapping can be prevented so that no whitespace is introduced:
+
+    ascii85::encode [string repeat xyz 24]
+    =>
     G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G
     ^4U[H$X^\H?a^]
-    % ascii85::encode -wrapchar "" [string repeat xyz 24]
+    ascii85::encode -maxlen 0 [string repeat xyz 24]
+    =>
     G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]
-
-    # NOTE: ascii85 encodes BINARY strings.
-    % set chemical [encoding convertto utf-8 "C\u2088H\u2081\u2080N\u2084O\u2082"]
-    % set encoded [ascii85::encode $chemical]
-    6fN]R8E,5Pidu\UiduhZidua
-    % set caffeine [encoding convertfrom utf-8 [ascii85::decode $encoded]]
 
 # <a name='section3'></a>References
 
@@ -90,10 +112,11 @@ This package provides procedures to encode binary data into ascii85 and back\.
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *base64* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *base64* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

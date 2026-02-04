@@ -148,11 +148,11 @@
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This is an implementation in Tcl of the Advanced Encryption Standard
+<p>This is a Tcl implementation of the Advanced Encryption Standard
 (AES) as published by the U.S. National Institute of Standards and
 Technology [1]. AES is a 128-bit block cipher with a variable
-key size of 128, 192 or 256 bits. This implementation supports ECB and
-CBC modes.</p>
+key size of 128, 192 or 256 bits. This implementation supports CBC and
+ECB modes.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
@@ -164,26 +164,26 @@ this channel.</p>
 <p>The <i class="arg">-key</i> option must be given. This parameter takes a binary
 string of either 16, 24 or 32 bytes in length and is used to generate the
 key schedule.</p>
-<p>The <i class="arg">-mode</i> and <i class="arg">-dir</i> options are optional and default to cbc
+<p>The <i class="arg">-mode</i> and <i class="arg">-dir</i> options are optional and default to CBC
 mode and encrypt respectively. The initialization vector <i class="arg">-iv</i>
 takes a 16 byte binary argument which defaults to all zeros.
 See <span class="sectref"><a href="#section4">MODES OF OPERATION</a></span> for more about available modes and
 their uses.</p>
-<p>AES is a 128-bit block cipher. This means that the data must be
+<p>Since AES is a 128-bit block cipher, the data must be
 provided in units that are a multiple of 16 bytes.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">PROGRAMMING INTERFACE</a></h2>
 <p>Internal state is maintained in an opaque structure that is returned
-from the <b class="cmd">Init</b> function. In ECB mode the state is not affected by
-the input but for CBC mode some input dependent state is maintained
-and may be reset by calling the <b class="cmd">Reset</b> function with a new
-initialization vector value.</p>
+from the <b class="cmd">Init</b> function. For CBC mode some input dependent state is
+maintained and may be reset by calling the <b class="cmd">Reset</b> function with a
+new initialization vector value. In ECB mode the state is not affected
+by the input.</p>
 <dl class="doctools_definitions">
 <dt><a name="2"><b class="cmd">::aes::Init</b> <i class="arg">mode</i> <i class="arg">keydata</i> <i class="arg">iv</i></a></dt>
 <dd><p>Construct a new AES key schedule using the specified key data and the
-given initialization vector. The initialization vector is not used
-with ECB mode but is important for CBC mode.
+given initialization vector. The initialization vector is important for
+CBC mode; it is not used with ECB mode.
 See <span class="sectref"><a href="#section4">MODES OF OPERATION</a></span> for details about cipher modes.</p></dd>
 <dt><a name="3"><b class="cmd">::aes::Encrypt</b> <i class="arg">Key</i> <i class="arg">data</i></a></dt>
 <dd><p>Use a prepared key acquired by calling <b class="cmd">Init</b> to encrypt the
@@ -205,12 +205,6 @@ Once this function has been called the key may not be used again.</p></dd>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">MODES OF OPERATION</a></h2>
 <dl class="doctools_definitions">
-<dt>Electronic Code Book (ECB)</dt>
-<dd><p>ECB is the basic mode of all block ciphers. Each block is encrypted
-independently and so identical plain text will produce identical
-output when encrypted with the same key. Any encryption errors will
-only affect a single block however this is vulnerable to known
-plaintext attacks.</p></dd>
 <dt>Cipher Block Chaining (CBC)</dt>
 <dd><p>CBC mode uses the output of the last block encryption to affect the
 current block. An initialization vector of the same size as the cipher
@@ -218,8 +212,14 @@ block size is used to handle the first block. The initialization
 vector should be chosen randomly and transmitted as the first block of
 the output. Errors in encryption affect the current block and the next
 block after which the cipher will correct itself. CBC is the most
-commonly used mode in software encryption. This is the default mode
-of operation for this module.</p></dd>
+commonly used mode in software encryption, and this module’s default
+mode of operation.</p></dd>
+<dt>Electronic Code Book (ECB)</dt>
+<dd><p>ECB is the basic mode of all block ciphers. Each block is encrypted
+independently and so identical plain text will produce identical
+output when encrypted with the same key. Any encryption errors will
+only affect a single block. <em>This mode is vulnerable to known
+plaintext attacks.</em></p></dd>
 </dl>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">EXAMPLES</a></h2>
@@ -246,12 +246,11 @@ aes::Final $Key
 <p>Thorsten Schloermann, Pat Thoyts</p>
 </div>
 <div id="section8" class="doctools_section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>aes</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>aes</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

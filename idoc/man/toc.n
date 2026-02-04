@@ -1255,7 +1255,7 @@ tcllib
 \fIfiles/modules/struct/record\&.n\fR: Define and create records (similar to 'C' structures)
 .TP
 \fBstruct::set\fR
-\fIfiles/modules/struct/struct_set\&.n\fR: Procedures for manipulating sets
+\fIfiles/modules/struct/struct_set\&.n\fR: Commands for manipulating sets
 .TP
 \fBstruct::skiplist\fR
 \fIfiles/modules/struct/skiplist\&.n\fR: Create and manipulate skiplists
@@ -1382,6 +1382,9 @@ tcllib
 .TP
 \fBtcllib_devguide\fR
 \fIfiles/devdoc/tcllib_devguide\&.n\fR: Tcllib - The Developer's Guide
+.TP
+\fBtcllib_doc_policy\fR
+\fIfiles/devdoc/doc-policy\&.n\fR: Tcl Documentation Policy Notes
 .TP
 \fBtcllib_install_guide\fR
 \fIfiles/devdoc/tcllib_installer\&.n\fR: Tcllib - The Installer's Guide

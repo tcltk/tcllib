@@ -48,8 +48,8 @@ mappings from a basic mapping listing just the codes and associated characters\.
 The full mappings, regular and inverse, created here map to and from bit
 sequences, and also handle the partial mappings at the end of a string\.
 
-This is in essence an internal package to be used by implementors of a base32
-en\- and decoder\. A regular user has no need of this package at all\.
+*This is essentially an internal package to be used by implementors* *of
+base32 encoders and decoders\. Regular users do not need this package\.*
 
 # <a name='section2'></a>API
 
@@ -83,10 +83,11 @@ en\- and decoder\. A regular user has no need of this package at all\.
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *base32* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *base32* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

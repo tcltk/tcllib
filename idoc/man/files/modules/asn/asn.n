@@ -280,21 +280,21 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBasn ?0\&.8\&.5?\fR
 .sp
-\fB::asn::asnSequence\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnSequence\fR ?\fIevalue \&.\&.\&.\fR?
 .sp
 \fB::asn::asnSequenceFromList\fR \fIelist\fR
 .sp
-\fB::asn::asnSet\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnSet\fR ?\fIevalue \&.\&.\&.\fR?
 .sp
 \fB::asn::asnSetFromList\fR \fIelist\fR
 .sp
-\fB::asn::asnApplicationConstr\fR \fIappNumber\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnApplicationConstr\fR \fIappNumber\fR ?\fIevalue \&.\&.\&.\fR?
 .sp
 \fB::asn::asnApplication\fR \fIappNumber\fR \fIdata\fR
 .sp
-\fB::asn::asnChoice\fR \fIappNumber\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnChoice\fR \fIappNumber\fR ?\fIevalue \&.\&.\&.\fR?
 .sp
-\fB::asn::asnChoiceConstr\fR \fIappNumber\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnChoiceConstr\fR \fIappNumber\fR ?\fIevalue \&.\&.\&.\fR?
 .sp
 \fB::asn::asnInteger\fR \fInumber\fR
 .sp
@@ -304,7 +304,7 @@ package require \fBasn ?0\&.8\&.5?\fR
 .sp
 \fB::asn::asnContext\fR \fIcontext\fR \fIdata\fR
 .sp
-\fB::asn::asnContextConstr\fR \fIcontext\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnContextConstr\fR \fIcontext\fR ?\fIevalue \&.\&.\&.\fR?
 .sp
 \fB::asn::asnObjectIdentifier\fR \fIidlist\fR
 .sp
@@ -330,53 +330,53 @@ package require \fBasn ?0\&.8\&.5?\fR
 .sp
 \fB::asn::defaultStringType\fR ?\fItype\fR?
 .sp
-\fB::asn::asnPeekByte\fR \fIdata_var\fR \fIbyte_var\fR
+\fB::asn::asnPeekByte\fR \fIdataVar\fR \fIbyteVar\fR
 .sp
-\fB::asn::asnGetLength\fR \fIdata_var\fR \fIlength_var\fR
+\fB::asn::asnGetLength\fR \fIdataVar\fR \fIlengthVar\fR
 .sp
-\fB::asn::asnGetResponse\fR \fIchan\fR \fIdata_var\fR
+\fB::asn::asnGetResponse\fR \fIchan\fR \fIdataVar\fR
 .sp
-\fB::asn::asnGetInteger\fR \fIdata_var\fR \fIint_var\fR
+\fB::asn::asnGetInteger\fR \fIdataVar\fR \fIintVar\fR
 .sp
-\fB::asn::asnGetEnumeration\fR \fIdata_var\fR \fIenum_var\fR
+\fB::asn::asnGetEnumeration\fR \fIdataVar\fR \fIenumVar\fR
 .sp
-\fB::asn::asnGetOctetString\fR \fIdata_var\fR \fIstring_var\fR
+\fB::asn::asnGetOctetString\fR \fIdataVar\fR \fIstringVar\fR
 .sp
-\fB::asn::asnGetString\fR \fIdata_var\fR \fIstring_var\fR ?\fItype_var\fR?
+\fB::asn::asnGetString\fR \fIdataVar\fR \fIstringVar\fR ?\fItypeVar\fR?
 .sp
-\fB::asn::asnGetNumericString\fR \fIdata_var\fR \fIstring_var\fR
+\fB::asn::asnGetNumericString\fR \fIdataVar\fR \fIstringVar\fR
 .sp
-\fB::asn::asnGetPrintableString\fR \fIdata_var\fR \fIstring_var\fR
+\fB::asn::asnGetPrintableString\fR \fIdataVar\fR \fIstringVar\fR
 .sp
-\fB::asn::asnGetIA5String\fR \fIdata_var\fR \fIstring_var\fR
+\fB::asn::asnGetIA5String\fR \fIdataVar\fR \fIstringVar\fR
 .sp
-\fB::asn::asnGetBMPString\fR \fIdata_var\fR \fIstring_var\fR
+\fB::asn::asnGetBMPString\fR \fIdataVar\fR \fIstringVar\fR
 .sp
-\fB::asn::asnGetUTF8String\fR \fIdata_var\fR \fIstring_var\fR
+\fB::asn::asnGetUTF8String\fR \fIdataVar\fR \fIstringVar\fR
 .sp
-\fB::asn::asnGetUTCTime\fR \fIdata_var\fR \fIutc_var\fR
+\fB::asn::asnGetUTCTime\fR \fIdataVar\fR \fIutcVar\fR
 .sp
-\fB::asn::asnGetBitString\fR \fIdata_var\fR \fIbits_var\fR
+\fB::asn::asnGetBitString\fR \fIdataVar\fR \fIbitsVar\fR
 .sp
-\fB::asn::asnGetObjectIdentifier\fR \fIdata_var\fR \fIoid_var\fR
+\fB::asn::asnGetObjectIdentifier\fR \fIdataVar\fR \fIoidVar\fR
 .sp
-\fB::asn::asnGetBoolean\fR \fIdata_var\fR \fIbool_var\fR
+\fB::asn::asnGetBoolean\fR \fIdataVar\fR \fIboolVar\fR
 .sp
-\fB::asn::asnGetNull\fR \fIdata_var\fR
+\fB::asn::asnGetNull\fR \fIdataVar\fR
 .sp
-\fB::asn::asnGetSequence\fR \fIdata_var\fR \fIsequence_var\fR
+\fB::asn::asnGetSequence\fR \fIdataVar\fR \fIsequenceVar\fR
 .sp
-\fB::asn::asnGetSet\fR \fIdata_var\fR \fIset_var\fR
+\fB::asn::asnGetSet\fR \fIdataVar\fR \fIsetVar\fR
 .sp
-\fB::asn::asnGetApplication\fR \fIdata_var\fR \fIappNumber_var\fR ?\fIcontent_var\fR? ?\fIencodingType_var\fR?
+\fB::asn::asnGetApplication\fR \fIdataVar\fR \fIappNumberVar\fR ?\fIcontentVar\fR? ?\fIencodingTypeVar\fR?
 .sp
-\fB::asn::asnGetContext\fR \fIdata_var\fR \fIcontextNumber_var\fR ?\fIcontent_var\fR? ?\fIencodingType_var\fR?
+\fB::asn::asnGetContext\fR \fIdataVar\fR \fIcontextNumberVar\fR ?\fIcontentVar\fR? ?\fIencodingTypeVar\fR?
 .sp
-\fB::asn::asnPeekTag\fR \fIdata_var\fR \fItag_var\fR \fItagtype_var\fR \fIconstr_var\fR
+\fB::asn::asnPeekTag\fR \fIdataVar\fR \fItagVar\fR \fItagtypeVar\fR \fIconstrVar\fR
 .sp
 \fB::asn::asnTag\fR \fItagnumber\fR ?\fIclass\fR? ?\fItagstyle\fR?
 .sp
-\fB::asn::asnRetag\fR \fIdata_var\fR \fInewTag\fR
+\fB::asn::asnRetag\fR \fIdataVar\fR \fInewTag\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -399,7 +399,7 @@ and should be read by any implementor\&.
 .SH "PUBLIC API"
 .SS ENCODER
 .TP
-\fB::asn::asnSequence\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnSequence\fR ?\fIevalue \&.\&.\&.\fR?
 Takes zero or more encoded values, packs them into an ASN sequence and
 returns its encoded binary form\&.
 .TP
@@ -407,7 +407,7 @@ returns its encoded binary form\&.
 Takes a list of encoded values, packs them into an ASN sequence and
 returns its encoded binary form\&.
 .TP
-\fB::asn::asnSet\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnSet\fR ?\fIevalue \&.\&.\&.\fR?
 Takes zero or more encoded values, packs them into an ASN set and
 returns its encoded binary form\&.
 .TP
@@ -415,7 +415,7 @@ returns its encoded binary form\&.
 Takes a list of encoded values, packs them into an ASN set and
 returns its encoded binary form\&.
 .TP
-\fB::asn::asnApplicationConstr\fR \fIappNumber\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnApplicationConstr\fR \fIappNumber\fR ?\fIevalue \&.\&.\&.\fR?
 Takes zero or more encoded values, packs them into an ASN application
 construct and returns its encoded binary form\&.
 .TP
@@ -423,11 +423,11 @@ construct and returns its encoded binary form\&.
 Takes a single encoded value \fIdata\fR, packs it into an ASN
 application construct and returns its encoded binary form\&.
 .TP
-\fB::asn::asnChoice\fR \fIappNumber\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnChoice\fR \fIappNumber\fR ?\fIevalue \&.\&.\&.\fR?
 Takes zero or more encoded values, packs them into an ASN choice
 construct and returns its encoded binary form\&.
 .TP
-\fB::asn::asnChoiceConstr\fR \fIappNumber\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnChoiceConstr\fR \fIappNumber\fR ?\fIevalue \&.\&.\&.\fR?
 Takes zero or more encoded values, packs them into an ASN choice
 construct and returns its encoded binary form\&.
 .TP
@@ -447,12 +447,12 @@ Returns the encoded form of the specified boolean value
 Takes an encoded value and packs it into a constructed value with
 application tag, the \fIcontext\fR number\&.
 .TP
-\fB::asn::asnContextConstr\fR \fIcontext\fR \fIevalue\fR\&.\&.\&.
+\fB::asn::asnContextConstr\fR \fIcontext\fR ?\fIevalue \&.\&.\&.\fR?
 Takes zero or more encoded values and packs them into a constructed
 value with application tag, the \fIcontext\fR number\&.
 .TP
 \fB::asn::asnObjectIdentifier\fR \fIidlist\fR
-Takes a list of at least 2 integers describing an object identifier
+Takes a list of at least two integers describing an object identifier
 (OID) value, and returns the encoded value\&.
 .TP
 \fB::asn::asnUTCTime\fR \fIutcstring\fR
@@ -468,9 +468,9 @@ Returns the encoded form of the specified \fIstring\fR\&.
 Returns the encoded form of the specified \fIstring\fR\&.
 .TP
 \fB::asn::asnNumericString\fR \fIstring\fR
-Returns the \fIstring\fR encoded as ASN\&.1 NumericString\&. Raises an
+Returns the \fIstring\fR encoded as an ASN\&.1 NumericString\&. Raises an
 error if the \fIstring\fR contains characters other than decimal
-numbers and space\&.
+digits and spaces\&.
 .TP
 \fB::asn::asnPrintableString\fR \fIstring\fR
 Returns the \fIstring\fR encoding as ASN\&.1 PrintableString\&. Raises an
@@ -490,8 +490,8 @@ string (Which is essentialy big-endian UCS2)\&.
 .TP
 \fB::asn::asnUTF8String\fR \fIstring\fR
 Returns the \fIstring\fR encoded as UTF8 String\&. Note that some legacy
-applications such as Windows CryptoAPI do not like UTF8 strings\&. Use
-BMPStrings if you are not sure\&.
+applications such as Windows CryptoAPI may not work correctly with UTF8
+strings\&. It may be safest to use BMPStrings\&.
 .TP
 \fB::asn::asnString\fR \fIstring\fR
 Returns an encoded form of \fIstring\fR, choosing the most restricted
@@ -509,62 +509,70 @@ argument \fItype\fR is supplied, it should be either \fBUTF8\fR or
 .SS DECODER
 General notes:
 .IP [1]
-Nearly all decoder commands take two arguments\&. These arguments are variable
-names, except for \fB::asn::asnGetResponse\fR\&. The first variable
-contains the encoded ASN value to decode at the beginning, and more,
-and the second variable is where the value is stored to\&. The remainder
-of the input after the decoded value is stored back into the
-datavariable\&.
+Nearly all getter (decoder) commands take two arguments\&. These arguments are
+variable names, \fIexcept\fR for \fB::asn::asnGetResponse\fR\&. The
+\fIdataVar\fR variable contains the encoded ASN values to decode\&. When
+a value getter (decoder) is called, the value is stored in the second
+variable, and the remaining input is stored back in the first
+\fIdataVar\fR variable\&.
 .IP [2]
-After extraction the data variable is always modified first, before by
-writing the extracted value to its variable\&. This means that if both
-arguments refer to the same variable, it will always contain the
-extracted value after the call, and not the remainder of the input\&.
+When getting (decoding), the \fIdataVar\fR variable is modified first,
+before the decoded value is stored in the second variable\&. This means
+that if both arguments refer to the same variable, it will always
+contain the decoded value after the call, and not the remainder of the
+input\&.
 .PP
 .PP
 .TP
-\fB::asn::asnPeekByte\fR \fIdata_var\fR \fIbyte_var\fR
-Retrieve the first byte of the data, without modifing \fIdata_var\fR\&.
-This can be used to check for implicit tags\&.
+\fB::asn::asnPeekByte\fR \fIdataVar\fR \fIbyteVar\fR
+Return a copy of the first byte of the data, without modifing
+\fIdataVar\fR\&. This can be used to check for implicit tags\&.
 .TP
-\fB::asn::asnGetLength\fR \fIdata_var\fR \fIlength_var\fR
+\fB::asn::asnGetLength\fR \fIdataVar\fR \fIlengthVar\fR
 Decode the length information for a block of BER data\&. The tag has already
 to be removed from the data\&.
 .TP
-\fB::asn::asnGetResponse\fR \fIchan\fR \fIdata_var\fR
+\fB::asn::asnGetResponse\fR \fIchan\fR \fIdataVar\fR
 Reads an encoded ASN \fIsequence\fR from the channel \fIchan\fR and
-stores it into the variable named by \fIdata_var\fR\&.
+stores it into the variable called \fIdataVar\fR\&.
 .TP
-\fB::asn::asnGetInteger\fR \fIdata_var\fR \fIint_var\fR
-Assumes that an encoded integer value is at the front of the data
-stored in the variable named \fIdata_var\fR, extracts and stores it
-into the variable named by \fIint_var\fR\&. Additionally removes all
-bytes associated with the value from the data for further processing
-by the following decoder commands\&.
+\fB::asn::asnGetInteger\fR \fIdataVar\fR \fIintVar\fR
+Decodes the integer value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The integer is stored in the variable
+called \fIintVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded integer an error is thrown\&.
 .TP
-\fB::asn::asnGetEnumeration\fR \fIdata_var\fR \fIenum_var\fR
-Assumes that an enumeration id is at the front of the data stored in
-the variable named \fIdata_var\fR, and stores it into the variable
-named by \fIenum_var\fR\&. Additionally removes all bytes associated
-with the value from the data for further processing by the following
-decoder commands\&.
+\fB::asn::asnGetEnumeration\fR \fIdataVar\fR \fIenumVar\fR
+Decodes the enumeration ID value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The enumeration ID is stored in the variable
+called \fIenumVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded enumeration ID an error is thrown\&.
 .TP
-\fB::asn::asnGetOctetString\fR \fIdata_var\fR \fIstring_var\fR
-Assumes that a string is at the front of the data stored in the
-variable named \fIdata_var\fR, and stores it into the variable named
-by \fIstring_var\fR\&. Additionally removes all bytes associated with
-the value from the data for further processing by the following
-decoder commands\&.
+\fB::asn::asnGetOctetString\fR \fIdataVar\fR \fIstringVar\fR
+Decodes the string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The string is stored in the variable
+called \fIstringVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded string an error is thrown\&.
 .TP
-\fB::asn::asnGetString\fR \fIdata_var\fR \fIstring_var\fR ?\fItype_var\fR?
-Decodes a user-readable string\&. This is a convenience function which
+\fB::asn::asnGetString\fR \fIdataVar\fR \fIstringVar\fR ?\fItypeVar\fR?
+Decodes the user-readable string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The string is stored in the variable
+called \fIstringVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded string an error is thrown\&.
+.sp
+This is a convenience function which
 is able to automatically distinguish all supported ASN\&.1 string types
 and convert the input value appropriately\&.
-See \fB::asn::asnGetPrintableString\fR, \fB::asnGetIA5String\fR, etc\&.
+.sp
+See \fB::asn::asnGetPrintableString\fR, \fB::asnGetIA5String\fR, etc\&.,
 below for the type-specific conversion commands\&.
 .sp
-If the optional third argument \fItype_var\fR is supplied, then the
-type of the incoming string is stored in the variable named by it\&.
+If the optional third argument \fItypeVar\fR is supplied, then the
+incoming string’s type is stored in the variable it names\&.
 .sp
 The function throws the error
 "Invalid command name asnGetSome\fBUnsupportedString\fR" if the
@@ -573,168 +581,227 @@ create the appropriate function
 "asn::asnGetSome\fBUnsupportedString\fR" in your application if
 neccessary\&.
 .TP
-\fB::asn::asnGetNumericString\fR \fIdata_var\fR \fIstring_var\fR
-Assumes that a numeric string value is at the front of the data stored
-in the variable named \fIdata_var\fR, and stores it into the variable
-named by \fIstring_var\fR\&. Additionally removes all bytes associated
-with the value from the data for further processing by the following
-decoder commands\&.
+\fB::asn::asnGetNumericString\fR \fIdataVar\fR \fIstringVar\fR
+Decodes the numeric string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The numeric string is stored in the variable
+called \fIstringVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded numeric string an error is thrown\&.
 .TP
-\fB::asn::asnGetPrintableString\fR \fIdata_var\fR \fIstring_var\fR
-Assumes that a printable string value is at the front of the data
-stored in the variable named \fIdata_var\fR, and stores it into the
-variable named by \fIstring_var\fR\&. Additionally removes all bytes
-associated with the value from the data for further processing by the
-following decoder commands\&.
+\fB::asn::asnGetPrintableString\fR \fIdataVar\fR \fIstringVar\fR
+Decodes the printable string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The printable string is stored in the variable
+called \fIstringVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded printable string an error is thrown\&.
 .TP
-\fB::asn::asnGetIA5String\fR \fIdata_var\fR \fIstring_var\fR
-Assumes that a IA5 (ASCII) string value is at the front of the data
-stored in the variable named \fIdata_var\fR, and stores it into the
-variable named by \fIstring_var\fR\&. Additionally removes all bytes
-associated with the value from the data for further processing by the
-following decoder commands\&.
+\fB::asn::asnGetIA5String\fR \fIdataVar\fR \fIstringVar\fR
+Decodes the IA5 (US-ASCII) string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The IA5 string is stored in the variable
+called \fIstringVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded IA5 string an error is thrown\&.
 .TP
-\fB::asn::asnGetBMPString\fR \fIdata_var\fR \fIstring_var\fR
-Assumes that a BMP (two-byte unicode) string value is at the front of
-the data stored in the variable named \fIdata_var\fR, and stores it
-into the variable named by \fIstring_var\fR, converting it into a
-proper Tcl string\&. Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands\&.
+\fB::asn::asnGetBMPString\fR \fIdataVar\fR \fIstringVar\fR
+Decodes the BMP (two-byte unicode—UCS2) string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The BMP string is converted into a proper
+Tcl string which is then stored in the variable
+called \fIstringVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded BMP string an error is thrown\&.
 .TP
-\fB::asn::asnGetUTF8String\fR \fIdata_var\fR \fIstring_var\fR
-Assumes that a UTF8 string value is at the front of the data stored in
-the variable named \fIdata_var\fR, and stores it into the variable
-named by \fIstring_var\fR, converting it into a proper Tcl string\&.
-Additionally removes all bytes associated with the value from the data
-for further processing by the following decoder commands\&.
+\fB::asn::asnGetUTF8String\fR \fIdataVar\fR \fIstringVar\fR
+Decodes the UTF8 string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The UTF8 string is converted into a proper
+Tcl string which is then stored in the variable
+called \fIstringVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded UTF8 string an error is thrown\&.
 .TP
-\fB::asn::asnGetUTCTime\fR \fIdata_var\fR \fIutc_var\fR
-Assumes that a UTC time value is at the front of the data stored in the
-variable named \fIdata_var\fR, and stores it into the variable named
-by \fIutc_var\fR\&. The UTC time value is stored as a string, which has to
-be decoded with the usual clock scan commands\&.
-Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands\&.
+\fB::asn::asnGetUTCTime\fR \fIdataVar\fR \fIutcVar\fR
+Decodes the UTC time value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The UTC time value is stored in the variable
+called \fIutcVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. The
+value stored in \fIutcVar\fR is a string; to get an actual time value,
+use the  \fBclock scan\fR command\&. If the value at the start is not an
+encoded UTC time value an error is thrown\&.
 .TP
-\fB::asn::asnGetBitString\fR \fIdata_var\fR \fIbits_var\fR
-Assumes that a bit string value is at the front of the data stored in the
-variable named \fIdata_var\fR, and stores it into the variable named
-by \fIbits_var\fR as a string containing only 0 and 1\&.
-Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands\&.
+\fB::asn::asnGetBitString\fR \fIdataVar\fR \fIbitsVar\fR
+Decodes the bit string value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The bit string is stored in the variable
+called \fIbitsVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. The
+value stored in \fIbitsVar\fR is a string that contains only \fB"0"\fR
+and \fB"1"\fR characters\&. If
+the value at the start is not an encoded bit string an error is thrown\&.
 .TP
-\fB::asn::asnGetObjectIdentifier\fR \fIdata_var\fR \fIoid_var\fR
-Assumes that a object identifier (OID) value is at the front of the data
-stored in the variable named \fIdata_var\fR, and stores it into the variable
-named by \fIoid_var\fR as a list of integers\&.
-Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands\&.
+\fB::asn::asnGetObjectIdentifier\fR \fIdataVar\fR \fIoidVar\fR
+Decodes the object identifier (OID) value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The OID is stored in the variable
+called \fIoidVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. The
+value stored in \fIoidVar\fR is a list of integers\&. If
+the value at the start is not an encoded OID an error is thrown\&.
 .TP
-\fB::asn::asnGetBoolean\fR \fIdata_var\fR \fIbool_var\fR
-Assumes that a boolean value is at the front of the data stored in the
-variable named \fIdata_var\fR, and stores it into the variable named
-by \fIbool_var\fR\&. Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands\&.
+\fB::asn::asnGetBoolean\fR \fIdataVar\fR \fIboolVar\fR
+Decodes the Boolean value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The Boolean is stored in the variable
+called \fIboolVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. The
+value stored in \fIboolVar\fR is either \fB0\fR or \fB1\fR\&. If
+the value at the start is not an encoded Boolean an error is thrown\&.
 .TP
-\fB::asn::asnGetNull\fR \fIdata_var\fR
-Assumes that a NULL value is at the front of the data stored in the
-variable named \fIdata_var\fR and removes the bytes used to encode it
-from the data\&.
+\fB::asn::asnGetNull\fR \fIdataVar\fR
+Decodes the NULL value encoded at the start of the data stored in the
+variable called \fIdataVar\fR and removes the decoded bytes from the
+start of the data in \fIdataVar\fR, ready for the next value to be
+decoded\&. If the value at the start is not an encoded NULL value an error
+is thrown\&.
 .TP
-\fB::asn::asnGetSequence\fR \fIdata_var\fR \fIsequence_var\fR
-Assumes that an ASN sequence is at the front of the data stored in the
-variable named \fIdata_var\fR, and stores it into the variable named
-by \fIsequence_var\fR\&. Additionally removes all bytes associated with
-the value from the data for further processing by the following
-decoder commands\&.
+\fB::asn::asnGetSequence\fR \fIdataVar\fR \fIsequenceVar\fR
+Decodes the ASN sequence value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The ASN sequence is stored in the variable
+called \fIsequenceVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded ASN sequence an error is thrown\&.
 .sp
-The data in \fIsequence_var\fR is encoded binary and has to be
+The value in \fIsequenceVar\fR is encoded binary and must be
 further decoded according to the definition of the sequence, using the
-decoder commands here\&.
+other decoder “asnGet…” commands\&.
 .TP
-\fB::asn::asnGetSet\fR \fIdata_var\fR \fIset_var\fR
-Assumes that an ASN set is at the front of the data stored in the
-variable named \fIdata_var\fR, and stores it into the variable named
-by \fIset_var\fR\&. Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands\&.
+\fB::asn::asnGetSet\fR \fIdataVar\fR \fIsetVar\fR
+Decodes the ASN set value encoded at the start of the data stored in the
+variable called \fIdataVar\fR\&. The ASN set is stored in the variable
+called \fIsetVar\fR, and the decoded bytes are removed from the start of
+the data in \fIdataVar\fR, ready for the next value to be decoded\&. If
+the value at the start is not an encoded ASN set an error is thrown\&.
 .sp
-The data in \fIset_var\fR is encoded binary and has to be further
-decoded according to the definition of the set, using the decoder
-commands here\&.
+The value in \fIsetVar\fR is encoded binary and must be
+further decoded according to the definition of the sequence, using the
+other decoder “asnGet…” commands\&.
 .TP
-\fB::asn::asnGetApplication\fR \fIdata_var\fR \fIappNumber_var\fR ?\fIcontent_var\fR? ?\fIencodingType_var\fR?
-Assumes that an ASN application construct is at the front of the data
-stored in the variable named \fIdata_var\fR, and stores its id into
-the variable named by \fIappNumber_var\fR\&. Additionally removes all
-bytes associated with the value from the data for further processing
-by the following decoder commands\&.
-If a \fIcontent_var\fR is specified, then the command places all data
-associated with it into the named variable, in the binary form which
-can be processed using the decoder commands of this package\&.
-If a \fIencodingType_var\fR is specified, then that var is set to 1 if
-the encoding is constructed and 0 if it is primitive\&.
+\fB::asn::asnGetApplication\fR \fIdataVar\fR \fIappNumberVar\fR ?\fIcontentVar\fR? ?\fIencodingTypeVar\fR?
+Decodes the ASN application construct value encoded at the start of the
+data stored in the variable called \fIdataVar\fR\&. The ASN application
+construct’s ID is stored in the variable called \fIappNumberVar\fR, and
+the decoded bytes are removed from the start of the data in
+\fIdataVar\fR, ready for the next value to be decoded\&. If the value at
+the start is not an encoded ASN application construct an error is thrown\&.
 .sp
-Otherwise it is the responsibility of the caller to decode the
-remainder of the application construct based on the id retrieved by
-this command, using the decoder commands of this package\&.
+If a \fIcontentVar\fR is specified, then the command places all data
+associated with the ASN application construct into the named variable,
+in the binary form which can be processed using the this package’s
+decoder commands\&.
+.sp
+If a \fIencodingTypeVar\fR is specified, then that variable is set to
+\fB1\fR if the encoding is constructed and \fB0\fR if it is
+primitive\&.
+.sp
+Without the optional arguments,
+it is the responsibility of the caller to decode the
+remainder of the ASN application construct based on the ID retrieved by
+this command, using the package’s decoder commands\&.
 .TP
-\fB::asn::asnGetContext\fR \fIdata_var\fR \fIcontextNumber_var\fR ?\fIcontent_var\fR? ?\fIencodingType_var\fR?
-Assumes that an ASN context tag construct is at the front of the data
-stored in the variable named \fIdata_var\fR, and stores its id into
-the variable named by \fIcontextNumber_var\fR\&. Additionally removes all
-bytes associated with the value from the data for further processing
-by the following decoder commands\&.
-If a \fIcontent_var\fR is specified, then the command places all data
-associated with it into the named variable, in the binary form which
-can be processed using the decoder commands of this package\&.
-If a \fIencodingType_var\fR is specified, then that var is set to 1 if
-the encoding is constructed and 0 if it is primitive\&.
+\fB::asn::asnGetContext\fR \fIdataVar\fR \fIcontextNumberVar\fR ?\fIcontentVar\fR? ?\fIencodingTypeVar\fR?
+Decodes the ASN context tag construct encoded at the start of the data
+stored in the variable called \fIdataVar\fR\&. The ASN context tag
+construct’s ID is stored in the variable called \fIcontextNumberVar\fR,
+and the decoded bytes are removed from the start of the data in
+\fIdataVar\fR, ready for the next value to be decoded\&. If the value at
+the start is not an encoded ASN context tag construct an error is
+thrown\&.
 .sp
-Otherwise it is the responsibility of the caller to decode the
-remainder of the construct based on the id retrieved by this command,
-using the decoder commands of this package\&.
+If a \fIcontentVar\fR is specified, then the command places all data
+associated with the ASN context tag construct into the named variable,
+in the binary form which can be processed using the this package’s
+decoder commands\&.
+.sp
+If a \fIencodingTypeVar\fR is specified, then that variable is set to
+\fB1\fR if the encoding is constructed and \fB0\fR if it is
+primitive\&.
+.sp
+Without the optional arguments,
+it is the responsibility of the caller to decode the
+remainder of the ASN context tag construct based on the ID retrieved by
+this command, using the package’s decoder commands\&.
 .PP
 .PP
 .SS "HANDLING TAGS"
-Working with ASN\&.1 you often need to decode tagged values, which use a tag thats different
-from the universal tag for a type\&. In those cases you have to replace the tag with the universal tag
-used for the type, to decode the value\&.
-To decode a tagged value use the \fB::asn::asnRetag\fR to change the tag to the appropriate type
-to use one of the decoders for primitive values\&.
-To help with this the module contains three functions:
+When working with ASN\&.1 you often need to decode tagged values which
+use a tag that’s different from a type’s universal tag\&. In these cases,
+to decode the value, you must replace the tag with the type’s universal
+tag\&.
+To decode a tagged value use \fB::asn::asnRetag\fR to change the tag to
+an appropriate type so that you can use one of the decoders for
+primitive values\&.
+To assist with this the package provides three helper functions:
 .TP
-\fB::asn::asnPeekTag\fR \fIdata_var\fR \fItag_var\fR \fItagtype_var\fR \fIconstr_var\fR
-The \fB::asn::asnPeekTag\fR command can be used to take a peek at the data and decode the tag value, without
-removing it from the data\&. The \fItag_var\fR gets set to the tag number, while the \fItagtype_var\fR gets set
-to the class of the tag\&. (Either UNIVERSAL, CONTEXT, APPLICATION or PRIVATE)\&. The \fIconstr_var\fR is set to 1 if the
-tag is for a constructed value, and to 0 for not constructed\&. It returns the length of the tag\&.
+\fB::asn::asnPeekTag\fR \fIdataVar\fR \fItagVar\fR \fItagtypeVar\fR \fIconstrVar\fR
+The \fB::asn::asnPeekTag\fR command can be used to take a peek at the
+data and decode the tag value, without removing it from the data\&. The
+\fItagVar\fR is set to the tag number\&. The \fItagtypeVar\fR is set to
+the tag’s class, which is one of \fBUNIVERSAL\fR, \fBCONTEXT\fR,
+\fBAPPLICATION\fR, or \fBPRIVATE\fR\&. The \fIconstrVar\fR is set to 1
+if the tag is for a constructed value, or to 0 for a primitive\&. The
+command returns the tag’s length\&.
 .TP
 \fB::asn::asnTag\fR \fItagnumber\fR ?\fIclass\fR? ?\fItagstyle\fR?
-The \fB::asn::asnTag\fR can be used to create a tag value\&. The \fItagnumber\fR gives the number of the tag, while
-the \fIclass\fR gives one of the classes (UNIVERSAL,CONTEXT,APPLICATION or PRIVATE)\&. The class may be abbreviated to just the first letter (U,C,A,P),
-default is UNIVERSAL\&.
-The \fItagstyle\fR is either C for Constructed encoding, or P for primitve encoding\&. It defaults to P\&. You can also use 1 instead of C and
-0 instead of P for direct use of the values returned by \fB::asn::asnPeekTag\fR\&.
+The \fB::asn::asnTag\fR command is used to create a tag value\&. The
+\fItagnumber\fR specifies the tag’s number\&. If given, the tag’s
+\fIclass\fR must be one of \fBUNIVERSAL\fR, \fBCONTEXT\fR,
+\fBAPPLICATION\fR, or \fBPRIVATE\fR; or just the first letter as an
+abbreviation (\fBU\fR, \fBC\fR, \fBA\fR, or \fBP\fR\&.) The
+default class is \fBUNIVERSAL\fR\&. If given, the \fItagstyle\fR must be
+either \fBC\fR or \fB1\fR for a constructed encoding, or \fBP\fR
+or \fB0\fR for a primitive encoding\&. The default is \fBP\fR\&. (The
+use of \fB1\fR and \fB0\fR makes it easy to use this command with
+the values returned by \fB::asn::asnPeekTag\fR\&.)
 .TP
-\fB::asn::asnRetag\fR \fIdata_var\fR \fInewTag\fR
-Replaces the tag in front of the data in \fIdata_var\fR with \fInewTag\fR\&. The new Tag can be created using the \fB::asn::asnTag\fR command\&.
+\fB::asn::asnRetag\fR \fIdataVar\fR \fInewTag\fR
+Replaces the tag at the start of the data in \fIdataVar\fR with
+\fInewTag\fR\&. The new tag can be created using the \fB::asn::asnTag\fR
+command\&.
 .PP
 .SH EXAMPLES
-Examples for the usage of this package can be found in the
-implementation of package \fBldap\fR\&.
+Examples that show this package in use can be found in the
+implementation of the \fBldap\fR package\&.
+.PP
+When encoding text it is best to \fIavoid\fR \fB::asn::asnUTF8String\fR
+since in rare cases it may not work correctly\&. For pure 7-bit ASCII it
+is easiest to encode using \fB::asn::asnIA5String\fR\&. Outside the 7-bit
+ASCII range convert Tcl strings into UCS2 (i\&.e\&., utf-16le) and encode
+with \fB::asn::asnBMPString\fR\&. For decoding any string use
+\fB::asn::asnGetString\fR; however, for each UCS2 string, remember to
+convert it back to a Tcl string\&.
+.CS
+
+
+# Encode
+set eflag [::asn::asnBoolean 1]
+set etotal [::asn::asnInteger 734]
+set line [encoding convertto utf-16le "€2 ÷ 3 → €⅔ ✔"]
+set eline [::asn::asnBMPString $line]
+set enote [::asn::asnIA5String "7-bit ASCII ~^"]
+set encoded [::asn::asnSequence $eflag $etotal $eline $enote]
+# Decode
+::asn::asnGetSequence encoded sequence
+::asn::asnGetBoolean sequence flag
+::asn::asnGetInteger sequence total
+::asn::asnGetString sequence bmp_line
+set line [encoding convertfrom utf-16le $bmp_line]
+::asn::asnGetString sequence note
+puts "flag=$flag total=$total line='$line' note='$note'"
+=>
+flag=1 total=734 line='€2 ÷ 3 → €⅔ ✔' note='7-bit ASCII ~^'
+
+.CE
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIasn\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIasn\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

@@ -657,7 +657,7 @@
 
   - [struct::record](tcllib/files/modules/struct/record\.md) Define and create records \(similar to 'C' structures\)
 
-  - [struct::set](tcllib/files/modules/struct/struct\_set\.md) Procedures for manipulating sets
+  - [struct::set](tcllib/files/modules/struct/struct\_set\.md) Commands for manipulating sets
 
   - [struct::skiplist](tcllib/files/modules/struct/skiplist\.md) Create and manipulate skiplists
 
@@ -742,6 +742,8 @@
   - [tcldocstrip](tcllib/files/apps/tcldocstrip\.md) Tcl\-based Docstrip Processor
 
   - [tcllib\_devguide](tcllib/files/devdoc/tcllib\_devguide\.md) Tcllib \- The Developer's Guide
+
+  - [tcllib\_doc\_policy](tcllib/files/devdoc/doc\-policy\.md) Tcl Documentation Policy Notes
 
   - [tcllib\_install\_guide](tcllib/files/devdoc/tcllib\_installer\.md) Tcllib \- The Installer's Guide
 

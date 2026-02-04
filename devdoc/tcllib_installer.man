@@ -38,7 +38,7 @@ These are:
 [enum] The scripting language Tcl.
        For details see [sectref Tcl].
 [enum] Optionally, the [package critcl] package (C embedding) for [syscmd Tcl].
-       For details see [sectref CriTcl].
+       For details see [sectref-external CriTcl].
 [list_end]
 
 This list assumes that the machine where Tcllib is to be installed is

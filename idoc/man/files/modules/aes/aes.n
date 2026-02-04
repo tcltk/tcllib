@@ -294,11 +294,11 @@ package require \fBaes ?1\&.2\&.2?\fR
 .BE
 .SH DESCRIPTION
 .PP
-This is an implementation in Tcl of the Advanced Encryption Standard
+This is a Tcl implementation of the Advanced Encryption Standard
 (AES) as published by the U\&.S\&. National Institute of Standards and
 Technology [1]\&. AES is a 128-bit block cipher with a variable
-key size of 128, 192 or 256 bits\&. This implementation supports ECB and
-CBC modes\&.
+key size of 128, 192 or 256 bits\&. This implementation supports CBC and
+ECB modes\&.
 .SH COMMANDS
 .TP
 \fB::aes::aes\fR ?\fI-mode [ecb|cbc]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | ?\fB--\fR? \fIdata\fR ]
@@ -311,26 +311,26 @@ The \fI-key\fR option must be given\&. This parameter takes a binary
 string of either 16, 24 or 32 bytes in length and is used to generate the
 key schedule\&.
 .sp
-The \fI-mode\fR and \fI-dir\fR options are optional and default to cbc
+The \fI-mode\fR and \fI-dir\fR options are optional and default to CBC
 mode and encrypt respectively\&. The initialization vector \fI-iv\fR
 takes a 16 byte binary argument which defaults to all zeros\&.
 See \fBMODES OF OPERATION\fR for more about available modes and
 their uses\&.
 .sp
-AES is a 128-bit block cipher\&. This means that the data must be
+Since AES is a 128-bit block cipher, the data must be
 provided in units that are a multiple of 16 bytes\&.
 .PP
 .SH "PROGRAMMING INTERFACE"
 Internal state is maintained in an opaque structure that is returned
-from the \fBInit\fR function\&. In ECB mode the state is not affected by
-the input but for CBC mode some input dependent state is maintained
-and may be reset by calling the \fBReset\fR function with a new
-initialization vector value\&.
+from the \fBInit\fR function\&. For CBC mode some input dependent state is
+maintained and may be reset by calling the \fBReset\fR function with a
+new initialization vector value\&. In ECB mode the state is not affected
+by the input\&.
 .TP
 \fB::aes::Init\fR \fImode\fR \fIkeydata\fR \fIiv\fR
 Construct a new AES key schedule using the specified key data and the
-given initialization vector\&. The initialization vector is not used
-with ECB mode but is important for CBC mode\&.
+given initialization vector\&. The initialization vector is important for
+CBC mode; it is not used with ECB mode\&.
 See \fBMODES OF OPERATION\fR for details about cipher modes\&.
 .TP
 \fB::aes::Encrypt\fR \fIKey\fR \fIdata\fR
@@ -355,13 +355,6 @@ Once this function has been called the key may not be used again\&.
 .PP
 .SH "MODES OF OPERATION"
 .TP
-Electronic Code Book (ECB)
-ECB is the basic mode of all block ciphers\&. Each block is encrypted
-independently and so identical plain text will produce identical
-output when encrypted with the same key\&. Any encryption errors will
-only affect a single block however this is vulnerable to known
-plaintext attacks\&.
-.TP
 Cipher Block Chaining (CBC)
 CBC mode uses the output of the last block encryption to affect the
 current block\&. An initialization vector of the same size as the cipher
@@ -369,8 +362,15 @@ block size is used to handle the first block\&. The initialization
 vector should be chosen randomly and transmitted as the first block of
 the output\&. Errors in encryption affect the current block and the next
 block after which the cipher will correct itself\&. CBC is the most
-commonly used mode in software encryption\&. This is the default mode
-of operation for this module\&.
+commonly used mode in software encryption, and this module’s default
+mode of operation\&.
+.TP
+Electronic Code Book (ECB)
+ECB is the basic mode of all block ciphers\&. Each block is encrypted
+independently and so identical plain text will produce identical
+output when encrypted with the same key\&. Any encryption errors will
+only affect a single block\&. \fIThis mode is vulnerable to known
+plaintext attacks\&.\fR
 .PP
 .SH EXAMPLES
 .CS
@@ -399,12 +399,11 @@ Federal Information Processing Standards Publication 197, 2001
 .SH AUTHORS
 Thorsten Schloermann, Pat Thoyts
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIaes\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIaes\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

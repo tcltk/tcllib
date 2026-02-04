@@ -182,6 +182,9 @@ manipulated with the <b class="method">cget</b> and <b class="method">configure<
 <p>The package only contains one top level command, but several
 sub commands (see below). It also obeys the namespace in which the
 record was defined, hence the objects returned are fully qualified.</p>
+<p><em>Note: Tcl 9 users may find Tcl's built-in object-oriented
+functionality is more convenient and versatile than using this
+package.</em></p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">record define</b> <i class="arg">recordName</i> <i class="arg">recordMembers</i> <span class="opt">?<i class="arg">instanceName1 instanceName2 ...</i>?</span></a></dt>
 <dd><p>Defines a record. <i class="arg">recordName</i> is the name of the record, and is
@@ -466,12 +469,11 @@ lstart
 </div>
 </div>
 <div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>struct :: record</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>struct :: record</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

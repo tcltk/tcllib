@@ -131,7 +131,7 @@
 
           + [struct::record](tcllib/files/modules/struct/record\.md) Define and create records \(similar to 'C' structures\)
 
-          + [struct::set](tcllib/files/modules/struct/struct\_set\.md) Procedures for manipulating sets
+          + [struct::set](tcllib/files/modules/struct/struct\_set\.md) Commands for manipulating sets
 
           + [struct::skiplist](tcllib/files/modules/struct/skiplist\.md) Create and manipulate skiplists
 
@@ -1827,7 +1827,7 @@
 
               - [struct::record](tcllib/files/modules/struct/record\.md) Define and create records \(similar to 'C' structures\)
 
-              - [struct::set](tcllib/files/modules/struct/struct\_set\.md) Procedures for manipulating sets
+              - [struct::set](tcllib/files/modules/struct/struct\_set\.md) Commands for manipulating sets
 
               - [struct::skiplist](tcllib/files/modules/struct/skiplist\.md) Create and manipulate skiplists
 

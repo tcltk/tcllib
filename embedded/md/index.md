@@ -781,7 +781,8 @@
 |<a name='rfc\_6455'></a>rfc 6455|[websocket](tcllib/files/modules/websocket/websocket\.md)|
 |<a name='rfc\_7858'></a>rfc 7858|[dns](tcllib/files/modules/dns/tcllib\_dns\.md)|
 |<a name='rfc3501'></a>rfc3501|[imap4](tcllib/files/modules/imap4/imap4\.md)|
-|<a name='rfc3548'></a>rfc3548|[base32](tcllib/files/modules/base32/base32\.md) &#183; [base32::hex](tcllib/files/modules/base32/base32hex\.md)|
+|<a name='rfc3548'></a>rfc3548|[base32](tcllib/files/modules/base32/base32\.md)|
+|<a name='rfc4648'></a>rfc4648|[base32](tcllib/files/modules/base32/base32\.md) &#183; [base32::hex](tcllib/files/modules/base32/base32hex\.md)|
 |<a name='right\_outer\_join'></a>right outer join|[struct::list](tcllib/files/modules/struct/struct\_list\.md)|
 |<a name='ripemd'></a>RIPEMD|[ripemd128](tcllib/files/modules/ripemd/ripemd128\.md) &#183; [ripemd160](tcllib/files/modules/ripemd/ripemd160\.md)|
 |<a name='roman\_numeral'></a>roman numeral|[math::roman](tcllib/files/modules/math/roman\.md)|

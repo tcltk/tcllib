@@ -133,47 +133,66 @@
 <li>package require <b class="pkgname">ascii85 <span class="opt">?1.1?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::ascii85::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">string</i></a></li>
-<li><a href="#2"><b class="cmd">::ascii85::decode</b> <i class="arg">string</i></a></li>
+<li><a href="#1"><b class="cmd">::ascii85::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">bstring</i></a></li>
+<li><a href="#2"><b class="cmd">::ascii85::decode</b> <i class="arg">estring</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This package provides procedures to encode binary data into ascii85 and back.</p>
+<p>This package provides commands for encoding and decoding binary strings
+to and from the ascii85 encoding. (This encoding is also known as
+base85.)</p>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::ascii85::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">string</i></a></dt>
-<dd><p>Ascii85 encodes the given binary <i class="arg">string</i> and returns the encoded
-result. Inserts the character <i class="arg">wrapchar</i> every <i class="arg">maxlen</i>
-characters of output. <i class="arg">wrapchar</i> defaults to newline. <i class="arg">maxlen</i>
-defaults to <b class="const">76</b>.</p>
-<p><em>Note well</em>: If your string is not simple ascii you should fix
-the string encoding before doing ascii85 encoding. See the examples.</p>
-<p>The command will throw an error for negative values of <i class="arg">maxlen</i>,
-or if <i class="arg">maxlen</i> is not an integer number.</p></dd>
-<dt><a name="2"><b class="cmd">::ascii85::decode</b> <i class="arg">string</i></a></dt>
-<dd><p>Ascii85 decodes the given <i class="arg">string</i> and returns the binary data.
-The decoder ignores whitespace in the string, as well as tabs and
-newlines.</p></dd>
+<dt><a name="1"><b class="cmd">::ascii85::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">bstring</i></a></dt>
+<dd><p>Returns an ascii85-encoded version of the binary string <i class="arg">bstring</i> as
+its result.</p>
+<p>The result string contains the <i class="arg">wrapchar</i> character after every
+<i class="arg">maxlen</i> characters of output. The <i class="arg">wrapchar</i> defaults to
+newline and <i class="arg">maxlen</i> defaults to 76. To prevent wrapping, set
+<i class="arg">maxlen</i> to <b class="const">0</b>.</p>
+<p>The command will throw an error if <i class="arg">maxlen</i> is not an integer or is
+negative, or if <i class="arg">bstring</i> is neither a binary string, nor a string
+containing only 7-bit ASCII.</p></dd>
+<dt><a name="2"><b class="cmd">::ascii85::decode</b> <i class="arg">estring</i></a></dt>
+<dd><p>Returns a binary string that has been ascii85-decoded from the
+<i class="arg">estring</i>. Any whitespace (spaces, tabs, newlines) in <i class="arg">estring</i>
+is ignored.</p></dd>
 </dl>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">EXAMPLES</a></h2>
+<p>This example shows how to encode and decode a Tcl string to and from
+ascii85, taking account of the fact that the ascii85 commands work in
+terms of binary strings.</p>
 <pre class="doctools_example">
-% ascii85::encode &quot;Hello, world&quot;
-87cURD_*#TDfTZ)
+const UTF8_LINE &quot;Δ&divide; “Utf-8” ♞ℤ&quot;
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set enc85 [::ascii85::encode $bytes]
+set dec85 [::ascii85::decode $enc85]
+set line [encoding convertfrom utf-8 $dec85]
+puts &quot;ascii85='$enc85' [expr {$UTF8_LINE eq $line}]&quot;
+=&gt;
+ascii85='cBQ5U+Q@pA&lt;HMh)39#IZ+QAf\ie4*' 1
 </pre>
+<p>If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in <b class="cmd"><a href="../../../../index.html#encoding">encoding</a></b> command are not needed. For example:</p>
 <pre class="doctools_example">
-% ascii85::encode [string repeat xyz 24]
+const ASCII_LINE &quot;! 7-bit ASCII {~^}&quot;
+set enc85 [::ascii85::encode $ASCII_LINE]
+set dec85 [::ascii85::decode $enc85]
+set line [encoding convertfrom utf-8 $dec85]
+puts &quot;ascii85='$enc85' [expr {$ASCII_LINE eq $line}]&quot;
+=&gt;
+ascii85='+Wr]q@VKp,5uU-B8K`A/?@;' 1
+</pre>
+<p>Wrapping can be prevented so that no whitespace is introduced:</p>
+<pre class="doctools_example">
+ascii85::encode [string repeat xyz 24]
+=&gt;
 G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G
 ^4U[H$X^\H?a^]
-% ascii85::encode -wrapchar &quot;&quot; [string repeat xyz 24]
+ascii85::encode -maxlen 0 [string repeat xyz 24]
+=&gt;
 G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]
-</pre>
-<pre class="doctools_example">
-# NOTE: ascii85 encodes BINARY strings.
-% set chemical [encoding convertto utf-8 &quot;C\u2088H\u2081\u2080N\u2084O\u2082&quot;]
-% set encoded [ascii85::encode $chemical]
-6fN]R8E,5Pidu\UiduhZidua
-% set caffeine [encoding convertfrom utf-8 [ascii85::decode $encoded]]
 </pre>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">References</a></h2>
@@ -184,12 +203,11 @@ G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[
 </ol>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>base64</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>base64</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

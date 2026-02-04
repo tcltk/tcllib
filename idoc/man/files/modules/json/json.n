@@ -279,39 +279,53 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBjson ?1\&.3\&.6?\fR
 .sp
-\fB::json::json2dict\fR \fItxt\fR
+\fB::json::json2dict\fR \fIjson_txt\fR
 .sp
-\fB::json::many-json2dict\fR \fItxt\fR ?\fImax\fR?
+\fB::json::many-json2dict\fR \fIjson_txt\fR ?\fImax\fR?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 The \fBjson\fR package provides a simple Tcl-only library for parsing the
-JSON \fIhttp://www\&.json\&.org/\fR data exchange format as specified in RFC 4627
-\fIhttp://www\&.ietf\&.org/rfc/rfc4627\&.txt\fR\&.
+\fIJSON\fR [http://www\&.json\&.org/] data exchange format as specified in
+\fIRFC 4627\fR [http://www\&.ietf\&.org/rfc/rfc4627\&.txt]\&.
 There is some ambiguity in parsing JSON because JSON has type information that
-is not maintained by the Tcl conversion\&.  The \fBjson\fR package returns
-data as a Tcl \fBdict\fR\&.  Either the \fBdict\fR package or Tcl 8\&.5 is
-required for use\&.
+is not maintained by this module's conversion\&. Furthermore, JSON
+\fBnull\fR values are converted to the string literal "null" (see
+\fIticket\fR [https://core\&.tcl-lang\&.org/tcllib/tktview/2aa0cebb88])\&.
+The \fBjson\fR package returns
+data either as a Tcl \fBdict\fR or a \fBlist\fR which itself may
+contain nested \fBdict\fRs or \fBlist\fRs\&. (Either the \fBdict\fR
+package or Tcl 8\&.5 or later is required for use\&.)
+.PP
+For an alternative Tcl-only type-preserving implementation, see the
+\fItyped-json\fR [https://wiki\&.tcl-lang\&.org/page/typed-json] module\&.
 .SH COMMANDS
 .TP
-\fB::json::json2dict\fR \fItxt\fR
-Parse JSON formatted text \fItxt\fR into a Tcl dict and return
-the value\&.
+\fB::json::json2dict\fR \fIjson_txt\fR
 .sp
-If \fItxt\fR contains more than one JSON entity only the
+Returns a \fBdict\fR or \fBlist\fR (which itself may
+contain nested \fBdict\fRs and/or \fBlist\fRs) which is the result of
+parsing the JSON formatted text passed in \fIjson_txt\fR\&.
+.sp
+If \fIjson_txt\fR contains more than one JSON entity only the
 first one is returned\&.
 .TP
-\fB::json::many-json2dict\fR \fItxt\fR ?\fImax\fR?
-Parse JSON formatted text \fItxt\fR containing multiple JSON entities
-into a list of dictionaries and return that list\&.
+\fB::json::many-json2dict\fR \fIjson_txt\fR ?\fImax\fR?
 .sp
-If \fImax\fR is specified exactly that many entities are extracted
-from \fItxt\fR\&. By default the command will attempt to extract all, without
-limits\&. A value of "\fImax\fR == 0" does not make sense and will cause the
-command to throw an error\&.
+Returns a \fBlist\fR (which itself will contain nested \fBdict\fRs
+and/or \fBlist\fRs) which is the result of parsing all the JSON
+entities (or if \fImax\fR is specified, the first \fImax\fR entities), in
+the JSON formatted text passed in \fIjson_txt\fR\&.
+.sp
+If \fImax\fR is specified it must be a positive integer \fB> 0\fR or
+the command will throw and error\&.
 .PP
 .PP
+If the JSON formatted text contains nested lists and dicts then
+so will the returned dict\&. In such cases accessing a data value may
+require a \fImixture\fR of using dict get and lindex\&. (See the second
+example\&.)
 .SH EXAMPLES
 .PP
 An example of a JSON array converted to Tcl\&.  A JSON array is returned as a
@@ -346,6 +360,42 @@ single item with multiple elements\&.
 
 .CE
 .PP
+An example of a JSON dict which contains an entry whose value is a list
+of dicts\&.
+.PP
+.CS
+
+{
+  "items": [
+     {
+      "snippet": {
+        "title": "In The Shade",
+        "channelTitle": "Flox - Topic"
+      },
+      "statistics": {
+        "viewCount": "274"
+      }
+    }
+  ]
+}
+=>
+items {{snippet {title {In The Shade} channelTitle {Flox - Topic}} statistics {viewCount 274}}}
+
+.CE
+.PP
+Assuming that the JSON formatted text is in variable \fBjdata\fR, it can
+be converted to a \fBdict\fR and elements extracted\&.
+.PP
+.CS
+
+
+set d [json::json2dict $jdata]
+set title [dict get [lindex [dict get $d items] 0] snippet title]
+=>
+In The Shade
+
+.CE
+.PP
 An example of a JSON object converted to Tcl\&.  A JSON object is returned as a
 multi-element list (a dict)\&.
 .PP
@@ -371,12 +421,11 @@ Image {IDs {116 943 234 38793} Thumbnail {Width 100 Height 125 Url http://www\&.
 .SH RELATED
 To write json, instead of parsing it, see package \fBjson::write\fR\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIjson\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIjson\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

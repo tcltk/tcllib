@@ -134,38 +134,46 @@
 <li><a href="#1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
 <li><a href="#2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
 <li><a href="#3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></li>
-<li><a href="#4"><b class="cmd">dict print</b> <i class="arg">dict</i></a></li>
+<li><a href="#4"><b class="cmd">dict print</b> <i class="arg">varname</i></a></li>
 <li><a href="#5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></li>
-<li><a href="#6"><b class="cmd">rmerge</b> <i class="arg">args</i></a></li>
+<li><a href="#6"><b class="cmd">dict rmerge</b> <i class="arg">args</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">dicttool</b> package enhances the standard <em>dict</em> command with several new
-commands. In addition, the package also defines several &quot;creature comfort&quot; list commands as well.
-Each command checks to see if a command already exists of the same name before adding itself,
-just in case any of these slip into the core.</p>
+commands. In addition, the package also defines several convenient list commands.
+(Each command only adds itself if a command of the same name doesn’t already exist,
+in case any of these are added to the core.)</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
-<dd><p>This command will add a new instance of each element in <i class="arg">args</i> to <i class="arg">varname</i>, but only if that element
-is not already present.</p></dd>
+<dd><p>This command adds every element in <i class="arg">args</i> to <i class="arg">varname</i>, but only if that element
+is not already present (whether as a key or a value). Use an even number
+of <i class="arg">args</i> to keep <i class="arg">varname</i> as a <b class="type">dict</b>.</p></dd>
 <dt><a name="2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
-<dd><p>This command will delete all instances of each element in <i class="arg">args</i> from <i class="arg">varname</i>.</p></dd>
+<dd><p>This command deletes every element in <i class="arg">args</i> from <i class="arg">varname</i>. Use an even number
+of <i class="arg">args</i> to keep <i class="arg">varname</i> as a <b class="type">dict</b>.</p></dd>
 <dt><a name="3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></dt>
 <dd><p>Operates like <b class="cmd">dict get</b>, however if the key <i class="arg">args</i> does not exist, it returns an empty
-list instead of throwing an error.</p></dd>
-<dt><a name="4"><b class="cmd">dict print</b> <i class="arg">dict</i></a></dt>
-<dd><p>This command will produce a string representation of <i class="arg">dict</i>, with each nested branch on
-a newline, and indented with two spaces for every level.</p></dd>
+list instead of throwing an error.</p>
+<p>An alternative to this command is <b class="cmd">dict getwithdefault</b> <em>or
+its alias</em> <b class="cmd">dict getdef</b>. Using <b class="cmd">dict getdef</b> with a
+default of an empty list, <i class="arg">{}</i>, is equivalent to using <b class="cmd">dict getnull</b>.</p></dd>
+<dt><a name="4"><b class="cmd">dict print</b> <i class="arg">varname</i></a></dt>
+<dd><p>Returns a “pretty printed” string representation of
+<b class="type">dict</b> <i class="arg">varname</i>, with each nested branch on a newline, and
+indented with two spaces for every level.</p></dd>
 <dt><a name="5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></dt>
-<dd><p>This command will return true if <i class="arg">value</i> can be interpreted as a dict. The command operates in
-such a way as to not force an existing dict representation to shimmer into another internal rep.</p></dd>
-<dt><a name="6"><b class="cmd">rmerge</b> <i class="arg">args</i></a></dt>
-<dd><p>Return a dict which is the product of a recursive merge of all of the arguments. Unlike <b class="cmd">dict merge</b>,
+<dd><p>Returns 1 if <i class="arg">value</i> can be interpreted as a dict;
+otherwise 0. (The command does <em>not</em> force an existing dict
+representation to change into another internal representation.)</p></dd>
+<dt><a name="6"><b class="cmd">dict rmerge</b> <i class="arg">args</i></a></dt>
+<dd><p>Returns a <b class="type">dict</b> which is the result of a recursive merge of all of
+the <b class="type">dict</b> arguments. Unlike <b class="cmd">dict merge</b>,
 this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
 will be interpreted as a literal value, and not descended into further.</p>
 <pre class="doctools_example">
-set items [dict merge {
+set items [dict rmerge {
   option {color {default: green}}
 } {
   option {fruit {default: mango}}
@@ -173,29 +181,28 @@ set items [dict merge {
   option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
 }]
 puts [dict print $items]
-</pre>
-<p>Prints the following result:</p>
-<pre class="doctools_example">
+=&gt;
 option {
   color {
     default: blue
   }
   fruit {
+    default: mango
     widget: select
     values: {mango apple cherry grape}
   }
 }
 </pre>
-</dd>
+<p>If the <b class="cmd">dict merge</b> command had been used above, the <em>fruit</em>
+item’s <em>default</em> key-value entry would have been lost.</p></dd>
 </dl>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>dict</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>dict</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

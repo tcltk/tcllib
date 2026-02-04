@@ -134,35 +134,46 @@
 <li>package require <b class="pkgname">json <span class="opt">?1.3.6?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::json::json2dict</b> <i class="arg">txt</i></a></li>
-<li><a href="#2"><b class="cmd">::json::many-json2dict</b> <i class="arg">txt</i> <span class="opt">?<i class="arg">max</i>?</span></a></li>
+<li><a href="#1"><b class="cmd">::json::json2dict</b> <i class="arg">json_txt</i></a></li>
+<li><a href="#2"><b class="cmd">::json::many-json2dict</b> <i class="arg">json_txt</i> <span class="opt">?<i class="arg">max</i>?</span></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">json</b> package provides a simple Tcl-only library for parsing the
-JSON <a href="http://www.json.org/">http://www.json.org/</a> data exchange format as specified in RFC 4627
-<a href="http://www.ietf.org/rfc/rfc4627.txt">http://www.ietf.org/rfc/rfc4627.txt</a>.
+<a href="http://www.json.org/">JSON</a> data exchange format as specified in 
+<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>.
 There is some ambiguity in parsing JSON because JSON has type information that
-is not maintained by the Tcl conversion.  The <b class="package">json</b> package returns
-data as a Tcl <b class="cmd"><a href="../../../../index.html#dict">dict</a></b>.  Either the <b class="package"><a href="../../../../index.html#dict">dict</a></b> package or Tcl 8.5 is
-required for use.</p>
+is not maintained by this module's conversion. Furthermore, JSON
+<b class="const">null</b> values are converted to the string literal &quot;null&quot; (see
+<a href="https://core.tcl-lang.org/tcllib/tktview/2aa0cebb88">ticket</a>).
+The <b class="package">json</b> package returns
+data either as a Tcl <b class="type">dict</b> or a <b class="type">list</b> which itself may
+contain nested <b class="type">dict</b>s or <b class="type">list</b>s. (Either the <b class="package"><a href="../../../../index.html#dict">dict</a></b>
+package or Tcl 8.5 or later is required for use.)</p>
+<p>For an alternative Tcl-only type-preserving implementation, see the
+<a href="https://wiki.tcl-lang.org/page/typed-json">typed-json</a> module.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::json::json2dict</b> <i class="arg">txt</i></a></dt>
-<dd><p>Parse JSON formatted text <i class="arg">txt</i> into a Tcl dict and return
-the value.</p>
-<p>If <i class="arg">txt</i> contains more than one JSON entity only the
+<dt><a name="1"><b class="cmd">::json::json2dict</b> <i class="arg">json_txt</i></a></dt>
+<dd><p>Returns a <b class="type">dict</b> or <b class="type">list</b> (which itself may
+contain nested <b class="type">dict</b>s and/or <b class="type">list</b>s) which is the result of
+parsing the JSON formatted text passed in <i class="arg">json_txt</i>.</p>
+<p>If <i class="arg">json_txt</i> contains more than one JSON entity only the
 first one is returned.</p></dd>
-<dt><a name="2"><b class="cmd">::json::many-json2dict</b> <i class="arg">txt</i> <span class="opt">?<i class="arg">max</i>?</span></a></dt>
-<dd><p>Parse JSON formatted text <i class="arg">txt</i> containing multiple JSON entities
-into a list of dictionaries and return that list.</p>
-<p>If <i class="arg">max</i> is specified exactly that many entities are extracted
-from <i class="arg">txt</i>. By default the command will attempt to extract all, without
-limits. A value of &quot;<i class="arg">max</i> == 0&quot; does not make sense and will cause the
-command to throw an error.</p></dd>
+<dt><a name="2"><b class="cmd">::json::many-json2dict</b> <i class="arg">json_txt</i> <span class="opt">?<i class="arg">max</i>?</span></a></dt>
+<dd><p>Returns a <b class="type">list</b> (which itself will contain nested <b class="type">dict</b>s
+and/or <b class="type">list</b>s) which is the result of parsing all the JSON
+entities (or if <i class="arg">max</i> is specified, the first <i class="arg">max</i> entities), in
+the JSON formatted text passed in <i class="arg">json_txt</i>.</p>
+<p>If <i class="arg">max</i> is specified it must be a positive integer <b class="const">&gt; 0</b> or
+the command will throw and error.</p></dd>
 </dl>
+<p>If the JSON formatted text contains nested lists and dicts then
+so will the returned dict. In such cases accessing a data value may
+require a <em>mixture</em> of using dict get and lindex. (See the second
+example.)</p>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
 <p>An example of a JSON array converted to Tcl.  A JSON array is returned as a
@@ -192,6 +203,32 @@ single item with multiple elements.</p>
 =&gt;
 {Country US Latitude 37.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122.3959} {Country US Latitude 37.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122.026020}
 </pre>
+<p>An example of a JSON dict which contains an entry whose value is a list
+of dicts.</p>
+<pre class="doctools_example">{
+  &quot;items&quot;: [
+     {
+      &quot;snippet&quot;: {
+        &quot;title&quot;: &quot;In The Shade&quot;,
+        &quot;channelTitle&quot;: &quot;Flox - Topic&quot;
+      },
+      &quot;statistics&quot;: {
+        &quot;viewCount&quot;: &quot;274&quot;
+      }
+    }
+  ]
+}
+=&gt;
+items {{snippet {title {In The Shade} channelTitle {Flox - Topic}} statistics {viewCount 274}}}
+</pre>
+<p>Assuming that the JSON formatted text is in variable <b class="variable">jdata</b>, it can
+be converted to a <b class="type">dict</b> and elements extracted.</p>
+<pre class="doctools_example">
+set d [json::json2dict $jdata]
+set title [dict get [lindex [dict get $d items] 0] snippet title]
+=&gt;
+In The Shade
+</pre>
 <p>An example of a JSON object converted to Tcl.  A JSON object is returned as a
 multi-element list (a dict).</p>
 <pre class="doctools_example">{
@@ -215,12 +252,11 @@ Image {IDs {116 943 234 38793} Thumbnail {Width 100 Height 125 Url http://www.ex
 <p>To write json, instead of parsing it, see package <b class="package"><a href="json_write.html">json::write</a></b>.</p>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>json</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>json</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

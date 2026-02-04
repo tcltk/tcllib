@@ -333,6 +333,10 @@ manipulated with the \fBcget\fR and \fBconfigure\fR methods\&.
 The package only contains one top level command, but several
 sub commands (see below)\&. It also obeys the namespace in which the
 record was defined, hence the objects returned are fully qualified\&.
+.PP
+\fINote: Tcl 9 users may find Tcl's built-in object-oriented
+functionality is more convenient and versatile than using this
+package\&.\fR
 .TP
 \fBrecord define\fR \fIrecordName\fR \fIrecordMembers\fR ?\fIinstanceName1 instanceName2 \&.\&.\&.\fR?
 Defines a record\&. \fIrecordName\fR is the name of the record, and is
@@ -661,12 +665,11 @@ lstart
 
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIstruct :: record\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIstruct :: record\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

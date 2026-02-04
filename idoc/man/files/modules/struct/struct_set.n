@@ -272,7 +272,7 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-struct::set \- Procedures for manipulating sets
+struct::set \- Commands for manipulating sets
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
@@ -282,7 +282,7 @@ package require \fBstruct::set ?2\&.2\&.4?\fR
 .sp
 \fB::struct::set\fR \fBsize\fR \fIset\fR
 .sp
-\fB::struct::set\fR \fBcontains\fR \fIset\fR \fIitem\fR
+\fB::struct::set\fR \fBcontains\fR \fIset\fR \fIvalue\fR
 .sp
 \fB::struct::set\fR \fBunion\fR ?\fIset1\fR\&.\&.\&.?
 .sp
@@ -296,13 +296,13 @@ package require \fBstruct::set ?2\&.2\&.4?\fR
 .sp
 \fB::struct::set\fR \fBequal\fR \fIset1\fR \fIset2\fR
 .sp
-\fB::struct::set\fR \fBinclude\fR \fIsvar\fR \fIitem\fR
+\fB::struct::set\fR \fBinclude\fR \fIsetVar\fR \fIvalue\fR
 .sp
-\fB::struct::set\fR \fBexclude\fR \fIsvar\fR \fIitem\fR
+\fB::struct::set\fR \fBexclude\fR \fIsetVar\fR \fIvalue\fR
 .sp
-\fB::struct::set\fR \fBadd\fR \fIsvar\fR \fIset\fR
+\fB::struct::set\fR \fBadd\fR \fIsetVar\fR \fIset\fR
 .sp
-\fB::struct::set\fR \fBsubtract\fR \fIsvar\fR \fIset\fR
+\fB::struct::set\fR \fBsubtract\fR \fIsetVar\fR \fIset\fR
 .sp
 \fB::struct::set\fR \fBsubsetof\fR \fIA\fR \fIB\fR
 .sp
@@ -312,96 +312,134 @@ package require \fBstruct::set ?2\&.2\&.4?\fR
 The \fB::struct::set\fR namespace contains several useful commands for
 processing finite sets\&.
 .PP
-It exports only a single command, \fBstruct::set\fR\&. All
-functionality provided here can be reached through a subcommand of
-this command\&.
+It exports only a single command, \fBstruct::set\fR\&. All the
+functionality is available through this command’s subcommands\&.
+.PP
+A new empty set can be created using \fB::struct::set add\fR
+\fIsetVar {}\fR\&.
 .PP
 \fINote:\fR As of version 2\&.2 of this package a critcl based C
-implementation is available\&. This implementation however requires Tcl
-8\&.4 to run\&.
+implementation will be used where available, with Tcl 8\&.4 or later\&.
 .SH COMMANDS
+.PP
+In the following, \fIset\fR, \fIset1\fR, and \fIset2\fR are \fBset\fR
+values and \fIsetVar\fR is a \fBset\fR’s variable name\&.
 .TP
 \fB::struct::set\fR \fBempty\fR \fIset\fR
-Returns a boolean value indicating if the \fIset\fR is
-empty (\fBtrue\fR), or not (\fBfalse\fR)\&.
+Returns \fB1\fR (true) if the \fIset\fR is empty; otherwise returns
+\fB0\fR (false)\&.
 .TP
 \fB::struct::set\fR \fBsize\fR \fIset\fR
-Returns an integer number greater than or equal to zero\&. This is the
-number of elements in the \fIset\fR\&. In other words, its cardinality\&.
+Returns the \fIset\fR’s cardinality, i\&.e\&., the number of elements in the
+\fIset\fR\&. This could be zero\&.
 .TP
-\fB::struct::set\fR \fBcontains\fR \fIset\fR \fIitem\fR
-Returns a boolean value indicating if the \fIset\fR contains the
-element \fIitem\fR (\fBtrue\fR), or not (\fBfalse\fR)\&.
+\fB::struct::set\fR \fBcontains\fR \fIset\fR \fIvalue\fR
+Returns \fB1\fR (true) if the \fIset\fR contains the
+element \fIvalue\fR; otherwise returns \fB0\fR (false)\&.
 .TP
 \fB::struct::set\fR \fBunion\fR ?\fIset1\fR\&.\&.\&.?
-Computes the set containing the union of \fIset1\fR, \fIset2\fR,
-etc\&., i\&.e\&. "\fIset1\fR + \fIset2\fR + \&.\&.\&.", and returns this set
-as the result of the command\&.
+Returns a \fBset\fR consisting of the union of the given \fBset\fRs,
+i\&.e\&. \fIset1\fR ∪ \fIset2\fR ∪ …\&. The resulting \fBset\fR will contain
+every value in every given \fBset\fR, with no duplicates\&.
 .TP
 \fB::struct::set\fR \fBintersect\fR ?\fIset1\fR\&.\&.\&.?
-Computes the set containing the intersection of \fIset1\fR,
-\fIset2\fR, etc\&., i\&.e\&. "\fIset1\fR * \fIset2\fR * \&.\&.\&.", and
-returns this set as the result of the command\&.
+Returns a \fBset\fR consisting of the intersection of the given
+\fBset\fRs, i\&.e\&. \fIset1\fR ∩ \fIset2\fR ∩ …\&. The resulting \fBset\fR will
+contain every value that \fIevery\fR one of the given \fBset\fRs has in
+common, with no duplicates\&.
 .TP
 \fB::struct::set\fR \fBdifference\fR \fIset1\fR \fIset2\fR
-Computes the set containing the difference of \fIset1\fR and
-\fIset2\fR, i\&.e\&. ("\fIset1\fR - \fIset2\fR") and returns this
-set as the result of the command\&.
+Returns a \fBset\fR consisting of the difference between \fIset1\fR and
+\fIset2\fR, i\&.e\&., \fIset1\fR - \fIset2\fR\&. The resulting \fBset\fR will
+contain every value that is in \fIset1\fR but that is \fInot\fR in
+\fIset2\fR\&.
 .TP
 \fB::struct::set\fR \fBsymdiff\fR \fIset1\fR \fIset2\fR
-Computes the set containing the symmetric difference of \fIset1\fR and
-\fIset2\fR, i\&.e\&. ("(\fIset1\fR - \fIset2\fR) + (\fIset2\fR - \fIset1\fR)")
-and returns this set as the result of the command\&.
+Returns a \fBset\fR consisting of the symmetric difference between
+\fIset1\fR and \fIset2\fR, i\&.e\&., \fIset1\fR Δ \fIset2\fR\&. The resulting
+\fBset\fR will contain every value that is in \fIset1\fR \fIor\fR is in
+\fIset2\fR, but \fInot\fR in both\&.
 .TP
 \fB::struct::set\fR \fBintersect3\fR \fIset1\fR \fIset2\fR
-This command is a combination of the methods \fBintersect\fR and
+Returns a combination of the methods \fBintersect\fR and
 \fBdifference\fR\&.
-It returns a three-element list containing "\fIset1\fR*\fIset2\fR",
-"\fIset1\fR-\fIset2\fR", and "\fIset2\fR-\fIset1\fR", in this
-order\&. In other words, the intersection of the two parameter sets, and
-their differences\&.
+.sp
+The return value is a three-element list containing "\fIset1\fR ∩
+\fIset2\fR", "\fIset1\fR - \fIset2\fR", and "\fIset2\fR - \fIset1\fR",
+in this order\&. In other words, the intersection of \fIset1\fR and
+\fIset2\fR, and their differences\&.
 .TP
 \fB::struct::set\fR \fBequal\fR \fIset1\fR \fIset2\fR
-Returns a boolean value indicating if the two sets are equal
-(\fBtrue\fR) or not (\fBfalse\fR)\&.
+Returns \fB1\fR (true) if the two \fBset\fRs contain exactly the same
+values; otherwise returns \fB0\fR (false)\&.
 .TP
-\fB::struct::set\fR \fBinclude\fR \fIsvar\fR \fIitem\fR
-The element \fIitem\fR is added to the set specified by the variable
-name in \fIsvar\fR\&. The return value of the command is empty\&. This is
-the equivalent of \fBlappend\fR for sets\&. If the variable named by
-\fIsvar\fR does not exist it will be created\&.
+\fB::struct::set\fR \fBinclude\fR \fIsetVar\fR \fIvalue\fR
+Adds element \fIvalue\fR to the \fBset\fR called \fIsetVar\fR, creating
+\fIsetVar\fR if it doesn’t exist\&. Harmlessly does nothing if \fIvalue\fR is
+already in \fBset\fR \fIsetVar\fR\&. Returns nothing\&. This command can be
+used to create new \fBset\fRs\&.
 .TP
-\fB::struct::set\fR \fBexclude\fR \fIsvar\fR \fIitem\fR
-The element \fIitem\fR is removed from the set specified by the
-variable name in \fIsvar\fR\&. The return value of the command is
-empty\&. This is a near-equivalent of \fBlreplace\fR for sets\&.
+\fB::struct::set\fR \fBexclude\fR \fIsetVar\fR \fIvalue\fR
+Removes element \fIvalue\fR from the \fBset\fR called \fIsetVar\fR\&.
+If \fIvalue\fR isn’t in \fIsetVar\fR, the command
+harmlessly does nothing\&. Returns nothing\&.
 .TP
-\fB::struct::set\fR \fBadd\fR \fIsvar\fR \fIset\fR
-All the element of \fIset\fR are added to the set specified by the
-variable name in \fIsvar\fR\&. The return value of the command is
-empty\&. This is like the method \fBinclude\fR, but for the addition
-of a whole set\&. If the variable named by \fIsvar\fR does not exist it
-will be created\&.
+\fB::struct::set\fR \fBadd\fR \fIsetVar\fR \fIset\fR
+Adds every element from the \fBset\fR value \fIset\fR to the \fBset\fR
+called \fIsetVar\fR, excluding duplicates\&. The \fBset\fR \fIsetVar\fR is
+created if it doesn’t exist\&. Returns nothing\&.
+.sp
+Use \fB::struct::set add\fR \fIsetVar {}\fR to create a new empty
+set\&. Use \fB::struct::set include\fR to add individual values\&.
 .TP
-\fB::struct::set\fR \fBsubtract\fR \fIsvar\fR \fIset\fR
-All the element of \fIset\fR are removed from the set specified by the
-variable name in \fIsvar\fR\&. The return value of the command is
-empty\&. This is like the method \fBexclude\fR, but for the removal
-of a whole set\&.
+\fB::struct::set\fR \fBsubtract\fR \fIsetVar\fR \fIset\fR
+Removes every element from the \fBset\fR value \fIset\fR from the
+\fBset\fR called \fIsetVar\fR\&. Returns nothing\&. Use
+\fB::struct::set exclude\fR to remove individual values\&.
 .TP
 \fB::struct::set\fR \fBsubsetof\fR \fIA\fR \fIB\fR
-Returns a boolean value indicating if the set \fIA\fR is a true
-subset of or equal to the set \fIB\fR (\fBtrue\fR), or not
-(\fBfalse\fR)\&.
+Returns \fB1\fR (true) if \fIA\fR ⊆ \fIB\fR, i\&.e\&., if \fBset\fR
+\fIA\fR is a true subset of or equal to the \fBset\fR \fIB\fR;
+otherwise returns \fB0\fR (false)\&.
 .PP
+.SH EXAMPLES
+.PP
+Creating and populating a new \fBset\fR from scratch\&. The
+\fBearth_metals\fR \fBset\fR will be created on the first
+iteration of the loop and added to on subsequent iterations\&.
+.CS
+
+
+foreach element {Be Mg Ca Sr Ba Ra} {
+    struct::set include earth_metals $element
+}
+.CE
+.PP
+Creating a \fBset\fR by unioning a couple of existing \fBset\fRs\&.
+.CS
+
+
+set metals [struct::set union $alkali_metals $earth_metals]
+
+.CE
+.PP
+Querying a \fBset\fR’s properties\&.
+.CS
+
+
+if {[struct::set empty $metals]} {
+    puts "empty"
+} else {
+    puts "[struct::set size $metals] elements"
+}
+.CE
 .SH REFERENCES
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIstruct :: set\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIstruct :: set\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

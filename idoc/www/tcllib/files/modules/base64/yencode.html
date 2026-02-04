@@ -117,8 +117,12 @@
 <ul class="doctools_toc">
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
-<li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">OPTIONS</a></li>
+<li class="doctools_section"><a href="#section1">Description</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Options</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section2">Examples</a></li>
 <li class="doctools_section"><a href="#section3">References</a></li>
 <li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
@@ -133,58 +137,119 @@
 <li>package require <b class="pkgname">yencode <span class="opt">?1.1.4?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::yencode::encode</b> <i class="arg">string</i></a></li>
-<li><a href="#2"><b class="cmd">::yencode::decode</b> <i class="arg">string</i></a></li>
-<li><a href="#3"><b class="cmd">::yencode::yencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-line</b> <i class="arg">integer</i>?</span> <span class="opt">?<b class="option">-crc32</b> <i class="arg">boolean</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></li>
-<li><a href="#4"><b class="cmd">::yencode::ydecode</b> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></li>
+<li><a href="#1"><b class="cmd">::yencode::encode</b> <i class="arg">bstring</i></a></li>
+<li><a href="#2"><b class="cmd">::yencode::decode</b> <i class="arg">estring</i></a></li>
+<li><a href="#3"><b class="cmd">::yencode::yencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-line</b> <i class="arg">integer</i>?</span> <span class="opt">?<b class="option">-crc32</b> <i class="arg">boolean</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">bstring</i>)</a></li>
+<li><a href="#4"><b class="cmd">::yencode::ydecode</b> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">estring</i>)</a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This package provides a Tcl-only implementation of the yEnc file
-encoding. This is a recently introduced method of encoding binary
-files for transmission through Usenet. This encoding packs binary data
+<p>This package provides a Tcl-only implementation of the yEncode file
+encoding used for Usenet messages. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
 escapes characters special to the <i class="term"><a href="../../../../index.html#nntp">NNTP</a></i> posting protocols. See
-<a href="http://www.yenc.org/">http://www.yenc.org/</a> for details concerning the algorithm.</p>
+<a href="http://www.yenc.org">http://www.yenc.org</a> for the encoding’s details.</p>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::yencode::encode</b> <i class="arg">string</i></a></dt>
-<dd><p>returns the yEnc encoded data.</p></dd>
-<dt><a name="2"><b class="cmd">::yencode::decode</b> <i class="arg">string</i></a></dt>
-<dd><p>Decodes the given yEnc encoded data.</p></dd>
-<dt><a name="3"><b class="cmd">::yencode::yencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-line</b> <i class="arg">integer</i>?</span> <span class="opt">?<b class="option">-crc32</b> <i class="arg">boolean</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></dt>
-<dd><p>Encode a file or block of data.</p></dd>
-<dt><a name="4"><b class="cmd">::yencode::ydecode</b> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></dt>
-<dd><p>Decode a file or block of data. A file may contain more than one
-embedded file so the result is a list where each element is a three
-element list of filename, file size and data.</p></dd>
+<dt><a name="1"><b class="cmd">::yencode::encode</b> <i class="arg">bstring</i></a></dt>
+<dd><p>Returns a yEncoded version of the binary string <i class="arg">bstring</i> as
+its result.</p>
+<p>The command will throw an error if <i class="arg">bstring</i> is neither a binary
+string, nor a string containing only 7-bit ASCII.</p></dd>
+<dt><a name="2"><b class="cmd">::yencode::decode</b> <i class="arg">estring</i></a></dt>
+<dd><p>Returns a binary string that has been yEncode-decoded from the
+<i class="arg">estring</i>.</p></dd>
+<dt><a name="3"><b class="cmd">::yencode::yencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-line</b> <i class="arg">integer</i>?</span> <span class="opt">?<b class="option">-crc32</b> <i class="arg">boolean</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">bstring</i>)</a></dt>
+<dd><p>Returns a wrapped yEncoded version of the data in the file specified by
+<b class="option">-file</b> <i class="arg">filename</i> or by the binary string <i class="arg">bstring</i> as
+its result.</p>
+<p>Each wrapped yEncoded result consists of a header, body, and trailer.
+The header is a line starting with <b class="const">=ybegin</b> followed by a line
+length of form <b class="const">line=</b><em>length</em>, the size of the original data
+(in bytes) of form <b class="const">size=</b><em>size</em>, and the name of the
+original file of form <b class="const">name=</b><em>filename</em>, all space-separated.
+The body is the yEncoded data. The trailer is a line starting with
+<b class="const">=yend</b> followed by the size of the original data of form
+<b class="const">size=</b><em>size</em>, and optionally (but recommended), a CRC32
+checksum value of form <b class="const">crc32=</b><em>checksum</em>, all
+space-separated.</p></dd>
+<dt><a name="4"><b class="cmd">::yencode::ydecode</b> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">estring</i>)</a></dt>
+<dd><p>Returns a list of 3-element lists of filename, file size,
+yEncode-decoded bytes, from the file specified by <b class="option">-file</b>
+<i class="arg">filename</i> or from the <i class="arg">estring</i>.</p></dd>
+</dl>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Options</a></h3>
+<dl class="doctools_definitions">
+<dt><b class="option">-file</b> <i class="arg">filename</i></dt>
+<dd><p>Cause the <b class="cmd">yencode</b> or <b class="cmd"><a href="../../../../index.html#ydecode">ydecode</a></b> commands to read their data
+from the named file rather that taking a binary string parameter.</p></dd>
+<dt><b class="option">-name</b> <i class="arg">string</i></dt>
+<dd><p>The yEncoded data header line contains the original file name to be
+used when unpacking the data. Use this option to change this from the
+default of &quot;default.bin&quot;.</p></dd>
+<dt><b class="option">-line</b> <i class="arg">integer</i></dt>
+<dd><p>The yEncoded header line specifies the line length used for the
+encoding, and which defaults to 128. Use this option to set a different
+line length. Note that NNTP imposes a 1000 character line length limit
+and some systems may have trouble with more than 255 characters per
+line.</p></dd>
+<dt><b class="option">-crc32</b> <i class="arg">boolean</i></dt>
+<dd><p>When encoding this package puts a cyclic redundancy
+check (CRC) value in the trailer as recommended in the yEncode
+specification. This can be prevented by using this option and passing a
+false value for <i class="arg">boolean</i>, e.g., <b class="const">0</b>.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">OPTIONS</a></h2>
-<dl class="doctools_definitions">
-<dt>-filename name</dt>
-<dd><p>Cause the yencode or ydecode commands to read their data from the
-named file rather that taking a string parameter.</p></dd>
-<dt>-name string</dt>
-<dd><p>The encoded data header line contains the suggested file name to be
-used when unpacking the data. Use this option to change this from the
-default of &quot;data.dat&quot;.</p></dd>
-<dt>-line integer</dt>
-<dd><p>The yencoded data header line contains records the line length used
-during the encoding. Use this option to select a line length other
-that the default of 128. Note that NNTP imposes a 1000 character line
-length limit and some gateways may have trouble with more than 255
-characters per line.</p></dd>
-<dt>-crc32 boolean</dt>
-<dd><p>The yEnc specification recommends the inclusion of a cyclic redundancy
-check value in the footer. Use this option to change the default from
-<i class="arg">true</i> to <i class="arg">false</i>.</p></dd>
-</dl>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Examples</a></h2>
+<p><em>The yEncoded data is not shown in the examples because it is just
+raw bytes.</em></p>
+<p>This example shows how to yEncode and yEncode-decode a Tcl string, taking
+account of the fact that the yEncode commands work in terms of binary
+strings.</p>
 <pre class="doctools_example">
-% set d [yencode::yencode -file testfile.txt]
-=ybegin line=128 size=584 name=testfile.txt
- -o- data not shown -o-
-=yend size=584 crc32=ded29f4f
+const UTF8_LINE &quot;Δ&divide; “Utf-8” ♞ℤ&quot;
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set ency [::yencode::encode $bytes]
+set decy [::yencode::decode $ency]
+set line [encoding convertfrom utf-8 $decy]
+puts &quot;[expr {$UTF8_LINE eq $line}]&quot;
+=&gt;
+1
+</pre>
+<p>If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in <b class="cmd"><a href="../../../../index.html#encoding">encoding</a></b> command are not needed. For example:</p>
+<pre class="doctools_example">
+const ASCII_LINE &quot;! 7-bit ASCII {~^}&quot;
+set ency [::yencode::encode $ASCII_LINE]
+set decy [::yencode::decode $ency]
+set line [encoding convertfrom utf-8 $decy]
+puts &quot;[expr {$ASCII_LINE eq $line}]&quot;
+=&gt;
+1
+</pre>
+<p>This example shows how to create a yEncoded byte string and write it to
+a file.</p>
+<pre class="doctools_example">
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set ency [::yencode::yencode -name test.y $bytes]
+writeFile test.y binary $ency
+puts $ency
+=&gt;
+=ybegin line=128 size=23 name=test.y
+    … raw binary data elided …
+=yend size=23 crc32=fc01071
+</pre>
+<p>This example shows how to read a file containing one or more yEncoded
+files.</p>
+<pre class="doctools_example">
+foreach lst [::yencode::ydecode $ency] {
+    lassign $lst name size decy
+    set line [encoding convertfrom utf-8 $decy]
+    puts &quot;name=$name size=$size line='$line'&quot;
+}
+=&gt;
+name=test.y size=23 line='Δ&divide; “Utf-8” ♞ℤ'
 </pre>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">References</a></h2>
@@ -193,12 +258,11 @@ check value in the footer. Use this option to change the default from
 </ol>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>base64</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>base64</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

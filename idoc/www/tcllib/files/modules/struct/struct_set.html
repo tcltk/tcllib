@@ -111,7 +111,7 @@
 <div class="doctools">
 <h1 class="doctools_title">struct::set(n) 2.2.5 tcllib &quot;Tcl Data Structures&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
-<p>struct::set - Procedures for manipulating sets</p>
+<p>struct::set - Commands for manipulating sets</p>
 </div>
 <div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
 <ul class="doctools_toc">
@@ -119,8 +119,9 @@
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
 <li class="doctools_section"><a href="#section2">COMMANDS</a></li>
-<li class="doctools_section"><a href="#section3">REFERENCES</a></li>
-<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section3">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section4">REFERENCES</a></li>
+<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -135,17 +136,17 @@
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::struct::set</b> <b class="method">empty</b> <i class="arg">set</i></a></li>
 <li><a href="#2"><b class="cmd">::struct::set</b> <b class="method">size</b> <i class="arg">set</i></a></li>
-<li><a href="#3"><b class="cmd">::struct::set</b> <b class="method">contains</b> <i class="arg">set</i> <i class="arg">item</i></a></li>
+<li><a href="#3"><b class="cmd">::struct::set</b> <b class="method">contains</b> <i class="arg">set</i> <i class="arg">value</i></a></li>
 <li><a href="#4"><b class="cmd">::struct::set</b> <b class="method">union</b> <span class="opt">?<i class="arg">set1</i>...?</span></a></li>
 <li><a href="#5"><b class="cmd">::struct::set</b> <b class="method">intersect</b> <span class="opt">?<i class="arg">set1</i>...?</span></a></li>
 <li><a href="#6"><b class="cmd">::struct::set</b> <b class="method">difference</b> <i class="arg">set1</i> <i class="arg">set2</i></a></li>
 <li><a href="#7"><b class="cmd">::struct::set</b> <b class="method">symdiff</b> <i class="arg">set1</i> <i class="arg">set2</i></a></li>
 <li><a href="#8"><b class="cmd">::struct::set</b> <b class="method">intersect3</b> <i class="arg">set1</i> <i class="arg">set2</i></a></li>
 <li><a href="#9"><b class="cmd">::struct::set</b> <b class="method">equal</b> <i class="arg">set1</i> <i class="arg">set2</i></a></li>
-<li><a href="#10"><b class="cmd">::struct::set</b> <b class="method">include</b> <i class="arg">svar</i> <i class="arg">item</i></a></li>
-<li><a href="#11"><b class="cmd">::struct::set</b> <b class="method">exclude</b> <i class="arg">svar</i> <i class="arg">item</i></a></li>
-<li><a href="#12"><b class="cmd">::struct::set</b> <b class="method">add</b> <i class="arg">svar</i> <i class="arg">set</i></a></li>
-<li><a href="#13"><b class="cmd">::struct::set</b> <b class="method">subtract</b> <i class="arg">svar</i> <i class="arg">set</i></a></li>
+<li><a href="#10"><b class="cmd">::struct::set</b> <b class="method">include</b> <i class="arg">setVar</i> <i class="arg">value</i></a></li>
+<li><a href="#11"><b class="cmd">::struct::set</b> <b class="method">exclude</b> <i class="arg">setVar</i> <i class="arg">value</i></a></li>
+<li><a href="#12"><b class="cmd">::struct::set</b> <b class="method">add</b> <i class="arg">setVar</i> <i class="arg">set</i></a></li>
+<li><a href="#13"><b class="cmd">::struct::set</b> <b class="method">subtract</b> <i class="arg">setVar</i> <i class="arg">set</i></a></li>
 <li><a href="#14"><b class="cmd">::struct::set</b> <b class="method">subsetof</b> <i class="arg">A</i> <i class="arg">B</i></a></li>
 </ul>
 </div>
@@ -153,85 +154,108 @@
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="cmd">::struct::set</b> namespace contains several useful commands for
 processing finite sets.</p>
-<p>It exports only a single command, <b class="cmd">struct::set</b>. All
-functionality provided here can be reached through a subcommand of
-this command.</p>
+<p>It exports only a single command, <b class="cmd">struct::set</b>. All the
+functionality is available through this command’s subcommands.</p>
+<p>A new empty set can be created using <b class="cmd">::struct::set add</b>
+<i class="arg">setVar {}</i>.</p>
 <p><em>Note:</em> As of version 2.2 of this package a critcl based C
-implementation is available. This implementation however requires Tcl
-8.4 to run.</p>
+implementation will be used where available, with Tcl 8.4 or later.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<p>In the following, <i class="arg">set</i>, <i class="arg">set1</i>, and <i class="arg">set2</i> are <b class="type">set</b>
+values and <i class="arg">setVar</i> is a <b class="type">set</b>’s variable name.</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::struct::set</b> <b class="method">empty</b> <i class="arg">set</i></a></dt>
-<dd><p>Returns a boolean value indicating if the <i class="arg">set</i> is
-empty (<b class="const">true</b>), or not (<b class="const">false</b>).</p></dd>
+<dd><p>Returns <b class="const">1</b> (true) if the <i class="arg">set</i> is empty; otherwise returns
+<b class="const">0</b> (false).</p></dd>
 <dt><a name="2"><b class="cmd">::struct::set</b> <b class="method">size</b> <i class="arg">set</i></a></dt>
-<dd><p>Returns an integer number greater than or equal to zero. This is the
-number of elements in the <i class="arg">set</i>. In other words, its cardinality.</p></dd>
-<dt><a name="3"><b class="cmd">::struct::set</b> <b class="method">contains</b> <i class="arg">set</i> <i class="arg">item</i></a></dt>
-<dd><p>Returns a boolean value indicating if the <i class="arg">set</i> contains the
-element <i class="arg">item</i> (<b class="const">true</b>), or not (<b class="const">false</b>).</p></dd>
+<dd><p>Returns the <i class="arg">set</i>’s cardinality, i.e., the number of elements in the
+<i class="arg">set</i>. This could be zero.</p></dd>
+<dt><a name="3"><b class="cmd">::struct::set</b> <b class="method">contains</b> <i class="arg">set</i> <i class="arg">value</i></a></dt>
+<dd><p>Returns <b class="const">1</b> (true) if the <i class="arg">set</i> contains the
+element <i class="arg">value</i>; otherwise returns <b class="const">0</b> (false).</p></dd>
 <dt><a name="4"><b class="cmd">::struct::set</b> <b class="method">union</b> <span class="opt">?<i class="arg">set1</i>...?</span></a></dt>
-<dd><p>Computes the set containing the union of <i class="arg">set1</i>, <i class="arg">set2</i>,
-etc., i.e. &quot;<i class="arg">set1</i> + <i class="arg">set2</i> + ...&quot;, and returns this set
-as the result of the command.</p></dd>
+<dd><p>Returns a <b class="type">set</b> consisting of the union of the given <b class="type">set</b>s,
+i.e. <i class="arg">set1</i> ∪ <i class="arg">set2</i> ∪ …. The resulting <b class="type">set</b> will contain
+every value in every given <b class="type">set</b>, with no duplicates.</p></dd>
 <dt><a name="5"><b class="cmd">::struct::set</b> <b class="method">intersect</b> <span class="opt">?<i class="arg">set1</i>...?</span></a></dt>
-<dd><p>Computes the set containing the intersection of <i class="arg">set1</i>,
-<i class="arg">set2</i>, etc., i.e. &quot;<i class="arg">set1</i> * <i class="arg">set2</i> * ...&quot;, and
-returns this set as the result of the command.</p></dd>
+<dd><p>Returns a <b class="type">set</b> consisting of the intersection of the given
+<b class="type">set</b>s, i.e. <i class="arg">set1</i> ∩ <i class="arg">set2</i> ∩ …. The resulting <b class="type">set</b> will
+contain every value that <em>every</em> one of the given <b class="type">set</b>s has in
+common, with no duplicates.</p></dd>
 <dt><a name="6"><b class="cmd">::struct::set</b> <b class="method">difference</b> <i class="arg">set1</i> <i class="arg">set2</i></a></dt>
-<dd><p>Computes the set containing the difference of <i class="arg">set1</i> and
-<i class="arg">set2</i>, i.e. (&quot;<i class="arg">set1</i> - <i class="arg">set2</i>&quot;) and returns this
-set as the result of the command.</p></dd>
+<dd><p>Returns a <b class="type">set</b> consisting of the difference between <i class="arg">set1</i> and
+<i class="arg">set2</i>, i.e., <i class="arg">set1</i> - <i class="arg">set2</i>. The resulting <b class="type">set</b> will
+contain every value that is in <i class="arg">set1</i> but that is <em>not</em> in
+<i class="arg">set2</i>.</p></dd>
 <dt><a name="7"><b class="cmd">::struct::set</b> <b class="method">symdiff</b> <i class="arg">set1</i> <i class="arg">set2</i></a></dt>
-<dd><p>Computes the set containing the symmetric difference of <i class="arg">set1</i> and
-<i class="arg">set2</i>, i.e. (&quot;(<i class="arg">set1</i> - <i class="arg">set2</i>) + (<i class="arg">set2</i> - <i class="arg">set1</i>)&quot;)
-and returns this set as the result of the command.</p></dd>
+<dd><p>Returns a <b class="type">set</b> consisting of the symmetric difference between
+<i class="arg">set1</i> and <i class="arg">set2</i>, i.e., <i class="arg">set1</i> Δ <i class="arg">set2</i>. The resulting
+<b class="type">set</b> will contain every value that is in <i class="arg">set1</i> <em>or</em> is in
+<i class="arg">set2</i>, but <em>not</em> in both.</p></dd>
 <dt><a name="8"><b class="cmd">::struct::set</b> <b class="method">intersect3</b> <i class="arg">set1</i> <i class="arg">set2</i></a></dt>
-<dd><p>This command is a combination of the methods <b class="method">intersect</b> and
-<b class="method">difference</b>.
-It returns a three-element list containing &quot;<i class="arg">set1</i>*<i class="arg">set2</i>&quot;,
-&quot;<i class="arg">set1</i>-<i class="arg">set2</i>&quot;, and &quot;<i class="arg">set2</i>-<i class="arg">set1</i>&quot;, in this
-order. In other words, the intersection of the two parameter sets, and
-their differences.</p></dd>
+<dd><p>Returns a combination of the methods <b class="method">intersect</b> and
+<b class="method">difference</b>.</p>
+<p>The return value is a three-element list containing &quot;<i class="arg">set1</i> ∩
+<i class="arg">set2</i>&quot;, &quot;<i class="arg">set1</i> - <i class="arg">set2</i>&quot;, and &quot;<i class="arg">set2</i> - <i class="arg">set1</i>&quot;,
+in this order. In other words, the intersection of <i class="arg">set1</i> and
+<i class="arg">set2</i>, and their differences.</p></dd>
 <dt><a name="9"><b class="cmd">::struct::set</b> <b class="method">equal</b> <i class="arg">set1</i> <i class="arg">set2</i></a></dt>
-<dd><p>Returns a boolean value indicating if the two sets are equal
-(<b class="const">true</b>) or not (<b class="const">false</b>).</p></dd>
-<dt><a name="10"><b class="cmd">::struct::set</b> <b class="method">include</b> <i class="arg">svar</i> <i class="arg">item</i></a></dt>
-<dd><p>The element <i class="arg">item</i> is added to the set specified by the variable
-name in <i class="arg">svar</i>. The return value of the command is empty. This is
-the equivalent of <b class="cmd">lappend</b> for sets. If the variable named by
-<i class="arg">svar</i> does not exist it will be created.</p></dd>
-<dt><a name="11"><b class="cmd">::struct::set</b> <b class="method">exclude</b> <i class="arg">svar</i> <i class="arg">item</i></a></dt>
-<dd><p>The element <i class="arg">item</i> is removed from the set specified by the
-variable name in <i class="arg">svar</i>. The return value of the command is
-empty. This is a near-equivalent of <b class="cmd">lreplace</b> for sets.</p></dd>
-<dt><a name="12"><b class="cmd">::struct::set</b> <b class="method">add</b> <i class="arg">svar</i> <i class="arg">set</i></a></dt>
-<dd><p>All the element of <i class="arg">set</i> are added to the set specified by the
-variable name in <i class="arg">svar</i>. The return value of the command is
-empty. This is like the method <b class="method">include</b>, but for the addition
-of a whole set. If the variable named by <i class="arg">svar</i> does not exist it
-will be created.</p></dd>
-<dt><a name="13"><b class="cmd">::struct::set</b> <b class="method">subtract</b> <i class="arg">svar</i> <i class="arg">set</i></a></dt>
-<dd><p>All the element of <i class="arg">set</i> are removed from the set specified by the
-variable name in <i class="arg">svar</i>. The return value of the command is
-empty. This is like the method <b class="method">exclude</b>, but for the removal
-of a whole set.</p></dd>
+<dd><p>Returns <b class="const">1</b> (true) if the two <b class="type">set</b>s contain exactly the same
+values; otherwise returns <b class="const">0</b> (false).</p></dd>
+<dt><a name="10"><b class="cmd">::struct::set</b> <b class="method">include</b> <i class="arg">setVar</i> <i class="arg">value</i></a></dt>
+<dd><p>Adds element <i class="arg">value</i> to the <b class="type">set</b> called <i class="arg">setVar</i>, creating
+<i class="arg">setVar</i> if it doesn’t exist. Harmlessly does nothing if <i class="arg">value</i> is
+already in <b class="type">set</b> <i class="arg">setVar</i>. Returns nothing. This command can be
+used to create new <b class="type">set</b>s.</p></dd>
+<dt><a name="11"><b class="cmd">::struct::set</b> <b class="method">exclude</b> <i class="arg">setVar</i> <i class="arg">value</i></a></dt>
+<dd><p>Removes element <i class="arg">value</i> from the <b class="type">set</b> called <i class="arg">setVar</i>.
+If <i class="arg">value</i> isn’t in <i class="arg">setVar</i>, the command
+harmlessly does nothing. Returns nothing.</p></dd>
+<dt><a name="12"><b class="cmd">::struct::set</b> <b class="method">add</b> <i class="arg">setVar</i> <i class="arg">set</i></a></dt>
+<dd><p>Adds every element from the <b class="type">set</b> value <i class="arg">set</i> to the <b class="type">set</b>
+called <i class="arg">setVar</i>, excluding duplicates. The <b class="type">set</b> <i class="arg">setVar</i> is
+created if it doesn’t exist. Returns nothing.</p>
+<p>Use <b class="cmd">::struct::set add</b> <i class="arg">setVar {}</i> to create a new empty
+set. Use <b class="cmd">::struct::set include</b> to add individual values.</p></dd>
+<dt><a name="13"><b class="cmd">::struct::set</b> <b class="method">subtract</b> <i class="arg">setVar</i> <i class="arg">set</i></a></dt>
+<dd><p>Removes every element from the <b class="type">set</b> value <i class="arg">set</i> from the
+<b class="type">set</b> called <i class="arg">setVar</i>. Returns nothing. Use
+<b class="cmd">::struct::set exclude</b> to remove individual values.</p></dd>
 <dt><a name="14"><b class="cmd">::struct::set</b> <b class="method">subsetof</b> <i class="arg">A</i> <i class="arg">B</i></a></dt>
-<dd><p>Returns a boolean value indicating if the set <i class="arg">A</i> is a true
-subset of or equal to the set <i class="arg">B</i> (<b class="const">true</b>), or not
-(<b class="const">false</b>).</p></dd>
+<dd><p>Returns <b class="const">1</b> (true) if <i class="arg">A</i> ⊆ <i class="arg">B</i>, i.e., if <b class="type">set</b>
+<i class="arg">A</i> is a true subset of or equal to the <b class="type">set</b> <i class="arg">B</i>;
+otherwise returns <b class="const">0</b> (false).</p></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">REFERENCES</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
+<p>Creating and populating a new <b class="type">set</b> from scratch. The
+<b class="variable">earth_metals</b> <b class="type">set</b> will be created on the first
+iteration of the loop and added to on subsequent iterations.</p>
+<pre class="doctools_example">
+foreach element {Be Mg Ca Sr Ba Ra} {
+    struct::set include earth_metals $element
+}</pre>
+<p>Creating a <b class="type">set</b> by unioning a couple of existing <b class="type">set</b>s.</p>
+<pre class="doctools_example">
+set metals [struct::set union $alkali_metals $earth_metals]
+</pre>
+<p>Querying a <b class="type">set</b>’s properties.</p>
+<pre class="doctools_example">
+if {[struct::set empty $metals]} {
+    puts &quot;empty&quot;
+} else {
+    puts &quot;[struct::set size $metals] elements&quot;
+}</pre>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>struct :: set</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<div id="section4" class="doctools_section"><h2><a name="section4">REFERENCES</a></h2>
+</div>
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>struct :: set</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

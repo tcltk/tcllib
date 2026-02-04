@@ -22,7 +22,9 @@ string::token::shell \- Parsing of shell command line
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [EXAMPLES](#section2)
+
+  - [Bugs, Ideas, Feedback](#section3)
 
   - [Keywords](#keywords)
 
@@ -141,12 +143,49 @@ The complete set of procedures is described below\.
         Whitespace may occur before the first word, or after the last word\.
         Whitespace must occur between adjacent words\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section2'></a>EXAMPLES
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *textutil* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+An example of a command line parsed into its constituent words\.
+
+    const CMDLINE "grep --include=*.{tcl,tm,tk} -rl * | grep -v \"The Cloud\""
+    foreach word [string token shell $CMDLINE] {
+        puts "word='$word'"
+    }
+    =>
+    word='grep'
+    word='--include=*.{tcl,tm,tk}'
+    word='-rl'
+    word='*'
+    word='|'
+    word='grep'
+    word='-v'
+    word='The Cloud'
+
+An example of a command line parsed into its constituent words, with tokens and
+string indices\.
+
+    const CMDLINE "grep --include=*.{tcl,tm,tk} -rl * | grep -v \"The Cloud\""
+    foreach element [string token shell -indices $CMDLINE] {
+        lassign $element token i j word
+        puts "token=$token i=$i j=$j word='$word'"
+    }
+    =>
+    token=PLAIN i=0 j=3 word='grep'
+    token=PLAIN i=5 j=27 word='--include=*.{tcl,tm,tk}'
+    token=PLAIN i=29 j=31 word='-rl'
+    token=PLAIN i=33 j=33 word='*'
+    token=PLAIN i=35 j=35 word='|'
+    token=PLAIN i=37 j=40 word='grep'
+    token=PLAIN i=42 j=43 word='-v'
+    token=D:QUOTED i=45 j=55 word='The Cloud'
+
+# <a name='section3'></a>Bugs, Ideas, Feedback
+
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *textutil* as
+the category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

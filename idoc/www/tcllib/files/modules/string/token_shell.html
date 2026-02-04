@@ -116,7 +116,8 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
@@ -218,13 +219,48 @@ expression \\s.</p>
 </dl></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>textutil</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<div id="section2" class="doctools_section"><h2><a name="section2">EXAMPLES</a></h2>
+<p>An example of a command line parsed into its constituent words.</p>
+<pre class="doctools_example">
+const CMDLINE &quot;grep --include=*.{tcl,tm,tk} -rl * | grep -v \&quot;The Cloud\&quot;&quot;
+foreach word [string token shell $CMDLINE] {
+    puts &quot;word='$word'&quot;
+}
+=&gt;
+word='grep'
+word='--include=*.{tcl,tm,tk}'
+word='-rl'
+word='*'
+word='|'
+word='grep'
+word='-v'
+word='The Cloud'
+</pre>
+<p>An example of a command line parsed into its constituent words, with
+tokens and string indices.</p>
+<pre class="doctools_example">
+const CMDLINE &quot;grep --include=*.{tcl,tm,tk} -rl * | grep -v \&quot;The Cloud\&quot;&quot;
+foreach element [string token shell -indices $CMDLINE] {
+    lassign $element token i j word
+    puts &quot;token=$token i=$i j=$j word='$word'&quot;
+}
+=&gt;
+token=PLAIN i=0 j=3 word='grep'
+token=PLAIN i=5 j=27 word='--include=*.{tcl,tm,tk}'
+token=PLAIN i=29 j=31 word='-rl'
+token=PLAIN i=33 j=33 word='*'
+token=PLAIN i=35 j=35 word='|'
+token=PLAIN i=37 j=40 word='grep'
+token=PLAIN i=42 j=43 word='-v'
+token=D:QUOTED i=45 j=55 word='The Cloud'
+</pre>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>textutil</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

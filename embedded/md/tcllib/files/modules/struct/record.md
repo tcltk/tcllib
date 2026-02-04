@@ -92,6 +92,9 @@ The package only contains one top level command, but several sub commands \(see
 below\)\. It also obeys the namespace in which the record was defined, hence the
 objects returned are fully qualified\.
 
+*Note: Tcl 9 users may find Tcl's built\-in object\-oriented* *functionality is
+more convenient and versatile than using this* *package\.*
+
   - <a name='1'></a>__record define__ *recordName* *recordMembers* ?*instanceName1 instanceName2 \.\.\.*?
 
     Defines a record\. *recordName* is the name of the record, and is also used
@@ -404,10 +407,11 @@ This next example just illustrates a simple linked list
 
 # <a name='section6'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *struct :: record* of the
-[Tcllib Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report
-any ideas for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *struct ::
+record* as the category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

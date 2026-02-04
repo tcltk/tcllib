@@ -278,99 +278,151 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBuuencode ?1\&.1\&.6?\fR
 .sp
-\fB::uuencode::encode\fR \fIstring\fR
+\fB::uuencode::encode\fR \fIbstring\fR
 .sp
-\fB::uuencode::decode\fR \fIstring\fR
+\fB::uuencode::decode\fR \fIestring\fR
 .sp
-\fB::uuencode::uuencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-mode\fR \fIoctal\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
+\fB::uuencode::uuencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-mode\fR \fIoctal\fR? (\fB-file\fR \fIfilename\fR |  ?\fB--\fR? \fIbstring\fR)
 .sp
-\fB::uuencode::uudecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
+\fB::uuencode::uudecode\fR (\fB-file\fR \fIfilename\fR |  ?\fB--\fR? \fIestring\fR)
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This package provides a Tcl-only implementation of the
-\fBuuencode(1)\fR and \fBuudecode(1)\fR commands\&. This encoding
-packs binary data into printable ASCII characters\&.
+\fI\fBuuencode(1p)\fR\fR [https://www\&.man7\&.org/linux/man-pages/man1/uuencode\&.1p\&.html] and
+\fI\fBuudecode(1p)\fR\fR [https://www\&.man7\&.org/linux/man-pages/man1/uudecode\&.1p\&.html] commands\&.
+This encoding packs binary data into printable 7-bit ASCII characters\&.
 .TP
-\fB::uuencode::encode\fR \fIstring\fR
-returns the uuencoded data\&. This will encode all the data passed in
-even if this is longer than the uuencode maximum line length\&. If the
-number of input bytes is not a multiple of 3 then additional 0 bytes
-are added to pad the string\&.
+\fB::uuencode::encode\fR \fIbstring\fR
+Returns a uuencoded version of the binary string \fIbstring\fR as
+its result\&.
+.sp
+All the given bytes are encoded even if they exceed the uuencode maximum
+line length\&. If the number of input bytes is not a multiple of 3 then
+the string is padded with additional \fB\\x00\fR NUL bytes\&.
+.sp
+The command will throw an error if \fIbstring\fR is neither a binary
+string, nor a string containing only 7-bit ASCII\&.
 .TP
-\fB::uuencode::decode\fR \fIstring\fR
-Decodes the given encoded data\&. This will return any padding
-characters as well and it is the callers responsibility to deal with
-handling the actual length of the encoded data\&. (see uuencode)\&.
+\fB::uuencode::decode\fR \fIestring\fR
+Returns a binary string that has been uuencode-decoded from the
+\fIestring\fR, including any padding \fB\\x00\fR NUL bytes at the end\&.
 .TP
-\fB::uuencode::uuencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-mode\fR \fIoctal\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
+\fB::uuencode::uuencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-mode\fR \fIoctal\fR? (\fB-file\fR \fIfilename\fR |  ?\fB--\fR? \fIbstring\fR)
+Returns a wrapped uuencoded version of the data in the file specified by
+\fB-file\fR \fIfilename\fR or by the binary string \fIbstring\fR as
+its result\&.
+.sp
+Each wrapped uuencoded result consists of a header, body, and footer\&. The
+header is a line starting with \fBbegin\fR followed by a suggested
+file mode and suggested filename\&. The body consists of lines of
+uuencoded data, each prefixed with a line length character\&. The footer
+is \fBend\fR on its own line\&. See
+\fI\fBuuencode(1)\fR\fR [https://www\&.man7\&.org/linux/man-pages/man1/uuencode\&.1p\&.html]\&.
 .TP
-\fB::uuencode::uudecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
-UUDecode a file or block of data\&. A file may contain more than one
-embedded file so the result is a list where each element is a three
-element list of filename, mode value and data\&.
+\fB::uuencode::uudecode\fR (\fB-file\fR \fIfilename\fR |  ?\fB--\fR? \fIestring\fR)
+Returns a list of 3-element lists of filename, file mode,
+uuencode-decoded bytes, from the file specified by \fB-file\fR
+\fIfilename\fR or from the \fIestring\fR\&.
 .PP
-.SH OPTIONS
+.SS OPTIONS
 .TP
--filename name
-Cause the uuencode or uudecode commands to read their data from the
-named file rather that taking a string parameter\&.
+\fB-file\fR \fIfilename\fR
+Cause the \fBuuencode\fR or \fBuudecode\fR commands to read their data
+from the named file rather that taking a binary string parameter\&.
 .TP
--name string
+\fB-name\fR \fIstring\fR
 The uuencoded data header line contains the suggested file name to be
 used when unpacking the data\&. Use this option to change this from the
 default of "data\&.dat"\&.
 .TP
--mode octal
+\fB-mode\fR \fIoctal\fR
 The uuencoded data header line contains a suggested permissions bit
 pattern expressed as an octal string\&. To change the default of 0644
 you can set this option\&. For instance, 0755 would be suitable for an
-executable\&. See \fBchmod(1)\fR\&.
+executable\&. See
+\fI\fBchmod(1)\fR\fR [https://www\&.man7\&.org/linux/man-pages/man1/chmod\&.1\&.html]\&.
 .PP
 .SH EXAMPLES
+The examples use the subcommand \fBstring trimright\fR to trim any
+\fB\\x00\fR NUL bytes that may have been added during encoding\&.
+\fINote however, that if the original binary strings might end
+with\fR \fB\\x00\fR NUL \fIbytes, a more sophisticated approach
+will be needed\&.\fR
+.PP
+This example shows how to uuencode and uudecode a Tcl string, taking
+account of the fact that the uuencode commands work in terms of binary
+strings\&.
 .PP
 .CS
 
 
-% set d [uuencode::encode "Hello World!"]
-2&5L;&\\\\@5V]R;&0A
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set encuu [::uuencode::encode $bytes]
+set decuu [string trimright [::uuencode::decode $encuu] \\x00]
+set line [encoding convertfrom utf-8 $decuu]
+puts "uuencode='$encuu' [expr {$UTF8_LINE eq $line}]"
+=>
+uuencode='SI3#MR#B@)Q5=&8M\&.\&.*`G2#BF9[BA*0`' 1
 
 .CE
+If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in \fBencoding\fR command are not needed\&. For example:
 .PP
 .CS
 
 
-% uuencode::uudecode $d
-Hello World!
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set encuu [::uuencode::encode $ASCII_LINE]
+set decuu [string trimright [::uuencode::decode $encuu] \\x00]
+set line [encoding convertfrom utf-8 $decuu]
+puts "uuencode='$encuu' [expr {$ASCII_LINE eq $line}]"
+=>
+uuencode='(2`W+6)I="!!4T-)22![?EY]' 1
 
 .CE
+This example shows how to create a uuencoded byte string and write it to
+a file\&.
 .PP
 .CS
 
 
-% set d [uuencode::uuencode -name hello\&.txt "Hello World"]
-begin 644 hello\&.txt
-+2&5L;&\\@5V]R;&0`
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set encuu [::uuencode::uuencode -name test\&.uu $bytes]
+writeFile test\&.uu binary $encuu
+puts $encuu
+=>
+begin 644 test\&.uu
+7SI3#MR#B@)Q5=&8M\&.\&.*`G2#BF9[BA*0`
 `
 end
 
 .CE
+This example shows how to read a file containing one or more uuencoded
+files\&.
 .PP
 .CS
 
 
-% uuencode::uudecode $d
-{hello\&.txt 644 {Hello World}}
+foreach lst [::uuencode::uudecode -file test\&.uu] {
+    lassign $lst name mode decuu
+    set decuu [string trimright $decuu \\x00]
+    set line [encoding convertfrom utf-8 $decuu]
+    puts "name=$name mode=$mode line='$line'"
+}
+=>
+name=test\&.uu mode=644 line='Δ÷ “Utf-8” ♞ℤ'
 
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIbase64\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIbase64\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

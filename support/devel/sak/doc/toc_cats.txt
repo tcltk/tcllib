@@ -68,7 +68,7 @@
 [item modules/struct/prioqueue.man    struct::prioqueue   {Create and manipulate prioqueue objects}]
 [item modules/struct/queue.man        struct::queue       {Create and manipulate queue objects}]
 [item modules/struct/record.man       struct::record      {Define and create records (similar to 'C' structures)}]
-[item modules/struct/struct_set.man   struct::set         {Procedures for manipulating sets}]
+[item modules/struct/struct_set.man   struct::set         {Commands for manipulating sets}]
 [item modules/struct/skiplist.man     struct::skiplist    {Create and manipulate skiplists}]
 [item modules/struct/stack.man        struct::stack       {Create and manipulate stack objects}]
 [item modules/struct/struct_tree.man  struct::tree        {Create and manipulate tree objects}]

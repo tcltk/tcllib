@@ -60,10 +60,10 @@ package require aes ?1\.2\.2?
 
 # <a name='description'></a>DESCRIPTION
 
-This is an implementation in Tcl of the Advanced Encryption Standard \(AES\) as
+This is a Tcl implementation of the Advanced Encryption Standard \(AES\) as
 published by the U\.S\. National Institute of Standards and Technology \[1\]\. AES is
 a 128\-bit block cipher with a variable key size of 128, 192 or 256 bits\. This
-implementation supports ECB and CBC modes\.
+implementation supports CBC and ECB modes\.
 
 # <a name='section2'></a>COMMANDS
 
@@ -77,26 +77,26 @@ implementation supports ECB and CBC modes\.
     either 16, 24 or 32 bytes in length and is used to generate the key
     schedule\.
 
-    The *\-mode* and *\-dir* options are optional and default to cbc mode and
+    The *\-mode* and *\-dir* options are optional and default to CBC mode and
     encrypt respectively\. The initialization vector *\-iv* takes a 16 byte
     binary argument which defaults to all zeros\. See [MODES OF
     OPERATION](#section4) for more about available modes and their uses\.
 
-    AES is a 128\-bit block cipher\. This means that the data must be provided in
-    units that are a multiple of 16 bytes\.
+    Since AES is a 128\-bit block cipher, the data must be provided in units that
+    are a multiple of 16 bytes\.
 
 # <a name='section3'></a>PROGRAMMING INTERFACE
 
 Internal state is maintained in an opaque structure that is returned from the
-__Init__ function\. In ECB mode the state is not affected by the input but
-for CBC mode some input dependent state is maintained and may be reset by
-calling the __Reset__ function with a new initialization vector value\.
+__Init__ function\. For CBC mode some input dependent state is maintained and
+may be reset by calling the __Reset__ function with a new initialization
+vector value\. In ECB mode the state is not affected by the input\.
 
   - <a name='2'></a>__::aes::Init__ *mode* *keydata* *iv*
 
     Construct a new AES key schedule using the specified key data and the given
-    initialization vector\. The initialization vector is not used with ECB mode
-    but is important for CBC mode\. See [MODES OF OPERATION](#section4) for
+    initialization vector\. The initialization vector is important for CBC mode;
+    it is not used with ECB mode\. See [MODES OF OPERATION](#section4) for
     details about cipher modes\.
 
   - <a name='3'></a>__::aes::Encrypt__ *Key* *data*
@@ -125,13 +125,6 @@ calling the __Reset__ function with a new initialization vector value\.
 
 # <a name='section4'></a>MODES OF OPERATION
 
-  - Electronic Code Book \(ECB\)
-
-    ECB is the basic mode of all block ciphers\. Each block is encrypted
-    independently and so identical plain text will produce identical output when
-    encrypted with the same key\. Any encryption errors will only affect a single
-    block however this is vulnerable to known plaintext attacks\.
-
   - Cipher Block Chaining \(CBC\)
 
     CBC mode uses the output of the last block encryption to affect the current
@@ -140,7 +133,14 @@ calling the __Reset__ function with a new initialization vector value\.
     randomly and transmitted as the first block of the output\. Errors in
     encryption affect the current block and the next block after which the
     cipher will correct itself\. CBC is the most commonly used mode in software
-    encryption\. This is the default mode of operation for this module\.
+    encryption, and this module’s default mode of operation\.
+
+  - Electronic Code Book \(ECB\)
+
+    ECB is the basic mode of all block ciphers\. Each block is encrypted
+    independently and so identical plain text will produce identical output when
+    encrypted with the same key\. Any encryption errors will only affect a single
+    block\. *This mode is vulnerable to known* *plaintext attacks\.*
 
 # <a name='section5'></a>EXAMPLES
 
@@ -165,10 +165,11 @@ Thorsten Schloermann, Pat Thoyts
 
 # <a name='section8'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *aes* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *aes* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

@@ -45,97 +45,153 @@ base64 \- base64\-encode/decode binary data
 package require Tcl 8\.5 9  
 package require base64 ?2\.6\.1?  
 
-[__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*](#1)  
-[__::base64::decode__ *string*](#2)  
+[__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *bstring*](#1)  
+[__::base64::decode__ *estring*](#2)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides procedures to encode binary data into base64 and back\.
+This package provides commands for encoding and decoding binary strings to and
+from the standard base64 encoding as specified in [RFC
+4648](https://datatracker\.ietf\.org/doc/html/rfc4648)\.
+
+*It is recommended that for new code the built\-in*
+[binary](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) *subcommands
+for encoding and decoding base64 \(introduced in Tcl* *8\.6\), are used in
+preference to this package’s commands\.*
 
 # <a name='section2'></a>Beware: Variations in decoding behaviour
 
-The Tcl core provides since version 8\.6 commands for the de\- and encoding of
-base64 data\. These are
+Tcl 8\.6 introduced built\-in support for encoding and decoding base64 using
+subcommands of the
+[binary](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) command:
 
     binary encode base64
     binary decode base64
 
-Beware that while these are signature compatible with the commands provided by
-this package, the decoders are *not behaviourally compatible*\.
+Beware that although these subcommands have the same signatures as the commands
+provided by this package, the decoders are *not behaviourally compatible*\.
 
-The core decoder command accepts the option __\-strict__, enabling the user
-to choose between strict and lax modes\. In the strict mode invalid characters,
-and partial data at the end of the input are reported as errors\. In lax mode
-they are ignored\.
+The built\-in [binary decode
+base64](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) subcommand
+accepts the option __\-strict__, enabling the user to choose between strict
+and nonstrict modes\. In strict mode invalid characters, and partial data at the
+end of the input are reported as errors\. In nonstrict mode they are ignored\.
+\(See [RFC 2045](https://www\.rfc\-editor\.org/rfc/rfc2045\#section\-6\.8)\.\)
 
-All the implementations provided by this package on the other hand implement a
-mix of the above, and the user cannot choose\. Partial data at the end of the
-input is reported as error, and invalid characters are ignored\.
+The implementations provided by this package do not offer control over
+strictness\. Instead they mix strict and nonstrict\. Partial data at the end of
+the input is reported as an error, but invalid characters are ignored\.
 
-*Beware* of these differences when switching code from one to other\.
+By default this package’s encoder wraps using newlines after every 76 characters
+of output\. The built\-in [binary encode
+base64](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) subcommand
+defaults to not wrapping, but does support wrapping using a __\-maxlen__
+option\.
 
 # <a name='section3'></a>API
 
-  - <a name='1'></a>__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*
+  - <a name='1'></a>__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *bstring*
 
-    Base64 encodes the given binary *string* and returns the encoded result\.
-    Inserts the character *wrapchar* every *maxlen* characters of output\.
-    *wrapchar* defaults to newline\. *maxlen* defaults to __76__\.
+    Returns a base64\-encoded version of the binary string *bstring* as its
+    result\.
 
-    *Note* that if *maxlen* is set to __0__, the output will not be
-    wrapped at all\.
+    The result string contains the *wrapchar* character after every *maxlen*
+    characters of output\. The *wrapchar* defaults to newline and *maxlen*
+    defaults to 76\. To prevent wrapping, set *maxlen* to __0__\.
 
-    *Note well*: If your string is not simple ASCII you should fix the string
-    encoding before doing base64 encoding\. See the examples\.
+    The command will throw an error if *maxlen* is not an integer or is
+    negative, or if *bstring* is neither a binary string, nor a string
+    containing only 7\-bit ASCII\.
 
-    The command will throw an error for negative values of *maxlen*, or if
-    *maxlen* is not an integer number\.
+  - <a name='2'></a>__::base64::decode__ *estring*
 
-  - <a name='2'></a>__::base64::decode__ *string*
-
-    Base64 decodes the given *string* and returns the binary data\. The decoder
-    ignores whitespace in the string\.
+    Returns a binary string that has been base64\-decoded from the *estring*\.
+    Any invalid characters or whitespace \(spaces, tabs, newlines\) in *estring*
+    are ignored\.
 
 # <a name='section4'></a>Implementation Notes
 
-This package contains three different implementations for base64 de\- and
-encoding, and chooses among them based on the environment it finds itself in\.
+This package contains three different implementations for base64 encoding and
+decoding, and chooses among them based on the environment it finds itself in\.
 
 All three implementations have the same behaviour\. See also [Beware: Variations
 in decoding behaviour](#section2) at the beginning of this document\.
 
   1. If Tcl 8\.6 or higher is found the commands are implemented in terms of the
-     then\-available builtin commands\.
+     then\-available built\-in commands\.
 
-  1. If the __Trf__ extension cand be loaded the commands are implemented in
-     terms of its commands\.
+  1. If the [Trf](https://wiki\.tcl\-lang\.org/page/Trf) extension can be
+     loaded the commands are implemented in terms of its commands\.
 
-  1. If neither of the above are possible a pure Tcl implementation is used\.
-     This is of course much slower\.
+  1. If neither of the above are possible a Tcl\-only implementation is used\.
+     This is much slower\.
 
 # <a name='section5'></a>EXAMPLES
 
-    % base64::encode "Hello, world"
-    SGVsbG8sIHdvcmxk
+This example shows how to encode and decode a Tcl string to and from base64,
+taking account of the fact that the base64 commands work in terms of binary
+strings\.
 
-    % base64::encode [string repeat xyz 20]
+    const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+    # Legacy (this package)
+    set bytes [encoding convertto utf-8 $UTF8_LINE]
+    set enc64 [::base64::encode $bytes]
+    set dec64 [::base64::decode $enc64]
+    set line [encoding convertfrom utf-8 $dec64]
+    puts "base64='$enc64' [expr {$UTF8_LINE eq $line}]"
+    =>
+    base64='zpTDtyDigJxVdGYtOOKAnSDimZ7ihKQ=' 1
+    # Modern (using built-in binary subcommands)
+    set bytes [encoding convertto utf-8 $UTF8_LINE]
+    set enc64 [binary encode base64 $bytes]
+    set dec64 [binary decode base64 $enc64]
+    set line [encoding convertfrom utf-8 $dec64]
+    puts "base64='$enc64' [expr {$UTF8_LINE eq $line}]"
+    =>
+    base64='zpTDtyDigJxVdGYtOOKAnSDimZ7ihKQ=' 1
+
+If the original string is 7\-bit ASCII the conversions to and from raw bytes
+using the built\-in
+[encoding](https://www\.tcl\-lang\.org/man/tcl/TclCmd/encoding\.html) command
+are not needed\. For example:
+
+    const ASCII_LINE "! 7-bit ASCII {~^}"
+    # Legacy (this package)
+    set enc64 [::base64::encode $ASCII_LINE]
+    set dec64 [::base64::decode $enc64]
+    set line [encoding convertfrom utf-8 $dec64]
+    puts "base64='$enc64' [expr {$ASCII_LINE eq $line}]"
+    =>
+    base64='ISA3LWJpdCBBU0NJSSB7fl59' 1
+    # Modern (using built-in binary subcommands)
+    set enc64 [binary encode base64 $ASCII_LINE]
+    set dec64 [binary decode base64 $enc64]
+    set line [encoding convertfrom utf-8 $dec64]
+    puts "base64='$enc64' [expr {$ASCII_LINE eq $line}]"
+    =>
+    base64='ISA3LWJpdCBBU0NJSSB7fl59' 1
+
+Wrapping can be prevented so that no whitespace is introduced:
+
+    base64::encode [string repeat xyz 20]
+    =>
     eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
     eHl6eHl6eHl6
-    % base64::encode -wrapchar "" [string repeat xyz 20]
+    base64::encode -maxlen 0 [string repeat xyz 20]
+    =>
     eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
 
-    # NOTE: base64 encodes BINARY strings.
-    % set chemical [encoding convertto utf-8 "C\u2088H\u2081\u2080N\u2084O\u2082"]
-    % set encoded [base64::encode $chemical]
-    Q+KCiEjigoHigoBO4oKET+KCgg==
-    % set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
+Note that the built\-in [binary encode
+base64](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) subcommand
+defaults to not wrapping, but will wrap if the __\-maxlen__ option is used\.
 
 # <a name='section6'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *base64* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *base64* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.
