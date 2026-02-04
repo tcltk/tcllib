@@ -17,14 +17,16 @@ to and from the standard base64 encoding as specified in
 [uri https://datatracker.ietf.org/doc/html/rfc4648 {RFC 4648}].
 
 [para]
-[emph {It is recommended that for new code the built-in}] [cmd binary]
+[emph {It is recommended that for new code the built-in}] 
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html binary]
 [emph {subcommands for encoding and decoding base64 (introduced in Tcl
 8.6), are used in preference to this package’s commands.}]
 
 [section {Beware: Variations in decoding behaviour}]
 
 Tcl 8.6 introduced built-in support for encoding and decoding base64
-using subcommands of the [cmd binary] command: 
+using subcommands of the
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html binary] command: 
 
 [example {
     binary encode base64
@@ -35,12 +37,14 @@ using subcommands of the [cmd binary] command:
 as the commands provided by this package, the decoders are
 [emph {not behaviourally compatible}].
 
-[para] The built-in [cmd {binary decode base64}] subcommand accepts the
-option [option -strict], enabling the user to choose between strict and
-nonstrict modes. In strict mode invalid characters, and partial data at
-the end of the input are reported as errors. In nonstrict mode they are
-ignored. (See [uri https://www.rfc-editor.org/rfc/rfc2045#section-6.8 \
-{RFC 2045}].)
+[para] The built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html \
+{binary decode base64}]
+subcommand accepts the option [option -strict], enabling
+the user to choose between strict and nonstrict modes. In strict mode
+invalid characters, and partial data at the end of the input are
+reported as errors. In nonstrict mode they are ignored. (See
+[uri https://www.rfc-editor.org/rfc/rfc2045#section-6.8 {RFC 2045}].)
 
 [para] The implementations provided by this package do not offer control
 over strictness. Instead they mix strict and nonstrict. Partial data at
@@ -49,7 +53,9 @@ ignored.
 
 [para]
 By default this package’s encoder wraps using newlines after every 76
-characters of output. The built-in [cmd {binary encode base64}]
+characters of output. The built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html \
+{binary encode base64}]
 subcommand defaults to not wrapping, but does support wrapping using a
 [option -maxlen] option.
 
@@ -96,10 +102,10 @@ beginning of this document.
 [list_begin enumerated]
 
 [enum]  If Tcl 8.6 or higher is found the commands are implemented in
-	terms of the then-available builtin commands.
+	terms of the then-available built-in commands.
 
-[enum]  If the [package Trf] extension can be loaded the commands are
-	implemented in terms of its commands.
+[enum]  If the [uri https://wiki.tcl-lang.org/page/Trf Trf] extension
+	can be loaded the commands are implemented in terms of its commands.
 
 [enum]  If neither of the above are possible a Tcl-only implementation
 	is used. This is much slower.
@@ -133,7 +139,9 @@ base64='zpTDtyDigJxVdGYtOOKAnSDimZ7ihKQ=' 1
 }]
 
 If the original string is 7-bit ASCII the conversions to and from raw
-bytes using the built-in [cmd encoding] command are not needed. For example:
+bytes using the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/encoding.html encoding]
+command are not needed. For example:
 
 [example {
 const ASCII_LINE "! 7-bit ASCII {~^}"
@@ -166,8 +174,11 @@ eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
 }]
 
 [para]
-Note that the built-in [cmd {binary encode base64}] subcommand defaults
-to not wrapping, but will wrap if the [option -maxlen] option is used.
+Note that the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html \
+{binary encode base64}]
+subcommand defaults to not wrapping, but will wrap if the
+[option -maxlen] option is used.
 
 [vset CATEGORY base64]
 [include ../common-text/feedback.inc]

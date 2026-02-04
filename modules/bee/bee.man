@@ -208,107 +208,112 @@ is why they’re provided.
 [para]
 
 [call [cmd ::bee::decodeChannel] [arg chan] \
-	[option -command] [arg cmdprefix] \
+	[option -command] [arg on_decode] \
 	[opt [option -exact]] \
 	[opt "[option -prefix] [arg data]"] \
 ]
 
-The command creates a decoder for a series of bee-values arriving on
-the channel [arg chan] and returns its handle. This handle can be used
-to remove the decoder again.
+This command creates a decoder for a series of bee-values arriving on
+the channel [arg chan] and returns a decoder handle. Each decoding event
+is reported to the required [arg on_decode] callback command.
 
-Setting up another bee decoder on [arg chan] while a bee decoder is
-still active will fail with an error message.
+[para]
+The returned handle can be used to push data into the decoder or to
+cancel the decoder.
+
+[para]
+Attempting to create another bee decoder on the [arg chan] channel while
+an existing bee decoder is still active will throw an error.
 
 [para]
 [list_begin definitions]
 [def [option -command]]
 
-The command prefix [arg cmdprefix] specified by the [emph required]
-option [option -command] is used to report extracted values and
-exceptional situations (error, and EOF on the channel).
+The [arg on_decode] command specified by the [emph required]
+option [option -command] is used to report decoded values, errors, and
+channel EOF.
 
-The callback will be executed at the global level of the interpreter,
-with two or three arguments. The exact call signatures are
+[para]
+The callback is executed at the interpreter’s global level,
+with two or three arguments. The possible callback signatures are:
 
 [para]
 [list_begin definitions]
-[call [cmd cmdprefix] [method eof] [arg token]]
-
-The decoder has reached eof on the channel [arg chan]. No further
-invocations of the callback will be made after this. The channel has
-already been closed at the time of the call, and the [arg token] is
-not valid anymore as well.
-
-[call [cmd cmdprefix] [method error] [arg token] [arg message]]
-
-The decoder encountered an error, which is not eof. For example a
-malformed bee-value. The [arg message] provides details about the
-error. The decoder token is in the same state as for eof,
-i.e. invalid. The channel however is kept open.
-
-[call [cmd cmdprefix] [method value] [arg token] [arg value]]
+[call [cmd on_decode] [method value] [arg handle] [arg value]]
 
 The decoder received and successfully decoded a bee-value.
 
-The format of the equivalent tcl [arg value] is the same as returned
-by [cmd ::bee::decode]. The channel is still open and the decoder
-token is valid. This means that the callback is able to remove the
-decoder.
+The format of the equivalent Tcl [arg value] is the same as returned by
+[cmd ::bee::decode]. The channel is still open and the decoder handle is
+valid. This means that the callback is able to push data into the
+decoder or to cancel the decoder.
+
+[call [cmd on_decode] [method error] [arg handle] [arg message]]
+
+The decoder encountered an error, which is not EOF. For example, an
+invalid bee-value. The [arg message] provides details about the
+error. The decoder handle is in the same state as for EOF,
+i.e., invalid, and cannot be used. However, the channel remains open.
+
+[call [cmd on_decode] [method eof] [arg handle]]
+
+The decoder has reached EOF on the [arg chan] channel. No further
+calls to the callback will be made after this. The channel has
+already been closed at the time of the call, and the [arg handle] is
+invalid and cannot be used.
 
 [list_end]
 [para]
 
 [def [option -exact]]
 
-By default the decoder assumes that the remainder of the data in the
-channel consists only of bee-values, and reads as much as possible per
-event, without regard for boundaries between bee-values. This means
-that if the the input contains non-bee data after a series of
-bee-value the beginning of that data may be lost because it was
-already read by the decoder, but not processed.
+By default the decoder assumes that all the channel’s data consists of
+bee-values, and reads as much as possible per event, without regard for
+boundaries between bee-values. This means that if the the channel contains
+non-bee data after a series of bee-values, the beginning of any non-bee
+data may be lost, because it has already been read by the decoder, but
+not processed.
 
 [para]
-
-The [option -exact] was made for this situation. When specified the
-decoder will take care to not read any characters behind the currently
-processed bee-value, so that any non-bee data is kept in the channel
-for further processing after removal of the decoder.
+In such cases use the [option -exact] option. When this is specified,
+the decoder will not read any characters beyond the currently processed
+bee-value, so that any non-bee data is left in the channel for further
+processing after the decoder is closed.
 
 [para]
 
 [def [option -prefix]]
 
-If this option is specified its value is assumed to be the beginning
-of the bee-value and used to initialize the internal decoder
-buffer. This feature is required if the creator of the decoder used
-data from the channel to determine if it should create the decoder or
-not. Without the option this data would be lost to the decoding.
+If this option is specified its value is assumed to be the beginning of
+a bee-value and is used to initialize the decoder’s internal buffer.
+This feature is required if the creator of the decoder read data from
+the channel to determine if it should create the decoder or not. Without
+the option this initial data would be lost to the decoding.
 
 [list_end]
 [para]
 
-[call [cmd ::bee::decodeCancel] [arg token]]
+[call [cmd ::bee::decodeCancel] [arg handle]]
 
 This command cancels the decoder set up by [cmd ::bee::decodeChannel]
-and represented by the handle [arg token].
+and represented by the handle [arg handle].
 
-[call [cmd ::bee::decodePush] [arg token] [arg string]]
+[call [cmd ::bee::decodePush] [arg handle] [arg string]]
 
-This command appends the [arg string] to the internal decoder
-buffer. It is the runtime equivalent of the option [option -prefix] of
-[cmd ::bee::decodeChannel]. Use it to push data back into the decoder
-when the [method value] callback used data from the channel to
-determine if it should decode another bee-value or not.
+This command appends the [arg string] to the decoder’s internal buffer.
+It is the runtime equivalent of the [cmd ::bee::decodeChannel] command’s
+[option -prefix] option. Use this command to push data back into the
+decoder when the [cmd {on_decode value}] callback used data from the
+channel to determine if it should decode another bee-value or not.
 
 [list_end]
 [para]
 
 [section {Format Definition}]
 
-Data in the bee serialization format is constructed from two basic
-forms, and two container forms. The basic forms are strings and
-integer numbers, and the containers are lists and dictionaries.
+Data in the Bencode serialization format is constructed from two basic
+forms, and two collection forms. The basic forms are strings and
+integerss, and the collections are lists and dictionaries.
 
 [para]
 [list_begin definitions]
@@ -316,14 +321,16 @@ integer numbers, and the containers are lists and dictionaries.
 
 A string [arg S] of length [arg L] is encoded by the string
 
-"[arg L][const :][arg S]", where the length is written out in textual
-form.
+"[arg L][const :][arg S]", where the length is in textual form.
+For example, the string [const {"Bencode format"}] would be encoded as
+[const {"14:Bencode format"}].
 
 [def "Integer [arg N]"]
 
-An integer number [arg N] is encoded by the string
+An integer [arg N] is encoded by the string
 
-"[const i][arg N][const e]".
+"[const i][arg N][const e]". For example, the integer [const -482]
+would be encoded as [const {"i-482e"}].
 
 [def "List [arg v1] ... [arg vn]"]
 
@@ -348,32 +355,30 @@ the value "v[var i]".
 
 [para]
 
-[emph Note]: The bee-encoding does not retain the order of the keys in
-the input, but stores in a sorted order. The sorting is done for the
-"raw strings".
+[emph Note]: The bee-encoding does not preserve the order of the keys in
+the input, but stores in key-sorted order.
 
 [list_end]
 [para]
 
 Note that the type of each encoded item can be determined immediately
-from the first character of its representation:
+from the first character of its encoding:
 
 [para]
 [list_begin definitions]
-[def i]
+[def [const i]]
 Integer.
-[def l]
+[def [const l]]
 List.
-[def d]
+[def [const d]]
 Dictionary.
-[def "[lb]0-9[rb]"]
+[def [const "[lb]0-9[rb]"]]
 String.
 [list_end]
 [para]
 
-By wrapping an integer number into [const i]...[const e] the format
-makes sure that they are different from strings, which all begin with
-a digit.
+By prefixing integers with [const i] the format ensures that they are
+different from strings, which all begin with a digit.
 
 [section Examples]
 

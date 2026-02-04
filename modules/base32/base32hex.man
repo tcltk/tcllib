@@ -20,8 +20,10 @@ to and from the extended hex base32 encoding as specified in
 [uri https://datatracker.ietf.org/doc/html/rfc4648 {RFC 4648}].
 
 [para]
-(Note that Tcl’s built-in [cmd binary] command provides simple encoding and
-decoding of bytes to and from pairs of hex digits.)
+(Note that Tcl’s built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html binary]
+command provides simple encoding and decoding of bytes to and from pairs
+of hex digits.)
 
 [section API]
 

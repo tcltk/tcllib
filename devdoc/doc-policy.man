@@ -175,6 +175,19 @@ and [arg aDict] is a [type dict] value.
 As a rule, use the generic term [arg value] rather than “item” or
 “element”.
 
+[section Links]
+
+[para]
+To help integrate Tcllib with the core Tcl/Tk when core commands are
+referred to they should ideally be links, e.g.,
+
+[example {
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html binary]
+}]
+
+Notice that we do [emph not] use the Tcl version number; generic "tcl"
+is a symlink to the current version, making links like this more robust.
+
 [section Cryptography]
 
 [para]
