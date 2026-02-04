@@ -104,7 +104,9 @@ base32='Z2KMHNZA4KAJYVLUMYWTRYUATUQOFGM64KCKI===' 1
 }]
 
 If the original string is 7-bit ASCII the conversions to and from raw
-bytes using the built-in [cmd encoding] command are not needed. For example:
+bytes using the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/encoding.html encoding]
+command are not needed. For example:
 
 [example {
 const ASCII_LINE "! 7-bit ASCII {~^}"

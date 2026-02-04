@@ -10,51 +10,69 @@
 [require dicttool [opt [vset VERSION]]]
 [description]
 [para]
-The [package dicttool] package enhances the standard [emph dict] command with several new
-commands. In addition, the package also defines several convenient list commands.
-(Each command only adds itself if a command of the same name doesn’t already exist,
-in case any of these are added to the core.)
+This package enhances the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/dict.html dict] command
+with several new commands. In addition, the package also defines several
+convenient list commands. (Each command only adds itself if a command of
+the same name doesn’t already exist, in case any of these are added to
+the core.)
 
 [list_begin definitions]
-[call [cmd ladd] [arg varname] [arg args]]
+[call [cmd ladd] [arg dictVar] [opt "[arg {key value ...}]"]]
 
-This command adds every element in [arg args] to [arg varname], but only if that element
-is not already present (whether as a key or a value). Use an even number
-of [arg args] to keep [arg varname] as a [type dict].
+This command adds every pair of [arg {key value}] elements to [arg dictVar],
+but only if that element is not already present (whether as a key or a
+value). This command [emph must] be given pairs of [arg {key value}]
+elements to preserve [arg dictVar] as a [type dict].
 
-[call [cmd ldelete] [arg varname] [arg args]]
+[call [cmd ldelete] [arg dictVar] [opt "[arg {key value ...}]"]]
 
-This command deletes every element in [arg args] from [arg varname]. Use an even number
-of [arg args] to keep [arg varname] as a [type dict].
+This command deletes every pair of [arg {key value}] elements from
+[arg dictVar]. Harmlessly does nothing if the pair is not already in
+[arg dictVar]. This command [emph must] be given pairs of
+[arg {key value}] elements to preserve [arg dictVar] as a [type dict].
 
-[call [cmd {dict getnull}] [arg args]]
+[para]
+Use the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/dict.html dict] command’s
+[cmd {dict remove}] subcommand to remove elements by key alone.
 
-Operates like [cmd {dict get}], however if the key [arg args] does not exist, it returns an empty
+[call [cmd {dict getnull}] [arg key]]
+
+Operates like [cmd {dict get}], however if the key [arg key] does not exist, it returns an empty
 list instead of throwing an error.
 
 [para]
-An alternative to this command is [cmd {dict getwithdefault}] [emph {or
+An alternative to this command is the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/dict.html dict] command’s
+[cmd {dict getwithdefault}] subcommand [emph {or
 its alias}] [cmd {dict getdef}]. Using [cmd {dict getdef}] with a
 default of an empty list, [arg {{}}], is equivalent to using [cmd {dict getnull}].
 
-[call [cmd {dict print}] [arg varname]]
+[call [cmd {dict print}] [arg aDict]]
 
 Returns a “pretty printed” string representation of
-[type dict] [arg varname], with each nested branch on a newline, and
+[type dict] [arg aDict], with each nested branch on a newline, and
 indented with two spaces for every level.
 
 [call [cmd {dict is_dict}] [arg value]]
 
-Returns 1 if [arg value] can be interpreted as a dict;
-otherwise 0. (The command does [emph not] force an existing dict
-representation to change into another internal representation.)
+Returns [const 1] (true) if [arg value] can be interpreted as a
+[type dict]; otherwise [const 0] (false).
 
-[call [cmd {dict rmerge}] [arg args]]
+[para]
+This command does [emph not] force an existing [type dict]
+representation to change into another internal representation.
+
+[call [cmd {dict rmerge}] [arg dict1] [arg dict2] [opt "[arg {dict3 ...}]"]]
 
 Returns a [type dict] which is the result of a recursive merge of all of
-the [type dict] arguments. Unlike [cmd {dict merge}],
-this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
-will be interpreted as a literal value, and not descended into further.
+the [type dict] arguments. Unlike the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/dict.html dict] command’s
+[cmd {dict merge}] subcommand, this command descends into all of the
+[type dict]’s levels. Note that [type dict] keys which end in a :
+indicate a leaf, which will be interpreted as a literal value, and not
+descended into further.
 
 [example {
 
@@ -79,7 +97,9 @@ option {
 }
 }]
 [para]
-If the [cmd {dict merge}] command had been used above, the [emph fruit]
+If the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/dict.html dict] command’s
+[cmd {dict merge}] subcommand had been used above, the [emph fruit]
 item’s [emph default] key-value entry would have been lost.
 
 [list_end]

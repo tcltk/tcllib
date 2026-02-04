@@ -18,9 +18,9 @@
 [description]
 [para]
 
-This package provides two convenience commands to make the writing of
-anonymous procedures, i.e. lambdas more [cmd proc]-like. Instead of,
-for example, to write
+This package provides two convenience commands to make the creation of
+anonymous procedures, i.e., lambdas more [cmd proc]-like. Instead of,
+for example, writing
 
 [example {
      set f {::apply {{x} {
@@ -36,8 +36,8 @@ with its deep nesting of braces, or
      }} $value_for_x]
 }]
 
-with a list command to insert some of the arguments of a partial
-application, just write
+with a [type list] command to insert some of the arguments of a partial
+application, simply write
 
 [example {
      set f [lambda {x} {
@@ -57,29 +57,84 @@ and
 
 [list_begin definitions]
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
-[call [cmd ::lambda] [arg arguments] [arg body] [opt [arg arg]...]]
+[call [cmd ::lambda] [arg arguments] [arg body] [opt [arg {arg ...}]]]
 
-The command constructs an anonymous procedure from the list of
-arguments, body script and (optional) predefined argument values and
-returns a command prefix representing this anonymous procedure.
+Returns an anonymous command based on the [arg arguments] list, the
+[arg body] script, and any (optional) predefined argument values,
+[arg {arg ...}].
 
-[para] When invoked the [arg body] is run in a new procedure scope
-just underneath the global scope, with the arguments set to the values
-supplied at both construction and invokation time.
+[para] When invoked, the [arg body] is run in a new procedure scope just
+below the global scope, with the arguments set to the values supplied
+at both construction (any [arg {arg ...}] arguments), and invocation
+time.
 
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
-[call [cmd ::lambda@] [arg namespace] [arg arguments] [arg body] [opt [arg arg]...]]
+[call [cmd ::lambda@] [arg namespace] [arg arguments] [arg body] \
+[opt [arg {arg ...}]]]
 
-The command constructs an anonymous procedure from the namespace name,
-list of arguments, body script and (optional) predefined argument
-values and returns a command prefix representing this anonymous
-procedure.
+Returns an anonymous command in namespace [arg namespace], and based on
+the [arg arguments] list, the [arg body] script, and any (optional)
+predefined argument values, [arg {arg ...}].
 
-[para] When invoked the [arg body] is run in a new procedure scope in
-the [arg namespace], with the arguments set to the values supplied at
-both construction and invokation time.
+[para] When invoked, the [arg body] is run in a new procedure scope in
+the [arg namespace] namespace, with the arguments set to the values
+supplied at both construction (any [arg {arg ...}] arguments), and
+invocation time.
 
 [list_end]
+
+[section Examples]
+
+This example shows how convenient lambdas can be for sorting objects.
+
+[para]
+Here is a minimal definition of an [class Id] class whose objects are to
+be sorted.
+
+[example {
+oo::class create Id {
+    variable Id
+    variable Name
+    constructor {id name} { set Id $id ; set Name $name }
+    method id {} { return $Id }
+    method name {} { return $Name }
+    method to_string {} { return "$Id'$Name'" }
+}
+}]
+
+Here a list of [class Id]s is created and then sorted in two different
+ways using lambdas to get the required sort orders.
+
+[example {
+set ids [list [Id new 3 Jane] [Id new 1 Bill] [Id new 4 Sam] [Id new 5 Nell]]
+#
+puts -nonewline "Original order:     "
+foreach id $ids { puts -nonewline "[$id to_string] " }
+#
+puts -nonewline "\nName,Id order:      "
+foreach id [lsort -command [lambda {a b} {
+		if {[set i [string compare [$a name] [$b name]]]} { return $i }
+		if {[$a id] < [$b id]} { return -1 }
+		if {[$a id] > [$b id]} { return 1 }
+		return 0}
+            ] $ids] {
+    puts -nonewline "[$id to_string] "
+}
+#
+puts -nonewline "\nId desc,Name order: "
+foreach id [lsort -command [lambda {a b} {
+		if {[$a id] < [$b id]} { return 1 }
+		if {[$a id] > [$b id]} { return -1 }
+		return [string compare [$a name] [$b name]]}
+            ] $ids] {
+    puts -nonewline "[$id to_string] "
+}
+puts ""
+=>
+Original order:     3'Jane' 1'Bill' 4'Sam' 5'Nell' 
+Name,Id order:      1'Bill' 3'Jane' 5'Nell' 4'Sam' 
+Id desc,Name order: 5'Nell' 4'Sam' 3'Jane' 1'Bill' 
+}]
 
 [section AUTHORS]
 Andreas Kupries
