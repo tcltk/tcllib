@@ -10,42 +10,57 @@
 [description]
 [para]
 
-The [package lazyset] package provides a mechanism for deferring execution
-of code until a specific variable or any index of an array is referenced.
+The [package lazyset] package provides a mechanism for deferring code
+execution until a specific variable or any index of an array is
+referenced.
 
-[section {COMMANDS}]
+[para]
+[emph {(Another way to defer execution is to create a singleton class.
+The first time its constructor is called—if ever—the object will be
+created. Any subsequent constructor call will get back the first created
+object. See}]
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/singleton.html oo::singleton].)
+
+[section {Commands}]
 
 [list_begin definitions]
-[call [cmd ::lazyset::variable] [opt [arg {-array boolean}]] [opt [arg {-appendArgs boolean}]] [arg variableName] [arg commandPrefix]]
+[call [cmd ::lazyset::variable] [opt [arg {-array boolean}]] \
+[opt [arg {-appendArgs boolean}]] [arg someVar] [arg commandPrefix]]
 Arrange for the code specified as [arg commandPrefix] to be executed when
-the variable whose name is specified by [arg variableName] is read for
+the variable whose name is specified by [arg someVar] is read for
 the first time.
 
+[para]
 If the optional argument [arg {-array boolean}] is specified as true,
-then the variable specified as [arg variableName] is treated as an
+then the variable specified as [arg someVar] is treated as an
 array and attempting to read any index of the array causes that
 index to be set by the [arg commandPrefix] as they are read.
 
+[para]
 If the optional argument [arg {-appendArgs boolean}] is specified as
 false, then the variable name and subnames are not appended to the
-[arg commandPrefix] before it is evaluated.  If the argument
-[arg {-appendArgs boolean}] is not specified or is specified as true
-then 1 or 2 additional arguments are appended to the [arg commandPrefix].
-If [arg {-array boolean}] is specified as true, then 2 arguments are
-appended corresponding to the name of the variable and the index,
-otherwise 1 argument is appended containing the name of variable.
+[arg commandPrefix] before it is evaluated. 
 
+[para]
+If the argument [arg {-appendArgs boolean}] is not specified or is
+specified as true, then 1 or 2 additional arguments are appended to the
+[arg commandPrefix]. If [arg {-array boolean}] is specified as true,
+then 2 arguments are appended corresponding to the name of the variable
+and the index; otherwise 1 argument is appended containing the name of
+the variable.
+
+[para]
 The [arg commandPrefix] code is run in the same scope as the variable
-is read.
+that is read.
 
 [list_end]
 
-[section EXAMPLES]
+[section Examples]
 
 [example {
 	::lazyset::variable page {apply {{name} {
 		package require http
-		set token [http::geturl http://www.tcl.tk/]
+		set token [http::geturl http://www.tcl-lang.org/]
 		set data [http::data $token]
 		return $data
 	}}}
@@ -61,7 +76,7 @@ is read.
 		return $data
 	}}}
 
-	puts $page(http://www.tcl.tk/)
+	puts $page(http://www.tcl-lang.org/)
 }]
 
 [example {
@@ -72,7 +87,7 @@ is read.
 	puts $simple
 }]
 
-[section AUTHORS]
+[section Authors]
 Roy Keene
 
 [vset CATEGORY utility]
