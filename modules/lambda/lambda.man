@@ -19,7 +19,7 @@
 [para]
 
 This package provides two convenience commands to make the creation of
-anonymous procedures, i.e., lambdas, more [cmd proc]-like. Instead of
+anonymous commands, i.e., lambdas, more [cmd proc]-like. Instead of
 writing, for example
 
 [example {
@@ -57,7 +57,7 @@ or
 Lambdas are particularly useful for commands that accept a
 [option -command] option.
 
-[section {COMMANDS}]
+[section {Commands}]
 
 [list_begin definitions]
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
@@ -89,10 +89,35 @@ invocation time.
 
 [section Examples]
 
+[subsection {Partial Function Application}]
+
+[para]
+Lambdas can be used for partial function application (PFA), although
+Tcl’s [cmd expr] contexts mean that this isn’t often needed.
+Nonetheless, here is a classic PFA example:
+
+[example {
+proc make_adder addend { lambda {x y} { expr { $x + $y } } $addend }
+set add5 [make_adder 5]
+puts "[{*}$add5 92] [{*}$add5 17]"
+=>
+97 22
+}]
+
+[para]
+The [cmd make_adder] command has been used to create an anonymous
+command, i.e., a lambda, which has then been assigned to the [var add5]
+variable. To call a variable as a command, it is necessary to prefix it
+with the [const "{*}"] expansion (“splat”) operator. Notice that these
+calls need only [emph one] argument; the first argument was set when the
+lambda was created.
+
+[subsection {Using regusb with lambda}]
+
 [para]
 This example shows how to use a lambda with the built-in
 [uri https://www.tcl-lang.org/man/tcl/TclCmd/regsub.html regsub]
-command.
+command’s [option -command] option.
 
 [example {
 # Simple URL-decoding: + → space; %XX → char
@@ -109,8 +134,17 @@ www.tcl-lang.org/Set or $ usage?
 }]
 
 [para]
+Notice that when using the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/regsub.html regsub]
+command’s [option -command] option, the command itself [emph follows] the
+string to match (in the [arg subSpec] argument’s position).
+
+[subsection {Using lsort with lambda}]
+
+[para]
 This example shows how to use lambdas to sort objects using the built-in
-[uri https://www.tcl-lang.org/man/tcl/TclCmd/lsort.html lsort] command.
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/lsort.html lsort] command’s
+[option -command] option.
 
 [para]
 First, a minimal definition of an [class Id] class whose objects are to
@@ -161,7 +195,13 @@ Name,Id order:      1'Bill' 3'Jane' 5'Nell' 4'Sam'
 Id desc,Name order: 5'Nell' 4'Sam' 3'Jane' 1'Bill' 
 }]
 
-[section AUTHORS]
+[para]
+Notice that when using the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/lsort.html lsort]
+command’s [option -command] option, the command itself [emph precedes]
+the list to sort.
+
+[section Authors]
 Andreas Kupries
 
 [vset CATEGORY lambda]
