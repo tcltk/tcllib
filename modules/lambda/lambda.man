@@ -19,8 +19,8 @@
 [para]
 
 This package provides two convenience commands to make the creation of
-anonymous procedures, i.e., lambdas more [cmd proc]-like. Instead of,
-for example, writing
+anonymous procedures, i.e., lambdas, more [cmd proc]-like. Instead of
+writing, for example
 
 [example {
      set f {::apply {{x} {
@@ -45,13 +45,17 @@ application, simply write
      }]
 }]
 
-and
+or
 
 [example {
      set f [lambda {x y} {
         ....
      } $value_for_x]
 }]
+
+[para]
+Lambdas are particularly useful for commands that accept a
+[option -command] option.
 
 [section {COMMANDS}]
 
@@ -85,10 +89,31 @@ invocation time.
 
 [section Examples]
 
-This example shows how convenient lambdas can be for sorting objects.
+[para]
+This example shows how to use a lambda with the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/regsub.html regsub]
+command.
+
+[example {
+# Simple URL-decoding: + → space; %XX → char
+set encoded_url "www.tcl-lang.org%2FSet%20or%20%24%20usage%3F"
+set url [regsub -all -command {(\+)|%([0-9A-Fa-f]{2})} \
+            $encoded_url [lambda {_ plus hex} {
+                if {$plus eq "+"} { return " " }
+                scan $hex %x charCode
+                format %c $charCode
+            }]]
+puts $url
+=>
+www.tcl-lang.org/Set or $ usage?
+}]
 
 [para]
-Here is a minimal definition of an [class Id] class whose objects are to
+This example shows how to use lambdas to sort objects using the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/lsort.html lsort] command.
+
+[para]
+First, a minimal definition of an [class Id] class whose objects are to
 be sorted.
 
 [example {
@@ -102,7 +127,7 @@ oo::class create Id {
 }
 }]
 
-Here a list of [class Id]s is created and then sorted in two different
+Next, a list of [class Id]s is created and then sorted in two different
 ways using lambdas to get the required sort orders.
 
 [example {

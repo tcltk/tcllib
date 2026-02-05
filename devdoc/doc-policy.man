@@ -188,6 +188,21 @@ referred to they should ideally be links, e.g.,
 Notice that we do [emph not] use the Tcl version number; generic "tcl"
 is a symlink to the current version, making links like this more robust.
 
+[section Examples]
+
+[para]
+Examples can be divided into two broad categories “foo-bar” and
+“motivating”. The first category is where the example purely illustrates
+an algorithm or an API but has no intrinsic meaning (e.g., [emph {set a
+5}]. A motivating example both illustrates [emph and] is something
+meaningful. Typically a motivating example is something useful in
+itself, or something which could clearly be modified into something
+genuinely useful. Whenever possible, examples should be motivating.
+
+[para]
+When looking for ideas for examples, it is always worth grepping Tcl’s
+own source code (incluing Tcllib, Tklib, and third-party packages).
+
 [section Cryptography]
 
 [para]
