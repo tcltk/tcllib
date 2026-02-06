@@ -12,15 +12,16 @@
 [para]
 
 This package provides a forward-compatibility implementation of Tcl
-9's [cmd {file home}] command (TIP 602), for Tcl 8.x.
+9's
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/file.html {file home}]
+subcommand (TIP 602), for Tcl 8.x.
 
 [list_begin definitions]
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd file] [method home] [opt [arg user]]]
 
-Without argument, return the home directory of the current user.
-
-[para] With argument, return the home directory of the specified [arg user].
+Returns the home directory of the current user, or of the specified
+[arg user] if given.
 
 [list_end]
 

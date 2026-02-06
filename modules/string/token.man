@@ -12,85 +12,148 @@
 [description]
 
 This package provides commands for regular expression based lexing
-(tokenization) of strings.
+(tokenizing) of strings.
 
 [para]
 
-The complete set of procedures is described below.
+[section API]
 
 [list_begin definitions]
 
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd {::string token text}] [arg lex] [arg string]]
 
-This command takes an ordered dictionary [arg lex] mapping regular
-expressions to labels, and tokenizes the [arg string] according to
-this dictionary.
+This command takes a dictionary, [arg lex], which must map regular
+expressions (“regexps”) to labels, and tokenizes the [arg string]
+according to the dictionary.
 
-[para] The result of the command is a list of tokens, where each token
-is a 3-element list of label, start- and end-index in the [arg string].
+[para]
+The command tests each regexp in the [arg lex] dictionary in order.
+Since Tcl [type dict]s are insertion-ordered, it is recommended that
+the regexps are specified from most specific to most general.
 
-[para] The command will throw an error if it is not able to tokenize
-the whole string.
+[para]
+The command returns a list of tokens. Each token is a 3-element list
+containing the label (from the [arg lex] [type dict]), and the start and
+end indexes of the match in the [arg string].
+
+[para]
+The command will throw an error if it is not able to tokenize the entire
+string.
+
+[para]
+For line-oriented lexers, finer-grained error handling and handling huge
+files can be achieved by lexing line-by-line.
 
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd {::string token file}] [arg lex] [arg path]]
 
-This command is a convenience wrapper around
-[cmd {::string token text}] above, and [cmd {fileutil::cat}], enabling
-the easy tokenization of whole files.
+This command is a convenience wrapper around [cmd {::string token text}]
+that makes it easy to tokenize entire files.
 
-[emph Note] that this command loads the file wholly into memory before
+[para]
+[emph Note] that this command loads the whole file into memory before
 starting to process it.
 
-[para] If the file is too large for this mode of operation a command
-directly based on [cmd {::string token chomp}] below will be
-necessary.
-
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
-[call [cmd {::string token chomp}] [arg lex] [arg startvar] [arg string] [arg resultvar]]
+[call [cmd {::string token chomp}] [arg lex] [arg startVar] \
+[arg string] [arg resultVar]]
 
-This command is the work horse underlying [cmd {::string token text}]
-above. It is exposed to enable users to write their own lexers, which,
-for example may apply different lexing dictionaries according to some
-internal state, etc.
+[para]
+This command is exposed to enable users to write their own lexers. For
+example, to apply different lexing dictionaries depending on internal
+state as the lex progresses.
 
-[para] The command takes an ordered dictionary [arg lex] mapping
-regular expressions to labels, a variable [arg startvar] which
-indicates where to start lexing in the input [arg string], and a
-result variable [arg resultvar] to extend.
+[para]
+(The [cmd {::string token text}] and [cmd {::string token file}] commands
+make use of this command behind the scenes.)
 
-[para] The result of the command is a tri-state numeric code
-indicating one of
+[para]
+This command takes a dictionary, [arg lex], which must map regexps to
+labels, a variable [arg startVar] which contains the index position
+where the lexing should begin in the input [arg string], and a result
+variable [arg resultVar] to which each successfuly lexed token will be
+appended.
+
+[para]
+The command returns a status code indicating the state of the lex
+These are
 [list_begin definitions]
 [def [const 0]] No token found.
 [def [const 1]] Token found.
 [def [const 2]] End of string reached.
 [list_end]
 
-Note that recognition of a token from [arg lex] is started at the
-character index in [arg startvar].
+[para]
+If a token was recognized (status [const 1]) the command will update the
+index in [arg startVar] to the character immediately [emph following]
+the lexed token. It will also append to the [arg resultVar] the lexed
+token which itself is a 3-element list containing the label (from the
+[arg lex] [type dict]), and the start and end indexes of the match in
+the [arg string].
 
-[para] If a token was recognized (status [const 1]) the command will
-update the index in [arg startvar] to point to the first character of
-the [arg string] past the recognized token, and it will further extend
-the [arg resultvar] with a 3-element list containing the label
-associated with the regular expression of the token, and the start-
-and end-character-indices of the token in [arg string].
+[para]
+If a token was not recognized (status [const 0] or [const 2]),
+neither [arg startVar] nor [arg resultVar] will be updated.
 
-[para] Neither [arg startvar] nor [arg resultvar] will be updated if
-no token is recognized at all.
+[para]
+As noted earlier, the command tests each regexp in the [arg lex]
+dictionary in order. Since Tcl [type dict]s are insertion-ordered, it is
+recommended that the regexps are specified from most specific to most
+general.
 
-[para] Note that the regular expressions are applied (tested) in the
-order they are specified in [arg lex], and the first matching pattern
-stops the process. Because of this it is recommended to specify the
-patterns to lex with from the most specific to the most general.
-
-[para] Further note that all regex patterns are implicitly prefixed
-with the constraint escape [const \A] to ensure that a match starts
-exactly at the character index found in [arg startvar].
+[para]
+Further note that all regex patterns are implicitly prefixed
+with the constraint escape [const \\A] to ensure that a match starts
+exactly at the character index found in [arg startVar].
 
 [list_end]
+
+[section Examples]
+
+This example shows the basic use of the [cmd {string token text}]
+command to lex a simple [emph .ini] file in one go. The [cmd {string
+token file}] command works in the same way, except it tokenizes the
+contents of a file rather than a string.
+
+[example {
+const INI_EG "; example.ini 
+Filename = test.db
+ 
+\[Database\]
+# remote data
+Port = 143
+IP = 192.0.2.62
+"
+ 
+const INI_LEX [dict create {[#;][^\n]+?\n} COMMENT {\[[^]\n]+\]} GROUP\
+    {\w+\s*[:=][^\n]+} ENTRY {\s*\n} BLANK]
+foreach token [string token text $INI_LEX $INI_EG] {
+    lassign $token label i j
+    switch $label {
+        BLANK { continue }
+        COMMENT {
+            puts "Comment: '[string trim [string range $INI_EG $i+1 $j]]'"
+        }
+        GROUP { puts "Group  : '[string range $INI_EG $i+1 $j-1]'" }
+        ENTRY {
+            set entry [string range $INI_EG $i $j]
+            set k [lindex [regexp -inline -indices {[=:]} $entry] 0 0]
+            set key [string trim [string range $entry 0 $k-1]]
+            set value [string trim [string range $entry $k+1 end]]
+            puts "Entry  : Key='$key' Value='$value'"
+        }
+    }
+}
+
+=>
+Comment: 'example.ini'
+Entry  : Key='Filename' Value='test.db'
+Group  : 'Database'
+Comment: 'remote data'
+Entry  : Key='Port' Value='143'
+Entry  : Key='IP' Value='192.0.2.62'
+}]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]
