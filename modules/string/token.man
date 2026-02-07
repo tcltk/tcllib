@@ -111,48 +111,76 @@ exactly at the character index found in [arg startVar].
 
 [section Examples]
 
-This example shows the basic use of the [cmd {string token text}]
-command to lex a simple [emph .ini] file in one go. The [cmd {string
-token file}] command works in the same way, except it tokenizes the
-contents of a file rather than a string.
+This example shows how to use the [cmd {string token text}] command to lex a
+simple line-oriented [emph .ini] file format.
+(For full-featured [emph .ini] file handling, see
+[uri \
+https://core.tcl-lang.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/inifile/ini.md inifile].)
 
 [example {
 const INI_EG "; example.ini 
 Filename = test.db
  
+invalid
 \[Database\]
 # remote data
-Port = 143
-IP = 192.0.2.62
-"
+Port: 143
+IP: 192.0.2.62
  
-const INI_LEX [dict create {[#;][^\n]+?\n} COMMENT {\[[^]\n]+\]} GROUP\
-    {\w+\s*[:=][^\n]+} ENTRY {\s*\n} BLANK]
-foreach token [string token text $INI_LEX $INI_EG] {
-    lassign $token label i j
-    switch $label {
-        BLANK { continue }
-        COMMENT {
-            puts "Comment: '[string trim [string range $INI_EG $i+1 $j]]'"
-        }
-        GROUP { puts "Group  : '[string range $INI_EG $i+1 $j-1]'" }
-        ENTRY {
-            set entry [string range $INI_EG $i $j]
-            set k [lindex [regexp -inline -indices {[=:]} $entry] 0 0]
-            set key [string trim [string range $entry 0 $k-1]]
-            set value [string trim [string range $entry $k+1 end]]
-            puts "Entry  : Key='$key' Value='$value'"
-        }
-    }
+junk
+"
+
+proc main {} {
+    set groups [lex_ini $::INI_EG]
+    puts General:
+    dict for {key value} [dict get $groups General] { puts "\t$key: $value" }
+    puts Database:
+    dict for {key value} [dict get $groups Database] { puts "\t$key: $value" }
 }
 
+proc lex_ini ini_text {
+    const INI_LEX [dict create {[#;].*$} COMMENT {\[[^]]+\]} GROUP\
+        {\w+\s*[:=].+$} ENTRY]
+    set group General
+    set groups [dict create $group {}]
+    set linenum 0
+    foreach line [split $ini_text \n] {
+        incr linenum
+        if {[string trim $line] eq ""} { continue }
+        try {
+            set token [string token text $INI_LEX $line]
+            if {[llength $token]} { set token [lindex $token 0] }
+            lassign $token label i j
+            switch $label {
+                COMMENT { continue }
+                GROUP { 
+                    set group [string range $line $i+1 $j-1]
+                    dict set groups $group {}
+                }
+                ENTRY {
+                    set entry [string range $line $i $j]
+                    set k [lindex [regexp -inline -indices {[=:]} $entry] 0 0]
+                    set key [string trim [string range $entry 0 $k-1]]
+                    set value [string trim [string range $entry $k+1 end]]
+                    dict set groups $group $key $value
+                }
+            }
+        } on error err {
+            puts "Error: line $linenum: $err"
+        }
+    }
+    return $groups
+}
+
+main
 =>
-Comment: 'example.ini'
-Entry  : Key='Filename' Value='test.db'
-Group  : 'Database'
-Comment: 'remote data'
-Entry  : Key='Port' Value='143'
-Entry  : Key='IP' Value='192.0.2.62'
+Error: line 4: Unexpected character 'i' at offset 0
+Error: line 10: Unexpected character 'j' at offset 0
+General:
+	Filename: test.db
+Database:
+	Port: 143
+	IP: 192.0.2.62
 }]
 
 [vset CATEGORY textutil]
