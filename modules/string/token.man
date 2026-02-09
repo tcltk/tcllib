@@ -142,7 +142,6 @@ proc lex_ini ini_text {
     const INI_LEX [dict create {[#;].*$} COMMENT {\[[^]]+\]} GROUP\
         {\w+\s*[:=].+$} ENTRY]
     set group General
-    set groups [dict create $group {}]
     set linenum 0
     foreach line [split $ini_text \n] {
         incr linenum
