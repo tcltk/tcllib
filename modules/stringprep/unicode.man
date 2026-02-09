@@ -12,43 +12,124 @@
 [description]
 [para]
 
-This is an implementation in Tcl of the Unicode normalization forms.
+This is a Tcl implementation of Unicode normalization commands.
 
 [section "COMMANDS"]
 
+[para]
+The [arg form] argument in the commands listed below may take one of the
+following values: [const D] (canonical decomposition), [const C] (canonical
+decomposition, followed by canonical composition), [const KD]
+(compatibility decomposition), or [const KC] (compatibility decomposition,
+followed by canonical composition).
+
 [list_begin definitions]
+[call [cmd "::unicode::normalizeS"] \
+        [arg form] \
+        [arg string]]
+
+Returns the [arg string] normalized in accordance with the given [arg form].
+
+[para]
+This is a convenience for
+[emph {::unicode::tostring}] [lb][emph {unicode::normalize $form}]
+[lb][emph {::unicode::fromstring $string}][rb][rb].
+
 [call [cmd "::unicode::fromstring"] \
         [arg string]]
 
-Converts [arg string] to list of integer Unicode character codes which
-is used in [package unicode] for internal string representation.
+Returns a list of integer Unicode code points representing the
+characters in [arg string].
+
+[para]
+These integer code points are used in [package unicode] for internal
+string representation.
 
 [call [cmd "::unicode::tostring"] \
         [arg uclist]]
 
-Converts list of integers [arg uclist] back to Tcl string.
+Returns a Tcl string whose characters are those from the [arg uclist] of
+integers (which must all be valid unicode code points).
 
 [call [cmd "::unicode::normalize"] \
         [arg form] \
         [arg uclist]]
 
-Normalizes Unicode characters list [arg ulist] according to [arg form]
-and returns the normalized list. Form [arg form] takes one of the following
-values: [arg D] (canonical decomposition), [arg C] (canonical decomposition, followed
-by canonical composition), [arg KD] (compatibility decomposition), or [arg KC]
-(compatibility decomposition, followed by canonical composition).
-
-[call [cmd "::unicode::normalizeS"] \
-        [arg form] \
-        [arg string]]
-
-A shortcut to
-::unicode::tostring [lb]unicode::normalize \$form [lb]::unicode::fromstring \$string[rb][rb].
-Normalizes Tcl string and returns normalized string.
+Returns a Tcl string whose characters are those from the [arg uclist] of
+integers (which must all be valid unicode code points), normalized
+according to the [arg form] normalization form.
 
 [list_end]
 
 [section EXAMPLES]
+
+[para]
+Some unicode characters have more than one representation in a unicode
+encoding such as UTF-8. Normally, this is not a problem [emph within] a
+programming language, since the language will typically always use the
+same representation for any given character. But for data read in from
+files or other external sources, any of the possible representations
+could be used. So in these cases normalization may be needed.
+
+[para]
+Here is an example of the problem:
+
+[example {
+set a "Å"
+set b [encoding convertfrom utf-8 \xC3\x85]
+set c [encoding convertfrom utf-8 \xE2\x84\xAB]
+set d [encoding convertfrom utf-8 \x41\xCC\x8A]
+set s [join [list $a $b $c $d] ""]
+puts "s=$s a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}]\
+    a=d→[expr {$a eq $d}] b=c→[expr {$a eq $d}]\
+    b=d→[expr {$a eq $d}] c=d→[expr {$a eq $d}]"
+puts [binary encode hex [encoding convertto utf-8 $a]]
+=>
+s=ÅÅÅÅ a=b→1 a=c→0 a=d→0 b=c→0 b=d→0 c=d→0
+c385
+}]
+
+[para]
+The above output shows that although all the characters are the same,
+they have different UTF-8 representations and do [emph not] compare
+equal.
+
+[para]
+The arguments to the second [cmd puts] command above show how to get the
+byte sequence Tcl uses to encode a character in a particular encoding.
+In this case Tcl encodes character Å in UTF-8 as the byte sequence
+[const {\xC3\x85}].
+
+[para]
+The solution is to normalize. For example:
+
+[example {
+set t [unicode::normalizeS KC $s]
+set a [string index $t 0]
+set b [string index $t 1]
+set c [string index $t 2]
+set d [string index $t 3]
+puts "t=$t a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}]\
+    a=d→[expr {$a eq $d}] b=c→[expr {$a eq $d}]\
+    b=d→[expr {$a eq $d}] c=d→[expr {$a eq $d}]"
+puts [binary encode hex [encoding convertto utf-8 $d]]
+=>
+t=ÅÅÅÅ a=b→1 a=c→1 a=d→1 b=c→1 b=d→1 c=d→1
+c385
+}]
+
+[para]
+After normalization all the characters have the same representation and
+correctly compare as equal.
+
+[para]
+The arguments to the second [cmd puts] command above show that after
+normalization Tcl encodes character Å in UTF-8 as the byte sequence
+[const {\xC3\x85}], no matter what the original UTF-8 byte sequence was
+originally used for this character.
+
+[para]
+Legacy examples.
 
 [example {
 % ::unicode::fromstring "\u0410\u0411\u0412\u0413"

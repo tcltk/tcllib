@@ -12,9 +12,16 @@
 [description]
 [para]
 
-This is an implementation in Tcl of the Preparation of Internationalized
-Strings ("stringprep"). It allows to define stringprep profiles and use
-them to prepare Unicode strings for comparison as defined in RFC-3454.
+This is Tcl implementation of the Preparation of Internationalized
+Strings ("stringprep"). It supports the definition of stringprep
+profiles and their use to prepare Unicode strings for comparisons as
+defined in
+[uri https://www.rfc-editor.org/rfc/rfc3454 {RFC 3454}].
+
+[para]
+[emph {Note that RFC 3454 (2002) was superceded by RFC 7564 (2015),
+which itself was superceded by}]
+[uri https://www.rfc-editor.org/rfc/rfc8264 {RFC 8264}] [emph {(2017).}]
 
 [section "COMMANDS"]
 
