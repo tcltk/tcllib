@@ -13,7 +13,7 @@
 [para]
 
 This is Tcl implementation of the Preparation of Internationalized
-Strings ("stringprep"). It supports the definition of stringprep
+Strings (“stringprep”). It supports the definition of stringprep
 profiles and their use to prepare Unicode strings for comparisons as
 defined in
 [uri https://www.rfc-editor.org/rfc/rfc3454 {RFC 3454}].
@@ -23,7 +23,11 @@ defined in
 which itself was superceded by}]
 [uri https://www.rfc-editor.org/rfc/rfc8264 {RFC 8264}] [emph {(2017).}]
 
-[section "COMMANDS"]
+[para]
+[emph {This package is currently unmaintained; see}]
+[uri https://core.tcl-lang.org/tcllib/tktview/b192bd4149e07ddf4e000f894100700c2ec35e1e ticket].
+
+[section Commands]
 
 [list_begin definitions]
 [call [cmd "::stringprep::register"] \
@@ -35,77 +39,131 @@ which itself was superceded by}]
         [opt [arg "-prohibitedCommand command"]] \
         [opt [arg "-prohibitedBidi boolean"]]]
 
-Register the [package stringprep] profile named [arg profile]. Options
-are the following.
+Register a [package stringprep] profile called [arg profile] that will
+apply the specified options.
 
-[para]
+[list_begin options]
 
-Option [arg -mapping] specifies [package stringprep] mapping tables.
-This parameter takes list of tables from appendix B of RFC-3454. The usual
-list values are {B.1 B.2} or {B.1 B.3} where B.1 contains characters which
-commonly map to nothing, B.3 specifies case folding, and B.2 is used in
-profiles with unicode normalization form KC. Defult value is {} which means
-no mapping.
+[opt_def -mapping [arg list]]
 
-[para]
+This option specifies [package stringprep] mapping tables. The tables
+are those specified in [uri https://www.rfc-editor.org/rfc/rfc3454 {RFC
+3454}]’s Appendix B. The usual list values are {B.1 B.2} or {B.1 B.3}
+where B.1 contains characters which commonly map to nothing, B.2 is used
+in profiles with unicode normalization form KC, and B.3 specifies case
+folding. The default is an empty list which means no mapping.
 
-Option [arg -normalization] takes a string and if it is nonempty then it
-uses as a name of Unicode normalization form. Any value of "D", "C", "KD"
-or "KC" may be used, though RFC-3454 defines only two options: no
-normalization or normalization using form KC.
+[opt_def -normalization [arg form]]
 
-[para]
+This option specifies which normalization form to apply. The [arg form]
+is a single string which may be any of "D", "C", "KD", or "KC". Note
+that formally,
+[uri https://www.rfc-editor.org/rfc/rfc3454 {RFC 3454}] supports either
+no normalization or "KC". The default is no normalization.
 
-Option [arg -prohibited] takes a list of RFC-3454 tables with prohibited
-characters. Current version does allow to prohibit either all tables from
-C.3 to C.9 or neither of them. An example of this list for RFC-3491 is
-{A.1 C.1.2 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}.
+[opt_def -prohibited [arg list]]
 
-[para]
+This option specifies a list of
+[uri https://www.rfc-editor.org/rfc/rfc3454 {RFC 3454}] tables with
+prohibited characters. For example, the list from
+[uri https://www.rfc-editor.org/rfc/rfc3491 {RFC 3491}] is
+{A.1 C.1.2 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}. Formally,
+[uri https://www.rfc-editor.org/rfc/rfc3454 {RFC 3454}] allows
+prohibiting either all the tables from C.3 to C.9, or none of them. The
+default is to to prohibit none of them.
 
-Option [arg -prohibitedList] specifies a list of additional prohibited
-characters. The list contains not characters themselves but their Unicode
-numbers. For example, Nodeprep specification from RFC-3920 forbids the
-following codes: {0x22 0x26 0x27 0x2f 0x3a 0x3c 0x3e 0x40} (\" \& \' / : < > @).
+[opt_def -prohibitedList [arg list]]
 
-[para]
+This option specifies a list of prohibited characters as Unicode code
+points. For example to prohibit the characters [const {" & ' / : < >
+@}], provide a list of their code points: {0x22 0x26 0x27 0x2F 0x3A 0x3C
+0x3E 0x40}. The default is an empty list. (If these are specified they
+are in addition to any prohibited by the [arg -prohibited] option.)
 
-Option [arg -prohibitedCommand] specifies a command which is called for
-every character code in mapped and normalized string. If the command returns
-true then the character is considered prohibited. This option is useful when
-a list for [arg -prohibitedList] is too large.
+[opt_def -prohibitedCommand [arg command]]
 
-[para]
+This option specifies a [arg command] to be called with a unicode code
+point whenever a character is mapped and normalized. If the
+[arg command] returns [const 1] (true), then the character is treated as
+prohibited. A return value of [const 0] (false) ensures normal
+processing. This option is a useful alternative to providing a very
+large list to the [arg -prohibitedList] option. The default is no
+command.
 
-Option [arg -prohibitedBidi] takes boolean value and if it is true then the
-bidirectional character processing rules defined in section 6 of RFC-3454 are
-used.
+[opt_def -prohibitedBidi [arg boolean]]
+
+If this option is specified and passed nonzero (e.g., [const 1]; true),
+then the bidirectional character processing rules defined in
+[uri https://www.rfc-editor.org/rfc/rfc3454 {RFC 3454}]’s section 6 are
+used. The default is not to use the bidirectional rules.
+
+[list_end]
 
 [call [cmd "::stringprep::stringprep"] \
         [arg profile] \
         [arg string]]
 
-Performs [package stringprep] operations defined in profile [arg profile]
-to string [arg string]. Result is a prepared string or one of the following
-errors: [arg invalid_profile] (profile [arg profile] is not defined),
-[arg prohibited_character] (string [arg string] contains a prohibited character)
-or [arg prohibited_bidi] (string [arg string] contains a prohibited bidirectional
-sequence).
+Returns a possibly modified copy of [arg string] based on the given
+[arg profile]; or throws an error.
+
+[para]
+The possible errors are: [arg invalid_profile]—the given [arg profile] is
+not defined; [arg prohibited_character]—the given [arg string] contains a
+prohibited character; [arg prohibited_bidi]—the given [arg string]
+contains a prohibited bidirectional sequence.
 
 [call [cmd "::stringprep::compare"] \
         [arg profile] \
         [arg string1] \
         [arg string2]]
 
-Compares two unicode strings prepared accordingly to [package stringprep]
-profile [arg profile]. The command returns 0 if prepared strings are equal,
--1 if [arg string1] is lexicographically less than [arg string2], or
-1 if [arg string1] is lexicographically greater than [arg string2].
+Performs a comparison of the two given strings by comparing the result
+of string-preparing each of them in accordance with the given
+[arg profile]. Returns [const 0] if the strings are equal (in terms of
+the given [arg profile]), or [const {-1}] if [arg string1] is
+lexicographically less than [arg string2], or [const 1] if [arg string1] is
+lexicographically greater than [arg string2].
 
 [list_end]
 
-[section EXAMPLES]
+[section Examples]
 
+This example shows how to use [package stringprep] to compare strings.
+
+[example {
+::stringprep::register basicprep -mapping {B.1 B.2} -normalization KC
+# These three are poor UTF-8 byte sequences:
+const EACUTE [encoding convertfrom utf-8 \x65\xCC\x81]
+const ANGSTROM [encoding convertfrom utf-8 \xE2\x84\xAB]
+const ODOTS [encoding convertfrom utf-8 \x6F\xCC\x88]
+const A "Caf${EACUTE} ${ANGSTROM}ngstr${ODOTS}m"
+# Best to either use a UTF-8-savvy editor:
+const B "Café Ångström"
+# Or to use Tcl’s Unicode escapes:
+const C "Caf\u00E9 \u212Bngstr\u00F6m"
+ 
+puts "A '$A' hex: [binary encode hex [encoding convertto utf-8 $A]]"
+puts "B '$B' hex: [binary encode hex [encoding convertto utf-8 $B]]"
+puts "C '$C' hex: [binary encode hex [encoding convertto utf-8 $C]]"
+puts "string compare \$A \$B →\
+    [expr {[string compare $A $B] ? "unequal" : "equal"}]"
+puts "string compare \$A \$C →\
+    [expr {[string compare $A $C] ? "unequal" : "equal"}]"
+puts "stringprep::compare basicprep \$A \$B →\
+    [expr {[stringprep::compare basicprep $A $B] ? "unequal" : "equal"}]"
+puts "stringprep::compare basicprep \$A \$C →\
+    [expr {[stringprep::compare basicprep $A $C] ? "unequal" : "equal"}]"
+=>
+A 'Café Ångström' hex: 43616665cc8120e284ab6e677374726fcc886d
+B 'Café Ångström' hex: 436166c3a920c3856e67737472c3b66d
+C 'Café Ångström' hex: 436166c3a920e284ab6e67737472c3b66d
+string compare $A $B → unequal
+string compare $A $C → unequal
+stringprep::compare basicprep $A $B → equal
+stringprep::compare basicprep $A $C → equal
+}]
+
+[subsection {Legacy Examples}]
 Nameprep profile definition (see RFC-3491):
 
 [example {
@@ -133,7 +191,7 @@ Nodeprep and resourceprep profile definitions (see RFC-3920):
     -prohibitedBidi 1
 }]
 
-[section "REFERENCES"]
+[section References]
 
 [list_begin enum]
 
@@ -151,7 +209,7 @@ Nodeprep and resourceprep profile definitions (see RFC-3920):
 
 [list_end]
 
-[section "AUTHORS"]
+[section Authors]
 Sergei Golovan
 
 [vset CATEGORY stringprep]
