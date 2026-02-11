@@ -12,7 +12,7 @@
 [description]
 [para]
 
-This is Tcl implementation of the Preparation of Internationalized
+This is a Tcl implementation of the Preparation of Internationalized
 Strings (“stringprep”). It supports the definition of stringprep
 profiles and their use to prepare Unicode strings for comparisons as
 defined in
@@ -28,6 +28,9 @@ which itself was superceded by}]
 [uri https://core.tcl-lang.org/tcllib/tktview/b192bd4149e07ddf4e000f894100700c2ec35e1e ticket].
 
 [section Commands]
+
+If the only string preparation needed is Unicode normalization, the
+[package unicode] package’s commands are sufficient.
 
 [list_begin definitions]
 [call [cmd "::stringprep::register"] \
@@ -56,8 +59,8 @@ folding. The default is an empty list which means no mapping.
 [opt_def -normalization [arg form]]
 
 This option specifies which normalization form to apply. The [arg form]
-is a single string which may be any of "D", "C", "KD", or "KC". Note
-that formally,
+is a string which may be any of "D", "C", "KD", or "KC". Note that
+formally,
 [uri https://www.rfc-editor.org/rfc/rfc3454 {RFC 3454}] supports either
 no normalization or "KC". The default is no normalization.
 
@@ -132,7 +135,7 @@ This example shows how to use [package stringprep] to compare strings.
 
 [example {
 ::stringprep::register basicprep -mapping {B.1 B.2} -normalization KC
-# These three are poor UTF-8 byte sequences:
+# Three poor UTF-8 byte sequences (to illustrate stringprep, not to use in practice):
 const EACUTE [encoding convertfrom utf-8 \x65\xCC\x81]
 const ANGSTROM [encoding convertfrom utf-8 \xE2\x84\xAB]
 const ODOTS [encoding convertfrom utf-8 \x6F\xCC\x88]
@@ -164,7 +167,9 @@ stringprep::compare basicprep $A $C → equal
 }]
 
 [subsection {Legacy Examples}]
-Nameprep profile definition (see RFC-3491):
+
+Nameprep profile definition (see
+[uri https://www.rfc-editor.org/rfc/rfc3491 {RFC 3491}]).
 
 [example {
 ::stringprep::register nameprep \
@@ -174,7 +179,8 @@ Nameprep profile definition (see RFC-3491):
     -prohibitedBidi 1
 }]
 
-Nodeprep and resourceprep profile definitions (see RFC-3920):
+Nodeprep and resourceprep profile definitions (see
+[uri https://www.rfc-editor.org/rfc/rfc3920 {RFC 3920}]).
 
 [example {
 ::stringprep::register nodeprep \
@@ -190,24 +196,6 @@ Nodeprep and resourceprep profile definitions (see RFC-3920):
     -prohibited {A.1 C.1.2 C.2.1 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9} \
     -prohibitedBidi 1
 }]
-
-[section References]
-
-[list_begin enum]
-
-[enum]
-    "Preparation of Internationalized Strings ('stringprep')",
-    ([uri http://www.ietf.org/rfc/rfc3454.txt])
-
-[enum]
-    "Nameprep: A Stringprep Profile for Internationalized Domain Names (IDN)",
-    ([uri http://www.ietf.org/rfc/rfc3491.txt])
-
-[enum]
-    "Extensible Messaging and Presence Protocol (XMPP): Core",
-    ([uri http://www.ietf.org/rfc/rfc3920.txt])
-
-[list_end]
 
 [section Authors]
 Sergei Golovan

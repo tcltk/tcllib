@@ -11,27 +11,32 @@
 [require unicode [vset VERSION]]
 [description]
 [para]
-
 This is a Tcl implementation of Unicode normalization commands.
 
-[section "COMMANDS"]
+[para]
+[emph {Note}] that if normalization alone is insufficient (e.g., for
+string comparisons), the [package stringprep] package may prove useful.
+
+[section Commands]
 
 [para]
-The [arg form] argument in the commands listed below may take one of the
-following values: [const D] (canonical decomposition), [const C] (canonical
-decomposition, followed by canonical composition), [const KD]
-(compatibility decomposition), or [const KC] (compatibility decomposition,
-followed by canonical composition).
+The [arg form] argument in the commands listed below must be a string
+that has one of the following values: [const D] (canonical
+decomposition), [const C] (canonical decomposition, followed by
+canonical composition), [const KD] (compatibility decomposition), or
+[const KC] (compatibility decomposition, followed by canonical
+composition).
 
 [list_begin definitions]
 [call [cmd "::unicode::normalizeS"] \
         [arg form] \
         [arg string]]
 
-Returns the [arg string] normalized in accordance with the given [arg form].
+Returns a possibly modified copy of [arg string], normalized in
+accordance with the given [arg form].
 
 [para]
-This is a convenience for
+This is a convenience for:[nl]
 [emph {::unicode::tostring}] [lb][emph {unicode::normalize $form}]
 [lb][emph {::unicode::fromstring $string}][rb][rb].
 
@@ -42,29 +47,36 @@ Returns a list of integer Unicode code points representing the
 characters in [arg string].
 
 [para]
-These integer code points are used in [package unicode] for internal
-string representation.
+(These integer code points are used in [package unicode] for internal
+string representation.)
 
 [call [cmd "::unicode::tostring"] \
-        [arg uclist]]
+        [arg codepointsList]]
 
-Returns a Tcl string whose characters are those from the [arg uclist] of
-integers (which must all be valid unicode code points).
+Returns a string whose characters are those corresponding to the
+[arg codepointsList] of integers.
+
+[para]
+Every integer that is a valid Unicode code point is represented in the
+returned string by the corresponding Unicode character. Any integer that
+is not a valid Unicode code point is represented using the Unicode
+replacement character �, U+FFFD, unless it is sufficiently big, in which
+case an error is thrown.
 
 [call [cmd "::unicode::normalize"] \
         [arg form] \
-        [arg uclist]]
+        [arg codepointsList]]
 
-Returns a Tcl string whose characters are those from the [arg uclist] of
-integers (which must all be valid unicode code points), normalized
-according to the [arg form] normalization form.
+Returns a possibly modified copy of the [arg codepointsList] of integers
+(which must all be valid Unicode code points), normalized according to
+the given normalization [arg form].
 
 [list_end]
 
-[section EXAMPLES]
+[section Examples]
 
 [para]
-Some unicode characters have more than one representation in a unicode
+Some Unicode characters have more than one representation in a Unicode
 encoding such as UTF-8. Normally, this is not a problem [emph within] a
 programming language, since the language will typically always use the
 same representation for any given character. But for data read in from
@@ -76,29 +88,23 @@ Here is an example of the problem:
 
 [example {
 set a "Å"
-set b [encoding convertfrom utf-8 \xC3\x85]
-set c [encoding convertfrom utf-8 \xE2\x84\xAB]
-set d [encoding convertfrom utf-8 \x41\xCC\x8A]
-set s [join [list $a $b $c $d] ""]
+set b "\u212B"
+set c [encoding convertfrom utf-8 \xC3\x85]
+set d [encoding convertfrom utf-8 \xE2\x84\xAB]
+set e [encoding convertfrom utf-8 \x41\xCC\x8A]
+set s [join [list $a $b $c $d $e] ""]
 puts "s=$s a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}]\
-    a=d→[expr {$a eq $d}] b=c→[expr {$a eq $d}]\
-    b=d→[expr {$a eq $d}] c=d→[expr {$a eq $d}]"
-puts [binary encode hex [encoding convertto utf-8 $a]]
+    a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}]\
+    b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}]\
+    c=e→[expr {$a eq $e}]"
 =>
-s=ÅÅÅÅ a=b→1 a=c→0 a=d→0 b=c→0 b=d→0 c=d→0
-c385
+s=ÅÅÅÅÅ a=b→0 a=c→1 a=d→0 a=e→0 b=c→0 b=d→0 b=e→0 c=d→0 c=e→0
 }]
 
 [para]
 The above output shows that although all the characters are the same,
 they have different UTF-8 representations and do [emph not] compare
 equal.
-
-[para]
-The arguments to the second [cmd puts] command above show how to get the
-byte sequence Tcl uses to encode a character in a particular encoding.
-In this case Tcl encodes character Å in UTF-8 as the byte sequence
-[const {\xC3\x85}].
 
 [para]
 The solution is to normalize. For example:
@@ -109,27 +115,20 @@ set a [string index $t 0]
 set b [string index $t 1]
 set c [string index $t 2]
 set d [string index $t 3]
+set e [string index $t 4]
 puts "t=$t a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}]\
-    a=d→[expr {$a eq $d}] b=c→[expr {$a eq $d}]\
-    b=d→[expr {$a eq $d}] c=d→[expr {$a eq $d}]"
-puts [binary encode hex [encoding convertto utf-8 $d]]
+    a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}]\
+    b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}]\
+    c=e→[expr {$a eq $e}]"
 =>
-t=ÅÅÅÅ a=b→1 a=c→1 a=d→1 b=c→1 b=d→1 c=d→1
-c385
+t=ÅÅÅÅÅ a=b→1 a=c→1 a=d→1 a=e→1 b=c→1 b=d→1 b=e→1 c=d→1 c=e→1
 }]
 
 [para]
 After normalization all the characters have the same representation and
 correctly compare as equal.
 
-[para]
-The arguments to the second [cmd puts] command above show that after
-normalization Tcl encodes character Å in UTF-8 as the byte sequence
-[const {\xC3\x85}], no matter what the original UTF-8 byte sequence was
-originally used for this character.
-
-[para]
-Legacy examples.
+[subsection {Legacy examples}]
 
 [example {
 % ::unicode::fromstring "\u0410\u0411\u0412\u0413"
@@ -147,7 +146,7 @@ A
 %
 }]
 
-[section "REFERENCES"]
+[section References]
 
 [list_begin enum]
 
@@ -157,7 +156,7 @@ A
 
 [list_end]
 
-[section "AUTHORS"]
+[section Authors]
 Sergei Golovan
 
 [vset CATEGORY stringprep]
