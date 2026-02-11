@@ -77,7 +77,7 @@ solve the third problem as well.
 The following section describes the command API to the expander; this
 is followed by the tutorial sections, see [sectref TUTORIAL].
 
-[section {EXPANDER API}]
+[section API]
 [para]
 
 The [package textutil::expander] package provides only one command,
