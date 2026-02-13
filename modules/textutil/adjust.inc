@@ -1,12 +1,7 @@
 [list_begin definitions]
 
 [call [cmd ::textutil::adjust::adjust] [arg string] \
-[opt "[option -full] [arg boolean]"] \
-[opt "[option -hyphenate] [arg boolean]"] \
-[opt "[option -justify] [arg center|left|plain|right]"] \
-[opt "[option -length] [arg integer]"] \
-[opt "[option -strictlength] [arg boolean]"] \
-]
+[opt [arg {option value ...}]]]
 
 Returns a copy of [arg string] modified according to the given options.
 
@@ -22,11 +17,15 @@ Together with [cmd ::textutil::adjust::indent] it is possible to
 create properly wrapped paragraphs with arbitrary indentations.
 
 [para]
-Under the hood, every newline, tab, or sequence of two or more spaces are
-treated as a single space. Every word in a line is separated by a single
-space. These are the algorithm’s [emph real] lines. Every [emph real]
-line is placed in a [emph logical] line, which is exactly
-[option -length] characters wide (even if the [emph real] line is shorter).
+Under the hood, every newline, tab, or sequence of two or more spaces
+are treated as a single space, and single spaces are used to separate
+the line’s words. These are the algorithm’s [emph real] lines. Every
+[emph real] line is placed in a [emph logical] line, which is exactly
+[option -length] characters wide (even if the [emph real] line is
+shorter). Every word in a [emph real] line is separated by a single
+space, except when the [option -justify] [const plain] option is used,
+in which case words are separated by one or more spaces as needed to
+fill the [emph real] line.
 
 [para]
 By default, trailing spaces (including tabs which are first replaced by
@@ -94,7 +93,7 @@ with no preceding spaces. If [option -full] is [const 1] (true), the
 
 Each line is fully justified. This means that each
 [emph real] line’s words are placed in the [emph logical] line,
-separated by one—or more—spaces, as needed to completely fill the line
+separated by one or more spaces, as needed to completely fill the line
 with no leading or trailing spaces.
 
 [def [const right]]
@@ -123,67 +122,154 @@ specified [option -length] if a single word is longer than
 
 [call [cmd ::textutil::adjust::readPatterns] [arg filename]]
 
-Loads the internal storage for hyphenation patterns with the contents
-of the file [arg filename]. This has to be done prior to calling
-command [cmd ::textutil::adjust::adjust] with "[option -hyphenate]
-[const true]", or the hyphenation process will not work correctly.
+Reads hyphenation patterns from the file called [arg filename].
 
 [para]
+This command is needed only if command [cmd ::textutil::adjust::adjust]
+is used with [option -hyphenate] [const 1] (true). In this case the call
+to [cmd ::textutil::adjust::readPatterns] [emph must] be done
+[emph before] calling [cmd ::textutil::adjust::adjust].
 
-The package comes with a number of predefined pattern files, and the
-command [cmd ::textutil::adjust::listPredefined] can be used to find
-out their names.
+[para]
+The [package textutil::adjust] package comes with a number of predefined
+pattern files. Use the [cmd ::textutil::adjust::listPredefined] command
+to list their names.
 
 [call [cmd ::textutil::adjust::listPredefined]]
 
-This command returns a list containing the names of the hyphenation
-files coming with this package.
+Returns a list of the names of the hyphenation files provided by this
+package.
 
 [call [cmd ::textutil::adjust::getPredefined] [arg filename]]
 
-Use this command to query the package for the full path name of the
-hyphenation file [arg filename] coming with the package. Only the
-filenames found in the list returned by
+Returns the full path and filename of the [arg filename] hyphenation
+file. [emph Note] that [arg filename] [emph must] be one of the
+names returned by [cmd ::textutil::adjust::listPredefined].
 
-[cmd ::textutil::adjust::listPredefined] are legal arguments for this
-command.
+[call [cmd ::textutil::adjust::indent] [arg string] [arg prefix] \
+    [opt [arg skip]]]
 
-[call [cmd ::textutil::adjust::indent] [arg string] [arg prefix] [opt [arg skip]]]
-
-Each line in the [arg string] is indented by adding the string
-[arg prefix] at its beginning. The modified string is returned
-as the result of the command.
-
-[para]
-
-If [arg skip] is specified the first [arg skip] lines are left
-untouched. The default for [arg skip] is [const 0], causing the
-modification of all lines. Negative values for [arg skip] are treated
-like [const 0]. In other words, [arg skip] > [const 0] creates a
-hanging indentation.
+Returns a modified copy of [arg string] with every non-skipped line
+prefixed with [arg prefix] and whitespace (except for the newline),
+trimmed from the end. By default no lines are skipped, so all are
+prefixed.
 
 [para]
+The [option skip] option specifies how many lines to skip at the start
+of the string; its default is [const 0], in which case none are skipped
+and all are prefixed. If [option skip] is set to a value [emph {> 0}],
+then that many initial lines in the string are skipped, i.e., not
+prefixed, while all the subsequent lines are prefixed. Setting
+[option skip] to [const 1] will create a conventional hanging indent.
 
+[para]
 Together with [cmd ::textutil::adjust::adjust] it is possible to
 create properly wrapped paragraphs with arbitrary indentations.
 
 [call [cmd ::textutil::adjust::undent] [arg string]]
 
-The command computes the common prefix for all lines in [arg string]
-consisting solely out of whitespace, removes this from each line and
-returns the modified string.
+Returns a modified copy of [arg string] with any common prefix of
+whitespace removed from each line.
 
 [para]
-
-Lines containing only whitespace are always reduced to completely
-empty lines. They and empty lines are also ignored when computing the
-prefix to remove.
+Empty lines and lines containing only whitespace are ignored for the
+computation of the prefix and all these lines are returned as empty
+lines.
 
 [para]
-
-Together with [cmd ::textutil::adjust::adjust] it is possible to
-create properly wrapped paragraphs with arbitrary indentations.
+[emph {Note that this command’s name is}] [cmd undent] [emph {not
+unindent.}]
 
 [list_end]
 
-[comment {Examples?}]
+[section Examples]
+
+The following [cmd proc] and [const const] are used by the examples
+below.
+
+[example {
+proc replace_spc {s {sub ▴}} { regsub -all { } $s $sub }
+const LINES "Four\nsiamese cats\nheard barks\nand bolted."
+}]
+
+The [cmd replace_spc] command replaces every space in the string it is
+passed with the ▴ symbol. The [const LINES] constant provides some text
+for the examples to work with.
+ 
+[subsection Justifying]
+
+The following example show every justification option in use. Spaces
+have been made visible by preserving them using [option -full] [const 1]
+and replacing them with the ▴ symbol.
+
+[para]
+Normally, [option -full] would [emph not] be used and there would be
+[emph no] trailing spaces in each line.
+
+[example {
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify left]
+puts "======= left =======\n[replace_spc $lines]"
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify center]
+puts "====== center ======\n[replace_spc $lines]"
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify plain]
+puts "======= plain ======\n[replace_spc $lines]"
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify right]
+puts "======= right ======\n[replace_spc $lines]"
+=>
+======= left =======
+Four▴siamese▴cats▴▴▴
+heard▴barks▴and▴▴▴▴▴
+bolted.▴▴▴▴▴▴▴▴▴▴▴▴▴
+
+====== center ======
+▴▴Four▴siamese▴cats▴
+▴▴▴heard▴barks▴and▴▴
+▴▴▴▴▴▴▴bolted.▴▴▴▴▴▴
+
+======= plain ======
+Four▴siamese▴▴▴▴cats
+heard▴▴▴barks▴▴▴▴and
+bolted.▴▴▴▴▴▴▴▴▴▴▴▴▴
+
+======= right ======
+▴▴▴Four▴siamese▴cats
+▴▴▴▴▴heard▴barks▴and
+▴▴▴▴▴▴▴▴▴▴▴▴▴bolted.
+}]
+
+[subsection {Indenting and Unindenting}]
+
+In the following example leading spaces have been made visible by using
+an indent of [const {··}] rather than, say, two spaces, and other
+spaces have been made visible by replacing them with the ▴ symbol. There
+are no trailing spaces since [cmd textutil::adjust::indent] trims them.
+
+[example {
+set lines [textutil::adjust::adjust $LINES -length 20 -justify left]
+puts "======== left =========\n[replace_spc $lines]"
+set indented [textutil::adjust::indent $lines "··"]
+puts "======== indent =======\n[replace_spc $indented]"
+# undent only unindents spaces
+set indented [regsub -all · $indented " "]
+set unindented [textutil::adjust::undent $indented]
+puts "======== undent =======\n[replace_spc $unindented]"
+set hanging [textutil::adjust::indent $lines "··" 1]
+puts "==== hanging indent ===\n[replace_spc $hanging]"
+=>
+======== left =========
+Four▴siamese▴cats
+heard▴barks▴and
+bolted.
+======== indent =======
+··Four▴siamese▴cats
+··heard▴barks▴and
+··bolted.
+======== undent =======
+Four▴siamese▴cats
+heard▴barks▴and
+bolted.
+==== hanging indent ===
+Four▴siamese▴cats
+··heard▴barks▴and
+··bolted.
+}]
