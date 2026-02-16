@@ -1,30 +1,32 @@
 [list_begin definitions]
 
-[call [cmd ::textutil::split::splitn] [arg string] [opt [arg len]]]
+[call [cmd ::textutil::split::splitn] [arg string] [opt [arg size]]]
 
-This command splits the given [arg string] into chunks of [arg len]
-characters and returns a list containing these chunks. The argument
-[arg len] defaults to [const 1] if none is specified. A negative
-length is not allowed and will cause the command to throw an
-error. Providing an empty string as input is allowed, the command will
-then return an empty list. If the length of the [arg string] is not an
-entire multiple of the chunk length, then the last chunk in the
-generated list will be shorter than [arg len].
+Returns a list of strings containing consecutive substrings of
+[arg string], each [arg size] long—except for the last which will be
+shorter if [arg string]’s length is not an exact multiple of [arg size].
+The [arg size] defaults to [const 1], i.e., return a list of
+[arg string]’s characters.
+
+[para]
+If [arg string] is empty, an empty list is returned. If [arg size]
+[emph {<= 0}], an error will be thrown.
 
 [call [cmd ::textutil::split::splitx] [arg string] [opt [arg regexp]]]
 
-This command splits the [arg string] and return a list. The string is
-split according to the regular expression [arg regexp] instead of a
-simple list of chars.
+Returns a list of strings containing consecutive substrings of
+[arg string] split according to the [arg regexp] regular expression
+which defaults to [emph "[lb]\\t \\r\\n[rb]+"] (tabs, spaces, newlines).
 
-[emph Note]: When parentheses are used in the [arg regexp], i.e. regex
-capture groups, then these groups will be added into the result list
-as additional elements. If the [arg string] is empty the result is the
-empty list, like for [cmd split].
+[para]
+[emph Note]: If [arg regexp] contains capturing parentheses, then the
+captured groups will be included in the result list as additional
+elements.
 
-If [arg regexp] is empty the [arg string] is split at every character,
-like [cmd split] does.
-
-The regular expression [arg regexp] defaults to "[lb]\\t \\r\\n[rb]+".
+[para]
+If [arg string] is empty, an empty list is returned.
+If [arg regexp] is empty, the [arg string] is split at every character,
+the same as the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/split.html split] command.
 
 [list_end]

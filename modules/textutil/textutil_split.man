@@ -14,10 +14,41 @@
 [description]
 
 The [package textutil::split] package provides commands that split
-strings by size and by arbitrary regular expressions.
+strings into substrings by size, or by regular expression.
 
 [section API]
 [include textutil_split.inc]
+
+[section Examples]
+
+This first example shows how to split strings by size.
+
+[example {
+const LINE1 "α and ℤ"
+set chars [::textutil::split::splitn $LINE1]
+puts ⌊[join $chars "⌋ ⌊"]⌋
+set chunks [::textutil::split::splitn $LINE1 3]
+puts ⌊[join $chunks "⌋ ⌊"]⌋
+=>
+⌊α⌋ ⌊ ⌋ ⌊a⌋ ⌊n⌋ ⌊d⌋ ⌊ ⌋ ⌊ℤ⌋
+⌊α a⌋ ⌊nd ⌋ ⌊ℤ⌋
+}]
+
+This second example shows how to split strings by regexp.
+
+[example {
+const LINE2 "a, be , cat, done , eagle"
+set chunks [::textutil::split::splitx $LINE2] ;# splits on [\t \r\n]+
+puts ⌊[join $chunks "⌋ ⌊"]⌋
+set chunks [::textutil::split::splitx $LINE2 {\s*,\s*}]
+puts ⌊[join $chunks "⌋ ⌊"]⌋
+set chunks [::textutil::split::splitx $LINE2 {\s*(,)\s*}]
+puts ⌊[join $chunks "⌋ ⌊"]⌋
+=>
+⌊a,⌋ ⌊be,⌋ ⌊cat,⌋ ⌊done,⌋ ⌊eagle⌋
+⌊a⌋ ⌊be⌋ ⌊cat⌋ ⌊done⌋ ⌊eagle⌋
+⌊a⌋ ⌊,⌋ ⌊be⌋ ⌊,⌋ ⌊cat⌋ ⌊,⌋ ⌊done⌋ ⌊,⌋ ⌊eagle⌋
+}]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]

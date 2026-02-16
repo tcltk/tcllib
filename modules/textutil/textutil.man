@@ -56,6 +56,9 @@ must be specifically package required as needed.
 The [namespace textutil] namespace’s commands shown above are described
 only in the subpackages themselves.
 
+[para]
+For examples, see the [namespace textutil] namespace’s subpackages.
+
 [section API]
 
 [include adjust.inc]
