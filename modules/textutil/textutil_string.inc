@@ -2,30 +2,27 @@
 
 [call [cmd ::textutil::string::chop] [arg string]]
 
-A convenience command. Removes the last character of [arg string] and
-returns the shortened string.
+Returns a copy of [arg string] with the last character removed.
 
 [call [cmd ::textutil::string::tail] [arg string]]
 
-A convenience command. Removes the first character of [arg string] and
-returns the shortened string.
+Returns a copy of [arg string] with the first character removed.
 
 [call [cmd ::textutil::string::cap] [arg string]]
 
-Capitalizes the first character of [arg string] and returns the
-modified string.
+Returns a copy of [arg string] with the first character capitalized.
 
 [call [cmd ::textutil::string::capEachWord] [arg string]]
 
-Capitalizes the first character of word of the [arg string] and
-returns the modified string. Words quoted with either backslash or
-dollar-sign are left untouched.
+Returns a copy of [arg string] with the first character of every word
+capitalized.
+
+[comment {Deleted the following since it does not appear to be true:
+Words quoted with either backslash or dollar-sign are left untouched.}]
 
 [call [cmd ::textutil::string::uncap] [arg string]]
 
-The complementary operation to [cmd ::textutil::string::cap]. Forces
-the first character of [arg string] to lower case and returns the
-modified string.
+Returns a copy of [arg string] with the first character lowercased.
 
 [call [cmd ::textutil::string::longestCommonPrefixList] [arg list]]
 [call [cmd ::textutil::string::longestCommonPrefix] [opt [arg string]...]]

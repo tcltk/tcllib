@@ -6,7 +6,10 @@ Returns a list of strings containing consecutive substrings of
 [arg string], each [arg size] long—except for the last which will be
 shorter if [arg string]’s length is not an exact multiple of [arg size].
 The [arg size] defaults to [const 1], i.e., return a list of
-[arg string]’s characters.
+[arg string]’s characters; this is the same as calling the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/split.html split] command
+with a second argument of [const {""}].
+
 
 [para]
 If [arg string] is empty, an empty list is returned. If [arg size]
@@ -25,8 +28,9 @@ elements.
 
 [para]
 If [arg string] is empty, an empty list is returned.
-If [arg regexp] is empty, the [arg string] is split at every character,
-the same as the built-in
-[uri https://www.tcl-lang.org/man/tcl/TclCmd/split.html split] command.
+If [arg regexp] is empty, the [arg string] is split at every character;
+this is the same as calling the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/split.html split] command
+with a second argument of [const {""}].
 
 [list_end]

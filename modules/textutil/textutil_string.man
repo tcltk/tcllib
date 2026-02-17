@@ -23,6 +23,36 @@ manipulation commands.
 [section API]
 [include textutil_string.inc]
 
+[section Examples]
+
+This first example shows all the commands that work on a single string.
+
+[example {
+const LINE "has the σαβ cogs"
+puts "“$LINE” const"
+set line [::textutil::string::chop $LINE]
+puts "“$line” chop"
+set line [::textutil::string::tail $line]
+puts "“$line” tail"
+set line [::textutil::string::cap $line]
+puts "“$line” cap"
+set line [::textutil::string::capEachWord $line]
+puts "“$line” capEachWord"
+set line [::textutil::string::uncap $line]
+puts "“$line” uncap"
+=>
+“has the σαβ cogs” const
+“has the σαβ cog” chop
+“as the σαβ cog” tail
+“As the σαβ cog” cap
+“As The Σαβ Cog” capEachWord
+“as The Σαβ Cog” uncap
+}]
+
+This example shows the longest common prefix commands in use.
+
+[comment TODO]
+
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]
 [manpage_end]
