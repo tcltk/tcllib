@@ -54,29 +54,6 @@ puts "=== 4spc→tab ===\n[replace_tab_spc $tabbed]\n"
 →}
 }]
 
-This example shows the [cmd ::textutil::tabify::tabify2] command in use.
-
-[example {
-const LINES2 "    Aim    Band    Car    Dog
-    Am     Ban     Cone   Domes"
-puts "========== original ===========\n[replace_tab_spc $LINES2]\n"
-set tabbed [::textutil::tabify::tabify $LINES2 4]
-puts "======= tabify 4spc→tab =======\n[replace_tab_spc $tabbed]"
-set tabbed [::textutil::tabify::tabify2 $LINES2 4]
-puts "======= tabify2 4spc→tab =======\n[replace_tab_spc $tabbed]"
-=>
-========== original ===========
-▴▴▴▴Aim▴▴▴▴Band▴▴▴▴Car▴▴▴▴Dog
-▴▴▴▴Am▴▴▴▴▴Ban▴▴▴▴▴Cone▴▴▴Domes
- 
-======= tabify 4spc→tab =======
-→Aim→Band→Car→Dog
-→Am→▴Ban→▴Cone▴▴▴Domes
-======= tabify2 4spc→tab =======
-→Aim▴▴▴▴Band▴▴▴▴Car→▴▴Dog
-→Am→▴▴▴Ban→▴▴▴Cone▴▴▴Domes
-}]
-
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]
 [manpage_end]
