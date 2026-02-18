@@ -25,16 +25,18 @@ Words quoted with either backslash or dollar-sign are left untouched.}]
 Returns a copy of [arg string] with the first character lowercased.
 
 [call [cmd ::textutil::string::longestCommonPrefixList] [arg list]]
-[call [cmd ::textutil::string::longestCommonPrefix] [opt [arg string]...]]
 
-Computes the longest common prefix for either the [arg string]s given
-to the command, or the strings specified in the single [arg list], and
-returns it as the result of the command.
+Returns the longest common prefix of the strings in the given [arg list].
 
 [para]
+If no argument is given, the empty string is returned.
 
-If no strings were specified the result is the empty string.  If only
-one string was specified, the string itself is returned, as it is its
-own longest common prefix.
+[call [cmd ::textutil::string::longestCommonPrefix] [opt [arg string]...]]
+
+Returns the longest common prefix of the string arguments, [arg string], ….
+
+[para]
+If a single string is given, it is returned since it is its own longest
+common prefix. If no argument is given, the empty string is returned.
 
 [list_end]

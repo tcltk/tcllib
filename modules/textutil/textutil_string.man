@@ -20,6 +20,10 @@
 The [package textutil::string] package provides miscellaneous string
 manipulation commands.
 
+[para]
+To see how to find a common path from a list of paths, see the last of
+the [sectref Examples].
+
 [section API]
 [include textutil_string.inc]
 
@@ -51,7 +55,41 @@ puts "“$line” uncap"
 
 This example shows the longest common prefix commands in use.
 
-[comment TODO]
+[example {
+const LIST [list handbag handcuff handful handle handy]
+puts “[::textutil::string::longestCommonPrefixList $LIST]”
+puts “[::textutil::string::longestCommonPrefix king queen knave]”
+puts “[::textutil::string::longestCommonPrefix king kin kind kinks]”
+=>
+“hand”
+“”
+“kin”
+}]
+
+This example shows how to use the
+[cmd ::textutil::string::longestCommonPrefixList] command to find the
+common path from a list of paths.
+
+[example {
+proc longestCommonPath paths {
+    const SEP [file separator]
+    set path [::textutil::string::longestCommonPrefixList $paths]
+    while {[string length $path] && [string index $path end] ne $SEP} {
+        set path [::textutil::string::chop $path]
+    }
+    if {$path ne $SEP} { set path [string trimright $path $SEP] }
+    return $path
+}
+ 
+const PATHS [list /home/sally/music /home/sally/museums /home/sally/musings]
+puts [::textutil::string::longestCommonPrefixList $PATHS]
+puts [longestCommonPath $PATHS]
+puts [longestCommonPath [list /bin / /sbin]]
+=>
+/home/sally/mus
+/home/sally
+/
+}]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]

@@ -1,30 +1,22 @@
-[para]
-
-The complete set of procedures is described below.
-
 [list_begin definitions]
 
 [call [cmd ::textutil::tabify::tabify] [arg string] [opt [arg num]]]
 
-Tabify the [arg string] by replacing any substring of [arg num] space
-chars by a tabulation and return the result as a new string. [arg num]
-defaults to 8.
+Returns a copy of [arg string] with any substring of [arg num] space
+characters replaced by a horizontal tab. The [arg num] defaults to 8.
 
 [call [cmd ::textutil::tabify::tabify2] [arg string] [opt [arg num]]]
 
-Similar to [cmd ::textutil::tabify] this command tabifies the
-
-[arg string] and returns the result as a new string. A different
-algorithm is used however. Instead of replacing any substring of
-[arg num] spaces this command works more like an editor. [arg num]
-defaults to 8.
+Returns a copy of [arg string] with substrings of [arg num]
+[emph {or fewer}] space characters replaced by a horizontal tab using a
+text editor like algorithm. The [arg num] defaults to 8.
 
 [para]
-
-Each line of the text in [arg string] is treated as if there are
-tabstops every [arg num] columns. Only sequences of space characters
-containing more than one space character and found immediately before
-a tabstop are replaced with tabs.
+The algorithm used by this command treats each line in [arg string] as
+if it had notional tabstops every [arg num] columns. (So, if [arg num]
+is [const 8], at columns [const 8], [const 16], [const 24], ….) Only
+sequences of [emph {two or more}] space characters that occur
+immediately before a notional tabstop are replaced with a tab.
 
 [call [cmd ::textutil::tabify::untabify] [arg string] [opt [arg num]]]
 
