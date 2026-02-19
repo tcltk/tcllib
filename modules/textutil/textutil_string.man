@@ -74,8 +74,10 @@ common path from a list of paths.
 proc longestCommonPath paths {
     const SEP [file separator]
     set path [::textutil::string::longestCommonPrefixList $paths]
-    while {[string length $path] && [string index $path end] ne $SEP} {
-        set path [::textutil::string::chop $path]
+    if {[string index $path end] ne $SEP} {
+        if {[set j [string last $SEP $path]] > -1} {
+            set path [string range $path 0 $j-1]
+        }
     }
     if {$path ne $SEP} { set path [string trimright $path $SEP] }
     return $path
