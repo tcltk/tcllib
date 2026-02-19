@@ -56,9 +56,6 @@ must be specifically package required as needed.
 The [namespace textutil] namespace’s commands shown above are described
 only in the subpackages themselves.
 
-[para]
-For examples, see the [namespace textutil] namespace’s subpackages.
-
 [section API]
 
 [include adjust.inc]
@@ -67,6 +64,19 @@ For examples, see the [namespace textutil] namespace’s subpackages.
 [include textutil_string.inc]
 [include tabify.inc]
 [include trim.inc]
+
+[section Examples]
+
+[subsection Adjust]
+[include adjust_eg.inc]
+[subsection Repeat]
+[include repeat_eg.inc]
+[subsection Split]
+[include textutil_split_eg.inc]
+[subsection String]
+[include textutil_string_eg.inc]
+[subsection Tabify]
+[include tabify_eg.inc]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]

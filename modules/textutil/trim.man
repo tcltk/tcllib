@@ -19,6 +19,8 @@ strings using arbitrary regular expressions.
 [section API]
 [include trim.inc]
 
+[comment {TODO examples in trim_eg.inc}]
+
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]
 [manpage_end]

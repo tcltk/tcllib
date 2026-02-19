@@ -19,16 +19,7 @@ strings by repeating a string multiple times.
 [include repeat.inc]
 
 [section Examples]
-
-This tiny example shows this package’s commands in action.
-
-[example {
-puts [::textutil::repeat::strRepeat = 22]
-puts =[::textutil::repeat::blank 20]=
-=>
-======================
-=                    =
-}]
+[include repeat_eg.inc]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]
