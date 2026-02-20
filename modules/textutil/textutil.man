@@ -77,6 +77,8 @@ only in the subpackages themselves.
 [include textutil_string_eg.inc]
 [subsection Tabify]
 [include tabify_eg.inc]
+[subsection Trim]
+[include trim_eg.inc]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]

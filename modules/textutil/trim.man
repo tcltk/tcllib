@@ -13,13 +13,20 @@
 [require textutil::trim [opt 0.8]]
 [description]
 
-The [package textutil::trim] package provides commands that trim
-strings using arbitrary regular expressions.
+The [package textutil::trim] package provides commands that trim strings
+in various ways, including using arbitrary regular expressions.
+
+[para]
+To trim strings of sets of characters (such as whitespace), use the
+built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/string.html string]
+command’s [cmd trim], [cmd trimleft], [cmd trimright] subcommands.
 
 [section API]
 [include trim.inc]
 
-[comment {TODO examples in trim_eg.inc}]
+[section Examples]
+[include trim_eg.inc]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]

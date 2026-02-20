@@ -2,48 +2,49 @@
 
 [call [cmd ::textutil::trim::trim] [arg string] [opt [arg regexp]]]
 
-Remove in [arg string] any leading and trailing substring according to
-the regular expression [arg regexp] and return the result as a new
-string.  This is done for all [emph lines] in the string, that is any
-substring between 2 newline chars, or between the beginning of the
-string and a newline, or between a newline and the end of the string,
-or, if the string contain no newline, between the beginning and the
-end of the string.
-
-The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
+Returns a copy of [arg string] with any leading or trailing substring
+that matches [arg regexp] removed from the [arg string] if does not
+contain newlines, or from [emph {every line}] within the [arg string] if
+it contains newlines. The [arg regexp] defaults to
+[emph {[ \t]+}]. This default will remove leading and trailing
+spaces and tabs from the [arg string] if it does not contain newlines,
+or from [emph {every line}] within the [arg string] if it contains
+newlines.
 
 [call [cmd ::textutil::trim::trimleft] [arg string] [opt [arg regexp]]]
 
-Remove in [arg string] any leading substring according to the regular
-expression [arg regexp] and return the result as a new string. This
-apply on any [emph line] in the string, that is any substring between
-2 newline chars, or between the beginning of the string and a newline,
-or between a newline and the end of the string, or, if the string
-contain no newline, between the beginning and the end of the string.
-
-The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
+Returns a copy of [arg string] with any leading substring that matches
+[arg regexp] removed from the [arg string] if does not contain newlines,
+or from [emph {every line}] within the [arg string] if it contains
+newlines. The [arg regexp] defaults to [emph {[ \t]+}]. This
+default will remove leading spaces and tabs from the [arg string] if it
+does not contain newlines, or from [emph {every line}] within the
+[arg string] if it contains newlines.
 
 [call [cmd ::textutil::trim::trimright] [arg string] [opt [arg regexp]]]
 
-Remove in [arg string] any trailing substring according to the regular
-expression [arg regexp] and return the result as a new string. This
-apply on any [emph line] in the string, that is any substring between
-2 newline chars, or between the beginning of the string and a newline,
-or between a newline and the end of the string, or, if the string
-contain no newline, between the beginning and the end of the string.
-
-The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
+Returns a copy of [arg string] with any trailing substring that matches
+[arg regexp] removed from the [arg string] if does not contain newlines,
+or from [emph {every line}] within the [arg string] if it contains
+newlines. The [arg regexp] defaults to [emph {[ \t]+}]. This
+default will remove trailing spaces and tabs from the [arg string] if it
+does not contain newlines, or from [emph {every line}] within the
+[arg string] if it contains newlines.
 
 [call [cmd ::textutil::trim::trimPrefix] [arg string] [arg prefix]]
 
-Removes the [arg prefix] from the beginning of [arg string] and
-returns the result. The [arg string] is left unchanged if it doesn't
-have [arg prefix] at its beginning.
+Returns a copy of [arg string] with [arg prefix] removed from the start
+if it is present; otherwise returns [arg string] unchanged.
+
+[para]
+Contrast this command with the built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/string.html string]
+command’s [cmd trim], [cmd trimleft], [cmd trimright] subcommands which
+remove all characters in a given set of characters passed as a string.
 
 [call [cmd ::textutil::trim::trimEmptyHeading] [arg string]]
 
-Looks for empty lines (including lines consisting of only whitespace)
-at the beginning of the [arg string] and removes it. The modified
-string is returned as the result of the command.
+Returns a copy of [arg string] with any leading blank lines (including
+lines containing only whitespace) removed.
 
 [list_end]
