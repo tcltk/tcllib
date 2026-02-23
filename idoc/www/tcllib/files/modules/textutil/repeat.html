@@ -116,7 +116,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
@@ -129,30 +131,42 @@
 <li>package require <b class="pkgname">textutil::repeat <span class="opt">?0.8?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::textutil::repeat::strRepeat</b> <i class="arg">text</i> <i class="arg">num</i></a></li>
-<li><a href="#2"><b class="cmd">::textutil::repeat::blank</b> <i class="arg">num</i></a></li>
+<li><a href="#1"><b class="cmd">::textutil::repeat::strRepeat</b> <i class="arg">text</i> <i class="arg">count</i></a></li>
+<li><a href="#2"><b class="cmd">::textutil::repeat::blank</b> <i class="arg">count</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The package <b class="package">textutil::repeat</b> provides commands to generate
-long strings by repeating a shorter string many times.</p>
-<p>The complete set of procedures is described below.</p>
+<p>The <b class="package">textutil::repeat</b> package provides commands to generate
+strings by repeating a string multiple times.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::textutil::repeat::strRepeat</b> <i class="arg">text</i> <i class="arg">num</i></a></dt>
-<dd><p>This command returns a string containing the <i class="arg">text</i> repeated
-<i class="arg">num</i> times. The repetitions are joined without characters between
-them. A value of <i class="arg">num</i> &lt;= 0 causes the command to return an empty
-string.</p>
-<p><em>Note</em>: If the Tcl core the package is loaded in provides the
-command <b class="cmd">string repeat</b> then this command will be implemented in
-its terms, for maximum possible speed. Otherwise a fast implementation
-in Tcl will be used.</p></dd>
-<dt><a name="2"><b class="cmd">::textutil::repeat::blank</b> <i class="arg">num</i></a></dt>
-<dd><p>A convenience command. Returns a string of <i class="arg">num</i> spaces.</p></dd>
+<dt><a name="1"><b class="cmd">::textutil::repeat::strRepeat</b> <i class="arg">text</i> <i class="arg">count</i></a></dt>
+<dd><p>Returns a string containing the <i class="arg">text</i> repeated <i class="arg">count</i> times.</p>
+<p>The repetitions are joined with no separators between them. A value of
+<i class="arg">count</i> <em>&lt;= 0</em> causes the command to return an empty string.</p>
+<p><em>Note</em>: If the Tcl core this package is loaded in provides the
+<b class="cmd">string repeat</b> command, then this command will be implemented in
+its terms, for maximum speed. Otherwise a fast Tcl implementation is used.</p></dd>
+<dt><a name="2"><b class="cmd">::textutil::repeat::blank</b> <i class="arg">count</i></a></dt>
+<dd><p>Returns a string containing <i class="arg">count</i> spaces.</p>
+<p>This is a convenience for calling <b class="cmd">::textutil::repeat::strRepeat</b>
+with <b class="const">&quot; &quot;</b> as its first argument.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>This tiny example shows the <b class="package">::textutil::repeat</b> package’s
+commands in action.</p>
+<pre class="doctools_example">
+puts [::textutil::repeat::strRepeat = 22]
+puts =[::textutil::repeat::blank 20]=
+=&gt;
+======================
+=                    =
+</pre>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

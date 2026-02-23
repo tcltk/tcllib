@@ -22,7 +22,11 @@ string::token \- Regex based iterative lexing
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [Keywords](#keywords)
 
@@ -36,48 +40,58 @@ package require fileutil
 
 [__::string token text__ *lex* *string*](#1)  
 [__::string token file__ *lex* *path*](#2)  
-[__::string token chomp__ *lex* *startvar* *string* *resultvar*](#3)  
+[__::string token chomp__ *lex* *startVar* *string* *resultVar*](#3)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides commands for regular expression based lexing
-\(tokenization\) of strings\.
+This package provides commands for regular expression based lexing \(tokenizing\)
+of strings\.
 
-The complete set of procedures is described below\.
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::string token text__ *lex* *string*
 
-    This command takes an ordered dictionary *lex* mapping regular expressions
-    to labels, and tokenizes the *string* according to this dictionary\.
+    This command takes a dictionary, *lex*, which must map regular expressions
+    \(“regexps”\) to labels, and tokenizes the *string* according to the
+    dictionary\.
 
-    The result of the command is a list of tokens, where each token is a
-    3\-element list of label, start\- and end\-index in the *string*\.
+    The command tests each regexp in the *lex* dictionary in order\. Since Tcl
+    __dict__s are insertion\-ordered, it is recommended that the regexps are
+    specified from most specific to most general\.
 
-    The command will throw an error if it is not able to tokenize the whole
+    The command returns a list of tokens\. Each token is a 3\-element list
+    containing the label \(from the *lex* __dict__\), and the start and end
+    indexes of the match in the *string*\.
+
+    The command will throw an error if it is not able to tokenize the entire
     string\.
+
+    For line\-oriented lexers, finer\-grained error handling and handling huge
+    files can be achieved by lexing line\-by\-line\.
 
   - <a name='2'></a>__::string token file__ *lex* *path*
 
     This command is a convenience wrapper around __::string token text__
-    above, and __fileutil::cat__, enabling the easy tokenization of whole
-    files\. *Note* that this command loads the file wholly into memory before
-    starting to process it\.
+    that makes it easy to tokenize entire files\.
 
-    If the file is too large for this mode of operation a command directly based
-    on __::string token chomp__ below will be necessary\.
+    *Note* that this command loads the whole file into memory before starting
+    to process it\.
 
-  - <a name='3'></a>__::string token chomp__ *lex* *startvar* *string* *resultvar*
+  - <a name='3'></a>__::string token chomp__ *lex* *startVar* *string* *resultVar*
 
-    This command is the work horse underlying __::string token text__ above\.
-    It is exposed to enable users to write their own lexers, which, for example
-    may apply different lexing dictionaries according to some internal state,
-    etc\.
+    This command is exposed to enable users to write their own lexers\. For
+    example, to apply different lexing dictionaries depending on internal state
+    as the lex progresses\.
 
-    The command takes an ordered dictionary *lex* mapping regular expressions
-    to labels, a variable *startvar* which indicates where to start lexing in
-    the input *string*, and a result variable *resultvar* to extend\.
+    \(The __::string token text__ and __::string token file__ commands
+    make use of this command behind the scenes\.\)
 
-    The result of the command is a tri\-state numeric code indicating one of
+    This command takes a dictionary, *lex*, which must map regexps to labels,
+    a variable *startVar* which contains the index position where the lexing
+    should begin in the input *string*, and a result variable *resultVar* to
+    which each successfuly lexed token will be appended\.
+
+    The command returns a status code indicating the state of the lex These are
 
       * __0__
 
@@ -91,29 +105,93 @@ The complete set of procedures is described below\.
 
         End of string reached\.
 
-    Note that recognition of a token from *lex* is started at the character
-    index in *startvar*\.
-
     If a token was recognized \(status __1__\) the command will update the
-    index in *startvar* to point to the first character of the *string* past
-    the recognized token, and it will further extend the *resultvar* with a
-    3\-element list containing the label associated with the regular expression
-    of the token, and the start\- and end\-character\-indices of the token in
-    *string*\.
+    index in *startVar* to the character immediately *following* the lexed
+    token\. It will also append to the *resultVar* the lexed token which itself
+    is a 3\-element list containing the label \(from the *lex* __dict__\),
+    and the start and end indexes of the match in the *string*\.
 
-    Neither *startvar* nor *resultvar* will be updated if no token is
-    recognized at all\.
+    If a token was not recognized \(status __0__ or __2__\), neither
+    *startVar* nor *resultVar* will be updated\.
 
-    Note that the regular expressions are applied \(tested\) in the order they are
-    specified in *lex*, and the first matching pattern stops the process\.
-    Because of this it is recommended to specify the patterns to lex with from
-    the most specific to the most general\.
+    As noted earlier, the command tests each regexp in the *lex* dictionary in
+    order\. Since Tcl __dict__s are insertion\-ordered, it is recommended that
+    the regexps are specified from most specific to most general\.
 
     Further note that all regex patterns are implicitly prefixed with the
-    constraint escape __A__ to ensure that a match starts exactly at the
-    character index found in *startvar*\.
+    constraint escape __\\A__ to ensure that a match starts exactly at the
+    character index found in *startVar*\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section3'></a>Examples
+
+This example shows how to use the __string token text__ command to lex a
+simple line\-oriented *\.ini* file format\. \(For full\-featured *\.ini* file
+handling, see
+[inifile](https://core\.tcl\-lang\.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/inifile/ini\.md)\.\)
+
+    const INI_EG "; example.ini
+    Filename = test.db
+
+    invalid
+    \[Database\]
+    # remote data
+    Port: 143
+    IP: 192.0.2.62
+
+    junk
+    "
+
+    proc main {} {
+        set groups [lex_ini $::INI_EG]
+        puts General:
+        dict for {key value} [dict get $groups General] { puts "\t$key: $value" }
+        puts Database:
+        dict for {key value} [dict get $groups Database] { puts "\t$key: $value" }
+    }
+
+    proc lex_ini ini_text {
+        const INI_LEX [dict create {[#;].*$} COMMENT {\[[^]]+\]} GROUP {\w+\s*[:=].+$} ENTRY]
+        set group General
+        set linenum 0
+        foreach line [split $ini_text \n] {
+            incr linenum
+            if {[string trim $line] eq ""} { continue }
+            try {
+                set token [string token text $INI_LEX $line]
+                if {[llength $token]} { set token [lindex $token 0] }
+                lassign $token label i j
+                switch $label {
+                    COMMENT { continue }
+                    GROUP {
+                        set group [string range $line $i+1 $j-1]
+                        dict set groups $group {}
+                    }
+                    ENTRY {
+                        set entry [string range $line $i $j]
+                        set k [lindex [regexp -inline -indices {[=:]} $entry] 0 0]
+                        set key [string trim [string range $entry 0 $k-1]]
+                        set value [string trim [string range $entry $k+1 end]]
+                        dict set groups $group $key $value
+                    }
+                }
+            } on error err {
+                puts "Error: line $linenum: $err"
+            }
+        }
+        return $groups
+    }
+
+    main
+    =>
+    Error: line 4: Unexpected character 'i' at offset 0
+    Error: line 10: Unexpected character 'j' at offset 0
+    General:
+    	Filename: test.db
+    Database:
+    	Port: 143
+    	IP: 192.0.2.62
+
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

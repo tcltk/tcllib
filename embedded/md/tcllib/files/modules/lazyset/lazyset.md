@@ -23,11 +23,11 @@ lazyset \- Lazy evaluation
 
   - [Description](#section1)
 
-  - [COMMANDS](#section2)
+  - [Commands](#section2)
 
-  - [EXAMPLES](#section3)
+  - [Examples](#section3)
 
-  - [AUTHORS](#section4)
+  - [Authors](#section4)
 
   - [Bugs, Ideas, Feedback](#section5)
 
@@ -40,37 +40,48 @@ lazyset \- Lazy evaluation
 package require Tcl 8\.5 9  
 package require lazyset ?1\.1?  
 
-[__::lazyset::variable__ ?*\-array boolean*? ?*\-appendArgs boolean*? *variableName* *commandPrefix*](#1)  
+[__::lazyset::variable__ ?*\-array boolean*? ?*\-appendArgs boolean*? *someVar* *commandPrefix*](#1)  
 
 # <a name='description'></a>DESCRIPTION
 
-The __lazyset__ package provides a mechanism for deferring execution of code
+The __lazyset__ package provides a mechanism for deferring code execution
 until a specific variable or any index of an array is referenced\.
 
-# <a name='section2'></a>COMMANDS
+*\(Another way to defer execution is to create a singleton class\.* *The first
+time its constructor is called—if ever—the object will be* *created\. Any
+subsequent constructor call will get back the first created* *object\. See*
+[oo::singleton](https://www\.tcl\-lang\.org/man/tcl/TclCmd/singleton\.html)\.\)
 
-  - <a name='1'></a>__::lazyset::variable__ ?*\-array boolean*? ?*\-appendArgs boolean*? *variableName* *commandPrefix*
+# <a name='section2'></a>Commands
+
+  - <a name='1'></a>__::lazyset::variable__ ?*\-array boolean*? ?*\-appendArgs boolean*? *someVar* *commandPrefix*
 
     Arrange for the code specified as *commandPrefix* to be executed when the
-    variable whose name is specified by *variableName* is read for the first
-    time\. If the optional argument *\-array boolean* is specified as true, then
-    the variable specified as *variableName* is treated as an array and
-    attempting to read any index of the array causes that index to be set by the
-    *commandPrefix* as they are read\. If the optional argument *\-appendArgs
-    boolean* is specified as false, then the variable name and subnames are not
-    appended to the *commandPrefix* before it is evaluated\. If the argument
-    *\-appendArgs boolean* is not specified or is specified as true then 1 or 2
-    additional arguments are appended to the *commandPrefix*\. If *\-array
-    boolean* is specified as true, then 2 arguments are appended corresponding
-    to the name of the variable and the index, otherwise 1 argument is appended
-    containing the name of variable\. The *commandPrefix* code is run in the
-    same scope as the variable is read\.
+    variable whose name is specified by *someVar* is read for the first time\.
 
-# <a name='section3'></a>EXAMPLES
+    If the optional argument *\-array boolean* is specified as true, then the
+    variable specified as *someVar* is treated as an array and attempting to
+    read any index of the array causes that index to be set by the
+    *commandPrefix* as they are read\.
+
+    If the optional argument *\-appendArgs boolean* is specified as false, then
+    the variable name and subnames are not appended to the *commandPrefix*
+    before it is evaluated\.
+
+    If the argument *\-appendArgs boolean* is not specified or is specified as
+    true, then 1 or 2 additional arguments are appended to the
+    *commandPrefix*\. If *\-array boolean* is specified as true, then 2
+    arguments are appended corresponding to the name of the variable and the
+    index; otherwise 1 argument is appended containing the name of the variable\.
+
+    The *commandPrefix* code is run in the same scope as the variable that is
+    read\.
+
+# <a name='section3'></a>Examples
 
     ::lazyset::variable page {apply {{name} {
     	package require http
-    	set token [http::geturl http://www.tcl.tk/]
+    	set token [http::geturl http://www.tcl-lang.org/]
     	set data [http::data $token]
     	return $data
     }}}
@@ -84,7 +95,7 @@ until a specific variable or any index of an array is referenced\.
     	return $data
     }}}
 
-    puts $page(http://www.tcl.tk/)
+    puts $page(http://www.tcl-lang.org/)
 
     ::lazyset::variable -appendArgs false simple {
     	return -level 0 42
@@ -92,7 +103,7 @@ until a specific variable or any index of an array is referenced\.
 
     puts $simple
 
-# <a name='section4'></a>AUTHORS
+# <a name='section4'></a>Authors
 
 Roy Keene
 

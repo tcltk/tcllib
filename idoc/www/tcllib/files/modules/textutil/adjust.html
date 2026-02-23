@@ -116,7 +116,14 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Justifying</a></li>
+<li class="doctools_subsection"><a href="#subsection2">Indenting and Unindenting</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
@@ -129,7 +136,7 @@
 <li>package require <b class="pkgname">textutil::adjust <span class="opt">?0.7.4?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::textutil::adjust::adjust</b> <i class="arg">string</i> <span class="opt">?<i class="arg">option value...</i>?</span></a></li>
+<li><a href="#1"><b class="cmd">::textutil::adjust::adjust</b> <i class="arg">string</i> <span class="opt">?<i class="arg">option value ...</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::textutil::adjust::readPatterns</b> <i class="arg">filename</i></a></li>
 <li><a href="#3"><b class="cmd">::textutil::adjust::listPredefined</b></a></li>
 <li><a href="#4"><b class="cmd">::textutil::adjust::getPredefined</b> <i class="arg">filename</i></a></li>
@@ -139,124 +146,215 @@
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The package <b class="package">textutil::adjust</b> provides commands that manipulate
-strings or texts (a.k.a. long strings or string with embedded newlines
-or paragraphs), adjusting, or indenting them.</p>
-<p>The complete set of procedures is described below.</p>
+<p>The <b class="package">textutil::adjust</b> package provides commands to indent,
+unindent, and justify the text held in a string.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::textutil::adjust::adjust</b> <i class="arg">string</i> <span class="opt">?<i class="arg">option value...</i>?</span></a></dt>
-<dd><p>Do a justification on the <i class="arg">string</i> according to the options.  The
-string is taken as one big paragraph, ignoring any newlines.  Then the
-line is formatted according to the options used, and the command
-returns a new string with enough lines to contain all the printable
-chars in the input string. A line is a set of characters between the
-beginning of the string and a newline, or between 2 newlines, or
-between a newline and the end of the string. If the input string is
-small enough, the returned string won't contain any newlines.</p>
+<dt><a name="1"><b class="cmd">::textutil::adjust::adjust</b> <i class="arg">string</i> <span class="opt">?<i class="arg">option value ...</i>?</span></a></dt>
+<dd><p>Returns a copy of <i class="arg">string</i> modified according to the given options.</p>
+<p>Any newlines in the original <i class="arg">string</i> are treated as spaces, i.e.,
+the input <i class="arg">string</i> is handled as a single paragraph of text. If the
+result string is shorter than the <b class="option">-length</b>, it will not contain
+any newlines. Otherwise, the result will contain newlines as needed to
+perform the desired justification.</p>
 <p>Together with <b class="cmd">::textutil::adjust::indent</b> it is possible to
 create properly wrapped paragraphs with arbitrary indentations.</p>
-<p>By default, any occurrence of space or tabulation characters are
-replaced by a single space so that each word in a line is separated
-from the next one by exactly one space character, and this forms a
-<em>real</em> line.
-Each <em>real</em> line is placed in a <em>logical</em> line, which has
-exactly a given length (see the option <b class="option">-length</b> below).
-The <em>real</em> line may be shorter. Again by default, trailing spaces
-are ignored before returning the string (see the option <b class="option">-full</b>
-below).</p>
-<p>The following options may be used after the <i class="arg">string</i> parameter,
-and change the way the command places a <em>real</em> line in a
-<em>logical</em> line.</p>
+<p>Under the hood, every newline, tab, or sequence of two or more spaces
+are treated as a single space, and single spaces are used to separate
+the line’s words. These are the algorithm’s <em>real</em> lines. Every
+<em>real</em> line is placed in a <em>logical</em> line, which is exactly
+<b class="option">-length</b> characters wide (even if the <em>real</em> line is
+shorter). Every word in a <em>real</em> line is separated by a single
+space, except when the <b class="option">-justify</b> <b class="const">plain</b> option is used,
+in which case words are separated by one or more spaces as needed to
+fill the <em>real</em> line.</p>
+<p>By default, trailing spaces (including tabs which are first replaced by
+spaces) are trimmed. See the <b class="option">-full</b> option below.</p>
+<p>The following options may be given after the <i class="arg">string</i> parameter.
+They control how the command places each <em>real</em> line in its
+corresponding <em>logical</em> line.</p>
 <dl class="doctools_options">
 <dt><b class="option">-full</b> <i class="arg">boolean</i></dt>
-<dd><p>If set to <b class="const">false</b> (default), trailing space characters are
-deleted before returning the string. If set to <b class="const">true</b>, any
-trailing space characters are left in the string.</p></dd>
+<dd><p>If set to <b class="const">0</b> (false; the default), any trailing spaces are
+deleted from each line before returning the string. If set to <b class="const">1</b>
+(true), any trailing spaces are left at the end each line.</p></dd>
 <dt><b class="option">-hyphenate</b> <i class="arg">boolean</i></dt>
-<dd><p>If set to <b class="const">false</b> (default), no hyphenation will be done. If set
-to <b class="const">true</b>, the command will try to hyphenate the last word of a
-line. <em>Note</em>: Hyphenation patterns must be loaded prior, using
-the command <b class="cmd">::textutil::adjust::readPatterns</b>.</p></dd>
+<dd><p>If set to <b class="const">0</b> (false; the default), no hyphenation will be done.
+If set to <b class="const">1</b> (true), the command will try to hyphenate the last
+word of each line when appropriate.</p>
+<p>If <b class="option">-hyphenate</b> is set to <b class="const">1</b>, hyphenation patterns
+<em>must</em> have been loaded by calling the
+<b class="cmd">::textutil::adjust::readPatterns</b> command, <em>before</em> the call
+to <b class="cmd">::textutil::adjust::adjust</b>; otherwise
+<b class="cmd">::textutil::adjust::adjust</b> will throw an error.</p></dd>
 <dt><b class="option">-justify</b> <b class="const">center|left|plain|right</b></dt>
-<dd><p>Sets the justification of the returned string to either <b class="const">left</b>
-(default), <b class="const">center</b>, <b class="const">plain</b> or <b class="const">right</b>. The
-justification means that any line in the returned string but the last
-one is build according to the value.
-If the justification is set to <b class="const">plain</b> and the number of
-printable chars in the last line is less than 90% of the length of a
-line (see the option <b class="option">-length</b>), then this line is justified
-with the <b class="const">left</b> value, avoiding the expansion of this line when
-it is too small. The meaning of each value is:</p>
+<dd><p>Sets the justification applied to the returned string to any one of:
+<b class="const">left</b> (the default), <b class="const">center</b>, <b class="const">plain</b> (justified), or
+<b class="const">right</b>. The justification means that any line in the returned
+string (possibly excluding the last line), is justified according to the
+given justification.</p>
+<p>If the justification is set to <b class="const">plain</b> (justified), and the number
+of printable characters in the last line is less than 90% of
+<b class="option">-length</b>, then the last line is justified <b class="const">left</b>, avoiding
+the padding of this line when it is too short. The meaning of each value
+is:</p>
 <dl class="doctools_definitions">
 <dt><b class="const">center</b></dt>
-<dd><p>The real line is centered in the logical line. If needed, a set of
-space characters are added at the beginning (half of the needed set)
-and at the end (half of the needed set) of the line if required (see
-the option <b class="option">-full</b>).</p></dd>
+<dd><p>Each <em>real</em> line is centered in the <em>logical</em> line by padding
+the <em>real</em> line with spaces at the beginning and end as needed.
+If the last line is less than 90% of <b class="option">-length</b>, it will be aligned
+<b class="const">left</b> instead of <b class="const">center</b>.
+(See also the <b class="option">-full</b> option.)</p></dd>
 <dt><b class="const">left</b></dt>
-<dd><p>The real line is set on the left of the logical line. It means that
-there are no space chars at the beginning of this line. If required,
-all needed space chars are added at the end of the line (see the
-option <b class="option">-full</b>).</p></dd>
+<dd><p>Each <em>real</em> line is placed at the left of the <em>logical</em> line,
+with no preceding spaces. If <b class="option">-full</b> is <b class="const">1</b> (true), the
+<em>real</em> line will be padded with spaces at the end to make it
+<b class="option">-length</b> characters wide.</p></dd>
 <dt><b class="const">plain</b></dt>
-<dd><p>The real line is exactly set in the logical line. It means that there
-are no leading or trailing space chars. All the needed space chars are
-added in the <em>real</em> line, between 2 (or more) words.</p></dd>
+<dd><p>Each line is fully justified. This means that each
+<em>real</em> line’s words are placed in the <em>logical</em> line,
+separated by one or more spaces, as needed to completely fill the line
+with no leading or trailing spaces.</p></dd>
 <dt><b class="const">right</b></dt>
-<dd><p>The real line is set on the right of the logical line. It means that
-there are no space chars at the end of this line, and there may be
-some space chars at the beginning, despite of the <b class="option">-full</b> option.</p></dd>
+<dd><p>Each <em>real</em> line is placed at the right of the <em>logical</em> line,
+with no trailing spaces, and padded with leading spaces if needed to
+make the <em>real</em> line <b class="option">-length</b> characters wide.</p></dd>
 </dl></dd>
 <dt><b class="option">-length</b> <i class="arg">integer</i></dt>
-<dd><p>Set the length of the <em>logical</em> line in the string to
-<i class="arg">integer</i>.  <i class="arg">integer</i> must be a positive integer
-value. Defaults to <b class="const">72</b>.</p></dd>
+<dd><p>Sets the <em>logical</em> line length to be <i class="arg">integer</i>. The
+<i class="arg">integer</i> must be a positive integer <em>&gt; 0</em>. The default is
+<b class="const">72</b>.</p></dd>
 <dt><b class="option">-strictlength</b> <i class="arg">boolean</i></dt>
-<dd><p>If set to <b class="const">false</b> (default), a line can exceed the specified
-<b class="option">-length</b> if a single word is longer than <b class="option">-length</b>. If
-set to <b class="const">true</b>, words that are longer than <b class="option">-length</b> are
-split so that no line exceeds the specified <b class="option">-length</b>.</p></dd>
+<dd><p>If set to <b class="const">0</b> (false; the default), a line can exceed the
+specified <b class="option">-length</b> if a single word is longer than
+<b class="option">-length</b>. If set to <b class="const">1</b> (true), words that are longer than
+<b class="option">-length</b> are split so that no line exceeds the specified
+<b class="option">-length</b>.</p></dd>
 </dl></dd>
 <dt><a name="2"><b class="cmd">::textutil::adjust::readPatterns</b> <i class="arg">filename</i></a></dt>
-<dd><p>Loads the internal storage for hyphenation patterns with the contents
-of the file <i class="arg">filename</i>. This has to be done prior to calling
-command <b class="cmd">::textutil::adjust::adjust</b> with &quot;<b class="option">-hyphenate</b>
-<b class="const">true</b>&quot;, or the hyphenation process will not work correctly.</p>
-<p>The package comes with a number of predefined pattern files, and the
-command <b class="cmd">::textutil::adjust::listPredefined</b> can be used to find
-out their names.</p></dd>
+<dd><p>Reads hyphenation patterns from the file called <i class="arg">filename</i>.</p>
+<p>This command is needed only if command <b class="cmd">::textutil::adjust::adjust</b>
+is used with <b class="option">-hyphenate</b> <b class="const">1</b> (true). In this case the call
+to <b class="cmd">::textutil::adjust::readPatterns</b> <em>must</em> be done
+<em>before</em> calling <b class="cmd">::textutil::adjust::adjust</b>.</p>
+<p>The <b class="package">textutil::adjust</b> package comes with a number of predefined
+pattern files. Use the <b class="cmd">::textutil::adjust::listPredefined</b> command
+to list their names.</p></dd>
 <dt><a name="3"><b class="cmd">::textutil::adjust::listPredefined</b></a></dt>
-<dd><p>This command returns a list containing the names of the hyphenation
-files coming with this package.</p></dd>
+<dd><p>Returns a list of the names of the hyphenation files provided by this
+package.</p></dd>
 <dt><a name="4"><b class="cmd">::textutil::adjust::getPredefined</b> <i class="arg">filename</i></a></dt>
-<dd><p>Use this command to query the package for the full path name of the
-hyphenation file <i class="arg">filename</i> coming with the package. Only the
-filenames found in the list returned by
-<b class="cmd">::textutil::adjust::listPredefined</b> are legal arguments for this
-command.</p></dd>
+<dd><p>Returns the full path and filename of the <i class="arg">filename</i> hyphenation
+file. <em>Note</em> that <i class="arg">filename</i> <em>must</em> be one of the
+names returned by <b class="cmd">::textutil::adjust::listPredefined</b>.</p></dd>
 <dt><a name="5"><b class="cmd">::textutil::adjust::indent</b> <i class="arg">string</i> <i class="arg">prefix</i> <span class="opt">?<i class="arg">skip</i>?</span></a></dt>
-<dd><p>Each line in the <i class="arg">string</i> is indented by adding the string
-<i class="arg">prefix</i> at its beginning. The modified string is returned
-as the result of the command.</p>
-<p>If <i class="arg">skip</i> is specified the first <i class="arg">skip</i> lines are left
-untouched. The default for <i class="arg">skip</i> is <b class="const">0</b>, causing the
-modification of all lines. Negative values for <i class="arg">skip</i> are treated
-like <b class="const">0</b>. In other words, <i class="arg">skip</i> &gt; <b class="const">0</b> creates a
-hanging indentation.</p>
+<dd><p>Returns a modified copy of <i class="arg">string</i> with every non-skipped line
+prefixed with <i class="arg">prefix</i> and whitespace (except for the newline),
+trimmed from the end. By default no lines are skipped, so all are
+prefixed.</p>
+<p>The <b class="option">skip</b> option specifies how many lines to skip at the start
+of the string; its default is <b class="const">0</b>, in which case none are skipped
+and all are prefixed. If <b class="option">skip</b> is set to a value <em>&gt; 0</em>,
+then that many initial lines in the string are skipped, i.e., not
+prefixed, while all the subsequent lines are prefixed. Setting
+<b class="option">skip</b> to <b class="const">1</b> will create a conventional hanging indent.</p>
 <p>Together with <b class="cmd">::textutil::adjust::adjust</b> it is possible to
 create properly wrapped paragraphs with arbitrary indentations.</p></dd>
 <dt><a name="6"><b class="cmd">::textutil::adjust::undent</b> <i class="arg">string</i></a></dt>
-<dd><p>The command computes the common prefix for all lines in <i class="arg">string</i>
-consisting solely out of whitespace, removes this from each line and
-returns the modified string.</p>
-<p>Lines containing only whitespace are always reduced to completely
-empty lines. They and empty lines are also ignored when computing the
-prefix to remove.</p>
-<p>Together with <b class="cmd">::textutil::adjust::adjust</b> it is possible to
-create properly wrapped paragraphs with arbitrary indentations.</p></dd>
+<dd><p>Returns a modified copy of <i class="arg">string</i> with any common prefix of
+whitespace removed from each line.</p>
+<p>Empty lines and lines containing only whitespace are ignored for the
+computation of the prefix and all these lines are returned as empty
+lines.</p>
+<p><em>Note that this command’s name is</em> <b class="cmd">undent</b> <em>not
+unindent.</em></p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>The following examples show some of the <b class="package">::textutil::adjust</b>
+package’s commands in action.</p>
+<p>The following <b class="cmd"><a href="../../../../index.html#proc">proc</a></b> and <b class="const">const</b> are used by the examples
+below.</p>
+<pre class="doctools_example">
+proc replace_spc {s {sub ▴}} { regsub -all { } $s $sub }
+const LINES &quot;Four\nsiamese cats\nheard barks\nand bolted.&quot;
+</pre>
+<p>The <b class="cmd">replace_spc</b> command replaces every space in the string it is
+passed with the ▴ symbol. The <b class="const">LINES</b> constant provides some text
+for the examples to work with.
+&nbsp;</p>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Justifying</a></h3>
+<p>The following example show every justification option in use. Spaces
+have been made visible by preserving them using <b class="option">-full</b> <b class="const">1</b>
+and replacing them with the ▴ symbol.</p>
+<p>Normally, <b class="option">-full</b> would <em>not</em> be used and there would be
+<em>no</em> trailing spaces in each line.</p>
+<pre class="doctools_example">
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify left]
+puts &quot;======= left =======\n[replace_spc $lines]&quot;
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify center]
+puts &quot;====== center ======\n[replace_spc $lines]&quot;
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify plain]
+puts &quot;======= plain ======\n[replace_spc $lines]&quot;
+set lines [textutil::adjust::adjust $LINES -length 20 -full 1 -justify right]
+puts &quot;======= right ======\n[replace_spc $lines]&quot;
+=&gt;
+======= left =======
+Four▴siamese▴cats▴▴▴
+heard▴barks▴and▴▴▴▴▴
+bolted.▴▴▴▴▴▴▴▴▴▴▴▴▴
+====== center ======
+▴▴Four▴siamese▴cats▴
+▴▴▴heard▴barks▴and▴▴
+▴▴▴▴▴▴▴bolted.▴▴▴▴▴▴
+======= plain ======
+Four▴siamese▴▴▴▴cats
+heard▴▴▴barks▴▴▴▴and
+bolted.▴▴▴▴▴▴▴▴▴▴▴▴▴
+======= right ======
+▴▴▴Four▴siamese▴cats
+▴▴▴▴▴heard▴barks▴and
+▴▴▴▴▴▴▴▴▴▴▴▴▴bolted.
+</pre>
+</div>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">Indenting and Unindenting</a></h3>
+<p>In the following example leading spaces have been made visible by using
+an indent of <b class="const">&middot;&middot;</b> rather than, say, two spaces, and other
+spaces have been made visible by replacing them with the ▴ symbol. There
+are no trailing spaces since <b class="cmd">textutil::adjust::indent</b> trims them.</p>
+<pre class="doctools_example">
+set lines [textutil::adjust::adjust $LINES -length 20 -justify left]
+puts &quot;======== left =========\n[replace_spc $lines]&quot;
+set indented [textutil::adjust::indent $lines &quot;&middot;&middot;&quot;]
+puts &quot;======== indent =======\n[replace_spc $indented]&quot;
+# undent only unindents spaces
+set indented [regsub -all &middot; $indented &quot; &quot;]
+set unindented [textutil::adjust::undent $indented]
+puts &quot;======== undent =======\n[replace_spc $unindented]&quot;
+set hanging [textutil::adjust::indent $lines &quot;&middot;&middot;&quot; 1]
+puts &quot;==== hanging indent ===\n[replace_spc $hanging]&quot;
+=&gt;
+======== left =========
+Four▴siamese▴cats
+heard▴barks▴and
+bolted.
+======== indent =======
+&middot;&middot;Four▴siamese▴cats
+&middot;&middot;heard▴barks▴and
+&middot;&middot;bolted.
+======== undent =======
+Four▴siamese▴cats
+heard▴barks▴and
+bolted.
+==== hanging indent ===
+Four▴siamese▴cats
+&middot;&middot;heard▴barks▴and
+&middot;&middot;bolted.
+</pre>
+</div>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

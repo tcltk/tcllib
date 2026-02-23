@@ -287,69 +287,136 @@ package require \fBstringprep 1\&.0\&.3\fR
 .BE
 .SH DESCRIPTION
 .PP
-This is an implementation in Tcl of the Preparation of Internationalized
-Strings ("stringprep")\&. It allows to define stringprep profiles and use
-them to prepare Unicode strings for comparison as defined in RFC-3454\&.
+This is a Tcl implementation of the Preparation of Internationalized
+Strings (“stringprep”)\&. It supports the definition of stringprep
+profiles and their use to prepare Unicode strings for comparisons as
+defined in
+\fIRFC 3454\fR [https://www\&.rfc-editor\&.org/rfc/rfc3454]\&.
+.PP
+\fINote that RFC 3454 (2002) was superceded by RFC 7564 (2015),
+which itself was superceded by\fR
+\fIRFC 8264\fR [https://www\&.rfc-editor\&.org/rfc/rfc8264] \fI(2017)\&.\fR
+.PP
+\fIThis package is currently unmaintained; see\fR
+\fIticket\fR [https://core\&.tcl-lang\&.org/tcllib/tktview/b192bd4149e07ddf4e000f894100700c2ec35e1e]\&.
 .SH COMMANDS
+If the only string preparation needed is Unicode normalization, the
+\fBunicode\fR package’s commands are sufficient\&.
 .TP
 \fB::stringprep::register\fR \fIprofile\fR ?\fI-mapping list\fR? ?\fI-normalization form\fR? ?\fI-prohibited list\fR? ?\fI-prohibitedList list\fR? ?\fI-prohibitedCommand command\fR? ?\fI-prohibitedBidi boolean\fR?
-Register the \fBstringprep\fR profile named \fIprofile\fR\&. Options
-are the following\&.
-.sp
-Option \fI-mapping\fR specifies \fBstringprep\fR mapping tables\&.
-This parameter takes list of tables from appendix B of RFC-3454\&. The usual
-list values are {B\&.1 B\&.2} or {B\&.1 B\&.3} where B\&.1 contains characters which
-commonly map to nothing, B\&.3 specifies case folding, and B\&.2 is used in
-profiles with unicode normalization form KC\&. Defult value is {} which means
-no mapping\&.
-.sp
-Option \fI-normalization\fR takes a string and if it is nonempty then it
-uses as a name of Unicode normalization form\&. Any value of "D", "C", "KD"
-or "KC" may be used, though RFC-3454 defines only two options: no
-normalization or normalization using form KC\&.
-.sp
-Option \fI-prohibited\fR takes a list of RFC-3454 tables with prohibited
-characters\&. Current version does allow to prohibit either all tables from
-C\&.3 to C\&.9 or neither of them\&. An example of this list for RFC-3491 is
-{A\&.1 C\&.1\&.2 C\&.2\&.2 C\&.3 C\&.4 C\&.5 C\&.6 C\&.7 C\&.8 C\&.9}\&.
-.sp
-Option \fI-prohibitedList\fR specifies a list of additional prohibited
-characters\&. The list contains not characters themselves but their Unicode
-numbers\&. For example, Nodeprep specification from RFC-3920 forbids the
-following codes: {0x22 0x26 0x27 0x2f 0x3a 0x3c 0x3e 0x40} (\\" \\& \\' / : < > @)\&.
-.sp
-Option \fI-prohibitedCommand\fR specifies a command which is called for
-every character code in mapped and normalized string\&. If the command returns
-true then the character is considered prohibited\&. This option is useful when
-a list for \fI-prohibitedList\fR is too large\&.
-.sp
-Option \fI-prohibitedBidi\fR takes boolean value and if it is true then the
-bidirectional character processing rules defined in section 6 of RFC-3454 are
-used\&.
+Register a \fBstringprep\fR profile called \fIprofile\fR that will
+apply the specified options\&.
+.RS
+.TP
+\fB-mapping\fR \fIlist\fR
+This option specifies \fBstringprep\fR mapping tables\&. The tables
+are those specified in \fIRFC
+3454\fR [https://www\&.rfc-editor\&.org/rfc/rfc3454]’s Appendix B\&. The usual list values are {B\&.1 B\&.2} or {B\&.1 B\&.3}
+where B\&.1 contains characters which commonly map to nothing, B\&.2 is used
+in profiles with unicode normalization form KC, and B\&.3 specifies case
+folding\&. The default is an empty list which means no mapping\&.
+.TP
+\fB-normalization\fR \fIform\fR
+This option specifies which normalization form to apply\&. The \fIform\fR
+is a string which may be any of "D", "C", "KD", or "KC"\&. Note that
+formally,
+\fIRFC 3454\fR [https://www\&.rfc-editor\&.org/rfc/rfc3454] supports either
+no normalization or "KC"\&. The default is no normalization\&.
+.TP
+\fB-prohibited\fR \fIlist\fR
+This option specifies a list of
+\fIRFC 3454\fR [https://www\&.rfc-editor\&.org/rfc/rfc3454] tables with
+prohibited characters\&. For example, the list from
+\fIRFC 3491\fR [https://www\&.rfc-editor\&.org/rfc/rfc3491] is
+{A\&.1 C\&.1\&.2 C\&.2\&.2 C\&.3 C\&.4 C\&.5 C\&.6 C\&.7 C\&.8 C\&.9}\&. Formally,
+\fIRFC 3454\fR [https://www\&.rfc-editor\&.org/rfc/rfc3454] allows
+prohibiting either all the tables from C\&.3 to C\&.9, or none of them\&. The
+default is to to prohibit none of them\&.
+.TP
+\fB-prohibitedList\fR \fIlist\fR
+This option specifies a list of prohibited characters as Unicode code
+points\&. For example to prohibit the characters \fB" & ' / : < >
+@\fR, provide a list of their code points: {0x22 0x26 0x27 0x2F 0x3A 0x3C
+0x3E 0x40}\&. The default is an empty list\&. (If these are specified they
+are in addition to any prohibited by the \fI-prohibited\fR option\&.)
+.TP
+\fB-prohibitedCommand\fR \fIcommand\fR
+This option specifies a \fIcommand\fR to be called with a unicode code
+point whenever a character is mapped and normalized\&. If the
+\fIcommand\fR returns \fB1\fR (true), then the character is treated as
+prohibited\&. A return value of \fB0\fR (false) ensures normal
+processing\&. This option is a useful alternative to providing a very
+large list to the \fI-prohibitedList\fR option\&. The default is no
+command\&.
+.TP
+\fB-prohibitedBidi\fR \fIboolean\fR
+If this option is specified and passed nonzero (e\&.g\&., \fB1\fR; true),
+then the bidirectional character processing rules defined in
+\fIRFC 3454\fR [https://www\&.rfc-editor\&.org/rfc/rfc3454]’s section 6 are
+used\&. The default is not to use the bidirectional rules\&.
+.RE
 .TP
 \fB::stringprep::stringprep\fR \fIprofile\fR \fIstring\fR
-Performs \fBstringprep\fR operations defined in profile \fIprofile\fR
-to string \fIstring\fR\&. Result is a prepared string or one of the following
-errors: \fIinvalid_profile\fR (profile \fIprofile\fR is not defined),
-\fIprohibited_character\fR (string \fIstring\fR contains a prohibited character)
-or \fIprohibited_bidi\fR (string \fIstring\fR contains a prohibited bidirectional
-sequence)\&.
+Returns a possibly modified copy of \fIstring\fR based on the given
+\fIprofile\fR; or throws an error\&.
+.sp
+The possible errors are: \fIinvalid_profile\fR—the given \fIprofile\fR is
+not defined; \fIprohibited_character\fR—the given \fIstring\fR contains a
+prohibited character; \fIprohibited_bidi\fR—the given \fIstring\fR
+contains a prohibited bidirectional sequence\&.
 .TP
 \fB::stringprep::compare\fR \fIprofile\fR \fIstring1\fR \fIstring2\fR
-Compares two unicode strings prepared accordingly to \fBstringprep\fR
-profile \fIprofile\fR\&. The command returns 0 if prepared strings are equal,
--1 if \fIstring1\fR is lexicographically less than \fIstring2\fR, or
-1 if \fIstring1\fR is lexicographically greater than \fIstring2\fR\&.
+Performs a comparison of the two given strings by comparing the result
+of string-preparing each of them in accordance with the given
+\fIprofile\fR\&. Returns \fB0\fR if the strings are equal (in terms of
+the given \fIprofile\fR), or \fB-1\fR if \fIstring1\fR is
+lexicographically less than \fIstring2\fR, or \fB1\fR if \fIstring1\fR is
+lexicographically greater than \fIstring2\fR\&.
 .PP
 .SH EXAMPLES
-Nameprep profile definition (see RFC-3491):
+This example shows how to use \fBstringprep\fR to compare strings\&.
+.CS
+
+
+::stringprep::register basicprep -mapping {B\&.1 B\&.2} -normalization KC
+# Three poor UTF-8 byte sequences (to illustrate stringprep, not to use in practice):
+const EACUTE [encoding convertfrom utf-8 \\x65\\xCC\\x81]
+const ANGSTROM [encoding convertfrom utf-8 \\xE2\\x84\\xAB]
+const ODOTS [encoding convertfrom utf-8 \\x6F\\xCC\\x88]
+const A "Caf${EACUTE} ${ANGSTROM}ngstr${ODOTS}m"
+# Best to either use a UTF-8-savvy editor:
+const B "Café Ångström"
+# Or to use Tcl’s Unicode escapes:
+const C "Caf\\u00E9 \\u212Bngstr\\u00F6m"
+
+puts "A '$A' hex: [binary encode hex [encoding convertto utf-8 $A]]"
+puts "B '$B' hex: [binary encode hex [encoding convertto utf-8 $B]]"
+puts "C '$C' hex: [binary encode hex [encoding convertto utf-8 $C]]"
+puts "string compare \\$A \\$B → [expr {[string compare $A $B] ? "unequal" : "equal"}]"
+puts "string compare \\$A \\$C → [expr {[string compare $A $C] ? "unequal" : "equal"}]"
+puts "stringprep::compare basicprep \\$A \\$B → [expr {[stringprep::compare basicprep $A $B] ? "unequal" : "equal"}]"
+puts "stringprep::compare basicprep \\$A \\$C → [expr {[stringprep::compare basicprep $A $C] ? "unequal" : "equal"}]"
+=>
+A 'Café Ångström' hex: 43616665cc8120e284ab6e677374726fcc886d
+B 'Café Ångström' hex: 436166c3a920c3856e67737472c3b66d
+C 'Café Ångström' hex: 436166c3a920e284ab6e67737472c3b66d
+string compare $A $B → unequal
+string compare $A $C → unequal
+stringprep::compare basicprep $A $B → equal
+stringprep::compare basicprep $A $C → equal
+
+.CE
+.SS "LEGACY EXAMPLES"
+Nameprep profile definition (see
+\fIRFC 3491\fR [https://www\&.rfc-editor\&.org/rfc/rfc3491])\&.
 .CS
 
 
 ::stringprep::register nameprep  -mapping {B\&.1 B\&.2}  -normalization KC  -prohibited {A\&.1 C\&.1\&.2 C\&.2\&.2 C\&.3 C\&.4 C\&.5 C\&.6 C\&.7 C\&.8 C\&.9}  -prohibitedBidi 1
 
 .CE
-Nodeprep and resourceprep profile definitions (see RFC-3920):
+Nodeprep and resourceprep profile definitions (see
+\fIRFC 3920\fR [https://www\&.rfc-editor\&.org/rfc/rfc3920])\&.
 .CS
 
 
@@ -358,17 +425,6 @@ Nodeprep and resourceprep profile definitions (see RFC-3920):
 ::stringprep::register resourceprep  -mapping {B\&.1}  -normalization KC  -prohibited {A\&.1 C\&.1\&.2 C\&.2\&.1 C\&.2\&.2 C\&.3 C\&.4 C\&.5 C\&.6 C\&.7 C\&.8 C\&.9}  -prohibitedBidi 1
 
 .CE
-.SH REFERENCES
-.IP [1]
-"Preparation of Internationalized Strings ('stringprep')",
-(\fIhttp://www\&.ietf\&.org/rfc/rfc3454\&.txt\fR)
-.IP [2]
-"Nameprep: A Stringprep Profile for Internationalized Domain Names (IDN)",
-(\fIhttp://www\&.ietf\&.org/rfc/rfc3491\&.txt\fR)
-.IP [3]
-"Extensible Messaging and Presence Protocol (XMPP): Core",
-(\fIhttp://www\&.ietf\&.org/rfc/rfc3920\&.txt\fR)
-.PP
 .SH AUTHORS
 Sergei Golovan
 .SH "BUGS, IDEAS, FEEDBACK"

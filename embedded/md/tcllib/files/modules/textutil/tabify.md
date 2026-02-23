@@ -22,7 +22,11 @@ textutil::tabify \- Procedures to \(un\)tabify strings
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [See Also](#seealso)
 
@@ -35,56 +39,92 @@ textutil::tabify \- Procedures to \(un\)tabify strings
 package require Tcl 8\.5 9  
 package require textutil::tabify ?0\.8?  
 
-[__::textutil::tabify::tabify__ *string* ?*num*?](#1)  
-[__::textutil::tabify::tabify2__ *string* ?*num*?](#2)  
-[__::textutil::tabify::untabify__ *string* ?*num*?](#3)  
-[__::textutil::tabify::untabify2__ *string* ?*num*?](#4)  
+[__::textutil::tabify::tabify__ *string* ?*count*?](#1)  
+[__::textutil::tabify::tabify2__ *string* ?*count*?](#2)  
+[__::textutil::tabify::untabify__ *string* ?*count*?](#3)  
+[__::textutil::tabify::untabify2__ *string* ?*count*?](#4)  
 
 # <a name='description'></a>DESCRIPTION
 
-The package __textutil::tabify__ provides commands that convert between
-tabulation and ordinary whitespace in strings\.
+The __textutil::tabify__ package provides commands for converting tabs to
+spaces or spaces to tabs in strings\.
 
-The complete set of procedures is described below\.
+# <a name='section2'></a>API
 
-  - <a name='1'></a>__::textutil::tabify::tabify__ *string* ?*num*?
+  - <a name='1'></a>__::textutil::tabify::tabify__ *string* ?*count*?
 
-    Tabify the *string* by replacing any substring of *num* space chars by a
-    tabulation and return the result as a new string\. *num* defaults to 8\.
+    Returns a copy of *string* with any substring of *count* space
+    characters replaced by a horizontal tab\. The *count* defaults to 8\.
 
-  - <a name='2'></a>__::textutil::tabify::tabify2__ *string* ?*num*?
+  - <a name='2'></a>__::textutil::tabify::tabify2__ *string* ?*count*?
 
-    Similar to __::textutil::tabify__ this command tabifies the *string*
-    and returns the result as a new string\. A different algorithm is used
-    however\. Instead of replacing any substring of *num* spaces this command
-    works more like an editor\. *num* defaults to 8\.
+    Returns a copy of *string* with substrings of *count* *or fewer* space
+    characters replaced by a horizontal tab using a text editor like algorithm\.
+    The *count* defaults to 8\.
 
-    Each line of the text in *string* is treated as if there are tabstops
-    every *num* columns\. Only sequences of space characters containing more
-    than one space character and found immediately before a tabstop are replaced
-    with tabs\.
+    The algorithm used by this command treats each line in *string* as if it
+    had notional tabstops every *count* columns\. \(So, if *count* is
+    __8__, at columns __8__, __16__, __24__, …\.\) Only sequences
+    of *two or more* space characters that occur immediately before a notional
+    tabstop are replaced with a tab\.
 
-  - <a name='3'></a>__::textutil::tabify::untabify__ *string* ?*num*?
+  - <a name='3'></a>__::textutil::tabify::untabify__ *string* ?*count*?
 
-    Untabify the *string* by replacing any tabulation char by a substring of
-    *num* space chars and return the result as a new string\. *num* defaults
-    to 8\.
+    Returns a copy of *string* with every horizontal tab replaced by *count*
+    spaces\. The *count* defaults to 8\.
 
-  - <a name='4'></a>__::textutil::tabify::untabify2__ *string* ?*num*?
+  - <a name='4'></a>__::textutil::tabify::untabify2__ *string* ?*count*?
 
-    Untabify the *string* by replacing any tabulation char by a substring of
-    at most *num* space chars and return the result as a new string\. Unlike
-    __textutil::tabify::untabify__ each tab is not replaced by a fixed
-    number of space characters\. The command overlays each line in the *string*
-    with tabstops every *num* columns instead and replaces tabs with just
-    enough space characters to reach the next tabstop\. This is the complement of
-    the actions taken by __::textutil::tabify::tabify2__\. *num* defaults
-    to 8\.
+    Returns a copy of *string* with horizontal tabs replaced by *count* *or
+    fewer* space characters using a text editor like algorithm\. The *count*
+    defaults to 8\.
 
-    There is one asymmetry though: A tab can be replaced with a single space,
-    but not the other way around\.
+    This command is the counterpart to __::textutil::tabify::tabify2__\. The
+    algorithm used by this command treats each line in *string* as if it had
+    notional tabstops every *count* columns\. \(So, if *count* is __8__,
+    at columns __8__, __16__, __24__, …\.\) Instead of blindly
+    replacing each horizontal tab with *count* spaces, each horizontal tab at
+    a notional tabstop is replaced by enough spaces to reach the next notional
+    tabstop\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+    There is one asymmetry though: A tab may be replaced by a single space, but
+    not the other way around\.
+
+# <a name='section3'></a>Examples
+
+The following examples show some of the __::textutil::tabify__ package’s
+commands in action\.
+
+The examples make use of a tiny helper command to make spaces and tabs distinct
+and visible:
+
+    proc replace_tab_spc s { regsub -all { } [regsub -all \t $s →] ▴ }
+
+This example shows the __::textutil::tabify::tabify__ command in action\.
+
+    const LINES1 "    if \{\$x\} \{\n        puts 1\n    \}"
+    puts "=== original ===\n[replace_tab_spc $LINES1]\n"
+    set tabbed [::textutil::tabify::tabify $LINES1]
+    puts "=== 8spc→tab ===\n[replace_tab_spc $tabbed]\n"
+    set tabbed [::textutil::tabify::tabify $LINES1 4]
+    puts "=== 4spc→tab ===\n[replace_tab_spc $tabbed]\n"
+    =>
+    === original ===
+    ▴▴▴▴if▴{$x}▴{
+    ▴▴▴▴▴▴▴▴puts▴1
+    ▴▴▴▴}
+
+    === 8spc→tab ===
+    ▴▴▴▴if▴{$x}▴{
+    →puts▴1
+    ▴▴▴▴}
+
+    === 4spc→tab ===
+    →if▴{$x}▴{
+    →→puts▴1
+    →}
+
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

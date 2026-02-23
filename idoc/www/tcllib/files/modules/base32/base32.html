@@ -209,7 +209,9 @@ puts &quot;base32='$enc32' [expr {$UTF8_LINE eq $line}]&quot;
 base32='Z2KMHNZA4KAJYVLUMYWTRYUATUQOFGM64KCKI===' 1
 </pre>
 <p>If the original string is 7-bit ASCII the conversions to and from raw
-bytes using the built-in <b class="cmd"><a href="../../../../index.html#encoding">encoding</a></b> command are not needed. For example:</p>
+bytes using the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/encoding.html">encoding</a>
+command are not needed. For example:</p>
 <pre class="doctools_example">
 const ASCII_LINE &quot;! 7-bit ASCII {~^}&quot;
 set enc32 [::base32::encode $ASCII_LINE]

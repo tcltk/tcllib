@@ -131,47 +131,61 @@
 <li>package require <b class="pkgname">dicttool <span class="opt">?1.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
-<li><a href="#2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
-<li><a href="#3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></li>
-<li><a href="#4"><b class="cmd">dict print</b> <i class="arg">varname</i></a></li>
+<li><a href="#1"><b class="cmd">ladd</b> <i class="arg">dictVar</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></li>
+<li><a href="#2"><b class="cmd">ldelete</b> <i class="arg">dictVar</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></li>
+<li><a href="#3"><b class="cmd">dict getnull</b> <i class="arg">key</i></a></li>
+<li><a href="#4"><b class="cmd">dict print</b> <i class="arg">aDict</i></a></li>
 <li><a href="#5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></li>
-<li><a href="#6"><b class="cmd">dict rmerge</b> <i class="arg">args</i></a></li>
+<li><a href="#6"><b class="cmd">dict rmerge</b> <i class="arg">dict1</i> <i class="arg">dict2</i> <span class="opt">?<i class="arg">dict3 ...</i>?</span></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The <b class="package">dicttool</b> package enhances the standard <em>dict</em> command with several new
-commands. In addition, the package also defines several convenient list commands.
-(Each command only adds itself if a command of the same name doesn’t already exist,
-in case any of these are added to the core.)</p>
+<p>This package enhances the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/dict.html">dict</a> command
+with several new commands. In addition, the package also defines several
+convenient list commands. (Each command only adds itself if a command of
+the same name doesn’t already exist, in case any of these are added to
+the core.)</p>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
-<dd><p>This command adds every element in <i class="arg">args</i> to <i class="arg">varname</i>, but only if that element
-is not already present (whether as a key or a value). Use an even number
-of <i class="arg">args</i> to keep <i class="arg">varname</i> as a <b class="type">dict</b>.</p></dd>
-<dt><a name="2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
-<dd><p>This command deletes every element in <i class="arg">args</i> from <i class="arg">varname</i>. Use an even number
-of <i class="arg">args</i> to keep <i class="arg">varname</i> as a <b class="type">dict</b>.</p></dd>
-<dt><a name="3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></dt>
-<dd><p>Operates like <b class="cmd">dict get</b>, however if the key <i class="arg">args</i> does not exist, it returns an empty
+<dt><a name="1"><b class="cmd">ladd</b> <i class="arg">dictVar</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></dt>
+<dd><p>This command adds every pair of <i class="arg">key value</i> elements to <i class="arg">dictVar</i>,
+but only if that element is not already present (whether as a key or a
+value). This command <em>must</em> be given pairs of <i class="arg">key value</i>
+elements to preserve <i class="arg">dictVar</i> as a <b class="type">dict</b>.</p></dd>
+<dt><a name="2"><b class="cmd">ldelete</b> <i class="arg">dictVar</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></dt>
+<dd><p>This command deletes every pair of <i class="arg">key value</i> elements from
+<i class="arg">dictVar</i>. Harmlessly does nothing if the pair is not already in
+<i class="arg">dictVar</i>. This command <em>must</em> be given pairs of
+<i class="arg">key value</i> elements to preserve <i class="arg">dictVar</i> as a <b class="type">dict</b>.</p>
+<p>Use the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/dict.html">dict</a> command’s
+<b class="cmd">dict remove</b> subcommand to remove elements by key alone.</p></dd>
+<dt><a name="3"><b class="cmd">dict getnull</b> <i class="arg">key</i></a></dt>
+<dd><p>Operates like <b class="cmd">dict get</b>, however if the key <i class="arg">key</i> does not exist, it returns an empty
 list instead of throwing an error.</p>
-<p>An alternative to this command is <b class="cmd">dict getwithdefault</b> <em>or
+<p>An alternative to this command is the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/dict.html">dict</a> command’s
+<b class="cmd">dict getwithdefault</b> subcommand <em>or
 its alias</em> <b class="cmd">dict getdef</b>. Using <b class="cmd">dict getdef</b> with a
 default of an empty list, <i class="arg">{}</i>, is equivalent to using <b class="cmd">dict getnull</b>.</p></dd>
-<dt><a name="4"><b class="cmd">dict print</b> <i class="arg">varname</i></a></dt>
+<dt><a name="4"><b class="cmd">dict print</b> <i class="arg">aDict</i></a></dt>
 <dd><p>Returns a “pretty printed” string representation of
-<b class="type">dict</b> <i class="arg">varname</i>, with each nested branch on a newline, and
+<b class="type">dict</b> <i class="arg">aDict</i>, with each nested branch on a newline, and
 indented with two spaces for every level.</p></dd>
 <dt><a name="5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></dt>
-<dd><p>Returns 1 if <i class="arg">value</i> can be interpreted as a dict;
-otherwise 0. (The command does <em>not</em> force an existing dict
-representation to change into another internal representation.)</p></dd>
-<dt><a name="6"><b class="cmd">dict rmerge</b> <i class="arg">args</i></a></dt>
+<dd><p>Returns <b class="const">1</b> (true) if <i class="arg">value</i> can be interpreted as a
+<b class="type">dict</b>; otherwise <b class="const">0</b> (false).</p>
+<p>This command does <em>not</em> force an existing <b class="type">dict</b>
+representation to change into another internal representation.</p></dd>
+<dt><a name="6"><b class="cmd">dict rmerge</b> <i class="arg">dict1</i> <i class="arg">dict2</i> <span class="opt">?<i class="arg">dict3 ...</i>?</span></a></dt>
 <dd><p>Returns a <b class="type">dict</b> which is the result of a recursive merge of all of
-the <b class="type">dict</b> arguments. Unlike <b class="cmd">dict merge</b>,
-this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
-will be interpreted as a literal value, and not descended into further.</p>
+the <b class="type">dict</b> arguments. Unlike the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/dict.html">dict</a> command’s
+<b class="cmd">dict merge</b> subcommand, this command descends into all of the
+<b class="type">dict</b>’s levels. Note that <b class="type">dict</b> keys which end in a :
+indicate a leaf, which will be interpreted as a literal value, and not
+descended into further.</p>
 <pre class="doctools_example">
 set items [dict rmerge {
   option {color {default: green}}
@@ -193,7 +207,9 @@ option {
   }
 }
 </pre>
-<p>If the <b class="cmd">dict merge</b> command had been used above, the <em>fruit</em>
+<p>If the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/dict.html">dict</a> command’s
+<b class="cmd">dict merge</b> subcommand had been used above, the <em>fruit</em>
 item’s <em>default</em> key-value entry would have been lost.</p></dd>
 </dl>
 </div>

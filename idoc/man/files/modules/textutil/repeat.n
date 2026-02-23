@@ -277,31 +277,45 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBtextutil::repeat ?0\&.8?\fR
 .sp
-\fB::textutil::repeat::strRepeat\fR \fItext\fR \fInum\fR
+\fB::textutil::repeat::strRepeat\fR \fItext\fR \fIcount\fR
 .sp
-\fB::textutil::repeat::blank\fR \fInum\fR
+\fB::textutil::repeat::blank\fR \fIcount\fR
 .sp
 .BE
 .SH DESCRIPTION
-The package \fBtextutil::repeat\fR provides commands to generate
-long strings by repeating a shorter string many times\&.
-.PP
-The complete set of procedures is described below\&.
+The \fBtextutil::repeat\fR package provides commands to generate
+strings by repeating a string multiple times\&.
+.SH API
 .TP
-\fB::textutil::repeat::strRepeat\fR \fItext\fR \fInum\fR
-This command returns a string containing the \fItext\fR repeated
-\fInum\fR times\&. The repetitions are joined without characters between
-them\&. A value of \fInum\fR <= 0 causes the command to return an empty
-string\&.
+\fB::textutil::repeat::strRepeat\fR \fItext\fR \fIcount\fR
+Returns a string containing the \fItext\fR repeated \fIcount\fR times\&.
 .sp
-\fINote\fR: If the Tcl core the package is loaded in provides the
-command \fBstring repeat\fR then this command will be implemented in
-its terms, for maximum possible speed\&. Otherwise a fast implementation
-in Tcl will be used\&.
+The repetitions are joined with no separators between them\&. A value of
+\fIcount\fR \fI<= 0\fR causes the command to return an empty string\&.
+.sp
+\fINote\fR: If the Tcl core this package is loaded in provides the
+\fBstring repeat\fR command, then this command will be implemented in
+its terms, for maximum speed\&. Otherwise a fast Tcl implementation is used\&.
 .TP
-\fB::textutil::repeat::blank\fR \fInum\fR
-A convenience command\&. Returns a string of \fInum\fR spaces\&.
+\fB::textutil::repeat::blank\fR \fIcount\fR
+Returns a string containing \fIcount\fR spaces\&.
+.sp
+This is a convenience for calling \fB::textutil::repeat::strRepeat\fR
+with \fB" "\fR as its first argument\&.
 .PP
+.SH EXAMPLES
+This tiny example shows the \fB::textutil::repeat\fR package’s
+commands in action\&.
+.CS
+
+
+puts [::textutil::repeat::strRepeat = 22]
+puts =[::textutil::repeat::blank 20]=
+=>
+======================
+=                    =
+
+.CE
 .SH "BUGS, IDEAS, FEEDBACK"
 If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the

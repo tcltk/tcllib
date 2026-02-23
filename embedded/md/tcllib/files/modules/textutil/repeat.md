@@ -22,7 +22,11 @@ textutil::repeat \- Procedures to repeat strings\.
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [See Also](#seealso)
 
@@ -35,32 +39,46 @@ textutil::repeat \- Procedures to repeat strings\.
 package require Tcl 8\.5 9  
 package require textutil::repeat ?0\.8?  
 
-[__::textutil::repeat::strRepeat__ *text* *num*](#1)  
-[__::textutil::repeat::blank__ *num*](#2)  
+[__::textutil::repeat::strRepeat__ *text* *count*](#1)  
+[__::textutil::repeat::blank__ *count*](#2)  
 
 # <a name='description'></a>DESCRIPTION
 
-The package __textutil::repeat__ provides commands to generate long strings
-by repeating a shorter string many times\.
+The __textutil::repeat__ package provides commands to generate strings by
+repeating a string multiple times\.
 
-The complete set of procedures is described below\.
+# <a name='section2'></a>API
 
-  - <a name='1'></a>__::textutil::repeat::strRepeat__ *text* *num*
+  - <a name='1'></a>__::textutil::repeat::strRepeat__ *text* *count*
 
-    This command returns a string containing the *text* repeated *num*
-    times\. The repetitions are joined without characters between them\. A value
-    of *num* <= 0 causes the command to return an empty string\.
+    Returns a string containing the *text* repeated *count* times\.
 
-    *Note*: If the Tcl core the package is loaded in provides the command
-    __string repeat__ then this command will be implemented in its terms,
-    for maximum possible speed\. Otherwise a fast implementation in Tcl will be
-    used\.
+    The repetitions are joined with no separators between them\. A value of
+    *count* *<= 0* causes the command to return an empty string\.
 
-  - <a name='2'></a>__::textutil::repeat::blank__ *num*
+    *Note*: If the Tcl core this package is loaded in provides the __string
+    repeat__ command, then this command will be implemented in its terms, for
+    maximum speed\. Otherwise a fast Tcl implementation is used\.
 
-    A convenience command\. Returns a string of *num* spaces\.
+  - <a name='2'></a>__::textutil::repeat::blank__ *count*
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+    Returns a string containing *count* spaces\.
+
+    This is a convenience for calling __::textutil::repeat::strRepeat__ with
+    __" "__ as its first argument\.
+
+# <a name='section3'></a>Examples
+
+This tiny example shows the __::textutil::repeat__ package’s commands in
+action\.
+
+    puts [::textutil::repeat::strRepeat = 22]
+    puts =[::textutil::repeat::blank 20]=
+    =>
+    ======================
+    =                    =
+
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

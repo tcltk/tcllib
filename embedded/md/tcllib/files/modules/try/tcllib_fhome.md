@@ -38,14 +38,14 @@ package require fhome ?1?
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides a forward\-compatibility implementation of Tcl 9's __file
-home__ command \(TIP 602\), for Tcl 8\.x\.
+This package provides a forward\-compatibility implementation of Tcl 9's [file
+home](https://www\.tcl\-lang\.org/man/tcl/TclCmd/file\.html) subcommand \(TIP
+602\), for Tcl 8\.x\.
 
   - <a name='1'></a>__[file](\.\./\.\./\.\./\.\./index\.md\#file)__ __home__ ?*user*?
 
-    Without argument, return the home directory of the current user\.
-
-    With argument, return the home directory of the specified *user*\.
+    Returns the home directory of the current user, or of the specified *user*
+    if given\.
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

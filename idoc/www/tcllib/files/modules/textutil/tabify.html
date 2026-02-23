@@ -116,7 +116,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
@@ -129,50 +131,84 @@
 <li>package require <b class="pkgname">textutil::tabify <span class="opt">?0.8?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::textutil::tabify::tabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></li>
-<li><a href="#2"><b class="cmd">::textutil::tabify::tabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></li>
-<li><a href="#3"><b class="cmd">::textutil::tabify::untabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></li>
-<li><a href="#4"><b class="cmd">::textutil::tabify::untabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></li>
+<li><a href="#1"><b class="cmd">::textutil::tabify::tabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></li>
+<li><a href="#2"><b class="cmd">::textutil::tabify::tabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></li>
+<li><a href="#3"><b class="cmd">::textutil::tabify::untabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></li>
+<li><a href="#4"><b class="cmd">::textutil::tabify::untabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The package <b class="package">textutil::tabify</b> provides commands that convert
-between tabulation and ordinary whitespace in strings.</p>
-<p>The complete set of procedures is described below.</p>
+<p>The <b class="package">textutil::tabify</b> package provides commands for converting
+tabs to spaces or spaces to tabs in strings.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::textutil::tabify::tabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></dt>
-<dd><p>Tabify the <i class="arg">string</i> by replacing any substring of <i class="arg">num</i> space
-chars by a tabulation and return the result as a new string. <i class="arg">num</i>
-defaults to 8.</p></dd>
-<dt><a name="2"><b class="cmd">::textutil::tabify::tabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></dt>
-<dd><p>Similar to <b class="cmd">::textutil::tabify</b> this command tabifies the
-<i class="arg">string</i> and returns the result as a new string. A different
-algorithm is used however. Instead of replacing any substring of
-<i class="arg">num</i> spaces this command works more like an editor. <i class="arg">num</i>
-defaults to 8.</p>
-<p>Each line of the text in <i class="arg">string</i> is treated as if there are
-tabstops every <i class="arg">num</i> columns. Only sequences of space characters
-containing more than one space character and found immediately before
-a tabstop are replaced with tabs.</p></dd>
-<dt><a name="3"><b class="cmd">::textutil::tabify::untabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></dt>
-<dd><p>Untabify the <i class="arg">string</i> by replacing any tabulation char by a
-substring of <i class="arg">num</i> space chars and return the result as a new
-string. <i class="arg">num</i> defaults to 8.</p></dd>
-<dt><a name="4"><b class="cmd">::textutil::tabify::untabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></dt>
-<dd><p>Untabify the <i class="arg">string</i> by replacing any tabulation char by a
-substring of at most <i class="arg">num</i> space chars and return the result as a
-new string. Unlike <b class="cmd">textutil::tabify::untabify</b> each tab is not
-replaced by a fixed number of space characters.  The command overlays
-each line in the <i class="arg">string</i> with tabstops every <i class="arg">num</i> columns
-instead and replaces tabs with just enough space characters to reach
-the next tabstop. This is the complement of the actions taken by
-<b class="cmd">::textutil::tabify::tabify2</b>. <i class="arg">num</i> defaults to 8.</p>
-<p>There is one asymmetry though: A tab can be replaced with a single
-space, but not the other way around.</p></dd>
+<dt><a name="1"><b class="cmd">::textutil::tabify::tabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></dt>
+<dd><p>Returns a copy of <i class="arg">string</i> with any substring of <i class="arg">count</i> space
+characters replaced by a horizontal tab. The <i class="arg">count</i> defaults to 8.</p></dd>
+<dt><a name="2"><b class="cmd">::textutil::tabify::tabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></dt>
+<dd><p>Returns a copy of <i class="arg">string</i> with substrings of <i class="arg">count</i>
+<em>or fewer</em> space characters replaced by a horizontal tab using a
+text editor like algorithm. The <i class="arg">count</i> defaults to 8.</p>
+<p>The algorithm used by this command treats each line in <i class="arg">string</i> as
+if it had notional tabstops every <i class="arg">count</i> columns. (So, if <i class="arg">count</i>
+is <b class="const">8</b>, at columns <b class="const">8</b>, <b class="const">16</b>, <b class="const">24</b>, ….) Only
+sequences of <em>two or more</em> space characters that occur
+immediately before a notional tabstop are replaced with a tab.</p></dd>
+<dt><a name="3"><b class="cmd">::textutil::tabify::untabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></dt>
+<dd><p>Returns a copy of <i class="arg">string</i> with every horizontal tab replaced by
+<i class="arg">count</i> spaces. The <i class="arg">count</i> defaults to 8.</p></dd>
+<dt><a name="4"><b class="cmd">::textutil::tabify::untabify2</b> <i class="arg">string</i> <span class="opt">?<i class="arg">count</i>?</span></a></dt>
+<dd><p>Returns a copy of <i class="arg">string</i> with horizontal tabs replaced by
+<i class="arg">count</i> <em>or fewer</em> space characters using a
+text editor like algorithm. The <i class="arg">count</i> defaults to 8.</p>
+<p>This command is the counterpart to <b class="cmd">::textutil::tabify::tabify2</b>.
+The algorithm used by this command treats each line in <i class="arg">string</i> as
+if it had notional tabstops every <i class="arg">count</i> columns. (So, if
+<i class="arg">count</i> is <b class="const">8</b>, at columns <b class="const">8</b>, <b class="const">16</b>, <b class="const">24</b>,
+….) Instead of blindly replacing each horizontal tab with <i class="arg">count</i>
+spaces, each horizontal tab at a notional tabstop is replaced by enough
+spaces to reach the next notional tabstop.</p>
+<p>There is one asymmetry though: A tab may be replaced by a single space,
+but not the other way around.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>The following examples show some of the <b class="package">::textutil::tabify</b>
+package’s commands in action.</p>
+<p>The examples make use of a tiny helper command to make spaces and tabs
+distinct and visible:</p>
+<pre class="doctools_example">
+proc replace_tab_spc s { regsub -all { } [regsub -all \t $s →] ▴ }
+</pre>
+<p>This example shows the <b class="cmd">::textutil::tabify::tabify</b> command in
+action.</p>
+<pre class="doctools_example">
+const LINES1 &quot;    if \{\$x\} \{\n        puts 1\n    \}&quot;
+puts &quot;=== original ===\n[replace_tab_spc $LINES1]\n&quot;
+set tabbed [::textutil::tabify::tabify $LINES1]
+puts &quot;=== 8spc→tab ===\n[replace_tab_spc $tabbed]\n&quot;
+set tabbed [::textutil::tabify::tabify $LINES1 4]
+puts &quot;=== 4spc→tab ===\n[replace_tab_spc $tabbed]\n&quot;
+=&gt;
+=== original ===
+▴▴▴▴if▴{$x}▴{
+▴▴▴▴▴▴▴▴puts▴1
+▴▴▴▴}
+&nbsp;
+=== 8spc→tab ===
+▴▴▴▴if▴{$x}▴{
+→puts▴1
+▴▴▴▴}
+&nbsp;
+=== 4spc→tab ===
+→if▴{$x}▴{
+→→puts▴1
+→}
+</pre>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

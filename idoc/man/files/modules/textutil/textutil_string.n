@@ -293,44 +293,111 @@ package require \fBtextutil::string ?0\&.9?\fR
 .sp
 .BE
 .SH DESCRIPTION
-The package \fBtextutil::string\fR provides miscellaneous string
+The \fBtextutil::string\fR package provides miscellaneous string
 manipulation commands\&.
 .PP
-The complete set of procedures is described below\&.
+To see how to find a common path from a list of paths, see the last of
+the \fBExamples\fR\&.
+.SH API
 .TP
 \fB::textutil::string::chop\fR \fIstring\fR
-A convenience command\&. Removes the last character of \fIstring\fR and
-returns the shortened string\&.
+Returns a copy of \fIstring\fR with the last character removed\&.
 .TP
 \fB::textutil::string::tail\fR \fIstring\fR
-A convenience command\&. Removes the first character of \fIstring\fR and
-returns the shortened string\&.
+Returns a copy of \fIstring\fR with the first character removed\&.
 .TP
 \fB::textutil::string::cap\fR \fIstring\fR
-Capitalizes the first character of \fIstring\fR and returns the
-modified string\&.
+Returns a copy of \fIstring\fR with the first character capitalized\&.
 .TP
 \fB::textutil::string::capEachWord\fR \fIstring\fR
-Capitalizes the first character of word of the \fIstring\fR and
-returns the modified string\&. Words quoted with either backslash or
-dollar-sign are left untouched\&.
+Returns a copy of \fIstring\fR with the first character of every word
+capitalized\&.
 .TP
 \fB::textutil::string::uncap\fR \fIstring\fR
-The complementary operation to \fB::textutil::string::cap\fR\&. Forces
-the first character of \fIstring\fR to lower case and returns the
-modified string\&.
+Returns a copy of \fIstring\fR with the first character lowercased\&.
 .TP
 \fB::textutil::string::longestCommonPrefixList\fR \fIlist\fR
+Returns the longest common prefix of the strings in the given \fIlist\fR\&.
+.sp
+If no argument is given, the empty string is returned\&.
 .TP
 \fB::textutil::string::longestCommonPrefix\fR ?\fIstring\fR\&.\&.\&.?
-Computes the longest common prefix for either the \fIstring\fRs given
-to the command, or the strings specified in the single \fIlist\fR, and
-returns it as the result of the command\&.
+Returns the longest common prefix of the string arguments, \fIstring\fR, …\&.
 .sp
-If no strings were specified the result is the empty string\&.  If only
-one string was specified, the string itself is returned, as it is its
-own longest common prefix\&.
+If a single string is given, it is returned since it is its own longest
+common prefix\&. If no argument is given, the empty string is returned\&.
 .PP
+.SH EXAMPLES
+The following examples show some of the \fB::textutil::string\fR
+package’s commands in action\&.
+.PP
+This first example shows all the commands that work on a single string\&.
+.CS
+
+
+const LINE "has the σαβ cogs"
+puts "“$LINE” const"
+set line [::textutil::string::chop $LINE]
+puts "“$line” chop"
+set line [::textutil::string::tail $line]
+puts "“$line” tail"
+set line [::textutil::string::cap $line]
+puts "“$line” cap"
+set line [::textutil::string::capEachWord $line]
+puts "“$line” capEachWord"
+set line [::textutil::string::uncap $line]
+puts "“$line” uncap"
+=>
+“has the σαβ cogs” const
+“has the σαβ cog” chop
+“as the σαβ cog” tail
+“As the σαβ cog” cap
+“As The Σαβ Cog” capEachWord
+“as The Σαβ Cog” uncap
+
+.CE
+This example shows the longest common prefix commands in use\&.
+.CS
+
+
+const LIST [list handbag handcuff handful handle handy]
+puts “[::textutil::string::longestCommonPrefixList $LIST]”
+puts “[::textutil::string::longestCommonPrefix king queen knave]”
+puts “[::textutil::string::longestCommonPrefix king kin kind kinks]”
+=>
+“hand”
+“”
+“kin”
+
+.CE
+This example shows how to use the
+\fB::textutil::string::longestCommonPrefixList\fR command to find the
+common path from a list of paths\&.
+.CS
+
+
+proc longestCommonPath paths {
+    const SEP [file separator]
+    set path [::textutil::string::longestCommonPrefixList $paths]
+    if {[string index $path end] ne $SEP} {
+        if {[set j [string last $SEP $path]] > -1} {
+            set path [string range $path 0 $j-1]
+        }
+    }
+    if {$path ne $SEP} { set path [string trimright $path $SEP] }
+    return $path
+}
+
+const PATHS [list /home/sally/music /home/sally/museums /home/sally/musings]
+puts [::textutil::string::longestCommonPrefixList $PATHS]
+puts [longestCommonPath $PATHS]
+puts [longestCommonPath [list /bin / /sbin]]
+=>
+/home/sally/mus
+/home/sally
+/
+
+.CE
 .SH "BUGS, IDEAS, FEEDBACK"
 If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the

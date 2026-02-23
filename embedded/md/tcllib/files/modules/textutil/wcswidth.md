@@ -22,7 +22,11 @@ textutil::wcswidth \- Procedures to compute terminal width of strings
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [See Also](#seealso)
 
@@ -36,44 +40,87 @@ package require Tcl 8\.5 9
 package require textutil::wcswidth ?35\.3?  
 
 [__::textutil::wcswidth__ *string*](#1)  
-[__::textutil::wcswidth\_char__ *char*](#2)  
-[__::textutil::wcswidth\_type__ *char*](#3)  
+[__::textutil::wcswidth\_char__ *codepoint*](#2)  
+[__::textutil::wcswidth\_type__ *codepoint*](#3)  
 
 # <a name='description'></a>DESCRIPTION
 
-The package __textutil::wcswidth__ provides commands that determine
-character type and width when used in terminals, and the length of strings when
-printed in a terminal\.
+The __textutil::wcswidth__ package provides commands that report character
+types, character widths, and string widths, in the context of terminal \(console\)
+output\.
 
-The data underlying the functionality of this package is provided by the Unicode
-database file
+This package’s data, and therefore its underlying the functionality, is based on
+the Unicode database file
 [http://www\.unicode\.org/Public/UCD/latest/ucd/EastAsianWidth\.txt](http://www\.unicode\.org/Public/UCD/latest/ucd/EastAsianWidth\.txt)\.
 
-The complete set of procedures is described below\.
+# <a name='section2'></a>API
+
+This package’s commands account for double\-width characters from the various
+Asian and other scripts\.
 
   - <a name='1'></a>__::textutil::wcswidth__ *string*
 
-    Returns the number of character cells taken by the string when printed to
-    the terminal\. This takes double\-wide characters from the various Asian and
-    other scripts into account\.
+    Returns the number of character cells needed by the given *string* when
+    output to a terminal\.
 
-  - <a name='2'></a>__::textutil::wcswidth\_char__ *char*
+  - <a name='2'></a>__::textutil::wcswidth\_char__ *codepoint*
 
-    Returns the number of character cells taken by the character when printed to
-    the terminal\.
+    Returns the number of character cells needed by the given *codepoint*
+    Unicode character when output to a terminal\.
 
-    *Beware*: The character *char* is specified as Unicode codepoint\.
+    *Important*: The *codepoint* Unicode character must be specified as an
+    integer\.
 
-  - <a name='3'></a>__::textutil::wcswidth\_type__ *char*
+  - <a name='3'></a>__::textutil::wcswidth\_type__ *codepoint*
 
-    Returns the character type of the specified character\. This a single
-    character in the set of __A__, __F__, __H__, __N__,
-    __Na__, and __W__, as specified per
-    [http://www\.unicode\.org/Public/UCD/latest/ucd/EastAsianWidth\.txt](http://www\.unicode\.org/Public/UCD/latest/ucd/EastAsianWidth\.txt)
+    Returns the character type of the specified *codepoint* Unicode character\.
 
-    *Beware*: The character *char* is specified as Unicode codepoint\.
+    The returned value is a string containing one of the following constants:
+    __A__, __F__, __H__, __N__, __Na__, or __W__, as
+    specified in
+    [http://www\.unicode\.org/Public/UCD/latest/ucd/EastAsianWidth\.txt](http://www\.unicode\.org/Public/UCD/latest/ucd/EastAsianWidth\.txt)\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+    *Important*: The *codepoint* Unicode character must be specified as an
+    integer\.
+
+# <a name='section3'></a>Examples
+
+This example shows all three commands in action\.
+
+    const LINE "Δ÷☕M☔ℤ"
+    puts "string length  = [string length $LINE]"
+    puts "terminal width = [textutil::wcswidth $LINE]"
+    foreach char [split $LINE ""] {
+        set cp [scan $char %c]
+        set pad [string repeat " " [expr {2 - [textutil::wcswidth_char $cp]}]]
+        puts [format "%-2s%sU+%04X %s" $char $pad $cp [textutil::wcswidth_type $cp]]
+    }
+    =>
+    string length  = 6
+    terminal width = 8
+    Δ  U+0394 A
+    ÷  U+00F7 A
+    ☕ U+2615 W
+    M  U+004D N
+    ☔ U+2614 W
+    ℤ  U+2124 N
+
+On a terminal using a monospaced font, the output shown above lines up
+*perfectly*; any “wobble” seen on this page is an artifact\.
+
+Note that if __pad__ was set to __" "__, i\.e\., taking no account of the
+character widths, the output would *not* line up, e\.g\.:
+
+    string length  = 6
+    terminal width = 8
+    Δ  U+0394 A
+    ÷  U+00F7 A
+    ☕  U+2615 W
+    M  U+004D N
+    ☔  U+2614 W
+    ℤ  U+2124 N
+
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

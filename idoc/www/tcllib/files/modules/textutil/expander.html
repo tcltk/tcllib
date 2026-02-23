@@ -95,7 +95,7 @@
 </head>
 <!-- Generated from file 'expander.man' by tcllib/doctools with format 'html'
    -->
-<!-- Copyright &amp;copy; William H. Duquette, http://www.wjduquette.com/expand
+<!-- Copyright &amp;copy; William H. Duquette https://github.com/wjduquette
    -->
 <!-- textutil::expander.n
    -->
@@ -118,8 +118,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">EXPANDER API</a></li>
-<li class="doctools_section"><a href="#section3">TUTORIAL</a>
+<li class="doctools_section"><a href="#section2">Expander vs. subst</a></li>
+<li class="doctools_section"><a href="#section3">API</a></li>
+<li class="doctools_section"><a href="#section4">Tutorial</a>
 <ul>
 <li class="doctools_subsection"><a href="#subsection1">Basics</a></li>
 <li class="doctools_subsection"><a href="#subsection2">Embedding Macros</a></li>
@@ -129,8 +130,8 @@
 <li class="doctools_subsection"><a href="#subsection6">Using the Context Stack</a></li>
 </ul>
 </li>
-<li class="doctools_section"><a href="#section4">HISTORY</a></li>
-<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section5">History</a></li>
+<li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
@@ -167,6 +168,13 @@
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
+<p>The <b class="package">textutil::expander</b> package provides a string templating
+facility that is more powerful and flexible than using the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/subst.html">subst</a> command.</p>
+<p>See the <span class="sectref"><a href="#section4">Tutorial</a></span> section to learn the package, and the
+<span class="sectref"><a href="#section3">API</a></span> section for the complete details.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Expander vs. subst</a></h2>
 <p>The Tcl <b class="cmd"><a href="../../../../index.html#subst">subst</a></b> command is often used to support a kind of
 template processing. Given a string with embedded variables or
 function calls, <b class="cmd"><a href="../../../../index.html#subst">subst</a></b> will interpolate the variable and function
@@ -184,23 +192,22 @@ implement a markup language similar to HTML.</p>
 <p>The <b class="cmd"><a href="../../../../index.html#subst">subst</a></b> command is efficient, but it has three drawbacks for
 this kind of template processing:</p>
 <ul class="doctools_itemized">
-<li><p>There's no way to identify and process the plain text between two
+<li><p>There’s no way to identify and process the plain text between two
 embedded Tcl commands; that makes it difficult to handle plain text in
 a context-sensitive way.</p></li>
 <li><p>Embedded commands are necessarily bracketed by <b class="const">[</b> and
-<b class="const">]</b>; it's convenient to be able to choose different brackets
+<b class="const">]</b>; it’s convenient to be able to choose different brackets
 in special cases.  Someone producing web pages that include a large
 quantity of Tcl code examples might easily prefer to use <b class="const">&lt;&lt;</b>
 and <b class="const">&gt;&gt;</b> as the embedded code delimiters instead.</p></li>
-<li><p>There's no easy way to handle incremental input, as one might wish to
+<li><p>There’s no easy way to handle incremental input, as one might wish to
 do when reading data from a socket.</p></li>
 </ul>
-<p>At present, expander solves the first two problems; eventually it will
-solve the third problem as well.</p>
+<p>At present, expander solves the first two problems.</p>
 <p>The following section describes the command API to the expander; this
-is followed by the tutorial sections, see <span class="sectref"><a href="#section3">TUTORIAL</a></span>.</p>
+is followed by the tutorial sections, see <span class="sectref"><a href="#section4">Tutorial</a></span>.</p>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">EXPANDER API</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
 <p>The <b class="package">textutil::expander</b> package provides only one command,
 described below. The rest of the section is taken by a description of
 the methods for the expander objects created by this command.</p>
@@ -208,56 +215,55 @@ the methods for the expander objects created by this command.</p>
 <dt><a name="1"><b class="cmd">::textutil::expander</b> <i class="arg">expanderName</i></a></dt>
 <dd><p>The command creates a new expander object with an associated Tcl
 command whose name is <i class="arg">expanderName</i>. This command may be used to
-invoke various operations on the graph. If the <i class="arg">expanderName</i> is
+invoke various methods. If the <i class="arg">expanderName</i> is
 not fully qualified it is interpreted as relative to the current
-namespace.  The command has the following general form:</p>
+namespace. The method calls have the following general form:</p>
 <pre class="doctools_example">
-<i class="arg">expanderName</i> option <span class="opt">?<i class="arg">arg arg ...</i>?</span>
+<i class="arg">expanderName</i> <i class="arg">method</i> <span class="opt">?<i class="arg">arg ...</i>?</span>
 </pre>
-<p><i class="arg">Option</i> and the <i class="arg">arg</i>s determine the exact behavior of the
-command.</p></dd>
+</dd>
 </dl>
-<p>The following commands are possible for expander objects:</p>
+<p>Expander objects support the following methods:</p>
 <dl class="doctools_definitions">
 <dt><a name="2"><i class="arg">expanderName</i> <b class="method">cappend</b> <i class="arg">text</i></a></dt>
 <dd><p>Appends a string to the output in the current context.  This command
 should rarely be used by macros or application code.</p></dd>
 <dt><a name="3"><i class="arg">expanderName</i> <b class="method">cget</b> <i class="arg">varname</i></a></dt>
-<dd><p>Retrieves the value of variable <i class="arg">varname</i>, defined in the current
+<dd><p>Returns the value of variable <i class="arg">varname</i>, defined in the current
 context.</p></dd>
 <dt><a name="4"><i class="arg">expanderName</i> <b class="method">cis</b> <i class="arg">cname</i></a></dt>
-<dd><p>Determines whether or not the name of the current context is
+<dd><p>Returns <b class="const">1</b> (true) if the current context’s name is <i class="arg">cname</i>;
+otherwise returns <b class="const">0</b> (false).
 <i class="arg">cname</i>.</p></dd>
 <dt><a name="5"><i class="arg">expanderName</i> <b class="method">cname</b></a></dt>
 <dd><p>Returns the name of the current context.</p></dd>
 <dt><a name="6"><i class="arg">expanderName</i> <b class="method">cpop</b> <i class="arg">cname</i></a></dt>
 <dd><p>Pops a context from the context stack, returning all accumulated
-output in that context.  The context must be named <i class="arg">cname</i>, or an
-error results.</p></dd>
+output in that context. The context must be called <i class="arg">cname</i>, or an
+error is thrown.</p></dd>
 <dt><a name="7"><i class="arg">expanderName</i> <b class="method">ctopandclear</b></a></dt>
 <dd><p>Returns the output currently captured in the topmost context and
 clears that buffer. This is similar to a combination of <b class="method">cpop</b>
-followed by <b class="method">cpush</b>, except that internal state (brackets) is
+followed by <b class="method">cpush</b>, except that the internal state (brackets) is
 preserved here.</p></dd>
 <dt><a name="8"><i class="arg">expanderName</i> <b class="method">cpush</b> <i class="arg">cname</i></a></dt>
-<dd><p>Pushes a context named <i class="arg">cname</i> onto the context stack.  The
+<dd><p>Pushes a context called <i class="arg">cname</i> onto the context stack.  The
 context must be popped by <b class="method">cpop</b> before expansion ends or an
-error results.</p></dd>
+error is thrown.</p></dd>
 <dt><a name="9"><i class="arg">expanderName</i> <b class="method">cset</b> <i class="arg">varname</i> <i class="arg">value</i></a></dt>
 <dd><p>Sets variable <i class="arg">varname</i> to <i class="arg">value</i> in the current context.</p></dd>
 <dt><a name="10"><i class="arg">expanderName</i> <b class="method">cvar</b> <i class="arg">varname</i></a></dt>
-<dd><p>Retrieves the internal variable name of context variable
-<i class="arg">varname</i>; this allows the variable to be passed to commands like
-<b class="cmd">lappend</b>.</p></dd>
+<dd><p>Returns the internal variable name of context variable <i class="arg">varname</i>;
+this allows the variable to be passed to commands like <b class="cmd">lappend</b>.</p></dd>
 <dt><a name="11"><i class="arg">expanderName</i> <b class="method">errmode</b> <i class="arg">newErrmode</i></a></dt>
 <dd><p>Sets the macro expansion error mode to one of <b class="const">nothing</b>,
 <b class="const">macro</b>, <b class="const">error</b>, or <b class="const">fail</b>; the default value is
 <b class="const">fail</b>.  The value determines what the expander does if an
-error is detected during expansion of a macro.</p>
+error is detected during the expansion of a macro.</p>
 <dl class="doctools_definitions">
 <dt><b class="const">fail</b></dt>
-<dd><p>The error propagates normally and can be caught or ignored by the
-application.</p></dd>
+<dd><p>The error propagates normally (i.e., is thrown), and can be caught or
+ignored by the application.</p></dd>
 <dt><b class="const">error</b></dt>
 <dd><p>The macro expands into a detailed error message, and expansion
 continues.</p></dd>
@@ -291,7 +297,7 @@ is for use as or within a macro, when the bracket needs to be included
 in the output text.  If <i class="arg">newbracket</i> is specified, it becomes the
 new bracket, and is returned.</p></dd>
 <dt><a name="16"><i class="arg">expanderName</i> <b class="method">reset</b></a></dt>
-<dd><p>Resets all expander settings to their initial values.  Unusual results
+<dd><p>Resets all expander settings to their initial values. Unexpected results
 are likely if this command is called from within a call to
 <b class="method">expand</b>.</p></dd>
 <dt><a name="17"><i class="arg">expanderName</i> <b class="method">setbrackets</b> <i class="arg">lbrack rbrack</i></a></dt>
@@ -306,7 +312,7 @@ definitions.  By default, the brackets are <b class="const">[</b> and
 to the empty string, meaning <em>identity</em>. If specified,
 <i class="arg">newTextCmd</i> will be saved for future use and then returned; it
 must be a Tcl command expecting one additional argument: the text to
-process. The expander object will this command for all plain text it
+process. The expander object will use this command for all plain text it
 encounters, giving the user of the object the ability to process all
 plain text in some standard way before writing it to the output. The
 object expects that the command returns the processed plain text.</p>
@@ -316,11 +322,11 @@ words, the <i class="arg">textcmd</i> is treated as a special macro implicitly
 surrounding all plain text in the template.</p></dd>
 <dt><a name="19"><i class="arg">expanderName</i> <b class="method">where</b></a></dt>
 <dd><p>Returns a three-element list containing the current character
-position, line, and column the expander is at in the processing of the
+position, line, and column the expander has reached in the processing of the
 current input string.</p></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">TUTORIAL</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Tutorial</a></h2>
 <div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Basics</a></h3>
 <p>To begin, create an expander object:</p>
 <pre class="doctools_example">
@@ -332,7 +338,7 @@ current input string.</p></dd>
 </pre>
 <p>The created <b class="cmd">::myexp</b> object can be used to expand text strings
 containing embedded Tcl commands.  By default, embedded commands are
-delimited by square brackets.  Note that expander doesn't attempt to
+delimited by square brackets.  Note that expander doesn’t attempt to
 interpolate variables, since variables can be referenced by embedded
 commands:</p>
 <pre class="doctools_example">
@@ -385,12 +391,13 @@ example, decide what to return based on the desired output format.</p>
 </div>
 <div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Changing the Expansion Brackets</a></h3>
 <p>By default, embedded macros are enclosed in square brackets,
-<b class="const">[</b> and <b class="const">]</b>.  If square brackets need to be
-included in the output, the input can contain the <b class="cmd">lb</b> and
+<b class="const">[</b> and <b class="const">]</b>.  If square brackets must be
+included in the output, the input can use the <b class="cmd">lb</b> and
 <b class="cmd">rb</b> commands.  Alternatively, or if square brackets are
-objectionable for some other reason, the macro expansion brackets can
-be changed to any pair of non-empty strings.</p>
-<p>The <b class="method">setbrackets</b> command changes the brackets permanently.
+unwanted for some other reason, the macro expansion brackets can
+be changed to any pair of nonempty strings.</p>
+<p>The <b class="method">setbrackets</b> method changes the brackets for all subsequent
+expansions applied to the current expansion object.
 For example, you can write pseudo-html by change them to <b class="const">&lt;</b>
 and <b class="const">&gt;</b>:</p>
 <pre class="doctools_example">
@@ -399,7 +406,7 @@ and <b class="const">&gt;</b>:</p>
     &lt;b&gt;This is boldface&lt;/b&gt;
 </pre>
 <p>Alternatively, you can change the expansion brackets temporarily by
-passing the desired brackets to the <b class="method">expand</b> command:</p>
+passing the desired brackets to the <b class="method">expand</b> method:</p>
 <pre class="doctools_example">
     % ::myexp setbrackets &quot;\\[&quot; &quot;\\]&quot;
     % ::myexp expand {&lt;bold&gt;This is boldface&lt;/bold&gt;} {&lt; &gt;}
@@ -410,12 +417,14 @@ passing the desired brackets to the <b class="method">expand</b> command:</p>
 <div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Customized Macro Expansion</a></h3>
 <p>By default, macros are evaluated using the Tcl <b class="cmd">uplevel #0</b>
 command, so that the embedded code executes in the global context.
-The application can provide a different evaluation command using
-<b class="method">evalcmd</b>; this allows the application to use a safe
-interpreter, for example, or even to evaluated something other than
+The application can provide a different evaluation command using the
+<b class="method">evalcmd</b> method; this allows the application to use a safe
+interpreter, for example, or even to evaluate something other than
 Tcl code.  There is one caveat: to be recognized as valid, a macro
-must return 1 when passed to Tcl's &quot;info complete&quot; command.</p>
-<p>For example, the following code &quot;evaluates&quot; each macro by returning
+must return <b class="const">1</b> (true) when passed to Tcl’s
+<a href="https://www.tcl-lang.org/man/tcl9.0/TclCmd/info.html">info
+complete</a> subcommand.</p>
+<p>For example, the following code “evaluates” each macro by returning
 the macro text itself.</p>
 <pre class="doctools_example">
     proc identity {macro} {return $macro}
@@ -423,9 +432,9 @@ the macro text itself.</p>
 </pre>
 </div>
 <div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">Using the Context Stack</a></h3>
-<p>Often it's desirable to define a pair of macros which operate in some
+<p>Often it’s desirable to define a pair of macros which operate in some
 way on the plain text between them.  Consider a set of macros for
-adding footnotes to a web page: one could have implement something
+adding footnotes to a web page: one could have implemented something
 like this:</p>
 <pre class="doctools_example">
     Dr. Pangloss, however, thinks that this is the best of all
@@ -443,12 +452,12 @@ additional markup.  Consider the following instead:</p>
 <p>Here the footnote text is contained between <b class="cmd">footnote</b> and
 <b class="cmd">/footnote</b> macros, continues onto a second line, and contains
 several macros of its own.  This is both clearer and more flexible;
-however, with the features presented so far there's no easy way to do
-it.  That's the purpose of the context stack.</p>
+however, with the features presented so far there’s no easy way to do
+it.  That’s the purpose of the context stack.</p>
 <p>All macro expansion takes place in a particular context.  Here, the
 <b class="cmd">footnote</b> macro pushes a new context onto the context stack.
 Then, all expanded text gets placed in that new context.
-<b class="cmd">/footnote</b> retrieves it by popping the context.  Here's a
+<b class="cmd">/footnote</b> retrieves it by popping the context.  Here’s a
 skeleton implementation of these two macros:</p>
 <pre class="doctools_example">
     proc footnote {} {
@@ -460,8 +469,8 @@ skeleton implementation of these two macros:</p>
         # number and link.
     }
 </pre>
-<p>The <b class="method">cpush</b> command pushes a new context onto the stack; the
-argument is the context's name.  It can be any string, but would
+<p>The <b class="method">cpush</b> method pushes a new context onto the stack; the
+argument is the context’s name.  It can be any string, but would
 typically be the name of the macro itself.  Then, <b class="method">cpop</b>
 verifies that the current context has the expected name, pops it off
 of the stack, and returns the accumulated text.</p>
@@ -491,11 +500,12 @@ are only called within the correct context using either <b class="method">cis</b
 or <b class="method">cname</b>.</p>
 </div>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">HISTORY</a></h2>
-<p><b class="cmd">expander</b> was written by William H. Duquette; it is a repackaging
-of the central algorithm of the expand macro processing tool.</p>
+<div id="section5" class="doctools_section"><h2><a name="section5">History</a></h2>
+<p>The <b class="cmd">expander</b> package was written by William H. Duquette; it is a
+repackaging of the central algorithm of the expand macro processing
+tool.</p>
 </div>
-<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the
@@ -509,7 +519,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
-<p>[uri, http://www.wjduquette.com/expand, regexp, <a href="../../../../index.html#split">split</a>, <a href="../../../../index.html#string">string</a></p>
+<p>http://www.wjduquette.com/expand, regexp, <a href="../../../../index.html#split">split</a>, <a href="../../../../index.html#string">string</a></p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
 <p><a href="../../../../index.html#string">string</a>, <a href="../../../../index.html#template_processing">template processing</a>, <a href="../../../../index.html#text_expansion">text expansion</a></p>
@@ -518,6 +528,6 @@ left-most button in the secondary navigation bar.</p>
 <p>Documentation tools</p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; William H. Duquette, http://www.wjduquette.com/expand</p>
+<p>Copyright &copy; William H. Duquette https://github.com/wjduquette</p>
 </div>
 </div></body></html>

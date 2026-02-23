@@ -118,10 +118,14 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
-<li class="doctools_section"><a href="#section3">EXAMPLES</a></li>
-<li class="doctools_section"><a href="#section4">REFERENCES</a></li>
-<li class="doctools_section"><a href="#section5">AUTHORS</a></li>
+<li class="doctools_section"><a href="#section2">Commands</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Legacy examples</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section4">References</a></li>
+<li class="doctools_section"><a href="#section5">Authors</a></li>
 <li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
@@ -135,36 +139,88 @@
 <li>package require <b class="pkgname">unicode 1.1.1</b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::unicode::fromstring</b> <i class="arg">string</i></a></li>
-<li><a href="#2"><b class="cmd">::unicode::tostring</b> <i class="arg">uclist</i></a></li>
-<li><a href="#3"><b class="cmd">::unicode::normalize</b> <i class="arg">form</i> <i class="arg">uclist</i></a></li>
-<li><a href="#4"><b class="cmd">::unicode::normalizeS</b> <i class="arg">form</i> <i class="arg">string</i></a></li>
+<li><a href="#1"><b class="cmd">::unicode::normalizeS</b> <i class="arg">form</i> <i class="arg">string</i></a></li>
+<li><a href="#2"><b class="cmd">::unicode::fromstring</b> <i class="arg">string</i></a></li>
+<li><a href="#3"><b class="cmd">::unicode::tostring</b> <i class="arg">codepointsList</i></a></li>
+<li><a href="#4"><b class="cmd">::unicode::normalize</b> <i class="arg">form</i> <i class="arg">codepointsList</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This is an implementation in Tcl of the Unicode normalization forms.</p>
+<p>This is a Tcl implementation of Unicode normalization commands.</p>
+<p><em>Note</em> that if normalization alone is insufficient (e.g., for
+string comparisons), the <b class="package"><a href="stringprep.html">stringprep</a></b> package may prove useful.</p>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Commands</a></h2>
+<p>The <i class="arg">form</i> argument in the commands listed below must be a string
+that has one of the following values: <b class="const">D</b> (canonical
+decomposition), <b class="const">C</b> (canonical decomposition, followed by
+canonical composition), <b class="const">KD</b> (compatibility decomposition), or
+<b class="const">KC</b> (compatibility decomposition, followed by canonical
+composition).</p>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::unicode::fromstring</b> <i class="arg">string</i></a></dt>
-<dd><p>Converts <i class="arg">string</i> to list of integer Unicode character codes which
-is used in <b class="package">unicode</b> for internal string representation.</p></dd>
-<dt><a name="2"><b class="cmd">::unicode::tostring</b> <i class="arg">uclist</i></a></dt>
-<dd><p>Converts list of integers <i class="arg">uclist</i> back to Tcl string.</p></dd>
-<dt><a name="3"><b class="cmd">::unicode::normalize</b> <i class="arg">form</i> <i class="arg">uclist</i></a></dt>
-<dd><p>Normalizes Unicode characters list <i class="arg">ulist</i> according to <i class="arg">form</i>
-and returns the normalized list. Form <i class="arg">form</i> takes one of the following
-values: <i class="arg">D</i> (canonical decomposition), <i class="arg">C</i> (canonical decomposition, followed
-by canonical composition), <i class="arg">KD</i> (compatibility decomposition), or <i class="arg">KC</i>
-(compatibility decomposition, followed by canonical composition).</p></dd>
-<dt><a name="4"><b class="cmd">::unicode::normalizeS</b> <i class="arg">form</i> <i class="arg">string</i></a></dt>
-<dd><p>A shortcut to
-::unicode::tostring [unicode::normalize \$form [::unicode::fromstring \$string]].
-Normalizes Tcl string and returns normalized string.</p></dd>
+<dt><a name="1"><b class="cmd">::unicode::normalizeS</b> <i class="arg">form</i> <i class="arg">string</i></a></dt>
+<dd><p>Returns a possibly modified copy of <i class="arg">string</i>, normalized in
+accordance with the given <i class="arg">form</i>.</p>
+<p>This is a convenience for:</p>
+<p><em>::unicode::tostring</em> [<em>unicode::normalize $form</em>
+[<em>::unicode::fromstring $string</em>]].</p></dd>
+<dt><a name="2"><b class="cmd">::unicode::fromstring</b> <i class="arg">string</i></a></dt>
+<dd><p>Returns a list of integer Unicode code points representing the
+characters in <i class="arg">string</i>.</p>
+<p>(These integer code points are used in <b class="package">unicode</b> for internal
+string representation.)</p></dd>
+<dt><a name="3"><b class="cmd">::unicode::tostring</b> <i class="arg">codepointsList</i></a></dt>
+<dd><p>Returns a string whose characters are those corresponding to the
+<i class="arg">codepointsList</i> of integers.</p>
+<p>Every integer that is a valid Unicode code point is represented in the
+returned string by the corresponding Unicode character. Any integer that
+is not a valid Unicode code point is represented using the Unicode
+replacement character �, U+FFFD, unless it is sufficiently big, in which
+case an error is thrown.</p></dd>
+<dt><a name="4"><b class="cmd">::unicode::normalize</b> <i class="arg">form</i> <i class="arg">codepointsList</i></a></dt>
+<dd><p>Returns a possibly modified copy of the <i class="arg">codepointsList</i> of integers
+(which must all be valid Unicode code points), normalized according to
+the given normalization <i class="arg">form</i>.</p></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>Some Unicode characters have more than one representation in a Unicode
+encoding such as UTF-8. Normally, this is not a problem <em>within</em> a
+programming language, since the language will typically always use the
+same representation for any given character. But for data read in from
+files or other external sources, any of the possible representations
+could be used. So in these cases normalization may be needed.</p>
+<p>Here is an example of the problem:</p>
+<pre class="doctools_example">
+set a &quot;&Aring;&quot;
+set b &quot;\u212B&quot;
+set c [encoding convertfrom utf-8 \xC3\x85]
+set d [encoding convertfrom utf-8 \xE2\x84\xAB]
+set e [encoding convertfrom utf-8 \x41\xCC\x8A]
+set s [join [list $a $b $c $d $e] &quot;&quot;]
+puts &quot;s=$s a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}] a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}] b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}] c=e→[expr {$a eq $e}]&quot;
+=&gt;
+s=&Aring;Å&Aring;ÅÅ a=b→0 a=c→1 a=d→0 a=e→0 b=c→0 b=d→0 b=e→0 c=d→0 c=e→0
+</pre>
+<p>The above output shows that although all the characters are the same,
+they have different UTF-8 representations and do <em>not</em> compare
+equal.</p>
+<p>The solution is to normalize. For example:</p>
+<pre class="doctools_example">
+set t [unicode::normalizeS KC $s]
+set a [string index $t 0]
+set b [string index $t 1]
+set c [string index $t 2]
+set d [string index $t 3]
+set e [string index $t 4]
+puts &quot;t=$t a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}] a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}] b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}] c=e→[expr {$a eq $e}]&quot;
+=&gt;
+t=&Aring;&Aring;&Aring;&Aring;&Aring; a=b→1 a=c→1 a=d→1 a=e→1 b=c→1 b=d→1 b=e→1 c=d→1 c=e→1
+</pre>
+<p>After normalization all the characters have the same representation and
+correctly compare as equal.</p>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Legacy examples</a></h3>
 <pre class="doctools_example">
 % ::unicode::fromstring &quot;\u0410\u0411\u0412\u0413&quot;
 1040 1041 1042 1043
@@ -180,13 +236,14 @@ A
 %
 </pre>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">REFERENCES</a></h2>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">References</a></h2>
 <ol class="doctools_enumerated">
 <li><p>&quot;Unicode Standard Annex #15: Unicode Normalization Forms&quot;,
     (<a href="http://unicode.org/reports/tr15/">http://unicode.org/reports/tr15/</a>)</p></li>
 </ol>
 </div>
-<div id="section5" class="doctools_section"><h2><a name="section5">AUTHORS</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Authors</a></h2>
 <p>Sergei Golovan</p>
 </div>
 <div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>

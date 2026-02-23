@@ -278,33 +278,45 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBlazyset ?1\&.1?\fR
 .sp
-\fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIvariableName\fR \fIcommandPrefix\fR
+\fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIsomeVar\fR \fIcommandPrefix\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBlazyset\fR package provides a mechanism for deferring execution
-of code until a specific variable or any index of an array is referenced\&.
+The \fBlazyset\fR package provides a mechanism for deferring code
+execution until a specific variable or any index of an array is
+referenced\&.
+.PP
+\fI(Another way to defer execution is to create a singleton class\&.
+The first time its constructor is called—if ever—the object will be
+created\&. Any subsequent constructor call will get back the first created
+object\&. See\fR
+\fIoo::singleton\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/singleton\&.html]\&.)
 .SH COMMANDS
 .TP
-\fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIvariableName\fR \fIcommandPrefix\fR
+\fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIsomeVar\fR \fIcommandPrefix\fR
 Arrange for the code specified as \fIcommandPrefix\fR to be executed when
-the variable whose name is specified by \fIvariableName\fR is read for
+the variable whose name is specified by \fIsomeVar\fR is read for
 the first time\&.
+.sp
 If the optional argument \fI-array boolean\fR is specified as true,
-then the variable specified as \fIvariableName\fR is treated as an
+then the variable specified as \fIsomeVar\fR is treated as an
 array and attempting to read any index of the array causes that
 index to be set by the \fIcommandPrefix\fR as they are read\&.
+.sp
 If the optional argument \fI-appendArgs boolean\fR is specified as
 false, then the variable name and subnames are not appended to the
-\fIcommandPrefix\fR before it is evaluated\&.  If the argument
-\fI-appendArgs boolean\fR is not specified or is specified as true
-then 1 or 2 additional arguments are appended to the \fIcommandPrefix\fR\&.
-If \fI-array boolean\fR is specified as true, then 2 arguments are
-appended corresponding to the name of the variable and the index,
-otherwise 1 argument is appended containing the name of variable\&.
+\fIcommandPrefix\fR before it is evaluated\&.
+.sp
+If the argument \fI-appendArgs boolean\fR is not specified or is
+specified as true, then 1 or 2 additional arguments are appended to the
+\fIcommandPrefix\fR\&. If \fI-array boolean\fR is specified as true,
+then 2 arguments are appended corresponding to the name of the variable
+and the index; otherwise 1 argument is appended containing the name of
+the variable\&.
+.sp
 The \fIcommandPrefix\fR code is run in the same scope as the variable
-is read\&.
+that is read\&.
 .PP
 .SH EXAMPLES
 .CS
@@ -312,7 +324,7 @@ is read\&.
 
 	::lazyset::variable page {apply {{name} {
 		package require http
-		set token [http::geturl http://www\&.tcl\&.tk/]
+		set token [http::geturl http://www\&.tcl-lang\&.org/]
 		set data [http::data $token]
 		return $data
 	}}}
@@ -330,7 +342,7 @@ is read\&.
 		return $data
 	}}}
 
-	puts $page(http://www\&.tcl\&.tk/)
+	puts $page(http://www\&.tcl-lang\&.org/)
 
 .CE
 .CS

@@ -278,58 +278,74 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBdicttool ?1\&.2?\fR
 .sp
-\fBladd\fR \fIvarname\fR \fIargs\fR
+\fBladd\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
 .sp
-\fBldelete\fR \fIvarname\fR \fIargs\fR
+\fBldelete\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
 .sp
-\fBdict getnull\fR \fIargs\fR
+\fBdict getnull\fR \fIkey\fR
 .sp
-\fBdict print\fR \fIvarname\fR
+\fBdict print\fR \fIaDict\fR
 .sp
 \fBdict is_dict\fR \fIvalue\fR
 .sp
-\fBdict rmerge\fR \fIargs\fR
+\fBdict rmerge\fR \fIdict1\fR \fIdict2\fR ?\fIdict3 \&.\&.\&.\fR?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBdicttool\fR package enhances the standard \fIdict\fR command with several new
-commands\&. In addition, the package also defines several convenient list commands\&.
-(Each command only adds itself if a command of the same name doesn’t already exist,
-in case any of these are added to the core\&.)
+This package enhances the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command
+with several new commands\&. In addition, the package also defines several
+convenient list commands\&. (Each command only adds itself if a command of
+the same name doesn’t already exist, in case any of these are added to
+the core\&.)
 .TP
-\fBladd\fR \fIvarname\fR \fIargs\fR
-This command adds every element in \fIargs\fR to \fIvarname\fR, but only if that element
-is not already present (whether as a key or a value)\&. Use an even number
-of \fIargs\fR to keep \fIvarname\fR as a \fBdict\fR\&.
+\fBladd\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
+This command adds every pair of \fIkey value\fR elements to \fIdictVar\fR,
+but only if that element is not already present (whether as a key or a
+value)\&. This command \fImust\fR be given pairs of \fIkey value\fR
+elements to preserve \fIdictVar\fR as a \fBdict\fR\&.
 .TP
-\fBldelete\fR \fIvarname\fR \fIargs\fR
-This command deletes every element in \fIargs\fR from \fIvarname\fR\&. Use an even number
-of \fIargs\fR to keep \fIvarname\fR as a \fBdict\fR\&.
+\fBldelete\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
+This command deletes every pair of \fIkey value\fR elements from
+\fIdictVar\fR\&. Harmlessly does nothing if the pair is not already in
+\fIdictVar\fR\&. This command \fImust\fR be given pairs of
+\fIkey value\fR elements to preserve \fIdictVar\fR as a \fBdict\fR\&.
+.sp
+Use the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict remove\fR subcommand to remove elements by key alone\&.
 .TP
-\fBdict getnull\fR \fIargs\fR
-Operates like \fBdict get\fR, however if the key \fIargs\fR does not exist, it returns an empty
+\fBdict getnull\fR \fIkey\fR
+Operates like \fBdict get\fR, however if the key \fIkey\fR does not exist, it returns an empty
 list instead of throwing an error\&.
 .sp
-An alternative to this command is \fBdict getwithdefault\fR \fIor
+An alternative to this command is the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict getwithdefault\fR subcommand \fIor
 its alias\fR \fBdict getdef\fR\&. Using \fBdict getdef\fR with a
 default of an empty list, \fI{}\fR, is equivalent to using \fBdict getnull\fR\&.
 .TP
-\fBdict print\fR \fIvarname\fR
+\fBdict print\fR \fIaDict\fR
 Returns a “pretty printed” string representation of
-\fBdict\fR \fIvarname\fR, with each nested branch on a newline, and
+\fBdict\fR \fIaDict\fR, with each nested branch on a newline, and
 indented with two spaces for every level\&.
 .TP
 \fBdict is_dict\fR \fIvalue\fR
-Returns 1 if \fIvalue\fR can be interpreted as a dict;
-otherwise 0\&. (The command does \fInot\fR force an existing dict
-representation to change into another internal representation\&.)
+Returns \fB1\fR (true) if \fIvalue\fR can be interpreted as a
+\fBdict\fR; otherwise \fB0\fR (false)\&.
+.sp
+This command does \fInot\fR force an existing \fBdict\fR
+representation to change into another internal representation\&.
 .TP
-\fBdict rmerge\fR \fIargs\fR
+\fBdict rmerge\fR \fIdict1\fR \fIdict2\fR ?\fIdict3 \&.\&.\&.\fR?
 Returns a \fBdict\fR which is the result of a recursive merge of all of
-the \fBdict\fR arguments\&. Unlike \fBdict merge\fR,
-this command descends into all of the levels of a dict\&. Dict keys which end in a : indicate a leaf, which
-will be interpreted as a literal value, and not descended into further\&.
+the \fBdict\fR arguments\&. Unlike the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict merge\fR subcommand, this command descends into all of the
+\fBdict\fR’s levels\&. Note that \fBdict\fR keys which end in a :
+indicate a leaf, which will be interpreted as a literal value, and not
+descended into further\&.
 .CS
 
 
@@ -356,7 +372,9 @@ option {
 
 .CE
 .sp
-If the \fBdict merge\fR command had been used above, the \fIfruit\fR
+If the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict merge\fR subcommand had been used above, the \fIfruit\fR
 item’s \fIdefault\fR key-value entry would have been lost\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"

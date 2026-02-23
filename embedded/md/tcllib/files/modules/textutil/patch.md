@@ -22,7 +22,9 @@ textutil::patch \- Application of uni\-diff patches to directory trees
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Bugs, Ideas, Feedback](#section3)
 
   - [Keywords](#keywords)
 
@@ -40,47 +42,55 @@ package require textutil::patch ?0\.2?
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides a single command which applies a patch in [unified
+This package provides a single command which applies a patch in [unified diff
 format](https://www\.gnu\.org/software/diffutils/manual/html\_node/Detailed\-Unified\.html)
-to a directory tree\.
+to the files in a directory tree\.
+
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::textutil::patch::apply__ *basedirectory* *striplevel* *patch* *reportcmd*
 
-    Applies the *patch* \(text of the path, not file\) to the files in the
-    *basedirectory* using the specified *striplevel*\. The result of the
-    command is the empty string\.
+    Applies the *patch* \(i\.e\., the text of the actual patch, not a filename\)
+    to the files in the *basedirectory* using the specified *striplevel*,
+    and reports actions with calls to the command prefix *reportcmd*\. Returns
+    an empty string\.
 
-    The *striplevel* argument is equivalent to option __\-p__ of the
-    __[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ command\.
+    The *striplevel* argument is equivalent to the
+    [patch](https://www\.man7\.org/linux/man\-pages/man1/patch\.1\.html)
+    command’s __\-p__ \(or __\-\-strip__\) option with a value of
+    *striplevel*\.
 
-    Errors are thrown when the *patch* does not parse, and nothing is done to
-    the files in *basedirectory*\.
+    Throws an error if *patch* cannot be parsed, or if nothing is done to the
+    files in *basedirectory*\.
 
-    All activities during the application of the patch, including the inability
-    to apply a hunk are reported through the command prefix *reportcmd*
-    instead\. Files with problems are left unchanged\. Note however that this does
-    *not prevent* changes to files with no problems, before and after the
-    problematic file\(s\)\.
+    Actions that occur during the patching, including the inability to apply a
+    hunk, are reported through the command prefix *reportcmd*\. Files with
+    problems are left unchanged, while files without problems—whether they are
+    processed before or after problem files—will be changed in accordance with
+    the *patch*\.
 
-    The command prefix is called in 3 possible forms:
+    Each call to the command prefix can take one of three possible forms:
 
       * <a name='2'></a>__\{\*\}reportcmd__ __apply__ *filename*
 
-        The caller begins operation on file *fname*, applying all hunks
-        collected for said file\.
+        This call is made at the start of each patch apply and is passed the
+        *filename* of the file being patched\. An attempt is made to apply all
+        collected hunks for the *filename*\.
 
       * <a name='3'></a>__\{\*\}reportcmd__ __fail__ *filename* *hunk* *expected* *seen*
 
-        Application of hunk number *hunk* of file *filename* has failed\. The
-        command expected to find the text *expected*, and saw *seen*
-        instead\.
+        This call is made every time the application of a hunk fails\. The
+        command is passed the *filename* being processed, the *hunk* number,
+        what the *expected* text was, and what the text that was actually
+        *seen* is\.
 
       * <a name='4'></a>__\{\*\}reportcmd__ __fail\-already__ *filename* *hunk*
 
-        Application of hunk number *hunk* of file *filename* has failed\. The
-        command believes that this hunk has already been applied to the file\.
+        This call is made every time the application of a hunk fails due to the
+        given *hunk* number having *already* been applied to the
+        *filename*\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section3'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

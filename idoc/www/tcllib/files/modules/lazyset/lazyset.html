@@ -118,9 +118,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
-<li class="doctools_section"><a href="#section3">EXAMPLES</a></li>
-<li class="doctools_section"><a href="#section4">AUTHORS</a></li>
+<li class="doctools_section"><a href="#section2">Commands</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Authors</a></li>
 <li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -133,41 +133,48 @@
 <li>package require <b class="pkgname">lazyset <span class="opt">?1.1?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::lazyset::variable</b> <span class="opt">?<i class="arg">-array boolean</i>?</span> <span class="opt">?<i class="arg">-appendArgs boolean</i>?</span> <i class="arg">variableName</i> <i class="arg">commandPrefix</i></a></li>
+<li><a href="#1"><b class="cmd">::lazyset::variable</b> <span class="opt">?<i class="arg">-array boolean</i>?</span> <span class="opt">?<i class="arg">-appendArgs boolean</i>?</span> <i class="arg">someVar</i> <i class="arg">commandPrefix</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The <b class="package">lazyset</b> package provides a mechanism for deferring execution
-of code until a specific variable or any index of an array is referenced.</p>
+<p>The <b class="package">lazyset</b> package provides a mechanism for deferring code
+execution until a specific variable or any index of an array is
+referenced.</p>
+<p><em>(Another way to defer execution is to create a singleton class.
+The first time its constructor is called—if ever—the object will be
+created. Any subsequent constructor call will get back the first created
+object. See</em>
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/singleton.html">oo::singleton</a>.)</p>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Commands</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::lazyset::variable</b> <span class="opt">?<i class="arg">-array boolean</i>?</span> <span class="opt">?<i class="arg">-appendArgs boolean</i>?</span> <i class="arg">variableName</i> <i class="arg">commandPrefix</i></a></dt>
+<dt><a name="1"><b class="cmd">::lazyset::variable</b> <span class="opt">?<i class="arg">-array boolean</i>?</span> <span class="opt">?<i class="arg">-appendArgs boolean</i>?</span> <i class="arg">someVar</i> <i class="arg">commandPrefix</i></a></dt>
 <dd><p>Arrange for the code specified as <i class="arg">commandPrefix</i> to be executed when
-the variable whose name is specified by <i class="arg">variableName</i> is read for
-the first time.
-If the optional argument <i class="arg">-array boolean</i> is specified as true,
-then the variable specified as <i class="arg">variableName</i> is treated as an
+the variable whose name is specified by <i class="arg">someVar</i> is read for
+the first time.</p>
+<p>If the optional argument <i class="arg">-array boolean</i> is specified as true,
+then the variable specified as <i class="arg">someVar</i> is treated as an
 array and attempting to read any index of the array causes that
-index to be set by the <i class="arg">commandPrefix</i> as they are read.
-If the optional argument <i class="arg">-appendArgs boolean</i> is specified as
+index to be set by the <i class="arg">commandPrefix</i> as they are read.</p>
+<p>If the optional argument <i class="arg">-appendArgs boolean</i> is specified as
 false, then the variable name and subnames are not appended to the
-<i class="arg">commandPrefix</i> before it is evaluated.  If the argument
-<i class="arg">-appendArgs boolean</i> is not specified or is specified as true
-then 1 or 2 additional arguments are appended to the <i class="arg">commandPrefix</i>.
-If <i class="arg">-array boolean</i> is specified as true, then 2 arguments are
-appended corresponding to the name of the variable and the index,
-otherwise 1 argument is appended containing the name of variable.
-The <i class="arg">commandPrefix</i> code is run in the same scope as the variable
-is read.</p></dd>
+<i class="arg">commandPrefix</i> before it is evaluated.</p>
+<p>If the argument <i class="arg">-appendArgs boolean</i> is not specified or is
+specified as true, then 1 or 2 additional arguments are appended to the
+<i class="arg">commandPrefix</i>. If <i class="arg">-array boolean</i> is specified as true,
+then 2 arguments are appended corresponding to the name of the variable
+and the index; otherwise 1 argument is appended containing the name of
+the variable.</p>
+<p>The <i class="arg">commandPrefix</i> code is run in the same scope as the variable
+that is read.</p></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
 <pre class="doctools_example">
 	::lazyset::variable page {apply {{name} {
 		package require http
-		set token [http::geturl http://www.tcl.tk/]
+		set token [http::geturl http://www.tcl-lang.org/]
 		set data [http::data $token]
 		return $data
 	}}}
@@ -180,7 +187,7 @@ is read.</p></dd>
 		set data [http::data $token]
 		return $data
 	}}}
-	puts $page(http://www.tcl.tk/)
+	puts $page(http://www.tcl-lang.org/)
 </pre>
 <pre class="doctools_example">
 	::lazyset::variable -appendArgs false simple {
@@ -189,7 +196,7 @@ is read.</p></dd>
 	puts $simple
 </pre>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">AUTHORS</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Authors</a></h2>
 <p>Roy Keene</p>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>

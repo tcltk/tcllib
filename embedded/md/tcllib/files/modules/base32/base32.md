@@ -122,7 +122,8 @@ strings\.
     base32='Z2KMHNZA4KAJYVLUMYWTRYUATUQOFGM64KCKI===' 1
 
 If the original string is 7\-bit ASCII the conversions to and from raw bytes
-using the built\-in __[encoding](\.\./\.\./\.\./\.\./index\.md\#encoding)__ command
+using the built\-in
+[encoding](https://www\.tcl\-lang\.org/man/tcl/TclCmd/encoding\.html) command
 are not needed\. For example:
 
     const ASCII_LINE "! 7-bit ASCII {~^}"

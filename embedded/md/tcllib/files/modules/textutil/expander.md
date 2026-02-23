@@ -1,7 +1,7 @@
 
 [//000000001]: # (textutil::expander \- Text and string utilities, macro processing)
 [//000000002]: # (Generated from file 'expander\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; William H\. Duquette, http://www\.wjduquette\.com/expand)
+[//000000003]: # (Copyright &copy; William H\. Duquette https://github\.com/wjduquette)
 [//000000004]: # (textutil::expander\(n\) 1\.3\.2 tcllib "Text and string utilities, macro processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
@@ -23,9 +23,11 @@ textutil::expander \- Procedures to process templates and expand text\.
 
   - [Description](#section1)
 
-  - [EXPANDER API](#section2)
+  - [Expander vs\. subst](#section2)
 
-  - [TUTORIAL](#section3)
+  - [API](#section3)
+
+  - [Tutorial](#section4)
 
       - [Basics](#subsection1)
 
@@ -39,9 +41,9 @@ textutil::expander \- Procedures to process templates and expand text\.
 
       - [Using the Context Stack](#subsection6)
 
-  - [HISTORY](#section4)
+  - [History](#section5)
 
-  - [Bugs, Ideas, Feedback](#section5)
+  - [Bugs, Ideas, Feedback](#section6)
 
   - [See Also](#seealso)
 
@@ -78,6 +80,15 @@ package require textutil::expander ?1\.3\.2?
 
 # <a name='description'></a>DESCRIPTION
 
+The __textutil::expander__ package provides a string templating facility
+that is more powerful and flexible than using the built\-in
+[subst](https://www\.tcl\-lang\.org/man/tcl/TclCmd/subst\.html) command\.
+
+See the [Tutorial](#section4) section to learn the package, and the
+[API](#section3) section for the complete details\.
+
+# <a name='section2'></a>Expander vs\. subst
+
 The Tcl __[subst](\.\./\.\./\.\./\.\./index\.md\#subst)__ command is often used to
 support a kind of template processing\. Given a string with embedded variables or
 function calls, __[subst](\.\./\.\./\.\./\.\./index\.md\#subst)__ will interpolate
@@ -97,26 +108,25 @@ markup language similar to HTML\.
 The __[subst](\.\./\.\./\.\./\.\./index\.md\#subst)__ command is efficient, but it
 has three drawbacks for this kind of template processing:
 
-  - There's no way to identify and process the plain text between two embedded
+  - There’s no way to identify and process the plain text between two embedded
     Tcl commands; that makes it difficult to handle plain text in a
     context\-sensitive way\.
 
-  - Embedded commands are necessarily bracketed by __\[__ and __\]__; it's
+  - Embedded commands are necessarily bracketed by __\[__ and __\]__; it’s
     convenient to be able to choose different brackets in special cases\. Someone
     producing web pages that include a large quantity of Tcl code examples might
     easily prefer to use __<<__ and __>>__ as the embedded code
     delimiters instead\.
 
-  - There's no easy way to handle incremental input, as one might wish to do
+  - There’s no easy way to handle incremental input, as one might wish to do
     when reading data from a socket\.
 
-At present, expander solves the first two problems; eventually it will solve the
-third problem as well\.
+At present, expander solves the first two problems\.
 
 The following section describes the command API to the expander; this is
-followed by the tutorial sections, see [TUTORIAL](#section3)\.
+followed by the tutorial sections, see [Tutorial](#section4)\.
 
-# <a name='section2'></a>EXPANDER API
+# <a name='section3'></a>API
 
 The __textutil::expander__ package provides only one command, described
 below\. The rest of the section is taken by a description of the methods for the
@@ -126,15 +136,13 @@ expander objects created by this command\.
 
     The command creates a new expander object with an associated Tcl command
     whose name is *expanderName*\. This command may be used to invoke various
-    operations on the graph\. If the *expanderName* is not fully qualified it
-    is interpreted as relative to the current namespace\. The command has the
-    following general form:
+    methods\. If the *expanderName* is not fully qualified it is interpreted as
+    relative to the current namespace\. The method calls have the following
+    general form:
 
-    > *expanderName* option ?*arg arg \.\.\.*?
+    > *expanderName* *method* ?*arg \.\.\.*?
 
-    *Option* and the *arg*s determine the exact behavior of the command\.
-
-The following commands are possible for expander objects:
+Expander objects support the following methods:
 
   - <a name='2'></a>*expanderName* __cappend__ *text*
 
@@ -143,11 +151,12 @@ The following commands are possible for expander objects:
 
   - <a name='3'></a>*expanderName* __cget__ *varname*
 
-    Retrieves the value of variable *varname*, defined in the current context\.
+    Returns the value of variable *varname*, defined in the current context\.
 
   - <a name='4'></a>*expanderName* __cis__ *cname*
 
-    Determines whether or not the name of the current context is *cname*\.
+    Returns __1__ \(true\) if the current context’s name is *cname*;
+    otherwise returns __0__ \(false\)\. *cname*\.
 
   - <a name='5'></a>*expanderName* __cname__
 
@@ -156,18 +165,18 @@ The following commands are possible for expander objects:
   - <a name='6'></a>*expanderName* __cpop__ *cname*
 
     Pops a context from the context stack, returning all accumulated output in
-    that context\. The context must be named *cname*, or an error results\.
+    that context\. The context must be called *cname*, or an error is thrown\.
 
   - <a name='7'></a>*expanderName* __ctopandclear__
 
     Returns the output currently captured in the topmost context and clears that
     buffer\. This is similar to a combination of __cpop__ followed by
-    __cpush__, except that internal state \(brackets\) is preserved here\.
+    __cpush__, except that the internal state \(brackets\) is preserved here\.
 
   - <a name='8'></a>*expanderName* __cpush__ *cname*
 
-    Pushes a context named *cname* onto the context stack\. The context must be
-    popped by __cpop__ before expansion ends or an error results\.
+    Pushes a context called *cname* onto the context stack\. The context must
+    be popped by __cpop__ before expansion ends or an error is thrown\.
 
   - <a name='9'></a>*expanderName* __cset__ *varname* *value*
 
@@ -175,7 +184,7 @@ The following commands are possible for expander objects:
 
   - <a name='10'></a>*expanderName* __cvar__ *varname*
 
-    Retrieves the internal variable name of context variable *varname*; this
+    Returns the internal variable name of context variable *varname*; this
     allows the variable to be passed to commands like __lappend__\.
 
   - <a name='11'></a>*expanderName* __errmode__ *newErrmode*
@@ -183,12 +192,12 @@ The following commands are possible for expander objects:
     Sets the macro expansion error mode to one of __nothing__,
     __macro__, __error__, or __fail__; the default value is
     __fail__\. The value determines what the expander does if an error is
-    detected during expansion of a macro\.
+    detected during the expansion of a macro\.
 
       * __fail__
 
-        The error propagates normally and can be caught or ignored by the
-        application\.
+        The error propagates normally \(i\.e\., is thrown\), and can be caught or
+        ignored by the application\.
 
       * __error__
 
@@ -239,7 +248,7 @@ The following commands are possible for expander objects:
 
   - <a name='16'></a>*expanderName* __reset__
 
-    Resets all expander settings to their initial values\. Unusual results are
+    Resets all expander settings to their initial values\. Unexpected results are
     likely if this command is called from within a call to __expand__\.
 
   - <a name='17'></a>*expanderName* __setbrackets__ *lbrack rbrack*
@@ -255,11 +264,11 @@ The following commands are possible for expander objects:
     Returns the current command for processing plain text, which defaults to the
     empty string, meaning *identity*\. If specified, *newTextCmd* will be
     saved for future use and then returned; it must be a Tcl command expecting
-    one additional argument: the text to process\. The expander object will this
-    command for all plain text it encounters, giving the user of the object the
-    ability to process all plain text in some standard way before writing it to
-    the output\. The object expects that the command returns the processed plain
-    text\.
+    one additional argument: the text to process\. The expander object will use
+    this command for all plain text it encounters, giving the user of the object
+    the ability to process all plain text in some standard way before writing it
+    to the output\. The object expects that the command returns the processed
+    plain text\.
 
     *Note* that the combination of "__textcmd__ *plaintext*" is run
     through the *evalcmd* for the actual evaluation\. In other words, the
@@ -269,10 +278,10 @@ The following commands are possible for expander objects:
   - <a name='19'></a>*expanderName* __where__
 
     Returns a three\-element list containing the current character position,
-    line, and column the expander is at in the processing of the current input
-    string\.
+    line, and column the expander has reached in the processing of the current
+    input string\.
 
-# <a name='section3'></a>TUTORIAL
+# <a name='section4'></a>Tutorial
 
 ## <a name='subsection1'></a>Basics
 
@@ -286,7 +295,7 @@ To begin, create an expander object:
 
 The created __::myexp__ object can be used to expand text strings containing
 embedded Tcl commands\. By default, embedded commands are delimited by square
-brackets\. Note that expander doesn't attempt to interpolate variables, since
+brackets\. Note that expander doesn’t attempt to interpolate variables, since
 variables can be referenced by embedded commands:
 
     % set greeting "Howdy"
@@ -339,20 +348,21 @@ to return based on the desired output format\.
 ## <a name='subsection4'></a>Changing the Expansion Brackets
 
 By default, embedded macros are enclosed in square brackets, __\[__ and
-__\]__\. If square brackets need to be included in the output, the input can
-contain the __lb__ and __rb__ commands\. Alternatively, or if square
-brackets are objectionable for some other reason, the macro expansion brackets
-can be changed to any pair of non\-empty strings\.
+__\]__\. If square brackets must be included in the output, the input can use
+the __lb__ and __rb__ commands\. Alternatively, or if square brackets are
+unwanted for some other reason, the macro expansion brackets can be changed to
+any pair of nonempty strings\.
 
-The __setbrackets__ command changes the brackets permanently\. For example,
-you can write pseudo\-html by change them to __<__ and __>__:
+The __setbrackets__ method changes the brackets for all subsequent
+expansions applied to the current expansion object\. For example, you can write
+pseudo\-html by change them to __<__ and __>__:
 
     % ::myexp setbrackets < >
     % ::myexp expand {<bold>This is boldface</bold>}
     <b>This is boldface</b>
 
 Alternatively, you can change the expansion brackets temporarily by passing the
-desired brackets to the __expand__ command:
+desired brackets to the __expand__ method:
 
     % ::myexp setbrackets "\\[" "\\]"
     % ::myexp expand {<bold>This is boldface</bold>} {< >}
@@ -363,12 +373,13 @@ desired brackets to the __expand__ command:
 
 By default, macros are evaluated using the Tcl __uplevel \#0__ command, so
 that the embedded code executes in the global context\. The application can
-provide a different evaluation command using __evalcmd__; this allows the
-application to use a safe interpreter, for example, or even to evaluated
-something other than Tcl code\. There is one caveat: to be recognized as valid, a
-macro must return 1 when passed to Tcl's "info complete" command\.
+provide a different evaluation command using the __evalcmd__ method; this
+allows the application to use a safe interpreter, for example, or even to
+evaluate something other than Tcl code\. There is one caveat: to be recognized as
+valid, a macro must return __1__ \(true\) when passed to Tcl’s [info
+complete](https://www\.tcl\-lang\.org/man/tcl9\.0/TclCmd/info\.html) subcommand\.
 
-For example, the following code "evaluates" each macro by returning the macro
+For example, the following code “evaluates” each macro by returning the macro
 text itself\.
 
     proc identity {macro} {return $macro}
@@ -376,9 +387,9 @@ text itself\.
 
 ## <a name='subsection6'></a>Using the Context Stack
 
-Often it's desirable to define a pair of macros which operate in some way on the
+Often it’s desirable to define a pair of macros which operate in some way on the
 plain text between them\. Consider a set of macros for adding footnotes to a web
-page: one could have implement something like this:
+page: one could have implemented something like this:
 
     Dr. Pangloss, however, thinks that this is the best of all
     possible worlds.[footnote "See Candide, by Voltaire"]
@@ -395,13 +406,13 @@ following instead:
 Here the footnote text is contained between __footnote__ and
 __/footnote__ macros, continues onto a second line, and contains several
 macros of its own\. This is both clearer and more flexible; however, with the
-features presented so far there's no easy way to do it\. That's the purpose of
+features presented so far there’s no easy way to do it\. That’s the purpose of
 the context stack\.
 
 All macro expansion takes place in a particular context\. Here, the
 __footnote__ macro pushes a new context onto the context stack\. Then, all
 expanded text gets placed in that new context\. __/footnote__ retrieves it by
-popping the context\. Here's a skeleton implementation of these two macros:
+popping the context\. Here’s a skeleton implementation of these two macros:
 
     proc footnote {} {
         ::myexp cpush footnote
@@ -414,8 +425,8 @@ popping the context\. Here's a skeleton implementation of these two macros:
         # number and link.
     }
 
-The __cpush__ command pushes a new context onto the stack; the argument is
-the context's name\. It can be any string, but would typically be the name of the
+The __cpush__ method pushes a new context onto the stack; the argument is
+the context’s name\. It can be any string, but would typically be the name of the
 macro itself\. Then, __cpop__ verifies that the current context has the
 expected name, pops it off of the stack, and returns the accumulated text\.
 
@@ -444,12 +455,12 @@ At times, it might be desirable to define macros that are valid only within a
 particular context pair; such macros should verify that they are only called
 within the correct context using either __cis__ or __cname__\.
 
-# <a name='section4'></a>HISTORY
+# <a name='section5'></a>History
 
-__expander__ was written by William H\. Duquette; it is a repackaging of the
-central algorithm of the expand macro processing tool\.
+The __expander__ package was written by William H\. Duquette; it is a
+repackaging of the central algorithm of the expand macro processing tool\.
 
-# <a name='section5'></a>Bugs, Ideas, Feedback
+# <a name='section6'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the
@@ -467,7 +478,7 @@ secondary navigation bar\.
 
 # <a name='seealso'></a>SEE ALSO
 
-\[uri, http://www\.wjduquette\.com/expand, regexp,
+http://www\.wjduquette\.com/expand, regexp,
 [split](\.\./\.\./\.\./\.\./index\.md\#split),
 [string](\.\./\.\./\.\./\.\./index\.md\#string)
 
@@ -483,4 +494,4 @@ Documentation tools
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; William H\. Duquette, http://www\.wjduquette\.com/expand
+Copyright &copy; William H\. Duquette https://github\.com/wjduquette

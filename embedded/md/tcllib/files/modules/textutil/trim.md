@@ -22,7 +22,11 @@ textutil::trim \- Procedures to trim strings
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [See Also](#seealso)
 
@@ -43,54 +47,137 @@ package require textutil::trim ?0\.8?
 
 # <a name='description'></a>DESCRIPTION
 
-The package __textutil::trim__ provides commands that trim strings using
-arbitrary regular expressions\.
+The __textutil::trim__ package provides commands that trim strings in
+various ways, including using arbitrary regular expressions\.
 
-The complete set of procedures is described below\.
+To trim strings of sets of characters \(such as whitespace\), use the built\-in
+[string](https://www\.tcl\-lang\.org/man/tcl/TclCmd/string\.html) command’s
+__trim__, __trimleft__, __trimright__ subcommands\.
+
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::textutil::trim::trim__ *string* ?*regexp*?
 
-    Remove in *string* any leading and trailing substring according to the
-    regular expression *regexp* and return the result as a new string\. This is
-    done for all *lines* in the string, that is any substring between 2
-    newline chars, or between the beginning of the string and a newline, or
-    between a newline and the end of the string, or, if the string contain no
-    newline, between the beginning and the end of the string\. The regular
-    expression *regexp* defaults to "\[ \\\\t\]\+"\.
+    Returns a copy of *string* with any leading or trailing substring that
+    matches *regexp* removed from the *string* if does not contain newlines,
+    or from *every line* within the *string* if it contains newlines\. The
+    *regexp* defaults to *\[ \\t\]\+*\. This default will remove leading and
+    trailing spaces and tabs from the *string* if it does not contain
+    newlines, or from *every line* within the *string* if it contains
+    newlines\.
 
   - <a name='2'></a>__::textutil::trim::trimleft__ *string* ?*regexp*?
 
-    Remove in *string* any leading substring according to the regular
-    expression *regexp* and return the result as a new string\. This apply on
-    any *line* in the string, that is any substring between 2 newline chars,
-    or between the beginning of the string and a newline, or between a newline
-    and the end of the string, or, if the string contain no newline, between the
-    beginning and the end of the string\. The regular expression *regexp*
-    defaults to "\[ \\\\t\]\+"\.
+    Returns a copy of *string* with any leading substring that matches
+    *regexp* removed from the *string* if does not contain newlines, or from
+    *every line* within the *string* if it contains newlines\. The *regexp*
+    defaults to *\[ \\t\]\+*\. This default will remove leading spaces and tabs
+    from the *string* if it does not contain newlines, or from *every line*
+    within the *string* if it contains newlines\.
 
   - <a name='3'></a>__::textutil::trim::trimright__ *string* ?*regexp*?
 
-    Remove in *string* any trailing substring according to the regular
-    expression *regexp* and return the result as a new string\. This apply on
-    any *line* in the string, that is any substring between 2 newline chars,
-    or between the beginning of the string and a newline, or between a newline
-    and the end of the string, or, if the string contain no newline, between the
-    beginning and the end of the string\. The regular expression *regexp*
-    defaults to "\[ \\\\t\]\+"\.
+    Returns a copy of *string* with any trailing substring that matches
+    *regexp* removed from the *string* if does not contain newlines, or from
+    *every line* within the *string* if it contains newlines\. The *regexp*
+    defaults to *\[ \\t\]\+*\. This default will remove trailing spaces and tabs
+    from the *string* if it does not contain newlines, or from *every line*
+    within the *string* if it contains newlines\.
 
   - <a name='4'></a>__::textutil::trim::trimPrefix__ *string* *prefix*
 
-    Removes the *prefix* from the beginning of *string* and returns the
-    result\. The *string* is left unchanged if it doesn't have *prefix* at
-    its beginning\.
+    Returns a copy of *string* with *prefix* removed from the start if it is
+    present; otherwise returns *string* unchanged\.
+
+    Contrast this command with the built\-in
+    [string](https://www\.tcl\-lang\.org/man/tcl/TclCmd/string\.html) command’s
+    __trim__, __trimleft__, __trimright__ subcommands which remove
+    all characters in a given set of characters passed as a string\.
 
   - <a name='5'></a>__::textutil::trim::trimEmptyHeading__ *string*
 
-    Looks for empty lines \(including lines consisting of only whitespace\) at the
-    beginning of the *string* and removes it\. The modified string is returned
-    as the result of the command\.
+    Returns a copy of *string* with any leading blank lines \(including lines
+    containing only whitespace\) removed\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section3'></a>Examples
+
+The following examples show some of the __::textutil::trim__ package’s
+commands in action\.
+
+The following __[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__ is used by some of
+the examples below\.
+
+    proc replace_ws s { regsub -all { } [regsub -all \t [regsub -all \n $s ⏎] →] ▴ }
+
+This example shows the use of __::textutil::trim::trimEmptyHeading__ and
+__::textutil::trim::trim__\.
+
+    const LINES1 "\t\n Alpha\t\n Beta \t\n Gamma \t\n"
+    puts "== const =============================\n[replace_ws $LINES1]"
+    set line [::textutil::trim::trimEmptyHeading $LINES1]
+    puts "== textutil::trim::trimEmptyHeading ==\n[replace_ws $line]"
+    set line [string trimleft $LINES1]
+    puts "== string trimleft ===================\n[replace_ws $line]"
+    set line [::textutil::trim::trim $LINES1]
+    puts "== textutil::trim::trim ==============\n[replace_ws $line]"
+    =>
+    == const =============================
+    →⏎▴Alpha→⏎▴Beta▴→⏎▴Gamma▴→⏎
+    == textutil::trim::trimEmptyHeading ==
+    ▴Alpha→⏎▴Beta▴→⏎▴Gamma▴→⏎
+    == string trimleft ===================
+    Alpha→⏎▴Beta▴→⏎▴Gamma▴→⏎
+    == textutil::trim::trim ==============
+    ⏎Alpha⏎Beta⏎Gamma⏎
+
+Notice the subtle difference in behavior between
+__::textutil::trim::trimEmptyHeading__ and __string trimleft__\.
+
+This example shows the use of the built\-in __string trim__ in combination
+with and __::textutil::trim::trim__\.
+
+    const LINES2 [string trim "\t\n Delta\t\n Epsilon \t\n Zeta \t\n"]
+    puts "== const =============================\n[replace_ws $LINES2]"
+    set line [::textutil::trim::trim $LINES2]
+    puts "== textutil::trim::trim ==============\n[replace_ws $line]"
+    =>
+    == const =============================
+    Delta→⏎▴Epsilon▴→⏎▴Zeta
+    == textutil::trim::trim ==============
+    Delta⏎Epsilon⏎Zeta
+
+This example contrasts the built\-in __string trim__ with
+__::textutil::trim::trimPrefix__\.
+
+    const PATH /home/homer
+    puts "const='$PATH'"
+    puts "string trim \$PATH /home='[string trim $PATH /home]'"
+    puts "string trim \$PATH /home='[string trim $PATH ehmo/]'"
+    puts "::textutil::trim::trimPrefix \$PATH /home='[::textutil::trim::trimPrefix $PATH /home]'"
+    const LINE mimic
+    puts "string trim \$LINE mic='[string trim $LINE mic]'"
+    puts "::textutil::trim::trimPrefix \$LINE mic='[::textutil::trim::trimPrefix $LINE mic]'"
+    =>
+    const='/home/homer'
+    string trim $PATH /home='r'
+    string trim $PATH /home='r'
+    ::textutil::trim::trimPrefix $PATH /home='/homer'
+    string trim $LINE mic=''
+    ::textutil::trim::trimPrefix $LINE mic='mimic'
+
+For the __PATH__ examples, the __string trim__ command trims all the
+individual characters that are in the string "/home", i\.e\., "/", "h", "o", "m",
+"e"\. The order of the characters in the string don’t matter as the "ehmo/"
+example shows\. Compare this with __::textutil::trim::trimPrefix__ which
+trims the literal string "/home"\.
+
+For the __LINE__ examples, the __string trim__ command trims all the
+individual characters that are in the string "mic", i\.e\., "m", "i", "c"\. Compare
+this with __::textutil::trim::trimPrefix__ which trims the literal string
+"mic"; but since the __LINE__ doesn’t start with "mic", nothing is trimmed
+and the string is returned unchanged\.
+
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

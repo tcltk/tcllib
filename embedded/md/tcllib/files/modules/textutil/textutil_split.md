@@ -22,7 +22,11 @@ textutil::split \- Procedures to split texts
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [See Also](#seealso)
 
@@ -35,39 +39,87 @@ textutil::split \- Procedures to split texts
 package require Tcl 8\.5 9  
 package require textutil::split ?0\.9?  
 
-[__::textutil::split::splitn__ *string* ?*len*?](#1)  
+[__::textutil::split::splitn__ *string* ?*size*?](#1)  
 [__::textutil::split::splitx__ *string* ?*regexp*?](#2)  
 
 # <a name='description'></a>DESCRIPTION
 
-The package __textutil::split__ provides commands that split strings by size
-and arbitrary regular expressions\.
+The __textutil::split__ package provides commands that split strings into
+substrings by size, or by regular expression\.
 
-The complete set of procedures is described below\.
+To split on a particular character or set of characters, use the built\-in
+[split](https://www\.tcl\-lang\.org/man/tcl/TclCmd/split\.html) command\. To
+split a string into its individual characters, use the built\-in
+[split](https://www\.tcl\-lang\.org/man/tcl/TclCmd/split\.html) command with a
+second argument of __""__\.
 
-  - <a name='1'></a>__::textutil::split::splitn__ *string* ?*len*?
+# <a name='section2'></a>API
 
-    This command splits the given *string* into chunks of *len* characters
-    and returns a list containing these chunks\. The argument *len* defaults to
-    __1__ if none is specified\. A negative length is not allowed and will
-    cause the command to throw an error\. Providing an empty string as input is
-    allowed, the command will then return an empty list\. If the length of the
-    *string* is not an entire multiple of the chunk length, then the last
-    chunk in the generated list will be shorter than *len*\.
+  - <a name='1'></a>__::textutil::split::splitn__ *string* ?*size*?
+
+    Returns a list of strings containing consecutive substrings of *string*,
+    each *size* long—except for the last which will be shorter if *string*’s
+    length is not an exact multiple of *size*\. The *size* defaults to
+    __1__, i\.e\., return a list of *string*’s characters; this is the same
+    as calling the built\-in
+    [split](https://www\.tcl\-lang\.org/man/tcl/TclCmd/split\.html) command with
+    a second argument of __""__\.
+
+    If *string* is empty, an empty list is returned\. If *size* *<= 0*, an
+    error will be thrown\.
 
   - <a name='2'></a>__::textutil::split::splitx__ *string* ?*regexp*?
 
-    This command splits the *string* and return a list\. The string is split
-    according to the regular expression *regexp* instead of a simple list of
-    chars\. *Note*: When parentheses are used in the *regexp*, i\.e\. regex
-    capture groups, then these groups will be added into the result list as
-    additional elements\. If the *string* is empty the result is the empty
-    list, like for __[split](\.\./\.\./\.\./\.\./index\.md\#split)__\. If
-    *regexp* is empty the *string* is split at every character, like
-    __[split](\.\./\.\./\.\./\.\./index\.md\#split)__ does\. The regular expression
-    *regexp* defaults to "\[\\\\t \\\\r\\\\n\]\+"\.
+    Returns a list of strings containing consecutive substrings of *string*
+    split according to the *regexp* regular expression which defaults to *\[\\t
+    \\r\\n\]\+* \(tabs, spaces, newlines\)\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+    *Note*: If *regexp* contains capturing parentheses, then the captured
+    groups will be included in the result list as additional elements\.
+
+    If *string* is empty, an empty list is returned\. If *regexp* is empty,
+    the *string* is split at every character; this is the same as calling the
+    built\-in [split](https://www\.tcl\-lang\.org/man/tcl/TclCmd/split\.html)
+    command with a second argument of __""__\.
+
+# <a name='section3'></a>Examples
+
+The following examples show some of the __::textutil::split__ package’s
+commands in action\.
+
+To help make the examples’ effects more visible, each element of the returned
+lists is bracketed using ❬ and ❭\. For non\-UTF\-8 aware editors these can be
+replaced with __\\u276C__ and __\\u276D__\.
+
+This first example shows how to split strings by size\.
+
+    const LINE1 "α and ℤ"
+    set chars [::textutil::split::splitn $LINE1] ;# splits into characters
+    puts ❬[join $chars "❭ ❬"]❭
+    set chars [split $LINE1 ""] ;# splits into characters
+    puts ❬[join $chars "❭ ❬"]❭
+    set chunks [::textutil::split::splitn $LINE1 3]
+    puts ❬[join $chunks "❭ ❬"]❭
+    =>
+    ❬α❭ ❬ ❭ ❬a❭ ❬n❭ ❬d❭ ❬ ❭ ❬ℤ❭
+    ❬α❭ ❬ ❭ ❬a❭ ❬n❭ ❬d❭ ❬ ❭ ❬ℤ❭
+    ❬α a❭ ❬nd ❭ ❬ℤ❭
+
+This second example shows how to split strings by regexp\.
+
+    const LINE2 "a, be , cat, done , eagle"
+    set chunks [::textutil::split::splitx $LINE2] ;# splits on [\t \r\n]+
+    puts ❬[join $chunks "❭ ❬"]❭
+    set chunks [::textutil::split::splitx $LINE2 {\s*,\s*}]
+    puts ❬[join $chunks "❭ ❬"]❭
+    set chunks [::textutil::split::splitx $LINE2 {\s*(,)\s*}]
+    puts ❬[join $chunks "❭ ❬"]❭
+    =>
+    ❬a,❭ ❬be❭ ❬,❭ ❬cat,❭ ❬done❭ ❬,❭ ❬eagle❭
+    ❬a❭ ❬be❭ ❬cat❭ ❬done❭ ❬eagle❭
+    ❬a❭ ❬,❭ ❬be❭ ❬,❭ ❬cat❭ ❬,❭ ❬done❭ ❬,❭ ❬eagle❭
+
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

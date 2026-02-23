@@ -277,56 +277,95 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBtextutil::tabify ?0\&.8?\fR
 .sp
-\fB::textutil::tabify::tabify\fR \fIstring\fR ?\fInum\fR?
+\fB::textutil::tabify::tabify\fR \fIstring\fR ?\fIcount\fR?
 .sp
-\fB::textutil::tabify::tabify2\fR \fIstring\fR ?\fInum\fR?
+\fB::textutil::tabify::tabify2\fR \fIstring\fR ?\fIcount\fR?
 .sp
-\fB::textutil::tabify::untabify\fR \fIstring\fR ?\fInum\fR?
+\fB::textutil::tabify::untabify\fR \fIstring\fR ?\fIcount\fR?
 .sp
-\fB::textutil::tabify::untabify2\fR \fIstring\fR ?\fInum\fR?
+\fB::textutil::tabify::untabify2\fR \fIstring\fR ?\fIcount\fR?
 .sp
 .BE
 .SH DESCRIPTION
-The package \fBtextutil::tabify\fR provides commands that convert
-between tabulation and ordinary whitespace in strings\&.
-.PP
-The complete set of procedures is described below\&.
+The \fBtextutil::tabify\fR package provides commands for converting
+tabs to spaces or spaces to tabs in strings\&.
+.SH API
 .TP
-\fB::textutil::tabify::tabify\fR \fIstring\fR ?\fInum\fR?
-Tabify the \fIstring\fR by replacing any substring of \fInum\fR space
-chars by a tabulation and return the result as a new string\&. \fInum\fR
-defaults to 8\&.
+\fB::textutil::tabify::tabify\fR \fIstring\fR ?\fIcount\fR?
+Returns a copy of \fIstring\fR with any substring of \fIcount\fR space
+characters replaced by a horizontal tab\&. The \fIcount\fR defaults to 8\&.
 .TP
-\fB::textutil::tabify::tabify2\fR \fIstring\fR ?\fInum\fR?
-Similar to \fB::textutil::tabify\fR this command tabifies the
-\fIstring\fR and returns the result as a new string\&. A different
-algorithm is used however\&. Instead of replacing any substring of
-\fInum\fR spaces this command works more like an editor\&. \fInum\fR
-defaults to 8\&.
+\fB::textutil::tabify::tabify2\fR \fIstring\fR ?\fIcount\fR?
+Returns a copy of \fIstring\fR with substrings of \fIcount\fR
+\fIor fewer\fR space characters replaced by a horizontal tab using a
+text editor like algorithm\&. The \fIcount\fR defaults to 8\&.
 .sp
-Each line of the text in \fIstring\fR is treated as if there are
-tabstops every \fInum\fR columns\&. Only sequences of space characters
-containing more than one space character and found immediately before
-a tabstop are replaced with tabs\&.
+The algorithm used by this command treats each line in \fIstring\fR as
+if it had notional tabstops every \fIcount\fR columns\&. (So, if \fIcount\fR
+is \fB8\fR, at columns \fB8\fR, \fB16\fR, \fB24\fR, …\&.) Only
+sequences of \fItwo or more\fR space characters that occur
+immediately before a notional tabstop are replaced with a tab\&.
 .TP
-\fB::textutil::tabify::untabify\fR \fIstring\fR ?\fInum\fR?
-Untabify the \fIstring\fR by replacing any tabulation char by a
-substring of \fInum\fR space chars and return the result as a new
-string\&. \fInum\fR defaults to 8\&.
+\fB::textutil::tabify::untabify\fR \fIstring\fR ?\fIcount\fR?
+Returns a copy of \fIstring\fR with every horizontal tab replaced by
+\fIcount\fR spaces\&. The \fIcount\fR defaults to 8\&.
 .TP
-\fB::textutil::tabify::untabify2\fR \fIstring\fR ?\fInum\fR?
-Untabify the \fIstring\fR by replacing any tabulation char by a
-substring of at most \fInum\fR space chars and return the result as a
-new string\&. Unlike \fBtextutil::tabify::untabify\fR each tab is not
-replaced by a fixed number of space characters\&.  The command overlays
-each line in the \fIstring\fR with tabstops every \fInum\fR columns
-instead and replaces tabs with just enough space characters to reach
-the next tabstop\&. This is the complement of the actions taken by
-\fB::textutil::tabify::tabify2\fR\&. \fInum\fR defaults to 8\&.
+\fB::textutil::tabify::untabify2\fR \fIstring\fR ?\fIcount\fR?
+Returns a copy of \fIstring\fR with horizontal tabs replaced by
+\fIcount\fR \fIor fewer\fR space characters using a
+text editor like algorithm\&. The \fIcount\fR defaults to 8\&.
 .sp
-There is one asymmetry though: A tab can be replaced with a single
-space, but not the other way around\&.
+This command is the counterpart to \fB::textutil::tabify::tabify2\fR\&.
+The algorithm used by this command treats each line in \fIstring\fR as
+if it had notional tabstops every \fIcount\fR columns\&. (So, if
+\fIcount\fR is \fB8\fR, at columns \fB8\fR, \fB16\fR, \fB24\fR,
+…\&.) Instead of blindly replacing each horizontal tab with \fIcount\fR
+spaces, each horizontal tab at a notional tabstop is replaced by enough
+spaces to reach the next notional tabstop\&.
+.sp
+There is one asymmetry though: A tab may be replaced by a single space,
+but not the other way around\&.
 .PP
+.SH EXAMPLES
+The following examples show some of the \fB::textutil::tabify\fR
+package’s commands in action\&.
+.PP
+The examples make use of a tiny helper command to make spaces and tabs
+distinct and visible:
+.CS
+
+
+proc replace_tab_spc s { regsub -all { } [regsub -all \\t $s →] ▴ }
+
+.CE
+This example shows the \fB::textutil::tabify::tabify\fR command in
+action\&.
+.CS
+
+
+const LINES1 "    if \\{\\$x\\} \\{\\n        puts 1\\n    \\}"
+puts "=== original ===\\n[replace_tab_spc $LINES1]\\n"
+set tabbed [::textutil::tabify::tabify $LINES1]
+puts "=== 8spc→tab ===\\n[replace_tab_spc $tabbed]\\n"
+set tabbed [::textutil::tabify::tabify $LINES1 4]
+puts "=== 4spc→tab ===\\n[replace_tab_spc $tabbed]\\n"
+=>
+=== original ===
+▴▴▴▴if▴{$x}▴{
+▴▴▴▴▴▴▴▴puts▴1
+▴▴▴▴}
+
+=== 8spc→tab ===
+▴▴▴▴if▴{$x}▴{
+→puts▴1
+▴▴▴▴}
+
+=== 4spc→tab ===
+→if▴{$x}▴{
+→→puts▴1
+→}
+
+.CE
 .SH "BUGS, IDEAS, FEEDBACK"
 If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the

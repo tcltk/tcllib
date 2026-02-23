@@ -367,7 +367,9 @@ base32='Z2KMHNZA4KAJYVLUMYWTRYUATUQOFGM64KCKI===' 1
 
 .CE
 If the original string is 7-bit ASCII the conversions to and from raw
-bytes using the built-in \fBencoding\fR command are not needed\&. For example:
+bytes using the built-in
+\fIencoding\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/encoding\&.html]
+command are not needed\&. For example:
 .CS
 
 

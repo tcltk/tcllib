@@ -116,7 +116,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
@@ -131,43 +133,48 @@
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::string token text</b> <i class="arg">lex</i> <i class="arg">string</i></a></li>
 <li><a href="#2"><b class="cmd">::string token file</b> <i class="arg">lex</i> <i class="arg">path</i></a></li>
-<li><a href="#3"><b class="cmd">::string token chomp</b> <i class="arg">lex</i> <i class="arg">startvar</i> <i class="arg">string</i> <i class="arg">resultvar</i></a></li>
+<li><a href="#3"><b class="cmd">::string token chomp</b> <i class="arg">lex</i> <i class="arg">startVar</i> <i class="arg">string</i> <i class="arg">resultVar</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides commands for regular expression based lexing
-(tokenization) of strings.</p>
-<p>The complete set of procedures is described below.</p>
+(tokenizing) of strings.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::string token text</b> <i class="arg">lex</i> <i class="arg">string</i></a></dt>
-<dd><p>This command takes an ordered dictionary <i class="arg">lex</i> mapping regular
-expressions to labels, and tokenizes the <i class="arg">string</i> according to
-this dictionary.</p>
-<p>The result of the command is a list of tokens, where each token
-is a 3-element list of label, start- and end-index in the <i class="arg">string</i>.</p>
-<p>The command will throw an error if it is not able to tokenize
-the whole string.</p></dd>
+<dd><p>This command takes a dictionary, <i class="arg">lex</i>, which must map regular
+expressions (“regexps”) to labels, and tokenizes the <i class="arg">string</i>
+according to the dictionary.</p>
+<p>The command tests each regexp in the <i class="arg">lex</i> dictionary in order.
+Since Tcl <b class="type">dict</b>s are insertion-ordered, it is recommended that
+the regexps are specified from most specific to most general.</p>
+<p>The command returns a list of tokens. Each token is a 3-element list
+containing the label (from the <i class="arg">lex</i> <b class="type">dict</b>), and the start and
+end indexes of the match in the <i class="arg">string</i>.</p>
+<p>The command will throw an error if it is not able to tokenize the entire
+string.</p>
+<p>For line-oriented lexers, finer-grained error handling and handling huge
+files can be achieved by lexing line-by-line.</p></dd>
 <dt><a name="2"><b class="cmd">::string token file</b> <i class="arg">lex</i> <i class="arg">path</i></a></dt>
-<dd><p>This command is a convenience wrapper around
-<b class="cmd">::string token text</b> above, and <b class="cmd">fileutil::cat</b>, enabling
-the easy tokenization of whole files.
-<em>Note</em> that this command loads the file wholly into memory before
-starting to process it.</p>
-<p>If the file is too large for this mode of operation a command
-directly based on <b class="cmd">::string token chomp</b> below will be
-necessary.</p></dd>
-<dt><a name="3"><b class="cmd">::string token chomp</b> <i class="arg">lex</i> <i class="arg">startvar</i> <i class="arg">string</i> <i class="arg">resultvar</i></a></dt>
-<dd><p>This command is the work horse underlying <b class="cmd">::string token text</b>
-above. It is exposed to enable users to write their own lexers, which,
-for example may apply different lexing dictionaries according to some
-internal state, etc.</p>
-<p>The command takes an ordered dictionary <i class="arg">lex</i> mapping
-regular expressions to labels, a variable <i class="arg">startvar</i> which
-indicates where to start lexing in the input <i class="arg">string</i>, and a
-result variable <i class="arg">resultvar</i> to extend.</p>
-<p>The result of the command is a tri-state numeric code
-indicating one of</p>
+<dd><p>This command is a convenience wrapper around <b class="cmd">::string token text</b>
+that makes it easy to tokenize entire files.</p>
+<p><em>Note</em> that this command loads the whole file into memory before
+starting to process it.</p></dd>
+<dt><a name="3"><b class="cmd">::string token chomp</b> <i class="arg">lex</i> <i class="arg">startVar</i> <i class="arg">string</i> <i class="arg">resultVar</i></a></dt>
+<dd><p>This command is exposed to enable users to write their own lexers. For
+example, to apply different lexing dictionaries depending on internal
+state as the lex progresses.</p>
+<p>(The <b class="cmd">::string token text</b> and <b class="cmd">::string token file</b> commands
+make use of this command behind the scenes.)</p>
+<p>This command takes a dictionary, <i class="arg">lex</i>, which must map regexps to
+labels, a variable <i class="arg">startVar</i> which contains the index position
+where the lexing should begin in the input <i class="arg">string</i>, and a result
+variable <i class="arg">resultVar</i> to which each successfuly lexed token will be
+appended.</p>
+<p>The command returns a status code indicating the state of the lex
+These are</p>
 <dl class="doctools_definitions">
 <dt><b class="const">0</b></dt>
 <dd><p>No token found.</p></dd>
@@ -176,26 +183,90 @@ indicating one of</p>
 <dt><b class="const">2</b></dt>
 <dd><p>End of string reached.</p></dd>
 </dl>
-<p>Note that recognition of a token from <i class="arg">lex</i> is started at the
-character index in <i class="arg">startvar</i>.</p>
-<p>If a token was recognized (status <b class="const">1</b>) the command will
-update the index in <i class="arg">startvar</i> to point to the first character of
-the <i class="arg">string</i> past the recognized token, and it will further extend
-the <i class="arg">resultvar</i> with a 3-element list containing the label
-associated with the regular expression of the token, and the start-
-and end-character-indices of the token in <i class="arg">string</i>.</p>
-<p>Neither <i class="arg">startvar</i> nor <i class="arg">resultvar</i> will be updated if
-no token is recognized at all.</p>
-<p>Note that the regular expressions are applied (tested) in the
-order they are specified in <i class="arg">lex</i>, and the first matching pattern
-stops the process. Because of this it is recommended to specify the
-patterns to lex with from the most specific to the most general.</p>
+<p>If a token was recognized (status <b class="const">1</b>) the command will update the
+index in <i class="arg">startVar</i> to the character immediately <em>following</em>
+the lexed token. It will also append to the <i class="arg">resultVar</i> the lexed
+token which itself is a 3-element list containing the label (from the
+<i class="arg">lex</i> <b class="type">dict</b>), and the start and end indexes of the match in
+the <i class="arg">string</i>.</p>
+<p>If a token was not recognized (status <b class="const">0</b> or <b class="const">2</b>),
+neither <i class="arg">startVar</i> nor <i class="arg">resultVar</i> will be updated.</p>
+<p>As noted earlier, the command tests each regexp in the <i class="arg">lex</i>
+dictionary in order. Since Tcl <b class="type">dict</b>s are insertion-ordered, it is
+recommended that the regexps are specified from most specific to most
+general.</p>
 <p>Further note that all regex patterns are implicitly prefixed
-with the constraint escape <b class="const">A</b> to ensure that a match starts
-exactly at the character index found in <i class="arg">startvar</i>.</p></dd>
+with the constraint escape <b class="const">\A</b> to ensure that a match starts
+exactly at the character index found in <i class="arg">startVar</i>.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>This example shows how to use the <b class="cmd">string token text</b> command to lex a
+simple line-oriented <em>.ini</em> file format.
+(For full-featured <em>.ini</em> file handling, see
+<a href="https://core.tcl-lang.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/inifile/ini.md">inifile</a>.)</p>
+<pre class="doctools_example">
+const INI_EG &quot;; example.ini 
+Filename = test.db
+&nbsp;
+invalid
+\[Database\]
+# remote data
+Port: 143
+IP: 192.0.2.62
+&nbsp;
+junk
+&quot;
+proc main {} {
+    set groups [lex_ini $::INI_EG]
+    puts General:
+    dict for {key value} [dict get $groups General] { puts &quot;\t$key: $value&quot; }
+    puts Database:
+    dict for {key value} [dict get $groups Database] { puts &quot;\t$key: $value&quot; }
+}
+proc lex_ini ini_text {
+    const INI_LEX [dict create {[#;].*$} COMMENT {\[[^]]+\]} GROUP {\w+\s*[:=].+$} ENTRY]
+    set group General
+    set linenum 0
+    foreach line [split $ini_text \n] {
+        incr linenum
+        if {[string trim $line] eq &quot;&quot;} { continue }
+        try {
+            set token [string token text $INI_LEX $line]
+            if {[llength $token]} { set token [lindex $token 0] }
+            lassign $token label i j
+            switch $label {
+                COMMENT { continue }
+                GROUP { 
+                    set group [string range $line $i+1 $j-1]
+                    dict set groups $group {}
+                }
+                ENTRY {
+                    set entry [string range $line $i $j]
+                    set k [lindex [regexp -inline -indices {[=:]} $entry] 0 0]
+                    set key [string trim [string range $entry 0 $k-1]]
+                    set value [string trim [string range $entry $k+1 end]]
+                    dict set groups $group $key $value
+                }
+            }
+        } on error err {
+            puts &quot;Error: line $linenum: $err&quot;
+        }
+    }
+    return $groups
+}
+main
+=&gt;
+Error: line 4: Unexpected character 'i' at offset 0
+Error: line 10: Unexpected character 'j' at offset 0
+General:
+	Filename: test.db
+Database:
+	Port: 143
+	IP: 192.0.2.62
+</pre>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

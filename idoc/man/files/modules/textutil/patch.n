@@ -288,40 +288,48 @@ package require \fBtextutil::patch ?0\&.2?\fR
 .BE
 .SH DESCRIPTION
 This package provides a single command which applies a patch in
-\fIunified format\fR [https://www\&.gnu\&.org/software/diffutils/manual/html_node/Detailed-Unified\&.html]
-to a directory tree\&.
+\fIunified diff format\fR [https://www\&.gnu\&.org/software/diffutils/manual/html_node/Detailed-Unified\&.html]
+to the files in a directory tree\&.
+.SH API
 .TP
 \fB::textutil::patch::apply\fR \fIbasedirectory\fR \fIstriplevel\fR \fIpatch\fR \fIreportcmd\fR
-Applies the \fIpatch\fR (text of the path, not file) to the files in
-the \fIbasedirectory\fR using the specified \fIstriplevel\fR\&.
-The result of the command is the empty string\&.
+Applies the \fIpatch\fR (i\&.e\&., the text of the actual patch, not a
+filename) to the files in the \fIbasedirectory\fR using the specified
+\fIstriplevel\fR, and reports actions with calls to the command prefix
+\fIreportcmd\fR\&. Returns an empty string\&.
 .sp
-The \fIstriplevel\fR argument is equivalent to option
-\fB-p\fR of the \fBpatch\fR command\&.
+The \fIstriplevel\fR argument is equivalent to the
+\fIpatch\fR [https://www\&.man7\&.org/linux/man-pages/man1/patch\&.1\&.html]
+command’s \fB-p\fR (or \fB--strip\fR) option with a value of
+\fIstriplevel\fR\&.
 .sp
-Errors are thrown when the \fIpatch\fR does not parse, and
-nothing is done to the files in \fIbasedirectory\fR\&.
+Throws an error if \fIpatch\fR cannot be parsed, or if nothing is done
+to the files in \fIbasedirectory\fR\&.
 .sp
-All activities during the application of the patch, including
-the inability to apply a hunk are reported through the command prefix
-\fIreportcmd\fR instead\&. Files with problems are left unchanged\&.  Note
-however that this does \fInot prevent\fR changes to files with no
-problems, before and after the problematic file(s)\&.
+Actions that occur during the patching, including the inability to apply
+a hunk, are reported through the command prefix \fIreportcmd\fR\&. Files
+with problems are left unchanged, while files without problems—whether
+they are processed before or after problem files—will be changed in
+accordance with the \fIpatch\fR\&.
 .sp
-The command prefix is called in 3 possible forms:
+Each call to the command prefix can take one of three possible forms:
 .RS
 .TP
 \fB{*}reportcmd\fR \fBapply\fR \fIfilename\fR
-The caller begins operation on file \fIfname\fR, applying all hunks
-collected for said file\&.
+This call is made at the start of each patch apply and is passed the
+\fIfilename\fR of the file being patched\&. An attempt is made to apply
+all collected hunks for the \fIfilename\fR\&.
 .TP
 \fB{*}reportcmd\fR \fBfail\fR \fIfilename\fR \fIhunk\fR \fIexpected\fR \fIseen\fR
-Application of hunk number \fIhunk\fR of file \fIfilename\fR has failed\&.
-The command expected to find the text \fIexpected\fR, and saw \fIseen\fR instead\&.
+This call is made every time the application of a hunk fails\&. The
+command is passed the \fIfilename\fR being processed, the \fIhunk\fR
+number, what the \fIexpected\fR text was, and what the text that was
+actually \fIseen\fR is\&.
 .TP
 \fB{*}reportcmd\fR \fBfail-already\fR \fIfilename\fR \fIhunk\fR
-Application of hunk number \fIhunk\fR of file \fIfilename\fR has failed\&.
-The command believes that this hunk has already been applied to the file\&.
+This call is made every time the application of a hunk fails due to the
+given \fIhunk\fR number having \fIalready\fR been applied to the
+\fIfilename\fR\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"

@@ -116,7 +116,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
@@ -130,32 +132,79 @@
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::textutil::wcswidth</b> <i class="arg">string</i></a></li>
-<li><a href="#2"><b class="cmd">::textutil::wcswidth_char</b> <i class="arg">char</i></a></li>
-<li><a href="#3"><b class="cmd">::textutil::wcswidth_type</b> <i class="arg">char</i></a></li>
+<li><a href="#2"><b class="cmd">::textutil::wcswidth_char</b> <i class="arg">codepoint</i></a></li>
+<li><a href="#3"><b class="cmd">::textutil::wcswidth_type</b> <i class="arg">codepoint</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The package <b class="package">textutil::wcswidth</b> provides commands that determine character type and width
-when used in terminals, and the length of strings when printed in a terminal.</p>
-<p>The data underlying the functionality of this package is provided by the Unicode database
-file <a href="http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt">http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt</a>.</p>
-<p>The complete set of procedures is described below.</p>
+<p>The <b class="package">textutil::wcswidth</b> package provides commands that
+report character types, character widths, and string widths, in the
+context of terminal (console) output.</p>
+<p>This package’s data, and therefore its underlying the
+functionality, is based on the Unicode database file
+<a href="http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt">http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt</a>.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
+<p>This package’s commands account for double-width characters from the
+various Asian and other scripts.</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::textutil::wcswidth</b> <i class="arg">string</i></a></dt>
-<dd><p>Returns the number of character cells taken by the string when printed to the terminal.
-This takes double-wide characters from the various Asian and other scripts into account.</p></dd>
-<dt><a name="2"><b class="cmd">::textutil::wcswidth_char</b> <i class="arg">char</i></a></dt>
-<dd><p>Returns the number of character cells taken by the character when printed to the terminal.</p>
-<p><em>Beware</em>: The character <i class="arg">char</i> is specified as Unicode codepoint.</p></dd>
-<dt><a name="3"><b class="cmd">::textutil::wcswidth_type</b> <i class="arg">char</i></a></dt>
-<dd><p>Returns the character type of the specified character.
-This a single character in the set of <b class="const">A</b>, <b class="const">F</b>, <b class="const">H</b>, <b class="const">N</b>, <b class="const">Na</b>, and
-<b class="const">W</b>, as specified per <a href="http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt">http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt</a></p>
-<p><em>Beware</em>: The character <i class="arg">char</i> is specified as Unicode codepoint.</p></dd>
+<dd><p>Returns the number of character cells needed by the given <i class="arg">string</i>
+when output to a terminal.</p></dd>
+<dt><a name="2"><b class="cmd">::textutil::wcswidth_char</b> <i class="arg">codepoint</i></a></dt>
+<dd><p>Returns the number of character cells needed by the given
+<i class="arg">codepoint</i> Unicode character when output to a terminal.</p>
+<p><em>Important</em>: The <i class="arg">codepoint</i> Unicode character must be
+specified as an integer.</p></dd>
+<dt><a name="3"><b class="cmd">::textutil::wcswidth_type</b> <i class="arg">codepoint</i></a></dt>
+<dd><p>Returns the character type of the specified <i class="arg">codepoint</i> Unicode
+character.</p>
+<p>The returned value is a string containing one of the following
+constants: <b class="const">A</b>, <b class="const">F</b>, <b class="const">H</b>, <b class="const">N</b>, <b class="const">Na</b>, or
+<b class="const">W</b>, as specified in
+<a href="http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt">http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt</a>.</p>
+<p><em>Important</em>: The <i class="arg">codepoint</i> Unicode character must be
+specified as an integer.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>This example shows all three commands in action.</p>
+<pre class="doctools_example">
+const LINE &quot;Δ&divide;☕M☔ℤ&quot;
+puts &quot;string length  = [string length $LINE]&quot;
+puts &quot;terminal width = [textutil::wcswidth $LINE]&quot;
+foreach char [split $LINE &quot;&quot;] {
+    set cp [scan $char %c]
+    set pad [string repeat &quot; &quot; [expr {2 - [textutil::wcswidth_char $cp]}]]
+    puts [format &quot;%-2s%sU+%04X %s&quot; $char $pad $cp [textutil::wcswidth_type $cp]]
+}
+=&gt;
+string length  = 6
+terminal width = 8
+Δ  U+0394 A
+&divide;  U+00F7 A
+☕ U+2615 W
+M  U+004D N
+☔ U+2614 W
+ℤ  U+2124 N
+</pre>
+<p>On a terminal using a monospaced font, the output shown above lines up
+<em>perfectly</em>; any “wobble” seen on this page is an artifact.</p>
+<p>Note that if <b class="variable">pad</b> was set to <b class="const">&quot; &quot;</b>, i.e., taking no account
+of the character widths, the output would <em>not</em> line up, e.g.:</p>
+<pre class="doctools_example">
+string length  = 6
+terminal width = 8
+Δ  U+0394 A
+&divide;  U+00F7 A
+☕  U+2615 W
+M  U+004D N
+☔  U+2614 W
+ℤ  U+2124 N
+</pre>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

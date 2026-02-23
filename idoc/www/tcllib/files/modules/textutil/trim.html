@@ -116,7 +116,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
@@ -138,46 +140,128 @@
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The package <b class="package">textutil::trim</b> provides commands that trim
-strings using arbitrary regular expressions.</p>
-<p>The complete set of procedures is described below.</p>
+<p>The <b class="package">textutil::trim</b> package provides commands that trim strings
+in various ways, including using arbitrary regular expressions.</p>
+<p>To trim strings of sets of characters (such as whitespace), use the
+built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/string.html">string</a>
+command’s <b class="cmd">trim</b>, <b class="cmd">trimleft</b>, <b class="cmd">trimright</b> subcommands.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::textutil::trim::trim</b> <i class="arg">string</i> <span class="opt">?<i class="arg">regexp</i>?</span></a></dt>
-<dd><p>Remove in <i class="arg">string</i> any leading and trailing substring according to
-the regular expression <i class="arg">regexp</i> and return the result as a new
-string.  This is done for all <em>lines</em> in the string, that is any
-substring between 2 newline chars, or between the beginning of the
-string and a newline, or between a newline and the end of the string,
-or, if the string contain no newline, between the beginning and the
-end of the string.
-The regular expression <i class="arg">regexp</i> defaults to &quot;[ \\t]+&quot;.</p></dd>
+<dd><p>Returns a copy of <i class="arg">string</i> with any leading or trailing substring
+that matches <i class="arg">regexp</i> removed from the <i class="arg">string</i> if does not
+contain newlines, or from <em>every line</em> within the <i class="arg">string</i> if
+it contains newlines. The <i class="arg">regexp</i> defaults to
+<em>[ \t]+</em>. This default will remove leading and trailing
+spaces and tabs from the <i class="arg">string</i> if it does not contain newlines,
+or from <em>every line</em> within the <i class="arg">string</i> if it contains
+newlines.</p></dd>
 <dt><a name="2"><b class="cmd">::textutil::trim::trimleft</b> <i class="arg">string</i> <span class="opt">?<i class="arg">regexp</i>?</span></a></dt>
-<dd><p>Remove in <i class="arg">string</i> any leading substring according to the regular
-expression <i class="arg">regexp</i> and return the result as a new string. This
-apply on any <em>line</em> in the string, that is any substring between
-2 newline chars, or between the beginning of the string and a newline,
-or between a newline and the end of the string, or, if the string
-contain no newline, between the beginning and the end of the string.
-The regular expression <i class="arg">regexp</i> defaults to &quot;[ \\t]+&quot;.</p></dd>
+<dd><p>Returns a copy of <i class="arg">string</i> with any leading substring that matches
+<i class="arg">regexp</i> removed from the <i class="arg">string</i> if does not contain newlines,
+or from <em>every line</em> within the <i class="arg">string</i> if it contains
+newlines. The <i class="arg">regexp</i> defaults to <em>[ \t]+</em>. This
+default will remove leading spaces and tabs from the <i class="arg">string</i> if it
+does not contain newlines, or from <em>every line</em> within the
+<i class="arg">string</i> if it contains newlines.</p></dd>
 <dt><a name="3"><b class="cmd">::textutil::trim::trimright</b> <i class="arg">string</i> <span class="opt">?<i class="arg">regexp</i>?</span></a></dt>
-<dd><p>Remove in <i class="arg">string</i> any trailing substring according to the regular
-expression <i class="arg">regexp</i> and return the result as a new string. This
-apply on any <em>line</em> in the string, that is any substring between
-2 newline chars, or between the beginning of the string and a newline,
-or between a newline and the end of the string, or, if the string
-contain no newline, between the beginning and the end of the string.
-The regular expression <i class="arg">regexp</i> defaults to &quot;[ \\t]+&quot;.</p></dd>
+<dd><p>Returns a copy of <i class="arg">string</i> with any trailing substring that matches
+<i class="arg">regexp</i> removed from the <i class="arg">string</i> if does not contain newlines,
+or from <em>every line</em> within the <i class="arg">string</i> if it contains
+newlines. The <i class="arg">regexp</i> defaults to <em>[ \t]+</em>. This
+default will remove trailing spaces and tabs from the <i class="arg">string</i> if it
+does not contain newlines, or from <em>every line</em> within the
+<i class="arg">string</i> if it contains newlines.</p></dd>
 <dt><a name="4"><b class="cmd">::textutil::trim::trimPrefix</b> <i class="arg">string</i> <i class="arg">prefix</i></a></dt>
-<dd><p>Removes the <i class="arg">prefix</i> from the beginning of <i class="arg">string</i> and
-returns the result. The <i class="arg">string</i> is left unchanged if it doesn't
-have <i class="arg">prefix</i> at its beginning.</p></dd>
+<dd><p>Returns a copy of <i class="arg">string</i> with <i class="arg">prefix</i> removed from the start
+if it is present; otherwise returns <i class="arg">string</i> unchanged.</p>
+<p>Contrast this command with the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/string.html">string</a>
+command’s <b class="cmd">trim</b>, <b class="cmd">trimleft</b>, <b class="cmd">trimright</b> subcommands which
+remove all characters in a given set of characters passed as a string.</p></dd>
 <dt><a name="5"><b class="cmd">::textutil::trim::trimEmptyHeading</b> <i class="arg">string</i></a></dt>
-<dd><p>Looks for empty lines (including lines consisting of only whitespace)
-at the beginning of the <i class="arg">string</i> and removes it. The modified
-string is returned as the result of the command.</p></dd>
+<dd><p>Returns a copy of <i class="arg">string</i> with any leading blank lines (including
+lines containing only whitespace) removed.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>The following examples show some of the <b class="package">::textutil::trim</b>
+package’s commands in action.</p>
+<p>The following <b class="cmd"><a href="../../../../index.html#proc">proc</a></b> is used by some of the examples below.</p>
+<pre class="doctools_example">
+proc replace_ws s { regsub -all { } [regsub -all \t [regsub -all \n $s ⏎] →] ▴ }
+</pre>
+<p>This example shows the use of <b class="cmd">::textutil::trim::trimEmptyHeading</b>
+and <b class="cmd">::textutil::trim::trim</b>.</p>
+<pre class="doctools_example">
+const LINES1 &quot;\t\n Alpha\t\n Beta \t\n Gamma \t\n&quot;
+puts &quot;== const =============================\n[replace_ws $LINES1]&quot;
+set line [::textutil::trim::trimEmptyHeading $LINES1]
+puts &quot;== textutil::trim::trimEmptyHeading ==\n[replace_ws $line]&quot;
+set line [string trimleft $LINES1]
+puts &quot;== string trimleft ===================\n[replace_ws $line]&quot;
+set line [::textutil::trim::trim $LINES1]
+puts &quot;== textutil::trim::trim ==============\n[replace_ws $line]&quot;
+=&gt;
+== const =============================
+→⏎▴Alpha→⏎▴Beta▴→⏎▴Gamma▴→⏎
+== textutil::trim::trimEmptyHeading ==
+▴Alpha→⏎▴Beta▴→⏎▴Gamma▴→⏎
+== string trimleft ===================
+Alpha→⏎▴Beta▴→⏎▴Gamma▴→⏎
+== textutil::trim::trim ==============
+⏎Alpha⏎Beta⏎Gamma⏎
+</pre>
+<p>Notice the subtle difference in behavior between
+<b class="cmd">::textutil::trim::trimEmptyHeading</b> and <b class="cmd">string trimleft</b>.</p>
+<p>This example shows the use of the built-in <b class="cmd">string trim</b> in
+combination with and <b class="cmd">::textutil::trim::trim</b>.</p>
+<pre class="doctools_example">
+const LINES2 [string trim &quot;\t\n Delta\t\n Epsilon \t\n Zeta \t\n&quot;]
+puts &quot;== const =============================\n[replace_ws $LINES2]&quot;
+set line [::textutil::trim::trim $LINES2]
+puts &quot;== textutil::trim::trim ==============\n[replace_ws $line]&quot;
+=&gt;
+== const =============================
+Delta→⏎▴Epsilon▴→⏎▴Zeta
+== textutil::trim::trim ==============
+Delta⏎Epsilon⏎Zeta
+</pre>
+<p>This example contrasts the built-in <b class="cmd">string trim</b> with
+<b class="cmd">::textutil::trim::trimPrefix</b>.</p>
+<pre class="doctools_example">
+const PATH /home/homer
+puts &quot;const='$PATH'&quot;
+puts &quot;string trim \$PATH /home='[string trim $PATH /home]'&quot;
+puts &quot;string trim \$PATH /home='[string trim $PATH ehmo/]'&quot;
+puts &quot;::textutil::trim::trimPrefix \$PATH /home='[::textutil::trim::trimPrefix $PATH /home]'&quot;
+const LINE mimic
+puts &quot;string trim \$LINE mic='[string trim $LINE mic]'&quot;
+puts &quot;::textutil::trim::trimPrefix \$LINE mic='[::textutil::trim::trimPrefix $LINE mic]'&quot;
+=&gt;
+const='/home/homer'
+string trim $PATH /home='r'
+string trim $PATH /home='r'
+::textutil::trim::trimPrefix $PATH /home='/homer'
+string trim $LINE mic=''
+::textutil::trim::trimPrefix $LINE mic='mimic'
+</pre>
+<p>For the <b class="variable">PATH</b> examples, the <b class="cmd">string trim</b> command trims all
+the individual characters that are in the string &quot;/home&quot;, i.e., &quot;/&quot;,
+&quot;h&quot;, &quot;o&quot;, &quot;m&quot;, &quot;e&quot;. The order of the characters in the string don’t
+matter as the &quot;ehmo/&quot; example shows. Compare this with
+<b class="cmd">::textutil::trim::trimPrefix</b> which trims the literal string
+&quot;/home&quot;.</p>
+<p>For the <b class="variable">LINE</b> examples, the <b class="cmd">string trim</b> command trims all
+the individual characters that are in the string &quot;mic&quot;, i.e., &quot;m&quot;,
+&quot;i&quot;, &quot;c&quot;. Compare this with <b class="cmd">::textutil::trim::trimPrefix</b>
+which trims the literal string &quot;mic&quot;; but since the <b class="variable">LINE</b> doesn’t
+start with &quot;mic&quot;, nothing is trimmed and the string is returned
+unchanged.</p>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

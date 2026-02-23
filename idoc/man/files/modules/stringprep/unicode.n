@@ -278,40 +278,109 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBunicode 1\&.1\&.1\fR
 .sp
+\fB::unicode::normalizeS\fR \fIform\fR \fIstring\fR
+.sp
 \fB::unicode::fromstring\fR \fIstring\fR
 .sp
-\fB::unicode::tostring\fR \fIuclist\fR
+\fB::unicode::tostring\fR \fIcodepointsList\fR
 .sp
-\fB::unicode::normalize\fR \fIform\fR \fIuclist\fR
-.sp
-\fB::unicode::normalizeS\fR \fIform\fR \fIstring\fR
+\fB::unicode::normalize\fR \fIform\fR \fIcodepointsList\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-This is an implementation in Tcl of the Unicode normalization forms\&.
+This is a Tcl implementation of Unicode normalization commands\&.
+.PP
+\fINote\fR that if normalization alone is insufficient (e\&.g\&., for
+string comparisons), the \fBstringprep\fR package may prove useful\&.
 .SH COMMANDS
-.TP
-\fB::unicode::fromstring\fR \fIstring\fR
-Converts \fIstring\fR to list of integer Unicode character codes which
-is used in \fBunicode\fR for internal string representation\&.
-.TP
-\fB::unicode::tostring\fR \fIuclist\fR
-Converts list of integers \fIuclist\fR back to Tcl string\&.
-.TP
-\fB::unicode::normalize\fR \fIform\fR \fIuclist\fR
-Normalizes Unicode characters list \fIulist\fR according to \fIform\fR
-and returns the normalized list\&. Form \fIform\fR takes one of the following
-values: \fID\fR (canonical decomposition), \fIC\fR (canonical decomposition, followed
-by canonical composition), \fIKD\fR (compatibility decomposition), or \fIKC\fR
-(compatibility decomposition, followed by canonical composition)\&.
+.PP
+The \fIform\fR argument in the commands listed below must be a string
+that has one of the following values: \fBD\fR (canonical
+decomposition), \fBC\fR (canonical decomposition, followed by
+canonical composition), \fBKD\fR (compatibility decomposition), or
+\fBKC\fR (compatibility decomposition, followed by canonical
+composition)\&.
 .TP
 \fB::unicode::normalizeS\fR \fIform\fR \fIstring\fR
-A shortcut to
-::unicode::tostring [unicode::normalize \\$form [::unicode::fromstring \\$string]]\&.
-Normalizes Tcl string and returns normalized string\&.
+Returns a possibly modified copy of \fIstring\fR, normalized in
+accordance with the given \fIform\fR\&.
+.sp
+This is a convenience for:
+.sp
+\fI::unicode::tostring\fR [\fIunicode::normalize $form\fR
+[\fI::unicode::fromstring $string\fR]]\&.
+.TP
+\fB::unicode::fromstring\fR \fIstring\fR
+Returns a list of integer Unicode code points representing the
+characters in \fIstring\fR\&.
+.sp
+(These integer code points are used in \fBunicode\fR for internal
+string representation\&.)
+.TP
+\fB::unicode::tostring\fR \fIcodepointsList\fR
+Returns a string whose characters are those corresponding to the
+\fIcodepointsList\fR of integers\&.
+.sp
+Every integer that is a valid Unicode code point is represented in the
+returned string by the corresponding Unicode character\&. Any integer that
+is not a valid Unicode code point is represented using the Unicode
+replacement character �, U+FFFD, unless it is sufficiently big, in which
+case an error is thrown\&.
+.TP
+\fB::unicode::normalize\fR \fIform\fR \fIcodepointsList\fR
+Returns a possibly modified copy of the \fIcodepointsList\fR of integers
+(which must all be valid Unicode code points), normalized according to
+the given normalization \fIform\fR\&.
 .PP
 .SH EXAMPLES
+.PP
+Some Unicode characters have more than one representation in a Unicode
+encoding such as UTF-8\&. Normally, this is not a problem \fIwithin\fR a
+programming language, since the language will typically always use the
+same representation for any given character\&. But for data read in from
+files or other external sources, any of the possible representations
+could be used\&. So in these cases normalization may be needed\&.
+.PP
+Here is an example of the problem:
+.CS
+
+
+set a "Å"
+set b "\\u212B"
+set c [encoding convertfrom utf-8 \\xC3\\x85]
+set d [encoding convertfrom utf-8 \\xE2\\x84\\xAB]
+set e [encoding convertfrom utf-8 \\x41\\xCC\\x8A]
+set s [join [list $a $b $c $d $e] ""]
+puts "s=$s a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}] a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}] b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}] c=e→[expr {$a eq $e}]"
+=>
+s=ÅÅÅÅÅ a=b→0 a=c→1 a=d→0 a=e→0 b=c→0 b=d→0 b=e→0 c=d→0 c=e→0
+
+.CE
+.PP
+The above output shows that although all the characters are the same,
+they have different UTF-8 representations and do \fInot\fR compare
+equal\&.
+.PP
+The solution is to normalize\&. For example:
+.CS
+
+
+set t [unicode::normalizeS KC $s]
+set a [string index $t 0]
+set b [string index $t 1]
+set c [string index $t 2]
+set d [string index $t 3]
+set e [string index $t 4]
+puts "t=$t a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}] a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}] b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}] c=e→[expr {$a eq $e}]"
+=>
+t=ÅÅÅÅÅ a=b→1 a=c→1 a=d→1 a=e→1 b=c→1 b=d→1 b=e→1 c=d→1 c=e→1
+
+.CE
+.PP
+After normalization all the characters have the same representation and
+correctly compare as equal\&.
+.SS "LEGACY EXAMPLES"
 .CS
 
 
