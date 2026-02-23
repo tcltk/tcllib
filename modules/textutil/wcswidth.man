@@ -14,40 +14,91 @@
 [require textutil::wcswidth [opt [vset VERSION]]]
 [description]
 
-The package [package textutil::wcswidth] provides commands that determine character type and width
-when used in terminals, and the length of strings when printed in a terminal.
+The [package textutil::wcswidth] package provides commands that
+report character types, character widths, and string widths, in the
+context of terminal (console) output.
 
-[para] The data underlying the functionality of this package is provided by the Unicode database
-file [uri http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt].
+[para] This package’s data, and therefore its underlying the
+functionality, is based on the Unicode database file
+[uri http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt].
 
-[para]
+[section API]
 
-The complete set of procedures is described below.
+This package’s commands account for double-width characters from the
+various Asian and other scripts.
 
 [list_begin definitions]
 
 [call [cmd ::textutil::wcswidth] [arg string]]
 
-Returns the number of character cells taken by the string when printed to the terminal.
+Returns the number of character cells needed by the given [arg string]
+when output to a terminal.
 
-This takes double-wide characters from the various Asian and other scripts into account.
+[call [cmd ::textutil::wcswidth_char] [arg codepoint]]
 
-[call [cmd ::textutil::wcswidth_char] [arg char]]
+Returns the number of character cells needed by the given
+[arg codepoint] Unicode character when output to a terminal.
 
-Returns the number of character cells taken by the character when printed to the terminal.
+[para][emph Important]: The [arg codepoint] Unicode character must be
+specified as an integer.
 
-[para][emph Beware]: The character [arg char] is specified as Unicode codepoint.
+[call [cmd ::textutil::wcswidth_type] [arg codepoint]]
 
-[call [cmd ::textutil::wcswidth_type] [arg char]]
+Returns the character type of the specified [arg codepoint] Unicode
+character.
 
-Returns the character type of the specified character.
+[para]
+The returned value is a string containing one of the following
+constants: [const A], [const F], [const H], [const N], [const Na], or
+[const W], as specified in
+[uri http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt].
 
-This a single character in the set of [const A], [const F], [const H], [const N], [const Na], and
-[const W], as specified per [uri http://www.unicode.org/Public/UCD/latest/ucd/EastAsianWidth.txt]
-
-[para][emph Beware]: The character [arg char] is specified as Unicode codepoint.
+[para][emph Important]: The [arg codepoint] Unicode character must be
+specified as an integer.
 
 [list_end]
+
+[section Examples]
+
+This example shows all three commands in action.
+
+[example {
+const LINE "Δ÷☕M☔ℤ"
+puts "string length  = [string length $LINE]"
+puts "terminal width = [textutil::wcswidth $LINE]"
+foreach char [split $LINE ""] {
+    set cp [scan $char %c]
+    set pad [string repeat " " [expr {2 - [textutil::wcswidth_char $cp]}]]
+    puts [format "%-2s%sU+%04X %s" $char $pad $cp [textutil::wcswidth_type $cp]]
+}
+=>
+string length  = 6
+terminal width = 8
+Δ  U+0394 A
+÷  U+00F7 A
+☕ U+2615 W
+M  U+004D N
+☔ U+2614 W
+ℤ  U+2124 N
+} ]
+
+On a terminal using a monospaced font, the output shown above lines up
+[emph perfectly]; any “wobble” seen on this page is an artifact.
+
+[para]
+Note that if [var pad] was set to [const {" "}], i.e., taking no account
+of the character widths, the output would [emph not] line up, e.g.:
+
+[example {
+string length  = 6
+terminal width = 8
+Δ  U+0394 A
+÷  U+00F7 A
+☕  U+2615 W
+M  U+004D N
+☔  U+2614 W
+ℤ  U+2124 N
+}]
 
 [vset CATEGORY textutil]
 [include ../common-text/feedback.inc]
