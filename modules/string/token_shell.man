@@ -18,9 +18,7 @@
 This package provides a command which parses a line of text using
 basic [syscmd sh]-syntax into a list of words.
 
-[para]
-
-The complete set of procedures is described below.
+[section API]
 
 [list_begin definitions]
 

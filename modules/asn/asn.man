@@ -41,8 +41,8 @@ Laboratories Technical Note by Burton S. Kaliski Jr. (Revised November
 1, 1993). A text version of this note is part of the module sources
 and should be read by any implementor.
 
-[section {PUBLIC API}]
-[subsection ENCODER]
+[section {API}]
+[subsection Encoder]
 
 [list_begin definitions]
 
@@ -184,7 +184,7 @@ argument [arg type] is supplied, it should be either [const UTF8] or
 [list_end]
 [para]
 
-[subsection DECODER]
+[subsection Decoder]
 
 General notes:
 
@@ -453,7 +453,7 @@ this command, using the package’s decoder commands.
 
 [list_end]
 [para]
-[subsection {HANDLING TAGS}]
+[subsection {Handling Tags}]
 
 When working with ASN.1 you often need to decode tagged values which
 use a tag that’s different from a type’s universal tag. In these cases,
@@ -498,7 +498,7 @@ command.
 
 [list_end]
 
-[section EXAMPLES]
+[section Examples]
 
 Examples that show this package in use can be found in the
 implementation of the [package ldap] package.

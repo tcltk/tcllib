@@ -22,7 +22,7 @@ to and from the standard base64 encoding as specified in
 [emph {subcommands for encoding and decoding base64 (introduced in Tcl
 8.6), are used in preference to this package’s commands.}]
 
-[section {Beware: Variations in decoding behaviour}]
+[subsection {Beware: Variations in decoding behaviour}]
 
 Tcl 8.6 introduced built-in support for encoding and decoding base64
 using subcommands of the

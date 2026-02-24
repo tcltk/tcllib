@@ -21,7 +21,7 @@ created. Any subsequent constructor call will get back the first created
 object. See}]
 [uri https://www.tcl-lang.org/man/tcl/TclCmd/singleton.html oo::singleton].)
 
-[section {Commands}]
+[section API]
 
 [list_begin definitions]
 [call [cmd ::lazyset::variable] [opt [arg {-array boolean}]] \

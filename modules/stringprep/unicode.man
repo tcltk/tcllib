@@ -17,7 +17,7 @@ This is a Tcl implementation of Unicode normalization commands.
 [emph {Note}] that if normalization alone is insufficient (e.g., for
 string comparisons), the [package stringprep] package may prove useful.
 
-[section Commands]
+[section API]
 
 [para]
 The [arg form] argument in the commands listed below must be a string
@@ -36,7 +36,7 @@ Returns a possibly modified copy of [arg string], normalized in
 accordance with the given [arg form].
 
 [para]
-This is a convenience for:[nl]
+This is a convenience for:
 [emph {::unicode::tostring}] [lb][emph {unicode::normalize $form}]
 [lb][emph {::unicode::fromstring $string}][rb][rb].
 

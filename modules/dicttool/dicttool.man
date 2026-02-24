@@ -17,6 +17,8 @@ convenient list commands. (Each command only adds itself if a command of
 the same name doesn’t already exist, in case any of these are added to
 the core.)
 
+[section API]
+
 [list_begin definitions]
 [call [cmd ladd] [arg dictVar] [opt "[arg {key value ...}]"]]
 

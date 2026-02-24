@@ -18,6 +18,8 @@ into a format that requires an 8-bit clean transmission layer but that
 escapes characters special to the [term NNTP] posting protocols. See
 [uri http://www.yenc.org] for the encoding’s details.
 
+[section API]
+
 [list_begin definitions]
 
 [call [cmd ::yencode::encode] [arg bstring]]

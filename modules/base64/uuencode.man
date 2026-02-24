@@ -17,6 +17,8 @@ This package provides a Tcl-only implementation of the
 [syscmd uudecode(1p)]] commands.
 This encoding packs binary data into printable 7-bit ASCII characters.
 
+[section API]
+
 [list_begin definitions]
 
 [call [cmd ::uuencode::encode] [arg bstring]]

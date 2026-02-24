@@ -27,7 +27,7 @@ which itself was superceded by}]
 [emph {This package is currently unmaintained; see}]
 [uri https://core.tcl-lang.org/tcllib/tktview/b192bd4149e07ddf4e000f894100700c2ec35e1e ticket].
 
-[section Commands]
+[section API]
 
 If the only string preparation needed is Unicode normalization, the
 [package unicode] package’s commands are sufficient.

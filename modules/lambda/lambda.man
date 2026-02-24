@@ -57,7 +57,7 @@ or
 Lambdas are particularly useful for commands that accept a
 [option -command] option.
 
-[section {Commands}]
+[section API]
 
 [list_begin definitions]
 [comment {- - -- --- ----- -------- ------------- ---------------------}]

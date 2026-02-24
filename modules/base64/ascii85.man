@@ -14,6 +14,8 @@ This package provides commands for encoding and decoding binary strings
 to and from the ascii85 encoding. (This encoding is also known as
 base85.)
 
+[section API]
+
 [list_begin definitions]
 
 [call [cmd ::ascii85::encode] [opt "[option -maxlen] [arg maxlen]"] \
@@ -41,7 +43,7 @@ is ignored.
 
 [list_end]
 
-[section {EXAMPLES}]
+[section {Examples}]
 
 This example shows how to encode and decode a Tcl string to and from
 ascii85, taking account of the fact that the ascii85 commands work in
