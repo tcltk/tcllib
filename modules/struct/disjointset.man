@@ -1,5 +1,6 @@
 [vset VERSION 1.2]
 [manpage_begin struct::disjointset n [vset VERSION]]
+[see_also http://en.wikipedia.org/wiki/Disjoint_set_data_structure]
 [keywords {disjoint set}]
 [keywords {equivalence class}]
 [keywords find]
@@ -15,8 +16,10 @@
 [description]
 [para]
 
-This package provides a command for handling [term {disjoint sets}]. An
-alternative name for this kind of data structure is [term {merge-find}].
+This package provides a command for handling
+[uri http://en.wikipedia.org/wiki/Disjoint_set_data_structure {disjoint
+sets}]. Alternative names for this kind of data structure are
+[term {union-find}] and [term {merge-find}].
 
 [para]
 A common use case for ordinary sets is to be able to answer the
@@ -42,7 +45,7 @@ because it can be perceived as being a [emph single] set with
 [item] a finite [term set] S, containing
 [item] a number of [term elements] E₁, E₂, …, Eₙ, grouped into
 [item] a set of [term partitions] P₁, P₂, …, Pₙ. The latter term
-       applies, because the intersection of each pair Pᵢ, Pⱼ of
+       applies because the intersection of each pair Pᵢ, Pⱼ of
        partitions is empty, i.e.,  ∅ = Pᵢ ∩ Pⱼ, with the set itself equal
        to the union of all the partitions, i.e., S = P₁ ∪ P₂ ∪ … ∪ Pₙ.
 [list_end]
@@ -68,10 +71,6 @@ Here is a pictorial representation of the concepts listed above:
 	+-----------------+
 }]
 
-[para]
-
-For more information see [uri http://en.wikipedia.org/wiki/Disjoint_set_data_structure].
-
 [section API]
 
 The package provides a single command, [cmd ::struct::disjointset],
@@ -81,73 +80,75 @@ which provides all its functionality using methods.
 
 [list_begin definitions]
 
-[call [cmd ::struct::disjointset] [arg disjointsetName]]
+[call [cmd ::struct::disjointset] [arg aDisjointSet]]
 
 Creates a new disjoint set object with an associated global Tcl command
-whose name is [emph disjointsetName]. This command may be used to invoke
+whose name is [emph aDisjointSet]. This command may be used to invoke
 disjoint set methods which all have the the following general form:
 
-[list_begin definitions]
+[para]
+[arg aDisjointSet] [arg method] [opt [arg {arg ...}]]
 
-[call [arg disjointsetName] [arg method] [opt [arg {arg ...}]]]
-
-The [arg method] and the [arg arg]s specify what operation to
-perform. The available methods are listed below.
+[para]
+The [arg method] and the [arg arg]s specify what operation to perform.
 
 [list_end]
 
-[call [arg disjointsetName] [method add-element] [arg element]]
+[subsection Methods]
 
-Creates a new partition in the [arg disjointsetName] disjoint set, and
-adds the single [arg element] to the new partition. The command
-maintains the integrity of the disjoint set, i.e., if [arg element] is
-already in the disjoint set—no matter in which partition—this method
-will throw an error.
+[list_begin definitions]
 
-[para]
-This method returns the empty string.
+[call [arg aDisjointSet] [method add-element] [arg element]]
 
-[para]
-This method runs in constant time.
-
-[call [arg disjointsetName] [method add-partition] [arg elements]]
-
-Creates a new partition in the [arg disjointsetName] disjoint set, and
-adds all the given [arg elements]. The command maintains the integrity
-of the disjoint set, i.e., if any of the elements in [arg elements] is
-already in the disjoint set—no matter in which partition—this method
-will throw an error.
+Creates a new partition in the [arg aDisjointSet], and adds the single
+[arg element] to the new partition. The command maintains the integrity
+of the disjoint set, i.e., if [arg element] is already in the disjoint
+set—no matter in which partition—this method will throw an error.
 
 [para]
 This method returns the empty string.
 
 [para]
-This method runs in time proportional to the size of [arg elements].
+This method runs in constant time, [emph O(1)].
 
-[call [arg disjointsetName] [method partitions]]
+[call [arg aDisjointSet] [method add-partition] [arg elements]]
 
-Returns the [arg disjointsetName] disjoint set’s set of partitions as a
-list of lists. The outer lists are the partitions, the inner lists
-contain each partition’s elements.
+Creates a new partition in the [arg aDisjointSet], and adds all the
+given [arg elements] to the new partition. The command maintains the
+integrity of the disjoint set, i.e., if any of the elements in
+[arg elements] is already in the disjoint set—no matter in which
+partition—this method will throw an error.
+
+[para]
+This method returns the empty string.
+
+[para]
+This method runs in time proportional to the size of [arg elements],
+[emph O(N)], where [emph N] is the number of [arg elements].
+
+[call [arg aDisjointSet] [method partitions]]
+
+Returns the [arg aDisjointSet]’s set of partitions as a list of lists.
+The outer lists are the partitions, the inner lists contain each
+partition’s elements.
 
 [para]
 This method runs in [emph {O(N × alpha(N))}] time, where [emph N] is the
-number of elements in the disjoint set and [emph alpha] is the inverse
-Ackermann function.
+number of elements in the disjoint set, and the [emph alpha] function is
+the inverse Ackermann function.
 
-[call [arg disjointsetName] [method num-partitions]]
+[call [arg aDisjointSet] [method num-partitions]]
 
-Returns the number of partitions in the [arg disjointsetName] disjoint
-set.
+Returns the number of partitions in the [arg aDisjointSet].
 
 [para]
 This method runs in constant time.
 
-[call [arg disjointsetName] [method equal] [arg a] [arg b]]
+[call [arg aDisjointSet] [method equal] [arg a] [arg b]]
 
 Returns [const 1] (true) if elements [arg a] and [arg b] in the
-[arg disjointsetName] disjoint set are in the same partition; otherwise
-returns [const 0] (false).
+[arg aDisjointSet] are in the same partition; otherwise returns
+[const 0] (false).
 
 [para]
 If one or both arguments are not in the disjoint set at all, this method
@@ -155,15 +156,15 @@ will throw an error.
 
 [para]
 This method runs in amortized time [emph O(alpha(N))], where [emph N] is
-the number of elements in the larger partition and [emph alpha] is the
-inverse Ackermann function.
+the number of elements in the larger partition, and the [emph alpha]
+function is the inverse Ackermann function.
 
-[call [arg disjointsetName] [method merge] [arg a] [arg b]]
+[call [arg aDisjointSet] [method merge] [arg a] [arg b]]
 
-Determines the partitions in the [arg disjointsetName] disjoint set that
-elements [arg a] and [arg b] are contained in, and merges these
-partitions into a single partition. If the two elements were already
-contained in the same partition the disjoint set is left unchanged.
+Determines the partitions in the [arg aDisjointSet] that elements
+[arg a] and [arg b] are contained in, and merges these partitions into a
+single partition. If the two elements were already contained in the same
+partition the disjoint set is left unchanged.
 
 [para]
 If one or both arguments are not in the disjoint set at all, this method
@@ -174,27 +175,27 @@ This method returns the empty string.
 
 [para]
 This method runs in amortized time [emph O(alpha(N))], where [emph N] is
-the number of items in the larger of the partitions being merged. The
-worst case time is [emph O(N)].
+the number of elements in the larger of the partitions being merged, and
+the [emph alpha] function is the inverse Ackermann function. The worst
+case time is [emph O(N)].
 
-[call [arg disjointsetName] [method find] [arg element]]
+[call [arg aDisjointSet] [method find] [arg element]]
 
 Returns a list of the members of the partition of the
-[arg disjointsetName] disjoint set which contains the given
-[arg element]; or an empty string if [arg element] is not in the
-disjoint set.
+[arg aDisjointSet] which contains the given [arg element]; or an empty
+string if [arg element] is not in the disjoint set.
 
 [para]
 This method runs in [emph {O(N × alpha(N))}] time, where [emph N] is the
-total number of items in the disjoint set and [emph alpha] is the
-inverse Ackermann function, See [method find-exemplar] for a faster
-method, if all that is needed is a unique partition identifier, rather
-than a list of its elements.
+total number of elements in the disjoint set, and the [emph alpha] function
+is the inverse Ackermann function. See [method find-exemplar] for a
+faster method, if all that is needed is a unique partition identifier,
+rather than a list of its elements.
 
-[call [arg disjointsetName] [method exemplars]]
+[call [arg aDisjointSet] [method exemplars]]
 
 Returns a list containing an exemplar—an arbitrarily chosen member—of
-each partition in the [arg disjointsetName] disjoint set.
+each partition in the [arg aDisjointSet].
 
 [para]
 Note that the only operation that will change the exemplar chosen for
@@ -202,14 +203,13 @@ any particular partition is [method merge].
 
 [para]
 This method runs in [emph {O(N × alpha(N))}] time, where [emph N] is the
-total number of items in the disjoint set and [emph alpha] is the
-inverse Ackermann function.
+total number of elements in the disjoint set, and the [emph alpha] function
+is the inverse Ackermann function.
 
-[call [arg disjointsetName] [method find-exemplar] [arg element]]
+[call [arg aDisjointSet] [method find-exemplar] [arg element]]
 
 Returns an exemplar—an arbitrarily chosen member—of the partition of the
-[arg disjointsetName] disjoint set that contains the given
-[arg element].
+[arg aDisjointSet] that contains the given [arg element].
 
 [para]
 If [arg element] is not in the disjoint set at all, this method
@@ -222,13 +222,13 @@ any particular partition is [method merge].
 [para]
 
 This method runs in [emph O(alpha(N))] time, where [emph N] is the
-number of items in the partition containing E, and [emph alpha] is the
-inverse Ackermann function.
+number of elements in the partition containing [arg element], and the
+[emph alpha] function is the inverse Ackermann function.
 
-[call [arg disjointsetName] [method destroy]]
+[call [arg aDisjointSet] [method destroy]]
 
-Destroys the [arg disjointsetName] disjoint set object, including the
-global command [arg disjointsetName], and all its associated memory.
+Destroys the [arg aDisjointSet] object, including the global command
+[arg aDisjointSet], and all its associated memory.
 
 [list_end]
 
@@ -276,7 +276,7 @@ disjoint set created above.
 [example {
 puts "colors equal black yellow=[colors equal black yellow]"
 puts "colors equal cyan yellow=[colors equal cyan yellow]"
-puts "colors equal cyan magenta=[colors equal cyan yellow]"
+puts "colors equal cyan magenta=[colors equal cyan magenta]"
 colors merge black cyan
 puts "colors equal black yellow=[colors equal black yellow]"
 dump_disjointset colors
