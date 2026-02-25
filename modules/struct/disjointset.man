@@ -133,8 +133,8 @@ The outer lists are the partitions, the inner lists contain each
 partition’s elements.
 
 [para]
-This method runs in [emph {O(N × alpha(N))}] time, where [emph N] is the
-number of elements in the disjoint set, and the [emph alpha] function is
+This method runs in [emph {O(N × α(N))}] time, where [emph N] is the
+number of elements in the disjoint set, and the [emph α] function is
 the inverse Ackermann function.
 
 [call [arg aDisjointSet] [method num-partitions]]
@@ -155,8 +155,8 @@ If one or both arguments are not in the disjoint set at all, this method
 will throw an error.
 
 [para]
-This method runs in amortized time [emph O(alpha(N))], where [emph N] is
-the number of elements in the larger partition, and the [emph alpha]
+This method runs in amortized time [emph O(α(N))], where [emph N] is
+the number of elements in the larger partition, and the [emph α]
 function is the inverse Ackermann function.
 
 [call [arg aDisjointSet] [method merge] [arg a] [arg b]]
@@ -174,9 +174,9 @@ will throw an error.
 This method returns the empty string.
 
 [para]
-This method runs in amortized time [emph O(alpha(N))], where [emph N] is
+This method runs in amortized time [emph O(α(N))], where [emph N] is
 the number of elements in the larger of the partitions being merged, and
-the [emph alpha] function is the inverse Ackermann function. The worst
+the [emph α] function is the inverse Ackermann function. The worst
 case time is [emph O(N)].
 
 [call [arg aDisjointSet] [method find] [arg element]]
@@ -186,8 +186,8 @@ Returns a list of the members of the partition of the
 string if [arg element] is not in the disjoint set.
 
 [para]
-This method runs in [emph {O(N × alpha(N))}] time, where [emph N] is the
-total number of elements in the disjoint set, and the [emph alpha] function
+This method runs in [emph {O(N × α(N))}] time, where [emph N] is the
+total number of elements in the disjoint set, and the [emph α] function
 is the inverse Ackermann function. See [method find-exemplar] for a
 faster method, if all that is needed is a unique partition identifier,
 rather than a list of its elements.
@@ -202,8 +202,8 @@ Note that the only operation that will change the exemplar chosen for
 any particular partition is [method merge].
 
 [para]
-This method runs in [emph {O(N × alpha(N))}] time, where [emph N] is the
-total number of elements in the disjoint set, and the [emph alpha] function
+This method runs in [emph {O(N × α(N))}] time, where [emph N] is the
+total number of elements in the disjoint set, and the [emph α] function
 is the inverse Ackermann function.
 
 [call [arg aDisjointSet] [method find-exemplar] [arg element]]
@@ -221,9 +221,9 @@ any particular partition is [method merge].
 
 [para]
 
-This method runs in [emph O(alpha(N))] time, where [emph N] is the
+This method runs in [emph O(α(N))] time, where [emph N] is the
 number of elements in the partition containing [arg element], and the
-[emph alpha] function is the inverse Ackermann function.
+[emph α] function is the inverse Ackermann function.
 
 [call [arg aDisjointSet] [method destroy]]
 

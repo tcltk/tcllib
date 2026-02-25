@@ -203,6 +203,14 @@ genuinely useful. Whenever possible, examples should be motivating.
 When looking for ideas for examples, it is always worth grepping Tcl’s
 own source code (incluing Tcllib, Tklib, and third-party packages).
 
+[section Unicode]
+
+[para]
+Although Tcl supports the full range of Unicode characters it is
+possible that some of the the documentation tool chain’s tools will
+support only the basic multilingual plane (BMP). So, Unicode characters
+should be kept within that range, i.e., at most 4 hex digits.
+
 [section Cryptography]
 
 [para]
