@@ -48,14 +48,14 @@ also the target of any number of [term {incoming arcs}]. The number of
 [para]
 This [package struct::graph] package can manage graphs of nodes, arcs,
 and their relationships. In addition, the package supports the addition
-of any number of named [term attributes] to be associated with a graph
-itself, as well as any of the graph’s nodes and arcs.
+of any number of named [term attributes] which can be associated with a
+graph itself, as well as with any of the graph’s nodes and arcs.
 
 [para]
 [emph Note:] The major version of the [package struct::graph] package
 has been changed to version 2, due to backward incompatible changes in
 the module’s API. Users of version 1 are recommended to read the section
-[sectref {Changes for 2}] for a full list of the changes, including
+[sectref {Changes for v2}] for a full list of the changes, including
 incompatibilities with version 1.
 
 [para]
@@ -85,21 +85,21 @@ serialized graph object, and [method deserialize] will be executed.
 [para]
 For example:
 [example {
-    ::struct::graph mygraph = b
+    ::struct::graph graphA = graphB
 }]
 is equivalent to
 [example {
-    ::struct::graph mygraph
-    mygraph = b
+    ::struct::graph graphA
+    graphA = graphB
 }]
 and
 [example {
-    ::struct::graph mygraph deserialize $b
+    ::struct::graph graphA deserialize $graphB
 }]
 is equivalent to
 [example {
-    ::struct::graph mygraph
-    mygraph deserialize $b
+    ::struct::graph graphA
+    graphA deserialize $graphB
 }]
 
 [para]
@@ -121,10 +121,10 @@ The [arg method] and the [arg arg]s specify what operation to perform.
 
 [call [arg aGraph] [method =] [arg sourceGraph]]
 
-The [const =] operator is the [term assignment] operator for graph
-objects. It copies the graph contained in the graph object
-[arg sourceGraph] over the graph data in [arg aGraph]. The old contents
-of [arg aGraph] are deleted by this operation.
+The [const =] operator is the graph object [term assignment] operator.
+It copies the graph contained in the graph object [arg sourceGraph] over
+the graph data in [arg aGraph]. The old contents of [arg aGraph] are
+deleted by this operation.
 
 [para]
 
@@ -141,9 +141,9 @@ The operation assumes that the [arg sourceGraph] provides a
 
 [call [arg aGraph] [method -->] [arg destGraph]]
 
-The [const -->] operator is the [term {reverse assignment}] operator for
-graph objects. It copies the graph contained in the graph object
-[arg aGraph] over the graph data in the object [arg destGraph].
+The [const -->] operator is the graph object [term {reverse assignment}]
+operator. It copies the graph contained in the graph object [arg aGraph]
+over the graph data in the object [arg destGraph].
 
 The old contents of [arg destGraph] are deleted by this operation.
 
@@ -164,15 +164,15 @@ graph serialization.
 
 [call [arg aGraph] [method append] [arg key] [arg value]]
 
-Appends a [arg value] to one of the keyed values associated with the graph.
-Returns the new value given to the attribute [arg key].
+Appends the [arg value] to the graph attribute with the given [arg key].
+Returns the new value of the graph attribute associated with the [arg key].
 
 [call [arg aGraph] [method deserialize] [arg serialization]]
 
-This is the complement to [method serialize]. It replaces the graph
-data in [arg aGraph] with the graph described by the
-[arg serialization] value. The old contents of [arg aGraph] are
-deleted by this operation.
+This is the complement of the [method serialize] method. It replaces the
+graph data in [arg aGraph] with the graph described by the
+[arg serialization] value. The old contents of [arg aGraph] are deleted
+by this operation.
 
 [call [arg aGraph] [method destroy]]
 
@@ -180,45 +180,47 @@ Destroys the graph, including its storage space and associated command.
 
 [call [arg aGraph] [method {arc append}] [arg arc] [arg key] [arg value]]
 
-Appends a [arg value] to one of the keyed values associated with an
-[arg arc]. Returns the new value given to the attribute [arg key].
+Appends the [arg value] to the given [arg arc]’s attribute with the
+given [arg key]. Returns the new value of the [arg arc] attribute
+associated with the [arg key].
 
 [call [arg aGraph] [method {arc attr}] [arg key]]
 [call [arg aGraph] [method {arc attr}] [arg key] [option -arcs] [arg list]]
 [call [arg aGraph] [method {arc attr}] [arg key] [option -glob] [arg globpattern]]
 [call [arg aGraph] [method {arc attr}] [arg key] [option -regexp] [arg repattern]]
 
-This method retrieves the value of the attribute named [arg key], for
-all arcs in the graph (matching the restriction specified via one of
-the possible options) and having the specified attribute.
+When no options are specified, the [method {arc attr}] method returns a
+[type dict] whose keys are the names of [emph every] arc in the
+[arg aGraph] graph. For each of the resultant dict’s keys, the value is
+the value of the arc attribute that has the given [arg key]. Arcs which
+do not have the given [arg key] are not included in the result
+[type dict].
+
+[para]
+If one of the options is specified, in effect the same results
+[type dict] is created as for no options, but filtered so that only the
+arcs which match the given option’s constraint are included in the
+result [type dict].
 
 [para]
 
-The result is a dictionary mapping from arc names to the value of
-attribute [arg key] at that arc.
-
-Arcs not having the attribute [arg key], or not passing a
-specified restriction, are not listed in the result.
-
-[para]
-
-The possible restrictions are:
+The possible constraints are:
 
 [list_begin options]
 [opt_def -arcs]
 
-The value is a list of arcs. Only the arcs mentioned in this list
-are searched for the attribute.
+The value must be a list of arc names. Only the arcs mentioned in this list
+are searched for the [arg key] attribute.
 
 [opt_def -glob]
 
 The value is a glob pattern. Only the arcs in the graph whose names
-match this pattern are searched for the attribute.
+match this pattern are searched for the [arg key] attribute.
 
 [opt_def -regexp]
 
 The value is a regular expression. Only the arcs in the graph whose
-names match this pattern are searched for the attribute.
+names match this pattern are searched for the [arg key] attribute.
 
 [list_end]
 [para]
@@ -864,7 +866,7 @@ a node [const enter]s it, the second visit [const leave]s it.
 
 [list_end]
 
-[section {Changes for 2}]
+[section {Changes for v2}]
 The following noteworthy changes have occurred:
 
 [list_begin enumerated]
