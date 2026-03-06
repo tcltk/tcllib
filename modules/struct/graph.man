@@ -164,8 +164,9 @@ graph serialization.
 
 [call [arg aGraph] [method append] [arg key] [arg value]]
 
-Appends the [arg value] to the graph attribute with the given [arg key].
-Returns the new value of the graph attribute associated with the [arg key].
+Appends the [arg value] to the graph attribute associated with the given
+[arg key]. Returns the new value of the graph attribute associated with
+the [arg key].
 
 [call [arg aGraph] [method deserialize] [arg serialization]]
 
@@ -180,9 +181,9 @@ Destroys the graph, including its storage space and associated command.
 
 [call [arg aGraph] [method {arc append}] [arg arc] [arg key] [arg value]]
 
-Appends the [arg value] to the given [arg arc]’s attribute with the
-given [arg key]. Returns the new value of the [arg arc] attribute
-associated with the [arg key].
+Appends the [arg value] to the given [arg arc]’s attribute associated
+with the given [arg key]. Returns the new value of the [arg arc]
+attribute associated with the [arg key].
 
 [call [arg aGraph] [method {arc attr}] [arg key]]
 [call [arg aGraph] [method {arc attr}] [arg key] [option -arcs] [arg list]]
@@ -191,10 +192,10 @@ associated with the [arg key].
 
 When no options are specified, the [method {arc attr}] method returns a
 [type dict] whose keys are the names of [emph every] arc in the
-[arg aGraph] graph. For each of the resultant dict’s keys, the value is
-the value of the arc attribute that has the given [arg key]. Arcs which
-do not have the given [arg key] are not included in the result
-[type dict].
+[arg aGraph] graph. For each of the resultant dict’s keys, the
+corresponding value is the value of the arc attribute associated with
+the given [arg key]. Arcs which do not have the given [arg key] are not
+included in the result [type dict].
 
 [para]
 If one of the options is specified, in effect the same results
@@ -227,39 +228,50 @@ names match this pattern are searched for the [arg key] attribute.
 
 [call [arg aGraph] [method {arc delete}] [arg arc] [opt "[arg arc] ..."]]
 
-Remove the specified arcs from the graph.
+Removes the specified arcs from the graph.
+
+[para]
+If one or more of the arcs doesn’t exit an error is thrown.
 
 [call [arg aGraph] [method {arc exists}] [arg arc]]
 
-Return true if the specified [arg arc] exists in the graph.
+Returns [const 1] (true) if the specified [arg arc] exists in the graph;
+otherwise returns [const 0] (false).
 
 [call [arg aGraph] [method {arc flip}] [arg arc]]
 
-Reverses the direction of the named [arg arc], i.e. the source and
-target nodes of the arc are exchanged with each other.
+Reverses the direction of the [arg arc], i.e., the arc’s source and
+target nodes are exchanged with each other.
 
 [call [arg aGraph] [method {arc get}] [arg arc] [arg key]]
 
-Returns the value associated with the key [arg key] for the [arg arc].
+Returns the value associated with the [arg arc]’s [arg key].
 
-[call [arg aGraph] [method {arc getall}] [arg arc] [opt [arg pattern]]]
+[para]
+If the [arg arc] doesn’t exist or if the [arg key] doesn’t exist, an
+error is thrown.
+
+[call [arg aGraph] [method {arc getall}] [arg arc] [opt [arg glob]]]
 
 Returns a dictionary (suitable for use with [lb][cmd {array set}][rb])
-for the [arg arc].
+of the [arg arc]’s attribute keys and values.
 
-If the [arg pattern] is specified only the attributes whose names
-match the pattern will be part of the returned dictionary. The pattern
-is a [cmd glob] pattern.
+[para]
+If a [arg glob] pattern is specified, only the attributes whose keys
+match will be included.
 
 [call [arg aGraph] [method {arc getunweighted}]]
 
-Returns a list containing the names of all arcs in the graph which
-have no weight associated with them.
+Returns a list of the names of all the graph’s arcs which have [emph no]
+weight associated with them.
 
 [call [arg aGraph] [method {arc getweight}] [arg arc]]
 
-Returns the weight associated with the [arg arc]. Throws an error if
-the arc has no weight associated with it.
+Returns the weight associated with the [arg arc].
+
+[para]
+If the [arg arc] doesn’t exist or if it has no weight, an error is
+thrown.
 
 [call [arg aGraph] [method {arc keys}] [arg arc] [opt [arg pattern]]]
 
