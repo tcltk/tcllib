@@ -294,9 +294,9 @@ snit::type            ::zipfile::encode {
     }
 
     proc str {ch text} {
-	set     old [list -encoding    [fconfigure $sock -encoding]]
-	lappend old       -translation [fconfigure $sock -translation]
-	lappend old       -eofchar     [fconfigure $sock -eofchar]
+	set     old [list -encoding    [fconfigure $ch -encoding]]
+	lappend old       -translation [fconfigure $ch -translation]
+	lappend old       -eofchar     [fconfigure $ch -eofchar]
 	
 	fconfigure $ch -encoding utf-8
 	# write the string as utf-8 to keep its bytes, exactly.

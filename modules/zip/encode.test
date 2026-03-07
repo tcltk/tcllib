@@ -1,0 +1,300 @@
+# encode.test - Copyright (C) 2026 Keith Nash <k.j.nash@usa.net>
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+support {
+    useLocal decode.tcl zipfile::decode
+}
+testing {
+    useLocal encode.tcl zipfile::encode
+}
+
+# Create a zip file zipFileFromEncode.zip for testing.
+# Also define variables fileContent and commentAll for use by tests.
+
+set fileContent {Greetings from Earth!}
+tcltest::makeDirectory foo
+tcltest::makeDirectory foo/a
+tcltest::makeFile {}   foo/a/x
+tcltest::makeFile $fileContent  foo/a/msg.txt
+set commentAll {This is a zip file created by zipfile::encode for purposes of testing.}
+
+zipfile::encode ::newForTest
+::newForTest comment: $commentAll
+::newForTest file: foo/a/msg.txt 0 foo/a/msg.txt
+::newForTest file: foo/a/x       0 foo/a/x
+::newForTest write zipFileFromEncode.zip
+::newForTest destroy
+
+tcltest::removeDirectory foo
+
+# -------------------------------------------------------------------------
+
+
+test zipfile-encode-encode-1.0 {encode, wrong args, not enough} -body {
+    zipfile::encode
+} -returnCodes error -result {wrong # args: should be "zipfile::encode subcommand ?arg ...?"}
+
+test zipfile-encode-encode-1.1 {encode, %AUTO%} -body {
+    set tmp1 [zipfile::encode %AUTO%]
+} -cleanup {
+    $tmp1 destroy
+    unset tmp1
+} -result {::encode*} -match glob
+
+test zipfile-encode-encode-1.2 {encode, fully qualified command name} -body {
+    zipfile::encode ::someName
+} -cleanup {
+    ::someName destroy
+} -result {::someName}
+
+test zipfile-encode-encode-1.3 {encode, unqualified command name} -body {
+    namespace eval ::tmpZipTest {zipfile::encode someName}
+} -cleanup {
+    ::tmpZipTest::someName destroy
+    namespace delete ::tmpZipTest
+} -result {::tmpZipTest::someName}
+
+test zipfile-encode-encode-1.4 {encode, %AUTO%, in namespace} -body {
+    set tmp1 [namespace eval ::tmpZipTest {zipfile::encode %AUTO%}]
+} -cleanup {
+    $tmp1 destroy
+    namespace delete ::tmpZipTest
+    unset tmp1
+} -result {::tmpZipTest::encode*} -match glob
+
+test zipfile-encode-encode-1.5 {encode, unqualified command name, in namespace} -body {
+    namespace eval ::tmpZipTest {zipfile::encode someName}
+} -cleanup {
+    ::tmpZipTest::someName destroy
+    namespace delete ::tmpZipTest
+} -result {::tmpZipTest::someName}
+
+test zipfile-encode-encode-1.6 {encode, qualified command name, in namespace} -body {
+    namespace eval ::tmpZipTest {zipfile::encode someNs::someName}
+} -cleanup {
+    ::tmpZipTest::someNs::someName destroy
+    namespace delete ::tmpZipTest
+} -result {::tmpZipTest::someNs::someName}
+
+
+
+test zipfile-encode-encode-2.0 {encode create, wrong args, not enough} -body {
+    zipfile::encode create
+} -returnCodes error -result {wrong # args: should be "zipfile::encode create name ?arg ...?"}
+
+test zipfile-encode-encode-2.1 {encode create, %AUTO%} -body {
+    set tmp1 [zipfile::encode create %AUTO%]
+} -cleanup {
+    $tmp1 destroy
+    unset tmp1
+} -result {::encode*} -match glob
+
+test zipfile-encode-encode-2.2 {encode create, fully qualified command name} -body {
+    zipfile::encode create ::someName
+} -cleanup {
+    ::someName destroy
+} -result {::someName}
+
+test zipfile-encode-encode-2.3 {encode create, unqualified command name} -body {
+    namespace eval ::tmpZipTest {zipfile::encode create someName}
+} -cleanup {
+    ::tmpZipTest::someName destroy
+    namespace delete ::tmpZipTest
+} -result {::tmpZipTest::someName}
+
+test zipfile-encode-encode-2.4 {encode create, %AUTO%, in namespace} -body {
+    set tmp1 [namespace eval ::tmpZipTest {zipfile::encode create %AUTO%}]
+} -cleanup {
+    $tmp1 destroy
+    namespace delete ::tmpZipTest
+    unset tmp1
+} -result {::tmpZipTest::encode*} -match glob
+
+test zipfile-encode-encode-2.5 {encode create, unqualified command name, in namespace} -body {
+    namespace eval ::tmpZipTest {zipfile::encode create someName}
+} -cleanup {
+    ::tmpZipTest::someName destroy
+    namespace delete ::tmpZipTest
+} -result {::tmpZipTest::someName}
+
+test zipfile-encode-encode-2.6 {encode create, qualified command name, in namespace} -body {
+    namespace eval ::tmpZipTest {zipfile::encode create someNs::someName}
+} -cleanup {
+    ::tmpZipTest::someNs::someName destroy
+    namespace delete ::tmpZipTest
+} -result {::tmpZipTest::someNs::someName}
+
+
+
+test zipfile-encode-encode-3.0 {write a zip file, test the file list} -setup {
+    # Cf. the code that generates zipFileFromEncode.zip in the test file header.
+    tcltest::makeDirectory foo
+    tcltest::makeDirectory foo/a
+    tcltest::makeFile {}   foo/a/x
+    tcltest::makeFile {Greetings from Earth!}  foo/a/msg.txt
+    set comment {This is a zip file created by zipfile::encode for purposes of testing.}
+} -cleanup {
+    tcltest::removeDirectory foo
+    tcltest::removeFile zipFileFromEncode-3-0.zip
+    ::newForTest destroy
+    unset -nocomplain comment
+} -body {
+    zipfile::encode ::newForTest
+    ::newForTest comment: $comment
+    ::newForTest file: bar/b/msg1.txt 0 foo/a/msg.txt
+    ::newForTest file: bar/b/x1       0 foo/a/x
+    ::newForTest write zipFileFromEncode-3-0.zip
+    lsort -dict [zipfile::decode::content zipFileFromEncode-3-0.zip]
+    # zipfile::decode::content does not necessarily return files in archive order.
+} -result [list {*}{
+    bar/b/msg1.txt
+    bar/b/x1
+}]
+
+test zipfile-encode-encode-3.1 {write a zip file with changed file names, test the file list} -setup {
+    tcltest::makeDirectory foo
+    tcltest::makeDirectory foo/a
+    tcltest::makeFile {}   foo/a/x
+    tcltest::makeFile {Greetings from Earth!}  foo/a/msg.txt
+    set comment {This is a zip file created by zipfile::encode for purposes of testing.}
+} -cleanup {
+    tcltest::removeDirectory foo
+    tcltest::removeFile zipFileFromEncode-3-1.zip
+    ::newForTest destroy
+    unset -nocomplain comment
+} -body {
+    zipfile::encode ::newForTest
+    ::newForTest comment: $comment
+    ::newForTest file: bar/b/msg1.txt 0 foo/a/msg.txt
+    ::newForTest file: bar/b/x1       0 foo/a/x
+    ::newForTest write zipFileFromEncode-3-1.zip
+    lsort -dict [zipfile::decode::content zipFileFromEncode-3-1.zip]
+    # zipfile::decode::content does not necessarily return files in archive order.
+} -result [list {*}{
+    bar/b/msg1.txt
+    bar/b/x1
+}]
+
+
+
+test zipfile-encode-encode-4.0 {test file is zip} -setup {
+} -body {
+    zipfile::decode::iszip zipFileFromEncode.zip
+} -result 1
+
+test zipfile-encode-encode-4.1 {test file is not zip} -setup {
+    tcltest::makeFile {This is a plain text file}  notazipfile.zip
+} -cleanup {
+    tcltest::removeFile notazipfile.zip
+} -body {
+    zipfile::decode::iszip notazipfile.zip
+} -result 0
+
+test zipfile-encode-encode-4.2 {test file list, method content} -setup {
+} -body {
+    lsort -dict [zipfile::decode::content zipFileFromEncode.zip]
+} -result [list {*}{
+    foo/a/msg.txt
+    foo/a/x
+}]
+
+
+
+test zipfile-encode-encode-5.0 {test unzipfile file list} -setup {
+} -cleanup {
+    tcltest::removeDirectory foo2
+    unset -nocomplain pattern res
+} -body {
+    zipfile::decode::unzipfile zipFileFromEncode.zip foo2
+    set res {}
+    foreach pattern {
+        foo2/*
+        foo2/*/*
+        foo2/*/*/*
+        foo2/*/*/*/*
+    } {
+        lappend res [glob -nocomplain $pattern]
+    }
+    set res
+} -result {foo2/foo foo2/foo/a {foo2/foo/a/msg.txt foo2/foo/a/x} {}}
+
+test zipfile-encode-encode-5.1 {test unzipfile file types} -setup {
+} -cleanup {
+    tcltest::removeDirectory foo2
+    unset -nocomplain f res
+} -body {
+    zipfile::decode::unzipfile zipFileFromEncode.zip foo2
+    set res {}
+    foreach f {
+        foo2/foo foo2/foo/a foo2/foo/a/msg.txt foo2/foo/a/x
+    } {
+        lappend res [file exists $f][file isdirectory $f][file isfile $f]
+    }
+    set res
+} -result {110 110 101 101}
+
+test zipfile-encode-encode-5.2 {test unzipfile file contents} -setup {
+} -cleanup {
+    tcltest::removeDirectory foo2
+    unset -nocomplain f g res
+} -body {
+    zipfile::decode::unzipfile zipFileFromEncode.zip foo2
+    set res {}
+    foreach {f g} [list \
+        foo2/foo/a/msg.txt $fileContent \
+        foo2/foo/a/x       {} \
+    ] {
+        lappend res [expr {[tcltest::viewFile $f] eq $g}]
+    }
+    set res
+} -result {1 1}
+
+
+
+test zipfile-encode-encode-6.0 {test comment} -setup {
+} -cleanup {
+    unset -nocomplain adict com2
+} -body {
+    zipfile::decode::open zipFileFromEncode.zip
+    set adict [zipfile::decode::archive]
+    set com2  [zipfile::decode::comment $adict]
+    zipfile::decode::close
+    expr {$com2 eq $commentAll}
+} -result 1
+
+test zipfile-encode-encode-6.1 {test file list, method files} -setup {
+} -cleanup {
+    unset -nocomplain adict ls
+} -body {
+    zipfile::decode::open zipFileFromEncode.zip
+    set adict [zipfile::decode::archive]
+    set ls [zipfile::decode::files $adict]
+    zipfile::decode::close
+    lsort -dict $ls
+} -result [list {*}{
+    foo/a/msg.txt
+    foo/a/x
+}]
+
+
+
+# -------------------------------------------------------------------------
+
+unset -nocomplain fileContent commentAll
+tcltest::removeFile zipFileFromEncode.zip
+
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
