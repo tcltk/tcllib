@@ -17,12 +17,15 @@
 [description]
 [para]
 
+Note: packages Trf and zlibtcl are not required for Tcl version
+8.6 or above.
+
 This package provides a class for the generation of zip archives.
 
 [section {Class API}]
 
 [list_begin definitions]
-[call [cmd ::zipfile::encode] [opt [arg objectName]]]
+[call [cmd ::zipfile::encode] [arg objectName]]
 
 The class command constructs encoder instances, i.e. objects. The
 result of the command is the fully-qualified name of the instance
@@ -30,9 +33,12 @@ command.
 
 [para]
 
-If no [arg objectName] is specified the class will generate and use an
-automatic name. If the [arg objectName] was specified, but is not
-fully qualified the command will be created in the current namespace.
+The argument [arg objectName] is required. If [arg objectName] is
+set to [const %AUTO%] the class will generate and use an automatic
+name in the current namespace.
+
+If the value of [arg objectName] is not fully qualified, the instance
+command will be created relative to the current namespace.
 
 [list_end]
 
