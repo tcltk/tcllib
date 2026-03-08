@@ -7,7 +7,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5 ; # Virt channel support!
-testsNeedTcltest 1.0
+testsNeedTcltest 2
 
 # Check if we have TclOO available.
 tcltest::testConstraint tcloo [expr {![catch {package require TclOO}]}]
@@ -94,6 +94,30 @@ test tar-add {add} -constraints tcloo -setup {
     cleanup1
 } -result {tartest/one/a tartest/one/two/a tartest/one/three/a hello2}
 
+test tar-add-file {tar::add file not chan} -constraints tcloo -setup {
+    setup1
+    file delete -force tmpFile.tar
+} -body {
+    tar::create   tmpFile.tar [list $tmpdir/one/a $tmpdir/one/two/a]
+    tar::add      tmpFile.tar [list $tmpdir/one/three/a]
+    tar::contents tmpFile.tar
+} -cleanup {
+    cleanup1
+    tcltest::removeFile tmpFile.tar
+} -result {tartest/one/a tartest/one/two/a tartest/one/three/a}
+
+
+test tar-remove-file {tar::remove file not chan} -constraints tcloo -setup {
+    setup1
+    file delete -force tmpFile.tar
+} -body {
+    tar::create   tmpFile.tar [list $tmpdir/one/a $tmpdir/one/two/a $tmpdir/one/three/a]
+    tar::remove   tmpFile.tar [list $tmpdir/one/two/a]
+    tar::contents tmpFile.tar
+} -cleanup {
+    cleanup1
+    tcltest::removeFile tmpFile.tar
+} -result {tartest/one/a tartest/one/three/a}
 
 test tar-bug-2840180 {Ticket 2840180} -setup {
     setup2
