@@ -17,13 +17,18 @@ testing {
 }
 
 # Create a zip file zipFileFromEncode.zip for testing.
-# Also define variables fileContent and commentAll for use by tests.
+# Also define variables fileContent, commentAll, fileDate, zipDate,
+# externalZipFile for use by tests.
 
 set fileContent {Greetings from Earth!}
 tcltest::makeDirectory foo
 tcltest::makeDirectory foo/a
 tcltest::makeFile {}   foo/a/x
 tcltest::makeFile $fileContent  foo/a/msg.txt
+set fileDate 1770022800
+file mtime foo/a/msg.txt $fileDate
+# Resolution of dates in zip files is 2s
+set zipDate [expr {([clock seconds] / 2) * 2}]
 set commentAll {This is a zip file created by zipfile::encode for purposes of testing.}
 
 zipfile::encode ::newForTest
@@ -34,6 +39,9 @@ zipfile::encode ::newForTest
 ::newForTest destroy
 
 tcltest::removeDirectory foo
+
+set externalZipFile [file join [file dirname [info script]] zipFileForTests.zip]
+tcltest::testConstraint GotZipFile [file exists $externalZipFile]
 
 # -------------------------------------------------------------------------
 
@@ -284,12 +292,55 @@ test zipfile-encode-encode-6.1 {test file list, method files} -setup {
     foo/a/x
 }]
 
-
+test zipfile-encode-encode-6.2 {test file date, method filetime} -constraints {} -setup {
+} -cleanup {
+    unset -nocomplain adict date
+} -body {
+    zipfile::decode::open zipFileFromEncode.zip
+    set adict [zipfile::decode::archive]
+    set date [zipfile::decode::filetime $adict foo/a/x]
+    zipfile::decode::close
+    set date
+} -result $zipDate
 
+test zipfile-encode-encode-6.3 {test file date, method filetime; zipfile::encode does not preserve datestamps, ticket 1ae6b4775e} -constraints {knownBug} -setup {
+} -cleanup {
+    unset -nocomplain adict date
+} -body {
+    zipfile::decode::open zipFileFromEncode.zip
+    set adict [zipfile::decode::archive]
+    set date [zipfile::decode::filetime $adict foo/a/msg.txt]
+    zipfile::decode::close
+    set date
+} -result $fileDate
+
+test zipfile-encode-encode-6.4 {test file date, method filetime, precalculated zip 1} -constraints {GotZipFile} -setup {
+} -cleanup {
+    unset -nocomplain adict date
+} -body {
+    zipfile::decode::open $externalZipFile
+    set adict [zipfile::decode::archive]
+    set date [zipfile::decode::filetime $adict foo/a/x]
+    zipfile::decode::close
+    set date
+} -result 1772991348
+
+test zipfile-encode-encode-6.5 {test file date, method filetime, precalculated zip 2} -constraints {GotZipFile} -setup {
+} -cleanup {
+    unset -nocomplain adict date
+} -body {
+    zipfile::decode::open $externalZipFile
+    set adict [zipfile::decode::archive]
+    set date [zipfile::decode::filetime $adict foo/a/msg.txt]
+    zipfile::decode::close
+    set date
+} -result 1770022800
+
+
 # -------------------------------------------------------------------------
 
-unset -nocomplain fileContent commentAll
 tcltest::removeFile zipFileFromEncode.zip
+unset -nocomplain fileContent commentAll fileDate zipDate externalZipFile
 
 testsuiteCleanup
 

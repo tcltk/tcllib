@@ -64,6 +64,24 @@ test zipfile-mkzip-mkzip-3.1 {mkzip, tkt d6427645ad, with base directory} -setup
     foo/a/x
 }]
 
+test zipfile-mkzip-mkzip-3.2 {mkzip, file date} -setup {
+    tcltest::makeDirectory foo
+    tcltest::makeDirectory foo/a
+    tcltest::makeFile {}   foo/a/x
+    file mtime foo/a/x 1770022800
+} -cleanup {
+    tcltest::removeDirectory foo
+    file delete foo.zip
+    unset -nocomplain adict date
+} -body {
+    zipfile::mkzip::mkzip foo.zip -prepend-base-directory -directory foo
+    zipfile::decode::open foo.zip
+    set adict [zipfile::decode::archive]
+    set date [zipfile::decode::filetime $adict foo/a/x]
+    zipfile::decode::close
+    set date
+} -result 1770022800
+
 # -------------------------------------------------------------------------
 
 testsuiteCleanup
