@@ -383,5 +383,5 @@ snit::type            ::zipfile::encode {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::encode 0.5.1
+package provide zipfile::encode 0.5.2
 return
