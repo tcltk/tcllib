@@ -47,13 +47,23 @@ All the files have to be in the format specified by magic(5).
 The result of the command is a Tcl script containing the generated
 recognizer.
 
-[call [cmd ::fileutil::magic::cfront::procdef] [arg procname] [arg path]...]
+[call [cmd ::fileutil::magic::cfront::generate] [opt "[arg compressed]
+        [const boolean]"]  --  [arg path]...]
 
 This command behaves like [cmd ::fileutil::magic::cfront::compile]
 with regard to the specified path arguments, then wraps the resulting
-recognizer script into a procedure named [arg procname], puts code
-setting up the namespace of [arg procname] in front, and returns the
-resulting script.
+recognizer script into a variable named [const named] and a procedure
+named [const analyzer], and returns the resulting script.
+
+[para]
+
+Argument [arg compressed] defaults to [const boolean] [const true],
+meaning that whitespace is minimised in the script that the command
+returns.
+
+[para]
+
+The argument [arg --] is always required.
 
 [call [cmd ::fileutil::magic::cfront::install] [arg path]...]
 
