@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.3.2]
+[vset VERSION 1.3.3]
 [manpage_begin fileutil::magic::cfront n [vset VERSION]]
 [see_also file(1)]
 [see_also fileutil]
@@ -67,15 +67,11 @@ The argument [arg --] is always required.
 
 [call [cmd ::fileutil::magic::cfront::install] [arg path]...]
 
-This command uses [cmd ::fileutil::magic::cfront::procdef] to compile
-each of the paths into a recognizer procedure and installs the result
-in the current interpreter.
-
-[para]
-
-The name of each new procedure is derived from the name of the
-file/directory used in its creation, with file/directory [file FOO]
-causing the creation of procedure [const ::fileutil::magic::/FOO::run].
+This command behaves like [cmd ::fileutil::magic::cfront::compile]
+with regard to the specified path arguments.  It uses
+[cmd ::fileutil::magic::cfront::generate] to compile a recognizer
+script, and evaluates this script in the current interpreter so that
+it will be used by command [cmd ::fileutil::magic::filetype].
 
 [list_end]
 

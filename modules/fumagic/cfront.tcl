@@ -26,13 +26,14 @@
 package require Tcl 8.5 9
 
 # file to compile the magic file from magic(5) into a tcl program
-package require fileutil              ; # File processing (input)
-package require fileutil::magic::cgen ; # Code generator.
-package require fileutil::magic::rt   ; # Runtime (typemap)
-package require struct::list          ; # lrepeat.
-package require struct::tree          ; #
+package require fileutil                  ; # File processing (input)
+package require fileutil::magic::cgen     ; # Code generator.
+package require fileutil::magic::rt       ; # Runtime (typemap)
+package require struct::list              ; # lrepeat.
+package require struct::tree              ; #
+package require fileutil::magic::filetype ; # Needed by proc install
 
-package provide fileutil::magic::cfront 1.3.2
+package provide fileutil::magic::cfront 1.3.3
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -222,12 +223,17 @@ proc ::fileutil::magic::cfront::generate args {
     return $script 
 }
 
+# ----------------------------------------------------------------------
+# Package fileutil::magic::filetype is loaded above.
+# This command overwrites:
+# - variable ::fileutil::magic::filetype::named
+# - command  ;:fileutil::magic::filetype::analyze
+# so that command ::fileutil::magic::filetype uses these new values.
+# ----------------------------------------------------------------------
 
 proc ::fileutil::magic::cfront::install args {
-    foreach arg $args {
-	set path [file tail $arg]
-	eval [generate compressed 1 -- ::fileutil::magic::/$path $arg]
-    }
+    set script [generate compressed 0 -- {*}$args]
+    namespace eval ::fileutil::magic::filetype $script
     return
 }
 
