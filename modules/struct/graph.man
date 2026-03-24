@@ -273,104 +273,113 @@ Returns the weight associated with the [arg arc].
 If the [arg arc] doesn’t exist or if it has no weight, an error is
 thrown.
 
-[call [arg aGraph] [method {arc keys}] [arg arc] [opt [arg pattern]]]
+[call [arg aGraph] [method {arc keys}] [arg arc] [opt [arg glob]]]
 
 Returns a list of keys for the [arg arc].
 
-If the [arg pattern] is specified only the attributes whose names
-match the pattern will be part of the returned list. The pattern is a
-[cmd glob] pattern.
+[para]
+If [arg glob] is specified only the attributes whose names match the
+glob will be part of the returned list.
 
 [call [arg aGraph] [method {arc keyexists}] [arg arc] [arg key]]
 
-Return true if the specified [arg key] exists for the [arg arc].
+Returns [const 1] (true) if the [arg arc] has the specified [arg key];
+otherwise returns [const 0] (false).
 
 [call [arg aGraph] [method {arc insert}] [arg start] [arg end] [opt [arg child]]]
 
-Insert an arc named [arg child] into the graph beginning at the node
-[arg start] and ending at the node [arg end]. If the name of the new
-arc is not specified the system will generate a unique name of the
-form [emph arc][arg x].
+Inserts an arc into the graph beginning at the [arg start] node and
+ending at the [arg end] node. The new arc’s name is [arg child] if
+specified; otherwise a unique system-generated name of form
+[emph arc][arg x] is used.
 
 [call [arg aGraph] [method {arc lappend}] [arg arc] [arg key] [arg value]]
 
-Appends a [arg value] (as a list) to one of the keyed values
-associated with an [arg arc]. Returns the new value given to the
-attribute [arg key].
+Appends the given [arg value] (as a list) to the value associated with
+the [arg arc]’s [arg key] and returns the [arg arc]’s [arg key]’s new
+value.
 
 [call [arg aGraph] [method {arc rename}] [arg arc] [arg newname]]
 
-Renames the arc [arg arc] to [arg newname]. An error is thrown if
-either the arc does not exist, or a arc with name [arg newname] does
-exist. The result of the command is the new name of the arc.
+Renames the [arg arc] to [arg newname] and returns [arg newname].
+
+[para]
+Thows an error if the given [arg arc] does not exist, or if an arc
+called [arg newname] already exists.
 
 [call [arg aGraph] [method {arc set}] [arg arc] [arg key] [opt [arg value]]]
 
-Set or get one of the keyed values associated with an arc.
+Get or set the value of the given [arg arc]’s associated [arg key].
 
-An arc may have any number of keyed values associated with it.
-If [arg value] is not specified, this command returns the current value assigned to the key;
-if [arg value] is specified, this command assigns that value to the key, and returns
-that value.
+[para]
+If [arg value] [emph {is not}] specified, the value of the given
+[arg arc]’s associated [arg key] is returned. If a [arg value]
+[emph is] specified, then the [arg value] is assigned to the given
+[arg key], and the value of the given [arg arc]’s associated [arg key]
+is returned.
+
+[para]
+An arc may have any number of key-value pairs associated with it.
 
 [call [arg aGraph] [method {arc setunweighted}] [opt [arg weight]]]
 
-Sets the weight of all arcs without a weight to [arg weight]. Returns
-the empty string as its result. If not present [arg weight] defaults
-to [const 0].
+Sets the weight of all arcs without a weight to [arg weight]. If no
+[arg weight] is specified it defaults to [const 0]. Returns the empty
+string.
 
 [call [arg aGraph] [method {arc setweight}] [arg arc] [arg weight]]
 
-Sets the weight of the [arg arc] to [arg weight]. Returns [arg weight].
+Sets the weight of the [arg arc] to [arg weight] and returns [arg weight].
 
 [call [arg aGraph] [method {arc unsetweight}] [arg arc]]
 
-Removes the weight of the [arg arc], if present. Does nothing
-otherwise. Returns the empty string.
+Removes the weight of the [arg arc], if present; otherwise does nothing.
+Returns the empty string.
 
 [call [arg aGraph] [method {arc hasweight}] [arg arc]]
 
-Determines if the [arg arc] has a weight associated with it.  The
-result is a boolean value, [const True] if a weight is defined, and
-[const False] otherwise.
+Returns [const 1] (true) if the [arg arc] has a weight; otherwise
+returns [const 0] (false).
 
 [call [arg aGraph] [method {arc source}] [arg arc]]
 
-Return the node the given [arg arc] begins at.
+Returns the node the given [arg arc] begins at.
 
 [call [arg aGraph] [method {arc target}] [arg arc]]
 
-Return the node the given [arg arc] ends at.
+Returns the node the given [arg arc] ends at.
 
 [call [arg aGraph] [method {arc nodes}] [arg arc]]
 
-Return the nodes the given [arg arc] begins and ends at,
-as a two-element list.
+Returns a two-element list of the nodes the given [arg arc] begins and
+ends at.
 
 [call [arg aGraph] [method {arc move-source}] [arg arc] [arg newsource]]
 
-Changes the source node of the arc to [arg newsource]. It can be said
-that the arc rotates around its target node.
+Changes the [arg arc]’s source node to [arg newsource]. This can be
+described as rotating the arc around its target node.
 
 [call [arg aGraph] [method {arc move-target}] [arg arc] [arg newtarget]]
 
-Changes the target node of the arc to [arg newtarget]. It can be said
-that the arc rotates around its source node.
+Changes the [arg arc]’s target node to [arg newtarget]. This can be
+described as rotating the arc around its source node.
 
 [call [arg aGraph] [method {arc move}] [arg arc] [arg newsource] [arg newtarget]]
 
-Changes both source and target nodes of the arc to [arg newsource],
-and [arg newtarget] resp.
+Changes the [arg arc]’s source and target nodes to [arg newsource]
+and [arg newtarget] respectively.
 
 [call [arg aGraph] [method {arc unset}] [arg arc] [arg key]]
 
-Remove a keyed value from the arc [arg arc]. The method will do
-nothing if the [arg key] does not exist.
+Removes the [arg arc]’s [arg key] and its corresponding value. Silently
+does nothing if the [arg key] doesn’t exist.
 
 [call [arg aGraph] [method {arc weights}]]
 
-Returns a dictionary whose keys are the names of all arcs which have a
-weight associated with them, and the values are these weights.
+Returns a [type dict] where each key is the name of an arc which has a
+weight and each corresponding value is that arc’s weight.
+
+[comment TODO]
 
 [call [arg aGraph] [method arcs] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-filter [arg cmdprefix]"] [opt "-in|-out|-adj|-inner|-embedding [arg {node node...}]"]]
 
