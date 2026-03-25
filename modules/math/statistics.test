@@ -256,13 +256,24 @@ test "Limits-2.1" "Limits - based on min/max" -match tolerant -body {
   set values [::math::statistics::minmax-histogram-limits -2.0 2.0 2]
 } -result {-2.0 2.0}
 
+
+# - linear-model
+
+test "linear-model-1.1" "Linear model 1" -setup {
+  set x {0.471879494 0.728760378 0.367830807 0.61828918 0.489196527 0.917088418 0.968941501 0.423200725 0.987511476 0.583237722 0.757929926 0.480875506 0.619316266 0.5936312 0.468497921 0.726142026 0.346356636 0.16034445 0.734479481 0.165877529 0.676545099}
+  set y {0.641566349 0.64989831 0.352843078 0.628259922 0.086219655 0.918209315 1.012767099 0.423609071 0.651334843 0.575540881 0.487839245 0.459034775 0.679854928 0.381313691 0.430965814 0.45235075 0.350328068 0.176799222 0.486165879 0.325428968 0.551472929}
+} -body {
+  lassign [::math::statistics::linear-model $x $y] intercept slope - Rsqr ndf SEintercept - SEslope tval
+  return $tval
+} -result {4.9664402813223445}
+
+
 #
 # To do: design test cases for the following functions:
 # - t-test-mean
 # - estimate-mean-stdev
 # - autocorr
 # - crosscorr
-# - linear-model
 # - linear-residuals
 # - pdf-*
 # - cdf-*

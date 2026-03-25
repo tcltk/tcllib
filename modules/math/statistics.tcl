@@ -1073,10 +1073,10 @@ proc ::math::statistics::linear-model { xdata ydata {intercept 1} } {
       set tA    {}
       set tB    {}
       if { $seA != 0.0 } {
-         set tA    [expr {$A/$seA*sqrt($df-2)}]
+         set tA    [expr {$A/$seA}]
       }
       if { $seB != 0.0 } {
-         set tB    [expr {$B/$seB*sqrt($df-2)}]
+         set tB    [expr {$B/$seB}]
       }
    } else {
       set R2    [expr {$sumxy*$sumxy/($sumx2*$sumy2)}]
@@ -1085,7 +1085,7 @@ proc ::math::statistics::linear-model { xdata ydata {intercept 1} } {
       set tB    {}
       set seB   [expr {sqrt($varY/$sumx2)}]
       if { $seB != 0.0 } {
-         set tB    [expr {$B/$seB*sqrt($df-1)}]
+         set tB    [expr {$B/$seB}]
       }
    }
 
