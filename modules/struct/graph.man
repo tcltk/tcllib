@@ -491,33 +491,32 @@ reached, whichever comes first.
 
 [call [arg aGraph] [method lappend] [arg key] [arg value]]
 
-Appends a [arg value] (as a list) to one of the keyed values
-associated with the graph. Returns the new value given to the
-attribute [arg key].
-
-[comment TODO########]
+Appends the [arg value] (as a list) to the graph attribute with the
+given [arg key], and returns the attribute with the [arg key]’s new
+value.
 
 [call [arg aGraph] [method {node append}] [arg node] [arg key] [arg value]]
 
-Appends a [arg value] to one of the keyed values associated with an
-[arg node]. Returns the new value given to the attribute [arg key].
+Appends the [arg value] to the [arg node]’s attribute with the
+given [arg key], and returns the attribute with the [arg key]’s new
+value.
 
 [call [arg aGraph] [method {node attr}] [arg key]]
 [call [arg aGraph] [method {node attr}] [arg key] [option -nodes] [arg list]]
 [call [arg aGraph] [method {node attr}] [arg key] [option -glob] [arg globpattern]]
 [call [arg aGraph] [method {node attr}] [arg key] [option -regexp] [arg repattern]]
 
-This method retrieves the value of the attribute named [arg key], for
-all nodes in the graph (matching the constraint specified via one of
-the possible options) and having the specified attribute.
+Returns a [type dict] whose keys are node names and whose corresponding
+values are those of the nodes’ attribute values associated with the
+given [arg key].
 
 [para]
-
-The result is a dictionary mapping from node names to the value of
-attribute [arg key] at that node.
-
-Nodes not having the attribute [arg key], or not passing a
-specified constraint, are not listed in the result.
+The returned [type dict] will include all the graph’s nodes that have
+the given [arg key] [emph or] if an optional constraint is specified,
+the subset of those nodes which match the given constraint. This means
+that any nodes which do [emph not] have the given [arg key] or which do
+[emph not] satisfy the constraint (if given) will not be included in the
+returned [type dict].
 
 [para]
 
@@ -526,68 +525,85 @@ The possible constraints are:
 [list_begin options]
 [opt_def -nodes]
 
-The value is a list of nodes. Only the nodes mentioned in this list
-are searched for the attribute.
+Only the graph’s nodes that are in the given [arg list] and have the
+specified [arg key], will be included in the results [type dict].
 
 [opt_def -glob]
 
-The value is a glob pattern. Only the nodes in the graph whose names
-match this pattern are searched for the attribute.
+Only the graph’s nodes whose names match the given [arg globpattern]
+glob pattern and have the specified [arg key], will be included in the
+results [type dict].
 
 [opt_def -regexp]
 
-The value is a regular expression. Only the nodes in the graph whose
-names match this pattern are searched for the attribute.
+Only the graph’s nodes whose names match the given [arg repattern]
+regular expression and have the specified [arg key], will be included in
+the results [type dict].
 
 [list_end]
 [para]
 
 [call [arg aGraph] [method {node degree}] [opt -in|-out] [arg node]]
 
-Return the number of arcs adjacent to the specified [arg node]. If one
-of the constraints [option -in] or [option -out] is given only the
-incoming resp. outgoing arcs are counted.
+Returns the number of arcs adjacent to the specified [arg node].
+
+[para]
+If the [option -in] constraint is specified, only the incoming arcs are
+counted; if the [option -out] constraint is specified, only the outgoing
+arcs are counted. If neither constraint is specified, then all incoming
+and outgoing arcs are counted.
 
 [call [arg aGraph] [method {node delete}] [arg node] [opt "[arg node]..."]]
 
-Remove the specified nodes from the graph.  All of the nodes' arcs
-will be removed as well to prevent unconnected arcs.
+Deletes the specified nodes from the graph, [emph {and also}] deletes all
+the nodes’ arcs (to prevent unconnected arcs).
 
 [call [arg aGraph] [method {node exists}] [arg node]]
 
-Return true if the specified [arg node] exists in the graph.
+Returns [const 1] (true) if the specified [arg node] exists in the
+graph; otherwise returns [const 0] (false).
 
 [call [arg aGraph] [method {node get}] [arg node] [arg key]]
 
-Return the value associated with the key [arg key] for the [arg node].
+Returns the value associated with the [arg node]’s [arg key].
 
-[call [arg aGraph] [method {node getall}] [arg node] [opt [arg pattern]]]
+[para]
+Throws an error if the [arg node] does not have the given [arg key].
 
-Returns a dictionary (suitable for use with [lb][cmd {array set}][rb])
-for the [arg node].
+[call [arg aGraph] [method {node getall}] [arg node] [opt [arg glob]]]
 
-If the [arg pattern] is specified only the attributes whose names
-match the pattern will be part of the returned dictionary. The pattern
-is a [cmd glob] pattern.
+Returns a [type dict] (suitable for use with [lb][cmd {array set}][rb])
+for the [arg node]. The [type dict]’s keys are attribute names (i.e.,
+their keys) and the values are the corresponding attribute values.
 
-[call [arg aGraph] [method {node keys}] [arg node] [opt [arg pattern]]]
+[para]
+If [arg glob] is specified, only the attributes whose names (i.e., keys)
+match this glob pattern, will included in the returned dictionary.
 
-Returns a list of keys for the [arg node].
+[call [arg aGraph] [method {node keys}] [arg node] [opt [arg glob]]]
 
-If the [arg pattern] is specified only the attributes whose names
-match the pattern will be part of the returned list. The pattern is a
-[cmd glob] pattern.
+Returns a list of the [arg node]’s attribute keys.
+
+[para]
+If [arg glob] is specified, only the attributes whose names (i.e., keys)
+match this glob pattern, will included in the returned list.
 
 [call [arg aGraph] [method {node keyexists}] [arg node] [arg key]]
 
-Return true if the specified [arg key] exists for the [arg node].
+Returns [const 1] (true) if the [arg node] has the specified [arg key];
+otherwise returns [const 0] (false).
 
 [call [arg aGraph] [method {node insert}] [opt [arg node]...]]
 
-Insert one or more nodes into the graph. The new nodes have no arcs
-connected to them. If no node is specified one node will be inserted,
-and the system will generate a unique name of the form
-[emph node][arg x] for it.
+Inserts one or more nodes into the graph, and returns a list of the
+inserted nodes. These new nodes are not connected to any arcs.
+
+[para]
+If no node is specified, a single new node will be inserted and
+returned. The new node will have a unique name generated by the system
+and having the form [emph node][arg x].
+
+[comment TODO##################]
 
 [call [arg aGraph] [method {node lappend}] [arg node] [arg key] [arg value]]
 
