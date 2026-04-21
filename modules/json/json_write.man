@@ -107,6 +107,15 @@ This is a convenience variant of [method object]. It assumes that all
 [arg value] arguments are plain strings and formats them as JSON
 strings before passing them into the [method object].
 
+[call [cmd ::json::write] [method bool] [arg b]]
+
+This method takes the bool [arg b] and returns it as a JSON boolean result.
+
+[call [cmd ::json::write] [method string-null] [arg s]]
+
+This method takes the optional string [arg s] and returns a JSON null, if the string is empty or not given.
+Otherwise, it returns the given string in JSON format.
+
 [list_end]
 [para]
 

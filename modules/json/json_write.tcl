@@ -15,7 +15,7 @@ package require Tcl 8.5 9
 namespace eval ::json::write {
     namespace export \
 	string array array-strings object object-strings indented aligned\
-	usetdom
+		usetdom bool string-null
 
     namespace ensemble create
 }
@@ -59,6 +59,14 @@ proc ::json::write::aligned {{bool {}}} {
     return $aligned
 }
 
+proc ::json::write::bool {b} {
+    if {$b} {
+	return "true"
+    } else {
+	return "false"
+    }
+}
+
 proc ::json::write::string {s} {
     variable quotes
     variable useTDOM
@@ -68,6 +76,13 @@ proc ::json::write::string {s} {
 	set res [::string map $quotes $s]
     }
 	return "\"$res\""
+}
+
+proc ::json::write::string-null {{s ""}} {
+    if {$s eq ""} {
+	return "null"
+    }
+    return [::json::write::string $s]
 }
 
 proc ::json::write::array {args} {

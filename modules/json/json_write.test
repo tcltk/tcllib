@@ -81,7 +81,6 @@ proc gen2 {serial} {
 }
 
 set lusetdom {0}
-lappend auto_path {C:\oehhar\elmicron\projekte\el1093_common\ilib_winx64\tdom}
 if {0 == [catch {json::write usetdom 1}]} {
 	lappend lusetdom 1
 }
@@ -240,8 +239,6 @@ test json-write-3.3.$usetdom {!indented, !aligned, object-string under the hood}
     gen2 $data
 } -result {{"grammar":{"rules":{"A":{"is":"/ {t +} {t -}","mode":"value"},"D":{"is":"/ {t 0} {t 1} ","mode":"value"},"E":{"is":"/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}","mode":"value"},"F":{"is":"x {n T} {* {x {n A} {n T}}}","mode":"value"},"M":{"is":"/ {t *} {t /}","mode":"value"},"N":{"is":"x {? {n S}} {+ {n D}}","mode":"value"},"S":{"is":"/ {t +} {t -}","mode":"value"},"T":{"is":"n N","mode":"value"}},"start":"n Expression"}}}
 
-# -------------------------------------------------------------------------
-
 test json-write-4.0.$usetdom {string quoting} -body {
     set res [json::write string "a\"b\\c\bd\fe\nf\rg\th\0i\1j\2k\3l\177m"]
     # TDOM does not escape the BS control code (\x7F).
@@ -251,8 +248,6 @@ test json-write-4.0.$usetdom {string quoting} -body {
     }
     set res
 } -result "\"a\\\"b\\\\c\\bd\\fe\\nf\\rg\\th\\u0000i\\u0001j\\u0002k\\u0003l\\u007fm\""
-
-# -------------------------------------------------------------------------
 
 test json-write-5.0.$usetdom {array} -body {
     json::write array [json::write string a] [json::write string b]
@@ -264,6 +259,28 @@ test json-write-5.1.$usetdom {array-strings} -body {
 
 # loop over tdom usage
 }
+
+# -------------------------------------------------------------------------
+
+test json-write-6.0 {true output} -body {
+    json::write bool on
+} -result {true}
+
+test json-write-6.1 {false output} -body {
+    json::write bool off
+} -result {false}
+
+test json-write-6.2 {string-null null output} -body {
+    json::write string-null ""
+} -result {null}
+
+test json-write-6.3 {string-null string output} -body {
+    json::write string-null "ABC"
+} -result {"ABC"}
+
+test json-write-6.2 {string-null default} -body {
+    json::write string-null
+} -result {null}
 
 # -------------------------------------------------------------------------
 unset data
