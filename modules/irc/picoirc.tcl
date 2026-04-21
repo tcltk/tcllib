@@ -88,7 +88,7 @@ proc ::picoirc::connect {callback nick args} {
     return $context
 }
 
-proc picoirc::Pop {varname {nth 0}} {
+proc ::picoirc::Pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -444,7 +444,7 @@ proc ::picoirc::Send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.14.0
+package provide picoirc 0.14.1
 
 # -------------------------------------------------------------------------
 return
