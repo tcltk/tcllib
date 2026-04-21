@@ -242,11 +242,14 @@ test json-write-3.3.$usetdom {!indented, !aligned, object-string under the hood}
 
 # -------------------------------------------------------------------------
 
-# This currently failes for tdom, as \177 (=\x7f) is not escaped.
-# The test output shows "\7F". The real output is the unescaped value.
-
 test json-write-4.0.$usetdom {string quoting} -body {
-    json::write string "a\"b\\c\bd\fe\nf\rg\th\0i\1j\2k\3l\177m"
+    set res [json::write string "a\"b\\c\bd\fe\nf\rg\th\0i\1j\2k\3l\177m"]
+    # TDOM does not escape the BS control code (\x7F).
+    # So correct this in the output
+    if {$usetdom} {
+	set res [string map {\x7f \\u007f} $res]
+    }
+    set res
 } -result "\"a\\\"b\\\\c\\bd\\fe\\nf\\rg\\th\\u0000i\\u0001j\\u0002k\\u0003l\\u007fm\""
 
 # -------------------------------------------------------------------------
