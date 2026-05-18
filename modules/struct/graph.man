@@ -52,6 +52,10 @@ of any number of named [term attributes] which can be associated with a
 graph itself, as well as with any of the graph’s nodes and arcs.
 
 [para]
+See the [package struct::graph::ops] package for commands that implement
+a wide range of common graph algorithms.
+
+[para]
 [emph Note:] The major version of the [package struct::graph] package
 has been changed to version 2, due to backward incompatible changes in
 the module’s API. Users of version 1 are recommended to read the section
