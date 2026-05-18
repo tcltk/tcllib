@@ -1009,6 +1009,9 @@ return; see their documentation for details.
 
 [list_end]
 
+[section Examples]
+[include graph_eg.inc]
+
 [vset CATEGORY {struct :: graph}]
 [include ../common-text/feedback.inc]
 [manpage_end]
