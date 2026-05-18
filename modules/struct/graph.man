@@ -371,8 +371,8 @@ and [arg newtarget] respectively.
 
 [call [arg aGraph] [method {arc unset}] [arg arc] [arg key]]
 
-Removes the [arg arc]’s [arg key] and its corresponding value. Silently
-does nothing if the [arg key] doesn’t exist.
+Removes the [arg arc]’s [arg key] and its corresponding value.
+Does nothing if the [arg key] doesn’t exist.
 
 [call [arg aGraph] [method {arc weights}]]
 
@@ -724,8 +724,10 @@ in the context of the caller and must return a Boolean value, [const 0]
 Returns the value associated with the graph’s [arg key].
 
 [para]
-Throws an error if the graph does not have the given [arg key]. See the
-[method set] method.
+Throws an error if the graph does not have the given [arg key].
+
+[para]
+See the [method set] method.
 
 [call [arg aGraph] [method getall] [opt [arg pattern]]]
 
@@ -751,97 +753,97 @@ match the pattern will be part of the returned list. The pattern is a
 Returns [const 1] (true) if the graph has the specified [arg key];
 otherwise returns [const 0] (false).
 
-[comment "TODO ######################"]
-
 [call [arg aGraph] [method serialize] [opt [arg node]...]]
 
-This method serializes the sub-graph spanned up by the [arg node]s. In
-other words it returns a tcl value completely describing that
-graph. If no nodes are specified the whole graph will be serialized.
-
-This allows, for example, the transfer of graph objects (or parts
-thereof) over arbitrary channels, persistence, etc.
-
-This method is also the basis for both the copy constructor and
-the assignment operator.
+Returns the graph (or a subgraph of the graph) serialized into a single
+Tcl value. The value can be deserialized back into a graph using the
+[method deserialize] method.
 
 [para]
-
-The result of this method has to be semantically identical over all
-implementations of the graph interface. This is what will enable us to
-copy graph data between different implementations of the same
-interface.
+The serialization is of the entire graph, unless one or more [arg node]s
+are specified, in which case only the subgraph spanned by the given
+nodes is serialized.
 
 [para]
-
-The result is a list containing a multiple of three items, plus one!
-In other words, '[lb]llength $serial[rb] % 3 == 1'. Valid values
-include 1, 4, 7, ...
+Since a serialized graph is a Tcl value it can be copied like any Tcl
+string, e.g., sent to a channel, persisted into a file, etc.
 
 [para]
+This method also serves as the basis for the graph’s copy constructor and
+assignment operator.
 
-The last element of the list is a dictionary containing the attributes
+[para]
+Every graph interface’s serialize method’s implementation must produce
+semantically equivalent serialization values so that these values may be
+used interchangeably between implementations.
+
+[para]
+The serialized value is a list of triples, plus a [type dict] at the
+end. This means that [emph {[llength $serial] % 3 == 1}]. Valid values
+include 1, 4, 7, ….
+
+[para]
+The last element of the list is a [type dict] containing the attributes
 associated with the whole graph.
 
-Regarding the other elements; each triple consists of
+[para]
+All the preceding elements are triples, one per node, each consisting of:
 
 [list_begin enumerated]
 [enum]
-The name of the node to be described,
+The node’s name.
 
 [enum]
-A dictionary containing the attributes associated with the node,
+A [type dict] containing the node’s attributes.
 
 [enum]
-And a list describing all the arcs starting at that node.
+A list of all the arcs starting at this node (see below).
 [list_end]
-[para]
 
-The elements of the arc list are lists containing three or four
-elements each, i.e.
+[para]
+Each element of a node’s list of arcs is itself a list of three or four
+elements as follows:
 
 [list_begin enumerated]
 [enum]
-The name of the arc described by the element,
+The arc’s name.
 
 [enum]
+A reference to the arc’s destination node. This reference is the integer
+index of the destination node in the main serialization list. (This
+integer will always be [emph {>= 0}] and
+[emph {< [llength $serial]}] and a multiple of three.)
 
-A reference to the destination node of the arc. This reference is an
-integer number given the index of that node in the main serialization
-list. As that it is greater than or equal to zero, less than the
-length of the serialization, and a multiple of three.
-
-[emph Note:] For internal consistency no arc name may be used twice,
-whether in the same node, or at some other node. This is a global
-consistency requirement for the serialization.
-
-[enum]
-And a dictionary containing the attributes associated with the arc.
+[para]
+[emph Note:] For internal consistency serialization requires that every
+arc name used in a graph must be unique, whether in the same node, or at
+some other node.
 
 [enum]
-The weight associated with the arc. This value is optional. Its
-non-presence means that the arc in question has no weight associated
-with it.
+A [type dict] containing the arc’s attributes.
 
-[para][emph Note:] This information is new, compared to the
-serialization of [package graph] 2.3 and earlier. By making it an
-optional element the new format is maximally compatible with the
-old. This means that any graph not using weights will generate a
-serialization which is still understood by the older graph package. A
-serialization will not be understood any longer by the older packages
-if, and only if the graph it was generated from actually has arcs with
-weights.
+[enum]
+An optional arc weight. If absent it means that this arc has no
+associated weight.
+
+[para]
+[emph Note:] This information is new, compared to the serialization of
+[package graph] 2.3 and earlier. Making arc weights optional in the new
+format preserves some compatibility with the old. In particular, any
+graph that does [emph not] use weights will have a serialization which
+is deserializeable by the older graph package. However, if weights are
+used, older packages will not be able to deserialize.
 
 [list_end]
-[para]
-
-For all attribute dictionaries they keys are the names of the
-attributes, and the values are the values for each name.
 
 [para]
+For all attribute dictionaries, each key is an attribute name and each
+key’s associated value holds the attribute’s value.
 
-[emph Note:] The order of the nodes in the serialization has no
-relevance, nor has the order of the arcs per node.
+[para]
+[emph Note:] The serialization’s order of nodes and of arcs within each
+node has no significance. In other words two semantically equivalent
+graphs could have different serializations.
 
 [example {
     # A possible serialization for the graph structure
@@ -867,69 +869,84 @@ relevance, nor has the order of the arcs per node.
 
 [call [arg aGraph] [method set] [arg key] [opt [arg value]]]
 
-Set or get one of the keyed values associated with a graph. A graph
-may have any number of keyed values associated with it. If [arg value]
-is not specified, this command returns the current value assigned to
-the key; if [arg value] is specified, this command assigns that value
-to the key.
+Get or set the value associated with the given graph [arg key].
+
+[para]
+If no [arg value] is given the value associated with the [arg key] is
+returned. If [arg value] is given, the [arg key] is set to the specified
+[arg value] and the [arg value] is returned.
+
+[para]
+Throws an error if no [arg value] is specified (i.e., when getting) and
+the graph does not have the given [arg key].
+
+[para]
+A graph may have any number of keyed values associated with it. See also
+the [method get] method.
 
 [call [arg aGraph] [method swap] [arg node1] [arg node2]]
 
-Swap the position of [arg node1] and [arg node2] in the graph.
+Swap the positions of [arg node1] and [arg node2] in the graph.
 
 [call [arg aGraph] [method unset] [arg key]]
 
-Remove a keyed value from the graph. The method will do nothing if the
-[arg key] does not exist.
+Removes the graph’s [arg key] and its corresponding value.
+Does nothing if the [arg key] doesn’t exist.
 
 [call [arg aGraph] [method walk] [arg node] \
-	[opt "-order [arg order]"] \
 	[opt "-type [arg type]"] \
+	[opt "-order [arg order]"] \
 	[opt "-dir [arg direction]"] \
 	-command [arg cmd]]
 
 Perform a breadth-first or depth-first walk of the graph starting at
-the node [arg node] going in either the direction of outgoing or
-opposite to the incoming arcs.
+[arg node] and going [const forward] (the direction of outgoing arcs) or
+[const backward] (the opposite direction to the incoming arcs).
 
 [para]
-
-The type of walk, breadth-first or depth-first, is determined by the
-value of [arg type]; [const bfs] indicates breadth-first,
-
-[const dfs] indicates depth-first.  Depth-first is the default.
+If specified, the walk’s type must be [const dfs] (depth-first; the
+default), or [const bfs] breadth-first.
 
 [para]
-
-The order of the walk, pre-order, post-order or both-order is
-determined by the value of [arg order]; [const pre] indicates
-pre-order, [const post] indicates post-order, [const both] indicates
-both-order. Pre-order is the default. Pre-order walking means that a
-node is visited before any of its neighbors (as defined by the
-
-[arg direction], see below). Post-order walking means that a parent is
-visited after any of its neighbors. Both-order walking means that a
-node is visited before [emph and] after any of its neighbors. The
-combination of a breadth-first walk with post- or both-order is illegal.
+If specified, the walk’s order must be [const pre] (pre-order; the
+default), or [const post] (post-order), or [const both].
 
 [para]
-
-The direction of the walk is determined by the value of [arg dir];
-[const backward] indicates the direction opposite to the incoming
-arcs, [const forward] indicates the direction of the outgoing arcs.
+Pre-order means that a node is visited before any of its children (as
+defined by the [arg direction], see below). Post-order means that a
+parent is visited after any of its children. Both-order walking means
+that a node is visited before [emph and] after any of its children. Note
+that the breadth-first type of walk may [emph only] be combined with
+pre-order; only depth-first may be used with pre-order, post-order, or
+both-order.
 
 [para]
+If specified, the walk’s direction must be [const backward] (the
+direction opposite to the incoming arcs), or [const forward] (the
+direction of the outgoing arcs).
 
-As the walk progresses, the command [arg cmd] will be evaluated at
-each node, with the mode of the call ([const enter] or
-[const leave]) and values [arg aGraph] and the name of the current
-node appended. For a pre-order walk, all nodes are [const enter]ed, for a
-post-order all nodes are left. In a both-order walk the first visit of
-a node [const enter]s it, the second visit [const leave]s it.
+[para]
+As the walk progresses, the command [arg cmd] will be evaluated at each
+node and passed three arguments. The arguments are the call’s mode
+([const enter] or [const leave]), the graph itself (i.e., [arg aGraph]),
+and the current node’s name. For a pre-order walk, all nodes are entered
+(mode [const enter] is passed to [arg cmd]); for a post-order all nodes
+are left (mode [const leave] is passed). In a both-order walk the first
+visit to a node is the entry (mode [const enter]), and the second visit
+is the leave (mode [const leave]).
 
 [list_end]
 
 [section {Changes for v2}]
+
+[subsection {Changes for v2.4}]
+
+[para]
+The [method serialize] method’s serialization format changed to account
+for the (optional) use of weights. See the method’s documentation for
+details.
+
+[subsection {Changes for v2.x}]
 The following noteworthy changes have occurred:
 
 [list_begin enumerated]
@@ -939,27 +956,24 @@ The API for accessing attributes and their values has been
 simplified.
 
 [para]
-
 All functionality regarding the default attribute "data" has been
-removed. This default attribute does not exist anymore. All accesses
-to attributes have to specify the name of the attribute in
-question. This backward [emph incompatible] change allowed us to
-simplify the signature of all methods handling attributes.
+removed. This default attribute no longer exists. All accesses to
+attributes must specify the attribute’s name. This backward
+[emph incompatible] change led to simplified signatures for all methods
+involving attributes.
 
 [para]
-
-Especially the flag [option -key] is not required anymore, even more,
-its use is now forbidden. Please read the documentation for the arc
-and node methods [method set], [method get], [method getall],
-
-[method unset], [method append], [method lappend], [method keyexists]
-and [method keys] for a description of the new API's.
+In particular, the flag [option -key] has gone. Please read the
+documentation for the arc and node methods [method get],
+[method getall], [method set], [method unset], [method append],
+[method lappend], [method keyexists], and [method keys], for a
+description of the new APIs.
 
 [enum]
 
 The methods [method keys] and [method getall] now take an optional
-pattern argument and will return only attribute data for keys matching
-this pattern.
+glob pattern argument which if specified will limit the returned
+attribute data to only those keys which match the pattern.
 
 [enum]
 
@@ -968,33 +982,30 @@ methods [method {arc rename}] and [method {node rename}].
 
 [enum]
 
-The structure has been extended with API's for the serialization and
-deserialization of graph objects, and a number of operations based on
-them (graph assignment, copy construction).
+The structure has been extended with APIs for graph serialization and
+deserialization, and a number of operations based on these methods
+(e.g., graph assignment, copy construction).
 
 [para]
-
 Please read the documentation for the methods [method serialize],
 [method deserialize], [method =], and [method -->], and the
 documentation on the construction of graph objects.
 
 [para]
-
-Beyond the copying of whole graph objects these new API's also enable
-the transfer of graph objects over arbitrary channels and for easy
-persistence.
+Serialization and deserialization mean that graphs can be copied like
+any Tcl string, e.g., sent to a channel, persisted into a file, etc.
 
 [enum]
 
-A new method, [method attr], was added to both [method arc] and
-[method node] allowing the query and retrieval of attribute data
-without regard to arc and node relationships.
+Both [method arc]’s and [method node]’s now have an [method attr] method
+which supports access to attribute data regardless of arc and node
+relationships.
 
 [enum]
 
-Both methods [method arcs] and [method nodes] have been extended with
-the ability to select arcs and nodes based on an arbitrary filtering
-criterium.
+Both [method arcs] and [method nodes] have been extended with
+the ability to specify constraints to filter the arcs or nodes they
+return; see their documentation for details.
 
 [list_end]
 
