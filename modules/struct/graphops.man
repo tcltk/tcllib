@@ -54,7 +54,7 @@
 [copyright {2008 (docs) Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2009 Michal Antoniewski <antoniewski.m@gmail.com>}]
 [moddesc   {Tcl Data Structures}]
-[titledesc {Operation for (un)directed graph objects}]
+[titledesc {Operations for directed and undirected graph objects}]
 [category  {Data structures}]
 [require Tcl "8.6 9"]
 [require struct::graph::op [opt [vset VERSION]]]
@@ -64,18 +64,15 @@
 [description]
 [para]
 
-The package described by this document, [package struct::graph::op],
-is a companion to the package [package struct::graph]. It provides a
-series of common operations and algorithms applicable to (un)directed
-graphs.
+This package, [package struct::graph::op], is a companion to the
+[package struct::graph] package. It provides a series of common
+operations and algorithms applicable to directed or undirected graphs.
 
 [para]
-
-Despite being a companion the package is not directly dependent on
-[package struct::graph], only on the API defined by that
-package. I.e. the operations of this package can be applied to any and
-all graph objects which provide the same API as the objects created
-through [package struct::graph].
+The operations provided by this package can be applied to [emph any]
+graph objects which provide the same API as the objects created by
+[package struct::graph]. Therefore this package is not directly
+dependent on [package struct::graph].
 
 [section {Operations}]
 
@@ -83,27 +80,26 @@ through [package struct::graph].
 
 [call [cmd struct::graph::op::toAdjacencyMatrix] [arg g]]
 
-This command takes the graph [arg g] and returns a nested list
-containing the adjacency matrix of [arg g].
+Returns the adjacency matrix for the graph [arg g].
 
 [para]
-
-The elements of the outer list are the rows of the matrix, the inner
-elements are the column values in each row. The matrix has "[var n]+1"
-rows and columns, with the first row and column (index 0) containing
-the name of the node the row/column is for. All other elements are
-boolean values, [const True] if there is an arc between the 2 nodes
-of the respective row and column, and [const False] otherwise.
+The elements of the outer list are the matrix’s rows, the inner elements
+are each row’s column values. The matrix has [emph "[var n]+1"] rows and
+columns, with the first row and column (index 0) containing the name of
+the node the row/column is for. All other elements are Boolean values,
+[const 1] (true) if there is an arc between the two nodes of the
+respective row and column, and [const 0] (false) otherwise.
 
 [para]
+Note that the matrix is symmetric. It does [emph not] represent the
+directionality of the arcs, only their presence (or absence) between
+nodes. It is also unable to represent parallel arcs in [arg g].
 
-Note that the matrix is symmetric. It does not represent the
-directionality of arcs, only their presence between nodes. It is also
-unable to represent parallel arcs in [arg g].
+[comment {TODO #################}]
 
-[call [cmd struct::graph::op::toAdjacencyList] [arg G] [opt [arg options]...]]
+[call [cmd struct::graph::op::toAdjacencyList] [arg g] [opt [arg options]...]]
 
-Procedure creates for input graph [arg G], it's representation as [term "Adjacency List"].
+Procedure creates for input graph [arg g], it's representation as [term "Adjacency List"].
 It handles both directed and undirected graphs (default is undirected).
 It returns dictionary that for each node (key) returns list of nodes adjacent
 to it. When considering weighted version, for each adjacent node there is also
@@ -114,7 +110,7 @@ weight of the edge included.
 [def Arguments:]
 
 [list_begin arguments]
-[arg_def {Graph object} G input]
+[arg_def {Graph object} g input]
 A graph to convert into an [term "Adjacency List"].
 
 [list_end][comment {-- arguments --}]
@@ -123,12 +119,12 @@ A graph to convert into an [term "Adjacency List"].
 [list_begin options]
 [opt_def -directed]
 
-By default [arg G] is operated as if it were an [term {Undirected graph}].
-Using this option tells the command to handle [arg G] as the directed graph it is.
+By default [arg g] is operated as if it were an [term {Undirected graph}].
+Using this option tells the command to handle [arg g] as the directed graph it is.
 
 [opt_def -weights]
 
-By default any weight information the graph [arg G] may have is ignored.
+By default any weight information the graph [arg g] may have is ignored.
 Using this option tells the command to put weight information into the result.
 In that case it is expected that all arcs have a proper weight, and an error
 is thrown if that is not the case.
@@ -352,40 +348,40 @@ This command determines the (un)directed [term diameter] of the graph
 The (un)directed [term diameter] of a graph is the maximal (un)directed
 [term eccentricity] of all nodes in the graph.
 
-[call [cmd struct::graph::op::BellmanFord] [arg G] [arg startnode]]
+[call [cmd struct::graph::op::BellmanFord] [arg g] [arg startnode]]
 
-Searching for [sectref {Shortest Path Problem} "shortests paths"] between chosen node and all other nodes in graph [arg G]. Based
+Searching for [sectref {Shortest Path Problem} "shortests paths"] between chosen node and all other nodes in graph [arg g]. Based
 on relaxation method. In comparison to [cmd struct::graph::op::dijkstra] it doesn't need assumption that all weights
-on edges in input graph [arg G] have to be positive.
+on edges in input graph [arg g] have to be positive.
 
 [para]
 
 That generality sets the complexity of algorithm to - [term O(V*E)], where [term V] is the number of vertices
-and [term E] is number of edges in graph [arg G].
+and [term E] is number of edges in graph [arg g].
 
 [para]
 [list_begin definitions]
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph object} G input]
-Directed, connected and edge weighted graph [arg G], without any negative cycles ( presence of cycles with the negative sum
+[arg_def {Graph object} g input]
+Directed, connected and edge weighted graph [arg g], without any negative cycles ( presence of cycles with the negative sum
 of weight means that there is no shortest path, since the total weight becomes lower each time the cycle is
 traversed ). Negative weights on edges are allowed.
 
 [arg_def {Node} startnode input]
-The node for which we find all shortest paths to each other node in graph [arg G].
+The node for which we find all shortest paths to each other node in graph [arg g].
 [list_end][comment {-- arguments --}]
 
 [def Result:]
-Dictionary containing for each node (key) distances to each other node in graph [arg G].
+Dictionary containing for each node (key) distances to each other node in graph [arg g].
 [list_end][comment {-- definitions --}]
 
 [para]
 
 [emph Note:] If algorithm finds a negative cycle, it will return error message.
 
-[call [cmd struct::graph::op::Johnsons] [arg G] [opt [arg options]...]]
+[call [cmd struct::graph::op::Johnsons] [arg g] [opt [arg options]...]]
 
 Searching for [sectref {Shortest Path Problem} "shortest paths"] between all pairs of vertices in graph. For sparse graphs
 asymptotically quicker than [cmd struct::graph::op::FloydWarshall] algorithm. Johnson's algorithm
@@ -394,7 +390,7 @@ uses [cmd struct::graph::op::BellmanFord] and [cmd struct::graph::op::dijkstra] 
 [para]
 
 Time complexity: [term "O(n**2*log(n) +n*m)"], where [term n] is the number of nodes and [term m] is
-the number of edges in graph [arg G].
+the number of edges in graph [arg g].
 
 [para]
 
@@ -402,9 +398,9 @@ the number of edges in graph [arg G].
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph object} G input]
+[arg_def {Graph object} g input]
 
-Directed graph [arg G], weighted on edges and not containing
+Directed graph [arg g], weighted on edges and not containing
 any cycles with negative sum of weights ( the presence of such cycles means
 there is no shortest path, since the total weight becomes lower each time the
 cycle is traversed ). Negative weights on edges are allowed.
@@ -426,7 +422,7 @@ Dictionary containing distances between all pairs of vertices.
 
 [list_end][comment {-- definitions --}]
 
-[call [cmd struct::graph::op::FloydWarshall] [arg G]]
+[call [cmd struct::graph::op::FloydWarshall] [arg g]]
 
 Searching for [sectref {Shortest Path Problem} "shortest paths"] between all pairs of edges in weighted graphs.[para]
 Time complexity: [term O(V^3)] - where [term V] is number of vertices.[para]
@@ -438,9 +434,9 @@ Memory complexity: [term O(V^2)].
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph object} G input]
+[arg_def {Graph object} g input]
 
-Directed and weighted graph [arg G].
+Directed and weighted graph [arg g].
 
 [list_end][comment {-- arguments --}]
 
@@ -457,7 +453,7 @@ On the other hand algorithm can be used to find those cycles - if any shortest d
 found by algorithm for any nodes [term v] and [term u] (when [term v] is the same node as [term u]) is negative,
 that node surely belong to at least one negative cycle.
 
-[call [cmd struct::graph::op::MetricTravellingSalesman] [arg G]]
+[call [cmd struct::graph::op::MetricTravellingSalesman] [arg g]]
 
 Algorithm for solving a metric variation of [sectref {Travelling Salesman Problem} "Travelling salesman problem"].
 [term "TSP problem"] is [term NP-Complete], so there is no efficient algorithm to solve it. Greedy methods
@@ -469,8 +465,8 @@ are getting extremely slow, with the increase in the set of nodes.
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph object} G input]
-Undirected, weighted graph [arg G].
+[arg_def {Graph object} g input]
+Undirected, weighted graph [arg g].
 [list_end][comment {-- arguments --}]
 
 [def Result:]
@@ -481,7 +477,7 @@ each exactly one time.
 
 [emph Note:] [sectref {Approximation algorithm} "It's 2-approximation algorithm."]
 
-[call [cmd struct::graph::op::Christofides] [arg G]]
+[call [cmd struct::graph::op::Christofides] [arg g]]
 
 Another algorithm for solving [sectref {Travelling Salesman Problem} "metric [term "TSP problem"]"].
 Christofides implementation uses [term "Max Matching"] for reaching better approximation factor.
@@ -492,9 +488,9 @@ Christofides implementation uses [term "Max Matching"] for reaching better appro
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 
-Undirected, weighted graph [arg G].
+Undirected, weighted graph [arg g].
 
 [list_end][comment {-- arguments --}]
 
@@ -508,10 +504,10 @@ each exactly one time.
 
 [emph Note:] [sectref {Approximation algorithm} "It's is a 3/2 approximation algorithm. "]
 
-[call [cmd struct::graph::op::GreedyMaxMatching] [arg G]]
+[call [cmd struct::graph::op::GreedyMaxMatching] [arg g]]
 
 [term "Greedy Max Matching"] procedure, which finds [sectref {Matching Problem} "maximal matching"] (not maximum)
-for given graph [arg G]. It adds edges to solution, beginning from edges with the
+for given graph [arg g]. It adds edges to solution, beginning from edges with the
 lowest cost.
 
 [para]
@@ -519,18 +515,18 @@ lowest cost.
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 
-Undirected graph [arg G].
+Undirected graph [arg g].
 
 [list_end][comment {-- arguments --}]
 
 [def Result:]
-Set of edges - the max matching for graph [arg G].
+Set of edges - the max matching for graph [arg g].
 
 [list_end][comment {-- definitions --}]
 
-[call [cmd struct::graph::op::MaxCut] [arg G] [arg U] [arg V]]
+[call [cmd struct::graph::op::MaxCut] [arg g] [arg U] [arg V]]
 
 Algorithm solving a [sectref {Cut Problems} "Maximum Cut Problem"].
 
@@ -539,7 +535,7 @@ Algorithm solving a [sectref {Cut Problems} "Maximum Cut Problem"].
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 
 The graph to cut.
 
@@ -560,7 +556,7 @@ Algorithm returns number of edges between found two sets of nodes.
 
 [emph Note:] [term MaxCut] is a [sectref {Approximation algorithm} "2-approximation algorithm."]
 
-[call [cmd struct::graph::op::UnweightedKCenter] [arg G] [arg k]]
+[call [cmd struct::graph::op::UnweightedKCenter] [arg g] [arg k]]
 
 Approximation algorithm that solves a [sectref {K-Center Problem} "k-center problem"].
 
@@ -569,21 +565,21 @@ Approximation algorithm that solves a [sectref {K-Center Problem} "k-center prob
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
-Undirected complete graph [arg G], which satisfies triangle inequality.[para]
+[arg_def {Graph Object} g input]
+Undirected complete graph [arg g], which satisfies triangle inequality.[para]
 [arg_def {Integer} k input]
 Positive integer that sets the number of nodes that will be included in [term "k-center"].
 
 [list_end][comment {-- arguments --}]
 
 [def Result:]
-Set of nodes - [arg k] center for graph [arg G].
+Set of nodes - [arg k] center for graph [arg g].
 
 [list_end][comment {-- definitions --}]
 
 [emph Note:] [term UnweightedKCenter] is a [sectref {Approximation algorithm} "2-approximation algorithm."]
 
-[call [cmd struct::graph::op::WeightedKCenter] [arg G] [arg nodeWeights] [arg W]]
+[call [cmd struct::graph::op::WeightedKCenter] [arg g] [arg nodeWeights] [arg W]]
 
 Approximation algorithm that solves a weighted version of [sectref {K-Center Problem} "k-center problem"].
 
@@ -592,12 +588,12 @@ Approximation algorithm that solves a weighted version of [sectref {K-Center Pro
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
-Undirected complete graph [arg G], which satisfies triangle inequality.
+[arg_def {Graph Object} g input]
+Undirected complete graph [arg g], which satisfies triangle inequality.
 [arg_def {Integer} W input]
 Positive integer that sets the maximum possible weight of [term "k-center"] found by algorithm.
 [arg_def {List} nodeWeights input]
-List of nodes and its weights in graph [arg G].
+List of nodes and its weights in graph [arg g].
 
 [list_end][comment {-- arguments --}]
 
@@ -607,26 +603,26 @@ Set of nodes, which is solution found by algorithm.
 
 [emph Note:][term WeightedKCenter] is a [sectref {Approximation algorithm} "3-approximation algorithm."]
 
-[call [cmd struct::graph::op::GreedyMaxIndependentSet] [arg G]]
+[call [cmd struct::graph::op::GreedyMaxIndependentSet] [arg g]]
 
 A [term "maximal independent set"] is an [term "independent set"] such that adding any other node
 to the set forces the set to contain an edge.
 
 [para]
 
-Algorithm for input graph [arg G] returns set of nodes (list), which are contained in Max Independent
+Algorithm for input graph [arg g] returns set of nodes (list), which are contained in Max Independent
 Set found by algorithm.
 
-[call [cmd struct::graph::op::GreedyWeightedMaxIndependentSet] [arg G] [arg nodeWeights]]
+[call [cmd struct::graph::op::GreedyWeightedMaxIndependentSet] [arg g] [arg nodeWeights]]
 
 Weighted variation of [term "Maximal Independent Set"]. It takes as an input argument
-not only graph [arg G] but also set of weights for all vertices in graph [arg G].
+not only graph [arg g] but also set of weights for all vertices in graph [arg g].
 
 [para]
 [emph Note:]
 Read also [term "Maximal Independent Set"] description for more info.
 
-[call [cmd struct::graph::op::VerticesCover] [arg G]]
+[call [cmd struct::graph::op::VerticesCover] [arg g]]
 
 [term "Vertices cover"] is a set of vertices such that each edge of the graph is incident to
 at least one vertex of the set. This 2-approximation algorithm searches for minimum
@@ -634,24 +630,24 @@ at least one vertex of the set. This 2-approximation algorithm searches for mini
 is a typical example of an [term "NP-hard"] optimization problem that has an approximation
 algorithm.
 
-For input graph [arg G] algorithm returns the set of edges (list), which is Vertex Cover found by algorithm.
+For input graph [arg g] algorithm returns the set of edges (list), which is Vertex Cover found by algorithm.
 
-[call [cmd struct::graph::op::EdmondsKarp] [arg G] [arg s] [arg t]]
+[call [cmd struct::graph::op::EdmondsKarp] [arg g] [arg s] [arg t]]
 
-Improved Ford-Fulkerson's algorithm, computing the [sectref {Flow Problems} "maximum flow"] in given flow network [arg G].
+Improved Ford-Fulkerson's algorithm, computing the [sectref {Flow Problems} "maximum flow"] in given flow network [arg g].
 
 [para]
 [list_begin definitions]
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Weighted and directed graph. Each edge should have set integer attribute considered as
 maximum throughputs that can be carried by that link (edge).
 [arg_def {Node} s input]
-The node that is a source for graph [arg G].
+The node that is a source for graph [arg g].
 [arg_def {Node} t input]
-The node that is a sink for graph [arg G].
+The node that is a sink for graph [arg g].
 [list_end][comment {-- arguments --}]
 
 [def Result:]
@@ -665,7 +661,7 @@ between nodes connected by such edge).
 
 [para]
 
-The general idea of algorithm is finding the shortest augumenting paths in graph [arg G], as long
+The general idea of algorithm is finding the shortest augumenting paths in graph [arg g], as long
 as they exist, and for each path updating the edge's weights along that path,
 with maximum possible throughput. The final (maximum) flow is found
 when there is no other augumenting path from source to sink.
@@ -673,12 +669,12 @@ when there is no other augumenting path from source to sink.
 [para]
 
 [emph Note:] Algorithm complexity : [term O(V*E)], where [term V] is the number of nodes and [term E] is the number
-of edges in graph [term G].
+of edges in graph [term g].
 
-[call [cmd struct::graph::op::BusackerGowen] [arg G] [arg desiredFlow] [arg s] [arg t]]
+[call [cmd struct::graph::op::BusackerGowen] [arg g] [arg desiredFlow] [arg s] [arg t]]
 
 Algorithm finds solution for a [sectref {Flow Problems} "minimum cost flow problem"]. So, the goal is to find a flow,
-whose max value can be [arg desiredFlow], from source node [arg s] to sink node [arg t] in given flow network [arg G].
+whose max value can be [arg desiredFlow], from source node [arg s] to sink node [arg t] in given flow network [arg g].
 That network except throughputs at edges has also defined a non-negative cost on each edge - cost of using that edge when
 directing flow with that edge ( it can illustrate e.g. fuel usage, time or any other measure dependent on usages ).
 
@@ -687,14 +683,14 @@ directing flow with that edge ( it can illustrate e.g. fuel usage, time or any o
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Flow network (directed graph), each edge in graph should have two integer attributes: [term cost] and [term throughput].
 [arg_def {Integer} desiredFlow input]
 Max value of the flow for that network.
 [arg_def {Node} s input]
-The source node for graph [arg G].
+The source node for graph [arg g].
 [arg_def {Node} t input]
-The sink node for graph [arg G].
+The sink node for graph [arg g].
 
 [list_end][comment {-- arguments --}]
 
@@ -704,9 +700,9 @@ found by algorithm.
 
 [list_end][comment {-- definitions --}]
 
-[emph Note:] Algorithm complexity : [term O(V**2*desiredFlow)], where [term V] is the number of nodes in graph [arg G].
+[emph Note:] Algorithm complexity : [term O(V**2*desiredFlow)], where [term V] is the number of nodes in graph [arg g].
 
-[call [cmd struct::graph::op::ShortestsPathsByBFS] [arg G] [arg s] [arg outputFormat]]
+[call [cmd struct::graph::op::ShortestsPathsByBFS] [arg g] [arg s] [arg outputFormat]]
 
 Shortest pathfinding algorithm using BFS method. In comparison to [cmd struct::graph::op::dijkstra] it can
 work with negative weights on edges. Of course negative cycles are not allowed. Algorithm is better than dijkstra
@@ -718,10 +714,10 @@ make time complexity increase exponentially with the growth of the number of nod
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Input graph.
 [arg_def {Node} s input]
-Source node for which all distances to each other node in graph [arg G] are computed.
+Source node for which all distances to each other node in graph [arg g] are computed.
 [list_end][comment {-- arguments --}]
 
 [def "Options and result:"]
@@ -729,7 +725,7 @@ Source node for which all distances to each other node in graph [arg G] are comp
 [opt_def distances]
 
 When selected [arg outputFormat] is [const distances] - procedure returns dictionary containing
-distances between source node [arg s] and each other node in graph [arg G].
+distances between source node [arg s] and each other node in graph [arg g].
 
 [opt_def paths]
 
@@ -740,7 +736,7 @@ for each node [term v], a list of nodes, which is a path between source node [ar
 
 [list_end][comment {-- definitions --}]
 
-[call [cmd struct::graph::op::BFS] [arg G] [arg s] [opt [arg outputFormat]...]]
+[call [cmd struct::graph::op::BFS] [arg g] [arg s] [opt [arg outputFormat]...]]
 
 Breadth-First Search - algorithm creates the BFS Tree.
 Memory and time complexity: [term "O(V + E)"], where [term V] is the number of nodes and [term E]
@@ -751,7 +747,7 @@ is number of edges.
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Input graph.
 [arg_def {Node} s input]
 Source node for BFS procedure.
@@ -774,15 +770,15 @@ which is equivalent to BFS tree found by algorithm.
 
 [list_end][comment {-- definitions --}]
 
-[call [cmd struct::graph::op::MinimumDiameterSpanningTree] [arg G]]
+[call [cmd struct::graph::op::MinimumDiameterSpanningTree] [arg g]]
 
-The goal is to find for input graph [arg G], the [term "spanning tree"] that
+The goal is to find for input graph [arg g], the [term "spanning tree"] that
 has the minimum [term "diameter"] value.
 
 [para]
 
 General idea of algorithm is to run [term BFS] over all vertices in graph
-[arg G]. If the diameter [term d] of the tree is odd, then we are sure that tree
+[arg g]. If the diameter [term d] of the tree is odd, then we are sure that tree
 given by [term BFS] is minimum (considering diameter value). When, diameter [term d]
 is even, then optimal tree can have minimum [term diameter] equal to [term d] or
 [term d-1].
@@ -798,19 +794,19 @@ a better solution.
 
 [para]
 
-For input graph [arg G] algorithm returns the graph structure ([cmd struct::graph]) that is
+For input graph [arg g] algorithm returns the graph structure ([cmd struct::graph]) that is
 a spanning tree with minimum diameter found by algorithm.
 
-[call [cmd struct::graph::op::MinimumDegreeSpanningTree] [arg G]]
+[call [cmd struct::graph::op::MinimumDegreeSpanningTree] [arg g]]
 
-Algorithm finds for input graph [arg G], a spanning tree [term T] with the minimum possible
+Algorithm finds for input graph [arg g], a spanning tree [term T] with the minimum possible
 degree. That problem is [term NP-hard], so algorithm is an approximation algorithm.
 
 [para]
 
-Let [term V] be the set of nodes for graph [arg G] and let [term W] be any subset of [term V]. Lets
+Let [term V] be the set of nodes for graph [arg g] and let [term W] be any subset of [term V]. Lets
 assume also that [term OPT] is optimal solution and [term ALG] is solution found by algorithm for input
-graph [arg G]. [para]
+graph [arg g]. [para]
 It can be proven that solution found with the algorithm must fulfil inequality: [para]  [term "((|W| + k - 1) / |W|) <= ALG <= 2*OPT + log2(n) + 1"].
 
 [para]
@@ -818,7 +814,7 @@ It can be proven that solution found with the algorithm must fulfil inequality: 
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Undirected simple graph.
 
 [list_end][comment {-- arguments --}]
@@ -828,9 +824,9 @@ Algorithm returns graph structure, which is equivalent to spanning tree [term T]
 
 [list_end][comment {-- definitions --}]
 
-[call [cmd struct::graph::op::MaximumFlowByDinic] [arg G] [arg s] [arg t] [arg blockingFlowAlg]]
+[call [cmd struct::graph::op::MaximumFlowByDinic] [arg g] [arg s] [arg t] [arg blockingFlowAlg]]
 
-Algorithm finds [sectref {Flow Problems} "maximum flow"] for the flow network represented by graph [arg G]. It is based on
+Algorithm finds [sectref {Flow Problems} "maximum flow"] for the flow network represented by graph [arg g]. It is based on
 the blocking-flow finding methods, which give us different complexities what makes a better fit for
 different graphs.
 
@@ -839,30 +835,30 @@ different graphs.
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
-Directed graph [arg G] representing the flow network. Each edge should have attribute
+[arg_def {Graph Object} g input]
+Directed graph [arg g] representing the flow network. Each edge should have attribute
 [term throughput] set with integer value.
 
 [arg_def {Node} s input]
-The source node for the flow network [arg G].
+The source node for the flow network [arg g].
 
 [arg_def {Node} t input]
-The sink node for the flow network [arg G].
+The sink node for the flow network [arg g].
 
 [list_end][comment {-- arguments --}]
 
 [def Options:]
 [list_begin options]
 [opt_def dinic]
-Procedure will find maximum flow for flow network [arg G] using Dinic's algorithm ([cmd struct::graph::op::BlockingFlowByDinic])
+Procedure will find maximum flow for flow network [arg g] using Dinic's algorithm ([cmd struct::graph::op::BlockingFlowByDinic])
 for blocking flow computation.
 [opt_def mkm]
-Procedure will find maximum flow for flow network [arg G] using Malhotra, Kumar and Maheshwari's algorithm ([cmd struct::graph::op::BlockingFlowByMKM])
+Procedure will find maximum flow for flow network [arg g] using Malhotra, Kumar and Maheshwari's algorithm ([cmd struct::graph::op::BlockingFlowByMKM])
 for blocking flow computation.
 [list_end][comment {-- options --}]
 
 [def Result:]
-Algorithm returns dictionary containing it's flow value for each edge (key) in network [arg G].
+Algorithm returns dictionary containing it's flow value for each edge (key) in network [arg g].
 
 [list_end][comment {-- definitions --}]
 
@@ -870,65 +866,65 @@ Algorithm returns dictionary containing it's flow value for each edge (key) in n
 
 [emph Note:] [cmd struct::graph::op::BlockingFlowByDinic] gives [term O(m*n^2)] complexity and
 [cmd struct::graph::op::BlockingFlowByMKM] gives [term O(n^3)] complexity, where [term n] is the number of nodes
-and [term m] is the number of edges in flow network [arg G].
+and [term m] is the number of edges in flow network [arg g].
 
-[call [cmd struct::graph::op::BlockingFlowByDinic] [arg G] [arg s] [arg t]]
+[call [cmd struct::graph::op::BlockingFlowByDinic] [arg g] [arg s] [arg t]]
 
-Algorithm for given network [arg G] with source [arg s] and sink [arg t], finds a [sectref {Flow Problems} "blocking
-flow"], which can be used to obtain a [term "maximum flow"] for that network [arg G].
+Algorithm for given network [arg g] with source [arg s] and sink [arg t], finds a [sectref {Flow Problems} "blocking
+flow"], which can be used to obtain a [term "maximum flow"] for that network [arg g].
 
 [para]
 [list_begin definitions]
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
-Directed graph [arg G] representing the flow network. Each edge should have attribute
+[arg_def {Graph Object} g input]
+Directed graph [arg g] representing the flow network. Each edge should have attribute
 [term throughput] set with integer value.
 [arg_def {Node} s input]
-The source node for the flow network [arg G].
+The source node for the flow network [arg g].
 [arg_def {Node} t input]
-The sink node for the flow network [arg G].
+The sink node for the flow network [arg g].
 [list_end][comment {-- arguments --}]
 
 [def Result:]
-Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network [arg G].
+Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network [arg g].
 
 [list_end][comment {-- definitions --}]
 
 [emph Note:] Algorithm's complexity is [term O(n*m)], where [term n] is the number of nodes
-and [term m] is the number of edges in flow network [arg G].
+and [term m] is the number of edges in flow network [arg g].
 
-[call [cmd struct::graph::op::BlockingFlowByMKM] [arg G] [arg s] [arg t]]
+[call [cmd struct::graph::op::BlockingFlowByMKM] [arg g] [arg s] [arg t]]
 
-Algorithm for given network [arg G] with source [arg s] and sink [arg t], finds a [sectref {Flow Problems} "blocking
-flow"], which can be used to obtain a [term "maximum flow"] for that [term network] [arg G].
+Algorithm for given network [arg g] with source [arg s] and sink [arg t], finds a [sectref {Flow Problems} "blocking
+flow"], which can be used to obtain a [term "maximum flow"] for that [term network] [arg g].
 
 [para]
 [list_begin definitions]
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
-Directed graph [arg G] representing the flow network. Each edge should have attribute
+[arg_def {Graph Object} g input]
+Directed graph [arg g] representing the flow network. Each edge should have attribute
 [term throughput] set with integer value.
 [arg_def {Node} s input]
-The source node for the flow network [arg G].
+The source node for the flow network [arg g].
 [arg_def {Node} t input]
-The sink node for the flow network [arg G].
+The sink node for the flow network [arg g].
 
 [list_end][comment {-- arguments --}]
 
 [def Result:]
-Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network [arg G].
+Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network [arg g].
 
 [list_end][comment {-- definitions --}]
 
-[emph Note:] Algorithm's complexity is [term O(n^2)], where [term n] is the number of nodes in flow network [arg G].
+[emph Note:] Algorithm's complexity is [term O(n^2)], where [term n] is the number of nodes in flow network [arg g].
 
-[call [cmd struct::graph::op::createResidualGraph] [arg G] [arg f]]
+[call [cmd struct::graph::op::createResidualGraph] [arg g] [arg f]]
 
-Procedure creates a [term "residual graph"] (or [sectref {Flow Problems} "residual network"] ) for network [arg G] and given
+Procedure creates a [term "residual graph"] (or [sectref {Flow Problems} "residual network"] ) for network [arg g] and given
 flow [arg f].
 
 [para]
@@ -936,22 +932,22 @@ flow [arg f].
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Flow network (directed graph where each edge has set attribute: [term throughput] ).
 
 [arg_def {dictionary} f input]
-Current flows in flow network [arg G].
+Current flows in flow network [arg g].
 
 [list_end][comment {-- arguments --}]
 
 [def Result:]
 Procedure returns graph structure that is a [term "residual graph"] created from input flow
-network [arg G].
+network [arg g].
 [list_end][comment {-- definitions --}]
 
-[call [cmd struct::graph::op::createAugmentingNetwork] [arg G] [arg f] [arg path]]
+[call [cmd struct::graph::op::createAugmentingNetwork] [arg g] [arg f] [arg path]]
 
-Procedure creates an [sectref {Flow Problems} "augmenting network"] for a given residual network [arg G]
+Procedure creates an [sectref {Flow Problems} "augmenting network"] for a given residual network [arg g]
 , flow [arg f] and augmenting path [arg path].
 
 [para]
@@ -959,7 +955,7 @@ Procedure creates an [sectref {Flow Problems} "augmenting network"] for a given 
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Residual network (directed graph), where for every edge there are set two attributes: throughput and cost.
 [arg_def {Dictionary} f input]
 Dictionary which contains for every edge (key), current value of the flow on that edge.
@@ -992,7 +988,7 @@ The source node for the residual network [arg Gf].
 Procedure returns a [term "level graph"] created from input [term "residual network"].
 [list_end][comment {-- definitions --}]
 
-[call [cmd struct::graph::op::TSPLocalSearching] [arg G] [arg C]]
+[call [cmd struct::graph::op::TSPLocalSearching] [arg g] [arg C]]
 
 Algorithm is a [term "heuristic of local searching"] for [term "Travelling Salesman Problem"]. For some
 solution of [term "TSP problem"], it checks if it's possible to find a better solution. As [term "TSP"]
@@ -1003,10 +999,10 @@ is well known NP-Complete problem, so algorithm is a approximation algorithm (wi
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Undirected and complete graph with attributes "weight" set on each single edge.
 [arg_def {List} C input]
-A list of edges being [term "Hamiltonian cycle"], which is solution of [term "TSP Problem"] for graph [arg G].
+A list of edges being [term "Hamiltonian cycle"], which is solution of [term "TSP Problem"] for graph [arg g].
 [list_end][comment {-- arguments --}]
 
 [def Result:]
@@ -1017,7 +1013,7 @@ Algorithm returns the best solution for [term "TSP problem"], it was able to fin
 assures that better solution will be found, but practise shows that we should give starting cycle with as small
 sum of weights as possible.
 
-[call [cmd struct::graph::op::TSPLocalSearching3Approx] [arg G] [arg C]]
+[call [cmd struct::graph::op::TSPLocalSearching3Approx] [arg g] [arg C]]
 
 Algorithm is a [term "heuristic of local searching"] for [term "Travelling Salesman Problem"]. For some
 solution of [term "TSP problem"], it checks if it's possible to find a better solution. As [term "TSP"]
@@ -1029,10 +1025,10 @@ is well known NP-Complete problem, so algorithm is a approximation algorithm (wi
 
 [def Arguments:]
 [list_begin arguments]
-[arg_def {Graph Object} G input]
+[arg_def {Graph Object} g input]
 Undirected and complete graph with attributes "weight" set on each single edge.
 [arg_def {List} C input]
-A list of edges being [term "Hamiltonian cycle"], which is solution of [term "TSP Problem"] for graph [arg G].
+A list of edges being [term "Hamiltonian cycle"], which is solution of [term "TSP Problem"] for graph [arg g].
 [list_end][comment {-- arguments --}]
 
 [def Result:]
@@ -1044,21 +1040,21 @@ Algorithm returns the best solution for [term "TSP problem"], it was able to fin
 worser approximation factor. Further heuristics of local searching (e.g. 4-approximation) doesn't give enough boost to
 square the increase of approximation factor, so 2 and 3 approximations are mainly used.
 
-[call [cmd struct::graph::op::createSquaredGraph] [arg G]]
+[call [cmd struct::graph::op::createSquaredGraph] [arg g]]
 
-X-Squared graph is a graph with the same set of nodes as input graph [arg G], but a different set of edges. X-Squared graph
+X-Squared graph is a graph with the same set of nodes as input graph [arg g], but a different set of edges. X-Squared graph
 has edge [term (u,v)], if and only if, the distance between [term u] and [term v] nodes is not greater than X and [term "u != v"].
 [para]
-Procedure for input graph [arg G], returns its two-squared graph.
+Procedure for input graph [arg g], returns its two-squared graph.
 
 [para]
 
 [emph Note:] Distances used in choosing new set of edges are considering the number of edges, not the sum of weights at edges.
 
-[call [cmd struct::graph::op::createCompleteGraph] [arg G] [arg originalEdges]]
+[call [cmd struct::graph::op::createCompleteGraph] [arg g] [arg originalEdges]]
 
-For input graph [arg G] procedure adds missing arcs to make it a [term "complete graph"]. It also holds in
-variable [arg originalEdges] the set of arcs that graph [arg G] possessed before that operation.
+For input graph [arg g] procedure adds missing arcs to make it a [term "complete graph"]. It also holds in
+variable [arg originalEdges] the set of arcs that graph [arg g] possessed before that operation.
 
 [list_end]
 
@@ -1219,7 +1215,7 @@ as possible to all other locations in town.
 [para]
 [def "[term "Weighted K-Center"]"]
 The variation of [term "unweighted k-center problem"]. Besides the fact graph is edge-weighted,
-there are also weights on vertices of input graph [arg G]. We've got also restriction
+there are also weights on vertices of input graph [arg g]. We've got also restriction
 [arg W]. The goal is to choose such set of nodes [term S] ( which is a subset of [term V] ), that it's
 total weight is not greater than [arg W] and also function: [term "max_v { min_u { cost(u,v) }}"]
 has the smallest possible worth ( [term v] is a node in [term V] and [term u] is a node in [term S] ).
