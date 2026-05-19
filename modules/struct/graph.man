@@ -290,10 +290,11 @@ glob will be part of the returned list.
 Returns [const 1] (true) if the [arg arc] has the specified [arg key];
 otherwise returns [const 0] (false).
 
-[call [arg aGraph] [method {arc insert}] [arg start] [arg end] [opt [arg child]]]
+[call [arg aGraph] [method {arc insert}] [arg start] [arg end] \
+[opt [arg name]]]
 
 Inserts an arc into the graph beginning at the [arg start] node and
-ending at the [arg end] node. The new arc’s name is [arg child] if
+ending at the [arg end] node. The new arc is called [arg name] if
 specified; otherwise a unique system-generated name of form
 [emph arc][arg x] is used.
 
@@ -916,10 +917,10 @@ If specified, the walk’s order must be [const pre] (pre-order; the
 default), or [const post] (post-order), or [const both].
 
 [para]
-Pre-order means that a node is visited before any of its children (as
+Pre-order means that a node is visited before any of its neighbours (as
 defined by the [arg direction], see below). Post-order means that a
-parent is visited after any of its children. Both-order walking means
-that a node is visited before [emph and] after any of its children. Note
+node is visited after any of its neighbours. Both-order walking means
+that a node is visited before [emph and] after any of its neighbours. Note
 that the breadth-first type of walk may [emph only] be combined with
 pre-order; only depth-first may be used with pre-order, post-order, or
 both-order.
