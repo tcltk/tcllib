@@ -95,23 +95,20 @@ Note that the matrix is symmetric. It does [emph not] represent the
 directionality of the arcs, only their presence (or absence) between
 nodes. It is also unable to represent parallel arcs in [arg g].
 
-[comment {TODO #################}]
-
 [call [cmd struct::graph::op::toAdjacencyList] [arg g] [opt [arg options]...]]
 
-Procedure creates for input graph [arg g], it's representation as [term "Adjacency List"].
-It handles both directed and undirected graphs (default is undirected).
-It returns dictionary that for each node (key) returns list of nodes adjacent
-to it. When considering weighted version, for each adjacent node there is also
-weight of the edge included.
+Returns an [term {adjacency list}] for the graph [arg g]. Each list
+element is a [type dict] whose key is a node and whose value is a list
+of the node’s adjacent nodes. If [option -weights] is used each of the
+value list’s elements is itself a two-element list of node and weight.
 
 [para]
 [list_begin definitions]
 [def Arguments:]
 
 [list_begin arguments]
-[arg_def {Graph object} g input]
-A graph to convert into an [term "Adjacency List"].
+[arg_def {Graph object} g]
+A graph to convert into an [term "adjacency list"].
 
 [list_end][comment {-- arguments --}]
 
@@ -119,18 +116,24 @@ A graph to convert into an [term "Adjacency List"].
 [list_begin options]
 [opt_def -directed]
 
-By default [arg g] is operated as if it were an [term {Undirected graph}].
-Using this option tells the command to handle [arg g] as the directed graph it is.
+By default the graph [arg g] is treated as if it were an
+[term {undirected graph}]. Use this option to make the command handle
+[arg g] as a directed graph.
 
 [opt_def -weights]
 
-By default any weight information the graph [arg g] may have is ignored.
-Using this option tells the command to put weight information into the result.
-In that case it is expected that all arcs have a proper weight, and an error
-is thrown if that is not the case.
+By default the graph [arg g]’s weight information (if any) is ignored.
+Use this option to make the command include any weight information in
+the result.
+
+[para]
+Using this option assumes that every arc in graph [arg g] has an
+associated weight; if this is not the case an error will be thrown.
 
 [list_end][comment {-- options --}]
 [list_end][comment {-- definitions --}]
+
+[comment {TODO ##############}]
 
 [call [cmd struct::graph::op::kruskal] [arg g]]
 
