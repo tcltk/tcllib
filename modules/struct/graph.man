@@ -24,8 +24,8 @@
 [para]
 
 A directed graph is a data structure containing two collections of
-elements, [term nodes] and [term arcs] (also called [term edges]),
-along with a relation that connects the nodes and arcs.
+elements, [term nodes] and [term arcs] (also called [term edges]), along
+with a relation that connects the nodes and arcs.
 
 [para]
 Each arc is connected to two nodes, one of which is called the

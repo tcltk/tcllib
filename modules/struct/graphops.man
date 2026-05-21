@@ -133,62 +133,68 @@ associated weight; if this is not the case an error will be thrown.
 [list_end][comment {-- options --}]
 [list_end][comment {-- definitions --}]
 
-[comment {TODO ##############}]
-
 [call [cmd struct::graph::op::kruskal] [arg g]]
 
-This command takes the graph [arg g] and returns a list containing the
-names of the arcs in [arg g] which span up a minimum weight spanning tree
-(MST), or, in the case of an un-connected graph, a minimum weight spanning
-forest (except for the 1-vertex components). Kruskal's algorithm is used
-to compute the tree or forest.
-
-This algorithm has a time complexity of [term {O(E*log E)}] or [term {O(E* log V)}],
-where [term V] is the number of vertices and [term E] is the number of edges
-in graph [arg g].
+Returns a list of arc names in graph [arg g] as determined by Kruskal’s
+algorithm.
 
 [para]
-
-The command will throw an error if one or more arcs in [arg g] have no
-weight associated with them.
+For a connected graph, the arcs are those which span a minimum spanning
+tree (MST). For a disconnected graph the arcs are those of a minimum
+spanning forest (which itself is composed of an MST for each connected
+component; excluding single vertex components).
 
 [para]
+The algorithm’s time complexity is [term {O(E*log E)}] or
+[term {O(E*log V)}], where [term V] is the number of vertices and
+[term E] is the number of edges in graph [arg g].
 
-A note regarding the result, the command refrains from explicitly
-listing the nodes of the MST as this information is implicitly
-provided in the arcs already.
+[para]
+To find the nodes each returned arc connects, use the graph’s
+[method {arc nodes}] method on each arc.
+
+[para]
+The command will throw an error if any of graph [arg g]’s arcs has no
+associated weight.
 
 [call [cmd struct::graph::op::prim] [arg g]]
 
-This command takes the graph [arg g] and returns a list containing the
-names of the arcs in [arg g] which span up a minimum weight spanning tree
-(MST), or, in the case of an un-connected graph, a minimum weight spanning
-forest (except for the 1-vertex components). Prim's algorithm is used to
-compute the tree or forest.
-
-This algorithm has a time complexity between [term {O(E+V*log V)}] and [term {O(V*V)}],
-depending on the implementation (Fibonacci heap + Adjacency list versus
-Adjacency Matrix).  As usual [term V] is the number of vertices and
-[term E] the number of edges in graph [arg g].
+Returns a list of arc names in graph [arg g] as determined by Prim’s
+algorithm.
 
 [para]
-
-The command will throw an error if one or more arcs in [arg g] have no
-weight associated with them.
+For a connected graph, the arcs are those which span a minimum spanning
+tree (MST). For a disconnected graph the arcs are those of a minimum
+spanning forest (which itself is composed of an MST for each connected
+component; excluding single vertex components).
 
 [para]
+This algorithm has a time complexity between [term {O(E+V*log V)}] and
+[term {O(V*V)}], depending on the implementation (Fibonacci heap and
+adjacency list versus adjacency matrix), where [term V] is the number of
+vertices and [term E] is the number of edges in graph [arg g].
 
-A note regarding the result, the command refrains from explicitly
-listing the nodes of the MST as this information is implicitly
-provided in the arcs already.
+[para]
+To find the nodes each returned arc connects, use the graph’s
+[method {arc nodes}] method on each arc.
 
-[call [cmd struct::graph::op::isBipartite?] [arg g] [opt [arg bipartvar]]]
+[para]
+The command will throw an error if any of graph [arg g]’s arcs has no
+associated weight.
 
-This command takes the graph [arg g] and returns a boolean value
-indicating whether it is bipartite ([const true]) or not
-([const false]). If the variable [arg bipartvar] is specified the two
-partitions of the graph are there as a list, if, and only if the graph
-is bipartit. If it is not the variable, if specified, is not touched.
+[call [cmd struct::graph::op::isBipartite?] [arg g] [opt [arg partitions]]]
+
+Returns [const 1] (true) if graph [arg g] is bipartite; otherwise
+returns [const 0] (false).
+
+[para]
+If the optional [arg partitions] variable name is given [emph and] graph
+[arg g] is bipartite, then [arg partitions] is created if it doesn’t
+exist, then it is set to the list of the two partitions. If graph
+[arg g] is not bipartite, [arg partitions] is not created if it doesn’t
+exist; and not changed if it does.
+
+[comment {TODO ###################}]
 
 [call [cmd struct::graph::op::tarjan] [arg g]]
 
