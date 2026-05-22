@@ -147,7 +147,9 @@ component; excluding single vertex components).
 [para]
 The algorithm’s time complexity is [term {O(E*log E)}] or
 [term {O(E*log V)}], where [term V] is the number of vertices and
-[term E] is the number of edges in graph [arg g].
+[term E] is the number of edges in graph [arg g]. Note that Prim’s
+algorithm may produce different results if there is more than one
+possible MST.
 
 [para]
 To find the nodes each returned arc connects, use the graph’s
@@ -172,7 +174,9 @@ component; excluding single vertex components).
 This algorithm has a time complexity between [term {O(E+V*log V)}] and
 [term {O(V*V)}], depending on the implementation (Fibonacci heap and
 adjacency list versus adjacency matrix), where [term V] is the number of
-vertices and [term E] is the number of edges in graph [arg g].
+vertices and [term E] is the number of edges in graph [arg g]. Note that
+Kruskal’s algorithm may produce different results if there is more than
+one possible MST.
 
 [para]
 To find the nodes each returned arc connects, use the graph’s
@@ -194,101 +198,91 @@ exist, then it is set to the list of the two partitions. If graph
 [arg g] is not bipartite, [arg partitions] is not created if it doesn’t
 exist; and not changed if it does.
 
-[comment {TODO ###################}]
-
 [call [cmd struct::graph::op::tarjan] [arg g]]
 
-This command computes the set of [emph {strongly connected}]
-components (SCCs) of the graph [arg g]. The result of the command is a
-list of sets, each of which contains the nodes for one of the SCCs of
-[arg g]. The union of all SCCs covers the whole graph, and no two SCCs
-intersect with each other.
+Returns a list of sets, each of which contains the nodes for one of
+graph [arg g]’s [emph {strongly connected}] components (SCCs). The union
+of all SCCs covers the whole graph, and no two SCCs intersect.
 
 [para]
+If [emph all] the resulting SCCs contain only one node, then graph
+[arg g] is [term acyclic]. If the result contains only one SCC
+containing all graph [arg g]’s nodes, then the graph is [term {strongly
+connected}].
 
-The graph [arg g] is [term acyclic] if all SCCs in the result contain
-only a single node. The graph [arg g] is [term {strongly connected}]
-if the result contains only a single SCC containing all nodes of
-[arg g].
+[para]
+[emph Note:] The [package struct::set] package must be required before
+this function is used, since it returns a set of type [type struct::set].
 
 [call [cmd struct::graph::op::connectedComponents] [arg g]]
 
-This command computes the set of [emph connected] components (CCs) of
-the graph [arg g]. The result of the command is a list of sets, each
-of which contains the nodes for one of the CCs of [arg g]. The union
-of all CCs covers the whole graph, and no two CCs intersect with each
-other.
+Returns a list of sets, each of which contains the nodes for one of
+graph [arg g]’s [emph connected] components (CCs). The union of all CCs
+covers the whole graph, and no two CCs intersect.
 
 [para]
-
-The graph [arg g] is [term connected] if the result contains only a
-single SCC containing all nodes of [arg g].
-
-[call [cmd struct::graph::op::connectedComponentOf] [arg g] [arg n]]
-
-This command computes the [emph connected] component (CC) of the graph
-[arg g] containing the node [arg n]. The result of the command is a
-sets which contains the nodes for the CC of [arg n] in [arg g].
+If the result contains only one CC containing all graph [arg g]’s nodes,
+then the graph is [term connected].
 
 [para]
+[emph Note:] The [package struct::set] package must be required before
+this function is used, since it returns a set of type [type struct::set].
 
-The command will throw an error if [arg n] is not a node of the graph
-[arg g].
+[call [cmd struct::graph::op::connectedComponentOf] [arg g] [arg node]]
+
+Returns a list of graph [arg g]’s [emph connected] components (CCs) that
+contain node [arg node].
+
+[para]
+The command will throw an error if [arg node] is not a graph [arg g]
+node.
 
 [call [cmd struct::graph::op::isConnected?] [arg g]]
 
-This is a convenience command determining whether the graph [arg g] is
-[term connected] or not.  The result is a boolean value, [const true]
-if the graph is connected, and [const false] otherwise.
+Returns [const 1] (true) if graph [arg g] is [term connected]; otherwise
+returns [const 0] (false).
 
-[call [cmd struct::graph::op::isCutVertex?] [arg g] [arg n]]
+[call [cmd struct::graph::op::isCutVertex?] [arg g] [arg node]]
 
-This command determines whether the node [arg n] in the graph [arg g]
-is a [term {cut vertex}] (aka [term {articulation point}]). The result
-is a boolean value, [const true] if the node is a cut vertex, and
-[const false] otherwise.
+Returns [const 1] (true) if graph [arg g]’s [arg node] is a [term {cut
+vertex}] ([emph {also called an}] [term {articulation point}]);
+otherwise returns [const 0] (false).
 
 [para]
+The command will throw an error if [arg node] is not a graph [arg g]
+node.
 
-The command will throw an error if [arg n] is not a node of the graph
-[arg g].
+[call [cmd struct::graph::op::isBridge?] [arg g] [arg arc]]
 
-[call [cmd struct::graph::op::isBridge?] [arg g] [arg a]]
-
-This command determines whether the arc [arg a] in the graph [arg g]
-is a [term bridge] (aka [term {cut edge}], or [term isthmus]). The
-result is a boolean value, [const true] if the arc is a bridge, and
-[const false] otherwise.
+Returns [const 1] (true) if graph [arg g]’s [arg arc] is a [term bridge]
+([emph {also called a}] [term {cut edge}] [emph or] [term isthmus]);
+otherwise returns [const 0] (false).
 
 [para]
-
-The command will throw an error if [arg a] is not an arc of the graph
-[arg g].
+The command will throw an error if [arg arc] is not a graph [arg g]
+arc
 
 [call [cmd struct::graph::op::isEulerian?] [arg g] [opt [arg tourvar]]]
 
-This command determines whether the graph [arg g] is [term eulerian]
-or not.  The result is a boolean value, [const true] if the graph is
-eulerian, and [const false] otherwise.
+Returns [const 1] (true) if graph [arg g] is [term Eulerian]; otherwise
+returns [const 0] (false).
 
 [para]
-
-If the graph is eulerian and [arg tourvar] is specified then an euler
-tour is computed as well and stored in the named variable. The tour is
-represented by the list of arcs traversed, in the order of traversal.
+If the graph is Eulerian and [arg tourvar] is specified, then an Euler
+tour is computed and stored in the named variable. The tour is
+represented by a list of the arcs traversed, in order of traversal.
 
 [call [cmd struct::graph::op::isSemiEulerian?] [arg g] [opt [arg pathvar]]]
 
-This command determines whether the graph [arg g] is
-[term semi-eulerian] or not.  The result is a boolean value, [const true]
-if the graph is semi-eulerian, and [const false] otherwise.
+Returns [const 1] (true) if graph [arg g] is [term semi-Eulerian];
+otherwise returns [const 0] (false).
 
 [para]
+If the graph is semi-Eulerian and [arg pathvar] is specified, then an
+Euler path is computed and stored in the named variable. The path is
+represented by a list of the arcs traversed, in order of traversal.
 
-If the graph is semi-eulerian and [arg pathvar] is specified then an
-euler path is computed as well and stored in the named variable. The
-path is represented by the list of arcs traversed, in the order of
-traversal.
+[comment {TODO #######################}]
 
 [call [cmd struct::graph::op::dijkstra] [arg g] [arg start] [opt [arg options]...]]
 
