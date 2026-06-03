@@ -282,75 +282,82 @@ If the graph is semi-Eulerian and [arg pathvar] is specified, then an
 Euler path is computed and stored in the named variable. The path is
 represented by a list of the arcs traversed, in order of traversal.
 
-[comment {TODO #######################}]
+[call [cmd struct::graph::op::dijkstra] [arg g] [arg start_node] [opt [arg options]...]]
 
-[call [cmd struct::graph::op::dijkstra] [arg g] [arg start] [opt [arg options]...]]
-
-This command determines distances in the weighted [arg g] from the
-node [arg start] to all other nodes in the graph. The options specify
-how to traverse graphs, and the format of the result.
+Returns a [type dict] whose keys are nodes and whose values vary
+depending on the options. By default an undirected traversal and tree
+format are used, resulting in a [type dict] whose values are lists of
+nodes. The traversal is based on the distances in the weighted graph
+[arg g] from the [arg start_node] to all the graph’s other nodes.
 
 [para]
-
-Two options are recognized
+Two options are supported:
 
 [list_begin options]
 [opt_def -arcmode mode]
 
-The accepted mode values are [const directed] and [const undirected].
-For directed traversal all arcs are traversed from source to
-target. For undirected traversal all arcs are traversed in the
-opposite direction as well. Undirected traversal is the default.
+The [arg mode] may be [const undirected] (the default) or
+[const directed]. If [const directed], all the arcs are traversed from
+the source to the target. For [const undirected], all the arcs are
+traversed both ways.
 
 [opt_def -outputformat format]
 
-The accepted format values are [const distances] and [const tree]. In
-both cases the result is a dictionary keyed by the names of all nodes
-in the graph. For [const distances] the value is the distance of the
-node to [arg start], whereas for [const tree] the value is the path
-from the node to [arg start], excluding the node itself, but including
-[arg start]. Tree format is the default.
+The [arg format] may be [const tree] (the default) or [const distances].
+In either case the result is a [type dict] whose keys are the names of
+all graph [arg g]’s nodes. When the [arg format] is [const tree], each
+value is the path from the node to the [arg start_node] (i.e., a list of
+nodes; excluding the [arg start_node] itself). When the [arg format] is
+[const distances], each value is the distance from the node to the
+[arg start_node]. [emph Note:] When using [arg format] [const distances]
+it is possible to have distances of [const 0] or of [const Inf].
 
 [list_end]
 
-[call [cmd struct::graph::op::distance] [arg g] [arg origin] [arg destination] [opt [arg options]...]]
+[call [cmd struct::graph::op::distance] [arg g] [arg start_node] \
+[arg end_node] [opt "-arcmode [arg mode]"]]
 
-This command determines the (un)directed distance between the two
-nodes [arg origin] and [arg destination] in the graph [arg g]. It
-accepts the option [option -arcmode] of [cmd struct::graph::op::dijkstra].
+Returns the distance in graph [arg g] from the [arg start_node] to the
+[arg end_node] using an undirected traversal (i.e., [arg -arcmode]
+[const undirected]). Use [arg -arcmode] [const directed] for a directed
+traversal. (See [cmd struct::graph::op::dijkstra]’s [option -arcmode]
+option.) 
 
-[call [cmd struct::graph::op::eccentricity] [arg g] [arg n] [opt [arg options]...]]
+[call [cmd struct::graph::op::eccentricity] [arg g] [arg node] \
+[opt "-arcmode [arg mode]"]]
 
-This command determines the (un)directed [term eccentricity] of the
-node [arg n] in the graph [arg g]. It accepts the option
-[option -arcmode] of [cmd struct::graph::op::dijkstra].
-
-[para]
-
-The (un)directed [term eccentricity] of a node is the maximal
-(un)directed distance between the node and any other node in the
-graph.
-
-[call [cmd struct::graph::op::radius] [arg g] [opt [arg options]...]]
-
-This command determines the (un)directed [term radius] of the graph
-[arg g]. It accepts the option [option -arcmode] of [cmd struct::graph::op::dijkstra].
+Returns the [term eccentricity] in graph [arg g] of the given [arg node]
+using an undirected traversal (i.e., [arg -arcmode] [const undirected]).
+Use [arg -arcmode] [const directed] for a directed traversal. (See
+[cmd struct::graph::op::dijkstra]’s [option -arcmode] option.) 
 
 [para]
+A node’s (un)directed [term eccentricity] is the maximal (un)directed
+distance between the node and any other node in the graph.
 
-The (un)directed [term radius] of a graph is the minimal (un)directed
+[call [cmd struct::graph::op::radius] [arg g] [opt "-arcmode [arg mode]"]]
+
+Returns the [term radius] of graph [arg g] using an undirected traversal
+(i.e., [arg -arcmode] [const undirected]). Use [arg -arcmode]
+[const directed] for a directed traversal. (See
+[cmd struct::graph::op::dijkstra]’s [option -arcmode] option.) 
+
+[para]
+A graph’s (un)directed [term radius] is the minimal (un)directed
 [term eccentricity] of all nodes in the graph.
 
-[call [cmd struct::graph::op::diameter] [arg g] [opt [arg options]...]]
+[call [cmd struct::graph::op::diameter] [arg g] [opt "-arcmode [arg mode]"]]
 
-This command determines the (un)directed [term diameter] of the graph
-[arg g]. It accepts the option [option -arcmode] of [cmd struct::graph::op::dijkstra].
+Returns the [term diameter] of graph [arg g] using an undirected traversal
+(i.e., [arg -arcmode] [const undirected]). Use [arg -arcmode]
+[const directed] for a directed traversal. (See
+[cmd struct::graph::op::dijkstra]’s [option -arcmode] option.) 
 
 [para]
-
-The (un)directed [term diameter] of a graph is the maximal (un)directed
+A graph’s (un)directed [term radius] is the maximal (un)directed
 [term eccentricity] of all nodes in the graph.
 
+[comment {TODO ###########}]
 [call [cmd struct::graph::op::BellmanFord] [arg g] [arg startnode]]
 
 Searching for [sectref {Shortest Path Problem} "shortests paths"] between chosen node and all other nodes in graph [arg g]. Based
