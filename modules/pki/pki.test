@@ -388,6 +388,41 @@ foreach keylen {256 512 1024 2048} {
     unset key
 }
 
+namespace eval pki::test {
+    test bug-7778a62946 "validate_cert failure with id-ce-basicConstraints" -setup {
+        set ca_keys [::pki::rsa::generate 512] ; # for faster testing
+        set subject [list C "US" O "Example Org" CN "Example Root CA"]
+        set serial_number [clock seconds] ; # acts as a simple unique id
+        set not_before [clock seconds]
+        set not_after [clock add [clock seconds] 10 years]
+        set extensions [list]
+        set ca_csr [::pki::pkcs::create_csr $ca_keys $subject 1]
+        set parsed_ca_csr [::pki::pkcs::parse_csr $ca_csr]
+        set parsed_ca_keys $parsed_ca_csr
+        dict set parsed_ca_keys d [dict get $ca_keys d]
+        set ca_cert [::pki::x509::create_cert $parsed_ca_csr $parsed_ca_keys\
+                         $serial_number $not_before $not_after \
+                         1 $extensions 1]
+
+        set user_keys [::pki::rsa::generate 512] ; # for faster testing
+        set user_subject [list C "US" O "Example Org" CN "server.example.com"]
+        set user_serial_number [clock seconds] ; # acts as a simple unique id
+        set user_not_before [clock seconds]
+        set user_not_after [clock add [clock seconds] 1 year]
+        set user_csr [pki::pkcs::create_csr $user_keys $user_subject 1]
+        set parsed_user_csr [::pki::pkcs::parse_csr $user_csr]
+        set user_cert [::pki::x509::create_cert $parsed_user_csr \
+                           $parsed_ca_keys  $user_serial_number \
+                           $user_not_before $user_not_after \
+                           0 [list] 1
+                      ]
+        set trusted_cert [pki::x509::parse_cert $ca_cert]
+        set supplicant_cert [pki::x509::parse_cert $user_cert]
+    } -body {
+        pki::x509::verify_cert $supplicant_cert [list $trusted_cert]
+    } -result true
+}
+
 # -------------------------------------------------------------------------
 testsuiteCleanup
 return

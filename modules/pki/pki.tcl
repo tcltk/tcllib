@@ -2307,6 +2307,11 @@ proc ::pki::x509::validate_cert {cert args} {
 					set CA [lindex $ext_val 1 0]
 					set CAdepth [lindex $ext_val 1 1]
 				}
+				id-ce-basicConstraints {
+					# Same as basicConstraints but a flat list for backward compat reasons
+					set CA [lindex $ext_val 1]
+					set CAdepth [lindex $ext_val 2]
+				}
 				default {
 					### If this extensions is critical and not understood, we must reject it
 					if {$critical} {
