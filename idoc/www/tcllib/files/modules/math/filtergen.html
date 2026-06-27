@@ -109,7 +109,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::filters(n) 0.3 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::filters(n) 0.4 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::filters - Digital filters</p>
 </div>
@@ -129,43 +129,44 @@
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6 9</b></li>
 <li>package require <b class="pkgname">TclOO</b></li>
-<li>package require <b class="pkgname">math::filters <span class="opt">?0.3?</span></b></li>
+<li>package require <b class="pkgname">math::filters <span class="opt">?0.4?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::filters::filterButterworth</b> <i class="arg">lowpass</i> <i class="arg">order</i> <i class="arg">samplefreq</i> <i class="arg">cutofffreq</i></a></li>
 <li><a href="#2"><b class="cmd">::math::filters::filter</b> <i class="arg">coeffs</i> <i class="arg">data</i></a></li>
-<li><a href="#3"><b class="cmd">::math::filters::filterObj</b> new <i class="arg">coeffs</i> <i class="arg">yinit</i></a></li>
-<li><a href="#4"><b class="cmd">$filterObj</b> filter <i class="arg">x</i></a></li>
-<li><a href="#5"><b class="cmd">$filterObj</b> reset</a></li>
+<li><a href="#3"><b class="cmd">::math::filters::filterChebyshev</b> <i class="arg">lowpass</i> <i class="arg">order</i> <i class="arg">samplefreq</i> <i class="arg">cutofffreq</i> <span class="opt">?<i class="arg">epsilon</i>?</span></a></li>
+<li><a href="#4"><b class="cmd">::math::filters::filter</b> <i class="arg">coeffs</i> <i class="arg">data</i></a></li>
+<li><a href="#5"><b class="cmd">::math::filters::filterObject</b> new <i class="arg">coeffs</i> <i class="arg">yinit</i></a></li>
+<li><a href="#6"><b class="cmd">$filterObj</b> filter <i class="arg">x</i></a></li>
+<li><a href="#7"><b class="cmd">$filterObj</b> reset</a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">math::filters</b> package implements digital filters,
-notably Butterworth low-pass and high-pass filters. The procedures
+notably Butterworth and Chebyshev low-pass and high-pass filters. The procedures
 allow to filter an entire data series as well as filter data one
-by one.</p>
+by one.
+Note: <a href="https://en.wikipedia.org/wiki/Digital_filter">https://en.wikipedia.org/wiki/Digital_filter</a> and other pages on Wikipedia describe
+the principles and design considerations of these digital filters.
+Note: This is a reimplementation compared to version 0.3, which was based on GPL-licensed code.
+One possible incompatibility with that version is that the order now needs to be even.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">PROCEDURES</a></h2>
 <p>The package defines the following public procedures:</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::math::filters::filterButterworth</b> <i class="arg">lowpass</i> <i class="arg">order</i> <i class="arg">samplefreq</i> <i class="arg">cutofffreq</i></a></dt>
-<dd><p>Determine the coefficients for a Butterworth filter of given order. The coefficients are returned as
-a list of the x-coefficients, the y-coefficients and the scale. The formula is (n is the filter order):</p>
-<pre class="doctools_example">
-                   n             n
-    scale * y_k = sum x_(k-i) + sum y_(k-i)
-                  i=0           i=1
-</pre>
+<dd><p>Determine the coefficients for a Butterworth filter of given (even) order. The coefficients are returned as
+a nested list, suitable for the <i class="term"><a href="../../../../index.html#filter">filter</a></i> command or method,</p>
 <dl class="doctools_arguments">
 <dt>bool <i class="arg">lowpass</i></dt>
 <dd><p>Generate a low-pass filter (1) or a high-pass filter (0)</p></dd>
-<dt>integer <i class="arg">lowpass</i></dt>
-<dd><p>The order of the filter to be generated</p></dd>
+<dt>integer <i class="arg">order</i></dt>
+<dd><p>The order of the filter to be generated - it must be even</p></dd>
 <dt>double <i class="arg">samplefreq</i></dt>
 <dd><p>Sampling frequency of the data series</p></dd>
 <dt>double <i class="arg">cutofffreq</i></dt>
-<dd><p>Cut-off frequency for the filter</p></dd>
+<dd><p>Cut-off frequency for the filter (at most half the sampling frequency)</p></dd>
 </dl></dd>
 <dt><a name="2"><b class="cmd">::math::filters::filter</b> <i class="arg">coeffs</i> <i class="arg">data</i></a></dt>
 <dd><p>Filter the entire data series based on the filter coefficients.</p>
@@ -175,7 +176,31 @@ a list of the x-coefficients, the y-coefficients and the scale. The formula is (
 <dt>list <i class="arg">data</i></dt>
 <dd><p>Data to be filtered</p></dd>
 </dl></dd>
-<dt><a name="3"><b class="cmd">::math::filters::filterObj</b> new <i class="arg">coeffs</i> <i class="arg">yinit</i></a></dt>
+<dt><a name="3"><b class="cmd">::math::filters::filterChebyshev</b> <i class="arg">lowpass</i> <i class="arg">order</i> <i class="arg">samplefreq</i> <i class="arg">cutofffreq</i> <span class="opt">?<i class="arg">epsilon</i>?</span></a></dt>
+<dd><p>Determine the coefficients for a Chebyshev filter of given (even) order. The coefficients are returned as
+a nested list, suitable for the <i class="term"><a href="../../../../index.html#filter">filter</a></i> command or method, For this type of filters an extra parameter
+can be given, the so-called ripple factor. This controls the smoothness of the gain factor.</p>
+<dl class="doctools_arguments">
+<dt>bool <i class="arg">lowpass</i></dt>
+<dd><p>Generate a low-pass filter (1) or a high-pass filter (0)</p></dd>
+<dt>integer <i class="arg">order</i></dt>
+<dd><p>The order of the filter to be generated - it must be even</p></dd>
+<dt>double <i class="arg">samplefreq</i></dt>
+<dd><p>Sampling frequency of the data series</p></dd>
+<dt>double <i class="arg">cutofffreq</i></dt>
+<dd><p>Cut-off frequency for the filter (must be less than half the sampling frequency)</p></dd>
+<dt>double <i class="arg">epsilon</i></dt>
+<dd><p>Ripple factor, defaults to 0.1</p></dd>
+</dl></dd>
+<dt><a name="4"><b class="cmd">::math::filters::filter</b> <i class="arg">coeffs</i> <i class="arg">data</i></a></dt>
+<dd><p>Filter the entire data series based on the filter coefficients.</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">coeffs</i></dt>
+<dd><p>List of coefficients as generated by <em>filterButterworth</em> (or in fact any similar list of coefficients)</p></dd>
+<dt>list <i class="arg">data</i></dt>
+<dd><p>Data to be filtered</p></dd>
+</dl></dd>
+<dt><a name="5"><b class="cmd">::math::filters::filterObject</b> new <i class="arg">coeffs</i> <i class="arg">yinit</i></a></dt>
 <dd><p>Create a filter object. The initial x data are taken as zero. The initial y data can be prescribed. If they are not given,
 they are taken as zero as well.</p>
 <dl class="doctools_arguments">
@@ -184,13 +209,13 @@ they are taken as zero as well.</p>
 <dt>list <i class="arg">yinit</i></dt>
 <dd><p>(Optional) initial data for the filter result.</p></dd>
 </dl></dd>
-<dt><a name="4"><b class="cmd">$filterObj</b> filter <i class="arg">x</i></a></dt>
+<dt><a name="6"><b class="cmd">$filterObj</b> filter <i class="arg">x</i></a></dt>
 <dd><p>Filter a single value and return the result.</p>
 <dl class="doctools_arguments">
 <dt>double <i class="arg">x</i></dt>
 <dd><p>The value to be filtered</p></dd>
 </dl></dd>
-<dt><a name="5"><b class="cmd">$filterObj</b> reset</a></dt>
+<dt><a name="7"><b class="cmd">$filterObj</b> reset</a></dt>
 <dd><p>Reset the filter object (start anew)</p></dd>
 </dl>
 </div>

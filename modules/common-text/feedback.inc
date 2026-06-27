@@ -2,14 +2,11 @@
 [vset TRACKER http://core.tcl.tk/tcllib/reportlist]
 [vset LABEL   {Tcllib Trackers}]
 
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph [vset CATEGORY]] of the
-[uri [vset TRACKER] [vset LABEL]].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+[uri [vset TRACKER] [vset LABEL]] and specify 
+[emph [vset CATEGORY]] as the category.
 
 [para]
 When proposing code changes, please provide [emph {unified diffs}],

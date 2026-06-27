@@ -29,7 +29,7 @@ This repository is managed by the [uri http://www.fossil-scm.org {Fossil SCM}].
 
 This is done easiest by going to the
 [uri http://core.tcl-lang.org/tcllib {official repository}]
-and following the links in the [strong Releases] section at the top,
+and following the links in the [emph Releases] section at the top,
 immediately underneath the entry field for searching the package
 documentation.
 

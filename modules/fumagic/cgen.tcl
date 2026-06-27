@@ -3,9 +3,9 @@
 #	Generator core for compiler of magic(5) files into recognizers
 #	based on the 'rtcore'.
 #
-# Copyright (c) 2016      Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
-# Copyright (c) 2005      Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2016-2018 Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -14,11 +14,12 @@
 
 #####
 #
-# "mime type recognition in pure tcl"
-# http://wiki.tcl.tk/12526
+# "mime type discriminator"
+# http://wiki.tcl.tk/12537
 #
-# Tcl code harvested on:  10 Feb 2005, 04:06 GMT
-# Wiki page last updated: ???
+# Wiki page last updated: 25 Mar 2008, 15:56 GMT
+# Tcl code harvested on:  21 Aug 2018, 22:48 GMT,
+#     from file-5.34 magic files, check-in [c48961ab8e].
 #
 #####
 

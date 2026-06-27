@@ -278,54 +278,79 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBdicttool ?1\&.2?\fR
 .sp
-\fBladd\fR \fIvarname\fR \fIargs\fR
+\fBladd\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
 .sp
-\fBldelete\fR \fIvarname\fR \fIargs\fR
+\fBldelete\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
 .sp
-\fBdict getnull\fR \fIargs\fR
+\fBdict getnull\fR \fIkey\fR
 .sp
-\fBdict print\fR \fIdict\fR
+\fBdict print\fR \fIaDict\fR
 .sp
 \fBdict is_dict\fR \fIvalue\fR
 .sp
-\fBrmerge\fR \fIargs\fR
+\fBdict rmerge\fR \fIdict1\fR \fIdict2\fR ?\fIdict3 \&.\&.\&.\fR?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBdicttool\fR package enhances the standard \fIdict\fR command with several new
-commands\&. In addition, the package also defines several "creature comfort" list commands as well\&.
-Each command checks to see if a command already exists of the same name before adding itself,
-just in case any of these slip into the core\&.
+This package enhances the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command
+with several new commands\&. In addition, the package also defines several
+convenient list commands\&. (Each command only adds itself if a command of
+the same name doesn’t already exist, in case any of these are added to
+the core\&.)
 .TP
-\fBladd\fR \fIvarname\fR \fIargs\fR
-This command will add a new instance of each element in \fIargs\fR to \fIvarname\fR, but only if that element
-is not already present\&.
+\fBladd\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
+This command adds every pair of \fIkey value\fR elements to \fIdictVar\fR,
+but only if that element is not already present (whether as a key or a
+value)\&. This command \fImust\fR be given pairs of \fIkey value\fR
+elements to preserve \fIdictVar\fR as a \fBdict\fR\&.
 .TP
-\fBldelete\fR \fIvarname\fR \fIargs\fR
-This command will delete all instances of each element in \fIargs\fR from \fIvarname\fR\&.
+\fBldelete\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
+This command deletes every pair of \fIkey value\fR elements from
+\fIdictVar\fR\&. Harmlessly does nothing if the pair is not already in
+\fIdictVar\fR\&. This command \fImust\fR be given pairs of
+\fIkey value\fR elements to preserve \fIdictVar\fR as a \fBdict\fR\&.
+.sp
+Use the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict remove\fR subcommand to remove elements by key alone\&.
 .TP
-\fBdict getnull\fR \fIargs\fR
-Operates like \fBdict get\fR, however if the key \fIargs\fR does not exist, it returns an empty
+\fBdict getnull\fR \fIkey\fR
+Operates like \fBdict get\fR, however if the key \fIkey\fR does not exist, it returns an empty
 list instead of throwing an error\&.
+.sp
+An alternative to this command is the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict getwithdefault\fR subcommand \fIor
+its alias\fR \fBdict getdef\fR\&. Using \fBdict getdef\fR with a
+default of an empty list, \fI{}\fR, is equivalent to using \fBdict getnull\fR\&.
 .TP
-\fBdict print\fR \fIdict\fR
-This command will produce a string representation of \fIdict\fR, with each nested branch on
-a newline, and indented with two spaces for every level\&.
+\fBdict print\fR \fIaDict\fR
+Returns a “pretty printed” string representation of
+\fBdict\fR \fIaDict\fR, with each nested branch on a newline, and
+indented with two spaces for every level\&.
 .TP
 \fBdict is_dict\fR \fIvalue\fR
-This command will return true if \fIvalue\fR can be interpreted as a dict\&. The command operates in
-such a way as to not force an existing dict representation to shimmer into another internal rep\&.
+Returns \fB1\fR (true) if \fIvalue\fR can be interpreted as a
+\fBdict\fR; otherwise \fB0\fR (false)\&.
+.sp
+This command does \fInot\fR force an existing \fBdict\fR
+representation to change into another internal representation\&.
 .TP
-\fBrmerge\fR \fIargs\fR
-Return a dict which is the product of a recursive merge of all of the arguments\&. Unlike \fBdict merge\fR,
-this command descends into all of the levels of a dict\&. Dict keys which end in a : indicate a leaf, which
-will be interpreted as a literal value, and not descended into further\&.
+\fBdict rmerge\fR \fIdict1\fR \fIdict2\fR ?\fIdict3 \&.\&.\&.\fR?
+Returns a \fBdict\fR which is the result of a recursive merge of all of
+the \fBdict\fR arguments\&. Unlike the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict merge\fR subcommand, this command descends into all of the
+\fBdict\fR’s levels\&. Note that \fBdict\fR keys which end in a :
+indicate a leaf, which will be interpreted as a literal value, and not
+descended into further\&.
 .CS
 
 
 
-set items [dict merge {
+set items [dict rmerge {
   option {color {default: green}}
 } {
   option {fruit {default: mango}}
@@ -333,32 +358,31 @@ set items [dict merge {
   option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
 }]
 puts [dict print $items]
-
-.CE
-.IP
-Prints the following result:
-.CS
-
-
+=>
 option {
   color {
     default: blue
   }
   fruit {
+    default: mango
     widget: select
     values: {mango apple cherry grape}
   }
 }
 
 .CE
+.sp
+If the built-in
+\fIdict\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/dict\&.html] command’s
+\fBdict merge\fR subcommand had been used above, the \fIfruit\fR
+item’s \fIdefault\fR key-value entry would have been lost\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIdict\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIdict\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

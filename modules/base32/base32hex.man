@@ -2,7 +2,9 @@
 [manpage_begin base32::hex n 0.2]
 [keywords base32]
 [keywords hex]
-[keywords rfc3548]
+[keywords rfc4648]
+[see_also encoding]
+[see_also binary]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {base32 extended hex encoding}]
@@ -13,50 +15,66 @@
 [description]
 [para]
 
-This package provides commands for encoding and decoding of strings
-into and out of the extended hex base32 encoding as specified in the
-RFC 3548bis draft.
+This package provides commands for encoding and decoding binary strings
+to and from the extended hex base32 encoding as specified in
+[uri https://datatracker.ietf.org/doc/html/rfc4648 {RFC 4648}].
+
+[para]
+(Note that Tcl’s built-in
+[uri https://www.tcl-lang.org/man/tcl/TclCmd/binary.html binary]
+command provides simple encoding and decoding of bytes to and from pairs
+of hex digits.)
 
 [section API]
 
 [list_begin definitions]
 
-[call [cmd ::base32::hex::encode] [arg string]]
+[call [cmd ::base32::hex::encode] [arg bstring]]
 
-This command encodes the given [arg string] in extended hex base32 and
-returns the encoded string as its result. The result may be padded
-with the character [const =] to signal a partial encoding at the end
-of the input string.
+Returns an extended hex base32-encoded version of the binary string
+[arg bstring] as its result.
+
+[para]
+The result may be padded at the end with [const =] characters to ensure
+that the result’s length is a multiple of eight.
+
+[para]
+The encoder will throw an error if [arg bstring] is neither a binary string,
+nor a string containing only 7-bit ASCII.
 
 [call [cmd ::base32::hex::decode] [arg estring]]
 
-This commands takes the [arg estring] and decodes it under the
-assumption that it is a valid extended hex base32 encoded string. The
-result of the decoding is returned as the result of the command.
+Returns a binary string that has been extended hex base32-decoded from the
+[arg estring].
 
 [para]
 
-Note that while the encoder will generate only uppercase characters
-this decoder accepts input in lowercase as well.
+Note that while the encoder produces only uppercase characters,
+this decoder is case-insensitive, i.e., more permissive.
 
 [para]
 
-The command will always throw an error whenever encountering
-conditions which signal some type of bogus input, namely if
+The decoder may throw an error on invalid input. For example, if:
 
-[list_begin enumerated]
-[enum] the input contains characters which are not valid output
-       of a extended hex base32 encoder,
-[enum] the length of the input is not a multiple of eight,
-[enum] padding appears not at the end of input, but in the middle,
-[enum] the padding has not of length six, four, three, or one characters,
+[list_begin itemized]
+[item] the input contains characters which are not valid for
+extended hex base32-encoded data;
+[item] the length of the input is not a multiple of eight;
+[item] padding appears in the middle rather than at the end of the input;
+[item] the padding’s length is not exactly one, three, four, or six
+characters.
 [list_end]
 [list_end]
+
+[para]
+It is also possible to have invalid input that does [emph not] throw an
+error—for example, plain text that doesn’t do any of the things listed
+above.
 
 [section {Code map}]
 
 The code map used to convert 5-bit sequences is shown below, with the
-numeric id of the bit sequences to the left and the character used to
+numeric ID of the bit sequences to the left and the character used to
 encode it to the right. The important feature of the extended hex
 mapping is that the first 16 codes map to the digits and hex
 characters.
@@ -71,6 +89,36 @@ characters.
 	6 6   15 F        24 O
 	7 7        16 G   25 P
 	8 8        17 H   26 Q
+}]
+
+[section Examples]
+
+This example shows how to encode and decode a Tcl string to and from
+extended hex base32, taking account of the fact that the extended hex base32
+commands work in terms of binary strings.
+
+[example {
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set enc32 [::base32::hex::encode $bytes]
+set dec32 [::base32::hex::decode $enc32]
+set line [encoding convertfrom utf-8 $dec32]
+puts "base32::hex='$enc32' [expr {$UTF8_LINE eq $line}]"
+=>
+base32::hex='PQAC7DP0SA09OLBKCOMJHOK0JKGE56CUSA2A8===' 1
+}]
+
+If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the [cmd encoding] command are not needed. For example:
+
+[example {
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set enc32 [::base32::hex::encode $ASCII_LINE]
+set dec32 [::base32::hex::decode $enc32]
+set line [encoding convertfrom utf-8 $dec32]
+puts "base32::hex='$enc32' [expr {$ASCII_LINE eq $line}]"
+=>
+base32::hex='44G3EBB2D5Q20GAJ8D4KI83RFPF7Q===' 1
 }]
 
 [vset CATEGORY base32]

@@ -48,19 +48,19 @@ asn \- ASN\.1 BER encoder/decoder
 package require Tcl 8\.5 9  
 package require asn ?0\.8\.5?  
 
-[__::asn::asnSequence__ *evalue*\.\.\.](#1)  
+[__::asn::asnSequence__ ?*evalue \.\.\.*?](#1)  
 [__::asn::asnSequenceFromList__ *elist*](#2)  
-[__::asn::asnSet__ *evalue*\.\.\.](#3)  
+[__::asn::asnSet__ ?*evalue \.\.\.*?](#3)  
 [__::asn::asnSetFromList__ *elist*](#4)  
-[__::asn::asnApplicationConstr__ *appNumber* *evalue*\.\.\.](#5)  
+[__::asn::asnApplicationConstr__ *appNumber* ?*evalue \.\.\.*?](#5)  
 [__::asn::asnApplication__ *appNumber* *data*](#6)  
-[__::asn::asnChoice__ *appNumber* *evalue*\.\.\.](#7)  
-[__::asn::asnChoiceConstr__ *appNumber* *evalue*\.\.\.](#8)  
+[__::asn::asnChoice__ *appNumber* ?*evalue \.\.\.*?](#7)  
+[__::asn::asnChoiceConstr__ *appNumber* ?*evalue \.\.\.*?](#8)  
 [__::asn::asnInteger__ *number*](#9)  
 [__::asn::asnEnumeration__ *number*](#10)  
 [__::asn::asnBoolean__ *bool*](#11)  
 [__::asn::asnContext__ *context* *data*](#12)  
-[__::asn::asnContextConstr__ *context* *evalue*\.\.\.](#13)  
+[__::asn::asnContextConstr__ *context* ?*evalue \.\.\.*?](#13)  
 [__::asn::asnObjectIdentifier__ *idlist*](#14)  
 [__::asn::asnUTCTime__ *utcstring*](#15)  
 [__::asn::asnNull__](#16)  
@@ -73,30 +73,30 @@ package require asn ?0\.8\.5?
 [__::asn::asnUTF8String__ *string*](#23)  
 [__::asn::asnString__ *string*](#24)  
 [__::asn::defaultStringType__ ?*type*?](#25)  
-[__::asn::asnPeekByte__ *data\_var* *byte\_var*](#26)  
-[__::asn::asnGetLength__ *data\_var* *length\_var*](#27)  
-[__::asn::asnGetResponse__ *chan* *data\_var*](#28)  
-[__::asn::asnGetInteger__ *data\_var* *int\_var*](#29)  
-[__::asn::asnGetEnumeration__ *data\_var* *enum\_var*](#30)  
-[__::asn::asnGetOctetString__ *data\_var* *string\_var*](#31)  
-[__::asn::asnGetString__ *data\_var* *string\_var* ?*type\_var*?](#32)  
-[__::asn::asnGetNumericString__ *data\_var* *string\_var*](#33)  
-[__::asn::asnGetPrintableString__ *data\_var* *string\_var*](#34)  
-[__::asn::asnGetIA5String__ *data\_var* *string\_var*](#35)  
-[__::asn::asnGetBMPString__ *data\_var* *string\_var*](#36)  
-[__::asn::asnGetUTF8String__ *data\_var* *string\_var*](#37)  
-[__::asn::asnGetUTCTime__ *data\_var* *utc\_var*](#38)  
-[__::asn::asnGetBitString__ *data\_var* *bits\_var*](#39)  
-[__::asn::asnGetObjectIdentifier__ *data\_var* *oid\_var*](#40)  
-[__::asn::asnGetBoolean__ *data\_var* *bool\_var*](#41)  
-[__::asn::asnGetNull__ *data\_var*](#42)  
-[__::asn::asnGetSequence__ *data\_var* *sequence\_var*](#43)  
-[__::asn::asnGetSet__ *data\_var* *set\_var*](#44)  
-[__::asn::asnGetApplication__ *data\_var* *appNumber\_var* ?*content\_var*? ?*encodingType\_var*?](#45)  
-[__::asn::asnGetContext__ *data\_var* *contextNumber\_var* ?*content\_var*? ?*encodingType\_var*?](#46)  
-[__::asn::asnPeekTag__ *data\_var* *tag\_var* *tagtype\_var* *constr\_var*](#47)  
+[__::asn::asnPeekByte__ *dataVar* *byteVar*](#26)  
+[__::asn::asnGetLength__ *dataVar* *lengthVar*](#27)  
+[__::asn::asnGetResponse__ *chan* *dataVar*](#28)  
+[__::asn::asnGetInteger__ *dataVar* *intVar*](#29)  
+[__::asn::asnGetEnumeration__ *dataVar* *enumVar*](#30)  
+[__::asn::asnGetOctetString__ *dataVar* *stringVar*](#31)  
+[__::asn::asnGetString__ *dataVar* *stringVar* ?*typeVar*?](#32)  
+[__::asn::asnGetNumericString__ *dataVar* *stringVar*](#33)  
+[__::asn::asnGetPrintableString__ *dataVar* *stringVar*](#34)  
+[__::asn::asnGetIA5String__ *dataVar* *stringVar*](#35)  
+[__::asn::asnGetBMPString__ *dataVar* *stringVar*](#36)  
+[__::asn::asnGetUTF8String__ *dataVar* *stringVar*](#37)  
+[__::asn::asnGetUTCTime__ *dataVar* *utcVar*](#38)  
+[__::asn::asnGetBitString__ *dataVar* *bitsVar*](#39)  
+[__::asn::asnGetObjectIdentifier__ *dataVar* *oidVar*](#40)  
+[__::asn::asnGetBoolean__ *dataVar* *boolVar*](#41)  
+[__::asn::asnGetNull__ *dataVar*](#42)  
+[__::asn::asnGetSequence__ *dataVar* *sequenceVar*](#43)  
+[__::asn::asnGetSet__ *dataVar* *setVar*](#44)  
+[__::asn::asnGetApplication__ *dataVar* *appNumberVar* ?*contentVar*? ?*encodingTypeVar*?](#45)  
+[__::asn::asnGetContext__ *dataVar* *contextNumberVar* ?*contentVar*? ?*encodingTypeVar*?](#46)  
+[__::asn::asnPeekTag__ *dataVar* *tagVar* *tagtypeVar* *constrVar*](#47)  
 [__::asn::asnTag__ *tagnumber* ?*class*? ?*tagstyle*?](#48)  
-[__::asn::asnRetag__ *data\_var* *newTag*](#49)  
+[__::asn::asnRetag__ *dataVar* *newTag*](#49)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -122,7 +122,7 @@ implementor\.
 
 ## <a name='subsection1'></a>ENCODER
 
-  - <a name='1'></a>__::asn::asnSequence__ *evalue*\.\.\.
+  - <a name='1'></a>__::asn::asnSequence__ ?*evalue \.\.\.*?
 
     Takes zero or more encoded values, packs them into an ASN sequence and
     returns its encoded binary form\.
@@ -132,7 +132,7 @@ implementor\.
     Takes a list of encoded values, packs them into an ASN sequence and returns
     its encoded binary form\.
 
-  - <a name='3'></a>__::asn::asnSet__ *evalue*\.\.\.
+  - <a name='3'></a>__::asn::asnSet__ ?*evalue \.\.\.*?
 
     Takes zero or more encoded values, packs them into an ASN set and returns
     its encoded binary form\.
@@ -142,7 +142,7 @@ implementor\.
     Takes a list of encoded values, packs them into an ASN set and returns its
     encoded binary form\.
 
-  - <a name='5'></a>__::asn::asnApplicationConstr__ *appNumber* *evalue*\.\.\.
+  - <a name='5'></a>__::asn::asnApplicationConstr__ *appNumber* ?*evalue \.\.\.*?
 
     Takes zero or more encoded values, packs them into an ASN application
     construct and returns its encoded binary form\.
@@ -152,12 +152,12 @@ implementor\.
     Takes a single encoded value *data*, packs it into an ASN application
     construct and returns its encoded binary form\.
 
-  - <a name='7'></a>__::asn::asnChoice__ *appNumber* *evalue*\.\.\.
+  - <a name='7'></a>__::asn::asnChoice__ *appNumber* ?*evalue \.\.\.*?
 
     Takes zero or more encoded values, packs them into an ASN choice construct
     and returns its encoded binary form\.
 
-  - <a name='8'></a>__::asn::asnChoiceConstr__ *appNumber* *evalue*\.\.\.
+  - <a name='8'></a>__::asn::asnChoiceConstr__ *appNumber* ?*evalue \.\.\.*?
 
     Takes zero or more encoded values, packs them into an ASN choice construct
     and returns its encoded binary form\.
@@ -179,14 +179,14 @@ implementor\.
     Takes an encoded value and packs it into a constructed value with
     application tag, the *context* number\.
 
-  - <a name='13'></a>__::asn::asnContextConstr__ *context* *evalue*\.\.\.
+  - <a name='13'></a>__::asn::asnContextConstr__ *context* ?*evalue \.\.\.*?
 
     Takes zero or more encoded values and packs them into a constructed value
     with application tag, the *context* number\.
 
   - <a name='14'></a>__::asn::asnObjectIdentifier__ *idlist*
 
-    Takes a list of at least 2 integers describing an object identifier \(OID\)
+    Takes a list of at least two integers describing an object identifier \(OID\)
     value, and returns the encoded value\.
 
   - <a name='15'></a>__::asn::asnUTCTime__ *utcstring*
@@ -207,8 +207,8 @@ implementor\.
 
   - <a name='19'></a>__::asn::asnNumericString__ *string*
 
-    Returns the *string* encoded as ASN\.1 NumericString\. Raises an error if
-    the *string* contains characters other than decimal numbers and space\.
+    Returns the *string* encoded as an ASN\.1 NumericString\. Raises an error if
+    the *string* contains characters other than decimal digits and spaces\.
 
   - <a name='20'></a>__::asn::asnPrintableString__ *string*
 
@@ -231,8 +231,8 @@ implementor\.
   - <a name='23'></a>__::asn::asnUTF8String__ *string*
 
     Returns the *string* encoded as UTF8 String\. Note that some legacy
-    applications such as Windows CryptoAPI do not like UTF8 strings\. Use
-    BMPStrings if you are not sure\.
+    applications such as Windows CryptoAPI may not work correctly with UTF8
+    strings\. It may be safest to use BMPStrings\.
 
   - <a name='24'></a>__::asn::asnString__ *string*
 
@@ -252,65 +252,73 @@ implementor\.
 
 General notes:
 
-  1. Nearly all decoder commands take two arguments\. These arguments are
-     variable names, except for __::asn::asnGetResponse__\. The first
-     variable contains the encoded ASN value to decode at the beginning, and
-     more, and the second variable is where the value is stored to\. The
-     remainder of the input after the decoded value is stored back into the
-     datavariable\.
+  1. Nearly all getter \(decoder\) commands take two arguments\. These arguments
+     are variable names, *except* for __::asn::asnGetResponse__\. The
+     *dataVar* variable contains the encoded ASN values to decode\. When a
+     value getter \(decoder\) is called, the value is stored in the second
+     variable, and the remaining input is stored back in the first *dataVar*
+     variable\.
 
-  1. After extraction the data variable is always modified first, before by
-     writing the extracted value to its variable\. This means that if both
-     arguments refer to the same variable, it will always contain the extracted
+  1. When getting \(decoding\), the *dataVar* variable is modified first, before
+     the decoded value is stored in the second variable\. This means that if both
+     arguments refer to the same variable, it will always contain the decoded
      value after the call, and not the remainder of the input\.
 
-  - <a name='26'></a>__::asn::asnPeekByte__ *data\_var* *byte\_var*
+  - <a name='26'></a>__::asn::asnPeekByte__ *dataVar* *byteVar*
 
-    Retrieve the first byte of the data, without modifing *data\_var*\. This can
-    be used to check for implicit tags\.
+    Return a copy of the first byte of the data, without modifing *dataVar*\.
+    This can be used to check for implicit tags\.
 
-  - <a name='27'></a>__::asn::asnGetLength__ *data\_var* *length\_var*
+  - <a name='27'></a>__::asn::asnGetLength__ *dataVar* *lengthVar*
 
     Decode the length information for a block of BER data\. The tag has already
     to be removed from the data\.
 
-  - <a name='28'></a>__::asn::asnGetResponse__ *chan* *data\_var*
+  - <a name='28'></a>__::asn::asnGetResponse__ *chan* *dataVar*
 
     Reads an encoded ASN *sequence* from the channel *chan* and stores it
-    into the variable named by *data\_var*\.
+    into the variable called *dataVar*\.
 
-  - <a name='29'></a>__::asn::asnGetInteger__ *data\_var* *int\_var*
+  - <a name='29'></a>__::asn::asnGetInteger__ *dataVar* *intVar*
 
-    Assumes that an encoded integer value is at the front of the data stored in
-    the variable named *data\_var*, extracts and stores it into the variable
-    named by *int\_var*\. Additionally removes all bytes associated with the
-    value from the data for further processing by the following decoder
-    commands\.
+    Decodes the integer value encoded at the start of the data stored in the
+    variable called *dataVar*\. The integer is stored in the variable called
+    *intVar*, and the decoded bytes are removed from the start of the data in
+    *dataVar*, ready for the next value to be decoded\. If the value at the
+    start is not an encoded integer an error is thrown\.
 
-  - <a name='30'></a>__::asn::asnGetEnumeration__ *data\_var* *enum\_var*
+  - <a name='30'></a>__::asn::asnGetEnumeration__ *dataVar* *enumVar*
 
-    Assumes that an enumeration id is at the front of the data stored in the
-    variable named *data\_var*, and stores it into the variable named by
-    *enum\_var*\. Additionally removes all bytes associated with the value from
-    the data for further processing by the following decoder commands\.
+    Decodes the enumeration ID value encoded at the start of the data stored in
+    the variable called *dataVar*\. The enumeration ID is stored in the
+    variable called *enumVar*, and the decoded bytes are removed from the
+    start of the data in *dataVar*, ready for the next value to be decoded\. If
+    the value at the start is not an encoded enumeration ID an error is thrown\.
 
-  - <a name='31'></a>__::asn::asnGetOctetString__ *data\_var* *string\_var*
+  - <a name='31'></a>__::asn::asnGetOctetString__ *dataVar* *stringVar*
 
-    Assumes that a string is at the front of the data stored in the variable
-    named *data\_var*, and stores it into the variable named by *string\_var*\.
-    Additionally removes all bytes associated with the value from the data for
-    further processing by the following decoder commands\.
+    Decodes the string value encoded at the start of the data stored in the
+    variable called *dataVar*\. The string is stored in the variable called
+    *stringVar*, and the decoded bytes are removed from the start of the data
+    in *dataVar*, ready for the next value to be decoded\. If the value at the
+    start is not an encoded string an error is thrown\.
 
-  - <a name='32'></a>__::asn::asnGetString__ *data\_var* *string\_var* ?*type\_var*?
+  - <a name='32'></a>__::asn::asnGetString__ *dataVar* *stringVar* ?*typeVar*?
 
-    Decodes a user\-readable string\. This is a convenience function which is able
-    to automatically distinguish all supported ASN\.1 string types and convert
-    the input value appropriately\. See __::asn::asnGetPrintableString__,
-    __::asnGetIA5String__, etc\. below for the type\-specific conversion
-    commands\.
+    Decodes the user\-readable string value encoded at the start of the data
+    stored in the variable called *dataVar*\. The string is stored in the
+    variable called *stringVar*, and the decoded bytes are removed from the
+    start of the data in *dataVar*, ready for the next value to be decoded\. If
+    the value at the start is not an encoded string an error is thrown\.
 
-    If the optional third argument *type\_var* is supplied, then the type of
-    the incoming string is stored in the variable named by it\.
+    This is a convenience function which is able to automatically distinguish
+    all supported ASN\.1 string types and convert the input value appropriately\.
+
+    See __::asn::asnGetPrintableString__, __::asnGetIA5String__, etc\.,
+    below for the type\-specific conversion commands\.
+
+    If the optional third argument *typeVar* is supplied, then the incoming
+    string’s type is stored in the variable it names\.
 
     The function throws the error "Invalid command name
     asnGetSome__UnsupportedString__" if the unsupported string type
@@ -318,177 +326,234 @@ General notes:
     "asn::asnGetSome__UnsupportedString__" in your application if
     neccessary\.
 
-  - <a name='33'></a>__::asn::asnGetNumericString__ *data\_var* *string\_var*
+  - <a name='33'></a>__::asn::asnGetNumericString__ *dataVar* *stringVar*
 
-    Assumes that a numeric string value is at the front of the data stored in
-    the variable named *data\_var*, and stores it into the variable named by
-    *string\_var*\. Additionally removes all bytes associated with the value
-    from the data for further processing by the following decoder commands\.
+    Decodes the numeric string value encoded at the start of the data stored in
+    the variable called *dataVar*\. The numeric string is stored in the
+    variable called *stringVar*, and the decoded bytes are removed from the
+    start of the data in *dataVar*, ready for the next value to be decoded\. If
+    the value at the start is not an encoded numeric string an error is thrown\.
 
-  - <a name='34'></a>__::asn::asnGetPrintableString__ *data\_var* *string\_var*
+  - <a name='34'></a>__::asn::asnGetPrintableString__ *dataVar* *stringVar*
 
-    Assumes that a printable string value is at the front of the data stored in
-    the variable named *data\_var*, and stores it into the variable named by
-    *string\_var*\. Additionally removes all bytes associated with the value
-    from the data for further processing by the following decoder commands\.
+    Decodes the printable string value encoded at the start of the data stored
+    in the variable called *dataVar*\. The printable string is stored in the
+    variable called *stringVar*, and the decoded bytes are removed from the
+    start of the data in *dataVar*, ready for the next value to be decoded\. If
+    the value at the start is not an encoded printable string an error is
+    thrown\.
 
-  - <a name='35'></a>__::asn::asnGetIA5String__ *data\_var* *string\_var*
+  - <a name='35'></a>__::asn::asnGetIA5String__ *dataVar* *stringVar*
 
-    Assumes that a IA5 \(ASCII\) string value is at the front of the data stored
-    in the variable named *data\_var*, and stores it into the variable named by
-    *string\_var*\. Additionally removes all bytes associated with the value
-    from the data for further processing by the following decoder commands\.
+    Decodes the IA5 \(US\-ASCII\) string value encoded at the start of the data
+    stored in the variable called *dataVar*\. The IA5 string is stored in the
+    variable called *stringVar*, and the decoded bytes are removed from the
+    start of the data in *dataVar*, ready for the next value to be decoded\. If
+    the value at the start is not an encoded IA5 string an error is thrown\.
 
-  - <a name='36'></a>__::asn::asnGetBMPString__ *data\_var* *string\_var*
+  - <a name='36'></a>__::asn::asnGetBMPString__ *dataVar* *stringVar*
 
-    Assumes that a BMP \(two\-byte unicode\) string value is at the front of the
-    data stored in the variable named *data\_var*, and stores it into the
-    variable named by *string\_var*, converting it into a proper Tcl string\.
-    Additionally removes all bytes associated with the value from the data for
-    further processing by the following decoder commands\.
+    Decodes the BMP \(two\-byte unicode—UCS2\) string value encoded at the start of
+    the data stored in the variable called *dataVar*\. The BMP string is
+    converted into a proper Tcl string which is then stored in the variable
+    called *stringVar*, and the decoded bytes are removed from the start of
+    the data in *dataVar*, ready for the next value to be decoded\. If the
+    value at the start is not an encoded BMP string an error is thrown\.
 
-  - <a name='37'></a>__::asn::asnGetUTF8String__ *data\_var* *string\_var*
+  - <a name='37'></a>__::asn::asnGetUTF8String__ *dataVar* *stringVar*
 
-    Assumes that a UTF8 string value is at the front of the data stored in the
-    variable named *data\_var*, and stores it into the variable named by
-    *string\_var*, converting it into a proper Tcl string\. Additionally removes
-    all bytes associated with the value from the data for further processing by
-    the following decoder commands\.
+    Decodes the UTF8 string value encoded at the start of the data stored in the
+    variable called *dataVar*\. The UTF8 string is converted into a proper Tcl
+    string which is then stored in the variable called *stringVar*, and the
+    decoded bytes are removed from the start of the data in *dataVar*, ready
+    for the next value to be decoded\. If the value at the start is not an
+    encoded UTF8 string an error is thrown\.
 
-  - <a name='38'></a>__::asn::asnGetUTCTime__ *data\_var* *utc\_var*
+  - <a name='38'></a>__::asn::asnGetUTCTime__ *dataVar* *utcVar*
 
-    Assumes that a UTC time value is at the front of the data stored in the
-    variable named *data\_var*, and stores it into the variable named by
-    *utc\_var*\. The UTC time value is stored as a string, which has to be
-    decoded with the usual clock scan commands\. Additionally removes all bytes
-    associated with the value from the data for further processing by the
-    following decoder commands\.
+    Decodes the UTC time value encoded at the start of the data stored in the
+    variable called *dataVar*\. The UTC time value is stored in the variable
+    called *utcVar*, and the decoded bytes are removed from the start of the
+    data in *dataVar*, ready for the next value to be decoded\. The value
+    stored in *utcVar* is a string; to get an actual time value, use the
+    __clock scan__ command\. If the value at the start is not an encoded UTC
+    time value an error is thrown\.
 
-  - <a name='39'></a>__::asn::asnGetBitString__ *data\_var* *bits\_var*
+  - <a name='39'></a>__::asn::asnGetBitString__ *dataVar* *bitsVar*
 
-    Assumes that a bit string value is at the front of the data stored in the
-    variable named *data\_var*, and stores it into the variable named by
-    *bits\_var* as a string containing only 0 and 1\. Additionally removes all
-    bytes associated with the value from the data for further processing by the
-    following decoder commands\.
+    Decodes the bit string value encoded at the start of the data stored in the
+    variable called *dataVar*\. The bit string is stored in the variable called
+    *bitsVar*, and the decoded bytes are removed from the start of the data in
+    *dataVar*, ready for the next value to be decoded\. The value stored in
+    *bitsVar* is a string that contains only __"0"__ and __"1"__
+    characters\. If the value at the start is not an encoded bit string an error
+    is thrown\.
 
-  - <a name='40'></a>__::asn::asnGetObjectIdentifier__ *data\_var* *oid\_var*
+  - <a name='40'></a>__::asn::asnGetObjectIdentifier__ *dataVar* *oidVar*
 
-    Assumes that a object identifier \(OID\) value is at the front of the data
-    stored in the variable named *data\_var*, and stores it into the variable
-    named by *oid\_var* as a list of integers\. Additionally removes all bytes
-    associated with the value from the data for further processing by the
-    following decoder commands\.
+    Decodes the object identifier \(OID\) value encoded at the start of the data
+    stored in the variable called *dataVar*\. The OID is stored in the variable
+    called *oidVar*, and the decoded bytes are removed from the start of the
+    data in *dataVar*, ready for the next value to be decoded\. The value
+    stored in *oidVar* is a list of integers\. If the value at the start is not
+    an encoded OID an error is thrown\.
 
-  - <a name='41'></a>__::asn::asnGetBoolean__ *data\_var* *bool\_var*
+  - <a name='41'></a>__::asn::asnGetBoolean__ *dataVar* *boolVar*
 
-    Assumes that a boolean value is at the front of the data stored in the
-    variable named *data\_var*, and stores it into the variable named by
-    *bool\_var*\. Additionally removes all bytes associated with the value from
-    the data for further processing by the following decoder commands\.
+    Decodes the Boolean value encoded at the start of the data stored in the
+    variable called *dataVar*\. The Boolean is stored in the variable called
+    *boolVar*, and the decoded bytes are removed from the start of the data in
+    *dataVar*, ready for the next value to be decoded\. The value stored in
+    *boolVar* is either __0__ or __1__\. If the value at the start is
+    not an encoded Boolean an error is thrown\.
 
-  - <a name='42'></a>__::asn::asnGetNull__ *data\_var*
+  - <a name='42'></a>__::asn::asnGetNull__ *dataVar*
 
-    Assumes that a NULL value is at the front of the data stored in the variable
-    named *data\_var* and removes the bytes used to encode it from the data\.
+    Decodes the NULL value encoded at the start of the data stored in the
+    variable called *dataVar* and removes the decoded bytes from the start of
+    the data in *dataVar*, ready for the next value to be decoded\. If the
+    value at the start is not an encoded NULL value an error is thrown\.
 
-  - <a name='43'></a>__::asn::asnGetSequence__ *data\_var* *sequence\_var*
+  - <a name='43'></a>__::asn::asnGetSequence__ *dataVar* *sequenceVar*
 
-    Assumes that an ASN sequence is at the front of the data stored in the
-    variable named *data\_var*, and stores it into the variable named by
-    *sequence\_var*\. Additionally removes all bytes associated with the value
-    from the data for further processing by the following decoder commands\.
+    Decodes the ASN sequence value encoded at the start of the data stored in
+    the variable called *dataVar*\. The ASN sequence is stored in the variable
+    called *sequenceVar*, and the decoded bytes are removed from the start of
+    the data in *dataVar*, ready for the next value to be decoded\. If the
+    value at the start is not an encoded ASN sequence an error is thrown\.
 
-    The data in *sequence\_var* is encoded binary and has to be further decoded
-    according to the definition of the sequence, using the decoder commands
-    here\.
+    The value in *sequenceVar* is encoded binary and must be further decoded
+    according to the definition of the sequence, using the other decoder
+    “asnGet…” commands\.
 
-  - <a name='44'></a>__::asn::asnGetSet__ *data\_var* *set\_var*
+  - <a name='44'></a>__::asn::asnGetSet__ *dataVar* *setVar*
 
-    Assumes that an ASN set is at the front of the data stored in the variable
-    named *data\_var*, and stores it into the variable named by *set\_var*\.
-    Additionally removes all bytes associated with the value from the data for
-    further processing by the following decoder commands\.
+    Decodes the ASN set value encoded at the start of the data stored in the
+    variable called *dataVar*\. The ASN set is stored in the variable called
+    *setVar*, and the decoded bytes are removed from the start of the data in
+    *dataVar*, ready for the next value to be decoded\. If the value at the
+    start is not an encoded ASN set an error is thrown\.
 
-    The data in *set\_var* is encoded binary and has to be further decoded
-    according to the definition of the set, using the decoder commands here\.
+    The value in *setVar* is encoded binary and must be further decoded
+    according to the definition of the sequence, using the other decoder
+    “asnGet…” commands\.
 
-  - <a name='45'></a>__::asn::asnGetApplication__ *data\_var* *appNumber\_var* ?*content\_var*? ?*encodingType\_var*?
+  - <a name='45'></a>__::asn::asnGetApplication__ *dataVar* *appNumberVar* ?*contentVar*? ?*encodingTypeVar*?
 
-    Assumes that an ASN application construct is at the front of the data stored
-    in the variable named *data\_var*, and stores its id into the variable
-    named by *appNumber\_var*\. Additionally removes all bytes associated with
-    the value from the data for further processing by the following decoder
-    commands\. If a *content\_var* is specified, then the command places all
-    data associated with it into the named variable, in the binary form which
-    can be processed using the decoder commands of this package\. If a
-    *encodingType\_var* is specified, then that var is set to 1 if the encoding
-    is constructed and 0 if it is primitive\.
+    Decodes the ASN application construct value encoded at the start of the data
+    stored in the variable called *dataVar*\. The ASN application construct’s
+    ID is stored in the variable called *appNumberVar*, and the decoded bytes
+    are removed from the start of the data in *dataVar*, ready for the next
+    value to be decoded\. If the value at the start is not an encoded ASN
+    application construct an error is thrown\.
 
-    Otherwise it is the responsibility of the caller to decode the remainder of
-    the application construct based on the id retrieved by this command, using
-    the decoder commands of this package\.
+    If a *contentVar* is specified, then the command places all data
+    associated with the ASN application construct into the named variable, in
+    the binary form which can be processed using the this package’s decoder
+    commands\.
 
-  - <a name='46'></a>__::asn::asnGetContext__ *data\_var* *contextNumber\_var* ?*content\_var*? ?*encodingType\_var*?
+    If a *encodingTypeVar* is specified, then that variable is set to
+    __1__ if the encoding is constructed and __0__ if it is primitive\.
 
-    Assumes that an ASN context tag construct is at the front of the data stored
-    in the variable named *data\_var*, and stores its id into the variable
-    named by *contextNumber\_var*\. Additionally removes all bytes associated
-    with the value from the data for further processing by the following decoder
-    commands\. If a *content\_var* is specified, then the command places all
-    data associated with it into the named variable, in the binary form which
-    can be processed using the decoder commands of this package\. If a
-    *encodingType\_var* is specified, then that var is set to 1 if the encoding
-    is constructed and 0 if it is primitive\.
+    Without the optional arguments, it is the responsibility of the caller to
+    decode the remainder of the ASN application construct based on the ID
+    retrieved by this command, using the package’s decoder commands\.
 
-    Otherwise it is the responsibility of the caller to decode the remainder of
-    the construct based on the id retrieved by this command, using the decoder
-    commands of this package\.
+  - <a name='46'></a>__::asn::asnGetContext__ *dataVar* *contextNumberVar* ?*contentVar*? ?*encodingTypeVar*?
+
+    Decodes the ASN context tag construct encoded at the start of the data
+    stored in the variable called *dataVar*\. The ASN context tag construct’s
+    ID is stored in the variable called *contextNumberVar*, and the decoded
+    bytes are removed from the start of the data in *dataVar*, ready for the
+    next value to be decoded\. If the value at the start is not an encoded ASN
+    context tag construct an error is thrown\.
+
+    If a *contentVar* is specified, then the command places all data
+    associated with the ASN context tag construct into the named variable, in
+    the binary form which can be processed using the this package’s decoder
+    commands\.
+
+    If a *encodingTypeVar* is specified, then that variable is set to
+    __1__ if the encoding is constructed and __0__ if it is primitive\.
+
+    Without the optional arguments, it is the responsibility of the caller to
+    decode the remainder of the ASN context tag construct based on the ID
+    retrieved by this command, using the package’s decoder commands\.
 
 ## <a name='subsection3'></a>HANDLING TAGS
 
-Working with ASN\.1 you often need to decode tagged values, which use a tag thats
-different from the universal tag for a type\. In those cases you have to replace
-the tag with the universal tag used for the type, to decode the value\. To decode
-a tagged value use the __::asn::asnRetag__ to change the tag to the
-appropriate type to use one of the decoders for primitive values\. To help with
-this the module contains three functions:
+When working with ASN\.1 you often need to decode tagged values which use a tag
+that’s different from a type’s universal tag\. In these cases, to decode the
+value, you must replace the tag with the type’s universal tag\. To decode a
+tagged value use __::asn::asnRetag__ to change the tag to an appropriate
+type so that you can use one of the decoders for primitive values\. To assist
+with this the package provides three helper functions:
 
-  - <a name='47'></a>__::asn::asnPeekTag__ *data\_var* *tag\_var* *tagtype\_var* *constr\_var*
+  - <a name='47'></a>__::asn::asnPeekTag__ *dataVar* *tagVar* *tagtypeVar* *constrVar*
 
     The __::asn::asnPeekTag__ command can be used to take a peek at the data
-    and decode the tag value, without removing it from the data\. The *tag\_var*
-    gets set to the tag number, while the *tagtype\_var* gets set to the class
-    of the tag\. \(Either UNIVERSAL, CONTEXT, APPLICATION or PRIVATE\)\. The
-    *constr\_var* is set to 1 if the tag is for a constructed value, and to 0
-    for not constructed\. It returns the length of the tag\.
+    and decode the tag value, without removing it from the data\. The *tagVar*
+    is set to the tag number\. The *tagtypeVar* is set to the tag’s class,
+    which is one of __UNIVERSAL__, __CONTEXT__, __APPLICATION__, or
+    __PRIVATE__\. The *constrVar* is set to 1 if the tag is for a
+    constructed value, or to 0 for a primitive\. The command returns the tag’s
+    length\.
 
   - <a name='48'></a>__::asn::asnTag__ *tagnumber* ?*class*? ?*tagstyle*?
 
-    The __::asn::asnTag__ can be used to create a tag value\. The
-    *tagnumber* gives the number of the tag, while the *class* gives one of
-    the classes \(UNIVERSAL,CONTEXT,APPLICATION or PRIVATE\)\. The class may be
-    abbreviated to just the first letter \(U,C,A,P\), default is UNIVERSAL\. The
-    *tagstyle* is either C for Constructed encoding, or P for primitve
-    encoding\. It defaults to P\. You can also use 1 instead of C and 0 instead of
-    P for direct use of the values returned by __::asn::asnPeekTag__\.
+    The __::asn::asnTag__ command is used to create a tag value\. The
+    *tagnumber* specifies the tag’s number\. If given, the tag’s *class* must
+    be one of __UNIVERSAL__, __CONTEXT__, __APPLICATION__, or
+    __PRIVATE__; or just the first letter as an abbreviation \(__U__,
+    __C__, __A__, or __P__\.\) The default class is __UNIVERSAL__\.
+    If given, the *tagstyle* must be either __C__ or __1__ for a
+    constructed encoding, or __P__ or __0__ for a primitive encoding\.
+    The default is __P__\. \(The use of __1__ and __0__ makes it easy
+    to use this command with the values returned by __::asn::asnPeekTag__\.\)
 
-  - <a name='49'></a>__::asn::asnRetag__ *data\_var* *newTag*
+  - <a name='49'></a>__::asn::asnRetag__ *dataVar* *newTag*
 
-    Replaces the tag in front of the data in *data\_var* with *newTag*\. The
-    new Tag can be created using the __::asn::asnTag__ command\.
+    Replaces the tag at the start of the data in *dataVar* with *newTag*\.
+    The new tag can be created using the __::asn::asnTag__ command\.
 
 # <a name='section3'></a>EXAMPLES
 
-Examples for the usage of this package can be found in the implementation of
-package __[ldap](\.\./ldap/ldap\.md)__\.
+Examples that show this package in use can be found in the implementation of the
+__[ldap](\.\./ldap/ldap\.md)__ package\.
+
+When encoding text it is best to *avoid* __::asn::asnUTF8String__ since in
+rare cases it may not work correctly\. For pure 7\-bit ASCII it is easiest to
+encode using __::asn::asnIA5String__\. Outside the 7\-bit ASCII range convert
+Tcl strings into UCS2 \(i\.e\., utf\-16le\) and encode with
+__::asn::asnBMPString__\. For decoding any string use
+__::asn::asnGetString__; however, for each UCS2 string, remember to convert
+it back to a Tcl string\.
+
+    # Encode
+    set eflag [::asn::asnBoolean 1]
+    set etotal [::asn::asnInteger 734]
+    set line [encoding convertto utf-16le "€2 ÷ 3 → €⅔ ✔"]
+    set eline [::asn::asnBMPString $line]
+    set enote [::asn::asnIA5String "7-bit ASCII ~^"]
+    set encoded [::asn::asnSequence $eflag $etotal $eline $enote]
+    # Decode
+    ::asn::asnGetSequence encoded sequence
+    ::asn::asnGetBoolean sequence flag
+    ::asn::asnGetInteger sequence total
+    ::asn::asnGetString sequence bmp_line
+    set line [encoding convertfrom utf-16le $bmp_line]
+    ::asn::asnGetString sequence note
+    puts "flag=$flag total=$total line='$line' note='$note'"
+    =>
+    flag=1 total=734 line='€2 ÷ 3 → €⅔ ✔' note='7-bit ASCII ~^'
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *asn* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *asn* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

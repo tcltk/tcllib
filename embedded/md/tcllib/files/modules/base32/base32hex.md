@@ -27,7 +27,11 @@ base32::hex \- base32 extended hex encoding
 
   - [Code map](#section3)
 
-  - [Bugs, Ideas, Feedback](#section4)
+  - [Examples](#section4)
+
+  - [Bugs, Ideas, Feedback](#section5)
+
+  - [See Also](#seealso)
 
   - [Keywords](#keywords)
 
@@ -41,47 +45,57 @@ package require Tcl 8\.5 9
 package require base32::core ?0\.2?  
 package require base32::hex ?0\.2?  
 
-[__::base32::hex::encode__ *string*](#1)  
+[__::base32::hex::encode__ *bstring*](#1)  
 [__::base32::hex::decode__ *estring*](#2)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides commands for encoding and decoding of strings into and out
-of the extended hex base32 encoding as specified in the RFC 3548bis draft\.
+This package provides commands for encoding and decoding binary strings to and
+from the extended hex base32 encoding as specified in [RFC
+4648](https://datatracker\.ietf\.org/doc/html/rfc4648)\.
+
+\(Note that Tcl’s built\-in
+[binary](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) command
+provides simple encoding and decoding of bytes to and from pairs of hex digits\.\)
 
 # <a name='section2'></a>API
 
-  - <a name='1'></a>__::base32::hex::encode__ *string*
+  - <a name='1'></a>__::base32::hex::encode__ *bstring*
 
-    This command encodes the given *string* in extended hex base32 and returns
-    the encoded string as its result\. The result may be padded with the
-    character __=__ to signal a partial encoding at the end of the input
-    string\.
+    Returns an extended hex base32\-encoded version of the binary string
+    *bstring* as its result\.
+
+    The result may be padded at the end with __=__ characters to ensure that
+    the result’s length is a multiple of eight\.
+
+    The encoder will throw an error if *bstring* is neither a binary string,
+    nor a string containing only 7\-bit ASCII\.
 
   - <a name='2'></a>__::base32::hex::decode__ *estring*
 
-    This commands takes the *estring* and decodes it under the assumption that
-    it is a valid extended hex base32 encoded string\. The result of the decoding
-    is returned as the result of the command\.
+    Returns a binary string that has been extended hex base32\-decoded from the
+    *estring*\.
 
-    Note that while the encoder will generate only uppercase characters this
-    decoder accepts input in lowercase as well\.
+    Note that while the encoder produces only uppercase characters, this decoder
+    is case\-insensitive, i\.e\., more permissive\.
 
-    The command will always throw an error whenever encountering conditions
-    which signal some type of bogus input, namely if
+    The decoder may throw an error on invalid input\. For example, if:
 
-      1. the input contains characters which are not valid output of a extended
-         hex base32 encoder,
+      * the input contains characters which are not valid for extended hex
+        base32\-encoded data;
 
-      1. the length of the input is not a multiple of eight,
+      * the length of the input is not a multiple of eight;
 
-      1. padding appears not at the end of input, but in the middle,
+      * padding appears in the middle rather than at the end of the input;
 
-      1. the padding has not of length six, four, three, or one characters,
+      * the padding’s length is not exactly one, three, four, or six characters\.
+
+It is also possible to have invalid input that does *not* throw an error—for
+example, plain text that doesn’t do any of the things listed above\.
 
 # <a name='section3'></a>Code map
 
-The code map used to convert 5\-bit sequences is shown below, with the numeric id
+The code map used to convert 5\-bit sequences is shown below, with the numeric ID
 of the bit sequences to the left and the character used to encode it to the
 right\. The important feature of the extended hex mapping is that the first 16
 codes map to the digits and hex characters\.
@@ -96,12 +110,40 @@ codes map to the digits and hex characters\.
     7 7        16 G   25 P
     8 8        17 H   26 Q
 
-# <a name='section4'></a>Bugs, Ideas, Feedback
+# <a name='section4'></a>Examples
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *base32* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+This example shows how to encode and decode a Tcl string to and from extended
+hex base32, taking account of the fact that the extended hex base32 commands
+work in terms of binary strings\.
+
+    const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+    set bytes [encoding convertto utf-8 $UTF8_LINE]
+    set enc32 [::base32::hex::encode $bytes]
+    set dec32 [::base32::hex::decode $enc32]
+    set line [encoding convertfrom utf-8 $dec32]
+    puts "base32::hex='$enc32' [expr {$UTF8_LINE eq $line}]"
+    =>
+    base32::hex='PQAC7DP0SA09OLBKCOMJHOK0JKGE56CUSA2A8===' 1
+
+If the original string is 7\-bit ASCII the conversions to and from raw bytes
+using the __[encoding](\.\./\.\./\.\./\.\./index\.md\#encoding)__ command are not
+needed\. For example:
+
+    const ASCII_LINE "! 7-bit ASCII {~^}"
+    set enc32 [::base32::hex::encode $ASCII_LINE]
+    set dec32 [::base32::hex::decode $enc32]
+    set line [encoding convertfrom utf-8 $dec32]
+    puts "base32::hex='$enc32' [expr {$ASCII_LINE eq $line}]"
+    =>
+    base32::hex='44G3EBB2D5Q20GAJ8D4KI83RFPF7Q===' 1
+
+# <a name='section5'></a>Bugs, Ideas, Feedback
+
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *base32* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.
@@ -111,10 +153,14 @@ Attachments can be made by going to the __Edit__ form of the ticket
 immediately after its creation, and then using the left\-most button in the
 secondary navigation bar\.
 
+# <a name='seealso'></a>SEE ALSO
+
+binary, [encoding](\.\./\.\./\.\./\.\./index\.md\#encoding)
+
 # <a name='keywords'></a>KEYWORDS
 
 [base32](\.\./\.\./\.\./\.\./index\.md\#base32), [hex](\.\./\.\./\.\./\.\./index\.md\#hex),
-[rfc3548](\.\./\.\./\.\./\.\./index\.md\#rfc3548)
+[rfc4648](\.\./\.\./\.\./\.\./index\.md\#rfc4648)
 
 # <a name='category'></a>CATEGORY
 

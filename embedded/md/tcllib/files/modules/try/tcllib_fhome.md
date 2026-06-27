@@ -38,21 +38,22 @@ package require fhome ?1?
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides a forward\-compatibility implementation of Tcl 9's __file
-home__ command \(TIP 602\), for Tcl 8\.x\.
+This package provides a forward\-compatibility implementation of Tcl 9's [file
+home](https://www\.tcl\-lang\.org/man/tcl/TclCmd/file\.html) subcommand \(TIP
+602\), for Tcl 8\.x\.
 
   - <a name='1'></a>__[file](\.\./\.\./\.\./\.\./index\.md\#file)__ __home__ ?*user*?
 
-    Without argument, return the home directory of the current user\.
-
-    With argument, return the home directory of the specified *user*\.
+    Returns the home directory of the current user, or of the specified *user*
+    if given\.
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *file* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *file* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

@@ -141,6 +141,40 @@ proc ::zipfile::decode::filesize {zdict src} {
     return $fd(ucsize)
 }
 
+proc ::zipfile::decode::filetime {zdict src} {
+    array set _ $zdict
+    array set f $_(files)
+
+    if {![info exists f($src)]} {
+	Error "File \"$src\" not known" BAD PATH
+    }
+
+    array set fd $f($src)
+
+    # Definitions of DOSDate and DOSTime. 
+    # DOSDate:
+    #   Bits 0-4 : Day of the month (1-31)
+    #   Bits 5-8 : Month (January = 1, February = 2, ...)
+    #   Bits 9-15: Year offset from 1980 (add 1980 to get actual year)
+    # DOSTime:
+    #   Bits 0-4  : Second divided by 2
+    #   Bits 5-10 : Minute (0-59)
+    #   Bits 11-15: Hour (0-23)
+
+    set sec  [expr {(($fd(lmft) <<  1) & 0x3E) }]
+    set min  [expr {(($fd(lmft) >>  5) & 0x3F) }]
+    set hour [expr {(($fd(lmft) >> 11) & 0x1F) }]
+
+    set day  [expr {(($fd(lmfd))       & 0x1F) }]
+    set mon  [expr {(($fd(lmfd) >>  5) & 0x0F) }]
+    set year [expr {(($fd(lmfd) >>  9) & 0x7F) }]
+    incr year 1980
+
+    set dateStr [format "%d-%d-%d %d:%d:%d" $year $mon $day $hour $min $sec]
+    set date [clock scan $dateStr -format "%Y-%m-%d %H:%M:%S"]
+    return $date
+}
+
 proc ::zipfile::decode::filecomment {zdict src} {
     array set _ $zdict
     array set f $_(files)
@@ -745,5 +779,5 @@ proc ::zipfile::decode::LocateEndCore {path fdv} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.10.1
+package provide zipfile::decode 0.11.0
 return

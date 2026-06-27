@@ -323,7 +323,7 @@ Reset the language counters\&.
 .PP
 .SH "SUPPORTED MARKDOWN SYNTAX"
 .PP
-This markdown converter supports the original markdown by Gruber and Swartz (see their \fIsyntax\fR [https://daringfireball\&.net/projects/markdown/syntax] page for details):
+This markdown converter supports the original markdown by Gruber and Swartz(see their \fIsyntax\fR [https://daringfireball\&.net/projects/markdown/syntax] page for details):
 .IP \(bu
 paragraphs
 .IP \(bu
@@ -349,19 +349,19 @@ backslash escapes
 .IP \(bu
 horizontal rules
 .PP
-In addition, the following extended markdown sytax is supported, taken from PHP Markdown Extra and GFM (Github Flavoured Markdown):
+In addition, the following extended markdown sytax is supported, taken from \fIPHP Markdown Extra\fR [https://michelf\&.ca/projects/php-markdown/extra/] and
+\fIGFM (Github Flavoured Markdown)\fR [https://github\&.github\&.com/gfm/]:
 .IP \(bu
 pipe tables
 .IP \(bu
 fenced code blocks (with an optional language specifier)
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fItextutil\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fItextutil\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

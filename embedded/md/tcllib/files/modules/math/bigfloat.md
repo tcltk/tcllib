@@ -503,11 +503,11 @@ Guess what happens when you are doing some astronomy\. Here is an example :
 
 # <a name='section11'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *math :: bignum :: float*
-of the [Tcllib Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also
-report any ideas for enhancements you may have for either package and/or
-documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *math :: bignum
+:: float* as the category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

@@ -278,69 +278,144 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fByencode ?1\&.1\&.4?\fR
 .sp
-\fB::yencode::encode\fR \fIstring\fR
+\fB::yencode::encode\fR \fIbstring\fR
 .sp
-\fB::yencode::decode\fR \fIstring\fR
+\fB::yencode::decode\fR \fIestring\fR
 .sp
-\fB::yencode::yencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-line\fR \fIinteger\fR? ?\fB-crc32\fR \fIboolean\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
+\fB::yencode::yencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-line\fR \fIinteger\fR? ?\fB-crc32\fR \fIboolean\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIbstring\fR)
 .sp
-\fB::yencode::ydecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
+\fB::yencode::ydecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIestring\fR)
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-This package provides a Tcl-only implementation of the yEnc file
-encoding\&. This is a recently introduced method of encoding binary
-files for transmission through Usenet\&. This encoding packs binary data
+This package provides a Tcl-only implementation of the yEncode file
+encoding used for Usenet messages\&. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
 escapes characters special to the \fINNTP\fR posting protocols\&. See
-\fIhttp://www\&.yenc\&.org/\fR for details concerning the algorithm\&.
+\fIhttp://www\&.yenc\&.org\fR for the encoding’s details\&.
 .TP
-\fB::yencode::encode\fR \fIstring\fR
-returns the yEnc encoded data\&.
+\fB::yencode::encode\fR \fIbstring\fR
+Returns a yEncoded version of the binary string \fIbstring\fR as
+its result\&.
+.sp
+The command will throw an error if \fIbstring\fR is neither a binary
+string, nor a string containing only 7-bit ASCII\&.
 .TP
-\fB::yencode::decode\fR \fIstring\fR
-Decodes the given yEnc encoded data\&.
+\fB::yencode::decode\fR \fIestring\fR
+Returns a binary string that has been yEncode-decoded from the
+\fIestring\fR\&.
 .TP
-\fB::yencode::yencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-line\fR \fIinteger\fR? ?\fB-crc32\fR \fIboolean\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
-Encode a file or block of data\&.
+\fB::yencode::yencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-line\fR \fIinteger\fR? ?\fB-crc32\fR \fIboolean\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIbstring\fR)
+Returns a wrapped yEncoded version of the data in the file specified by
+\fB-file\fR \fIfilename\fR or by the binary string \fIbstring\fR as
+its result\&.
+.sp
+Each wrapped yEncoded result consists of a header, body, and trailer\&.
+The header is a line starting with \fB=ybegin\fR followed by a line
+length of form \fBline=\fR\fIlength\fR, the size of the original data
+(in bytes) of form \fBsize=\fR\fIsize\fR, and the name of the
+original file of form \fBname=\fR\fIfilename\fR, all space-separated\&.
+The body is the yEncoded data\&. The trailer is a line starting with
+\fB=yend\fR followed by the size of the original data of form
+\fBsize=\fR\fIsize\fR, and optionally (but recommended), a CRC32
+checksum value of form \fBcrc32=\fR\fIchecksum\fR, all
+space-separated\&.
 .TP
-\fB::yencode::ydecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
-Decode a file or block of data\&. A file may contain more than one
-embedded file so the result is a list where each element is a three
-element list of filename, file size and data\&.
+\fB::yencode::ydecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIestring\fR)
+Returns a list of 3-element lists of filename, file size,
+yEncode-decoded bytes, from the file specified by \fB-file\fR
+\fIfilename\fR or from the \fIestring\fR\&.
 .PP
-.SH OPTIONS
+.SS OPTIONS
 .TP
--filename name
-Cause the yencode or ydecode commands to read their data from the
-named file rather that taking a string parameter\&.
+\fB-file\fR \fIfilename\fR
+Cause the \fByencode\fR or \fBydecode\fR commands to read their data
+from the named file rather that taking a binary string parameter\&.
 .TP
--name string
-The encoded data header line contains the suggested file name to be
+\fB-name\fR \fIstring\fR
+The yEncoded data header line contains the original file name to be
 used when unpacking the data\&. Use this option to change this from the
-default of "data\&.dat"\&.
+default of "default\&.bin"\&.
 .TP
--line integer
-The yencoded data header line contains records the line length used
-during the encoding\&. Use this option to select a line length other
-that the default of 128\&. Note that NNTP imposes a 1000 character line
-length limit and some gateways may have trouble with more than 255
-characters per line\&.
+\fB-line\fR \fIinteger\fR
+The yEncoded header line specifies the line length used for the
+encoding, and which defaults to 128\&. Use this option to set a different
+line length\&. Note that NNTP imposes a 1000 character line length limit
+and some systems may have trouble with more than 255 characters per
+line\&.
 .TP
--crc32 boolean
-The yEnc specification recommends the inclusion of a cyclic redundancy
-check value in the footer\&. Use this option to change the default from
-\fItrue\fR to \fIfalse\fR\&.
+\fB-crc32\fR \fIboolean\fR
+When encoding this package puts a cyclic redundancy
+check (CRC) value in the trailer as recommended in the yEncode
+specification\&. This can be prevented by using this option and passing a
+false value for \fIboolean\fR, e\&.g\&., \fB0\fR\&.
 .PP
+.SH EXAMPLES
+\fIThe yEncoded data is not shown in the examples because it is just
+raw bytes\&.\fR
+.PP
+This example shows how to yEncode and yEncode-decode a Tcl string, taking
+account of the fact that the yEncode commands work in terms of binary
+strings\&.
 .PP
 .CS
 
 
-% set d [yencode::yencode -file testfile\&.txt]
-=ybegin line=128 size=584 name=testfile\&.txt
- -o- data not shown -o-
-=yend size=584 crc32=ded29f4f
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set ency [::yencode::encode $bytes]
+set decy [::yencode::decode $ency]
+set line [encoding convertfrom utf-8 $decy]
+puts "[expr {$UTF8_LINE eq $line}]"
+=>
+1
+
+.CE
+If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in \fBencoding\fR command are not needed\&. For example:
+.PP
+.CS
+
+
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set ency [::yencode::encode $ASCII_LINE]
+set decy [::yencode::decode $ency]
+set line [encoding convertfrom utf-8 $decy]
+puts "[expr {$ASCII_LINE eq $line}]"
+=>
+1
+
+.CE
+This example shows how to create a yEncoded byte string and write it to
+a file\&.
+.PP
+.CS
+
+
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set ency [::yencode::yencode -name test\&.y $bytes]
+writeFile test\&.y binary $ency
+puts $ency
+=>
+=ybegin line=128 size=23 name=test\&.y
+    … raw binary data elided …
+=yend size=23 crc32=fc01071
+
+.CE
+This example shows how to read a file containing one or more yEncoded
+files\&.
+.PP
+.CS
+
+
+foreach lst [::yencode::ydecode $ency] {
+    lassign $lst name size decy
+    set line [encoding convertfrom utf-8 $decy]
+    puts "name=$name size=$size line='$line'"
+}
+=>
+name=test\&.y size=23 line='Δ÷ “Utf-8” ♞ℤ'
 
 .CE
 .SH REFERENCES
@@ -348,12 +423,11 @@ check value in the footer\&. Use this option to change the default from
 \fIhttp://www\&.yenc\&.org/yenc-draft\&.1\&.3\&.txt\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIbase64\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIbase64\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

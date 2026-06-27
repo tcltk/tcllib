@@ -2846,6 +2846,8 @@
 [key rfc3501]
 [manpage modules/imap4/imap4.man imap4]
 [key rfc3548]
+[manpage modules/base32/base32.man base32]
+[key rfc4648]
 [manpage modules/base32/base32.man    base32]
 [manpage modules/base32/base32hex.man base32::hex]
 [key {right outer join}]

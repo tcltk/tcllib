@@ -12,7 +12,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.5 9
-package provide tar 0.14
+package provide tar 0.15
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -576,7 +576,7 @@ proc ::tar::HandleLongLink {fh hv} {
 }
 
 proc ::tar::SetupWriting {file do {mode rb+}} {
-    set fh [::open $tar $mode]
+    set fh [::open $file $mode]
     if {[IsGzFile $fh]} {
 	close $fh
 	Err "cannot $do gzip compressed tar" ZLIB UNSUPPORTED WRITE
@@ -628,20 +628,20 @@ proc ::tar::SetupReading {chan gzip file} {
     }
     set gz [IsGzFile $fh]
 
-    if {!$hasgzip && $gz} {
+    if {!$hasgzip && $gz > 0} {
 	# R2
 	close $fh
 	Err "unsupported input, no zlib support available" \
 	    ZLIB UNSUPPORTED FILE
     }
 
-    if {$hasgzip && $gzip && !$gz} {
+    if {$hasgzip && $gzip && $gz <= 0} {
 	# R7
 	Err "input mismatch, zlib requested, not present" \
 	    ZLIB MISMATCH
     }
 
-    if {$gz} {
+    if {$gz > 0} {
 	# R6, R8
 	zlib push gunzip $fh
 	fconfigure $fh -translation binary
@@ -653,7 +653,7 @@ proc ::tar::SetupReading {chan gzip file} {
 proc ::tar::Close {fh pos chan gz} {
     if {!$chan} {
 	close $fh
-    } elseif {$gz} {
+    } elseif {$gz > 0} {
         chan pop $fh
         catch {seek $fh $pos}
     }
@@ -661,6 +661,10 @@ proc ::tar::Close {fh pos chan gz} {
 }
 
 proc ::tar::IsGzFile {fh} {
+    if {[catch {seek $fh 0 current}]} {
+	# not seekable
+	return -1
+    }
     set hdr [read $fh 2]
     seek $fh 0
     return [expr {$hdr eq "\x1f\x8b"}]

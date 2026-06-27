@@ -99,7 +99,7 @@ purpose, and non-infringement.
 This software is provided on an "as is" basis, and the authors and distributors have no
 obligation to provide maintenance, support, updates, enhancements, or modifications.
 
-[para] [strong {RESTRICTED RIGHTS}]: Use, duplication or disclosure by the government is
+[para] [emph {RESTRICTED RIGHTS}]: Use, duplication or disclosure by the government is
 subject to the restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
 Technical Data and Computer Software Clause as DFARS 252.227-7013 and FAR 52.227-19.
 

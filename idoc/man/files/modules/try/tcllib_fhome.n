@@ -284,20 +284,20 @@ package require \fBfhome ?1?\fR
 .SH DESCRIPTION
 .PP
 This package provides a forward-compatibility implementation of Tcl
-9's \fBfile home\fR command (TIP 602), for Tcl 8\&.x\&.
+9's
+\fIfile home\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/file\&.html]
+subcommand (TIP 602), for Tcl 8\&.x\&.
 .TP
 \fBfile\fR \fBhome\fR ?\fIuser\fR?
-Without argument, return the home directory of the current user\&.
-.sp
-With argument, return the home directory of the specified \fIuser\fR\&.
+Returns the home directory of the current user, or of the specified
+\fIuser\fR if given\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIfile\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIfile\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

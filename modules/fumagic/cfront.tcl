@@ -3,20 +3,21 @@
 #	Generator frontend for compiler of magic(5) files into recognizers
 #	based on the 'rtcore'. Parses magic(5) into a basic 'script'.
 #
-# Copyright (c) 2016      Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
-# Copyright (c) 2005      Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2016-2018 Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 #####
 #
-# "mime type recognition in pure tcl"
-# http://wiki.tcl.tk/12526
+# "mime type discriminator"
+# http://wiki.tcl.tk/12537
 #
-# Tcl code harvested on:  10 Feb 2005, 04:06 GMT
-# Wiki page last updated: ???
+# Wiki page last updated: 25 Mar 2008, 15:56 GMT
+# Tcl code harvested on:  21 Aug 2018, 22:48 GMT,
+#     from file-5.34 magic files, check-in [c48961ab8e].
 #
 #####
 
@@ -26,13 +27,14 @@
 package require Tcl 8.5 9
 
 # file to compile the magic file from magic(5) into a tcl program
-package require fileutil              ; # File processing (input)
-package require fileutil::magic::cgen ; # Code generator.
-package require fileutil::magic::rt   ; # Runtime (typemap)
-package require struct::list          ; # lrepeat.
-package require struct::tree          ; #
+package require fileutil                  ; # File processing (input)
+package require fileutil::magic::cgen     ; # Code generator.
+package require fileutil::magic::rt       ; # Runtime (typemap)
+package require struct::list              ; # lrepeat.
+package require struct::tree              ; #
+package require fileutil::magic::filetype ; # Needed by proc install
 
-package provide fileutil::magic::cfront 1.3.2
+package provide fileutil::magic::cfront 1.3.3
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -222,12 +224,17 @@ proc ::fileutil::magic::cfront::generate args {
     return $script 
 }
 
+# ----------------------------------------------------------------------
+# Package fileutil::magic::filetype is loaded above.
+# This command overwrites:
+# - variable ::fileutil::magic::filetype::named
+# - command  ;:fileutil::magic::filetype::analyze
+# so that command ::fileutil::magic::filetype uses these new values.
+# ----------------------------------------------------------------------
 
 proc ::fileutil::magic::cfront::install args {
-    foreach arg $args {
-	set path [file tail $arg]
-	eval [generate compressed 1 -- ::fileutil::magic::/$path $arg]
-    }
+    set script [generate compressed 0 -- {*}$args]
+    namespace eval ::fileutil::magic::filetype $script
     return
 }
 

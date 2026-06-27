@@ -43,39 +43,50 @@ json \- JSON parser
 package require Tcl 8\.5 9  
 package require json ?1\.3\.6?  
 
-[__::json::json2dict__ *txt*](#1)  
-[__::json::many\-json2dict__ *txt* ?*max*?](#2)  
+[__::json::json2dict__ *json\_txt*](#1)  
+[__::json::many\-json2dict__ *json\_txt* ?*max*?](#2)  
 
 # <a name='description'></a>DESCRIPTION
 
-The __json__ package provides a simple Tcl\-only library for parsing the JSON
-[http://www\.json\.org/](http://www\.json\.org/) data exchange format as
-specified in RFC 4627
-[http://www\.ietf\.org/rfc/rfc4627\.txt](http://www\.ietf\.org/rfc/rfc4627\.txt)\.
-There is some ambiguity in parsing JSON because JSON has type information that
-is not maintained by the Tcl conversion\. The __json__ package returns data
-as a Tcl __[dict](\.\./\.\./\.\./\.\./index\.md\#dict)__\. Either the
-__[dict](\.\./\.\./\.\./\.\./index\.md\#dict)__ package or Tcl 8\.5 is required for
-use\.
+The __json__ package provides a simple Tcl\-only library for parsing the
+[JSON](http://www\.json\.org/) data exchange format as specified in [RFC
+4627](http://www\.ietf\.org/rfc/rfc4627\.txt)\. There is some ambiguity in
+parsing JSON because JSON has type information that is not maintained by this
+module's conversion\. Furthermore, JSON __null__ values are converted to the
+string literal "null" \(see
+[ticket](https://core\.tcl\-lang\.org/tcllib/tktview/2aa0cebb88)\)\. The
+__json__ package returns data either as a Tcl __dict__ or a __list__
+which itself may contain nested __dict__s or __list__s\. \(Either the
+__[dict](\.\./\.\./\.\./\.\./index\.md\#dict)__ package or Tcl 8\.5 or later is
+required for use\.\)
+
+For an alternative Tcl\-only type\-preserving implementation, see the
+[typed\-json](https://wiki\.tcl\-lang\.org/page/typed\-json) module\.
 
 # <a name='section2'></a>COMMANDS
 
-  - <a name='1'></a>__::json::json2dict__ *txt*
+  - <a name='1'></a>__::json::json2dict__ *json\_txt*
 
-    Parse JSON formatted text *txt* into a Tcl dict and return the value\.
+    Returns a __dict__ or __list__ \(which itself may contain nested
+    __dict__s and/or __list__s\) which is the result of parsing the JSON
+    formatted text passed in *json\_txt*\.
 
-    If *txt* contains more than one JSON entity only the first one is
+    If *json\_txt* contains more than one JSON entity only the first one is
     returned\.
 
-  - <a name='2'></a>__::json::many\-json2dict__ *txt* ?*max*?
+  - <a name='2'></a>__::json::many\-json2dict__ *json\_txt* ?*max*?
 
-    Parse JSON formatted text *txt* containing multiple JSON entities into a
-    list of dictionaries and return that list\.
+    Returns a __list__ \(which itself will contain nested __dict__s
+    and/or __list__s\) which is the result of parsing all the JSON entities
+    \(or if *max* is specified, the first *max* entities\), in the JSON
+    formatted text passed in *json\_txt*\.
 
-    If *max* is specified exactly that many entities are extracted from
-    *txt*\. By default the command will attempt to extract all, without limits\.
-    A value of "*max* == 0" does not make sense and will cause the command to
-    throw an error\.
+    If *max* is specified it must be a positive integer __> 0__ or the
+    command will throw and error\.
+
+If the JSON formatted text contains nested lists and dicts then so will the
+returned dict\. In such cases accessing a data value may require a *mixture* of
+using dict get and lindex\. \(See the second example\.\)
 
 # <a name='section3'></a>EXAMPLES
 
@@ -107,6 +118,33 @@ single item with multiple elements\.
     =>
     {Country US Latitude 37.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122.3959} {Country US Latitude 37.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122.026020}
 
+An example of a JSON dict which contains an entry whose value is a list of
+dicts\.
+
+    {
+      "items": [
+         {
+          "snippet": {
+            "title": "In The Shade",
+            "channelTitle": "Flox - Topic"
+          },
+          "statistics": {
+            "viewCount": "274"
+          }
+        }
+      ]
+    }
+    =>
+    items {{snippet {title {In The Shade} channelTitle {Flox - Topic}} statistics {viewCount 274}}}
+
+Assuming that the JSON formatted text is in variable __jdata__, it can be
+converted to a __dict__ and elements extracted\.
+
+    set d [json::json2dict $jdata]
+    set title [dict get [lindex [dict get $d items] 0] snippet title]
+    =>
+    In The Shade
+
 An example of a JSON object converted to Tcl\. A JSON object is returned as a
 multi\-element list \(a dict\)\.
 
@@ -133,10 +171,11 @@ __[json::write](json\_write\.md)__\.
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *json* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *json* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

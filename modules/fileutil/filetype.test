@@ -212,6 +212,12 @@ test fileType-1.26 {sqlite3, no app} {
 
 # -------------------------------------------------------------------------
 
+test fileType-1.30 {binary GNU tar, ticket [941c0d2b60]} {
+    set f [asset for-test.tar]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list binary compressed tar]]
+
 unset path
 testsuiteCleanup
 return

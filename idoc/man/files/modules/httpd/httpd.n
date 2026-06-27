@@ -511,8 +511,8 @@ method \fBConnect_Local\fR \fIuuid\fR \fIsock\fR ?\fIargs\fR?
 .BE
 .SH DESCRIPTION
 .PP
-This module implements a web server, suitable for embedding in an
-application\&. The server is object oriented, and contains all of the
+This module implements a web server suitable for embedding in an
+application\&. The server is object oriented, and contains all
 fundamentals needed for a full service website\&.
 .PP
 .SH "MINIMAL EXAMPLE"
@@ -522,6 +522,8 @@ to service, and \fBhttpd::reply\fR derived classes to generate them\&.
 .CS
 
 
+package require httpd
+
 oo::class create ::reply\&.hello {
   method content {} {
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
@@ -529,12 +531,14 @@ oo::class create ::reply\&.hello {
     my puts </BODY></HTML>
   }
 }
-::httpd::server create HTTPD port 8015 myaddr 127\&.0\&.0\&.1 doc_root ~/htdocs
-HTTPD plugin dispatch httpd::server::dispatch
+::httpd::server create HTTPD port 8015 myaddr 127\&.0\&.0\&.1 doc_root [file home]/htdocs
+HTTPD plugin dispatch ::httpd::plugin\&.dict_dispatch
 HTTPD uri add * /hello [list mixin reply\&.hello]
+vwait forever
 
 .CE
-The bare module does have facilities to hose a files from a file system\&. Files that end in a \&.tml will be substituted in the style of Tclhttpd:
+The bare module has facilities to host files from a file system\&. Files
+that end in a \fB\&.tml\fR will be substituted in the style of Tclhttpd:
 .CS
 
 
@@ -546,7 +550,8 @@ The time is now [clock format [clock seconds]]
 [my html_footer]
 
 .CE
-A complete example of an httpd server is in the /examples directory of Tcllib\&. It also show how to dispatch URIs to other processes via SCGI and HTTP proxies\&.
+A complete httpd server example in the Tcllib’s /examples directory\&.
+This also shows how to dispatch URIs to other processes via SCGI and HTTP proxies\&.
 .CS
 
 
@@ -1112,12 +1117,11 @@ the server is one side of the link and the reply is another
 .SH AUTHORS
 Sean Woods
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fInetwork\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fInetwork\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

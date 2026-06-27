@@ -198,15 +198,17 @@ package require Markdown
 
 # <a name='description'></a>DESCRIPTION
 
-This module implements a web server, suitable for embedding in an application\.
-The server is object oriented, and contains all of the fundamentals needed for a
-full service website\.
+This module implements a web server suitable for embedding in an application\.
+The server is object oriented, and contains all fundamentals needed for a full
+service website\.
 
 # <a name='section2'></a>Minimal Example
 
 Starting a web service requires starting a class of type __httpd::server__,
 and providing that server with one or more URIs to service, and
 __httpd::reply__ derived classes to generate them\.
+
+    package require httpd
 
     oo::class create ::reply.hello {
       method content {} {
@@ -215,12 +217,13 @@ __httpd::reply__ derived classes to generate them\.
         my puts </BODY></HTML>
       }
     }
-    ::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root ~/htdocs
-    HTTPD plugin dispatch httpd::server::dispatch
+    ::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root [file home]/htdocs
+    HTTPD plugin dispatch ::httpd::plugin.dict_dispatch
     HTTPD uri add * /hello [list mixin reply.hello]
+    vwait forever
 
-The bare module does have facilities to hose a files from a file system\. Files
-that end in a \.tml will be substituted in the style of Tclhttpd:
+The bare module has facilities to host files from a file system\. Files that end
+in a __\.tml__ will be substituted in the style of Tclhttpd:
 
     <!-- hello.tml -->
     [my html_header {Hello World!}]
@@ -229,8 +232,8 @@ that end in a \.tml will be substituted in the style of Tclhttpd:
     The time is now [clock format [clock seconds]]
     [my html_footer]
 
-A complete example of an httpd server is in the /examples directory of Tcllib\.
-It also show how to dispatch URIs to other processes via SCGI and HTTP proxies\.
+A complete httpd server example in the Tcllib’s /examples directory\. This also
+shows how to dispatch URIs to other processes via SCGI and HTTP proxies\.
 
     cd ~/tcl/sandbox/tcllib
     tclsh examples/httpd.tcl
@@ -825,10 +828,11 @@ Sean Woods
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *network* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *network* as
+the category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

@@ -36,55 +36,75 @@ dicttool \- Dictionary Tools
 package require Tcl 8\.5 9  
 package require dicttool ?1\.2?  
 
-[__ladd__ *varname* *args*](#1)  
-[__ldelete__ *varname* *args*](#2)  
-[__dict getnull__ *args*](#3)  
-[__dict print__ *dict*](#4)  
+[__ladd__ *dictVar* ?*key value \.\.\.*?](#1)  
+[__ldelete__ *dictVar* ?*key value \.\.\.*?](#2)  
+[__dict getnull__ *key*](#3)  
+[__dict print__ *aDict*](#4)  
 [__dict is\_dict__ *value*](#5)  
-[__rmerge__ *args*](#6)  
+[__dict rmerge__ *dict1* *dict2* ?*dict3 \.\.\.*?](#6)  
 
 # <a name='description'></a>DESCRIPTION
 
-The __dicttool__ package enhances the standard *dict* command with several
-new commands\. In addition, the package also defines several "creature comfort"
-list commands as well\. Each command checks to see if a command already exists of
-the same name before adding itself, just in case any of these slip into the
-core\.
+This package enhances the built\-in
+[dict](https://www\.tcl\-lang\.org/man/tcl/TclCmd/dict\.html) command with
+several new commands\. In addition, the package also defines several convenient
+list commands\. \(Each command only adds itself if a command of the same name
+doesn’t already exist, in case any of these are added to the core\.\)
 
-  - <a name='1'></a>__ladd__ *varname* *args*
+  - <a name='1'></a>__ladd__ *dictVar* ?*key value \.\.\.*?
 
-    This command will add a new instance of each element in *args* to
-    *varname*, but only if that element is not already present\.
+    This command adds every pair of *key value* elements to *dictVar*, but
+    only if that element is not already present \(whether as a key or a value\)\.
+    This command *must* be given pairs of *key value* elements to preserve
+    *dictVar* as a __dict__\.
 
-  - <a name='2'></a>__ldelete__ *varname* *args*
+  - <a name='2'></a>__ldelete__ *dictVar* ?*key value \.\.\.*?
 
-    This command will delete all instances of each element in *args* from
-    *varname*\.
+    This command deletes every pair of *key value* elements from *dictVar*\.
+    Harmlessly does nothing if the pair is not already in *dictVar*\. This
+    command *must* be given pairs of *key value* elements to preserve
+    *dictVar* as a __dict__\.
 
-  - <a name='3'></a>__dict getnull__ *args*
+    Use the built\-in
+    [dict](https://www\.tcl\-lang\.org/man/tcl/TclCmd/dict\.html) command’s
+    __dict remove__ subcommand to remove elements by key alone\.
 
-    Operates like __dict get__, however if the key *args* does not exist,
+  - <a name='3'></a>__dict getnull__ *key*
+
+    Operates like __dict get__, however if the key *key* does not exist,
     it returns an empty list instead of throwing an error\.
 
-  - <a name='4'></a>__dict print__ *dict*
+    An alternative to this command is the built\-in
+    [dict](https://www\.tcl\-lang\.org/man/tcl/TclCmd/dict\.html) command’s
+    __dict getwithdefault__ subcommand *or* *its alias* __dict
+    getdef__\. Using __dict getdef__ with a default of an empty list,
+    *\{\}*, is equivalent to using __dict getnull__\.
 
-    This command will produce a string representation of *dict*, with each
-    nested branch on a newline, and indented with two spaces for every level\.
+  - <a name='4'></a>__dict print__ *aDict*
+
+    Returns a “pretty printed” string representation of __dict__ *aDict*,
+    with each nested branch on a newline, and indented with two spaces for every
+    level\.
 
   - <a name='5'></a>__dict is\_dict__ *value*
 
-    This command will return true if *value* can be interpreted as a dict\. The
-    command operates in such a way as to not force an existing dict
-    representation to shimmer into another internal rep\.
+    Returns __1__ \(true\) if *value* can be interpreted as a __dict__;
+    otherwise __0__ \(false\)\.
 
-  - <a name='6'></a>__rmerge__ *args*
+    This command does *not* force an existing __dict__ representation to
+    change into another internal representation\.
 
-    Return a dict which is the product of a recursive merge of all of the
-    arguments\. Unlike __dict merge__, this command descends into all of the
-    levels of a dict\. Dict keys which end in a : indicate a leaf, which will be
-    interpreted as a literal value, and not descended into further\.
+  - <a name='6'></a>__dict rmerge__ *dict1* *dict2* ?*dict3 \.\.\.*?
 
-        set items [dict merge {
+    Returns a __dict__ which is the result of a recursive merge of all of
+    the __dict__ arguments\. Unlike the built\-in
+    [dict](https://www\.tcl\-lang\.org/man/tcl/TclCmd/dict\.html) command’s
+    __dict merge__ subcommand, this command descends into all of the
+    __dict__’s levels\. Note that __dict__ keys which end in a : indicate
+    a leaf, which will be interpreted as a literal value, and not descended into
+    further\.
+
+        set items [dict rmerge {
           option {color {default: green}}
         } {
           option {fruit {default: mango}}
@@ -92,25 +112,30 @@ core\.
           option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
         }]
         puts [dict print $items]
-
-    Prints the following result:
-
+        =>
         option {
           color {
             default: blue
           }
           fruit {
+            default: mango
             widget: select
             values: {mango apple cherry grape}
           }
         }
 
+    If the built\-in
+    [dict](https://www\.tcl\-lang\.org/man/tcl/TclCmd/dict\.html) command’s
+    __dict merge__ subcommand had been used above, the *fruit* item’s
+    *default* key\-value entry would have been lost\.
+
 # <a name='section2'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *dict* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *dict* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

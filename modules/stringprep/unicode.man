@@ -11,44 +11,124 @@
 [require unicode [vset VERSION]]
 [description]
 [para]
+This is a Tcl implementation of Unicode normalization commands.
 
-This is an implementation in Tcl of the Unicode normalization forms.
+[para]
+[emph {Note}] that if normalization alone is insufficient (e.g., for
+string comparisons), the [package stringprep] package may prove useful.
 
-[section "COMMANDS"]
+[section API]
+
+[para]
+The [arg form] argument in the commands listed below must be a string
+that has one of the following values: [const D] (canonical
+decomposition), [const C] (canonical decomposition, followed by
+canonical composition), [const KD] (compatibility decomposition), or
+[const KC] (compatibility decomposition, followed by canonical
+composition).
 
 [list_begin definitions]
-[call [cmd "::unicode::fromstring"] \
-        [arg string]]
-
-Converts [arg string] to list of integer Unicode character codes which
-is used in [package unicode] for internal string representation.
-
-[call [cmd "::unicode::tostring"] \
-        [arg uclist]]
-
-Converts list of integers [arg uclist] back to Tcl string.
-
-[call [cmd "::unicode::normalize"] \
-        [arg form] \
-        [arg uclist]]
-
-Normalizes Unicode characters list [arg ulist] according to [arg form]
-and returns the normalized list. Form [arg form] takes one of the following
-values: [arg D] (canonical decomposition), [arg C] (canonical decomposition, followed
-by canonical composition), [arg KD] (compatibility decomposition), or [arg KC]
-(compatibility decomposition, followed by canonical composition).
-
 [call [cmd "::unicode::normalizeS"] \
         [arg form] \
         [arg string]]
 
-A shortcut to
-::unicode::tostring [lb]unicode::normalize \$form [lb]::unicode::fromstring \$string[rb][rb].
-Normalizes Tcl string and returns normalized string.
+Returns a possibly modified copy of [arg string], normalized in
+accordance with the given [arg form].
+
+[para]
+This is a convenience for:
+[emph {::unicode::tostring}] [lb][emph {unicode::normalize $form}]
+[lb][emph {::unicode::fromstring $string}][rb][rb].
+
+[call [cmd "::unicode::fromstring"] \
+        [arg string]]
+
+Returns a list of integer Unicode code points representing the
+characters in [arg string].
+
+[para]
+(These integer code points are used in [package unicode] for internal
+string representation.)
+
+[call [cmd "::unicode::tostring"] \
+        [arg codepointsList]]
+
+Returns a string whose characters are those corresponding to the
+[arg codepointsList] of integers.
+
+[para]
+Every integer that is a valid Unicode code point is represented in the
+returned string by the corresponding Unicode character. Any integer that
+is not a valid Unicode code point is represented using the Unicode
+replacement character �, U+FFFD, unless it is sufficiently big, in which
+case an error is thrown.
+
+[call [cmd "::unicode::normalize"] \
+        [arg form] \
+        [arg codepointsList]]
+
+Returns a possibly modified copy of the [arg codepointsList] of integers
+(which must all be valid Unicode code points), normalized according to
+the given normalization [arg form].
 
 [list_end]
 
-[section EXAMPLES]
+[section Examples]
+
+[para]
+Some Unicode characters have more than one representation in a Unicode
+encoding such as UTF-8. Normally, this is not a problem [emph within] a
+programming language, since the language will typically always use the
+same representation for any given character. But for data read in from
+files or other external sources, any of the possible representations
+could be used. So in these cases normalization may be needed.
+
+[para]
+Here is an example of the problem:
+
+[example {
+set a "Å"
+set b "\u212B"
+set c [encoding convertfrom utf-8 \xC3\x85]
+set d [encoding convertfrom utf-8 \xE2\x84\xAB]
+set e [encoding convertfrom utf-8 \x41\xCC\x8A]
+set s [join [list $a $b $c $d $e] ""]
+puts "s=$s a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}]\
+    a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}]\
+    b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}]\
+    c=e→[expr {$a eq $e}]"
+=>
+s=ÅÅÅÅÅ a=b→0 a=c→1 a=d→0 a=e→0 b=c→0 b=d→0 b=e→0 c=d→0 c=e→0
+}]
+
+[para]
+The above output shows that although all the characters are the same,
+they have different UTF-8 representations and do [emph not] compare
+equal.
+
+[para]
+The solution is to normalize. For example:
+
+[example {
+set t [unicode::normalizeS KC $s]
+set a [string index $t 0]
+set b [string index $t 1]
+set c [string index $t 2]
+set d [string index $t 3]
+set e [string index $t 4]
+puts "t=$t a=b→[expr {$a eq $b}] a=c→[expr {$a eq $c}]\
+    a=d→[expr {$a eq $d}] a=e→[expr {$a eq $e}] b=c→[expr {$a eq $d}]\
+    b=d→[expr {$a eq $d}] b=e→[expr {$a eq $e}] c=d→[expr {$a eq $d}]\
+    c=e→[expr {$a eq $e}]"
+=>
+t=ÅÅÅÅÅ a=b→1 a=c→1 a=d→1 a=e→1 b=c→1 b=d→1 b=e→1 c=d→1 c=e→1
+}]
+
+[para]
+After normalization all the characters have the same representation and
+correctly compare as equal.
+
+[subsection {Legacy examples}]
 
 [example {
 % ::unicode::fromstring "\u0410\u0411\u0412\u0413"
@@ -66,7 +146,7 @@ A
 %
 }]
 
-[section "REFERENCES"]
+[section References]
 
 [list_begin enum]
 
@@ -76,7 +156,7 @@ A
 
 [list_end]
 
-[section "AUTHORS"]
+[section Authors]
 Sergei Golovan
 
 [vset CATEGORY stringprep]

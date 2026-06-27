@@ -20,11 +20,11 @@
 [description]
 [para]
 
-This is an implementation in Tcl of the Advanced Encryption Standard
+This is a Tcl implementation of the Advanced Encryption Standard
 (AES) as published by the U.S. National Institute of Standards and
 Technology [lb]1[rb]. AES is a 128-bit block cipher with a variable
-key size of 128, 192 or 256 bits. This implementation supports ECB and
-CBC modes.
+key size of 128, 192 or 256 bits. This implementation supports CBC and
+ECB modes.
 
 [section {COMMANDS}]
 
@@ -54,7 +54,7 @@ key schedule.
 
 [para]
 
-The [arg -mode] and [arg -dir] options are optional and default to cbc
+The [arg -mode] and [arg -dir] options are optional and default to CBC
 mode and encrypt respectively. The initialization vector [arg -iv]
 takes a 16 byte binary argument which defaults to all zeros.
 See [sectref "MODES OF OPERATION"] for more about available modes and
@@ -62,7 +62,7 @@ their uses.
 
 [para]
 
-AES is a 128-bit block cipher. This means that the data must be
+Since AES is a 128-bit block cipher, the data must be
 provided in units that are a multiple of 16 bytes.
 
 [list_end]
@@ -70,18 +70,18 @@ provided in units that are a multiple of 16 bytes.
 [section "PROGRAMMING INTERFACE"]
 
 Internal state is maintained in an opaque structure that is returned
-from the [cmd Init] function. In ECB mode the state is not affected by
-the input but for CBC mode some input dependent state is maintained
-and may be reset by calling the [cmd Reset] function with a new
-initialization vector value.
+from the [cmd Init] function. For CBC mode some input dependent state is
+maintained and may be reset by calling the [cmd Reset] function with a
+new initialization vector value. In ECB mode the state is not affected
+by the input.
 
 [list_begin definitions]
 
 [call [cmd "::aes::Init"] [arg "mode"] [arg "keydata"] [arg "iv"]]
 
 Construct a new AES key schedule using the specified key data and the
-given initialization vector. The initialization vector is not used
-with ECB mode but is important for CBC mode.
+given initialization vector. The initialization vector is important for
+CBC mode; it is not used with ECB mode.
 See [sectref "MODES OF OPERATION"] for details about cipher modes.
 
 [call [cmd "::aes::Encrypt"] [arg "Key"] [arg "data"]]
@@ -114,13 +114,6 @@ Once this function has been called the key may not be used again.
 
 [list_begin definitions]
 
-[def "Electronic Code Book (ECB)"]
-ECB is the basic mode of all block ciphers. Each block is encrypted
-independently and so identical plain text will produce identical
-output when encrypted with the same key. Any encryption errors will
-only affect a single block however this is vulnerable to known
-plaintext attacks.
-
 [def "Cipher Block Chaining (CBC)"]
 
 CBC mode uses the output of the last block encryption to affect the
@@ -129,8 +122,15 @@ block size is used to handle the first block. The initialization
 vector should be chosen randomly and transmitted as the first block of
 the output. Errors in encryption affect the current block and the next
 block after which the cipher will correct itself. CBC is the most
-commonly used mode in software encryption. This is the default mode
-of operation for this module.
+commonly used mode in software encryption, and this module’s default
+mode of operation.
+
+[def "Electronic Code Book (ECB)"]
+ECB is the basic mode of all block ciphers. Each block is encrypted
+independently and so identical plain text will produce identical
+output when encrypted with the same key. Any encryption errors will
+only affect a single block. [emph {This mode is vulnerable to known
+plaintext attacks.}]
 
 [list_end]
 

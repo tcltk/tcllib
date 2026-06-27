@@ -21,6 +21,7 @@ package require struct::queue       ; # Used by isBipartite?, connectedComponent
 package require struct::stack       ; # Used by tarjan
 package require struct::graph       ; # isBridge, isCutVertex
 package require struct::tree        ; # Used by BFS
+package require struct::set         ; # Used by Christofides, WeightedKCenter, Greedy(Weighted)MaxIndependentSet, VerticesCover, TarjanSub, connectedComponents, isCutVertex, Fleury.
 
 # ### ### ### ######### ######### #########
 ##

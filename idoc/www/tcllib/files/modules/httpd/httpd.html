@@ -275,8 +275,8 @@
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This module implements a web server, suitable for embedding in an
-application. The server is object oriented, and contains all of the
+<p>This module implements a web server suitable for embedding in an
+application. The server is object oriented, and contains all
 fundamentals needed for a full service website.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">Minimal Example</a></h2>
@@ -284,6 +284,7 @@ fundamentals needed for a full service website.</p>
 <b class="cmd">httpd::server</b>, and providing that server with one or more URIs
 to service, and <b class="cmd">httpd::reply</b> derived classes to generate them.</p>
 <pre class="doctools_example">
+package require httpd
 oo::class create ::reply.hello {
   method content {} {
     my puts &quot;&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;IRM Dispatch Server&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;&quot;
@@ -291,11 +292,13 @@ oo::class create ::reply.hello {
     my puts &lt;/BODY&gt;&lt;/HTML&gt;
   }
 }
-::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root ~/htdocs
-HTTPD plugin dispatch httpd::server::dispatch
+::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root [file home]/htdocs
+HTTPD plugin dispatch ::httpd::plugin.dict_dispatch
 HTTPD uri add * /hello [list mixin reply.hello]
+vwait forever
 </pre>
-<p>The bare module does have facilities to hose a files from a file system. Files that end in a .tml will be substituted in the style of Tclhttpd:</p>
+<p>The bare module has facilities to host files from a file system. Files
+that end in a <b class="const">.tml</b> will be substituted in the style of Tclhttpd:</p>
 <pre class="doctools_example">
 &lt;!-- hello.tml --&gt;
 [my html_header {Hello World!}]
@@ -304,7 +307,8 @@ Your Server is running.
 The time is now [clock format [clock seconds]]
 [my html_footer]
 </pre>
-<p>A complete example of an httpd server is in the /examples directory of Tcllib. It also show how to dispatch URIs to other processes via SCGI and HTTP proxies.</p>
+<p>A complete httpd server example in the Tcllib’s /examples directory.
+This also shows how to dispatch URIs to other processes via SCGI and HTTP proxies.</p>
 <pre class="doctools_example">
 cd ~/tcl/sandbox/tcllib
 tclsh examples/httpd.tcl
@@ -796,12 +800,11 @@ tclsh examples/httpd.tcl
 <p>Sean Woods</p>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>network</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>network</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

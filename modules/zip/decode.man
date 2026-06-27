@@ -1,4 +1,4 @@
-[vset ZIP_DECODE_VERSION 0.10.1]
+[vset ZIP_DECODE_VERSION 0.11.0]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin zipfile::decode n [vset ZIP_DECODE_VERSION]]
 [keywords decompression zip]
@@ -73,6 +73,13 @@ An error is thrown if the file is not found in the archive.
 This command takes a dictionary describing the currently open zip
 archive file, as returned by [cmd ::zipfile::decode::archive], and
 returns the list of files found in the archive.
+
+[comment ---------------------------------------------------------------------]
+[call [cmd ::zipfile::decode::filetime] [arg adict] [arg path]]
+
+This command takes a dictionary describing the currently open zip
+archive file, as returned by [cmd ::zipfile::decode::archive], and
+returns the datestamp of the file [arg path] in the archive.
 
 [comment ---------------------------------------------------------------------]
 [call [cmd ::zipfile::decode::getfile] [arg zdict] [arg path]]

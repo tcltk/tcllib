@@ -117,10 +117,13 @@
 <ul class="doctools_toc">
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
-<li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">OPTIONS</a></li>
-<li class="doctools_section"><a href="#section3">EXAMPLES</a></li>
-<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section1">Description</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Options</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section2">Examples</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -133,79 +136,126 @@
 <li>package require <b class="pkgname">uuencode <span class="opt">?1.1.6?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::uuencode::encode</b> <i class="arg">string</i></a></li>
-<li><a href="#2"><b class="cmd">::uuencode::decode</b> <i class="arg">string</i></a></li>
-<li><a href="#3"><b class="cmd">::uuencode::uuencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-mode</b> <i class="arg">octal</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></li>
-<li><a href="#4"><b class="cmd">::uuencode::uudecode</b> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></li>
+<li><a href="#1"><b class="cmd">::uuencode::encode</b> <i class="arg">bstring</i></a></li>
+<li><a href="#2"><b class="cmd">::uuencode::decode</b> <i class="arg">estring</i></a></li>
+<li><a href="#3"><b class="cmd">::uuencode::uuencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-mode</b> <i class="arg">octal</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> |  <span class="opt">?<b class="option">--</b>?</span> <i class="arg">bstring</i>)</a></li>
+<li><a href="#4"><b class="cmd">::uuencode::uudecode</b> (<b class="option">-file</b> <i class="arg">filename</i> |  <span class="opt">?<b class="option">--</b>?</span> <i class="arg">estring</i>)</a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides a Tcl-only implementation of the
-<b class="syscmd">uuencode(1)</b> and <b class="syscmd">uudecode(1)</b> commands. This encoding
-packs binary data into printable ASCII characters.</p>
+<a href="https://www.man7.org/linux/man-pages/man1/uuencode.1p.html"><b class="syscmd">uuencode(1p)</b></a> and
+<a href="https://www.man7.org/linux/man-pages/man1/uudecode.1p.html"><b class="syscmd">uudecode(1p)</b></a> commands.
+This encoding packs binary data into printable 7-bit ASCII characters.</p>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::uuencode::encode</b> <i class="arg">string</i></a></dt>
-<dd><p>returns the uuencoded data. This will encode all the data passed in
-even if this is longer than the uuencode maximum line length. If the
-number of input bytes is not a multiple of 3 then additional 0 bytes
-are added to pad the string.</p></dd>
-<dt><a name="2"><b class="cmd">::uuencode::decode</b> <i class="arg">string</i></a></dt>
-<dd><p>Decodes the given encoded data. This will return any padding
-characters as well and it is the callers responsibility to deal with
-handling the actual length of the encoded data. (see uuencode).</p></dd>
-<dt><a name="3"><b class="cmd">::uuencode::uuencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-mode</b> <i class="arg">octal</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></dt>
-<dd></dd>
-<dt><a name="4"><b class="cmd">::uuencode::uudecode</b> (<b class="option">-file</b> <i class="arg">filename</i> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i>)</a></dt>
-<dd><p>UUDecode a file or block of data. A file may contain more than one
-embedded file so the result is a list where each element is a three
-element list of filename, mode value and data.</p></dd>
+<dt><a name="1"><b class="cmd">::uuencode::encode</b> <i class="arg">bstring</i></a></dt>
+<dd><p>Returns a uuencoded version of the binary string <i class="arg">bstring</i> as
+its result.</p>
+<p>All the given bytes are encoded even if they exceed the uuencode maximum
+line length. If the number of input bytes is not a multiple of 3 then
+the string is padded with additional <b class="const">\x00</b> NUL bytes.</p>
+<p>The command will throw an error if <i class="arg">bstring</i> is neither a binary
+string, nor a string containing only 7-bit ASCII.</p></dd>
+<dt><a name="2"><b class="cmd">::uuencode::decode</b> <i class="arg">estring</i></a></dt>
+<dd><p>Returns a binary string that has been uuencode-decoded from the
+<i class="arg">estring</i>, including any padding <b class="const">\x00</b> NUL bytes at the end.</p></dd>
+<dt><a name="3"><b class="cmd">::uuencode::uuencode</b> <span class="opt">?<b class="option">-name</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-mode</b> <i class="arg">octal</i>?</span> (<b class="option">-file</b> <i class="arg">filename</i> |  <span class="opt">?<b class="option">--</b>?</span> <i class="arg">bstring</i>)</a></dt>
+<dd><p>Returns a wrapped uuencoded version of the data in the file specified by
+<b class="option">-file</b> <i class="arg">filename</i> or by the binary string <i class="arg">bstring</i> as
+its result.</p>
+<p>Each wrapped uuencoded result consists of a header, body, and footer. The
+header is a line starting with <b class="const">begin</b> followed by a suggested
+file mode and suggested filename. The body consists of lines of
+uuencoded data, each prefixed with a line length character. The footer
+is <b class="const">end</b> on its own line. See
+<a href="https://www.man7.org/linux/man-pages/man1/uuencode.1p.html"><b class="syscmd">uuencode(1)</b></a>.</p></dd>
+<dt><a name="4"><b class="cmd">::uuencode::uudecode</b> (<b class="option">-file</b> <i class="arg">filename</i> |  <span class="opt">?<b class="option">--</b>?</span> <i class="arg">estring</i>)</a></dt>
+<dd><p>Returns a list of 3-element lists of filename, file mode,
+uuencode-decoded bytes, from the file specified by <b class="option">-file</b>
+<i class="arg">filename</i> or from the <i class="arg">estring</i>.</p></dd>
 </dl>
-</div>
-<div id="section2" class="doctools_section"><h2><a name="section2">OPTIONS</a></h2>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Options</a></h3>
 <dl class="doctools_definitions">
-<dt>-filename name</dt>
-<dd><p>Cause the uuencode or uudecode commands to read their data from the
-named file rather that taking a string parameter.</p></dd>
-<dt>-name string</dt>
+<dt><b class="option">-file</b> <i class="arg">filename</i></dt>
+<dd><p>Cause the <b class="cmd">uuencode</b> or <b class="cmd">uudecode</b> commands to read their data
+from the named file rather that taking a binary string parameter.</p></dd>
+<dt><b class="option">-name</b> <i class="arg">string</i></dt>
 <dd><p>The uuencoded data header line contains the suggested file name to be
 used when unpacking the data. Use this option to change this from the
 default of &quot;data.dat&quot;.</p></dd>
-<dt>-mode octal</dt>
+<dt><b class="option">-mode</b> <i class="arg">octal</i></dt>
 <dd><p>The uuencoded data header line contains a suggested permissions bit
 pattern expressed as an octal string. To change the default of 0644
 you can set this option. For instance, 0755 would be suitable for an
-executable. See <b class="syscmd">chmod(1)</b>.</p></dd>
+executable. See
+<a href="https://www.man7.org/linux/man-pages/man1/chmod.1.html"><b class="syscmd">chmod(1)</b></a>.</p></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Examples</a></h2>
+<p>The examples use the subcommand <b class="cmd">string trimright</b> to trim any
+<b class="const">\x00</b> NUL bytes that may have been added during encoding.
+<em>Note however, that if the original binary strings might end
+with</em> <b class="const">\x00</b> NUL <em>bytes, a more sophisticated approach
+will be needed.</em></p>
+<p>This example shows how to uuencode and uudecode a Tcl string, taking
+account of the fact that the uuencode commands work in terms of binary
+strings.</p>
 <pre class="doctools_example">
-% set d [uuencode::encode &quot;Hello World!&quot;]
-2&amp;5L;&amp;\\@5V]R;&amp;0A
+const UTF8_LINE &quot;Δ&divide; “Utf-8” ♞ℤ&quot;
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set encuu [::uuencode::encode $bytes]
+set decuu [string trimright [::uuencode::decode $encuu] \x00]
+set line [encoding convertfrom utf-8 $decuu]
+puts &quot;uuencode='$encuu' [expr {$UTF8_LINE eq $line}]&quot;
+=&gt;
+uuencode='SI3#MR#B@)Q5=&amp;8M..*`G2#BF9[BA*0`' 1
 </pre>
+<p>If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in <b class="cmd"><a href="../../../../index.html#encoding">encoding</a></b> command are not needed. For example:</p>
 <pre class="doctools_example">
-% uuencode::uudecode $d
-Hello World!
+const ASCII_LINE &quot;! 7-bit ASCII {~^}&quot;
+set encuu [::uuencode::encode $ASCII_LINE]
+set decuu [string trimright [::uuencode::decode $encuu] \x00]
+set line [encoding convertfrom utf-8 $decuu]
+puts &quot;uuencode='$encuu' [expr {$ASCII_LINE eq $line}]&quot;
+=&gt;
+uuencode='(2`W+6)I=&quot;!!4T-)22![?EY]' 1
 </pre>
+<p>This example shows how to create a uuencoded byte string and write it to
+a file.</p>
 <pre class="doctools_example">
-% set d [uuencode::uuencode -name hello.txt &quot;Hello World&quot;]
-begin 644 hello.txt
-+2&amp;5L;&amp;\@5V]R;&amp;0`
+const UTF8_LINE &quot;Δ&divide; “Utf-8” ♞ℤ&quot;
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set encuu [::uuencode::uuencode -name test.uu $bytes]
+writeFile test.uu binary $encuu
+puts $encuu
+=&gt;
+begin 644 test.uu
+7SI3#MR#B@)Q5=&amp;8M..*`G2#BF9[BA*0`
 `
 end
 </pre>
+<p>This example shows how to read a file containing one or more uuencoded
+files.</p>
 <pre class="doctools_example">
-% uuencode::uudecode $d
-{hello.txt 644 {Hello World}}
+foreach lst [::uuencode::uudecode -file test.uu] {
+    lassign $lst name mode decuu
+    set decuu [string trimright $decuu \x00]
+    set line [encoding convertfrom utf-8 $decuu]
+    puts &quot;name=$name mode=$mode line='$line'&quot;
+}
+=&gt;
+name=test.uu mode=644 line='Δ&divide; “Utf-8” ♞ℤ'
 </pre>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>base64</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>base64</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

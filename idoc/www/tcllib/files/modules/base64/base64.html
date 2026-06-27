@@ -135,96 +135,147 @@
 <li>package require <b class="pkgname">base64 <span class="opt">?2.6.1?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::base64::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">string</i></a></li>
-<li><a href="#2"><b class="cmd">::base64::decode</b> <i class="arg">string</i></a></li>
+<li><a href="#1"><b class="cmd">::base64::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">bstring</i></a></li>
+<li><a href="#2"><b class="cmd">::base64::decode</b> <i class="arg">estring</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This package provides procedures to encode binary data into base64 and back.</p>
+<p>This package provides commands for encoding and decoding binary strings
+to and from the standard base64 encoding as specified in
+<a href="https://datatracker.ietf.org/doc/html/rfc4648">RFC 4648</a>.</p>
+<p><em>It is recommended that for new code the built-in</em> 
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/binary.html">binary</a>
+<em>subcommands for encoding and decoding base64 (introduced in Tcl
+8.6), are used in preference to this package’s commands.</em></p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">Beware: Variations in decoding behaviour</a></h2>
-<p>The Tcl core provides since version 8.6 commands for the de- and
-encoding of base64 data. These are</p>
+<p>Tcl 8.6 introduced built-in support for encoding and decoding base64
+using subcommands of the
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/binary.html">binary</a> command:</p>
 <pre class="doctools_example">
     binary encode base64
     binary decode base64
 </pre>
-<p>Beware that while these are signature compatible with the
-commands provided by this package, the decoders are
+<p>Beware that although these subcommands have the same signatures
+as the commands provided by this package, the decoders are
 <em>not behaviourally compatible</em>.</p>
-<p>The core decoder command accepts the option <b class="option">-strict</b>,
-enabling the user to choose between strict and lax modes. In the
-strict mode invalid characters, and partial data at the end of the
-input are reported as errors. In lax mode they are ignored.</p>
-<p>All the implementations provided by this package on the other
-hand implement a mix of the above, and the user cannot choose. Partial
-data at the end of the input is reported as error, and invalid
-characters are ignored.</p>
-<p><em>Beware</em> of these differences when switching code from
-one to other.</p>
+<p>The built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/binary.html">binary decode base64</a>
+subcommand accepts the option <b class="option">-strict</b>, enabling
+the user to choose between strict and nonstrict modes. In strict mode
+invalid characters, and partial data at the end of the input are
+reported as errors. In nonstrict mode they are ignored. (See
+<a href="https://www.rfc-editor.org/rfc/rfc2045#section-6.8">RFC 2045</a>.)</p>
+<p>The implementations provided by this package do not offer control
+over strictness. Instead they mix strict and nonstrict. Partial data at
+the end of the input is reported as an error, but invalid characters are
+ignored.</p>
+<p>By default this package’s encoder wraps using newlines after every 76
+characters of output. The built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/binary.html">binary encode base64</a>
+subcommand defaults to not wrapping, but does support wrapping using a
+<b class="option">-maxlen</b> option.</p>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::base64::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">string</i></a></dt>
-<dd><p>Base64 encodes the given binary <i class="arg">string</i> and returns the encoded
-result. Inserts the character <i class="arg">wrapchar</i> every <i class="arg">maxlen</i>
-characters of output. <i class="arg">wrapchar</i> defaults to newline. <i class="arg">maxlen</i>
-defaults to <b class="const">76</b>.</p>
-<p><em>Note</em> that if <i class="arg">maxlen</i> is set to <b class="const">0</b>, the
-output will not be wrapped at all.</p>
-<p><em>Note well</em>: If your string is not simple ASCII you should fix
-the string encoding before doing base64 encoding. See the examples.</p>
-<p>The command will throw an error for negative values of <i class="arg">maxlen</i>,
-or if <i class="arg">maxlen</i> is not an integer number.</p></dd>
-<dt><a name="2"><b class="cmd">::base64::decode</b> <i class="arg">string</i></a></dt>
-<dd><p>Base64 decodes the given <i class="arg">string</i> and returns the binary data.
-The decoder ignores whitespace in the string.</p></dd>
+<dt><a name="1"><b class="cmd">::base64::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">bstring</i></a></dt>
+<dd><p>Returns a base64-encoded version of the binary string <i class="arg">bstring</i> as
+its result.</p>
+<p>The result string contains the <i class="arg">wrapchar</i> character after every
+<i class="arg">maxlen</i> characters of output. The <i class="arg">wrapchar</i> defaults to
+newline and <i class="arg">maxlen</i> defaults to 76. To prevent wrapping, set
+<i class="arg">maxlen</i> to <b class="const">0</b>.</p>
+<p>The command will throw an error if <i class="arg">maxlen</i> is not an integer or is
+negative, or if <i class="arg">bstring</i> is neither a binary string, nor a string
+containing only 7-bit ASCII.</p></dd>
+<dt><a name="2"><b class="cmd">::base64::decode</b> <i class="arg">estring</i></a></dt>
+<dd><p>Returns a binary string that has been base64-decoded from the
+<i class="arg">estring</i>. Any invalid characters or whitespace (spaces, tabs,
+newlines) in <i class="arg">estring</i> are ignored.</p></dd>
 </dl>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">Implementation Notes</a></h2>
-<p>This package contains three different implementations for base64 de-
-and encoding, and chooses among them based on the environment it finds
-itself in.</p>
+<p>This package contains three different implementations for base64
+encoding and decoding, and chooses among them based on the environment
+it finds itself in.</p>
 <p>All three implementations have the same behaviour.
 See also <span class="sectref"><a href="#section2">Beware: Variations in decoding behaviour</a></span> at the
 beginning of this document.</p>
 <ol class="doctools_enumerated">
 <li><p>If Tcl 8.6 or higher is found the commands are implemented in
-	terms of the then-available builtin commands.</p></li>
-<li><p>If the <b class="package">Trf</b> extension cand be loaded the commands are
-	implemented in terms of its commands.</p></li>
-<li><p>If neither of the above are possible a pure Tcl implementation
-	is used. This is of course much slower.</p></li>
+	terms of the then-available built-in commands.</p></li>
+<li><p>If the <a href="https://wiki.tcl-lang.org/page/Trf">Trf</a> extension
+	can be loaded the commands are implemented in terms of its commands.</p></li>
+<li><p>If neither of the above are possible a Tcl-only implementation
+	is used. This is much slower.</p></li>
 </ol>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">EXAMPLES</a></h2>
+<p>This example shows how to encode and decode a Tcl string to and from
+base64, taking account of the fact that the base64 commands work in
+terms of binary strings.</p>
 <pre class="doctools_example">
-% base64::encode &quot;Hello, world&quot;
-SGVsbG8sIHdvcmxk
+const UTF8_LINE &quot;Δ&divide; “Utf-8” ♞ℤ&quot;
+# Legacy (this package)
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set enc64 [::base64::encode $bytes]
+set dec64 [::base64::decode $enc64]
+set line [encoding convertfrom utf-8 $dec64]
+puts &quot;base64='$enc64' [expr {$UTF8_LINE eq $line}]&quot;
+=&gt;
+base64='zpTDtyDigJxVdGYtOOKAnSDimZ7ihKQ=' 1
+# Modern (using built-in binary subcommands)
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set enc64 [binary encode base64 $bytes]
+set dec64 [binary decode base64 $enc64]
+set line [encoding convertfrom utf-8 $dec64]
+puts &quot;base64='$enc64' [expr {$UTF8_LINE eq $line}]&quot;
+=&gt;
+base64='zpTDtyDigJxVdGYtOOKAnSDimZ7ihKQ=' 1
 </pre>
+<p>If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/encoding.html">encoding</a>
+command are not needed. For example:</p>
 <pre class="doctools_example">
-% base64::encode [string repeat xyz 20]
+const ASCII_LINE &quot;! 7-bit ASCII {~^}&quot;
+# Legacy (this package)
+set enc64 [::base64::encode $ASCII_LINE]
+set dec64 [::base64::decode $enc64]
+set line [encoding convertfrom utf-8 $dec64]
+puts &quot;base64='$enc64' [expr {$ASCII_LINE eq $line}]&quot;
+=&gt; 
+base64='ISA3LWJpdCBBU0NJSSB7fl59' 1
+# Modern (using built-in binary subcommands)
+set enc64 [binary encode base64 $ASCII_LINE]
+set dec64 [binary decode base64 $enc64]
+set line [encoding convertfrom utf-8 $dec64]
+puts &quot;base64='$enc64' [expr {$ASCII_LINE eq $line}]&quot;
+=&gt; 
+base64='ISA3LWJpdCBBU0NJSSB7fl59' 1
+</pre>
+<p>Wrapping can be prevented so that no whitespace is introduced:</p>
+<pre class="doctools_example">
+base64::encode [string repeat xyz 20]
+=&gt;
 eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
 eHl6eHl6eHl6
-% base64::encode -wrapchar &quot;&quot; [string repeat xyz 20]
+base64::encode -maxlen 0 [string repeat xyz 20]
+=&gt;
 eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
 </pre>
-<pre class="doctools_example">
-# NOTE: base64 encodes BINARY strings.
-% set chemical [encoding convertto utf-8 &quot;C\u2088H\u2081\u2080N\u2084O\u2082&quot;]
-% set encoded [base64::encode $chemical]
-Q+KCiEjigoHigoBO4oKET+KCgg==
-% set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
-</pre>
+<p>Note that the built-in
+<a href="https://www.tcl-lang.org/man/tcl/TclCmd/binary.html">binary encode base64</a>
+subcommand defaults to not wrapping, but will wrap if the
+<b class="option">-maxlen</b> option is used.</p>
 </div>
 <div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
-<p>This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-Please report such in the category <em>base64</em> of the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+<p>If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<em>base64</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
 <p>Note further that <em>attachments</em> are strongly preferred over

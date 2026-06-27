@@ -9319,6 +9319,12 @@ rfc3548
 .TP
 \fBfiles/modules/base32/base32\&.n\fR
 base32
+.RE
+rfc4648
+.RS
+.TP
+\fBfiles/modules/base32/base32\&.n\fR
+base32
 .TP
 \fBfiles/modules/base32/base32hex\&.n\fR
 base32::hex

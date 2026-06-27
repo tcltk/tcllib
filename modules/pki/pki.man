@@ -110,12 +110,12 @@ and "[const raw]". Specifying "[const raw]" for [arg algo] will inhibit the
 building of an ASN.1 structure to encode which hashing algorithm was
 chosen.
 
-[strong Attention]: In this case the corresponding [cmd pkgi::verify]
+[emph Attention]: In this case the corresponding [cmd pkgi::verify]
 must be called [const with] algorithm information.
 
 Conversely, specifying a non-"[const raw]" algorithm here means that
 the corresponding [cmd pkgi::verify] invokation has to be made
-[strong without] algorithm information.
+[emph without] algorithm information.
 
 [para] The [arg input] should be the plain text, hashing will be
 performed on it.
@@ -133,12 +133,12 @@ performed on it.
 
 Verify a digital signature using a public [arg key].  Returns true or false.
 
-[para][strong Attention]: The algorithm information [arg algo] has to
+[para][emph Attention]: The algorithm information [arg algo] has to
 be specified if and only if the [cmd pki::sign] which generated the
 [arg signedmessage] was called with algorithm "[const raw]". This
 inhibited the building of the ASN.1 structure encoding the chosen
 hashing algorithm. Conversely, if a proper algorithm was specified
-during signing then you [strong {must not}] specify an algorithm here.
+during signing then you [emph {must not}] specify an algorithm here.
 
 [comment {
 	What is the default for algo?

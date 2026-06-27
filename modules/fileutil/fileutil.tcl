@@ -11,7 +11,7 @@
 
 package require Tcl 8.5 9
 package require cmdline
-package provide fileutil 1.16.3
+package provide fileutil 1.16.4
 
 namespace eval ::fileutil {
     namespace export \
@@ -1462,6 +1462,10 @@ proc ::fileutil::fileType {filename} {
     } elseif { $binary && [string match "\x1f\x8b*" $test] } {
         lappend type compressed gzip
     } elseif { $binary && [string range $test 257 262] == "ustar\x00" } {
+        # POSIX tar
+        lappend type compressed tar
+    } elseif { $binary && [string range $test 257 262] == "ustar\x20" } {
+        # GNU tar
         lappend type compressed tar
     } elseif { $binary && [string match "\x50\x4b\x03\x04*" $test] } {
         lappend type compressed zip

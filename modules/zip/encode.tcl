@@ -10,11 +10,19 @@
 
 package require Tcl 8.5 9
 package require logger   ; # Tracing
-package require Trf      ; # Wrapper to zlib
 package require crc32    ; # Tcllib, crc calculation
 package require snit     ; # Tcllib, OO core
-package require zlibtcl  ; # Zlib usage. No commands, access through Trf
 package require fileutil ; # zipdir convenience method
+
+namespace eval ::zipfile::encode {}
+if {[package vcompare $tcl_patchLevel "8.6"] < 0} {
+  # Only needed pre-8.6
+  package require Trf                       ; # Wrapper to zlib
+  package require zlibtcl                   ; # Zlib usage. No commands, access through Trf
+  set ::zipfile::encode::native_zip_functs 0
+} else {
+  set ::zipfile::encode::native_zip_functs 1
+}
 
 # ### ### ### ######### ######### #########
 ##
@@ -139,7 +147,12 @@ snit::type            ::zipfile::encode {
 
 	    # Go for maximum compression
 
-	    zip -mode compress -nowrap 1 -level 9 -attach $out
+            if {$::zipfile::encode::native_zip_functs} {
+		zlib push deflate $out -level 9
+	    } else {
+		zip -mode compress -nowrap 1 -level 9 -attach $out
+	    }
+
 	    fcopy $in $out
 	    close $in
 	    close $out
@@ -294,9 +307,9 @@ snit::type            ::zipfile::encode {
     }
 
     proc str {ch text} {
-	set     old [list -encoding    [fconfigure $sock -encoding]]
-	lappend old       -translation [fconfigure $sock -translation]
-	lappend old       -eofchar     [fconfigure $sock -eofchar]
+	set     old [list -encoding    [fconfigure $ch -encoding]]
+	lappend old       -translation [fconfigure $ch -translation]
+	lappend old       -eofchar     [fconfigure $ch -eofchar]
 	
 	fconfigure $ch -encoding utf-8
 	# write the string as utf-8 to keep its bytes, exactly.
@@ -370,5 +383,5 @@ snit::type            ::zipfile::encode {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::encode 0.5.1
+package provide zipfile::encode 0.5.2
 return

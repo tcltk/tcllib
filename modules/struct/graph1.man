@@ -9,6 +9,10 @@
 [require Tcl "8.5 9"]
 [require struct::graph [opt 1.2.2]]
 [description]
+
+[emph {This package has been superseded by}] [package struct::graph]
+[emph {version 2.}]
+
 [para]
 
 The [cmd ::struct::graph] command creates a new graph object with an

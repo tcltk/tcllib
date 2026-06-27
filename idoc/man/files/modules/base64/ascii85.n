@@ -278,58 +278,77 @@ package require \fBTcl 8\&.5 9\fR
 .sp
 package require \fBascii85 ?1\&.1?\fR
 .sp
-\fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
+\fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIbstring\fR
 .sp
-\fB::ascii85::decode\fR \fIstring\fR
+\fB::ascii85::decode\fR \fIestring\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-This package provides procedures to encode binary data into ascii85 and back\&.
+This package provides commands for encoding and decoding binary strings
+to and from the ascii85 encoding\&. (This encoding is also known as
+base85\&.)
 .TP
-\fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
-Ascii85 encodes the given binary \fIstring\fR and returns the encoded
-result\&. Inserts the character \fIwrapchar\fR every \fImaxlen\fR
-characters of output\&. \fIwrapchar\fR defaults to newline\&. \fImaxlen\fR
-defaults to \fB76\fR\&.
+\fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIbstring\fR
+Returns an ascii85-encoded version of the binary string \fIbstring\fR as
+its result\&.
 .sp
-\fINote well\fR: If your string is not simple ascii you should fix
-the string encoding before doing ascii85 encoding\&. See the examples\&.
+The result string contains the \fIwrapchar\fR character after every
+\fImaxlen\fR characters of output\&. The \fIwrapchar\fR defaults to
+newline and \fImaxlen\fR defaults to 76\&. To prevent wrapping, set
+\fImaxlen\fR to \fB0\fR\&.
 .sp
-The command will throw an error for negative values of \fImaxlen\fR,
-or if \fImaxlen\fR is not an integer number\&.
+The command will throw an error if \fImaxlen\fR is not an integer or is
+negative, or if \fIbstring\fR is neither a binary string, nor a string
+containing only 7-bit ASCII\&.
 .TP
-\fB::ascii85::decode\fR \fIstring\fR
-Ascii85 decodes the given \fIstring\fR and returns the binary data\&.
-The decoder ignores whitespace in the string, as well as tabs and
-newlines\&.
+\fB::ascii85::decode\fR \fIestring\fR
+Returns a binary string that has been ascii85-decoded from the
+\fIestring\fR\&. Any whitespace (spaces, tabs, newlines) in \fIestring\fR
+is ignored\&.
 .PP
 .SH EXAMPLES
+This example shows how to encode and decode a Tcl string to and from
+ascii85, taking account of the fact that the ascii85 commands work in
+terms of binary strings\&.
 .CS
 
 
-% ascii85::encode "Hello, world"
-87cURD_*#TDfTZ)
+const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+set bytes [encoding convertto utf-8 $UTF8_LINE]
+set enc85 [::ascii85::encode $bytes]
+set dec85 [::ascii85::decode $enc85]
+set line [encoding convertfrom utf-8 $dec85]
+puts "ascii85='$enc85' [expr {$UTF8_LINE eq $line}]"
+=>
+ascii85='cBQ5U+Q@pA<HMh)39#IZ+QAf\\ie4*' 1
 
 .CE
+If the original string is 7-bit ASCII the conversions to and from raw
+bytes using the built-in \fBencoding\fR command are not needed\&. For example:
 .CS
 
 
-% ascii85::encode [string repeat xyz 24]
+const ASCII_LINE "! 7-bit ASCII {~^}"
+set enc85 [::ascii85::encode $ASCII_LINE]
+set dec85 [::ascii85::decode $enc85]
+set line [encoding convertfrom utf-8 $dec85]
+puts "ascii85='$enc85' [expr {$ASCII_LINE eq $line}]"
+=>
+ascii85='+Wr]q@VKp,5uU-B8K`A/?@;' 1
+
+.CE
+Wrapping can be prevented so that no whitespace is introduced:
+.CS
+
+
+ascii85::encode [string repeat xyz 24]
+=>
 G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G
 ^4U[H$X^\\H?a^]
-% ascii85::encode -wrapchar "" [string repeat xyz 24]
+ascii85::encode -maxlen 0 [string repeat xyz 24]
+=>
 G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]
-
-.CE
-.CS
-
-
-# NOTE: ascii85 encodes BINARY strings\&.
-% set chemical [encoding convertto utf-8 "C\\u2088H\\u2081\\u2080N\\u2084O\\u2082"]
-% set encoded [ascii85::encode $chemical]
-6fN]R8E,5Pidu\\UiduhZidua
-% set caffeine [encoding convertfrom utf-8 [ascii85::decode $encoded]]
 
 .CE
 .SH REFERENCES
@@ -340,12 +359,11 @@ Postscript Language Reference Manual, 3rd Edition, page 131\&.
 \fIhttp://www\&.adobe\&.com/devnet/postscript/pdfs/PLRM\&.pdf\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems\&.
-Please report such in the category \fIbase64\fR of the
-\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
-Please also report any ideas for enhancements you may have for either
-package and/or documentation\&.
+If you find errors in this document or bugs or problems with the
+package it describes, or if you want to suggest improvements for the
+documentation or the package, please use the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist] and specify
+\fIbase64\fR as the category\&.
 .PP
 When proposing code changes, please provide \fIunified diffs\fR,
 i\&.e the output of \fBdiff -u\fR\&.

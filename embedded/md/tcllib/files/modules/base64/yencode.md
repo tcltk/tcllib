@@ -23,7 +23,9 @@ yencode \- Y\-encode/decode binary data
 
   - [Description](#section1)
 
-  - [OPTIONS](#section2)
+      - [Options](#subsection1)
+
+  - [Examples](#section2)
 
   - [References](#section3)
 
@@ -40,69 +42,129 @@ yencode \- Y\-encode/decode binary data
 package require Tcl 8\.5 9  
 package require yencode ?1\.1\.4?  
 
-[__::yencode::encode__ *string*](#1)  
-[__::yencode::decode__ *string*](#2)  
-[__::yencode::yencode__ ?__\-name__ *string*? ?__\-line__ *integer*? ?__\-crc32__ *boolean*? \(__\-file__ *filename* &#124; ?__\-\-__? *string*\)](#3)  
-[__::yencode::ydecode__ \(__\-file__ *filename* &#124; ?__\-\-__? *string*\)](#4)  
+[__::yencode::encode__ *bstring*](#1)  
+[__::yencode::decode__ *estring*](#2)  
+[__::yencode::yencode__ ?__\-name__ *string*? ?__\-line__ *integer*? ?__\-crc32__ *boolean*? \(__\-file__ *filename* &#124; ?__\-\-__? *bstring*\)](#3)  
+[__::yencode::ydecode__ \(__\-file__ *filename* &#124; ?__\-\-__? *estring*\)](#4)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides a Tcl\-only implementation of the yEnc file encoding\. This
-is a recently introduced method of encoding binary files for transmission
-through Usenet\. This encoding packs binary data into a format that requires an
-8\-bit clean transmission layer but that escapes characters special to the
-*[NNTP](\.\./\.\./\.\./\.\./index\.md\#nntp)* posting protocols\. See
-[http://www\.yenc\.org/](http://www\.yenc\.org/) for details concerning the
-algorithm\.
+This package provides a Tcl\-only implementation of the yEncode file encoding
+used for Usenet messages\. This encoding packs binary data into a format that
+requires an 8\-bit clean transmission layer but that escapes characters special
+to the *[NNTP](\.\./\.\./\.\./\.\./index\.md\#nntp)* posting protocols\. See
+[http://www\.yenc\.org](http://www\.yenc\.org) for the encoding’s details\.
 
-  - <a name='1'></a>__::yencode::encode__ *string*
+  - <a name='1'></a>__::yencode::encode__ *bstring*
 
-    returns the yEnc encoded data\.
+    Returns a yEncoded version of the binary string *bstring* as its result\.
 
-  - <a name='2'></a>__::yencode::decode__ *string*
+    The command will throw an error if *bstring* is neither a binary string,
+    nor a string containing only 7\-bit ASCII\.
 
-    Decodes the given yEnc encoded data\.
+  - <a name='2'></a>__::yencode::decode__ *estring*
 
-  - <a name='3'></a>__::yencode::yencode__ ?__\-name__ *string*? ?__\-line__ *integer*? ?__\-crc32__ *boolean*? \(__\-file__ *filename* &#124; ?__\-\-__? *string*\)
+    Returns a binary string that has been yEncode\-decoded from the *estring*\.
 
-    Encode a file or block of data\.
+  - <a name='3'></a>__::yencode::yencode__ ?__\-name__ *string*? ?__\-line__ *integer*? ?__\-crc32__ *boolean*? \(__\-file__ *filename* &#124; ?__\-\-__? *bstring*\)
 
-  - <a name='4'></a>__::yencode::ydecode__ \(__\-file__ *filename* &#124; ?__\-\-__? *string*\)
+    Returns a wrapped yEncoded version of the data in the file specified by
+    __\-file__ *filename* or by the binary string *bstring* as its
+    result\.
 
-    Decode a file or block of data\. A file may contain more than one embedded
-    file so the result is a list where each element is a three element list of
-    filename, file size and data\.
+    Each wrapped yEncoded result consists of a header, body, and trailer\. The
+    header is a line starting with __=ybegin__ followed by a line length of
+    form __line=__*length*, the size of the original data \(in bytes\) of
+    form __size=__*size*, and the name of the original file of form
+    __name=__*filename*, all space\-separated\. The body is the yEncoded
+    data\. The trailer is a line starting with __=yend__ followed by the size
+    of the original data of form __size=__*size*, and optionally \(but
+    recommended\), a CRC32 checksum value of form __crc32=__*checksum*, all
+    space\-separated\.
 
-# <a name='section2'></a>OPTIONS
+  - <a name='4'></a>__::yencode::ydecode__ \(__\-file__ *filename* &#124; ?__\-\-__? *estring*\)
 
-  - \-filename name
+    Returns a list of 3\-element lists of filename, file size, yEncode\-decoded
+    bytes, from the file specified by __\-file__ *filename* or from the
+    *estring*\.
 
-    Cause the yencode or ydecode commands to read their data from the named file
-    rather that taking a string parameter\.
+## <a name='subsection1'></a>Options
 
-  - \-name string
+  - __\-file__ *filename*
 
-    The encoded data header line contains the suggested file name to be used
+    Cause the __yencode__ or
+    __[ydecode](\.\./\.\./\.\./\.\./index\.md\#ydecode)__ commands to read their
+    data from the named file rather that taking a binary string parameter\.
+
+  - __\-name__ *string*
+
+    The yEncoded data header line contains the original file name to be used
     when unpacking the data\. Use this option to change this from the default of
-    "data\.dat"\.
+    "default\.bin"\.
 
-  - \-line integer
+  - __\-line__ *integer*
 
-    The yencoded data header line contains records the line length used during
-    the encoding\. Use this option to select a line length other that the default
-    of 128\. Note that NNTP imposes a 1000 character line length limit and some
-    gateways may have trouble with more than 255 characters per line\.
+    The yEncoded header line specifies the line length used for the encoding,
+    and which defaults to 128\. Use this option to set a different line length\.
+    Note that NNTP imposes a 1000 character line length limit and some systems
+    may have trouble with more than 255 characters per line\.
 
-  - \-crc32 boolean
+  - __\-crc32__ *boolean*
 
-    The yEnc specification recommends the inclusion of a cyclic redundancy check
-    value in the footer\. Use this option to change the default from *true* to
-    *false*\.
+    When encoding this package puts a cyclic redundancy check \(CRC\) value in the
+    trailer as recommended in the yEncode specification\. This can be prevented
+    by using this option and passing a false value for *boolean*, e\.g\.,
+    __0__\.
 
-    % set d [yencode::yencode -file testfile.txt]
-    =ybegin line=128 size=584 name=testfile.txt
-     -o- data not shown -o-
-    =yend size=584 crc32=ded29f4f
+# <a name='section2'></a>Examples
+
+*The yEncoded data is not shown in the examples because it is just* *raw
+bytes\.*
+
+This example shows how to yEncode and yEncode\-decode a Tcl string, taking
+account of the fact that the yEncode commands work in terms of binary strings\.
+
+    const UTF8_LINE "Δ÷ “Utf-8” ♞ℤ"
+    set bytes [encoding convertto utf-8 $UTF8_LINE]
+    set ency [::yencode::encode $bytes]
+    set decy [::yencode::decode $ency]
+    set line [encoding convertfrom utf-8 $decy]
+    puts "[expr {$UTF8_LINE eq $line}]"
+    =>
+    1
+
+If the original string is 7\-bit ASCII the conversions to and from raw bytes
+using the built\-in __[encoding](\.\./\.\./\.\./\.\./index\.md\#encoding)__ command
+are not needed\. For example:
+
+    const ASCII_LINE "! 7-bit ASCII {~^}"
+    set ency [::yencode::encode $ASCII_LINE]
+    set decy [::yencode::decode $ency]
+    set line [encoding convertfrom utf-8 $decy]
+    puts "[expr {$ASCII_LINE eq $line}]"
+    =>
+    1
+
+This example shows how to create a yEncoded byte string and write it to a file\.
+
+    set bytes [encoding convertto utf-8 $UTF8_LINE]
+    set ency [::yencode::yencode -name test.y $bytes]
+    writeFile test.y binary $ency
+    puts $ency
+    =>
+    =ybegin line=128 size=23 name=test.y
+        … raw binary data elided …
+    =yend size=23 crc32=fc01071
+
+This example shows how to read a file containing one or more yEncoded files\.
+
+    foreach lst [::yencode::ydecode $ency] {
+        lassign $lst name size decy
+        set line [encoding convertfrom utf-8 $decy]
+        puts "name=$name size=$size line='$line'"
+    }
+    =>
+    name=test.y size=23 line='Δ÷ “Utf-8” ♞ℤ'
 
 # <a name='section3'></a>References
 
@@ -110,10 +172,11 @@ algorithm\.
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *base64* of the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
-for enhancements you may have for either package and/or documentation\.
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *base64* as the
+category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.

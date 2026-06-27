@@ -42,7 +42,7 @@ previous list element. Specifies the data-[arg type] of the described
 argument of a command, its [arg name] and its i/o-[arg mode]. The
 latter is optional.
 
-[call [cmd bullet]]
+[call [cmd bullet] [arg {(deprecated — use}] [cmd item][arg )]]
 
 [emph Deprecated]. Text structure. List element. Itemized list. See
 [cmd item] for the canonical command to open a list item in an
@@ -252,7 +252,7 @@ compatibility, but are otherwise considered to be [emph deprecated].
 Text structure. This command closes the list opened by the last
 [cmd list_begin] command coming before it.
 
-[call [cmd lst_item] [arg text]]
+[call [cmd lst_item] [arg text] [arg {(deprecated — use}] [cmd def][arg )]]
 
 [emph Deprecated]. Text structure. List element. Definition list. See
 [cmd def] for the canonical command to open a general list item in a
@@ -298,7 +298,7 @@ Text markup. The argument text is marked up as a namespace name. The
 text may have other markup already applied to it. Main use is the
 highlighting of namespace names in free-form text.
 
-[call [cmd nl]]
+[call [cmd nl] [arg {(deprecated — use}] [cmd para][arg )]]
 
 [emph Deprecated]. Text structure. See [cmd para] for the canonical
 command to insert paragraph breaks into the text.
@@ -376,7 +376,7 @@ to other documents. Each argument is a plain text label identifying the
 referenced document. If this command is used multiple times all the arguments
 accumulate.
 
-[call [cmd strong] [arg text]]
+[call [cmd strong] [arg text] [arg {(deprecated — use}] [cmd emph][arg )]]
 
 [emph Deprecated]. Text markup. See [cmd emph] for the canonical
 command to emphasize text.

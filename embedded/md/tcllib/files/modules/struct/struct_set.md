@@ -13,7 +13,7 @@ href="../../../../toc2.md">Applications</a> ] <hr>
 
 # NAME
 
-struct::set \- Procedures for manipulating sets
+struct::set \- Commands for manipulating sets
 
 # <a name='toc'></a>Table Of Contents
 
@@ -25,9 +25,11 @@ struct::set \- Procedures for manipulating sets
 
   - [COMMANDS](#section2)
 
-  - [REFERENCES](#section3)
+  - [EXAMPLES](#section3)
 
-  - [Bugs, Ideas, Feedback](#section4)
+  - [REFERENCES](#section4)
+
+  - [Bugs, Ideas, Feedback](#section5)
 
   - [Keywords](#keywords)
 
@@ -42,17 +44,17 @@ package require struct::set ?2\.2\.4?
 
 [__::struct::set__ __empty__ *set*](#1)  
 [__::struct::set__ __size__ *set*](#2)  
-[__::struct::set__ __contains__ *set* *item*](#3)  
+[__::struct::set__ __contains__ *set* *value*](#3)  
 [__::struct::set__ __union__ ?*set1*\.\.\.?](#4)  
 [__::struct::set__ __intersect__ ?*set1*\.\.\.?](#5)  
 [__::struct::set__ __difference__ *set1* *set2*](#6)  
 [__::struct::set__ __symdiff__ *set1* *set2*](#7)  
 [__::struct::set__ __intersect3__ *set1* *set2*](#8)  
 [__::struct::set__ __equal__ *set1* *set2*](#9)  
-[__::struct::set__ __include__ *svar* *item*](#10)  
-[__::struct::set__ __exclude__ *svar* *item*](#11)  
-[__::struct::set__ __add__ *svar* *set*](#12)  
-[__::struct::set__ __subtract__ *svar* *set*](#13)  
+[__::struct::set__ __include__ *setVar* *value*](#10)  
+[__::struct::set__ __exclude__ *setVar* *value*](#11)  
+[__::struct::set__ __add__ *setVar* *set*](#12)  
+[__::struct::set__ __subtract__ *setVar* *set*](#13)  
 [__::struct::set__ __subsetof__ *A* *B*](#14)  
 
 # <a name='description'></a>DESCRIPTION
@@ -60,104 +62,139 @@ package require struct::set ?2\.2\.4?
 The __::struct::set__ namespace contains several useful commands for
 processing finite sets\.
 
-It exports only a single command, __struct::set__\. All functionality
-provided here can be reached through a subcommand of this command\.
+It exports only a single command, __struct::set__\. All the functionality is
+available through this command’s subcommands\.
 
-*Note:* As of version 2\.2 of this package a critcl based C implementation is
-available\. This implementation however requires Tcl 8\.4 to run\.
+A new empty set can be created using __::struct::set add__ *setVar \{\}*\.
+
+*Note:* As of version 2\.2 of this package a critcl based C implementation will
+be used where available, with Tcl 8\.4 or later\.
 
 # <a name='section2'></a>COMMANDS
 
+In the following, *set*, *set1*, and *set2* are __set__ values and
+*setVar* is a __set__’s variable name\.
+
   - <a name='1'></a>__::struct::set__ __empty__ *set*
 
-    Returns a boolean value indicating if the *set* is empty \(__true__\),
-    or not \(__false__\)\.
+    Returns __1__ \(true\) if the *set* is empty; otherwise returns
+    __0__ \(false\)\.
 
   - <a name='2'></a>__::struct::set__ __size__ *set*
 
-    Returns an integer number greater than or equal to zero\. This is the number
-    of elements in the *set*\. In other words, its cardinality\.
+    Returns the *set*’s cardinality, i\.e\., the number of elements in the
+    *set*\. This could be zero\.
 
-  - <a name='3'></a>__::struct::set__ __contains__ *set* *item*
+  - <a name='3'></a>__::struct::set__ __contains__ *set* *value*
 
-    Returns a boolean value indicating if the *set* contains the element
-    *item* \(__true__\), or not \(__false__\)\.
+    Returns __1__ \(true\) if the *set* contains the element *value*;
+    otherwise returns __0__ \(false\)\.
 
   - <a name='4'></a>__::struct::set__ __union__ ?*set1*\.\.\.?
 
-    Computes the set containing the union of *set1*, *set2*, etc\., i\.e\.
-    "*set1* \+ *set2* \+ \.\.\.", and returns this set as the result of the
-    command\.
+    Returns a __set__ consisting of the union of the given __set__s,
+    i\.e\. *set1* ∪ *set2* ∪ …\. The resulting __set__ will contain every
+    value in every given __set__, with no duplicates\.
 
   - <a name='5'></a>__::struct::set__ __intersect__ ?*set1*\.\.\.?
 
-    Computes the set containing the intersection of *set1*, *set2*, etc\.,
-    i\.e\. "*set1* \* *set2* \* \.\.\.", and returns this set as the result of the
-    command\.
+    Returns a __set__ consisting of the intersection of the given
+    __set__s, i\.e\. *set1* ∩ *set2* ∩ …\. The resulting __set__ will
+    contain every value that *every* one of the given __set__s has in
+    common, with no duplicates\.
 
   - <a name='6'></a>__::struct::set__ __difference__ *set1* *set2*
 
-    Computes the set containing the difference of *set1* and *set2*, i\.e\.
-    \("*set1* \- *set2*"\) and returns this set as the result of the command\.
+    Returns a __set__ consisting of the difference between *set1* and
+    *set2*, i\.e\., *set1* \- *set2*\. The resulting __set__ will contain
+    every value that is in *set1* but that is *not* in *set2*\.
 
   - <a name='7'></a>__::struct::set__ __symdiff__ *set1* *set2*
 
-    Computes the set containing the symmetric difference of *set1* and
-    *set2*, i\.e\. \("\(*set1* \- *set2*\) \+ \(*set2* \- *set1*\)"\) and returns
-    this set as the result of the command\.
+    Returns a __set__ consisting of the symmetric difference between
+    *set1* and *set2*, i\.e\., *set1* Δ *set2*\. The resulting __set__
+    will contain every value that is in *set1* *or* is in *set2*, but
+    *not* in both\.
 
   - <a name='8'></a>__::struct::set__ __intersect3__ *set1* *set2*
 
-    This command is a combination of the methods __intersect__ and
-    __difference__\. It returns a three\-element list containing
-    "*set1*\**set2*", "*set1*\-*set2*", and "*set2*\-*set1*", in this
-    order\. In other words, the intersection of the two parameter sets, and their
-    differences\.
+    Returns a combination of the methods __intersect__ and
+    __difference__\.
+
+    The return value is a three\-element list containing "*set1* ∩ *set2*",
+    "*set1* \- *set2*", and "*set2* \- *set1*", in this order\. In other
+    words, the intersection of *set1* and *set2*, and their differences\.
 
   - <a name='9'></a>__::struct::set__ __equal__ *set1* *set2*
 
-    Returns a boolean value indicating if the two sets are equal \(__true__\)
-    or not \(__false__\)\.
+    Returns __1__ \(true\) if the two __set__s contain exactly the same
+    values; otherwise returns __0__ \(false\)\.
 
-  - <a name='10'></a>__::struct::set__ __include__ *svar* *item*
+  - <a name='10'></a>__::struct::set__ __include__ *setVar* *value*
 
-    The element *item* is added to the set specified by the variable name in
-    *svar*\. The return value of the command is empty\. This is the equivalent
-    of __lappend__ for sets\. If the variable named by *svar* does not
-    exist it will be created\.
+    Adds element *value* to the __set__ called *setVar*, creating
+    *setVar* if it doesn’t exist\. Harmlessly does nothing if *value* is
+    already in __set__ *setVar*\. Returns nothing\. This command can be used
+    to create new __set__s\.
 
-  - <a name='11'></a>__::struct::set__ __exclude__ *svar* *item*
+  - <a name='11'></a>__::struct::set__ __exclude__ *setVar* *value*
 
-    The element *item* is removed from the set specified by the variable name
-    in *svar*\. The return value of the command is empty\. This is a
-    near\-equivalent of __lreplace__ for sets\.
+    Removes element *value* from the __set__ called *setVar*\. If
+    *value* isn’t in *setVar*, the command harmlessly does nothing\. Returns
+    nothing\.
 
-  - <a name='12'></a>__::struct::set__ __add__ *svar* *set*
+  - <a name='12'></a>__::struct::set__ __add__ *setVar* *set*
 
-    All the element of *set* are added to the set specified by the variable
-    name in *svar*\. The return value of the command is empty\. This is like the
-    method __include__, but for the addition of a whole set\. If the variable
-    named by *svar* does not exist it will be created\.
+    Adds every element from the __set__ value *set* to the __set__
+    called *setVar*, excluding duplicates\. The __set__ *setVar* is
+    created if it doesn’t exist\. Returns nothing\.
 
-  - <a name='13'></a>__::struct::set__ __subtract__ *svar* *set*
+    Use __::struct::set add__ *setVar \{\}* to create a new empty set\. Use
+    __::struct::set include__ to add individual values\.
 
-    All the element of *set* are removed from the set specified by the
-    variable name in *svar*\. The return value of the command is empty\. This is
-    like the method __exclude__, but for the removal of a whole set\.
+  - <a name='13'></a>__::struct::set__ __subtract__ *setVar* *set*
+
+    Removes every element from the __set__ value *set* from the
+    __set__ called *setVar*\. Returns nothing\. Use __::struct::set
+    exclude__ to remove individual values\.
 
   - <a name='14'></a>__::struct::set__ __subsetof__ *A* *B*
 
-    Returns a boolean value indicating if the set *A* is a true subset of or
-    equal to the set *B* \(__true__\), or not \(__false__\)\.
+    Returns __1__ \(true\) if *A* ⊆ *B*, i\.e\., if __set__ *A* is a
+    true subset of or equal to the __set__ *B*; otherwise returns
+    __0__ \(false\)\.
 
-# <a name='section3'></a>REFERENCES
+# <a name='section3'></a>EXAMPLES
 
-# <a name='section4'></a>Bugs, Ideas, Feedback
+Creating and populating a new __set__ from scratch\. The __earth\_metals__
+__set__ will be created on the first iteration of the loop and added to on
+subsequent iterations\.
 
-This document, and the package it describes, will undoubtedly contain bugs and
-other problems\. Please report such in the category *struct :: set* of the
-[Tcllib Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report
-any ideas for enhancements you may have for either package and/or documentation\.
+    foreach element {Be Mg Ca Sr Ba Ra} {
+        struct::set include earth_metals $element
+    }
+
+Creating a __set__ by unioning a couple of existing __set__s\.
+
+    set metals [struct::set union $alkali_metals $earth_metals]
+
+Querying a __set__’s properties\.
+
+    if {[struct::set empty $metals]} {
+        puts "empty"
+    } else {
+        puts "[struct::set size $metals] elements"
+    }
+
+# <a name='section4'></a>REFERENCES
+
+# <a name='section5'></a>Bugs, Ideas, Feedback
+
+If you find errors in this document or bugs or problems with the package it
+describes, or if you want to suggest improvements for the documentation or the
+package, please use the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *struct :: set*
+as the category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
 __diff \-u__\.
