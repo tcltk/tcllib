@@ -9,7 +9,7 @@
 # ever created.
 
 # @@ Meta Begin
-# Package tcl::chan::std 1.0.2
+# Package tcl::chan::std 1.2
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2011
 # Meta as::license BSD
@@ -63,15 +63,15 @@ oo::class create ::tcl::chan::std::implementation {
     method watch {c requestmask} {
 
 	if {"read" in $requestmask} {
-	    fileevent readable stdin [list chan postevent $c read]
+	    fileevent stdin readable [list chan postevent $c read]
 	} else {
-	    fileevent readable stdin {}
+	    fileevent stdin readable {}
 	}
 
 	if {"write" in $requestmask} {
-	    fileevent readable stdin [list chan postevent $c write]
+	    fileevent stdout writable [list chan postevent $c write]
 	} else {
-	    fileevent readable stdout {}
+	    fileevent stdout writable {}
 	}
 
 	return
@@ -88,6 +88,11 @@ oo::class create ::tcl::chan::std::implementation {
 	flush stdout
 	return [string length $newbytes]
     }
+
+    method blocking {c mode} {
+        fconfigure stdin -blocking $mode
+        fconfigure stdout -blocking $mode
+    }
 }
 
 # # ## ### ##### ######## #############
@@ -97,5 +102,5 @@ namespace eval ::tcl::chan {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::std 1.0.2
+package provide tcl::chan::std 1.2
 return
