@@ -1535,10 +1535,21 @@ proc checkmod {} {
 # Build critcl modules. If no args then build the default critcl module.
 proc __critcl {} {
     global argv critcl critclmodules critcldefault critclnotes tcl_platform
-    if {$tcl_platform(platform) == "windows"} {
+
+    if {![catch {
+	package require critcl::app
+    }]} {
+	# critcl is available as a package
+	set critcl /package
+    } elseif {$tcl_platform(platform) == "windows"} {
 	set critcl [critcl-app-windows]
     } else {
 	set critcl [critcl-app-unix]
+    }
+
+    if {$critcl == {}} {
+        puts "error: cannot find a critcl to run."
+        return 1
     }
 
     set flags ""
@@ -1562,29 +1573,25 @@ proc __critcl {} {
         }
         set argv [lreplace $argv 0 0]
     }
+    
+    if {[llength $argv] == 0} {
+	puts stderr "[string repeat - 72]"
+	puts stderr "Building critcl components."
+	if {$critclnotes != {}} {
+	    puts stderr $critclnotes
+	}
+	puts stderr "[string repeat - 72]"
 
-    if {$critcl != {}} {
-        if {[llength $argv] == 0} {
-            puts stderr "[string repeat - 72]"
-	    puts stderr "Building critcl components."
-	    if {$critclnotes != {}} {
-		puts stderr $critclnotes
-	    }
-	    puts stderr "[string repeat - 72]"
-
-            critcl_module $critcldefault $flags
-        } else {
-            foreach m [dealias $argv] {
-                if {[info exists critclmodules($m)]} {
-                    critcl_module $m $flags
-                } else {
-                    puts "warning: $m is not a critcl module"
-                }
-            }
-        }
-    } else {
-        puts "error: cannot find a critcl to run."
-        return 1
+	critcl_module 1 {} $flags
+	return
+    }
+    
+    foreach m [dealias $argv] {
+	if {[info exists critclmodules($m)]} {
+	    critcl_module 0 $m $flags
+	} else {
+	    puts "warning: $m is not a critcl module"
+	}
     }
     return
 }
@@ -1592,62 +1599,46 @@ proc __critcl {} {
 proc critcl-app-unix {} {
     # My, isn't it simpler under unix.
 
-    # Look for a critcl sibling to the executing shell
+    # Look for a `critcl` sibling to the executing shell
     set shdir [file dirname [info nameofexecutable]]
     set shapp [file join $shdir critcl]
     if {[file exists $shapp]} { return $shapp }
 
     # Look for critcl in the path
-    set critcl [auto_execok critcl]
+    return [auto_execok critcl]
 }
 
 proc critcl-app-windows {} {
     # Windows is a bit more complicated. We have to choose an
     # interpreter, and a starkit for it, and call both.
-    #
-    # We prefer tclkitsh, but try to make do with a tclsh. That
-    # one will have to have all the necessary packages to support
-    # starkits. ActiveTcl for example.
 
-    set interpreter {}
-    foreach i {critcl.exe tclkitsh tclsh} {
-	set interpreter [auto_execok $i]
-	if {$interpreter != {}} break
+    # First attempt to locate a wrapped executable
+    set interpreter [auto_execok critcl.exe]
+    if {$interpreter != {}} {
+	return $interpreter
     }
 
-    if {$interpreter == {}} {
-	return -code error \
-	    "failed to find either tclkitsh.exe or tclsh.exe in path"
+    # The critcl application can come out of the environment, or we
+    # try to locate it using several possible names. It may be a kit
+    # or a script. For the interpreter we simply use the shell running
+    # this code. No need to search for anything.
+    
+    set interpreter [info nameofexecutable]
+
+    if {[info exists ::env(CRITCL)]} {
+	return [concat $interpreter $::env(CRITCL)]
     }
 
-    # The critcl starkit can come out of the environment, or we
-    # try to locate it using several possible names. We try to
-    # find it if and only if we did not find a critcl starpack
-    # before.
-
-    if {[file tail $interpreter] == "critcl.exe"} {
-	set critcl $interpreter
-    } else {
-	set kit {}
-	if {[info exists ::env(CRITCL)]} {
-	    set kit $::env(CRITCL)
-	} else {
-	    foreach k {critcl.kit critcl} {
-		set kit [auto_execok $k]
-		if {$kit != {}} break
-	    }
-	}
-
-	if {$kit == {}} {
-	    return -code error "failed to find critcl.kit or critcl in \
-                  path.\n\
-                  You may wish to set the CRITCL environment variable to the\
-                  location of your critcl(.kit) file."
-	}
-	set critcl [concat $interpreter $kit]
+    foreach k {critcl.kit critcl.tcl critcl} {
+	set kit [auto_execok $k]
+	if {$kit == {}} continue
+	return [concat $interpreter $kit]
     }
 
-    return $critcl
+    return -code error "failed to find critcl.kit, critcl.tcl, or critcl in \
+	path.\n\
+	Please set the CRITCL environment variable to the\
+	location of your critcl(.kit/.tcl) file."
 }
 
 # Prints a list of all the modules supporting critcl enhancement.
@@ -1663,14 +1654,17 @@ proc __critcl-modules {} {
     return
 }
 
-proc critcl_module {pkg {extra ""}} {
+proc critcl_module {all pkg {extra {}}} {
     global critcl distribution critclmodules critcldefault
 
-    if {$pkg == $critcldefault} {
+    if {$all} {
+	set pkg $critcldefault
 	set files {}
+	# files for the default (main) module first, then ...
 	foreach f $critclmodules($critcldefault) {
 	    lappend files [file join $distribution modules $f]
 	}
+	# ... files for all other modules
         foreach m [array names critclmodules] {
 	    if {$m == $critcldefault} continue
             foreach f $critclmodules($m) {
@@ -1686,11 +1680,23 @@ proc critcl_module {pkg {extra ""}} {
 
     if {"-libdir" ni $extra} { lappend extra -libdir [list $target] }
     if {"-pkg"    ni $extra} { lappend extra -pkg    [list $pkg]    }
-    
-    catch {
-        puts "$critcl -cache [pwd]/.critcl -force $extra $files"
-        eval exec $critcl -cache [pwd]/.critcl -force $extra $files 
-    } r
+
+    puts "$critcl -cache [pwd]/.critcl -force $extra $files"
+
+    if {$critcl == "/package"} {
+	set argv {}
+	lappend argv -cache [pwd]/.critcl -force
+	foreach e $extra { lappend argv $e }
+	foreach f $files { lappend argv $f }
+
+	catch {
+	    critcl::app::main $argv
+	} r
+    } else {
+	catch {
+	    eval exec $critcl -cache [pwd]/.critcl -force $extra $files 
+	} r
+    }
     puts $r
     return
 }
