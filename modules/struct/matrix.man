@@ -9,52 +9,54 @@
 [require Tcl "8.5 9"]
 [require struct::matrix [opt [vset VERSION]]]
 [description]
-[para]
-
-A matrix is a rectangular collection of cells, i.e. organized in rows
-and columns. Each cell contains exactly one value of arbitrary
-form. The cells in the matrix are addressed by pairs of integer
-numbers, with the first (left) number in the pair specifying the
-column and the second (right) number specifying the row the cell is
-in. These indices are counted from 0 upward. The special non-numeric
-index [const end] refers to the last row or column in the matrix,
-depending on the context. Indices of the form
-
-[const end]-[var number] are counted from the end of the row or
-column, like they are for standard Tcl lists. Trying to access
-non-existing cells causes an error.
 
 [para]
-
-The matrices here are created empty, i.e. they have neither rows nor
-columns. The user then has to add rows and columns as needed by his
-application. A specialty of this structure is the ability to export an
-array-view onto its contents. Such can be used by tkTable, for
-example, to link the matrix into the display.
+This package provides a command for creating matrices, and subcommands
+for manipulating matrices once created.
 
 [para]
+A matrix is a rectangular collection of cells arranged in rows and
+columns. Each cell contains a single value of any kind. Every cell may
+be addressed using a pair of [const 0]-based integers {column, row}.
 
-The main command of the package is:
+[para]
+The special non-numeric index [const end] may be used to address a
+matrix’s last row or last column, depending on the context. Indices of
+the form [const end]-[var number] are counted from the end of the row or
+column, just the same as for standard Tcl lists.
+
+[para]
+Using an out-of-range index will raise an error.
+
+[para]
+By default each matrix is created empty. New rows and columns may be
+added as required.
+
+[para]
+A matrix can export an array-view onto its contents. This can be used
+by, for example, [emph tkTable], to link the matrix into the display.
+
+[para]
+This package’s main command is:
 
 [list_begin definitions]
 
-[call [cmd ::struct::matrix] [opt [arg matrixName]] [opt "[const =]|[const :=]|[const as]|[const deserialize] [arg source]"]]
+[call [cmd ::struct::matrix] [opt [arg aMatrix]] [opt "[const =]|[const :=]|[const as]|[const deserialize] [arg source]"]]
 
-The command creates a new matrix object with an associated global Tcl
-command whose name is [arg matrixName].  This command may be used to
-invoke various operations on the matrix.  It has the following general
+This command creates a new matrix object with an associated global Tcl
+command whose name is [arg aMatrix]. This command may be used to
+invoke various operations on the matrix. It has the following general
 form:
 
 [list_begin definitions]
-[call [cmd matrixName] [arg option] [opt [arg "arg arg ..."]]]
+[call [cmd aMatrix] [arg option] [opt [arg "arg arg ..."]]]
 
-[arg Option] and the [arg arg]s determine the exact behavior of the
-command.
+The [arg option] and the [arg arg]s determine what the command does.
 
 [list_end]
 [para]
 
-If [arg matrixName] is not specified a unique name will be generated
+If [arg aMatrix] is not specified a unique name will be generated
 by the package itself. If a [arg source] is specified the new matrix
 will be initialized to it. For the operators [const =], [const :=],
 and [const as] the argument [arg source] is interpreted as the name of
@@ -94,15 +96,16 @@ is equivalent to
 
 [para]
 
-The following commands are possible for matrix objects:
+Matrix objects provide the following commands:
 
+[comment {TODO ###################}]
 [list_begin definitions]
 
-[call [arg matrixName] [method =] [arg sourcematrix]]
+[call [arg aMatrix] [method =] [arg sourcematrix]]
 
 This is the assignment operator for matrix objects. It copies the matrix
 contained in the matrix object [arg sourcematrix] over the matrix data in
-[arg matrixName]. The old contents of [arg matrixName] are deleted by
+[arg aMatrix]. The old contents of [arg aMatrix] are deleted by
 this operation.
 
 [para]
@@ -110,13 +113,13 @@ this operation.
 This operation is in effect equivalent to
 [para]
 [example_begin]
-    [arg matrixName] [method deserialize] [lb][arg sourcematrix] [method serialize][rb]
+    [arg aMatrix] [method deserialize] [lb][arg sourcematrix] [method serialize][rb]
 [example_end]
 
-[call [arg matrixName] [method -->] [arg destmatrix]]
+[call [arg aMatrix] [method -->] [arg destmatrix]]
 
 This is the reverse assignment operator for matrix objects. It copies
-the matrix contained in the matrix object [arg matrixName] over the matrix
+the matrix contained in the matrix object [arg aMatrix] over the matrix
 data in the object [arg destmatrix].
 
 The old contents of [arg destmatrix] are deleted by this operation.
@@ -126,10 +129,10 @@ The old contents of [arg destmatrix] are deleted by this operation.
 This operation is in effect equivalent to
 [para]
 [example_begin]
-    [arg destmatrix] [method deserialize] [lb][arg matrixName] [method serialize][rb]
+    [arg destmatrix] [method deserialize] [lb][arg aMatrix] [method serialize][rb]
 [example_end]
 
-[call [arg matrixName] [method {add column}] [opt [arg values]]]
+[call [arg aMatrix] [method {add column}] [opt [arg values]]]
 
 Extends the matrix by one column and then acts like [method {set column}]
 (see below) on this new column if there were [arg values]
@@ -137,42 +140,42 @@ supplied. Without [arg values] the new cells will be set to the empty
 string. The new column is appended immediately behind the last
 existing column.
 
-[call [arg matrixName] [method {add row}] [opt [arg values]]]
+[call [arg aMatrix] [method {add row}] [opt [arg values]]]
 
 Extends the matrix by one row and then acts like [method {set row}] (see
 below) on this new row if there were [arg values] supplied. Without
 [arg values] the new cells will be set to the empty string. The new
 row is appended immediately behind the last existing row.
 
-[call [arg matrixName] [method {add columns}] [arg n]]
+[call [arg aMatrix] [method {add columns}] [arg n]]
 
 Extends the matrix by [arg n] columns. The new cells will be set to
 the empty string. The new columns are appended immediately behind the
 last existing column. A value of [arg n] equal to or smaller than 0 is
 not allowed.
 
-[call [arg matrixName] [method {add rows}] [arg n]]
+[call [arg aMatrix] [method {add rows}] [arg n]]
 
 Extends the matrix by [arg n] rows. The new cells will be set to the
 empty string. The new rows are appended immediately behind the last
 existing row. A value of [arg n] equal to or smaller than 0 is not
 allowed.
 
-[call [arg matrixName] [method cells]]
+[call [arg aMatrix] [method cells]]
 
 Returns the number of cells currently managed by the matrix. This is
 the product of [method rows] and [method columns].
 
-[call [arg matrixName] [method cellsize] [arg {column row}]]
+[call [arg aMatrix] [method cellsize] [arg {column row}]]
 
 Returns the length of the string representation of the value currently
 contained in the addressed cell.
 
-[call [arg matrixName] [method columns]]
+[call [arg aMatrix] [method columns]]
 
 Returns the number of columns currently managed by the matrix.
 
-[call [arg matrixName] [method columnwidth] [arg column]]
+[call [arg aMatrix] [method columnwidth] [arg column]]
 
 Returns the length of the longest string representation of all the
 values currently contained in the cells of the addressed column if
@@ -189,43 +192,43 @@ zero width.
 [para][emph {In other words}], the returned length is the number of terminal columns taken by the
 string, and not the number of characters.
 
-[call [arg matrixName] [method {delete column}] [arg column]]
+[call [arg aMatrix] [method {delete column}] [arg column]]
 
 Deletes the specified column from the matrix and shifts all columns
 with higher indices one index down.
 
-[call [arg matrixName] [method {delete columns}] [arg n]]
+[call [arg aMatrix] [method {delete columns}] [arg n]]
 
 Deletes [arg n] columns from the right of the matrix. The value of
 [arg n] has to satisfy the constraint
 
-"0 < [arg n] < [lb][cmd matrixName] [method columns][rb]"
+"0 < [arg n] < [lb][cmd aMatrix] [method columns][rb]"
 
-[call [arg matrixName] [method {delete row}] [arg row]]
+[call [arg aMatrix] [method {delete row}] [arg row]]
 
 Deletes the specified row from the matrix and shifts all row with
 higher indices one index down.
 
-[call [arg matrixName] [method {delete rows}] [arg n]]
+[call [arg aMatrix] [method {delete rows}] [arg n]]
 
 Deletes [arg n] rows from the bottom of the matrix. The value of
 [arg n] has to satisfy the constraint
 
-"0 < [arg n] < [lb][cmd matrixName] [method rows][rb]"
+"0 < [arg n] < [lb][cmd aMatrix] [method rows][rb]"
 
-[call [arg matrixName] [method deserialize] [arg serialization]]
+[call [arg aMatrix] [method deserialize] [arg serialization]]
 
 This is the complement to [method serialize]. It replaces matrix data
-in [arg matrixName] with the matrix described by the [arg serialization]
-value. The old contents of [arg matrixName] are deleted by this
+in [arg aMatrix] with the matrix described by the [arg serialization]
+value. The old contents of [arg aMatrix] are deleted by this
 operation.
 
-[call [arg matrixName] [method destroy]]
+[call [arg aMatrix] [method destroy]]
 
 Destroys the matrix, including its storage space and associated
 command.
 
-[call [arg matrixName] [method {format 2string}] [opt [arg report]]]
+[call [arg aMatrix] [method {format 2string}] [opt [arg report]]]
 
 Formats the matrix using the specified report object and returns the
 string containing the result of this operation. The report has to
@@ -233,27 +236,27 @@ support the [method printmatrix] method. If no [arg report] is
 specified the system will use an internal report definition to format
 the matrix.
 
-[call [arg matrixName] [method {format 2chan}] [opt "[opt [arg report]] [arg channel]"]]
+[call [arg aMatrix] [method {format 2chan}] [opt "[opt [arg report]] [arg channel]"]]
 
 Formats the matrix using the specified report object and writes the
 string containing the result of this operation into the channel. The
-report has to support the [method printmatrix2channel] method.  If no
+report has to support the [method printmatrix2channel] method. If no
 [arg report] is specified the system will use an internal report
 definition to format the matrix. If no [arg channel] is specified the
 system will use [const stdout].
 
-[call [arg matrixName] [method {get cell}] [arg {column row}]]
+[call [arg aMatrix] [method {get cell}] [arg {column row}]]
 
 Returns the value currently contained in the cell identified by row
 and column index.
 
-[call [arg matrixName] [method {get column}] [arg column]]
+[call [arg aMatrix] [method {get column}] [arg column]]
 
 Returns a list containing the values from all cells in the column
 identified by the index. The contents of the cell in row 0 are stored
 as the first element of this list.
 
-[call [arg matrixName] [method {get rect}] [arg {column_tl row_tl column_br row_br}]]
+[call [arg aMatrix] [method {get rect}] [arg {column_tl row_tl column_br row_br}]]
 
 Returns a list of lists of cell values. The values stored in the
 result come from the sub-matrix whose top-left and bottom-right cells
@@ -268,13 +271,13 @@ list. The elements of the row lists represent the selected cell
 values. The cell with the smallest index is the first element in each
 row list.
 
-[call [arg matrixName] [method {get row}] [arg row]]
+[call [arg aMatrix] [method {get row}] [arg row]]
 
 Returns a list containing the values from all cells in the row
 identified by the index. The contents of the cell in column 0 are
 stored as the first element of this list.
 
-[call [arg matrixName] [method {insert column}] [arg column] [opt [arg values]]]
+[call [arg aMatrix] [method {insert column}] [arg column] [opt [arg values]]]
 
 Extends the matrix by one column and then acts like [method {set column}]
 (see below) on this new column if there were [arg values]
@@ -288,7 +291,7 @@ matrix, then the new column is appended to the matrix, behind the last
 column. The old column at the chosen index and all columns with higher
 indices are shifted one index upward.
 
-[call [arg matrixName] [method {insert row}] [arg row] [opt [arg values]]]
+[call [arg aMatrix] [method {insert row}] [arg row] [opt [arg values]]]
 
 Extends the matrix by one row and then acts like [method {set row}] (see
 below) on this new row if there were [arg values] supplied. Without
@@ -302,7 +305,7 @@ equal to the number of rows in the matrix, then the new row is
 appended to the matrix, behind the last row. The old row at that index
 and all rows with higher indices are shifted one index upward.
 
-[call [arg matrixName] [method link] [opt -transpose] [arg arrayvar]]
+[call [arg aMatrix] [method link] [opt -transpose] [arg arrayvar]]
 
 Links the matrix to the specified array variable. This means that the
 contents of all cells in the matrix is stored in the array too, with
@@ -314,21 +317,21 @@ key [arg row,column] will be used instead. It is possible to link the
 matrix to more than one array. Note that the link is bidirectional,
 i.e. changes to the array are mirrored in the matrix too.
 
-[call [arg matrixName] [method links]]
+[call [arg aMatrix] [method links]]
 
 Returns a list containing the names of all array variables the matrix
 was linked to through a call to method [method link].
 
-[call [arg matrixName] [method rowheight] [arg row]]
+[call [arg aMatrix] [method rowheight] [arg row]]
 
 Returns the height of the specified row in lines. This is the highest
 number of lines spanned by a cell over all cells in the row.
 
-[call [arg matrixName] [method rows]]
+[call [arg aMatrix] [method rows]]
 
 Returns the number of rows currently managed by the matrix.
 
-[call [arg matrixName] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method all] [arg pattern]]
+[call [arg aMatrix] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method all] [arg pattern]]
 
 Searches the whole matrix for cells matching the [arg pattern] and
 returns a list with all matches. Each item in the aforementioned list
@@ -349,22 +352,22 @@ option is given it defaults to [option -exact].
 If the option [option -nocase] is specified the search will be
 case-insensitive.
 
-[call [arg matrixName] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method column] [arg {column pattern}]]
+[call [arg aMatrix] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method column] [arg {column pattern}]]
 
 Like [method {search all}], but the search is restricted to the
 specified column.
 
-[call [arg matrixName] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method row] [arg {row pattern}]]
+[call [arg aMatrix] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method row] [arg {row pattern}]]
 
 Like [method {search all}], but the search is restricted to the
 specified row.
 
-[call [arg matrixName] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method rect] [arg {column_tl row_tl column_br row_br pattern}]]
+[call [arg aMatrix] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method rect] [arg {column_tl row_tl column_br row_br pattern}]]
 
 Like [method {search all}], but the search is restricted to the
 specified rectangular area of the matrix.
 
-[call [arg matrixName] [method serialize] [opt [arg {column_tl row_tl column_br row_br}]]]
+[call [arg aMatrix] [method serialize] [opt [arg {column_tl row_tl column_br row_br}]]]
 
 This method serializes the sub-matrix spanned up by the rectangle
 specification. In other words it returns a tcl [emph value] completely
@@ -416,12 +419,12 @@ the proper size despite the missing values.
 }]
 [para]
 
-[call [arg matrixName] [method {set cell}] [arg {column row value}]]
+[call [arg aMatrix] [method {set cell}] [arg {column row value}]]
 
 Sets the value in the cell identified by row and column index to the
 data in the third argument.
 
-[call [arg matrixName] [method {set column}] [arg {column values}]]
+[call [arg aMatrix] [method {set column}] [arg {column values}]]
 
 Sets the values in the cells identified by the column index to the
 elements of the list provided as the third argument. Each element of
@@ -432,7 +435,7 @@ string. If there are more values in the list than there are rows the
 superfluous elements are ignored. The matrix is not extended by this
 operation.
 
-[call [arg matrixName] [method {set rect}] [arg {column row values}]]
+[call [arg aMatrix] [method {set rect}] [arg {column row values}]]
 
 Takes a list of lists of cell values and writes them into the
 submatrix whose top-left cell is specified by the two indices. If the
@@ -444,7 +447,7 @@ matrix we are modifying the over-extending parts of the values are
 ignored, i.e. essentially cut off. This subcommand expects its input
 in the format as returned by [method {get rect}].
 
-[call [arg matrixName] [method {set row}] [arg {row values}]]
+[call [arg aMatrix] [method {set row}] [arg {row values}]]
 
 Sets the values in the cells identified by the row index to the
 elements of the list provided as the third argument. Each element of
@@ -455,41 +458,41 @@ string. If there are more values in the list than there are columns
 the superfluous elements are ignored. The matrix is not extended by
 this operation.
 
-[call [arg matrixName] [method {sort columns}] [opt [option -increasing]|[option -decreasing]] [arg row]]
+[call [arg aMatrix] [method {sort columns}] [opt [option -increasing]|[option -decreasing]] [arg row]]
 
 Sorts the columns in the matrix using the data in the specified
 [arg row] as the key to sort by. The options [option -increasing]
 and [option -decreasing] have the same meaning as for [cmd lsort].
 If no option is specified [option -increasing] is assumed.
 
-[call [arg matrixName] [method {sort rows}] [opt [option -increasing]|[option -decreasing]] [arg column]]
+[call [arg aMatrix] [method {sort rows}] [opt [option -increasing]|[option -decreasing]] [arg column]]
 
 Sorts the rows in the matrix using the data in the specified
 [arg column] as the key to sort by. The options [option -increasing]
 and [option -decreasing] have the same meaning as for [cmd lsort].
 If no option is specified [option -increasing] is assumed.
 
-[call [arg matrixName] [method {swap columns}] [arg {column_a column_b}]]
+[call [arg aMatrix] [method {swap columns}] [arg {column_a column_b}]]
 
 Swaps the contents of the two specified columns.
 
-[call [arg matrixName] [method {swap rows}] [arg {row_a row_b}]]
+[call [arg aMatrix] [method {swap rows}] [arg {row_a row_b}]]
 
 Swaps the contents of the two specified rows.
 
-[call [arg matrixName] [method transpose]]
+[call [arg aMatrix] [method transpose]]
 
 Transposes the contents of the matrix, i.e. swaps rows for columns and
 vice versa.
 
-[call [arg matrixName] [method unlink] [arg arrayvar]]
+[call [arg aMatrix] [method unlink] [arg arrayvar]]
 
 Removes the link between the matrix and the specified arrayvariable,
 if there is one.
 
 [list_end]
 
-[section EXAMPLES]
+[section Examples]
 [para]
 
 The examples below assume a 5x5 matrix M with the first row containing
@@ -515,7 +518,7 @@ right.
 Assuming that the style definitions in the example section of the
 manpage for the package [package report] are loaded into the
 interpreter now an example which formats a matrix into a tabular
-report. The code filling the matrix with data is not shown.  contains
+report. The code filling the matrix with data is not shown. contains
 useful data.
 
 [para]
