@@ -98,69 +98,74 @@ is equivalent to
 
 Matrix objects provide the following commands:
 
-[comment {TODO ###################}]
 [list_begin definitions]
 
-[call [arg aMatrix] [method =] [arg sourcematrix]]
+[call [arg aMatrix] [method =] [arg sourceMatrix]]
 
-This is the assignment operator for matrix objects. It copies the matrix
-contained in the matrix object [arg sourcematrix] over the matrix data in
-[arg aMatrix]. The old contents of [arg aMatrix] are deleted by
+The [const =] operator is the matrix object [term assignment] operator.
+(This operator may be written as [const =] or [const :=] or [const as].)
+It copies the matrix contained in the matrix object [arg sourceMatrix] over
+the matrix data in [arg aMatrix]. The old contents of [arg aMatrix] are
+deleted by this operation.
+
+[para]
+
+This operation is in effect equivalent to
+[para]
+[example_begin]
+    [arg aMatrix] [method deserialize] [lb][arg sourceMatrix] [method serialize][rb]
+[example_end]
+
+[call [arg aMatrix] [method -->] [arg destMatrix]]
+
+The [const -->] operator is the matrix object [term {reverse
+assignment}] operator. It copies the matrix contained in the matrix
+object [arg aMatrix] over the matrix data in the object
+[arg destMatrix]. The old contents of [arg destMatrix] are deleted by
 this operation.
 
 [para]
-
 This operation is in effect equivalent to
 [para]
 [example_begin]
-    [arg aMatrix] [method deserialize] [lb][arg sourcematrix] [method serialize][rb]
-[example_end]
-
-[call [arg aMatrix] [method -->] [arg destmatrix]]
-
-This is the reverse assignment operator for matrix objects. It copies
-the matrix contained in the matrix object [arg aMatrix] over the matrix
-data in the object [arg destmatrix].
-
-The old contents of [arg destmatrix] are deleted by this operation.
-
-[para]
-
-This operation is in effect equivalent to
-[para]
-[example_begin]
-    [arg destmatrix] [method deserialize] [lb][arg aMatrix] [method serialize][rb]
+    [arg destMatrix] [method deserialize] [lb][arg aMatrix] [method serialize][rb]
 [example_end]
 
 [call [arg aMatrix] [method {add column}] [opt [arg values]]]
 
-Extends the matrix by one column and then acts like [method {set column}]
-(see below) on this new column if there were [arg values]
-supplied. Without [arg values] the new cells will be set to the empty
-string. The new column is appended immediately behind the last
-existing column.
+Extends the matrix by one column after the last column.
 
-[call [arg aMatrix] [method {add row}] [opt [arg values]]]
-
-Extends the matrix by one row and then acts like [method {set row}] (see
-below) on this new row if there were [arg values] supplied. Without
-[arg values] the new cells will be set to the empty string. The new
-row is appended immediately behind the last existing row.
+[para]
+If no [arg values] is given the new cells are set to the empty string.
+If [arg values] [emph are] given, then this method in effect applies
+[method {set column}] (see below) on the newly added column.
 
 [call [arg aMatrix] [method {add columns}] [arg n]]
 
-Extends the matrix by [arg n] columns. The new cells will be set to
-the empty string. The new columns are appended immediately behind the
-last existing column. A value of [arg n] equal to or smaller than 0 is
-not allowed.
+Extends the matrix by [arg n] columns after the last column and sets all
+the new cells to the empty string.
+
+[para]
+If [arg n] [emph {<= 0}] an error is raised.
+
+[call [arg aMatrix] [method {add row}] [opt [arg values]]]
+
+Extends the matrix by one row after the last row.
+
+[para]
+If no [arg values] is given the new cells are set to the empty string.
+If [arg values] [emph are] given, then this method in effect applies
+[method {set row}] (see below) on the newly added row.
 
 [call [arg aMatrix] [method {add rows}] [arg n]]
 
-Extends the matrix by [arg n] rows. The new cells will be set to the
-empty string. The new rows are appended immediately behind the last
-existing row. A value of [arg n] equal to or smaller than 0 is not
-allowed.
+Extends the matrix by [arg n] rows after the last row and sets all
+the new cells to the empty string.
 
+[para]
+If [arg n] [emph {<= 0}] an error is raised.
+
+[comment {TODO ###########################}]
 [call [arg aMatrix] [method cells]]
 
 Returns the number of cells currently managed by the matrix. This is
