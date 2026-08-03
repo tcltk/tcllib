@@ -8,6 +8,7 @@
 #include <node.h>
 #include <objcmd.h>
 #include <util.h>
+#include <stdint.h>
 
 /* .................................................. */
 
@@ -137,7 +138,6 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, Tcl_Size oc, Tcl_Obj* con
     Tcl_Obj**    lv = NALLOC (lc, Tcl_Obj*);
 
     Tcl_HashTable cn;
-    int new;
     GN* n;
 
     /* Enumerate the nodes for the references used in arcs. FUTURE, TODO: Skip
@@ -164,7 +164,7 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, Tcl_Size oc, Tcl_Obj* con
 	    ASSERT_BOUNDS(j, lc-1);
 	    he = Tcl_CreateHashEntry (&cn, (char*) n, &new);
 	    lv [j] = n->base.name;
-	    Tcl_SetHashValue (he, (ClientData) (long int) j);
+	    Tcl_SetHashValue (he, (ClientData) (uintptr_t) j);
 	    j += 3;
 	}
 	lc = j + 1;
@@ -182,7 +182,7 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, Tcl_Size oc, Tcl_Obj* con
 	    ASSERT_BOUNDS(j, lc-1);
 	    he = Tcl_CreateHashEntry (&cn, (char*) n, &new);
 	    lv [j] = n->base.name;
-	    Tcl_SetHashValue (he, (ClientData) (long int) j);
+	    Tcl_SetHashValue (he, (ClientData) (uintptr_t) j);
 	    j += 3;
 	}
 	lc = j + 1;
@@ -243,7 +243,7 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
      * - Is its length a multiple of three modulo 1 ?
      */
 
-    Tcl_Size  lc, i, j, k, nodes;
+    Tcl_Size  lc, i, k, nodes;
     Tcl_Obj** lv;
     Tcl_Size  ac;
     Tcl_Obj** av;

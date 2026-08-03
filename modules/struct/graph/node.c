@@ -6,6 +6,7 @@
 #include <arc.h>
 #include <node.h>
 #include <util.h>
+#include <stdint.h>
 
 /* .................................................. */
 
@@ -13,7 +14,6 @@ GN*
 gn_new (G* g, const char* name)
 {
     GN* n;
-    int	new;
 
     if (Tcl_FindHashEntry (g->nodes.map, name) != NULL) {
 	Tcl_Panic ("struct::graph(c) gn_new - tried to use duplicate name for new node");
@@ -93,7 +93,7 @@ gn_serial_arcs (GN* n, Tcl_Obj* empty, Tcl_HashTable* cn)
     Tcl_Obj*  arcs;
     GL*       il;
     GA*       a;
-    long int  id;
+    uintptr_t id;
     Tcl_HashEntry* he;
 
     /* Quick return if node has no outgoing arcs */
@@ -115,7 +115,7 @@ gn_serial_arcs (GN* n, Tcl_Obj* empty, Tcl_HashTable* cn)
 
 	if (!he) continue;
 	ASSERT_BOUNDS(i, lc);
-	id = (long int) Tcl_GetHashValue (he);
+	id = (uintptr_t) Tcl_GetHashValue (he);
 	lv [i] = ga_serial (a, empty, id);
 	i++;
     }

@@ -2454,7 +2454,6 @@ gm_SWAP (G* g, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* const* objv)
 
     GN*		  na;
     GN*		  nb;
-    const char*   key;
 
     if (objc != 4) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node1 node2"); /* OK tcl9 */
@@ -2606,7 +2605,7 @@ static void UpdateStringOfEndOffset (Tcl_Obj* objPtr);
 static int  SetEndOffsetFromAny     (Tcl_Interp* interp, Tcl_Obj* objPtr);
 
 static int TclCheckBadOctal (Tcl_Interp *interp, const char *value);
-static int TclFormatInt     (char *buffer, long n);
+static Tcl_Size TclFormatInt     (char *buffer, Tcl_Size n);
 
 
 Tcl_ObjType EndOffsetTypeGraph = {
@@ -2630,7 +2629,7 @@ TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr, Tcl_Size endValue, Tcl_S
 	 * list, or can be converted to one, use it.
 	 */
 
-	*indexPtr = endValue + objPtr->internalRep.longValue;
+	*indexPtr = endValue + objPtr->internalRep.wideValue;
 
     } else {
 	/*
@@ -2687,13 +2686,13 @@ UpdateStringOfEndOffset(objPtr)
      register Tcl_Obj* objPtr;
 {
     char buffer[TCL_INTEGER_SPACE + sizeof("end") + 1];
-    register int len;
+    register Tcl_Size len;
 
     strcpy(buffer, "end");
     len = sizeof("end") - 1;
-    if (objPtr->internalRep.longValue != 0) {
+    if (objPtr->internalRep.wideValue != 0) {
 	buffer[len++] = '-';
-	len += TclFormatInt(buffer+len, -(objPtr->internalRep.longValue));
+	len += TclFormatInt(buffer+len, -((Tcl_Size)objPtr->internalRep.wideValue));
     }
     objPtr->bytes = ckalloc((unsigned) (len+1));
     strcpy(objPtr->bytes, buffer);
@@ -2798,7 +2797,7 @@ SetEndOffsetFromAny(interp, objPtr)
 	oldTypePtr->freeIntRepProc(objPtr);
     }
 
-    objPtr->internalRep.longValue = offset;
+    objPtr->internalRep.wideValue = offset;
     objPtr->typePtr = &EndOffsetTypeGraph;
 
     return TCL_OK;
@@ -2887,15 +2886,15 @@ TclCheckBadOctal(interp, value)
  *----------------------------------------------------------------------
  */
 
-static int
+static Tcl_Size
 TclFormatInt(buffer, n)
      char *buffer;		/* Points to the storage into which the
 				 * formatted characters are written. */
-     long n;			/* The integer to format. */
+     Tcl_Size n;		/* The integer to format. */
 {
-    long intVal;
-    int i;
-    int numFormatted, j;
+    Tcl_Size intVal;
+    Tcl_Size i;
+    Tcl_Size numFormatted, j;
     char *digits = "0123456789";
 
     /*

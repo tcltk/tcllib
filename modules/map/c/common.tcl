@@ -47,7 +47,7 @@ critcl::ccode {
 
     static point* geos_2points (int zoom, int c, geo* geos) {
 	point* p = (point*) ckalloc (c * sizeof(point));
-	unsigned int k;
+	int k;
 
 	for (k = 0; k < c; k++) geo_2point (zoom, &geos[k], &p[k]);
 
@@ -71,7 +71,7 @@ critcl::ccode {
 
     static geo* points_2geos (int zoom, int c, point* points) {
 	geo* g = (geo*) ckalloc (c * sizeof(geo));
-	unsigned int k;
+	int k;
 
 	for (k = 0; k < c; k++) point_2geo (zoom, &points[k], &g[k]);
 
@@ -99,7 +99,7 @@ critcl::ccode {
 	double d = 0;
 	double lata = DEGTORAD * geos[0].lat;
 	double lona = DEGTORAD * geos[0].lon;
-	unsigned int i;
+	int i;
 
 	if (c < 2) {
 	    return 0;
@@ -128,7 +128,7 @@ critcl::ccode {
     }
 
     static geobox geo_bbox (int c, geo* geos) {
-	unsigned int i;
+	int i;
 
 	if (c == 0) {
 	    geobox bounding = { 0, 0, 0, 0 };
@@ -154,7 +154,7 @@ critcl::ccode {
 
     static geo geo_center (int c, geo* geos) {
 	geo out = { 0, 0 };
-	unsigned int i;
+	int i;
 
 	if (c == 0) {
 	    return out;
@@ -180,7 +180,7 @@ critcl::ccode {
 
     static double geo_diameter (int c, geo* geos) {
 	double diameter = 0;
-	unsigned int i, j;
+	int i, j;
 
 	if (c < 2) {
 	    return 0;
@@ -213,7 +213,7 @@ critcl::ccode {
     }
 
     static double point_distance_list (int closed, int c, point* points) {
-	unsigned int i, k;
+	int i, k;
 
 	if (c < 2) {
 	    return 0;
@@ -235,7 +235,7 @@ critcl::ccode {
     }
 
     static pointbox point_bbox (int c, point* points) {
-	unsigned int i;
+	int i;
 
 	if (c == 0) {
 	    pointbox bounding = { 0, 0, 0, 0 };
@@ -260,7 +260,7 @@ critcl::ccode {
     }
 
     static point point_center (int c, point* points) {
-	unsigned int i;
+	int i;
 	point out = { 0, 0 };
 
 	if (c == 0) {
@@ -286,7 +286,7 @@ critcl::ccode {
     }
 
     static double point_diameter (int c, point* points) {
-	unsigned int i, j;
+	int i, j;
 	double diameter = 0;
 
 	if (c < 2) {
