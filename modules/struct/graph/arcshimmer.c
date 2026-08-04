@@ -42,8 +42,6 @@ dup_rep (Tcl_Obj* obj, Tcl_Obj* dup)
 static void
 string_rep (Tcl_Obj* obj)
 {
-    Tcl_Obj* temp;
-    char*    str;
     GA*      a = (GA*) obj->internalRep.otherValuePtr;
 
     obj->length = a->base.name->length;

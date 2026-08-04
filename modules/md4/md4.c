@@ -44,8 +44,8 @@ static void Encode PROTO_LIST
   ((unsigned char *, UINT4 *, unsigned int));
 static void Decode PROTO_LIST
   ((UINT4 *, unsigned char *, unsigned int));
-static void MD4_memcpy PROTO_LIST ((POINTER, POINTER, unsigned int));
-static void MD4_memset PROTO_LIST ((POINTER, int, unsigned int));
+static void MD4_memcpy PROTO_LIST ((POINTER, POINTER, Tcl_Size));
+static void MD4_memset PROTO_LIST ((POINTER, int, Tcl_Size));
 
 static unsigned char PADDING[64] = {
   0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -278,7 +278,7 @@ unsigned int len;
 static void MD4_memcpy (output, input, len)
 POINTER output;
 POINTER input;
-unsigned int len;
+Tcl_Size len;
 {
   unsigned int i;
 
@@ -291,7 +291,7 @@ unsigned int len;
 static void MD4_memset (output, value, len)
 POINTER output;
 int value;
-unsigned int len;
+Tcl_Size len;
 {
   unsigned int i;
 
