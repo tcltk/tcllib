@@ -5,7 +5,7 @@
 #
 # Wrapper for the Secure Hashing Algorithm (SHA256)
 
-package require critcl;        # needs critcl
+package require critcl 3.3;    # needs critcl version compatible with 8.6 and 9
 # @sak notprovided sha256c
 package provide sha256c 1.0.5
 			       
