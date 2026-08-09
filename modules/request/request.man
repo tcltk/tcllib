@@ -1,0 +1,137 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin request n 1.0]
+[keywords request http https TclOO]
+[copyright {2026 generated documentation}]
+[moddesc   {A TclOO wrapper around the standard http package}]
+[titledesc {Object wrapper for HTTP/HTTPS requests}]
+[category Utility]
+[require Tcl 8.5]
+[require request [opt [vset VERSION]]]
+[description]
+[para]
+The [package request] package provides a TclOO object class named [emph request].
+It is a lightweight wrapper around the standard [cmd ::http::geturl] and
+[cmd ::http::posturl] commands with support for stored request state, optional
+TLS registration, and simple response validation.
+
+[section Synopsis]
+[example {
+package require request
+request create client
+client configure -method GET -url https://www.example.com
+set body [client execute]
+puts $body
+}]
+
+[section Description]
+The [cmd request] class maintains request settings on the object. The stored
+attributes may be updated with [cmd configure] and queried with [cmd cget].
+The [cmd execute] method performs the request and enforces a successful HTTP
+response status.
+
+[para] The instance stores the following request attributes:
+[list_begin definitions]
+[def [const method]]
+The HTTP method to use for the request, such as [const GET], [const POST],
+[const PUT], or [const DELETE].
+[def [const url]]
+The request URL.
+[def [const body]]
+The request body passed to [cmd ::http::posturl] when using [const POST] or
+other methods that accept a payload.
+[def [const headers]]
+A list of HTTP headers to pass to the underlying http command.
+[def [const opts]]
+Additional options to forward to the underlying http command.
+[list_end]
+
+[para] The object also retains the last response state after any request:
+[list_begin definitions]
+[def [const lastBody]]
+The raw response body.
+[def [const lastCode]]
+The HTTP status code.
+[def [const lastStatus]]
+The HTTP status text.
+[def [const lastMeta]]
+The response headers metadata returned by [cmd ::http::meta].
+[def [const lastToken]]
+The token returned by the http package request call.
+[list_end]
+
+[section Methods]
+[list_begin definitions]
+[call [emph request] [cmd configure] [opt [arg field] [arg value] ...]]
+[call [emph request] [cmd configure] [opt [arg dict]]
+
+Set one or more stored request attributes. If called without arguments, returns a
+dictionary containing the current [arg method], [arg url], [arg body],
+[arg headers], and [arg opts] values.
+
+[para] The method accepts either a dictionary of options or a list of key/value
+pairs. Leading hyphens are accepted on field names.
+
+[call [emph request] [cmd cget] [arg attr]]
+Return the value of the named attribute. Valid attributes include [const method],
+[const url], [const body], [const headers], [const opts], [const lastBody],
+[const lastCode], [const lastStatus], [const lastMeta], and [const lastToken].
+An unknown attribute raises an error.
+
+[call [emph request] [cmd execute]]
+Execute the stored request parameters. Throws an exception if the request fails or
+if the HTTP status code is not in the 2xx range. On success, returns the response
+body.
+
+[call [emph request] [cmd request] [arg method] [arg url] [opt [arg body]] [opt [arg headers]] [opt [arg opts]]
+
+Perform a one-shot HTTP request without modifying the stored object state.
+Returns a list containing [const body], [const code], [const status],
+[const headers], and [const token].
+
+[call [emph request] [cmd get] [arg url] [opt [arg headers]] [opt [arg opts]]
+
+Convenience wrapper for a GET request.
+
+[call [emph request] [cmd post] [arg url] [opt [arg body]] [opt [arg headers]] [opt [arg opts]]
+
+Convenience wrapper for a POST request.
+
+[call [emph request] [cmd lastResponse]]
+Return the last request response as a list with [const body], [const code],
+[const status], [const headers], and [const token].
+[list_end]
+
+[section Examples]
+[example {
+package require request
+
+request create client
+client configure -method GET -url https://www.example.com
+set body [client execute]
+puts "Response length: [string length $body]"
+}]
+
+[example {
+package require request
+request create client -method POST -url https://api.example.com/submit \
+    -body {name=alice&action=save} -headers {Content-Type application/x-www-form-urlencoded}
+set body [client execute]
+puts $body
+}]
+
+[example {
+package require request
+request create client
+client configure {
+    method POST
+    url https://api.example.com/submit
+    headers {Content-Type application/json}
+    body {"name":"alice"}
+}
+try {
+    set body [client execute]
+    puts $body
+} on error {type msg} {
+    puts stderr "Request failed ($type): $msg"
+}
+}]

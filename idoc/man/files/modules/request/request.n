@@ -1,0 +1,106 @@
+'" Generated from file 'request.man' by tcllib/doctools with format 'nroff'
+.TH "request" n 1.0 tcllib "HTTP request wrapper module"
+.SH NAME
+request \- TclOO wrapper for HTTP requests
+.SH SYNOPSIS
+.nf
+.B package require request
+.B request create client
+.B client configure -method GET -url https://www.example.com
+.B set body [client execute]
+.fi
+
+.SH DESCRIPTION
+The request package provides a TclOO class named request that wraps the
+standard Tcl [cmd ::http::geturl] and [cmd ::http::posturl] interfaces.
+It stores request parameters on the object, executes the request with
+[cmd execute], and validates that the HTTP response code is in the 2xx range.
+
+.SH ATTRIBUTES
+.TP
+.B method
+The HTTP method to use for the request, such as GET, POST, PUT, or DELETE.
+
+.TP
+.B url
+The request URI.
+
+.TP
+.B body
+The request body payload for POST or other methods that accept a body.
+
+.TP
+.B headers
+A list of HTTP headers to pass to the underlying http command.
+
+.TP
+.B opts
+Additional options forwarded directly to the http package.
+
+.SH METHODS
+.TP
+.B configure ?options?
+Set stored request attributes or return the current configuration as a dictionary
+when called without arguments.
+
+.TP
+.B cget attr
+Return the named request or response attribute value. Valid keys include
+method, url, body, headers, opts, lastBody, lastCode, lastStatus, lastMeta,
+and lastToken.
+
+.TP
+.B execute
+Execute the stored request and return the response body on success. Throws
+an error if the request fails or the HTTP status is not in the 2xx range.
+
+.TP
+.B request method url ?body? ?headers? ?opts?
+Perform a one-shot request and return a list with body, code, status, headers,
+and token.
+
+.TP
+.B get url ?headers? ?opts?
+Convenience wrapper for a GET request.
+
+.TP
+.B post url ?body? ?headers? ?opts?
+Convenience wrapper for a POST request.
+
+.TP
+.B lastResponse
+Return the last response properties as a list.
+
+.SH EXAMPLES
+.nf
+.B package require request
+request create client
+client configure -method GET -url https://www.example.com
+set body [client execute]
+puts $body
+.fi
+
+.nf
+.B package require request
+request create client -method POST -url https://api.example.com/submit \
+    -body {name=alice&action=save} -headers {Content-Type application/x-www-form-urlencoded}
+set body [client execute]
+puts $body
+.fi
+
+.nf
+.B package require request
+request create client
+client configure {
+    method POST
+    url https://api.example.com/submit
+    headers {Content-Type application/json}
+    body {"name":"alice"}
+}
+try {
+    set body [client execute]
+    puts $body
+} on error {type msg} {
+    puts stderr "Request failed ($type): $msg"
+}
+.fi

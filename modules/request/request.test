@@ -1,0 +1,146 @@
+# request.test - Tcl Test suite for the request package
+# -*- tcl -*-
+#
+# Copyright (c) 2026 generated tests
+# All rights reserved.
+#
+# RCS: @(#) $Id$
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    set selfrun 1
+    set auto_path [linsert $auto_path 0 [pwd]]
+    if {[file exists [file join [pwd] modules request]]} {
+        set auto_path [linsert $auto_path 0 [file join [pwd] modules request]]
+    }
+    package require tcltest
+    package require request
+    namespace import ::tcltest::*
+} else {
+    source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+    testsNeedTcl     8.5
+    testsNeedTcltest 2
+
+    support {
+        useLocal request.tcl request
+    }
+    testing {
+        useLocal request.tcl request
+    }
+}
+
+namespace eval request::test {
+    proc initHttpStubs {} {
+        foreach cmd {geturl posturl data ncode status meta} {
+            set fullname ::http::$cmd
+            set origname ::http::request_test_orig_$cmd
+            if {[llength [info commands $fullname]] && ![llength [info commands $origname]]} {
+                rename $fullname $origname
+            }
+        }
+        namespace eval http {
+            variable stubMode normal
+            proc setStubMode {mode} {
+                variable stubMode
+                set stubMode $mode
+            }
+            proc geturl {url args} {
+                variable stubMode
+                if {$stubMode eq notfound} {
+                    return tok-404
+                }
+                return tok-get
+            }
+            proc posturl {url body args} {
+                return tok-post
+            }
+            proc data {token} {
+                switch -- $token {
+                    tok-get { return get-body }
+                    tok-post { return post-body }
+                    tok-404 { return notfound }
+                    default { return {} }
+                }
+            }
+            proc ncode {token} {
+                switch -- $token {
+                    tok-get { return 200 }
+                    tok-post { return 200 }
+                    tok-404 { return 404 }
+                    default { return 500 }
+                }
+            }
+            proc status {token} {
+                switch -- $token {
+                    tok-get { return ok }
+                    tok-post { return ok }
+                    tok-404 { return "not found" }
+                    default { return error }
+                }
+            }
+            proc meta {token} {
+                return {Content-Type text/plain}
+            }
+        }
+    }
+
+    proc restoreHttpStubs {} {
+        foreach cmd {geturl posturl data ncode status meta} {
+            set origname ::http::request_test_orig_$cmd
+            if {[llength [info commands $origname]]} {
+                if {[llength [info commands ::http::$cmd]]} {
+                    rename ::http::$cmd ::http::request_test_stub_$cmd
+                }
+                rename $origname ::http::$cmd
+            }
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+
+test request-1.1 {configure and cget work together} {
+    request create client
+    client configure -method GET -url http://example.com -headers {Accept text/plain}
+    set cfg [client configure]
+    set method [dict get $cfg method]
+    set url [dict get $cfg url]
+    set headers [dict get $cfg headers]
+    set method $url $headers
+} {GET http://example.com {Accept text/plain}}
+
+test request-1.2 {cget throws on unknown attribute} {
+    request create client
+    catch {client cget unknown} msg
+    set msg
+} {unknown attribute unknown}
+
+test request-1.3 {stateless GET helper returns response list} {
+    request::test::initHttpStubs
+    request create client
+    set result [request request GET http://example.com]
+    request::test::restoreHttpStubs
+    set result
+} {get-body 200 ok {Content-Type text/plain} tok-get}
+
+test request-1.4 {execute returns body and updates lastResponse} {
+    request::test::initHttpStubs
+    request create client
+    client configure -method GET -url http://example.com
+    set body [client execute]
+    set last [client lastResponse]
+    request::test::restoreHttpStubs
+    set body $last
+} {get-body get-body 200 ok {Content-Type text/plain} tok-get}
+
+test request-1.5 {execute throws on non-2xx status} {
+    request::test::initHttpStubs
+    http::setStubMode notfound
+    request create client
+    client configure -method GET -url http://example.com
+    catch {client execute} msg
+    request::test::restoreHttpStubs
+    set msg
+} {HTTP request returned non-2xx status: 404 (not found)}

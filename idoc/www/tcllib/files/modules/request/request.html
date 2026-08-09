@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>request - HTTP request wrapper module</title>
+<meta charset="utf-8">
+<style>
+body { font-family: sans-serif; margin: 1em 2em; }
+h1, h2 { color: #005A9C; }
+pre { background: #f5f5f5; padding: 1em; overflow:auto; }
+.code { font-family: monospace; }
+</style>
+</head>
+<body>
+<h1>request</h1>
+<p><strong>request</strong> is a TclOO wrapper for the standard Tcl <code>http</code>
+package that stores request state and executes HTTP/HTTPS requests.</p>
+
+<h2>Synopsis</h2>
+<pre class="code">package require request
+request create client
+client configure -method GET -url https://www.example.com
+set body [client execute]</pre>
+
+<h2>Attributes</h2>
+<ul>
+<li><strong>method</strong> — HTTP method, e.g. GET, POST.</li>
+<li><strong>url</strong> — Request URL.</li>
+<li><strong>body</strong> — Request body payload.</li>
+<li><strong>headers</strong> — Header list for the request.</li>
+<li><strong>opts</strong> — Additional options forwarded to the http package.</li>
+</ul>
+
+<h2>Methods</h2>
+<dl>
+<dt><strong>configure ?options?</strong></dt>
+<dd>Set stored request attributes, or return a dictionary of current settings
+when called without arguments.</dd>
+
+<dt><strong>cget attr</strong></dt>
+<dd>Return the value of the named attribute. Valid keys include method, url,
+body, headers, opts, lastBody, lastCode, lastStatus, lastMeta, and lastToken.</dd>
+
+<dt><strong>execute</strong></dt>
+<dd>Execute the stored request. Throws an exception on failure or if the
+HTTP status is not 2xx. Returns the response body on success.</dd>
+
+<dt><strong>request method url ?body? ?headers? ?opts?</strong></dt>
+<dd>Perform a one-shot HTTP request and return a list containing body, code,
+status, headers, and token.</dd>
+
+<dt><strong>get url ?headers? ?opts?</strong></dt>
+<dd>Convenience wrapper for GET requests.</dd>
+
+<dt><strong>post url ?body? ?headers? ?opts?</strong></dt>
+<dd>Convenience wrapper for POST requests.</dd>
+
+<dt><strong>lastResponse</strong></dt>
+<dd>Return the last response details as a list.</dd>
+</dl>
+
+<h2>Examples</h2>
+<pre class="code">package require request
+request create client
+client configure -method GET -url https://www.example.com
+set body [client execute]
+puts $body</pre>
+
+<pre class="code">package require request
+request create client -method POST -url https://api.example.com/submit \
+    -body {name=alice&action=save} -headers {Content-Type application/x-www-form-urlencoded}
+set body [client execute]
+puts $body</pre>
+
+<pre class="code">package require request
+request create client
+client configure {
+    method POST
+    url https://api.example.com/submit
+    headers {Content-Type application/json}
+    body {"name":"alice"}
+}
+try {
+    set body [client execute]
+    puts $body
+} on error {type msg} {
+    puts stderr "Request failed ($type): $msg"
+}
+</pre>
+</body>
+</html>
