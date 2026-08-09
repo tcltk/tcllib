@@ -5,8 +5,8 @@
 [moddesc   {A TclOO wrapper around the standard http package}]
 [titledesc {Object wrapper for HTTP/HTTPS requests}]
 [category Utility]
-[require Tcl 8.5]
-[require request [opt [vset VERSION]]]
+[require Tcl 8.6]
+[require request 1.0]
 [description]
 [para]
 The [package request] package provides a TclOO object class named [emph request].
@@ -41,8 +41,13 @@ The request body passed to [cmd ::http::posturl] when using [const POST] or
 other methods that accept a payload.
 [def [const headers]]
 A list of HTTP headers to pass to the underlying http command.
-[def [const opts]]
-Additional options to forward to the underlying http command.
+[def [const tls]]
+An optional boolean passed to the constructor. When true, the package loads
+TLS support and registers the [cmd ::tls::socket] implementation for [const https]
+requests.
+[def [const http-options]]
+Additional supported [cmd ::http::geturl] options may be set through
+[cmd configure] or passed directly to [cmd request], [cmd get], or [cmd post].
 [list_end]
 
 [para] The object also retains the last response state after any request:
@@ -61,20 +66,21 @@ The token returned by the http package request call.
 
 [section Methods]
 [list_begin definitions]
-[call [emph request] [cmd configure] [opt [arg field] [arg value] ...]]
-[call [emph request] [cmd configure] [opt [arg dict]]
+[call [emph request] [cmd configure] [opt keyvaluelist]]
+[call [emph request] [cmd configure] [arg field] [arg value] [opt ...]]
 
 Set one or more stored request attributes. If called without arguments, returns a
 dictionary containing the current [arg method], [arg url], [arg body],
-[arg headers], and [arg opts] values.
+[arg headers], and any configured HTTP option values.
 
 [para] The method accepts either a dictionary of options or a list of key/value
 pairs. Leading hyphens are accepted on field names.
 
 [call [emph request] [cmd cget] [arg attr]]
 Return the value of the named attribute. Valid attributes include [const method],
-[const url], [const body], [const headers], [const opts], [const lastBody],
-[const lastCode], [const lastStatus], [const lastMeta], and [const lastToken].
+[const url], [const body], [const headers], [const lastBody], [const lastCode],
+[const lastStatus], [const lastMeta], [const lastToken], and any additional
+supported [cmd ::http::geturl] option that was previously configured.
 An unknown attribute raises an error.
 
 [call [emph request] [cmd execute]]
@@ -82,17 +88,18 @@ Execute the stored request parameters. Throws an exception if the request fails 
 if the HTTP status code is not in the 2xx range. On success, returns the response
 body.
 
-[call [emph request] [cmd request] [arg method] [arg url] [opt [arg body]] [opt [arg headers]] [opt [arg opts]]
+[call [emph request] [cmd request] [arg method] [arg url] [opt keyvaluelist]]
 
 Perform a one-shot HTTP request without modifying the stored object state.
-Returns a list containing [const body], [const code], [const status],
-[const headers], and [const token].
+The [arg body] and [arg headers] may be provided through named options, and
+additional supported [cmd ::http::geturl] options may also be passed.
+Returns the response body on success.
 
-[call [emph request] [cmd get] [arg url] [opt [arg headers]] [opt [arg opts]]
+[call [emph request] [cmd get] [arg url] [opt keyvaluelist]]
 
 Convenience wrapper for a GET request.
 
-[call [emph request] [cmd post] [arg url] [opt [arg body]] [opt [arg headers]] [opt [arg opts]]
+[call [emph request] [cmd post] [arg url] [opt keyvaluelist]]
 
 Convenience wrapper for a POST request.
 
@@ -135,3 +142,5 @@ try {
     puts stderr "Request failed ($type): $msg"
 }
 }]
+
+[manpage_end]

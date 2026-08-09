@@ -3,7 +3,7 @@
 # Provides a `request` class with simple `get`, `post` and general
 # `request` methods returning parsed response data.
 
-package require Tcl 8.5
+package require Tcl 8.6
 package require http
 
 # request -- HTTP/HTTPS request wrapper
@@ -17,8 +17,11 @@ package require http
 #   method  - HTTP method to use (GET, POST, PUT, DELETE, etc.)
 #   url     - request URL
 #   body    - request body for POST/PUT methods
-#   headers - header list to pass to http package
-#   opts    - additional options list to pass to http package commands
+#   headers - header list to pass to the http package
+#   tls     - optional boolean used by the constructor to enable TLS support
+#             for HTTPS requests via ::tls::socket
+#   Any supported ::http::geturl option may also be stored as its own
+#   configure attribute.
 #
 # Response state is retained in:
 #   lastToken, lastBody, lastCode, lastStatus, lastMeta
@@ -29,7 +32,7 @@ oo::class create request {
     variable req_url
     variable req_body
     variable req_headers
-    variable req_opts
+    variable req_http_opts
 
     # instance variables to store last response
     variable lastToken
@@ -38,17 +41,27 @@ oo::class create request {
     variable lastStatus
     variable lastMeta
 
-    constructor {{method ""} {url ""} {body ""} {headers {}} {opts {}}} {
+    constructor {{method ""} {url ""} args} {
         # Initialize instance request arguments.
         set req_method $method
         set req_url $url
-        set req_body $body
-        set req_headers $headers
-        set req_opts $opts
+        set req_body ""
+        set req_headers {}
+        if {[llength $args] % 2 != 0} {
+            throw {request Configure} "constructor requires an even number of option arguments"
+        }
+        set req_http_opts {}
+        foreach {key value} $args {
+            set key [string trimleft $key -]
+            switch -- $key {
+                body { set req_body $value }
+                headers { set req_headers $value }
+                default { dict set req_http_opts $key $value }
+            }
+        }
 
-        # Optional TLS registration if opts contains -tls 1.
-            array set __optarr $req_opts
-            if {[info exists __optarr(-tls)] && $__optarr(-tls)} {
+        if {[dict exists $req_http_opts tls]} {
+            if {[dict get $req_http_opts tls]} {
                 try {
                     package require tls
                 } on error {msg} {
@@ -60,16 +73,41 @@ oo::class create request {
                     # ignore registration failures
                 }
             }
+            dict unset req_http_opts tls
+        }
     }
 
-    method configure {args {}} {
+    method _doHttpConfig {} {
+        set configure_options {}
+        foreach key {accept proxyhost proxyport proxyfilter urlencoding useragent} {
+            if {[dict exists $req_http_opts $key]} {
+                lappend configure_options -$key [dict get $req_http_opts $key]
+            }
+        }
+        if {[llength $configure_options] > 0} {
+            ::http::configure configure {*}$configure_options
+        }
+    }
+
+    method _performHttpRequest {url method body headers opts} {
+        if {[string match post $method]} {
+            if {$body eq ""} {
+                return [::http::posturl $url {} -headers $headers {*}$opts]
+            }
+            return [::http::posturl $url $body -headers $headers {*}$opts]
+        } elseif {[string match get $method]} {
+            return [::http::geturl $url -headers $headers {*}$opts]
+        }
+        return [::http::geturl $url -method $method -headers $headers {*}$opts]
+    }
+
+    method configure {args} {
         # Configure one or more stored attributes.
         # If called without arguments, returns a dict of current config values.
-            if {[llength $args] == 0} {
-            return [dict create method $req_method url $req_url body $req_body headers $req_headers opts $req_opts]
+        if {[llength $args] == 0} {
+            return [dict create method $req_method url $req_url body $req_body headers $req_headers {*}$req_http_opts]
         }
 
-        # If single dict argument provided, apply its entries
         if {[llength $args] == 1} {
             set maybe [lindex $args 0]
             if {[try {
@@ -84,60 +122,52 @@ oo::class create request {
                         url { set req_url $v }
                         body { set req_body $v }
                         headers { set req_headers $v }
-                        opts { set req_opts $v }
-                        default { throw {request Configure} "unknown configure key $k" }
+                        default { dict set req_http_opts $key $v }
                     }
                 }
                 return
             }
         }
 
-        # Otherwise expect key value pairs: -method GET -url ... or method GET url ...
-        set i 0
-        while {$i < [llength $args]} {
-            set key [lindex $args $i]; incr i
-            if {$i >= [llength $args]} { throw {request Configure} "configure requires a value for $key" }
-            set val [lindex $args $i]; incr i
-            set key [string trimleft $key -]
+        if {[llength $args] % 2 != 0} {
+            throw {request Configure} "configure requires an even number of key/value arguments"
+        }
+        foreach {key val} $args {
+            set key [string range $key 1 end] ;# strip leading dash
             switch -- $key {
                 method { set req_method $val }
                 url { set req_url $val }
                 body { set req_body $val }
                 headers { set req_headers $val }
-                opts { set req_opts $val }
-                default { throw {request Configure} "unknown configure key $key" }
+                default { dict set req_http_opts $key $val }
             }
         }
+
     }
 
-    method request {method url {body ""} {headers {}} {opts {}} } {
+    method request {method url args} {
         # Stateless helper for a single HTTP request.
-        # Returns a dict-like list with body/code/status/headers/token.
-        set m [string tolower $method]
-        if {[string match post $m]} {
-            if {$body eq ""} {
-                set token [::http::posturl $url {} -headers $headers {*}$opts]
-            } else {
-                set token [::http::posturl $url $body -headers $headers {*}$opts]
+        # The body and headers may be passed in via args as named options,
+        # and all other valid ::http::geturl options are forwarded as well.
+        set req_method $method
+        set req_url $url
+        set req_body ""
+        set req_headers {}
+        set req_http_opts {}
+
+        if {[llength $args] % 2 != 0} {
+            throw {request Configure} "request requires an even number of option arguments"
+        }
+        foreach {key value} $args {
+            set key [string trimleft $key -]
+            switch -- $key {
+                body { set req_body $value }
+                headers { set req_headers $value }
+                default { dict set req_http_opts $key $value }
             }
-        } elseif {[string match get $m]} {
-            set token [::http::geturl $url -headers $headers {*}$opts]
-        } else {
-            set token [::http::geturl $url -method $method -headers $headers {*}$opts]
         }
 
-        set lastToken $token
-        set lastBody [::http::data $token]
-        set lastCode [::http::ncode $token]
-        set lastStatus [::http::status $token]
-        if {[try {
-            array set mdata [::http::meta $token]
-        } on error {msg} {
-            set lastMeta {}
-            return
-        }]} { set lastMeta mdata } else { set lastMeta {} }
-
-        return [list body $lastBody code $lastCode status $lastStatus headers $lastMeta token $lastToken]
+        return [my execute]
     }
 
     method execute {} {
@@ -151,48 +181,88 @@ oo::class create request {
         set url $req_url
         set body $req_body
         set headers $req_headers
-        set opts $req_opts
-
-        try {
-            if {[string match post $m]} {
-                if {$body eq ""} {
-                    set token [::http::posturl $url {} -headers $headers {*}$opts]
-                } else {
-                    set token [::http::posturl $url $body -headers $headers {*}$opts]
-                }
-            } elseif {[string match get $m]} {
-                set token [::http::geturl $url -headers $headers {*}$opts]
-            } else {
-                set token [::http::geturl $url -method $req_method -headers $headers {*}$opts]
+        set opts {}
+        set allowed [list \
+            binary blocksize channel command handler keepalive method myaddr \
+            progress protocol query queryblocksize querychannel queryprogress \
+            strict timeout type validate]
+        dict for {key value} $req_http_opts {
+            if {[lsearch -exact $allowed $key] != -1} {
+                lappend opts -$key $value
             }
-        } on error {err} {
-            throw {request HTTP} "HTTP request failed: $err"
         }
 
-        set lastToken $token
-        set lastBody [::http::data $token]
-        set lastCode [::http::ncode $token]
-        set lastStatus [::http::status $token]
-        if {[try {
-            array set mdata [::http::meta $token]
-        } on error {msg} {
-            set lastMeta {}
-            return
-        }]} { set lastMeta mdata } else { set lastMeta {} }
+        set redirectCount 0
+        set maxRedirects 5
+        set redirectCodes {301 302 307 308}
+        set currentUrl $url
+        set token {}
+        while {1} {
+            if {[string match -nocase https://* $currentUrl]} {
+                try {
+                    package require tls
+                } on error {msg} {
+                    throw {request TLS} "failed to load tls package: $msg"
+                }
+                try {
+                    ::http::register https 443 ::tls::socket
+                } on error {msg} {
+                    # ignore registration failures
+                }
+            }
 
-        if {![string match 2* $lastCode]} {
-            throw {request HTTP} "HTTP request returned non-2xx status: $lastCode ($lastStatus)"
+            my _doHttpConfig
+
+            try {
+                set token [my _performHttpRequest $currentUrl $req_method $body $headers $opts]
+            } on error {err} {
+                throw {request HTTP} "HTTP request failed: $err"
+            }
+
+            set lastToken $token
+            set lastBody [::http::data $token]
+            set lastCode [::http::ncode $token]
+            set lastStatus [::http::status $token]
+            try {
+                set lastMeta [::http::meta $token]
+            } on error {msg} {
+                set lastMeta {}
+            }
+
+            if {[lsearch -exact $redirectCodes $lastCode] != -1} {
+                set location ""
+                foreach {k v} $lastMeta {
+                    if {[string tolower $k] eq "location"} {
+                        set location $v
+                        break
+                    }
+                }
+                if {$location ne ""} {
+                    if {$redirectCount >= $maxRedirects} {
+                        throw {request HTTP} "too many redirects"
+                    }
+                    incr redirectCount
+                    set currentUrl $location
+                    continue
+                }
+            }
+
+            if {![string match 2* $lastCode]} {
+                throw [list request HTTP $lastCode] "HTTP request returned non-2xx status: $lastCode ($lastStatus)"
+            }
+
+            break
         }
 
         return $lastBody
     }
 
-    method get {url {headers {}} {opts {}} } {
-        return [my request GET $url "" $headers $opts]
+    method get {url args} {
+        return [my request GET $url {*}$args]
     }
 
-    method post {url {body ""} {headers {}} {opts {}} } {
-        return [my request POST $url $body $headers $opts]
+    method post {url args} {
+        return [my request POST $url {*}$args]
     }
 
     method lastResponse {} {
@@ -207,13 +277,17 @@ oo::class create request {
             url { return $req_url }
             body { return $req_body }
             headers { return $req_headers }
-            opts { return $req_opts }
             lastBody { return $lastBody }
             lastCode { return $lastCode }
             lastStatus { return $lastStatus }
             lastMeta { return $lastMeta }
             lastToken { return $lastToken }
-            default { throw {request Attribute} "unknown attribute $attr" }
+            default {
+                if {[dict exists $req_http_opts $attr]} {
+                    return [dict get $req_http_opts $attr]
+                }
+                throw {request Attribute} "unknown attribute $attr"
+            }
         }
     }
 

@@ -33,7 +33,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 namespace eval request::test {
     proc initHttpStubs {} {
-        foreach cmd {geturl posturl data ncode status meta} {
+        foreach cmd {geturl posturl data ncode status meta register} {
             set fullname ::http::$cmd
             set origname ::http::request_test_orig_$cmd
             if {[llength [info commands $fullname]] && ![llength [info commands $origname]]} {
@@ -42,12 +42,19 @@ namespace eval request::test {
         }
         namespace eval http {
             variable stubMode normal
+            variable registerArgs {}
             proc setStubMode {mode} {
                 variable stubMode
                 set stubMode $mode
             }
             proc geturl {url args} {
                 variable stubMode
+                if {$url eq http://redirect.example.com} {
+                    return tok-301
+                }
+                if {$url eq http://example.com/redirected} {
+                    return tok-get
+                }
                 if {$stubMode eq notfound} {
                     return tok-404
                 }
@@ -60,6 +67,7 @@ namespace eval request::test {
                 switch -- $token {
                     tok-get { return get-body }
                     tok-post { return post-body }
+                    tok-301 { return "" }
                     tok-404 { return notfound }
                     default { return {} }
                 }
@@ -68,6 +76,7 @@ namespace eval request::test {
                 switch -- $token {
                     tok-get { return 200 }
                     tok-post { return 200 }
+                    tok-301 { return 301 }
                     tok-404 { return 404 }
                     default { return 500 }
                 }
@@ -76,18 +85,30 @@ namespace eval request::test {
                 switch -- $token {
                     tok-get { return ok }
                     tok-post { return ok }
+                    tok-301 { return "Moved Permanently" }
                     tok-404 { return "not found" }
                     default { return error }
                 }
             }
             proc meta {token} {
-                return {Content-Type text/plain}
+                switch -- $token {
+                    tok-301 { return {Location http://example.com/redirected} }
+                    default { return {Content-Type text/plain} }
+                }
+            }
+            proc register {scheme port command} {
+                variable registerArgs
+                set registerArgs [list $scheme $port $command]
+            }
+            proc getRegisterArgs {} {
+                variable registerArgs
+                return $registerArgs
             }
         }
     }
 
     proc restoreHttpStubs {} {
-        foreach cmd {geturl posturl data ncode status meta} {
+        foreach cmd {geturl posturl data ncode status meta register} {
             set origname ::http::request_test_orig_$cmd
             if {[llength [info commands $origname]]} {
                 if {[llength [info commands ::http::$cmd]]} {
@@ -103,29 +124,85 @@ namespace eval request::test {
 
 test request-1.1 {configure and cget work together} {
     request create client
-    client configure -method GET -url http://example.com -headers {Accept text/plain}
+    client configure -method GET -url http://example.com -headers {Accept text/plain} -proxyhost proxy.example.com
     set cfg [client configure]
     set method [dict get $cfg method]
     set url [dict get $cfg url]
     set headers [dict get $cfg headers]
-    set method $url $headers
-} {GET http://example.com {Accept text/plain}}
+    set proxy [client cget proxyhost]
+    set method $url $headers $proxy
+} {GET http://example.com {Accept text/plain} proxy.example.com}
 
-test request-1.2 {cget throws on unknown attribute} {
+test request-1.2 {configure accepts dictionary form} {
+    request create client
+    client configure [dict create method POST url http://example.com/body body payload headers {Content-Type text/plain}]
+    set body [client cget body]
+    set headers [client cget headers]
+    set method [client cget method]
+    set url [client cget url]
+    set method $url $body $headers
+} {POST http://example.com/body payload {Content-Type text/plain}}
+
+test request-1.3 {cget throws on unknown attribute} {
     request create client
     catch {client cget unknown} msg
     set msg
 } {unknown attribute unknown}
 
-test request-1.3 {stateless GET helper returns response list} {
+test request-1.4 {constructor args accept body and headers} {
+    request::test::initHttpStubs
+    request create client -method POST -url http://example.com -body payload -headers {Content-Type text/plain}
+    set body [client execute]
+    set storedBody [client cget body]
+    set storedHeaders [client cget headers]
+    request::test::restoreHttpStubs
+    set body $storedBody $storedHeaders
+} {payload {Content-Type text/plain}}
+
+test request-1.5 {stateless request helper returns response body} {
     request::test::initHttpStubs
     request create client
     set result [request request GET http://example.com]
     request::test::restoreHttpStubs
     set result
-} {get-body 200 ok {Content-Type text/plain} tok-get}
+} {get-body}
 
-test request-1.4 {execute returns body and updates lastResponse} {
+test request-1.6 {get wrapper returns response body} {
+    request::test::initHttpStubs
+    request create client
+    set result [client get http://example.com]
+    request::test::restoreHttpStubs
+    set result
+} {get-body}
+
+test request-1.7 {post wrapper returns response body} {
+    request::test::initHttpStubs
+    request create client
+    set result [client post http://example.com -body payload]
+    request::test::restoreHttpStubs
+    set result
+} {post-body}
+
+test request-1.8 {execute follows redirects for supported redirect status codes} {
+    request::test::initHttpStubs
+    request create client
+    client configure -method GET -url http://redirect.example.com
+    set body [client execute]
+    request::test::restoreHttpStubs
+    set body
+} {get-body}
+
+test request-1.9 {https:// paths register tls and execute with https} {
+    request::test::initHttpStubs
+    request create client
+    client configure -method GET -url https://example.com
+    set body [client execute]
+    set regArgs [::http::getRegisterArgs]
+    request::test::restoreHttpStubs
+    set body $regArgs
+} {https 443 ::tls::socket}
+
+test request-1.9 {execute returns body and updates lastResponse} {
     request::test::initHttpStubs
     request create client
     client configure -method GET -url http://example.com
@@ -135,7 +212,13 @@ test request-1.4 {execute returns body and updates lastResponse} {
     set body $last
 } {get-body get-body 200 ok {Content-Type text/plain} tok-get}
 
-test request-1.5 {execute throws on non-2xx status} {
+test request-1.9 {execute throws on missing method or url} {
+    request create client
+    catch {client execute} msg
+    set msg
+} {both method and url must be set before calling execute}
+
+test request-1.10 {execute throws on non-2xx status} {
     request::test::initHttpStubs
     http::setStubMode notfound
     request create client
@@ -144,3 +227,37 @@ test request-1.5 {execute throws on non-2xx status} {
     request::test::restoreHttpStubs
     set msg
 } {HTTP request returned non-2xx status: 404 (not found)}
+
+test request-1.11 {https execute throws when tls package is unavailable} {
+    request::test::initHttpStubs
+    request create client
+    client configure -method GET -url https://example.com
+    rename package package.orig
+    proc package {args} {
+        if {[llength $args] == 2 && [lindex $args 0] == require && [lindex $args 1] == tls} {
+            return -code error "can't find package tls"
+        }
+        return [eval package.orig {*}$args]
+    }
+    catch {client execute} msg
+    if {[info commands package.orig]} {
+        rename package.orig package
+    }
+    request::test::restoreHttpStubs
+    set msg
+} {failed to load tls package: can't find package tls}
+
+test request-1.12 {constructor -tls true fails when tls package is unavailable} {
+    rename package package.orig
+    proc package {args} {
+        if {[llength $args] == 2 && [lindex $args 0] == require && [lindex $args 1] == tls} {
+            return -code error "can't find package tls"
+        }
+        return [eval package.orig {*}$args]
+    }
+    catch {request create client -method GET -url https://example.com -tls true} msg
+    if {[info commands package.orig]} {
+        rename package.orig package
+    }
+    set msg
+} {failed to load tls package: can't find package tls}
