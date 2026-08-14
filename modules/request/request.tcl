@@ -85,8 +85,25 @@ oo::class create request {
             }
         }
         if {[llength $configure_options] > 0} {
+            # Query and save current settings for the options we will change.
+            set prev {}
+            foreach {opt val} $configure_options {
+                # opt is like -useragent; strip leading - for querying
+                set k [string range $opt 1 end]
+                if {[catch {set cur [::http::configure configure -$k]}]} {
+                    # Fall back to asking for the full configure map if single-query fails
+                    if {[catch {set full [::http::configure configure]}] || ![dict exists $full $k]} {
+                        set cur {}
+                    } else {
+                        set cur [dict get $full $k]
+                    }
+                }
+                lappend prev -$k $cur
+            }
             ::http::configure configure {*}$configure_options
+            return $prev
         }
+        return {}
     }
 
     method _performHttpRequest {url method body headers opts} {
@@ -211,12 +228,20 @@ oo::class create request {
                 }
             }
 
-            my _doHttpConfig
+            set _prevHttpConfig [my _doHttpConfig]
 
             try {
                 set token [my _performHttpRequest $currentUrl $req_method $body $headers $opts]
             } on error {err} {
+                if {[llength $_prevHttpConfig] > 0} {
+                    # restore previous http configuration
+                    ::http::configure configure {*}${_prevHttpConfig}
+                }
                 throw {request HTTP} "HTTP request failed: $err"
+            }
+
+            if {[llength $_prevHttpConfig] > 0} {
+                ::http::configure configure {*}${_prevHttpConfig}
             }
 
             set lastToken $token

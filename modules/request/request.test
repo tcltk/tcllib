@@ -118,7 +118,52 @@ namespace eval request::test {
             }
         }
     }
+
+    # Helper: run a request that changes ::http::configure and verify
+    # that the original value for a single key is restored after execute
+    # both on success and on error.
+    proc verifyHttpConfigRestore {key changedVal} {
+        variable ::http::request_test_stub_geturl
+        set orig [httpConfigGet $key]
+
+        # success path
+        request::test::initHttpStubs
+        request create client
+        client configure -method GET -url http://example.com -$key $changedVal
+        set _dummy [client execute]
+        request::test::restoreHttpStubs
+        if {[httpConfigGet $key] ne $orig} {
+            return -code error "http configure $key not restored after success"
+        }
+
+        # error path
+        request::test::initHttpStubs
+        http::setStubMode notfound
+        request create client2
+        client2 configure -method GET -url http://example.com -$key $changedVal
+        catch {client2 execute} _err
+        request::test::restoreHttpStubs
+        if {[httpConfigGet $key] ne $orig} {
+            return -code error "http configure $key not restored after error"
+        }
+
+        return "ok"
+    }
 }
+
+# Helper to safely read ::http::configure for a single key
+proc httpConfigGet {k} {
+    if {[catch {set v [::http::configure configure -$k]}]} {
+        if {[catch {set m [::http::configure configure]}]} {
+            return {}
+        }
+        if {[dict exists $m $k]} { return [dict get $m $k] }
+        return {}
+    }
+    return $v
+}
+
+# (no helper needed in harnessed tests)
 
 # -------------------------------------------------------------------------
 
@@ -151,7 +196,7 @@ test request-1.3 {cget throws on unknown attribute} {
 
 test request-1.4 {constructor args accept body and headers} {
     request::test::initHttpStubs
-    request create client -method POST -url http://example.com -body payload -headers {Content-Type text/plain}
+        request create client -method POST -url http://example.com -body payload -headers {Content-Type text/plain}
     set body [client execute]
     set storedBody [client cget body]
     set storedHeaders [client cget headers]
@@ -161,7 +206,7 @@ test request-1.4 {constructor args accept body and headers} {
 
 test request-1.5 {stateless request helper returns response body} {
     request::test::initHttpStubs
-    request create client
+        request create client
     set result [request request GET http://example.com]
     request::test::restoreHttpStubs
     set result
@@ -169,7 +214,7 @@ test request-1.5 {stateless request helper returns response body} {
 
 test request-1.6 {get wrapper returns response body} {
     request::test::initHttpStubs
-    request create client
+        request create client
     set result [client get http://example.com]
     request::test::restoreHttpStubs
     set result
@@ -177,7 +222,7 @@ test request-1.6 {get wrapper returns response body} {
 
 test request-1.7 {post wrapper returns response body} {
     request::test::initHttpStubs
-    request create client
+        request create client
     set result [client post http://example.com -body payload]
     request::test::restoreHttpStubs
     set result
@@ -240,8 +285,8 @@ test request-1.11 {https execute throws when tls package is unavailable} {
         return [eval package.orig {*}$args]
     }
     catch {client execute} msg
-    if {[info commands package.orig]} {
-        rename package.orig package
+    if {[llength [info commands package.orig]]} {
+        catch {rename package.orig package}
     }
     request::test::restoreHttpStubs
     set msg
@@ -256,8 +301,19 @@ test request-1.12 {constructor -tls true fails when tls package is unavailable} 
         return [eval package.orig {*}$args]
     }
     catch {request create client -method GET -url https://example.com -tls true} msg
-    if {[info commands package.orig]} {
-        rename package.orig package
+    if {[llength [info commands package.orig]]} {
+        catch {rename package.orig package}
     }
     set msg
 } {failed to load tls package: can't find package tls}
+
+# Additional tests for restoring ::http::configure were removed; rely on harnessed tests
+
+test request-1.20 {::http::configure options are restored after execute} {
+    # verify each option that request may touch is restored
+    set keys {accept proxyhost proxyport proxyfilter urlencoding useragent}
+    foreach k $keys {
+        set res [request::test::verifyHttpConfigRestore $k changed-value]
+        if {$res ne ok} {error $res}
+    }
+} {}
