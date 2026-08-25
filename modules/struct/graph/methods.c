@@ -2914,7 +2914,7 @@ TclFormatInt(buffer, n)
      */
 
     if (n == -n) {
-	sprintf(buffer, "%ld", n);
+	sprintf(buffer, "%ld", (long)n);
 	return strlen(buffer);
     }
 

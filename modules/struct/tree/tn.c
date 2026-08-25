@@ -9,7 +9,7 @@
 /* .................................................. */
 
 static void extend_children  (TNPtr n);
-static int  fill_descendants (TNPtr n, Tcl_Size lc, Tcl_Obj** lv, Tcl_Size at);
+static Tcl_Size  fill_descendants (TNPtr n, Tcl_Size lc, Tcl_Obj** lv, Tcl_Size at);
 
 /* .................................................. */
 
@@ -322,8 +322,8 @@ tn_detachmany (TNPtr n, Tcl_Size len)
 
     TNPtr* ch;
     TNPtr  p   = n->parent;
-    int	   at  = n->index;
-    int	   end = at + len;
+    Tcl_Size at  = n->index;
+    Tcl_Size end = at + len;
 
     ASSERT (end <= p->nchildren, "tn_detachmany - tried to cut too many children");
     ASSERT (len > 0,		 "tn_detachmany - tried to cut nothing");
@@ -449,7 +449,7 @@ tn_append (TNPtr p, TNPtr n)
 
     /* The node chosen as parent cannot be a leaf (anymore) */
 
-    int at = p->nchildren;
+    Tcl_Size at = p->nchildren;
 
     tn_notleaf (p); 
 
@@ -677,8 +677,8 @@ tn_insertmany (TNPtr p, Tcl_Size at, Tcl_Size nc, TNPtr* nv)
 void
 tn_cut (TNPtr n)
 {
-    TNPtr p  = n->parent; /* Remember the location of n in its */
-    int at = n->index;	/* parent, this is the point there its
+    TNPtr    p  = n->parent; /* Remember the location of n in its */
+    Tcl_Size at = n->index;	/* parent, this is the point there its
 			 * children are re-inserted */
     Tcl_Size nc;
     TNPtr*   nv;
@@ -841,7 +841,7 @@ tn_ndescendants (TNPtr n)
 Tcl_Obj**
 tn_getdescendants (TNPtr n, Tcl_Size* nc)
 {
-    int	      end;
+    Tcl_Size  end;
     Tcl_Size  lc = tn_ndescendants (n);
     Tcl_Obj** lv;
 
@@ -1050,7 +1050,7 @@ tn_get_attr (TNPtr tdn, Tcl_Obj* empty)
     return res;
 }
 
-int
+Tcl_Size
 tn_serialize (TNPtr tdn, Tcl_Size listc, Tcl_Obj** listv, Tcl_Size at, Tcl_Size parent, Tcl_Obj* empty)
 {
     Tcl_Size self = at;
@@ -1074,7 +1074,7 @@ tn_serialize (TNPtr tdn, Tcl_Size listc, Tcl_Obj** listv, Tcl_Size at, Tcl_Size 
 }
 
 /* .................................................. */
-static int
+static Tcl_Size
 fill_descendants (TNPtr n, Tcl_Size lc, Tcl_Obj** lv, Tcl_Size at)
 {
     /* The descendants of the root are simply all nodes except the root
@@ -1123,7 +1123,7 @@ extend_children (TNPtr n)
 	if (n->child == NULL) {
 	    n->child = NALLOC (n->nchildren, TNPtr);
 	} else {
-	    int	   nc  = 2 * n->nchildren;
+	    Tcl_Size nc  = 2 * n->nchildren;
 	    TNPtr* new = (TNPtr*) attemptckrealloc ((char*) n->child,
 						    nc * sizeof (TNPtr));
 	    if (new == NULL) {

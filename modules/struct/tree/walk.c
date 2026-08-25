@@ -3,6 +3,7 @@
 #include "tcl.h"
 #include <t.h>
 #include <util.h>
+#include <stdint.h>
 
 /* .................................................. */
 
@@ -33,7 +34,7 @@ static int t_walkbfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 int
 t_walkoptions (Tcl_Interp* interp, int n,
 	       Tcl_Size objc, Tcl_Obj* CONST* objv,
-	       int* type, int* order, int* remainder,
+	       int* type, int* order, Tcl_Size* remainder,
 	       char* usage)
 {
     Tcl_Size i;
@@ -237,7 +238,7 @@ t_walk_invokecmd (Tcl_Interp* interp, TN* n, Tcl_Obj* dummy0,
 		  Tcl_Obj* action)
 {
     int	      res;
-    int	      cc = (long int)  dummy0;
+    uintptr_t cc = (uintptr_t)  dummy0;
     Tcl_Obj** ev = (Tcl_Obj**) dummy1; /* cc+3 elements */
 
     ev [cc]   = dummy2;	   /* Tree */
@@ -475,8 +476,8 @@ t_walkdfsin (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	return t_walkdfsin (interp, tdn->child [0], f, cs, avn, nvn, action);
 
     } else {
-	int i;
-	int  nc = tdn->nchildren;
+	int       i;
+	Tcl_Size  nc = tdn->nchildren;
 	TN** nv = NALLOC (nc,TN*);
 	memcpy (nv, tdn->child, nc*sizeof(TN*));
 

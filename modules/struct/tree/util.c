@@ -77,7 +77,7 @@ nlq_pop (NLQ* q)
 /* Delete all items in the list.
  */
 
-void*
+void
 nlq_clear (NLQ* q)
 {
     NL* next;

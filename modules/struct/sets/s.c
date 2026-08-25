@@ -95,7 +95,6 @@ string_rep (Tcl_Obj* obj)
     Tcl_Size localLen  [LOCAL_SIZE], *lenPtr;
     register int i;
     char *elem, *dst;
-    int length;
 
     Tcl_HashSearch hs;
     Tcl_HashEntry* he;
@@ -339,10 +338,6 @@ s_intersect (SPtr a, SPtr b)
 SPtr
 s_union (SPtr a, SPtr b)
 {
-    int            new;
-    Tcl_HashSearch hs;
-    Tcl_HashEntry* he;
-    CONST char*    key;
 
     SPtr s = (SPtr) ckalloc (sizeof (S));
     Tcl_InitHashTable(&s->el, TCL_STRING_KEYS);
@@ -384,7 +379,6 @@ s_add1 (SPtr a, const char* item)
 void
 s_subtract (SPtr a, SPtr b, int* delPtr)
 {
-    int            new;
     Tcl_HashSearch hs;
     Tcl_HashEntry* he, *dhe;
     CONST char*    key;

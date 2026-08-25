@@ -23,7 +23,7 @@ static int walkbfspre  (Tcl_Interp* interp, GN* n, int dir,
 static int walk_invoke (Tcl_Interp* interp, GN* n,
 			Tcl_Size cc, Tcl_Obj** ev, Tcl_Obj* action);
 
-static int walk_neighbours (GN* n, Tcl_HashTable* v, int dir,
+static void walk_neighbours (GN* n, Tcl_HashTable* v, int dir,
 			    Tcl_Size* nc, GN*** nv);
 
 /* .................................................. */
@@ -290,7 +290,7 @@ walk_invoke (Tcl_Interp* interp, GN* n,
 
 /* .................................................. */
 
-static int
+static void
 walk_neighbours (GN* n, Tcl_HashTable* vn, int dir,
 		 Tcl_Size* nc, GN*** nv)
 {

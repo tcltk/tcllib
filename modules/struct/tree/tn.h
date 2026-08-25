@@ -49,7 +49,7 @@ void	 tn_extend_attr (TNPtr n);
 void	 tn_set_attr	(TNPtr n, Tcl_Interp* interp, Tcl_Obj* dict);
 Tcl_Obj* tn_get_attr	(TNPtr n, Tcl_Obj* empty);
 
-int tn_serialize (TNPtr n, Tcl_Size listc, Tcl_Obj** listv,
+Tcl_Size tn_serialize (TNPtr n, Tcl_Size listc, Tcl_Obj** listv,
 		  Tcl_Size at, Tcl_Size parent, Tcl_Obj* empty);
 
 #endif /* _TN_H */

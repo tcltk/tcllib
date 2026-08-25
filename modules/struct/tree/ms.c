@@ -269,7 +269,7 @@ Tcl_Obj*
 tms_serialize (TN* n)
 {
     Tcl_Obj*  ser;
-    int	      end;
+    Tcl_Size  end;
     Tcl_Size  listc;
     Tcl_Obj** listv;
     Tcl_Obj*  empty;
@@ -388,7 +388,9 @@ tms_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* ob
     case M_WALK:	return tm_WALK	      (t, interp, objc, objv);
     case M_WALKPROC:	return tm_WALKPROC    (t, interp, objc, objv);
     }
-    /* Not coming to this place */
+    /* Not coming to this place, but return to silence compiler warnings. */
+    ASSERT (0 == 1, "Bad logic in tms_objcmd");
+    return TCL_ERROR;
 }
 
 /*

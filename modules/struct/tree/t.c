@@ -66,7 +66,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
     Tcl_Obj** listv;
 
     int	      root   = -1;
-    int*      parent = NULL;
+    Tcl_Size* parent = NULL;
 
     /* Basic checks:
      * - Is the input a list ?
@@ -125,8 +125,8 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
      */
 
     {
-	Tcl_Size i, j;
-	CONST char* parent;
+	int i, j;
+	CONST char* parent_str;
 
 	for (i = 0, j = 0, root = -1;
 	     i < listc;
@@ -136,9 +136,9 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	    ASSERT_BOUNDS (PARENT(i), listc);
 	    ASSERT_BOUNDS (j,	      nodes);
 
-	    parent = Tcl_GetString (listv [PARENT(i)]);
+	    parent_str = Tcl_GetString (listv [PARENT(i)]);
 
-	    if (0 == strcmp ("", parent)) {
+	    if (0 == strcmp ("", parent_str)) {
 		if (root >= 0) {
 		    Tcl_AppendResult (interp,
 				      "error in serialization: multiple root nodes.",
@@ -169,7 +169,7 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	Tcl_Size i, j, index;
 	Tcl_Obj* p;
 
-	parent = NALLOC (nodes, int);
+	parent = NALLOC (nodes, Tcl_Size);
 
 	ASSERT_BOUNDS (root, nodes);
 	parent [root] = -1; /* Sensible, unused */
