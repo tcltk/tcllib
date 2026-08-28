@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine 1.4
+# Package coroutine 1.5
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta license         BSD
@@ -473,6 +473,271 @@ proc ::coroutine::util::AWaitSignal {coroutine var index op} {
     $coroutine $fullvar
 }
 
+# - -- --- ----- -------- -------------
+
+proc ::coroutine::util::exec args {
+    set stdout {}
+    set stderr {}
+    set pipefds {}
+    set filefds {}
+    try {
+	# Set some defaults for the switches
+	set ignorestderr 0
+	set dropnewline 1
+	set encoding [encoding system]
+	# Process the supported switches
+	while {[string index [lindex $args 0] 0] eq "-"} {
+	    set args [lassign $args opt]
+	    switch -- $opt {
+		-ignorestderr {set ignorestderr -1}
+		-keepnewline {set dropnewline 0}
+		-encoding {
+		    set args [lassign $args encoding]
+		}
+		-- {break}
+		default {
+		    set errorcode [list TCL LOOKUP INDEX option $opt]
+		    return -code error -errorcode $errorcode \
+		      "bad option \"$opt\": must be\
+		      -ignorestderr, -keepnewline, -encoding, or --"
+		}
+	    }
+	}
+	set mergestderr 0
+	set background 0
+	# Check for background operation. This must be the last argument. For
+	# background execution the regular exec could be used. But that would
+	# make it much harder to add this functionality to coroutine::auto
+	if {[lindex $args end] eq "&"} {
+	    set background 1
+	    set args [lrange $args 0 end-1]
+	}
+	# Check for merging stderr into stdout. Must now be the last argument.
+	if {[lindex $args end] eq "2>@1"} {
+	    set mergestderr 1
+	    set args [lrange $args 0 end-1]
+	}
+	# The `open` command to be used further down will throw an error if the
+	# standard output has been redirected. Therefor the arguments must be
+	# examined and any redirections of standard output must be extracted to
+	# be handled outside of the open command.
+	# Process all arguments in a loop, in case a file name specified for a
+	# redirection looks like a redirection itself.
+	set redir {}
+	set words 0
+	set cmdline [lmap arg $args {
+	    if {[llength $redir]} {
+		# This is the argument for a two-part redirection
+		lappend redir $arg
+	    } elseif {$arg in {< <@ << > 2> >& >> 2>> >>& >@ 2>@ >&@}} {
+		# This is type specification of a two-part redirection
+		# Save it and get the second part on the next pass of the loop
+		set redir [list $arg]
+		# Do not add standard output redirections to the command line
+		if {[string index $arg 0] eq ">"} continue
+	    } elseif {[regexp {^(>>?&?|>&?@)(.*)} $arg -> type target]} {
+		# This is a standard output redirection in a single argument
+		# Split it into the redirection type and its target
+		set redir [list $type $target]
+	    } elseif {[string match 2>* $arg]} {
+		# Standard error is redirected and can further be ignored
+		set ignorestderr 1
+	    } elseif {![string match <* $arg]} {
+		# Not a redirection, an actual command or one of its arguments
+		incr words
+	    }
+	    if {[llength $redir] > 1} {
+		# A complete redirection specification has been collected
+		lassign $redir type target
+		set redir {}
+		if {$type in {2> 2>> 2>@}} {
+		    # Standard error is redirected and can further be ignored
+		    set ignorestderr 1
+		} elseif {$type in {>& >>& >&@}} {
+		    # Combine standard output and standard error
+		    set ignorestderr 2
+		}
+		if {$type in {>@ >&@}} {
+		    # The output is supposed to go to an existing channel.
+		    # Make sure it actually exists and is writable.
+		    try {
+			chan event $target writable
+		    } trap {TCL LOOKUP CHANNEL} {err opts} {
+			# The channel doesn't exist
+			return -opts [dict incr opts -level] $err
+		    } on error {err opts} {
+			return -code error \
+			  -errorcode {TCL OPERATION EXEC BADCHAN} \
+			  "channel \"$target\" wasn't opened for writing"
+		    }
+		    # Use the channel for standard output
+		    set stdout $target
+		    # For combined streams also use it for standard error
+		    if {$type eq {>&@}} {set stderr $target}
+		    # Do not add the argument to the command line
+		    continue
+		} elseif {$type in {> >> >& >>&}} {
+		    # Redirect the output to a file
+		    try {
+			if {$type in {> >&}} {
+			    # Overwrite any old file contents
+			    set stdout [open $target w]
+			} else {
+			    # Append to any existing data in the file
+			    set stdout [open $target a]
+			}
+		    } trap {POSIX} {err opts} {
+			# Rephrase the error message to match exec
+			set err "couldn't write file \"$target\":\
+			  [lindex [dict get $opts -errorcode] end]"
+			return -options [dict incr opts -level] $err
+		    }
+		    # For combined streams use the same handle for stderr
+		    if {$type in {>& >>&}} {set stderr $stdout}
+		    # The file needs to be closed when finished
+		    lappend filefds $stdout
+		    # Do not add the argument to the command line
+		    continue
+		}
+	    }
+	    set arg
+	}]
+	# There must not be a trailing redirect
+	if {[llength $redir]} {
+	    return -code error -errorcode {TCL OPERATION EXEC SYNTAX} \
+	      "can't specify \"[lindex $redir 0]\" as last word in command"
+	}
+	# There must be some command apart from all the redirections
+	if {$words == 0} {
+	    return -code error -errorcode {TCL WRONGARGS} \
+	      {wrong # args: should be "exec ?-option ...? arg ?arg ...?"}
+	}
+	if {$background && $stdout eq ""} {
+	    # Running in the background without standard output redirected
+	    # Then the output should go to the application's standard output
+	    set stdout stdout
+	    # If standard error was not redirected either, also send that to
+	    # the application's standard error. Like the -ignorestderr switch.
+	    if {!$ignorestderr} {set ignorestderr -1}
+	}
+	set er ""
+	if {$mergestderr || $ignorestderr == 2} {
+	    if {$mergestderr || $stderr eq $stdout} {
+		# Standard error goes to the same channel as standard output
+		lappend cmdline 2>@1
+	    } else {
+		# Redirect standard error to its own channel
+		lappend cmdline 2>@ $stderr
+	    }
+	} elseif {$ignorestderr < 0} {
+	    # Standard error has not been redirected, but was requested to be
+	    # ignored by a command line switch. Send it to the application's
+	    # standard error channel.
+	    lappend cmdline 2>@ stderr
+	} elseif {$ignorestderr == 0} {
+	    # Standard error was not redirected and should not be ignored
+	    # Create a pipe to collect the standard error output independent
+	    # from standard output
+	    lassign [chan pipe] er ew
+	    # Redirect standard error into the write side of the pipe
+	    lappend cmdline 2>@ $ew
+	    # The write side must be closed in the parent after it has been
+	    # handed over to the `open` command.
+	    lappend pipefds $ew
+	    # When all done, the read side of the pipe must be cleaned up
+	    lappend filefds $er
+	}
+	# Finally the command pipeline can be opened
+	#chan puts "exec $cmdline"
+	set rc [catch {open [linsert $cmdline 0 |]} fp opts]
+	# Close the write side of the pipe(s) in the parent, as prescribed
+	# in the chan pipe manual page.
+	foreach fd $pipefds {close $fd}
+	set pipefds {}
+	if {$rc} {
+	    # The command failed. Save the error message.
+	    set output $fp
+	} elseif {$background} {
+	    # When the external command pipeline runs in the background, the
+	    # return value is a list of process identifiers of the subprocesses
+	    set output [pid $fp]
+	    # Let the process run in the background using a coroutine
+	    coroutine bg-$fp ExecCollect $fp $stdout $er $filefds $encoding
+	    set filefds {}
+	} else {
+	    # Collect the output
+	    catch {ExecCollect $fp $stdout $er $filefds $encoding} output opts
+	    set filefds {}
+	    # Drop a trailing newline, unless there was a -keepnewline switch
+	    if {$dropnewline && [string index $output end] eq "\n"} {
+		set output [string range $output 0 end-1]
+	    }
+	}
+	# Clear any stack trace information to hide the internals
+	dict unset opts -errorinfo
+	# Return the result or rethrow any errors encountered
+	return -options [dict incr opts -level] $output
+    } finally {
+	# Make sure no helper channels are leaked
+	foreach fd $pipefds {close $fd}
+	foreach fd $filefds {close $fd}
+    }
+}
+
+
+proc ::coroutine::util::ExecCollect {fp fo fe fdlist encoding} {
+    try {
+	set coro [info coroutine]
+	if {$fo ne ""} {
+	    # Transfer bytes without any encoding
+	    chan configure $fp -blocking 0 -translation binary
+	    chan configure $fo -blocking 0 -translation binary
+	    # Can't use chan copy, because that blocks the output channel
+	    chan event $fp readable [list $coro coroexeccopy $fp $fo]
+	} else {
+	    # Only apply the encoding when standard output is returned
+	    chan configure $fp -blocking 0 -encoding $encoding
+	    chan event $fp readable [list $coro coroexecdata $fp stdout]
+	}
+	if {$fe ne ""} {
+	    chan configure $fe -blocking 0 -encoding $encoding
+	    chan event $fe readable [list $coro coroexecdata $fe stderr]
+	}
+	set stdout {}
+	set stderr {}
+	while {![eof $fp]} {
+	    # Wait for data to become available
+	    lassign [yieldto list] token fd arg
+	    if {$token eq "coroexecdata"} {
+		# Append any available data to the appropriate variable
+		append $arg [chan read $fd]
+	    } elseif {$token eq "coroexeccopy"} {
+		# Copy any available data to the output channel
+		chan puts -nonewline $arg [chan read $fd]
+	    }
+	    # Disable the file event in case a channel is closed early
+	    if {[eof $fd]} {chan event $fd readable {}}
+	}
+	# Do a blocking close to collect the exit code of the process
+	chan configure $fp -blocking 1
+	set rc [catch {close $fp} err opts]
+	if {$stderr ne ""} {
+	    # Tack the standard error onto the output
+	    append stdout $stderr
+	    # Any data on standard error is considered an error case
+	    dict set opts -code error
+	} elseif {$rc} {
+	    # Add the error message from closing the channel to the output
+	    append stdout $err
+	}
+	# Return the result, whether good or bad
+	return -options [dict incr opts -level] $stdout
+    } finally {
+	# Close all the used helper channels
+	foreach fd $fdlist {close $fd}
+    }
+}
+
 # # ## ### ##### ######## #############
 ## Internal (package specific) commands
 
@@ -491,5 +756,5 @@ namespace eval ::coroutine::util {
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1.4
+package provide coroutine 1.5
 return

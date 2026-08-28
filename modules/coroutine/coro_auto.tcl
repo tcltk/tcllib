@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine::auto 1.3
+# Package coroutine::auto 1.4
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta require         {coroutine 1.4}
@@ -360,6 +360,16 @@ proc ::coroutine::auto::wrap_socket args {
     return $s
 }
 
+# - -- --- ----- -------- -------------
+
+proc ::coroutine::auto::wrap_exec args {
+    if {[info coroutine] eq {}} {
+	tailcall ::coroutine::auto::core_exec {*}$args
+    }
+
+    tailcall ::coroutine::util::exec {*}$args
+}
+
 # # ## ### ##### ######## #############
 ## Internal. Setup.
 
@@ -379,6 +389,7 @@ proc ::coroutine::auto::wrap_socket args {
 	vwait
 	update
         socket
+	exec
     } {
 	rename ::$cmd [namespace current]::core_$cmd
 	rename [namespace current]::wrap_$cmd ::$cmd
@@ -399,5 +410,5 @@ proc ::coroutine::auto::wrap_socket args {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1.3
+package provide coroutine::auto 1.4
 return

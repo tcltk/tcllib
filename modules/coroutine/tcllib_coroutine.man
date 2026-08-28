@@ -1,10 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset CORO_VERSION 1.4]
+[vset CORO_VERSION 1.5]
 [manpage_begin coroutine n [vset CORO_VERSION]]
 [keywords after]
 [keywords channel]
 [keywords coroutine]
 [keywords events]
+[keywords exec]
 [keywords exit]
 [keywords gets]
 [keywords global]
@@ -66,6 +67,18 @@ namespace variables.
 
 This command creates a new coroutine with an automatically assigned
 name and causes it to run the code specified by the arguments.
+
+[call [cmd {coroutine::util exec}] [opt [arg switches]] [arg arg] [opt [arg arg] ...] [opt [option &]]]
+
+This command executes a command pipeline consisting of one or more
+subprocesses strung together using the pipe character [option {"|"}].
+The standard output of the preceding command will be piped into the standard
+input of the next command.
+The result of the command is the standard output of the final subprocess in
+the pipeline.
+The input, output, and error streams of the pipeline may be redirected.
+If the last arg is [option {"&"}] then the pipeline will be executed in
+the background.
 
 [call [cmd {coroutine::util exit}] [opt [arg status]]]
 
