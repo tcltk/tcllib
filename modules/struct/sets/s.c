@@ -121,7 +121,7 @@ string_rep (Tcl_Obj* obj)
 	he = Tcl_NextHashEntry(&hs), i++) {
 
 	elem       = Tcl_GetHashKey (&s->el, he);
-	lenPtr [i] = strlen (elem);
+	lenPtr [i] = (Tcl_Size)strlen (elem);
 
 	obj->length += Tcl_ScanCountedElement(elem, lenPtr[i], /* OK tcl9 */
 					&flagPtr[i]) + 1;
@@ -155,7 +155,7 @@ string_rep (Tcl_Obj* obj)
 	dst--;
 	*dst = 0;
     }
-    obj->length = dst - obj->bytes;
+    obj->length = (Tcl_Size)(dst - obj->bytes);
 }
 
 static int

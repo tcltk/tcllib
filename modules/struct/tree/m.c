@@ -2635,7 +2635,7 @@ UpdateStringOfEndOffset(objPtr)
     }
     objPtr->bytes = ckalloc((unsigned) (len+1));
     strcpy(objPtr->bytes, buffer);
-    objPtr->length = len;
+    objPtr->length = (Tcl_Size)len;
 }
 
 /*

@@ -249,7 +249,7 @@ t_walk_invokecmd (Tcl_Interp* interp, TN* n, Tcl_Obj* dummy0,
     Tcl_IncrRefCount (ev [cc+1]);
     Tcl_IncrRefCount (ev [cc+2]);
 
-    res = Tcl_EvalObjv (interp, cc+3, ev, 0); /* OK tcl9 */
+    res = Tcl_EvalObjv (interp, (Tcl_Size)cc+3, ev, 0); /* OK tcl9 */
 
     Tcl_DecrRefCount (ev [cc]);
     Tcl_DecrRefCount (ev [cc+1]);
