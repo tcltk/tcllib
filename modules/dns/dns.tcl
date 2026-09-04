@@ -262,6 +262,7 @@ proc ::dns::resolve {query args} {
             -status {set state(opcode) 2}
             -data { set state(qdata) [Pop args 1] }
             default {
+                unset state
                 set opts [join [lsort [array names state -*]] ", "]
                 return -code error "bad option [lindex $args 0]: \
                         must be $opts"
@@ -271,11 +272,15 @@ proc ::dns::resolve {query args} {
     }
 
     if {$state(-nameserver) == {}} {
+        unset state
         return -code error "no nameserver specified"
     }
 
     if {$state(-usetls)} {
-        package require tls
+        if {[catch {package require tls}]} {
+            unset state
+            return -code error "tls support is not available"
+        }
         set state(-protocol) "tcp"
         if {$state(-port) == $options(port)} {
             set state(-port) 853
@@ -283,8 +288,9 @@ proc ::dns::resolve {query args} {
     }
 
     if {$state(-protocol) == "udp"} {
-        if {[llength [package provide ceptcl]] == 0 \
+        if {[llength [package provide ceptcl]] == 0
                 && [llength [package provide udp]] == 0} {
+            unset state
             return -code error "udp support is not available,\
                 get ceptcl or tcludp"
         }
