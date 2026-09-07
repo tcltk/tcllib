@@ -93,12 +93,12 @@ ga_mv_dst (GA* a, GN* ndst)
 /* .................................................. */
 
 Tcl_Obj*
-ga_serial (GA* a, Tcl_Obj* empty, Tcl_Size nodeId)
+ga_serial (GA* a, Tcl_Obj* empty, uintptr_t nodeId)
 {
     Tcl_Obj* lv [4];
 
     lv [0] = a->base.name;
-    lv [1] = Tcl_NewSizeIntObj (nodeId);
+    lv [1] = Tcl_NewWideIntObj (nodeId);
     lv [2] = g_attr_serial (a->base.attr, empty);
 
     if (a->weight) {

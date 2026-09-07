@@ -95,7 +95,6 @@ string_rep (Tcl_Obj* obj)
     Tcl_Size localLen  [LOCAL_SIZE], *lenPtr;
     register int i;
     char *elem, *dst;
-    int length;
 
     Tcl_HashSearch hs;
     Tcl_HashEntry* he;
@@ -122,7 +121,7 @@ string_rep (Tcl_Obj* obj)
 	he = Tcl_NextHashEntry(&hs), i++) {
 
 	elem       = Tcl_GetHashKey (&s->el, he);
-	lenPtr [i] = strlen (elem);
+	lenPtr [i] = (Tcl_Size)strlen (elem);
 
 	obj->length += Tcl_ScanCountedElement(elem, lenPtr[i], /* OK tcl9 */
 					&flagPtr[i]) + 1;
@@ -156,7 +155,7 @@ string_rep (Tcl_Obj* obj)
 	dst--;
 	*dst = 0;
     }
-    obj->length = dst - obj->bytes;
+    obj->length = (Tcl_Size)(dst - obj->bytes);
 }
 
 static int
@@ -294,7 +293,7 @@ s_difference (SPtr a, SPtr b)
 	if (Tcl_FindHashEntry (&b->el, key) != NULL) continue;
 	/* key is in a, not in b <=> in (a-b) */
 
-	(void*) Tcl_CreateHashEntry(&s->el, key, &new);
+	(void) Tcl_CreateHashEntry(&s->el, key, &new);
     }
 
     return s;
@@ -330,7 +329,7 @@ s_intersect (SPtr a, SPtr b)
 	if (Tcl_FindHashEntry (&b->el, key) == NULL) continue;
 	/* key is in a, in b <=> in (a*b) */
 
-	(void*) Tcl_CreateHashEntry(&s->el, key, &new);
+	(void) Tcl_CreateHashEntry(&s->el, key, &new);
     }
 
     return s;
@@ -339,10 +338,6 @@ s_intersect (SPtr a, SPtr b)
 SPtr
 s_union (SPtr a, SPtr b)
 {
-    int            new;
-    Tcl_HashSearch hs;
-    Tcl_HashEntry* he;
-    CONST char*    key;
 
     SPtr s = (SPtr) ckalloc (sizeof (S));
     Tcl_InitHashTable(&s->el, TCL_STRING_KEYS);
@@ -366,7 +361,7 @@ s_add (SPtr a, SPtr b, int* newPtr)
 	    he != NULL;
 	    he = Tcl_NextHashEntry(&hs)) {
 	    key = Tcl_GetHashKey (&b->el, he);
-	    (void*) Tcl_CreateHashEntry(&a->el, key, &new);
+	    (void) Tcl_CreateHashEntry(&a->el, key, &new);
 	    if (new) {nx = 1;}
 	}
     }
@@ -378,13 +373,12 @@ s_add1 (SPtr a, const char* item)
 {
     int new;
 
-    (void*) Tcl_CreateHashEntry(&a->el, item, &new);
+    (void) Tcl_CreateHashEntry(&a->el, item, &new);
 }
 
 void
 s_subtract (SPtr a, SPtr b, int* delPtr)
 {
-    int            new;
     Tcl_HashSearch hs;
     Tcl_HashEntry* he, *dhe;
     CONST char*    key;

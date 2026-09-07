@@ -280,7 +280,7 @@ POINTER output;
 POINTER input;
 Tcl_Size len;
 {
-  unsigned int i;
+  Tcl_Size i;
 
   for (i = 0; i < len; i++)
     output[i] = input[i];
@@ -293,7 +293,7 @@ POINTER output;
 int value;
 Tcl_Size len;
 {
-  unsigned int i;
+  Tcl_Size i;
 
   for (i = 0; i < len; i++)
     ((char *)output)[i] = (char)value;

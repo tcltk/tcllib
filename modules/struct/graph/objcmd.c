@@ -5,6 +5,7 @@
 
 #include <methods.h>
 #include <objcmd.h>
+#include <util.h>
 
 /*
  *---------------------------------------------------------------------------
@@ -166,7 +167,9 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv
     case M_UNSET:	return gm_UNSET	      (g, interp, objc, objv);
     case M_WALK:	return gm_WALK	      (g, interp, objc, objv);
     }
-    /* Not coming to this place */
+    /* Not coming to this place, but return anyway to make the compiler happy */
+    ASSERT( 0 == 1, "Algorithm error in g_objcmd." );
+    return TCL_ERROR;
 }
 
 /*

@@ -31,7 +31,7 @@ typedef int (*t_walk_function) (Tcl_Interp* interp,
 
 int t_walkoptions (Tcl_Interp* interp, int n,
 		   Tcl_Size objc, Tcl_Obj* CONST* objv,
-		   int* type, int* order, int* remainder,
+		   int* type, int* order, Tcl_Size* remainder,
 		   char* usage);
 
 int t_walk (Tcl_Interp* interp, TN* tdn, int type, int order,

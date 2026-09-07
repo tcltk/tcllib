@@ -7,6 +7,7 @@
 
 #include "tclpre9compat.h"
 #include <ds.h>
+#include <stdint.h>
 
 void ga_shimmer (Tcl_Obj* o, GA* a);
 GA*  ga_get_arc (G* g, Tcl_Obj* arc, Tcl_Interp* interp, Tcl_Obj* graph);
@@ -27,7 +28,7 @@ void ga_mv_dst (GA* a, GN* ndst);
 void ga_err_duplicate (Tcl_Interp* interp, Tcl_Obj* a, Tcl_Obj* g);
 void ga_err_missing   (Tcl_Interp* interp, Tcl_Obj* a, Tcl_Obj* g);
 
-Tcl_Obj* ga_serial (GA* a, Tcl_Obj* empty, Tcl_Size nodeId);
+Tcl_Obj* ga_serial (GA* a, Tcl_Obj* empty, uintptr_t nodeId);
 
 #endif /* _G_ARC_H */
 

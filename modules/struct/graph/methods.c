@@ -2605,7 +2605,7 @@ static void UpdateStringOfEndOffset (Tcl_Obj* objPtr);
 static int  SetEndOffsetFromAny     (Tcl_Interp* interp, Tcl_Obj* objPtr);
 
 static int TclCheckBadOctal (Tcl_Interp *interp, const char *value);
-static Tcl_Size TclFormatInt     (char *buffer, Tcl_Size n);
+static size_t TclFormatInt     (char *buffer, Tcl_Size n);
 
 
 Tcl_ObjType EndOffsetTypeGraph = {
@@ -2629,7 +2629,7 @@ TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr, Tcl_Size endValue, Tcl_S
 	 * list, or can be converted to one, use it.
 	 */
 
-	*indexPtr = endValue + objPtr->internalRep.wideValue;
+	*indexPtr = (Tcl_Size)(endValue + objPtr->internalRep.wideValue);
 
     } else {
 	/*
@@ -2692,7 +2692,7 @@ UpdateStringOfEndOffset(objPtr)
     len = sizeof("end") - 1;
     if (objPtr->internalRep.wideValue != 0) {
 	buffer[len++] = '-';
-	len += TclFormatInt(buffer+len, -((Tcl_Size)objPtr->internalRep.wideValue));
+	len += (Tcl_Size)TclFormatInt(buffer+len, -((Tcl_Size)objPtr->internalRep.wideValue));
     }
     objPtr->bytes = ckalloc((unsigned) (len+1));
     strcpy(objPtr->bytes, buffer);
@@ -2886,15 +2886,15 @@ TclCheckBadOctal(interp, value)
  *----------------------------------------------------------------------
  */
 
-static Tcl_Size
+static size_t
 TclFormatInt(buffer, n)
      char *buffer;		/* Points to the storage into which the
 				 * formatted characters are written. */
      Tcl_Size n;		/* The integer to format. */
 {
     Tcl_Size intVal;
-    Tcl_Size i;
-    Tcl_Size numFormatted, j;
+    Tcl_Size i, j;
+    size_t   numFormatted;
     char *digits = "0123456789";
 
     /*
@@ -2914,7 +2914,7 @@ TclFormatInt(buffer, n)
      */
 
     if (n == -n) {
-	sprintf(buffer, "%ld", n);
+	sprintf(buffer, "%ld", (long)n);
 	return strlen(buffer);
     }
 

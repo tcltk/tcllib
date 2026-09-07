@@ -80,7 +80,7 @@ sm_ADD (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST
 		s_get (interp, val, &vs);
 	    }
 
-	    (void*) Tcl_CreateHashEntry(&vs->el, key, &new);
+	    (void) Tcl_CreateHashEntry(&vs->el, key, &new);
 	    nx = 1;
 	}
 	if (nx) {
@@ -607,7 +607,6 @@ sm_SUBTRACT (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* 
 
     SPtr        vs, s;
     Tcl_Obj*    val;
-    int         del;
 
     if (objc != 4) {
 	Tcl_WrongNumArgs (interp, 2, objv, "Avar B"); /* OK tcl9 */
@@ -626,7 +625,7 @@ sm_SUBTRACT (ClientData clientData, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* 
     }
 
     if (s->el.numEntries) {
-	int            new, dx = 0;
+	int            dx = 0;
 	Tcl_HashSearch hs;
 	Tcl_HashEntry* he;
 	CONST char*    key;

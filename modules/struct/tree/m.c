@@ -19,7 +19,7 @@
 
 static int TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr,
 			      Tcl_Size endValue, Tcl_Size* indexPtr);
-static int TclFormatInt      (char *buffer, long n);
+static size_t TclFormatInt      (char *buffer, long n);
 static int TclCheckBadOctal  (Tcl_Interp* interp, CONST char* value);
 
 /* .................................................. */
@@ -114,8 +114,7 @@ tm_ANCESTORS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
-    int	     depth;
+    Tcl_Size depth;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -496,7 +495,6 @@ tm_CHILDREN (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     Tcl_Size  cmdc = 0;
     Tcl_Obj** cmdv = NULL;
     int	      listc = 0;
-    Tcl_Obj** listv;
 
     if ((objc < 3) || (objc > 6)) {
 	Tcl_WrongNumArgs (interp, 2, objv, USAGE); /* OK tcl9 */
@@ -576,11 +574,6 @@ tm_CUT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    TN*      p;
-    Tcl_Obj* res;
-    int      i, j;
-    TN**     child;
-    int	     nchildren;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -627,7 +620,6 @@ tm_DELETE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -677,7 +669,6 @@ tm_DEPTH (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -775,7 +766,6 @@ tm_DESERIALIZE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      *	       [0]  [1]		[2]
      */
 
-    T* tser;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "serial"); /* OK tcl9 */
@@ -842,7 +832,6 @@ tm_EXISTS (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -1048,7 +1037,6 @@ tm_HEIGHT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -1090,7 +1078,6 @@ tm_INDEX (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -1136,7 +1123,6 @@ tm_INSERT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
     TN*	     tn;
     Tcl_Size idx;
-    Tcl_Obj* res;
 
     if (objc < 4) {
 	Tcl_WrongNumArgs (interp, 2, objv, "parent index ?name...?"); /* OK tcl9 */
@@ -1259,7 +1245,6 @@ tm_ISLEAF (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -1518,7 +1503,6 @@ tm_LEAVES (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      *	       [0]  [1]
      */
 
-    TN*      tn;
     Tcl_Size listc;
 
     if (objc != 2) {
@@ -1675,7 +1659,6 @@ tm_NEXT (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      */
 
     TN*	     tn;
-    Tcl_Obj* res;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node"); /* OK tcl9 */
@@ -1719,7 +1702,6 @@ tm_NODES (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
      *	       [0]  [1]
      */
 
-    TN*      tn;
     Tcl_Size listc;
 
     if (objc != 2) {
@@ -1905,7 +1887,6 @@ tm_RENAME (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
     TN*	     tn;
     TN*	     new;
-    Tcl_Obj* res;
     int	     nnew;
 
     if (objc != 4) {
@@ -1974,8 +1955,6 @@ tm_ROOTNAME (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
     /* Syntax: tree rootname
      *	       [0]  [1]
      */
-
-    TN* tn;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL); /* OK tcl9 */
@@ -2169,7 +2148,7 @@ tm_SPLICE (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
     TN*	        p;
     TN*	        new;
-    Tcl_Size    nc, from, to, i;
+    Tcl_Size    nc, from, to;
     TN**        nv;
     CONST char* name;
 
@@ -2263,7 +2242,6 @@ tm_SWAP (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
     TN*		  tna;
     TN*		  tnb;
-    CONST char*   key;
 
     if (objc != 4) {
 	Tcl_WrongNumArgs (interp, 2, objv, "nodea nodeb"); /* OK tcl9 */
@@ -2393,7 +2371,8 @@ tm_UNSET (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 int
 tm_WALK (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    int type, order, rem, res;
+    Tcl_Size  rem;
+    int       type, order, res;
     Tcl_Obj*  avarname;
     Tcl_Obj*  nvarname;
     Tcl_Size  lvc;
@@ -2488,7 +2467,8 @@ tm_WALK (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 int
 tm_WALKPROC (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 {
-    int       type, order, rem, res;
+    Tcl_Size  rem;
+    int	      type, order, res;
     TN*	      tn;
     Tcl_Size  cc, i;
     Tcl_Obj** cv;
@@ -2542,7 +2522,7 @@ tm_WALKPROC (T* t, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv)
 
     res = t_walk (interp, tn, type, order,
 		  t_walk_invokecmd,
-		  (Tcl_Obj*) (long int) cc, (Tcl_Obj*) ev, objv [0]);
+		  (Tcl_Obj*) (ptrdiff_t) cc, (Tcl_Obj*) ev, objv [0]);
 
     ckfree ((char*) ev);
     return res;
@@ -2641,11 +2621,11 @@ TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr, Tcl_Size endValue, Tcl_S
  */
 
 static void
-UpdateStringOfEndOffset(objPtr)
-     register Tcl_Obj* objPtr;
-{
+UpdateStringOfEndOffset(
+     register Tcl_Obj* objPtr
+){
     char buffer[TCL_INTEGER_SPACE + sizeof("end") + 1];
-    register int len;
+    register size_t len;
 
     strcpy(buffer, "end");
     len = sizeof("end") - 1;
@@ -2655,7 +2635,7 @@ UpdateStringOfEndOffset(objPtr)
     }
     objPtr->bytes = ckalloc((unsigned) (len+1));
     strcpy(objPtr->bytes, buffer);
-    objPtr->length = len;
+    objPtr->length = (Tcl_Size)len;
 }
 
 /*
@@ -2677,10 +2657,10 @@ UpdateStringOfEndOffset(objPtr)
  */
 
 static int
-SetEndOffsetFromAny(interp, objPtr)
-     Tcl_Interp* interp;	/* Tcl interpreter or NULL */
-     Tcl_Obj* objPtr;		/* Pointer to the object to parse */
-{
+SetEndOffsetFromAny(
+     Tcl_Interp* interp,	/* Tcl interpreter or NULL */
+     Tcl_Obj* objPtr 		/* Pointer to the object to parse */
+) {
     int offset;			/* Offset in the "end-offset" expression */
     const Tcl_ObjType* oldTypePtr = objPtr->typePtr;
     /* Old internal rep type of the object */
@@ -2768,12 +2748,12 @@ SetEndOffsetFromAny(interp, objPtr)
  */
 
 static int
-TclCheckBadOctal(interp, value)
-     Tcl_Interp *interp;		/* Interpreter to use for error reporting.
+TclCheckBadOctal(
+     Tcl_Interp *interp,		/* Interpreter to use for error reporting.
 				 * If NULL, then no error message is left
 				 * after errors. */
-     CONST char *value;		/* String to check. */
-{
+     CONST char *value		/* String to check. */
+) {
     register CONST char *p = value;
 
     /*
@@ -2833,12 +2813,12 @@ TclCheckBadOctal(interp, value)
  *----------------------------------------------------------------------
  */
 
-static int
-TclFormatInt(buffer, n)
-     char *buffer;		/* Points to the storage into which the
+static size_t
+TclFormatInt(
+     char *buffer,		/* Points to the storage into which the
 				 * formatted characters are written. */
-     long n;			/* The integer to format. */
-{
+     long n 			/* The integer to format. */
+) {
     long intVal;
     int i;
     int numFormatted, j;

@@ -211,7 +211,6 @@ jsonlexp(YYSTYPE *lvalp, struct context *context)
   } lstate;
   double 	 d;
   char		*end;
-  const char	*p;
   int		 initialized = 0;
 
   /*
