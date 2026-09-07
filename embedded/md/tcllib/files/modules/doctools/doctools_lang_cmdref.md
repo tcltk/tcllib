@@ -39,7 +39,7 @@ doctools\_lang\_cmdref \- doctools language command reference
 
 [__arg__ *text*](#1)  
 [__arg\_def__ *type* *name* ?*mode*?](#2)  
-[__bullet__](#3)  
+[__bullet__ *\(deprecated — use* __item__*\)*](#3)  
 [__call__ *args*](#4)  
 [__category__ *text*](#5)  
 [__[class](\.\./\.\./\.\./\.\./index\.md\#class)__ *text*](#6)  
@@ -64,13 +64,13 @@ doctools\_lang\_cmdref \- doctools language command reference
 [__lb__](#25)  
 [__list\_begin__ *what*](#26)  
 [__list\_end__](#27)  
-[__lst\_item__ *text*](#28)  
+[__lst\_item__ *text* *\(deprecated — use* __def__*\)*](#28)  
 [__manpage\_begin__ *command* *section* *version*](#29)  
 [__manpage\_end__](#30)  
 [__[method](\.\./\.\./\.\./\.\./index\.md\#method)__ *text*](#31)  
 [__moddesc__ *text*](#32)  
 [__namespace__ *text*](#33)  
-[__nl__](#34)  
+[__nl__ *\(deprecated — use* __para__*\)*](#34)  
 [__opt__ *text*](#35)  
 [__opt\_def__ *name* ?*arg*?](#36)  
 [__option__ *text*](#37)  
@@ -82,7 +82,7 @@ doctools\_lang\_cmdref \- doctools language command reference
 [__sectref__ *id* ?*text*?](#43)  
 [__sectref\-external__ *text*](#44)  
 [__see\_also__ *args*](#45)  
-[__strong__ *text*](#46)  
+[__strong__ *text* *\(deprecated — use* __emph__*\)*](#46)  
 [__subsection__ *name*](#47)  
 [__syscmd__ *text*](#48)  
 [__[term](\.\./term/term\.md)__ *text*](#49)  
@@ -119,7 +119,7 @@ are relatively short\. A beginner should read the much more informally written
     previous list element\. Specifies the data\-*type* of the described argument
     of a command, its *name* and its i/o\-*mode*\. The latter is optional\.
 
-  - <a name='3'></a>__bullet__
+  - <a name='3'></a>__bullet__ *\(deprecated — use* __item__*\)*
 
     *Deprecated*\. Text structure\. List element\. Itemized list\. See
     __item__ for the canonical command to open a list item in an itemized
@@ -360,7 +360,7 @@ are relatively short\. A beginner should read the much more informally written
     Text structure\. This command closes the list opened by the last
     __list\_begin__ command coming before it\.
 
-  - <a name='28'></a>__lst\_item__ *text*
+  - <a name='28'></a>__lst\_item__ *text* *\(deprecated — use* __def__*\)*
 
     *Deprecated*\. Text structure\. List element\. Definition list\. See
     __def__ for the canonical command to open a general list item in a
@@ -398,7 +398,7 @@ are relatively short\. A beginner should read the much more informally written
     may have other markup already applied to it\. Main use is the highlighting of
     namespace names in free\-form text\.
 
-  - <a name='34'></a>__nl__
+  - <a name='34'></a>__nl__ *\(deprecated — use* __para__*\)*
 
     *Deprecated*\. Text structure\. See __para__ for the canonical command
     to insert paragraph breaks into the text\.
@@ -475,7 +475,7 @@ are relatively short\. A beginner should read the much more informally written
     referenced document\. If this command is used multiple times all the
     arguments accumulate\.
 
-  - <a name='46'></a>__strong__ *text*
+  - <a name='46'></a>__strong__ *text* *\(deprecated — use* __emph__*\)*
 
     *Deprecated*\. Text markup\. See __emph__ for the canonical command to
     emphasize text\.

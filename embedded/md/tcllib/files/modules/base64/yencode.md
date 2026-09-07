@@ -23,13 +23,15 @@ yencode \- Y\-encode/decode binary data
 
   - [Description](#section1)
 
+  - [API](#section2)
+
       - [Options](#subsection1)
 
-  - [Examples](#section2)
+  - [Examples](#section3)
 
-  - [References](#section3)
+  - [References](#section4)
 
-  - [Bugs, Ideas, Feedback](#section4)
+  - [Bugs, Ideas, Feedback](#section5)
 
   - [Keywords](#keywords)
 
@@ -54,6 +56,8 @@ used for Usenet messages\. This encoding packs binary data into a format that
 requires an 8\-bit clean transmission layer but that escapes characters special
 to the *[NNTP](\.\./\.\./\.\./\.\./index\.md\#nntp)* posting protocols\. See
 [http://www\.yenc\.org](http://www\.yenc\.org) for the encoding’s details\.
+
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::yencode::encode__ *bstring*
 
@@ -116,7 +120,7 @@ to the *[NNTP](\.\./\.\./\.\./\.\./index\.md\#nntp)* posting protocols\. See
     by using this option and passing a false value for *boolean*, e\.g\.,
     __0__\.
 
-# <a name='section2'></a>Examples
+# <a name='section3'></a>Examples
 
 *The yEncoded data is not shown in the examples because it is just* *raw
 bytes\.*
@@ -166,11 +170,11 @@ This example shows how to read a file containing one or more yEncoded files\.
     =>
     name=test.y size=23 line='Δ÷ “Utf-8” ♞ℤ'
 
-# <a name='section3'></a>References
+# <a name='section4'></a>References
 
   1. [http://www\.yenc\.org/yenc\-draft\.1\.3\.txt](http://www\.yenc\.org/yenc\-draft\.1\.3\.txt)
 
-# <a name='section4'></a>Bugs, Ideas, Feedback
+# <a name='section5'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

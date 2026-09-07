@@ -282,251 +282,239 @@ package require \fBstruct::list ?1\&.8\&.6?\fR
 .sp
 package require \fBstruct::set ?2\&.2\&.4?\fR
 .sp
-\fB::struct::graph\fR ?\fIgraphName\fR? ?\fB=\fR|\fB:=\fR|\fBas\fR|\fBdeserialize\fR \fIsource\fR?
+\fB::struct::graph\fR ?\fIaGraph\fR? ?\fB=\fR|\fB:=\fR|\fBas\fR|\fBdeserialize\fR \fIsource\fR?
 .sp
-\fBgraphName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
+\fIaGraph\fR \fB=\fR \fIsourceGraph\fR
 .sp
-\fIgraphName\fR \fB=\fR \fIsourcegraph\fR
+\fIaGraph\fR \fB-->\fR \fIdestGraph\fR
 .sp
-\fIgraphName\fR \fB-->\fR \fIdestgraph\fR
+\fIaGraph\fR \fBappend\fR \fIkey\fR \fIvalue\fR
 .sp
-\fIgraphName\fR \fBappend\fR \fIkey\fR \fIvalue\fR
+\fIaGraph\fR \fBdeserialize\fR \fIserialization\fR
 .sp
-\fIgraphName\fR \fBdeserialize\fR \fIserialization\fR
+\fIaGraph\fR \fBdestroy\fR
 .sp
-\fIgraphName\fR \fBdestroy\fR
+\fIaGraph\fR \fBarc append\fR \fIarc\fR \fIkey\fR \fIvalue\fR
 .sp
-\fIgraphName\fR \fBarc append\fR \fIarc\fR \fIkey\fR \fIvalue\fR
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR \fB-arcs\fR \fIlist\fR
 .sp
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR \fB-arcs\fR \fIlist\fR
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
 .sp
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
 .sp
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
+\fIaGraph\fR \fBarc delete\fR \fIarc\fR ?\fIarc\fR \&.\&.\&.?
 .sp
-\fIgraphName\fR \fBarc delete\fR \fIarc\fR ?\fIarc\fR \&.\&.\&.?
+\fIaGraph\fR \fBarc exists\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc exists\fR \fIarc\fR
+\fIaGraph\fR \fBarc flip\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc flip\fR \fIarc\fR
+\fIaGraph\fR \fBarc get\fR \fIarc\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBarc get\fR \fIarc\fR \fIkey\fR
+\fIaGraph\fR \fBarc getall\fR \fIarc\fR ?\fIglob\fR?
 .sp
-\fIgraphName\fR \fBarc getall\fR \fIarc\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBarc getunweighted\fR
 .sp
-\fIgraphName\fR \fBarc getunweighted\fR
+\fIaGraph\fR \fBarc getweight\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc getweight\fR \fIarc\fR
+\fIaGraph\fR \fBarc keys\fR \fIarc\fR ?\fIglob\fR?
 .sp
-\fIgraphName\fR \fBarc keys\fR \fIarc\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBarc keyexists\fR \fIarc\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBarc keyexists\fR \fIarc\fR \fIkey\fR
+\fIaGraph\fR \fBarc insert\fR \fIstart\fR \fIend\fR ?\fIname\fR?
 .sp
-\fIgraphName\fR \fBarc insert\fR \fIstart\fR \fIend\fR ?\fIchild\fR?
+\fIaGraph\fR \fBarc lappend\fR \fIarc\fR \fIkey\fR \fIvalue\fR
 .sp
-\fIgraphName\fR \fBarc lappend\fR \fIarc\fR \fIkey\fR \fIvalue\fR
+\fIaGraph\fR \fBarc rename\fR \fIarc\fR \fInewname\fR
 .sp
-\fIgraphName\fR \fBarc rename\fR \fIarc\fR \fInewname\fR
+\fIaGraph\fR \fBarc set\fR \fIarc\fR \fIkey\fR ?\fIvalue\fR?
 .sp
-\fIgraphName\fR \fBarc set\fR \fIarc\fR \fIkey\fR ?\fIvalue\fR?
+\fIaGraph\fR \fBarc setunweighted\fR ?\fIweight\fR?
 .sp
-\fIgraphName\fR \fBarc setunweighted\fR ?\fIweight\fR?
+\fIaGraph\fR \fBarc setweight\fR \fIarc\fR \fIweight\fR
 .sp
-\fIgraphName\fR \fBarc setweight\fR \fIarc\fR \fIweight\fR
+\fIaGraph\fR \fBarc unsetweight\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc unsetweight\fR \fIarc\fR
+\fIaGraph\fR \fBarc hasweight\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc hasweight\fR \fIarc\fR
+\fIaGraph\fR \fBarc source\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc source\fR \fIarc\fR
+\fIaGraph\fR \fBarc target\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc target\fR \fIarc\fR
+\fIaGraph\fR \fBarc nodes\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBarc nodes\fR \fIarc\fR
+\fIaGraph\fR \fBarc move-source\fR \fIarc\fR \fInewsource\fR
 .sp
-\fIgraphName\fR \fBarc move-source\fR \fIarc\fR \fInewsource\fR
+\fIaGraph\fR \fBarc move-target\fR \fIarc\fR \fInewtarget\fR
 .sp
-\fIgraphName\fR \fBarc move-target\fR \fIarc\fR \fInewtarget\fR
+\fIaGraph\fR \fBarc move\fR \fIarc\fR \fInewsource\fR \fInewtarget\fR
 .sp
-\fIgraphName\fR \fBarc move\fR \fIarc\fR \fInewsource\fR \fInewtarget\fR
+\fIaGraph\fR \fBarc unset\fR \fIarc\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBarc unset\fR \fIarc\fR \fIkey\fR
+\fIaGraph\fR \fBarc weights\fR
 .sp
-\fIgraphName\fR \fBarc weights\fR
+\fIaGraph\fR \fBarcs\fR ?-key \fIkey\fR ?-value \fIvalue\fR?? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode\fR ?node? \&.\&.\&.?
 .sp
-\fIgraphName\fR \fBarcs\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode node\&.\&.\&.\fR?
+\fIaGraph\fR \fBlappend\fR \fIkey\fR \fIvalue\fR
 .sp
-\fIgraphName\fR \fBlappend\fR \fIkey\fR \fIvalue\fR
+\fIaGraph\fR \fBnode append\fR \fInode\fR \fIkey\fR \fIvalue\fR
 .sp
-\fIgraphName\fR \fBnode append\fR \fInode\fR \fIkey\fR \fIvalue\fR
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR \fB-nodes\fR \fIlist\fR
 .sp
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR \fB-nodes\fR \fIlist\fR
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
 .sp
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
 .sp
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
+\fIaGraph\fR \fBnode degree\fR ?-in|-out? \fInode\fR
 .sp
-\fIgraphName\fR \fBnode degree\fR ?-in|-out? \fInode\fR
+\fIaGraph\fR \fBnode delete\fR \fInode\fR ?\fInode\fR\&.\&.\&.?
 .sp
-\fIgraphName\fR \fBnode delete\fR \fInode\fR ?\fInode\fR\&.\&.\&.?
+\fIaGraph\fR \fBnode exists\fR \fInode\fR
 .sp
-\fIgraphName\fR \fBnode exists\fR \fInode\fR
+\fIaGraph\fR \fBnode get\fR \fInode\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBnode get\fR \fInode\fR \fIkey\fR
+\fIaGraph\fR \fBnode getall\fR \fInode\fR ?\fIglob\fR?
 .sp
-\fIgraphName\fR \fBnode getall\fR \fInode\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBnode keys\fR \fInode\fR ?\fIglob\fR?
 .sp
-\fIgraphName\fR \fBnode keys\fR \fInode\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBnode keyexists\fR \fInode\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBnode keyexists\fR \fInode\fR \fIkey\fR
+\fIaGraph\fR \fBnode insert\fR ?\fInode\fR\&.\&.\&.?
 .sp
-\fIgraphName\fR \fBnode insert\fR ?\fInode\fR\&.\&.\&.?
+\fIaGraph\fR \fBnode lappend\fR \fInode\fR \fIkey\fR \fIvalue\fR
 .sp
-\fIgraphName\fR \fBnode lappend\fR \fInode\fR \fIkey\fR \fIvalue\fR
+\fIaGraph\fR \fBnode opposite\fR \fInode\fR \fIarc\fR
 .sp
-\fIgraphName\fR \fBnode opposite\fR \fInode\fR \fIarc\fR
+\fIaGraph\fR \fBnode rename\fR \fInode\fR \fInewname\fR
 .sp
-\fIgraphName\fR \fBnode rename\fR \fInode\fR \fInewname\fR
+\fIaGraph\fR \fBnode set\fR \fInode\fR \fIkey\fR ?\fIvalue\fR?
 .sp
-\fIgraphName\fR \fBnode set\fR \fInode\fR \fIkey\fR ?\fIvalue\fR?
+\fIaGraph\fR \fBnode unset\fR \fInode\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBnode unset\fR \fInode\fR \fIkey\fR
+\fIaGraph\fR \fBnodes\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode\fR \fInode\fR\&.\&.\&.?
 .sp
-\fIgraphName\fR \fBnodes\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode\fR \fInode\fR\&.\&.\&.?
+\fIaGraph\fR \fBget\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBget\fR \fIkey\fR
+\fIaGraph\fR \fBgetall\fR ?\fIpattern\fR?
 .sp
-\fIgraphName\fR \fBgetall\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBkeys\fR ?\fIpattern\fR?
 .sp
-\fIgraphName\fR \fBkeys\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBkeyexists\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBkeyexists\fR \fIkey\fR
+\fIaGraph\fR \fBserialize\fR ?\fInode\fR\&.\&.\&.?
 .sp
-\fIgraphName\fR \fBserialize\fR ?\fInode\fR\&.\&.\&.?
+\fIaGraph\fR \fBset\fR \fIkey\fR ?\fIvalue\fR?
 .sp
-\fIgraphName\fR \fBset\fR \fIkey\fR ?\fIvalue\fR?
+\fIaGraph\fR \fBswap\fR \fInode1\fR \fInode2\fR
 .sp
-\fIgraphName\fR \fBswap\fR \fInode1\fR \fInode2\fR
+\fIaGraph\fR \fBunset\fR \fIkey\fR
 .sp
-\fIgraphName\fR \fBunset\fR \fIkey\fR
-.sp
-\fIgraphName\fR \fBwalk\fR \fInode\fR ?-order \fIorder\fR? ?-type \fItype\fR? ?-dir \fIdirection\fR? -command \fIcmd\fR
+\fIaGraph\fR \fBwalk\fR \fInode\fR ?-type \fItype\fR? ?-order \fIorder\fR? ?-dir \fIdirection\fR? -command \fIcmd\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-A directed graph is a structure containing two collections of
-elements, called \fInodes\fR and \fIarcs\fR respectively, together
-with a relation ("connectivity") that places a general structure upon
-the nodes and arcs\&.
+A directed graph is a data structure containing two collections of
+elements, \fInodes\fR and \fIarcs\fR (also called \fIedges\fR), along
+with a relation that connects the nodes and arcs\&.
 .PP
 Each arc is connected to two nodes, one of which is called the
 \fIsource\fR and the other the \fItarget\fR\&. This imposes a
 direction upon the arc, which is said to go from the source to the
-target\&. It is allowed that source and target of an arc are the same
-node\&. Such an arc is called a \fIloop\fR\&.
-Whenever a node is either the source or target of an arc both are said
-to be \fIadjacent\fR\&. This extends into a relation between nodes,
-i\&.e\&. if two nodes are connected through at least one arc they are said
-to be \fIadjacent\fR too\&.
+target\&. When an arc’s source and target are the same
+node, the arc is called a \fIloop\fR\&.
 .PP
-Each node can be the source and target for any number of arcs\&. The
-former are called the \fIoutgoing arcs\fR of the node, the latter
-the \fIincoming arcs\fR of the node\&. The number of arcs in either
-set is called the \fIin-degree\fR resp\&. the \fIout-degree\fR of the
-node\&.
+When a node is the source or target of an arc, the node and arc are said
+to be \fIadjacent\fR\&. Furthermore, if two nodes are connected via one
+or more arcs, the nodes are also said to be \fIadjacent\fR\&.
 .PP
-In addition to maintaining the node and arc relationships, this graph
-implementation allows any number of named \fIattributes\fR to be
-associated with the graph itself, and each node or arc\&.
+A node can be the source of any number of \fIoutgoing arcs\fR, and
+also the target of any number of \fIincoming arcs\fR\&. The number of
+\fIoutgoing arcs\fR is a node’s \fIout-degree\fR, and the number of
+\fIincoming arcs\fR is a node’s \fIin-degree\fR\&.
 .PP
-\fINote:\fR The major version of the package \fBstruct\fR has
-been changed to version 2\&.0, due to backward incompatible changes in
-the API of this module\&. Please read the section
-\fBChanges for 2\&.0\fR for a full list of all changes,
-incompatible and otherwise\&.
+This \fBstruct::graph\fR package can manage graphs of nodes, arcs,
+and their relationships\&. In addition, the package supports the addition
+of any number of named \fIattributes\fR which can be associated with a
+graph itself, as well as with any of the graph’s nodes and arcs\&.
 .PP
-\fINote:\fR A C-implementation of the command can be had from the
-location \fIhttp://www\&.purl\&.org/NET/schlenker/tcl/cgraph\fR\&. See also
-\fIhttp://wiki\&.tcl\&.tk/cgraph\fR\&.  This implementation uses a bit less
-memory than the tcl version provided here directly, and is faster\&. Its
-support is limited to versions of the package before 2\&.0\&.
+See the \fBstruct::graph::ops\fR package for commands that implement
+a wide range of common graph algorithms\&.
 .PP
-As of version 2\&.2 of this package a critcl based C implementation is
-available from here as well\&. This implementation however requires Tcl
-8\&.4 to run\&.
+\fINote:\fR The major version of the \fBstruct::graph\fR package
+has been changed to version 2, due to backward incompatible changes in
+the module’s API\&. Users of version 1 are recommended to read the section
+\fBChanges for v2\fR for a full list of the changes, including
+incompatibilities with version 1\&.
 .PP
-The main command of the package is:
+As of version 2\&.2, a critcl based C implementation is now provided,
+which requires Tcl 8\&.4 or later\&.
+.SH API
 .TP
-\fB::struct::graph\fR ?\fIgraphName\fR? ?\fB=\fR|\fB:=\fR|\fBas\fR|\fBdeserialize\fR \fIsource\fR?
-The command creates a new graph object with an associated global Tcl
-command whose name is \fIgraphName\fR\&.  This command may be used to
-invoke various operations on the graph\&.  It has the following general
-form:
-.RS
-.TP
-\fBgraphName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
-\fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command\&.
-.RE
+\fB::struct::graph\fR ?\fIaGraph\fR? ?\fB=\fR|\fB:=\fR|\fBas\fR|\fBdeserialize\fR \fIsource\fR?
+This command creates a new graph object with an associated global Tcl
+command\&. If \fIaGraph\fR is given, the global command will be called the
+given name; otherwise, a unique name will be generated by the package
+itself\&.
 .sp
-If \fIgraphName\fR is not specified a unique name will be generated by
-the package itself\&. If a \fIsource\fR is specified the new graph will
-be initialized to it\&. For the operators \fB=\fR, \fB:=\fR, and
-\fBas\fR the \fIsource\fR argument is interpreted as the name of
-another graph object, and the assignment operator \fB=\fR will be
-executed\&. For the operator \fBdeserialize\fR the \fIsource\fR is a
-serialized graph object and \fBdeserialize\fR will be executed\&.
+If a \fIsource\fR is specified, the new graph will be initialized from
+it\&. For the operators \fB=\fR, \fB:=\fR, and \fBas\fR, the
+\fIsource\fR argument is interpreted as the name of another graph
+object, and the assignment operator \fB=\fR will be executed\&. For the
+operator \fBdeserialize\fR, the \fIsource\fR is assumed to be a
+serialized graph object, and \fBdeserialize\fR will be executed\&.
 .sp
-In other words
-.sp
+For example:
 .CS
 
 
-    ::struct::graph mygraph = b
+    ::struct::graph graphA = graphB
 
 .CE
-.sp
+.IP
 is equivalent to
-.sp
 .CS
 
 
-    ::struct::graph mygraph
-    mygraph = b
+    ::struct::graph graphA
+    graphA = graphB
 
 .CE
-.sp
+.IP
 and
-.sp
 .CS
 
 
-    ::struct::graph mygraph deserialize $b
+    ::struct::graph graphA deserialize $graphB
 
 .CE
-.sp
+.IP
 is equivalent to
-.sp
 .CS
 
 
-    ::struct::graph mygraph
-    mygraph deserialize $b
+    ::struct::graph graphA
+    graphA deserialize $graphB
 
 .CE
+.sp
+Once the graph object—and its corresponding command—has been created,
+the command can be used to apply various graph operations\&. These all
+have the same general form:
+.sp
+\fIaGraph\fR \fImethod\fR ?\fIarg \&.\&.\&.\fR?
+.sp
+The \fImethod\fR and the \fIarg\fRs specify what operation to perform\&.
 .PP
-.PP
-The following commands are possible for graph objects:
+.SS METHODS
 .TP
-\fIgraphName\fR \fB=\fR \fIsourcegraph\fR
-This is the \fIassignment\fR operator for graph objects\&. It copies
-the graph contained in the graph object \fIsourcegraph\fR over the
-graph data in \fIgraphName\fR\&. The old contents of \fIgraphName\fR are
+\fIaGraph\fR \fB=\fR \fIsourceGraph\fR
+The \fB=\fR operator is the graph object \fIassignment\fR operator\&.
+It copies the graph contained in the graph object \fIsourceGraph\fR over
+the graph data in \fIaGraph\fR\&. The old contents of \fIaGraph\fR are
 deleted by this operation\&.
 .sp
 This operation is in effect equivalent to
@@ -534,516 +522,577 @@ This operation is in effect equivalent to
 .CS
 
 
-    \fIgraphName\fR \fBdeserialize\fR [\fIsourcegraph\fR \fBserialize\fR]
+    \fIaGraph\fR \fBdeserialize\fR [\fIsourceGraph\fR \fBserialize\fR]
 
 .CE
 .sp
-The operation assumes that the \fIsourcegraph\fR provides the method
-\fBserialize\fR and that this method returns a valid graph
-serialization\&.
+The operation assumes that the \fIsourceGraph\fR provides a
+\fBserialize\fR method which returns a valid graph serialization\&.
 .TP
-\fIgraphName\fR \fB-->\fR \fIdestgraph\fR
-This is the \fIreverse assignment\fR operator for graph objects\&. It
-copies the graph contained in the graph object \fIgraphName\fR over
-the graph data in the object \fIdestgraph\fR\&.
-The old contents of \fIdestgraph\fR are deleted by this operation\&.
+\fIaGraph\fR \fB-->\fR \fIdestGraph\fR
+The \fB-->\fR operator is the graph object \fIreverse assignment\fR
+operator\&. It copies the graph contained in the graph object \fIaGraph\fR
+over the graph data in the object \fIdestGraph\fR\&.
+The old contents of \fIdestGraph\fR are deleted by this operation\&.
 .sp
 This operation is in effect equivalent to
 .sp
 .CS
 
 
-    \fIdestgraph\fR \fBdeserialize\fR [\fIgraphName\fR \fBserialize\fR]
+    \fIdestGraph\fR \fBdeserialize\fR [\fIaGraph\fR \fBserialize\fR]
 
 .CE
 .sp
-The operation assumes that the \fIdestgraph\fR provides the method
-\fBdeserialize\fR and that this method takes a graph serialization\&.
+The operation assumes that the \fIdestGraph\fR provides a
+\fBdeserialize\fR method which takes a graph serialization, and that
+\fIaGraph\fR provides a \fBserialize\fR method which returns a valid
+graph serialization\&.
 .TP
-\fIgraphName\fR \fBappend\fR \fIkey\fR \fIvalue\fR
-Appends a \fIvalue\fR to one of the keyed values associated with the graph\&.
-Returns the new value given to the attribute \fIkey\fR\&.
+\fIaGraph\fR \fBappend\fR \fIkey\fR \fIvalue\fR
+Appends the \fIvalue\fR to the graph attribute associated with the given
+\fIkey\fR\&. Returns the new value of the graph attribute associated with
+the \fIkey\fR\&.
 .TP
-\fIgraphName\fR \fBdeserialize\fR \fIserialization\fR
-This is the complement to \fBserialize\fR\&. It replaces the graph
-data in \fIgraphName\fR with the graph described by the
-\fIserialization\fR value\&. The old contents of \fIgraphName\fR are
-deleted by this operation\&.
+\fIaGraph\fR \fBdeserialize\fR \fIserialization\fR
+This is the complement of the \fBserialize\fR method\&. It replaces the
+graph data in \fIaGraph\fR with the graph described by the
+\fIserialization\fR value\&. The old contents of \fIaGraph\fR are deleted
+by this operation\&.
 .TP
-\fIgraphName\fR \fBdestroy\fR
+\fIaGraph\fR \fBdestroy\fR
 Destroys the graph, including its storage space and associated command\&.
 .TP
-\fIgraphName\fR \fBarc append\fR \fIarc\fR \fIkey\fR \fIvalue\fR
-Appends a \fIvalue\fR to one of the keyed values associated with an
-\fIarc\fR\&. Returns the new value given to the attribute \fIkey\fR\&.
+\fIaGraph\fR \fBarc append\fR \fIarc\fR \fIkey\fR \fIvalue\fR
+Appends the \fIvalue\fR to the given \fIarc\fR’s attribute associated
+with the given \fIkey\fR\&. Returns the new value of the \fIarc\fR
+attribute associated with the \fIkey\fR\&.
 .TP
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR
 .TP
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR \fB-arcs\fR \fIlist\fR
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR \fB-arcs\fR \fIlist\fR
 .TP
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
 .TP
-\fIgraphName\fR \fBarc attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
-This method retrieves the value of the attribute named \fIkey\fR, for
-all arcs in the graph (matching the restriction specified via one of
-the possible options) and having the specified attribute\&.
+\fIaGraph\fR \fBarc attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
+When no options are specified, the \fBarc attr\fR method returns a
+\fBdict\fR whose keys are the names of \fIevery\fR arc in the
+\fIaGraph\fR graph\&. For each of the resultant dict’s keys, the
+corresponding value is the value of the arc attribute associated with
+the given \fIkey\fR\&. Arcs which do not have the given \fIkey\fR are not
+included in the result \fBdict\fR\&.
 .sp
-The result is a dictionary mapping from arc names to the value of
-attribute \fIkey\fR at that arc\&.
-Arcs not having the attribute \fIkey\fR, or not passing a
-specified restriction, are not listed in the result\&.
+If one of the options is specified, in effect the same results
+\fBdict\fR is created as for no options, but filtered so that only the
+arcs which match the given option’s constraint are included in the
+result \fBdict\fR\&.
 .sp
-The possible restrictions are:
+The possible constraints are:
 .RS
 .TP
 \fB-arcs\fR
-The value is a list of arcs\&. Only the arcs mentioned in this list
-are searched for the attribute\&.
+The value must be a list of arc names\&. Only the arcs mentioned in this list
+are searched for the \fIkey\fR attribute\&.
 .TP
 \fB-glob\fR
 The value is a glob pattern\&. Only the arcs in the graph whose names
-match this pattern are searched for the attribute\&.
+match this pattern are searched for the \fIkey\fR attribute\&.
 .TP
 \fB-regexp\fR
 The value is a regular expression\&. Only the arcs in the graph whose
-names match this pattern are searched for the attribute\&.
+names match this pattern are searched for the \fIkey\fR attribute\&.
 .RE
 .sp
 .TP
-\fIgraphName\fR \fBarc delete\fR \fIarc\fR ?\fIarc\fR \&.\&.\&.?
-Remove the specified arcs from the graph\&.
+\fIaGraph\fR \fBarc delete\fR \fIarc\fR ?\fIarc\fR \&.\&.\&.?
+Removes the specified arcs from the graph\&.
+.sp
+If one or more of the arcs doesn’t exit an error is thrown\&.
 .TP
-\fIgraphName\fR \fBarc exists\fR \fIarc\fR
-Return true if the specified \fIarc\fR exists in the graph\&.
+\fIaGraph\fR \fBarc exists\fR \fIarc\fR
+Returns \fB1\fR (true) if the specified \fIarc\fR exists in the graph;
+otherwise returns \fB0\fR (false)\&.
 .TP
-\fIgraphName\fR \fBarc flip\fR \fIarc\fR
-Reverses the direction of the named \fIarc\fR, i\&.e\&. the source and
-target nodes of the arc are exchanged with each other\&.
+\fIaGraph\fR \fBarc flip\fR \fIarc\fR
+Reverses the direction of the \fIarc\fR, i\&.e\&., the arc’s source and
+target nodes are exchanged with each other\&.
 .TP
-\fIgraphName\fR \fBarc get\fR \fIarc\fR \fIkey\fR
-Returns the value associated with the key \fIkey\fR for the \fIarc\fR\&.
+\fIaGraph\fR \fBarc get\fR \fIarc\fR \fIkey\fR
+Returns the value associated with the \fIarc\fR’s \fIkey\fR\&.
+.sp
+If the \fIarc\fR doesn’t exist or if the \fIkey\fR doesn’t exist, an
+error is thrown\&.
 .TP
-\fIgraphName\fR \fBarc getall\fR \fIarc\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBarc getall\fR \fIarc\fR ?\fIglob\fR?
 Returns a dictionary (suitable for use with [\fBarray set\fR])
-for the \fIarc\fR\&.
-If the \fIpattern\fR is specified only the attributes whose names
-match the pattern will be part of the returned dictionary\&. The pattern
-is a \fBglob\fR pattern\&.
+of the \fIarc\fR’s attribute keys and values\&.
+.sp
+If a \fIglob\fR pattern is specified, only the attributes whose keys
+match will be included\&.
 .TP
-\fIgraphName\fR \fBarc getunweighted\fR
-Returns a list containing the names of all arcs in the graph which
-have no weight associated with them\&.
+\fIaGraph\fR \fBarc getunweighted\fR
+Returns a list of the names of all the graph’s arcs which have \fIno\fR
+weight associated with them\&.
 .TP
-\fIgraphName\fR \fBarc getweight\fR \fIarc\fR
-Returns the weight associated with the \fIarc\fR\&. Throws an error if
-the arc has no weight associated with it\&.
+\fIaGraph\fR \fBarc getweight\fR \fIarc\fR
+Returns the weight associated with the \fIarc\fR\&.
+.sp
+If the \fIarc\fR doesn’t exist or if it has no weight, an error is
+thrown\&.
 .TP
-\fIgraphName\fR \fBarc keys\fR \fIarc\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBarc keys\fR \fIarc\fR ?\fIglob\fR?
 Returns a list of keys for the \fIarc\fR\&.
-If the \fIpattern\fR is specified only the attributes whose names
-match the pattern will be part of the returned list\&. The pattern is a
-\fBglob\fR pattern\&.
-.TP
-\fIgraphName\fR \fBarc keyexists\fR \fIarc\fR \fIkey\fR
-Return true if the specified \fIkey\fR exists for the \fIarc\fR\&.
-.TP
-\fIgraphName\fR \fBarc insert\fR \fIstart\fR \fIend\fR ?\fIchild\fR?
-Insert an arc named \fIchild\fR into the graph beginning at the node
-\fIstart\fR and ending at the node \fIend\fR\&. If the name of the new
-arc is not specified the system will generate a unique name of the
-form \fIarc\fR\fIx\fR\&.
-.TP
-\fIgraphName\fR \fBarc lappend\fR \fIarc\fR \fIkey\fR \fIvalue\fR
-Appends a \fIvalue\fR (as a list) to one of the keyed values
-associated with an \fIarc\fR\&. Returns the new value given to the
-attribute \fIkey\fR\&.
-.TP
-\fIgraphName\fR \fBarc rename\fR \fIarc\fR \fInewname\fR
-Renames the arc \fIarc\fR to \fInewname\fR\&. An error is thrown if
-either the arc does not exist, or a arc with name \fInewname\fR does
-exist\&. The result of the command is the new name of the arc\&.
-.TP
-\fIgraphName\fR \fBarc set\fR \fIarc\fR \fIkey\fR ?\fIvalue\fR?
-Set or get one of the keyed values associated with an arc\&.
-An arc may have any number of keyed values associated with it\&.
-If \fIvalue\fR is not specified, this command returns the current value assigned to the key;
-if \fIvalue\fR is specified, this command assigns that value to the key, and returns
-that value\&.
-.TP
-\fIgraphName\fR \fBarc setunweighted\fR ?\fIweight\fR?
-Sets the weight of all arcs without a weight to \fIweight\fR\&. Returns
-the empty string as its result\&. If not present \fIweight\fR defaults
-to \fB0\fR\&.
-.TP
-\fIgraphName\fR \fBarc setweight\fR \fIarc\fR \fIweight\fR
-Sets the weight of the \fIarc\fR to \fIweight\fR\&. Returns \fIweight\fR\&.
-.TP
-\fIgraphName\fR \fBarc unsetweight\fR \fIarc\fR
-Removes the weight of the \fIarc\fR, if present\&. Does nothing
-otherwise\&. Returns the empty string\&.
-.TP
-\fIgraphName\fR \fBarc hasweight\fR \fIarc\fR
-Determines if the \fIarc\fR has a weight associated with it\&.  The
-result is a boolean value, \fBTrue\fR if a weight is defined, and
-\fBFalse\fR otherwise\&.
-.TP
-\fIgraphName\fR \fBarc source\fR \fIarc\fR
-Return the node the given \fIarc\fR begins at\&.
-.TP
-\fIgraphName\fR \fBarc target\fR \fIarc\fR
-Return the node the given \fIarc\fR ends at\&.
-.TP
-\fIgraphName\fR \fBarc nodes\fR \fIarc\fR
-Return the nodes the given \fIarc\fR begins and ends at,
-as a two-element list\&.
-.TP
-\fIgraphName\fR \fBarc move-source\fR \fIarc\fR \fInewsource\fR
-Changes the source node of the arc to \fInewsource\fR\&. It can be said
-that the arc rotates around its target node\&.
-.TP
-\fIgraphName\fR \fBarc move-target\fR \fIarc\fR \fInewtarget\fR
-Changes the target node of the arc to \fInewtarget\fR\&. It can be said
-that the arc rotates around its source node\&.
-.TP
-\fIgraphName\fR \fBarc move\fR \fIarc\fR \fInewsource\fR \fInewtarget\fR
-Changes both source and target nodes of the arc to \fInewsource\fR,
-and \fInewtarget\fR resp\&.
-.TP
-\fIgraphName\fR \fBarc unset\fR \fIarc\fR \fIkey\fR
-Remove a keyed value from the arc \fIarc\fR\&. The method will do
-nothing if the \fIkey\fR does not exist\&.
-.TP
-\fIgraphName\fR \fBarc weights\fR
-Returns a dictionary whose keys are the names of all arcs which have a
-weight associated with them, and the values are these weights\&.
-.TP
-\fIgraphName\fR \fBarcs\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode node\&.\&.\&.\fR?
-Returns a list of arcs in the graph\&. If no restriction is specified a
-list containing all arcs is returned\&. Restrictions can limit the list
-of returned arcs based on the nodes that are connected by the arc, on
-the keyed values associated with the arc, or both\&. A general filter
-command can be used as well\&. The restrictions that involve connected
-nodes take a variable number of nodes as argument, specified after the
-name of the restriction itself\&.
 .sp
-The restrictions imposed by either \fB-in\fR, \fB-out\fR,
-\fB-adj\fR, \fB-inner\fR, or \fB-embedding\fR are applied
-first\&. Specifying more than one of them is illegal\&.
+If \fIglob\fR is specified only the attributes whose names match the
+glob will be part of the returned list\&.
+.TP
+\fIaGraph\fR \fBarc keyexists\fR \fIarc\fR \fIkey\fR
+Returns \fB1\fR (true) if the \fIarc\fR has the specified \fIkey\fR;
+otherwise returns \fB0\fR (false)\&.
+.TP
+\fIaGraph\fR \fBarc insert\fR \fIstart\fR \fIend\fR ?\fIname\fR?
+Inserts an arc into the graph beginning at the \fIstart\fR node and
+ending at the \fIend\fR node\&. The new arc is called \fIname\fR if
+specified; otherwise a unique system-generated name of form
+\fIarc\fR\fIx\fR is used\&.
+.TP
+\fIaGraph\fR \fBarc lappend\fR \fIarc\fR \fIkey\fR \fIvalue\fR
+Appends the given \fIvalue\fR (as a list) to the value associated with
+the \fIarc\fR’s \fIkey\fR and returns the \fIarc\fR’s \fIkey\fR’s new
+value\&.
+.TP
+\fIaGraph\fR \fBarc rename\fR \fIarc\fR \fInewname\fR
+Renames the \fIarc\fR to \fInewname\fR and returns \fInewname\fR\&.
 .sp
-After that the restrictions set via \fB-key\fR (and
-\fB-value\fR) are applied\&. Specifying more than one \fB-key\fR
-(and \fB-value\fR) is illegal\&. Specifying \fB-value\fR alone,
-without \fB-key\fR is illegal as well\&.
+Thows an error if the given \fIarc\fR does not exist, or if an arc
+called \fInewname\fR already exists\&.
+.TP
+\fIaGraph\fR \fBarc set\fR \fIarc\fR \fIkey\fR ?\fIvalue\fR?
+Get or set the value of the given \fIarc\fR’s associated \fIkey\fR\&.
 .sp
-Any restriction set through \fB-filter\fR is applied
-last\&. Specifying more than one \fB-filter\fR is illegal\&.
+If \fIvalue\fR \fIis not\fR specified, the value of the given
+\fIarc\fR’s associated \fIkey\fR is returned\&. If a \fIvalue\fR
+\fIis\fR specified, then the \fIvalue\fR is assigned to the given
+\fIkey\fR, and the value of the given \fIarc\fR’s associated \fIkey\fR
+is returned\&.
 .sp
-Coming back to the restrictions based on a set of nodes, the command
-recognizes the following switches:
+An arc may have any number of key-value pairs associated with it\&.
+.TP
+\fIaGraph\fR \fBarc setunweighted\fR ?\fIweight\fR?
+Sets the weight of all arcs without a weight to \fIweight\fR\&. If no
+\fIweight\fR is specified it defaults to \fB0\fR\&. Returns the empty
+string\&.
+.TP
+\fIaGraph\fR \fBarc setweight\fR \fIarc\fR \fIweight\fR
+Sets the weight of the \fIarc\fR to \fIweight\fR and returns \fIweight\fR\&.
+.TP
+\fIaGraph\fR \fBarc unsetweight\fR \fIarc\fR
+Removes the weight of the \fIarc\fR, if present; otherwise does nothing\&.
+Returns the empty string\&.
+.TP
+\fIaGraph\fR \fBarc hasweight\fR \fIarc\fR
+Returns \fB1\fR (true) if the \fIarc\fR has a weight; otherwise
+returns \fB0\fR (false)\&.
+.TP
+\fIaGraph\fR \fBarc source\fR \fIarc\fR
+Returns the node the given \fIarc\fR begins at\&.
+.TP
+\fIaGraph\fR \fBarc target\fR \fIarc\fR
+Returns the node the given \fIarc\fR ends at\&.
+.TP
+\fIaGraph\fR \fBarc nodes\fR \fIarc\fR
+Returns a two-element list of the nodes the given \fIarc\fR begins and
+ends at\&.
+.TP
+\fIaGraph\fR \fBarc move-source\fR \fIarc\fR \fInewsource\fR
+Changes the \fIarc\fR’s source node to \fInewsource\fR\&. This can be
+described as rotating the arc around its target node\&.
+.TP
+\fIaGraph\fR \fBarc move-target\fR \fIarc\fR \fInewtarget\fR
+Changes the \fIarc\fR’s target node to \fInewtarget\fR\&. This can be
+described as rotating the arc around its source node\&.
+.TP
+\fIaGraph\fR \fBarc move\fR \fIarc\fR \fInewsource\fR \fInewtarget\fR
+Changes the \fIarc\fR’s source and target nodes to \fInewsource\fR
+and \fInewtarget\fR respectively\&.
+.TP
+\fIaGraph\fR \fBarc unset\fR \fIarc\fR \fIkey\fR
+Removes the \fIarc\fR’s \fIkey\fR and its corresponding value\&.
+Does nothing if the \fIkey\fR doesn’t exist\&.
+.TP
+\fIaGraph\fR \fBarc weights\fR
+Returns a \fBdict\fR where each key is the name of an arc which has a
+weight and each corresponding value is that arc’s weight\&.
+.TP
+\fIaGraph\fR \fBarcs\fR ?-key \fIkey\fR ?-value \fIvalue\fR?? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode\fR ?node? \&.\&.\&.?
+Returns a list of the graph’s arcs\&.
+.sp
+If no constraint is specified, every arc is in the returned list\&.
+.sp
+\fIConstraints\fR
+.sp
+Constraints can limit which arcs are included in the returned list based
+on the nodes that are connected by the arc, on the keyed values
+associated with the arc, or both\&. A general filter command can also be
+used\&. The constraints that involve connected nodes take a variable
+number of nodes as argument, specified after the name of the constraint
+itself\&.
+.sp
+At most one \fB-key\fR constraint may be specified, and if present
+then at most one \fB-value\fR constraint my also be used\&. The
+\fBkey\fR (and if present \fB-value\fR), if specified, will be
+applied \fIsecond\fR\&. (If two or more \fB-key\fR options are used or
+if a \fB-value\fR is used without a corresponding \fBkey\fR, an
+error will be thrown\&.)
+.RS
+.TP
+\fB-key\fR \fIkey\fR
+Only return arcs that have the associated \fIkey\fR\&.
+.TP
+\fB-value\fR \fIvalue\fR
+Only return arcs that have the associated \fIkey\fR (which \fImust\fR
+be specified using the \fB-key\fR option), \fIand\fR for which the
+\fIkey\fR’s value is \fIvalue\fR\&.
+.RE
+.sp
+At most one \fB-filter\fR command may be specified, and if present,
+this is applied \fIlast\fR\&. (If two or more \fB-filter\fR options
+are used an error will be thrown\&.)
+.RS
+.TP
+\fB-filter\fR \fIcmdprefix\fR
+Only return arcs for which the given \fIcmdprefix\fR returns \fB1\fR
+(true)\&.
+.sp
+For each candidate arc the \fIcmdprefix\fR is executed in the context of
+the caller\&. It is called with two arguments, the name of the graph
+object, and the name of the candidate arc\&. The \fIcmdprefix\fR command
+should return either \fB1\fR (true; to keep the arc in the list to be
+returned), or \fB0\fR (false; to remove the arc from the list to be
+returned)\&.
+.RE
+.sp
+At most one constraint may be specified using one of \fB-in\fR,
+\fB-out\fR, \fB-adj\fR, \fB-inner\fR, or \fB-embedding\fR\&.
+If one of these is present, it is applied \fIfirst\fR\&. (If two or more of
+these options is used an error will be thrown\&.)
 .RS
 .TP
 \fB-in\fR
-Return a list of all arcs whose target is one of the nodes in the set
-of nodes\&. I\&.e\&. it computes the union of all incoming arcs of the nodes
-in the set\&.
+Only return arcs whose target is one of the specified nodes\&. In other
+words, compute the union of all the incoming arcs for the specified
+nodes\&.
 .TP
 \fB-out\fR
-Return a list of all arcs whose source is one of the nodes in the set
-of nodes\&. I\&.e\&. it computes the union of all outgoing arcs of the nodes
-in the set\&.
+Only return arcs whose source is one of the specified nodes\&. In other
+words, compute the union of all the outgoing arcs for the specified
+nodes\&.
 .TP
 \fB-adj\fR
-Return a list of all arcs adjacent to at least one of the nodes in the
-set\&. This is the union of the nodes returned by \fB-in\fR and
-\fB-out\fR\&.
+Only return arcs that are adjacent to at least one of the specified
+nodes\&. In other words, compute the union of all the incoming \fIand\fR
+outgoing arcs for the specified nodes (i\&.e\&., the union of using
+\fB-in\fR and \fB-out\fR)\&.
 .TP
 \fB-inner\fR
-Return a list of all arcs which are adjacent to two of the nodes in
-the set\&. This is the set of arcs in the subgraph spawned by the
-specified nodes\&.
+Only return arcs that are adjacent to two of the specified nodes\&. This
+is the set of arcs in the subgraph formed by the specified nodes\&.
 .TP
 \fB-embedding\fR
-Return a list of all arcs adjacent to exactly one of the nodes in the
-set\&. This is the set of arcs connecting the subgraph spawned by the
+Only return arcs that are adjacent to exactly one of the specified
+nodes\&. This is the set of arcs connecting the subgraph formed by the
 specified nodes to the rest of the graph\&.
 .RE
 .IP
-\fIAttention\fR: After the above options any word with a leading dash
-which is not a valid option is treated as a node name instead of an
-invalid option to error out on\&. This condition holds until either a
-valid option terminates the list of nodes, or the end of the command
-is reached, whichever comes first\&.
+\fINote\fR: After specifiying one of the options above, any word with a
+leading dash which is not a valid option is treated as a node name
+instead of an invalid option\&. This condition holds until either a valid
+option terminates the list of nodes, or the end of the command is
+reached, whichever comes first\&.
+.TP
+\fIaGraph\fR \fBlappend\fR \fIkey\fR \fIvalue\fR
+Appends the \fIvalue\fR (as a list) to the graph attribute with the
+given \fIkey\fR, and returns the attribute with the \fIkey\fR’s new
+value\&.
+.TP
+\fIaGraph\fR \fBnode append\fR \fInode\fR \fIkey\fR \fIvalue\fR
+Appends the \fIvalue\fR to the \fInode\fR’s attribute with the
+given \fIkey\fR, and returns the attribute with the \fIkey\fR’s new
+value\&.
+.TP
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR
+.TP
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR \fB-nodes\fR \fIlist\fR
+.TP
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
+.TP
+\fIaGraph\fR \fBnode attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
+Returns a \fBdict\fR whose keys are node names and whose corresponding
+values are those of the nodes’ attribute values associated with the
+given \fIkey\fR\&.
 .sp
-The remaining filter options are:
+The returned \fBdict\fR will include all the graph’s nodes that have
+the given \fIkey\fR \fIor\fR if an optional constraint is specified,
+the subset of those nodes which match the given constraint\&. This means
+that any nodes which do \fInot\fR have the given \fIkey\fR or which do
+\fInot\fR satisfy the constraint (if given) will not be included in the
+returned \fBdict\fR\&.
 .sp
-.RS
-.TP
-\fB-key\fR \fIkey\fR
-Limit the list of arcs that are returned to those arcs that have an
-associated key \fIkey\fR\&.
-.TP
-\fB-value\fR \fIvalue\fR
-This restriction can only be used in combination with
-\fB-key\fR\&. It limits the list of arcs that are returned to those
-arcs whose associated key \fIkey\fR has the value \fIvalue\fR\&.
-.TP
-\fB-filter\fR \fIcmdrefix\fR
-Limit the list of arcs that are returned to those arcs that pass the
-test\&. The command in \fIcmdprefix\fR is called with two arguments, the
-name of the graph object, and the name of the arc in question\&. It is
-executed in the context of the caller and has to return a boolean
-value\&. Arcs for which the command returns \fBfalse\fR are removed
-from the result list before it is returned to the caller\&.
-.RE
-.TP
-\fIgraphName\fR \fBlappend\fR \fIkey\fR \fIvalue\fR
-Appends a \fIvalue\fR (as a list) to one of the keyed values
-associated with the graph\&. Returns the new value given to the
-attribute \fIkey\fR\&.
-.TP
-\fIgraphName\fR \fBnode append\fR \fInode\fR \fIkey\fR \fIvalue\fR
-Appends a \fIvalue\fR to one of the keyed values associated with an
-\fInode\fR\&. Returns the new value given to the attribute \fIkey\fR\&.
-.TP
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR
-.TP
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR \fB-nodes\fR \fIlist\fR
-.TP
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR \fB-glob\fR \fIglobpattern\fR
-.TP
-\fIgraphName\fR \fBnode attr\fR \fIkey\fR \fB-regexp\fR \fIrepattern\fR
-This method retrieves the value of the attribute named \fIkey\fR, for
-all nodes in the graph (matching the restriction specified via one of
-the possible options) and having the specified attribute\&.
-.sp
-The result is a dictionary mapping from node names to the value of
-attribute \fIkey\fR at that node\&.
-Nodes not having the attribute \fIkey\fR, or not passing a
-specified restriction, are not listed in the result\&.
-.sp
-The possible restrictions are:
+The possible constraints are:
 .RS
 .TP
 \fB-nodes\fR
-The value is a list of nodes\&. Only the nodes mentioned in this list
-are searched for the attribute\&.
+Only the graph’s nodes that are in the given \fIlist\fR and have the
+specified \fIkey\fR, will be included in the results \fBdict\fR\&.
 .TP
 \fB-glob\fR
-The value is a glob pattern\&. Only the nodes in the graph whose names
-match this pattern are searched for the attribute\&.
+Only the graph’s nodes whose names match the given \fIglobpattern\fR
+glob pattern and have the specified \fIkey\fR, will be included in the
+results \fBdict\fR\&.
 .TP
 \fB-regexp\fR
-The value is a regular expression\&. Only the nodes in the graph whose
-names match this pattern are searched for the attribute\&.
+Only the graph’s nodes whose names match the given \fIrepattern\fR
+regular expression and have the specified \fIkey\fR, will be included in
+the results \fBdict\fR\&.
 .RE
 .sp
 .TP
-\fIgraphName\fR \fBnode degree\fR ?-in|-out? \fInode\fR
-Return the number of arcs adjacent to the specified \fInode\fR\&. If one
-of the restrictions \fB-in\fR or \fB-out\fR is given only the
-incoming resp\&. outgoing arcs are counted\&.
-.TP
-\fIgraphName\fR \fBnode delete\fR \fInode\fR ?\fInode\fR\&.\&.\&.?
-Remove the specified nodes from the graph\&.  All of the nodes' arcs
-will be removed as well to prevent unconnected arcs\&.
-.TP
-\fIgraphName\fR \fBnode exists\fR \fInode\fR
-Return true if the specified \fInode\fR exists in the graph\&.
-.TP
-\fIgraphName\fR \fBnode get\fR \fInode\fR \fIkey\fR
-Return the value associated with the key \fIkey\fR for the \fInode\fR\&.
-.TP
-\fIgraphName\fR \fBnode getall\fR \fInode\fR ?\fIpattern\fR?
-Returns a dictionary (suitable for use with [\fBarray set\fR])
-for the \fInode\fR\&.
-If the \fIpattern\fR is specified only the attributes whose names
-match the pattern will be part of the returned dictionary\&. The pattern
-is a \fBglob\fR pattern\&.
-.TP
-\fIgraphName\fR \fBnode keys\fR \fInode\fR ?\fIpattern\fR?
-Returns a list of keys for the \fInode\fR\&.
-If the \fIpattern\fR is specified only the attributes whose names
-match the pattern will be part of the returned list\&. The pattern is a
-\fBglob\fR pattern\&.
-.TP
-\fIgraphName\fR \fBnode keyexists\fR \fInode\fR \fIkey\fR
-Return true if the specified \fIkey\fR exists for the \fInode\fR\&.
-.TP
-\fIgraphName\fR \fBnode insert\fR ?\fInode\fR\&.\&.\&.?
-Insert one or more nodes into the graph\&. The new nodes have no arcs
-connected to them\&. If no node is specified one node will be inserted,
-and the system will generate a unique name of the form
-\fInode\fR\fIx\fR for it\&.
-.TP
-\fIgraphName\fR \fBnode lappend\fR \fInode\fR \fIkey\fR \fIvalue\fR
-Appends a \fIvalue\fR (as a list) to one of the keyed values
-associated with an \fInode\fR\&. Returns the new value given to the
-attribute \fIkey\fR\&.
-.TP
-\fIgraphName\fR \fBnode opposite\fR \fInode\fR \fIarc\fR
-Return the node at the other end of the specified \fIarc\fR, which has
-to be adjacent to the given \fInode\fR\&.
-.TP
-\fIgraphName\fR \fBnode rename\fR \fInode\fR \fInewname\fR
-Renames the node \fInode\fR to \fInewname\fR\&. An error is thrown if
-either the node does not exist, or a node with name \fInewname\fR does
-exist\&. The result of the command is the new name of the node\&.
-.TP
-\fIgraphName\fR \fBnode set\fR \fInode\fR \fIkey\fR ?\fIvalue\fR?
-Set or get one of the keyed values associated with a node\&. A node may have any
-number of keyed values associated with it\&.  If \fIvalue\fR is not
-specified, this command returns the current value assigned to the key;
-if \fIvalue\fR is specified, this command assigns that value to the
-key\&.
-.TP
-\fIgraphName\fR \fBnode unset\fR \fInode\fR \fIkey\fR
-Remove a keyed value from the node \fInode\fR\&. The method will do
-nothing if the \fIkey\fR does not exist\&.
-.TP
-\fIgraphName\fR \fBnodes\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode\fR \fInode\fR\&.\&.\&.?
-Return a list of nodes in the graph\&. Restrictions can limit the list
-of returned nodes based on neighboring nodes, or based on the keyed
-values associated with the node\&. The restrictions that involve
-neighboring nodes have a list of nodes as argument, specified after
-the name of the restriction itself\&.
+\fIaGraph\fR \fBnode degree\fR ?-in|-out? \fInode\fR
+Returns the number of arcs adjacent to the specified \fInode\fR\&.
 .sp
-The possible restrictions are the same as for method \fBarcs\fR\&.
-Note that while the exact meanings change slightly, as they operate on
-nodes instead of arcs, the general behaviour is the same, especially
-when it comes to the handling of words with a leading dash in node
-lists\&.
+If the \fB-in\fR constraint is specified, only the incoming arcs are
+counted; if the \fB-out\fR constraint is specified, only the outgoing
+arcs are counted\&. If neither constraint is specified, then all incoming
+and outgoing arcs are counted\&.
+.TP
+\fIaGraph\fR \fBnode delete\fR \fInode\fR ?\fInode\fR\&.\&.\&.?
+Deletes the specified nodes from the graph, \fIand also\fR deletes all
+the nodes’ arcs (to prevent unconnected arcs)\&.
+.TP
+\fIaGraph\fR \fBnode exists\fR \fInode\fR
+Returns \fB1\fR (true) if the specified \fInode\fR exists in the
+graph; otherwise returns \fB0\fR (false)\&.
+.TP
+\fIaGraph\fR \fBnode get\fR \fInode\fR \fIkey\fR
+Returns the value associated with the \fInode\fR’s \fIkey\fR\&.
 .sp
-The command recognizes:
+Throws an error if the \fInode\fR does not have the given \fIkey\fR\&.
+.TP
+\fIaGraph\fR \fBnode getall\fR \fInode\fR ?\fIglob\fR?
+Returns a \fBdict\fR (suitable for use with [\fBarray set\fR])
+for the \fInode\fR\&. The \fBdict\fR’s keys are attribute names (i\&.e\&.,
+their keys) and the values are the corresponding attribute values\&.
+.sp
+If \fIglob\fR is specified, only the attributes whose names (i\&.e\&., keys)
+match this glob pattern, will included in the returned dictionary\&.
+.TP
+\fIaGraph\fR \fBnode keys\fR \fInode\fR ?\fIglob\fR?
+Returns a list of the \fInode\fR’s attribute keys\&.
+.sp
+If \fIglob\fR is specified, only the attributes whose names (i\&.e\&., keys)
+match this glob pattern, will included in the returned list\&.
+.TP
+\fIaGraph\fR \fBnode keyexists\fR \fInode\fR \fIkey\fR
+Returns \fB1\fR (true) if the \fInode\fR has the specified \fIkey\fR;
+otherwise returns \fB0\fR (false)\&.
+.TP
+\fIaGraph\fR \fBnode insert\fR ?\fInode\fR\&.\&.\&.?
+Inserts one or more nodes into the graph, and returns a list of the
+inserted nodes\&. These new nodes are not connected to any arcs\&.
+.sp
+If no node is specified, a single new node will be inserted and
+returned\&. The new node will have a unique name generated by the system
+and having the form \fInode\fR\fIx\fR\&.
+.TP
+\fIaGraph\fR \fBnode lappend\fR \fInode\fR \fIkey\fR \fIvalue\fR
+Appends the \fIvalue\fR (as a list) the \fInode\fR’s attribute with the
+given \fIkey\fR, and returns the attribute with the \fIkey\fR’s new
+value\&.
+.TP
+\fIaGraph\fR \fBnode opposite\fR \fInode\fR \fIarc\fR
+Returns the node at the other end of the specified \fIarc\fR, which must
+be adjacent to the given \fInode\fR\&.
+.TP
+\fIaGraph\fR \fBnode rename\fR \fInode\fR \fInewname\fR
+Renames the \fInode\fR to \fInewname\fR and returns the node’s new name\&.
+.sp
+An error is thrown if the node does not exist, or if a node called
+\fInewname\fR already exists\&.
+.TP
+\fIaGraph\fR \fBnode set\fR \fInode\fR \fIkey\fR ?\fIvalue\fR?
+Get or set the given \fInode\fR’s attribute that’s identified by the
+given \fIkey\fR\&.
+.sp
+If \fIvalue\fR is not specified, this command returns the \fIkey\fR’s
+current value\&. If \fIvalue\fR is specified, this command assigns
+\fIvalue\fR to the \fInode\fR’s \fIkey\fR\&.
+.sp
+Each node may have any number of keyed values associated with it\&.
+.TP
+\fIaGraph\fR \fBnode unset\fR \fInode\fR \fIkey\fR
+Removes the \fInode\fR’s \fIkey\fR and its associated value from the
+\fInode\fR’s attributes\&. Does nothing if the \fInode\fR does not have
+the given \fIkey\fR\&.
+.TP
+\fIaGraph\fR \fBnodes\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-filter \fIcmdprefix\fR? ?-in|-out|-adj|-inner|-embedding \fInode\fR \fInode\fR\&.\&.\&.?
+Returns a list of the graph’s nodes\&. Every node is included in the list
+unless constraints are specified\&.
+.sp
+Constraints can limit the nodes included in the list based on the keyed
+values associated with the node or on neighboring nodes\&. The constraints
+that involve neighboring nodes take a list of nodes as argument,
+specified after the name of the constraint itself\&.
+.sp
+The constraints are essentially the same as for the \fBarcs\fR
+method\&. Although the exact meanings change slightly, since here the
+contraints operate on nodes rather than arcs, the general behaviour is
+the same, especially when it comes to the handling of words with a
+leading dash in node lists\&.
+.sp
+\fIConstraints\fR
 .RS
 .TP
 \fB-in\fR
-Return a list of all nodes with at least one outgoing arc ending in a
-node found in the specified set of nodes\&. Alternatively specified as
-the set of source nodes for the \fB-in\fR arcs of the node set\&. The
-\fIincoming neighbours\fR\&.
+Return the \fIincoming neighbours\fR, i\&.e\&., a list of all the nodes
+with at least one outgoing arc ending in a node in the specified set of
+nodes\&. (Alternatively specified as the set of source nodes for the node
+set’s \fB-in\fR arcs\&.)
 .TP
 \fB-out\fR
-Return a list of all nodes with at least one incoming arc starting in
-a node found in the specified set of nodes\&. Alternatively specified as
-the set of target nodes for the \fB-out\fR arcs of the node
-set\&. The \fIoutgoing neighbours\fR\&.
+Return the \fIoutgoing neighbours\fR, i\&.e\&., a list of all the nodes
+with at least one incoming arc starting in a node in the specified set
+of nodes\&. (Alternatively specified as the set of target nodes for the
+node set’s \fB-out\fR arcs\&.)
 .TP
 \fB-adj\fR
-This is the union of the nodes returned by \fB-in\fR and
-\fB-out\fR\&. The \fIneighbours\fR\&.
+Return the \fIneighbours\fR, i\&.e\&., the union of the nodes returned by
+\fB-in\fR and \fB-out\fR\&.
 .TP
 \fB-inner\fR
-The set of neighbours (see \fB-adj\fR above) which are also in the
-set of nodes\&. I\&.e\&. the intersection between the set of nodes and the
-neighbours per \fB-adj\fR\&.
+Return the set of neighbours (see \fB-adj\fR above) which are also in
+the given set of nodes, i\&.e\&., the intersection of the neighbours
+returned by \fB-adj\fR and the set of nodes\&.
 .TP
 \fB-embedding\fR
-The set of neighbours (see \fB-adj\fR above) which are not in the
-set of nodes\&. I\&.e\&. the difference between the neighbours as per
-\fB-adj\fR, and the set of nodes\&.
+Return the set of neighbours (see \fB-adj\fR above) which are
+\fInot\fR in the set of nodes, i\&.e\&., the difference between the
+neighbours returned by \fB-adj\fR and the set of nodes\&.
 .TP
 \fB-key\fR \fIkey\fR
-Limit the list of nodes that are returned to those nodes that have an
-associated key \fIkey\fR\&.
+Return only nodes which have the given \fIkey\fR\&.
 .TP
 \fB-value\fR \fIvalue\fR
-This restriction can only be used in combination with
-\fB-key\fR\&. It limits the list of nodes that are returned to those
-nodes whose associated key \fIkey\fR has the value \fIvalue\fR\&.
+Return only nodes which have the given \fIkey\fR and whose associated
+value is \fIvalue\fR\&.
+.sp
+This constraint can only be used in combination with \fB-key\fR\&.
 .TP
-\fB-filter\fR \fIcmdrefix\fR
-Limit the list of nodes that are returned to those nodes that pass the
-test\&. The command in \fIcmdprefix\fR is called with two arguments, the
-name of the graph object, and the name of the node in question\&. It is
-executed in the context of the caller and has to return a boolean
-value\&. Nodes for which the command returns \fBfalse\fR are removed
-from the result list before it is returned to the caller\&.
+\fB-filter\fR \fIcmdprefix\fR
+Return only those nodes for which the command \fIcmdprefix\fR returns
+\fB1\fR (true)\&.
+.sp
+The command \fIcmdprefix\fR is called with two arguments, the name of
+the graph object, and the name of the node in question\&. It is executed
+in the context of the caller and must return a Boolean value, \fB0\fR
+(false; do not include the node) or \fB1\fR (true; include the node)\&.
 .RE
 .TP
-\fIgraphName\fR \fBget\fR \fIkey\fR
-Return the value associated with the key \fIkey\fR for the graph\&.
+\fIaGraph\fR \fBget\fR \fIkey\fR
+Returns the value associated with the graph’s \fIkey\fR\&.
+.sp
+Throws an error if the graph does not have the given \fIkey\fR\&.
+.sp
+See the \fBset\fR method\&.
 .TP
-\fIgraphName\fR \fBgetall\fR ?\fIpattern\fR?
+\fIaGraph\fR \fBgetall\fR ?\fIpattern\fR?
 Returns a dictionary (suitable for use with [\fBarray set\fR])
-for the whole graph\&.
-If the \fIpattern\fR is specified only the attributes whose names
+containing all the graph’s keys and their associated values\&.
+.sp
+If the \fIpattern\fR is specified only those attributes whose names
 match the pattern will be part of the returned dictionary\&. The pattern
 is a \fBglob\fR pattern\&.
 .TP
-\fIgraphName\fR \fBkeys\fR ?\fIpattern\fR?
-Returns a list of keys for the whole graph\&.
-If the \fIpattern\fR is specified only the attributes whose names
+\fIaGraph\fR \fBkeys\fR ?\fIpattern\fR?
+Returns a list of all the graph’s keys\&.
+.sp
+If the \fIpattern\fR is specified only those attributes whose names
 match the pattern will be part of the returned list\&. The pattern is a
 \fBglob\fR pattern\&.
 .TP
-\fIgraphName\fR \fBkeyexists\fR \fIkey\fR
-Return true if the specified \fIkey\fR exists for the whole graph\&.
+\fIaGraph\fR \fBkeyexists\fR \fIkey\fR
+Returns \fB1\fR (true) if the graph has the specified \fIkey\fR;
+otherwise returns \fB0\fR (false)\&.
 .TP
-\fIgraphName\fR \fBserialize\fR ?\fInode\fR\&.\&.\&.?
-This method serializes the sub-graph spanned up by the \fInode\fRs\&. In
-other words it returns a tcl value completely describing that
-graph\&. If no nodes are specified the whole graph will be serialized\&.
-This allows, for example, the transfer of graph objects (or parts
-thereof) over arbitrary channels, persistence, etc\&.
-This method is also the basis for both the copy constructor and
-the assignment operator\&.
+\fIaGraph\fR \fBserialize\fR ?\fInode\fR\&.\&.\&.?
+Returns the graph (or a subgraph of the graph) serialized into a single
+Tcl value\&. The value can be deserialized back into a graph using the
+\fBdeserialize\fR method\&.
 .sp
-The result of this method has to be semantically identical over all
-implementations of the graph interface\&. This is what will enable us to
-copy graph data between different implementations of the same
-interface\&.
+The serialization is of the entire graph, unless one or more \fInode\fRs
+are specified, in which case only the subgraph spanned by the given
+nodes is serialized\&.
 .sp
-The result is a list containing a multiple of three items, plus one!
-In other words, '[llength $serial] % 3 == 1'\&. Valid values
-include 1, 4, 7, \&.\&.\&.
+Since a serialized graph is a Tcl value it can be copied like any Tcl
+string, e\&.g\&., sent to a channel, persisted into a file, etc\&.
 .sp
-The last element of the list is a dictionary containing the attributes
+This method also serves as the basis for the graph’s copy constructor and
+assignment operator\&.
+.sp
+Every graph interface’s serialize method’s implementation must produce
+semantically equivalent serialization values so that these values may be
+used interchangeably between implementations\&.
+.sp
+The serialized value is a list of triples, plus a \fBdict\fR at the
+end\&. This means that \fI[llength $serial] % 3 == 1\fR\&. Valid values
+include 1, 4, 7, …\&.
+.sp
+The last element of the list is a \fBdict\fR containing the attributes
 associated with the whole graph\&.
-Regarding the other elements; each triple consists of
+.sp
+All the preceding elements are triples, one per node, each consisting of:
 .RS
 .IP [1]
-The name of the node to be described,
+The node’s name\&.
 .IP [2]
-A dictionary containing the attributes associated with the node,
+A \fBdict\fR containing the node’s attributes\&.
 .IP [3]
-And a list describing all the arcs starting at that node\&.
+A list of all the arcs starting at this node (see below)\&.
 .RE
 .sp
-The elements of the arc list are lists containing three or four
-elements each, i\&.e\&.
+Each element of a node’s list of arcs is itself a list of three or four
+elements as follows:
 .RS
 .IP [1]
-The name of the arc described by the element,
+The arc’s name\&.
 .IP [2]
-A reference to the destination node of the arc\&. This reference is an
-integer number given the index of that node in the main serialization
-list\&. As that it is greater than or equal to zero, less than the
-length of the serialization, and a multiple of three\&.
-\fINote:\fR For internal consistency no arc name may be used twice,
-whether in the same node, or at some other node\&. This is a global
-consistency requirement for the serialization\&.
+A reference to the arc’s destination node\&. This reference is the integer
+index of the destination node in the main serialization list\&. (This
+integer will always be \fI>= 0\fR and
+\fI< [llength $serial]\fR and a multiple of three\&.)
+.sp
+\fINote:\fR For internal consistency serialization requires that every
+arc name used in a graph must be unique, whether in the same node, or at
+some other node\&.
 .IP [3]
-And a dictionary containing the attributes associated with the arc\&.
+A \fBdict\fR containing the arc’s attributes\&.
 .IP [4]
-The weight associated with the arc\&. This value is optional\&. Its
-non-presence means that the arc in question has no weight associated
-with it\&.
+An optional arc weight\&. If absent it means that this arc has no
+associated weight\&.
 .sp
-\fINote:\fR This information is new, compared to the
-serialization of \fBgraph\fR 2\&.3 and earlier\&. By making it an
-optional element the new format is maximally compatible with the
-old\&. This means that any graph not using weights will generate a
-serialization which is still understood by the older graph package\&. A
-serialization will not be understood any longer by the older packages
-if, and only if the graph it was generated from actually has arcs with
-weights\&.
+\fINote:\fR This information is new, compared to the serialization of
+\fBgraph\fR 2\&.3 and earlier\&. Making arc weights optional in the new
+format preserves some compatibility with the old\&. In particular, any
+graph that does \fInot\fR use weights will have a serialization which
+is deserializeable by the older graph package\&. However, if weights are
+used, older packages will not be able to deserialize\&.
 .RE
 .sp
-For all attribute dictionaries they keys are the names of the
-attributes, and the values are the values for each name\&.
+For all attribute dictionaries, each key is an attribute name and each
+key’s associated value holds the attribute’s value\&.
 .sp
-\fINote:\fR The order of the nodes in the serialization has no
-relevance, nor has the order of the arcs per node\&.
+\fINote:\fR The serialization’s order of nodes and of arcs within each
+node has no significance\&. In other words two semantically equivalent
+graphs could have different serializations\&.
 .CS
 
 
@@ -1069,95 +1118,199 @@ relevance, nor has the order of the arcs per node\&.
 .CE
 .sp
 .TP
-\fIgraphName\fR \fBset\fR \fIkey\fR ?\fIvalue\fR?
-Set or get one of the keyed values associated with a graph\&. A graph
-may have any number of keyed values associated with it\&. If \fIvalue\fR
-is not specified, this command returns the current value assigned to
-the key; if \fIvalue\fR is specified, this command assigns that value
-to the key\&.
+\fIaGraph\fR \fBset\fR \fIkey\fR ?\fIvalue\fR?
+Get or set the value associated with the given graph \fIkey\fR\&.
+.sp
+If no \fIvalue\fR is given the value associated with the \fIkey\fR is
+returned\&. If \fIvalue\fR is given, the \fIkey\fR is set to the specified
+\fIvalue\fR and the \fIvalue\fR is returned\&.
+.sp
+Throws an error if no \fIvalue\fR is specified (i\&.e\&., when getting) and
+the graph does not have the given \fIkey\fR\&.
+.sp
+A graph may have any number of keyed values associated with it\&. See also
+the \fBget\fR method\&.
 .TP
-\fIgraphName\fR \fBswap\fR \fInode1\fR \fInode2\fR
-Swap the position of \fInode1\fR and \fInode2\fR in the graph\&.
+\fIaGraph\fR \fBswap\fR \fInode1\fR \fInode2\fR
+Swap the positions of \fInode1\fR and \fInode2\fR in the graph\&.
 .TP
-\fIgraphName\fR \fBunset\fR \fIkey\fR
-Remove a keyed value from the graph\&. The method will do nothing if the
-\fIkey\fR does not exist\&.
+\fIaGraph\fR \fBunset\fR \fIkey\fR
+Removes the graph’s \fIkey\fR and its corresponding value\&.
+Does nothing if the \fIkey\fR doesn’t exist\&.
 .TP
-\fIgraphName\fR \fBwalk\fR \fInode\fR ?-order \fIorder\fR? ?-type \fItype\fR? ?-dir \fIdirection\fR? -command \fIcmd\fR
+\fIaGraph\fR \fBwalk\fR \fInode\fR ?-type \fItype\fR? ?-order \fIorder\fR? ?-dir \fIdirection\fR? -command \fIcmd\fR
 Perform a breadth-first or depth-first walk of the graph starting at
-the node \fInode\fR going in either the direction of outgoing or
-opposite to the incoming arcs\&.
+\fInode\fR and going \fBforward\fR (the direction of outgoing arcs) or
+\fBbackward\fR (the opposite direction to the incoming arcs)\&.
 .sp
-The type of walk, breadth-first or depth-first, is determined by the
-value of \fItype\fR; \fBbfs\fR indicates breadth-first,
-\fBdfs\fR indicates depth-first\&.  Depth-first is the default\&.
+If specified, the walk’s type must be \fBdfs\fR (depth-first; the
+default), or \fBbfs\fR breadth-first\&.
 .sp
-The order of the walk, pre-order, post-order or both-order is
-determined by the value of \fIorder\fR; \fBpre\fR indicates
-pre-order, \fBpost\fR indicates post-order, \fBboth\fR indicates
-both-order\&. Pre-order is the default\&. Pre-order walking means that a
-node is visited before any of its neighbors (as defined by the
-\fIdirection\fR, see below)\&. Post-order walking means that a parent is
-visited after any of its neighbors\&. Both-order walking means that a
-node is visited before \fIand\fR after any of its neighbors\&. The
-combination of a breadth-first walk with post- or both-order is illegal\&.
+If specified, the walk’s order must be \fBpre\fR (pre-order; the
+default), or \fBpost\fR (post-order), or \fBboth\fR\&.
 .sp
-The direction of the walk is determined by the value of \fIdir\fR;
-\fBbackward\fR indicates the direction opposite to the incoming
-arcs, \fBforward\fR indicates the direction of the outgoing arcs\&.
+Pre-order means that a node is visited before any of its neighbours (as
+defined by the \fIdirection\fR, see below)\&. Post-order means that a
+node is visited after any of its neighbours\&. Both-order walking means
+that a node is visited before \fIand\fR after any of its neighbours\&. Note
+that the breadth-first type of walk may \fIonly\fR be combined with
+pre-order; only depth-first may be used with pre-order, post-order, or
+both-order\&.
 .sp
-As the walk progresses, the command \fIcmd\fR will be evaluated at
-each node, with the mode of the call (\fBenter\fR or
-\fBleave\fR) and values \fIgraphName\fR and the name of the current
-node appended\&. For a pre-order walk, all nodes are \fBenter\fRed, for a
-post-order all nodes are left\&. In a both-order walk the first visit of
-a node \fBenter\fRs it, the second visit \fBleave\fRs it\&.
+If specified, the walk’s direction must be \fBbackward\fR (the
+direction opposite to the incoming arcs), or \fBforward\fR (the
+direction of the outgoing arcs)\&.
+.sp
+As the walk progresses, the command \fIcmd\fR will be evaluated at each
+node and passed three arguments\&. The arguments are the call’s mode
+(\fBenter\fR or \fBleave\fR), the graph itself (i\&.e\&., \fIaGraph\fR),
+and the current node’s name\&. For a pre-order walk, all nodes are entered
+(mode \fBenter\fR is passed to \fIcmd\fR); for a post-order all nodes
+are left (mode \fBleave\fR is passed)\&. In a both-order walk the first
+visit to a node is the entry (mode \fBenter\fR), and the second visit
+is the leave (mode \fBleave\fR)\&.
 .PP
-.SH "CHANGES FOR 2\&.0"
+.SH "CHANGES FOR V2"
+.SS "CHANGES FOR V2\&.4"
+.PP
+The \fBserialize\fR method’s serialization format changed to account
+for the (optional) use of weights\&. See the method’s documentation for
+details\&.
+.SS "CHANGES FOR V2\&.X"
 The following noteworthy changes have occurred:
 .IP [1]
 The API for accessing attributes and their values has been
 simplified\&.
 .sp
 All functionality regarding the default attribute "data" has been
-removed\&. This default attribute does not exist anymore\&. All accesses
-to attributes have to specify the name of the attribute in
-question\&. This backward \fIincompatible\fR change allowed us to
-simplify the signature of all methods handling attributes\&.
+removed\&. This default attribute no longer exists\&. All accesses to
+attributes must specify the attribute’s name\&. This backward
+\fIincompatible\fR change led to simplified signatures for all methods
+involving attributes\&.
 .sp
-Especially the flag \fB-key\fR is not required anymore, even more,
-its use is now forbidden\&. Please read the documentation for the arc
-and node methods \fBset\fR, \fBget\fR, \fBgetall\fR,
-\fBunset\fR, \fBappend\fR, \fBlappend\fR, \fBkeyexists\fR
-and \fBkeys\fR for a description of the new API's\&.
+In particular, the flag \fB-key\fR has gone\&. Please read the
+documentation for the arc and node methods \fBget\fR,
+\fBgetall\fR, \fBset\fR, \fBunset\fR, \fBappend\fR,
+\fBlappend\fR, \fBkeyexists\fR, and \fBkeys\fR, for a
+description of the new APIs\&.
 .IP [2]
 The methods \fBkeys\fR and \fBgetall\fR now take an optional
-pattern argument and will return only attribute data for keys matching
-this pattern\&.
+glob pattern argument which if specified will limit the returned
+attribute data to only those keys which match the pattern\&.
 .IP [3]
 Arcs and nodes can now be renamed\&. See the documentation for the
 methods \fBarc rename\fR and \fBnode rename\fR\&.
 .IP [4]
-The structure has been extended with API's for the serialization and
-deserialization of graph objects, and a number of operations based on
-them (graph assignment, copy construction)\&.
+The structure has been extended with APIs for graph serialization and
+deserialization, and a number of operations based on these methods
+(e\&.g\&., graph assignment, copy construction)\&.
 .sp
 Please read the documentation for the methods \fBserialize\fR,
 \fBdeserialize\fR, \fB=\fR, and \fB-->\fR, and the
 documentation on the construction of graph objects\&.
 .sp
-Beyond the copying of whole graph objects these new API's also enable
-the transfer of graph objects over arbitrary channels and for easy
-persistence\&.
+Serialization and deserialization mean that graphs can be copied like
+any Tcl string, e\&.g\&., sent to a channel, persisted into a file, etc\&.
 .IP [5]
-A new method, \fBattr\fR, was added to both \fBarc\fR and
-\fBnode\fR allowing the query and retrieval of attribute data
-without regard to arc and node relationships\&.
+Both \fBarc\fR’s and \fBnode\fR’s now have an \fBattr\fR method
+which supports access to attribute data regardless of arc and node
+relationships\&.
 .IP [6]
-Both methods \fBarcs\fR and \fBnodes\fR have been extended with
-the ability to select arcs and nodes based on an arbitrary filtering
-criterium\&.
+Both \fBarcs\fR and \fBnodes\fR have been extended with
+the ability to specify constraints to filter the arcs or nodes they
+return; see their documentation for details\&.
 .PP
+.SH EXAMPLES
+The following example shows the basics of using the
+\fBstruct::graph\fR package\&.
+.PP
+An illustration of the graph used in the example:
+.CS
+
+
+                SW45
+          /------------------BOS
+         /                   /|
+        /  /--→ORD      NW35/ |
+       ↙  /   / D↑  AA1387 ↙  |
+    SFO  /  U/  L| /-----JFK  |
+        /   A|  3| |      |   |
+       |    8|  3| |      |   |
+  UA120|    7|  5/ /      |   |
+       |    7↓  / /       /   |DL247
+       |     DFW←/      A/    |
+       |    /   ↖       A|    |
+       |   /AA49 \\      9|   /
+      LAX←/       \\     0|  /
+        ↖     AA523\\    3↓ ↙
+         \\          \\--MIA
+          \\-----------/
+            AA411
+
+.CE
+.PP
+The code that represents the graph shown above, along with weights
+(flight distances in kilometers)\&.
+.CS
+
+
+proc visit_airport {mode graph airport} {
+    puts " [expr {$mode eq "enter" ? "→" : "←"}] $graph $airport"
+}
+
+try { ;# Adapted from "Data Structures and Algorithms in Java"
+    ::struct::graph flights
+    flights node insert SFO
+    flights node insert LAX
+    flights node insert ORD
+    flights node insert DFW
+    flights node insert JFK
+    flights node insert BOS
+    flights node insert MIA
+    flights arc insert JFK SFO SW45
+    flights arc setweight SW45 4152
+    flights arc insert JFK DFW AA1387
+    flights arc setweight AA1387 2235
+    flights arc insert JFK MIA AA903
+    flights arc setweight AA903 1756
+    flights arc insert BOS JFK NW35
+    flights arc setweight NW35 300
+    flights arc insert BOS MIA DL247
+    flights arc setweight DL247 2027
+    flights arc insert MIA DFW AA523
+    flights arc setweight AA523 1802
+    flights arc insert MIA LAX AA411
+    flights arc setweight AA411 3763
+    flights arc insert LAX ORD UA120
+    flights arc setweight UA120 2802
+    flights arc insert DFW LAX AA49
+    flights arc setweight AA49 1983
+    flights arc insert DFW ORD DL335
+    flights arc setweight DL335 1290
+    flights arc insert ORD DFW UA877
+    flights arc setweight UA877 1290
+    puts "flights walk ORD:"
+    puts [flights walk ORD -order both -command visit_airport]
+    puts "All flights: [lsort -dictionary [flights arcs]]"
+    puts "Chicago flights: [flights arcs -embedding ORD]"
+    puts "Chicago direct connections: [flights nodes -embedding ORD]"
+} finally {
+    flights destroy
+}
+=>
+flights walk ORD:
+ → flights ORD
+ → flights DFW
+ → flights LAX
+ ← flights LAX
+ ← flights DFW
+ ← flights ORD
+
+All flights: AA49 AA411 AA523 AA903 AA1387 DL247 DL335 NW35 SW45 UA120 UA877
+Chicago flights: DL335 UA120 UA877
+Chicago direct connections: DFW LAX
+
+.CE
 .SH "BUGS, IDEAS, FEEDBACK"
 If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the

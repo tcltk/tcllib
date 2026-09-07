@@ -1228,7 +1228,7 @@ tcllib
 \fIfiles/modules/struct/graph\&.n\fR: Create and manipulate directed graph objects
 .TP
 \fBstruct::graph::op\fR
-\fIfiles/modules/struct/graphops\&.n\fR: Operation for (un)directed graph objects
+\fIfiles/modules/struct/graphops\&.n\fR: Operations for directed and undirected graph objects
 .TP
 \fBstruct::graph_v1\fR
 \fIfiles/modules/struct/graph1\&.n\fR: Create and manipulate directed graph objects

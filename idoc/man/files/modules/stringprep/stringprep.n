@@ -299,7 +299,7 @@ which itself was superceded by\fR
 .PP
 \fIThis package is currently unmaintained; see\fR
 \fIticket\fR [https://core\&.tcl-lang\&.org/tcllib/tktview/b192bd4149e07ddf4e000f894100700c2ec35e1e]\&.
-.SH COMMANDS
+.SH API
 If the only string preparation needed is Unicode normalization, the
 \fBunicode\fR package’s commands are sufficient\&.
 .TP

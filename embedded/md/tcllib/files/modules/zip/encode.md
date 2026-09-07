@@ -2,7 +2,7 @@
 [//000000001]: # (zipfile::encode \- Zip archive handling)
 [//000000002]: # (Generated from file 'encode\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008\-2009 Andreas Kupries)
-[//000000004]: # (zipfile::encode\(n\) 0\.5\.1 tcllib "Zip archive handling")
+[//000000004]: # (zipfile::encode\(n\) 0\.5\.2 tcllib "Zip archive handling")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,27 +44,29 @@ package require crc32
 package require snit  
 package require zlibtcl  
 package require fileutil  
-package require zipfile::encode ?0\.5\.1?  
+package require zipfile::encode ?0\.5\.2?  
 
-[__::zipfile::encode__ ?*objectName*?](#1)  
+[__::zipfile::encode__ *objectName*](#1)  
 [__<encoder>__ __comment:__ *text*](#2)  
 [__<encoder>__ __file:__ *dst* *owned* *src* ?*noCompress*?](#3)  
 [__<encoder>__ __write__ *archive*](#4)  
 
 # <a name='description'></a>DESCRIPTION
 
+Note: packages Trf and zlibtcl are not required for Tcl version 8\.6 or above\.
 This package provides a class for the generation of zip archives\.
 
 # <a name='section2'></a>Class API
 
-  - <a name='1'></a>__::zipfile::encode__ ?*objectName*?
+  - <a name='1'></a>__::zipfile::encode__ *objectName*
 
     The class command constructs encoder instances, i\.e\. objects\. The result of
     the command is the fully\-qualified name of the instance command\.
 
-    If no *objectName* is specified the class will generate and use an
-    automatic name\. If the *objectName* was specified, but is not fully
-    qualified the command will be created in the current namespace\.
+    The argument *objectName* is required\. If *objectName* is set to
+    __%AUTO%__ the class will generate and use an automatic name in the
+    current namespace\. If the value of *objectName* is not fully qualified,
+    the instance command will be created relative to the current namespace\.
 
 # <a name='section3'></a>Instance API
 

@@ -278,7 +278,7 @@ doctools_lang_cmdref \- doctools language command reference
 .sp
 \fBarg_def\fR \fItype\fR \fIname\fR ?\fImode\fR?
 .sp
-\fBbullet\fR
+\fBbullet\fR \fI(deprecated — use\fR \fBitem\fR\fI)\fR
 .sp
 \fBcall\fR \fIargs\fR
 .sp
@@ -328,7 +328,7 @@ doctools_lang_cmdref \- doctools language command reference
 .sp
 \fBlist_end\fR
 .sp
-\fBlst_item\fR \fItext\fR
+\fBlst_item\fR \fItext\fR \fI(deprecated — use\fR \fBdef\fR\fI)\fR
 .sp
 \fBmanpage_begin\fR \fIcommand\fR \fIsection\fR \fIversion\fR
 .sp
@@ -340,7 +340,7 @@ doctools_lang_cmdref \- doctools language command reference
 .sp
 \fBnamespace\fR \fItext\fR
 .sp
-\fBnl\fR
+\fBnl\fR \fI(deprecated — use\fR \fBpara\fR\fI)\fR
 .sp
 \fBopt\fR \fItext\fR
 .sp
@@ -364,7 +364,7 @@ doctools_lang_cmdref \- doctools language command reference
 .sp
 \fBsee_also\fR \fIargs\fR
 .sp
-\fBstrong\fR \fItext\fR
+\fBstrong\fR \fItext\fR \fI(deprecated — use\fR \fBemph\fR\fI)\fR
 .sp
 \fBsubsection\fR \fIname\fR
 .sp
@@ -413,7 +413,7 @@ previous list element\&. Specifies the data-\fItype\fR of the described
 argument of a command, its \fIname\fR and its i/o-\fImode\fR\&. The
 latter is optional\&.
 .TP
-\fBbullet\fR
+\fBbullet\fR \fI(deprecated — use\fR \fBitem\fR\fI)\fR
 \fIDeprecated\fR\&. Text structure\&. List element\&. Itemized list\&. See
 \fBitem\fR for the canonical command to open a list item in an
 itemized list\&.
@@ -622,7 +622,7 @@ compatibility, but are otherwise considered to be \fIdeprecated\fR\&.
 Text structure\&. This command closes the list opened by the last
 \fBlist_begin\fR command coming before it\&.
 .TP
-\fBlst_item\fR \fItext\fR
+\fBlst_item\fR \fItext\fR \fI(deprecated — use\fR \fBdef\fR\fI)\fR
 \fIDeprecated\fR\&. Text structure\&. List element\&. Definition list\&. See
 \fBdef\fR for the canonical command to open a general list item in a
 definition list\&.
@@ -654,7 +654,7 @@ Text markup\&. The argument text is marked up as a namespace name\&. The
 text may have other markup already applied to it\&. Main use is the
 highlighting of namespace names in free-form text\&.
 .TP
-\fBnl\fR
+\fBnl\fR \fI(deprecated — use\fR \fBpara\fR\fI)\fR
 \fIDeprecated\fR\&. Text structure\&. See \fBpara\fR for the canonical
 command to insert paragraph breaks into the text\&.
 .TP
@@ -720,7 +720,7 @@ to other documents\&. Each argument is a plain text label identifying the
 referenced document\&. If this command is used multiple times all the arguments
 accumulate\&.
 .TP
-\fBstrong\fR \fItext\fR
+\fBstrong\fR \fItext\fR \fI(deprecated — use\fR \fBemph\fR\fI)\fR
 \fIDeprecated\fR\&. Text markup\&. See \fBemph\fR for the canonical
 command to emphasize text\&.
 .TP

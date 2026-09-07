@@ -25,15 +25,15 @@ asn \- ASN\.1 BER encoder/decoder
 
   - [Description](#section1)
 
-  - [PUBLIC API](#section2)
+  - [API](#section2)
 
-      - [ENCODER](#subsection1)
+      - [Encoder](#subsection1)
 
-      - [DECODER](#subsection2)
+      - [Decoder](#subsection2)
 
-      - [HANDLING TAGS](#subsection3)
+      - [Handling Tags](#subsection3)
 
-  - [EXAMPLES](#section3)
+  - [Examples](#section3)
 
   - [Bugs, Ideas, Feedback](#section4)
 
@@ -118,9 +118,9 @@ Technical Note by Burton S\. Kaliski Jr\. \(Revised November 1, 1993\)\. A text
 version of this note is part of the module sources and should be read by any
 implementor\.
 
-# <a name='section2'></a>PUBLIC API
+# <a name='section2'></a>API
 
-## <a name='subsection1'></a>ENCODER
+## <a name='subsection1'></a>Encoder
 
   - <a name='1'></a>__::asn::asnSequence__ ?*evalue \.\.\.*?
 
@@ -248,7 +248,7 @@ implementor\.
     *type* is supplied, it should be either __UTF8__ or __BMP__ to
     choose UTF8String or BMPString respectively\.
 
-## <a name='subsection2'></a>DECODER
+## <a name='subsection2'></a>Decoder
 
 General notes:
 
@@ -480,7 +480,7 @@ General notes:
     decode the remainder of the ASN context tag construct based on the ID
     retrieved by this command, using the package’s decoder commands\.
 
-## <a name='subsection3'></a>HANDLING TAGS
+## <a name='subsection3'></a>Handling Tags
 
 When working with ASN\.1 you often need to decode tagged values which use a tag
 that’s different from a type’s universal tag\. In these cases, to decode the
@@ -516,7 +516,7 @@ with this the package provides three helper functions:
     Replaces the tag at the start of the data in *dataVar* with *newTag*\.
     The new tag can be created using the __::asn::asnTag__ command\.
 
-# <a name='section3'></a>EXAMPLES
+# <a name='section3'></a>Examples
 
 Examples that show this package in use can be found in the implementation of the
 __[ldap](\.\./ldap/ldap\.md)__ package\.

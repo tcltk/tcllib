@@ -77,6 +77,9 @@ package require struct::graph ?1\.2\.2?
 
 # <a name='description'></a>DESCRIPTION
 
+*This package has been superseded by* __[struct::graph](graph\.md)__
+*version 2\.*
+
 The __::struct::graph__ command creates a new graph object with an
 associated global Tcl command whose name is *graphName*\. This command may be
 used to invoke various operations on the graph\. It has the following general

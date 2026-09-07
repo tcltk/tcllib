@@ -2,7 +2,7 @@
 '\" Generated from file 'decode\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008-2022 Andreas Kupries
 '\"
-.TH "zipfile::decode" n 0\&.10\&.1 tcllib "Zip archive handling"
+.TH "zipfile::decode" n 0\&.11\&.0 tcllib "Zip archive handling"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -282,7 +282,7 @@ package require \fBTrf\fR
 .sp
 package require \fBzlibtcl\fR
 .sp
-package require \fBzipfile::decode ?0\&.10\&.1?\fR
+package require \fBzipfile::decode ?0\&.11\&.0?\fR
 .sp
 \fB::zipfile::decode::archive\fR
 .sp
@@ -295,6 +295,8 @@ package require \fBzipfile::decode ?0\&.10\&.1?\fR
 \fB::zipfile::decode::copyfile\fR \fIadict\fR \fIpath\fR \fIdst\fR
 .sp
 \fB::zipfile::decode::files\fR \fIadict\fR
+.sp
+\fB::zipfile::decode::filetime\fR \fIadict\fR \fIpath\fR
 .sp
 \fB::zipfile::decode::getfile\fR \fIzdict\fR \fIpath\fR
 .sp
@@ -354,6 +356,11 @@ An error is thrown if the file is not found in the archive\&.
 This command takes a dictionary describing the currently open zip
 archive file, as returned by \fB::zipfile::decode::archive\fR, and
 returns the list of files found in the archive\&.
+.TP
+\fB::zipfile::decode::filetime\fR \fIadict\fR \fIpath\fR
+This command takes a dictionary describing the currently open zip
+archive file, as returned by \fB::zipfile::decode::archive\fR, and
+returns the datestamp of the file \fIpath\fR in the archive\&.
 .TP
 \fB::zipfile::decode::getfile\fR \fIzdict\fR \fIpath\fR
 This command takes a dictionary describing the currently open zip

@@ -22,9 +22,11 @@ string::token::shell \- Parsing of shell command line
 
   - [Description](#section1)
 
-  - [Examples](#section2)
+  - [API](#section2)
 
-  - [Bugs, Ideas, Feedback](#section3)
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [Keywords](#keywords)
 
@@ -44,7 +46,7 @@ package require fileutil
 This package provides a command which parses a line of text using basic
 __sh__\-syntax into a list of words\.
 
-The complete set of procedures is described below\.
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::string token shell__ ?__\-indices__? ?__\-partial__? ?\-\-? *string*
 
@@ -153,7 +155,7 @@ The complete set of procedures is described below\.
         Whitespace *may* occur before the first word, and after the last word\.
         Whitespace *must* occur between adjacent words\.
 
-# <a name='section2'></a>Examples
+# <a name='section3'></a>Examples
 
 An example of a command line parsed into its constituent words\.
 
@@ -190,7 +192,7 @@ words, with tokens and string indices\.
     token=PLAIN i=42 j=43 word=«-v»
     token=D:QUOTED i=45 j=55 word=«The Cloud»
 
-# <a name='section3'></a>Bugs, Ideas, Feedback
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

@@ -299,6 +299,7 @@ with several new commands\&. In addition, the package also defines several
 convenient list commands\&. (Each command only adds itself if a command of
 the same name doesn’t already exist, in case any of these are added to
 the core\&.)
+.SH API
 .TP
 \fBladd\fR \fIdictVar\fR ?\fIkey value \&.\&.\&.\fR?
 This command adds every pair of \fIkey value\fR elements to \fIdictVar\fR,

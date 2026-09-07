@@ -24,7 +24,13 @@ struct::disjointset \- Disjoint set data structure
 
   - [API](#section2)
 
-  - [Bugs, Ideas, Feedback](#section3)
+      - [Methods](#subsection1)
+
+  - [Examples](#section3)
+
+  - [Bugs, Ideas, Feedback](#section4)
+
+  - [See Also](#seealso)
 
   - [Keywords](#keywords)
 
@@ -35,56 +41,58 @@ struct::disjointset \- Disjoint set data structure
 package require Tcl 8\.6 9  
 package require struct::disjointset ?1\.2?  
 
-[__::struct::disjointset__ *disjointsetName*](#1)  
-[*disjointsetName* *option* ?*arg arg \.\.\.*?](#2)  
-[*disjointsetName* __add\-element__ *item*](#3)  
-[*disjointsetName* __add\-partition__ *elements*](#4)  
-[*disjointsetName* __partitions__](#5)  
-[*disjointsetName* __num\-partitions__](#6)  
-[*disjointsetName* __equal__ *a* *b*](#7)  
-[*disjointsetName* __merge__ *a* *b*](#8)  
-[*disjointsetName* __find__ *e*](#9)  
-[*disjointsetName* __exemplars__](#10)  
-[*disjointsetName* __find\-exemplar__ *e*](#11)  
-[*disjointsetName* __destroy__](#12)  
+[__::struct::disjointset__ *aDisjointSet*](#1)  
+[*aDisjointSet* __add\-element__ *element*](#2)  
+[*aDisjointSet* __add\-partition__ *elements*](#3)  
+[*aDisjointSet* __partitions__](#4)  
+[*aDisjointSet* __num\-partitions__](#5)  
+[*aDisjointSet* __equal__ *a* *b*](#6)  
+[*aDisjointSet* __merge__ *a* *b*](#7)  
+[*aDisjointSet* __find__ *element*](#8)  
+[*aDisjointSet* __exemplars__](#9)  
+[*aDisjointSet* __find\-exemplar__ *element*](#10)  
+[*aDisjointSet* __destroy__](#11)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides *disjoint sets*\. An alternative name for this kind of
-structure is *merge\-find*\.
+This package provides a command for handling [disjoint
+sets](http://en\.wikipedia\.org/wiki/Disjoint\_set\_data\_structure)\. Alternative
+names for this kind of data structure are *union\-find* and *merge\-find*\.
 
-Normally when dealing with sets and their elements the question is "Is this
-element E contained in this set S?", with both E and S known\.
+A common use case for ordinary sets is to be able to answer the question, “does
+set S contain element E?”\. The answer is a simple Boolean\.
 
-Here the question is "Which of several sets contains the element E?"\. I\.e\. while
-the element is known, the set is not, and we wish to find it quickly\. It is not
-quite the inverse of the original question, but close\. Another operation which
-is often wanted is that of quickly merging two sets into one, with the result
-still fast for finding elements\. Hence the alternative term *merge\-find* for
-this\.
+One common use case for disjoint sets is to be able to answer the question,
+“which of sets S₁, S₂, …, Sₙ contains element E?”\. The answer is a set—or
+nothing, if none of the sets contains E\.
 
-Why now is this named a *disjoint\-set* ? Because another way of describing the
-whole situation is that we have
+Another common use case for disjoint sets is to be able to quickly merge two
+sets into one, with the resultant set still fast for finding elements\. Hence the
+term *merge\-find*\.
+
+The reason this data structure is called a *[disjoint
+set](\.\./\.\./\.\./\.\./index\.md\#disjoint\_set)* is because it can be perceived as
+being a *single* set with *partitions*\. In other words a disjoint set is:
 
   - a finite *[set](\.\./\.\./\.\./\.\./index\.md\#set)* S, containing
 
-  - a number of *elements* E, split into
+  - a number of *elements* E₁, E₂, …, Eₙ, grouped into
 
-  - a set of *partitions* P\. The latter term applies, because the intersection
-    of each pair P, P' of partitions is empty, with the union of all partitions
-    covering the whole set\.
+  - a set of *partitions* P₁, P₂, …, Pₙ\. The latter term applies because the
+    intersection of each pair Pᵢ, Pⱼ of partitions is empty, i\.e\., ∅ = Pᵢ ∩ Pⱼ,
+    with the set itself equal to the union of all the partitions, i\.e\., S = P₁ ∪
+    P₂ ∪ … ∪ Pₙ\.
 
-  - An alternative name for the *partitions* would be *equvalence classes*,
-    and all elements in the same class are considered as equal\.
-
-Here is a pictorial representation of the concepts listed above:
+An alternative name for the *partitions* would be *equivalence classes* ,
+where all elements in the same class are considered equal\. Here is a pictorial
+representation of the concepts listed above:
 
     +-----------------+ The outer lines are the boundaries of the set S.
-    |           /     | The inner regions delineated by the skewed lines
-    |  *       /   *  | are the partitions P. The *'s denote the elements
-    |      *  / \     | E in the set, each in a single partition, their
-    |*       /   \    | equivalence class.
-    |       /  *  \   |
+    |           /     | The inner regions delineated by the diagonal
+    |  *       /   *  | lines are the partitions P₁, P₂, …, Pₙ.
+    |      *  / \     | The *’s denote the elements E₁, E₂, …, Eₙ in
+    |*       /   \    | the set, each in a single partition, their
+    |       /  *  \   | equivalence class.
     |      / *   /    |
     | *   /\  * /     |
     |    /  \  /      |
@@ -93,123 +101,202 @@ Here is a pictorial representation of the concepts listed above:
     | /     *  \      |
     +-----------------+
 
-For more information see
-[http://en\.wikipedia\.org/wiki/Disjoint\_set\_data\_structure](http://en\.wikipedia\.org/wiki/Disjoint\_set\_data\_structure)\.
-
 # <a name='section2'></a>API
 
-The package exports a single command, __::struct::disjointset__\. All
-functionality provided here can be reached through a subcommand of this command\.
+The package provides a single command, __::struct::disjointset__, which
+provides all its functionality using methods\.
 
-  - <a name='1'></a>__::struct::disjointset__ *disjointsetName*
+  - <a name='1'></a>__::struct::disjointset__ *aDisjointSet*
 
     Creates a new disjoint set object with an associated global Tcl command
-    whose name is *disjointsetName*\. This command may be used to invoke
-    various operations on the disjointset\. It has the following general form:
+    whose name is *aDisjointSet*\. This command may be used to invoke disjoint
+    set methods which all have the the following general form:
 
-      * <a name='2'></a>*disjointsetName* *option* ?*arg arg \.\.\.*?
+    *aDisjointSet* *method* ?*arg \.\.\.*?
 
-        The __option__ and the *arg*s determine the exact behavior of the
-        command\. The following commands are possible for disjointset objects:
+    The *method* and the *arg*s specify what operation to perform\.
 
-  - <a name='3'></a>*disjointsetName* __add\-element__ *item*
+## <a name='subsection1'></a>Methods
 
-    Creates a new partition in the specified disjoint set, and fills it with the
-    single item *item*\. The command maintains the integrity of the disjoint
-    set, i\.e\. it verifies that none of the *elements* are already part of the
-    disjoint set and throws an error otherwise\.
+  - <a name='2'></a>*aDisjointSet* __add\-element__ *element*
 
-    The result of this method is the empty string\.
+    Creates a new partition in the *aDisjointSet*, and adds the single
+    *element* to the new partition\. The command maintains the integrity of the
+    disjoint set, i\.e\., if *element* is already in the disjoint set—no matter
+    in which partition—this method will throw an error\.
 
-    This method runs in constant time\.
+    This method returns the empty string\.
 
-  - <a name='4'></a>*disjointsetName* __add\-partition__ *elements*
+    This method runs in constant time, *O\(1\)*\.
 
-    Creates a new partition in specified disjoint set, and fills it with the
-    values found in the set of *elements*\. The command maintains the integrity
-    of the disjoint set, i\.e\. it verifies that none of the *elements* are
-    already part of the disjoint set and throws an error otherwise\.
+  - <a name='3'></a>*aDisjointSet* __add\-partition__ *elements*
 
-    The result of the command is the empty string\.
+    Creates a new partition in the *aDisjointSet*, and adds all the given
+    *elements* to the new partition\. The command maintains the integrity of
+    the disjoint set, i\.e\., if any of the elements in *elements* is already in
+    the disjoint set—no matter in which partition—this method will throw an
+    error\.
 
-    This method runs in time proportional to the size of *elements*\]\.
+    This method returns the empty string\.
 
-  - <a name='5'></a>*disjointsetName* __partitions__
+    This method runs in time proportional to the size of *elements*, *O\(N\)*,
+    where *N* is the number of *elements*\.
 
-    Returns the set of partitions the named disjoint set currently consists of\.
-    The form of the result is a list of lists; the inner lists contain the
-    elements of the partitions\.
+  - <a name='4'></a>*aDisjointSet* __partitions__
 
-    This method runs in time O\(N\*alpha\(N\)\), where N is the number of elements in
-    the disjoint set and alpha is the inverse Ackermann function\.
-
-  - <a name='6'></a>*disjointsetName* __num\-partitions__
-
-    Returns the number of partitions the named disjoint set currently consists
-    of\.
-
-    This method runs in constant time\.
-
-  - <a name='7'></a>*disjointsetName* __equal__ *a* *b*
-
-    Determines if the two elements *a* and *b* of the disjoint set belong to
-    the same partition\. The result of the method is a boolean value,
-    __True__ if the two elements are contained in the same partition, and
-    __False__ otherwise\.
-
-    An error will be thrown if either *a* or *b* are not elements of the
-    disjoint set\.
-
-    This method runs in amortized time O\(alpha\(N\)\), where N is the number of
-    elements in the larger partition and alpha is the inverse Ackermann
-    function\.
-
-  - <a name='8'></a>*disjointsetName* __merge__ *a* *b*
-
-    Determines the partitions the elements *a* and *b* are contained in and
-    merges them into a single partition\. If the two elements were already
-    contained in the same partition nothing will change\.
-
-    The result of the method is the empty string\.
-
-    This method runs in amortized time O\(alpha\(N\)\), where N is the number of
-    items in the larger of the partitions being merged\. The worst case time is
-    O\(N\)\.
-
-  - <a name='9'></a>*disjointsetName* __find__ *e*
-
-    Returns a list of the members of the partition of the disjoint set which
-    contains the element *e*\.
-
-    This method runs in O\(N\*alpha\(N\)\) time, where N is the total number of items
-    in the disjoint set and alpha is the inverse Ackermann function, See
-    __find\-exemplar__ for a faster method, if all that is needed is a unique
-    identifier for the partition, rather than an enumeration of all its
+    Returns the *aDisjointSet*’s set of partitions as a list of lists\. The
+    outer lists are the partitions, the inner lists contain each partition’s
     elements\.
 
-  - <a name='10'></a>*disjointsetName* __exemplars__
+    This method runs in *O\(N × α\(N\)\)* time, where *N* is the number of
+    elements in the disjoint set, and the *α* function is the inverse
+    Ackermann function\.
 
-    Returns a list containing an exemplar of each partition in the disjoint set\.
-    The exemplar is a member of the partition, chosen arbitrarily\.
+  - <a name='5'></a>*aDisjointSet* __num\-partitions__
 
-    This method runs in O\(N\*alpha\(N\)\) time, where N is the total number of items
-    in the disjoint set and alpha is the inverse Ackermann function\.
+    Returns the number of partitions in the *aDisjointSet*\.
 
-  - <a name='11'></a>*disjointsetName* __find\-exemplar__ *e*
+    This method runs in constant time\.
 
-    Returns the exemplar of the partition of the disjoint set containing the
-    element *e*\. Throws an error if *e* is not found in the disjoint set\.
-    The exemplar is an arbitrarily chosen member of the partition\. The only
-    operation that will change the exemplar of any partition is __merge__\.
+  - <a name='6'></a>*aDisjointSet* __equal__ *a* *b*
 
-    This method runs in O\(alpha\(N\)\) time, where N is the number of items in the
-    partition containing E, and alpha is the inverse Ackermann function\.
+    Returns __1__ \(true\) if elements *a* and *b* in the *aDisjointSet*
+    are in the same partition; otherwise returns __0__ \(false\)\.
 
-  - <a name='12'></a>*disjointsetName* __destroy__
+    If one or both arguments are not in the disjoint set at all, this method
+    will throw an error\.
 
-    Destroys the disjoint set object and all associated memory\.
+    This method runs in amortized time *O\(α\(N\)\)*, where *N* is the number of
+    elements in the larger partition, and the *α* function is the inverse
+    Ackermann function\.
 
-# <a name='section3'></a>Bugs, Ideas, Feedback
+  - <a name='7'></a>*aDisjointSet* __merge__ *a* *b*
+
+    Determines the partitions in the *aDisjointSet* that elements *a* and
+    *b* are contained in, and merges these partitions into a single partition\.
+    If the two elements were already contained in the same partition the
+    disjoint set is left unchanged\.
+
+    If one or both arguments are not in the disjoint set at all, this method
+    will throw an error\.
+
+    This method returns the empty string\.
+
+    This method runs in amortized time *O\(α\(N\)\)*, where *N* is the number of
+    elements in the larger of the partitions being merged, and the *α*
+    function is the inverse Ackermann function\. The worst case time is *O\(N\)*\.
+
+  - <a name='8'></a>*aDisjointSet* __find__ *element*
+
+    Returns a list of the members of the partition of the *aDisjointSet* which
+    contains the given *element*; or an empty string if *element* is not in
+    the disjoint set\.
+
+    This method runs in *O\(N × α\(N\)\)* time, where *N* is the total number of
+    elements in the disjoint set, and the *α* function is the inverse
+    Ackermann function\. See __find\-exemplar__ for a faster method, if all
+    that is needed is a unique partition identifier, rather than a list of its
+    elements\.
+
+  - <a name='9'></a>*aDisjointSet* __exemplars__
+
+    Returns a list containing an exemplar—an arbitrarily chosen member—of each
+    partition in the *aDisjointSet*\.
+
+    Note that the only operation that will change the exemplar chosen for any
+    particular partition is __merge__\.
+
+    This method runs in *O\(N × α\(N\)\)* time, where *N* is the total number of
+    elements in the disjoint set, and the *α* function is the inverse
+    Ackermann function\.
+
+  - <a name='10'></a>*aDisjointSet* __find\-exemplar__ *element*
+
+    Returns an exemplar—an arbitrarily chosen member—of the partition of the
+    *aDisjointSet* that contains the given *element*\.
+
+    If *element* is not in the disjoint set at all, this method will throw an
+    error\.
+
+    Note that the only operation that will change the exemplar chosen for any
+    particular partition is __merge__\.
+
+    This method runs in *O\(α\(N\)\)* time, where *N* is the number of elements
+    in the partition containing *element*, and the *α* function is the
+    inverse Ackermann function\.
+
+  - <a name='11'></a>*aDisjointSet* __destroy__
+
+    Destroys the *aDisjointSet* object, including the global command
+    *aDisjointSet*, and all its associated memory\.
+
+# <a name='section3'></a>Examples
+
+The examples make use of the following
+__[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__ to show their results:
+
+    proc dump_disjointset name {
+        puts "$name:"
+        foreach partition [$name partitions] {
+            puts -nonewline "  partition "
+            set sep "{"
+            foreach element $partition {
+                puts -nonewline $sep$element
+                set sep " "
+            }
+            puts "}"
+        }
+    }
+
+This example creates a new disjoint set called *colors* and adds one partition
+with the single element *black* and another partition with the elements
+*cyan*, *magenta*, *yellow*\.
+
+    struct::disjointset colors
+    colors add-element black
+    puts "colors num-partitions=[colors num-partitions]"
+    colors add-partition {cyan magenta yellow}
+    puts "colors num-partitions=[colors num-partitions]"
+    dump_disjointset colors
+    =>
+    colors num-partitions=1
+    colors num-partitions=2
+    colors:
+      partition {black}
+      partition {cyan magenta yellow}
+
+This example explores some of the disjoint set API on the *colors* disjoint
+set created above\.
+
+    puts "colors equal black yellow=[colors equal black yellow]"
+    puts "colors equal cyan yellow=[colors equal cyan yellow]"
+    puts "colors equal cyan magenta=[colors equal cyan magenta]"
+    colors merge black cyan
+    puts "colors equal black yellow=[colors equal black yellow]"
+    dump_disjointset colors
+    =>
+    colors equal black yellow=0
+    colors equal cyan yellow=1
+    colors equal cyan magenta=1
+    colors merge black cyan
+    colors equal black yellow=1
+    colors:
+      partition {black cyan magenta yellow}
+
+This example continues to explore some of the disjoint set API on the *colors*
+disjoint set created above\.
+
+    colors add-partition {red green blue}
+    dump_disjointset colors
+    puts "[colors find-exemplar blue] [colors find-exemplar yellow]"
+    colors destroy
+    =>
+    colors:
+      partition {black cyan magenta yellow}
+      partition {red green blue}
+    red cyan
+
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the
@@ -224,6 +311,10 @@ Note further that *attachments* are strongly preferred over inlined patches\.
 Attachments can be made by going to the __Edit__ form of the ticket
 immediately after its creation, and then using the left\-most button in the
 secondary navigation bar\.
+
+# <a name='seealso'></a>SEE ALSO
+
+http://en\.wikipedia\.org/wiki/Disjoint\_set\_data\_structure
 
 # <a name='keywords'></a>KEYWORDS
 

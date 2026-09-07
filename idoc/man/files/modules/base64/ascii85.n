@@ -288,6 +288,7 @@ package require \fBascii85 ?1\&.1?\fR
 This package provides commands for encoding and decoding binary strings
 to and from the ascii85 encoding\&. (This encoding is also known as
 base85\&.)
+.SH API
 .TP
 \fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIbstring\fR
 Returns an ascii85-encoded version of the binary string \fIbstring\fR as

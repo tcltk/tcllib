@@ -118,7 +118,7 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Commands</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
 <li class="doctools_section"><a href="#section3">Examples</a>
 <ul>
 <li class="doctools_subsection"><a href="#subsection1">Legacy examples</a></li>
@@ -151,7 +151,7 @@
 <p><em>Note</em> that if normalization alone is insufficient (e.g., for
 string comparisons), the <b class="package"><a href="stringprep.html">stringprep</a></b> package may prove useful.</p>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Commands</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <p>The <i class="arg">form</i> argument in the commands listed below must be a string
 that has one of the following values: <b class="const">D</b> (canonical
 decomposition), <b class="const">C</b> (canonical decomposition, followed by
@@ -162,8 +162,8 @@ composition).</p>
 <dt><a name="1"><b class="cmd">::unicode::normalizeS</b> <i class="arg">form</i> <i class="arg">string</i></a></dt>
 <dd><p>Returns a possibly modified copy of <i class="arg">string</i>, normalized in
 accordance with the given <i class="arg">form</i>.</p>
-<p>This is a convenience for:</p>
-<p><em>::unicode::tostring</em> [<em>unicode::normalize $form</em>
+<p>This is a convenience for:
+<em>::unicode::tostring</em> [<em>unicode::normalize $form</em>
 [<em>::unicode::fromstring $string</em>]].</p></dd>
 <dt><a name="2"><b class="cmd">::unicode::fromstring</b> <i class="arg">string</i></a></dt>
 <dd><p>Returns a list of integer Unicode code points representing the

@@ -117,13 +117,14 @@
 <ul class="doctools_toc">
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
-<li class="doctools_section"><a href="#section1">Description</a>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">API</a>
 <ul>
 <li class="doctools_subsection"><a href="#subsection1">Options</a></li>
 </ul>
 </li>
-<li class="doctools_section"><a href="#section2">Examples</a></li>
-<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -148,6 +149,8 @@
 <a href="https://www.man7.org/linux/man-pages/man1/uuencode.1p.html"><b class="syscmd">uuencode(1p)</b></a> and
 <a href="https://www.man7.org/linux/man-pages/man1/uudecode.1p.html"><b class="syscmd">uudecode(1p)</b></a> commands.
 This encoding packs binary data into printable 7-bit ASCII characters.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::uuencode::encode</b> <i class="arg">bstring</i></a></dt>
 <dd><p>Returns a uuencoded version of the binary string <i class="arg">bstring</i> as
@@ -193,7 +196,7 @@ executable. See
 </dl>
 </div>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Examples</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
 <p>The examples use the subcommand <b class="cmd">string trimright</b> to trim any
 <b class="const">\x00</b> NUL bytes that may have been added during encoding.
 <em>Note however, that if the original binary strings might end
@@ -250,7 +253,7 @@ foreach lst [::uuencode::uudecode -file test.uu] {
 name=test.uu mode=644 line='Δ&divide; “Utf-8” ♞ℤ'
 </pre>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

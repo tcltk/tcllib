@@ -277,73 +277,74 @@ package require \fBTcl 8\&.6 9\fR
 .sp
 package require \fBstruct::disjointset ?1\&.2?\fR
 .sp
-\fB::struct::disjointset\fR \fIdisjointsetName\fR
+\fB::struct::disjointset\fR \fIaDisjointSet\fR
 .sp
-\fIdisjointsetName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
+\fIaDisjointSet\fR \fBadd-element\fR \fIelement\fR
 .sp
-\fIdisjointsetName\fR \fBadd-element\fR \fIitem\fR
+\fIaDisjointSet\fR \fBadd-partition\fR \fIelements\fR
 .sp
-\fIdisjointsetName\fR \fBadd-partition\fR \fIelements\fR
+\fIaDisjointSet\fR \fBpartitions\fR
 .sp
-\fIdisjointsetName\fR \fBpartitions\fR
+\fIaDisjointSet\fR \fBnum-partitions\fR
 .sp
-\fIdisjointsetName\fR \fBnum-partitions\fR
+\fIaDisjointSet\fR \fBequal\fR \fIa\fR \fIb\fR
 .sp
-\fIdisjointsetName\fR \fBequal\fR \fIa\fR \fIb\fR
+\fIaDisjointSet\fR \fBmerge\fR \fIa\fR \fIb\fR
 .sp
-\fIdisjointsetName\fR \fBmerge\fR \fIa\fR \fIb\fR
+\fIaDisjointSet\fR \fBfind\fR \fIelement\fR
 .sp
-\fIdisjointsetName\fR \fBfind\fR \fIe\fR
+\fIaDisjointSet\fR \fBexemplars\fR
 .sp
-\fIdisjointsetName\fR \fBexemplars\fR
+\fIaDisjointSet\fR \fBfind-exemplar\fR \fIelement\fR
 .sp
-\fIdisjointsetName\fR \fBfind-exemplar\fR \fIe\fR
-.sp
-\fIdisjointsetName\fR \fBdestroy\fR
+\fIaDisjointSet\fR \fBdestroy\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-This package provides \fIdisjoint sets\fR\&. An alternative name for
-this kind of structure is \fImerge-find\fR\&.
+This package provides a command for handling
+\fIdisjoint
+sets\fR [http://en\&.wikipedia\&.org/wiki/Disjoint_set_data_structure]\&. Alternative names for this kind of data structure are
+\fIunion-find\fR and \fImerge-find\fR\&.
 .PP
-Normally when dealing with sets and their elements the question is "Is
-this element E contained in this set S?", with both E and S known\&.
+A common use case for ordinary sets is to be able to answer the
+question, “does set S contain element E?”\&. The answer is a simple
+Boolean\&.
 .PP
-Here the question is "Which of several sets contains the element
-E?"\&. I\&.e\&. while the element is known, the set is not, and we wish to
-find it quickly\&. It is not quite the inverse of the original question,
-but close\&.
-Another operation which is often wanted is that of quickly merging two
-sets into one, with the result still fast for finding elements\&. Hence
-the alternative term \fImerge-find\fR for this\&.
+One common use case for disjoint sets is to be able to answer the
+question, “which of sets S₁, S₂, …, Sₙ contains element E?”\&. The answer
+is a set—or nothing, if none of the sets contains E\&.
 .PP
-Why now is this named a \fIdisjoint-set\fR ?
-Because another way of describing the whole situation is that we have
+Another common use case for disjoint sets is to be able to quickly merge
+two sets into one, with the resultant set still fast for finding
+elements\&. Hence the term \fImerge-find\fR\&.
+.PP
+The reason this data structure is called a \fIdisjoint set\fR is
+because it can be perceived as being a \fIsingle\fR set with
+\fIpartitions\fR\&. In other words a disjoint set is:
 .IP \(bu
 a finite \fIset\fR S, containing
 .IP \(bu
-a number of \fIelements\fR E, split into
+a number of \fIelements\fR E₁, E₂, …, Eₙ, grouped into
 .IP \(bu
-a set of \fIpartitions\fR P\&. The latter term
-applies, because the intersection of each pair P, P' of
-partitions is empty, with the union of all partitions
-covering the whole set\&.
-.IP \(bu
-An alternative name for the \fIpartitions\fR would be
-\fIequvalence classes\fR, and all elements in the same
-class are considered as equal\&.
+a set of \fIpartitions\fR P₁, P₂, …, Pₙ\&. The latter term
+applies because the intersection of each pair Pᵢ, Pⱼ of
+partitions is empty, i\&.e\&.,  ∅ = Pᵢ ∩ Pⱼ, with the set itself equal
+to the union of all the partitions, i\&.e\&., S = P₁ ∪ P₂ ∪ … ∪ Pₙ\&.
 .PP
+An alternative name for the \fIpartitions\fR would be \fI
+equivalence classes\fR, where all elements in the same class are
+considered equal\&.
 Here is a pictorial representation of the concepts listed above:
 .CS
 
 
 	+-----------------+ The outer lines are the boundaries of the set S\&.
-	|           /     | The inner regions delineated by the skewed lines
-	|  *       /   *  | are the partitions P\&. The *'s denote the elements
-	|      *  / \\     | E in the set, each in a single partition, their
-	|*       /   \\    | equivalence class\&.
-	|       /  *  \\   |
+	|           /     | The inner regions delineated by the diagonal
+	|  *       /   *  | lines are the partitions P₁, P₂, …, Pₙ\&.
+	|      *  / \\     | The *’s denote the elements E₁, E₂, …, Eₙ in
+	|*       /   \\    | the set, each in a single partition, their
+	|       /  *  \\   | equivalence class\&.
 	|      / *   /    |
 	| *   /\\  * /     |
 	|    /  \\  /      |
@@ -353,119 +354,202 @@ Here is a pictorial representation of the concepts listed above:
 	+-----------------+
 
 .CE
-.PP
-For more information see \fIhttp://en\&.wikipedia\&.org/wiki/Disjoint_set_data_structure\fR\&.
 .SH API
-The package exports a single command, \fB::struct::disjointset\fR\&. All
-functionality provided here can be reached through a subcommand of
-this command\&.
+The package provides a single command, \fB::struct::disjointset\fR,
+which provides all its functionality using methods\&.
 .PP
 .TP
-\fB::struct::disjointset\fR \fIdisjointsetName\fR
-Creates a new disjoint set object with an associated global Tcl
-command whose name is \fIdisjointsetName\fR\&. This command may be used
-to invoke various operations on the disjointset\&. It has the following
-general form:
-.RS
-.TP
-\fIdisjointsetName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
-The \fBoption\fR and the \fIarg\fRs determine the exact behavior of
-the command\&. The following commands are possible for disjointset
-objects:
-.RE
-.TP
-\fIdisjointsetName\fR \fBadd-element\fR \fIitem\fR
-Creates a new partition in the specified disjoint set, and fills it
-with the single item \fIitem\fR\&.  The command maintains
-the integrity of the disjoint set, i\&.e\&. it verifies that none of the
-\fIelements\fR are already part of the disjoint set and throws an
-error otherwise\&.
+\fB::struct::disjointset\fR \fIaDisjointSet\fR
+Creates a new disjoint set object with an associated global Tcl command
+whose name is \fIaDisjointSet\fR\&. This command may be used to invoke
+disjoint set methods which all have the the following general form:
 .sp
-The result of this method is the empty string\&.
+\fIaDisjointSet\fR \fImethod\fR ?\fIarg \&.\&.\&.\fR?
+.sp
+The \fImethod\fR and the \fIarg\fRs specify what operation to perform\&.
+.PP
+.SS METHODS
+.TP
+\fIaDisjointSet\fR \fBadd-element\fR \fIelement\fR
+Creates a new partition in the \fIaDisjointSet\fR, and adds the single
+\fIelement\fR to the new partition\&. The command maintains the integrity
+of the disjoint set, i\&.e\&., if \fIelement\fR is already in the disjoint
+set—no matter in which partition—this method will throw an error\&.
+.sp
+This method returns the empty string\&.
+.sp
+This method runs in constant time, \fIO(1)\fR\&.
+.TP
+\fIaDisjointSet\fR \fBadd-partition\fR \fIelements\fR
+Creates a new partition in the \fIaDisjointSet\fR, and adds all the
+given \fIelements\fR to the new partition\&. The command maintains the
+integrity of the disjoint set, i\&.e\&., if any of the elements in
+\fIelements\fR is already in the disjoint set—no matter in which
+partition—this method will throw an error\&.
+.sp
+This method returns the empty string\&.
+.sp
+This method runs in time proportional to the size of \fIelements\fR,
+\fIO(N)\fR, where \fIN\fR is the number of \fIelements\fR\&.
+.TP
+\fIaDisjointSet\fR \fBpartitions\fR
+Returns the \fIaDisjointSet\fR’s set of partitions as a list of lists\&.
+The outer lists are the partitions, the inner lists contain each
+partition’s elements\&.
+.sp
+This method runs in \fIO(N × α(N))\fR time, where \fIN\fR is the
+number of elements in the disjoint set, and the \fIα\fR function is
+the inverse Ackermann function\&.
+.TP
+\fIaDisjointSet\fR \fBnum-partitions\fR
+Returns the number of partitions in the \fIaDisjointSet\fR\&.
 .sp
 This method runs in constant time\&.
 .TP
-\fIdisjointsetName\fR \fBadd-partition\fR \fIelements\fR
-Creates a new partition in specified disjoint set, and fills it with
-the values found in the set of \fIelements\fR\&. The command maintains
-the integrity of the disjoint set, i\&.e\&. it verifies that none of the
-\fIelements\fR are already part of the disjoint set and throws an
-error otherwise\&.
+\fIaDisjointSet\fR \fBequal\fR \fIa\fR \fIb\fR
+Returns \fB1\fR (true) if elements \fIa\fR and \fIb\fR in the
+\fIaDisjointSet\fR are in the same partition; otherwise returns
+\fB0\fR (false)\&.
 .sp
-The result of the command is the empty string\&.
+If one or both arguments are not in the disjoint set at all, this method
+will throw an error\&.
 .sp
-This method runs in time proportional to the size of \fIelements\fR]\&.
+This method runs in amortized time \fIO(α(N))\fR, where \fIN\fR is
+the number of elements in the larger partition, and the \fIα\fR
+function is the inverse Ackermann function\&.
 .TP
-\fIdisjointsetName\fR \fBpartitions\fR
-Returns the set of partitions the named disjoint set currently
-consists of\&. The form of the result is a list of lists; the inner
-lists contain the elements of the partitions\&.
+\fIaDisjointSet\fR \fBmerge\fR \fIa\fR \fIb\fR
+Determines the partitions in the \fIaDisjointSet\fR that elements
+\fIa\fR and \fIb\fR are contained in, and merges these partitions into a
+single partition\&. If the two elements were already contained in the same
+partition the disjoint set is left unchanged\&.
 .sp
-This method runs in time O(N*alpha(N)),
-where N is the number of elements in the disjoint set and alpha
+If one or both arguments are not in the disjoint set at all, this method
+will throw an error\&.
+.sp
+This method returns the empty string\&.
+.sp
+This method runs in amortized time \fIO(α(N))\fR, where \fIN\fR is
+the number of elements in the larger of the partitions being merged, and
+the \fIα\fR function is the inverse Ackermann function\&. The worst
+case time is \fIO(N)\fR\&.
+.TP
+\fIaDisjointSet\fR \fBfind\fR \fIelement\fR
+Returns a list of the members of the partition of the
+\fIaDisjointSet\fR which contains the given \fIelement\fR; or an empty
+string if \fIelement\fR is not in the disjoint set\&.
+.sp
+This method runs in \fIO(N × α(N))\fR time, where \fIN\fR is the
+total number of elements in the disjoint set, and the \fIα\fR function
+is the inverse Ackermann function\&. See \fBfind-exemplar\fR for a
+faster method, if all that is needed is a unique partition identifier,
+rather than a list of its elements\&.
+.TP
+\fIaDisjointSet\fR \fBexemplars\fR
+Returns a list containing an exemplar—an arbitrarily chosen member—of
+each partition in the \fIaDisjointSet\fR\&.
+.sp
+Note that the only operation that will change the exemplar chosen for
+any particular partition is \fBmerge\fR\&.
+.sp
+This method runs in \fIO(N × α(N))\fR time, where \fIN\fR is the
+total number of elements in the disjoint set, and the \fIα\fR function
 is the inverse Ackermann function\&.
 .TP
-\fIdisjointsetName\fR \fBnum-partitions\fR
-Returns the number of partitions the named disjoint set currently
-consists of\&.
+\fIaDisjointSet\fR \fBfind-exemplar\fR \fIelement\fR
+Returns an exemplar—an arbitrarily chosen member—of the partition of the
+\fIaDisjointSet\fR that contains the given \fIelement\fR\&.
 .sp
-This method runs in constant time\&.
+If \fIelement\fR is not in the disjoint set at all, this method
+will throw an error\&.
+.sp
+Note that the only operation that will change the exemplar chosen for
+any particular partition is \fBmerge\fR\&.
+.sp
+This method runs in \fIO(α(N))\fR time, where \fIN\fR is the
+number of elements in the partition containing \fIelement\fR, and the
+\fIα\fR function is the inverse Ackermann function\&.
 .TP
-\fIdisjointsetName\fR \fBequal\fR \fIa\fR \fIb\fR
-Determines if the two elements \fIa\fR and \fIb\fR of the disjoint set
-belong to the same partition\&. The result of the method is a boolean
-value, \fBTrue\fR if the two elements are contained in the same
-partition, and \fBFalse\fR otherwise\&.
-.sp
-An error will be thrown if either \fIa\fR or \fIb\fR are not elements
-of the disjoint set\&.
-.sp
-This method runs in amortized time O(alpha(N)), where N is the number of
-elements in the larger partition and alpha is the inverse Ackermann function\&.
-.TP
-\fIdisjointsetName\fR \fBmerge\fR \fIa\fR \fIb\fR
-Determines the partitions the elements \fIa\fR and \fIb\fR are
-contained in and merges them into a single partition\&.  If the two
-elements were already contained in the same partition nothing will
-change\&.
-.sp
-The result of the method is the empty string\&.
-.sp
-This method runs in amortized time O(alpha(N)), where N is the number of
-items in the larger of the partitions being merged\&. The worst case time
-is O(N)\&.
-.TP
-\fIdisjointsetName\fR \fBfind\fR \fIe\fR
-Returns a list of the members of the partition of the disjoint set
-which contains the element
-\fIe\fR\&.
-.sp
-This method runs in O(N*alpha(N)) time, where N is the total number of
-items in the disjoint set and alpha is the inverse Ackermann function,
-See \fBfind-exemplar\fR for a faster method, if all that is needed
-is a unique identifier for the partition, rather than an enumeration
-of all its elements\&.
-.TP
-\fIdisjointsetName\fR \fBexemplars\fR
-Returns a list containing an exemplar of each partition in the disjoint
-set\&. The exemplar is a member of the partition, chosen arbitrarily\&.
-.sp
-This method runs in O(N*alpha(N)) time, where N is the total number of items
-in the disjoint set and alpha is the inverse Ackermann function\&.
-.TP
-\fIdisjointsetName\fR \fBfind-exemplar\fR \fIe\fR
-Returns the exemplar of the partition of the disjoint set containing
-the element \fIe\fR\&.  Throws an error if \fIe\fR is not found in the
-disjoint set\&.  The exemplar is an arbitrarily chosen member of the partition\&.
-The only operation that will change the exemplar of any partition is
-\fBmerge\fR\&.
-.sp
-This method runs in O(alpha(N)) time, where N is the number of items in
-the partition containing E, and alpha is the inverse Ackermann function\&.
-.TP
-\fIdisjointsetName\fR \fBdestroy\fR
-Destroys the disjoint set object and all associated memory\&.
+\fIaDisjointSet\fR \fBdestroy\fR
+Destroys the \fIaDisjointSet\fR object, including the global command
+\fIaDisjointSet\fR, and all its associated memory\&.
 .PP
+.SH EXAMPLES
+The examples make use of the following \fBproc\fR to show their results:
+.CS
+
+
+proc dump_disjointset name {
+    puts "$name:"
+    foreach partition [$name partitions] {
+        puts -nonewline "  partition "
+        set sep "{"
+        foreach element $partition {
+            puts -nonewline $sep$element
+            set sep " "
+        }
+        puts "}"
+    }
+}
+
+.CE
+This example creates a new disjoint set called \fIcolors\fR and adds
+one partition with the single element \fIblack\fR and another partition
+with the elements \fIcyan\fR, \fImagenta\fR, \fIyellow\fR\&.
+.CS
+
+
+struct::disjointset colors
+colors add-element black
+puts "colors num-partitions=[colors num-partitions]"
+colors add-partition {cyan magenta yellow}
+puts "colors num-partitions=[colors num-partitions]"
+dump_disjointset colors
+=>
+colors num-partitions=1
+colors num-partitions=2
+colors:
+  partition {black}
+  partition {cyan magenta yellow}
+
+.CE
+This example explores some of the disjoint set API on the \fIcolors\fR
+disjoint set created above\&.
+.CS
+
+
+puts "colors equal black yellow=[colors equal black yellow]"
+puts "colors equal cyan yellow=[colors equal cyan yellow]"
+puts "colors equal cyan magenta=[colors equal cyan magenta]"
+colors merge black cyan
+puts "colors equal black yellow=[colors equal black yellow]"
+dump_disjointset colors
+=>
+colors equal black yellow=0
+colors equal cyan yellow=1
+colors equal cyan magenta=1
+colors merge black cyan
+colors equal black yellow=1
+colors:
+  partition {black cyan magenta yellow}
+
+.CE
+This example continues to explore some of the disjoint set API on the
+\fIcolors\fR disjoint set created above\&.
+.CS
+
+
+colors add-partition {red green blue}
+dump_disjointset colors
+puts "[colors find-exemplar blue] [colors find-exemplar yellow]"
+colors destroy
+=>
+colors:
+  partition {black cyan magenta yellow}
+  partition {red green blue}
+red cyan
+
+.CE
 .SH "BUGS, IDEAS, FEEDBACK"
 If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
@@ -480,6 +564,8 @@ Note further that \fIattachments\fR are strongly preferred over
 inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
+.SH "SEE ALSO"
+http://en\&.wikipedia\&.org/wiki/Disjoint_set_data_structure
 .SH KEYWORDS
 disjoint set, equivalence class, find, merge find, partition, partitioned set, union
 .SH CATEGORY

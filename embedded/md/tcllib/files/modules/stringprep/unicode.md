@@ -23,7 +23,7 @@ unicode \- Implementation of Unicode normalization
 
   - [Description](#section1)
 
-  - [Commands](#section2)
+  - [API](#section2)
 
   - [Examples](#section3)
 
@@ -59,7 +59,7 @@ This is a Tcl implementation of Unicode normalization commands\.
 comparisons\), the __[stringprep](stringprep\.md)__ package may prove
 useful\.
 
-# <a name='section2'></a>Commands
+# <a name='section2'></a>API
 
 The *form* argument in the commands listed below must be a string that has one
 of the following values: __D__ \(canonical decomposition\), __C__
@@ -72,10 +72,8 @@ followed by canonical composition\)\.
     Returns a possibly modified copy of *string*, normalized in accordance
     with the given *form*\.
 
-    This is a convenience for:
-
-    *::unicode::tostring* \[*unicode::normalize $form*
-    \[*::unicode::fromstring $string*\]\]\.
+    This is a convenience for: *::unicode::tostring* \[*unicode::normalize
+    $form* \[*::unicode::fromstring $string*\]\]\.
 
   - <a name='2'></a>__::unicode::fromstring__ *string*
 

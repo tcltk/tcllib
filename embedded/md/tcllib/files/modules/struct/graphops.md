@@ -15,7 +15,7 @@ href="../../../../toc2.md">Applications</a> ] <hr>
 
 # NAME
 
-struct::graph::op \- Operation for \(un\)directed graph objects
+struct::graph::op \- Operations for directed and undirected graph objects
 
 # <a name='toc'></a>Table Of Contents
 
@@ -59,312 +59,331 @@ package require Tcl 8\.6 9
 package require struct::graph::op ?0\.11\.4?  
 
 [__struct::graph::op::toAdjacencyMatrix__ *g*](#1)  
-[__struct::graph::op::toAdjacencyList__ *G* ?*options*\.\.\.?](#2)  
+[__struct::graph::op::toAdjacencyList__ *g* ?*options*\.\.\.?](#2)  
 [__struct::graph::op::kruskal__ *g*](#3)  
 [__struct::graph::op::prim__ *g*](#4)  
-[__struct::graph::op::isBipartite?__ *g* ?*bipartvar*?](#5)  
+[__struct::graph::op::isBipartite?__ *g* ?*partitions*?](#5)  
 [__struct::graph::op::tarjan__ *g*](#6)  
 [__struct::graph::op::connectedComponents__ *g*](#7)  
-[__struct::graph::op::connectedComponentOf__ *g* *n*](#8)  
+[__struct::graph::op::connectedComponentOf__ *g* *node*](#8)  
 [__struct::graph::op::isConnected?__ *g*](#9)  
-[__struct::graph::op::isCutVertex?__ *g* *n*](#10)  
-[__struct::graph::op::isBridge?__ *g* *a*](#11)  
+[__struct::graph::op::isCutVertex?__ *g* *node*](#10)  
+[__struct::graph::op::isBridge?__ *g* *arc*](#11)  
 [__struct::graph::op::isEulerian?__ *g* ?*tourvar*?](#12)  
 [__struct::graph::op::isSemiEulerian?__ *g* ?*pathvar*?](#13)  
-[__struct::graph::op::dijkstra__ *g* *start* ?*options*\.\.\.?](#14)  
-[__struct::graph::op::distance__ *g* *origin* *destination* ?*options*\.\.\.?](#15)  
-[__struct::graph::op::eccentricity__ *g* *n* ?*options*\.\.\.?](#16)  
-[__struct::graph::op::radius__ *g* ?*options*\.\.\.?](#17)  
-[__struct::graph::op::diameter__ *g* ?*options*\.\.\.?](#18)  
-[__struct::graph::op::BellmanFord__ *G* *startnode*](#19)  
-[__struct::graph::op::Johnsons__ *G* ?*options*\.\.\.?](#20)  
-[__struct::graph::op::FloydWarshall__ *G*](#21)  
-[__struct::graph::op::MetricTravellingSalesman__ *G*](#22)  
-[__struct::graph::op::Christofides__ *G*](#23)  
-[__struct::graph::op::GreedyMaxMatching__ *G*](#24)  
-[__struct::graph::op::MaxCut__ *G* *U* *V*](#25)  
-[__struct::graph::op::UnweightedKCenter__ *G* *k*](#26)  
-[__struct::graph::op::WeightedKCenter__ *G* *nodeWeights* *W*](#27)  
-[__struct::graph::op::GreedyMaxIndependentSet__ *G*](#28)  
-[__struct::graph::op::GreedyWeightedMaxIndependentSet__ *G* *nodeWeights*](#29)  
-[__struct::graph::op::VerticesCover__ *G*](#30)  
-[__struct::graph::op::EdmondsKarp__ *G* *s* *t*](#31)  
-[__struct::graph::op::BusackerGowen__ *G* *desiredFlow* *s* *t*](#32)  
-[__struct::graph::op::ShortestsPathsByBFS__ *G* *s* *outputFormat*](#33)  
-[__struct::graph::op::BFS__ *G* *s* ?*outputFormat*\.\.\.?](#34)  
-[__struct::graph::op::MinimumDiameterSpanningTree__ *G*](#35)  
-[__struct::graph::op::MinimumDegreeSpanningTree__ *G*](#36)  
-[__struct::graph::op::MaximumFlowByDinic__ *G* *s* *t* *blockingFlowAlg*](#37)  
-[__struct::graph::op::BlockingFlowByDinic__ *G* *s* *t*](#38)  
-[__struct::graph::op::BlockingFlowByMKM__ *G* *s* *t*](#39)  
-[__struct::graph::op::createResidualGraph__ *G* *f*](#40)  
-[__struct::graph::op::createAugmentingNetwork__ *G* *f* *path*](#41)  
+[__struct::graph::op::dijkstra__ *g* *start\_node* ?*options*\.\.\.?](#14)  
+[__struct::graph::op::distance__ *g* *start\_node* *end\_node* ?\-arcmode *mode*?](#15)  
+[__struct::graph::op::eccentricity__ *g* *node* ?\-arcmode *mode*?](#16)  
+[__struct::graph::op::radius__ *g* ?\-arcmode *mode*?](#17)  
+[__struct::graph::op::diameter__ *g* ?\-arcmode *mode*?](#18)  
+[__struct::graph::op::BellmanFord__ *g* *startnode*](#19)  
+[__struct::graph::op::Johnsons__ *g* ?*options*\.\.\.?](#20)  
+[__struct::graph::op::FloydWarshall__ *g*](#21)  
+[__struct::graph::op::MetricTravellingSalesman__ *g*](#22)  
+[__struct::graph::op::Christofides__ *g*](#23)  
+[__struct::graph::op::GreedyMaxMatching__ *g*](#24)  
+[__struct::graph::op::MaxCut__ *g* *U* *V*](#25)  
+[__struct::graph::op::UnweightedKCenter__ *g* *k*](#26)  
+[__struct::graph::op::WeightedKCenter__ *g* *nodeWeights* *W*](#27)  
+[__struct::graph::op::GreedyMaxIndependentSet__ *g*](#28)  
+[__struct::graph::op::GreedyWeightedMaxIndependentSet__ *g* *nodeWeights*](#29)  
+[__struct::graph::op::VerticesCover__ *g*](#30)  
+[__struct::graph::op::EdmondsKarp__ *g* *s* *t*](#31)  
+[__struct::graph::op::BusackerGowen__ *g* *desiredFlow* *s* *t*](#32)  
+[__struct::graph::op::ShortestsPathsByBFS__ *g* *s* *outputFormat*](#33)  
+[__struct::graph::op::BFS__ *g* *s* ?*outputFormat*\.\.\.?](#34)  
+[__struct::graph::op::MinimumDiameterSpanningTree__ *g*](#35)  
+[__struct::graph::op::MinimumDegreeSpanningTree__ *g*](#36)  
+[__struct::graph::op::MaximumFlowByDinic__ *g* *s* *t* *blockingFlowAlg*](#37)  
+[__struct::graph::op::BlockingFlowByDinic__ *g* *s* *t*](#38)  
+[__struct::graph::op::BlockingFlowByMKM__ *g* *s* *t*](#39)  
+[__struct::graph::op::createResidualGraph__ *g* *f*](#40)  
+[__struct::graph::op::createAugmentingNetwork__ *g* *f* *path*](#41)  
 [__struct::graph::op::createLevelGraph__ *Gf* *s*](#42)  
-[__struct::graph::op::TSPLocalSearching__ *G* *C*](#43)  
-[__struct::graph::op::TSPLocalSearching3Approx__ *G* *C*](#44)  
-[__struct::graph::op::createSquaredGraph__ *G*](#45)  
-[__struct::graph::op::createCompleteGraph__ *G* *originalEdges*](#46)  
+[__struct::graph::op::TSPLocalSearching__ *g* *C*](#43)  
+[__struct::graph::op::TSPLocalSearching3Approx__ *g* *C*](#44)  
+[__struct::graph::op::createSquaredGraph__ *g*](#45)  
+[__struct::graph::op::createCompleteGraph__ *g* *originalEdges*](#46)  
 
 # <a name='description'></a>DESCRIPTION
 
-The package described by this document, __struct::graph::op__, is a
-companion to the package __[struct::graph](graph\.md)__\. It provides a
-series of common operations and algorithms applicable to \(un\)directed graphs\.
+This package, __struct::graph::op__, is a companion to the
+__[struct::graph](graph\.md)__ package\. It provides a series of common
+operations and algorithms applicable to directed or undirected graphs\.
 
-Despite being a companion the package is not directly dependent on
-__[struct::graph](graph\.md)__, only on the API defined by that package\.
-I\.e\. the operations of this package can be applied to any and all graph objects
-which provide the same API as the objects created through
-__[struct::graph](graph\.md)__\.
+The operations provided by this package can be applied to *any* graph objects
+which provide the same API as the objects created by
+__[struct::graph](graph\.md)__\. Therefore this package is not directly
+dependent on __[struct::graph](graph\.md)__\.
 
 # <a name='section2'></a>Operations
 
   - <a name='1'></a>__struct::graph::op::toAdjacencyMatrix__ *g*
 
-    This command takes the graph *g* and returns a nested list containing the
-    adjacency matrix of *g*\.
+    Returns the adjacency matrix for the graph *g*\.
 
-    The elements of the outer list are the rows of the matrix, the inner
-    elements are the column values in each row\. The matrix has "__n__\+1"
-    rows and columns, with the first row and column \(index 0\) containing the
-    name of the node the row/column is for\. All other elements are boolean
-    values, __True__ if there is an arc between the 2 nodes of the
-    respective row and column, and __False__ otherwise\.
+    The elements of the outer list are the matrix’s rows, the inner elements are
+    each row’s column values\. The matrix has *__n__\+1* rows and columns,
+    with the first row and column \(index 0\) containing the name of the node the
+    row/column is for\. All other elements are Boolean values, __1__ \(true\)
+    if there is an arc between the two nodes of the respective row and column,
+    and __0__ \(false\) otherwise\.
 
-    Note that the matrix is symmetric\. It does not represent the directionality
-    of arcs, only their presence between nodes\. It is also unable to represent
-    parallel arcs in *g*\.
+    Note that the matrix is symmetric\. It does *not* represent the
+    directionality of the arcs, only their presence \(or absence\) between nodes\.
+    It is also unable to represent parallel arcs in *g*\.
 
-  - <a name='2'></a>__struct::graph::op::toAdjacencyList__ *G* ?*options*\.\.\.?
+  - <a name='2'></a>__struct::graph::op::toAdjacencyList__ *g* ?*options*\.\.\.?
 
-    Procedure creates for input graph *G*, it's representation as
-    *[Adjacency List](\.\./\.\./\.\./\.\./index\.md\#adjacency\_list)*\. It handles
-    both directed and undirected graphs \(default is undirected\)\. It returns
-    dictionary that for each node \(key\) returns list of nodes adjacent to it\.
-    When considering weighted version, for each adjacent node there is also
-    weight of the edge included\.
+    Returns an *[adjacency list](\.\./\.\./\.\./\.\./index\.md\#adjacency\_list)* for
+    the graph *g*\. Each list element is a __dict__ whose key is a node and
+    whose value is a list of the node’s adjacent nodes\. If __\-weights__ is
+    used each of the value list’s elements is itself a two\-element list of node
+    and weight\.
 
       * Arguments:
 
-          + Graph object *G* \(input\)
+          + Graph object *g*
 
-            A graph to convert into an *[Adjacency
-            List](\.\./\.\./\.\./\.\./index\.md\#adjacency\_list)*\.
+            A graph to convert into an *[adjacency
+            list](\.\./\.\./\.\./\.\./index\.md\#adjacency\_list)*\.
 
       * Options:
 
           + __\-directed__
 
-            By default *G* is operated as if it were an *Undirected graph*\.
-            Using this option tells the command to handle *G* as the directed
-            graph it is\.
+            By default the graph *g* is treated as if it were an *undirected
+            graph*\. Use this option to make the command handle *g* as a
+            directed graph\.
 
           + __\-weights__
 
-            By default any weight information the graph *G* may have is
-            ignored\. Using this option tells the command to put weight
-            information into the result\. In that case it is expected that all
-            arcs have a proper weight, and an error is thrown if that is not the
-            case\.
+            By default the graph *g*’s weight information \(if any\) is ignored\.
+            Use this option to make the command include any weight information
+            in the result\.
+
+            Using this option assumes that every arc in graph *g* has an
+            associated weight; if this is not the case an error will be thrown\.
 
   - <a name='3'></a>__struct::graph::op::kruskal__ *g*
 
-    This command takes the graph *g* and returns a list containing the names
-    of the arcs in *g* which span up a minimum weight spanning tree \(MST\), or,
-    in the case of an un\-connected graph, a minimum weight spanning forest
-    \(except for the 1\-vertex components\)\. Kruskal's algorithm is used to compute
-    the tree or forest\. This algorithm has a time complexity of *O\(E\*log E\)*
-    or *O\(E\* log V\)*, where *V* is the number of vertices and
-    *[E](\.\./\.\./\.\./\.\./index\.md\#e)* is the number of edges in graph *g*\.
+    Returns a list of arc names in graph *g* as determined by Kruskal’s
+    algorithm\.
 
-    The command will throw an error if one or more arcs in *g* have no weight
-    associated with them\.
+    For a connected graph, the arcs are those which span a minimum spanning tree
+    \(MST\)\. For a disconnected graph the arcs are those of a minimum spanning
+    forest \(which itself is composed of an MST for each connected component;
+    excluding single vertex components\)\.
 
-    A note regarding the result, the command refrains from explicitly listing
-    the nodes of the MST as this information is implicitly provided in the arcs
-    already\.
+    The algorithm’s time complexity is *O\(E\*log E\)* or *O\(E\*log V\)*, where
+    *V* is the number of vertices and *[E](\.\./\.\./\.\./\.\./index\.md\#e)* is
+    the number of edges in graph *g*\. Note that Prim’s algorithm may produce
+    different results if there is more than one possible MST\.
+
+    To find the nodes each returned arc connects, use the graph’s __arc
+    nodes__ method on each arc\.
+
+    The command will throw an error if any of graph *g*’s arcs has no
+    associated weight\.
 
   - <a name='4'></a>__struct::graph::op::prim__ *g*
 
-    This command takes the graph *g* and returns a list containing the names
-    of the arcs in *g* which span up a minimum weight spanning tree \(MST\), or,
-    in the case of an un\-connected graph, a minimum weight spanning forest
-    \(except for the 1\-vertex components\)\. Prim's algorithm is used to compute
-    the tree or forest\. This algorithm has a time complexity between *O\(E\+V\*log
-    V\)* and *O\(V\*V\)*, depending on the implementation \(Fibonacci heap \+
-    Adjacency list versus Adjacency Matrix\)\. As usual *V* is the number of
-    vertices and *[E](\.\./\.\./\.\./\.\./index\.md\#e)* the number of edges in
-    graph *g*\.
+    Returns a list of arc names in graph *g* as determined by Prim’s
+    algorithm\.
 
-    The command will throw an error if one or more arcs in *g* have no weight
-    associated with them\.
+    For a connected graph, the arcs are those which span a minimum spanning tree
+    \(MST\)\. For a disconnected graph the arcs are those of a minimum spanning
+    forest \(which itself is composed of an MST for each connected component;
+    excluding single vertex components\)\.
 
-    A note regarding the result, the command refrains from explicitly listing
-    the nodes of the MST as this information is implicitly provided in the arcs
-    already\.
+    This algorithm has a time complexity between *O\(E\+V\*log V\)* and
+    *O\(V\*V\)*, depending on the implementation \(Fibonacci heap and adjacency
+    list versus adjacency matrix\), where *V* is the number of vertices and
+    *[E](\.\./\.\./\.\./\.\./index\.md\#e)* is the number of edges in graph *g*\.
+    Note that Kruskal’s algorithm may produce different results if there is more
+    than one possible MST\.
 
-  - <a name='5'></a>__struct::graph::op::isBipartite?__ *g* ?*bipartvar*?
+    To find the nodes each returned arc connects, use the graph’s __arc
+    nodes__ method on each arc\.
 
-    This command takes the graph *g* and returns a boolean value indicating
-    whether it is bipartite \(__true__\) or not \(__false__\)\. If the
-    variable *bipartvar* is specified the two partitions of the graph are
-    there as a list, if, and only if the graph is bipartit\. If it is not the
-    variable, if specified, is not touched\.
+    The command will throw an error if any of graph *g*’s arcs has no
+    associated weight\.
+
+  - <a name='5'></a>__struct::graph::op::isBipartite?__ *g* ?*partitions*?
+
+    Returns __1__ \(true\) if graph *g* is bipartite; otherwise returns
+    __0__ \(false\)\.
+
+    If the optional *partitions* variable name is given *and* graph *g* is
+    bipartite, then *partitions* is created if it doesn’t exist, then it is
+    set to the list of the two partitions\. If graph *g* is not bipartite,
+    *partitions* is not created if it doesn’t exist; and not changed if it
+    does\.
 
   - <a name='6'></a>__struct::graph::op::tarjan__ *g*
 
-    This command computes the set of *strongly connected* components \(SCCs\) of
-    the graph *g*\. The result of the command is a list of sets, each of which
-    contains the nodes for one of the SCCs of *g*\. The union of all SCCs
-    covers the whole graph, and no two SCCs intersect with each other\.
+    Returns a list of sets, each of which contains the nodes for one of graph
+    *g*’s *strongly connected* components \(SCCs\)\. The union of all SCCs
+    covers the whole graph, and no two SCCs intersect\.
 
-    The graph *g* is *acyclic* if all SCCs in the result contain only a
-    single node\. The graph *g* is *strongly connected* if the result
-    contains only a single SCC containing all nodes of *g*\.
+    If *all* the resulting SCCs contain only one node, then graph *g* is
+    *acyclic*\. If the result contains only one SCC containing all graph
+    *g*’s nodes, then the graph is *strongly* *connected* \.
+
+    *Note:* The __[struct::set](struct\_set\.md)__ package must be
+    required before this function is used, since it returns a set of type
+    __struct::set__\.
 
   - <a name='7'></a>__struct::graph::op::connectedComponents__ *g*
 
-    This command computes the set of *connected* components \(CCs\) of the graph
-    *g*\. The result of the command is a list of sets, each of which contains
-    the nodes for one of the CCs of *g*\. The union of all CCs covers the whole
-    graph, and no two CCs intersect with each other\.
+    Returns a list of sets, each of which contains the nodes for one of graph
+    *g*’s *connected* components \(CCs\)\. The union of all CCs covers the
+    whole graph, and no two CCs intersect\.
 
-    The graph *g* is *connected* if the result contains only a single SCC
-    containing all nodes of *g*\.
+    If the result contains only one CC containing all graph *g*’s nodes, then
+    the graph is *connected*\.
 
-  - <a name='8'></a>__struct::graph::op::connectedComponentOf__ *g* *n*
+    *Note:* The __[struct::set](struct\_set\.md)__ package must be
+    required before this function is used, since it returns a set of type
+    __struct::set__\.
 
-    This command computes the *connected* component \(CC\) of the graph *g*
-    containing the node *n*\. The result of the command is a sets which
-    contains the nodes for the CC of *n* in *g*\.
+  - <a name='8'></a>__struct::graph::op::connectedComponentOf__ *g* *node*
 
-    The command will throw an error if *n* is not a node of the graph *g*\.
+    Returns a list of graph *g*’s *connected* components \(CCs\) that contain
+    node *node*\.
+
+    The command will throw an error if *node* is not a graph *g* node\.
 
   - <a name='9'></a>__struct::graph::op::isConnected?__ *g*
 
-    This is a convenience command determining whether the graph *g* is
-    *connected* or not\. The result is a boolean value, __true__ if the
-    graph is connected, and __false__ otherwise\.
+    Returns __1__ \(true\) if graph *g* is *connected*; otherwise returns
+    __0__ \(false\)\.
 
-  - <a name='10'></a>__struct::graph::op::isCutVertex?__ *g* *n*
+  - <a name='10'></a>__struct::graph::op::isCutVertex?__ *g* *node*
 
-    This command determines whether the node *n* in the graph *g* is a
-    *[cut vertex](\.\./\.\./\.\./\.\./index\.md\#cut\_vertex)* \(aka *[articulation
-    point](\.\./\.\./\.\./\.\./index\.md\#articulation\_point)*\)\. The result is a
-    boolean value, __true__ if the node is a cut vertex, and __false__
-    otherwise\.
+    Returns __1__ \(true\) if graph *g*’s *node* is a *cut* *vertex*
+    \(*also called an* *[articulation
+    point](\.\./\.\./\.\./\.\./index\.md\#articulation\_point)*\); otherwise returns
+    __0__ \(false\)\.
 
-    The command will throw an error if *n* is not a node of the graph *g*\.
+    The command will throw an error if *node* is not a graph *g* node\.
 
-  - <a name='11'></a>__struct::graph::op::isBridge?__ *g* *a*
+  - <a name='11'></a>__struct::graph::op::isBridge?__ *g* *arc*
 
-    This command determines whether the arc *a* in the graph *g* is a
-    *[bridge](\.\./\.\./\.\./\.\./index\.md\#bridge)* \(aka *[cut
-    edge](\.\./\.\./\.\./\.\./index\.md\#cut\_edge)*, or
-    *[isthmus](\.\./\.\./\.\./\.\./index\.md\#isthmus)*\)\. The result is a boolean
-    value, __true__ if the arc is a bridge, and __false__ otherwise\.
+    Returns __1__ \(true\) if graph *g*’s *arc* is a
+    *[bridge](\.\./\.\./\.\./\.\./index\.md\#bridge)* \(*also called a* *[cut
+    edge](\.\./\.\./\.\./\.\./index\.md\#cut\_edge)* *or*
+    *[isthmus](\.\./\.\./\.\./\.\./index\.md\#isthmus)*\); otherwise returns
+    __0__ \(false\)\.
 
-    The command will throw an error if *a* is not an arc of the graph *g*\.
+    The command will throw an error if *arc* is not a graph *g* arc
 
   - <a name='12'></a>__struct::graph::op::isEulerian?__ *g* ?*tourvar*?
 
-    This command determines whether the graph *g* is *eulerian* or not\. The
-    result is a boolean value, __true__ if the graph is eulerian, and
-    __false__ otherwise\.
+    Returns __1__ \(true\) if graph *g* is *Eulerian*; otherwise returns
+    __0__ \(false\)\.
 
-    If the graph is eulerian and *tourvar* is specified then an euler tour is
-    computed as well and stored in the named variable\. The tour is represented
-    by the list of arcs traversed, in the order of traversal\.
+    If the graph is Eulerian and *tourvar* is specified, then an Euler tour is
+    computed and stored in the named variable\. The tour is represented by a list
+    of the arcs traversed, in order of traversal\.
 
   - <a name='13'></a>__struct::graph::op::isSemiEulerian?__ *g* ?*pathvar*?
 
-    This command determines whether the graph *g* is *semi\-eulerian* or not\.
-    The result is a boolean value, __true__ if the graph is semi\-eulerian,
-    and __false__ otherwise\.
+    Returns __1__ \(true\) if graph *g* is *semi\-Eulerian*; otherwise
+    returns __0__ \(false\)\.
 
-    If the graph is semi\-eulerian and *pathvar* is specified then an euler
-    path is computed as well and stored in the named variable\. The path is
-    represented by the list of arcs traversed, in the order of traversal\.
+    If the graph is semi\-Eulerian and *pathvar* is specified, then an Euler
+    path is computed and stored in the named variable\. The path is represented
+    by a list of the arcs traversed, in order of traversal\.
 
-  - <a name='14'></a>__struct::graph::op::dijkstra__ *g* *start* ?*options*\.\.\.?
+  - <a name='14'></a>__struct::graph::op::dijkstra__ *g* *start\_node* ?*options*\.\.\.?
 
-    This command determines distances in the weighted *g* from the node
-    *start* to all other nodes in the graph\. The options specify how to
-    traverse graphs, and the format of the result\.
+    Returns a __dict__ whose keys are nodes and whose values vary depending
+    on the options\. By default an undirected traversal and tree format are used,
+    resulting in a __dict__ whose values are lists of nodes\. The traversal
+    is based on the distances in the weighted graph *g* from the
+    *start\_node* to all the graph’s other nodes\.
 
-    Two options are recognized
+    Two options are supported:
 
       * __\-arcmode__ mode
 
-        The accepted mode values are __directed__ and __undirected__\.
-        For directed traversal all arcs are traversed from source to target\. For
-        undirected traversal all arcs are traversed in the opposite direction as
-        well\. Undirected traversal is the default\.
+        The *mode* may be __undirected__ \(the default\) or
+        __directed__\. If __directed__, all the arcs are traversed from
+        the source to the target\. For __undirected__, all the arcs are
+        traversed both ways\.
 
       * __\-outputformat__ format
 
-        The accepted format values are __distances__ and __tree__\. In
-        both cases the result is a dictionary keyed by the names of all nodes in
-        the graph\. For __distances__ the value is the distance of the node
-        to *start*, whereas for __tree__ the value is the path from the
-        node to *start*, excluding the node itself, but including *start*\.
-        Tree format is the default\.
+        The *format* may be __tree__ \(the default\) or __distances__\.
+        In either case the result is a __dict__ whose keys are the names of
+        all graph *g*’s nodes\. When the *format* is __tree__, each value
+        is the path from the node to the *start\_node* \(i\.e\., a list of nodes;
+        excluding the *start\_node* itself\)\. When the *format* is
+        __distances__, each value is the distance from the node to the
+        *start\_node*\. *Note:* When using *format* __distances__ it is
+        possible to have distances of __0__ or of __Inf__\.
 
-  - <a name='15'></a>__struct::graph::op::distance__ *g* *origin* *destination* ?*options*\.\.\.?
+  - <a name='15'></a>__struct::graph::op::distance__ *g* *start\_node* *end\_node* ?\-arcmode *mode*?
 
-    This command determines the \(un\)directed distance between the two nodes
-    *origin* and *destination* in the graph *g*\. It accepts the option
-    __\-arcmode__ of __struct::graph::op::dijkstra__\.
+    Returns the distance in graph *g* from the *start\_node* to the
+    *end\_node* using an undirected traversal \(i\.e\., *\-arcmode*
+    __undirected__\)\. Use *\-arcmode* __directed__ for a directed
+    traversal\. \(See __struct::graph::op::dijkstra__’s __\-arcmode__
+    option\.\)
 
-  - <a name='16'></a>__struct::graph::op::eccentricity__ *g* *n* ?*options*\.\.\.?
+  - <a name='16'></a>__struct::graph::op::eccentricity__ *g* *node* ?\-arcmode *mode*?
 
-    This command determines the \(un\)directed
-    *[eccentricity](\.\./\.\./\.\./\.\./index\.md\#eccentricity)* of the node *n*
-    in the graph *g*\. It accepts the option __\-arcmode__ of
-    __struct::graph::op::dijkstra__\.
+    Returns the *[eccentricity](\.\./\.\./\.\./\.\./index\.md\#eccentricity)* in
+    graph *g* of the given *node* using an undirected traversal \(i\.e\.,
+    *\-arcmode* __undirected__\)\. Use *\-arcmode* __directed__ for a
+    directed traversal\. \(See __struct::graph::op::dijkstra__’s
+    __\-arcmode__ option\.\)
 
-    The \(un\)directed *[eccentricity](\.\./\.\./\.\./\.\./index\.md\#eccentricity)*
-    of a node is the maximal \(un\)directed distance between the node and any
-    other node in the graph\.
+    A node’s \(un\)directed
+    *[eccentricity](\.\./\.\./\.\./\.\./index\.md\#eccentricity)* is the maximal
+    \(un\)directed distance between the node and any other node in the graph\.
 
-  - <a name='17'></a>__struct::graph::op::radius__ *g* ?*options*\.\.\.?
+  - <a name='17'></a>__struct::graph::op::radius__ *g* ?\-arcmode *mode*?
 
-    This command determines the \(un\)directed
-    *[radius](\.\./\.\./\.\./\.\./index\.md\#radius)* of the graph *g*\. It accepts
-    the option __\-arcmode__ of __struct::graph::op::dijkstra__\.
+    Returns the *[radius](\.\./\.\./\.\./\.\./index\.md\#radius)* of graph *g*
+    using an undirected traversal \(i\.e\., *\-arcmode* __undirected__\)\. Use
+    *\-arcmode* __directed__ for a directed traversal\. \(See
+    __struct::graph::op::dijkstra__’s __\-arcmode__ option\.\)
 
-    The \(un\)directed *[radius](\.\./\.\./\.\./\.\./index\.md\#radius)* of a graph is
-    the minimal \(un\)directed
+    A graph’s \(un\)directed *[radius](\.\./\.\./\.\./\.\./index\.md\#radius)* is the
+    minimal \(un\)directed
     *[eccentricity](\.\./\.\./\.\./\.\./index\.md\#eccentricity)* of all nodes in
     the graph\.
 
-  - <a name='18'></a>__struct::graph::op::diameter__ *g* ?*options*\.\.\.?
+  - <a name='18'></a>__struct::graph::op::diameter__ *g* ?\-arcmode *mode*?
 
-    This command determines the \(un\)directed
-    *[diameter](\.\./\.\./\.\./\.\./index\.md\#diameter)* of the graph *g*\. It
-    accepts the option __\-arcmode__ of __struct::graph::op::dijkstra__\.
+    Returns the *[diameter](\.\./\.\./\.\./\.\./index\.md\#diameter)* of graph *g*
+    using an undirected traversal \(i\.e\., *\-arcmode* __undirected__\)\. Use
+    *\-arcmode* __directed__ for a directed traversal\. \(See
+    __struct::graph::op::dijkstra__’s __\-arcmode__ option\.\)
 
-    The \(un\)directed *[diameter](\.\./\.\./\.\./\.\./index\.md\#diameter)* of a
-    graph is the maximal \(un\)directed
+    A graph’s \(un\)directed *[radius](\.\./\.\./\.\./\.\./index\.md\#radius)* is the
+    maximal \(un\)directed
     *[eccentricity](\.\./\.\./\.\./\.\./index\.md\#eccentricity)* of all nodes in
     the graph\.
 
-  - <a name='19'></a>__struct::graph::op::BellmanFord__ *G* *startnode*
+  - <a name='19'></a>__struct::graph::op::BellmanFord__ *g* *startnode*
 
     Searching for [shortests paths](#subsection1) between chosen node and
-    all other nodes in graph *G*\. Based on relaxation method\. In comparison to
+    all other nodes in graph *g*\. Based on relaxation method\. In comparison to
     __struct::graph::op::dijkstra__ it doesn't need assumption that all
-    weights on edges in input graph *G* have to be positive\.
+    weights on edges in input graph *g* have to be positive\.
 
     That generality sets the complexity of algorithm to \- *O\(V\*E\)*, where
     *V* is the number of vertices and *[E](\.\./\.\./\.\./\.\./index\.md\#e)* is
-    number of edges in graph *G*\.
+    number of edges in graph *g*\.
 
       * Arguments:
 
-          + Graph object *G* \(input\)
+          + Graph object *g* \(input\)
 
-            Directed, connected and edge weighted graph *G*, without any
+            Directed, connected and edge weighted graph *g*, without any
             negative cycles \( presence of cycles with the negative sum of weight
             means that there is no shortest path, since the total weight becomes
             lower each time the cycle is traversed \)\. Negative weights on edges
@@ -373,16 +392,16 @@ __[struct::graph](graph\.md)__\.
           + Node *startnode* \(input\)
 
             The node for which we find all shortest paths to each other node in
-            graph *G*\.
+            graph *g*\.
 
       * Result:
 
         Dictionary containing for each node \(key\) distances to each other node
-        in graph *G*\.
+        in graph *g*\.
 
     *Note:* If algorithm finds a negative cycle, it will return error message\.
 
-  - <a name='20'></a>__struct::graph::op::Johnsons__ *G* ?*options*\.\.\.?
+  - <a name='20'></a>__struct::graph::op::Johnsons__ *g* ?*options*\.\.\.?
 
     Searching for [shortest paths](#subsection1) between all pairs of
     vertices in graph\. For sparse graphs asymptotically quicker than
@@ -391,13 +410,13 @@ __[struct::graph](graph\.md)__\.
     __struct::graph::op::dijkstra__ as subprocedures\.
 
     Time complexity: *O\(n\*\*2\*log\(n\) \+n\*m\)*, where *n* is the number of nodes
-    and *m* is the number of edges in graph *G*\.
+    and *m* is the number of edges in graph *g*\.
 
       * Arguments:
 
-          + Graph object *G* \(input\)
+          + Graph object *g* \(input\)
 
-            Directed graph *G*, weighted on edges and not containing any
+            Directed graph *g*, weighted on edges and not containing any
             cycles with negative sum of weights \( the presence of such cycles
             means there is no shortest path, since the total weight becomes
             lower each time the cycle is traversed \)\. Negative weights on edges
@@ -414,7 +433,7 @@ __[struct::graph](graph\.md)__\.
 
         Dictionary containing distances between all pairs of vertices\.
 
-  - <a name='21'></a>__struct::graph::op::FloydWarshall__ *G*
+  - <a name='21'></a>__struct::graph::op::FloydWarshall__ *g*
 
     Searching for [shortest paths](#subsection1) between all pairs of edges
     in weighted graphs\.
@@ -425,9 +444,9 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph object *G* \(input\)
+          + Graph object *g* \(input\)
 
-            Directed and weighted graph *G*\.
+            Directed and weighted graph *g*\.
 
       * Result:
 
@@ -444,7 +463,7 @@ __[struct::graph](graph\.md)__\.
     *v* is the same node as *u*\) is negative, that node surely belong to at
     least one negative cycle\.
 
-  - <a name='22'></a>__struct::graph::op::MetricTravellingSalesman__ *G*
+  - <a name='22'></a>__struct::graph::op::MetricTravellingSalesman__ *g*
 
     Algorithm for solving a metric variation of [Travelling salesman
     problem](#subsection2)\. *TSP problem* is *NP\-Complete*, so there is
@@ -453,9 +472,9 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph object *G* \(input\)
+          + Graph object *g* \(input\)
 
-            Undirected, weighted graph *G*\.
+            Undirected, weighted graph *g*\.
 
       * Result:
 
@@ -464,7 +483,7 @@ __[struct::graph](graph\.md)__\.
 
     *Note:* [It's 2\-approximation algorithm\.](#subsection7)
 
-  - <a name='23'></a>__struct::graph::op::Christofides__ *G*
+  - <a name='23'></a>__struct::graph::op::Christofides__ *g*
 
     Another algorithm for solving [metric *TSP problem*](#subsection2)\.
     Christofides implementation uses *Max Matching* for reaching better
@@ -472,9 +491,9 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
-            Undirected, weighted graph *G*\.
+            Undirected, weighted graph *g*\.
 
       * Result:
 
@@ -483,29 +502,29 @@ __[struct::graph](graph\.md)__\.
 
     *Note:* [It's is a 3/2 approximation algorithm\. ](#subsection7)
 
-  - <a name='24'></a>__struct::graph::op::GreedyMaxMatching__ *G*
+  - <a name='24'></a>__struct::graph::op::GreedyMaxMatching__ *g*
 
     *Greedy Max Matching* procedure, which finds [maximal
-    matching](#subsection3) \(not maximum\) for given graph *G*\. It adds
+    matching](#subsection3) \(not maximum\) for given graph *g*\. It adds
     edges to solution, beginning from edges with the lowest cost\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
-            Undirected graph *G*\.
+            Undirected graph *g*\.
 
       * Result:
 
-        Set of edges \- the max matching for graph *G*\.
+        Set of edges \- the max matching for graph *g*\.
 
-  - <a name='25'></a>__struct::graph::op::MaxCut__ *G* *U* *V*
+  - <a name='25'></a>__struct::graph::op::MaxCut__ *g* *U* *V*
 
     Algorithm solving a [Maximum Cut Problem](#subsection4)\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             The graph to cut\.
 
@@ -523,15 +542,15 @@ __[struct::graph](graph\.md)__\.
 
     *Note:* *MaxCut* is a [2\-approximation algorithm\.](#subsection7)
 
-  - <a name='26'></a>__struct::graph::op::UnweightedKCenter__ *G* *k*
+  - <a name='26'></a>__struct::graph::op::UnweightedKCenter__ *g* *k*
 
     Approximation algorithm that solves a [k\-center problem](#subsection5)\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
-            Undirected complete graph *G*, which satisfies triangle
+            Undirected complete graph *g*, which satisfies triangle
             inequality\.
 
           + Integer *k* \(input\)
@@ -541,21 +560,21 @@ __[struct::graph](graph\.md)__\.
 
       * Result:
 
-        Set of nodes \- *k* center for graph *G*\.
+        Set of nodes \- *k* center for graph *g*\.
 
     *Note:* *UnweightedKCenter* is a [2\-approximation
     algorithm\.](#subsection7)
 
-  - <a name='27'></a>__struct::graph::op::WeightedKCenter__ *G* *nodeWeights* *W*
+  - <a name='27'></a>__struct::graph::op::WeightedKCenter__ *g* *nodeWeights* *W*
 
     Approximation algorithm that solves a weighted version of [k\-center
     problem](#subsection5)\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
-            Undirected complete graph *G*, which satisfies triangle
+            Undirected complete graph *g*, which satisfies triangle
             inequality\.
 
           + Integer *W* \(input\)
@@ -565,7 +584,7 @@ __[struct::graph](graph\.md)__\.
 
           + List *nodeWeights* \(input\)
 
-            List of nodes and its weights in graph *G*\.
+            List of nodes and its weights in graph *g*\.
 
       * Result:
 
@@ -574,41 +593,41 @@ __[struct::graph](graph\.md)__\.
     *Note:**WeightedKCenter* is a [3\-approximation
     algorithm\.](#subsection7)
 
-  - <a name='28'></a>__struct::graph::op::GreedyMaxIndependentSet__ *G*
+  - <a name='28'></a>__struct::graph::op::GreedyMaxIndependentSet__ *g*
 
     A *maximal independent set* is an *[independent
     set](\.\./\.\./\.\./\.\./index\.md\#independent\_set)* such that adding any other
     node to the set forces the set to contain an edge\.
 
-    Algorithm for input graph *G* returns set of nodes \(list\), which are
+    Algorithm for input graph *g* returns set of nodes \(list\), which are
     contained in Max Independent Set found by algorithm\.
 
-  - <a name='29'></a>__struct::graph::op::GreedyWeightedMaxIndependentSet__ *G* *nodeWeights*
+  - <a name='29'></a>__struct::graph::op::GreedyWeightedMaxIndependentSet__ *g* *nodeWeights*
 
     Weighted variation of *Maximal Independent Set*\. It takes as an input
-    argument not only graph *G* but also set of weights for all vertices in
-    graph *G*\.
+    argument not only graph *g* but also set of weights for all vertices in
+    graph *g*\.
 
     *Note:* Read also *Maximal Independent Set* description for more info\.
 
-  - <a name='30'></a>__struct::graph::op::VerticesCover__ *G*
+  - <a name='30'></a>__struct::graph::op::VerticesCover__ *g*
 
     *Vertices cover* is a set of vertices such that each edge of the graph is
     incident to at least one vertex of the set\. This 2\-approximation algorithm
     searches for minimum *vertices cover*, which is a classical optimization
     problem in computer science and is a typical example of an *NP\-hard*
     optimization problem that has an approximation algorithm\. For input graph
-    *G* algorithm returns the set of edges \(list\), which is Vertex Cover found
+    *g* algorithm returns the set of edges \(list\), which is Vertex Cover found
     by algorithm\.
 
-  - <a name='31'></a>__struct::graph::op::EdmondsKarp__ *G* *s* *t*
+  - <a name='31'></a>__struct::graph::op::EdmondsKarp__ *g* *s* *t*
 
     Improved Ford\-Fulkerson's algorithm, computing the [maximum
-    flow](#subsection6) in given flow network *G*\.
+    flow](#subsection6) in given flow network *g*\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Weighted and directed graph\. Each edge should have set integer
             attribute considered as maximum throughputs that can be carried by
@@ -616,11 +635,11 @@ __[struct::graph](graph\.md)__\.
 
           + Node *s* \(input\)
 
-            The node that is a source for graph *G*\.
+            The node that is a source for graph *g*\.
 
           + Node *t* \(input\)
 
-            The node that is a sink for graph *G*\.
+            The node that is a sink for graph *g*\.
 
       * Result:
 
@@ -632,28 +651,28 @@ __[struct::graph](graph\.md)__\.
         edge\)\.
 
     The general idea of algorithm is finding the shortest augumenting paths in
-    graph *G*, as long as they exist, and for each path updating the edge's
+    graph *g*, as long as they exist, and for each path updating the edge's
     weights along that path, with maximum possible throughput\. The final
     \(maximum\) flow is found when there is no other augumenting path from source
     to sink\.
 
     *Note:* Algorithm complexity : *O\(V\*E\)*, where *V* is the number of
     nodes and *[E](\.\./\.\./\.\./\.\./index\.md\#e)* is the number of edges in
-    graph *G*\.
+    graph *g*\.
 
-  - <a name='32'></a>__struct::graph::op::BusackerGowen__ *G* *desiredFlow* *s* *t*
+  - <a name='32'></a>__struct::graph::op::BusackerGowen__ *g* *desiredFlow* *s* *t*
 
     Algorithm finds solution for a [minimum cost flow
     problem](#subsection6)\. So, the goal is to find a flow, whose max value
     can be *desiredFlow*, from source node *s* to sink node *t* in given
-    flow network *G*\. That network except throughputs at edges has also
+    flow network *g*\. That network except throughputs at edges has also
     defined a non\-negative cost on each edge \- cost of using that edge when
     directing flow with that edge \( it can illustrate e\.g\. fuel usage, time or
     any other measure dependent on usages \)\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Flow network \(directed graph\), each edge in graph should have two
             integer attributes: *cost* and *throughput*\.
@@ -664,11 +683,11 @@ __[struct::graph](graph\.md)__\.
 
           + Node *s* \(input\)
 
-            The source node for graph *G*\.
+            The source node for graph *g*\.
 
           + Node *t* \(input\)
 
-            The sink node for graph *G*\.
+            The sink node for graph *g*\.
 
       * Result:
 
@@ -676,9 +695,9 @@ __[struct::graph](graph\.md)__\.
         found by algorithm\.
 
     *Note:* Algorithm complexity : *O\(V\*\*2\*desiredFlow\)*, where *V* is the
-    number of nodes in graph *G*\.
+    number of nodes in graph *g*\.
 
-  - <a name='33'></a>__struct::graph::op::ShortestsPathsByBFS__ *G* *s* *outputFormat*
+  - <a name='33'></a>__struct::graph::op::ShortestsPathsByBFS__ *g* *s* *outputFormat*
 
     Shortest pathfinding algorithm using BFS method\. In comparison to
     __struct::graph::op::dijkstra__ it can work with negative weights on
@@ -689,14 +708,14 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Input graph\.
 
           + Node *s* \(input\)
 
             Source node for which all distances to each other node in graph
-            *G* are computed\.
+            *g* are computed\.
 
       * Options and result:
 
@@ -704,7 +723,7 @@ __[struct::graph](graph\.md)__\.
 
             When selected *outputFormat* is __distances__ \- procedure
             returns dictionary containing distances between source node *s*
-            and each other node in graph *G*\.
+            and each other node in graph *g*\.
 
           + __paths__
 
@@ -712,7 +731,7 @@ __[struct::graph](graph\.md)__\.
             dictionary containing for each node *v*, a list of nodes, which is
             a path between source node *s* and node *v*\.
 
-  - <a name='34'></a>__struct::graph::op::BFS__ *G* *s* ?*outputFormat*\.\.\.?
+  - <a name='34'></a>__struct::graph::op::BFS__ *g* *s* ?*outputFormat*\.\.\.?
 
     Breadth\-First Search \- algorithm creates the BFS Tree\. Memory and time
     complexity: *O\(V \+ E\)*, where *V* is the number of nodes and
@@ -720,7 +739,7 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Input graph\.
 
@@ -743,13 +762,13 @@ __[struct::graph](graph\.md)__\.
             \(__[struct::tree](struct\_tree\.md)__\), which is equivalent to
             BFS tree found by algorithm\.
 
-  - <a name='35'></a>__struct::graph::op::MinimumDiameterSpanningTree__ *G*
+  - <a name='35'></a>__struct::graph::op::MinimumDiameterSpanningTree__ *g*
 
-    The goal is to find for input graph *G*, the *spanning tree* that has
+    The goal is to find for input graph *g*, the *spanning tree* that has
     the minimum *[diameter](\.\./\.\./\.\./\.\./index\.md\#diameter)* value\.
 
     General idea of algorithm is to run *[BFS](\.\./\.\./\.\./\.\./index\.md\#bfs)*
-    over all vertices in graph *G*\. If the diameter *d* of the tree is odd,
+    over all vertices in graph *g*\. If the diameter *d* of the tree is odd,
     then we are sure that tree given by *[BFS](\.\./\.\./\.\./\.\./index\.md\#bfs)*
     is minimum \(considering diameter value\)\. When, diameter *d* is even, then
     optimal tree can have minimum
@@ -763,19 +782,19 @@ __[struct::graph](graph\.md)__\.
     *[BFS](\.\./\.\./\.\./\.\./index\.md\#bfs)* with new node as root node\. If the
     height of the tree didn't changed, we have found a better solution\.
 
-    For input graph *G* algorithm returns the graph structure
+    For input graph *g* algorithm returns the graph structure
     \(__[struct::graph](graph\.md)__\) that is a spanning tree with minimum
     diameter found by algorithm\.
 
-  - <a name='36'></a>__struct::graph::op::MinimumDegreeSpanningTree__ *G*
+  - <a name='36'></a>__struct::graph::op::MinimumDegreeSpanningTree__ *g*
 
-    Algorithm finds for input graph *G*, a spanning tree *T* with the
+    Algorithm finds for input graph *g*, a spanning tree *T* with the
     minimum possible degree\. That problem is *NP\-hard*, so algorithm is an
     approximation algorithm\.
 
-    Let *V* be the set of nodes for graph *G* and let *W* be any subset of
+    Let *V* be the set of nodes for graph *g* and let *W* be any subset of
     *V*\. Lets assume also that *OPT* is optimal solution and *ALG* is
-    solution found by algorithm for input graph *G*\.
+    solution found by algorithm for input graph *g*\.
 
     It can be proven that solution found with the algorithm must fulfil
     inequality:
@@ -784,7 +803,7 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Undirected simple graph\.
 
@@ -793,39 +812,39 @@ __[struct::graph](graph\.md)__\.
         Algorithm returns graph structure, which is equivalent to spanning tree
         *T* found by algorithm\.
 
-  - <a name='37'></a>__struct::graph::op::MaximumFlowByDinic__ *G* *s* *t* *blockingFlowAlg*
+  - <a name='37'></a>__struct::graph::op::MaximumFlowByDinic__ *g* *s* *t* *blockingFlowAlg*
 
     Algorithm finds [maximum flow](#subsection6) for the flow network
-    represented by graph *G*\. It is based on the blocking\-flow finding
+    represented by graph *g*\. It is based on the blocking\-flow finding
     methods, which give us different complexities what makes a better fit for
     different graphs\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
-            Directed graph *G* representing the flow network\. Each edge should
+            Directed graph *g* representing the flow network\. Each edge should
             have attribute *throughput* set with integer value\.
 
           + Node *s* \(input\)
 
-            The source node for the flow network *G*\.
+            The source node for the flow network *g*\.
 
           + Node *t* \(input\)
 
-            The sink node for the flow network *G*\.
+            The sink node for the flow network *g*\.
 
       * Options:
 
           + __dinic__
 
-            Procedure will find maximum flow for flow network *G* using
+            Procedure will find maximum flow for flow network *g* using
             Dinic's algorithm \(__struct::graph::op::BlockingFlowByDinic__\)
             for blocking flow computation\.
 
           + __mkm__
 
-            Procedure will find maximum flow for flow network *G* using
+            Procedure will find maximum flow for flow network *g* using
             Malhotra, Kumar and Maheshwari's algorithm
             \(__struct::graph::op::BlockingFlowByMKM__\) for blocking flow
             computation\.
@@ -833,104 +852,104 @@ __[struct::graph](graph\.md)__\.
       * Result:
 
         Algorithm returns dictionary containing it's flow value for each edge
-        \(key\) in network *G*\.
+        \(key\) in network *g*\.
 
     *Note:* __struct::graph::op::BlockingFlowByDinic__ gives *O\(m\*n^2\)*
     complexity and __struct::graph::op::BlockingFlowByMKM__ gives *O\(n^3\)*
     complexity, where *n* is the number of nodes and *m* is the number of
-    edges in flow network *G*\.
+    edges in flow network *g*\.
 
-  - <a name='38'></a>__struct::graph::op::BlockingFlowByDinic__ *G* *s* *t*
+  - <a name='38'></a>__struct::graph::op::BlockingFlowByDinic__ *g* *s* *t*
 
-    Algorithm for given network *G* with source *s* and sink *t*, finds a
+    Algorithm for given network *g* with source *s* and sink *t*, finds a
     [blocking flow](#subsection6), which can be used to obtain a
     *[maximum flow](\.\./\.\./\.\./\.\./index\.md\#maximum\_flow)* for that network
-    *G*\.
+    *g*\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
-            Directed graph *G* representing the flow network\. Each edge should
+            Directed graph *g* representing the flow network\. Each edge should
             have attribute *throughput* set with integer value\.
 
           + Node *s* \(input\)
 
-            The source node for the flow network *G*\.
+            The source node for the flow network *g*\.
 
           + Node *t* \(input\)
 
-            The sink node for the flow network *G*\.
+            The sink node for the flow network *g*\.
 
       * Result:
 
         Algorithm returns dictionary containing it's blocking flow value for
-        each edge \(key\) in network *G*\.
+        each edge \(key\) in network *g*\.
 
     *Note:* Algorithm's complexity is *O\(n\*m\)*, where *n* is the number of
-    nodes and *m* is the number of edges in flow network *G*\.
+    nodes and *m* is the number of edges in flow network *g*\.
 
-  - <a name='39'></a>__struct::graph::op::BlockingFlowByMKM__ *G* *s* *t*
+  - <a name='39'></a>__struct::graph::op::BlockingFlowByMKM__ *g* *s* *t*
 
-    Algorithm for given network *G* with source *s* and sink *t*, finds a
+    Algorithm for given network *g* with source *s* and sink *t*, finds a
     [blocking flow](#subsection6), which can be used to obtain a
     *[maximum flow](\.\./\.\./\.\./\.\./index\.md\#maximum\_flow)* for that
-    *[network](\.\./\.\./\.\./\.\./index\.md\#network)* *G*\.
+    *[network](\.\./\.\./\.\./\.\./index\.md\#network)* *g*\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
-            Directed graph *G* representing the flow network\. Each edge should
+            Directed graph *g* representing the flow network\. Each edge should
             have attribute *throughput* set with integer value\.
 
           + Node *s* \(input\)
 
-            The source node for the flow network *G*\.
+            The source node for the flow network *g*\.
 
           + Node *t* \(input\)
 
-            The sink node for the flow network *G*\.
+            The sink node for the flow network *g*\.
 
       * Result:
 
         Algorithm returns dictionary containing it's blocking flow value for
-        each edge \(key\) in network *G*\.
+        each edge \(key\) in network *g*\.
 
     *Note:* Algorithm's complexity is *O\(n^2\)*, where *n* is the number of
-    nodes in flow network *G*\.
+    nodes in flow network *g*\.
 
-  - <a name='40'></a>__struct::graph::op::createResidualGraph__ *G* *f*
+  - <a name='40'></a>__struct::graph::op::createResidualGraph__ *g* *f*
 
     Procedure creates a *[residual
     graph](\.\./\.\./\.\./\.\./index\.md\#residual\_graph)* \(or [residual
-    network](#subsection6) \) for network *G* and given flow *f*\.
+    network](#subsection6) \) for network *g* and given flow *f*\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Flow network \(directed graph where each edge has set attribute:
             *throughput* \)\.
 
           + dictionary *f* \(input\)
 
-            Current flows in flow network *G*\.
+            Current flows in flow network *g*\.
 
       * Result:
 
         Procedure returns graph structure that is a *[residual
         graph](\.\./\.\./\.\./\.\./index\.md\#residual\_graph)* created from input flow
-        network *G*\.
+        network *g*\.
 
-  - <a name='41'></a>__struct::graph::op::createAugmentingNetwork__ *G* *f* *path*
+  - <a name='41'></a>__struct::graph::op::createAugmentingNetwork__ *g* *f* *path*
 
     Procedure creates an [augmenting network](#subsection6) for a given
-    residual network *G* , flow *f* and augmenting path *path*\.
+    residual network *g* , flow *f* and augmenting path *path*\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Residual network \(directed graph\), where for every edge there are
             set two attributes: throughput and cost\.
@@ -972,7 +991,7 @@ __[struct::graph](graph\.md)__\.
         graph](\.\./\.\./\.\./\.\./index\.md\#level\_graph)* created from input
         *residual network*\.
 
-  - <a name='43'></a>__struct::graph::op::TSPLocalSearching__ *G* *C*
+  - <a name='43'></a>__struct::graph::op::TSPLocalSearching__ *g* *C*
 
     Algorithm is a *heuristic of local searching* for *Travelling Salesman
     Problem*\. For some solution of *TSP problem*, it checks if it's possible
@@ -981,7 +1000,7 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Undirected and complete graph with attributes "weight" set on each
             single edge\.
@@ -989,7 +1008,7 @@ __[struct::graph](graph\.md)__\.
           + List *C* \(input\)
 
             A list of edges being *Hamiltonian cycle*, which is solution of
-            *TSP Problem* for graph *G*\.
+            *TSP Problem* for graph *g*\.
 
       * Result:
 
@@ -1001,7 +1020,7 @@ __[struct::graph](graph\.md)__\.
     but practise shows that we should give starting cycle with as small sum of
     weights as possible\.
 
-  - <a name='44'></a>__struct::graph::op::TSPLocalSearching3Approx__ *G* *C*
+  - <a name='44'></a>__struct::graph::op::TSPLocalSearching3Approx__ *g* *C*
 
     Algorithm is a *heuristic of local searching* for *Travelling Salesman
     Problem*\. For some solution of *TSP problem*, it checks if it's possible
@@ -1010,7 +1029,7 @@ __[struct::graph](graph\.md)__\.
 
       * Arguments:
 
-          + Graph Object *G* \(input\)
+          + Graph Object *g* \(input\)
 
             Undirected and complete graph with attributes "weight" set on each
             single edge\.
@@ -1018,7 +1037,7 @@ __[struct::graph](graph\.md)__\.
           + List *C* \(input\)
 
             A list of edges being *Hamiltonian cycle*, which is solution of
-            *TSP Problem* for graph *G*\.
+            *TSP Problem* for graph *g*\.
 
       * Result:
 
@@ -1031,23 +1050,23 @@ __[struct::graph](graph\.md)__\.
     enough boost to square the increase of approximation factor, so 2 and 3
     approximations are mainly used\.
 
-  - <a name='45'></a>__struct::graph::op::createSquaredGraph__ *G*
+  - <a name='45'></a>__struct::graph::op::createSquaredGraph__ *g*
 
-    X\-Squared graph is a graph with the same set of nodes as input graph *G*,
+    X\-Squared graph is a graph with the same set of nodes as input graph *g*,
     but a different set of edges\. X\-Squared graph has edge *\(u,v\)*, if and
     only if, the distance between *u* and *v* nodes is not greater than X
     and *u \!= v*\.
 
-    Procedure for input graph *G*, returns its two\-squared graph\.
+    Procedure for input graph *g*, returns its two\-squared graph\.
 
     *Note:* Distances used in choosing new set of edges are considering the
     number of edges, not the sum of weights at edges\.
 
-  - <a name='46'></a>__struct::graph::op::createCompleteGraph__ *G* *originalEdges*
+  - <a name='46'></a>__struct::graph::op::createCompleteGraph__ *g* *originalEdges*
 
-    For input graph *G* procedure adds missing arcs to make it a *[complete
+    For input graph *g* procedure adds missing arcs to make it a *[complete
     graph](\.\./\.\./\.\./\.\./index\.md\#complete\_graph)*\. It also holds in variable
-    *originalEdges* the set of arcs that graph *G* possessed before that
+    *originalEdges* the set of arcs that graph *g* possessed before that
     operation\.
 
 # <a name='section3'></a>Background theory and terms
@@ -1245,7 +1264,7 @@ __[struct::graph](graph\.md)__\.
 
         The variation of *unweighted k\-center problem*\. Besides the fact graph
         is edge\-weighted, there are also weights on vertices of input graph
-        *G*\. We've got also restriction *W*\. The goal is to choose such set
+        *g*\. We've got also restriction *W*\. The goal is to choose such set
         of nodes *S* \( which is a subset of *V* \), that it's total weight is
         not greater than *W* and also function: *max\_v \{ min\_u \{ cost\(u,v\)
         \}\}* has the smallest possible worth \( *v* is a node in *V* and

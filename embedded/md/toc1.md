@@ -849,7 +849,7 @@
 
           + [struct::graph](tcllib/files/modules/struct/graph\.md) Create and manipulate directed graph objects
 
-          + [struct::graph::op](tcllib/files/modules/struct/graphops\.md) Operation for \(un\)directed graph objects
+          + [struct::graph::op](tcllib/files/modules/struct/graphops\.md) Operations for directed and undirected graph objects
 
           + [struct::graph\_v1](tcllib/files/modules/struct/graph1\.md) Create and manipulate directed graph objects
 

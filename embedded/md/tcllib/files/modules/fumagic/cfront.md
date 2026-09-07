@@ -1,7 +1,7 @@
 
 [//000000001]: # (fileutil::magic::cfront \- file utilities)
 [//000000002]: # (Generated from file 'cfront\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (fileutil::magic::cfront\(n\) 1\.3\.2 tcllib "file utilities")
+[//000000003]: # (fileutil::magic::cfront\(n\) 1\.3\.3 tcllib "file utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,14 +35,15 @@ fileutil::magic::cfront \- Generator core for compiler of magic\(5\) files
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require fileutil::magic::cfront ?1\.3\.2?  
+package require fileutil::magic::cfront ?1\.3\.3?  
 package require fileutil::magic::cgen ?1\.2\.0?  
 package require fileutil::magic::rt ?1\.2\.0?  
 package require struct::list  
 package require fileutil  
 
 [__::fileutil::magic::cfront::compile__ *path*\.\.\.](#1)  
-[__::fileutil::magic::cfront::procdef__ *procname* *path*\.\.\.](#2)  
+[__::fileutil::magic::cfront::generate__ ?*compressed*
+        __boolean__? \-\- *path*\.\.\.](#2)  
 [__::fileutil::magic::cfront::install__ *path*\.\.\.](#3)  
 
 # <a name='description'></a>DESCRIPTION
@@ -67,22 +68,26 @@ __[fileutil::magic::cgen](cgen\.md)__\.
     The result of the command is a Tcl script containing the generated
     recognizer\.
 
-  - <a name='2'></a>__::fileutil::magic::cfront::procdef__ *procname* *path*\.\.\.
+  - <a name='2'></a>__::fileutil::magic::cfront::generate__ ?*compressed*
+            __boolean__? \-\- *path*\.\.\.
 
     This command behaves like __::fileutil::magic::cfront::compile__ with
     regard to the specified path arguments, then wraps the resulting recognizer
-    script into a procedure named *procname*, puts code setting up the
-    namespace of *procname* in front, and returns the resulting script\.
+    script into a variable named __named__ and a procedure named
+    __analyzer__, and returns the resulting script\.
+
+    Argument *compressed* defaults to __boolean__ __true__, meaning
+    that whitespace is minimised in the script that the command returns\.
+
+    The argument *\-\-* is always required\.
 
   - <a name='3'></a>__::fileutil::magic::cfront::install__ *path*\.\.\.
 
-    This command uses __::fileutil::magic::cfront::procdef__ to compile each
-    of the paths into a recognizer procedure and installs the result in the
-    current interpreter\.
-
-    The name of each new procedure is derived from the name of the
-    file/directory used in its creation, with file/directory "FOO" causing the
-    creation of procedure __::fileutil::magic::/FOO::run__\.
+    This command behaves like __::fileutil::magic::cfront::compile__ with
+    regard to the specified path arguments\. It uses
+    __::fileutil::magic::cfront::generate__ to compile a recognizer script,
+    and evaluates this script in the current interpreter so that it will be used
+    by command __::fileutil::magic::filetype__\.
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 

@@ -23,7 +23,7 @@ lambda \- Utility commands for anonymous procedures
 
   - [Description](#section1)
 
-  - [Commands](#section2)
+  - [API](#section2)
 
   - [Examples](#section3)
 
@@ -86,7 +86,7 @@ or
 Lambdas are particularly useful for commands that accept a __\-command__
 option\.
 
-# <a name='section2'></a>Commands
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::lambda__ *arguments* *body* ?*arg \.\.\.*?
 

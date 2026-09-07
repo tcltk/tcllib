@@ -293,6 +293,7 @@ This package provides a Tcl-only implementation of the
 \fI\fBuuencode(1p)\fR\fR [https://www\&.man7\&.org/linux/man-pages/man1/uuencode\&.1p\&.html] and
 \fI\fBuudecode(1p)\fR\fR [https://www\&.man7\&.org/linux/man-pages/man1/uudecode\&.1p\&.html] commands\&.
 This encoding packs binary data into printable 7-bit ASCII characters\&.
+.SH API
 .TP
 \fB::uuencode::encode\fR \fIbstring\fR
 Returns a uuencoded version of the binary string \fIbstring\fR as

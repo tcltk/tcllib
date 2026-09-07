@@ -117,12 +117,15 @@
 <ul class="doctools_toc">
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
-<li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Beware: Variations in decoding behaviour</a></li>
-<li class="doctools_section"><a href="#section3">API</a></li>
-<li class="doctools_section"><a href="#section4">Implementation Notes</a></li>
-<li class="doctools_section"><a href="#section5">EXAMPLES</a></li>
-<li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section1">Description</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Beware: Variations in decoding behaviour</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Implementation Notes</a></li>
+<li class="doctools_section"><a href="#section4">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -148,8 +151,7 @@ to and from the standard base64 encoding as specified in
 <a href="https://www.tcl-lang.org/man/tcl/TclCmd/binary.html">binary</a>
 <em>subcommands for encoding and decoding base64 (introduced in Tcl
 8.6), are used in preference to this package’s commands.</em></p>
-</div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Beware: Variations in decoding behaviour</a></h2>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Beware: Variations in decoding behaviour</a></h3>
 <p>Tcl 8.6 introduced built-in support for encoding and decoding base64
 using subcommands of the
 <a href="https://www.tcl-lang.org/man/tcl/TclCmd/binary.html">binary</a> command:</p>
@@ -177,7 +179,8 @@ characters of output. The built-in
 subcommand defaults to not wrapping, but does support wrapping using a
 <b class="option">-maxlen</b> option.</p>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::base64::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">bstring</i></a></dt>
 <dd><p>Returns a base64-encoded version of the binary string <i class="arg">bstring</i> as
@@ -195,12 +198,12 @@ containing only 7-bit ASCII.</p></dd>
 newlines) in <i class="arg">estring</i> are ignored.</p></dd>
 </dl>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">Implementation Notes</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Implementation Notes</a></h2>
 <p>This package contains three different implementations for base64
 encoding and decoding, and chooses among them based on the environment
 it finds itself in.</p>
 <p>All three implementations have the same behaviour.
-See also <span class="sectref"><a href="#section2">Beware: Variations in decoding behaviour</a></span> at the
+See also <span class="sectref"><a href="#subsection1">Beware: Variations in decoding behaviour</a></span> at the
 beginning of this document.</p>
 <ol class="doctools_enumerated">
 <li><p>If Tcl 8.6 or higher is found the commands are implemented in
@@ -211,7 +214,7 @@ beginning of this document.</p>
 	is used. This is much slower.</p></li>
 </ol>
 </div>
-<div id="section5" class="doctools_section"><h2><a name="section5">EXAMPLES</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">EXAMPLES</a></h2>
 <p>This example shows how to encode and decode a Tcl string to and from
 base64, taking account of the fact that the base64 commands work in
 terms of binary strings.</p>
@@ -270,7 +273,7 @@ eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
 subcommand defaults to not wrapping, but will wrap if the
 <b class="option">-maxlen</b> option is used.</p>
 </div>
-<div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

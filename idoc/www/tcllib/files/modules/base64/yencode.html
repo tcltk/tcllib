@@ -117,14 +117,15 @@
 <ul class="doctools_toc">
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
-<li class="doctools_section"><a href="#section1">Description</a>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">API</a>
 <ul>
 <li class="doctools_subsection"><a href="#subsection1">Options</a></li>
 </ul>
 </li>
-<li class="doctools_section"><a href="#section2">Examples</a></li>
-<li class="doctools_section"><a href="#section3">References</a></li>
-<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">References</a></li>
+<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -150,6 +151,8 @@ encoding used for Usenet messages. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
 escapes characters special to the <i class="term"><a href="../../../../index.html#nntp">NNTP</a></i> posting protocols. See
 <a href="http://www.yenc.org">http://www.yenc.org</a> for the encoding’s details.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::yencode::encode</b> <i class="arg">bstring</i></a></dt>
 <dd><p>Returns a yEncoded version of the binary string <i class="arg">bstring</i> as
@@ -201,7 +204,7 @@ false value for <i class="arg">boolean</i>, e.g., <b class="const">0</b>.</p></d
 </dl>
 </div>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Examples</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
 <p><em>The yEncoded data is not shown in the examples because it is just
 raw bytes.</em></p>
 <p>This example shows how to yEncode and yEncode-decode a Tcl string, taking
@@ -252,12 +255,12 @@ foreach lst [::yencode::ydecode $ency] {
 name=test.y size=23 line='Δ&divide; “Utf-8” ♞ℤ'
 </pre>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">References</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">References</a></h2>
 <ol class="doctools_enumerated">
 <li><p><a href="http://www.yenc.org/yenc-draft.1.3.txt">http://www.yenc.org/yenc-draft.1.3.txt</a></p></li>
 </ol>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

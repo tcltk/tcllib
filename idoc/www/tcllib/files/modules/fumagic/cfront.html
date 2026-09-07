@@ -107,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">fileutil::magic::cfront(n) 1.3.2 tcllib &quot;file utilities&quot;</h1>
+<h1 class="doctools_title">fileutil::magic::cfront(n) 1.3.3 tcllib &quot;file utilities&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>fileutil::magic::cfront - Generator core for compiler of magic(5) files</p>
 </div>
@@ -127,7 +127,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5 9</b></li>
-<li>package require <b class="pkgname">fileutil::magic::cfront <span class="opt">?1.3.2?</span></b></li>
+<li>package require <b class="pkgname">fileutil::magic::cfront <span class="opt">?1.3.3?</span></b></li>
 <li>package require <b class="pkgname">fileutil::magic::cgen <span class="opt">?1.2.0?</span></b></li>
 <li>package require <b class="pkgname">fileutil::magic::rt <span class="opt">?1.2.0?</span></b></li>
 <li>package require <b class="pkgname">struct::list</b></li>
@@ -135,7 +135,8 @@
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::fileutil::magic::cfront::compile</b> <i class="arg">path</i>...</a></li>
-<li><a href="#2"><b class="cmd">::fileutil::magic::cfront::procdef</b> <i class="arg">procname</i> <i class="arg">path</i>...</a></li>
+<li><a href="#2"><b class="cmd">::fileutil::magic::cfront::generate</b> <span class="opt">?<i class="arg">compressed</i>
+        <b class="const">boolean</b>?</span> -- <i class="arg">path</i>...</a></li>
 <li><a href="#3"><b class="cmd">::fileutil::magic::cfront::install</b> <i class="arg">path</i>...</a></li>
 </ul>
 </div>
@@ -157,19 +158,22 @@ is a list of analyzer commands.</p>
 <p>All the files have to be in the format specified by magic(5).</p>
 <p>The result of the command is a Tcl script containing the generated
 recognizer.</p></dd>
-<dt><a name="2"><b class="cmd">::fileutil::magic::cfront::procdef</b> <i class="arg">procname</i> <i class="arg">path</i>...</a></dt>
+<dt><a name="2"><b class="cmd">::fileutil::magic::cfront::generate</b> <span class="opt">?<i class="arg">compressed</i>
+        <b class="const">boolean</b>?</span> -- <i class="arg">path</i>...</a></dt>
 <dd><p>This command behaves like <b class="cmd">::fileutil::magic::cfront::compile</b>
 with regard to the specified path arguments, then wraps the resulting
-recognizer script into a procedure named <i class="arg">procname</i>, puts code
-setting up the namespace of <i class="arg">procname</i> in front, and returns the
-resulting script.</p></dd>
+recognizer script into a variable named <b class="const">named</b> and a procedure
+named <b class="const">analyzer</b>, and returns the resulting script.</p>
+<p>Argument <i class="arg">compressed</i> defaults to <b class="const">boolean</b> <b class="const">true</b>,
+meaning that whitespace is minimised in the script that the command
+returns.</p>
+<p>The argument <i class="arg">--</i> is always required.</p></dd>
 <dt><a name="3"><b class="cmd">::fileutil::magic::cfront::install</b> <i class="arg">path</i>...</a></dt>
-<dd><p>This command uses <b class="cmd">::fileutil::magic::cfront::procdef</b> to compile
-each of the paths into a recognizer procedure and installs the result
-in the current interpreter.</p>
-<p>The name of each new procedure is derived from the name of the
-file/directory used in its creation, with file/directory &quot;<b class="file">FOO</b>&quot;
-causing the creation of procedure <b class="const">::fileutil::magic::/FOO::run</b>.</p></dd>
+<dd><p>This command behaves like <b class="cmd">::fileutil::magic::cfront::compile</b>
+with regard to the specified path arguments.  It uses
+<b class="cmd">::fileutil::magic::cfront::generate</b> to compile a recognizer
+script, and evaluates this script in the current interpreter so that
+it will be used by command <b class="cmd">::fileutil::magic::filetype</b>.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>

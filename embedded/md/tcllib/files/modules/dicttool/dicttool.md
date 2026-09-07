@@ -23,7 +23,9 @@ dicttool \- Dictionary Tools
 
   - [Description](#section1)
 
-  - [Bugs, Ideas, Feedback](#section2)
+  - [API](#section2)
+
+  - [Bugs, Ideas, Feedback](#section3)
 
   - [Keywords](#keywords)
 
@@ -50,6 +52,8 @@ This package enhances the built\-in
 several new commands\. In addition, the package also defines several convenient
 list commands\. \(Each command only adds itself if a command of the same name
 doesn’t already exist, in case any of these are added to the core\.\)
+
+# <a name='section2'></a>API
 
   - <a name='1'></a>__ladd__ *dictVar* ?*key value \.\.\.*?
 
@@ -129,7 +133,7 @@ doesn’t already exist, in case any of these are added to the core\.\)
     __dict merge__ subcommand had been used above, the *fruit* item’s
     *default* key\-value entry would have been lost\.
 
-# <a name='section2'></a>Bugs, Ideas, Feedback
+# <a name='section3'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

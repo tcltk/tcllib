@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-struct::graph::op \- Operation for (un)directed graph objects
+struct::graph::op \- Operations for directed and undirected graph objects
 .SH SYNOPSIS
 package require \fBTcl 8\&.6 9\fR
 .sp
@@ -282,365 +282,380 @@ package require \fBstruct::graph::op ?0\&.11\&.4?\fR
 .sp
 \fBstruct::graph::op::toAdjacencyMatrix\fR \fIg\fR
 .sp
-\fBstruct::graph::op::toAdjacencyList\fR \fIG\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::toAdjacencyList\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
 \fBstruct::graph::op::kruskal\fR \fIg\fR
 .sp
 \fBstruct::graph::op::prim\fR \fIg\fR
 .sp
-\fBstruct::graph::op::isBipartite?\fR \fIg\fR ?\fIbipartvar\fR?
+\fBstruct::graph::op::isBipartite?\fR \fIg\fR ?\fIpartitions\fR?
 .sp
 \fBstruct::graph::op::tarjan\fR \fIg\fR
 .sp
 \fBstruct::graph::op::connectedComponents\fR \fIg\fR
 .sp
-\fBstruct::graph::op::connectedComponentOf\fR \fIg\fR \fIn\fR
+\fBstruct::graph::op::connectedComponentOf\fR \fIg\fR \fInode\fR
 .sp
 \fBstruct::graph::op::isConnected?\fR \fIg\fR
 .sp
-\fBstruct::graph::op::isCutVertex?\fR \fIg\fR \fIn\fR
+\fBstruct::graph::op::isCutVertex?\fR \fIg\fR \fInode\fR
 .sp
-\fBstruct::graph::op::isBridge?\fR \fIg\fR \fIa\fR
+\fBstruct::graph::op::isBridge?\fR \fIg\fR \fIarc\fR
 .sp
 \fBstruct::graph::op::isEulerian?\fR \fIg\fR ?\fItourvar\fR?
 .sp
 \fBstruct::graph::op::isSemiEulerian?\fR \fIg\fR ?\fIpathvar\fR?
 .sp
-\fBstruct::graph::op::dijkstra\fR \fIg\fR \fIstart\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::dijkstra\fR \fIg\fR \fIstart_node\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fBstruct::graph::op::distance\fR \fIg\fR \fIorigin\fR \fIdestination\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::distance\fR \fIg\fR \fIstart_node\fR \fIend_node\fR ?-arcmode \fImode\fR?
 .sp
-\fBstruct::graph::op::eccentricity\fR \fIg\fR \fIn\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::eccentricity\fR \fIg\fR \fInode\fR ?-arcmode \fImode\fR?
 .sp
-\fBstruct::graph::op::radius\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::radius\fR \fIg\fR ?-arcmode \fImode\fR?
 .sp
-\fBstruct::graph::op::diameter\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::diameter\fR \fIg\fR ?-arcmode \fImode\fR?
 .sp
-\fBstruct::graph::op::BellmanFord\fR \fIG\fR \fIstartnode\fR
+\fBstruct::graph::op::BellmanFord\fR \fIg\fR \fIstartnode\fR
 .sp
-\fBstruct::graph::op::Johnsons\fR \fIG\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::Johnsons\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fBstruct::graph::op::FloydWarshall\fR \fIG\fR
+\fBstruct::graph::op::FloydWarshall\fR \fIg\fR
 .sp
-\fBstruct::graph::op::MetricTravellingSalesman\fR \fIG\fR
+\fBstruct::graph::op::MetricTravellingSalesman\fR \fIg\fR
 .sp
-\fBstruct::graph::op::Christofides\fR \fIG\fR
+\fBstruct::graph::op::Christofides\fR \fIg\fR
 .sp
-\fBstruct::graph::op::GreedyMaxMatching\fR \fIG\fR
+\fBstruct::graph::op::GreedyMaxMatching\fR \fIg\fR
 .sp
-\fBstruct::graph::op::MaxCut\fR \fIG\fR \fIU\fR \fIV\fR
+\fBstruct::graph::op::MaxCut\fR \fIg\fR \fIU\fR \fIV\fR
 .sp
-\fBstruct::graph::op::UnweightedKCenter\fR \fIG\fR \fIk\fR
+\fBstruct::graph::op::UnweightedKCenter\fR \fIg\fR \fIk\fR
 .sp
-\fBstruct::graph::op::WeightedKCenter\fR \fIG\fR \fInodeWeights\fR \fIW\fR
+\fBstruct::graph::op::WeightedKCenter\fR \fIg\fR \fInodeWeights\fR \fIW\fR
 .sp
-\fBstruct::graph::op::GreedyMaxIndependentSet\fR \fIG\fR
+\fBstruct::graph::op::GreedyMaxIndependentSet\fR \fIg\fR
 .sp
-\fBstruct::graph::op::GreedyWeightedMaxIndependentSet\fR \fIG\fR \fInodeWeights\fR
+\fBstruct::graph::op::GreedyWeightedMaxIndependentSet\fR \fIg\fR \fInodeWeights\fR
 .sp
-\fBstruct::graph::op::VerticesCover\fR \fIG\fR
+\fBstruct::graph::op::VerticesCover\fR \fIg\fR
 .sp
-\fBstruct::graph::op::EdmondsKarp\fR \fIG\fR \fIs\fR \fIt\fR
+\fBstruct::graph::op::EdmondsKarp\fR \fIg\fR \fIs\fR \fIt\fR
 .sp
-\fBstruct::graph::op::BusackerGowen\fR \fIG\fR \fIdesiredFlow\fR \fIs\fR \fIt\fR
+\fBstruct::graph::op::BusackerGowen\fR \fIg\fR \fIdesiredFlow\fR \fIs\fR \fIt\fR
 .sp
-\fBstruct::graph::op::ShortestsPathsByBFS\fR \fIG\fR \fIs\fR \fIoutputFormat\fR
+\fBstruct::graph::op::ShortestsPathsByBFS\fR \fIg\fR \fIs\fR \fIoutputFormat\fR
 .sp
-\fBstruct::graph::op::BFS\fR \fIG\fR \fIs\fR ?\fIoutputFormat\fR\&.\&.\&.?
+\fBstruct::graph::op::BFS\fR \fIg\fR \fIs\fR ?\fIoutputFormat\fR\&.\&.\&.?
 .sp
-\fBstruct::graph::op::MinimumDiameterSpanningTree\fR \fIG\fR
+\fBstruct::graph::op::MinimumDiameterSpanningTree\fR \fIg\fR
 .sp
-\fBstruct::graph::op::MinimumDegreeSpanningTree\fR \fIG\fR
+\fBstruct::graph::op::MinimumDegreeSpanningTree\fR \fIg\fR
 .sp
-\fBstruct::graph::op::MaximumFlowByDinic\fR \fIG\fR \fIs\fR \fIt\fR \fIblockingFlowAlg\fR
+\fBstruct::graph::op::MaximumFlowByDinic\fR \fIg\fR \fIs\fR \fIt\fR \fIblockingFlowAlg\fR
 .sp
-\fBstruct::graph::op::BlockingFlowByDinic\fR \fIG\fR \fIs\fR \fIt\fR
+\fBstruct::graph::op::BlockingFlowByDinic\fR \fIg\fR \fIs\fR \fIt\fR
 .sp
-\fBstruct::graph::op::BlockingFlowByMKM\fR \fIG\fR \fIs\fR \fIt\fR
+\fBstruct::graph::op::BlockingFlowByMKM\fR \fIg\fR \fIs\fR \fIt\fR
 .sp
-\fBstruct::graph::op::createResidualGraph\fR \fIG\fR \fIf\fR
+\fBstruct::graph::op::createResidualGraph\fR \fIg\fR \fIf\fR
 .sp
-\fBstruct::graph::op::createAugmentingNetwork\fR \fIG\fR \fIf\fR \fIpath\fR
+\fBstruct::graph::op::createAugmentingNetwork\fR \fIg\fR \fIf\fR \fIpath\fR
 .sp
 \fBstruct::graph::op::createLevelGraph\fR \fIGf\fR \fIs\fR
 .sp
-\fBstruct::graph::op::TSPLocalSearching\fR \fIG\fR \fIC\fR
+\fBstruct::graph::op::TSPLocalSearching\fR \fIg\fR \fIC\fR
 .sp
-\fBstruct::graph::op::TSPLocalSearching3Approx\fR \fIG\fR \fIC\fR
+\fBstruct::graph::op::TSPLocalSearching3Approx\fR \fIg\fR \fIC\fR
 .sp
-\fBstruct::graph::op::createSquaredGraph\fR \fIG\fR
+\fBstruct::graph::op::createSquaredGraph\fR \fIg\fR
 .sp
-\fBstruct::graph::op::createCompleteGraph\fR \fIG\fR \fIoriginalEdges\fR
+\fBstruct::graph::op::createCompleteGraph\fR \fIg\fR \fIoriginalEdges\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The package described by this document, \fBstruct::graph::op\fR,
-is a companion to the package \fBstruct::graph\fR\&. It provides a
-series of common operations and algorithms applicable to (un)directed
-graphs\&.
+This package, \fBstruct::graph::op\fR, is a companion to the
+\fBstruct::graph\fR package\&. It provides a series of common
+operations and algorithms applicable to directed or undirected graphs\&.
 .PP
-Despite being a companion the package is not directly dependent on
-\fBstruct::graph\fR, only on the API defined by that
-package\&. I\&.e\&. the operations of this package can be applied to any and
-all graph objects which provide the same API as the objects created
-through \fBstruct::graph\fR\&.
+The operations provided by this package can be applied to \fIany\fR
+graph objects which provide the same API as the objects created by
+\fBstruct::graph\fR\&. Therefore this package is not directly
+dependent on \fBstruct::graph\fR\&.
 .SH OPERATIONS
 .TP
 \fBstruct::graph::op::toAdjacencyMatrix\fR \fIg\fR
-This command takes the graph \fIg\fR and returns a nested list
-containing the adjacency matrix of \fIg\fR\&.
+Returns the adjacency matrix for the graph \fIg\fR\&.
 .sp
-The elements of the outer list are the rows of the matrix, the inner
-elements are the column values in each row\&. The matrix has "\fBn\fR+1"
-rows and columns, with the first row and column (index 0) containing
-the name of the node the row/column is for\&. All other elements are
-boolean values, \fBTrue\fR if there is an arc between the 2 nodes
-of the respective row and column, and \fBFalse\fR otherwise\&.
+The elements of the outer list are the matrix’s rows, the inner elements
+are each row’s column values\&. The matrix has \fI\fBn\fR+1\fR rows and
+columns, with the first row and column (index 0) containing the name of
+the node the row/column is for\&. All other elements are Boolean values,
+\fB1\fR (true) if there is an arc between the two nodes of the
+respective row and column, and \fB0\fR (false) otherwise\&.
 .sp
-Note that the matrix is symmetric\&. It does not represent the
-directionality of arcs, only their presence between nodes\&. It is also
-unable to represent parallel arcs in \fIg\fR\&.
+Note that the matrix is symmetric\&. It does \fInot\fR represent the
+directionality of the arcs, only their presence (or absence) between
+nodes\&. It is also unable to represent parallel arcs in \fIg\fR\&.
 .TP
-\fBstruct::graph::op::toAdjacencyList\fR \fIG\fR ?\fIoptions\fR\&.\&.\&.?
-Procedure creates for input graph \fIG\fR, it's representation as \fIAdjacency List\fR\&.
-It handles both directed and undirected graphs (default is undirected)\&.
-It returns dictionary that for each node (key) returns list of nodes adjacent
-to it\&. When considering weighted version, for each adjacent node there is also
-weight of the edge included\&.
+\fBstruct::graph::op::toAdjacencyList\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
+Returns an \fIadjacency list\fR for the graph \fIg\fR\&. Each list
+element is a \fBdict\fR whose key is a node and whose value is a list
+of the node’s adjacent nodes\&. If \fB-weights\fR is used each of the
+value list’s elements is itself a two-element list of node and weight\&.
 .sp
 .RS
 .TP
 Arguments:
 .RS
 .TP
-Graph object \fIG\fR (input)
-A graph to convert into an \fIAdjacency List\fR\&.
+Graph object \fIg\fR
+A graph to convert into an \fIadjacency list\fR\&.
 .RE
 .TP
 Options:
 .RS
 .TP
 \fB-directed\fR
-By default \fIG\fR is operated as if it were an \fIUndirected graph\fR\&.
-Using this option tells the command to handle \fIG\fR as the directed graph it is\&.
+By default the graph \fIg\fR is treated as if it were an
+\fIundirected graph\fR\&. Use this option to make the command handle
+\fIg\fR as a directed graph\&.
 .TP
 \fB-weights\fR
-By default any weight information the graph \fIG\fR may have is ignored\&.
-Using this option tells the command to put weight information into the result\&.
-In that case it is expected that all arcs have a proper weight, and an error
-is thrown if that is not the case\&.
+By default the graph \fIg\fR’s weight information (if any) is ignored\&.
+Use this option to make the command include any weight information in
+the result\&.
+.sp
+Using this option assumes that every arc in graph \fIg\fR has an
+associated weight; if this is not the case an error will be thrown\&.
 .RE
 .RE
 .TP
 \fBstruct::graph::op::kruskal\fR \fIg\fR
-This command takes the graph \fIg\fR and returns a list containing the
-names of the arcs in \fIg\fR which span up a minimum weight spanning tree
-(MST), or, in the case of an un-connected graph, a minimum weight spanning
-forest (except for the 1-vertex components)\&. Kruskal's algorithm is used
-to compute the tree or forest\&.
-This algorithm has a time complexity of \fIO(E*log E)\fR or \fIO(E* log V)\fR,
-where \fIV\fR is the number of vertices and \fIE\fR is the number of edges
-in graph \fIg\fR\&.
+Returns a list of arc names in graph \fIg\fR as determined by Kruskal’s
+algorithm\&.
 .sp
-The command will throw an error if one or more arcs in \fIg\fR have no
-weight associated with them\&.
+For a connected graph, the arcs are those which span a minimum spanning
+tree (MST)\&. For a disconnected graph the arcs are those of a minimum
+spanning forest (which itself is composed of an MST for each connected
+component; excluding single vertex components)\&.
 .sp
-A note regarding the result, the command refrains from explicitly
-listing the nodes of the MST as this information is implicitly
-provided in the arcs already\&.
+The algorithm’s time complexity is \fIO(E*log E)\fR or
+\fIO(E*log V)\fR, where \fIV\fR is the number of vertices and
+\fIE\fR is the number of edges in graph \fIg\fR\&. Note that Prim’s
+algorithm may produce different results if there is more than one
+possible MST\&.
+.sp
+To find the nodes each returned arc connects, use the graph’s
+\fBarc nodes\fR method on each arc\&.
+.sp
+The command will throw an error if any of graph \fIg\fR’s arcs has no
+associated weight\&.
 .TP
 \fBstruct::graph::op::prim\fR \fIg\fR
-This command takes the graph \fIg\fR and returns a list containing the
-names of the arcs in \fIg\fR which span up a minimum weight spanning tree
-(MST), or, in the case of an un-connected graph, a minimum weight spanning
-forest (except for the 1-vertex components)\&. Prim's algorithm is used to
-compute the tree or forest\&.
-This algorithm has a time complexity between \fIO(E+V*log V)\fR and \fIO(V*V)\fR,
-depending on the implementation (Fibonacci heap + Adjacency list versus
-Adjacency Matrix)\&.  As usual \fIV\fR is the number of vertices and
-\fIE\fR the number of edges in graph \fIg\fR\&.
+Returns a list of arc names in graph \fIg\fR as determined by Prim’s
+algorithm\&.
 .sp
-The command will throw an error if one or more arcs in \fIg\fR have no
-weight associated with them\&.
+For a connected graph, the arcs are those which span a minimum spanning
+tree (MST)\&. For a disconnected graph the arcs are those of a minimum
+spanning forest (which itself is composed of an MST for each connected
+component; excluding single vertex components)\&.
 .sp
-A note regarding the result, the command refrains from explicitly
-listing the nodes of the MST as this information is implicitly
-provided in the arcs already\&.
+This algorithm has a time complexity between \fIO(E+V*log V)\fR and
+\fIO(V*V)\fR, depending on the implementation (Fibonacci heap and
+adjacency list versus adjacency matrix), where \fIV\fR is the number of
+vertices and \fIE\fR is the number of edges in graph \fIg\fR\&. Note that
+Kruskal’s algorithm may produce different results if there is more than
+one possible MST\&.
+.sp
+To find the nodes each returned arc connects, use the graph’s
+\fBarc nodes\fR method on each arc\&.
+.sp
+The command will throw an error if any of graph \fIg\fR’s arcs has no
+associated weight\&.
 .TP
-\fBstruct::graph::op::isBipartite?\fR \fIg\fR ?\fIbipartvar\fR?
-This command takes the graph \fIg\fR and returns a boolean value
-indicating whether it is bipartite (\fBtrue\fR) or not
-(\fBfalse\fR)\&. If the variable \fIbipartvar\fR is specified the two
-partitions of the graph are there as a list, if, and only if the graph
-is bipartit\&. If it is not the variable, if specified, is not touched\&.
+\fBstruct::graph::op::isBipartite?\fR \fIg\fR ?\fIpartitions\fR?
+Returns \fB1\fR (true) if graph \fIg\fR is bipartite; otherwise
+returns \fB0\fR (false)\&.
+.sp
+If the optional \fIpartitions\fR variable name is given \fIand\fR graph
+\fIg\fR is bipartite, then \fIpartitions\fR is created if it doesn’t
+exist, then it is set to the list of the two partitions\&. If graph
+\fIg\fR is not bipartite, \fIpartitions\fR is not created if it doesn’t
+exist; and not changed if it does\&.
 .TP
 \fBstruct::graph::op::tarjan\fR \fIg\fR
-This command computes the set of \fIstrongly connected\fR
-components (SCCs) of the graph \fIg\fR\&. The result of the command is a
-list of sets, each of which contains the nodes for one of the SCCs of
-\fIg\fR\&. The union of all SCCs covers the whole graph, and no two SCCs
-intersect with each other\&.
+Returns a list of sets, each of which contains the nodes for one of
+graph \fIg\fR’s \fIstrongly connected\fR components (SCCs)\&. The union
+of all SCCs covers the whole graph, and no two SCCs intersect\&.
 .sp
-The graph \fIg\fR is \fIacyclic\fR if all SCCs in the result contain
-only a single node\&. The graph \fIg\fR is \fIstrongly connected\fR
-if the result contains only a single SCC containing all nodes of
-\fIg\fR\&.
+If \fIall\fR the resulting SCCs contain only one node, then graph
+\fIg\fR is \fIacyclic\fR\&. If the result contains only one SCC
+containing all graph \fIg\fR’s nodes, then the graph is \fIstrongly
+connected\fR\&.
+.sp
+\fINote:\fR The \fBstruct::set\fR package must be required before
+this function is used, since it returns a set of type \fBstruct::set\fR\&.
 .TP
 \fBstruct::graph::op::connectedComponents\fR \fIg\fR
-This command computes the set of \fIconnected\fR components (CCs) of
-the graph \fIg\fR\&. The result of the command is a list of sets, each
-of which contains the nodes for one of the CCs of \fIg\fR\&. The union
-of all CCs covers the whole graph, and no two CCs intersect with each
-other\&.
+Returns a list of sets, each of which contains the nodes for one of
+graph \fIg\fR’s \fIconnected\fR components (CCs)\&. The union of all CCs
+covers the whole graph, and no two CCs intersect\&.
 .sp
-The graph \fIg\fR is \fIconnected\fR if the result contains only a
-single SCC containing all nodes of \fIg\fR\&.
+If the result contains only one CC containing all graph \fIg\fR’s nodes,
+then the graph is \fIconnected\fR\&.
+.sp
+\fINote:\fR The \fBstruct::set\fR package must be required before
+this function is used, since it returns a set of type \fBstruct::set\fR\&.
 .TP
-\fBstruct::graph::op::connectedComponentOf\fR \fIg\fR \fIn\fR
-This command computes the \fIconnected\fR component (CC) of the graph
-\fIg\fR containing the node \fIn\fR\&. The result of the command is a
-sets which contains the nodes for the CC of \fIn\fR in \fIg\fR\&.
+\fBstruct::graph::op::connectedComponentOf\fR \fIg\fR \fInode\fR
+Returns a list of graph \fIg\fR’s \fIconnected\fR components (CCs) that
+contain node \fInode\fR\&.
 .sp
-The command will throw an error if \fIn\fR is not a node of the graph
-\fIg\fR\&.
+The command will throw an error if \fInode\fR is not a graph \fIg\fR
+node\&.
 .TP
 \fBstruct::graph::op::isConnected?\fR \fIg\fR
-This is a convenience command determining whether the graph \fIg\fR is
-\fIconnected\fR or not\&.  The result is a boolean value, \fBtrue\fR
-if the graph is connected, and \fBfalse\fR otherwise\&.
+Returns \fB1\fR (true) if graph \fIg\fR is \fIconnected\fR; otherwise
+returns \fB0\fR (false)\&.
 .TP
-\fBstruct::graph::op::isCutVertex?\fR \fIg\fR \fIn\fR
-This command determines whether the node \fIn\fR in the graph \fIg\fR
-is a \fIcut vertex\fR (aka \fIarticulation point\fR)\&. The result
-is a boolean value, \fBtrue\fR if the node is a cut vertex, and
-\fBfalse\fR otherwise\&.
+\fBstruct::graph::op::isCutVertex?\fR \fIg\fR \fInode\fR
+Returns \fB1\fR (true) if graph \fIg\fR’s \fInode\fR is a \fIcut
+vertex\fR (\fIalso called an\fR \fIarticulation point\fR);
+otherwise returns \fB0\fR (false)\&.
 .sp
-The command will throw an error if \fIn\fR is not a node of the graph
-\fIg\fR\&.
+The command will throw an error if \fInode\fR is not a graph \fIg\fR
+node\&.
 .TP
-\fBstruct::graph::op::isBridge?\fR \fIg\fR \fIa\fR
-This command determines whether the arc \fIa\fR in the graph \fIg\fR
-is a \fIbridge\fR (aka \fIcut edge\fR, or \fIisthmus\fR)\&. The
-result is a boolean value, \fBtrue\fR if the arc is a bridge, and
-\fBfalse\fR otherwise\&.
+\fBstruct::graph::op::isBridge?\fR \fIg\fR \fIarc\fR
+Returns \fB1\fR (true) if graph \fIg\fR’s \fIarc\fR is a \fIbridge\fR
+(\fIalso called a\fR \fIcut edge\fR \fIor\fR \fIisthmus\fR);
+otherwise returns \fB0\fR (false)\&.
 .sp
-The command will throw an error if \fIa\fR is not an arc of the graph
-\fIg\fR\&.
+The command will throw an error if \fIarc\fR is not a graph \fIg\fR
+arc
 .TP
 \fBstruct::graph::op::isEulerian?\fR \fIg\fR ?\fItourvar\fR?
-This command determines whether the graph \fIg\fR is \fIeulerian\fR
-or not\&.  The result is a boolean value, \fBtrue\fR if the graph is
-eulerian, and \fBfalse\fR otherwise\&.
+Returns \fB1\fR (true) if graph \fIg\fR is \fIEulerian\fR; otherwise
+returns \fB0\fR (false)\&.
 .sp
-If the graph is eulerian and \fItourvar\fR is specified then an euler
-tour is computed as well and stored in the named variable\&. The tour is
-represented by the list of arcs traversed, in the order of traversal\&.
+If the graph is Eulerian and \fItourvar\fR is specified, then an Euler
+tour is computed and stored in the named variable\&. The tour is
+represented by a list of the arcs traversed, in order of traversal\&.
 .TP
 \fBstruct::graph::op::isSemiEulerian?\fR \fIg\fR ?\fIpathvar\fR?
-This command determines whether the graph \fIg\fR is
-\fIsemi-eulerian\fR or not\&.  The result is a boolean value, \fBtrue\fR
-if the graph is semi-eulerian, and \fBfalse\fR otherwise\&.
+Returns \fB1\fR (true) if graph \fIg\fR is \fIsemi-Eulerian\fR;
+otherwise returns \fB0\fR (false)\&.
 .sp
-If the graph is semi-eulerian and \fIpathvar\fR is specified then an
-euler path is computed as well and stored in the named variable\&. The
-path is represented by the list of arcs traversed, in the order of
-traversal\&.
+If the graph is semi-Eulerian and \fIpathvar\fR is specified, then an
+Euler path is computed and stored in the named variable\&. The path is
+represented by a list of the arcs traversed, in order of traversal\&.
 .TP
-\fBstruct::graph::op::dijkstra\fR \fIg\fR \fIstart\fR ?\fIoptions\fR\&.\&.\&.?
-This command determines distances in the weighted \fIg\fR from the
-node \fIstart\fR to all other nodes in the graph\&. The options specify
-how to traverse graphs, and the format of the result\&.
+\fBstruct::graph::op::dijkstra\fR \fIg\fR \fIstart_node\fR ?\fIoptions\fR\&.\&.\&.?
+Returns a \fBdict\fR whose keys are nodes and whose values vary
+depending on the options\&. By default an undirected traversal and tree
+format are used, resulting in a \fBdict\fR whose values are lists of
+nodes\&. The traversal is based on the distances in the weighted graph
+\fIg\fR from the \fIstart_node\fR to all the graph’s other nodes\&.
 .sp
-Two options are recognized
+Two options are supported:
 .RS
 .TP
 \fB-arcmode\fR mode
-The accepted mode values are \fBdirected\fR and \fBundirected\fR\&.
-For directed traversal all arcs are traversed from source to
-target\&. For undirected traversal all arcs are traversed in the
-opposite direction as well\&. Undirected traversal is the default\&.
+The \fImode\fR may be \fBundirected\fR (the default) or
+\fBdirected\fR\&. If \fBdirected\fR, all the arcs are traversed from
+the source to the target\&. For \fBundirected\fR, all the arcs are
+traversed both ways\&.
 .TP
 \fB-outputformat\fR format
-The accepted format values are \fBdistances\fR and \fBtree\fR\&. In
-both cases the result is a dictionary keyed by the names of all nodes
-in the graph\&. For \fBdistances\fR the value is the distance of the
-node to \fIstart\fR, whereas for \fBtree\fR the value is the path
-from the node to \fIstart\fR, excluding the node itself, but including
-\fIstart\fR\&. Tree format is the default\&.
+The \fIformat\fR may be \fBtree\fR (the default) or \fBdistances\fR\&.
+In either case the result is a \fBdict\fR whose keys are the names of
+all graph \fIg\fR’s nodes\&. When the \fIformat\fR is \fBtree\fR, each
+value is the path from the node to the \fIstart_node\fR (i\&.e\&., a list of
+nodes; excluding the \fIstart_node\fR itself)\&. When the \fIformat\fR is
+\fBdistances\fR, each value is the distance from the node to the
+\fIstart_node\fR\&. \fINote:\fR When using \fIformat\fR \fBdistances\fR
+it is possible to have distances of \fB0\fR or of \fBInf\fR\&.
 .RE
 .TP
-\fBstruct::graph::op::distance\fR \fIg\fR \fIorigin\fR \fIdestination\fR ?\fIoptions\fR\&.\&.\&.?
-This command determines the (un)directed distance between the two
-nodes \fIorigin\fR and \fIdestination\fR in the graph \fIg\fR\&. It
-accepts the option \fB-arcmode\fR of \fBstruct::graph::op::dijkstra\fR\&.
+\fBstruct::graph::op::distance\fR \fIg\fR \fIstart_node\fR \fIend_node\fR ?-arcmode \fImode\fR?
+Returns the distance in graph \fIg\fR from the \fIstart_node\fR to the
+\fIend_node\fR using an undirected traversal (i\&.e\&., \fI-arcmode\fR
+\fBundirected\fR)\&. Use \fI-arcmode\fR \fBdirected\fR for a directed
+traversal\&. (See \fBstruct::graph::op::dijkstra\fR’s \fB-arcmode\fR
+option\&.)
 .TP
-\fBstruct::graph::op::eccentricity\fR \fIg\fR \fIn\fR ?\fIoptions\fR\&.\&.\&.?
-This command determines the (un)directed \fIeccentricity\fR of the
-node \fIn\fR in the graph \fIg\fR\&. It accepts the option
-\fB-arcmode\fR of \fBstruct::graph::op::dijkstra\fR\&.
+\fBstruct::graph::op::eccentricity\fR \fIg\fR \fInode\fR ?-arcmode \fImode\fR?
+Returns the \fIeccentricity\fR in graph \fIg\fR of the given \fInode\fR
+using an undirected traversal (i\&.e\&., \fI-arcmode\fR \fBundirected\fR)\&.
+Use \fI-arcmode\fR \fBdirected\fR for a directed traversal\&. (See
+\fBstruct::graph::op::dijkstra\fR’s \fB-arcmode\fR option\&.)
 .sp
-The (un)directed \fIeccentricity\fR of a node is the maximal
-(un)directed distance between the node and any other node in the
-graph\&.
+A node’s (un)directed \fIeccentricity\fR is the maximal (un)directed
+distance between the node and any other node in the graph\&.
 .TP
-\fBstruct::graph::op::radius\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
-This command determines the (un)directed \fIradius\fR of the graph
-\fIg\fR\&. It accepts the option \fB-arcmode\fR of \fBstruct::graph::op::dijkstra\fR\&.
+\fBstruct::graph::op::radius\fR \fIg\fR ?-arcmode \fImode\fR?
+Returns the \fIradius\fR of graph \fIg\fR using an undirected traversal
+(i\&.e\&., \fI-arcmode\fR \fBundirected\fR)\&. Use \fI-arcmode\fR
+\fBdirected\fR for a directed traversal\&. (See
+\fBstruct::graph::op::dijkstra\fR’s \fB-arcmode\fR option\&.)
 .sp
-The (un)directed \fIradius\fR of a graph is the minimal (un)directed
+A graph’s (un)directed \fIradius\fR is the minimal (un)directed
 \fIeccentricity\fR of all nodes in the graph\&.
 .TP
-\fBstruct::graph::op::diameter\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
-This command determines the (un)directed \fIdiameter\fR of the graph
-\fIg\fR\&. It accepts the option \fB-arcmode\fR of \fBstruct::graph::op::dijkstra\fR\&.
+\fBstruct::graph::op::diameter\fR \fIg\fR ?-arcmode \fImode\fR?
+Returns the \fIdiameter\fR of graph \fIg\fR using an undirected traversal
+(i\&.e\&., \fI-arcmode\fR \fBundirected\fR)\&. Use \fI-arcmode\fR
+\fBdirected\fR for a directed traversal\&. (See
+\fBstruct::graph::op::dijkstra\fR’s \fB-arcmode\fR option\&.)
 .sp
-The (un)directed \fIdiameter\fR of a graph is the maximal (un)directed
+A graph’s (un)directed \fIradius\fR is the maximal (un)directed
 \fIeccentricity\fR of all nodes in the graph\&.
 .TP
-\fBstruct::graph::op::BellmanFord\fR \fIG\fR \fIstartnode\fR
-Searching for \fBshortests paths\fR between chosen node and all other nodes in graph \fIG\fR\&. Based
+\fBstruct::graph::op::BellmanFord\fR \fIg\fR \fIstartnode\fR
+Searching for \fBshortests paths\fR between chosen node and all other nodes in graph \fIg\fR\&. Based
 on relaxation method\&. In comparison to \fBstruct::graph::op::dijkstra\fR it doesn't need assumption that all weights
-on edges in input graph \fIG\fR have to be positive\&.
+on edges in input graph \fIg\fR have to be positive\&.
 .sp
 That generality sets the complexity of algorithm to - \fIO(V*E)\fR, where \fIV\fR is the number of vertices
-and \fIE\fR is number of edges in graph \fIG\fR\&.
+and \fIE\fR is number of edges in graph \fIg\fR\&.
 .sp
 .RS
 .TP
 Arguments:
 .RS
 .TP
-Graph object \fIG\fR (input)
-Directed, connected and edge weighted graph \fIG\fR, without any negative cycles ( presence of cycles with the negative sum
+Graph object \fIg\fR (input)
+Directed, connected and edge weighted graph \fIg\fR, without any negative cycles ( presence of cycles with the negative sum
 of weight means that there is no shortest path, since the total weight becomes lower each time the cycle is
 traversed )\&. Negative weights on edges are allowed\&.
 .TP
 Node \fIstartnode\fR (input)
-The node for which we find all shortest paths to each other node in graph \fIG\fR\&.
+The node for which we find all shortest paths to each other node in graph \fIg\fR\&.
 .RE
 .TP
 Result:
-Dictionary containing for each node (key) distances to each other node in graph \fIG\fR\&.
+Dictionary containing for each node (key) distances to each other node in graph \fIg\fR\&.
 .RE
 .sp
 \fINote:\fR If algorithm finds a negative cycle, it will return error message\&.
 .TP
-\fBstruct::graph::op::Johnsons\fR \fIG\fR ?\fIoptions\fR\&.\&.\&.?
+\fBstruct::graph::op::Johnsons\fR \fIg\fR ?\fIoptions\fR\&.\&.\&.?
 Searching for \fBshortest paths\fR between all pairs of vertices in graph\&. For sparse graphs
 asymptotically quicker than \fBstruct::graph::op::FloydWarshall\fR algorithm\&. Johnson's algorithm
 uses \fBstruct::graph::op::BellmanFord\fR and \fBstruct::graph::op::dijkstra\fR as subprocedures\&.
 .sp
 Time complexity: \fIO(n**2*log(n) +n*m)\fR, where \fIn\fR is the number of nodes and \fIm\fR is
-the number of edges in graph \fIG\fR\&.
+the number of edges in graph \fIg\fR\&.
 .sp
 .RS
 .TP
 Arguments:
 .RS
 .TP
-Graph object \fIG\fR (input)
-Directed graph \fIG\fR, weighted on edges and not containing
+Graph object \fIg\fR (input)
+Directed graph \fIg\fR, weighted on edges and not containing
 any cycles with negative sum of weights ( the presence of such cycles means
 there is no shortest path, since the total weight becomes lower each time the
 cycle is traversed )\&. Negative weights on edges are allowed\&.
@@ -658,7 +673,7 @@ Result:
 Dictionary containing distances between all pairs of vertices\&.
 .RE
 .TP
-\fBstruct::graph::op::FloydWarshall\fR \fIG\fR
+\fBstruct::graph::op::FloydWarshall\fR \fIg\fR
 Searching for \fBshortest paths\fR between all pairs of edges in weighted graphs\&.
 .sp
 Time complexity: \fIO(V^3)\fR - where \fIV\fR is number of vertices\&.
@@ -670,8 +685,8 @@ Memory complexity: \fIO(V^2)\fR\&.
 Arguments:
 .RS
 .TP
-Graph object \fIG\fR (input)
-Directed and weighted graph \fIG\fR\&.
+Graph object \fIg\fR (input)
+Directed and weighted graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -687,7 +702,7 @@ On the other hand algorithm can be used to find those cycles - if any shortest d
 found by algorithm for any nodes \fIv\fR and \fIu\fR (when \fIv\fR is the same node as \fIu\fR) is negative,
 that node surely belong to at least one negative cycle\&.
 .TP
-\fBstruct::graph::op::MetricTravellingSalesman\fR \fIG\fR
+\fBstruct::graph::op::MetricTravellingSalesman\fR \fIg\fR
 Algorithm for solving a metric variation of \fBTravelling salesman problem\fR\&.
 \fITSP problem\fR is \fINP-Complete\fR, so there is no efficient algorithm to solve it\&. Greedy methods
 are getting extremely slow, with the increase in the set of nodes\&.
@@ -697,8 +712,8 @@ are getting extremely slow, with the increase in the set of nodes\&.
 Arguments:
 .RS
 .TP
-Graph object \fIG\fR (input)
-Undirected, weighted graph \fIG\fR\&.
+Graph object \fIg\fR (input)
+Undirected, weighted graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -708,7 +723,7 @@ each exactly one time\&.
 .IP
 \fINote:\fR \fBIt's 2-approximation algorithm\&.\fR
 .TP
-\fBstruct::graph::op::Christofides\fR \fIG\fR
+\fBstruct::graph::op::Christofides\fR \fIg\fR
 Another algorithm for solving \fBmetric \fITSP problem\fR\fR\&.
 Christofides implementation uses \fIMax Matching\fR for reaching better approximation factor\&.
 .sp
@@ -717,8 +732,8 @@ Christofides implementation uses \fIMax Matching\fR for reaching better approxim
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
-Undirected, weighted graph \fIG\fR\&.
+Graph Object \fIg\fR (input)
+Undirected, weighted graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -728,9 +743,9 @@ each exactly one time\&.
 .sp
 \fINote:\fR \fBIt's is a 3/2 approximation algorithm\&. \fR
 .TP
-\fBstruct::graph::op::GreedyMaxMatching\fR \fIG\fR
+\fBstruct::graph::op::GreedyMaxMatching\fR \fIg\fR
 \fIGreedy Max Matching\fR procedure, which finds \fBmaximal matching\fR (not maximum)
-for given graph \fIG\fR\&. It adds edges to solution, beginning from edges with the
+for given graph \fIg\fR\&. It adds edges to solution, beginning from edges with the
 lowest cost\&.
 .sp
 .RS
@@ -738,15 +753,15 @@ lowest cost\&.
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
-Undirected graph \fIG\fR\&.
+Graph Object \fIg\fR (input)
+Undirected graph \fIg\fR\&.
 .RE
 .TP
 Result:
-Set of edges - the max matching for graph \fIG\fR\&.
+Set of edges - the max matching for graph \fIg\fR\&.
 .RE
 .TP
-\fBstruct::graph::op::MaxCut\fR \fIG\fR \fIU\fR \fIV\fR
+\fBstruct::graph::op::MaxCut\fR \fIg\fR \fIU\fR \fIV\fR
 Algorithm solving a \fBMaximum Cut Problem\fR\&.
 .sp
 .RS
@@ -754,7 +769,7 @@ Algorithm solving a \fBMaximum Cut Problem\fR\&.
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 The graph to cut\&.
 .TP
 List \fIU\fR (output)
@@ -770,7 +785,7 @@ Algorithm returns number of edges between found two sets of nodes\&.
 .IP
 \fINote:\fR \fIMaxCut\fR is a \fB2-approximation algorithm\&.\fR
 .TP
-\fBstruct::graph::op::UnweightedKCenter\fR \fIG\fR \fIk\fR
+\fBstruct::graph::op::UnweightedKCenter\fR \fIg\fR \fIk\fR
 Approximation algorithm that solves a \fBk-center problem\fR\&.
 .sp
 .RS
@@ -778,8 +793,8 @@ Approximation algorithm that solves a \fBk-center problem\fR\&.
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
-Undirected complete graph \fIG\fR, which satisfies triangle inequality\&.
+Graph Object \fIg\fR (input)
+Undirected complete graph \fIg\fR, which satisfies triangle inequality\&.
 .sp
 .TP
 Integer \fIk\fR (input)
@@ -787,12 +802,12 @@ Positive integer that sets the number of nodes that will be included in \fIk-cen
 .RE
 .TP
 Result:
-Set of nodes - \fIk\fR center for graph \fIG\fR\&.
+Set of nodes - \fIk\fR center for graph \fIg\fR\&.
 .RE
 .IP
 \fINote:\fR \fIUnweightedKCenter\fR is a \fB2-approximation algorithm\&.\fR
 .TP
-\fBstruct::graph::op::WeightedKCenter\fR \fIG\fR \fInodeWeights\fR \fIW\fR
+\fBstruct::graph::op::WeightedKCenter\fR \fIg\fR \fInodeWeights\fR \fIW\fR
 Approximation algorithm that solves a weighted version of \fBk-center problem\fR\&.
 .sp
 .RS
@@ -800,14 +815,14 @@ Approximation algorithm that solves a weighted version of \fBk-center problem\fR
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
-Undirected complete graph \fIG\fR, which satisfies triangle inequality\&.
+Graph Object \fIg\fR (input)
+Undirected complete graph \fIg\fR, which satisfies triangle inequality\&.
 .TP
 Integer \fIW\fR (input)
 Positive integer that sets the maximum possible weight of \fIk-center\fR found by algorithm\&.
 .TP
 List \fInodeWeights\fR (input)
-List of nodes and its weights in graph \fIG\fR\&.
+List of nodes and its weights in graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -816,45 +831,45 @@ Set of nodes, which is solution found by algorithm\&.
 .IP
 \fINote:\fR\fIWeightedKCenter\fR is a \fB3-approximation algorithm\&.\fR
 .TP
-\fBstruct::graph::op::GreedyMaxIndependentSet\fR \fIG\fR
+\fBstruct::graph::op::GreedyMaxIndependentSet\fR \fIg\fR
 A \fImaximal independent set\fR is an \fIindependent set\fR such that adding any other node
 to the set forces the set to contain an edge\&.
 .sp
-Algorithm for input graph \fIG\fR returns set of nodes (list), which are contained in Max Independent
+Algorithm for input graph \fIg\fR returns set of nodes (list), which are contained in Max Independent
 Set found by algorithm\&.
 .TP
-\fBstruct::graph::op::GreedyWeightedMaxIndependentSet\fR \fIG\fR \fInodeWeights\fR
+\fBstruct::graph::op::GreedyWeightedMaxIndependentSet\fR \fIg\fR \fInodeWeights\fR
 Weighted variation of \fIMaximal Independent Set\fR\&. It takes as an input argument
-not only graph \fIG\fR but also set of weights for all vertices in graph \fIG\fR\&.
+not only graph \fIg\fR but also set of weights for all vertices in graph \fIg\fR\&.
 .sp
 \fINote:\fR
 Read also \fIMaximal Independent Set\fR description for more info\&.
 .TP
-\fBstruct::graph::op::VerticesCover\fR \fIG\fR
+\fBstruct::graph::op::VerticesCover\fR \fIg\fR
 \fIVertices cover\fR is a set of vertices such that each edge of the graph is incident to
 at least one vertex of the set\&. This 2-approximation algorithm searches for minimum
 \fIvertices cover\fR, which is a classical optimization problem in computer science and
 is a typical example of an \fINP-hard\fR optimization problem that has an approximation
 algorithm\&.
-For input graph \fIG\fR algorithm returns the set of edges (list), which is Vertex Cover found by algorithm\&.
+For input graph \fIg\fR algorithm returns the set of edges (list), which is Vertex Cover found by algorithm\&.
 .TP
-\fBstruct::graph::op::EdmondsKarp\fR \fIG\fR \fIs\fR \fIt\fR
-Improved Ford-Fulkerson's algorithm, computing the \fBmaximum flow\fR in given flow network \fIG\fR\&.
+\fBstruct::graph::op::EdmondsKarp\fR \fIg\fR \fIs\fR \fIt\fR
+Improved Ford-Fulkerson's algorithm, computing the \fBmaximum flow\fR in given flow network \fIg\fR\&.
 .sp
 .RS
 .TP
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Weighted and directed graph\&. Each edge should have set integer attribute considered as
 maximum throughputs that can be carried by that link (edge)\&.
 .TP
 Node \fIs\fR (input)
-The node that is a source for graph \fIG\fR\&.
+The node that is a source for graph \fIg\fR\&.
 .TP
 Node \fIt\fR (input)
-The node that is a sink for graph \fIG\fR\&.
+The node that is a sink for graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -865,17 +880,17 @@ are equal to 0 are not returned ( it is like there was no link in the flow netwo
 between nodes connected by such edge)\&.
 .RE
 .sp
-The general idea of algorithm is finding the shortest augumenting paths in graph \fIG\fR, as long
+The general idea of algorithm is finding the shortest augumenting paths in graph \fIg\fR, as long
 as they exist, and for each path updating the edge's weights along that path,
 with maximum possible throughput\&. The final (maximum) flow is found
 when there is no other augumenting path from source to sink\&.
 .sp
 \fINote:\fR Algorithm complexity : \fIO(V*E)\fR, where \fIV\fR is the number of nodes and \fIE\fR is the number
-of edges in graph \fIG\fR\&.
+of edges in graph \fIg\fR\&.
 .TP
-\fBstruct::graph::op::BusackerGowen\fR \fIG\fR \fIdesiredFlow\fR \fIs\fR \fIt\fR
+\fBstruct::graph::op::BusackerGowen\fR \fIg\fR \fIdesiredFlow\fR \fIs\fR \fIt\fR
 Algorithm finds solution for a \fBminimum cost flow problem\fR\&. So, the goal is to find a flow,
-whose max value can be \fIdesiredFlow\fR, from source node \fIs\fR to sink node \fIt\fR in given flow network \fIG\fR\&.
+whose max value can be \fIdesiredFlow\fR, from source node \fIs\fR to sink node \fIt\fR in given flow network \fIg\fR\&.
 That network except throughputs at edges has also defined a non-negative cost on each edge - cost of using that edge when
 directing flow with that edge ( it can illustrate e\&.g\&. fuel usage, time or any other measure dependent on usages )\&.
 .sp
@@ -884,17 +899,17 @@ directing flow with that edge ( it can illustrate e\&.g\&. fuel usage, time or a
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Flow network (directed graph), each edge in graph should have two integer attributes: \fIcost\fR and \fIthroughput\fR\&.
 .TP
 Integer \fIdesiredFlow\fR (input)
 Max value of the flow for that network\&.
 .TP
 Node \fIs\fR (input)
-The source node for graph \fIG\fR\&.
+The source node for graph \fIg\fR\&.
 .TP
 Node \fIt\fR (input)
-The sink node for graph \fIG\fR\&.
+The sink node for graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -902,9 +917,9 @@ Dictionary containing values of used throughputs for each edge ( key )\&.
 found by algorithm\&.
 .RE
 .IP
-\fINote:\fR Algorithm complexity : \fIO(V**2*desiredFlow)\fR, where \fIV\fR is the number of nodes in graph \fIG\fR\&.
+\fINote:\fR Algorithm complexity : \fIO(V**2*desiredFlow)\fR, where \fIV\fR is the number of nodes in graph \fIg\fR\&.
 .TP
-\fBstruct::graph::op::ShortestsPathsByBFS\fR \fIG\fR \fIs\fR \fIoutputFormat\fR
+\fBstruct::graph::op::ShortestsPathsByBFS\fR \fIg\fR \fIs\fR \fIoutputFormat\fR
 Shortest pathfinding algorithm using BFS method\&. In comparison to \fBstruct::graph::op::dijkstra\fR it can
 work with negative weights on edges\&. Of course negative cycles are not allowed\&. Algorithm is better than dijkstra
 for sparse graphs, but also there exist some pathological cases (those cases generally don't appear in practise) that
@@ -915,11 +930,11 @@ make time complexity increase exponentially with the growth of the number of nod
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Input graph\&.
 .TP
 Node \fIs\fR (input)
-Source node for which all distances to each other node in graph \fIG\fR are computed\&.
+Source node for which all distances to each other node in graph \fIg\fR are computed\&.
 .RE
 .TP
 Options and result:
@@ -927,7 +942,7 @@ Options and result:
 .TP
 \fBdistances\fR
 When selected \fIoutputFormat\fR is \fBdistances\fR - procedure returns dictionary containing
-distances between source node \fIs\fR and each other node in graph \fIG\fR\&.
+distances between source node \fIs\fR and each other node in graph \fIg\fR\&.
 .TP
 \fBpaths\fR
 When selected \fIoutputFormat\fR is \fBpaths\fR - procedure returns dictionary containing
@@ -935,7 +950,7 @@ for each node \fIv\fR, a list of nodes, which is a path between source node \fIs
 .RE
 .RE
 .TP
-\fBstruct::graph::op::BFS\fR \fIG\fR \fIs\fR ?\fIoutputFormat\fR\&.\&.\&.?
+\fBstruct::graph::op::BFS\fR \fIg\fR \fIs\fR ?\fIoutputFormat\fR\&.\&.\&.?
 Breadth-First Search - algorithm creates the BFS Tree\&.
 Memory and time complexity: \fIO(V + E)\fR, where \fIV\fR is the number of nodes and \fIE\fR
 is number of edges\&.
@@ -945,7 +960,7 @@ is number of edges\&.
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Input graph\&.
 .TP
 Node \fIs\fR (input)
@@ -965,12 +980,12 @@ which is equivalent to BFS tree found by algorithm\&.
 .RE
 .RE
 .TP
-\fBstruct::graph::op::MinimumDiameterSpanningTree\fR \fIG\fR
-The goal is to find for input graph \fIG\fR, the \fIspanning tree\fR that
+\fBstruct::graph::op::MinimumDiameterSpanningTree\fR \fIg\fR
+The goal is to find for input graph \fIg\fR, the \fIspanning tree\fR that
 has the minimum \fIdiameter\fR value\&.
 .sp
 General idea of algorithm is to run \fIBFS\fR over all vertices in graph
-\fIG\fR\&. If the diameter \fId\fR of the tree is odd, then we are sure that tree
+\fIg\fR\&. If the diameter \fId\fR of the tree is odd, then we are sure that tree
 given by \fIBFS\fR is minimum (considering diameter value)\&. When, diameter \fId\fR
 is even, then optimal tree can have minimum \fIdiameter\fR equal to \fId\fR or
 \fId-1\fR\&.
@@ -982,16 +997,16 @@ greatests height)\&. In the next step for such rebuilded tree, we run again \fIB
 with new node as root node\&. If the height of the tree didn't changed, we have found
 a better solution\&.
 .sp
-For input graph \fIG\fR algorithm returns the graph structure (\fBstruct::graph\fR) that is
+For input graph \fIg\fR algorithm returns the graph structure (\fBstruct::graph\fR) that is
 a spanning tree with minimum diameter found by algorithm\&.
 .TP
-\fBstruct::graph::op::MinimumDegreeSpanningTree\fR \fIG\fR
-Algorithm finds for input graph \fIG\fR, a spanning tree \fIT\fR with the minimum possible
+\fBstruct::graph::op::MinimumDegreeSpanningTree\fR \fIg\fR
+Algorithm finds for input graph \fIg\fR, a spanning tree \fIT\fR with the minimum possible
 degree\&. That problem is \fINP-hard\fR, so algorithm is an approximation algorithm\&.
 .sp
-Let \fIV\fR be the set of nodes for graph \fIG\fR and let \fIW\fR be any subset of \fIV\fR\&. Lets
+Let \fIV\fR be the set of nodes for graph \fIg\fR and let \fIW\fR be any subset of \fIV\fR\&. Lets
 assume also that \fIOPT\fR is optimal solution and \fIALG\fR is solution found by algorithm for input
-graph \fIG\fR\&.
+graph \fIg\fR\&.
 .sp
 It can be proven that solution found with the algorithm must fulfil inequality:
 .sp
@@ -1002,7 +1017,7 @@ It can be proven that solution found with the algorithm must fulfil inequality:
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Undirected simple graph\&.
 .RE
 .TP
@@ -1010,8 +1025,8 @@ Result:
 Algorithm returns graph structure, which is equivalent to spanning tree \fIT\fR found by algorithm\&.
 .RE
 .TP
-\fBstruct::graph::op::MaximumFlowByDinic\fR \fIG\fR \fIs\fR \fIt\fR \fIblockingFlowAlg\fR
-Algorithm finds \fBmaximum flow\fR for the flow network represented by graph \fIG\fR\&. It is based on
+\fBstruct::graph::op::MaximumFlowByDinic\fR \fIg\fR \fIs\fR \fIt\fR \fIblockingFlowAlg\fR
+Algorithm finds \fBmaximum flow\fR for the flow network represented by graph \fIg\fR\&. It is based on
 the blocking-flow finding methods, which give us different complexities what makes a better fit for
 different graphs\&.
 .sp
@@ -1020,92 +1035,92 @@ different graphs\&.
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
-Directed graph \fIG\fR representing the flow network\&. Each edge should have attribute
+Graph Object \fIg\fR (input)
+Directed graph \fIg\fR representing the flow network\&. Each edge should have attribute
 \fIthroughput\fR set with integer value\&.
 .TP
 Node \fIs\fR (input)
-The source node for the flow network \fIG\fR\&.
+The source node for the flow network \fIg\fR\&.
 .TP
 Node \fIt\fR (input)
-The sink node for the flow network \fIG\fR\&.
+The sink node for the flow network \fIg\fR\&.
 .RE
 .TP
 Options:
 .RS
 .TP
 \fBdinic\fR
-Procedure will find maximum flow for flow network \fIG\fR using Dinic's algorithm (\fBstruct::graph::op::BlockingFlowByDinic\fR)
+Procedure will find maximum flow for flow network \fIg\fR using Dinic's algorithm (\fBstruct::graph::op::BlockingFlowByDinic\fR)
 for blocking flow computation\&.
 .TP
 \fBmkm\fR
-Procedure will find maximum flow for flow network \fIG\fR using Malhotra, Kumar and Maheshwari's algorithm (\fBstruct::graph::op::BlockingFlowByMKM\fR)
+Procedure will find maximum flow for flow network \fIg\fR using Malhotra, Kumar and Maheshwari's algorithm (\fBstruct::graph::op::BlockingFlowByMKM\fR)
 for blocking flow computation\&.
 .RE
 .TP
 Result:
-Algorithm returns dictionary containing it's flow value for each edge (key) in network \fIG\fR\&.
+Algorithm returns dictionary containing it's flow value for each edge (key) in network \fIg\fR\&.
 .RE
 .sp
 \fINote:\fR \fBstruct::graph::op::BlockingFlowByDinic\fR gives \fIO(m*n^2)\fR complexity and
 \fBstruct::graph::op::BlockingFlowByMKM\fR gives \fIO(n^3)\fR complexity, where \fIn\fR is the number of nodes
-and \fIm\fR is the number of edges in flow network \fIG\fR\&.
+and \fIm\fR is the number of edges in flow network \fIg\fR\&.
 .TP
-\fBstruct::graph::op::BlockingFlowByDinic\fR \fIG\fR \fIs\fR \fIt\fR
-Algorithm for given network \fIG\fR with source \fIs\fR and sink \fIt\fR, finds a \fBblocking
-flow\fR, which can be used to obtain a \fImaximum flow\fR for that network \fIG\fR\&.
+\fBstruct::graph::op::BlockingFlowByDinic\fR \fIg\fR \fIs\fR \fIt\fR
+Algorithm for given network \fIg\fR with source \fIs\fR and sink \fIt\fR, finds a \fBblocking
+flow\fR, which can be used to obtain a \fImaximum flow\fR for that network \fIg\fR\&.
 .sp
 .RS
 .TP
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
-Directed graph \fIG\fR representing the flow network\&. Each edge should have attribute
+Graph Object \fIg\fR (input)
+Directed graph \fIg\fR representing the flow network\&. Each edge should have attribute
 \fIthroughput\fR set with integer value\&.
 .TP
 Node \fIs\fR (input)
-The source node for the flow network \fIG\fR\&.
+The source node for the flow network \fIg\fR\&.
 .TP
 Node \fIt\fR (input)
-The sink node for the flow network \fIG\fR\&.
+The sink node for the flow network \fIg\fR\&.
 .RE
 .TP
 Result:
-Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network \fIG\fR\&.
+Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network \fIg\fR\&.
 .RE
 .IP
 \fINote:\fR Algorithm's complexity is \fIO(n*m)\fR, where \fIn\fR is the number of nodes
-and \fIm\fR is the number of edges in flow network \fIG\fR\&.
+and \fIm\fR is the number of edges in flow network \fIg\fR\&.
 .TP
-\fBstruct::graph::op::BlockingFlowByMKM\fR \fIG\fR \fIs\fR \fIt\fR
-Algorithm for given network \fIG\fR with source \fIs\fR and sink \fIt\fR, finds a \fBblocking
-flow\fR, which can be used to obtain a \fImaximum flow\fR for that \fInetwork\fR \fIG\fR\&.
+\fBstruct::graph::op::BlockingFlowByMKM\fR \fIg\fR \fIs\fR \fIt\fR
+Algorithm for given network \fIg\fR with source \fIs\fR and sink \fIt\fR, finds a \fBblocking
+flow\fR, which can be used to obtain a \fImaximum flow\fR for that \fInetwork\fR \fIg\fR\&.
 .sp
 .RS
 .TP
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
-Directed graph \fIG\fR representing the flow network\&. Each edge should have attribute
+Graph Object \fIg\fR (input)
+Directed graph \fIg\fR representing the flow network\&. Each edge should have attribute
 \fIthroughput\fR set with integer value\&.
 .TP
 Node \fIs\fR (input)
-The source node for the flow network \fIG\fR\&.
+The source node for the flow network \fIg\fR\&.
 .TP
 Node \fIt\fR (input)
-The sink node for the flow network \fIG\fR\&.
+The sink node for the flow network \fIg\fR\&.
 .RE
 .TP
 Result:
-Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network \fIG\fR\&.
+Algorithm returns dictionary containing it's blocking flow value for each edge (key) in network \fIg\fR\&.
 .RE
 .IP
-\fINote:\fR Algorithm's complexity is \fIO(n^2)\fR, where \fIn\fR is the number of nodes in flow network \fIG\fR\&.
+\fINote:\fR Algorithm's complexity is \fIO(n^2)\fR, where \fIn\fR is the number of nodes in flow network \fIg\fR\&.
 .TP
-\fBstruct::graph::op::createResidualGraph\fR \fIG\fR \fIf\fR
-Procedure creates a \fIresidual graph\fR (or \fBresidual network\fR ) for network \fIG\fR and given
+\fBstruct::graph::op::createResidualGraph\fR \fIg\fR \fIf\fR
+Procedure creates a \fIresidual graph\fR (or \fBresidual network\fR ) for network \fIg\fR and given
 flow \fIf\fR\&.
 .sp
 .RS
@@ -1113,20 +1128,20 @@ flow \fIf\fR\&.
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Flow network (directed graph where each edge has set attribute: \fIthroughput\fR )\&.
 .TP
 dictionary \fIf\fR (input)
-Current flows in flow network \fIG\fR\&.
+Current flows in flow network \fIg\fR\&.
 .RE
 .TP
 Result:
 Procedure returns graph structure that is a \fIresidual graph\fR created from input flow
-network \fIG\fR\&.
+network \fIg\fR\&.
 .RE
 .TP
-\fBstruct::graph::op::createAugmentingNetwork\fR \fIG\fR \fIf\fR \fIpath\fR
-Procedure creates an \fBaugmenting network\fR for a given residual network \fIG\fR
+\fBstruct::graph::op::createAugmentingNetwork\fR \fIg\fR \fIf\fR \fIpath\fR
+Procedure creates an \fBaugmenting network\fR for a given residual network \fIg\fR
 , flow \fIf\fR and augmenting path \fIpath\fR\&.
 .sp
 .RS
@@ -1134,7 +1149,7 @@ Procedure creates an \fBaugmenting network\fR for a given residual network \fIG\
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Residual network (directed graph), where for every edge there are set two attributes: throughput and cost\&.
 .TP
 Dictionary \fIf\fR (input)
@@ -1167,7 +1182,7 @@ Result:
 Procedure returns a \fIlevel graph\fR created from input \fIresidual network\fR\&.
 .RE
 .TP
-\fBstruct::graph::op::TSPLocalSearching\fR \fIG\fR \fIC\fR
+\fBstruct::graph::op::TSPLocalSearching\fR \fIg\fR \fIC\fR
 Algorithm is a \fIheuristic of local searching\fR for \fITravelling Salesman Problem\fR\&. For some
 solution of \fITSP problem\fR, it checks if it's possible to find a better solution\&. As \fITSP\fR
 is well known NP-Complete problem, so algorithm is a approximation algorithm (with 2 approximation factor)\&.
@@ -1177,11 +1192,11 @@ is well known NP-Complete problem, so algorithm is a approximation algorithm (wi
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Undirected and complete graph with attributes "weight" set on each single edge\&.
 .TP
 List \fIC\fR (input)
-A list of edges being \fIHamiltonian cycle\fR, which is solution of \fITSP Problem\fR for graph \fIG\fR\&.
+A list of edges being \fIHamiltonian cycle\fR, which is solution of \fITSP Problem\fR for graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -1192,7 +1207,7 @@ Algorithm returns the best solution for \fITSP problem\fR, it was able to find\&
 assures that better solution will be found, but practise shows that we should give starting cycle with as small
 sum of weights as possible\&.
 .TP
-\fBstruct::graph::op::TSPLocalSearching3Approx\fR \fIG\fR \fIC\fR
+\fBstruct::graph::op::TSPLocalSearching3Approx\fR \fIg\fR \fIC\fR
 Algorithm is a \fIheuristic of local searching\fR for \fITravelling Salesman Problem\fR\&. For some
 solution of \fITSP problem\fR, it checks if it's possible to find a better solution\&. As \fITSP\fR
 is well known NP-Complete problem, so algorithm is a approximation algorithm (with 3 approximation factor)\&.
@@ -1202,11 +1217,11 @@ is well known NP-Complete problem, so algorithm is a approximation algorithm (wi
 Arguments:
 .RS
 .TP
-Graph Object \fIG\fR (input)
+Graph Object \fIg\fR (input)
 Undirected and complete graph with attributes "weight" set on each single edge\&.
 .TP
 List \fIC\fR (input)
-A list of edges being \fIHamiltonian cycle\fR, which is solution of \fITSP Problem\fR for graph \fIG\fR\&.
+A list of edges being \fIHamiltonian cycle\fR, which is solution of \fITSP Problem\fR for graph \fIg\fR\&.
 .RE
 .TP
 Result:
@@ -1217,17 +1232,17 @@ Algorithm returns the best solution for \fITSP problem\fR, it was able to find\&
 worser approximation factor\&. Further heuristics of local searching (e\&.g\&. 4-approximation) doesn't give enough boost to
 square the increase of approximation factor, so 2 and 3 approximations are mainly used\&.
 .TP
-\fBstruct::graph::op::createSquaredGraph\fR \fIG\fR
-X-Squared graph is a graph with the same set of nodes as input graph \fIG\fR, but a different set of edges\&. X-Squared graph
+\fBstruct::graph::op::createSquaredGraph\fR \fIg\fR
+X-Squared graph is a graph with the same set of nodes as input graph \fIg\fR, but a different set of edges\&. X-Squared graph
 has edge \fI(u,v)\fR, if and only if, the distance between \fIu\fR and \fIv\fR nodes is not greater than X and \fIu != v\fR\&.
 .sp
-Procedure for input graph \fIG\fR, returns its two-squared graph\&.
+Procedure for input graph \fIg\fR, returns its two-squared graph\&.
 .sp
 \fINote:\fR Distances used in choosing new set of edges are considering the number of edges, not the sum of weights at edges\&.
 .TP
-\fBstruct::graph::op::createCompleteGraph\fR \fIG\fR \fIoriginalEdges\fR
-For input graph \fIG\fR procedure adds missing arcs to make it a \fIcomplete graph\fR\&. It also holds in
-variable \fIoriginalEdges\fR the set of arcs that graph \fIG\fR possessed before that operation\&.
+\fBstruct::graph::op::createCompleteGraph\fR \fIg\fR \fIoriginalEdges\fR
+For input graph \fIg\fR procedure adds missing arcs to make it a \fIcomplete graph\fR\&. It also holds in
+variable \fIoriginalEdges\fR the set of arcs that graph \fIg\fR possessed before that operation\&.
 .PP
 .SH "BACKGROUND THEORY AND TERMS"
 .SS "SHORTEST PATH PROBLEM"
@@ -1372,7 +1387,7 @@ as possible to all other locations in town\&.
 .TP
 \fIWeighted K-Center\fR
 The variation of \fIunweighted k-center problem\fR\&. Besides the fact graph is edge-weighted,
-there are also weights on vertices of input graph \fIG\fR\&. We've got also restriction
+there are also weights on vertices of input graph \fIg\fR\&. We've got also restriction
 \fIW\fR\&. The goal is to choose such set of nodes \fIS\fR ( which is a subset of \fIV\fR ), that it's
 total weight is not greater than \fIW\fR and also function: \fImax_v { min_u { cost(u,v) }}\fR
 has the smallest possible worth ( \fIv\fR is a node in \fIV\fR and \fIu\fR is a node in \fIS\fR )\&.

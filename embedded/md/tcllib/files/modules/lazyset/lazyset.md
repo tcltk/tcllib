@@ -23,7 +23,7 @@ lazyset \- Lazy evaluation
 
   - [Description](#section1)
 
-  - [Commands](#section2)
+  - [API](#section2)
 
   - [Examples](#section3)
 
@@ -52,7 +52,7 @@ time its constructor is called—if ever—the object will be* *created\. Any
 subsequent constructor call will get back the first created* *object\. See*
 [oo::singleton](https://www\.tcl\-lang\.org/man/tcl/TclCmd/singleton\.html)\.\)
 
-# <a name='section2'></a>Commands
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::lazyset::variable__ ?*\-array boolean*? ?*\-appendArgs boolean*? *someVar* *commandPrefix*
 

@@ -118,9 +118,10 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">EXAMPLES</a></li>
-<li class="doctools_section"><a href="#section3">References</a></li>
-<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">References</a></li>
+<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -142,6 +143,8 @@
 <p>This package provides commands for encoding and decoding binary strings
 to and from the ascii85 encoding. (This encoding is also known as
 base85.)</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::ascii85::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">bstring</i></a></dt>
 <dd><p>Returns an ascii85-encoded version of the binary string <i class="arg">bstring</i> as
@@ -159,7 +162,7 @@ containing only 7-bit ASCII.</p></dd>
 is ignored.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">EXAMPLES</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
 <p>This example shows how to encode and decode a Tcl string to and from
 ascii85, taking account of the fact that the ascii85 commands work in
 terms of binary strings.</p>
@@ -195,14 +198,14 @@ ascii85::encode -maxlen 0 [string repeat xyz 24]
 G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]
 </pre>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">References</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">References</a></h2>
 <ol class="doctools_enumerated">
 <li><p><a href="http://en.wikipedia.org/wiki/Ascii85">http://en.wikipedia.org/wiki/Ascii85</a></p></li>
 <li><p>Postscript Language Reference Manual, 3rd Edition, page 131.
        <a href="http://www.adobe.com/devnet/postscript/pdfs/PLRM.pdf">http://www.adobe.com/devnet/postscript/pdfs/PLRM.pdf</a></p></li>
 </ol>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the

@@ -116,8 +116,14 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">API</a></li>
-<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Methods</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
@@ -129,54 +135,56 @@
 <li>package require <b class="pkgname">struct::disjointset <span class="opt">?1.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::struct::disjointset</b> <i class="arg">disjointsetName</i></a></li>
-<li><a href="#2"><i class="arg">disjointsetName</i> <i class="arg">option</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></li>
-<li><a href="#3"><i class="arg">disjointsetName</i> <b class="method">add-element</b> <i class="arg">item</i></a></li>
-<li><a href="#4"><i class="arg">disjointsetName</i> <b class="method">add-partition</b> <i class="arg">elements</i></a></li>
-<li><a href="#5"><i class="arg">disjointsetName</i> <b class="method">partitions</b></a></li>
-<li><a href="#6"><i class="arg">disjointsetName</i> <b class="method">num-partitions</b></a></li>
-<li><a href="#7"><i class="arg">disjointsetName</i> <b class="method">equal</b> <i class="arg">a</i> <i class="arg">b</i></a></li>
-<li><a href="#8"><i class="arg">disjointsetName</i> <b class="method">merge</b> <i class="arg">a</i> <i class="arg">b</i></a></li>
-<li><a href="#9"><i class="arg">disjointsetName</i> <b class="method">find</b> <i class="arg">e</i></a></li>
-<li><a href="#10"><i class="arg">disjointsetName</i> <b class="method">exemplars</b></a></li>
-<li><a href="#11"><i class="arg">disjointsetName</i> <b class="method">find-exemplar</b> <i class="arg">e</i></a></li>
-<li><a href="#12"><i class="arg">disjointsetName</i> <b class="method">destroy</b></a></li>
+<li><a href="#1"><b class="cmd">::struct::disjointset</b> <i class="arg">aDisjointSet</i></a></li>
+<li><a href="#2"><i class="arg">aDisjointSet</i> <b class="method">add-element</b> <i class="arg">element</i></a></li>
+<li><a href="#3"><i class="arg">aDisjointSet</i> <b class="method">add-partition</b> <i class="arg">elements</i></a></li>
+<li><a href="#4"><i class="arg">aDisjointSet</i> <b class="method">partitions</b></a></li>
+<li><a href="#5"><i class="arg">aDisjointSet</i> <b class="method">num-partitions</b></a></li>
+<li><a href="#6"><i class="arg">aDisjointSet</i> <b class="method">equal</b> <i class="arg">a</i> <i class="arg">b</i></a></li>
+<li><a href="#7"><i class="arg">aDisjointSet</i> <b class="method">merge</b> <i class="arg">a</i> <i class="arg">b</i></a></li>
+<li><a href="#8"><i class="arg">aDisjointSet</i> <b class="method">find</b> <i class="arg">element</i></a></li>
+<li><a href="#9"><i class="arg">aDisjointSet</i> <b class="method">exemplars</b></a></li>
+<li><a href="#10"><i class="arg">aDisjointSet</i> <b class="method">find-exemplar</b> <i class="arg">element</i></a></li>
+<li><a href="#11"><i class="arg">aDisjointSet</i> <b class="method">destroy</b></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This package provides <i class="term">disjoint sets</i>. An alternative name for
-this kind of structure is <i class="term">merge-find</i>.</p>
-<p>Normally when dealing with sets and their elements the question is &quot;Is
-this element E contained in this set S?&quot;, with both E and S known.</p>
-<p>Here the question is &quot;Which of several sets contains the element
-E?&quot;. I.e. while the element is known, the set is not, and we wish to
-find it quickly. It is not quite the inverse of the original question,
-but close.
-Another operation which is often wanted is that of quickly merging two
-sets into one, with the result still fast for finding elements. Hence
-the alternative term <i class="term">merge-find</i> for this.</p>
-<p>Why now is this named a <i class="term">disjoint-set</i> ?
-Because another way of describing the whole situation is that we have</p>
+<p>This package provides a command for handling
+<a href="http://en.wikipedia.org/wiki/Disjoint_set_data_structure">disjoint
+sets</a>. Alternative names for this kind of data structure are
+<i class="term">union-find</i> and <i class="term">merge-find</i>.</p>
+<p>A common use case for ordinary sets is to be able to answer the
+question, “does set S contain element E?”. The answer is a simple
+Boolean.</p>
+<p>One common use case for disjoint sets is to be able to answer the
+question, “which of sets S₁, S₂, …, Sₙ contains element E?”. The answer
+is a set—or nothing, if none of the sets contains E.</p>
+<p>Another common use case for disjoint sets is to be able to quickly merge
+two sets into one, with the resultant set still fast for finding
+elements. Hence the term <i class="term">merge-find</i>.</p>
+<p>The reason this data structure is called a <i class="term"><a href="../../../../index.html#disjoint_set">disjoint set</a></i> is
+because it can be perceived as being a <em>single</em> set with
+<em>partitions</em>. In other words a disjoint set is:</p>
 <ul class="doctools_itemized">
 <li><p>a finite <i class="term"><a href="../../../../index.html#set">set</a></i> S, containing</p></li>
-<li><p>a number of <i class="term">elements</i> E, split into</p></li>
-<li><p>a set of <i class="term">partitions</i> P. The latter term
-       applies, because the intersection of each pair P, P' of
-       partitions is empty, with the union of all partitions
-       covering the whole set.</p></li>
-<li><p>An alternative name for the <i class="term">partitions</i> would be
-       <i class="term">equvalence classes</i>, and all elements in the same
-       class are considered as equal.</p></li>
+<li><p>a number of <i class="term">elements</i> E₁, E₂, …, Eₙ, grouped into</p></li>
+<li><p>a set of <i class="term">partitions</i> P₁, P₂, …, Pₙ. The latter term
+       applies because the intersection of each pair Pᵢ, Pⱼ of
+       partitions is empty, i.e.,  ∅ = Pᵢ ∩ Pⱼ, with the set itself equal
+       to the union of all the partitions, i.e., S = P₁ ∪ P₂ ∪ … ∪ Pₙ.</p></li>
 </ul>
-<p>Here is a pictorial representation of the concepts listed above:</p>
+<p>An alternative name for the <i class="term">partitions</i> would be <i class="term">
+equivalence classes</i>, where all elements in the same class are
+considered equal.
+Here is a pictorial representation of the concepts listed above:</p>
 <pre class="doctools_example">
 	+-----------------+ The outer lines are the boundaries of the set S.
-	|           /     | The inner regions delineated by the skewed lines
-	|  *       /   *  | are the partitions P. The *'s denote the elements
-	|      *  / \     | E in the set, each in a single partition, their
-	|*       /   \    | equivalence class.
-	|       /  *  \   |
+	|           /     | The inner regions delineated by the diagonal
+	|  *       /   *  | lines are the partitions P₁, P₂, …, Pₙ.
+	|      *  / \     | The *’s denote the elements E₁, E₂, …, Eₙ in
+	|*       /   \    | the set, each in a single partition, their 
+	|       /  *  \   | equivalence class.
 	|      / *   /    |
 	| *   /\  * /     |
 	|    /  \  /      |
@@ -185,96 +193,166 @@ Because another way of describing the whole situation is that we have</p>
 	| /     *  \      |
 	+-----------------+
 </pre>
-<p>For more information see <a href="http://en.wikipedia.org/wiki/Disjoint_set_data_structure">http://en.wikipedia.org/wiki/Disjoint_set_data_structure</a>.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
-<p>The package exports a single command, <b class="cmd">::struct::disjointset</b>. All
-functionality provided here can be reached through a subcommand of
-this command.</p>
+<p>The package provides a single command, <b class="cmd">::struct::disjointset</b>,
+which provides all its functionality using methods.</p>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::struct::disjointset</b> <i class="arg">disjointsetName</i></a></dt>
-<dd><p>Creates a new disjoint set object with an associated global Tcl
-command whose name is <em>disjointsetName</em>. This command may be used
-to invoke various operations on the disjointset. It has the following
-general form:</p>
+<dt><a name="1"><b class="cmd">::struct::disjointset</b> <i class="arg">aDisjointSet</i></a></dt>
+<dd><p>Creates a new disjoint set object with an associated global Tcl command
+whose name is <em>aDisjointSet</em>. This command may be used to invoke
+disjoint set methods which all have the the following general form:</p>
+<p><i class="arg">aDisjointSet</i> <i class="arg">method</i> <span class="opt">?<i class="arg">arg ...</i>?</span></p>
+<p>The <i class="arg">method</i> and the <i class="arg">arg</i>s specify what operation to perform.</p></dd>
+</dl>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Methods</a></h3>
 <dl class="doctools_definitions">
-<dt><a name="2"><i class="arg">disjointsetName</i> <i class="arg">option</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
-<dd><p>The <b class="cmd">option</b> and the <i class="arg">arg</i>s determine the exact behavior of
-the command. The following commands are possible for disjointset
-objects:</p></dd>
-</dl></dd>
-<dt><a name="3"><i class="arg">disjointsetName</i> <b class="method">add-element</b> <i class="arg">item</i></a></dt>
-<dd><p>Creates a new partition in the specified disjoint set, and fills it
-with the single item <i class="arg">item</i>.  The command maintains
-the integrity of the disjoint set, i.e. it verifies that none of the
-<i class="arg">elements</i> are already part of the disjoint set and throws an
-error otherwise.</p>
-<p>The result of this method is the empty string.</p>
+<dt><a name="2"><i class="arg">aDisjointSet</i> <b class="method">add-element</b> <i class="arg">element</i></a></dt>
+<dd><p>Creates a new partition in the <i class="arg">aDisjointSet</i>, and adds the single
+<i class="arg">element</i> to the new partition. The command maintains the integrity
+of the disjoint set, i.e., if <i class="arg">element</i> is already in the disjoint
+set—no matter in which partition—this method will throw an error.</p>
+<p>This method returns the empty string.</p>
+<p>This method runs in constant time, <em>O(1)</em>.</p></dd>
+<dt><a name="3"><i class="arg">aDisjointSet</i> <b class="method">add-partition</b> <i class="arg">elements</i></a></dt>
+<dd><p>Creates a new partition in the <i class="arg">aDisjointSet</i>, and adds all the
+given <i class="arg">elements</i> to the new partition. The command maintains the
+integrity of the disjoint set, i.e., if any of the elements in
+<i class="arg">elements</i> is already in the disjoint set—no matter in which
+partition—this method will throw an error.</p>
+<p>This method returns the empty string.</p>
+<p>This method runs in time proportional to the size of <i class="arg">elements</i>,
+<em>O(N)</em>, where <em>N</em> is the number of <i class="arg">elements</i>.</p></dd>
+<dt><a name="4"><i class="arg">aDisjointSet</i> <b class="method">partitions</b></a></dt>
+<dd><p>Returns the <i class="arg">aDisjointSet</i>’s set of partitions as a list of lists.
+The outer lists are the partitions, the inner lists contain each
+partition’s elements.</p>
+<p>This method runs in <em>O(N &times; α(N))</em> time, where <em>N</em> is the
+number of elements in the disjoint set, and the <em>α</em> function is
+the inverse Ackermann function.</p></dd>
+<dt><a name="5"><i class="arg">aDisjointSet</i> <b class="method">num-partitions</b></a></dt>
+<dd><p>Returns the number of partitions in the <i class="arg">aDisjointSet</i>.</p>
 <p>This method runs in constant time.</p></dd>
-<dt><a name="4"><i class="arg">disjointsetName</i> <b class="method">add-partition</b> <i class="arg">elements</i></a></dt>
-<dd><p>Creates a new partition in specified disjoint set, and fills it with
-the values found in the set of <i class="arg">elements</i>. The command maintains
-the integrity of the disjoint set, i.e. it verifies that none of the
-<i class="arg">elements</i> are already part of the disjoint set and throws an
-error otherwise.</p>
-<p>The result of the command is the empty string.</p>
-<p>This method runs in time proportional to the size of <i class="arg">elements</i>].</p></dd>
-<dt><a name="5"><i class="arg">disjointsetName</i> <b class="method">partitions</b></a></dt>
-<dd><p>Returns the set of partitions the named disjoint set currently
-consists of. The form of the result is a list of lists; the inner
-lists contain the elements of the partitions.</p>
-<p>This method runs in time O(N*alpha(N)),
-where N is the number of elements in the disjoint set and alpha
+<dt><a name="6"><i class="arg">aDisjointSet</i> <b class="method">equal</b> <i class="arg">a</i> <i class="arg">b</i></a></dt>
+<dd><p>Returns <b class="const">1</b> (true) if elements <i class="arg">a</i> and <i class="arg">b</i> in the
+<i class="arg">aDisjointSet</i> are in the same partition; otherwise returns
+<b class="const">0</b> (false).</p>
+<p>If one or both arguments are not in the disjoint set at all, this method
+will throw an error.</p>
+<p>This method runs in amortized time <em>O(α(N))</em>, where <em>N</em> is
+the number of elements in the larger partition, and the <em>α</em>
+function is the inverse Ackermann function.</p></dd>
+<dt><a name="7"><i class="arg">aDisjointSet</i> <b class="method">merge</b> <i class="arg">a</i> <i class="arg">b</i></a></dt>
+<dd><p>Determines the partitions in the <i class="arg">aDisjointSet</i> that elements
+<i class="arg">a</i> and <i class="arg">b</i> are contained in, and merges these partitions into a
+single partition. If the two elements were already contained in the same
+partition the disjoint set is left unchanged.</p>
+<p>If one or both arguments are not in the disjoint set at all, this method
+will throw an error.</p>
+<p>This method returns the empty string.</p>
+<p>This method runs in amortized time <em>O(α(N))</em>, where <em>N</em> is
+the number of elements in the larger of the partitions being merged, and
+the <em>α</em> function is the inverse Ackermann function. The worst
+case time is <em>O(N)</em>.</p></dd>
+<dt><a name="8"><i class="arg">aDisjointSet</i> <b class="method">find</b> <i class="arg">element</i></a></dt>
+<dd><p>Returns a list of the members of the partition of the
+<i class="arg">aDisjointSet</i> which contains the given <i class="arg">element</i>; or an empty
+string if <i class="arg">element</i> is not in the disjoint set.</p>
+<p>This method runs in <em>O(N &times; α(N))</em> time, where <em>N</em> is the
+total number of elements in the disjoint set, and the <em>α</em> function
+is the inverse Ackermann function. See <b class="method">find-exemplar</b> for a
+faster method, if all that is needed is a unique partition identifier,
+rather than a list of its elements.</p></dd>
+<dt><a name="9"><i class="arg">aDisjointSet</i> <b class="method">exemplars</b></a></dt>
+<dd><p>Returns a list containing an exemplar—an arbitrarily chosen member—of
+each partition in the <i class="arg">aDisjointSet</i>.</p>
+<p>Note that the only operation that will change the exemplar chosen for
+any particular partition is <b class="method">merge</b>.</p>
+<p>This method runs in <em>O(N &times; α(N))</em> time, where <em>N</em> is the
+total number of elements in the disjoint set, and the <em>α</em> function
 is the inverse Ackermann function.</p></dd>
-<dt><a name="6"><i class="arg">disjointsetName</i> <b class="method">num-partitions</b></a></dt>
-<dd><p>Returns the number of partitions the named disjoint set currently
-consists of.</p>
-<p>This method runs in constant time.</p></dd>
-<dt><a name="7"><i class="arg">disjointsetName</i> <b class="method">equal</b> <i class="arg">a</i> <i class="arg">b</i></a></dt>
-<dd><p>Determines if the two elements <i class="arg">a</i> and <i class="arg">b</i> of the disjoint set
-belong to the same partition. The result of the method is a boolean
-value, <b class="const">True</b> if the two elements are contained in the same
-partition, and <b class="const">False</b> otherwise.</p>
-<p>An error will be thrown if either <i class="arg">a</i> or <i class="arg">b</i> are not elements
-of the disjoint set.</p>
-<p>This method runs in amortized time O(alpha(N)), where N is the number of
-elements in the larger partition and alpha is the inverse Ackermann function.</p></dd>
-<dt><a name="8"><i class="arg">disjointsetName</i> <b class="method">merge</b> <i class="arg">a</i> <i class="arg">b</i></a></dt>
-<dd><p>Determines the partitions the elements <i class="arg">a</i> and <i class="arg">b</i> are
-contained in and merges them into a single partition.  If the two
-elements were already contained in the same partition nothing will
-change.</p>
-<p>The result of the method is the empty string.</p>
-<p>This method runs in amortized time O(alpha(N)), where N is the number of
-items in the larger of the partitions being merged. The worst case time
-is O(N).</p></dd>
-<dt><a name="9"><i class="arg">disjointsetName</i> <b class="method">find</b> <i class="arg">e</i></a></dt>
-<dd><p>Returns a list of the members of the partition of the disjoint set
-which contains the element
-<i class="arg">e</i>.</p>
-<p>This method runs in O(N*alpha(N)) time, where N is the total number of
-items in the disjoint set and alpha is the inverse Ackermann function,
-See <b class="method">find-exemplar</b> for a faster method, if all that is needed
-is a unique identifier for the partition, rather than an enumeration
-of all its elements.</p></dd>
-<dt><a name="10"><i class="arg">disjointsetName</i> <b class="method">exemplars</b></a></dt>
-<dd><p>Returns a list containing an exemplar of each partition in the disjoint
-set. The exemplar is a member of the partition, chosen arbitrarily.</p>
-<p>This method runs in O(N*alpha(N)) time, where N is the total number of items
-in the disjoint set and alpha is the inverse Ackermann function.</p></dd>
-<dt><a name="11"><i class="arg">disjointsetName</i> <b class="method">find-exemplar</b> <i class="arg">e</i></a></dt>
-<dd><p>Returns the exemplar of the partition of the disjoint set containing
-the element <i class="arg">e</i>.  Throws an error if <i class="arg">e</i> is not found in the
-disjoint set.  The exemplar is an arbitrarily chosen member of the partition.
-The only operation that will change the exemplar of any partition is
-<b class="method">merge</b>.</p>
-<p>This method runs in O(alpha(N)) time, where N is the number of items in
-the partition containing E, and alpha is the inverse Ackermann function.</p></dd>
-<dt><a name="12"><i class="arg">disjointsetName</i> <b class="method">destroy</b></a></dt>
-<dd><p>Destroys the disjoint set object and all associated memory.</p></dd>
+<dt><a name="10"><i class="arg">aDisjointSet</i> <b class="method">find-exemplar</b> <i class="arg">element</i></a></dt>
+<dd><p>Returns an exemplar—an arbitrarily chosen member—of the partition of the
+<i class="arg">aDisjointSet</i> that contains the given <i class="arg">element</i>.</p>
+<p>If <i class="arg">element</i> is not in the disjoint set at all, this method
+will throw an error.</p>
+<p>Note that the only operation that will change the exemplar chosen for
+any particular partition is <b class="method">merge</b>.</p>
+<p>This method runs in <em>O(α(N))</em> time, where <em>N</em> is the
+number of elements in the partition containing <i class="arg">element</i>, and the
+<em>α</em> function is the inverse Ackermann function.</p></dd>
+<dt><a name="11"><i class="arg">aDisjointSet</i> <b class="method">destroy</b></a></dt>
+<dd><p>Destroys the <i class="arg">aDisjointSet</i> object, including the global command
+<i class="arg">aDisjointSet</i>, and all its associated memory.</p></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
+<p>The examples make use of the following <b class="cmd"><a href="../../../../index.html#proc">proc</a></b> to show their results:</p>
+<pre class="doctools_example">
+proc dump_disjointset name {
+    puts &quot;$name:&quot;
+    foreach partition [$name partitions] {
+        puts -nonewline &quot;  partition &quot;
+        set sep &quot;{&quot;
+        foreach element $partition {
+            puts -nonewline $sep$element
+            set sep &quot; &quot;
+        }
+        puts &quot;}&quot;
+    }
+}
+</pre>
+<p>This example creates a new disjoint set called <em>colors</em> and adds
+one partition with the single element <em>black</em> and another partition
+with the elements <em>cyan</em>, <em>magenta</em>, <em>yellow</em>.</p>
+<pre class="doctools_example">
+struct::disjointset colors
+colors add-element black
+puts &quot;colors num-partitions=[colors num-partitions]&quot;
+colors add-partition {cyan magenta yellow}
+puts &quot;colors num-partitions=[colors num-partitions]&quot;
+dump_disjointset colors
+=&gt;
+colors num-partitions=1
+colors num-partitions=2
+colors:
+  partition {black}
+  partition {cyan magenta yellow}
+</pre>
+<p>This example explores some of the disjoint set API on the <em>colors</em>
+disjoint set created above.</p>
+<pre class="doctools_example">
+puts &quot;colors equal black yellow=[colors equal black yellow]&quot;
+puts &quot;colors equal cyan yellow=[colors equal cyan yellow]&quot;
+puts &quot;colors equal cyan magenta=[colors equal cyan magenta]&quot;
+colors merge black cyan
+puts &quot;colors equal black yellow=[colors equal black yellow]&quot;
+dump_disjointset colors
+=&gt;
+colors equal black yellow=0
+colors equal cyan yellow=1
+colors equal cyan magenta=1
+colors merge black cyan
+colors equal black yellow=1
+colors:
+  partition {black cyan magenta yellow}
+</pre>
+<p>This example continues to explore some of the disjoint set API on the
+<em>colors</em> disjoint set created above.</p>
+<pre class="doctools_example">
+colors add-partition {red green blue}
+dump_disjointset colors
+puts &quot;[colors find-exemplar blue] [colors find-exemplar yellow]&quot;
+colors destroy
+=&gt;
+colors:
+  partition {black cyan magenta yellow}
+  partition {red green blue}
+red cyan
+</pre>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the
@@ -286,6 +364,9 @@ i.e the output of <b class="const">diff -u</b>.</p>
 inlined patches. Attachments can be made by going to the <b class="const">Edit</b>
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
+</div>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
+<p>http://en.wikipedia.org/wiki/Disjoint_set_data_structure</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
 <p><a href="../../../../index.html#disjoint_set">disjoint set</a>, <a href="../../../../index.html#equivalence_class">equivalence class</a>, <a href="../../../../index.html#find">find</a>, <a href="../../../../index.html#merge_find">merge find</a>, <a href="../../../../index.html#partition">partition</a>, <a href="../../../../index.html#partitioned_set">partitioned set</a>, <a href="../../../../index.html#union">union</a></p>

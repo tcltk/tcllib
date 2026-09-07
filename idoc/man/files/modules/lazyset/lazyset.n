@@ -292,7 +292,7 @@ The first time its constructor is called—if ever—the object will be
 created\&. Any subsequent constructor call will get back the first created
 object\&. See\fR
 \fIoo::singleton\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/singleton\&.html]\&.)
-.SH COMMANDS
+.SH API
 .TP
 \fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIsomeVar\fR \fIcommandPrefix\fR
 Arrange for the code specified as \fIcommandPrefix\fR to be executed when

@@ -294,6 +294,7 @@ encoding used for Usenet messages\&. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
 escapes characters special to the \fINNTP\fR posting protocols\&. See
 \fIhttp://www\&.yenc\&.org\fR for the encoding’s details\&.
+.SH API
 .TP
 \fB::yencode::encode\fR \fIbstring\fR
 Returns a yEncoded version of the binary string \fIbstring\fR as

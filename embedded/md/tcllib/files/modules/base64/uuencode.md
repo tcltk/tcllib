@@ -23,11 +23,13 @@ uuencode \- UU\-encode/decode binary data
 
   - [Description](#section1)
 
+  - [API](#section2)
+
       - [Options](#subsection1)
 
-  - [Examples](#section2)
+  - [Examples](#section3)
 
-  - [Bugs, Ideas, Feedback](#section3)
+  - [Bugs, Ideas, Feedback](#section4)
 
   - [Keywords](#keywords)
 
@@ -52,6 +54,8 @@ This package provides a Tcl\-only implementation of the
 and
 [__uudecode\(1p\)__](https://www\.man7\.org/linux/man\-pages/man1/uudecode\.1p\.html)
 commands\. This encoding packs binary data into printable 7\-bit ASCII characters\.
+
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::uuencode::encode__ *bstring*
 
@@ -108,7 +112,7 @@ commands\. This encoding packs binary data into printable 7\-bit ASCII character
     option\. For instance, 0755 would be suitable for an executable\. See
     [__chmod\(1\)__](https://www\.man7\.org/linux/man\-pages/man1/chmod\.1\.html)\.
 
-# <a name='section2'></a>Examples
+# <a name='section3'></a>Examples
 
 The examples use the subcommand __string trimright__ to trim any
 __\\x00__ NUL bytes that may have been added during encoding\. *Note however,
@@ -163,7 +167,7 @@ This example shows how to read a file containing one or more uuencoded files\.
     =>
     name=test.uu mode=644 line='Δ÷ “Utf-8” ♞ℤ'
 
-# <a name='section3'></a>Bugs, Ideas, Feedback
+# <a name='section4'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

@@ -287,8 +287,7 @@ package require \fBfileutil\fR
 .SH DESCRIPTION
 This package provides a command which parses a line of text using
 basic \fBsh\fR-syntax into a list of words\&.
-.PP
-The complete set of procedures is described below\&.
+.SH API
 .TP
 \fB::string token shell\fR ?\fB-indices\fR? ?\fB-partial\fR? ?--? \fIstring\fR
 By default, returns a list of words from the input \fIstring\fR\&. The

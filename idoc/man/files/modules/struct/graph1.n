@@ -356,6 +356,8 @@ package require \fBstruct::graph ?1\&.2\&.2?\fR
 .sp
 .BE
 .SH DESCRIPTION
+\fIThis package has been superseded by\fR \fBstruct::graph\fR
+\fIversion 2\&.\fR
 .PP
 The \fB::struct::graph\fR command creates a new graph object with an
 associated global Tcl command whose name is \fIgraphName\fR\&.  This

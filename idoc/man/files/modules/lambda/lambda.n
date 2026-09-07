@@ -327,7 +327,7 @@ or
 .PP
 Lambdas are particularly useful for commands that accept a
 \fB-command\fR option\&.
-.SH COMMANDS
+.SH API
 .TP
 \fB::lambda\fR \fIarguments\fR \fIbody\fR ?\fIarg \&.\&.\&.\fR?
 Returns an anonymous command based on the \fIarguments\fR list, the

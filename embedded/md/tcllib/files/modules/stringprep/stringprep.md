@@ -23,7 +23,7 @@ stringprep \- Implementation of stringprep
 
   - [Description](#section1)
 
-  - [Commands](#section2)
+  - [API](#section2)
 
   - [Examples](#section3)
 
@@ -62,7 +62,7 @@ was superceded by* [RFC 8264](https://www\.rfc\-editor\.org/rfc/rfc8264)
 *This package is currently unmaintained; see*
 [ticket](https://core\.tcl\-lang\.org/tcllib/tktview/b192bd4149e07ddf4e000f894100700c2ec35e1e)\.
 
-# <a name='section2'></a>Commands
+# <a name='section2'></a>API
 
 If the only string preparation needed is Unicode normalization, the
 __[unicode](unicode\.md)__ package’s commands are sufficient\.

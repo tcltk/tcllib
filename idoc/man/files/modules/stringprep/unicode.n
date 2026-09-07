@@ -293,7 +293,7 @@ This is a Tcl implementation of Unicode normalization commands\&.
 .PP
 \fINote\fR that if normalization alone is insufficient (e\&.g\&., for
 string comparisons), the \fBstringprep\fR package may prove useful\&.
-.SH COMMANDS
+.SH API
 .PP
 The \fIform\fR argument in the commands listed below must be a string
 that has one of the following values: \fBD\fR (canonical
@@ -307,7 +307,6 @@ Returns a possibly modified copy of \fIstring\fR, normalized in
 accordance with the given \fIform\fR\&.
 .sp
 This is a convenience for:
-.sp
 \fI::unicode::tostring\fR [\fIunicode::normalize $form\fR
 [\fI::unicode::fromstring $string\fR]]\&.
 .TP

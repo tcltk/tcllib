@@ -294,7 +294,7 @@ to and from the standard base64 encoding as specified in
 \fIbinary\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/binary\&.html]
 \fIsubcommands for encoding and decoding base64 (introduced in Tcl
 8\&.6), are used in preference to this package’s commands\&.\fR
-.SH "BEWARE: VARIATIONS IN DECODING BEHAVIOUR"
+.SS "BEWARE: VARIATIONS IN DECODING BEHAVIOUR"
 Tcl 8\&.6 introduced built-in support for encoding and decoding base64
 using subcommands of the
 \fIbinary\fR [https://www\&.tcl-lang\&.org/man/tcl/TclCmd/binary\&.html] command:

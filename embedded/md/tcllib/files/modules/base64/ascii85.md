@@ -23,11 +23,13 @@ ascii85 \- ascii85\-encode/decode binary data
 
   - [Description](#section1)
 
-  - [EXAMPLES](#section2)
+  - [API](#section2)
 
-  - [References](#section3)
+  - [Examples](#section3)
 
-  - [Bugs, Ideas, Feedback](#section4)
+  - [References](#section4)
+
+  - [Bugs, Ideas, Feedback](#section5)
 
   - [Keywords](#keywords)
 
@@ -48,6 +50,8 @@ package require ascii85 ?1\.1?
 This package provides commands for encoding and decoding binary strings to and
 from the ascii85 encoding\. \(This encoding is also known as base85\.\)
 
+# <a name='section2'></a>API
+
   - <a name='1'></a>__::ascii85::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *bstring*
 
     Returns an ascii85\-encoded version of the binary string *bstring* as its
@@ -66,7 +70,7 @@ from the ascii85 encoding\. \(This encoding is also known as base85\.\)
     Returns a binary string that has been ascii85\-decoded from the *estring*\.
     Any whitespace \(spaces, tabs, newlines\) in *estring* is ignored\.
 
-# <a name='section2'></a>EXAMPLES
+# <a name='section3'></a>Examples
 
 This example shows how to encode and decode a Tcl string to and from ascii85,
 taking account of the fact that the ascii85 commands work in terms of binary
@@ -103,14 +107,14 @@ Wrapping can be prevented so that no whitespace is introduced:
     =>
     G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]
 
-# <a name='section3'></a>References
+# <a name='section4'></a>References
 
   1. [http://en\.wikipedia\.org/wiki/Ascii85](http://en\.wikipedia\.org/wiki/Ascii85)
 
   1. Postscript Language Reference Manual, 3rd Edition, page 131\.
      [http://www\.adobe\.com/devnet/postscript/pdfs/PLRM\.pdf](http://www\.adobe\.com/devnet/postscript/pdfs/PLRM\.pdf)
 
-# <a name='section4'></a>Bugs, Ideas, Feedback
+# <a name='section5'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

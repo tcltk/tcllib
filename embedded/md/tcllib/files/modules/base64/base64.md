@@ -24,15 +24,15 @@ base64 \- base64\-encode/decode binary data
 
   - [Description](#section1)
 
-  - [Beware: Variations in decoding behaviour](#section2)
+      - [Beware: Variations in decoding behaviour](#subsection1)
 
-  - [API](#section3)
+  - [API](#section2)
 
-  - [Implementation Notes](#section4)
+  - [Implementation Notes](#section3)
 
-  - [EXAMPLES](#section5)
+  - [EXAMPLES](#section4)
 
-  - [Bugs, Ideas, Feedback](#section6)
+  - [Bugs, Ideas, Feedback](#section5)
 
   - [Keywords](#keywords)
 
@@ -59,7 +59,7 @@ from the standard base64 encoding as specified in [RFC
 for encoding and decoding base64 \(introduced in Tcl* *8\.6\), are used in
 preference to this package’s commands\.*
 
-# <a name='section2'></a>Beware: Variations in decoding behaviour
+## <a name='subsection1'></a>Beware: Variations in decoding behaviour
 
 Tcl 8\.6 introduced built\-in support for encoding and decoding base64 using
 subcommands of the
@@ -88,7 +88,7 @@ base64](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) subcommand
 defaults to not wrapping, but does support wrapping using a __\-maxlen__
 option\.
 
-# <a name='section3'></a>API
+# <a name='section2'></a>API
 
   - <a name='1'></a>__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *bstring*
 
@@ -109,13 +109,13 @@ option\.
     Any invalid characters or whitespace \(spaces, tabs, newlines\) in *estring*
     are ignored\.
 
-# <a name='section4'></a>Implementation Notes
+# <a name='section3'></a>Implementation Notes
 
 This package contains three different implementations for base64 encoding and
 decoding, and chooses among them based on the environment it finds itself in\.
 
 All three implementations have the same behaviour\. See also [Beware: Variations
-in decoding behaviour](#section2) at the beginning of this document\.
+in decoding behaviour](#subsection1) at the beginning of this document\.
 
   1. If Tcl 8\.6 or higher is found the commands are implemented in terms of the
      then\-available built\-in commands\.
@@ -126,7 +126,7 @@ in decoding behaviour](#section2) at the beginning of this document\.
   1. If neither of the above are possible a Tcl\-only implementation is used\.
      This is much slower\.
 
-# <a name='section5'></a>EXAMPLES
+# <a name='section4'></a>EXAMPLES
 
 This example shows how to encode and decode a Tcl string to and from base64,
 taking account of the fact that the base64 commands work in terms of binary
@@ -185,7 +185,7 @@ Note that the built\-in [binary encode
 base64](https://www\.tcl\-lang\.org/man/tcl/TclCmd/binary\.html) subcommand
 defaults to not wrapping, but will wrap if the __\-maxlen__ option is used\.
 
-# <a name='section6'></a>Bugs, Ideas, Feedback
+# <a name='section5'></a>Bugs, Ideas, Feedback
 
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the

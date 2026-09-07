@@ -116,8 +116,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Examples</a></li>
-<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Examples</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
@@ -138,7 +139,8 @@
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides a command which parses a line of text using
 basic <b class="syscmd">sh</b>-syntax into a list of words.</p>
-<p>The complete set of procedures is described below.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::string token shell</b> <span class="opt">?<b class="option">-indices</b>?</span> <span class="opt">?<b class="option">-partial</b>?</span> <span class="opt">?--?</span> <i class="arg">string</i></a></dt>
 <dd><p>By default, returns a list of words from the input <i class="arg">string</i>. The
@@ -222,7 +224,7 @@ word. Whitespace <em>must</em> occur between adjacent words.</p></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Examples</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Examples</a></h2>
 <p>An example of a command line parsed into its constituent words.</p>
 <pre class="doctools_example">
 const CMDLINE &quot;grep --include=*.{tcl,tm,tk} -rl * | grep -v \&quot;The Cloud\&quot;&quot;
@@ -259,7 +261,7 @@ token=PLAIN i=42 j=43 word=&laquo;-v&raquo;
 token=D:QUOTED i=45 j=55 word=&laquo;The Cloud&raquo;
 </pre>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the
