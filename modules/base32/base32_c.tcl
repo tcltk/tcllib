@@ -244,7 +244,7 @@ namespace eval ::base32 {
 	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out)); /* OK tcl9 */
+      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, (Tcl_Size)(at-out))); /* OK tcl9 */
       Tcl_Free ((char*) out);
       return TCL_OK;
     }
