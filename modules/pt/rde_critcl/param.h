@@ -49,14 +49,14 @@ SCOPE void               rde_param_query_amark   (RDE_PARAM p, Tcl_Size* mc, voi
 SCOPE void               rde_param_query_ast     (RDE_PARAM p, Tcl_Size* ac, Tcl_Obj*** av);
 SCOPE const char*        rde_param_query_in      (RDE_PARAM p);
 SCOPE const char*        rde_param_query_cc      (RDE_PARAM p, Tcl_Size* len);
-SCOPE int                rde_param_query_cl      (RDE_PARAM p);
+SCOPE Tcl_Size           rde_param_query_cl      (RDE_PARAM p);
 SCOPE const ERROR_STATE* rde_param_query_er      (RDE_PARAM p);
 SCOPE Tcl_Obj*           rde_param_query_er_tcl  (RDE_PARAM p, const ERROR_STATE* er);
 SCOPE void               rde_param_query_es      (RDE_PARAM p, Tcl_Size* ec, ERROR_STATE*** ev);
 SCOPE void               rde_param_query_ls      (RDE_PARAM p, Tcl_Size* lc, void*** lv);
 SCOPE Tcl_Size           rde_param_query_lstop   (RDE_PARAM p);
 SCOPE Tcl_HashTable*     rde_param_query_nc      (RDE_PARAM p);
-SCOPE int                rde_param_query_st      (RDE_PARAM p);
+SCOPE Tcl_Size           rde_param_query_st      (RDE_PARAM p);
 SCOPE Tcl_Obj*           rde_param_query_sv      (RDE_PARAM p);
 SCOPE Tcl_Size           rde_param_query_tc_size (RDE_PARAM p);
 SCOPE void               rde_param_query_tc_get_s (RDE_PARAM p, Tcl_Size at, Tcl_Size last, char** ch, Tcl_Size* len);
@@ -163,10 +163,10 @@ SCOPE int  rde_param_i_seq_void2void   (RDE_PARAM p);
 SCOPE int  rde_param_i_seq_void2value  (RDE_PARAM p);
 SCOPE int  rde_param_i_seq_value2value (RDE_PARAM p);
 
-SCOPE int  rde_param_i_bra_void2void   (RDE_PARAM p);
-SCOPE int  rde_param_i_bra_void2value  (RDE_PARAM p);
-SCOPE int  rde_param_i_bra_value2void  (RDE_PARAM p);
-SCOPE int  rde_param_i_bra_value2value (RDE_PARAM p);
+SCOPE Tcl_Size  rde_param_i_bra_void2void   (RDE_PARAM p);
+SCOPE Tcl_Size  rde_param_i_bra_void2value  (RDE_PARAM p);
+SCOPE Tcl_Size  rde_param_i_bra_value2void  (RDE_PARAM p);
+SCOPE Tcl_Size  rde_param_i_bra_value2value (RDE_PARAM p);
 
 SCOPE void rde_param_i_next_str   (RDE_PARAM p, const char* str,   Tcl_Size m);
 SCOPE void rde_param_i_next_class (RDE_PARAM p, const char* class, Tcl_Size m);

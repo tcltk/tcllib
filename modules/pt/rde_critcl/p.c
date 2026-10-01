@@ -125,14 +125,14 @@ param_intern (RDE_STATE p, const char* literal)
 
     hPtr = Tcl_FindHashEntry (&p->str, literal);
     if (hPtr) {
-	res = (Tcl_Size) (long int) Tcl_GetHashValue (hPtr);
+	res = (Tcl_Size) (intptr_t) Tcl_GetHashValue (hPtr);
 	RETURN("CACHED %d",res);
     }
 
     hPtr = Tcl_CreateHashEntry(&p->str, literal, &isnew);
     ASSERT (isnew, "Should have found entry");
 
-    Tcl_SetHashValue (hPtr, (long int) p->numstr);
+    Tcl_SetHashValue (hPtr, (intptr_t) p->numstr);
 
     if (p->numstr >= p->maxnum) {
 	Tcl_Size new;
@@ -163,7 +163,7 @@ param_intern (RDE_STATE p, const char* literal)
 static char*
 dup_string (const char* str)
 {
-    int   n = strlen(str);
+    size_t   n = strlen(str);
     char* s = NALLOC(n+1,char);
 
     memcpy (s, str, n);

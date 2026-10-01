@@ -83,7 +83,8 @@ namespace eval ::struct {
             case S_symdiff:    return sm_SYMDIFF    (NULL, interp, objc, objv);
             case S_union:      return sm_UNION      (NULL, interp, objc, objv);
         }
-        /* Not coming to this place */
+        /* Not coming to this place, but return anyway to make the compiler happy */
+	return TCL_ERROR;
     }
 }
 
