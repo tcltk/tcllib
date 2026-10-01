@@ -68,7 +68,7 @@ rde_tc_append (RDE_TC tc, char* string, Tcl_Size len)
     char*    ch;
 
     if (len < 0) {
-	len = strlen (string);
+	len = (Tcl_Size)strlen (string);
     }
 
     /*

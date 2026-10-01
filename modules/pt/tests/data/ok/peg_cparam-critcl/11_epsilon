@@ -370,7 +370,7 @@ namespace eval ::PARSER {
 	    Tcl_Size off  = tc->num;
 	    char*    ch;
 	    if (len < 0) {
-		len = strlen (string);
+		len = (Tcl_Size)strlen (string);
 	    }
 	    
 	    if (!len) {

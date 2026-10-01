@@ -62,7 +62,6 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 8 "json.y" /* yacc.c:339  */
 
 /* * ** *** ***** ******** ************* ********************* */
 #include <tcl.h>
@@ -94,7 +93,6 @@ static int  jsonlexp  (YYSTYPE *lvalp, struct context *context);
 ** User declarations <EOF>
  */
 
-#line 98 "json.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -136,7 +134,6 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 40 "json.y" /* yacc.c:355  */
 
 	Tcl_Obj		*obj;
 	struct {
@@ -144,7 +141,6 @@ union YYSTYPE
 		Tcl_Obj	*val;
 	} keyval;
 
-#line 148 "json.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -158,7 +154,6 @@ int yyparse (struct context* context);
 
 /* Copy the second part of user declarations.  */
 
-#line 162 "json.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1242,7 +1237,6 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 66 "json.y" /* yacc.c:1646  */
     {
 		REDUCE("TREE");
 		if (context->I) {
@@ -1251,105 +1245,81 @@ yyreduce:
 		}
 		context->result = TCL_OK;
 	}
-#line 1255 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 80 "json.y" /* yacc.c:1646  */
     {
 		(yyval.obj) = (yyvsp[-1].obj);
 	}
-#line 1263 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 84 "json.y" /* yacc.c:1646  */
     {
 		(yyval.obj) = Tcl_NewObj();
 	}
-#line 1271 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 90 "json.y" /* yacc.c:1646  */
     {
 		(yyval.obj) = (yyvsp[-1].obj);
 	}
-#line 1279 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 94 "json.y" /* yacc.c:1646  */
     {
 		(yyval.obj) = Tcl_NewObj();
 	}
-#line 1287 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 100 "json.y" /* yacc.c:1646  */
     {	
 		(yyval.obj) = Tcl_NewListObj(1, &(yyvsp[0].obj)); /* OK tcl9 */
 	}
-#line 1295 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 104 "json.y" /* yacc.c:1646  */
     {
 		Tcl_ListObjAppendElement(NULL, (yyvsp[-2].obj), (yyvsp[0].obj));
 		(yyval.obj) = (yyvsp[-2].obj);
 	}
-#line 1304 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 111 "json.y" /* yacc.c:1646  */
     {
 	        (yyval.obj) = Tcl_NewListObj(0, NULL); /* OK tcl9 */
 		Tcl_ListObjAppendElement(NULL, (yyval.obj), (yyvsp[0].keyval).key);
 		Tcl_ListObjAppendElement(NULL, (yyval.obj), (yyvsp[0].keyval).val);
 	}
-#line 1314 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 117 "json.y" /* yacc.c:1646  */
     {
 		Tcl_ListObjAppendElement(NULL, (yyvsp[-2].obj), (yyvsp[0].keyval).key);
 		Tcl_ListObjAppendElement(NULL, (yyvsp[-2].obj), (yyvsp[0].keyval).val);
 		(yyval.obj) = (yyvsp[-2].obj);
 	}
-#line 1324 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 125 "json.y" /* yacc.c:1646  */
     {
 		(yyval.keyval).key = (yyvsp[-2].obj);
 		(yyval.keyval).val = (yyvsp[0].obj);
 	}
-#line 1333 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 132 "json.y" /* yacc.c:1646  */
     {
 		(yyval.obj) = context->obj;
 	}
-#line 1341 "json.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 138 "json.y" /* yacc.c:1646  */
     {
 		(yyval.obj) = context->obj;
 	}
-#line 1349 "json.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1353 "json.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1577,7 +1547,6 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 146 "json.y" /* yacc.c:1906  */
 
 /* * ** *** ***** ******** ************* *********************
 ** User definitions
@@ -1597,11 +1566,11 @@ jsonparse (struct context* context)
 	if (initialized) {				\
 		if (context->text != bp) {		\
 			Tcl_AppendToObj(context->obj, /* OK tcl9 */	\
-			    bp, context->text - bp);	\
+			    bp, (Tcl_Size)(context->text - bp));	\
 		}					\
 	} else {					\
 		context->obj = Tcl_NewStringObj( /* OK tcl9 */	\
-		    bp, context->text - bp);		\
+		    bp, (Tcl_Size)(context->text - bp));		\
 		initialized = 1;			\
 	}
 
@@ -1635,7 +1604,6 @@ jsonlexp(YYSTYPE *lvalp, struct context *context)
   } lstate;
   double 	 d;
   char		*end;
-  const char	*p;
   int		 initialized = 0;
 
   /*
@@ -1807,9 +1775,9 @@ jsonlexp(YYSTYPE *lvalp, struct context *context)
       goto bareword; /* Nothing parsed */
 
     context->obj = Tcl_NewStringObj (context->text, /* OK tcl9 */
-				     end - context->text);
+				     (Tcl_Size)(end - context->text));
 
-    context->remaining -= (end - context->text);
+    context->remaining -= (Tcl_Size)(end - context->text);
     context->text = end;
     TOKEN1 ("CONSTANT");
     return CONSTANT;
@@ -1975,7 +1943,7 @@ jsonerror(struct context *context, const char *message)
 
   if (context->obj) {
     yytext = Tcl_GetStringFromObj(context->obj, &yyleng); /* OK tcl9 */
-    fullmessage = Tcl_Alloc(strlen(message) + 63 + yyleng);
+    fullmessage = Tcl_Alloc((Tcl_Size)(strlen(message) + 63 + yyleng));
 
     sprintf(fullmessage,
 	    "%s %" TCL_SIZE_MODIFIER "d bytes before end, around ``%.*s''",
@@ -1986,7 +1954,7 @@ jsonerror(struct context *context, const char *message)
      * will not happen.
      */
   } else {
-    fullmessage = Tcl_Alloc(strlen(message) + 63);
+    fullmessage = Tcl_Alloc((Tcl_Size)(strlen(message) + 63));
 
     sprintf(fullmessage, "%s %" TCL_SIZE_MODIFIER "d bytes before end",
 	    message, context->remaining);
