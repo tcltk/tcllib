@@ -28,7 +28,7 @@ namespace eval ::base32 {
 
       unsigned char* out;
       unsigned char* at;
-      int           nout;
+      Tcl_Size      nout;
 
       /*
        * The array used for encoding
@@ -150,9 +150,9 @@ namespace eval ::base32 {
       unsigned char* out;
       unsigned char* at;
       unsigned char  x [8];
-      int           nout;
+      Tcl_Size      nout;
 
-      int i, j, a, pad, nx;
+      int i, j, a, pad;
 
       /*
        * An array for translating single base-32 characters into a value.
@@ -244,7 +244,7 @@ namespace eval ::base32 {
 	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out)); /* OK tcl9 */
+      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, (Tcl_Size)(at-out))); /* OK tcl9 */
       Tcl_Free ((char*) out);
       return TCL_OK;
     }

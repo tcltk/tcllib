@@ -7,6 +7,7 @@
 #include <stack.h> /* Stack handling */
 #include <util.h>  /* Allocation macros */
 #include <string.h>
+#include <stdint.h> /* intptr_t and uintptr_t */
 
 /*
  * = = == === ===== ======== ============= =====================
@@ -68,7 +69,7 @@ rde_tc_append (RDE_TC tc, char* string, Tcl_Size len)
     char*    ch;
 
     if (len < 0) {
-	len = strlen (string);
+	len = (Tcl_Size)strlen (string);
     }
 
     /*
@@ -109,7 +110,7 @@ rde_tc_append (RDE_TC tc, char* string, Tcl_Size len)
 	Tcl_UniChar uni;
 
 	ASSERT_BOUNDS(off,tc->num);
-	rde_stack_push (tc->off,  (void*) (long int) off);
+	rde_stack_push (tc->off,  (void*) (uintptr_t) off);
 
 	clen = Tcl_UtfToUniChar (ch, &uni); /* OK tcl9 */
 
@@ -130,11 +131,11 @@ rde_tc_get (RDE_TC tc, Tcl_Size at, char** ch, Tcl_Size* len)
 
     ASSERT_BOUNDS(at,oc);
 
-    off = (Tcl_Size) (long int) ov [at];
+    off = (Tcl_Size) (intptr_t) ov [at];
     if ((at+1) == oc) {
 	end = tc->num;
     } else {
-	end = (Tcl_Size) (long int) ov [at+1];
+	end = (Tcl_Size) (intptr_t) ov [at+1];
     }
 
     TRACE (("rde_tc_get (RDE_TC %p, @ %d) => %d.[%d ... %d]/%d",tc,at,end-off,off,end-1,tc->num));
@@ -157,11 +158,11 @@ rde_tc_get_s (RDE_TC tc, Tcl_Size at, Tcl_Size last, char** ch, Tcl_Size* len)
     ASSERT_BOUNDS(at,oc);
     ASSERT_BOUNDS(last,oc);
 
-    off = (Tcl_Size) (long int) ov [at];
+    off = (Tcl_Size) (intptr_t) ov [at];
     if ((last+1) == oc) {
 	end = tc->num;
     } else {
-	end = (Tcl_Size) (long int) ov [last+1];
+	end = (Tcl_Size) (intptr_t) ov [last+1];
     }
 
     TRACE (("rde_tc_get_s (RDE_TC %p, @ %d .. %d) => %d.[%d ... %d]/%d",tc,at,last,end-off,off,end-1,tc->num));

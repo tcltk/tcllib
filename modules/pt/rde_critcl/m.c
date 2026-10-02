@@ -9,6 +9,7 @@
 #include <ot.h>   /* Tcl_Objype for interned strings. */
 #include <util.h> /* Allocation utilities */
 #include <string.h>
+#include <stdint.h> /* intptr_t and uintptr_t */
 
 /* .................................................. */
 
@@ -33,7 +34,7 @@ param_AMARKED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
     ov = NALLOC (mc, Tcl_Obj*);
 
     for (i=0; i < mc; i++) {
-	ov [i] = Tcl_NewSizeIntObj ((Tcl_Size) (long int) mv [i]);
+	ov [i] = Tcl_NewSizeIntObj ((Tcl_Size) (intptr_t) mv [i]);
     }
 
     Tcl_SetObjResult (interp, Tcl_NewListObj (mc, ov)); /* OK tcl9 */
@@ -292,7 +293,7 @@ param_LMARKED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
     ov = NALLOC (lc, Tcl_Obj*);
 
     for (i=0; i < lc; i++) {
-	ov [i] = Tcl_NewSizeIntObj ((Tcl_Size) (long int) lv [i]);
+	ov [i] = Tcl_NewSizeIntObj ((Tcl_Size) (intptr_t) lv [i]);
     }
 
     Tcl_SetObjResult (interp, Tcl_NewListObj (lc, ov)); /* OK tcl9 */
@@ -395,7 +396,7 @@ param_SCACHED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
 
 	Tcl_HashSearch hsc;
 	Tcl_HashEntry* hec;
-	Tcl_Size       loc = (Tcl_Size) (long int) Tcl_GetHashKey (nc, he);
+	Tcl_Size       loc = (Tcl_Size) (intptr_t) Tcl_GetHashKey (nc, he);
 
 	kv [0]   = Tcl_NewSizeIntObj (loc);
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (he);
@@ -404,7 +405,7 @@ param_SCACHED (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
 	    hec != NULL;
 	    hec = Tcl_NextHashEntry(&hsc)) {
 
-	    Tcl_Size    symid = (Tcl_Size) (long int) Tcl_GetHashKey (tablePtr, hec);
+	    Tcl_Size    symid = (Tcl_Size) (intptr_t) Tcl_GetHashKey (tablePtr, hec);
 	    const char* sym   = rde_param_query_string (p->p, symid);
 
 	    kv [1] = Tcl_NewStringObj (sym,-1); /* OK tcl9 */
@@ -446,7 +447,7 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
 
 	Tcl_HashSearch hsc;
 	Tcl_HashEntry* hec;
-	Tcl_Size       loc = (Tcl_Size) (long int) Tcl_GetHashKey (nc, he);
+	Tcl_Size       loc = (Tcl_Size) (intptr_t) Tcl_GetHashKey (nc, he);
 
 	kv [0]   = Tcl_NewSizeIntObj (loc);
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (he);
@@ -456,7 +457,7 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
 	    hec = Tcl_NextHashEntry(&hsc)) {
 
 	    NC_STATE*   scs   = Tcl_GetHashValue (hec);
-	    Tcl_Size    symid = (Tcl_Size) (long int) Tcl_GetHashKey (tablePtr, hec);
+	    Tcl_Size    symid = (Tcl_Size) (intptr_t) Tcl_GetHashKey (tablePtr, hec);
 	    const char* sym   = rde_param_query_string (p->p, symid);
 
 	    kv [1] = Tcl_NewStringObj (sym,-1); /* OK tcl9 */
