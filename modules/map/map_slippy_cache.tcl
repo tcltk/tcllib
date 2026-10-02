@@ -107,12 +107,18 @@ snit::type map::slippy::cache {
 	return
     }
 
-    method {Do unset} {donecmd tile} {
+    method {Done unset} {tile} {
 	# The requested tile is not known. Nothing has to change in
 	# the cache (it did not know the tile either), the result can
-	# be directly handed over to the original requestor.
+	# be directly handed over to the original requestor(s).
 
-	uplevel \#0 [list {*}$donecmd unset $tile]
+	set requests $mypending($tile)
+	unset mypending($tile)
+
+	foreach d $requests {
+	    if {![llength $d]} continue
+	    uplevel \#0 [list {*}$d unset $tile]
+	}
 	return
     }
 
