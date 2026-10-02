@@ -7,6 +7,7 @@
 #include <stack.h> /* Stack handling */
 #include <util.h>  /* Allocation macros */
 #include <string.h>
+#include <stdint.h> /* intptr_t and uintptr_t */
 
 /*
  * = = == === ===== ======== ============= =====================

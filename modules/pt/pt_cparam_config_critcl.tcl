@@ -116,6 +116,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 
 		#include <string.h>
 		#include <ctype.h>  /* is... */
+		#include <stdint.h>  /* intptr_t and uintptr_t */
 		#include <stdlib.h> /* qsort */
 		#define SCOPE static
 

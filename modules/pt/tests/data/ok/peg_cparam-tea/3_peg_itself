@@ -12,6 +12,7 @@
 	#include <string.h>
 	#include <stdlib.h>
 	#include <ctype.h>
+	#include <stdint.h> /* intptr_t and uintptr_t */
 	#include <tclpre9compat.h>
 	#define SCOPE static
 

@@ -42,6 +42,7 @@ namespace eval ::pt {
 	#include <util.h>  /* Allocation macros */
 	#include <p.h>     /* Public state API */
 	#include <ms.h>    /* Instance command */
+	#include <stdint.h> /* intptr_t and uintptr_t */
 
 	/* .................................................. */
 	/* Global PARAM management, per interp

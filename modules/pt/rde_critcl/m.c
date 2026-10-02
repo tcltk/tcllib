@@ -9,6 +9,7 @@
 #include <ot.h>   /* Tcl_Objype for interned strings. */
 #include <util.h> /* Allocation utilities */
 #include <string.h>
+#include <stdint.h> /* intptr_t and uintptr_t */
 
 /* .................................................. */
 

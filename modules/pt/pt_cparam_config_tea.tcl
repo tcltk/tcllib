@@ -96,6 +96,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		#include <string.h>
 		#include <stdlib.h>
 		#include <ctype.h>
+		#include <stdint.h> /* intptr_t and uintptr_t */
 		#include <tclpre9compat.h>
 		#define SCOPE static
 

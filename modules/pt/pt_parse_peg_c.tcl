@@ -48,6 +48,7 @@ namespace eval ::pt::parse {
 	#include <string.h>
 	#include <ctype.h>  /* is... */
 	#include <stdlib.h> /* qsort */
+	#include <stdint.h> /* intptr_t and uintptr_t */
 	#define SCOPE static
 
 #line 1 "rde_critcl/util.h"

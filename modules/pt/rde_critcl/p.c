@@ -5,6 +5,7 @@
 #include <pInt.h> /* Our public and internal APIs */
 #include <util.h> /* Allocation macros */
 #include <string.h>
+#include <stdint.h> /* intptr_t and uintptr_t */
 
 /* .................................................. */
 
