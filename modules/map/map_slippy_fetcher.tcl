@@ -21,6 +21,26 @@ snit::type map::slippy::fetcher {
     ## API
 
     constructor {levels baseurl} {
+	if {[string match -nocase https:* $baseurl]} {
+	    # If the base URL specifies the use of https, make sure the https
+	    # protocol has been registered in the http package
+	    # There is no documented way to check if a protocol has been
+	    # registered, but unregistering a protocol returns the old
+	    # registration information
+	    if {[catch {http::unregister https} old]} {
+		# No previous https registration existed. Use some defaults.
+		if {![catch {package require tls}]} {
+		    http::register https 443 tls::socket
+		} elseif {![catch {package require twapi_crypto}]} {
+		    http::register https 443 twapi::tls_socket
+		} else {
+		    return -code error "The https protocol is not supported"
+		}
+	    } else {
+		# There was a previous registration. Just reinstate it.
+		http::register https {*}$old
+	    }
+	}
 	set mybase   $baseurl
 	set mylevels $levels
 	return
