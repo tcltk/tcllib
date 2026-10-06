@@ -32,7 +32,7 @@ namespace eval ::md5crypt {
 #include <string.h>
 #include "md5.h"
 #ifdef _MSC_VER
-#define snprintf _snprintf
+#define _CRT_SECURE_NO_WARNINGS
 #endif
         static unsigned char itoa64[] =
             "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -60,7 +60,7 @@ namespace eval ::md5crypt {
             static char                passwd[120], *p;
             static const unsigned char *sp,*ep;
             unsigned char	       final[16];
-            int                        sl, pl, i;
+            Tcl_Size                   sl, pl, i;
             MD5_CTX	               ctx, ctx1;
             unsigned long l;
             
@@ -76,7 +76,7 @@ namespace eval ::md5crypt {
                 continue;
             
             /* get the length of the true salt */
-            sl = ep - sp;
+            sl = (Tcl_Size)(ep - sp);
             
             MD5Init(&ctx);
             
@@ -97,7 +97,6 @@ namespace eval ::md5crypt {
             MD5Final(final,&ctx1);
             
             for(pl = plen; pl > 0; pl -= 16) {
-                int tl = pl > 16 ? 16 : pl;
                 MD5Update(&ctx,final,pl>16 ? 16 : pl);
             }
             
@@ -114,7 +113,7 @@ namespace eval ::md5crypt {
             
             /* Now make the output string */
             snprintf(passwd, sizeof(passwd), "%s%.*s$", (char *)magic,
-                    sl, (const char *)sp);
+                    (int)sl, (const char *)sp);
             
             MD5Final(final,&ctx);
             
