@@ -64,7 +64,8 @@ qums_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
     case M_SIZE:	return qum_SIZE    (q, interp, objc, objv);
     case M_UNGET:	return qum_UNGET   (q, interp, objc, objv);
     }
-    /* Not coming to this place */
+    /* Not coming to this place, but return anyway to keep compilers happy. */
+    return TCL_ERROR;
 }
 
 /*

@@ -67,7 +67,9 @@ stms_objcmd (ClientData cd, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* o
     case M_TRIM:	return stm_TRIM    (s, interp, objc, objv, 1   ); /* trim  */
     case M_TRIMV:	return stm_TRIM    (s, interp, objc, objv, 0   ); /* trim* */
     }
-    /* Not coming to this place */
+    /* Not coming to this place, but return anyway to keep compilers happy */
+
+    return TCL_ERROR;
 }
 
 /*
