@@ -31,9 +31,6 @@ namespace eval ::md5crypt {
     critcl::ccode {
 #include <string.h>
 #include "md5.h"
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
         static unsigned char itoa64[] =
             "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         

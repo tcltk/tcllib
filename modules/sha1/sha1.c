@@ -225,8 +225,8 @@ void SHA1Update(
     _DIAGASSERT(data != 0);
 
     j = context->count[0];
-    if ((context->count[0] += len << 3) < j)
-	context->count[1] += (len>>29)+1;
+    if ((context->count[0] += (my_int32_t)(len << 3)) < j)
+	context->count[1] += (my_int32_t)(len>>29)+1;
     j = (j >> 3) & 63;
     if ((j + len) > 63) {
 	(void)memcpy(&context->buffer[j], data, (i = 64-j));

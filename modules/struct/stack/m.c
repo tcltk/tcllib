@@ -202,8 +202,6 @@ stm_PEEK (S* s, Tcl_Interp* interp, Tcl_Size objc, Tcl_Obj* CONST* objv, int pop
      */
 
     Tcl_Size  listc = 0;
-    Tcl_Obj** listv;
-    Tcl_Obj*  r;
     Tcl_Size  n = 1;
 
     if ((objc != 2) && (objc != 3)) {
