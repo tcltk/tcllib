@@ -20,6 +20,7 @@ namespace eval ::rc4 {
     critcl::ccode {
         #include <string.h>
         #include <stdarg.h>
+        #include <stdint.h>
 
         typedef struct RC4_CTX {
             unsigned char x;
