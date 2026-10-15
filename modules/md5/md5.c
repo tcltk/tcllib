@@ -97,8 +97,9 @@ static unsigned char PADDING[64] = {
 /* The routine MD5Init initializes the message-digest context
    mdContext. All fields are set to zero.
  */
-void MD5Init (mdContext)
-MD5_CTX *mdContext;
+void MD5Init (
+MD5_CTX *mdContext
+)
 {
   mdContext->i[0] = mdContext->i[1] = (UINT4)0;
 
@@ -114,10 +115,11 @@ MD5_CTX *mdContext;
    account for the presence of each of the characters inBuf[0..inLen-1]
    in the message whose digest is being computed.
  */
-void MD5Update (mdContext, inBuf, inLen)
-     register MD5_CTX *mdContext;
-     unsigned char *inBuf;
-     Tcl_Size inLen;
+void MD5Update (
+     register MD5_CTX *mdContext,
+     unsigned char *inBuf,
+     Tcl_Size inLen
+)
 {
   register int i, ii;
   int mdi;
@@ -152,8 +154,9 @@ void MD5Update (mdContext, inBuf, inLen)
 /* The routine MD5Final terminates the message-digest computation and
    ends with the desired message digest in mdContext->digest[0...15].
  */
-void MD5Final (digest, mdContext)
-unsigned char digest[16]; MD5_CTX *mdContext;
+void MD5Final (
+unsigned char digest[16], MD5_CTX *mdContext
+)
 {
   UINT4 in[16];
   int mdi;
@@ -192,9 +195,10 @@ unsigned char digest[16]; MD5_CTX *mdContext;
    Constants are arranged backwards in little-endian order and decrypted with
    the DES they produce OCCULT MESSAGES!
  */
-void Transform(buf, in)
-register UINT4 *buf;
-register UINT4 *in;
+void Transform(
+register UINT4 *buf,
+register UINT4 *in
+)
 {
   register UINT4 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
 

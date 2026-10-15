@@ -2682,8 +2682,9 @@ TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr, Tcl_Size endValue, Tcl_S
  */
 
 static void
-UpdateStringOfEndOffset(objPtr)
-     register Tcl_Obj* objPtr;
+UpdateStringOfEndOffset(
+     register Tcl_Obj* objPtr
+)
 {
     char buffer[TCL_INTEGER_SPACE + sizeof("end") + 1];
     register Tcl_Size len;
@@ -2718,9 +2719,10 @@ UpdateStringOfEndOffset(objPtr)
  */
 
 static int
-SetEndOffsetFromAny(interp, objPtr)
-     Tcl_Interp* interp;	/* Tcl interpreter or NULL */
-     Tcl_Obj* objPtr;		/* Pointer to the object to parse */
+SetEndOffsetFromAny(
+     Tcl_Interp* interp,	/* Tcl interpreter or NULL */
+     Tcl_Obj* objPtr 		/* Pointer to the object to parse */
+)
 {
     Tcl_Size     offset;	/* Offset in the "end-offset" expression */
     const Tcl_ObjType* oldTypePtr = objPtr->typePtr;
@@ -2821,11 +2823,12 @@ SetEndOffsetFromAny(interp, objPtr)
  */
 
 static int
-TclCheckBadOctal(interp, value)
-     Tcl_Interp *interp;		/* Interpreter to use for error reporting.
+TclCheckBadOctal(
+     Tcl_Interp *interp,		/* Interpreter to use for error reporting.
 				 * If NULL, then no error message is left
 				 * after errors. */
-     const char *value;		/* String to check. */
+     const char *value 		/* String to check. */
+)
 {
     register const char *p = value;
 
@@ -2887,10 +2890,11 @@ TclCheckBadOctal(interp, value)
  */
 
 static size_t
-TclFormatInt(buffer, n)
-     char *buffer;		/* Points to the storage into which the
+TclFormatInt(
+     char *buffer,		/* Points to the storage into which the
 				 * formatted characters are written. */
-     Tcl_Size n;		/* The integer to format. */
+     Tcl_Size n 		/* The integer to format. */
+)
 {
     Tcl_Size intVal;
     Tcl_Size i, j;

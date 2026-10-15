@@ -333,6 +333,7 @@ filter_mode_a (NA_MODE mode, GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv,
     case NA_IN:        filter_mode_a_in  (gx, l, nc, nv, g); break;
     case NA_INNER:     filter_mode_a_inn (gx, l, nc, nv, g); break;
     case NA_OUT:       filter_mode_a_out (gx, l, nc, nv, g); break;
+    case NA_NONE:      ASSERT(0, "Invalid value."); break;
     }
 }
 
@@ -596,6 +597,7 @@ filter_mode_n (NA_MODE mode, GCC* gx, NARES* l, Tcl_Size nc, Tcl_Obj* const* nv,
     case NA_IN:        filter_mode_n_in  (gx, l, nc, nv, g); break;
     case NA_INNER:     filter_mode_n_inn (gx, l, nc, nv, g); break;
     case NA_OUT:       filter_mode_n_out (gx, l, nc, nv, g); break;
+    case NA_NONE:      ASSERT(0, "Invalid value."); break;
     }
 }
 

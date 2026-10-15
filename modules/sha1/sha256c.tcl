@@ -87,8 +87,6 @@ namespace eval ::sha2 {
     
     critcl::ccommand sha256c_init256 {dummy ip objc objv} {
         SHA256_CTX* mp;
-        unsigned char* data;
-        int size;
         Tcl_Obj* obj;
         
         if (objc > 1) {
@@ -114,8 +112,6 @@ namespace eval ::sha2 {
 
     critcl::ccommand sha256c_init224 {dummy ip objc objv} {
         SHA256_CTX* mp;
-        unsigned char* data;
-        int size;
         Tcl_Obj* obj;
         
         if (objc > 1) {
@@ -180,7 +176,7 @@ critcl::api header sha256.h
 ::critcl::api function void SHA256Update {
 	SHA256Context *sc
 	{const void} *data
-	uint32_t len
+	size_t len
 }
 ::critcl::api function void SHA256Final {
 	SHA256Context *sc

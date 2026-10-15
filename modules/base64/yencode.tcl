@@ -65,7 +65,7 @@ if {[package provide critcl] != {}} {
         }
         critcl::ccommand CEncode {dummy interp objc objv} {
             Tcl_Obj *inputPtr, *resultPtr;
-            Tcl_Size len, rlen, xtra;
+            Tcl_Size len, rlen;
             unsigned char *input, *p, *r, v;
 
             if (objc !=  2) {

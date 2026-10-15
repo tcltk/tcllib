@@ -119,9 +119,10 @@ do_R4(my_int32_t *a, my_int32_t *b, my_int32_t *c, my_int32_t *d, my_int32_t *e,
 /*
  * Hash a single 512-bit block. This is the core of the algorithm.
  */
-void SHA1Transform(state, buffer)
-    my_int32_t    state [5];
-    const my_char buffer[64];
+void SHA1Transform(
+    my_int32_t    state [5],
+    const my_char buffer[64]
+)
 {
     my_int32_t a, b, c, d, e;
     CHAR64LONG16 *block;
@@ -191,8 +192,9 @@ void SHA1Transform(state, buffer)
 /*
  * SHA1Init - Initialize new context
  */
-void SHA1Init(context)
-    SHA1_CTX *context;
+void SHA1Init(
+    SHA1_CTX *context
+)
 {
 
     _DIAGASSERT(context != 0);
@@ -210,10 +212,11 @@ void SHA1Init(context)
 /*
  * Run your data through this.
  */
-void SHA1Update(context, data, len)
-    SHA1_CTX*      context;
-    const my_char* data;
-    Tcl_Size       len;
+void SHA1Update(
+    SHA1_CTX*      context,
+    const my_char* data,
+    Tcl_Size       len
+)
 {
     Tcl_Size   i;
     my_int32_t j;
@@ -222,8 +225,8 @@ void SHA1Update(context, data, len)
     _DIAGASSERT(data != 0);
 
     j = context->count[0];
-    if ((context->count[0] += len << 3) < j)
-	context->count[1] += (len>>29)+1;
+    if ((context->count[0] += (my_int32_t)(len << 3)) < j)
+	context->count[1] += (my_int32_t)(len>>29)+1;
     j = (j >> 3) & 63;
     if ((j + len) > 63) {
 	(void)memcpy(&context->buffer[j], data, (i = 64-j));
@@ -241,9 +244,10 @@ void SHA1Update(context, data, len)
 /*
  * Add padding and return the message digest.
  */
-void SHA1Final(digest, context)
-    my_char   digest[20];
-    SHA1_CTX* context;
+void SHA1Final(
+    my_char   digest[20],
+    SHA1_CTX* context
+)
 {
     my_int32_t i;
     my_char    finalcount[8];

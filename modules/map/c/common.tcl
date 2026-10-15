@@ -45,9 +45,9 @@ critcl::ccode {
 	p->x = OURTILESIZE * col;
     }
 
-    static point* geos_2points (int zoom, int c, geo* geos) {
+    static point* geos_2points (int zoom, Tcl_Size c, geo* geos) {
 	point* p = (point*) ckalloc (c * sizeof(point));
-	int k;
+	Tcl_Size k;
 
 	for (k = 0; k < c; k++) geo_2point (zoom, &geos[k], &p[k]);
 
@@ -69,7 +69,7 @@ critcl::ccode {
 	return;
     }
 
-    static geo* points_2geos (int zoom, int c, point* points) {
+    static geo* points_2geos (int zoom, Tcl_Size c, point* points) {
 	geo* g = (geo*) ckalloc (c * sizeof(geo));
 	int k;
 
@@ -93,13 +93,13 @@ critcl::ccode {
 	return 2*asin(sqrt(h));
     }
 
-    static double geo_distance_list (int closed, int c, geo* geos) {
+    static double geo_distance_list (int closed, Tcl_Size c, geo* geos) {
 	// lat, lon are in degrees - convert all to radians
 
 	double d = 0;
 	double lata = DEGTORAD * geos[0].lat;
 	double lona = DEGTORAD * geos[0].lon;
-	int i;
+	Tcl_Size i;
 
 	if (c < 2) {
 	    return 0;
@@ -127,8 +127,8 @@ critcl::ccode {
 	return meters;
     }
 
-    static geobox geo_bbox (int c, geo* geos) {
-	int i;
+    static geobox geo_bbox (Tcl_Size c, geo* geos) {
+	Tcl_Size i;
 
 	if (c == 0) {
 	    geobox bounding = { 0, 0, 0, 0 };
@@ -152,9 +152,9 @@ critcl::ccode {
 	return bounding;
     }
 
-    static geo geo_center (int c, geo* geos) {
+    static geo geo_center (Tcl_Size c, geo* geos) {
 	geo out = { 0, 0 };
-	int i;
+	Tcl_Size i;
 
 	if (c == 0) {
 	    return out;
@@ -178,9 +178,9 @@ critcl::ccode {
 	return out;
     }
 
-    static double geo_diameter (int c, geo* geos) {
+    static double geo_diameter (Tcl_Size c, geo* geos) {
 	double diameter = 0;
-	int i, j;
+	Tcl_Size i, j;
 
 	if (c < 2) {
 	    return 0;
@@ -212,7 +212,7 @@ critcl::ccode {
 		      b->y - a->y);
     }
 
-    static double point_distance_list (int closed, int c, point* points) {
+    static double point_distance_list (int closed, Tcl_Size c, point* points) {
 	int i, k;
 
 	if (c < 2) {
@@ -234,7 +234,7 @@ critcl::ccode {
 	return d;
     }
 
-    static pointbox point_bbox (int c, point* points) {
+    static pointbox point_bbox (Tcl_Size c, point* points) {
 	int i;
 
 	if (c == 0) {
@@ -259,7 +259,7 @@ critcl::ccode {
 	return bounding;
     }
 
-    static point point_center (int c, point* points) {
+    static point point_center (Tcl_Size c, point* points) {
 	int i;
 	point out = { 0, 0 };
 
@@ -285,7 +285,7 @@ critcl::ccode {
 	return out;
     }
 
-    static double point_diameter (int c, point* points) {
+    static double point_diameter (Tcl_Size c, point* points) {
 	int i, j;
 	double diameter = 0;
 
@@ -327,7 +327,7 @@ critcl::ccode {
 #			L
 
 critcl::ccode {
-    static double rdp_threshold (point* args, unsigned int i, unsigned int j) {
+    static double rdp_threshold (point* args, Tcl_Size i, Tcl_Size j) {
 	double x0 = args[i].x;
 	double y0 = args[i].y;
 	double x1 = args[j].x;
@@ -356,10 +356,10 @@ critcl::ccode {
 	return dmax;
     }
 
-    static void rdp_find_farthest (point* args, unsigned int i, unsigned int j, double* d, unsigned int* k) {
+    static void rdp_find_farthest (point* args, Tcl_Size i, Tcl_Size j, double* d, Tcl_Size* k) {
 	double	     maxd = 0;
-	unsigned int maxk = 0;
-	unsigned int n;
+	Tcl_Size     maxk = 0;
+	Tcl_Size     n;
 
 	// integrated distance to line, with common parts moved out of the loop,
 	// and splitting the loop per a==b vs a!=b.
@@ -401,7 +401,7 @@ critcl::ccode {
 	*k = maxk;
     }
 
-    static void rdp_core (char* keep, point* args, unsigned int i, unsigned int j) {
+    static void rdp_core (char* keep, point* args, Tcl_Size i, Tcl_Size j) {
 	if ((j-i) < 2) {
 	    keep[i] = 1;
 	    keep[j] = 1;
@@ -409,7 +409,7 @@ critcl::ccode {
 	}
 
 	double d;
-	unsigned int k;
+	Tcl_Size k;
 
 	rdp_find_farthest (args, i, j, &d, &k);
 

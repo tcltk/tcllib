@@ -20,6 +20,7 @@ namespace eval ::rc4 {
     critcl::ccode {
         #include <string.h>
         #include <stdarg.h>
+        #include <stdint.h>
 
         typedef struct RC4_CTX {
             unsigned char x;
@@ -42,14 +43,14 @@ namespace eval ::rc4 {
         static void rc4_free_rep(Tcl_Obj *obj)
         {
             RC4_CTX *ctx = (RC4_CTX *)obj->internalRep.otherValuePtr;
-            TRACE("rc4_free_rep(%08x)\n", (long)obj);
+            TRACE("rc4_free_rep(%08x)\n", (uintptr_t)obj);
             Tcl_Free((char *)ctx);
         }
 
         static void rc4_dup_rep(Tcl_Obj *obj, Tcl_Obj *dup)
         {
             RC4_CTX *ctx = (RC4_CTX *)obj->internalRep.otherValuePtr;
-            TRACE("rc4_dup_rep(%08x,%08x)\n", (long)obj, (long)dup);
+            TRACE("rc4_dup_rep(%08x,%08x)\n", (uintptr_t)obj, (uintptr_t)dup);
             dup->internalRep.otherValuePtr = (RC4_CTX *)Tcl_Alloc(sizeof(RC4_CTX));
             memcpy(dup->internalRep.otherValuePtr, ctx, sizeof(RC4_CTX));
             dup->typePtr = &rc4_type;
@@ -60,7 +61,7 @@ namespace eval ::rc4 {
             RC4_CTX *ctx = (RC4_CTX *)obj->internalRep.otherValuePtr;
             Tcl_Obj* tmpObj;
             char* str;
-            TRACE("rc4_string_rep(%08x)\n", (long)obj);
+            TRACE("rc4_string_rep(%08x)\n", (uintptr_t)obj);
             /* convert via a byte array to properly handle null bytes */
             tmpObj = Tcl_NewByteArrayObj((unsigned char *)ctx, sizeof(RC4_CTX)); /* OK tcl9 */
             Tcl_IncrRefCount(tmpObj);
@@ -74,7 +75,7 @@ namespace eval ::rc4 {
 
         static int rc4_from_any(Tcl_Interp* interp, Tcl_Obj* obj)
         {
-            TRACE("rc4_from_any %08x\n", (long)obj);
+            TRACE("rc4_from_any %08x\n", (uintptr_t)obj);
             return TCL_ERROR;
         }
 
@@ -112,7 +113,7 @@ namespace eval ::rc4 {
         ctx->x = 0;
         ctx->y = 0;
         for (n = 0; n < 256; n++)
-            ctx->s[n] = n;
+            ctx->s[n] = (unsigned char)n;
         for (n = 0; n < 256; n++) {
             j = (k[i] + ctx->s[n] + j) % 256;
             swap(&ctx->s[n], &ctx->s[j]);
