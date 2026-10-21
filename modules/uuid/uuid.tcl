@@ -126,7 +126,7 @@ if {[string equal $tcl_platform(platform) "windows"]
             if (lpfnUuidCreate) {
                 Tcl_Obj *obj;
                 lpfnUuidCreate(&uuid);
-                obj = Tcl_NewByteArrayObj((cu_char *)&uuid, (Tcl_Size)sizeof(uuid));
+                obj = Tcl_NewByteArrayObj((cu_char *)&uuid, (Tcl_Size)sizeof(uuid)); /* OK tcl9 */
                 Tcl_SetObjResult(interp, obj);
             } else {
                 Tcl_SetResult(interp, "error: failed to create a guid",

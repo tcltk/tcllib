@@ -64,7 +64,7 @@ critcl::ccode {
     point_box_list (int release, Tcl_Interp* interp, Tcl_Size c, point* points)
     {
 	Tcl_Obj** cl = (Tcl_Obj**) ckalloc (c * sizeof(Tcl_Obj*));
-	unsigned int k;
+	Tcl_Size k;
 
 	for (k = 0; k < c; k++) \
 	    cl[k] = point_box (interp, &points[k]);

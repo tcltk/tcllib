@@ -61,7 +61,7 @@ critcl::source c/common.tcl
 critcl::cproc ::map::slippy::critcl_geo_valid_list {
     []geo gs
 } bool {
-    unsigned int k;
+    Tcl_Size k;
     for (k = 0; k < gs.c; k++) {
 	if (!((gs.v[k].lat >=  -90) && (gs.v[k].lat <=  90) &&
 	      (gs.v[k].lon >= -180) && (gs.v[k].lon <= 180))) {
@@ -74,7 +74,7 @@ critcl::cproc ::map::slippy::critcl_geo_valid_list {
 critcl::cproc ::map::slippy::critcl_geo_box_valid_list {
     []geobox gs
 } bool {
-    unsigned int k;
+    Tcl_Size k;
     for (k = 0; k < gs.c; k++) {
 	if (!((gs.v[k].lat0 >=  -90) && (gs.v[k].lat0 <=  90) &&
 	      (gs.v[k].lon0 >= -180) && (gs.v[k].lon0 <= 180) &&
@@ -749,7 +749,7 @@ critcl::cproc ::map::slippy::critcl_point_simplify_radial {
     bool        closed
     []point     points
 } object0 {
-    unsigned int k;
+    Tcl_Size k;
     if (points.c < 2) {
 	/* Pass the input, no need for transient helper memory */
 	return points.o;
@@ -757,8 +757,8 @@ critcl::cproc ::map::slippy::critcl_point_simplify_radial {
 
     point* res = (point*) ckalloc (points.c * sizeof(point));
 
-    unsigned int anchor = 0;
-    unsigned int into   = 0;
+    Tcl_Size anchor = 0;
+    Tcl_Size into   = 0;
 
     res[into].y = points.v[anchor].y;
     res[into].x = points.v[anchor].x;
