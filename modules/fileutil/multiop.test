@@ -255,11 +255,11 @@ test multiop-5.2 {multi-file operation, strict expansion} -setup {
     mo_setup
     fileutil::multi::op X
 } -body {
-    X do strict expand the A* in $src
+    X do strict expand the Z* in $src
 } -cleanup {
     mo_cleanup
     X destroy
-} -returnCodes error -result "No files matching pattern \"A*\" in directory \"$src\""
+} -returnCodes error -result "No files matching pattern \"Z*\" in directory \"$src\""
 
 test multiop-5.3 {multi-file operation, non-strict expansion} -setup {
     mo_setup

@@ -43,7 +43,7 @@ proc testsNeedTcltest {version} {
     regexp {^([^-]*)} $version -> minversion
     if {[lsearch [namespace children] ::tcltest] == -1} {
 	if {![catch {
-	    package require tcltest $version
+	    package require tcltest $minversion-
 	}]} {
 	    namespace import -force ::tcltest::*
 	    InitializeTclTest
@@ -55,7 +55,7 @@ proc testsNeedTcltest {version} {
     }
 
     puts "    Aborting the tests found in [file tail [info script]]."
-    puts "    Requiring at least tcltest $version, have [package present tcltest]"
+    puts "    Requiring at least tcltest $version, have [package provide tcltest]"
 
     # Effect a return at the level of the caller.
     return -code return

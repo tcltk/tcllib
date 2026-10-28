@@ -347,7 +347,7 @@ proc rec {f} {
     return 1
 }
 
-test find-4.0 {find file with filter, filter API} {
+test find-4.0 {find file with filter, filter API} {macOrUnix} {
     f_setup
     set res {}
     ::fileutil::find [tempPath {find 1}] rec
@@ -359,6 +359,18 @@ test find-4.0 {find file with filter, filter API} {
        [list [tempPath {find 1}]        {find 2}]   \
       ]
 #            pwd                        fname
+
+# Same as find-4.0 except Windows does not support * as a file name character.
+test find-4.1 {find file with filter, filter API} {win} {
+    f_setup
+    set res {}
+    ::fileutil::find [tempPath {find 1}] rec
+    f_cleanup
+    lsort $res
+} [list \
+       [list [tempPath {find 1}]        {file [1]}] \
+       [list [tempPath {find 1}]        {find 2}]   \
+      ]
 
 # -------------------------------------------------------------------------
 

@@ -348,7 +348,10 @@ proc f_setupnoread {} {
     makeFile {}   find3/find4/file5
 
     if {[string equal $::tcl_platform(platform) windows]} {
-	file attributes -readonly 1 [tempPath find3/find4]
+	# The readonly attribute does not prevent listing a directory on
+	# Windows. Deny the current user the list-directory right instead.
+	exec icacls [file nativename [tempPath find3/find4]] \
+	    /deny "$::env(USERNAME):(RD)"
     } else {
 	exec chmod -r [tempPath find3/find4]
     }
@@ -357,7 +360,8 @@ proc f_setupnoread {} {
 
 proc f_cleanupnoread {} {
     if {[string equal $::tcl_platform(platform) windows]} {
-	file attributes -readonly 0 [tempPath find3/find4]
+	exec icacls [file nativename [tempPath find3/find4]] \
+	    /remove:d $::env(USERNAME)
     } else {
 	exec chmod +r [tempPath find3/find4]
     }
