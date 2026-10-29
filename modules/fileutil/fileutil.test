@@ -21,7 +21,7 @@ source [file join [file dirname [file dirname [
 	file join [pwd] [info script]]]] devtools testutilities.tcl]
 
 testsNeedTcl     8.5 ;# See fumagic.testsupport
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 support {
     useTcllibFile fumagic/fumagic.testsupport ;# 8.5+ (dict, apply)
@@ -276,14 +276,14 @@ proc i_setup {} {
 
     makeDirectory   [file join installSrc subdir]
     makeFile "blah" [file join installSrc {file [1]}]
+    makeFile "blah" [file join installSrc subdir subfile1]
+    makeFile "blah" [file join installSrc subdir subfile2]
+    makeFile "blah" [file join installSrc subdir subfile3]
 
     # Make a second subdirectory to install, unix-only
     if {$tcl_platform(platform) != "unix" } return
 
     makeDirectory   [file join installSrc subdir2]
-    makeFile "blah" [file join installSrc subdir subfile1]
-    makeFile "blah" [file join installSrc subdir subfile2]
-    makeFile "blah" [file join installSrc subdir subfile3]
 
     foreach fl {1 2 3} {
 	set fn [file join installSrc subdir2 subfile$fl]

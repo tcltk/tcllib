@@ -703,6 +703,12 @@ proc ::sak::test::run::CaptureFailureCollectBody {} {
     } elseif {[string match {---- Test generated error*} $line]} {
 	set xcollect 5
 	return -code continue
+    } elseif {[string match {---- Test completed normally*} $line]} {
+	# Expected an error, but none was raised.
+	variable xactual
+	append   xactual [string range $line 5 end] \n
+	set xcollect 3
+	return -code continue
     }
 
     variable xbody
@@ -714,11 +720,15 @@ proc ::sak::test::run::CaptureFailureCollectActual {} {
     variable xcollect
     if {$xcollect != 3} return
     upvar 1 rline line
-    if {![string match {---- Result should*} $line]} {
+    if {[string match {---- Result should*} $line]} {
+	set xcollect 4
+    } elseif {[string match {---- Return code should*} $line]} {
+	variable xexpected
+	append   xexpected [string range $line 5 end] \n
+	set xcollect 4
+    } else {
 	variable xactual
 	append   xactual $line \n
-    } else {
-	set xcollect 4
     }
     return -code continue
 }
