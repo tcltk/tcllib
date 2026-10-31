@@ -1276,10 +1276,38 @@ test uri-4.1 {uri::geturl} {
     puts -nonewline $f $data
     close $f
 
-    set token [uri::geturl file://$file]
+    set token [uri::geturl [uri::join scheme file path $file]]
     removeFile __testdata
     string compare $data [set [subst $token](data)]
 } 0
+
+test uri-4.2 {uri::geturl, decode %XX escapes in path} {
+    set file [makeFile {} {__test data}]
+    set f [open $file w]
+    puts -nonewline $f hello
+    close $f
+
+    set url   [uri::join scheme file path [string map {{ } %20} $file]]
+    set token [uri::geturl $url]
+    removeFile {__test data}
+    set [subst $token](data)
+} hello
+
+test uri-4.3 {uri::geturl, decode UTF-8 %XX escapes in path} {
+    set file [makeFile {} "__test\u00e9"]
+    set f [open $file w]
+    puts -nonewline $f hello
+    close $f
+
+    set url   [uri::join scheme file path [string map {\u00e9 %C3%A9} $file]]
+    set token [uri::geturl $url]
+    removeFile "__test\u00e9"
+    set [subst $token](data)
+} hello
+
+test uri-4.4 {uri::join -- scheme file, backslashes on Windows} win {
+    uri::join scheme file path {c:\windows\system32}
+} file:///c:/windows/system32
 
 # -------------------------------------------------------------------------
 

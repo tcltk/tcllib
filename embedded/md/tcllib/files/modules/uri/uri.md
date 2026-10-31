@@ -1,7 +1,7 @@
 
 [//000000001]: # (uri \- Tcl Uniform Resource Identifier Management)
 [//000000002]: # (Generated from file 'uri\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (uri\(n\) 1\.2\.8 tcllib "Tcl Uniform Resource Identifier Management")
+[//000000003]: # (uri\(n\) 1\.2\.9 tcllib "Tcl Uniform Resource Identifier Management")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -49,7 +49,7 @@ uri \- URI utilities
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require uri ?1\.2\.8?  
+package require uri ?1\.2\.9?  
 
 [__uri::setQuirkOption__ *option* ?*value*?](#1)  
 [__uri::split__ *url* ?*defaultscheme*?](#2)  
@@ -188,6 +188,13 @@ RFC 3986 recommends avoiding this usage\.
     *[file](\.\./\.\./\.\./\.\./index\.md\#file)* is not a valid local filename\. See
     [EXAMPLES](#section6) for more information\.
 
+    On Windows, any backslashes in the __path__ for the scheme
+    *[file](\.\./\.\./\.\./\.\./index\.md\#file)* are converted to forward slashes,
+    so a native filename such as "__C:\\dir\\file\.txt__" may be given
+    directly\. No other adaptation is made: __uri::join__ does not
+    percent\-encode characters such as spaces, which remains the responsibility
+    of the caller\.
+
   - <a name='4'></a>__uri::resolve__ *base* *url*
 
     __uri::resolve__ resolves the specified *url* relative to *base*, in
@@ -220,7 +227,16 @@ RFC 3986 recommends avoiding this usage\.
     does not handle any options itself\.
 
     *Note:* *[file](\.\./\.\./\.\./\.\./index\.md\#file)*\-URLs are an exception to
-    the rule described above\. They are handled internally\.
+    the rule described above\. They are handled internally\. The __path__ of
+    the URL is percent\-decoded before the file is opened, with the escapes taken
+    to represent UTF\-8 bytes, so that for example "__%20__" opens a filename
+    containing a space\. On Windows, a __path__ that begins with a drive
+    letter, such as "__/C:/dir/file\.txt__", is converted to the native
+    filename "__C:/dir/file\.txt__"\. If the quirk option
+    *HostAsDriveLetter* is __true__, a drive letter in the __host__
+    field, as in "__file://C:/dir/file\.txt__", is accepted as well\. The
+    result is the name of a state array whose element __data__ holds the
+    contents of the file\.
 
     It is not possible to specify results of the command\. They depend on the
     __geturl__\-command for the scheme the request was dispatched to\.
@@ -474,6 +490,12 @@ valid value for __path__\.
     % uri::split file:///C:/Other%20Files/startup.txt
 
     path /C:/Other%20Files/startup.txt scheme file
+
+The resulting URI can be passed to __uri::geturl__, which reverses these
+steps to open the file:
+
+    % set token [uri::geturl file:///C:/Other%20Files/startup.txt]
+    % set ${token}(data)
 
 On UNIX® systems filenames begin with "__/__" which is also used as the
 directory separator\. The only action needed to convert a filename to a valid

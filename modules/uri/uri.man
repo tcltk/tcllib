@@ -1,4 +1,4 @@
-[vset VERSION 1.2.8]
+[vset VERSION 1.2.9]
 [manpage_begin uri n [vset VERSION]]
 [keywords {fetching information}]
 [keywords file]
@@ -127,6 +127,14 @@ are supported by the package itself. See section [sectref EXTENDING] on how to e
 
 The arguments are expected to be slices of a valid URL, with percent-encoding ("url-encoding") and any other necessary adaptations.  Notably, on Windows the [const path] in scheme [term file] is not a valid local filename.  See [sectref EXAMPLES] for more information.
 
+[para]
+
+On Windows, any backslashes in the [const path] for the scheme [term file]
+are converted to forward slashes, so a native filename such as
+"[const {C:\dir\file.txt}]" may be given directly.  No other adaptation is
+made: [cmd uri::join] does not percent-encode characters such as spaces,
+which remains the responsibility of the caller.
+
 [call [cmd uri::resolve] [arg base] [arg url]]
 
 [cmd uri::resolve] resolves the specified [arg url] relative to
@@ -160,7 +168,16 @@ any options itself.
 [para]
 
 [emph Note:] [term file]-URLs are an exception to the rule
-described above. They are handled internally.
+described above. They are handled internally.  The [const path] of the
+URL is percent-decoded before the file is opened, with the escapes taken
+to represent UTF-8 bytes, so that for example "[const %20]" opens a
+filename containing a space.  On Windows, a [const path] that begins with
+a drive letter, such as "[const /C:/dir/file.txt]", is converted to the
+native filename "[const C:/dir/file.txt]".  If the quirk option
+[emph HostAsDriveLetter] is [const true], a drive letter in the
+[const host] field, as in "[const file://C:/dir/file.txt]", is accepted
+as well.  The result is the name of a state array whose element
+[const data] holds the contents of the file.
 
 [para]
 
@@ -376,6 +393,14 @@ file:///C:/Other%20Files/startup.txt
 
 path /C:/Other%20Files/startup.txt scheme file
 
+}]
+
+The resulting URI can be passed to [cmd uri::geturl], which reverses
+these steps to open the file:
+
+[example {
+% set token [uri::geturl file:///C:/Other%20Files/startup.txt]
+% set ${token}(data)
 }]
 
 On UNIX® systems filenames begin with "[const /]" which is also used as the directory separator.  The only action needed to convert a filename to a valid [const path] is percent-encoding.

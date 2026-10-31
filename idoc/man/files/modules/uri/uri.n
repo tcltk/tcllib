@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'uri\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "uri" n 1\&.2\&.8 tcllib "Tcl Uniform Resource Identifier Management"
+.TH "uri" n 1\&.2\&.9 tcllib "Tcl Uniform Resource Identifier Management"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ uri \- URI utilities
 .SH SYNOPSIS
 package require \fBTcl 8\&.5 9\fR
 .sp
-package require \fBuri ?1\&.2\&.8?\fR
+package require \fBuri ?1\&.2\&.9?\fR
 .sp
 \fBuri::setQuirkOption\fR \fIoption\fR ?\fIvalue\fR?
 .sp
@@ -374,6 +374,12 @@ represent\&. Currently the schemes \fIhttp\fR, \fIhttps\fR,
 are supported by the package itself\&. See section \fBEXTENDING\fR on how to expand that range\&.
 .sp
 The arguments are expected to be slices of a valid URL, with percent-encoding ("url-encoding") and any other necessary adaptations\&.  Notably, on Windows the \fBpath\fR in scheme \fIfile\fR is not a valid local filename\&.  See \fBEXAMPLES\fR for more information\&.
+.sp
+On Windows, any backslashes in the \fBpath\fR for the scheme \fIfile\fR
+are converted to forward slashes, so a native filename such as
+"\fBC:\\dir\\file\&.txt\fR" may be given directly\&.  No other adaptation is
+made: \fBuri::join\fR does not percent-encode characters such as spaces,
+which remains the responsibility of the caller\&.
 .TP
 \fBuri::resolve\fR \fIbase\fR \fIurl\fR
 \fBuri::resolve\fR resolves the specified \fIurl\fR relative to
@@ -402,7 +408,16 @@ and all given \fIoptions\fR\&. Currently \fBgeturl\fR does not handle
 any options itself\&.
 .sp
 \fINote:\fR \fIfile\fR-URLs are an exception to the rule
-described above\&. They are handled internally\&.
+described above\&. They are handled internally\&.  The \fBpath\fR of the
+URL is percent-decoded before the file is opened, with the escapes taken
+to represent UTF-8 bytes, so that for example "\fB%20\fR" opens a
+filename containing a space\&.  On Windows, a \fBpath\fR that begins with
+a drive letter, such as "\fB/C:/dir/file\&.txt\fR", is converted to the
+native filename "\fBC:/dir/file\&.txt\fR"\&.  If the quirk option
+\fIHostAsDriveLetter\fR is \fBtrue\fR, a drive letter in the
+\fBhost\fR field, as in "\fBfile://C:/dir/file\&.txt\fR", is accepted
+as well\&.  The result is the name of a state array whose element
+\fBdata\fR holds the contents of the file\&.
 .sp
 It is not possible to specify results of the command\&. They depend on
 the \fBgeturl\fR-command for the scheme the request was dispatched to\&.
@@ -557,6 +572,15 @@ file:///C:/Other%20Files/startup\&.txt
 
 path /C:/Other%20Files/startup\&.txt scheme file
 
+
+.CE
+The resulting URI can be passed to \fBuri::geturl\fR, which reverses
+these steps to open the file:
+.CS
+
+
+% set token [uri::geturl file:///C:/Other%20Files/startup\&.txt]
+% set ${token}(data)
 
 .CE
 On UNIX® systems filenames begin with "\fB/\fR" which is also used as the directory separator\&.  The only action needed to convert a filename to a valid \fBpath\fR is percent-encoding\&.

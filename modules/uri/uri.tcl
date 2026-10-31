@@ -532,6 +532,12 @@ proc ::uri::JoinFile args {
     }
     array set components $args
 
+    if {$::tcl_platform(platform) == "windows"} {
+	# Backslashes are not allowed in URIs. Windows accepts "/" as
+	# the separator in native paths, so use that instead.
+	set components(path) [string map {\\ /} $components(path)]
+    }
+
     if {    $Quirks(HostAsDriveLetter)
 	 && ($::tcl_platform(platform) == "windows")
     } {
@@ -951,6 +957,7 @@ proc ::uri::geturl {url args} {
 
 proc ::uri::file_geturl {url args} {
     variable file:counter
+    variable Quirks
 
     set var [namespace current]::file[incr file:counter]
     upvar #0 $var state
@@ -958,7 +965,21 @@ proc ::uri::file_geturl {url args} {
 
     array set parts [split $url]
 
-    set ch [open $parts(path)]
+    # Convert the URI path to a native filename on Windows.
+    set path [DecodeFilePath $parts(path)]
+    if {$::tcl_platform(platform) == "windows"} {
+	if {    $Quirks(HostAsDriveLetter)
+	     && [info exists parts(host)] && ($parts(host) != "")
+	} {
+	    # Legacy form file://C:/dir/file: the drive letter is in host.
+	    set path $parts(host):$path
+	} elseif {[regexp {^/[A-Za-z]:} $path]} {
+	    # RFC form file:///C:/dir/file: drop the "/" before the drive.
+	    set path [string range $path 1 end]
+	}
+    }
+
+    set ch [open $path]
     # Could determine text/binary from file extension,
     # except on Macintosh
     # fconfigure $ch -translation binary
@@ -966,6 +987,35 @@ proc ::uri::file_geturl {url args} {
     close $ch
 
     return $var
+}
+
+# ::uri::DecodeFilePath --
+#
+#	Decode the %XX escapes in the path of a file URL.
+#
+# Arguments:
+#	path	path component of a file URL
+#
+# Results:
+#	The decoded path
+
+proc ::uri::DecodeFilePath {path} {
+    if {![string match *%* $path]} {
+	return $path
+    }
+
+    # The escapes encode UTF-8 bytes. Convert the path to bytes,
+    # replace each escape with its byte, and convert back.
+    set bytes [encoding convertto utf-8 $path]
+    set bytes [string map {\\ \\\\} $bytes]
+    regsub -all {%([0-9A-Fa-f]{2})} $bytes {\\u00\1} bytes
+    set bytes [subst -nocommands -novariables $bytes]
+
+    if {[catch {encoding convertfrom utf-8 $bytes} result]} {
+	# Not valid UTF-8, use the bytes as they are.
+	set result $bytes
+    }
+    return $result
 }
 
 # ::uri::join --
@@ -1441,4 +1491,4 @@ uri::register {ldap ldaps} {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.8
+package provide uri 1.2.9

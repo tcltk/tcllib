@@ -107,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">uri(n) 1.2.8 tcllib &quot;Tcl Uniform Resource Identifier Management&quot;</h1>
+<h1 class="doctools_title">uri(n) 1.2.9 tcllib &quot;Tcl Uniform Resource Identifier Management&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>uri - URI utilities</p>
 </div>
@@ -137,7 +137,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5 9</b></li>
-<li>package require <b class="pkgname">uri <span class="opt">?1.2.8?</span></b></li>
+<li>package require <b class="pkgname">uri <span class="opt">?1.2.9?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">uri::setQuirkOption</b> <i class="arg">option</i> <span class="opt">?<i class="arg">value</i>?</span></a></li>
@@ -215,7 +215,12 @@ schemes the constituents and their keys are known:</p>
 represent. Currently the schemes <i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>,
 <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, <i class="term"><a href="../../../../index.html#mailto">mailto</a></i>, <i class="term"><a href="../../../../index.html#news">news</a></i>, <i class="term"><a href="../../../../index.html#ldap">ldap</a></i>, <i class="term">ldaps</i> and <i class="term"><a href="../../../../index.html#file">file</a></i>
 are supported by the package itself. See section <span class="sectref"><a href="#section4">EXTENDING</a></span> on how to expand that range.</p>
-<p>The arguments are expected to be slices of a valid URL, with percent-encoding (&quot;url-encoding&quot;) and any other necessary adaptations.  Notably, on Windows the <b class="const">path</b> in scheme <i class="term"><a href="../../../../index.html#file">file</a></i> is not a valid local filename.  See <span class="sectref"><a href="#section6">EXAMPLES</a></span> for more information.</p></dd>
+<p>The arguments are expected to be slices of a valid URL, with percent-encoding (&quot;url-encoding&quot;) and any other necessary adaptations.  Notably, on Windows the <b class="const">path</b> in scheme <i class="term"><a href="../../../../index.html#file">file</a></i> is not a valid local filename.  See <span class="sectref"><a href="#section6">EXAMPLES</a></span> for more information.</p>
+<p>On Windows, any backslashes in the <b class="const">path</b> for the scheme <i class="term"><a href="../../../../index.html#file">file</a></i>
+are converted to forward slashes, so a native filename such as
+&quot;<b class="const">C:\dir\file.txt</b>&quot; may be given directly.  No other adaptation is
+made: <b class="cmd">uri::join</b> does not percent-encode characters such as spaces,
+which remains the responsibility of the caller.</p></dd>
 <dt><a name="4"><b class="cmd">uri::resolve</b> <i class="arg">base</i> <i class="arg">url</i></a></dt>
 <dd><p><b class="cmd">uri::resolve</b> resolves the specified <i class="arg">url</i> relative to
 <i class="arg">base</i>, in conformance with RFC 3986. In other words: a
@@ -240,7 +245,16 @@ the package itself. This command is called with the given <i class="arg">url</i>
 and all given <i class="arg">options</i>. Currently <b class="cmd">geturl</b> does not handle
 any options itself.</p>
 <p><em>Note:</em> <i class="term"><a href="../../../../index.html#file">file</a></i>-URLs are an exception to the rule
-described above. They are handled internally.</p>
+described above. They are handled internally.  The <b class="const">path</b> of the
+URL is percent-decoded before the file is opened, with the escapes taken
+to represent UTF-8 bytes, so that for example &quot;<b class="const">%20</b>&quot; opens a
+filename containing a space.  On Windows, a <b class="const">path</b> that begins with
+a drive letter, such as &quot;<b class="const">/C:/dir/file.txt</b>&quot;, is converted to the
+native filename &quot;<b class="const">C:/dir/file.txt</b>&quot;.  If the quirk option
+<em>HostAsDriveLetter</em> is <b class="const">true</b>, a drive letter in the
+<b class="const">host</b> field, as in &quot;<b class="const">file://C:/dir/file.txt</b>&quot;, is accepted
+as well.  The result is the name of a state array whose element
+<b class="const">data</b> holds the contents of the file.</p>
 <p>It is not possible to specify results of the command. They depend on
 the <b class="cmd">geturl</b>-command for the scheme the request was dispatched to.</p></dd>
 <dt><a name="7"><b class="cmd">uri::canonicalize</b> <i class="arg">uri</i></a></dt>
@@ -359,6 +373,12 @@ the removal of empty segments &quot;&quot; (i.e. the merger of double slashes, w
 file:///C:/Other%20Files/startup.txt
 % uri::split file:///C:/Other%20Files/startup.txt
 path /C:/Other%20Files/startup.txt scheme file
+</pre>
+<p>The resulting URI can be passed to <b class="cmd">uri::geturl</b>, which reverses
+these steps to open the file:</p>
+<pre class="doctools_example">
+% set token [uri::geturl file:///C:/Other%20Files/startup.txt]
+% set ${token}(data)
 </pre>
 <p>On UNIX&reg; systems filenames begin with &quot;<b class="const">/</b>&quot; which is also used as the directory separator.  The only action needed to convert a filename to a valid <b class="const">path</b> is percent-encoding.</p>
 </div>
