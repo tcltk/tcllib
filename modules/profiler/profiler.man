@@ -53,7 +53,7 @@ A list of key/value pairs mapping each calling function that called
 
 [def [const compileTime]]
 
-The runtime, in clock clicks, of [arg functionName] the first time
+The runtime, in microseconds, of [arg functionName] the first time
 that it was called.
 
 [def [const totalRuntime]]

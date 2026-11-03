@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Tcl 8.5 9		;# uses [clock clicks -milliseconds]
+package require Tcl 8.5 9		;# uses [clock microseconds]
 package provide profiler 0.7
 
 namespace eval ::profiler {}
@@ -23,11 +23,10 @@ namespace eval ::profiler {}
 #	None.
 
 proc ::profiler::tZero { { tag "" } } {
-    set ms [ clock clicks -milliseconds ]
-    set us [ clock clicks ]
+    set us [ clock microseconds ]
     set tag [string map {: ""} $tag]
     # FRINK: nocheck
-    set ::profiler::T$tag [ list $us $ms ]
+    set ::profiler::T$tag $us
     return
 }
 
@@ -44,8 +43,7 @@ proc ::profiler::tZero { { tag "" } } {
 #		time, in microseconds.
 
 proc ::profiler::tMark { { tag "" } } {
-    set ut [ clock clicks ]
-    set mt [ clock clicks -milliseconds ]
+    set ut [ clock microseconds ]
     set tag [string map {: ""} $tag]
 
     # Per tag a variable was created within the profiler
@@ -54,16 +52,12 @@ proc ::profiler::tMark { { tag "" } } {
     if {![info exists ::profiler::T$tag]} {
 	error "Unknown tag \"$tag\""
     }
+    # [clock clicks] is not microseconds on all platforms (100ns
+    # ticks on Windows), so use [clock microseconds], which is also
+    # wide enough to make wrap handling unnecessary.
+
     # FRINK: nocheck
-     set ust [ lindex [ set ::profiler::T$tag ] 0 ]
-    # FRINK: nocheck
-     set mst [ lindex [ set ::profiler::T$tag ] 1 ]
-     set udt [ expr { ($ut-$ust) } ]
-     set mdt [ expr { ($mt-$mst) } ]000
-     set dt $udt
-     ;## handle wrapping of the microsecond clock
-     if { $dt < 0 || $dt > 1000000 } { set dt $mdt }
-     set dt
+    expr { $ut - [ set ::profiler::T$tag ] }
 }
 
 # ::profiler::stats --
