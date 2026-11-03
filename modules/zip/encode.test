@@ -323,7 +323,7 @@ test zipfile-encode-encode-6.4 {test file date, method filetime, precalculated z
     set date [zipfile::decode::filetime $adict foo/a/x]
     zipfile::decode::close
     set date
-} -result 1772991348
+} -result [clock scan "2026-03-08 17:35:48" -format "%Y-%m-%d %H:%M:%S"]
 
 test zipfile-encode-encode-6.5 {test file date, method filetime, precalculated zip 2} -constraints {GotZipFile} -setup {
 } -cleanup {
@@ -334,7 +334,7 @@ test zipfile-encode-encode-6.5 {test file date, method filetime, precalculated z
     set date [zipfile::decode::filetime $adict foo/a/msg.txt]
     zipfile::decode::close
     set date
-} -result 1770022800
+} -result [clock scan "2026-02-02 09:00:00" -format "%Y-%m-%d %H:%M:%S"]
 
 
 # -------------------------------------------------------------------------
