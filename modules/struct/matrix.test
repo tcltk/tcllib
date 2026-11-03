@@ -2272,7 +2272,7 @@ test matrix-16.7 {deserialization} {
     set fail [catch {mymatrix deserialize $serial} result]
     mymatrix destroy
     list $fail $result
-} {1 {error in serialization: data for to many rows.}}
+} {1 {error in serialization: data for too many rows.}}
 
 test matrix-16.8 {deserialization} {
     matrix mymatrix
@@ -2280,7 +2280,7 @@ test matrix-16.8 {deserialization} {
     set fail [catch {mymatrix deserialize $serial} result]
     mymatrix destroy
     list $fail $result
-} {1 {error in serialization: data for to many columns.}}
+} {1 {error in serialization: data for too many columns.}}
 
 test matrix-16.9 {deserialization} {
     matrix mymatrix
