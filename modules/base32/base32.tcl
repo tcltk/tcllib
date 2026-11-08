@@ -32,8 +32,6 @@ proc ::base32::LoadAccelerator {key} {
     set isok 0
     switch -exact -- $key {
 	critcl {
-	    # Critcl implementation of base32 requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set isok [llength [info commands ::base32::critcl_encode]]
 	}
