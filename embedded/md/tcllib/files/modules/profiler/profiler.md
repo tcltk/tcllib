@@ -1,7 +1,7 @@
 
 [//000000001]: # (profiler \- Tcl Profiler)
 [//000000002]: # (Generated from file 'profiler\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (profiler\(n\) 0\.7 tcllib "Tcl Profiler")
+[//000000003]: # (profiler\(n\) 0\.7\.1 tcllib "Tcl Profiler")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ profiler \- Tcl source code profiler
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5 9  
-package require profiler ?0\.7?  
+package require profiler ?0\.7\.1?  
 
 [__::profiler::init__](#1)  
 [__::profiler::dump__ *pattern*](#2)  
@@ -80,7 +80,7 @@ via the __::profiler::init__ command\.
 
       * __compileTime__
 
-        The runtime, in clock clicks, of *functionName* the first time that it
+        The runtime, in microseconds, of *functionName* the first time that it
         was called\.
 
       * __totalRuntime__

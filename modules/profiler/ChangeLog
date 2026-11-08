@@ -1,3 +1,12 @@
+2026-11-03  pbrooks  <philbrks@gmail.com>
+
+	* profiler.tcl: [tZero], [tMark]: Use [clock microseconds] instead
+	* profiler.man: of [clock clicks]. On Windows clicks are 100ns ticks,
+	* pkgIndex.tcl: not microseconds, so short calls were reported 10x
+	  too long and descendant times could exceed the caller's total
+	  runtime. Removed the now unneeded wrap handling. Fixes test
+	  profiler-11.0-tkt-3603260fff on Windows. Bumped version to 0.7.1.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
