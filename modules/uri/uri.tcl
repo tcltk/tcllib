@@ -997,7 +997,8 @@ proc ::uri::file_geturl {url args} {
 #	path	path component of a file URL
 #
 # Results:
-#	The decoded path
+#	The decoded path. If the escaped bytes are not valid UTF-8, each
+#	byte of the path becomes the character with that code (ISO 8859-1).
 
 proc ::uri::DecodeFilePath {path} {
     if {![string match *%* $path]} {
@@ -1013,7 +1014,19 @@ proc ::uri::DecodeFilePath {path} {
 
     if {[catch {encoding convertfrom utf-8 $bytes} result]} {
 	# Not valid UTF-8, use the bytes as they are.
-	set result $bytes
+	return $bytes
+    }
+
+    if {![package vsatisfies [package provide Tcl] 9-]} {
+	# Tcl 8 does not reject invalid UTF-8, it repairs it. Detect
+	# that the way Tcl 9 would: the result must convert back to the
+	# same bytes, and must not contain unpaired surrogates (an
+	# encoded surrogate converts back unchanged). Tcl 8 holds
+	# characters above U+FFFF as surrogate pairs, so pairs are fine.
+	if {![string equal [encoding convertto utf-8 $result] $bytes]
+	    || [regexp {[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]} $result]} {
+	    return $bytes
+	}
     }
     return $result
 }

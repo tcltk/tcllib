@@ -1309,6 +1309,173 @@ test uri-4.4 {uri::join -- scheme file, backslashes on Windows} win {
     uri::join scheme file path {c:\windows\system32}
 } file:///c:/windows/system32
 
+# uri::DecodeFilePath: %XX escapes are UTF-8 bytes. If the bytes are not
+# valid UTF-8, every byte of the path becomes the character with that
+# code (ISO 8859-1). Tcl 8 and Tcl 9 must give the same results.
+
+test uri-4.5 {DecodeFilePath, lowercase hex} {
+    uri::DecodeFilePath /a%c3%a9
+} "/a\u00e9"
+
+test uri-4.6 {DecodeFilePath, escaped ASCII} {
+    uri::DecodeFilePath /%41b%2Dc
+} /Ab-c
+
+test uri-4.7 {DecodeFilePath, 3 byte UTF-8} {
+    uri::DecodeFilePath /a%E2%82%AC
+} "/a\u20ac"
+
+test uri-4.8 {DecodeFilePath, 4 byte UTF-8} {
+    # Tcl 8.6 does not parse \U0001F600 in a script, so build U+1F600
+    # from its UTF-8 bytes.
+    uri::DecodeFilePath /a%F0%9F%98%80
+} /a[encoding convertfrom utf-8 \xF0\x9F\x98\x80]
+
+test uri-4.9 {DecodeFilePath, escaped % is not decoded twice} {
+    uri::DecodeFilePath /a%2520
+} /a%20
+
+test uri-4.10 {DecodeFilePath, malformed escapes are kept} {
+    list [uri::DecodeFilePath /a%G1] \
+	[uri::DecodeFilePath /a%2] \
+	[uri::DecodeFilePath /a%]
+} {/a%G1 /a%2 /a%}
+
+test uri-4.11 {DecodeFilePath, literal non-ASCII and escapes} {
+    uri::DecodeFilePath "/\u00e9%20"
+} "/\u00e9 "
+
+test uri-4.12 {DecodeFilePath, invalid UTF-8, lone byte} {
+    uri::DecodeFilePath /a%E9
+} "/a\u00e9"
+
+test uri-4.13 {DecodeFilePath, invalid UTF-8, truncated sequences} {
+    list [uri::DecodeFilePath /a%C3] [uri::DecodeFilePath /a%E2%82]
+} [list "/a\u00c3" "/a\u00e2\u0082"]
+
+test uri-4.14 {DecodeFilePath, invalid UTF-8 makes whole path ISO 8859-1} {
+    uri::DecodeFilePath /a%C3%A9%E9
+} "/a\u00c3\u00a9\u00e9"
+
+test uri-4.15 {DecodeFilePath, invalid UTF-8, literal non-ASCII too} {
+    uri::DecodeFilePath "/\u00e9%E9"
+} "/\u00c3\u00a9\u00e9"
+
+test uri-4.16 {DecodeFilePath, overlong "/" is not a separator} {
+    uri::DecodeFilePath /a%C0%AFb
+} "/a\u00c0\u00afb"
+
+test uri-4.17 {DecodeFilePath, overlong NUL is not NUL} {
+    uri::DecodeFilePath /a%C0%80
+} "/a\u00c0\u0080"
+
+test uri-4.18 {DecodeFilePath, encoded surrogate} {
+    uri::DecodeFilePath /a%ED%A0%80
+} "/a\u00ed\u00a0\u0080"
+
+test uri-4.19 {DecodeFilePath, encoded surrogate pair (CESU-8)} {
+    uri::DecodeFilePath /a%ED%A0%BD%ED%B8%80
+} "/a\u00ed\u00a0\u00bd\u00ed\u00b8\u0080"
+
+test uri-4.20 {DecodeFilePath, code point above U+10FFFF} {
+    uri::DecodeFilePath /a%F4%90%80%80
+} "/a\u00f4\u0090\u0080\u0080"
+
+# uri::geturl with %XX escapes, end to end.
+
+# Write "hello" to the file $name in the temporary directory, then fetch
+# it with uri::geturl through a file URL whose last path component is
+# $escaped. Returns the data, or the error from uri::geturl.
+proc GetEscaped {name escaped} {
+    set file [makeFile {} $name]
+    set f [open $file w]
+    puts -nonewline $f hello
+    close $f
+
+    set url [uri::join scheme file path [file dirname $file]/$escaped]
+    set code [catch {
+	set token [uri::geturl $url]
+	set [subst $token](data)
+    } result]
+    removeFile $name
+    return -code $code $result
+}
+
+# With invalid UTF-8 the whole path is taken as ISO 8859-1, including
+# the directory, so it must be ASCII for the file to be found.
+tcltest::testConstraint asciiTmpDir \
+    [string is ascii [tcltest::temporaryDirectory]]
+
+test uri-4.21 {uri::geturl, lowercase hex} {
+    GetEscaped "__test\u00e9" __test%c3%a9
+} hello
+
+test uri-4.22 {uri::geturl, ISO 8859-1 escape} asciiTmpDir {
+    GetEscaped "__test\u00e9" __test%E9
+} hello
+
+test uri-4.23 {uri::geturl, escaped % is not decoded twice} {
+    GetEscaped __test%20 __test%2520
+} hello
+
+test uri-4.24 {uri::geturl, characters reserved on Windows} {
+    # Tcl maps these to private use characters in Windows filenames.
+    GetEscaped "__test<>\"|?*" __test%3C%3E%22%7C%3F%2A
+} hello
+
+test uri-4.25 {uri::geturl, escaped / is a separator} {
+    set dir [makeDirectory __testdir]
+    set f [open [file join $dir f] w]
+    puts -nonewline $f hello
+    close $f
+
+    set url   [uri::join scheme file path [file dirname $dir]/__testdir%2Ff]
+    set token [uri::geturl $url]
+    removeDirectory __testdir
+    set [subst $token](data)
+} hello
+
+# The remaining tests record how Windows treats some decoded paths.
+# They document the current behavior, they do not endorse it.
+
+test uri-4.26 {uri::geturl, escaped NUL} -constraints win -body {
+    GetEscaped __test __test%00x
+} -returnCodes error -match glob -result {couldn't open "*": filename is invalid on this platform}
+
+test uri-4.27 {uri::geturl, trailing escaped space is dropped on Windows} win {
+    GetEscaped __test __test%20
+} hello
+
+test uri-4.28 {uri::geturl, trailing escaped dot is dropped on Windows} win {
+    GetEscaped __test __test%2E
+} hello
+
+test uri-4.29 {uri::geturl, escaped \ is a separator on Windows} win {
+    set dir [makeDirectory __testdir]
+    set f [open [file join $dir f] w]
+    puts -nonewline $f hello
+    close $f
+
+    set url   [uri::join scheme file path [file dirname $dir]/__testdir%5Cf]
+    set token [uri::geturl $url]
+    removeDirectory __testdir
+    set [subst $token](data)
+} hello
+
+test uri-4.30 {uri::geturl, escaped : names an NTFS data stream} win {
+    set file [makeFile {} __test]
+    set f [open $file:stream w]
+    puts -nonewline $f hello
+    close $f
+
+    set url   [uri::join scheme file path [file dirname $file]/__test%3Astream]
+    set token [uri::geturl $url]
+    removeFile __test
+    set [subst $token](data)
+} hello
+
+rename GetEscaped {}
+
 # -------------------------------------------------------------------------
 
 test uri-5.1-2 {uri::canonicalize} {

@@ -1,15 +1,21 @@
-2026-10-29  pbrooks  <philbrks@gmail.com>
+2026-11-10  pbrooks  <philbrks@gmail.com>
 
-	* uri.tcl (::uri::file_geturl, ::uri::JoinFile): [Ticket 664392]:
+	* uri.tcl (::uri::file_geturl, ::uri::JoinFile,
+	  ::uri::DecodeFilePath): [Ticket 664392]:
 	* uri.test: Fixed uri::geturl for file URLs on Windows. A path
 	* uri.man: beginning with a drive letter (file:///C:/...) is
 	* pkgIndex.tcl: converted to a native filename, as is the legacy
 	  form file://C:/... when the quirk option HostAsDriveLetter is
 	  set. The path is now percent-decoded (as UTF-8) before the file
-	  is opened, on all platforms. On Windows uri::join converts
-	  backslashes in a file path to forward slashes. Fixed uri-4.1 to
-	  build a valid file URL on Windows. Extended testsuite (uri-4.2
-	  to uri-4.4). Updated documentation. Bumped version to 1.2.9.
+	  is opened, on all platforms. If the %XX escapes do not form
+	  valid UTF-8, every byte of the path is taken as an ISO 8859-1
+	  character, the same on Tcl 8 and Tcl 9 (Tcl 8 repairs invalid
+	  UTF-8, so the result is checked for that: round trip and
+	  unpaired surrogates). On Windows uri::join converts backslashes
+	  in a file path to forward slashes. Fixed uri-4.1 to build a
+	  valid file URL on Windows. Extended testsuite (uri-4.2 to
+	  uri-4.30), including tests that record how Windows treats some
+	  decoded paths. Updated documentation. Bumped version to 1.2.9.
 
 2013-12-06  Andreas Kupries  <andreask@activestate.com>
 

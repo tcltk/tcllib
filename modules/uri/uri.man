@@ -171,7 +171,10 @@ any options itself.
 described above. They are handled internally.  The [const path] of the
 URL is percent-decoded before the file is opened, with the escapes taken
 to represent UTF-8 bytes, so that for example "[const %20]" opens a
-filename containing a space.  On Windows, a [const path] that begins with
+filename containing a space.  If the bytes are not valid UTF-8, each
+byte of the path is instead taken as the character with that code
+(ISO 8859-1), so that "[const %E9]" opens a filename containing
+"[const é]".  On Windows, a [const path] that begins with
 a drive letter, such as "[const /C:/dir/file.txt]", is converted to the
 native filename "[const C:/dir/file.txt]".  If the quirk option
 [emph HostAsDriveLetter] is [const true], a drive letter in the
