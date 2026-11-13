@@ -816,8 +816,8 @@ critcl::cproc ::map::slippy::critcl_point_simplify_rdp {
 
     /* Compress the input array down to the kept points */
 
-    unsigned int into = 0;
-    unsigned int i;
+    Tcl_Size into = 0;
+    Tcl_Size i;
     for (i=0; i < points.c; i++) {
         if (!keep[i]) continue;
 	points.v[into] = points.v[i];
