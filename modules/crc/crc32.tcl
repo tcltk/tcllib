@@ -156,7 +156,8 @@ proc ::crc::Crc32Update {token data} {
     } else {
         set sum [Crc32_tcl $data $sum]
     }
-    set state(sum) [expr {$sum ^ 0xFFFFFFFF}]
+    # Crc32_c may return a negative value where C long is 32 bits wide.
+    set state(sum) [expr {($sum ^ 0xFFFFFFFF) & 0xFFFFFFFF}]
     return
 }
 
@@ -264,15 +265,20 @@ proc ::crc::crc32 {args} {
 
     } else {
 
-        set r $opts(-seed)
         set tok [Crc32Init $opts(-seed)]
-        while {![eof $opts(-channel)]} {
-            Crc32Update $tok [read $opts(-channel) $opts(-chunksize)]
-        }
-        set r [Crc32Final $tok]
+        set code [catch {
+            while {![eof $opts(-channel)]} {
+                Crc32Update $tok [read $opts(-channel) $opts(-chunksize)]
+            }
+            Crc32Final $tok
+        } r ropts]
 
         if {$opts(-filename) != {}} {
             close $opts(-channel)
+        }
+        if {$code} {
+            unset -nocomplain $tok
+            return -options $ropts $r
         }
     }
 

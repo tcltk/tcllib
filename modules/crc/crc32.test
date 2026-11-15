@@ -233,6 +233,71 @@ foreach impl [implementations] {
 }
 
 # -------------------------------------------------------------------------
+# Ticket 7bd2d439ca: where C long is 32 bits (Windows) the critcl Crc32_c
+# returns signed values, and the next chunk failed with "integer value
+# too large to represent". Emulate such a Crc32_c with the Tcl code
+# (Tcl 9 Tcl_GetLongFromObj accepts LONG_MIN to ULONG_MAX).
+
+proc Crc32_c_long32 {data {seed 0xFFFFFFFF}} {
+    if {$seed > 0xFFFFFFFF || $seed < -0x80000000} {
+        return -code error "integer value too large to represent"
+    }
+    set r [expr {[::crc::Crc32_tcl $data [expr {$seed & 0xFFFFFFFF}]] & 0xFFFFFFFF}]
+    if {$r >= 0x80000000} {
+        set r [expr {$r - 0x100000000}]
+    }
+    return $r
+}
+
+test crc32-7.0 {crc32 -channel, chunks, signed critcl results} -setup {
+    set f [makeFile {} crc32chunks.txt]
+    set ch [open $f wb]
+    puts -nonewline $ch "123456789"
+    close $ch
+    set ch [open $f rb]
+    if {[info commands ::crc::Crc32_c] ne {}} {
+        rename ::crc::Crc32_c ::crc::Crc32_c_saved
+    }
+    interp alias {} ::crc::Crc32_c {} Crc32_c_long32
+    select_implementation critcl
+} -body {
+    ::crc::crc32 -channel $ch -chunksize 1
+} -cleanup {
+    reset_implementation
+    interp alias {} ::crc::Crc32_c {}
+    if {[info commands ::crc::Crc32_c_saved] ne {}} {
+        rename ::crc::Crc32_c_saved ::crc::Crc32_c
+    }
+    close $ch
+    removeFile crc32chunks.txt
+    unset f ch
+} -result 3421780262
+
+test crc32-7.1 {crc32 -filename closes the file on error} -setup {
+    set f [makeFile {} crc32chunks.txt]
+    set ch [open $f wb]
+    puts -nonewline $ch "123456789"
+    close $ch
+    set before [lsort [file channels]]
+    if {[info commands ::crc::Crc32_c] ne {}} {
+        rename ::crc::Crc32_c ::crc::Crc32_c_saved
+    }
+    proc ::crc::Crc32_c {args} {return -code error "test error"}
+    select_implementation critcl
+} -body {
+    list [catch {::crc::crc32 -filename $f} msg] $msg \
+        [expr {[lsort [file channels]] eq $before}]
+} -cleanup {
+    reset_implementation
+    rename ::crc::Crc32_c {}
+    if {[info commands ::crc::Crc32_c_saved] ne {}} {
+        rename ::crc::Crc32_c_saved ::crc::Crc32_c
+    }
+    removeFile crc32chunks.txt
+    unset f before msg
+} -result {1 {test error} 1}
+
+# -------------------------------------------------------------------------
 
 catch {unset crc::filename}
 testsuiteCleanup
