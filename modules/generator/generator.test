@@ -1,0 +1,47 @@
+# -*- tcl -*-
+# generator.test --
+#
+#	Tests for the generator package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+testing {
+    useLocal generator.tcl generator
+}
+
+# -------------------------------------------------------------------------
+
+test generator-exists-1.0 {exists, glob characters in generator name} -setup {
+    proc gen {} {
+	yield [info coroutine]
+	foreach i {1 2 3} { yield [list $i] }
+	return {}
+    }
+    coroutine {::g[1]} gen
+} -body {
+    set r {}
+    generator foreach x {::g[1]} { lappend r $x }
+    set r
+} -cleanup {
+    rename gen {}
+    unset -nocomplain r x
+} -result {1 2 3}
+
+test generator-exists-1.1 {exists, glob pattern does not match other commands} -setup {
+    proc gx {} {}
+} -body {
+    generator exists {::g?}
+} -cleanup {
+    rename gx {}
+} -result 0
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return

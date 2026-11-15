@@ -103,7 +103,7 @@ namespace eval generator {
         set ns [uplevel 1 { namespace current }]
         trace add command [info coroutine] delete [list ::apply [list args $args $ns]]
     }
-    proc exists generator { expr {[llength [info commands $generator]] != 0} }
+    proc exists generator { expr {[namespace which -command $generator] ne {}} }
     proc destroy args {
         ::foreach generator $args {
             if {[exists $generator]} { rename $generator "" }
