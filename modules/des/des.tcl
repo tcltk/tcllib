@@ -146,6 +146,42 @@ proc ::DES::Hex {data} {
     return $r 
 }
 
+# Fileevent handler used to process data from a channel (-in option).
+# Data is processed in multiples of the block size, the remainder is
+# kept for the next chunk. Only the final block is padded.
+proc ::DES::Chunk {Key in {out {}} {chunksize 4096}} {
+    upvar #0 $Key state
+
+    if {[eof $in]} {
+        fileevent $in readable {}
+        set state(reading) 0
+        set data $state(remainder)
+        if {[string length $data] > 0} {
+            set data [Pad $data 8]
+        }
+    } else {
+        set data $state(remainder)[read $in $chunksize]
+        set pagedlen [expr {([string length $data] / 8) * 8}]
+        set state(remainder) [string range $data $pagedlen end]
+        set data [string range $data 0 [expr {$pagedlen - 1}]]
+    }
+
+    if {![string length $data]} return
+
+    if {[catch {set cipher [$state(cmd) $Key $data]} msg]} {
+        fileevent $in readable {}
+        set state(err) $msg
+        set state(reading) 0
+        return
+    }
+
+    if {$out == {}} {
+        append state(output) $cipher
+    } else {
+        puts -nonewline $out $cipher
+    }
+}
+
 proc ::DES::des {args} {
     array set opts {
         -dir encrypt -mode cbc -key {} -in {} -out {} -chunksize 4096 -hex 0 -weak 0 old 0
@@ -239,6 +275,7 @@ proc ::DES::des {args} {
             set state(cmd) Decrypt
         }
         set state(output) ""
+        set state(remainder) ""
         fileevent $opts(-in) readable \
             [list [namespace origin Chunk] \
                  $Key $opts(-in) $opts(-out) $opts(-chunksize)]
@@ -246,6 +283,11 @@ proc ::DES::des {args} {
             tkwait variable [subst $Key](reading)
         } else {
             vwait [subst $Key](reading)
+        }
+        if {[info exists state(err)]} {
+            set msg $state(err)
+            Final $Key
+            return -code error $msg
         }
         if {$opts(-out) == {}} {
             set r $state(output)

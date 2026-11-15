@@ -400,6 +400,51 @@ test des-9.1 {Backwards compatability - key padding} {
 # -------------------------------------------------------------------------
 
 #catch {unset in out key}
+# Ticket a1dec8173c: the -in option called the missing Chunk command.
+test des-10.1 {des -in channel, encrypt} -setup {
+    set f [makeFile {} des-in.bin]
+    set ch [open $f wb]
+    puts -nonewline $ch "The quick brown fox jumps"
+    close $ch
+    set ch [open $f rb]
+} -body {
+    set key [binary format H* 0123456789abcdef]
+    set iv  [binary format H* fedcba9876543210]
+    string equal \
+        [DES::des -mode cbc -dir encrypt -key $key -iv $iv -hex \
+             -chunksize 5 -in $ch] \
+        [DES::des -mode cbc -dir encrypt -key $key -iv $iv -hex \
+             "The quick brown fox jumps"]
+} -cleanup {
+    close $ch
+    removeFile des-in.bin
+    unset f ch key iv
+} -result 1
+
+test des-10.2 {des -in channel, decrypt to -out channel} -setup {
+    set key [binary format H* 0123456789abcdef]
+    set f [makeFile {} des-in.bin]
+    set ch [open $f wb]
+    puts -nonewline $ch [DES::des -mode ecb -dir encrypt -key $key \
+                             "0123456789abcdefXYZ"]
+    close $ch
+    set ch [open $f rb]
+    set g [makeFile {} des-out.bin]
+    set out [open $g wb]
+} -body {
+    set r [DES::des -mode ecb -dir decrypt -key $key -chunksize 3 \
+               -in $ch -out $out]
+    close $out
+    set out [open $g rb]
+    list $r [read $out]
+} -cleanup {
+    close $ch
+    close $out
+    removeFile des-in.bin
+    removeFile des-out.bin
+    unset f g ch out key r
+} -result [list {} "0123456789abcdefXYZ\0\0\0\0\0"]
+
 testsuiteCleanup
 
 # Local Variables:
