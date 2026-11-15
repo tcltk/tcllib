@@ -359,6 +359,7 @@ proc ::cron::runTasksCoro {} {
     ###
     set tasks {}
     set cancellist {}
+    set oneshotlist {}
     set nexttask {}
 
     foreach {process} [lsort -dictionary [array names processTable]] {
@@ -374,7 +375,7 @@ proc ::cron::runTasksCoro {} {
           if { $scheduled <= $now } {
             lappend tasks $process
             if { $frequency < 0 } {
-              lappend cancellist $process
+              lappend oneshotlist $process
             } elseif {$frequency==0} {
               set scheduled 0
               if {$::cron::trace > 1} {
@@ -455,22 +456,35 @@ proc ::cron::runTasksCoro {} {
           }
         }
       } else {
-        dict with processTable($task) {
-          set err [catch {uplevel #0 $command} result errdat]
-          if $err {
-            puts "CRON TASK FAILURE:"
-            puts "PROCESS: $task"
-            puts $result
-            puts ***
-            puts [dict get $errdat -errorinfo]
-          }
+        # Not inside "dict with": the command may modify its own task.
+        set err [catch {uplevel #0 $command} result errdat]
+        if {[info exists processTable($task)]} {
+          dict set processTable($task) err $err
+          dict set processTable($task) result $result
+        }
+        if $err {
+          puts "CRON TASK FAILURE:"
+          puts "PROCESS: $task"
+          puts $result
+          puts ***
+          puts [dict get $errdat -errorinfo]
         }
         yield 0
       }
-      dict set processTable($task) running 0
+      if {[info exists processTable($task)]} {
+        dict set processTable($task) running 0
+      }
     }
     foreach {task} $cancellist {
       unset -nocomplain processTable($task)
+    }
+    foreach {task} $oneshotlist {
+      # Keep one-shot tasks which were rescheduled by their command
+      if {[info exists processTable($task)]
+          && [dict get $processTable($task) frequency] < 0
+          && [dict get $processTable($task) scheduled] <= $now} {
+        unset processTable($task)
+      }
     }
     foreach {process} [lsort -dictionary [array names processTable]] {
       set scheduled 0

@@ -490,6 +490,36 @@ test cron-1.8 {cron::in} {
   set ::inevent
 } 1
 
+###
+# Ticket 9833d8dca1: a task can change its own schedule
+###
+set ::selfcount 0
+proc selfchange {} {
+  incr ::selfcount
+  if {$::selfcount == 1} {
+    ::cron::every selfchange 30 selfchange
+  }
+}
+::cron::every selfchange 1 selfchange
+::cron::clock_sleep 2
+test cron-1.9 {cron::every called from its own task} {
+  list $::selfcount [dict get [::cron::task info selfchange] frequency]
+} {1 30000}
+::cron::cancel selfchange
+
+set ::selfin 0
+proc selfin {} {
+  incr ::selfin
+  if {$::selfin == 1} {
+    ::cron::in selfin 1 selfin
+  }
+}
+::cron::in selfin 1 selfin
+::cron::clock_sleep 3
+test cron-1.10 {cron::in called from its own task} {
+  list $::selfin [::cron::task exists selfin]
+} {2 0}
+
 
 set FAILED 0
 after 10000 {set ::cron::forever 0 ; set FAILED 1}
