@@ -365,7 +365,7 @@ proc ::bibtex::ParseRecords {token eof} {
 	} elseif {([incr count] % $istep) == 0} {
 	    Callback $token progress [expr {int($count / $step)}]
 	}
-	if {[regexp -nocase {\s*comment([^\n])*\n(.*)} $block \
+	if {[regexp -nocase {^\s*comment([^\n])*\n(.*)} $block \
 		-> cmnt rest]} {
 	    # Are @comments blocks, or just 1 line?
 	    # Does anyone care?
@@ -379,7 +379,7 @@ proc ::bibtex::ParseRecords {token eof} {
 	    } else {
 		Callback $token string [ParseBlock $rest]
 	    }
-	} elseif {[regexp -nocase {\s*preamble[^\{]*\{(.*)\}[^\}]*} \
+	} elseif {[regexp -nocase {^\s*preamble[^\{]*\{(.*)\}[^\}]*} \
 		$block -> rest]} {
 	    Callback $token preamble $rest
 

@@ -234,6 +234,28 @@ test bibtex-5.0 {Tkt 8bec717add, parse} {
     bibtex::parse [viewFile [asset epj.bib]]
 } {{article refId0 {author {Santonocito, Domenico and Blumenfeld, Yorick} title {The hot GDR revisited} doi 10.1140/epja/s10050-020-00279-6 url https://doi.org/10.1140/epja/s10050-020-00279-6 journal {Eur. Phys. J. A} year 2020 volume 56 number 11 pages 279}}}
 
+test bibtex-7.0 {Tkt 6bef0b5d0f, word "comment" inside a record} {
+    bibtex::parse "@article{k1,\n  title = {No comment on this}\n}\n@article{k2,\n  year = 2000\n}\n"
+} {{article k1 {title {No comment on this}}} {article k2 {year 2000}}}
+
+test bibtex-7.1 {Tkt 6bef0b5d0f, word "preamble" inside a record} {
+    bibtex::parse "@article{k1,\n  note = {See preamble {x} here}\n}\n"
+} {{article k1 {note {See preamble x here}}}}
+
+test bibtex-7.2 {Tkt 6bef0b5d0f, comment and preamble entries} -setup {
+    proc c {token args} {track comment}
+    proc p {token args} {track preamble $args}
+    proc r {token args} {track record $args}
+    set track {}
+} -body {
+    bibtex::parse -commentcommand c -preamblecommand p -recordcommand r \
+	"@comment{ignored}\n@preamble{ \"x\" }\n@article{k1,\n  year = 2000\n}\n"
+    set track
+} -cleanup {
+    rename c {} ; rename p {} ; rename r {}
+    unset track
+} -result {comment {preamble {{ "x" }}} {record {article k1 {year 2000}}}}
+
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
 # -------------------------------------------------------------------------
