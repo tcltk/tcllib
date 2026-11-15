@@ -240,6 +240,13 @@ test huddle-3.6 "test of huddle jsondump - dict and null handling" -body {
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
 
+test huddle-3.7 {ticket [e3a6e3e02a]: strings which are not lists} -body {
+    set h [huddle list \" "a b" \{]
+    list [huddle get_stripped $h] [huddle isHuddle \"] [huddle jsondump $h {} {}]
+} -cleanup {
+    unset -nocomplain h
+} -result [list [list \" "a b" \{] 0 [string map {@ \{} {["\"","a b","@"]}]]
+
 test huddle-4.1 "test of huddle set" -body {
     huddle set data_dict dd bb a baa
 } -result {HUDDLE {D {dd {D {bb {D {a {s baa} c {s d}}} cc {D {e {s f} g {s h}}}}} ee {D {i {s j} k {s l}}}}}}

@@ -146,7 +146,7 @@ proc ::huddle::unknown_subcommand {ensembleCmd subcommand args} {
 }
 
 proc ::huddle::isHuddle {obj} {
-    if {[lindex $obj 0] ne "HUDDLE" || [llength $obj] != 2} {
+    if {![string is list $obj] || [llength $obj] != 2 || [lindex $obj 0] ne "HUDDLE"} {
         return 0
     }
     
