@@ -175,6 +175,34 @@ test spf-4.5 {ip4 directive} {
     } r] $r
 } {0 +}
 
+test spf-4.6 {ip4 directive does not fail for IPv6 sender} {
+    list [catch {
+        spf::Spf 2001:db8::1 email.example.com $::email \
+            "v=spf1 ip4:192.0.2.0/24 ip6:2001:db8::/32 -all"
+    } r] $r
+} {0 +}
+
+test spf-4.7 {ip6 directive does not fail for IPv4 sender} {
+    list [catch {
+        spf::Spf 192.0.2.3 email.example.com $::email \
+            "v=spf1 ip6:2001:db8::/32 ip4:192.0.2.0/24 -all"
+    } r] $r
+} {0 +}
+
+test spf-4.8 {ip6 directive: no match} {
+    list [catch {
+        spf::Spf 2001:db9::1 email.example.com $::email \
+            "v=spf1 ip4:192.0.2.0/24 ip6:2001:db8::/32 -all"
+    } r] $r
+} {0 -}
+
+test spf-4.9 {a and mx directives do not fail for IPv6 sender} {
+    list [catch {
+        spf::Spf 2001:db8::1 email.example.com $::email \
+            "v=spf1 a mx -all"
+    } r] $r
+} {0 -}
+
 # -------------------------------------------------------------------------
 # Macros language tests
 # These are all taken from the specification document.

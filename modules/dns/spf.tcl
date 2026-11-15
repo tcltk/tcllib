@@ -200,7 +200,7 @@ proc ::spf::_a {ip domain sender param} {
     set dips [A $testdomain];           # get the IPs for the testdomain
     foreach dip $dips {
         ${log}::debug "  compare: ${ip}/${bits} with ${dip}/${bits}"
-        if {[ip::equal $ip/$bits $dip/$bits]} {
+        if {[IpMatch $ip $dip $bits]} {
             return 1
         }
     }
@@ -226,7 +226,7 @@ proc ::spf::_mx {ip domain sender param} {
         set mxips [A $mx]
         foreach mxip $mxips {
             ${log}::debug "  compare: ${ip}/${bits} with ${mxip}/${bits}"
-            if {[ip::equal $ip/$bits $mxip/$bits]} {
+            if {[IpMatch $ip $mxip $bits]} {
                 return 1
             }
         }
@@ -247,7 +247,8 @@ proc ::spf::_ptr {ip domain sender param} {
     foreach name $names {
         set addrs [A $name]
         foreach addr $addrs {
-            if {[ip::equal $ip $addr]} {
+            if {[ip::version $ip] == [ip::version $addr]
+                && [ip::equal $ip $addr]} {
                 lappend validnames $name
                 continue
             }
@@ -268,6 +269,15 @@ proc ::spf::_ptr {ip domain sender param} {
     return 0
 }
 
+# Compare two IP addresses using the given prefix length (if any).
+# Addresses of different families never match.
+proc ::spf::IpMatch {ip addr bits} {
+    if {[ip::version $ip] != [ip::version $addr]} {
+        return 0
+    }
+    return [ip::equal $ip/$bits $addr/$bits]
+}
+
 # 4.7: These mechanisms test if the <sending-host> falls into a given IP
 #      network.
 #
@@ -275,7 +285,7 @@ proc ::spf::_ip4 {ip domain sender param} {
     variable log
     foreach {network bits} [ip::SplitIp [string range $param 1 end]] {}
     ${log}::debug "  compare ${ip}/${bits} to ${network}/${bits}"
-    if {[ip::equal $ip/$bits $network/$bits]} {
+    if {[IpMatch $ip $network $bits]} {
         return 1
     }
     return 0
@@ -288,7 +298,7 @@ proc ::spf::_ip6 {ip domain sender param} {
     variable log
     foreach {network bits} [ip::SplitIp [string range $param 1 end]] {}
     ${log}::debug "  compare ${ip}/${bits} to ${network}/${bits}"
-    if {[ip::equal $ip/$bits $network/$bits]} {
+    if {[IpMatch $ip $network $bits]} {
         return 1
     }
     return 0
