@@ -63,6 +63,52 @@ foreach {ndx url check} $urls {
 }
 
 
+# Ticket 2853152: dns::cleanup closed the socket a second time after the
+# query had finished, possibly closing an unrelated channel which reused
+# the name.
+proc dnsServer {chan addr port} {
+    fconfigure $chan -translation binary -blocking 0 -buffering none
+    fileevent $chan readable [list dnsServerRead $chan]
+}
+proc dnsServerRead {chan} {
+    upvar #0 dnsServerBuf($chan) buf
+    append buf [read $chan]
+    if {[string length $buf] < 2} return
+    binary scan $buf S len
+    if {[string length $buf] < 2 + ($len & 0xFFFF)} return
+    set query [string range $buf 2 end]
+    unset buf
+    # Header: same id, response + recursion, 1 question, 1 answer.
+    set reply [string range $query 0 1]
+    append reply [binary format SSSSS 0x8180 1 1 0 0]
+    append reply [string range $query 12 end]
+    # Answer: pointer to the question name, A, IN, TTL, 192.0.2.1
+    append reply [binary format SSSIScccc 0xC00C 1 1 60 4 192 0 2 1]
+    puts -nonewline $chan [binary format S [string length $reply]]$reply
+    close $chan
+}
+
+test dns-5.1 {cleanup after finish does not close the socket again} -setup {
+    set srv [socket -server dnsServer -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $srv -sockname] 2]
+    set closed {}
+    proc ::dns::close {chan} {
+        lappend ::closed $chan
+        ::close $chan
+    }
+} -body {
+    set tok [dns::resolve www.example.org -protocol tcp \
+                 -nameserver 127.0.0.1 -port $port -timeout 5000]
+    set res [list [dns::status $tok] [dns::address $tok] [llength $closed]]
+    dns::cleanup $tok
+    lappend res [llength $closed]
+} -cleanup {
+    rename ::dns::close {}
+    close $srv
+    unset -nocomplain srv port tok closed res
+} -result {ok 192.0.2.1 1 1}
+
+
 # -------------------------------------------------------------------------
 testsuiteCleanup
 

@@ -474,7 +474,9 @@ proc ::dns::wait {token} {
 proc ::dns::cleanup {token} {
     upvar #0 $token state
     if {[info exists state]} {
-        catch {close $state(sock)}
+        if {[info exists state(sock)] && $state(sock) ne {}} {
+            catch {close $state(sock)}
+        }
         catch {after cancel $state(after)}
         unset state
     }
@@ -831,7 +833,10 @@ proc ::dns::Finish {token {errormsg ""}} {
 	set state(error) $errormsg
 	set state(status) error
     }
+    # Forget the closed socket, its name may be reused by a new channel
+    # which a later dns::cleanup must not close.
     catch {close $state(sock)}
+    set state(sock) {}
     catch {after cancel $state(after)}
     if {[info exists state(-command)] && $state(-command) != {}} {
 	if {[catch {
