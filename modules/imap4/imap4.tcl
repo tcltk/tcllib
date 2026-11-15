@@ -1318,7 +1318,7 @@ namespace eval imap4 {
 ################################################################################
 # Example and test
 ################################################################################
-if {[info script] eq $argv0} {
+if {[info exists ::argv0] && [info script] eq $::argv0} {
     # set imap4::debug 0
     set FOLDER INBOX
     set port 0

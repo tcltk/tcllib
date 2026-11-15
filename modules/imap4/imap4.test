@@ -1,0 +1,48 @@
+# -*- tcl -*-
+# imap4.test:  tests for the imap4 client.
+#
+# This file contains a collection of tests for one or more of the Tcl
+# built-in commands.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal imap4.tcl imap4
+}
+
+# -------------------------------------------------------------------------
+
+test imap4-1.0 {load without argv0, ticket dbde846f53} -setup {
+    set ip [interp create]
+} -body {
+    $ip eval {unset -nocomplain ::argv0}
+    $ip eval [list source [localPath imap4.tcl]]
+    $ip eval {package present imap4}
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -match glob -result {0.*}
+
+test imap4-1.1 {load from inside a procedure, ticket dbde846f53} -setup {
+    set ip [interp create]
+} -body {
+    $ip eval {set ::argv0 [info nameofexecutable]}
+    $ip eval [list proc load {} [list source [localPath imap4.tcl]]]
+    $ip eval load
+    $ip eval {package present imap4}
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -match glob -result {0.*}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return
