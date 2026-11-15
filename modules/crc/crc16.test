@@ -282,6 +282,26 @@ foreach {n cmd expected} {
     } [list 0 $expected]
 }
 
+# Ticket 2848168: the 32-bit sign mask cleared bit 24 of non-reflected
+# 32-bit CRCs where tcl_platform(wordSize) is 4 (Windows). Emulate it.
+test crc16-10.0 {non-reflected 32-bit CRC (CRC-32/BZIP2), 32-bit signbit} -setup {
+    set savedsignbit $::crc::signbit
+    set ::crc::signbit 2147483648
+} -body {
+    set tbl [::crc::Crc_table 32 0x04C11DB7 0]
+    format %08X [::crc::Crc "123456789" 32 tbl 0xFFFFFFFF 0xFFFFFFFF 0]
+} -cleanup {
+    set ::crc::signbit $savedsignbit
+    unset savedsignbit tbl
+} -result FC891918
+
+test crc16-10.1 {non-reflected 32-bit CRC (CRC-32/BZIP2)} -body {
+    set tbl [::crc::Crc_table 32 0x04C11DB7 0]
+    format %08X [::crc::Crc "123456789" 32 tbl 0xFFFFFFFF 0xFFFFFFFF 0]
+} -cleanup {
+    unset tbl
+} -result FC891918
+
 # -------------------------------------------------------------------------
 catch {unset crc::filename}
 testsuiteCleanup

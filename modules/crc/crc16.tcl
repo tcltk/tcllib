@@ -176,8 +176,6 @@ proc ::crc::Crc_table {width poly reflected} {
 #              in transmission order (ie: bit0, bit1, ..., bit7)
 proc ::crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
     upvar $table tbl
-    variable signbit
-    set signmask [expr {~$signbit>>7}]
 
     if {$width < 32} {
         set mask   [expr {(1 << $width) - 1}]
@@ -193,11 +191,11 @@ proc ::crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
         if {$reflected} {
             set ndx [expr {($crc ^ $datum) & 0xFF}]
             set lkp [lindex $tbl $ndx]
-            set crc [expr {($lkp ^ ($crc >> 8 & $signmask)) & $mask}]
+            set crc [expr {($lkp ^ ($crc >> 8)) & $mask}]
         } else {
             set ndx [expr {(($crc >> $rot) ^ $datum) & 0xFF}]
             set lkp [lindex $tbl $ndx]
-            set crc [expr {($lkp ^ ($crc << 8 & $signmask)) & $mask}]
+            set crc [expr {($lkp ^ ($crc << 8)) & $mask}]
         }
     }
 

@@ -188,15 +188,13 @@ proc ::crc::Crc32Final {token} {
 #
 proc ::crc::Crc32_tcl {data {seed 0xFFFFFFFF}} {
     variable crc32_tbl
-    variable signbit
-    set signmask [expr {~$signbit>>7}]
     set crcval $seed
 
     binary scan $data c* nums
     foreach {n} $nums {
         set ndx [expr {($crcval ^ $n) & 0xFF}]
         set lkp [lindex $crc32_tbl $ndx]
-        set crcval [expr {($lkp ^ ($crcval >> 8 & $signmask)) & 0xFFFFFFFF}]
+        set crcval [expr {($lkp ^ ($crcval >> 8)) & 0xFFFFFFFF}]
     }
     
     return [expr {$crcval ^ 0xFFFFFFFF}]
