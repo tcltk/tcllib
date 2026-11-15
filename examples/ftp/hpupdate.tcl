@@ -32,8 +32,15 @@
 package require Tcl 8.5 9
 package require ftp 2.0
 package require Tk
-if {![llength [info commands tkButtonInvoke]]} {
-    ::tk::unsupported::ExposePrivateCommand tkButtonInvoke
+
+# Invoke a button from a keyboard binding, flashing it like a mouse
+# click would. Avoids the private Tk command tkButtonInvoke, which is
+# gone in Tk 9. [Bug 450914]
+proc ButtonInvoke {w} {
+    if {[$w cget -state] ne "disabled"} {
+	catch {$w flash}
+	$w invoke
+    }
 }
 
 # LED Colors
@@ -186,8 +193,8 @@ bind . <Meta-c> {BusyCommand Connect}
 bind . <Meta-i> {BusyCommand Disconnect}
 bind . <Meta-r> {BusyCommand Refresh}
 bind . <Meta-p> {BusyCommand Config}
-bind . <Meta-u> "tkButtonInvoke .view.local.buttons.transfer"
-bind . <Meta-d> "tkButtonInvoke .view.remote.buttons.delete"
+bind . <Meta-u> "ButtonInvoke .view.local.buttons.transfer"
+bind . <Meta-d> "ButtonInvoke .view.remote.buttons.delete"
 bind . <Meta-x> Quit
 
 proc SyncY {args} {
@@ -922,13 +929,13 @@ global opt
 	$w.mask.remote.entry delete 0 end
 	$w.mask.remote.entry insert 0 $opt(remoteDir)
 
-	bind $w <Meta-d> "tkButtonInvoke $w.mask.check.debug"
-	bind $w <Meta-v> "tkButtonInvoke $w.mask.check.verbose"
+	bind $w <Meta-d> "ButtonInvoke $w.mask.check.debug"
+	bind $w <Meta-v> "ButtonInvoke $w.mask.check.verbose"
 	bind $w <Meta-f> "focus $w.mask.server.entry"
 	bind $w <Meta-r> "focus $w.mask.remote.entry"
 	bind $w <Meta-l> "focus $w.mask.local.entry"
-	bind $w <Meta-s> "tkButtonInvoke $w.control.accept"
-	bind $w <Meta-c> "tkButtonInvoke $w.control.cancel"
+	bind $w <Meta-s> "ButtonInvoke $w.control.accept"
+	bind $w <Meta-c> "ButtonInvoke $w.control.cancel"
 
 	focus -force $w.mask.server.entry
 	update idletasks
