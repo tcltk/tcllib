@@ -85,7 +85,7 @@ if {[llength [info commands ::yencode::CEncode]]} {
 ## Higher unicode
 
 set text    "\uFFFE\u0000\u0001\u0002"
-set encoded "éè*+,"
+set encoded "\u0019\u00e9\u00e8*+,"
 
 test yencode-4.0 "Encode \"$text\"" -body {
     ::yencode::encode [encoding convertto utf-8 $text]
