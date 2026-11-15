@@ -527,7 +527,7 @@ proc ::smtpd::deliver_old {channel} {
              && [state $channel from] != {} \
              && [state $channel to] != {} \
              && [state $channel data] != {} } {
-        if {[catch {$deliver [state $channel from] \
+        if {[catch {{*}$deliver [state $channel from] \
                         [state $channel to] \
                         [state $channel data]} msg]} {
             Log debug "error in deliver: $msg"
