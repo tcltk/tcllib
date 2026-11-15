@@ -914,16 +914,21 @@ proc ::dns::TcpEvent {token} {
     } elseif { [string length $result] >= 0 } {
         ${log}::debug "read [string length $result] bytes for $token"
         if {[catch {
-            # Handle incomplete reads - check the size and keep reading.
-            if {![info exists state(size)]} {
-                binary scan $result S state(size)
-                set result [string range $result 2 end]
-            }
+            # Handle incomplete reads - collect data until we have the
+            # 2-byte length prefix and then the whole reply.
             append state(reply) $result
+            if {![info exists state(size)]
+                && [string length $state(reply)] >= 2} {
+                binary scan $state(reply) S state(size)
+                set state(size) [expr {$state(size) & 0xFFFF}]
+                set state(reply) [string range $state(reply) 2 end]
+            }
 
             # check the length and flags and chop off the tcp length prefix.
-            if {[string length $state(reply)] >= $state(size)} {
-                binary scan $result S id
+            if {![info exists state(size)]} {
+                ${log}::debug "Incomplete tcp read: no length prefix yet"
+            } elseif {[string length $state(reply)] >= $state(size)} {
+                binary scan $state(reply) S id
                 set id [expr {$id & 0xFFFF}]
                 if {$id != [expr {$state(id) & 0xFFFF}]} {
                     ${log}::error "received packed with incorrect id"

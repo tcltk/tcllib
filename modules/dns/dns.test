@@ -63,6 +63,51 @@ foreach {ndx url check} $urls {
 }
 
 
+# Tickets 187a6fa7ae, 022bca0ff5: TCP replies arriving in pieces, the
+# first piece shorter than the 2-byte length prefix.
+proc dnsSplitServer {chan addr port} {
+    fconfigure $chan -translation binary -blocking 0 -buffering none
+    fileevent $chan readable [list dnsSplitServerRead $chan]
+}
+proc dnsSplitServerRead {chan} {
+    upvar #0 dnsSplitBuf($chan) buf
+    append buf [read $chan]
+    if {[string length $buf] < 2} return
+    binary scan $buf S len
+    if {[string length $buf] < 2 + ($len & 0xFFFF)} return
+    fileevent $chan readable {}
+    set query [string range $buf 2 end]
+    unset buf
+    # Header: same id, response + recursion, 1 question, 1 answer.
+    set reply [string range $query 0 1]
+    append reply [binary format SSSSS 0x8180 1 1 0 0]
+    append reply [string range $query 12 end]
+    # Answer: pointer to the question name, A, IN, TTL, 192.0.2.1
+    append reply [binary format SSSIScccc 0xC00C 1 1 60 4 192 0 2 1]
+    set msg [binary format S [string length $reply]]$reply
+    puts -nonewline $chan [string index $msg 0]
+    after 100 [list dnsSplitServerRest $chan [string range $msg 1 end]]
+}
+proc dnsSplitServerRest {chan data} {
+    puts -nonewline $chan [string range $data 0 9]
+    after 100 [list puts -nonewline $chan [string range $data 10 end]]
+    after 300 [list close $chan]
+}
+
+test dns-4.1 {resolve over tcp, reply split in pieces} -setup {
+    set srv [socket -server dnsSplitServer -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $srv -sockname] 2]
+} -body {
+    set tok [dns::resolve www.example.org -protocol tcp \
+                 -nameserver 127.0.0.1 -port $port -timeout 5000]
+    list [dns::status $tok] [dns::error $tok] [dns::address $tok]
+} -cleanup {
+    catch {dns::cleanup $tok}
+    close $srv
+    unset -nocomplain srv port tok
+} -result {ok {} 192.0.2.1}
+
+
 # -------------------------------------------------------------------------
 testsuiteCleanup
 
