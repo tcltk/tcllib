@@ -1839,7 +1839,38 @@ test matrix-9.14 {trace cleanup after unlink} {
     lappend result [trace info variable ::mymatrix::data]
     mymatrix destroy
     set result
-} {{} {{write {::struct::matrix::MatTraceOut a ::mymatrix}}} {}}
+} {{} {{{write unset} {::struct::matrix::MatTraceOut a ::mymatrix}}} {}}
+
+test matrix-9.15 {linked array follows row and column deletion, ticket 2426988fff} {
+    catch {unset a}
+    catch {unset b}
+    matrix mymatrix
+    mymatrix add columns 2
+    mymatrix add row {1 2}
+    mymatrix add row {3 4}
+    mymatrix add row {5 6}
+    mymatrix link a
+    mymatrix link -transpose b
+    set result {}
+    mymatrix delete row 1
+    lappend result [dictsort [array get a]] [dictsort [array get b]]
+    mymatrix delete column 0
+    lappend result [dictsort [array get a]] [dictsort [array get b]]
+    mymatrix destroy
+    set result
+} {{0,0 1 0,1 5 1,0 2 1,1 6} {0,0 1 0,1 2 1,0 5 1,1 6} {0,0 2 0,1 6} {0,0 2 1,0 6}}
+
+test matrix-9.16 {linked array follows transpose, ticket 2426988fff} {
+    catch {unset a}
+    matrix mymatrix
+    mymatrix add columns 3
+    mymatrix add row {1 2 3}
+    mymatrix link a
+    mymatrix transpose
+    set result [dictsort [array get a]]
+    mymatrix destroy
+    set result
+} {0,0 1 0,1 2 0,2 3}
 
 test matrix-10.1 {search errors} {
     matrix mymatrix

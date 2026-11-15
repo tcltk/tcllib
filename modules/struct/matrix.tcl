@@ -1606,7 +1606,7 @@ proc ::struct::matrix::_link {name args} {
     }
 
     trace add variable array {write unset} [list ::struct::matrix::MatTraceIn  $variable $name]
-    trace add variable data  write  [list ::struct::matrix::MatTraceOut $variable $name]
+    trace add variable data  {write unset} [list ::struct::matrix::MatTraceOut $variable $name]
     return
 }
 
@@ -2213,7 +2213,7 @@ proc ::struct::matrix::_unlink {name avar} {
     variable ${name}::data
 
     trace remove variable array {write unset} [list ::struct::matrix::MatTraceIn  $avar $name]
-    trace remove variable data  write  [list ::struct::matrix::MatTraceOut $avar $name]
+    trace remove variable data  {write unset} [list ::struct::matrix::MatTraceOut $avar $name]
 
     unset link($avar)
     return
@@ -2545,6 +2545,11 @@ proc ::struct::matrix::MatTraceOut {avar name var idx op} {
 
     variable ${name}::unset
 
+    if {$idx eq ""} {
+	# The whole data array is going away. Nothing to propagate.
+	return
+    }
+
     if {![string compare $avar $unset]} {
 	# Do not change the variable currently unsetting
 	# one of its elements.
@@ -2572,6 +2577,11 @@ proc ::struct::matrix::MatTraceOut {avar name var idx op} {
 	# array. We make sure that this is an unset too.
 
 	unset array($c,$r)
+    } elseif {![string compare $op unset]} {
+	# A cell was removed from the matrix (delete row/column,
+	# transpose, ...). Remove the element from the array too.
+
+	unset -nocomplain array($c,$r)
     } else {
 	set array($c,$r) $data($idx)
     }
