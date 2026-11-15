@@ -107,34 +107,36 @@ proc extract-options {dict keys} {
     foreach k $keys {}
 }
 
-if {![catch {package require tls}]} {
-    rename socket socket.orig
-    proc socket {args} {
-        set ans [::chan create {read write} [proxy-simu new $args]]
-        fconfigure $ans -socket-command $args
-        return $ans
-    }
-    rename tls::socket tls::socket.orig
-    proc tls::socket args {
-        set ans [::socket {*}$args]
-        fconfigure $ans -tls-command [list tls::socket {*}$args] 
-        foreach {opt val} [optiondict $args] {
-            fconfigure $ans -tls$opt $val
-        }
-        return $ans
-    }
-    rename tls::import tls::import.orig
-    proc tls::import {ch args} {
-        fconfigure $ch -tls-command [list tls::import {*}$args]
-        foreach {opt val} [optiondict $args] {
-            fconfigure $ch -tls$opt $val
-        }
-    }
-    rename tls::handshake tls::handshake.orig
-    proc tls::handshake {s} {}
-    rename tls::status tls::status.orig
-    proc tls::status {args} {}
+# The tls package is simulated, a real one is not needed.
+rename socket socket.orig
+proc socket {args} {
+    set ans [::chan create {read write} [proxy-simu new $args]]
+    fconfigure $ans -socket-command $args
+    return $ans
 }
+namespace eval ::tls {}
+if {![catch {package require tls}]} {
+    rename tls::socket tls::socket.orig
+    rename tls::import tls::import.orig
+    rename tls::handshake tls::handshake.orig
+    rename tls::status tls::status.orig
+}
+proc tls::socket args {
+    set ans [::socket {*}$args]
+    fconfigure $ans -tls-command [list tls::socket {*}$args] 
+    foreach {opt val} [optiondict $args] {
+        fconfigure $ans -tls$opt $val
+    }
+    return $ans
+}
+proc tls::import {ch args} {
+    fconfigure $ch -tls-command [list tls::import {*}$args]
+    foreach {opt val} [optiondict $args] {
+        fconfigure $ch -tls$opt $val
+    }
+}
+proc tls::handshake {s} {}
+proc tls::status {args} {}
 
 # Clear the autoproxy package state for each test
 proc packageReset {} {
@@ -146,9 +148,7 @@ proc packageReset {} {
     http::config -proxyhost "" -proxyport ""
 }
 
-test autoproxy-tls-1.1.0 "autoproxy::tls_socket (tls) without proxy" -constraints {
-    have_tls
-} -setup {
+test autoproxy-tls-1.1.0 "autoproxy::tls_socket (tls) without proxy" -setup {
     packageReset
 } -body {
     http::register https 443 autoproxy::tls_socket
@@ -165,9 +165,7 @@ test autoproxy-tls-1.1.0 "autoproxy::tls_socket (tls) without proxy" -constraint
     -socket-command direct-connection.tcllib.test
 }
 
-test autoproxy-tls-1.1.1 "autoproxy::tls_socket (tls) with proxy" -constraints {
-    have_tls
-} -setup {
+test autoproxy-tls-1.1.1 "autoproxy::tls_socket (tls) with proxy" -setup {
     packageReset
     autoproxy::configure -proxy_host proxy.tcllib.test -proxy_port 4319
 } -body {
@@ -210,9 +208,7 @@ test autoproxy-tls-1.1.1 "autoproxy::tls_socket (tls) with proxy and http proxy 
     -socket-command {proxy.tcllib.test 4319}
 }
 
-test autoproxy-tls-1.1.3 "autoproxy::socket (no tls) with proxy" -constraints {
-    have_tls
-} -setup {
+test autoproxy-tls-1.1.3 "autoproxy::socket (no tls) with proxy" -setup {
     packageReset
     http::config -proxyhost proxy.tcllib.test -proxyport 4319
 } -body {

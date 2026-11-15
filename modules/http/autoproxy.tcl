@@ -540,15 +540,26 @@ proc ::autoproxy::tls_socket {args} {
 
     # Look into the http package for the actual target. If a proxy is in use then
     # The function appends the proxy host and port and not the target.
+    # The socket command is called from http::geturl (http 2.9 and older),
+    # or from http::OpenSocket (http 2.10, Tcl 9), via [namespace eval ::].
+    # Both have the request state array in variable "state".
 
-    upvar host uhost port uport
-    set args [lrange $args 0 end-2]
-    lappend args $uhost $uport
+    for {set level 1} {$level < [info level]} {incr level} {
+        if {[string match *http::geturl [lindex [info level -$level] 0]] ||
+            [string match *http::OpenSocket [lindex [info level -$level] 0]]} {
+            upvar $level state state
+            break
+        }
+    }
+    if {[info exists state(socketinfo)] &&
+        [regexp {^(.*):(\d+)$} $state(socketinfo) -> uhost uport]} {
+        set args [lrange $args 0 end-2]
+        lappend args $uhost $uport
+    }
 
     set s [eval [linsert $args 0 tls_connect]]
 
     # record the tls connection status in the http state array.
-    upvar state state
 
     if {$options(tls_package) eq "twapi"} {
         # With twapi::tls_socket, state may not be available on
