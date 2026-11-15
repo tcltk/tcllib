@@ -36,3 +36,19 @@ test dict-compare-001 {Test our testing method} {
 
 file delete -force test
 
+
+test practcl-loader-001 {Generated stubs init accepts Tcl/Tk 9, ticket d3d4117803} -setup {
+  oo::object create ::practcl_test_parent
+  oo::objdefine ::practcl_test_parent method child x {return {}}
+  set obj [::practcl::module new ::practcl_test_parent initfunc Foo_Init tk 1]
+} -body {
+  set code [$obj generate-loader]
+  list [regexp {Tcl_InitStubs\(interp, "8.6-", 0\)} $code] \
+      [regexp {Tk_InitStubs\(interp, "8.6-", 0\)} $code]
+} -cleanup {
+  $obj destroy
+  ::practcl_test_parent destroy
+  unset obj code
+} -result {1 1}
+
+testsuiteCleanup

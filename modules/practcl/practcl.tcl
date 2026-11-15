@@ -6516,11 +6516,11 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     ::practcl::cputs result  {
   /* Initialise the stubs tables. */
   #ifdef USE_TCL_STUBS
-    if (Tcl_InitStubs(interp, "8.6", 0)==NULL) return TCL_ERROR;
+    if (Tcl_InitStubs(interp, "8.6-", 0)==NULL) return TCL_ERROR;
     if (TclOOInitializeStubs(interp, "1.0") == NULL) return TCL_ERROR;
 }
     if {[my define get tk 0]} {
-      ::practcl::cputs result  {    if (Tk_InitStubs(interp, "8.6", 0)==NULL) return TCL_ERROR;}
+      ::practcl::cputs result  {    if (Tk_InitStubs(interp, "8.6-", 0)==NULL) return TCL_ERROR;}
     }
     ::practcl::cputs result {  #endif}
     set TCLINIT [my generate-tcl-pre]
