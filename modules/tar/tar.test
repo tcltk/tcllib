@@ -141,6 +141,31 @@ test tar-bug-2840180 {Ticket 2840180} -setup {
 
 # -------------------------------------------------------------------------
 
+test tar-tkt-7446477f89 {Ticket 7446477f89, unsplittable long names} -setup {
+    setup2
+    set long1 [string repeat x 150].txt
+    set long2 [string repeat y 120]/[string repeat z 150]
+    tcltest::makeFile {} $tmpdir/$long1
+    tcltest::makeDirectory $tmpdir/[file dirname $long2]
+    tcltest::makeFile {} $tmpdir/$long2
+} -body {
+    tar::create $chan1 [list $tmpdir/$long1 $tmpdir/$long2] -chan
+    seek $chan1 0
+
+    # What the package sees.
+    lappend res {*}[tar::contents $chan1 -chan]
+    close $chan1
+
+    # What a regular tar package sees.
+    lappend res {*}[split [exec 2> $tmpfile.err tar tf $tmpfile] \n]
+    expr {$res eq [list $tmpdir/$long1 $tmpdir/$long2 $tmpdir/$long1 $tmpdir/$long2]}
+} -cleanup {
+    cleanup2
+    unset long1 long2
+} -result 1
+
+# -------------------------------------------------------------------------
+
 test tar-tkt-9f4c0e3e95-1.0 {Ticket 9f4c0e3e95, A} -setup {
     set tarfile [setup-tkt-9f4c0e3e95]
 } -body {

@@ -420,17 +420,25 @@ proc ::tar::formatHeader {name info} {
     set omtime [format %o $A(mtime)]
 
     set name [string trimleft $name /]
-    if {[string length $name] > 255} {
-	Err "path name over 255 chars" BAD PATH LENGTH
-    } elseif {[string length $name] > 100} {
+    set longlink ""
+    set prefix ""
+    if {[string length $name] > 100} {
 	set common [string range $name end-99 154]
-	if {[set splitpoint [string first / $common]] == -1} {
-	    Err "path name cannot be split into prefix and name" BAD PATH UNSPLITTABLE
+	set splitpoint [string first / $common]
+	if {[string length $name] > 255 || $splitpoint == -1} {
+	    # The path cannot be represented by ustar prefix and name.
+	    # Precede the entry with a GNU tar @LongLink entry holding
+	    # the full name, and store a truncated name in the header.
+	    set data $name\x00
+	    set longlink [formatHeader ././@LongLink \
+			      [list type L mode 0 mtime 0 \
+				   size [string length $data]]]
+	    append longlink $data [string repeat \x00 [pad [string length $data]]]
+	    set name [string range $name 0 99]
+	} else {
+	    set prefix [string range $name 0 end-100][string range $common 0 $splitpoint-1]
+	    set name   [string range $common $splitpoint+1 end][string range $name 155 end]
 	}
-	set prefix [string range $name 0 end-100][string range $common 0 $splitpoint-1]
-	set name   [string range $common $splitpoint+1 end][string range $name 155 end]
-    } else {
-        set prefix ""
     }
 
     set header [binary format a100A8A8A8A12A12A8a1a100A6a2a32a32a8a8a155a12 \
@@ -443,7 +451,7 @@ proc ::tar::formatHeader {name info} {
     set cksum 0
     foreach x $tmp {incr cksum $x}
 
-    return [string replace $header 148 155 [binary format A8 [format %o $cksum]\x00]]
+    return $longlink[string replace $header 148 155 [binary format A8 [format %o $cksum]\x00]]
 }
 
 proc ::tar::recurseDirs {files followlinks} {
