@@ -263,6 +263,62 @@ test ldap-29.0 {check invalid TLS option
     -result {invalid TLS option '-foo'}
 
 # -------------------------------------------------------------------------
+# Minimal mock LDAP server, answering the rootDSE search for
+# supportedExtension and extended requests.
+# -------------------------------------------------------------------------
+
+proc mockAccept {sock args} {
+    fconfigure $sock -translation binary -blocking 1 -buffering none
+    fileevent $sock readable [list mockRead $sock]
+}
+
+proc mockRead {sock} {
+    set tag [read $sock 1]
+    if {$tag eq ""} { close $sock ; return }
+    binary scan [read $sock 1] cu len
+    set pdu [read $sock $len]
+    asnGetInteger pdu id
+    asnPeekByte pdu op
+    switch -- [format %x $op] {
+        63 {
+            # rootDSE search
+            set entry [asnApplicationConstr 4 [asnOctetString ""] \
+                [asnSequence [asnSequence [asnOctetString supportedExtension] \
+                    [asnSet [asnOctetString 1.3.6.1.4.1.4203.1.11.3]]]]]
+            set done [asnApplicationConstr 5 [asnEnumeration 0] \
+                [asnOctetString ""] [asnOctetString ""]]
+            puts -nonewline $sock [asnSequence [asnInteger $id] $entry]
+            puts -nonewline $sock [asnSequence [asnInteger $id] $done]
+        }
+        77 {
+            # extended request: record it, answer with dn
+            set ::mockRequest $pdu
+            puts -nonewline $sock [asnSequence [asnInteger $id] \
+                [asnApplicationConstr 24 [asnEnumeration 0] \
+                    [asnOctetString ""] [asnOctetString ""] \
+                    [asnContext 11 dn:cn=test]]]
+        }
+        default {
+            close $sock
+        }
+    }
+}
+
+test ldap-30.0 {whoami sends a proper extended request, ticket af927e957f
+} -setup {
+    set srv [socket -server mockAccept -myaddr 127.0.0.1 0]
+    set h [ldap::connect 127.0.0.1 [lindex [fconfigure $srv -sockname] 2]]
+} -body {
+    set dn [ldap::info whoami $h]
+    binary scan $::mockRequest H* req
+    list $dn $req
+} -cleanup {
+    ldap::disconnect $h
+    close $srv
+    unset -nocomplain srv h dn req ::mockRequest
+} -result {dn:cn=test 77198017312e332e362e312e342e312e343230332e312e31312e33}
+
+# -------------------------------------------------------------------------
 # Handling of string representation of filters (RFC 4515):
 # -------------------------------------------------------------------------
 
