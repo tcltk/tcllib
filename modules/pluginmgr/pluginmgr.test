@@ -1,0 +1,51 @@
+# -*- tcl -*-
+# pluginmgr.test:  Tests for the pluginmgr package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+    use try/fhome.tcl file::home
+}
+testing {
+    useLocal pluginmgr.tcl pluginmgr
+}
+
+# -------------------------------------------------------------------------
+
+test pluginmgr-load-1.0 {directory in cwd does not shadow plugin package, ticket 1a7976b873} -setup {
+    set base [makeDirectory pmtest]
+    file mkdir [file join $base lib pmtestplug]
+    set f [open [file join $base lib pmtestplug pkgIndex.tcl] w]
+    puts $f {package ifneeded pmtest::plugin::simple 1 [list source [file join $dir simple.tcl]]}
+    close $f
+    set f [open [file join $base lib pmtestplug simple.tcl] w]
+    puts $f {proc hello {} {return hi}; package provide pmtest::plugin::simple 1}
+    close $f
+    file mkdir [file join $base cwd simple]
+    set savedpwd [pwd]
+    set savedpath $::auto_path
+    lappend ::auto_path [file join $base lib]
+    cd [file join $base cwd]
+    pluginmgr ::pmtest -pattern pmtest::plugin::* -api hello
+} -body {
+    ::pmtest load simple
+    ::pmtest do hello
+} -cleanup {
+    ::pmtest destroy
+    cd $savedpwd
+    set ::auto_path $savedpath
+    removeDirectory pmtest
+    unset base f savedpwd savedpath
+} -result hi
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return

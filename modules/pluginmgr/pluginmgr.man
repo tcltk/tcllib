@@ -269,7 +269,7 @@ The algorithm to locate and load the plugin employed is:
 [list_begin enumerated]
 [enum]
 
-If the [arg string] contains the path to an existing file then this
+If the [arg string] contains the path to an existing regular file then this
 file is taken as the implementation of the plugin.
 
 [enum]

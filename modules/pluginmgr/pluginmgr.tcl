@@ -254,7 +254,7 @@ snit::type ::pluginmgr {
     }
 
     method LoadPlugin {name} {
-	if {[file exists $name]} {
+	if {[file isfile $name]} {
 	    # Plugin files are loaded directly.
 
 	    $sip invokehidden source $name
