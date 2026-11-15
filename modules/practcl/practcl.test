@@ -42,6 +42,7 @@ test practcl-snapshot-unpack-001 {ScmUnpack opens tarballs in binary mode (Tcl 9
   set fout [open [file join $tmp dl snap.tgz] wb]
   puts -nonewline $fout [zlib gzip abc]
   close $fout
+  set chans [chan names]
   oo::object create ::practcl::LOCAL
   oo::objdefine ::practcl::LOCAL method define {op key} {
     return [file join $::tmp dl]
@@ -57,7 +58,11 @@ test practcl-snapshot-unpack-001 {ScmUnpack opens tarballs in binary mode (Tcl 9
 } -cleanup {
   $obj destroy
   ::practcl::LOCAL destroy
+  # ScmUnpack leaves the archive open; close it so that Windows can delete it
+  foreach chan [chan names] {
+    if {$chan ni $chans} {close $chan}
+  }
   file delete -force $tmp
-  unset obj tmp
+  unset obj tmp chans chan
 } -returnCodes error -result STOP
 
