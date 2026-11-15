@@ -973,9 +973,12 @@ proc ::comm::commIncomingOffered {chan fid addr remport} {
     }
 
     # Detect race condition of two comms connecting to each other
-    # simultaneously.  It is OK when we are talking to ourselves.
+    # simultaneously.  It is OK when we are talking to ourselves, and
+    # for peers which do not listen (remote id 0), as these can share
+    # the id without being the same peer.
 
-    if {[info exists comm($chan,peers,$id)] && $id != $comm($chan,port)} {
+    if {[info exists comm($chan,peers,$id)] && $id != $comm($chan,port)
+	&& $remid != 0} {
 
 	puts stderr "commIncoming race condition: $id"
 	puts stderr "peers=$comm($chan,peers,$id) port=$comm($chan,port)"
@@ -1059,34 +1062,42 @@ proc ::comm::commLostConn {chan fid reason} {
 
     set id $comm($chan,fids,$fid)
 
-    # Invoke the callbacks of all commands which have such and are
-    # still waiting for a response from the lost peer. Use an
-    # appropriate error.
-
-    foreach s $comm($chan,pending,$id) {
-	if {[string equal "callback" [lindex $s end]]} {
-	    set ser [lindex $s 0]
-	    if {[info exists comm($chan,return,$ser)]} {
-		set args [list -id       $id \
-			      -serial    $ser \
-			      -chan      $chan \
-			      -code      -1 \
-			      -errorcode NONE \
-			      -errorinfo "" \
-			      -result    $reason \
-			     ]
-		if {[catch {uplevel \#0 $comm($chan,return,$ser) $args} err]} {
-		    commBgerror $err
-		}
-	    }
-	} else {
-	    set comm($chan,return,$s) {-code error}
-	    set comm($chan,result,$s) $reason
-	}
-    }
-    unset comm($chan,pending,$id)
     unset comm($chan,fids,$fid)
-    catch {unset comm($chan,peers,$id)}		;# race condition
+
+    # Several connections can share the same remote id, e.g. from
+    # peers which do not listen (id 0). Only the connection registered
+    # as the peer owns the pending sends, see commNewConn.
+
+    if {[info exists comm($chan,peers,$id)] &&
+	[string equal $comm($chan,peers,$id) $fid]} {
+	# Invoke the callbacks of all commands which have such and are
+	# still waiting for a response from the lost peer. Use an
+	# appropriate error.
+
+	foreach s $comm($chan,pending,$id) {
+	    if {[string equal "callback" [lindex $s end]]} {
+		set ser [lindex $s 0]
+		if {[info exists comm($chan,return,$ser)]} {
+		    set args [list -id       $id \
+				  -serial    $ser \
+				  -chan      $chan \
+				  -code      -1 \
+				  -errorcode NONE \
+				  -errorinfo "" \
+				  -result    $reason \
+				 ]
+		    if {[catch {uplevel \#0 $comm($chan,return,$ser) $args} err]} {
+			commBgerror $err
+		    }
+		}
+	    } else {
+		set comm($chan,return,$s) {-code error}
+		set comm($chan,result,$s) $reason
+	    }
+	}
+	unset comm($chan,pending,$id)
+	unset comm($chan,peers,$id)
+    }
     catch {unset comm($chan,buf,$fid)}
 
     # Cancel all outstanding futures for requests which were made by

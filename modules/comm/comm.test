@@ -316,6 +316,29 @@ test comm-cb9a7f0bfc {Ticket cb9a7f0bfc, hook eval code handling} -setup {
     ::comm::comm send [::comm::comm self] pid
 } -result pid
 
+test comm-4811399edc {Ticket 4811399edc, lost connections sharing a remote id} -setup {
+    set ::bgerrors {}
+    set oldbgerror [interp bgerror {}]
+    interp bgerror {} [list apply {{msg opts} {lappend ::bgerrors $msg}}]
+    comm::comm new SRV -listen 1
+    # Both clients do not listen, so they have the same remote id "0"
+    # on the server side.
+    comm::comm new CL1 -listen 0
+    comm::comm new CL2 -listen 0
+} -body {
+    CL1 send [SRV self] {set a 1}
+    CL2 send [SRV self] {set a 2}
+    CL1 destroy
+    CL2 destroy
+    after 200 {set ::done 1}
+    vwait ::done
+    list $::bgerrors [lsort [array names ::comm::comm SRV,*,0]]
+} -cleanup {
+    SRV destroy
+    interp bgerror {} $oldbgerror
+    unset -nocomplain ::bgerrors ::done oldbgerror
+} -result {{} {}}
+
 # ------------------------------------------------------------------------
 
 slavestop
