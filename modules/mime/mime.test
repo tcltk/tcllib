@@ -672,6 +672,40 @@ test mime-14.0 {ticket 5f455d6343} -setup {
     unset part whole saved stm str
 } -match glob -result "::mime::*"
 
+test mime-15.0 {parse without ::errorCode/::errorInfo, ticket 0534941436} -setup {
+    set msg "From: a@example.com\nMIME-Version: 1.0\nContent-Type: multipart/mixed; boundary=SEP\n\n--SEP\nContent-Type: text/plain\n\nbody\n--SEP--\n"
+} -body {
+    unset -nocomplain ::errorCode ::errorInfo
+    set tok [mime::initialize -string $msg]
+    list [mime::getproperty $tok content] [llength [mime::getproperty $tok parts]]
+} -cleanup {
+    mime::finalize $tok
+    unset msg tok
+} -result {multipart/mixed 1}
+
+test mime-15.1 {other API without ::errorCode/::errorInfo, ticket 0534941436} -setup {
+    set tok [mime::initialize -canonical text/plain -string body]
+    set chan [tcl::chan::memchan]
+    proc ::mime15cb {args} {}
+} -body {
+    set res {}
+    foreach cmd {
+	{mime::parseaddress a@example.com}
+	{mime::buildmessage $tok}
+	{mime::copymessage $tok $chan}
+	{mime::getbody $tok -command ::mime15cb}
+    } {
+	unset -nocomplain ::errorCode ::errorInfo
+	lappend res [catch $cmd]
+    }
+    set res
+} -cleanup {
+    mime::finalize $tok
+    close $chan
+    rename ::mime15cb {}
+    unset tok chan res cmd
+} -result {0 0 0 0}
+
 # -------------------------------------------------------------------------
 
 testsuiteCleanup
