@@ -253,12 +253,27 @@ foreach f [TestFilesGlob test-assets/*.tiff] {
 
 set n 0
 foreach f [TestFilesGlob test-assets/*.tiff] {
-    test tiff-23.$n "addEntry, overwrite tag, [file tail $f]" knownBug {
+    test tiff-23.$n "addEntry, overwrite tag, [file tail $f]" {
 	file copy -force $f [set fx [makeFile {} ttmp]]
 	set res {}
 	::tiff::addEntry $fx {{Artist 2 Andreas}}
 	lappend res [tiff::getEntry $fx Artist]
 	::tiff::addEntry $fx {{Artist 2 AK}}
+	lappend res [tiff::getEntry $fx Artist]
+	removeFile ttmp
+	set res
+    } {{Artist Andreas} {Artist AK}}
+    incr n
+}
+
+set n 0
+foreach f [TestFilesGlob test-assets/*.tiff] {
+    test tiff-23a.$n "addEntry, overwrite tag given by number, [file tail $f]" {
+	file copy -force $f [set fx [makeFile {} ttmp]]
+	set res {}
+	::tiff::addEntry $fx {{013b 2 Andreas}}
+	lappend res [tiff::getEntry $fx Artist]
+	::tiff::addEntry $fx {{013b 2 AK}}
 	lappend res [tiff::getEntry $fx Artist]
 	removeFile ttmp
 	set res

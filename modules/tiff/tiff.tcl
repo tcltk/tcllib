@@ -52,7 +52,7 @@ proc ::tiff::nametotag {names} {
         set y [lindex $x 0]
         if {[info exists tiff_sgat($y)]} {
             set y $tiff_sgat($y)
-        } elseif {![string match {[0-9a-f][0-9a-f][0-9a-f][0-9a-f]} $x]} {
+        } elseif {![string match {[0-9a-f][0-9a-f][0-9a-f][0-9a-f]} $y]} {
             error "unknown tag $y"
         }
         lappend out [lreplace $x 0 0 $y]
@@ -134,7 +134,7 @@ proc ::tiff::addEntry {file entry {image 0}} {
         _readifd $fh ifd
         if {$i == $image || $image == "all"} {
             foreach e [nametotag $entry] {
-                set ifd($e) [eval [linsert $e 0 _unformat $byteOrder]]
+                set ifd([lindex $e 0]) [eval [linsert $e 0 _unformat $byteOrder]]
             }
         }
         _copyData $fh $new ifd
