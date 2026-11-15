@@ -243,14 +243,14 @@ proc ::yencode::ydecode {args} {
             default {
                 set options [join [lsort [array names opts]] ", -"]
                 return -code error "bad option [lindex $args 0]:\
-                      must be -$opts"
+                      must be -$options"
             }
         }
         Pop args
     }
 
     if {$opts(filename) != {}} {
-        set f [open $opts(filename) r]
+        set f [open $opts(filename) rb]
         set data [read $f]
         close $f
     } else {
@@ -271,7 +271,7 @@ proc ::yencode::ydecode {args} {
                 if {[string match "=ybegin*" $line]} {
                     regexp {line=(\d+)} $line -> opts(line)
                     regexp {size=(\d+)} $line -> opts(size)
-                    regexp {name=(\d+)} $line -> opts(name)
+                    regexp {name=(.*)$} $line -> opts(name)
 
                     if {$opts(name) == {}} {
                         set opts(name) default.bin
