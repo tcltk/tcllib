@@ -965,6 +965,25 @@ test tool-coroutine-yodawg-03-endevent {Test coroutine - yodawg } {
 } end
 
 # -------------------------------------------------------------------------
+# [4c3e532500] uuid_seed must not need USERNAME, USER or user in env
+
+test tool-uuid-seed-noenv {uuid_seed without user name in the environment} -setup {
+    set saved {}
+    foreach k {USERNAME USER user} {
+        if {[info exists ::env($k)]} {
+            lappend saved $k $::env($k)
+            unset ::env($k)
+        }
+    }
+} -body {
+    ::tool::uuid_seed
+    string length [::tool::uuid_generate]
+} -cleanup {
+    array set ::env $saved
+    unset saved k
+} -result 40
+
+# -------------------------------------------------------------------------
 
 
 testsuiteCleanup

@@ -7,13 +7,6 @@ proc ::tool::is_null value {
 
 proc ::tool::uuid_seed args {
   if {[llength $args]==0 || ([llength $args]==1 && [is_null [lindex $args 0]])} {
-    if {[info exists ::env(USERNAME)]} {
-      set user $::env(USERNAME)
-    } elseif {[info exists ::env(USER)]} {
-      set user $::env(USER)
-    } else {
-      set user $::env(user)
-    }
     incr ::tool::nextuuid $::tool::globaluuid
     set ::tool::UUID_Seed [list user@[info hostname] [clock format [clock seconds]]]
   } else {
