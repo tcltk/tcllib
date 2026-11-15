@@ -29,7 +29,7 @@ if {![package vsatisfies [package require Tcl] 8.6 9]} {return}
 package ifneeded math::exact             1.0.2 [list source [file join $dir exact.tcl]]
 package ifneeded math::PCA               1.1   [list source [file join $dir pca.tcl]]
 package ifneeded math::figurate          1.1   [list source [file join $dir figurate.tcl]]
-package ifneeded math::filters           0.3   [list source [file join $dir filtergen.tcl]]
+package ifneeded math::filters           0.4   [list source [file join $dir filtergen.tcl]]
 package ifneeded math::probopt           1.1   [list source [file join $dir probopt.tcl]]
 package ifneeded math::changepoint       0.2   [list source [file join $dir changepoint.tcl]]
 package ifneeded math::combinatorics     2.1.1 [list source [file join $dir combinatoricsExt.tcl]]
