@@ -81,6 +81,14 @@ test SASL-NTLM-1.1 {NTLM client response} {
     } res] $res
 } [list 0 $Chk(3)]
 
+test SASL-NTLM-1.2 {LM/NT hashes of a nonce starting with a dash, ticket 66b79317f3} {
+    list [catch {
+        set nonce "-\x01\x02\x03\x04\x05\x06\x07"
+        list [string length [SASL::NTLM::LMhash SecREt01 $nonce]] \
+            [string length [SASL::NTLM::NThash SecREt01 $nonce]]
+    } res] $res
+} {0 {24 24}}
+
 # -------------------------------------------------------------------------
 
 unset Chk

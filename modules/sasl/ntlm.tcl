@@ -292,13 +292,13 @@ proc ::SASL::NTLM::LMhash {password nonce} {
     set hash ""
     set password [string range [string toupper $password][string repeat \0 14] 0 13]
     foreach key [CreateDesKeys $password] {
-        append hash [DES::des -dir encrypt -weak -mode ecb -key $key $magic]
+        append hash [DES::des -dir encrypt -weak -mode ecb -key $key -- $magic]
     }
 
     append hash [string repeat \0 5]
     set res ""
     foreach key [CreateDesKeys $hash] {
-        append res [DES::des -dir encrypt -weak -mode ecb -key $key $nonce]
+        append res [DES::des -dir encrypt -weak -mode ecb -key $key -- $nonce]
     }
 
     return $res
@@ -311,7 +311,7 @@ proc ::SASL::NTLM::NThash {password nonce} {
 
     set res ""
     foreach key [CreateDesKeys $hash] {
-        append res [DES::des -dir encrypt -weak -mode ecb -key $key $nonce]
+        append res [DES::des -dir encrypt -weak -mode ecb -key $key -- $nonce]
     }
 
     return $res
