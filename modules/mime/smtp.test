@@ -1,0 +1,127 @@
+# smtp.test - Tests for the smtp client package                 -*- tcl -*-
+#
+# The tests talk to a scripted fake SMTP server running on the local
+# host in the same interpreter.
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use md5/md5x.tcl md5
+    useLocal mime.tcl mime
+}
+testing {
+    useLocal smtp.tcl smtp
+}
+
+# -------------------------------------------------------------------------
+# Fake SMTP server.  [fakeserver ?datareplies?] starts a server and returns
+# its port.  The replies to the ends of the DATA sections can be configured,
+# they are used in order, the last one is repeated.  The conversation is
+# recorded in ::fake(log).
+
+proc fakeserver {{datareplies {{250 ok}}}} {
+    set ::fake(log) {}
+    set ::fake(datareplies) $datareplies
+    set ::fake(server) [socket -server fakeaccept -myaddr 127.0.0.1 0]
+    return [lindex [fconfigure $::fake(server) -sockname] 2]
+}
+
+proc fakestop {} {
+    catch {close $::fake(server)}
+}
+
+proc fakeaccept {sock addr port} {
+    fconfigure $sock -translation crlf -buffering line -blocking 0
+    set ::fake(data,$sock) 0
+    fileevent $sock readable [list fakeread $sock]
+    puts $sock "220 fake ESMTP"
+}
+
+proc fakeread {sock} {
+    # The client may close the connection without waiting for replies.
+    if {[catch {fakereply $sock}]} {
+        catch {close $sock}
+    }
+}
+
+proc fakereply {sock} {
+    if {[gets $sock line] < 0} {
+        if {[eof $sock]} {close $sock}
+        return
+    }
+    lappend ::fake(log) $line
+    if {$::fake(data,$sock)} {
+        if {$line eq "."} {
+            set ::fake(data,$sock) 0
+            puts $sock [lindex $::fake(datareplies) 0]
+            if {[llength $::fake(datareplies)] > 1} {
+                set ::fake(datareplies) [lrange $::fake(datareplies) 1 end]
+            }
+        }
+        return
+    }
+    switch -glob -- [string toupper $line] {
+        EHLO* {puts $sock "250 fake"}
+        DATA  {puts $sock "354 go ahead"; set ::fake(data,$sock) 1}
+        QUIT  {puts $sock "221 bye"; close $sock}
+        default {puts $sock "250 ok"}
+    }
+}
+
+# Returns the port of a local TCP port nobody listens on.
+proc closedport {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $port
+}
+
+# -------------------------------------------------------------------------
+# Tests
+# -------------------------------------------------------------------------
+
+test smtp-3.1 {message rejected by the server, ticket 3308105fff} -setup {
+    set port [fakeserver {{451 4.3.0 Error: queue file write error}}]
+    set tok [mime::initialize -canonical text/plain -string hello]
+} -body {
+    set code [catch {
+        smtp::sendmessage $tok -header {From a@example.com} \
+            -header {To b@example.com} -usetls 0 \
+            -servers 127.0.0.1 -ports $port
+    } msg opts]
+    list $code $msg [lindex [split [dict get $opts -errorinfo] \n] 0]
+} -cleanup {
+    fakestop
+    mime::finalize $tok
+    unset tok port code msg opts
+} -result {1 {451: 4.3.0 Error: queue file write error} {451: 4.3.0 Error: queue file write error}}
+
+test smtp-3.2 {Bcc copy rejected by the server, ticket 3308105fff} -setup {
+    set port [fakeserver {{250 ok} {452 4.3.1 Insufficient system storage}}]
+    set tok [mime::initialize -canonical text/plain -string hello]
+} -body {
+    list [catch {
+        smtp::sendmessage $tok -header {From a@example.com} \
+            -header {To b@example.com} -header {Bcc c@example.com} \
+            -usetls 0 -servers 127.0.0.1 -ports $port
+    } msg] $msg
+} -cleanup {
+    fakestop
+    mime::finalize $tok
+    unset tok port msg
+} -result {1 {452: 4.3.1 Insufficient system storage}}
+
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+return

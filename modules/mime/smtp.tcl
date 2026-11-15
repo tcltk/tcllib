@@ -474,8 +474,11 @@ proc ::smtp::sendmessage {part args} {
                                                $sender $brecipients \
                                                $aloP } cres2 copts2]
         if {$code == 0} {
-            append cres $cres2
-        } 
+            set cres [concat $cres $cres2]
+        } else {
+            set cres $cres2
+            set copts $copts2
+        }
 
         catch { ::mime::finalize $inner -subordinates none }
         catch { ::mime::finalize $outer -subordinates none }
@@ -487,6 +490,14 @@ proc ::smtp::sendmessage {part args} {
     switch -- $code {
         0 {
             set status orderly
+        }
+        7 {
+            # The server rejected the message: turn the response into an
+            # error with fresh error information.
+            array set response $cres
+            set cres "$response(code): $response(diagnostic)"
+            set copts [list -code error]
+            set status abort
         }
         default {
             set status abort
