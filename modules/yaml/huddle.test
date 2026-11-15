@@ -240,6 +240,13 @@ test huddle-3.6 "test of huddle jsondump - dict and null handling" -body {
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
 
+test huddle-3.10 {ticket [e2ba08b285]: compile bool} -body {
+    set h [huddle compile {dict a bool b bool} {a yes b 0}]
+    list $h [huddle jsondump $h {} {}]
+} -cleanup {
+    unset -nocomplain h
+} -result {{HUDDLE {D {a {b true} b {b false}}}} {{"a":true,"b":false}}}
+
 test huddle-4.1 "test of huddle set" -body {
     huddle set data_dict dd bb a baa
 } -result {HUDDLE {D {dd {D {bb {D {a {s baa} c {s d}}} cc {D {e {s f} g {s h}}}}} ee {D {i {s j} k {s l}}}}}}
