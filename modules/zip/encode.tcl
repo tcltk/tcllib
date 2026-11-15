@@ -68,9 +68,9 @@ snit::type            ::zipfile::encode {
 	}
 
 	if {[file isdirectory $src]} {
-	    set files($dst/) [list 0 {} 0 $s(ctime) $attr $noCompress]
+	    set files($dst/) [list 0 {} 0 $s(mtime) $attr $noCompress]
 	} else {
-	    set files($dst) [list $owned $src [file size $src] $s(ctime) $attr $noCompress]
+	    set files($dst) [list $owned $src [file size $src] $s(mtime) $attr $noCompress]
 	    log::debug "file: files($dst) = \{$files($dst)\}"
 	}
 	lappend files_ordering $dst

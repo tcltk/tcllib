@@ -303,7 +303,7 @@ test zipfile-encode-encode-6.2 {test file date, method filetime} -constraints {}
     set date
 } -result $zipDate
 
-test zipfile-encode-encode-6.3 {test file date, method filetime; zipfile::encode does not preserve datestamps, ticket 1ae6b4775e} -constraints {knownBug} -setup {
+test zipfile-encode-encode-6.3 {test file date, method filetime; zipfile::encode preserves datestamps, ticket 1ae6b4775e} -setup {
 } -cleanup {
     unset -nocomplain adict date
 } -body {
