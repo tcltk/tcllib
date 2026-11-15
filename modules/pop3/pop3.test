@@ -167,6 +167,20 @@ proc topMessage {msg} {
     dialog::respond. {+OK localhost coserv shutting down}
 }
 
+proc topTruncated {} {
+    loginStatusOk
+    dialog::respond. +OK
+    dialog::send.    {Content-Type: text/plain;}
+    # The script ends here, the server closes the connection without
+    # sending the terminating ".".
+}
+
+proc statNoAnswer {} {
+    loginStatusOk
+    # Read the STAT command, then close the connection without answer.
+    dialog::receive.
+}
+
 proc deleDialog {} {
     loginStatusOk
     dialog::respond. {+OK 11 176}
@@ -602,6 +616,24 @@ test pop3-7.0 {open pop3 channel secured via package tls} hastls {
     lappend msg [peek $psock]
     set msg
 } {1 {limit 11 msex 0 retr_mode retr socketcmd tls::socket stls 0 tls-callback {}}}
+
+test pop3-ticket-815405-1 {top, connection closed during response, no hang} {
+    dialog::dialog_set topTruncated
+    set psock [pop3::open localhost ak smash [dialog::listener]]
+    set code [catch {pop3::top $psock 1 1} msg]
+    catch {::close $psock}
+    dialog::waitdone
+    list $code $msg
+} {1 {connection closed by server}}
+
+test pop3-ticket-815405-2 {command, connection closed, error message} {
+    dialog::dialog_set statNoAnswer
+    set psock [pop3::open localhost ak smash [dialog::listener]]
+    set code [catch {pop3::status $psock} msg]
+    catch {::close $psock}
+    dialog::waitdone
+    list $code $msg
+} {1 {POP3 STAT ERROR: connection closed by server}}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------

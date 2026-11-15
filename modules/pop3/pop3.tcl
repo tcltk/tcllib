@@ -676,7 +676,12 @@ proc ::pop3::RetrSlow {chan} {
     set msgBuffer ""
 	
     while {1} {
-	set line [string trimright [gets $chan] \r]
+	if {[gets $chan line] < 0} {
+	    # Connection closed before the terminating "." was seen.
+	    # Do not loop forever on the EOF.
+	    error "connection closed by server"
+	}
+	set line [string trimright $line \r]
 	::log::log debug "pop3 $chan slow $line"
 
 	# End of the message is a line with just "."
@@ -713,7 +718,10 @@ proc ::pop3::send {chan cmdstring} {
        puts $chan $cmdstring
    }
    
-   set popRet [string trim [gets $chan]]
+   if {[gets $chan popRet] < 0} {
+       error "connection closed by server"
+   }
+   set popRet [string trim $popRet]
    ::log::log debug "pop3 $chan <<< $popRet"
 
    if {[string first "+OK" $popRet] == -1} {
