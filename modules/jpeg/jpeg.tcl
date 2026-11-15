@@ -476,7 +476,9 @@ proc ::jpeg::_exif {fh byteOrder offset {tag_info exif_tags}} {
     variable exif_tags
     variable gps_tags
     set return {}
-    for {_scan $byteOrder [read $fh 2] s num} {$num > 0} {incr num -1} {
+    # A bad offset may point past the end of the data (bug 2055837).
+    if {![_scan $byteOrder [read $fh 2] s num]} { return $return }
+    for {} {$num > 0} {incr num -1} {
         binary scan [read $fh 2] H2H2 t1 t2
         _scan $byteOrder [read $fh 6] si format components
         if {$byteOrder == "big"} {
@@ -485,6 +487,7 @@ proc ::jpeg::_exif {fh byteOrder offset {tag_info exif_tags}} {
             set tag $t2$t1
         }
         set value [read $fh 4]
+        if {[string length $value] < 4} break
         # special tags, they point to more exif blocks
         if {$tag == "8769" || $tag == "a005"} {
             _scan $byteOrder $value i next
@@ -515,6 +518,8 @@ proc ::jpeg::_exif {fh byteOrder offset {tag_info exif_tags}} {
             seek $fh [expr {$offset + $value}] start
             set value [read $fh $size]
             seek $fh $pos start
+            # skip values which are not completely in the data
+            if {[string length $value] < $size} continue
         }
         lappend return $tag [_format $byteOrder $value $format $components]
     }

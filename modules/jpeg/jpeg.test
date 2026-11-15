@@ -496,6 +496,38 @@ test jpeg-42.0 "debug, fail, [file tail [info script]]" -body {
     ::jpeg::debug [info script]
 } -returnCodes error -result {not a jpg file}
 
+# Exif data with offsets pointing past the end of the data, bug 2055837
+proc mkbadexif {entry} {
+    set tiff "II[binary format si 42 8][binary format s 1]$entry[binary format i 0]"
+    set app1 "Exif\0\0$tiff"
+    set f [file join [tcltest::temporaryDirectory] badexif.jpg]
+    set fd [open $f w]
+    fconfigure $fd -translation binary
+    puts -nonewline $fd "\xff\xd8\xff\xe1[binary format S [expr {[string length $app1]+2}]]$app1\xff\xd9"
+    close $fd
+    return $f
+}
+
+test jpeg-43.0 {getExif, value offset past end of data, bug 2055837} -setup {
+    set f [mkbadexif [binary format ssii 0x0100 3 4 0x1000]]
+} -body {
+    ::jpeg::getExif $f
+} -cleanup {
+    file delete $f
+    unset f
+} -result {ExifOffset 12 ExifByteOrder little}
+
+test jpeg-43.1 {getExif, InteropIFD offset past end of data, bug 2055837} -setup {
+    set f [mkbadexif [binary format ssii 0xa005 4 1 0x1000]]
+} -body {
+    ::jpeg::getExif $f
+} -cleanup {
+    file delete $f
+    unset f
+} -result {ExifOffset 12 ExifByteOrder little}
+
+rename mkbadexif {}
+
 # -------------------------------------------------------------------------
 rename strdiff {}
 testsuiteCleanup
