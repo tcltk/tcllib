@@ -96,4 +96,16 @@ test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-tarjan-3
     mygraph destroy
 } -result {1b 1w 2b 2w 3b 3w 4b 4w 5b 5w}
 
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-tarjan-3.9 {tarjan, node names with spaces, ticket 0f65bfa2d3} -setup {
+    SETUP
+    mygraph node insert {a b} b c
+    mygraph arc insert {a b} b
+    mygraph arc insert b {a b}
+    mygraph arc insert b c
+} -body {
+    setsetcanon [struct::graph::op::tarjan mygraph]
+} -cleanup {
+    mygraph destroy
+} -result {c {{a b} b}}
+
 # ---------------------------------------------------

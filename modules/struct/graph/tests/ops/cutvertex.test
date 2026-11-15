@@ -94,4 +94,16 @@ test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isCutVer
     set result
 } 0
 
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isCutVertex?-3.4 {isCutVertex?, node names with spaces} {
+    SETUP
+    mygraph node insert {a b} c d
+    mygraph arc insert {a b} c
+    mygraph arc insert c d
+    set result [list \
+        [struct::graph::op::isCutVertex? mygraph {a b}] \
+        [struct::graph::op::isCutVertex? mygraph c]]
+    mygraph destroy
+    set result
+} {0 1}
+
 # ---------------------------------------------------
