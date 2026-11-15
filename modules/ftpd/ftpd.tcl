@@ -20,8 +20,7 @@ namespace eval ::ftpd {
 
     variable contact
     if {![info exists contact]} {
-        global tcl_platform
-	set contact "$tcl_platform(user)@[info hostname]"
+	set contact "$::tcl_platform(user)@[info hostname]"
     }
 
     variable cwd
