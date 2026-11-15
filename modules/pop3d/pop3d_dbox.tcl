@@ -292,7 +292,8 @@ proc ::pop3d::dbox::_lock {name mbox} {
     upvar ::pop3d::dbox::dbox::${name}::state  state
     upvar ::pop3d::dbox::dbox::${name}::locked locked
 
-    set  state($dir)  [lsort [glob -nocomplain [file join $dir *]]]
+    # Only plain files are messages, ignore subdirectories (CVS, ...).
+    set  state($dir)  [lsort [glob -nocomplain -types f -directory $dir *]]
     set locked($dir) 1
     return 1
 }

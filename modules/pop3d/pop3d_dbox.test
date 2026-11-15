@@ -379,6 +379,22 @@ test pop3-dbox-8.3 {stat} {
     set res
 } 3
 
+test pop3-dbox-8.4 {stat, subdirectories are ignored} {
+    set dbox [::pop3d::dbox::new]
+    makeDirectory __dbox__
+    $dbox base __dbox__
+    $dbox add usr0
+    makeFile {abc} [file join __dbox__ usr0 a]
+    makeDirectory  [file join __dbox__ usr0 CVS]
+    $dbox lock usr0
+    set res [$dbox stat usr0]
+    $dbox unlock usr0
+    $dbox remove usr0
+    $dbox destroy
+    removeDirectory __dbox__
+    set res
+} 1
+
 
 test pop3-dbox-9.0 {size} {
     set dbox [::pop3d::dbox::new]
