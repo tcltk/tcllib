@@ -141,7 +141,9 @@ test tar-bug-2840180 {Ticket 2840180} -setup {
 
 # -------------------------------------------------------------------------
 
-test tar-tkt-7446477f89 {Ticket 7446477f89, unsplittable long names} -setup {
+# The names are longer than MAX_PATH on Windows, and the result is compared
+# with the output of the system tar.
+test tar-tkt-7446477f89 {Ticket 7446477f89, unsplittable long names} -constraints unix -setup {
     setup2
     set long1 [string repeat x 150].txt
     set long2 [string repeat y 120]/[string repeat z 150]
