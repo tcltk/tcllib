@@ -241,7 +241,7 @@ The following options exists for this scheme:
     package require autoproxy
     autoproxy::init
     autoproxy::configure -basic -username ME -password SEKRET
-    set tok [http::geturl http://wiki.tcl.tk/]
+    set tok [http::geturl https://wiki.tcl-lang.org/]
     http::data $tok
 
     package require http
@@ -275,7 +275,7 @@ Pat Thoyts
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the
 package, please use the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *http ::
+Trackers](https://core\.tcl\-lang\.org/tcllib/reportlist) and specify *http ::
 autoproxy* as the category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of
