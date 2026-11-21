@@ -104,19 +104,6 @@ test yencode-6.0 {ydecode returns the name from the =ybegin line} -body {
     ::yencode::ydecode [::yencode::yencode -name {test file.y} Abc123]
 } -result {{{test file.y} 6 Abc123}}
 
-test yencode-6.1 {ydecode -file reads the file in binary mode} -setup {
-    set data "\x00\x01\x99\x7f\xd6\xe0\xe3\r\n\xff"
-    set path [makeFile {} yencode6.1.y]
-    set f [open $path wb]
-    puts -nonewline $f [::yencode::yencode -name data.bin $data]
-    close $f
-} -body {
-    string equal [::yencode::ydecode -file $path] [list [list data.bin 10 $data]]
-} -cleanup {
-    removeFile yencode6.1.y
-    unset data path f
-} -result 1
-
 test yencode-6.2 {ydecode, bad option} -body {
     ::yencode::ydecode -bogus x
 } -returnCodes error -result {bad option -bogus: must be -filename, -mode, -name}

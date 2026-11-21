@@ -1,0 +1,154 @@
+# -*- tcl -*-
+# base64-api.test: tests for the documented API of the base64 package,
+# complementing base64.test.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal base64.tcl base64
+}
+
+# -------------------------------------------------------------------------
+
+set str "The short red fox ran quickly through the green field "
+append str "and jumped over the tall brown bear\n"
+
+# -------------------------------------------------------------------------
+# ::base64::encode
+
+test base64-api-1.0 {encode, empty string} -body {
+    base64::encode {}
+} -result {}
+
+test base64-api-1.1 {encode, padding with one and two =} -body {
+    list [base64::encode a] [base64::encode ab] [base64::encode abc]
+} -result {YQ== YWI= YWJj}
+
+test base64-api-1.2 {encode, -wrapchar only, default maxlen 76} -body {
+    base64::encode -wrapchar | [string repeat x 60]
+} -result eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4|eHh4
+
+test base64-api-1.3 {encode, -wrapchar before -maxlen} -body {
+    base64::encode -wrapchar - -maxlen 3 abcdef
+} -result YWJ-jZG-Vm
+
+test base64-api-1.4 {encode, CRLF wrapchar} -body {
+    base64::encode -maxlen 4 -wrapchar \r\n abcdefghi
+} -result "YWJj\r\nZGVm\r\nZ2hp"
+
+test base64-api-1.5 {encode, no trailing wrapchar at a line boundary} -body {
+    base64::encode -maxlen 4 abcdef
+} -result "YWJj\nZGVm"
+
+test base64-api-1.6 {encode, empty wrapchar} -body {
+    base64::encode -maxlen 4 -wrapchar {} abcdef
+} -result YWJjZGVm
+
+test base64-api-1.7 {encode, exactly 76 characters are not wrapped} -body {
+    base64::encode [string repeat x 57]
+} -result [string repeat eHh4 19]
+
+test base64-api-1.8 {encode, 77 characters are wrapped} -body {
+    base64::encode [string repeat x 58]
+} -result "[string repeat eHh4 19]\neA=="
+
+test base64-api-1.9 {encode, error on non-binary string} -constraints {
+    tcl9plus
+} -body {
+    base64::encode Ā
+} -returnCodes error -match glob -result {expected code point values below 0xff*}
+
+# The documentation promises an error for strings which are neither
+# binary nor 7-bit ASCII. On Tcl 8 the characters are silently
+# truncated to their low byte instead.
+test base64-api-1.10 {encode, error on non-binary string, Tcl 8} -constraints {
+    tcl8.6only knownBug
+} -body {
+    base64::encode Ā
+} -returnCodes error -match glob -result *
+
+test base64-api-1.11 {encode, binary data} -body {
+    base64::encode \x00\xff\xfe\x80
+} -result AP/+gA==
+
+# -------------------------------------------------------------------------
+# ::base64::decode
+
+test base64-api-2.0 {decode, wrong # args} -body {
+    base64::decode
+} -returnCodes error -result {wrong # args: should be "base64::decode string"}
+
+test base64-api-2.1 {decode, wrong # args} -body {
+    base64::decode a b
+} -returnCodes error -result {wrong # args: should be "base64::decode string"}
+
+test base64-api-2.2 {decode, padding} -body {
+    list [base64::decode YQ==] [base64::decode YWI=] [base64::decode YWJj]
+} -result {a ab abc}
+
+test base64-api-2.3 {decode, spaces and tabs are ignored} -body {
+    base64::decode "dGhp\tcyBp cyBh  IHRl\tc3QK"
+} -result "this is a test\n"
+
+test base64-api-2.4 {decode, invalid characters are ignored} -body {
+    base64::decode "dGhp!cyBp*cyBh#IHRl\$c3QK"
+} -result "this is a test\n"
+
+test base64-api-2.5 {decode, CRLF line endings are ignored} -body {
+    base64::decode "YWJj\r\nZGVm\r\nZ2hp"
+} -result abcdefghi
+
+test base64-api-2.6 {decode, binary data} -body {
+    base64::decode AP/+gA==
+} -result \x00\xff\xfe\x80
+
+test base64-api-2.7 {decode, only invalid characters} -body {
+    base64::decode "!*#\n\t "
+} -result {}
+
+# -------------------------------------------------------------------------
+# Round trips
+
+test base64-api-3.0 {round trip of all byte values, default wrapping} -body {
+    set data {}
+    for {set i 0} {$i < 256} {incr i} {append data [format %c $i]}
+    string equal $data [base64::decode [base64::encode $data]]
+} -cleanup {
+    unset -nocomplain data i
+} -result 1
+
+test base64-api-3.1 {round trip with custom wrapping} -body {
+    base64::decode [base64::encode -maxlen 10 -wrapchar "\r\n " $str]
+} -result $str
+
+test base64-api-3.2 {encoded lines have at most maxlen characters} -body {
+    set res {}
+    foreach line [split [base64::encode -maxlen 16 [string repeat $str 3]] \n] {
+	if {[string length $line] > 16} {lappend res $line}
+    }
+    set res
+} -cleanup {
+    unset -nocomplain res line
+} -result {}
+
+test base64-api-3.3 {UTF-8 text round trip} -body {
+    set bytes [encoding convertto utf-8 "Δ÷ “Utf-8” ♞ℤ"]
+    set enc [base64::encode $bytes]
+    list $enc [encoding convertfrom utf-8 [base64::decode $enc]]
+} -cleanup {
+    unset -nocomplain bytes enc
+} -result [list zpTDtyDigJxVdGYtOOKAnSDimZ7ihKQ= "Δ÷ “Utf-8” ♞ℤ"]
+
+# -------------------------------------------------------------------------
+
+unset str
+testsuiteCleanup
+return
