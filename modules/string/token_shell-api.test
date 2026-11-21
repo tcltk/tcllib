@@ -1,0 +1,134 @@
+# -*- tcl -*-
+# Additional tests for string::token::shell
+#
+# token_shell.test covers the options, word forms, errors and -partial.
+# This file adds the documented example, other whitespace characters,
+# non-ASCII words, error codes and option combinations.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      cmdline/cmdline.tcl    cmdline
+    use      fileutil/fileutil.tcl  fileutil
+    useLocal token.tcl              string::token
+}
+testing {
+    useLocal token_shell.tcl string::token::shell
+}
+
+# -------------------------------------------------------------------------
+
+set cmdline "grep --include=*.{tcl,tm,tk} -rl * | grep -v \"The Cloud\""
+
+test string-token-shell-api-1.0 {documented example, words} -body {
+    string token shell $cmdline
+} -result {grep --include=*.{tcl,tm,tk} -rl * | grep -v {The Cloud}}
+
+test string-token-shell-api-1.1 {documented example, -indices} -body {
+    string token shell -indices $cmdline
+} -result {{PLAIN 0 3 grep} {PLAIN 5 27 --include=*.{tcl,tm,tk}} {PLAIN 29 31 -rl} {PLAIN 33 33 *} {PLAIN 35 35 |} {PLAIN 37 40 grep} {PLAIN 42 43 -v} {D:QUOTED 45 55 {The Cloud}}}
+
+# -------------------------------------------------------------------------
+
+test string-token-shell-api-2.0 {tab and newline are whitespace} -body {
+    string token shell "a\tb\nc\r\nd"
+} -result {a b c d}
+
+test string-token-shell-api-2.1 {unicode whitespace separates words} -body {
+    string token shell "a b c"
+} -result {a b c}
+
+test string-token-shell-api-2.2 {non-ASCII words} -body {
+    string token shell -indices "  йога 'їж'"
+} -result [list [list PLAIN 2 5 йога] [list S:QUOTED 7 10 їж]]
+
+test string-token-shell-api-2.3 {backslash is literal in single quotes} -body {
+    string token shell {'a\b' 'c\\'}
+} -result {{a\b} {c\\}}
+
+test string-token-shell-api-2.4 {whitespace inside quotes is kept} -body {
+    string token shell "'a  b' \"\tc \""
+} -result [list {a  b} "\tc "]
+
+test string-token-shell-api-2.5 {double quote inside a single-quoted word} -body {
+    string token shell {'say "hi"'}
+} -result {{say "hi"}}
+
+test string-token-shell-api-2.6 {only whitespace of several kinds} -body {
+    string token shell " \t\n "
+} -result {}
+
+# -------------------------------------------------------------------------
+
+test string-token-shell-api-3.0 {error code, bad option} -body {
+    catch {string token shell -bogus x} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    unset -nocomplain msg opts
+} -result {STRING TOKEN SHELL BAD OPTION}
+
+test string-token-shell-api-3.1 {error code, wrong # args} -body {
+    catch {string token shell} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    unset -nocomplain msg opts
+} -result {STRING TOKEN WRONG ARGS}
+
+test string-token-shell-api-3.2 {error code, incomplete word} -body {
+    catch {string token shell {a 'b}} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    unset -nocomplain msg opts
+} -result {STRING TOKEN SHELL BAD SYNTAX CHAR}
+
+test string-token-shell-api-3.3 {error code, words without whitespace} -body {
+    catch {string token shell {'a'b}} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    unset -nocomplain msg opts
+} -result {STRING TOKEN SHELL BAD SYNTAX WORD}
+
+test string-token-shell-api-3.4 {plain word followed by quoted word} -body {
+    string token shell {ab"c"}
+} -returnCodes error -result {Expected whitespace, got start of word at offset 2}
+
+# -------------------------------------------------------------------------
+
+test string-token-shell-api-4.0 {repeated options are accepted} -body {
+    string token shell -indices -indices -- -x
+} -result {{PLAIN 0 1 -x}}
+
+test string-token-shell-api-4.1 {-- with -partial and -indices} -body {
+    string token shell -partial -indices -- {-a 'b}
+} -result {{PLAIN 0 1 -a} {S:QUOTED:PART 3 4 b}}
+
+test string-token-shell-api-4.2 {string starting with dash without -- is an option} -body {
+    string token shell {-x y}
+} -returnCodes error -result {Bad option -x y, expected one of -indices, or -partial}
+
+test string-token-shell-api-4.3 {-- alone as the text after --} -body {
+    string token shell -- --
+} -result {--}
+
+test string-token-shell-api-4.4 {-partial without incomplete word is the same} -body {
+    list [string token shell -partial {a 'b' "c"}] \
+	[string token shell -partial -indices {a 'b'}]
+} -result {{a b c} {{PLAIN 0 0 a} {S:QUOTED 2 4 b}}}
+
+test string-token-shell-api-4.5 {-partial, incomplete word with escaped quote} -constraints {
+    knownBug
+} -body {
+    # The complete-word regexp matches up to the escaped quote first.
+    string token shell -partial -indices {a "b\"c}
+} -result {{PLAIN 0 0 a} {D:QUOTED:PART 2 6 {b"c}}}
+
+# -------------------------------------------------------------------------
+unset -nocomplain cmdline
+testsuiteCleanup
