@@ -1,0 +1,105 @@
+# -*- tcl -*-
+# soundex-api.test:  additional tests for ::soundex::knuth.
+#
+# soundex.test covers six names from Knuth's examples. This file adds
+# the equivalent names, argument errors, case and character handling,
+# padding and truncation.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal soundex.tcl soundex
+}
+
+# -------------------------------------------------------------------------
+
+test soundex-api-1.0 {knuth, wrong # args (none)} -body {
+    ::soundex::knuth
+} -returnCodes error -result {wrong # args: should be "::soundex::knuth in"}
+
+test soundex-api-1.1 {knuth, wrong # args (too many)} -body {
+    ::soundex::knuth a b
+} -returnCodes error -result {wrong # args: should be "::soundex::knuth in"}
+
+# Names Knuth gives as having the same codes as those in soundex.test.
+foreach {n in out} {
+    2.0 Ellery      E460
+    2.1 Ghosh       G200
+    2.2 Heilbronn   H416
+    2.3 Kant        K530
+    2.4 Ladd        L300
+    2.5 Lissajous   L222
+} {
+    test soundex-api-$n "knuth, $in" -body {
+	::soundex::knuth $in
+    } -result $out
+}
+
+test soundex-api-3.0 {knuth, same code for equivalent names} -body {
+    list [string equal [::soundex::knuth Euler] [::soundex::knuth Ellery]] \
+	[string equal [::soundex::knuth Gauss] [::soundex::knuth Ghosh]]
+} -result {1 1}
+
+test soundex-api-3.1 {knuth, case insensitive} -body {
+    list [::soundex::knuth euler] [::soundex::knuth EULER] [::soundex::knuth eUlEr]
+} -result {E460 E460 E460}
+
+test soundex-api-3.2 {knuth, result letter is upper case} -body {
+    ::soundex::knuth knuth
+} -result K530
+
+test soundex-api-3.3 {knuth, surrounding white space and punctuation ignored} -body {
+    list [::soundex::knuth "  Knuth\t\n"] [::soundex::knuth "'Knuth.,"]
+} -result {K530 K530}
+
+test soundex-api-3.4 {knuth, non-letters inside are ignored} -body {
+    list [::soundex::knuth O'Hara] [::soundex::knuth R2D2] [::soundex::knuth "Mc Donald"]
+} -result {O600 R300 M235}
+
+# -------------------------------------------------------------------------
+
+test soundex-api-4.0 {knuth, empty string} -body {
+    ::soundex::knuth ""
+} -result Z000
+
+test soundex-api-4.1 {knuth, no letters at all} -body {
+    list [::soundex::knuth "  ...--"] [::soundex::knuth 1234]
+} -result {Z000 Z000}
+
+test soundex-api-4.2 {knuth, single letter is padded with zeros} -body {
+    ::soundex::knuth A
+} -result A000
+
+test soundex-api-4.3 {knuth, vowels only after first letter, padded} -body {
+    ::soundex::knuth Lee
+} -result L000
+
+test soundex-api-4.4 {knuth, long word truncated to four characters} -body {
+    ::soundex::knuth Abcdefghijklmnop
+} -result A123
+
+test soundex-api-4.5 {knuth, letter coded like the first letter is skipped} -body {
+    list [::soundex::knuth Pfister] [::soundex::knuth BB]
+} -result {P236 B000}
+
+test soundex-api-4.6 {knuth, adjacent letters with the same code collapse} -body {
+    list [::soundex::knuth Tymczak] [::soundex::knuth Jackson]
+} -result {T522 J250}
+
+test soundex-api-4.7 {knuth, repeated code separated by a vowel is kept} -body {
+    ::soundex::knuth Babab
+} -result B110
+
+test soundex-api-4.8 {knuth, h and w separate like vowels (Knuth's rule)} -body {
+    list [::soundex::knuth Ashcraft] [::soundex::knuth Washington]
+} -result {A226 W252}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
