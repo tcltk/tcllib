@@ -1,0 +1,155 @@
+# -*- tcl -*-
+# deleg_proc-api.test:  additional tests for interp::delegate::proc.
+#
+# deleg_proc.test covers argument checks and the generated signatures and
+# bodies. This file checks namespace stripping and the actual delegation
+# through a local comm channel, synchronous and with -async.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl   snit
+    use comm/comm.tcl   comm
+}
+testing {
+    useLocal deleg_proc.tcl interp::delegate::proc
+}
+
+# -------------------------------------------------------------------------
+# A comm channel on 127.0.0.1 which sends to itself. The delegators are
+# created in namespace ::dprocApi, the remote procedures (namespace
+# stripped) are global.
+
+comm::comm new ::dprocComm -local 1 -listen 1 -port 0
+set dprocId [::dprocComm self]
+namespace eval ::dprocApi {}
+
+proc waitFor {varname} {
+    for {set i 0} {$i < 500 && ![info exists $varname]} {incr i} {
+	after 10 {set ::dprocTick 1}
+	vwait ::dprocTick
+    }
+    unset -nocomplain ::dprocTick
+}
+
+# -------------------------------------------------------------------------
+
+test dproc-api-1.0 {remote name is the namespace tail} -body {
+    interp::delegate::proc ::dprocApi::remote {a} COMM ID
+    info body ::dprocApi::remote
+} -cleanup {
+    rename ::dprocApi::remote {}
+} -result {COMM send ID [list remote $a]}
+
+test dproc-api-1.1 {proc is created relative to the caller's namespace} -body {
+    namespace eval ::dprocApi {
+	interp::delegate::proc relative {} COMM ID
+    }
+    list [info commands ::dprocApi::relative] [info body ::dprocApi::relative]
+} -cleanup {
+    rename ::dprocApi::relative {}
+} -result {::dprocApi::relative {COMM send ID relative}}
+
+test dproc-api-1.2 {returns the name as given} -body {
+    interp::delegate::proc ::dprocApi::remote {} COMM ID
+} -cleanup {
+    rename ::dprocApi::remote {}
+} -result {::dprocApi::remote}
+
+test dproc-api-1.3 {default argument values are kept} -body {
+    interp::delegate::proc ::dprocApi::remote {a {b B}} COMM ID
+    list [info args ::dprocApi::remote] \
+	[info default ::dprocApi::remote b def] $def
+} -cleanup {
+    rename ::dprocApi::remote {}
+    unset -nocomplain def
+} -result {{a b} 1 B}
+
+test dproc-api-1.4 {bad option after -async} -body {
+    interp::delegate::proc -async -bogus a b c d
+} -returnCodes error -result {unknown option "-bogus", expected -async}
+
+test dproc-api-1.5 {-async with wrong # args} -body {
+    interp::delegate::proc -async a b c
+} -returnCodes error -result {wrong # args}
+
+# -------------------------------------------------------------------------
+
+test dproc-api-2.0 {delegation, no arguments} -setup {
+    proc ::hello0 {} { return hello }
+    interp::delegate::proc ::dprocApi::hello0 {} ::dprocComm $dprocId
+} -body {
+    ::dprocApi::hello0
+} -cleanup {
+    rename ::dprocApi::hello0 {}
+    rename ::hello0 {}
+} -result hello
+
+test dproc-api-2.1 {delegation, fixed arguments with spaces} -setup {
+    proc ::hello2 {a b} { list $a $b }
+    interp::delegate::proc ::dprocApi::hello2 {a b} ::dprocComm $dprocId
+} -body {
+    ::dprocApi::hello2 {x y} {}
+} -cleanup {
+    rename ::dprocApi::hello2 {}
+    rename ::hello2 {}
+} -result {{x y} {}}
+
+test dproc-api-2.2 {delegation, variable arguments} -setup {
+    proc ::hellov {a args} { list $a $args }
+    interp::delegate::proc ::dprocApi::hellov {a args} ::dprocComm $dprocId
+} -body {
+    list [::dprocApi::hellov 1] [::dprocApi::hellov 1 2 {3 4}]
+} -cleanup {
+    rename ::dprocApi::hellov {}
+    rename ::hellov {}
+} -result {{1 {}} {1 {2 {3 4}}}}
+
+test dproc-api-2.3 {delegation, args only} -setup {
+    proc ::helloa {args} { return $args }
+    interp::delegate::proc ::dprocApi::helloa {args} ::dprocComm $dprocId
+} -body {
+    ::dprocApi::helloa a {b c}
+} -cleanup {
+    rename ::dprocApi::helloa {}
+    rename ::helloa {}
+} -result {a {b c}}
+
+test dproc-api-2.4 {delegation, no substitution of argument values} -setup {
+    proc ::helloq {a} { return $a }
+    interp::delegate::proc ::dprocApi::helloq {a} ::dprocComm $dprocId
+} -body {
+    ::dprocApi::helloq {[set x] $y \\}
+} -cleanup {
+    rename ::dprocApi::helloq {}
+    rename ::helloq {}
+} -result {[set x] $y \\}
+
+test dproc-api-2.5 {delegation, -async returns at once, remote runs later} -setup {
+    proc ::helloasync {a} { set ::dprocGot $a; return ignored }
+    interp::delegate::proc -async ::dprocApi::helloasync {a} ::dprocComm $dprocId
+} -body {
+    set r [::dprocApi::helloasync value]
+    set before [info exists ::dprocGot]
+    waitFor ::dprocGot
+    list $r $before $::dprocGot
+} -cleanup {
+    rename ::dprocApi::helloasync {}
+    rename ::helloasync {}
+    unset -nocomplain r before ::dprocGot
+} -result {{} 0 value}
+
+# -------------------------------------------------------------------------
+
+::dprocComm destroy
+namespace delete ::dprocApi
+unset -nocomplain dprocId
+rename waitFor {}
+testsuiteCleanup

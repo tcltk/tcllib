@@ -1,0 +1,244 @@
+# -*- tcl -*-
+# interp-api.test:  additional tests for the interp package.
+#
+# interp.test covers argument checks, basic empty interpreters and one
+# redirection each for snitLink and snitDictLink. This file adds more on
+# emptiness, naming, aliases, arguments, results and return values.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl   snit
+}
+testing {
+    useLocal interp.tcl interp
+}
+
+# -------------------------------------------------------------------------
+## createEmpty
+
+test interp-api-1.0 {createEmpty, auto name is an interpreter} -body {
+    set i [interp::createEmpty]
+    interp exists $i
+} -cleanup {
+    interp delete $i
+    unset -nocomplain i
+} -result 1
+
+test interp-api-1.1 {createEmpty, explicit name is returned} -body {
+    set i [interp::createEmpty interpApiTest]
+    list $i [interp exists interpApiTest]
+} -cleanup {
+    interp delete interpApiTest
+    unset -nocomplain i
+} -result {interpApiTest 1}
+
+test interp-api-1.2 {createEmpty, no commands at all} -setup {
+    set i [interp::createEmpty]
+} -body {
+    set r {}
+    foreach c {set proc info namespace rename puts expr if eval uplevel interp} {
+	catch {interp eval $i [list $c]} msg
+	lappend r $msg
+    }
+    set r
+} -cleanup {
+    interp delete $i
+    unset -nocomplain i r c msg
+} -result {{invalid command name "set"} {invalid command name "proc"} {invalid command name "info"} {invalid command name "namespace"} {invalid command name "rename"} {invalid command name "puts"} {invalid command name "expr"} {invalid command name "if"} {invalid command name "eval"} {invalid command name "uplevel"} {invalid command name "interp"}}
+
+test interp-api-1.3 {createEmpty, ::tcl namespace commands are gone too} -setup {
+    set i [interp::createEmpty]
+} -body {
+    interp eval $i {::tcl::mathop::+ 1 2}
+} -cleanup {
+    interp delete $i
+    unset -nocomplain i
+} -returnCodes error -result {invalid command name "::tcl::mathop::+"}
+
+test interp-api-1.4 {createEmpty, aliases can be added and used} -setup {
+    set i [interp::createEmpty]
+    proc interpApiAdd {a b} { expr {$a + $b} }
+} -body {
+    interp alias $i add {} interpApiAdd
+    interp eval $i {add 2 3}
+} -cleanup {
+    interp delete $i
+    rename interpApiAdd {}
+    unset -nocomplain i
+} -result 5
+
+test interp-api-1.5 {createEmpty, existing name fails} -setup {
+    interp create interpApiTest
+} -body {
+    interp::createEmpty interpApiTest
+} -cleanup {
+    interp delete interpApiTest
+} -returnCodes error -result {interpreter named "interpApiTest" already exists, cannot create}
+
+test interp-api-1.6 {createEmpty, nested path} -setup {
+    interp create interpApiTest
+} -body {
+    set i [interp::createEmpty {interpApiTest child}]
+    list $i [interp exists {interpApiTest child}] \
+	[catch {interp eval {interpApiTest child} {set x}} msg] $msg
+} -cleanup {
+    interp delete interpApiTest
+    unset -nocomplain i msg
+} -result {{interpApiTest child} 1 1 {invalid command name "set"}}
+
+test interp-api-1.7 {createEmpty, interpreters are distinct} -body {
+    set a [interp::createEmpty]
+    set b [interp::createEmpty]
+    expr {$a ne $b}
+} -cleanup {
+    interp delete $a
+    interp delete $b
+    unset -nocomplain a b
+} -result 1
+
+# -------------------------------------------------------------------------
+## snitLink
+
+snit::type interpApiType {
+    variable i
+    constructor {} {
+	set i [interp::createEmpty]
+    }
+    destructor {
+	catch {interp delete $i}
+    }
+    method interp {} { return $i }
+    method link {methods} { interp::snitLink $i $methods }
+    method dictlink {dict} { interp::snitDictLink $i $dict }
+    method Echo {args} { return $args }
+    method Self {} { return $self }
+    method Fail {} { error failed }
+    method Pre {p args} { return [list $p $args] }
+}
+
+test interp-api-2.0 {snitLink returns the empty string} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o link Echo
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {}
+
+test interp-api-2.1 {snitLink, several methods} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o link {Echo Self}
+    list [interp eval [$o interp] {Echo a b}] \
+	[expr {[interp eval [$o interp] Self] eq $o}]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {{a b} 1}
+
+test interp-api-2.2 {snitLink, arguments are passed through unchanged} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o link Echo
+    interp eval [$o interp] [list Echo {a b} {} c]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {{a b} {} c}
+
+test interp-api-2.3 {snitLink, method prefix with extra words} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o link {{Pre fixed}}
+    list [interp aliases [$o interp]] [interp eval [$o interp] {Pre x y}]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {Pre {fixed {x y}}}
+
+test interp-api-2.4 {snitLink, errors of the method propagate} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o link Fail
+    interp eval [$o interp] Fail
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -returnCodes error -result failed
+
+test interp-api-2.5 {snitLink, empty method list} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o link {}
+    interp aliases [$o interp]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {}
+
+# -------------------------------------------------------------------------
+## snitDictLink
+
+test interp-api-3.0 {snitDictLink returns the empty string} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o dictlink {e Echo}
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {}
+
+test interp-api-3.1 {snitDictLink, command names differ from method names} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o dictlink {echo Echo me Self}
+    list [lsort [interp aliases [$o interp]]] \
+	[interp eval [$o interp] {echo 1 2}] \
+	[expr {[interp eval [$o interp] me] eq $o}]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {{echo me} {1 2} 1}
+
+test interp-api-3.2 {snitDictLink, prefixes with extra words, appended args} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o dictlink {a {Pre A} b {Pre B 1}}
+    list [interp eval [$o interp] {a x}] [interp eval [$o interp] {b y}]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {{A x} {B {1 y}}}
+
+test interp-api-3.3 {snitDictLink, several commands to the same method} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o dictlink {x Echo y Echo}
+    list [interp eval [$o interp] {x 1}] [interp eval [$o interp] {y 2}]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {1 2}
+
+test interp-api-3.4 {snitDictLink, empty dictionary} -setup {
+    set o [interpApiType %AUTO%]
+} -body {
+    $o dictlink {}
+    interp aliases [$o interp]
+} -cleanup {
+    $o destroy
+    unset -nocomplain o
+} -result {}
+
+interpApiType destroy
+
+# -------------------------------------------------------------------------
+testsuiteCleanup

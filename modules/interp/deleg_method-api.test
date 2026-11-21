@@ -1,0 +1,144 @@
+# -*- tcl -*-
+# deleg_method-api.test:  additional tests for interp::delegate::method.
+#
+# deleg_method.test covers argument checks and the generated signatures
+# and bodies. This file checks the actual delegation through a local comm
+# channel, synchronous and with -async.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl   snit
+    use comm/comm.tcl   comm
+}
+testing {
+    useLocal deleg_method.tcl interp::delegate::method
+}
+
+# -------------------------------------------------------------------------
+# A comm channel on 127.0.0.1 which sends to itself. The remote side
+# commands are global procedures named like the methods.
+
+comm::comm new ::dmethodComm -local 1 -listen 1 -port 0
+set dmethodId [::dmethodComm self]
+
+snit::type dmethodApi [string map [list @ID@ $dmethodId] {
+    interp::delegate::method        none {}        ::dmethodComm @ID@
+    interp::delegate::method        two  {a b}     ::dmethodComm @ID@
+    interp::delegate::method        va   {a args}  ::dmethodComm @ID@
+    interp::delegate::method        all  {args}    ::dmethodComm @ID@
+    interp::delegate::method -async bg   {a}       ::dmethodComm @ID@
+    method local {} { return local }
+}]
+
+proc none {}       { return none }
+proc two  {a b}    { list $a $b }
+proc va   {a args} { list $a $args }
+proc all  {args}   { return $args }
+proc bg   {a}      { set ::dmethodGot $a; return ignored }
+
+proc waitFor {varname} {
+    for {set i 0} {$i < 500 && ![info exists $varname]} {incr i} {
+	after 10 {set ::dmethodTick 1}
+	vwait ::dmethodTick
+    }
+    unset -nocomplain ::dmethodTick
+}
+
+# -------------------------------------------------------------------------
+
+test dmethod-api-1.0 {delegation, no arguments} -setup {
+    dmethodApi dm
+} -body {
+    dm none
+} -cleanup {
+    dm destroy
+} -result none
+
+test dmethod-api-1.1 {delegation, fixed arguments with spaces} -setup {
+    dmethodApi dm
+} -body {
+    dm two {x y} {}
+} -cleanup {
+    dm destroy
+} -result {{x y} {}}
+
+test dmethod-api-1.2 {delegation, variable arguments} -setup {
+    dmethodApi dm
+} -body {
+    list [dm va 1] [dm va 1 2 {3 4}]
+} -cleanup {
+    dm destroy
+} -result {{1 {}} {1 {2 {3 4}}}}
+
+test dmethod-api-1.3 {delegation, args only} -setup {
+    dmethodApi dm
+} -body {
+    dm all a {b c}
+} -cleanup {
+    dm destroy
+} -result {a {b c}}
+
+test dmethod-api-1.4 {delegation, wrong # args checked locally} -setup {
+    dmethodApi dm
+} -body {
+    dm two 1
+} -cleanup {
+    dm destroy
+} -returnCodes error -match glob -result {wrong # args: should be "*two*a b"}
+
+test dmethod-api-1.5 {delegation, -async returns at once, remote runs later} -setup {
+    dmethodApi dm
+} -body {
+    set r [dm bg value]
+    set before [info exists ::dmethodGot]
+    waitFor ::dmethodGot
+    list $r $before $::dmethodGot
+} -cleanup {
+    dm destroy
+    unset -nocomplain r before ::dmethodGot
+} -result {{} 0 value}
+
+test dmethod-api-1.6 {other methods of the type are unaffected} -setup {
+    dmethodApi dm
+} -body {
+    dm local
+} -cleanup {
+    dm destroy
+} -result local
+
+test dmethod-api-2.0 {bad option after -async} -body {
+    snit::type dmethodBad {
+	interp::delegate::method -async -bogus a b c d
+    }
+} -cleanup {
+    catch {dmethodBad destroy}
+} -returnCodes error -match glob -result {*unknown option "-bogus", expected -async*}
+
+test dmethod-api-2.1 {-async with wrong # args} -body {
+    snit::type dmethodBad {
+	interp::delegate::method -async a b c
+    }
+} -cleanup {
+    catch {dmethodBad destroy}
+} -returnCodes error -match glob -result {*wrong # args*}
+
+# -------------------------------------------------------------------------
+
+dmethodApi destroy
+rename none {}
+rename two {}
+rename va {}
+rename all {}
+rename bg {}
+rename waitFor {}
+::dmethodComm destroy
+unset -nocomplain dmethodId
+testsuiteCleanup
