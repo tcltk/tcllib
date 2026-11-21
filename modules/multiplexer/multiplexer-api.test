@@ -1,0 +1,490 @@
+# -*- tcl -*-
+# Additional tests for the multiplexer facility.
+#
+# multiplexer.test covers create/destroy, broadcasting to other clients,
+# one filter and access filters. This file adds sendtoorigin,
+# debuglevel, filter chains and their arguments, access filter order and
+# results, exit filters, concurrent multiplexers, and documented command
+# prefixes. All clients connect to 127.0.0.1; the multiplexer listens on
+# a port chosen by the system (Init 0).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use log/logger.tcl logger
+}
+testing {
+    useLocal multiplexer.tcl multiplexer
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Start a multiplexer on a free port, return the port.
+proc mpStart {mp} {
+    ${mp}::Init 0
+    return [lindex [fconfigure [set ${mp}::serversock] -sockname] 2]
+}
+
+# Connect a client, collect everything it receives in ::mpGot($chan),
+# and record EOF in ::mpEof($chan).
+proc mpConnect {port} {
+    set s [socket 127.0.0.1 $port]
+    fconfigure $s -blocking 0 -buffering none -translation binary
+    set ::mpGot($s) {}
+    fileevent $s readable [list mpRead $s]
+    lappend ::mpClients $s
+    return $s
+}
+
+proc mpRead {s} {
+    if {[catch {read $s} data] || [eof $s]} {
+	if {[info exists data]} {append ::mpGot($s) $data}
+	set ::mpEof($s) 1
+	fileevent $s readable {}
+	return
+    }
+    append ::mpGot($s) $data
+}
+
+# Wait (bounded) until the expression becomes true, return its value.
+proc mpWait {expression} {
+    for {set i 0} {$i < 300} {incr i} {
+	if {[uplevel #0 [list expr $expression]]} {return 1}
+	after 10 {set ::mpTick 1}
+	vwait ::mpTick
+    }
+    return 0
+}
+
+# Wait until the multiplexer has registered n clients.
+proc mpWaitClients {mp n} {
+    mpWait "\[array size ${mp}::clients\] == $n"
+}
+
+proc mpCleanup {mp} {
+    if {[info exists ::mpClients]} {
+	foreach s $::mpClients {catch {close $s}}
+    }
+    if {[namespace exists $mp]} {
+	foreach c [array names ${mp}::clients] {catch {close $c}}
+	${mp}::destroy
+    }
+    unset -nocomplain ::mpGot ::mpEof ::mpClients ::mpTick ::mpLog
+}
+
+# -------------------------------------------------------------------------
+## create
+
+test multiplexer-api-1.0 {create returns distinct instance namespaces} -body {
+    set a [multiplexer::create]
+    set b [multiplexer::create]
+    list [string match ::multiplexer::mp* $a] [expr {$a ne $b}] \
+	[namespace exists $a] [namespace exists $b]
+} -cleanup {
+    $a\::destroy
+    $b\::destroy
+    unset -nocomplain a b
+} -result {1 1 1 1}
+
+test multiplexer-api-1.1 {instance provides the documented commands} -body {
+    set mp [multiplexer::create]
+    set r {}
+    foreach c {Init Config AddFilter AddAccessFilter AddExitFilter} {
+	lappend r [llength [info commands ${mp}::$c]]
+    }
+    set r
+} -cleanup {
+    ${mp}::destroy
+    unset -nocomplain mp r c
+} -result {1 1 1 1 1}
+
+test multiplexer-api-1.2 {Init, port in use} -setup {
+    set mp [multiplexer::create]
+    set port [mpStart $mp]
+    set mp2 [multiplexer::create]
+} -body {
+    ${mp2}::Init $port
+} -cleanup {
+    ${mp2}::destroy
+    mpCleanup $mp
+    unset -nocomplain mp mp2 port
+} -returnCodes error -match glob -result {couldn't open socket: *}
+
+# -------------------------------------------------------------------------
+## Config
+
+test multiplexer-api-2.0 {default: sender gets no copy} -setup {
+    set mp [multiplexer::create]
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    mpWaitClients $mp 2
+    puts -nonewline $a hello
+    flush $a
+    mpWait {$::mpGot($b) eq "hello"}
+    # A copy to the sender would arrive before the reply of b.
+    puts -nonewline $b bye
+    flush $b
+    mpWait {$::mpGot($a) ne ""}
+    list $::mpGot($a) $::mpGot($b)
+} -cleanup {
+    mpCleanup $mp
+    unset -nocomplain mp port a b
+} -result {bye hello}
+
+test multiplexer-api-2.1 {sendtoorigin true: sender gets a copy} -setup {
+    set mp [multiplexer::create]
+    ${mp}::Config sendtoorigin 1
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    mpWaitClients $mp 2
+    puts -nonewline $a hello
+    flush $a
+    mpWait {$::mpGot($a) eq "hello" && $::mpGot($b) eq "hello"}
+    list $::mpGot($a) $::mpGot($b)
+} -cleanup {
+    mpCleanup $mp
+    unset -nocomplain mp port a b
+} -result {hello hello}
+
+test multiplexer-api-2.2 {sendtoorigin true: single client gets its data back} -setup {
+    set mp [multiplexer::create]
+    ${mp}::Config sendtoorigin true
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    mpWaitClients $mp 1
+    puts -nonewline $a echo
+    flush $a
+    mpWait {$::mpGot($a) eq "echo"}
+    set ::mpGot($a)
+} -cleanup {
+    mpCleanup $mp
+    unset -nocomplain mp port a
+} -result {echo}
+
+test multiplexer-api-2.3 {debuglevel sets the logger level} -setup {
+    set mp [multiplexer::create]
+} -body {
+    set log [set ${mp}::log]
+    set before [${log}::currentloglevel]
+    ${mp}::Config debuglevel error
+    list $before [${log}::currentloglevel]
+} -cleanup {
+    ${mp}::destroy
+    unset -nocomplain mp log before
+} -result {warn error}
+
+test multiplexer-api-2.4 {binary data passes unchanged} -setup {
+    set mp [multiplexer::create]
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    mpWaitClients $mp 2
+    set data [binary format c* {0 1 13 10 255 128}]
+    puts -nonewline $a $data
+    flush $a
+    mpWait {[string length $::mpGot($b)] >= 6}
+    string equal $::mpGot($b) $data
+} -cleanup {
+    mpCleanup $mp
+    unset -nocomplain mp port a b data
+} -result 1
+
+# -------------------------------------------------------------------------
+## AddFilter
+
+proc mpFilterA {data chan addr port} {
+    lappend ::mpLog [list A $data [expr {$chan ne ""}] $addr [string is integer -strict $port]]
+    return "<$data>"
+}
+proc mpFilterB {data chan addr port} {
+    lappend ::mpLog [list B $data]
+    return "\[$data\]"
+}
+
+test multiplexer-api-3.0 {filters are chained in registration order} -setup {
+    set mp [multiplexer::create]
+    ${mp}::AddFilter mpFilterA
+    ${mp}::AddFilter mpFilterB
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    mpWaitClients $mp 2
+    puts -nonewline $a x
+    flush $a
+    mpWait {$::mpGot($b) eq {[<x>]}}
+    list $::mpGot($b) $::mpLog
+} -cleanup {
+    mpCleanup $mp
+    unset -nocomplain mp port a b
+} -result {{[<x>]} {{A x 1 127.0.0.1 1} {B <x>}}}
+
+test multiplexer-api-3.1 {filter gets the sending channel} -setup {
+    set mp [multiplexer::create]
+    ${mp}::AddFilter [list mpFilterChan]
+    proc mpFilterChan {data chan addr port} {
+	set ::mpLog [list [info exists ${::mp}::clients($chan)] $port]
+	return $data
+    }
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    mpWaitClients $mp 2
+    puts -nonewline $a x
+    flush $a
+    mpWait {$::mpGot($b) eq "x"}
+    list [lindex $::mpLog 0] [expr {[lindex $::mpLog 1] == [lindex [fconfigure $a -sockname] 2]}]
+} -cleanup {
+    mpCleanup $mp
+    rename mpFilterChan {}
+    unset -nocomplain mp port a b
+} -result {1 1}
+
+test multiplexer-api-3.2 {filter command prefix with extra words} -constraints {
+    knownBug
+} -setup {
+    # Filters are called as "$f $data ...", not as command prefixes.
+    set mp [multiplexer::create]
+    ${mp}::AddFilter [list mpFilterPrefix P]
+    proc mpFilterPrefix {p data chan addr port} { return $p$data }
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    mpWaitClients $mp 2
+    puts -nonewline $a x
+    flush $a
+    mpWait {$::mpGot($b) ne ""}
+    set ::mpGot($b)
+} -cleanup {
+    mpCleanup $mp
+    rename mpFilterPrefix {}
+    unset -nocomplain mp port a b
+} -result {Px}
+
+# -------------------------------------------------------------------------
+## AddAccessFilter
+
+proc mpAccess {tag result chan addr port} {
+    lappend ::mpLog [list $tag $addr [string is integer -strict $port]]
+    return $result
+}
+
+test multiplexer-api-4.0 {access filters called in order, any result but -1 grants} -setup {
+    set mp [multiplexer::create]
+    interp alias {} mpAccess1 {} mpAccess one 0
+    interp alias {} mpAccess2 {} mpAccess two {}
+    interp alias {} mpAccess3 {} mpAccess three yes
+    ${mp}::AddAccessFilter mpAccess1
+    ${mp}::AddAccessFilter mpAccess2
+    ${mp}::AddAccessFilter mpAccess3
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    mpWaitClients $mp 1
+    list [array size ${mp}::clients] $::mpLog
+} -cleanup {
+    mpCleanup $mp
+    rename mpAccess1 {}
+    rename mpAccess2 {}
+    rename mpAccess3 {}
+    unset -nocomplain mp port a
+} -result {1 {{one 127.0.0.1 1} {two 127.0.0.1 1} {three 127.0.0.1 1}}}
+
+test multiplexer-api-4.1 {access denied by a later filter, later ones not called} -setup {
+    set mp [multiplexer::create]
+    interp alias {} mpAccess1 {} mpAccess one 0
+    interp alias {} mpAccess2 {} mpAccess two -1
+    interp alias {} mpAccess3 {} mpAccess three 0
+    ${mp}::AddAccessFilter mpAccess1
+    ${mp}::AddAccessFilter mpAccess2
+    ${mp}::AddAccessFilter mpAccess3
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    mpWait {[info exists ::mpEof($a)]}
+    list [info exists ::mpEof($a)] [array size ${mp}::clients] $::mpLog
+} -cleanup {
+    mpCleanup $mp
+    rename mpAccess1 {}
+    rename mpAccess2 {}
+    rename mpAccess3 {}
+    unset -nocomplain mp port a
+} -result {1 0 {{one 127.0.0.1 1} {two 127.0.0.1 1}}}
+
+test multiplexer-api-4.2 {denied client gets no data from others} -setup {
+    set mp [multiplexer::create]
+    proc mpDenySecond {chan addr port} {
+	incr ::mpCount
+	expr {$::mpCount == 2 ? -1 : 0}
+    }
+    set ::mpCount 0
+    ${mp}::AddAccessFilter mpDenySecond
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    mpWaitClients $mp 1
+    set b [mpConnect $port]
+    mpWait {[info exists ::mpEof($b)]}
+    set c [mpConnect $port]
+    mpWaitClients $mp 2
+    puts -nonewline $a hi
+    flush $a
+    mpWait {$::mpGot($c) eq "hi"}
+    list $::mpGot($b) [info exists ::mpEof($b)] $::mpGot($c)
+} -cleanup {
+    mpCleanup $mp
+    rename mpDenySecond {}
+    unset -nocomplain mp port a b c ::mpCount
+} -result {{} 1 hi}
+
+# -------------------------------------------------------------------------
+## AddExitFilter
+
+proc mpExit {tag chan addr port} {
+    lappend ::mpLog [list $tag [expr {$chan ne ""}] $addr [string is integer -strict $port]]
+    return ignored
+}
+proc mpExitError {chan addr port} {
+    lappend ::mpLog error
+    error boom
+}
+
+test multiplexer-api-5.0 {exit filters called in order on EOF} -setup {
+    set mp [multiplexer::create]
+    interp alias {} mpExit1 {} mpExit one
+    interp alias {} mpExit2 {} mpExit two
+    ${mp}::AddExitFilter mpExit1
+    ${mp}::AddExitFilter mpExit2
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    mpWaitClients $mp 1
+    close $a
+    mpWaitClients $mp 0
+    list [array size ${mp}::clients] $::mpLog
+} -cleanup {
+    mpCleanup $mp
+    rename mpExit1 {}
+    rename mpExit2 {}
+    unset -nocomplain mp port a
+} -result {0 {{one 1 127.0.0.1 1} {two 1 127.0.0.1 1}}}
+
+test multiplexer-api-5.1 {errors in exit filters are ignored} -setup {
+    set mp [multiplexer::create]
+    interp alias {} mpExit1 {} mpExit one
+    ${mp}::AddExitFilter mpExitError
+    ${mp}::AddExitFilter mpExit1
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    mpWaitClients $mp 2
+    close $a
+    mpWaitClients $mp 1
+    # The remaining client still works.
+    set c [mpConnect $port]
+    mpWaitClients $mp 2
+    puts -nonewline $b hi
+    flush $b
+    mpWait {$::mpGot($c) eq "hi"}
+    list $::mpLog $::mpGot($c)
+} -cleanup {
+    mpCleanup $mp
+    rename mpExit1 {}
+    unset -nocomplain mp port a b c
+} -result {{error {one 1 127.0.0.1 1}} hi}
+
+test multiplexer-api-5.2 {client which left gets no more data} -setup {
+    set mp [multiplexer::create]
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    set b [mpConnect $port]
+    set c [mpConnect $port]
+    mpWaitClients $mp 3
+    close $b
+    mpWaitClients $mp 2
+    puts -nonewline $a hi
+    flush $a
+    mpWait {$::mpGot($c) eq "hi"}
+    list [array size ${mp}::clients] $::mpGot($c)
+} -cleanup {
+    mpCleanup $mp
+    unset -nocomplain mp port a b c
+} -result {2 hi}
+
+# -------------------------------------------------------------------------
+## Concurrent multiplexers
+
+test multiplexer-api-6.0 {two multiplexers are independent} -setup {
+    set mp1 [multiplexer::create]
+    set mp2 [multiplexer::create]
+    ${mp2}::AddFilter mpFilterB
+    set p1 [mpStart $mp1]
+    set p2 [mpStart $mp2]
+} -body {
+    set a1 [mpConnect $p1]
+    set b1 [mpConnect $p1]
+    set a2 [mpConnect $p2]
+    set b2 [mpConnect $p2]
+    mpWaitClients $mp1 2
+    mpWaitClients $mp2 2
+    puts -nonewline $a1 one
+    flush $a1
+    puts -nonewline $a2 two
+    flush $a2
+    mpWait {$::mpGot($b1) eq "one" && $::mpGot($b2) eq {[two]}}
+    list $::mpGot($b1) $::mpGot($b2) $::mpGot($a1) $::mpGot($a2)
+} -cleanup {
+    mpCleanup $mp1
+    mpCleanup $mp2
+    unset -nocomplain mp1 mp2 p1 p2 a1 b1 a2 b2
+} -result {one {[two]} {} {}}
+
+# -------------------------------------------------------------------------
+## destroy (used by the tests, not documented)
+
+test multiplexer-api-7.0 {destroy closes the connections to the clients} -constraints {
+    knownBug
+} -setup {
+    # destroy does not declare the variable clients.
+    set mp [multiplexer::create]
+    set port [mpStart $mp]
+} -body {
+    set a [mpConnect $port]
+    mpWaitClients $mp 1
+    set server [lindex [array names ${mp}::clients] 0]
+    ${mp}::destroy
+    mpWait {[info exists ::mpEof($a)]}
+    list [info exists ::mpEof($a)] [expr {$server in [file channels]}]
+} -cleanup {
+    catch {close $server}
+    mpCleanup $mp
+    unset -nocomplain mp port a server
+} -result {1 0}
+
+# -------------------------------------------------------------------------
+
+rename mpStart {}
+rename mpConnect {}
+rename mpRead {}
+rename mpWait {}
+rename mpWaitClients {}
+rename mpCleanup {}
+testsuiteCleanup
