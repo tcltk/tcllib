@@ -1,0 +1,153 @@
+[vset SPF_VERSION 1.1.2]
+[manpage_begin spf n [vset SPF_VERSION]]
+[see_also dns]
+[keywords DNS]
+[keywords {e-mail}]
+[keywords {rfc 4408}]
+[keywords {sender policy framework}]
+[keywords SPF]
+[copyright {2004, Pat Thoyts}]
+[moddesc   {Domain Name Service}]
+[titledesc {Sender Policy Framework checks}]
+[category  Networking]
+[require Tcl "8.5 9"]
+[require spf [opt [vset SPF_VERSION]]]
+[description]
+[para]
+
+The [package spf] package checks whether a host may send mail for a
+domain according to the Sender Policy Framework (SPF) record of that
+domain (1). A mail server can use it to check the address of a
+connecting client against the domain of the envelope sender.
+
+[para]
+
+The SPF record is looked up as a TXT record of the domain. All DNS
+queries are made with the [package dns] package, so the name server,
+port, protocol and timeout are those set with [cmd ::dns::configure].
+The commands wait for the answers, processing events meanwhile.
+
+[section COMMANDS]
+
+[list_begin definitions]
+
+[call [cmd ::spf::spf] [arg ip] [arg domain] [arg sender]]
+
+Evaluates the SPF record of [arg domain] for a mail from [arg sender]
+sent by the host with the IPv4 or IPv6 address [arg ip], and returns
+the result:
+
+[list_begin definitions]
+[def [const +]] Pass: the host is allowed to send mail for the domain.
+[def [const -]] Fail: the host is not allowed to send mail for the domain.
+[def [const ~]] Soft fail: the host is probably not allowed.
+[def [const ?]] Neutral: the domain makes no statement about the host.
+   This is also the result if no mechanism of the record matches.
+[def [const none]] The domain has no SPF record.
+[def [const unknown]] The record contains a mechanism that is not
+   supported (see below).
+[list_end]
+
+If [arg domain] does not exist, the result is a list of two elements:
+[const -] and the explanation [const {Domain Does Not Exist}].
+
+[para]
+
+[arg sender] is the envelope sender address. If it has no local part
+(no [const @]), [const postmaster@] is put in front of it. [arg domain]
+is the domain whose record is checked, usually the domain part of
+[arg sender].
+
+[para]
+
+An error with the error code [const permanent] is thrown if
+[arg sender] is empty or the record is not of version 1; an error with
+the error code [const temporary] is thrown if the name server reports
+a failure for the record lookup. Other DNS errors while evaluating
+a mechanism throw an error [const {error in "}][arg mechanism][const {": }][arg message].
+
+[list_end]
+
+[section {SPF RECORDS}]
+
+A record has the form [const v=spf1] followed by space-separated
+mechanisms and modifiers. The mechanisms are evaluated from left to
+right. Each mechanism may be preceded by a qualifier: [const +] (the
+default), [const -], [const ~] or [const ?]. The first mechanism that
+matches gives the result: its qualifier.
+
+[para]
+
+These mechanisms are supported:
+
+[list_begin definitions]
+[def [const all]] Always matches.
+[def "[const include:][arg domain]"] Matches if the record of
+   [arg domain] gives the result [const +] for the host. Domains already
+   visited are skipped.
+[def "[const a][opt [const :][arg domain]][opt [const /][arg bits]]"]
+   Matches if the host has one of the addresses of [arg domain]
+   (default: the domain being checked). With [arg bits], the host only
+   needs to be in the network of that prefix length around an address.
+[def "[const mx][opt [const :][arg domain]][opt [const /][arg bits]]"]
+   Like [const a], for the addresses of the mail exchangers of
+   [arg domain].
+[def "[const ptr][opt [const :][arg domain]]"]
+   Matches if the host has a name (found by a reverse lookup and
+   confirmed by a forward lookup) that ends with [arg domain]
+   (default: the domain being checked).
+[def "[const ip4:][arg network][opt [const /][arg bits]]"]
+[def "[const ip6:][arg network][opt [const /][arg bits]]"]
+   Matches if the address of the host is in the given network. Without
+   [arg bits] the address must be equal. An address of the other
+   family never matches.
+[def "[const exists:][arg domain]"]
+   Matches if [arg domain] has an address record.
+[list_end]
+
+The [const redirect=][arg domain] modifier replaces the result by the
+result for the record of [arg domain]. The [const exp] and
+[const accredit] modifiers and unknown modifiers are ignored.
+
+[para]
+
+Domain arguments may contain macros of the form
+[const %{][arg letter][opt [arg digits]][opt [const r]][opt [arg delimiters]][const \}]:
+
+[list_begin definitions]
+[def [const s]] The sender address.
+[def [const l]] The local part of the sender address.
+[def [const o]] The domain part of the sender address.
+[def "[const d], [const h]"] The domain being checked.
+[def [const i]] The IP address of the host; for IPv6, its hexadecimal
+   digits separated by dots.
+[def [const c]] The IP address of the host in readable form.
+[def [const v]] [const in-addr] for an IPv4 address, [const ip6] for
+   an IPv6 address.
+[def [const t]] The current time in seconds.
+[list_end]
+
+The value is split at the [arg delimiters] (default [const .]), the
+parts are reversed if [const r] is given, only the rightmost
+[arg digits] parts are kept, and they are joined with dots. With an
+upper-case letter the value is URL-encoded. [const %%], [const %_] and
+[const %-] stand for a percent sign, a space and [const %20].
+
+[section REFERENCES]
+
+[list_begin enumerated]
+
+[enum]
+    Wong, M. and Schlitt, W., "Sender Policy Framework (SPF) for
+    Authorizing Use of Domains in E-Mail, Version 1",
+    RFC 4408, April 2006,
+    ([uri http://www.ietf.org/rfc/rfc4408.txt])
+
+[list_end]
+
+[section AUTHORS]
+Pat Thoyts
+
+[vset CATEGORY dns]
+[include ../common-text/feedback.inc]
+[manpage_end]
