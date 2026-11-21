@@ -1,0 +1,487 @@
+# -*- tcl -*-
+# dsource.test:  Tests for the transfer::data::source package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl    snit
+    useLocal copyops.tcl transfer::copy
+}
+testing {
+    useLocal dsource.tcl transfer::data::source
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::tt {
+    variable out [tcltest::makeFile {} tt-src-out.dat]
+    variable in  [tcltest::makeFile {} tt-src-in.dat]
+    variable bgerrors {}
+}
+
+proc ::tt::wait {varname {ms 5000}} {
+    upvar #0 $varname v
+    if {[info exists v]} {return $v}
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return $v
+}
+proc ::tt::drain {} {
+    after 50 {set ::tt::drained 1}
+    vwait ::tt::drained
+    unset ::tt::drained
+}
+proc ::tt::done {args} {
+    set ::tt::fin $args
+}
+proc ::tt::put {path data} {
+    set c [open $path wb]
+    puts -nonewline $c $data
+    close $c
+}
+proc ::tt::get {path} {
+    set c [open $path rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+# Background errors of transfer::copy::string (see copyops.test) are
+# caught while a transfer runs.
+proc ::tt::bgon {} {
+    unset -nocomplain ::tt::fin
+    variable oldbg [interp bgerror {}]
+    interp bgerror {} [list apply {{m o} {lappend ::tt::bgerrors $m}}]
+}
+proc ::tt::bgoff {} {
+    variable oldbg
+    ::tt::drain
+    interp bgerror {} $oldbg
+}
+
+tcltest::testConstraint notRoot [expr {
+    $::tcl_platform(platform) ne "unix" || $::tcl_platform(user) ne "root"
+}]
+
+# -------------------------------------------------------------------------
+## Creation, configuration
+
+test transfer-source-1.0 {create, returns the object command} -body {
+    transfer::data::source s
+} -cleanup {
+    s destroy
+} -result ::s
+
+test transfer-source-1.1 {create in a namespace} -setup {
+    namespace eval ::tt::x {}
+} -body {
+    namespace eval ::tt::x {transfer::data::source s}
+} -cleanup {
+    ::tt::x::s destroy
+    namespace delete ::tt::x
+} -result ::tt::x::s
+
+test transfer-source-1.2 {create, unknown option} -body {
+    transfer::data::source s -bogus 1
+} -returnCodes error -result {Error in constructor: unknown option "-bogus"}
+
+test transfer-source-1.3 {option defaults} -setup {
+    transfer::data::source s
+} -body {
+    list [s cget -string] [s cget -channel] [s cget -file] [s cget -variable] \
+	[s cget -size] [s cget -progress]
+} -cleanup {
+    s destroy
+} -result {{} {} {} {} -1 {}}
+
+test transfer-source-1.4 {destroy} -setup {
+    transfer::data::source s
+} -body {
+    s destroy
+    info commands ::s
+} -result {}
+
+# -------------------------------------------------------------------------
+## undefined
+
+test transfer-source-2.0 {undefined, type} -setup {
+    transfer::data::source s
+} -body {
+    s type
+} -cleanup {
+    s destroy
+} -result undefined
+
+test transfer-source-2.1 {undefined, data} -setup {
+    transfer::data::source s
+} -body {
+    s data
+} -cleanup {
+    s destroy
+} -returnCodes error -result {Data source is undefined}
+
+test transfer-source-2.2 {undefined, size} -setup {
+    transfer::data::source s
+} -body {
+    s size
+} -cleanup {
+    s destroy
+} -returnCodes error -result {Data source is undefined}
+
+test transfer-source-2.3 {undefined, valid} -setup {
+    transfer::data::source s
+} -body {
+    list [s valid msg] $msg
+} -cleanup {
+    s destroy
+    unset msg
+} -result {0 {Data source is undefined}}
+
+test transfer-source-2.4 {undefined, only -size given} -setup {
+    transfer::data::source s -size 10
+} -body {
+    list [s type] [s size]
+} -cleanup {
+    s destroy
+} -result {undefined 10}
+
+# -------------------------------------------------------------------------
+## -string
+
+test transfer-source-3.0 {string, type data size} -setup {
+    transfer::data::source s -string "Hello World"
+} -body {
+    list [s type] [s data] [s size]
+} -cleanup {
+    s destroy
+} -result {string {Hello World} 11}
+
+test transfer-source-3.1 {string, explicit size} -setup {
+    transfer::data::source s -string "Hello World" -size 5
+} -body {
+    s size
+} -cleanup {
+    s destroy
+} -result 5
+
+test transfer-source-3.2 {string, valid} -setup {
+    transfer::data::source s -string "Hello World" -size 11
+} -body {
+    set msg untouched
+    list [s valid msg] $msg
+} -cleanup {
+    s destroy
+    unset msg
+} -result {1 untouched}
+
+test transfer-source-3.3 {string, size larger than data is invalid} -setup {
+    transfer::data::source s -string "Hello World" -size 12
+} -body {
+    list [s valid msg] $msg
+} -cleanup {
+    s destroy
+    unset msg
+} -result {0 {Not enough data to transmit}}
+
+test transfer-source-3.4 {string, empty string} -setup {
+    transfer::data::source s -string {}
+} -body {
+    list [s type] [s data] [s size] [s valid msg]
+} -cleanup {
+    s destroy
+} -result {string {} 0 1}
+
+test transfer-source-3.5 {string, negative size means everything} -setup {
+    transfer::data::source s -string abc -size -7
+} -body {
+    s size
+} -cleanup {
+    s destroy
+} -result 3
+
+# -------------------------------------------------------------------------
+## -channel
+
+test transfer-source-4.0 {channel, bad handle} -setup {
+    transfer::data::source s
+} -body {
+    s configure -channel nosuchchannel
+} -cleanup {
+    s destroy
+} -returnCodes error -result {Bad channel handle "nosuchchannel", does not exist}
+
+test transfer-source-4.1 {channel, data and size} -setup {
+    set c [open $::tt::in r]
+    transfer::data::source s -channel $c
+} -body {
+    list [expr {[s data] eq $c}] [s size] [s valid msg]
+} -cleanup {
+    s destroy
+    close $c
+    unset c
+} -result {1 -1 1}
+
+test transfer-source-4.2 {channel, type as documented} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::in r]
+    transfer::data::source s -channel $c
+} -body {
+    s type
+} -cleanup {
+    s destroy
+    close $c
+    unset c
+} -result channel
+
+test transfer-source-4.3 {channel, explicit size} -setup {
+    set c [open $::tt::in r]
+    transfer::data::source s -channel $c -size 42
+} -body {
+    s size
+} -cleanup {
+    s destroy
+    close $c
+    unset c
+} -result 42
+
+# -------------------------------------------------------------------------
+## -file
+
+test transfer-source-5.0 {file, does not exist} -setup {
+    transfer::data::source s
+} -body {
+    s configure -file [file join [tcltest::temporaryDirectory] tt-nosuchfile]
+} -cleanup {
+    s destroy
+} -returnCodes error -match glob -result {File "*tt-nosuchfile" does not exist}
+
+test transfer-source-5.1 {file, a directory} -setup {
+    transfer::data::source s
+    set d [tcltest::makeDirectory tt-dir]
+} -body {
+    s configure -file $d
+} -cleanup {
+    s destroy
+    tcltest::removeDirectory tt-dir
+    unset d
+} -returnCodes error -match glob -result {File "*tt-dir" not a file}
+
+test transfer-source-5.2 {file, not readable} -constraints {unix notRoot} -setup {
+    transfer::data::source s
+    set f [tcltest::makeFile {} tt-unreadable.dat]
+    file attributes $f -permissions 0
+} -body {
+    s configure -file $f
+} -cleanup {
+    s destroy
+    file attributes $f -permissions 0644
+    tcltest::removeFile tt-unreadable.dat
+    unset f
+} -returnCodes error -match glob -result {File "*tt-unreadable.dat" not readable}
+
+test transfer-source-5.3 {file, data is a channel to the file} -setup {
+    ::tt::put $::tt::in "Hello World"
+    transfer::data::source s -file $::tt::in
+} -body {
+    set c [s data]
+    list [read $c] [s size] [s valid msg]
+} -cleanup {
+    close $c
+    s destroy
+    unset c
+} -result {{Hello World} -1 1}
+
+test transfer-source-5.4 {file, type as documented} -constraints {
+    knownBug
+} -setup {
+    transfer::data::source s -file $::tt::in
+} -body {
+    s type
+} -cleanup {
+    s destroy
+} -result channel
+
+test transfer-source-5.5 {last option wins} -setup {
+    ::tt::put $::tt::in "Hello World"
+    set c [open $::tt::in r]
+} -body {
+    transfer::data::source s -channel $c -string abc
+    set r [list [s type] [s data]]
+    s configure -file $::tt::in
+    set f [s data]
+    lappend r [expr {$f ne $c}]
+} -cleanup {
+    close $f
+    close $c
+    s destroy
+    unset c f r
+} -result {string abc 1}
+
+# -------------------------------------------------------------------------
+## -variable
+
+# The option handler evaluates [info exists $newvalue] at global level,
+# where "newvalue" is not defined: the option can never be set.
+test transfer-source-6.0 {variable, type data size} -constraints {
+    knownBug
+} -setup {
+    set ::tt::var "Hello World"
+} -body {
+    transfer::data::source s -variable ::tt::var
+    list [s type] [s data] [s size]
+} -cleanup {
+    catch {s destroy}
+    unset ::tt::var
+} -result {string {Hello World} 11}
+
+test transfer-source-6.1 {variable, does not exist} -constraints {
+    knownBug
+} -setup {
+    transfer::data::source s
+} -body {
+    s configure -variable ::tt::nosuchvar
+} -cleanup {
+    s destroy
+} -returnCodes error -result {Bad variable "::tt::nosuchvar", does not exist}
+
+test transfer-source-6.2 {variable, current value is used} -constraints {
+    knownBug
+} -setup {
+    set ::tt::var abc
+} -body {
+    transfer::data::source s -variable ::tt::var
+    set ::tt::var abcdef
+    list [s data] [s size]
+} -cleanup {
+    catch {s destroy}
+    unset ::tt::var
+} -result {abcdef 6}
+
+# -------------------------------------------------------------------------
+## transmit
+
+test transfer-source-7.0 {transmit, wrong # args} -setup {
+    transfer::data::source s -string abc
+} -body {
+    s transmit a b
+} -cleanup {
+    s destroy
+} -returnCodes error -result {wrong # args: should be "::transfer::data::source::Snit_methodtransmit type selfns win self sock blocksize done"}
+
+test transfer-source-7.1 {transmit string} -setup {
+    ::tt::bgon
+    transfer::data::source s -string "Hello World"
+    set c [open $::tt::out w]
+} -body {
+    set r [list [s transmit $c 4 ::tt::done]]
+    lappend r [::tt::wait ::tt::fin]
+    close $c
+    lappend r [::tt::get $::tt::out]
+} -cleanup {
+    ::tt::bgoff
+    s destroy
+    unset c r
+} -result {{} 11 {Hello World}}
+
+test transfer-source-7.2 {transmit channel} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in [string repeat abc 1000]
+    set i [open $::tt::in r]
+    transfer::data::source s -channel $i
+    set c [open $::tt::out w]
+} -body {
+    s transmit $c 1000 ::tt::done
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [expr {[::tt::get $::tt::out] eq [string repeat abc 1000]}]
+} -cleanup {
+    close $i
+    s destroy
+    unset c i r
+} -result {3000 1}
+
+test transfer-source-7.3 {transmit channel, size} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in "Hello World"
+    set i [open $::tt::in r]
+    transfer::data::source s -channel $i -size 5
+    set c [open $::tt::out w]
+} -body {
+    s transmit $c 1000 ::tt::done
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    close $i
+    s destroy
+    unset c i r
+} -result {5 Hello}
+
+test transfer-source-7.4 {transmit file} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in "Hello World"
+    transfer::data::source s -file $::tt::in
+    set c [open $::tt::out w]
+    set before [file channels]
+} -body {
+    s transmit $c 1000 ::tt::done
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    foreach ch [file channels] {if {$ch ni $before} {close $ch}}
+    s destroy
+    unset c r before ch
+} -result {11 {Hello World}}
+
+test transfer-source-7.5 {transmit, progress callback} -setup {
+    unset -nocomplain ::tt::fin
+    set ::tt::events {}
+    ::tt::put $::tt::in [string repeat a 25]
+    set i [open $::tt::in r]
+    transfer::data::source s -channel $i -progress {lappend ::tt::events}
+    set c [open $::tt::out w]
+} -body {
+    s transmit $c 10 ::tt::done
+    ::tt::wait ::tt::fin
+    set ::tt::events
+} -cleanup {
+    close $c
+    close $i
+    s destroy
+    unset c i ::tt::events
+} -result {10 20 25}
+
+test transfer-source-7.6 {transmit, destroy during transfer is safe} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in "Hello World"
+    set i [open $::tt::in r]
+    transfer::data::source s -channel $i
+    set c [open $::tt::out w]
+} -body {
+    s transmit $c 1000 ::tt::done
+    s destroy
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    close $i
+    unset c i r
+} -result {11 {Hello World}}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile tt-src-out.dat
+tcltest::removeFile tt-src-in.dat
+namespace delete ::tt
+testsuiteCleanup
+return

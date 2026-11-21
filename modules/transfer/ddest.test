@@ -1,0 +1,366 @@
+# -*- tcl -*-
+# ddest.test:  Tests for the transfer::data::destination package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal ddest.tcl transfer::data::destination
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::tt {
+    variable out [tcltest::makeFile {} tt-dst-out.dat]
+    variable in  [tcltest::makeFile {} tt-dst-in.dat]
+}
+
+proc ::tt::wait {varname {ms 5000}} {
+    upvar #0 $varname v
+    if {[info exists v]} {return $v}
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return $v
+}
+proc ::tt::done {args} {
+    set ::tt::fin $args
+}
+proc ::tt::put {path data} {
+    set c [open $path wb]
+    puts -nonewline $c $data
+    close $c
+}
+proc ::tt::get {path} {
+    set c [open $path rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+tcltest::testConstraint notRoot [expr {
+    $::tcl_platform(platform) ne "unix" || $::tcl_platform(user) ne "root"
+}]
+
+# -------------------------------------------------------------------------
+## Creation, configuration, valid
+
+test transfer-dest-1.0 {create, returns the object command} -body {
+    transfer::data::destination d
+} -cleanup {
+    d destroy
+} -result ::d
+
+test transfer-dest-1.1 {create, fully qualified name} -setup {
+    namespace eval ::tt::x {}
+} -body {
+    transfer::data::destination ::tt::x::d
+} -cleanup {
+    ::tt::x::d destroy
+    namespace delete ::tt::x
+} -result ::tt::x::d
+
+test transfer-dest-1.2 {create, unknown option} -body {
+    transfer::data::destination d -bogus 1
+} -returnCodes error -result {Error in constructor: unknown option "-bogus"}
+
+test transfer-dest-1.3 {undefined destination is invalid} -setup {
+    transfer::data::destination d
+} -body {
+    list [d valid msg] $msg
+} -cleanup {
+    d destroy
+    unset msg
+} -result {0 {Data destination is undefined}}
+
+test transfer-dest-1.4 {destroy} -setup {
+    transfer::data::destination d
+} -body {
+    d destroy
+    info commands ::d
+} -result {}
+
+test transfer-dest-1.5 {valid, message variable untouched} -setup {
+    set c [open $::tt::out w]
+    transfer::data::destination d -channel $c
+} -body {
+    set msg untouched
+    list [d valid msg] $msg
+} -cleanup {
+    d destroy
+    close $c
+    unset c msg
+} -result {1 untouched}
+
+# -------------------------------------------------------------------------
+## -channel
+
+test transfer-dest-2.0 {channel, bad handle} -setup {
+    transfer::data::destination d
+} -body {
+    d configure -channel nosuchchannel
+} -cleanup {
+    d destroy
+} -returnCodes error -result {Bad channel handle "nosuchchannel", does not exist}
+
+test transfer-dest-2.1 {channel, put and done} -setup {
+    set c [open $::tt::out w]
+    transfer::data::destination d -channel $c
+} -body {
+    d put "Hello"
+    d put " World"
+    d done
+    # The channel is not closed by the destination.
+    set r [expr {$c in [file channels]}]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    d destroy
+    unset c r
+} -result {1 {Hello World}}
+
+# -------------------------------------------------------------------------
+## -file
+
+test transfer-dest-3.0 {file, put and done} -setup {
+    file delete $::tt::out
+    transfer::data::destination d -file $::tt::out
+} -body {
+    d put "Hello"
+    d put " World"
+    d done
+    ::tt::get $::tt::out
+} -cleanup {
+    d destroy
+} -result {Hello World}
+
+test transfer-dest-3.1 {file, replaces content, closed by done} -setup {
+    ::tt::put $::tt::out [string repeat x 100]
+    transfer::data::destination d -file $::tt::out
+    set before [file channels]
+} -body {
+    d put abc
+    d done
+    list [::tt::get $::tt::out] [expr {[file channels] eq $before}]
+} -cleanup {
+    d destroy
+    unset before
+} -result {abc 1}
+
+test transfer-dest-3.2 {file, directory not existing} -setup {
+    transfer::data::destination d
+} -body {
+    d configure -file [file join [tcltest::temporaryDirectory] tt-nosuchdir x]
+} -cleanup {
+    d destroy
+} -returnCodes error -match glob -result {File "*x" not creatable}
+
+test transfer-dest-3.3 {file, is a directory} -setup {
+    transfer::data::destination d
+    set dir [tcltest::makeDirectory tt-dir]
+} -body {
+    d configure -file $dir
+} -cleanup {
+    d destroy
+    tcltest::removeDirectory tt-dir
+    unset dir
+} -returnCodes error -match glob -result {File "*tt-dir" not a file}
+
+test transfer-dest-3.4 {file, not writable} -constraints {unix notRoot} -setup {
+    transfer::data::destination d
+    set f [tcltest::makeFile {} tt-ro.dat]
+    file attributes $f -permissions 0444
+} -body {
+    d configure -file $f
+} -cleanup {
+    d destroy
+    file attributes $f -permissions 0644
+    tcltest::removeFile tt-ro.dat
+    unset f
+} -returnCodes error -match glob -result {File "*tt-ro.dat" not writable}
+
+test transfer-dest-3.5 {file, directory not writable} -constraints {unix notRoot} -setup {
+    transfer::data::destination d
+    set dir [tcltest::makeDirectory tt-rodir]
+    file attributes $dir -permissions 0555
+} -body {
+    d configure -file [file join $dir x]
+} -cleanup {
+    d destroy
+    file attributes $dir -permissions 0755
+    tcltest::removeDirectory tt-rodir
+    unset dir
+} -returnCodes error -match glob -result {File "*x" not creatable}
+
+test transfer-dest-3.6 {file, valid} -setup {
+    transfer::data::destination d -file $::tt::out
+} -body {
+    d valid msg
+} -cleanup {
+    d destroy
+} -result 1
+
+# -------------------------------------------------------------------------
+## -variable
+
+# The option handler evaluates [info exists $newvalue] at global level,
+# where "newvalue" is not defined: the option can never be set.  Also the
+# handler records the type "string", for which [put] does nothing.
+test transfer-dest-4.0 {variable, put appends} -constraints {
+    knownBug
+} -setup {
+    set ::tt::var {}
+} -body {
+    transfer::data::destination d -variable ::tt::var
+    d put "Hello"
+    d put " World"
+    d done
+    set ::tt::var
+} -cleanup {
+    catch {d destroy}
+    unset ::tt::var
+} -result {Hello World}
+
+test transfer-dest-4.1 {variable, does not exist} -constraints {
+    knownBug
+} -setup {
+    transfer::data::destination d
+} -body {
+    d configure -variable ::tt::nosuchvar
+} -cleanup {
+    d destroy
+} -returnCodes error -result {Bad variable "::tt::nosuchvar", does not exist}
+
+# -------------------------------------------------------------------------
+## receive
+
+test transfer-dest-5.0 {receive, wrong # args} -setup {
+    transfer::data::destination d
+} -body {
+    d receive x
+} -cleanup {
+    d destroy
+} -returnCodes error -result {wrong # args: should be "::transfer::data::destination::Snit_methodreceive type selfns win self sock done"}
+
+test transfer-dest-5.1 {receive from a channel into a channel} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in [string repeat abc 1000]
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+    transfer::data::destination d -channel $c
+} -body {
+    set r [list [d receive $i ::tt::done]]
+    lappend r [::tt::wait ::tt::fin]
+    close $c
+    lappend r [expr {[::tt::get $::tt::out] eq [string repeat abc 1000]}]
+} -cleanup {
+    close $i
+    d destroy
+    unset c i r
+} -result {{} 3000 1}
+
+test transfer-dest-5.2 {receive into a file} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in "Hello World"
+    set i [open $::tt::in r]
+    transfer::data::destination d -file $::tt::out
+} -body {
+    d receive $i {::tt::done extra}
+    list [::tt::wait ::tt::fin] [::tt::get $::tt::out]
+} -cleanup {
+    close $i
+    d destroy
+} -result {{extra 11} {Hello World}}
+
+test transfer-dest-5.3 {receive, progress callback} -setup {
+    unset -nocomplain ::tt::fin
+    set ::tt::events {}
+    ::tt::put $::tt::in "Hello World"
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+    transfer::data::destination d -channel $c -progress {lappend ::tt::events}
+} -body {
+    d receive $i ::tt::done
+    ::tt::wait ::tt::fin
+    set ::tt::events
+} -cleanup {
+    close $c
+    close $i
+    d destroy
+    unset c i ::tt::events
+} -result 11
+
+test transfer-dest-5.4 {receive restores blocking mode, removes handler} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in "Hello World"
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+    transfer::data::destination d -channel $c
+} -body {
+    d receive $i ::tt::done
+    set r [list [fconfigure $i -blocking]]
+    ::tt::wait ::tt::fin
+    lappend r [fconfigure $i -blocking] [fileevent $i readable]
+} -cleanup {
+    close $c
+    close $i
+    d destroy
+    unset c i r
+} -result {0 1 {}}
+
+test transfer-dest-5.5 {receive, empty input} -setup {
+    unset -nocomplain ::tt::fin
+    ::tt::put $::tt::in {}
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+    transfer::data::destination d -channel $c
+} -body {
+    d receive $i ::tt::done
+    ::tt::wait ::tt::fin
+} -cleanup {
+    close $c
+    close $i
+    d destroy
+    unset c i
+} -result 0
+
+test transfer-dest-5.6 {receive from a socket} -setup {
+    unset -nocomplain ::tt::fin
+    set srv [socket -server [list apply {{data c a p} {
+	fconfigure $c -translation binary
+	puts -nonewline $c $data
+	close $c
+    }} [string repeat xyz 5000]] -myaddr 127.0.0.1 0]
+    set s [socket 127.0.0.1 [lindex [fconfigure $srv -sockname] 2]]
+    fconfigure $s -translation binary
+    set c [open $::tt::out wb]
+    transfer::data::destination d -channel $c
+} -body {
+    d receive $s ::tt::done
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [expr {[::tt::get $::tt::out] eq [string repeat xyz 5000]}]
+} -cleanup {
+    close $s
+    close $srv
+    d destroy
+    unset c s srv r
+} -result {15000 1}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile tt-dst-out.dat
+tcltest::removeFile tt-dst-in.dat
+namespace delete ::tt
+testsuiteCleanup
+return

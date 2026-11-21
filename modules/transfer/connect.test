@@ -1,0 +1,394 @@
+# -*- tcl -*-
+# connect.test:  Tests for the transfer::connect package.
+#
+# All connections are made over 127.0.0.1.  Passive objects get a
+# -socketcmd which binds their listening socket to 127.0.0.1.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal connect.tcl transfer::connect
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::tt {
+    variable calls {}
+}
+
+proc ::tt::wait {varname {ms 5000}} {
+    upvar #0 $varname v
+    if {[info exists v]} {return $v}
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return $v
+}
+
+# Socket command for -socketcmd: records the calls, binds servers to
+# 127.0.0.1.
+proc ::tt::socket {args} {
+    lappend ::tt::calls $args
+    if {[lindex $args 0] eq "-server"} {
+	return [::socket -server [lindex $args 1] -myaddr 127.0.0.1 {*}[lrange $args 2 end]]
+    }
+    return [::socket {*}$args]
+}
+
+# Completion callback of connect.
+proc ::tt::connected {args} {
+    set ::tt::conn $args
+}
+
+# A local server accepting connections; accepted sockets are collected
+# in ::tt::accepted.
+proc ::tt::server {} {
+    set ::tt::accepted {}
+    set s [::socket -server [list apply {{c a p} {lappend ::tt::accepted $c}}] \
+	       -myaddr 127.0.0.1 0]
+    return $s
+}
+proc ::tt::port {sock} {
+    lindex [fconfigure $sock -sockname] 2
+}
+proc ::tt::closeall {} {
+    foreach c $::tt::accepted {catch {close $c}}
+    set ::tt::accepted {}
+}
+
+# A port with nothing listening on it.
+proc ::tt::freeport {} {
+    set s [::socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set p [::tt::port $s]
+    close $s
+    return $p
+}
+
+# -------------------------------------------------------------------------
+## Creation, configuration
+
+test transfer-connect-1.0 {create, returns the object command} -body {
+    transfer::connect c
+} -cleanup {
+    c destroy
+} -result ::c
+
+test transfer-connect-1.1 {create in a namespace} -setup {
+    namespace eval ::tt::x {}
+} -body {
+    namespace eval ::tt::x {transfer::connect c}
+} -cleanup {
+    ::tt::x::c destroy
+    namespace delete ::tt::x
+} -result ::tt::x::c
+
+test transfer-connect-1.2 {option defaults} -setup {
+    transfer::connect c
+} -body {
+    set r {}
+    foreach o {-host -port -mode -socketcmd -translation -encoding -eofchar} {
+	lappend r [c cget $o]
+    }
+    set r
+} -cleanup {
+    c destroy
+    unset r o
+} -result {localhost 0 active ::socket {} {} {}}
+
+test transfer-connect-1.3 {options set at creation} -setup {
+    transfer::connect c -host 127.0.0.1 -port 1234 -mode passive \
+	-socketcmd ::tt::socket -translation binary -encoding utf-8 -eofchar {}
+} -body {
+    set r {}
+    foreach o {-host -port -mode -socketcmd -translation -encoding} {
+	lappend r [c cget $o]
+    }
+    set r
+} -cleanup {
+    c destroy
+    unset r o
+} -result {127.0.0.1 1234 passive ::tt::socket binary utf-8}
+
+test transfer-connect-1.4 {bad mode} -body {
+    transfer::connect c -mode bogus
+} -returnCodes error -result {Error in constructor: invalid -mode value: invalid value "bogus", should be one of: active, passive}
+
+test transfer-connect-1.5 {bad mode, configure} -setup {
+    transfer::connect c
+} -body {
+    c configure -mode bogus
+} -cleanup {
+    c destroy
+} -returnCodes error -result {invalid -mode value: invalid value "bogus", should be one of: active, passive}
+
+test transfer-connect-1.6 {unknown option} -body {
+    transfer::connect c -bogus 1
+} -returnCodes error -result {Error in constructor: unknown option "-bogus"}
+
+test transfer-connect-1.7 {connect, wrong # args} -setup {
+    transfer::connect c
+} -body {
+    c connect
+} -cleanup {
+    c destroy
+} -returnCodes error -result {wrong # args: should be "::transfer::connect::Snit_methodconnect type selfns win self command"}
+
+# -------------------------------------------------------------------------
+## active
+
+test transfer-connect-2.0 {active, connects, returns empty string} -setup {
+    unset -nocomplain ::tt::conn
+    set srv [::tt::server]
+    transfer::connect c -host 127.0.0.1 -port [::tt::port $srv]
+} -body {
+    set r [list [c connect ::tt::connected]]
+    set args [::tt::wait ::tt::conn]
+    set sock [lindex $args end]
+    lappend r [expr {$sock in [file channels]}] \
+	[lindex [fconfigure $sock -peername] 2] [::tt::port $srv]
+    # Wait for the server side.
+    after 5000 {set ::tt::timeout 1}
+    while {![llength $::tt::accepted] && ![info exists ::tt::timeout]} {
+	vwait ::tt::accepted
+    }
+    lappend r [llength $::tt::accepted]
+} -cleanup {
+    catch {close $sock}
+    ::tt::closeall
+    close $srv
+    c destroy
+    unset -nocomplain srv r args sock ::tt::timeout
+} -match glob -result {{} 1 * * 1}
+
+test transfer-connect-2.1 {active, callback after connect returns} -setup {
+    unset -nocomplain ::tt::conn
+    set srv [::tt::server]
+    transfer::connect c -host 127.0.0.1 -port [::tt::port $srv]
+} -body {
+    c connect ::tt::connected
+    set r [info exists ::tt::conn]
+    ::tt::wait ::tt::conn
+    lappend r [info exists ::tt::conn]
+} -cleanup {
+    catch {close [lindex $::tt::conn end]}
+    ::tt::closeall
+    close $srv
+    c destroy
+    unset srv r
+} -result {0 1}
+
+# The callback is given two arguments, the connect object and the channel.
+test transfer-connect-2.2 {active, callback gets the channel as only argument} -constraints {
+    knownBug
+} -setup {
+    unset -nocomplain ::tt::conn
+    set srv [::tt::server]
+    transfer::connect c -host 127.0.0.1 -port [::tt::port $srv]
+} -body {
+    c connect ::tt::connected
+    llength [::tt::wait ::tt::conn]
+} -cleanup {
+    catch {close [lindex $::tt::conn end]}
+    ::tt::closeall
+    close $srv
+    c destroy
+    unset srv
+} -result 1
+
+test transfer-connect-2.3 {active, callback is a command prefix} -setup {
+    unset -nocomplain ::tt::conn
+    set srv [::tt::server]
+    transfer::connect c -host 127.0.0.1 -port [::tt::port $srv]
+} -body {
+    c connect {::tt::connected a b}
+    lrange [::tt::wait ::tt::conn] 0 1
+} -cleanup {
+    catch {close [lindex $::tt::conn end]}
+    ::tt::closeall
+    close $srv
+    c destroy
+    unset srv
+} -result {a b}
+
+test transfer-connect-2.4 {active, channel configuration applied} -setup {
+    unset -nocomplain ::tt::conn
+    set srv [::tt::server]
+    transfer::connect c -host 127.0.0.1 -port [::tt::port $srv] \
+	-translation {lf crlf} -encoding iso8859-2
+} -body {
+    c connect ::tt::connected
+    set sock [lindex [::tt::wait ::tt::conn] end]
+    list [fconfigure $sock -translation] [fconfigure $sock -encoding]
+} -cleanup {
+    catch {close $sock}
+    ::tt::closeall
+    close $srv
+    c destroy
+    unset srv sock
+} -result {{lf crlf} iso8859-2}
+
+test transfer-connect-2.5 {active, -socketcmd used} -setup {
+    unset -nocomplain ::tt::conn
+    set ::tt::calls {}
+    set srv [::tt::server]
+    set p [::tt::port $srv]
+    transfer::connect c -host 127.0.0.1 -port $p -socketcmd ::tt::socket
+} -body {
+    c connect ::tt::connected
+    ::tt::wait ::tt::conn
+    expr {$::tt::calls eq [list [list 127.0.0.1 $p]]}
+} -cleanup {
+    catch {close [lindex $::tt::conn end]}
+    ::tt::closeall
+    close $srv
+    c destroy
+    unset srv p
+} -result 1
+
+test transfer-connect-2.6 {active, connection refused} -setup {
+    transfer::connect c -host 127.0.0.1 -port [::tt::freeport]
+} -body {
+    c connect ::tt::connected
+} -cleanup {
+    c destroy
+} -returnCodes error -match glob -result {couldn't open socket: *}
+
+test transfer-connect-2.7 {active, data flows} -setup {
+    unset -nocomplain ::tt::conn
+    set srv [::tt::server]
+    transfer::connect c -host 127.0.0.1 -port [::tt::port $srv]
+} -body {
+    c connect ::tt::connected
+    set sock [lindex [::tt::wait ::tt::conn] end]
+    puts $sock hello
+    flush $sock
+    after 5000 {set ::tt::timeout 1}
+    while {![llength $::tt::accepted] && ![info exists ::tt::timeout]} {
+	vwait ::tt::accepted
+    }
+    gets [lindex $::tt::accepted 0]
+} -cleanup {
+    catch {close $sock}
+    ::tt::closeall
+    close $srv
+    c destroy
+    unset -nocomplain srv sock ::tt::timeout
+} -result hello
+
+# -------------------------------------------------------------------------
+## passive
+
+test transfer-connect-3.0 {passive, returns the listening port} -setup {
+    set ::tt::calls {}
+    transfer::connect c -mode passive -socketcmd ::tt::socket
+} -body {
+    set p [c connect ::tt::connected]
+    list [string is integer -strict $p] [expr {$p > 0}] [lindex $::tt::calls 0 0]
+} -cleanup {
+    # Destroying a waiting passive object is documented as unsafe;
+    # connect once to let it finish.
+    set s [socket 127.0.0.1 $p]
+    ::tt::wait ::tt::conn
+    close $s
+    catch {close [lindex $::tt::conn end]}
+    c destroy
+    unset p s ::tt::conn
+} -result {1 1 -server}
+
+test transfer-connect-3.1 {passive, partner connects} -setup {
+    unset -nocomplain ::tt::conn
+    transfer::connect c -mode passive -socketcmd ::tt::socket
+} -body {
+    set p [c connect ::tt::connected]
+    set s [socket 127.0.0.1 $p]
+    set sock [lindex [::tt::wait ::tt::conn] end]
+    puts $s hello
+    flush $s
+    gets $sock
+} -cleanup {
+    close $s
+    catch {close $sock}
+    c destroy
+    unset p s sock
+} -result hello
+
+test transfer-connect-3.2 {passive, listening socket closed after connect} -setup {
+    unset -nocomplain ::tt::conn
+    transfer::connect c -mode passive -socketcmd ::tt::socket
+} -body {
+    set p [c connect ::tt::connected]
+    set s [socket 127.0.0.1 $p]
+    ::tt::wait ::tt::conn
+    catch {socket 127.0.0.1 $p} msg
+    string match {couldn't open socket: *} $msg
+} -cleanup {
+    close $s
+    catch {close [lindex $::tt::conn end]}
+    c destroy
+    unset p s msg
+} -result 1
+
+test transfer-connect-3.3 {passive, configuration applied} -setup {
+    unset -nocomplain ::tt::conn
+    transfer::connect c -mode passive -socketcmd ::tt::socket \
+	-translation binary
+} -body {
+    set p [c connect ::tt::connected]
+    set s [socket 127.0.0.1 $p]
+    set sock [lindex [::tt::wait ::tt::conn] end]
+    fconfigure $sock -translation
+} -cleanup {
+    close $s
+    catch {close $sock}
+    c destroy
+    unset p s sock
+} -result {lf lf}
+
+test transfer-connect-3.4 {passive, host is ignored} -setup {
+    unset -nocomplain ::tt::conn
+    set ::tt::calls {}
+    transfer::connect c -mode passive -socketcmd ::tt::socket -host no.such.host
+} -body {
+    set p [c connect ::tt::connected]
+    set s [socket 127.0.0.1 $p]
+    ::tt::wait ::tt::conn
+    llength [lindex $::tt::calls 0]
+} -cleanup {
+    close $s
+    catch {close [lindex $::tt::conn end]}
+    c destroy
+    unset p s
+} -result 3
+
+test transfer-connect-3.5 {passive, explicit port} -setup {
+    unset -nocomplain ::tt::conn
+    set port [::tt::freeport]
+    transfer::connect c -mode passive -socketcmd ::tt::socket -port $port
+} -body {
+    set p [c connect ::tt::connected]
+    set s [socket 127.0.0.1 $p]
+    ::tt::wait ::tt::conn
+    expr {$p == $port}
+} -cleanup {
+    close $s
+    catch {close [lindex $::tt::conn end]}
+    c destroy
+    unset p s port
+} -result 1
+
+# -------------------------------------------------------------------------
+
+namespace delete ::tt
+testsuiteCleanup
+return

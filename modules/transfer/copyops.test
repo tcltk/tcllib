@@ -1,0 +1,612 @@
+# -*- tcl -*-
+# copyops.test:  Tests for the transfer::copy package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal copyops.tcl transfer::copy
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::tt {
+    variable out [tcltest::makeFile {} tt-copy-out.dat]
+    variable in  [tcltest::makeFile {} tt-copy-in.dat]
+    variable events {}
+    variable bgerrors {}
+}
+
+# Wait until the variable is set, at most ms milliseconds.
+proc ::tt::wait {varname {ms 5000}} {
+    upvar #0 $varname v
+    if {[info exists v]} {return $v}
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return $v
+}
+
+# Let pending events run (bounded).
+proc ::tt::drain {} {
+    after 50 {set ::tt::drained 1}
+    vwait ::tt::drained
+    unset ::tt::drained
+}
+
+# Callbacks recording their arguments.
+proc ::tt::done {args} {
+    lappend ::tt::events [linsert $args 0 done]
+    set ::tt::fin $args
+}
+proc ::tt::progress {args} {
+    lappend ::tt::events [linsert $args 0 progress]
+}
+
+proc ::tt::reset {} {
+    set ::tt::events {}
+    set ::tt::bgerrors {}
+    unset -nocomplain ::tt::fin
+    variable oldbg [interp bgerror {}]
+    interp bgerror {} ::tt::bgerror
+}
+proc ::tt::bgerror {msg opts} {
+    lappend ::tt::bgerrors $msg
+}
+proc ::tt::restore {} {
+    variable oldbg
+    interp bgerror {} $oldbg
+}
+
+proc ::tt::put {path data} {
+    set c [open $path wb]
+    puts -nonewline $c $data
+    close $c
+}
+proc ::tt::get {path} {
+    set c [open $path rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+set ::tt::data10 0123456789
+set ::tt::data3000 [string repeat 0123456789 300]
+
+# -------------------------------------------------------------------------
+## transfer::copy::options
+
+test transfer-copy-1.0 {options, wrong # args} -body {
+    transfer::copy::options
+} -returnCodes error -result {wrong # args: should be "transfer::copy::options chan alist optv ?defaults?"}
+
+test transfer-copy-1.1 {options, defaults from the channel} -setup {
+    set c [open $::tt::out w]
+    fconfigure $c -buffersize 2048 -translation lf -encoding utf-8
+} -body {
+    transfer::copy::options $c {-command ::tt::done} o
+    list $o(-blocksize) $o(-command) $o(-progress) $o(-size) \
+	$o(-translation) $o(-encoding) [lsort [array names o]]
+} -cleanup {
+    close $c
+    unset c o
+} -result {2048 ::tt::done {} -1 lf utf-8 {-blocking -blocksize -command -encoding -eofchar -progress -size -translation}}
+
+test transfer-copy-1.2 {options, all options} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::options $c {
+	-blocksize 10 -command {cmd a} -progress {prg b} -size 99
+	-encoding iso8859-2 -translation crlf -eofchar x
+    } o
+    list $o(-blocksize) $o(-command) $o(-progress) $o(-size) \
+	$o(-encoding) $o(-translation)
+} -cleanup {
+    close $c
+    unset c o
+} -result {10 {cmd a} {prg b} 99 iso8859-2 crlf}
+
+test transfer-copy-1.3 {options, missing -command} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::options $c {-size 10} o
+} -cleanup {
+    close $c
+    unset -nocomplain c o
+} -returnCodes error -result {Completion callback is missing}
+
+test transfer-copy-1.4 {options, empty -command} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::options $c {-command {}} o
+} -cleanup {
+    close $c
+    unset -nocomplain c o
+} -returnCodes error -result {Completion callback is missing}
+
+test transfer-copy-1.5 {options, unknown option} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::options $c {-bogus 1 -command x} o
+} -cleanup {
+    close $c
+    unset -nocomplain c o
+} -returnCodes error -result {Unknown option "-bogus", expected one of -size, -blocksize, -progress, or -command}
+
+test transfer-copy-1.6 {options, option without value} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::options $c {-command x -size} o
+} -cleanup {
+    close $c
+    unset -nocomplain c o
+} -returnCodes error -result {wrong#args, option "-size"  is without argument}
+
+test transfer-copy-1.7 {options, last value wins} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::options $c {-command x -size 1 -command y -size 2} o
+    list $o(-command) $o(-size)
+} -cleanup {
+    close $c
+    unset c o
+} -result {y 2}
+
+test transfer-copy-1.8 {options, bad channel} -body {
+    transfer::copy::options nosuchchannel {-command x} o
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+# -------------------------------------------------------------------------
+## transfer::copy::do
+
+test transfer-copy-2.0 {do, wrong # args} -body {
+    transfer::copy::do string
+} -returnCodes error -result {wrong # args: should be "transfer::copy::do type in out ?arg ...?"}
+
+test transfer-copy-2.1 {do, unknown type} -body {
+    transfer::copy::do file x y -command z
+} -returnCodes error -result {Unknown type "file", expected chan, or string}
+
+test transfer-copy-2.2 {do, missing -command} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::do string abc $c
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {Completion callback is missing}
+
+test transfer-copy-2.3 {do string} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    set r [transfer::copy::do string $::tt::data10 $c -command ::tt::done]
+    list $r [::tt::wait ::tt::fin]
+} -cleanup {
+    ::tt::drain
+    close $c
+    ::tt::restore
+    unset c r
+} -result {{} 10}
+
+test transfer-copy-2.4 {do chan} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data10
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    set r [transfer::copy::do chan $i $c -command ::tt::done]
+    list $r [::tt::wait ::tt::fin]
+} -cleanup {
+    close $c
+    close $i
+    ::tt::restore
+    unset c i r
+} -result {{} 10}
+
+# -------------------------------------------------------------------------
+## transfer::copy::string, doString
+
+test transfer-copy-3.0 {string, wrong # args} -body {
+    transfer::copy::string x
+} -returnCodes error -result {wrong # args: should be "transfer::copy::string string out ?arg ...?"}
+
+test transfer-copy-3.1 {string, whole string} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    ::tt::drain
+    ::tt::restore
+    unset c r
+} -result {10 0123456789}
+
+test transfer-copy-3.2 {string, in blocks} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data3000 $c -command ::tt::done -blocksize 512
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [expr {[::tt::get $::tt::out] eq $::tt::data3000}]
+} -cleanup {
+    ::tt::drain
+    ::tt::restore
+    unset c r
+} -result {3000 1}
+
+test transfer-copy-3.3 {string, size 0} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done -size 0
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    ::tt::restore
+    unset c r
+} -result {0 {}}
+
+test transfer-copy-3.4 {string, size larger than data} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done -size 11
+    ::tt::wait ::tt::fin
+} -cleanup {
+    close $c
+    ::tt::restore
+    unset c
+} -result {0 {Transfer impossible, not enough data for size}}
+
+test transfer-copy-3.5 {string, negative size transfers all} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done -size -5
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    ::tt::drain
+    ::tt::restore
+    unset c r
+} -result {10 0123456789}
+
+# Data beyond -size is written too: the last block is taken up to the
+# end of the string.
+test transfer-copy-3.6 {string, size smaller than data} -constraints {
+    knownBug
+} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done -size 5 -blocksize 4
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    ::tt::drain
+    ::tt::restore
+    unset c r
+} -result {5 01234}
+
+# After invoking the completion callback the handler does not return and
+# reschedules itself with "end" as integer, giving a background error.
+test transfer-copy-3.7 {string, no background error after completion} -constraints {
+    knownBug
+} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done -blocksize 4
+    ::tt::wait ::tt::fin
+    ::tt::drain
+    set ::tt::bgerrors
+} -cleanup {
+    close $c
+    ::tt::restore
+    unset c
+} -result {}
+
+# The progress callback is given the count before the current block.
+test transfer-copy-3.8 {string, progress callback} -constraints {
+    knownBug
+} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done -blocksize 4 \
+	-progress ::tt::progress
+    ::tt::wait ::tt::fin
+    set ::tt::events
+} -cleanup {
+    ::tt::drain
+    close $c
+    ::tt::restore
+    unset c
+} -result {{progress 4} {progress 8} {progress 10} {done 10}}
+
+test transfer-copy-3.9 {string, output channel settings restored} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+    fconfigure $c -translation lf -encoding utf-8 -buffersize 4096
+} -body {
+    transfer::copy::string "a\nb" $c -command ::tt::done -translation crlf \
+	-encoding iso8859-2 -blocksize 16
+    ::tt::wait ::tt::fin
+    set r [list [fconfigure $c -translation] [fconfigure $c -encoding] \
+	       [fconfigure $c -buffersize]]
+    close $c
+    lappend r [::tt::get $::tt::out]
+} -cleanup {
+    ::tt::drain
+    ::tt::restore
+    unset c r
+} -result [list lf utf-8 4096 "a\r\nb"]
+
+test transfer-copy-3.10 {string, encoding applied during transfer} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+    fconfigure $c -translation binary
+} -body {
+    transfer::copy::string "ąć" $c -command ::tt::done -encoding iso8859-2
+    ::tt::wait ::tt::fin
+    close $c
+    binary scan [::tt::get $::tt::out] cu* r
+    set r
+} -cleanup {
+    ::tt::drain
+    ::tt::restore
+    unset c r
+} -result {177 230}
+
+test transfer-copy-3.11 {string, channel not writable} -setup {
+    ::tt::reset
+    set c [open $::tt::out r]
+} -body {
+    transfer::copy::string $::tt::data10 $c -command ::tt::done
+} -cleanup {
+    close $c
+    ::tt::restore
+    unset c
+} -returnCodes error -result {channel is not writable}
+
+test transfer-copy-3.12 {string, callback is a command prefix} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string abc $c -command {::tt::done x y}
+    ::tt::wait ::tt::fin
+} -cleanup {
+    ::tt::drain
+    close $c
+    ::tt::restore
+    unset c
+} -result {x y 3}
+
+test transfer-copy-3.13 {doString, options from array} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+    transfer::copy::options $c {-command ::tt::done} o
+} -body {
+    transfer::copy::doString abcdef $c o
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    ::tt::drain
+    ::tt::restore
+    unset c r o
+} -result {6 abcdef}
+
+test transfer-copy-3.14 {doString, wrong # args} -body {
+    transfer::copy::doString a b
+} -returnCodes error -result {wrong # args: should be "transfer::copy::doString str out ov"}
+
+test transfer-copy-3.15 {string, empty string} -setup {
+    ::tt::reset
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::string {} $c -command ::tt::done
+    ::tt::wait ::tt::fin
+} -cleanup {
+    close $c
+    ::tt::restore
+    unset c
+} -result 0
+
+# -------------------------------------------------------------------------
+## transfer::copy::chan, doChan
+
+test transfer-copy-4.0 {chan, wrong # args} -body {
+    transfer::copy::chan x
+} -returnCodes error -result {wrong # args: should be "transfer::copy::chan in out ?arg ...?"}
+
+test transfer-copy-4.1 {chan, everything} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data3000
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -blocksize 1024
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [expr {[::tt::get $::tt::out] eq $::tt::data3000}]
+} -cleanup {
+    close $i
+    ::tt::restore
+    unset c i r
+} -result {3000 1}
+
+test transfer-copy-4.2 {chan, size} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data10
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -size 4
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out] [read $i]
+} -cleanup {
+    close $i
+    ::tt::restore
+    unset c i r
+} -result {4 0123 456789}
+
+test transfer-copy-4.3 {chan, size over several blocks} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data3000
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -size 2500 -blocksize 1000 \
+	-progress ::tt::progress
+    ::tt::wait ::tt::fin
+    close $c
+    list $::tt::events [file size $::tt::out]
+} -cleanup {
+    close $i
+    ::tt::restore
+    unset c i
+} -match glob -output * -result {{{progress 1000} {progress 2000} {progress 2500} {done 2500}} 2500}
+
+# A debugging [puts] is left in the handler for sized transfers.
+test transfer-copy-4.4 {chan, size over several blocks, no output} -constraints {
+    knownBug
+} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data3000
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -size 2500 -blocksize 1000
+    ::tt::wait ::tt::fin
+} -cleanup {
+    close $c
+    close $i
+    ::tt::restore
+    unset c i
+} -output {} -result 2500
+
+test transfer-copy-4.5 {chan, size 0} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data10
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -size 0
+    ::tt::wait ::tt::fin
+} -cleanup {
+    close $c
+    close $i
+    ::tt::restore
+    unset c i
+} -result 0
+
+test transfer-copy-4.6 {chan, not enough input} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data10
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -size 20
+    ::tt::wait ::tt::fin
+} -cleanup {
+    close $c
+    close $i
+    ::tt::restore
+    unset c i
+} -result {10 {Transfer aborted, not enough input}}
+
+test transfer-copy-4.7 {chan, progress, unsized} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data3000
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -blocksize 1000 \
+	-progress ::tt::progress
+    ::tt::wait ::tt::fin
+    set ::tt::events
+} -cleanup {
+    close $c
+    close $i
+    ::tt::restore
+    unset c i
+} -result {{progress 1000} {progress 2000} {progress 3000} {progress 3000} {done 3000}}
+
+test transfer-copy-4.8 {chan, output settings restored} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in "a\nb"
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+    fconfigure $c -translation lf -buffersize 4096
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done -translation crlf -blocksize 2
+    ::tt::wait ::tt::fin
+    set r [list [fconfigure $c -translation] [fconfigure $c -buffersize]]
+    close $c
+    lappend r [::tt::get $::tt::out]
+} -cleanup {
+    close $i
+    ::tt::restore
+    unset c i r
+} -result [list lf 4096 "a\r\nb"]
+
+test transfer-copy-4.9 {doChan, options from array} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in $::tt::data10
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+    transfer::copy::options $c {-command ::tt::done -size 3} o
+} -body {
+    transfer::copy::doChan $i $c o
+    set r [::tt::wait ::tt::fin]
+    close $c
+    list $r [::tt::get $::tt::out]
+} -cleanup {
+    close $i
+    ::tt::restore
+    unset c i r o
+} -result {3 012}
+
+test transfer-copy-4.10 {doChan, wrong # args} -body {
+    transfer::copy::doChan a b
+} -returnCodes error -result {wrong # args: should be "transfer::copy::doChan in out ov"}
+
+test transfer-copy-4.11 {chan, empty input} -setup {
+    ::tt::reset
+    ::tt::put $::tt::in {}
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::chan $i $c -command ::tt::done
+    ::tt::wait ::tt::fin
+} -cleanup {
+    close $c
+    close $i
+    ::tt::restore
+    unset c i
+} -result 0
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile tt-copy-out.dat
+tcltest::removeFile tt-copy-in.dat
+namespace delete ::tt
+testsuiteCleanup
+return

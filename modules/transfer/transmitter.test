@@ -1,0 +1,455 @@
+# -*- tcl -*-
+# transmitter.test:  Tests for the transfer::transmitter package.
+#
+# All connections are made over 127.0.0.1.  Passive objects get a
+# -socketcmd which binds their listening socket to 127.0.0.1.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+    useLocal copyops.tcl transfer::copy
+    useLocal connect.tcl transfer::connect
+    useLocal dsource.tcl transfer::data::source
+}
+testing {
+    useLocal transmitter.tcl transfer::transmitter
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::tt {
+    variable file [tcltest::makeFile {} tt-transmitter.dat]
+    variable bgerrors {}
+}
+
+# Wait until the variable is set, at most ms milliseconds.
+proc ::tt::wait {varname {ms 5000}} {
+    upvar #0 $varname v
+    if {[info exists v]} {return $v}
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return $v
+}
+proc ::tt::drain {} {
+    after 50 {set ::tt::drained 1}
+    vwait ::tt::drained
+    unset ::tt::drained
+}
+proc ::tt::done {args} {
+    set ::tt::fin $args
+}
+proc ::tt::put {path data} {
+    set c [open $path wb]
+    puts -nonewline $c $data
+    close $c
+}
+proc ::tt::get {path} {
+    set c [open $path rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+proc ::tt::port {sock} {
+    lindex [fconfigure $sock -sockname] 2
+}
+
+# Socket command for -socketcmd: binds servers to 127.0.0.1.
+proc ::tt::socket {args} {
+    if {[lindex $args 0] eq "-server"} {
+	return [::socket -server [lindex $args 1] -myaddr 127.0.0.1 {*}[lrange $args 2 end]]
+    }
+    return [::socket {*}$args]
+}
+
+# Start/stop of a transfer test: reset results, catch background errors.
+proc ::tt::begin {} {
+    unset -nocomplain ::tt::fin ::tt::got
+    set ::tt::bgerrors {}
+    variable oldbg [interp bgerror {}]
+    interp bgerror {} [list apply {{m o} {lappend ::tt::bgerrors $m}}]
+}
+proc ::tt::end {} {
+    variable oldbg
+    ::tt::drain
+    interp bgerror {} $oldbg
+}
+
+# A local server collecting everything sent to it into ::tt::got.
+proc ::tt::collector {} {
+    ::socket -server [list apply {{c a p} {
+	fconfigure $c -translation binary -blocking 0
+	set ::tt::buf {}
+	fileevent $c readable [list apply {{c} {
+	    append ::tt::buf [read $c]
+	    if {[eof $c]} {
+		close $c
+		set ::tt::got $::tt::buf
+	    }
+	}} $c]
+    }}] -myaddr 127.0.0.1 0
+}
+
+# Read everything from a socket into ::tt::got.
+proc ::tt::collect {s} {
+    fconfigure $s -translation binary -blocking 0
+    set ::tt::buf {}
+    fileevent $s readable [list apply {{c} {
+	append ::tt::buf [read $c]
+	if {[eof $c]} {
+	    close $c
+	    set ::tt::got $::tt::buf
+	}
+    }} $s]
+}
+
+# -------------------------------------------------------------------------
+## Creation, configuration
+
+test transfer-transmitter-1.0 {create, returns the object command} -body {
+    transfer::transmitter t
+} -cleanup {
+    t destroy
+} -result ::t
+
+test transfer-transmitter-1.1 {create in a namespace} -setup {
+    namespace eval ::tt::x {}
+} -body {
+    namespace eval ::tt::x {transfer::transmitter t}
+} -cleanup {
+    ::tt::x::t destroy
+    namespace delete ::tt::x
+} -result ::tt::x::t
+
+test transfer-transmitter-1.2 {options and defaults} -setup {
+    transfer::transmitter t
+} -body {
+    set r {}
+    foreach o {
+	-blocksize -command -string -channel -file -variable -size -progress
+	-host -port -mode -socketcmd -translation -encoding -eofchar
+    } {
+	lappend r [t cget $o]
+    }
+    set r
+} -cleanup {
+    t destroy
+    unset r o
+} -result {1024 {} {} {} {} {} -1 {} localhost 0 active ::socket {} {} {}}
+
+test transfer-transmitter-1.3 {bad blocksize} -body {
+    transfer::transmitter t -blocksize 0
+} -returnCodes error -result {Error in constructor: invalid -blocksize value: invalid value "0", expected integer no less than 1}
+
+test transfer-transmitter-1.4 {bad mode} -body {
+    transfer::transmitter t -mode bogus
+} -returnCodes error -result {Error in constructor: invalid -mode value: invalid value "bogus", should be one of: active, passive}
+
+test transfer-transmitter-1.5 {bad channel} -body {
+    transfer::transmitter t -channel nosuchchannel
+} -returnCodes error -result {Error in constructor: Bad channel handle "nosuchchannel", does not exist}
+
+test transfer-transmitter-1.6 {unknown option} -body {
+    transfer::transmitter t -bogus 1
+} -returnCodes error -result {Error in constructor: unknown option "-bogus"}
+
+test transfer-transmitter-1.7 {busy, initially} -setup {
+    transfer::transmitter t
+} -body {
+    t busy
+} -cleanup {
+    t destroy
+} -result 0
+
+test transfer-transmitter-1.8 {destroy} -setup {
+    transfer::transmitter t
+} -body {
+    t destroy
+    info commands ::t
+} -result {}
+
+# -------------------------------------------------------------------------
+## start errors
+
+test transfer-transmitter-2.0 {start, no data source} -setup {
+    transfer::transmitter t -command ::tt::done
+} -body {
+    t start
+} -cleanup {
+    t destroy
+} -returnCodes error -result {Data source is undefined}
+
+test transfer-transmitter-2.1 {start, not enough data} -setup {
+    transfer::transmitter t -command ::tt::done -string abc -size 4
+} -body {
+    t start
+} -cleanup {
+    t destroy
+} -returnCodes error -result {Not enough data to transmit}
+
+test transfer-transmitter-2.2 {start, no completion callback} -setup {
+    transfer::transmitter t -string abc
+} -body {
+    t start
+} -cleanup {
+    t destroy
+} -returnCodes error -result {Completion callback is missing}
+
+test transfer-transmitter-2.3 {start, busy} -setup {
+    ::tt::begin
+    set srv [::tt::collector]
+    transfer::transmitter t -string abc -host 127.0.0.1 -port [::tt::port $srv] \
+	-command ::tt::done
+    t start
+} -body {
+    t start
+} -cleanup {
+    ::tt::wait ::tt::fin
+    ::tt::end
+    t destroy
+    close $srv
+    unset srv
+} -returnCodes error -result {Object is busy}
+
+# start sets the busy flag before connecting; when the connection fails the
+# object stays busy and cannot be started again.
+test transfer-transmitter-2.4 {start, connection refused, not busy} -setup {
+    set s [::socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set p [::tt::port $s]
+    close $s
+    transfer::transmitter t -string abc -host 127.0.0.1 -port $p -command ::tt::done
+} -body {
+    list [catch {t start}] [t busy]
+} -cleanup {
+    t destroy
+    unset s p
+} -constraints knownBug -result {1 0}
+
+# -------------------------------------------------------------------------
+## Transmission
+
+test transfer-transmitter-3.0 {active, string} -setup {
+    ::tt::begin
+    set srv [::tt::collector]
+    transfer::transmitter t -string "Hello World" -host 127.0.0.1 \
+	-port [::tt::port $srv] -command ::tt::done
+} -body {
+    set r [list [t start] [t busy]]
+    lappend r [::tt::wait ::tt::got] [::tt::wait ::tt::fin] [t busy]
+} -cleanup {
+    ::tt::end
+    t destroy
+    close $srv
+    unset srv r
+} -result {{} 1 {Hello World} {::t 11} 0}
+
+test transfer-transmitter-3.1 {active, channel, blocksize, progress} -setup {
+    ::tt::begin
+    set ::tt::events {}
+    ::tt::put $::tt::file [string repeat abcd 1000]
+    set ch [open $::tt::file rb]
+    set srv [::tt::collector]
+    transfer::transmitter t -channel $ch -host 127.0.0.1 -port [::tt::port $srv] \
+	-blocksize 1500 -progress {lappend ::tt::events} -command ::tt::done
+} -body {
+    t start
+    list [expr {[::tt::wait ::tt::got] eq [string repeat abcd 1000]}] \
+	[::tt::wait ::tt::fin] $::tt::events [expr {$ch in [file channels]}]
+} -cleanup {
+    ::tt::end
+    t destroy
+    close $ch
+    close $srv
+    unset srv ch ::tt::events
+} -result {1 {::t 4000} {1500 3000 4000} 1}
+
+test transfer-transmitter-3.2 {active, file} -setup {
+    ::tt::begin
+    ::tt::put $::tt::file "File data"
+    set srv [::tt::collector]
+    set before [file channels]
+    transfer::transmitter t -file $::tt::file -host 127.0.0.1 \
+	-port [::tt::port $srv] -command ::tt::done
+} -body {
+    t start
+    list [::tt::wait ::tt::got] [::tt::wait ::tt::fin]
+} -cleanup {
+    ::tt::end
+    t destroy
+    foreach c [file channels] {if {$c ni $before} {close $c}}
+    close $srv
+    unset srv before c
+} -result {{File data} {::t 9}}
+
+test transfer-transmitter-3.3 {active, channel with size} -setup {
+    ::tt::begin
+    ::tt::put $::tt::file "Hello World"
+    set ch [open $::tt::file rb]
+    set srv [::tt::collector]
+    transfer::transmitter t -channel $ch -size 5 -host 127.0.0.1 \
+	-port [::tt::port $srv] -command ::tt::done
+} -body {
+    t start
+    list [::tt::wait ::tt::got] [::tt::wait ::tt::fin]
+} -cleanup {
+    ::tt::end
+    t destroy
+    close $ch
+    close $srv
+    unset srv ch
+} -result {Hello {::t 5}}
+
+test transfer-transmitter-3.4 {passive, string} -setup {
+    ::tt::begin
+    transfer::transmitter t -string "Hello World" -mode passive \
+	-socketcmd ::tt::socket -command ::tt::done
+} -body {
+    set p [t start]
+    ::tt::collect [::socket 127.0.0.1 $p]
+    list [string is integer -strict $p] [::tt::wait ::tt::got] [::tt::wait ::tt::fin]
+} -cleanup {
+    ::tt::end
+    t destroy
+    unset p
+} -result {1 {Hello World} {::t 11}}
+
+test transfer-transmitter-3.5 {sequential transmissions with one object} -setup {
+    ::tt::begin
+    set srv [::tt::collector]
+    transfer::transmitter t -string "first" -host 127.0.0.1 \
+	-port [::tt::port $srv] -command ::tt::done
+} -body {
+    t start
+    set r [list [::tt::wait ::tt::got] [::tt::wait ::tt::fin]]
+    ::tt::drain
+    unset ::tt::got ::tt::fin
+    t configure -string "second"
+    t start
+    lappend r [::tt::wait ::tt::got] [::tt::wait ::tt::fin]
+} -cleanup {
+    ::tt::end
+    t destroy
+    close $srv
+    unset srv r
+} -result {first {::t 5} second {::t 6}}
+
+test transfer-transmitter-3.6 {completion callback is a command prefix} -setup {
+    ::tt::begin
+    set srv [::tt::collector]
+    transfer::transmitter t -string "abc" -host 127.0.0.1 \
+	-port [::tt::port $srv] -command {::tt::done X}
+} -body {
+    t start
+    ::tt::wait ::tt::fin
+} -cleanup {
+    ::tt::end
+    t destroy
+    close $srv
+    unset srv
+} -result {X ::t 3}
+
+# -------------------------------------------------------------------------
+## stream channel, stream file
+
+test transfer-transmitter-4.0 {stream channel, active, channel closed} -setup {
+    ::tt::begin
+    ::tt::put $::tt::file "Stream data"
+    set ch [open $::tt::file r]
+    set srv [::tt::collector]
+} -body {
+    set r [list [transfer::transmitter stream channel $ch 127.0.0.1 [::tt::port $srv] \
+		     -command ::tt::done]]
+    lappend r [::tt::wait ::tt::got] [::tt::wait ::tt::fin]
+    ::tt::drain
+    lappend r [expr {$ch in [file channels]}]
+} -cleanup {
+    ::tt::end
+    close $srv
+    unset srv ch r
+} -result {{} {Stream data} {11 {}} 0}
+
+# The channel given to "stream channel" is not configured for binary
+# translation and encoding (only the socket is), contrary to the docs.
+test transfer-transmitter-4.1 {stream channel, binary, from seek location} -constraints knownBug -setup {
+    ::tt::begin
+    set data [binary format c* {0 1 2 13 10 255 128 26 65}]
+    ::tt::put $::tt::file "skip$data"
+    set ch [open $::tt::file r]
+    seek $ch 4
+    set srv [::tt::collector]
+} -body {
+    transfer::transmitter stream channel $ch 127.0.0.1 [::tt::port $srv] \
+	-command ::tt::done
+    list [expr {[::tt::wait ::tt::got] eq $data}] [::tt::wait ::tt::fin]
+} -cleanup {
+    ::tt::end
+    close $srv
+    unset srv ch data
+} -result {1 {9 {}}}
+
+test transfer-transmitter-4.2 {stream channel, passive} -setup {
+    ::tt::begin
+    ::tt::put $::tt::file "Passive data"
+    set ch [open $::tt::file r]
+} -body {
+    set p [transfer::transmitter stream channel $ch {} 0 \
+	       -socketcmd ::tt::socket -command ::tt::done]
+    ::tt::collect [::socket 127.0.0.1 $p]
+    list [string is integer -strict $p] [::tt::wait ::tt::got] [::tt::wait ::tt::fin]
+} -cleanup {
+    ::tt::end
+    unset ch p
+} -result {1 {Passive data} {12 {}}}
+
+test transfer-transmitter-4.3 {stream file} -setup {
+    ::tt::begin
+    ::tt::put $::tt::file "File stream"
+    set srv [::tt::collector]
+    set before [file channels]
+} -body {
+    transfer::transmitter stream file $::tt::file 127.0.0.1 [::tt::port $srv] \
+	-command ::tt::done
+    set r [list [::tt::wait ::tt::got] [::tt::wait ::tt::fin]]
+    ::tt::drain
+    lappend r [expr {[file channels] eq $before}]
+} -cleanup {
+    ::tt::end
+    close $srv
+    unset srv r before
+} -result {{File stream} {11 {}} 1}
+
+test transfer-transmitter-4.4 {stream channel, no callback} -setup {
+    ::tt::begin
+    ::tt::put $::tt::file "No callback"
+    set ch [open $::tt::file r]
+    set srv [::tt::collector]
+} -body {
+    transfer::transmitter stream channel $ch 127.0.0.1 [::tt::port $srv]
+    set r [list [::tt::wait ::tt::got]]
+    ::tt::drain
+    lappend r [expr {$ch in [file channels]}]
+} -cleanup {
+    ::tt::end
+    close $srv
+    unset srv ch r
+} -result {{No callback} 0}
+
+test transfer-transmitter-4.5 {stream channel, wrong # args} -body {
+    transfer::transmitter stream channel a b
+} -returnCodes error -match glob -result {wrong # args: should be *}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile tt-transmitter.dat
+namespace delete ::tt
+testsuiteCleanup
+return

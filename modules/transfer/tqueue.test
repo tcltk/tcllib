@@ -1,0 +1,228 @@
+# -*- tcl -*-
+# tqueue.test:  Tests for the transfer::copy::queue package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl    snit
+    use struct/queue.tcl struct::queue
+    useLocal copyops.tcl transfer::copy
+}
+testing {
+    useLocal tqueue.tcl transfer::copy::queue
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::tt {
+    variable out [tcltest::makeFile {} tt-queue-out.dat]
+    variable in  [tcltest::makeFile {} tt-queue-in.dat]
+    variable events {}
+}
+
+proc ::tt::wait {varname {ms 5000}} {
+    upvar #0 $varname v
+    if {[info exists v]} {return $v}
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return $v
+}
+proc ::tt::record {args} {
+    lappend ::tt::events $args
+}
+proc ::tt::put {path data} {
+    set c [open $path wb]
+    puts -nonewline $c $data
+    close $c
+}
+proc ::tt::get {path} {
+    set c [open $path rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# The constructor checks the instance variable holding the channel before
+# it is set, i.e. it always runs [file channels ""] and fails with
+# 'Channel "" does not exist'.  No queue object can be created, so all
+# tests below which need one are knownBug.
+
+# -------------------------------------------------------------------------
+
+test transfer-queue-1.0 {create, wrong # args} -body {
+    transfer::copy::queue q
+} -returnCodes error -result {Error in constructor: wrong # args: should be "::transfer::copy::queue::Snit_constructor type selfns win self thechan ?arg ...?"}
+
+test transfer-queue-1.1 {create, returns the object command} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::queue q $c
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset c
+} -result ::q
+
+test transfer-queue-1.2 {create, channel does not exist} -constraints {
+    knownBug
+} -body {
+    transfer::copy::queue q nosuchchannel
+} -returnCodes error -result {Error in constructor: Channel "nosuchchannel" does not exist}
+
+test transfer-queue-1.3 {create, -on-status-change} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::queue q $c -on-status-change ::tt::record
+    q cget -on-status-change
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset c
+} -result ::tt::record
+
+test transfer-queue-1.4 {initial state} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::out w]
+} -body {
+    transfer::copy::queue q $c
+    list [q busy] [q pending]
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset c
+} -result {0 0}
+
+test transfer-queue-2.0 {put, request too short} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::out w]
+    transfer::copy::queue q $c
+} -body {
+    q put string
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset c
+} -returnCodes error -result {Bad request: Not enough elements}
+
+test transfer-queue-2.1 {put, unknown type} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::out w]
+    transfer::copy::queue q $c
+} -body {
+    q put {file x -command y}
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset c
+} -returnCodes error -result {Bad request: Unknown type "file", expected chan, or string}
+
+test transfer-queue-2.2 {put, bad options} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::out w]
+    transfer::copy::queue q $c
+} -body {
+    q put {string abc}
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset c
+} -returnCodes error -result {Bad request: Completion callback is missing}
+
+test transfer-queue-2.3 {put, string request served} -constraints {
+    knownBug
+} -setup {
+    set ::tt::events {}
+    set c [open $::tt::out w]
+    transfer::copy::queue q $c
+} -body {
+    q put {string abcdef -command {::tt::record done}}
+    after 5000 {set ::tt::timeout 1}
+    while {![llength $::tt::events] && ![info exists ::tt::timeout]} {
+	vwait ::tt::events
+    }
+    close $c
+    list $::tt::events [::tt::get $::tt::out]
+} -cleanup {
+    catch {q destroy}
+    unset -nocomplain c ::tt::timeout
+} -result {{{done 6}} abcdef}
+
+test transfer-queue-2.4 {put, requests served in order} -constraints {
+    knownBug
+} -setup {
+    set ::tt::events {}
+    ::tt::put $::tt::in XYZ
+    set i [open $::tt::in r]
+    set c [open $::tt::out w]
+    transfer::copy::queue q $c
+} -body {
+    q put {string abc -command {::tt::record done 1}}
+    q put [list chan $i -command {::tt::record done 2}]
+    q put {string def -command {::tt::record done 3}}
+    after 5000 {set ::tt::timeout 1}
+    while {[llength $::tt::events] < 3 && ![info exists ::tt::timeout]} {
+	vwait ::tt::events
+    }
+    close $c
+    list $::tt::events [::tt::get $::tt::out] [q busy] [q pending]
+} -cleanup {
+    catch {q destroy}
+    close $i
+    unset -nocomplain c i ::tt::timeout
+} -result {{{done 1 3} {done 2 3} {done 3 3}} abcXYZdef 0 0}
+
+test transfer-queue-2.5 {pending and busy while serving} -constraints {
+    knownBug
+} -setup {
+    set c [open $::tt::out w]
+    transfer::copy::queue q $c
+} -body {
+    q put {string abc -command {::tt::record done}}
+    q put {string def -command {::tt::record done}}
+    list [q pending] [q busy]
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset c
+} -result {2 0}
+
+test transfer-queue-2.6 {-on-status-change gets pending and busy} -constraints {
+    knownBug
+} -setup {
+    set ::tt::events {}
+    set c [open $::tt::out w]
+    transfer::copy::queue q $c -on-status-change {::tt::record status}
+} -body {
+    q put {string abc -command {set ::tt::fin}}
+    ::tt::wait ::tt::fin
+    set ::tt::events
+} -cleanup {
+    catch {q destroy}
+    close $c
+    unset -nocomplain c ::tt::fin
+} -result {{status 1 0} {status 0 1} {status 0 0}}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile tt-queue-out.dat
+tcltest::removeFile tt-queue-in.dat
+namespace delete ::tt
+testsuiteCleanup
+return
