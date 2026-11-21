@@ -25,8 +25,7 @@ is not maintained by this module's conversion. Furthermore, JSON
 [uri https://core.tcl-lang.org/tcllib/tktview/2aa0cebb88 ticket]).
 The [package json] package returns
 data either as a Tcl [type dict] or a [type list] which itself may
-contain nested [type dict]s or [type list]s. (Either the [package dict]
-package or Tcl 8.5 or later is required for use.)
+contain nested [type dict]s or [type list]s.
 
 [para]
 For an alternative Tcl-only type-preserving implementation, see the
@@ -43,6 +42,15 @@ Returns a [type dict] or [type list] (which itself may
 contain nested [type dict]s and/or [type list]s) which is the result of
 parsing the JSON formatted text passed in [arg json_txt].
 
+[para] A JSON object is returned as a [type dict], a JSON array as a
+[type list], and a string as its unquoted value. Numbers and the
+literals [const true], [const false] and [const null] are returned as
+written. Because the result does not record which of these it was, the
+caller must know the structure of the JSON text to interpret the
+result. For example, [const {["a","b"]}] and [const {{"a":"b"}}] both
+give [const {a b}], and [const {"1234"}] and [const 1234] both give
+[const 1234].
+
 [para] If [arg json_txt] contains more than one JSON entity only the
 first one is returned.
 
@@ -56,7 +64,8 @@ the JSON formatted text passed in [arg json_txt].
 
 [para]
 If [arg max] is specified it must be a positive integer [const {> 0}] or
-the command will throw and error.
+the command will throw an error. An error is also thrown if
+[arg json_txt] contains fewer than [arg max] entities.
 
 [list_end]
 [para] If the JSON formatted text contains nested lists and dicts then
@@ -94,7 +103,7 @@ single item with multiple elements.
     }
 ]
 =>
-{Country US Latitude 37.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122.3959} {Country US Latitude 37.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122.026020}
+{precision zip Latitude 37.7668 Longitude -122.3959 Address {} City {SAN FRANCISCO} State CA Zip 94107 Country US} {precision zip Latitude 37.371991 Longitude -122.026020 Address {} City SUNNYVALE State CA Zip 94085 Country US}
 }]
 
 [para]
@@ -151,7 +160,7 @@ multi-element list (a dict).
     }
 }
 =>
-Image {IDs {116 943 234 38793} Thumbnail {Width 100 Height 125 Url http://www.example.com/image/481989943} Width 800 Height 600 Title {View from 15th Floor}}
+Image {Width 800 Height 600 Title {View from 15th Floor} Thumbnail {Url http://www.example.com/image/481989943 Height 125 Width 100} IDs {116 943 234 38793}}
 }]
 
 [section RELATED]
