@@ -1,0 +1,210 @@
+# -*- tcl -*-
+# me_tcl-api.test:  Tests for the documented API of package grammar::me::tcl
+# (supplements me_tcl.test: the ensemble-like command and the
+# accessor methods).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal me_tcl.tcl grammar::me::tcl
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+proc next_count {} {
+    global count
+    incr count
+    if {$count > 3} {return {}}
+    return [list T$count L$count [expr {$count + 10}] [expr {$count * 2}]]
+}
+
+proc read_tokens {n} {
+    set ::count 0
+    grammar::me::tcl init next_count
+    for {set i 0} {$i < $n} {incr i} {
+	grammar::me::tcl::ict_advance "Expected token"
+    }
+    return
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Method dispatch through ::grammar::me::tcl
+
+test me-tcl-api-cmd-1.0 {dispatch, no method} -body {
+    grammar::me::tcl
+} -returnCodes error -result {wrong # args: should be "grammar::me::tcl cmd ?arg ...?"}
+
+test me-tcl-api-cmd-2.0 {dispatch to init} -body {
+    list [grammar::me::tcl init mynext {a 0 b 1}] \
+	[grammar::me::tcl next] [lsort -stride 2 [grammar::me::tcl ord]]
+} -result {{} mynext {a 0 b 1}}
+
+test me-tcl-api-cmd-2.1 {dispatch passes argument errors through} -body {
+    grammar::me::tcl init
+} -returnCodes error -result {wrong # args: should be "::grammar::me::tcl::init nxcmd ?tokmap?"}
+
+set n 0
+foreach m {tokens sv ast astall ctok nc next ord} {
+    test me-tcl-api-cmd-3.$n "$m, wrong # args" -body {
+	grammar::me::tcl $m X
+    } -returnCodes error -result "wrong # args: should be \"::grammar::me::tcl::$m\""
+    incr n
+}
+unset n m
+
+#- - -- --- ----- -------- ------------- ---------------------
+## lc
+
+test me-tcl-api-lc-1.0 {lc, wrong # args} -body {
+    grammar::me::tcl lc
+} -returnCodes error -result {wrong # args: should be "::grammar::me::tcl::lc pos"}
+
+test me-tcl-api-lc-2.0 {lc converts offsets of read tokens} -setup {
+    read_tokens 3
+} -body {
+    list [grammar::me::tcl lc 0] [grammar::me::tcl lc 1] [grammar::me::tcl lc 2]
+} -cleanup {
+    unset ::count
+} -result {{11 2} {12 4} {13 6}}
+
+test me-tcl-api-lc-2.1 {lc after init: state cleared} -setup {
+    read_tokens 2
+} -body {
+    grammar::me::tcl init next_count
+    grammar::me::tcl lc 0
+} -cleanup {
+    unset ::count
+} -result {}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## tok, tokens
+
+test me-tcl-api-tok-1.0 {tok, wrong # args} -body {
+    grammar::me::tcl tok
+} -returnCodes error -result {wrong # args: should be "::grammar::me::tcl::tok from ?to?"}
+
+test me-tcl-api-tok-1.1 {tok, wrong # args} -body {
+    grammar::me::tcl tok 0 1 2
+} -returnCodes error -result {wrong # args: should be "::grammar::me::tcl::tok from ?to?"}
+
+test me-tcl-api-tok-2.0 {tok with one location} -setup {
+    read_tokens 3
+} -body {
+    grammar::me::tcl tok 1
+} -cleanup {
+    unset ::count
+} -result {{T2 L2 12 4}}
+
+test me-tcl-api-tok-2.1 {tok with a range, both inclusive} -setup {
+    read_tokens 3
+} -body {
+    grammar::me::tcl tok 0 1
+} -cleanup {
+    unset ::count
+} -result {{T1 L1 11 2} {T2 L2 12 4}}
+
+test me-tcl-api-tok-2.2 {tokens counts the tokens read} -setup {
+    set ::count 0
+    grammar::me::tcl init next_count
+} -body {
+    set r [grammar::me::tcl tokens]
+    grammar::me::tcl::ict_advance "Expected token"
+    lappend r [grammar::me::tcl tokens]
+    grammar::me::tcl::ict_advance "Expected token"
+    lappend r [grammar::me::tcl tokens]
+} -cleanup {
+    unset ::count r
+} -result {0 1 2}
+
+test me-tcl-api-tok-2.3 {tokens does not count the end of input} -setup {
+    read_tokens 5
+} -body {
+    list [grammar::me::tcl tokens] $::grammar::me::tcl::ok
+} -cleanup {
+    unset ::count
+} -result {3 0}
+
+test me-tcl-api-tok-2.4 {rewinding keeps the token cache} -setup {
+    read_tokens 3
+} -body {
+    grammar::me::tcl::icl_rewind 0
+    list [grammar::me::tcl tokens] [grammar::me::tcl tok 2]
+} -cleanup {
+    unset ::count
+} -result {3 {{T3 L3 13 6}}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## ctok, sv, ast, astall, ok
+
+test me-tcl-api-ctok-2.0 {ctok is the current token} -setup {
+    read_tokens 2
+} -body {
+    grammar::me::tcl ctok
+} -cleanup {
+    unset ::count
+} -result T2
+
+test me-tcl-api-sv-2.0 {sv after isv_terminal} -setup {
+    read_tokens 2
+} -body {
+    grammar::me::tcl::isv_terminal
+    grammar::me::tcl sv
+} -cleanup {
+    unset ::count
+} -result {{} 1 1}
+
+test me-tcl-api-ast-2.0 {ast on an empty stack} -setup {
+    grammar::me::tcl init next_count
+} -body {
+    list [grammar::me::tcl ast] [grammar::me::tcl astall]
+} -result {{} {}}
+
+test me-tcl-api-ast-2.1 {ast is the top of the AST stack} -setup {
+    read_tokens 1
+} -body {
+    # isv_terminal pushes the new terminal node on the AST stack.
+    grammar::me::tcl::isv_terminal
+    grammar::me::tcl::ict_advance "Expected token"
+    grammar::me::tcl::isv_terminal
+    list [grammar::me::tcl ast] [grammar::me::tcl astall]
+} -cleanup {
+    unset ::count
+} -result {{{} 1 1} {{{} 0 0} {{} 1 1}}}
+
+test me-tcl-api-ok-2.0 {ok variable follows the match status} -setup {
+    grammar::me::tcl init next_count
+} -body {
+    set r $::grammar::me::tcl::ok
+    grammar::me::tcl::iok_ok
+    lappend r $::grammar::me::tcl::ok
+    grammar::me::tcl::iok_negate
+    lappend r $::grammar::me::tcl::ok
+} -cleanup {
+    unset r
+} -result {0 1 0}
+
+test me-tcl-api-nc-2.0 {nc is a dictionary of saved match information} -setup {
+    read_tokens 1
+} -body {
+    # NOTE: The documentation says the keys are "symbol,location", the
+    # implementation (and me_tcl.test) use "location,symbol". Only the
+    # values are checked here.
+    grammar::me::tcl::iok_ok
+    grammar::me::tcl::inc_save sym 0
+    set nc [grammar::me::tcl nc]
+    list [dict size $nc] [lindex $nc 1]
+} -cleanup {
+    unset ::count nc
+} -result {1 {0 1 {} {}}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename next_count {}
+rename read_tokens {}
+testsuiteCleanup
+return

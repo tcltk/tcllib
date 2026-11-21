@@ -1,0 +1,282 @@
+# -*- tcl -*-
+# me_cpu-api.test:  Tests for the documented API of packages
+# grammar::me::cpu and grammar::me::cpu::core
+# (supplements me_cpu.test and me_cpucore.test).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use          snit/snit.tcl         snit
+    useLocal     me_cpucore.tcl        grammar::me::cpu::core
+}
+testing {
+    useLocalKeep me_cpu.tcl            grammar::me::cpu
+}
+
+snitErrors
+
+#- - -- --- ----- -------- ------------- ---------------------
+## A small match program: two tokens, each turned into a terminal AST
+## node and pushed on the AST stack, then halt.
+
+set code [grammar::me::cpu::core::asm {
+    {{} ict_advance {Expected token}}
+    {{} isv_terminal}
+    {{} ias_push}
+    {{} ict_advance {Expected token}}
+    {{} isv_terminal}
+    {{} ias_push}
+    {{} icf_halt}
+}]
+
+proc tokens {args} {
+    set ::tokens $args
+    return
+}
+proc nexttoken {} {
+    lappend ::calls [info level]
+    set t [lindex $::tokens 0]
+    set ::tokens [lrange $::tokens 1 end]
+    return $t
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## grammar::me::cpu::core accessors not covered elsewhere
+
+test me-cpucore-api-ast-1.0 {core ast, wrong # args} -body {
+    grammar::me::cpu::core::ast
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::core::ast state"}
+
+test me-cpucore-api-ast-1.1 {core ast, wrong # args} -body {
+    grammar::me::cpu::core::ast a b
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::core::ast state"}
+
+test me-cpucore-api-ast-2.0 {core ast, initial state: empty} -body {
+    grammar::me::cpu::core::ast [grammar::me::cpu::core::new $code]
+} -result {}
+
+test me-cpucore-api-ast-2.1 {core ast, top of the AST stack} -setup {
+    set s [grammar::me::cpu::core::new $code]
+    grammar::me::cpu::core::put s A a 1 0
+    grammar::me::cpu::core::put s B b 1 1
+} -body {
+    grammar::me::cpu::core::run s
+    list [grammar::me::cpu::core::ast $s] \
+	[expr {[grammar::me::cpu::core::ast $s] eq [lindex [grammar::me::cpu::core::astk $s] end]}]
+} -cleanup {
+    unset s
+} -result {{{} 1 1} 1}
+
+set n 0
+foreach m {ast astk at cc code error estk halted iseof lstk mstk nc ok pc rstk sv} {
+    test me-cpucore-api-access-1.$n "core $m, wrong # args" -body {
+	grammar::me::cpu::core::$m
+    } -returnCodes error -result "wrong # args: should be \"grammar::me::cpu::core::$m state\""
+    incr n
+}
+unset n m
+
+#- - -- --- ----- -------- ------------- ---------------------
+## grammar::me::cpu object methods not covered elsewhere
+
+test me-cpu-api-ast-2.0 {ast, initial state: empty} -setup {
+    grammar::me::cpu cpu $code
+} -body {
+    cpu ast
+} -cleanup {
+    cpu destroy
+} -result {}
+
+test me-cpu-api-ast-2.1 {ast, top of the AST stack} -setup {
+    grammar::me::cpu cpu $code
+    cpu put A a 1 0
+    cpu put B b 1 1
+} -body {
+    cpu run
+    list [cpu halted] [cpu ast] [expr {[cpu ast] eq [lindex [cpu astk] end]}]
+} -cleanup {
+    cpu destroy
+} -result {1 {{} 1 1} 1}
+
+set n 0
+foreach m {ast astk at cc code error estk halted iseof lstk mstk nc ok pc rstk sv reset eof} {
+    test me-cpu-api-access-1.$n "$m, wrong # args" -setup {
+	grammar::me::cpu cpu $code
+    } -body {
+	cpu $m X
+    } -cleanup {
+	cpu destroy
+    } -returnCodes error -result [snitTooManyArgs cpu ::grammar::me::cpu::Snit_method$m {}]
+    incr n
+}
+unset n m
+
+test me-cpu-api-code-2.0 {code returns the match program} -setup {
+    grammar::me::cpu cpu $code
+} -body {
+    expr {[cpu code] eq $code}
+} -cleanup {
+    cpu destroy
+} -result 1
+
+test me-cpu-api-halted-2.0 {halted machine ignores run} -setup {
+    grammar::me::cpu cpu $code
+    cpu put A a 1 0
+    cpu put B b 1 1
+    cpu run
+} -body {
+    set before [list [cpu pc] [cpu astk]]
+    cpu run
+    list [cpu halted] [expr {$before eq [list [cpu pc] [cpu astk]]}]
+} -cleanup {
+    cpu destroy
+    unset before
+} -result {1 1}
+
+test me-cpu-api-reset-2.0 {reset discards all state, keeps the code} -setup {
+    grammar::me::cpu cpu $code
+    cpu put A a 1 0
+    cpu put B b 1 1
+    cpu eof
+    cpu run
+} -body {
+    set r [cpu reset]
+    list $r [cpu halted] [cpu iseof] [cpu pc] [cpu tok] [cpu astk] [cpu sv] \
+	[expr {[cpu code] eq $code}]
+} -cleanup {
+    cpu destroy
+    unset r
+} -result {{} 0 0 0 {} {} {} 1}
+
+test me-cpu-api-reset-2.1 {reset allows running again} -setup {
+    grammar::me::cpu cpu $code
+    cpu put A a 1 0
+    cpu put B b 1 1
+    cpu run
+    cpu reset
+} -body {
+    cpu put C c 2 0
+    cpu put D d 2 1
+    cpu run
+    list [cpu halted] [cpu tok]
+} -cleanup {
+    cpu destroy
+} -result {1 {{C c 2 0} {D d 2 1}}}
+
+test me-cpu-api-pull-1.0 {pull, wrong # args} -setup {
+    grammar::me::cpu cpu $code
+} -body {
+    cpu pull
+} -cleanup {
+    cpu destroy
+} -returnCodes error -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodpull {next} 0]
+
+test me-cpu-api-pull-1.1 {pull, wrong # args} -setup {
+    grammar::me::cpu cpu $code
+} -body {
+    cpu pull a b
+} -cleanup {
+    cpu destroy
+} -returnCodes error -result [snitTooManyArgs cpu ::grammar::me::cpu::Snit_methodpull {next}]
+
+test me-cpu-api-pull-2.0 {pull runs until halt} -setup {
+    grammar::me::cpu cpu $code
+    tokens {X x 1 0} {Y y 1 1} {Z z 1 2}
+} -body {
+    set r [cpu pull nexttoken]
+    list $r [cpu halted] [cpu tok] [cpu ast] $::tokens
+} -cleanup {
+    cpu destroy
+    unset ::tokens r
+} -result {{} 1 {{X x 1 0} {Y y 1 1}} {{} 1 1} {{Z z 1 2}}}
+
+test me-cpu-api-pull-2.1 {pull stops when the callback delivers no more tokens, no eof} -setup {
+    grammar::me::cpu cpu $code
+    tokens {X x 1 0}
+} -body {
+    cpu pull nexttoken
+    list [cpu halted] [cpu iseof] [cpu tok] [cpu pc]
+} -cleanup {
+    cpu destroy
+    unset ::tokens
+} -result {0 0 {{X x 1 0}} 4}
+
+test me-cpu-api-pull-2.2 {pull and push mixed} -setup {
+    grammar::me::cpu cpu $code
+    tokens {X x 1 0}
+} -body {
+    cpu pull nexttoken
+    cpu put Y y 1 1
+    cpu run
+    list [cpu halted] [cpu tok]
+} -cleanup {
+    cpu destroy
+    unset ::tokens
+} -result {1 {{X x 1 0} {Y y 1 1}}}
+
+test me-cpu-api-pull-2.3 {pull callback is run at the global level} -setup {
+    grammar::me::cpu cpu $code
+    tokens {X x 1 0} {Y y 1 1}
+    set ::calls {}
+} -body {
+    cpu pull nexttoken
+    lsort -unique $::calls
+} -cleanup {
+    cpu destroy
+    unset ::tokens ::calls
+} -result 1
+
+test me-cpu-api-pull-2.4 {pull callback is a command prefix} -setup {
+    grammar::me::cpu cpu $code
+    proc nextfixed {tok} {
+	if {[incr ::count] > 2} {return {}}
+	return [list $tok {} 1 $::count]
+    }
+    set ::count 0
+} -body {
+    cpu pull {nextfixed Q}
+    cpu tok
+} -cleanup {
+    cpu destroy
+    rename nextfixed {}
+    unset ::count
+} -result {{Q {} 1 1} {Q {} 1 2}}
+
+test me-cpu-api-pull-3.0 {pull, bad callback result} -setup {
+    grammar::me::cpu cpu $code
+} -body {
+    cpu pull {list a b}
+} -cleanup {
+    cpu destroy
+} -returnCodes error -result {Bad callback result, expected 4 elements}
+
+test me-cpu-api-pull-3.1 {pull, callback error propagates} -setup {
+    grammar::me::cpu cpu $code
+} -body {
+    cpu pull {error boom}
+} -cleanup {
+    cpu destroy
+} -returnCodes error -result boom
+
+test me-cpu-api-destroy-1.0 {destroy removes the object command} -body {
+    grammar::me::cpu cpu $code
+    cpu destroy
+    info commands ::cpu
+} -result {}
+
+test me-cpu-api-new-1.0 {constructor, bad code} -body {
+    grammar::me::cpu cpu {bogus}
+} -returnCodes error -result {Error in constructor: Bad length}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tokens {}
+rename nexttoken {}
+unset code
+testsuiteCleanup
+return

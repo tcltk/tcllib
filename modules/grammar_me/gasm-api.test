@@ -1,0 +1,576 @@
+# -*- tcl -*-
+# gasm-api.test:  Tests for the documented API of package grammar::me::cpu::gasm
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use cmdline/cmdline.tcl cmdline
+    use struct/list.tcl  struct::list
+    use struct/sets.tcl  struct::set
+    use struct/graph.tcl struct::graph
+    use struct/tree.tcl  struct::tree
+}
+testing {
+    useLocal gasm.tcl grammar::me::cpu::gasm
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Helpers. Instructions are described as "instruction arguments",
+## arcs as "source target condition", with nodes named by the
+## instruction they hold (unique in each test).
+
+namespace eval ::gasmtest {
+    namespace import ::grammar::me::cpu::gasm::*
+}
+
+proc ::gasmtest::setup {} {
+    struct::graph ::gasmtest::g
+    struct::tree  ::gasmtest::t
+    return
+}
+
+proc ::gasmtest::cleanup {} {
+    catch {::gasmtest::g destroy}
+    catch {::gasmtest::t destroy}
+    array unset ::grammar::me::cpu::gasm::gas *
+    return
+}
+
+proc ::gasmtest::name {n} {
+    list [g node get $n instruction] {*}[g node get $n arguments]
+}
+
+proc ::gasmtest::instructions {} {
+    set r {}
+    foreach n [g nodes] {lappend r [name $n]}
+    lsort $r
+}
+
+proc ::gasmtest::arcs {} {
+    set r {}
+    foreach a [g arcs] {
+	lappend r [list [name [g arc source $a]] [name [g arc target $a]] \
+		       [g arc get $a condition]]
+    }
+    lsort $r
+}
+
+proc ::gasmtest::run {script} {
+    namespace eval ::gasmtest $script
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## begin
+
+test gasm-api-begin-1.0 {begin, wrong # args, too few} -body {
+    grammar::me::cpu::gasm::begin g
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::begin g n ?mode? ?note?"}
+
+test gasm-api-begin-1.1 {begin, wrong # args, too many} -body {
+    grammar::me::cpu::gasm::begin g n okfail note X
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::begin g n ?mode? ?note?"}
+
+test gasm-api-begin-2.0 {begin, default mode okfail} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	list [begin ::gasmtest::g root] [instructions] [arcs] \
+	    [name [Who entry]] [name [Who exit/ok]] [name [Who exit/fail]]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{} {{.NOP Exit'FAIL} {.NOP Exit'OK} {.NOP {}}} {} {.NOP {}} {.NOP Exit'OK} {.NOP Exit'FAIL}}
+
+test gasm-api-begin-2.1 {begin, mode halt} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root halt
+	list [instructions] [name [Who exit/return]] [catch {Who exit/ok}]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{{.NOP {}} icf_halt} icf_halt 1}
+
+test gasm-api-begin-2.2 {begin, mode !okfail} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root !okfail
+	list [instructions] [name [Who exit/return]] [catch {Who exit/ok}]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{{.NOP {}} icf_ntreturn} icf_ntreturn 1}
+
+test gasm-api-begin-2.3 {begin, note goes to the entry instruction} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root okfail {my note}
+	name [Who entry]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {.NOP {my note}}
+
+test gasm-api-begin-2.4 {begin, anchor is entry, condition always} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd first
+	arcs
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{{.NOP {}} first always}}
+
+test gasm-api-begin-2.5 {begin reinitializes the state} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd x
+	/Label mine
+	begin ::gasmtest::g other halt
+	list [catch {Who mine}] [catch {Who exit/ok}] [dict get [state] mode]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {1 1 halt}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## done
+
+test gasm-api-done-1.0 {done, wrong # args} -body {
+    grammar::me::cpu::gasm::done -->
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::done __ t"}
+
+test gasm-api-done-2.0 {done, mode okfail: entry and exits saved in the tree} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	set e  [Who entry]
+	set ok [Who exit/ok]
+	set fl [Who exit/fail]
+	set r [done --> ::gasmtest::t]
+	list $r \
+	    [expr {[t get root gas::entry]      eq $e}] \
+	    [expr {[t get root gas::exit::ok]   eq $ok}] \
+	    [expr {[t get root gas::exit::fail] eq $fl}] \
+	    [t keyexists root gas::exit] \
+	    [g node get $e expr]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::e ::gasmtest::ok ::gasmtest::fl ::gasmtest::r
+} -result {{} 1 1 1 0 root}
+
+test gasm-api-done-2.1 {done, mode halt: entry and exit/return saved} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root halt
+	set e [Who entry]
+	set x [Who exit/return]
+	done --> ::gasmtest::t
+	list [expr {[t get root gas::entry] eq $e}] \
+	    [expr {[t get root gas::exit] eq $x}] \
+	    [t keyexists root gas::exit::ok] [t keyexists root gas::exit::fail]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::e ::gasmtest::x
+} -result {1 1 0 0}
+
+test gasm-api-done-2.2 {done, mode !okfail: entry and exit/return saved} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root !okfail
+	set x [Who exit/return]
+	done --> ::gasmtest::t
+	list [expr {[t get root gas::exit] eq $x}] [t keyexists root gas::exit::ok]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::x
+} -result {1 0}
+
+test gasm-api-done-2.3 {done clears the state, keeps the instructions} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd x
+	done --> ::gasmtest::t
+	list [state] [llength [g nodes]]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{} 4}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## state, state!
+
+test gasm-api-state-1.0 {state, wrong # args} -body {
+    grammar::me::cpu::gasm::state X
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::state"}
+
+test gasm-api-state-1.1 {state!, wrong # args} -body {
+    grammar::me::cpu::gasm::state!
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::state! s"}
+
+test gasm-api-state-2.0 {state! restores a saved state} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd a
+	/Label la
+	set s [state]
+	done --> ::gasmtest::t
+	set r [state! $s]
+	Cmd b
+	list $r [name [Who la]] [arcs]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::s ::gasmtest::r
+} -result {{} a {{a b always} {{.NOP {}} a always}}}
+
+test gasm-api-state-2.1 {state! merges with non-conflicting labels} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd a
+	/Label la
+	set s [state]
+	Cmd b
+	/Label lb
+	/At entry
+	Cmd c
+	/Label la
+	state! $s
+	list [name [Who la]] [name [Who lb]]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::s
+} -result {a b}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## lift
+
+test gasm-api-lift-1.0 {lift, wrong # args} -body {
+    grammar::me::cpu::gasm::lift t a =
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::lift t dst __ src"}
+
+test gasm-api-lift-2.0 {lift copies the gas attributes} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	t insert root end src
+	t insert root end dst
+	t set src gas::entry      E
+	t set src gas::exit::ok   O
+	t set src gas::exit::fail F
+	t set src other           X
+	set r [lift ::gasmtest::t dst = src]
+	list $r [t get dst gas::entry] [t get dst gas::exit::ok] \
+	    [t get dst gas::exit::fail] [t keyexists dst other]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::r
+} -result {{} E O F 0}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Cmd, Bra, Nop, Note
+
+test gasm-api-cmd-1.0 {Cmd, wrong # args} -body {
+    grammar::me::cpu::gasm::Cmd
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::Cmd cmd ?arg ...?"}
+
+test gasm-api-cmd-2.0 {Cmd creates linked instructions with arguments} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	set r [Cmd ict_advance {Expected x}]
+	Cmd isv_terminal
+	Cmd foo a b c
+	list $r [arcs]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::r
+} -result {{} {{isv_terminal {foo a b c} always} {{.NOP {}} {ict_advance {Expected x}} always} {{ict_advance {Expected x}} isv_terminal always}}}
+
+test gasm-api-cmd-2.1 {Cmd uses the condition code, then resets it to always} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd a
+	/Ok
+	Cmd b
+	Cmd c
+	arcs
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{a b ok} {b c always} {{.NOP {}} a always}}
+
+test gasm-api-cmd-2.2 {Cmd without anchor creates an unlinked instruction} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	/Clear
+	Cmd lonely
+	list [arcs] [g node degree [Who entry]]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{} 0}
+
+test gasm-api-cmd-3.0 {Bra, Nop, Note pseudo-instructions} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Bra
+	Nop text
+	Note comment
+	arcs
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{.BRA {.NOP text} always} {{.NOP text} {.C comment} always} {{.NOP {}} .BRA always}}
+
+test gasm-api-cmd-3.1 {Bra, wrong # args} -body {
+    grammar::me::cpu::gasm::Bra X
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::Bra"}
+
+test gasm-api-cmd-3.2 {Note, wrong # args} -body {
+    grammar::me::cpu::gasm::Note
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::Note text"}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Jmp, Exit, Who
+
+test gasm-api-jmp-1.0 {Jmp, wrong # args} -body {
+    grammar::me::cpu::gasm::Jmp
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::Jmp label"}
+
+test gasm-api-jmp-2.0 {Jmp links the anchor to a label with the condition code} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd a
+	/Label la
+	Cmd b
+	/Fail
+	set r [Jmp la]
+	list $r [arcs] [name [g arc source [lindex [g arcs -in [Who la]] end]]]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::r
+} -result {{} {{a b always} {b a fail} {{.NOP {}} a always}} b}
+
+test gasm-api-exit-2.0 {Exit in okfail mode follows the condition code} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd test
+	/Ok   ; Exit
+	/Fail ; Exit
+	arcs
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{test {.NOP Exit'FAIL} fail} {test {.NOP Exit'OK} ok} {{.NOP {}} test always}}
+
+test gasm-api-exit-2.1 {Exit in halt mode always links exit/return with always} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root halt
+	Cmd test
+	/Ok
+	Exit
+	arcs
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{test icf_halt always} {{.NOP {}} test always}}
+
+test gasm-api-exit-2.2 {Exit in !okfail mode links exit/return} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root !okfail
+	/Fail
+	Exit
+	arcs
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{{.NOP {}} icf_ntreturn always}}
+
+test gasm-api-who-1.0 {Who, wrong # args} -body {
+    grammar::me::cpu::gasm::Who
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::Who label"}
+
+test gasm-api-who-2.0 {Who returns the labeled instruction} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd x 1
+	/Label one
+	/Label also
+	list [name [Who one]] [expr {[Who one] eq [Who also]}] [g node exists [Who one]]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{x 1} 1 1}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## /Label, /Clear, /Ok, /Fail, /At, /CloseLoop
+
+test gasm-api-label-1.0 {/Label, wrong # args} -body {
+    grammar::me::cpu::gasm::/Label
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::/Label name"}
+
+test gasm-api-label-2.0 {/Label redefines an existing label} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd a ; /Label l
+	Cmd b ; /Label l
+	name [Who l]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result b
+
+test gasm-api-clear-2.0 {/Clear resets the anchor and the condition} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd a
+	/Ok
+	set r [/Clear]
+	Cmd b
+	set s [state]
+	list $r [arcs] [dict get $s cond]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::r ::gasmtest::s
+} -result {{} {{{.NOP {}} a always}} always}
+
+test gasm-api-cond-2.0 {/Ok, /Fail set the condition code} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	list [/Ok] [dict get [state] cond] [/Fail] [dict get [state] cond]
+    }
+} -cleanup {
+    gasmtest::cleanup
+} -result {{} ok {} fail}
+
+test gasm-api-at-1.0 {/At, wrong # args} -body {
+    grammar::me::cpu::gasm::/At
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::/At name"}
+
+test gasm-api-at-2.0 {/At moves the anchor, resets the condition} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd a ; /Label la
+	Cmd b
+	/Fail
+	set r [/At la]
+	Cmd c
+	list $r [arcs]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::r
+} -result {{} {{a b always} {a c always} {{.NOP {}} a always}}}
+
+test gasm-api-closeloop-2.0 {/CloseLoop marks the anchor} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	begin ::gasmtest::g root
+	Cmd body
+	set r [/CloseLoop]
+	list $r [g node keyexists [Who entry] LOOP] \
+	    [g node keyexists [g arc target [lindex [g arcs -out [Who entry]] 0]] LOOP] \
+	    [llength [g nodes -key LOOP]] [name [lindex [g nodes -key LOOP] 0]]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::r
+} -result {{} 0 1 1 body}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Inline
+
+test gasm-api-inline-1.0 {Inline, wrong # args} -body {
+    grammar::me::cpu::gasm::Inline t n
+} -returnCodes error -result {wrong # args: should be "grammar::me::cpu::gasm::Inline t node label"}
+
+test gasm-api-inline-2.0 {Inline links an earlier sequence} -setup {
+    gasmtest::setup
+} -body {
+    gasmtest::run {
+	# Sub-sequence, saved to tree node "sub".
+	t insert root end sub
+	begin ::gasmtest::g sub okfail SUB
+	Cmd subwork
+	/Ok ; Exit
+	done --> ::gasmtest::t
+
+	# Main sequence inlining it.
+	begin ::gasmtest::g root okfail MAIN
+	Cmd pre
+	/Ok
+	set r [Inline ::gasmtest::t sub s]
+	Cmd post
+	list $r \
+	    [expr {[Who s/entry]     eq [t get sub gas::entry]}] \
+	    [expr {[Who s/exit/ok]   eq [t get sub gas::exit::ok]}] \
+	    [expr {[Who s/exit/fail] eq [t get sub gas::exit::fail]}] \
+	    [arcs]
+    }
+} -cleanup {
+    gasmtest::cleanup
+    unset -nocomplain ::gasmtest::r
+} -result {{} 1 1 1 {{pre {.NOP SUB} ok} {subwork {.NOP Exit'OK} ok} {{.NOP Exit'OK} post always} {{.NOP MAIN} pre always} {{.NOP SUB} subwork always}}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename ::gasmtest::setup {}
+namespace delete ::gasmtest
+testsuiteCleanup
+return
