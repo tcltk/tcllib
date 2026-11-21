@@ -41,7 +41,7 @@ snit::type            ::doctools::tcl::parse {
     ## Public API
 
     typemethod file {t path {root {}}} {
-	$type text $t [fileutil::cat -translation binary -encoding binary $path] $root
+	$type text $t [fileutil::cat -translation binary $path] $root
     }
 
     typemethod text {t text {root {}}} {

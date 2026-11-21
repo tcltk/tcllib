@@ -36,3 +36,33 @@ test dict-compare-001 {Test our testing method} {
 
 file delete -force test
 
+test practcl-snapshot-unpack-001 {ScmUnpack opens tarballs in binary mode (Tcl 9)} -setup {
+  set tmp [file join $TestPwd snaptmp]
+  file mkdir [file join $tmp dl] [file join $tmp src]
+  set fout [open [file join $tmp dl snap.tgz] wb]
+  puts -nonewline $fout [zlib gzip abc]
+  close $fout
+  set chans [chan names]
+  oo::object create ::practcl::LOCAL
+  oo::objdefine ::practcl::LOCAL method define {op key} {
+    return [file join $::tmp dl]
+  }
+  set obj [::practcl::distribution.snapshot new]
+  oo::objdefine $obj {
+    method SrcDir {} {return [file join $::tmp src]}
+    method define {op key args} {return file:///x/snap.tgz}
+    method ScmClone {} {return -code error STOP}
+  }
+} -body {
+  [info object namespace $obj]::my ScmUnpack
+} -cleanup {
+  $obj destroy
+  ::practcl::LOCAL destroy
+  # ScmUnpack leaves the archive open; close it so that Windows can delete it
+  foreach chan [chan names] {
+    if {$chan ni $chans} {close $chan}
+  }
+  file delete -force $tmp
+  unset obj tmp chans chan
+} -returnCodes error -result STOP
+
