@@ -1,0 +1,558 @@
+# -*- tcl -*-
+# irc-api.test:  Tests for the documented API of the irc package:
+# ::irc::config, connection, connections, the per-connection methods
+# (events, connect, config, logging, state queries, all IRC commands,
+# destroy) and the callback commands.
+#
+# The server is an in-process socket server on 127.0.0.1 with a port
+# chosen by the system.  No external hosts are contacted.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use log/logger.tcl logger
+}
+testing {
+    useLocal irc.tcl irc
+}
+
+# -------------------------------------------------------------------------
+# Local server.  srv::start returns the port; lines received from the
+# client are collected in srv::lines; srv::send sends a line to the
+# client.
+
+namespace eval srv {
+    variable listen {}
+    variable chan   {}
+    variable lines  {}
+    variable closed 0
+
+    proc start {} {
+	variable listen
+	variable chan {}
+	variable lines {}
+	variable closed 0
+	set listen [socket -server [namespace code Accept] -myaddr 127.0.0.1 0]
+	return [lindex [fconfigure $listen -sockname] 2]
+    }
+    proc Accept {sock addr port} {
+	variable chan $sock
+	fconfigure $sock -translation crlf -buffering line -blocking 0
+	fileevent $sock readable [namespace code [list Read $sock]]
+    }
+    proc Read {sock} {
+	variable lines
+	variable closed
+	if {[gets $sock line] >= 0} {
+	    lappend lines $line
+	} elseif {[eof $sock]} {
+	    close $sock
+	    set closed 1
+	}
+    }
+    proc send {line} {
+	variable chan
+	puts $chan $line
+    }
+    proc close_client {} {
+	variable chan
+	catch {close $chan}
+	set chan {}
+    }
+    proc stop {} {
+	variable listen
+	variable chan
+	catch {close $chan}
+	catch {close $listen}
+	set chan {}
+	set listen {}
+    }
+}
+
+# Wait (bounded) until the condition is true.
+proc waitFor {cond {ms 5000}} {
+    set deadline [expr {[clock milliseconds] + $ms}]
+    while {![uplevel #0 [list expr $cond]]} {
+	if {[clock milliseconds] > $deadline} {
+	    return -code error "timeout waiting for $cond"
+	}
+	after 5 {set ::waitFor_tick 1}
+	vwait ::waitFor_tick
+    }
+    return
+}
+
+# Create a connection to the local server, with the server side
+# accepted.
+proc connected {} {
+    set port [srv::start]
+    set net [irc::connection]
+    $net connect 127.0.0.1 $port
+    waitFor {$srv::chan ne ""}
+    return $net
+}
+
+# Wait for n lines from the client and return them.
+proc received {n} {
+    waitFor "\[llength \$srv::lines\] >= $n"
+    set res [lrange $srv::lines 0 [expr {$n - 1}]]
+    set srv::lines [lrange $srv::lines $n end]
+    return $res
+}
+
+proc cleanupNet {net} {
+    catch {$net destroy}
+    srv::stop
+}
+
+# -------------------------------------------------------------------------
+# ::irc::config
+
+test irc-api-1.0 {config, all values} -body {
+    dictsort [irc::config]
+} -result {debug 0 logger 0}
+
+test irc-api-1.1 {config, one value} -body {
+    irc::config logger
+} -result 0
+
+test irc-api-1.2 {config, set value} -body {
+    list [irc::config debug 0] [irc::config debug]
+} -result {0 0}
+
+test irc-api-1.3 {config, too many args} -body {
+    irc::config a b c
+} -returnCodes error -result {wrong # args: should be "config key ?val?"}
+
+test irc-api-1.4 {config, unknown key} -body {
+    irc::config nosuchkey
+} -returnCodes error -result {can't read "config(nosuchkey)": no such element in array}
+
+test irc-api-1.5 {config, new connections inherit the global configuration} -setup {
+    irc::config logger 1
+} -body {
+    set net [irc::connection]
+    list [$net config logger] [expr {[$net logname] ne ""}]
+} -cleanup {
+    $net destroy
+    irc::config logger 0
+    unset net
+} -result {1 1}
+
+test irc-api-1.6 {config, changing the global value updates connections using it} -body {
+    set net1 [irc::connection]
+    set net2 [irc::connection]
+    $net2 config logger 1
+    irc::config logger 1
+    irc::config logger 0
+    list [$net1 config logger] [$net2 config logger]
+} -cleanup {
+    $net1 destroy
+    $net2 destroy
+    irc::config logger 0
+    unset net1 net2
+} -result {0 0}
+
+# -------------------------------------------------------------------------
+# ::irc::connection, ::irc::connections, destroy
+
+test irc-api-2.0 {connection returns a command, not connected} -body {
+    set net [irc::connection]
+    list [llength [info commands $net]] [$net connected] [$net socket] \
+	[$net sockname] [$net peername]
+} -cleanup {
+    $net destroy
+    unset net
+} -result {1 0 {} {} {}}
+
+test irc-api-2.1 {connections lists the connection commands} -body {
+    set before [irc::connections]
+    set net1 [irc::connection]
+    set net2 [irc::connection]
+    set after [irc::connections]
+    list [expr {$net1 ne $net2}] \
+	[expr {$net1 in $after && $net2 in $after}] \
+	[expr {[llength $after] - [llength $before]}]
+} -cleanup {
+    $net1 destroy
+    $net2 destroy
+    unset before after net1 net2
+} -result {1 1 2}
+
+test irc-api-2.2 {destroy removes the connection} -body {
+    set net [irc::connection]
+    $net destroy
+    list [llength [info commands $net]] [expr {$net in [irc::connections]}]
+} -cleanup {
+    unset net
+} -result {0 0}
+
+test irc-api-2.3 {destroy closes the socket} -body {
+    set net [connected]
+    set sock [$net socket]
+    $net destroy
+    waitFor {$srv::closed}
+    expr {$sock in [chan names]}
+} -cleanup {
+    srv::stop
+    unset net sock
+} -result 0
+
+test irc-api-2.4 {unknown method} -body {
+    set net [irc::connection]
+    $net nosuchmethod
+} -cleanup {
+    $net destroy
+    unset net
+} -returnCodes error -match glob -result {invalid command name "*cmd-nosuchmethod"}
+
+# -------------------------------------------------------------------------
+# connect, connected, socket, sockname, peername
+
+test irc-api-3.0 {connect, state queries} -body {
+    set net [connected]
+    set port [lindex [fconfigure $srv::listen -sockname] 2]
+    list [$net connected] [expr {[$net socket] in [chan names]}] \
+	[llength [$net sockname]] [lindex [$net sockname] 0] \
+	[lindex [$net peername] 0] [expr {[lindex [$net peername] 2] == $port}]
+} -cleanup {
+    cleanupNet $net
+    unset net port
+} -result {1 1 3 127.0.0.1 127.0.0.1 1}
+
+test irc-api-3.1 {connect, already connected is a no-op} -body {
+    set net [connected]
+    set sock [$net socket]
+    list [$net connect 127.0.0.1 1] [expr {[$net socket] eq $sock}]
+} -cleanup {
+    cleanupNet $net
+    unset net sock
+} -result {0 1}
+
+test irc-api-3.2 {connect, connection refused} -setup {
+    # Find a free port, then close the listener.
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $s -sockname] 2]
+    close $s
+} -body {
+    set net [irc::connection]
+    list [catch {$net connect 127.0.0.1 $port}] [$net connected]
+} -cleanup {
+    $net destroy
+    unset net s port
+} -result {1 0}
+
+test irc-api-3.3 {methods without connection do nothing} -body {
+    set net [irc::connection]
+    list [$net nick foo] [$net privmsg #a b] [$net send x]
+} -cleanup {
+    $net destroy
+    unset net
+} -result {{} {} {}}
+
+# -------------------------------------------------------------------------
+# Sending IRC commands
+
+foreach {n method args line} {
+    0  nick        {tcler}                     {NICK tcler}
+    1  user        {u h d {Real Name}}         {USER u h d :Real Name}
+    2  serverping  {}                          {PING *}
+    3  ping        {bob}                       "PRIVMSG bob :\001PING *\001"
+    4  join        {#tcl}                      {JOIN #tcl*}
+    5  join        {#tcl secret}               {JOIN #tcl secret}
+    6  part        {#tcl}                      {PART #tcl}
+    7  part        {#tcl {bye all}}            {PART #tcl :bye all}
+    8  quit        {{see you}}                 {QUIT :see you}
+    9  quit        {}                          {QUIT :?*}
+    10 privmsg     {#tcl {hello world}}        {PRIVMSG #tcl :hello world}
+    11 notice      {bob {a notice}}            {NOTICE bob :a notice}
+    12 ctcp        {bob VERSION}               "PRIVMSG bob :\001VERSION\001"
+    13 kick        {#tcl bob {go away}}        {KICK #tcl bob :go away}
+    14 kick        {#tcl bob}                  {KICK #tcl bob*}
+    15 mode        {#tcl +o bob}               {MODE #tcl +o bob}
+    16 mode        {me +i}                     {MODE me +i}
+    17 topic       {#tcl {new topic}}          {TOPIC #tcl :new topic}
+    18 topic       {#tcl {}}                   {TOPIC #tcl :}
+    19 invite      {#tcl bob}                  {INVITE bob #tcl}
+    20 send        {{RAW line here}}           {RAW line here}
+} {
+    test irc-api-4.$n "method $method $args" -body {
+	set net [connected]
+	$net $method {*}$args
+	set got [lindex [received 1] 0]
+	list [string match $line $got] $got
+    } -cleanup {
+	cleanupNet $net
+	unset net got
+    } -match glob -result [list 1 *]
+}
+
+test irc-api-4.30 {user without userinfo} -body {
+    set net [connected]
+    $net user u h servername
+    received 1
+} -cleanup {
+    cleanupNet $net
+    unset net
+} -result {{USER u h server :servername}}
+
+test irc-api-4.31 {special characters are sent unchanged} -body {
+    set net [connected]
+    $net privmsg #tcl {[exit] $x {y} "z"}
+    received 1
+} -cleanup {
+    cleanupNet $net
+    unset net
+} -result [list {PRIVMSG #tcl :[exit] $x {y} "z"}]
+
+# -------------------------------------------------------------------------
+# registerevent, getevent, eventexists
+
+test irc-api-5.0 {registerevent, getevent, eventexists} -body {
+    set net [irc::connection]
+    $net registerevent PRIVMSG {set ::x 1}
+    list [$net eventexists PRIVMSG] [$net getevent PRIVMSG] \
+	[$net eventexists JOIN] [$net getevent JOIN]
+} -cleanup {
+    $net destroy
+    unset net
+} -result {1 {set ::x 1} 0 {}}
+
+test irc-api-5.1 {registerevent with empty script removes the handler} -body {
+    set net [irc::connection]
+    $net registerevent PRIVMSG {set ::x 1}
+    $net registerevent PRIVMSG {}
+    list [$net eventexists PRIVMSG] [$net getevent PRIVMSG]
+} -cleanup {
+    $net destroy
+    unset net
+} -result {0 {}}
+
+test irc-api-5.2 {default handlers exist} -body {
+    set net [irc::connection]
+    list [$net eventexists defaultcmd] [$net eventexists defaultnumeric] \
+	[$net eventexists defaultevent] [$net eventexists PING]
+} -cleanup {
+    $net destroy
+    unset net
+} -result {1 1 1 1}
+
+# -------------------------------------------------------------------------
+# Events and callback commands
+
+test irc-api-6.0 {event callback commands} -body {
+    set net [connected]
+    $net registerevent PRIVMSG {
+	set ::ev [list [who] [who address] [action] [target] [additional] [header] [msg]]
+    }
+    set ::ev {}
+    srv::send ":bob!~b@example.org PRIVMSG #tcl :hello there"
+    waitFor {$::ev ne ""}
+    set ::ev
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result {bob bob!~b@example.org PRIVMSG #tcl {} {bob!~b@example.org PRIVMSG #tcl} {hello there}}
+
+test irc-api-6.1 {additional arguments and header} -body {
+    set net [connected]
+    $net registerevent KICK {set ::ev [list [target] [additional] [header] [msg]]}
+    set ::ev {}
+    srv::send ":op!~o@h KICK #tcl bob :flooding"
+    waitFor {$::ev ne ""}
+    set ::ev
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result [list #tcl bob {op!~o@h KICK #tcl bob} flooding]
+
+test irc-api-6.2 {line without message part} -body {
+    set net [connected]
+    $net registerevent MODE {set ::ev [list [who] [target] [additional] [msg]]}
+    set ::ev {}
+    srv::send ":op!~o@h MODE #tcl +o bob"
+    waitFor {$::ev ne ""}
+    set ::ev
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result {op #tcl {+o bob} {}}
+
+test irc-api-6.3 {script runs in the connection namespace} -body {
+    set net [connected]
+    $net registerevent JOIN {set ::ev [namespace current]}
+    set ::ev {}
+    srv::send ":bob!~b@h JOIN #tcl"
+    waitFor {$::ev ne ""}
+    expr {$::ev eq [namespace qualifiers $net]}
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result 1
+
+test irc-api-6.4 {defaultnumeric for numeric replies} -body {
+    set net [connected]
+    $net registerevent defaultnumeric {lappend ::ev numeric [action] [target] [msg]}
+    $net registerevent defaultevent   {lappend ::ev event [action]}
+    $net registerevent defaultcmd     {lappend ::ev cmd [action]}
+    set ::ev {}
+    srv::send ":server 001 tcler :Welcome"
+    waitFor {[llength $::ev] >= 4}
+    set ::ev
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result {numeric 001 tcler Welcome}
+
+test irc-api-6.5 {defaultevent for events with prefix} -body {
+    set net [connected]
+    $net registerevent defaultnumeric {lappend ::ev numeric [action]}
+    $net registerevent defaultevent   {lappend ::ev event [action] [who]}
+    $net registerevent defaultcmd     {lappend ::ev cmd [action]}
+    set ::ev {}
+    srv::send ":bob!~b@h WALLOPS :hi"
+    waitFor {[llength $::ev] >= 3}
+    set ::ev
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result {event WALLOPS bob}
+
+test irc-api-6.6 {defaultcmd for commands without prefix} -body {
+    set net [connected]
+    $net registerevent defaultnumeric {lappend ::ev numeric [action]}
+    $net registerevent defaultevent   {lappend ::ev event [action]}
+    $net registerevent defaultcmd     {lappend ::ev cmd [action] [who] [msg]}
+    set ::ev {}
+    srv::send "ERROR :Closing link"
+    waitFor {[llength $::ev] >= 4}
+    set ::ev
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result {cmd ERROR {} {Closing link}}
+
+test irc-api-6.7 {PING is answered with PONG} -body {
+    set net [connected]
+    srv::send "PING :irc.example.org"
+    received 1
+} -cleanup {
+    cleanupNet $net
+    unset net
+} -result {{PONG :irc.example.org}}
+
+test irc-api-6.8 {EOF event when the server closes the connection} -body {
+    set net [connected]
+    $net registerevent EOF {lappend ::ev EOF}
+    set ::ev {}
+    srv::close_client
+    waitFor {"EOF" in $::ev}
+    list $::ev [$net connected]
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result {EOF 0}
+
+# On end of file a spurious empty line is dispatched to defaultcmd
+# before the EOF event.
+test irc-api-6.9 {no other event before EOF} -constraints knownBug -body {
+    set net [connected]
+    $net registerevent EOF {lappend ::ev EOF}
+    $net registerevent defaultcmd {lappend ::ev cmd}
+    set ::ev {}
+    srv::close_client
+    waitFor {"EOF" in $::ev}
+    set ::ev
+} -cleanup {
+    cleanupNet $net
+    unset net ::ev
+} -result EOF
+
+# -------------------------------------------------------------------------
+# Per-connection config, log, logname
+
+test irc-api-7.0 {config, defaults from the global configuration} -body {
+    set net [irc::connection]
+    dictsort [$net config]
+} -cleanup {
+    $net destroy
+    unset net
+} -result {debug 0 logger 0}
+
+test irc-api-7.1 {config, logger on and off} -body {
+    set net [irc::connection]
+    set res [list [$net logname]]
+    $net config logger 1
+    set log [$net logname]
+    lappend res [expr {$log ne ""}] [expr {$log in [logger::services] || [llength [info commands ${log}::info]]}]
+    $net config logger 0
+    lappend res [$net logname] [$net config logger]
+} -cleanup {
+    $net destroy
+    unset net res log
+} -result {{} 1 1 {} 0}
+
+test irc-api-7.2 {config, debug implies logger} -body {
+    set net [irc::connection]
+    $net config debug 1
+    list [$net config debug] [$net config logger] [expr {[$net logname] ne ""}]
+} -cleanup {
+    $net destroy
+    unset net
+} -result {1 1 1}
+
+test irc-api-7.3 {config, connection setting does not change global} -body {
+    set net [irc::connection]
+    $net config logger 1
+    irc::config logger
+} -cleanup {
+    $net destroy
+    unset net
+} -result 0
+
+test irc-api-7.4 {config, too many args} -body {
+    set net [irc::connection]
+    $net config a b c
+} -cleanup {
+    $net destroy
+    unset net
+} -returnCodes error -result {wrong # args: should be "config key ?val?"}
+
+test irc-api-7.5 {log without logger does nothing} -body {
+    set net [irc::connection]
+    $net log error "some message"
+} -cleanup {
+    $net destroy
+    unset net
+} -result {}
+
+test irc-api-7.6 {log with logger} -setup {
+    proc ::logcapture {txt} {lappend ::logged $txt}
+} -body {
+    set net [irc::connection]
+    $net config logger 1
+    set ::logged {}
+    [$net logname]::logproc error ::logcapture
+    $net log error "some message"
+    set ::logged
+} -cleanup {
+    $net destroy
+    rename ::logcapture {}
+    unset net ::logged
+} -result {{some message}}
+
+# -------------------------------------------------------------------------
+srv::stop
+namespace delete srv
+rename waitFor {}
+rename connected {}
+rename received {}
+rename cleanupNet {}
+testsuiteCleanup

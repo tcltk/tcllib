@@ -1,0 +1,481 @@
+# -*- tcl -*-
+# picoirc-api.test:  Additional tests for the documented API of the
+# picoirc package, using a real connection to an in-process server on
+# 127.0.0.1: connect (init, connect, close callbacks, registration,
+# password, channels joined after the MOTD), post (multi-line, raw
+# output, /join), the callbacks topic, system, userlist, debug, version,
+# CTCP replies and nick collisions.  Complements picoirc.test.
+# No external hosts are contacted, TLS is not tested.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal picoirc.tcl picoirc
+}
+
+# -------------------------------------------------------------------------
+# Local server.
+
+namespace eval srv {
+    variable listen {}
+    variable chan   {}
+    variable lines  {}
+
+    proc start {} {
+	variable listen
+	variable chan {}
+	variable lines {}
+	set listen [socket -server [namespace code Accept] -myaddr 127.0.0.1 0]
+	return [lindex [fconfigure $listen -sockname] 2]
+    }
+    proc Accept {sock addr port} {
+	variable chan $sock
+	fconfigure $sock -translation crlf -buffering line -blocking 0 -encoding utf-8
+	fileevent $sock readable [namespace code [list Read $sock]]
+    }
+    proc Read {sock} {
+	variable lines
+	if {[gets $sock line] >= 0} {
+	    lappend lines $line
+	} elseif {[eof $sock]} {
+	    close $sock
+	}
+    }
+    proc send {line} {
+	variable chan
+	puts $chan $line
+    }
+    proc close_client {} {
+	variable chan
+	catch {close $chan}
+	set chan {}
+    }
+    proc stop {} {
+	variable listen
+	variable chan
+	catch {close $chan}
+	catch {close $listen}
+	set chan {}
+	set listen {}
+    }
+}
+
+proc waitFor {cond {ms 5000}} {
+    set deadline [expr {[clock milliseconds] + $ms}]
+    while {![uplevel #0 [list expr $cond]]} {
+	if {[clock milliseconds] > $deadline} {
+	    return -code error "timeout waiting for $cond"
+	}
+	after 5 {set ::waitFor_tick 1}
+	vwait ::waitFor_tick
+    }
+    return
+}
+
+# Callback recording all calls (except debug) in ::events.
+proc cb {context state args} {
+    if {$state eq "debug"} {
+	return [debughook {*}$args]
+    }
+    if {$state eq "version"} {
+	return $::version
+    }
+    lappend ::events [list $state {*}$args]
+    return
+}
+proc debughook {args} { return }
+
+# Connect and wait for the registration lines (USER, NICK).
+proc connectTo {nick args} {
+    set ::events {}
+    set ::version {}
+    set port [srv::start]
+    set url [string map [list @PORT@ $port] [lindex $args end]]
+    set ctx [::picoirc::connect cb $nick {*}[lrange $args 0 end-1] $url]
+    waitFor {[llength $srv::lines] >= 2}
+    return $ctx
+}
+
+proc received {n} {
+    waitFor "\[llength \$srv::lines\] >= $n"
+    set res [lrange $srv::lines 0 [expr {$n - 1}]]
+    set srv::lines [lrange $srv::lines $n end]
+    return $res
+}
+
+# Wait for an event of the given state and return it.
+proc event {state} {
+    waitFor "\[lsearch -index 0 \$::events $state\] >= 0"
+    set i [lsearch -index 0 $::events $state]
+    set ev [lindex $::events $i]
+    set ::events [lreplace $::events $i $i]
+    return $ev
+}
+
+proc cleanupCtx {ctx} {
+    if {[info exists $ctx]} {
+	catch {close [set ${ctx}(socket)]}
+	unset $ctx
+    }
+    srv::stop
+    proc debughook {args} { return }
+}
+
+# -------------------------------------------------------------------------
+# connect
+
+test picoirc-api-1.0 {connect, wrong # args} -body {
+    ::picoirc::connect cb nick pass url extra
+} -returnCodes error -result {wrong # args: must be "callback nick ?passwd? url"}
+
+test picoirc-api-1.1 {connect, callbacks and registration} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    set lines [received 2]
+    list [string match ::picoirc::irc* $ctx] [lrange $::events 0 1] \
+	[string match "USER * 0 \* :PicoIRC [package provide picoirc] user" [lindex $lines 0]] \
+	[lindex $lines 1]
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx lines
+} -result {1 {init connect} 1 {NICK tcler}}
+
+test picoirc-api-1.2 {connect, password} -body {
+    set ctx [connectTo tcler secret irc://127.0.0.1:@PORT@]
+    lrange [received 3] 1 2
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{NICK tcler} {PASS secret}}
+
+test picoirc-api-1.3 {connect, version callback used in USER} -body {
+    set ::events {}
+    set ::version {MyApp:2.5:lib}
+    set port [srv::start]
+    set ctx [::picoirc::connect cb tcler irc://127.0.0.1:$port]
+    waitFor {[llength $srv::lines] >= 1}
+    lindex $srv::lines 0
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx port
+} -match glob -result {USER * 0 \* :MyApp 2.5 user}
+
+test picoirc-api-1.4 {connect, channels joined after the end of the MOTD} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@/#tcl,#tk]
+    received 2
+    srv::send ":server 375 tcler :- MOTD -"
+    srv::send ":server 372 tcler :- hello"
+    srv::send ":server 376 tcler :End of MOTD"
+    list [received 2] [set ${ctx}(motd)]
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{{JOIN #tcl} {JOIN #tk}} {- hello}}
+
+test picoirc-api-1.5 {connect, address form with channel} -body {
+    set ctx [connectTo tcler #tcl@127.0.0.1:@PORT@]
+    received 2
+    srv::send ":server 376 tcler :End of MOTD"
+    received 1
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{JOIN #tcl}}
+
+test picoirc-api-1.6 {connect, connection refused calls close with the error} -setup {
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $s -sockname] 2]
+    close $s
+    set ::events {}
+} -body {
+    set ctx [::picoirc::connect cb tcler irc://127.0.0.1:$port]
+    waitFor {[lsearch -index 0 $::events close] >= 0}
+    list [lindex $::events 0] [lindex $::events 1 0] \
+	[expr {[lindex $::events 1 1] ne ""}] [info exists $ctx]
+} -cleanup {
+    unset s port ctx
+} -result {init close 1 0}
+
+test picoirc-api-1.7 {close callback when the server closes, context deleted} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::close_client
+    list [event close] [info exists $ctx]
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {close 0}
+
+# -------------------------------------------------------------------------
+# Server messages and callbacks
+
+test picoirc-api-2.0 {PING is answered with PONG} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send "PING :token123"
+    received 1
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result [list "PONG [info hostname] :token123"]
+
+test picoirc-api-2.1 {topic callback} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":server 332 tcler #tcl :The topic"
+    event topic
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {topic #tcl {The topic}}
+
+test picoirc-api-2.2 {userlist callback collects several NAMES replies} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":server 353 tcler = #tcl :alice @bob"
+    srv::send ":server 353 tcler = #tcl :+carol"
+    srv::send ":server 366 tcler #tcl :End of NAMES"
+    event userlist
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {userlist #tcl {alice @bob +carol}}
+
+test picoirc-api-2.3 {system callback for other server messages} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":server 421 tcler FOO :Unknown command"
+    event system
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {system {} {421 tcler FOO Unknown command}}
+
+test picoirc-api-2.4 {system callback for lines without prefix} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send "ERROR :Closing link"
+    event system
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {system {} {ERROR :Closing link}}
+
+test picoirc-api-2.5 {welcome numerics are not reported} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":server 001 tcler :Welcome"
+    srv::send ":server 002 tcler :Your host"
+    srv::send ":server 332 tcler #x :marker"
+    event topic
+    set ::events
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {init connect}
+
+test picoirc-api-2.6 {nick in use, a numbered nick is tried} -body {
+    set ctx [connectTo verylongnick irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":server 433 * verylongnick :Nickname is already in use"
+    set line [lindex [received 1] 0]
+    list [regexp {^NICK verylong(\d)$} $line] [string length [lindex $line 1]] \
+	[expr {[set ${ctx}(nick)] eq [lindex $line 1]}]
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx line
+} -result {1 9 1}
+
+test picoirc-api-2.7 {own nick change updates the context} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":tcler!~t@h NICK :tcler2"
+    list [event traffic] [set ${ctx}(nick)]
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{traffic nickchange {} tcler tcler2} tcler2}
+
+foreach {n query reply} {
+    0 "PING 12345"   "NOTICE bob :\001PING 12345\001"
+    1 "FOO bar"      "NOTICE bob :\001ERRMSG FOO bar : unknown query\001"
+} {
+    test picoirc-api-2.[expr {$n + 10}] "CTCP $query reply" -body {
+	set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+	received 2
+	srv::send ":bob!~b@h PRIVMSG tcler :\001$query\001"
+	received 1
+    } -cleanup {
+	cleanupCtx $ctx
+	unset ctx
+    } -result [list $reply]
+}
+
+test picoirc-api-2.12 {CTCP TIME reply} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":bob!~b@h PRIVMSG tcler :\001TIME\001"
+    received 1
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -match glob -result "{NOTICE bob :\001TIME *\001}"
+
+test picoirc-api-2.13 {CTCP VERSION reply, default version} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":bob!~b@h PRIVMSG tcler :\001VERSION\001"
+    received 1
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result [list "NOTICE bob :\001VERSION PicoIRC:[package provide picoirc]:Tcl [info patchlevel]\001"]
+
+test picoirc-api-2.14 {non-ASCII message, UTF-8 on the wire} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    srv::send ":bob!~b@h PRIVMSG #tcl :łódź їж"
+    event chat
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result [list chat #tcl bob "łódź їж" {}]
+
+# -------------------------------------------------------------------------
+# debug callback
+
+test picoirc-api-3.0 {debug callback sees read and written lines} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    set ::raw {}
+    proc debughook {type line} { lappend ::raw $type $line; return }
+    srv::send ":bob!~b@h PRIVMSG #tcl :hi"
+    event chat
+    ::picoirc::post $ctx #tcl reply
+    received 1
+    set ::raw
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx ::raw
+} -result {read {:bob!~b@h PRIVMSG #tcl :hi} write {PRIVMSG #tcl :reply}}
+
+# Callback catches all non-ok codes of the callback, including break,
+# so a break from the debug callback never reaches the read and write
+# handlers.
+test picoirc-api-3.1 {debug callback, break stops processing a read line} -constraints {
+    knownBug
+} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    proc debughook {type line} {
+	if {[string match *secret* $line]} { return -code break }
+	return
+    }
+    srv::send ":bob!~b@h PRIVMSG #tcl :secret"
+    srv::send ":bob!~b@h PRIVMSG #tcl :public"
+    event chat
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {chat #tcl bob public {}}
+
+test picoirc-api-3.2 {debug callback, break stops sending a line} -constraints {
+    knownBug
+} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    proc debughook {type line} {
+	if {$type eq "write" && [string match *secret* $line]} { return -code break }
+	return
+    }
+    ::picoirc::post $ctx #tcl "secret\npublic"
+    received 1
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{PRIVMSG #tcl :public}}
+
+# -------------------------------------------------------------------------
+# post
+
+# The chat callback for own messages has no type argument.
+test picoirc-api-4.0 {post, multi-line message} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    set ::events {}
+    ::picoirc::post $ctx #tcl "line one\nline two"
+    list [received 2] $::events
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{{PRIVMSG #tcl :line one} {PRIVMSG #tcl :line two}} {{chat #tcl tcler {line one}} {chat #tcl tcler {line two}}}}
+
+test picoirc-api-4.1 {post, empty channel sends raw lines} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    set ::events {}
+    ::picoirc::post $ctx {} "WHO #tcl\nLIST"
+    list [received 2] $::events
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{{WHO #tcl} LIST} {}}
+
+test picoirc-api-4.2 {post, /join} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    ::picoirc::post $ctx {} "/join #tcl"
+    received 1
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{JOIN #tcl}}
+
+test picoirc-api-4.3 {post, /me without channel} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    set ::events {}
+    ::picoirc::post $ctx {} "/me waves"
+    list $::events $srv::lines
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{{system {} {not in channel}}} {}}
+
+test picoirc-api-4.4 {post, commands and text mixed in a multi-line message} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    ::picoirc::post $ctx #tcl "/nick other\nhello\n/topic new topic"
+    received 3
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result {{NICK other} {PRIVMSG #tcl :hello} {TOPIC #tcl :new topic}}
+
+test picoirc-api-4.5 {post, non-ASCII text is sent as UTF-8} -body {
+    set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
+    received 2
+    ::picoirc::post $ctx #tcl "łódź"
+    received 1
+} -cleanup {
+    cleanupCtx $ctx
+    unset ctx
+} -result [list "PRIVMSG #tcl :łódź"]
+
+# -------------------------------------------------------------------------
+srv::stop
+namespace delete srv
+rename waitFor {}
+rename cb {}
+rename debughook {}
+rename connectTo {}
+rename received {}
+rename event {}
+rename cleanupCtx {}
+testsuiteCleanup
