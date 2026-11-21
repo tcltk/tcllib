@@ -7,7 +7,7 @@
 
 package require critcl 3.3;    # needs critcl version compatible with 8.6 and 9
 # @sak notprovided sha256c
-package provide sha256c 1.0.5
+package provide sha256c 1.0.6
 			       
 critcl::cheaders sha256.h;     # FreeBSD SHA256 implementation
 critcl::csources sha256.c;     # FreeBSD SHA256 implementation

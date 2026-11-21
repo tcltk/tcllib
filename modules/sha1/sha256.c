@@ -353,7 +353,7 @@ SHA256Guts (SHA256Context *sc, const uint32_t *cbuf)
 }
 
 void
-SHA256Update (SHA256Context *sc, const void *data, uint32_t len)
+SHA256Update (SHA256Context *sc, const void *data, size_t len)
 {
   uint32_t bufferBytesLeft;
   uint32_t bytesToCopy;
@@ -402,7 +402,7 @@ SHA256Update (SHA256Context *sc, const void *data, uint32_t len)
   if (len) {
     memcpy (&sc->buffer.bytes[sc->bufferLength], dataPtr, len);
 
-    sc->totalLength += len * 8L;
+    sc->totalLength += (uint64_t) len * 8L;
 
     sc->bufferLength += len;
   }
