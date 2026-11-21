@@ -72,10 +72,9 @@ mark.
 
 [call [cmd ::fileutil::decode::rewind]]
 
-Moves the read position back to the mark and forgets the mark.
-
-Throws an error with the error code [const {FILE DECODE NO MARK}] if
-there is no mark.
+Moves the read position back to the mark and forgets the mark. Throws an
+error with the error code [const {FILE DECODE NO MARK}] if there is no
+mark.
 
 [list_end]
 
@@ -120,6 +119,8 @@ Converts the current value, as read by [cmd byte], [cmd short-le] or
 [cmd long-le], to an unsigned integer of the same width. For example,
 the byte [const 0xff] is read by [cmd byte] as [const -1] and becomes
 [const 255].
+
+[para]
 
 It is an error, with the error code
 [const {FILE DECODE ILLEGAL UNSIGNED}], to use this command after
