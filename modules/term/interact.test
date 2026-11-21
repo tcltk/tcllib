@@ -1,0 +1,544 @@
+# -*- tcl -*- Tests for the term::interact::menu and term::interact::pager
+# packages.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+#
+# The objects read from a pipe (instead of a terminal) and write into a
+# file.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use      snit/snit.tcl         snit
+    use      textutil/repeat.tcl   textutil::repeat
+    use      textutil/tabify.tcl   textutil::tabify
+    useLocal send.tcl              term::send
+    useLocal receive.tcl           term::receive
+    useLocal bind.tcl              term::receive::bind
+    useLocal ansi/code.tcl         term::ansi::code
+    useLocal ansi/code/attr.tcl    term::ansi::code::attr
+    useLocal ansi/code/ctrl.tcl    term::ansi::code::ctrl
+    useLocal ansi/send.tcl         term::ansi::send
+}
+
+testing {
+    useLocal imenu.tcl             term::interact::menu
+    useLocal ipager.tcl            term::interact::pager
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+set up    "\033\[A"
+set down  "\033\[B"
+set pgup  "\033\[5~"
+set pgdn  "\033\[6~"
+
+# Create the input pipe and the output file: ::in, ::inw, ::out
+proc channels {} {
+    lassign [chan pipe] ::in ::inw
+    set ::outpath [file join [tcltest::temporaryDirectory] interact.out]
+    set ::out [open $::outpath w+]
+    fconfigure $::out -translation binary
+}
+
+proc closeChannels {} {
+    close $::in
+    close $::inw
+    close $::out
+    file delete $::outpath
+    unset ::in ::inw ::out ::outpath
+}
+
+# Send input to the object
+proc type {str} {
+    puts -nonewline $::inw $str
+    flush $::inw
+}
+
+# Run the interaction of the object, stopping it after at most 5 seconds.
+proc interact {obj} {
+    set id [after 5000 [list $obj done]]
+    try {
+        return [$obj interact]
+    } finally {
+        after cancel $id
+    }
+}
+
+# All output written so far, then truncate the output file.
+proc output {} {
+    flush $::out
+    seek $::out 0
+    set data [read $::out]
+    chan truncate $::out 0
+    seek $::out 0
+    return $data
+}
+
+# Split the output into the displays (one per showat): a list of row,
+# column and the lines shown.  In the lines the reverse highlighting is
+# shown as <...> and the switches to and from box graphics are removed.
+proc screens {data} {
+    set r {}
+    set pos {}
+    foreach {w a b} [regexp -all -indices -inline {\033\[(\d+);(\d+)f} $data] {
+        lappend pos [lindex $w 0] [lindex $w 1] \
+            [string range $data {*}$a] [string range $data {*}$b]
+    }
+    lappend pos [string length $data] {} {} {}
+    foreach {start end row col} [lrange $pos 0 end-4] {next -> - -} [lrange $pos 4 end] {
+        set segment [string range $data [expr {$end + 1}] [expr {$next - 1}]]
+        set lines {}
+        foreach {- l} [regexp -all -inline "\0337(.*?)\0338" $segment] {
+            lappend lines [string map [list \033\[7m < \033\[0m > \033(0 {} \033(B {}] $l]
+        }
+        lappend r [list $row $col $lines]
+    }
+    return $r
+}
+
+# The lines of the last display
+proc lastScreen {data} {
+    lindex [screens $data] end 2
+}
+
+# -------------------------------------------------------------------------
+# term::interact::menu
+
+test term-menu-1.1 {constructor, returns the fully qualified name} -setup {
+    channels
+} -body {
+    namespace eval ::itest {
+        term::interact::menu m {A a} -in $::in -out $::out
+    }
+} -cleanup {
+    ::itest::m destroy
+    namespace delete ::itest
+    closeChannels
+} -result ::itest::m
+
+test term-menu-1.2 {constructor, wrong # args} -body {
+    term::interact::menu m
+} -returnCodes error -match glob -result {*wrong # args*}
+
+test term-menu-1.3 {default configuration} -setup {
+    term::interact::menu m {A a}
+} -body {
+    lmap o {-in -out -column -line -height -actions -hilitleft -hilitright -framed} {
+        m cget $o
+    }
+} -cleanup {
+    m destroy
+} -result {stdin stdout 0 0 25 {} 0 end 0}
+
+test term-menu-1.4 {configure, -framed is read-only} -setup {
+    term::interact::menu m {A a}
+} -body {
+    m configure -framed 1
+} -cleanup {
+    m destroy
+} -returnCodes error -result {option -framed can only be set at instance creation}
+
+test term-menu-1.5 {configure, unknown option} -setup {
+    term::interact::menu m {A a}
+} -body {
+    m configure -foo 1
+} -cleanup {
+    m destroy
+} -returnCodes error -result {unknown option "-foo"}
+
+test term-menu-1.6 {configure and cget} -setup {
+    term::interact::menu m {A a} -column 5 -line 2
+} -body {
+    m configure -height 10
+    list [m cget -column] [m cget -line] [m cget -height] [llength [m configure]]
+} -cleanup {
+    m destroy
+} -result {5 2 10 9}
+
+test term-menu-2.1 {interact, Enter selects the first entry} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b Gamma g} -in $in -out $out
+} -body {
+    type \n
+    list [interact m] [lastScreen [output]]
+} -cleanup {
+    m destroy
+    closeChannels
+} -result {a {lqqqqqk { <Alpha> } { Beta  } { Gamma } mqqqqqj}}
+
+test term-menu-2.2 {interact, cursor down and up} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b Gamma g} -in $in -out $out
+} -body {
+    type $down$down$up\n
+    list [interact m] [lastScreen [output]]
+} -cleanup {
+    m destroy
+    closeChannels
+} -result {b {lqqqqqk { Alpha } { <Beta > } { Gamma } mqqqqqj}}
+
+test term-menu-2.3 {interact, cursor up at the first entry} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out
+} -body {
+    type $up$up\n
+    set r [interact m]
+    list $r [llength [screens [output]]]
+} -cleanup {
+    m destroy
+    closeChannels
+    unset -nocomplain r
+} -result {a 1}
+
+test term-menu-2.4 {interact, cursor down at the last entry} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out
+} -body {
+    type $down$down$down\n
+    set r [interact m]
+    list $r [llength [screens [output]]]
+} -cleanup {
+    m destroy
+    closeChannels
+    unset -nocomplain r
+} -result {b 2}
+
+test term-menu-2.5 {interact, location of the display} -setup {
+    channels
+    term::interact::menu m {Alpha a} -in $in -out $out -line 4 -column 7
+} -body {
+    type \n
+    interact m
+    lrange [lindex [screens [output]] 0] 0 1
+} -cleanup {
+    m destroy
+    closeChannels
+} -result {4 7}
+
+test term-menu-2.6 {interact, -height and scrolling} -setup {
+    channels
+    term::interact::menu m {A a B b C c D d} -in $in -out $out -height 2
+} -body {
+    type $down$down$down\n
+    list [interact m] [lastScreen [output]]
+} -cleanup {
+    m destroy
+    closeChannels
+} -result {d {lqk { C } { <D> } mqj}}
+
+test term-menu-2.7 {interact, -framed} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out -framed 1
+} -body {
+    type \n
+    interact m
+    lastScreen [output]
+} -cleanup {
+    m destroy
+    closeChannels
+} -result {lqqqqqk x<Alpha>x {xBeta x} mqqqqqj}
+
+test term-menu-2.8 {interact, -hilitleft and -hilitright} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out \
+        -hilitleft 1 -hilitright 2
+} -body {
+    type \n
+    interact m
+    lastScreen [output]
+} -cleanup {
+    m destroy
+    closeChannels
+} -result {lqqqqqk { A<lp>ha } { Beta  } mqqqqqj}
+
+test term-menu-2.9 {interact, -actions} -setup {
+    channels
+    proc ::itestaction {obj str} {
+        lappend ::got $str
+        $obj done
+    }
+    set ::got {}
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out \
+        -actions {x {::itestaction m}}
+} -body {
+    type ${down}x
+    list [interact m] $::got
+} -cleanup {
+    m destroy
+    closeChannels
+    rename ::itestaction {}
+    unset -nocomplain ::got
+} -result {b x}
+
+test term-menu-2.10 {done, from a timer} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out
+} -body {
+    type $down
+    after 100 {m done}
+    interact m
+} -cleanup {
+    m destroy
+    closeChannels
+} -result b
+
+test term-menu-2.11 {interact twice} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out
+} -body {
+    type $down\n
+    set r [interact m]
+    type $up\n
+    lappend r [interact m]
+} -cleanup {
+    m destroy
+    closeChannels
+    unset -nocomplain r
+} -result {b a}
+
+test term-menu-3.1 {clear} -setup {
+    channels
+    term::interact::menu m {Alpha a Beta b} -in $in -out $out -line 2 -column 3
+} -body {
+    m clear
+    set s [lindex [screens [output]] 0]
+    # The block of blanks covers the menu (header, entries, footer)
+    list [lrange $s 0 1] [llength [lindex $s 2]] \
+        [lsort -unique [split [join [lindex $s 2] ""] ""]]
+} -cleanup {
+    m destroy
+    closeChannels
+    unset -nocomplain s
+} -result [list {2 3} 4 [list " "]]
+
+# -------------------------------------------------------------------------
+# term::interact::pager
+
+set text "l1\nl2\nl3\nl4\nl5"
+
+test term-pager-1.1 {constructor, returns the fully qualified name} -setup {
+    channels
+} -body {
+    namespace eval ::itest {
+        term::interact::pager p "text" -in $::in -out $::out
+    }
+} -cleanup {
+    ::itest::p destroy
+    namespace delete ::itest
+    closeChannels
+} -result ::itest::p
+
+test term-pager-1.2 {default configuration} -setup {
+    term::interact::pager p text
+} -body {
+    lmap o {-in -out -column -line -height -actions} {p cget $o}
+} -cleanup {
+    p destroy
+} -result {stdin stdout 0 0 25 {}}
+
+test term-pager-1.3 {constructor, wrong # args} -body {
+    term::interact::pager p
+} -returnCodes error -match glob -result {*wrong # args*}
+
+test term-pager-2.1 {interact, shows the first lines in a frame} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+} -body {
+    type \n
+    list [interact p] [lastScreen [output]]
+} -cleanup {
+    p destroy
+    closeChannels
+} -result {{} {lqqk xl1x xl2x mqqj}}
+
+test term-pager-2.2 {interact, cursor down and up} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+} -body {
+    type $down$down$up\n
+    interact p
+    lmap s [screens [output]] {lrange [lindex $s 2] 1 end-1}
+} -cleanup {
+    p destroy
+    closeChannels
+} -result {{xl1x xl2x} {xl2x xl3x} {xl3x xl4x} {xl2x xl3x}}
+
+test term-pager-2.3 {interact, cursor down stops at the last line} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+} -body {
+    type $down$down$down$down$down$down\n
+    interact p
+    set s [screens [output]]
+    list [llength $s] [lindex $s end 2]
+} -cleanup {
+    p destroy
+    closeChannels
+    unset -nocomplain s
+} -result {4 {lqqk xl4x xl5x mqqj}}
+
+test term-pager-2.4 {interact, cursor up at the first line} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+} -body {
+    type $up\n
+    interact p
+    llength [screens [output]]
+} -cleanup {
+    p destroy
+    closeChannels
+} -result 1
+
+test term-pager-2.5 {interact, page down and page up} -setup {
+    channels
+    term::interact::pager p "a\nb\nc\nd\ne\nf\ng\nh" -in $in -out $out -height 3
+} -body {
+    type $pgdn$pgdn$pgdn$pgup\n
+    interact p
+    lmap s [screens [output]] {lrange [lindex $s 2] 1 end-1}
+} -cleanup {
+    p destroy
+    closeChannels
+} -result {{xax xbx xcx} {xcx xdx xex} {xex xfx xgx} {xfx xgx xhx} {xdx xex xfx}}
+
+test term-pager-2.6 {interact, page up at the first line} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+} -body {
+    type $pgup\n
+    interact p
+    llength [screens [output]]
+} -cleanup {
+    p destroy
+    closeChannels
+} -result 1
+
+test term-pager-2.7 {interact, text shorter than the height} -setup {
+    channels
+    term::interact::pager p "ab\nc" -in $in -out $out
+} -body {
+    type $down$pgdn\n
+    interact p
+    set s [screens [output]]
+    list [llength $s] [lindex $s 0 2]
+} -cleanup {
+    p destroy
+    closeChannels
+    unset -nocomplain s
+} -result {1 {lqqk xabx {xc x} mqqj}}
+
+test term-pager-2.8 {interact, tabs are expanded} -setup {
+    channels
+    term::interact::pager p "a\tb" -in $in -out $out
+} -body {
+    type \n
+    interact p
+    lastScreen [output]
+} -cleanup {
+    p destroy
+    closeChannels
+} -result {lqqqqqqqqqk {xa       bx} mqqqqqqqqqj}
+
+test term-pager-2.9 {interact, -actions} -setup {
+    channels
+    proc ::itestaction {obj str} {
+        lappend ::got $str
+        $obj done
+    }
+    set ::got {}
+    term::interact::pager p $text -in $in -out $out -actions {q {::itestaction p}}
+} -body {
+    type q
+    list [interact p] $::got
+} -cleanup {
+    p destroy
+    closeChannels
+    rename ::itestaction {}
+    unset -nocomplain ::got
+} -result {{} q}
+
+test term-pager-2.10 {interact, location} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -line 3 -column 9
+} -body {
+    type \n
+    interact p
+    lrange [lindex [screens [output]] 0] 0 1
+} -cleanup {
+    p destroy
+    closeChannels
+} -result {3 9}
+
+test term-pager-3.1 {text, outside of interaction} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+} -body {
+    p text "x\ny\nz"
+    set r [list [output]]
+    type \n
+    interact p
+    lappend r [lastScreen [output]]
+} -cleanup {
+    p destroy
+    closeChannels
+    unset -nocomplain r
+} -result {{} {lqk xxx xyx mqj}}
+
+test term-pager-3.2 {text, during interaction resets to the first line} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+    proc ::itestaction {obj str} {
+        $obj text "x\ny\nz"
+    }
+} -body {
+    p configure -actions {}
+    type $down$down
+    after 200 {::itestaction p {}; type \n}
+    interact p
+    lastScreen [output]
+} -cleanup {
+    p destroy
+    closeChannels
+    rename ::itestaction {}
+} -result {lqk xxx xyx mqj}
+
+test term-pager-3.3 {clear} -setup {
+    channels
+    term::interact::pager p $text -in $in -out $out -height 2
+} -body {
+    p clear
+    set s [lindex [screens [output]] 0]
+    list [llength [lindex $s 2]] [lsort -unique [split [join [lindex $s 2] ""] ""]]
+} -cleanup {
+    p destroy
+    closeChannels
+    unset -nocomplain s
+} -result [list 4 [list " "]]
+
+# -------------------------------------------------------------------------
+
+rename channels {}
+rename closeChannels {}
+rename type {}
+rename interact {}
+rename output {}
+rename screens {}
+rename lastScreen {}
+unset up down pgup pgdn text
+
+testsuiteCleanup
+return

@@ -1,0 +1,279 @@
+# -*- tcl -*- Tests for the term::ansi::send package.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal send.tcl             term::send
+    useLocal ansi/code.tcl        term::ansi::code
+    useLocal ansi/code/attr.tcl   term::ansi::code::attr
+    useLocal ansi/code/ctrl.tcl   term::ansi::code::ctrl
+}
+
+testing {
+    useLocal ansi/send.tcl        term::ansi::send
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Make control characters visible.
+proc vis {s} {
+    string map [list \033 <E> \007 <BEL>] $s
+}
+
+# Run the channel variant of a send command, with the channel as first
+# argument, and return what was written.
+proc sendch {cmd args} {
+    set path [file join [tcltest::temporaryDirectory] ansi_send.out]
+    set c [open $path w]
+    fconfigure $c -translation binary
+    set r [::term::ansi::send::$cmd $c {*}$args]
+    # wrch flushes, the data is visible before the channel is closed
+    set in [open $path rb]
+    set data [read $in]
+    close $in
+    close $c
+    file delete $path
+    if {$r ne ""} {error "unexpected result \"$r\""}
+    return $data
+}
+
+# Channel variants are named by appending "ch" to the name.
+proc chname {n} {return ${n}ch}
+
+# -------------------------------------------------------------------------
+# Commands without arguments: the stdout variant writes the same as the
+# code::ctrl command returns; the channel variant writes it to the channel.
+
+set simple {}
+foreach n [::term::ansi::code::ctrl::names] {
+    if {[llength [info args ::term::ansi::code::ctrl::$n]] == 0} {
+        lappend simple $n
+    }
+}
+
+set i 0
+foreach n $simple {
+    incr i
+    test term-ansi-send-1.$i "send $n to stdout" -body \
+        "::term::ansi::send::$n" \
+        -output [::term::ansi::code::ctrl::$n] -result {}
+    test term-ansi-send-2.$i "send [chname $n] to a channel" -body \
+        "sendch [chname $n]" \
+        -result [::term::ansi::code::ctrl::$n]
+}
+unset i n
+
+test term-ansi-send-3.0 {all documented commands exist in both variants} -body {
+    set missing {}
+    foreach c {
+        eeol esol el ed eu es sd su ch sc rc sca rca st ct cat qdc qds qcp rd
+        elw dlw eg lg scs0 scs1 sda fcp cu cd cf cb ss skd title gron groff
+        tlc trc brc blc ltj ttj rtj btj fwj hl vl groptim clear init showat
+        sda_fgblack sda_fgred sda_fggreen sda_fgyellow sda_fgblue
+        sda_fgmagenta sda_fgcyan sda_fgwhite sda_fgdefault sda_bgblack
+        sda_bgred sda_bggreen sda_bgyellow sda_bgblue sda_bgmagenta
+        sda_bgcyan sda_bgwhite sda_bgdefault sda_bold sda_dim sda_italic
+        sda_underline sda_blink sda_revers sda_hidden sda_strike sda_nobold
+        sda_noitalic sda_nounderline sda_noblink sda_norevers sda_nohidden
+        sda_nostrike sda_reset
+    } {
+        foreach v [list $c [chname $c]] {
+            if {![llength [info commands ::term::ansi::send::$v]]} {
+                lappend missing $v
+            }
+        }
+    }
+    set missing
+} -cleanup {
+    unset -nocomplain missing c v
+} -result {}
+
+test term-ansi-send-3.1 {simple command, wrong # args} -body {
+    ::term::ansi::send::eeol x
+} -returnCodes error -result {wrong # args: should be "::term::ansi::send::eeol"}
+
+test term-ansi-send-3.2 {channel variant, wrong # args} -body {
+    ::term::ansi::send::eeolch
+} -returnCodes error -result {wrong # args: should be "::term::ansi::send::eeolch ch"}
+
+test term-ansi-send-3.3 {channel variant, bad channel} -body {
+    ::term::ansi::send::eeolch nosuchchannel
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+# -------------------------------------------------------------------------
+# Commands with arguments
+
+test term-ansi-send-4.1 {scs0, scs1} -body {
+    ::term::ansi::send::scs0 B
+    ::term::ansi::send::scs1 0
+} -output "\033(B\033)0" -result {}
+
+test term-ansi-send-4.2 {scs0ch, scs1ch} -body {
+    list [vis [sendch scs0ch A]] [vis [sendch scs1ch 2]]
+} -result {<E>(A <E>)2}
+
+test term-ansi-send-4.3 {sda} -body {
+    ::term::ansi::send::sda 1 31
+} -output "\033\[1;31m" -result {}
+
+test term-ansi-send-4.4 {sdach} -body {
+    list [vis [sendch sdach 1 31 44]] [vis [sendch sdach]]
+} -result {{<E>[1;31;44m} {<E>[m}}
+
+test term-ansi-send-4.5 {fcp} -body {
+    ::term::ansi::send::fcp 3 7
+} -output "\033\[3;7f" -result {}
+
+test term-ansi-send-4.6 {fcpch} -body {
+    vis [sendch fcpch 10 20]
+} -result {<E>[10;20f}
+
+test term-ansi-send-4.7 {fcp, wrong # args} -body {
+    ::term::ansi::send::fcp 1
+} -returnCodes error -result {wrong # args: should be "::term::ansi::send::fcp r c"}
+
+test term-ansi-send-4.8 {cu, cd, cf, cb, default and count} -body {
+    ::term::ansi::send::cu
+    ::term::ansi::send::cd 2
+    ::term::ansi::send::cf
+    ::term::ansi::send::cb 4
+} -output "\033\[A\033\[2B\033\[C\033\[4D" -result {}
+
+test term-ansi-send-4.9 {cuch, cdch, cfch, cbch} -body {
+    list [vis [sendch cuch]] [vis [sendch cdch 3]] \
+        [vis [sendch cfch 1]] [vis [sendch cbch]]
+} -result {{<E>[A} {<E>[3B} {<E>[C} {<E>[D}}
+
+test term-ansi-send-4.10 {cu, wrong # args} -body {
+    ::term::ansi::send::cu 1 2
+} -returnCodes error -result {wrong # args: should be "::term::ansi::send::cu ?n?"}
+
+test term-ansi-send-4.11 {cuch, wrong # args} -body {
+    ::term::ansi::send::cuch
+} -returnCodes error -result {wrong # args: should be "::term::ansi::send::cuch ch ?n?"}
+
+test term-ansi-send-4.12 {ss, entire display} -body {
+    ::term::ansi::send::ss
+} -output "\033\[r" -result {}
+
+test term-ansi-send-4.13 {ssch, entire display} -body {
+    vis [sendch ssch]
+} -result {<E>[r}
+
+# See term-ansi-ctrl-3.11 in ansi_code.test
+test term-ansi-send-4.14 {ss, region} -constraints knownBug -body {
+    ::term::ansi::send::ss 2 5
+} -output "\033\[2;5r" -result {}
+
+test term-ansi-send-4.15 {skd} -body {
+    ::term::ansi::send::skd 65 x
+} -output "\033\[65;\"x\"p" -result {}
+
+test term-ansi-send-4.16 {skdch} -body {
+    vis [sendch skdch 65 x]
+} -result {<E>[65;"x"p}
+
+test term-ansi-send-4.17 {title} -body {
+    ::term::ansi::send::title T
+} -output "\033\]0;T\007" -result {}
+
+test term-ansi-send-4.18 {titlech} -body {
+    vis [sendch titlech {a b}]
+} -result {<E>]0;a b<BEL>}
+
+test term-ansi-send-4.19 {groptim} -body {
+    ::term::ansi::send::groptim "\033(0q\033(B\033(0q\033(B"
+} -output "\033(0qq\033(B" -result {}
+
+test term-ansi-send-4.20 {groptimch} -body {
+    vis [sendch groptimch "\033(0q\033(B\033(0q\033(B"]
+} -result {<E>(0qq<E>(B}
+
+test term-ansi-send-4.21 {showat} -body {
+    ::term::ansi::send::showat 2 3 "a\nb"
+} -output "\033\[2;3f\0337a\0338\033\[B\0337b\0338\033\[B" -result {}
+
+test term-ansi-send-4.22 {showatch} -body {
+    vis [sendch showatch 2 3 "ab"]
+} -result {<E>[2;3f<E>7ab<E>8<E>[B}
+
+test term-ansi-send-4.23 {showat, empty text} -body {
+    ::term::ansi::send::showat 2 3 ""
+} -output "" -result {}
+
+# -------------------------------------------------------------------------
+# import
+
+test term-ansi-send-5.1 {import, default namespace send} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::send::import
+    }
+    ::anstest::send::eeol
+    ::anstest::send::cu 3
+    llength [info commands ::anstest::send::*]
+} -cleanup {
+    namespace delete ::anstest
+} -output "\033\[K\033\[3A" -result [llength [namespace eval ::term::ansi::send {namespace export}]]
+
+test term-ansi-send-5.2 {import, selected commands} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::send::import s eeol eeolch
+    }
+    lsort [info commands ::anstest::s::*]
+} -cleanup {
+    namespace delete ::anstest
+} -result {::anstest::s::eeol ::anstest::s::eeolch}
+
+test term-ansi-send-5.3 {wr and wrch are exported} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::send::import s wr
+    }
+    ::anstest::s::wr abc
+} -cleanup {
+    namespace delete ::anstest
+} -output abc -result {}
+
+# The channel variant of "cat" (Clear All Tabs) is named "catch", which
+# shadows the builtin command in every namespace the commands are
+# imported into.
+test term-ansi-send-5.4 {import does not break catch} -constraints knownBug -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::send::import ::anstest
+        catch {error x} msg
+    }
+} -cleanup {
+    namespace delete ::anstest
+} -result 1
+
+# -------------------------------------------------------------------------
+
+rename vis {}
+rename sendch {}
+rename chname {}
+unset simple
+
+testsuiteCleanup
+return

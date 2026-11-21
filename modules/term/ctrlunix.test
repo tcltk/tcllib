@@ -1,0 +1,134 @@
+# -*- tcl -*- Tests for the term::ansi::ctrl::unix package.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+#
+# The operations need a terminal on the standard input.  They are run in
+# a child process attached to a pseudo terminal created by the util-linux
+# command "script".
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+tcltest::testConstraint ttytools [expr {
+    $::tcl_platform(platform) eq "unix" &&
+    [llength [auto_execok stty]] && [llength [auto_execok tput]]
+}]
+if {![tcltest::testConstraint ttytools]} {
+    puts "    Aborting the tests found in \"[file tail [info script]]\""
+    puts "    Requirements stty and tput not found"
+    return
+}
+
+testing {
+    useLocal ansi/ctrlunix.tcl term::ansi::ctrl::unix
+}
+
+# script(1) of util-linux, with option -e (return the exit code of the child)
+tcltest::testConstraint script [expr {
+    [llength [auto_execok script]] &&
+    ![catch {exec script -qec true /dev/null </dev/null}]
+}]
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Run the script in a child tclsh attached to a pseudo terminal of 33
+# rows and 111 columns, with the package loaded.  Returns the non-empty
+# lines written by the child.
+proc inTerminal {body} {
+    set path [file join [tcltest::temporaryDirectory] ctrlunix-child.tcl]
+    set c [open $path w]
+    puts $c [list source [file join [tcltest::testsDirectory] ansi ctrlunix.tcl]]
+    puts $c {exec stty rows 33 cols 111 <@stdin}
+    puts $c $body
+    close $c
+    set cmd [list [info nameofexecutable] $path]
+    set env [array get ::env]
+    unset -nocomplain ::env(LINES) ::env(COLUMNS)
+    try {
+        set out [exec timeout 30 script -qec $cmd /dev/null </dev/null]
+    } finally {
+        array set ::env $env
+        file delete $path
+    }
+    set lines [split [string map {\r {}} $out] \n]
+    return [lsearch -all -inline -not -exact $lines {}]
+}
+
+# -------------------------------------------------------------------------
+
+test term-ctrlunix-1.1 {import, default namespace ctrl} -setup {
+    namespace eval ::ctrltest {}
+} -body {
+    namespace eval ::ctrltest {
+        ::term::ansi::ctrl::unix::import
+    }
+    lsort [info commands ::ctrltest::ctrl::*]
+} -cleanup {
+    namespace delete ::ctrltest
+} -result {::ctrltest::ctrl::columns ::ctrltest::ctrl::cooked ::ctrltest::ctrl::raw ::ctrltest::ctrl::rows}
+
+test term-ctrlunix-1.2 {import, selected commands} -setup {
+    namespace eval ::ctrltest {}
+} -body {
+    namespace eval ::ctrltest {
+        ::term::ansi::ctrl::unix::import t rows columns
+    }
+    lsort [info commands ::ctrltest::t::*]
+} -cleanup {
+    namespace delete ::ctrltest
+} -result {::ctrltest::t::columns ::ctrltest::t::rows}
+
+test term-ctrlunix-1.3 {wrong # args} -body {
+    list [catch {::term::ansi::ctrl::unix::raw x} m1] $m1 \
+        [catch {::term::ansi::ctrl::unix::cooked x} m2] $m2 \
+        [catch {::term::ansi::ctrl::unix::rows x} m3] $m3 \
+        [catch {::term::ansi::ctrl::unix::columns x} m4] $m4
+} -cleanup {
+    unset -nocomplain m1 m2 m3 m4
+} -result [list \
+    1 {wrong # args: should be "::term::ansi::ctrl::unix::raw"} \
+    1 {wrong # args: should be "::term::ansi::ctrl::unix::cooked"} \
+    1 {wrong # args: should be "::term::ansi::ctrl::unix::rows"} \
+    1 {wrong # args: should be "::term::ansi::ctrl::unix::columns"}]
+
+test term-ctrlunix-2.1 {rows, columns} -constraints script -body {
+    inTerminal {
+        puts [::term::ansi::ctrl::unix::rows]
+        puts [::term::ansi::ctrl::unix::columns]
+    }
+} -result {33 111}
+
+test term-ctrlunix-2.2 {raw and cooked} -constraints script -body {
+    inTerminal {
+        proc modes {} {
+            set r {}
+            foreach w [regexp -all -inline {\S+} [exec stty -a <@stdin]] {
+                if {$w in {icanon -icanon echo -echo}} {lappend r $w}
+            }
+            return $r
+        }
+        ::term::ansi::ctrl::unix::raw
+        set m [modes]
+        ::term::ansi::ctrl::unix::cooked
+        puts [list $m [modes]]
+    }
+} -result {{{-icanon -echo} {icanon echo}}}
+
+# -------------------------------------------------------------------------
+
+rename inTerminal {}
+
+testsuiteCleanup
+return

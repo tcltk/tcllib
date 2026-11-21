@@ -1,0 +1,541 @@
+# -*- tcl -*- Tests for the term::ansi::code, term::ansi::code::attr,
+# term::ansi::code::ctrl and term::ansi::code::macros packages.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      textutil/repeat.tcl  textutil::repeat
+    use      textutil/tabify.tcl  textutil::tabify
+}
+
+testing {
+    useLocal ansi/code.tcl        term::ansi::code
+    useLocal ansi/code/attr.tcl   term::ansi::code::attr
+    useLocal ansi/code/ctrl.tcl   term::ansi::code::ctrl
+    useLocal ansi/code/macros.tcl term::ansi::code::macros
+}
+
+# -------------------------------------------------------------------------
+
+# Make control characters visible.
+proc vis {s} {
+    string map [list \033 <E> \007 <BEL> \016 <SO> \017 <SI>] $s
+}
+
+# -------------------------------------------------------------------------
+# term::ansi::code
+
+test term-ansi-code-1.0 {esc, wrong # args} -body {
+    ::term::ansi::code::esc
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::esc str"}
+
+test term-ansi-code-1.1 {esc} -body {
+    list [vis [::term::ansi::code::esc c]] [vis [::term::ansi::code::esc {}]] \
+        [vis [::term::ansi::code::esc {[1;2H}]]
+} -result {<E>c <E> {<E>[1;2H}}
+
+test term-ansi-code-1.2 {escb, wrong # args} -body {
+    ::term::ansi::code::escb a b
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::escb str"}
+
+test term-ansi-code-1.3 {escb} -body {
+    list [vis [::term::ansi::code::escb K]] [vis [::term::ansi::code::escb {}]]
+} -result {{<E>[K} {<E>[}}
+
+test term-ansi-code-1.4 {define, wrong # args} -body {
+    ::term::ansi::code::define a b
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::define name escape code"}
+
+test term-ansi-code-1.5 {define, esc and escb} -setup {
+    namespace eval ::anstest {}
+} -body {
+    ::term::ansi::code::define ::anstest::x esc 7
+    ::term::ansi::code::define ::anstest::y escb 2J
+    list [vis [::anstest::x]] [vis [::anstest::y]] [info args ::anstest::x]
+} -cleanup {
+    namespace delete ::anstest
+} -result {<E>7 {<E>[2J} {}}
+
+test term-ansi-code-1.6 {define, relative name is in the namespace of the caller} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::code::define z escb s
+    }
+    vis [::anstest::z]
+} -cleanup {
+    namespace delete ::anstest
+} -result {<E>[s}
+
+test term-ansi-code-1.7 {define, relative name in the global namespace} -body {
+    ::term::ansi::code::define anstestglobal esc D
+    vis [::anstestglobal]
+} -cleanup {
+    rename ::anstestglobal {}
+} -result <E>D
+
+test term-ansi-code-1.8 {const, wrong # args} -body {
+    ::term::ansi::code::const a
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::const name code"}
+
+test term-ansi-code-1.9 {const} -setup {
+    namespace eval ::anstest {}
+} -body {
+    ::term::ansi::code::const ::anstest::a 42
+    namespace eval ::anstest {
+        ::term::ansi::code::const b {x y}
+    }
+    list [::anstest::a] [::anstest::b]
+} -cleanup {
+    namespace delete ::anstest
+} -result {42 {x y}}
+
+test term-ansi-code-1.10 {exported commands} -body {
+    lsort [namespace eval ::term::ansi::code {namespace export}]
+} -result {const define esc escb}
+
+# -------------------------------------------------------------------------
+# term::ansi::code::attr
+
+set attrs {
+    fgblack 30 fgred 31 fggreen 32 fgyellow 33 fgblue 34 fgmagenta 35
+    fgcyan 36 fgwhite 37 fgdefault 39
+    bgblack 40 bgred 41 bggreen 42 bgyellow 43 bgblue 44 bgmagenta 45
+    bgcyan 46 bgwhite 47 bgdefault 49
+    bold 1 dim 2 italic 3 underline 4 blink 5 revers 7 hidden 8 strike 9
+    nobold 22 noitalic 23 nounderline 24 noblink 25 norevers 27
+    nohidden 28 nostrike 29 reset 0
+}
+
+test term-ansi-attr-1.0 {names, wrong # args} -body {
+    ::term::ansi::code::attr::names x
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::attr::names"}
+
+test term-ansi-attr-1.1 {names contains all documented attributes} -body {
+    set missing {}
+    foreach {a code} $attrs {
+        if {$a ni [::term::ansi::code::attr::names]} {lappend missing $a}
+    }
+    set missing
+} -cleanup {
+    unset -nocomplain missing a code
+} -result {}
+
+test term-ansi-attr-1.2 {names, undocumented attributes} -body {
+    set extra {}
+    foreach a [::term::ansi::code::attr::names] {
+        if {![dict exists $attrs $a]} {lappend extra $a}
+    }
+    set extra
+} -cleanup {
+    unset -nocomplain extra a
+} -result {nodim}
+
+set n 0
+foreach {a code} $attrs {
+    incr n
+    test term-ansi-attr-2.$n "attribute $a" -body \
+        [list ::term::ansi::code::attr::$a] -result $code
+}
+unset n a code
+
+test term-ansi-attr-2.50 {attribute command, wrong # args} -body {
+    ::term::ansi::code::attr::bold x
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::attr::bold"}
+
+test term-ansi-attr-3.1 {import, all into the default namespace attr} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::code::attr::import
+    }
+    list [::anstest::attr::fgred] [::anstest::attr::reset] \
+        [llength [info commands ::anstest::attr::*]] \
+        [llength [::term::ansi::code::attr::names]]
+} -cleanup {
+    namespace delete ::anstest
+} -match glob -result {31 0 * *}
+
+test term-ansi-attr-3.2 {import, all commands} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::code::attr::import
+    }
+    expr {[llength [info commands ::anstest::attr::*]] ==
+          [llength [::term::ansi::code::attr::names]]}
+} -cleanup {
+    namespace delete ::anstest
+} -result 1
+
+test term-ansi-attr-3.3 {import, selected commands into a named namespace} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::code::attr::import a bold fg*
+    }
+    list [lsort [info commands ::anstest::a::*]] [::anstest::a::bold]
+} -cleanup {
+    namespace delete ::anstest
+} -result {{::anstest::a::bold ::anstest::a::fgblack ::anstest::a::fgblue ::anstest::a::fgcyan ::anstest::a::fgdefault ::anstest::a::fggreen ::anstest::a::fgmagenta ::anstest::a::fgred ::anstest::a::fgwhite ::anstest::a::fgyellow} 1}
+
+test term-ansi-attr-3.4 {import, absolute namespace} -body {
+    ::term::ansi::code::attr::import ::anstest2 underline
+    ::anstest2::underline
+} -cleanup {
+    namespace delete ::anstest2
+} -result 4
+
+# -------------------------------------------------------------------------
+# term::ansi::code::ctrl, simple sequences
+
+foreach {n cmd expected} {
+    1  eeol  {<E>[K}
+    2  esol  {<E>[1K}
+    3  el    {<E>[2K}
+    4  ed    {<E>[J}
+    5  eu    {<E>[1J}
+    6  es    {<E>[2J}
+    7  sd    {<E>D}
+    8  su    {<E>M}
+    9  ch    {<E>[H}
+    10 sc    {<E>[s}
+    11 rc    {<E>[u}
+    12 sca   {<E>7}
+    13 rca   {<E>8}
+    14 st    {<E>H}
+    15 ct    {<E>[g}
+    16 cat   {<E>[3g}
+    17 qdc   {<E>[c}
+    18 qds   {<E>[5n}
+    19 qcp   {<E>[6n}
+    20 rd    {<E>c}
+    21 eg    {<E>F}
+    22 lg    {<E>G}
+    23 gron  {<E>(0}
+    24 groff {<E>(B}
+    25 clear {<E>[H<E>[J}
+    26 init  {<E>(B<E>)0}
+} {
+    test term-ansi-ctrl-1.$n "ctrl $cmd" -body \
+        "vis \[::term::ansi::code::ctrl::$cmd\]" -result $expected
+}
+
+# DECAWM (auto-wrap) is the private mode 7: ESC [ ? 7 h / l.
+# Ticket [95edfde9d9].
+test term-ansi-ctrl-1.27 {ctrl elw} -constraints knownBug -body {
+    vis [::term::ansi::code::ctrl::elw]
+} -result {<E>[?7h}
+
+test term-ansi-ctrl-1.28 {ctrl dlw} -constraints knownBug -body {
+    vis [::term::ansi::code::ctrl::dlw]
+} -result {<E>[?7l}
+
+test term-ansi-ctrl-1.29 {ctrl, simple sequence, wrong # args} -body {
+    ::term::ansi::code::ctrl::eeol x
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::ctrl::eeol"}
+
+# Box graphics
+
+foreach {n cmd ch} {
+    1 tlc l   2 trc k   3 brc j   4 blc m   5 ltj t   6 ttj w
+    7 rtj u   8 btj v   9 fwj n   10 hl q   11 vl x
+} {
+    test term-ansi-ctrl-2.$n "ctrl $cmd" -body \
+        "vis \[::term::ansi::code::ctrl::$cmd\]" -result "<E>(0$ch<E>(B"
+}
+
+# -------------------------------------------------------------------------
+# term::ansi::code::ctrl, parameterized sequences
+
+test term-ansi-ctrl-3.1 {scs0, scs1} -body {
+    list [vis [::term::ansi::code::ctrl::scs0 A]] [vis [::term::ansi::code::ctrl::scs0 B]] \
+        [vis [::term::ansi::code::ctrl::scs1 0]] [vis [::term::ansi::code::ctrl::scs1 2]]
+} -result {<E>(A <E>(B <E>)0 <E>)2}
+
+test term-ansi-ctrl-3.2 {scs0, wrong # args} -body {
+    ::term::ansi::code::ctrl::scs0
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::ctrl::scs0 tag"}
+
+test term-ansi-ctrl-3.3 {sda} -body {
+    list [vis [::term::ansi::code::ctrl::sda 1]] \
+        [vis [::term::ansi::code::ctrl::sda 1 31 44]] \
+        [vis [::term::ansi::code::ctrl::sda [::term::ansi::code::attr::bold] \
+                  [::term::ansi::code::attr::fgred]]]
+} -result {{<E>[1m} {<E>[1;31;44m} {<E>[1;31m}}
+
+test term-ansi-ctrl-3.4 {sda, no attributes} -body {
+    vis [::term::ansi::code::ctrl::sda]
+} -result {<E>[m}
+
+test term-ansi-ctrl-3.5 {fcp} -body {
+    list [vis [::term::ansi::code::ctrl::fcp 1 1]] [vis [::term::ansi::code::ctrl::fcp 12 40]]
+} -result {{<E>[1;1f} {<E>[12;40f}}
+
+test term-ansi-ctrl-3.6 {fcp, wrong # args} -body {
+    ::term::ansi::code::ctrl::fcp 1
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::ctrl::fcp r c"}
+
+test term-ansi-ctrl-3.7 {cu, cd, cf, cb, default} -body {
+    list [vis [::term::ansi::code::ctrl::cu]] [vis [::term::ansi::code::ctrl::cd]] \
+        [vis [::term::ansi::code::ctrl::cf]] [vis [::term::ansi::code::ctrl::cb]]
+} -result {{<E>[A} {<E>[B} {<E>[C} {<E>[D}}
+
+test term-ansi-ctrl-3.8 {cu, cd, cf, cb, with count} -body {
+    list [vis [::term::ansi::code::ctrl::cu 1]] [vis [::term::ansi::code::ctrl::cd 3]] \
+        [vis [::term::ansi::code::ctrl::cf 10]] [vis [::term::ansi::code::ctrl::cb 2]]
+} -result {{<E>[A} {<E>[3B} {<E>[10C} {<E>[2D}}
+
+test term-ansi-ctrl-3.9 {cu, wrong # args} -body {
+    ::term::ansi::code::ctrl::cu 1 2
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::ctrl::cu ?n?"}
+
+test term-ansi-ctrl-3.10 {ss, entire display} -body {
+    vis [::term::ansi::code::ctrl::ss]
+} -result {<E>[r}
+
+# The ";" in the body of ss is not quoted and ends the command, the
+# result is an error invalid command name "5r".
+test term-ansi-ctrl-3.11 {ss, region} -constraints knownBug -body {
+    vis [::term::ansi::code::ctrl::ss 2 5]
+} -result {<E>[2;5r}
+
+test term-ansi-ctrl-3.12 {ss, wrong # args} -body {
+    list [catch {::term::ansi::code::ctrl::ss 1} msg] $msg \
+        [catch {::term::ansi::code::ctrl::ss 1 2 3} msg] $msg
+} -cleanup {
+    unset -nocomplain msg
+} -result {1 wrong#args 1 wrong#args}
+
+test term-ansi-ctrl-3.13 {skd} -body {
+    vis [::term::ansi::code::ctrl::skd 65 hello]
+} -result {<E>[65;"hello"p}
+
+test term-ansi-ctrl-3.14 {title} -body {
+    vis [::term::ansi::code::ctrl::title {My title}]
+} -result {<E>]0;My title<BEL>}
+
+test term-ansi-ctrl-3.15 {showat} -body {
+    vis [::term::ansi::code::ctrl::showat 3 4 "ab\ncd"]
+} -result {<E>[3;4f<E>7ab<E>8<E>[B<E>7cd<E>8<E>[B}
+
+test term-ansi-ctrl-3.16 {showat, single line} -body {
+    vis [::term::ansi::code::ctrl::showat 1 2 "text"]
+} -result {<E>[1;2f<E>7text<E>8<E>[B}
+
+test term-ansi-ctrl-3.17 {showat, empty text} -body {
+    ::term::ansi::code::ctrl::showat 1 2 {}
+} -result {}
+
+test term-ansi-ctrl-3.18 {showat, wrong # args} -body {
+    ::term::ansi::code::ctrl::showat 1 2
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::ctrl::showat r c text"}
+
+# sda_* commands
+
+set n 0
+foreach {a code} $attrs {
+    incr n
+    test term-ansi-ctrl-4.$n "sda_$a" -body \
+        "vis \[::term::ansi::code::ctrl::sda_$a\]" -result "<E>\[${code}m"
+}
+unset n a code
+
+# -------------------------------------------------------------------------
+# groptim
+
+test term-ansi-ctrl-5.1 {groptim, adjacent box characters} -body {
+    set cd ::term::ansi::code::ctrl
+    vis [${cd}::groptim [${cd}::tlc][${cd}::hl][${cd}::hl][${cd}::trc]]
+} -cleanup {
+    unset -nocomplain cd
+} -result {<E>(0lqqk<E>(B}
+
+test term-ansi-ctrl-5.2 {groptim, separated by normal text} -body {
+    set cd ::term::ansi::code::ctrl
+    vis [${cd}::groptim "[${cd}::vl]ab[${cd}::vl]"]
+} -cleanup {
+    unset -nocomplain cd
+} -result {<E>(0x<E>(Bab<E>(0x<E>(B}
+
+test term-ansi-ctrl-5.3 {groptim, string without graphics} -body {
+    ::term::ansi::code::ctrl::groptim "plain text"
+} -result {plain text}
+
+test term-ansi-ctrl-5.4 {groptim, redundant shifts} -body {
+    set cd ::term::ansi::code::ctrl
+    vis [${cd}::groptim "a[${cd}::gron][${cd}::groff]b[${cd}::groff][${cd}::gron]c"]
+} -cleanup {
+    unset -nocomplain cd
+} -result {abc}
+
+# The manpage says that groptim knows the characters which look the
+# same in both modes; but its tables use the SO/SI shifts, not the
+# ESC ( 0 / ESC ( B sequences generated by gron/groff.
+test term-ansi-ctrl-5.5 {groptim, characters looking the same in both modes} -constraints knownBug -body {
+    set cd ::term::ansi::code::ctrl
+    vis [${cd}::groptim "[${cd}::hl]-[${cd}::hl]"]
+} -cleanup {
+    unset -nocomplain cd
+} -result {<E>(0q-q<E>(B}
+
+test term-ansi-ctrl-5.6 {groptim, wrong # args} -body {
+    ::term::ansi::code::ctrl::groptim
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::ctrl::groptim string"}
+
+# -------------------------------------------------------------------------
+# names, import
+
+test term-ansi-ctrl-6.1 {names, all documented commands} -body {
+    set missing {}
+    foreach c {
+        eeol esol el ed eu es sd su ch sc rc sca rca st ct cat qdc qds qcp rd
+        elw dlw eg lg scs0 scs1 sda fcp cu cd cf cb ss skd title gron groff
+        tlc trc brc blc ltj ttj rtj btj fwj hl vl groptim clear init showat
+    } {
+        if {$c ni [::term::ansi::code::ctrl::names]} {lappend missing $c}
+    }
+    foreach {a code} $attrs {
+        if {"sda_$a" ni [::term::ansi::code::ctrl::names]} {lappend missing sda_$a}
+    }
+    set missing
+} -cleanup {
+    unset -nocomplain missing c a code
+} -result {}
+
+test term-ansi-ctrl-6.2 {names, all are commands} -body {
+    set missing {}
+    foreach c [::term::ansi::code::ctrl::names] {
+        if {![llength [info commands ::term::ansi::code::ctrl::$c]]} {lappend missing $c}
+    }
+    set missing
+} -cleanup {
+    unset -nocomplain missing c
+} -result {}
+
+test term-ansi-ctrl-6.3 {import, default namespace ctrl} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::code::ctrl::import
+    }
+    list [vis [::anstest::ctrl::eeol]] [vis [::anstest::ctrl::cu 2]] \
+        [expr {[llength [info commands ::anstest::ctrl::*]] ==
+               [llength [::term::ansi::code::ctrl::names]]}]
+} -cleanup {
+    namespace delete ::anstest
+} -result {{<E>[K} {<E>[2A} 1}
+
+test term-ansi-ctrl-6.4 {import, selected commands} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::code::ctrl::import c eeol fcp
+    }
+    lsort [info commands ::anstest::c::*]
+} -cleanup {
+    namespace delete ::anstest
+} -result {::anstest::c::eeol ::anstest::c::fcp}
+
+# -------------------------------------------------------------------------
+# term::ansi::code::macros
+
+test term-ansi-macros-1.0 {menu, wrong # args} -body {
+    ::term::ansi::code::macros::menu
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::macros::menu menu"}
+
+test term-ansi-macros-1.1 {menu, command characters in the labels} -body {
+    vis [::term::ansi::code::macros::menu {Open O Close C}]
+} -result {<E>(0lqqqqqk<E>(B
+ <E>[31m<E>[1mO<E>[0mpen
+ <E>[31m<E>[1mC<E>[0mlose
+<E>(0mqqqqqj<E>(B}
+
+test term-ansi-macros-1.2 {menu, the first occurrence is highlighted} -body {
+    vis [::term::ansi::code::macros::menu {Save a}]
+} -result {<E>(0lqqqqk<E>(B
+ S<E>[31m<E>[1ma<E>[0mve
+<E>(0mqqqqj<E>(B}
+
+test term-ansi-macros-1.3 {menu, a character not in its label: all are prefixed} -body {
+    vis [::term::ansi::code::macros::menu {Open o Close x}]
+} -result {<E>(0lqqqqqqqk<E>(B
+ <E>[31m<E>[1mo<E>[0m Open
+ <E>[31m<E>[1mx<E>[0m Close
+<E>(0mqqqqqqqj<E>(B}
+
+test term-ansi-macros-1.4 {menu, empty} -body {
+    vis [::term::ansi::code::macros::menu {}]
+} -result {<E>(0lk<E>(B
+<E>(0mj<E>(B}
+
+test term-ansi-macros-2.0 {frame, wrong # args} -body {
+    ::term::ansi::code::macros::frame
+} -returnCodes error -result {wrong # args: should be "::term::ansi::code::macros::frame string"}
+
+test term-ansi-macros-2.1 {frame, padding} -body {
+    vis [::term::ansi::code::macros::frame "abc\nd"]
+} -result {<E>(0lqqqk<E>(B
+<E>(0x<E>(Babc<E>(0x<E>(B
+<E>(0x<E>(Bd  <E>(0x<E>(B
+<E>(0mqqqj<E>(B}
+
+test term-ansi-macros-2.2 {frame, tabs are expanded} -body {
+    vis [::term::ansi::code::macros::frame "a\tb"]
+} -result {<E>(0lqqqqqqqqqk<E>(B
+<E>(0x<E>(Ba       b<E>(0x<E>(B
+<E>(0mqqqqqqqqqj<E>(B}
+
+test term-ansi-macros-2.3 {frame, empty string} -body {
+    vis [::term::ansi::code::macros::frame ""]
+} -result {<E>(0lk<E>(B
+<E>(0mj<E>(B}
+
+test term-ansi-macros-2.4 {frame, empty lines} -body {
+    vis [::term::ansi::code::macros::frame "\nab\n"]
+} -result {<E>(0lqqk<E>(B
+<E>(0x<E>(B  <E>(0x<E>(B
+<E>(0x<E>(Bab<E>(0x<E>(B
+<E>(0x<E>(B  <E>(0x<E>(B
+<E>(0mqqj<E>(B}
+
+test term-ansi-macros-3.1 {import} -setup {
+    namespace eval ::anstest {}
+} -body {
+    namespace eval ::anstest {
+        ::term::ansi::code::macros::import
+        ::term::ansi::code::macros::import m frame
+    }
+    list [lsort [info commands ::anstest::macros::*]] \
+        [lsort [info commands ::anstest::m::*]]
+} -cleanup {
+    namespace delete ::anstest
+} -result {{::anstest::macros::frame ::anstest::macros::menu} ::anstest::m::frame}
+
+# The manpage documents ::term::ansi::code::macros::names, which does
+# not exist.
+test term-ansi-macros-3.2 {names} -constraints knownBug -body {
+    lsort [::term::ansi::code::macros::names]
+} -result {frame menu}
+
+# -------------------------------------------------------------------------
+
+rename vis {}
+unset attrs
+
+testsuiteCleanup
+return

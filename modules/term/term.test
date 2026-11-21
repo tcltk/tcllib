@@ -1,0 +1,501 @@
+# -*- tcl -*- Tests for the term, term::send, term::receive and
+# term::receive::bind packages.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use      snit/snit.tcl  snit
+}
+
+testing {
+    useLocal term.tcl       term
+    useLocal send.tcl       term::send
+    useLocal receive.tcl    term::receive
+    useLocal bind.tcl       term::receive::bind
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc tmpfile {name} {
+    file join [tcltest::temporaryDirectory] $name
+}
+
+proc readFile {path} {
+    set c [open $path rb]
+    set data [read $c]
+    close $c
+    return $data
+}
+
+# Wait for the variable to be set, at most 5 seconds.
+proc waitFor {varname} {
+    set id [after 5000 [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return [set $varname]
+}
+
+# Callback for term::receive::listen
+proc recv {method args} {
+    lappend ::got [list $method {*}$args]
+    if {$method eq "eof"} {set ::done eof}
+    if {$method eq "process" && [string match *.* [lindex $args 0]]} {
+        set ::done process
+    }
+}
+
+# -------------------------------------------------------------------------
+# term
+
+test term-1.1 {term, package is empty} -body {
+    list [namespace exists ::term] [info commands ::term::*]
+} -match glob -result {1 *}
+
+test term-1.2 {term, package version} -body {
+    package present term
+} -result 0.2
+
+# -------------------------------------------------------------------------
+# term::send
+
+test term-send-1.0 {wrch, wrong # args} -body {
+    ::term::send::wrch stdout
+} -returnCodes error -result {wrong # args: should be "::term::send::wrch ch str"}
+
+test term-send-1.1 {wrch, no line terminator, flushed} -setup {
+    set path [tmpfile term-send-1.1]
+    set c [open $path w]
+    fconfigure $c -buffering full -buffersize 65536
+} -body {
+    set r [list [::term::send::wrch $c "abc"]]
+    # Flushed: visible before the channel is closed
+    lappend r [readFile $path]
+    ::term::send::wrch $c "\033\[Kdef"
+    lappend r [readFile $path]
+} -cleanup {
+    close $c
+    file delete $path
+    unset -nocomplain path c r
+} -result [list {} abc "abc\033\[Kdef"]
+
+test term-send-1.2 {wrch, empty string} -setup {
+    set path [tmpfile term-send-1.2]
+    set c [open $path w]
+} -body {
+    ::term::send::wrch $c ""
+    readFile $path
+} -cleanup {
+    close $c
+    file delete $path
+    unset -nocomplain path c
+} -result {}
+
+test term-send-1.3 {wrch, bad channel} -body {
+    ::term::send::wrch nosuchchannel abc
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test term-send-2.0 {wr, wrong # args} -body {
+    ::term::send::wr
+} -returnCodes error -result {wrong # args: should be "::term::send::wr str"}
+
+test term-send-2.1 {wr, writes to stdout} -body {
+    ::term::send::wr "abc"
+    ::term::send::wr "def"
+} -output abcdef -result {}
+
+test term-send-2.2 {exported commands} -body {
+    lsort [namespace eval ::term::send {namespace export}]
+} -result {wr wrch}
+
+# -------------------------------------------------------------------------
+# term::receive
+
+test term-receive-1.0 {getch, wrong # args} -body {
+    ::term::receive::getch a b
+} -returnCodes error -result {wrong # args: should be "::term::receive::getch ?chan?"}
+
+test term-receive-1.1 {getch, reads one character} -setup {
+    set path [tmpfile term-receive-1.1]
+    set c [open $path w]
+    puts -nonewline $c "aä\n"
+    close $c
+    set c [open $path r]
+    fconfigure $c -encoding utf-8
+} -body {
+    list [::term::receive::getch $c] [::term::receive::getch $c] \
+        [::term::receive::getch $c] [::term::receive::getch $c] [eof $c]
+} -cleanup {
+    close $c
+    file delete $path
+    unset -nocomplain path c
+} -result [list a ä \n {} 1]
+
+test term-receive-1.2 {getch, default channel is stdin} -body {
+    list [info default ::term::receive::getch chan d] $d
+} -cleanup {
+    unset -nocomplain d
+} -result {1 stdin}
+
+test term-receive-2.0 {listen, wrong # args} -body {
+    ::term::receive::listen
+} -returnCodes error -result {wrong # args: should be "::term::receive::listen cmd ?chan?"}
+
+test term-receive-2.1 {listen, process and eof} -setup {
+    lassign [chan pipe] rd wr
+    set ::got {}
+    unset -nocomplain ::done
+} -body {
+    ::term::receive::listen recv $rd
+    puts -nonewline $wr "abc."
+    flush $wr
+    waitFor ::done
+    close $wr
+    unset ::done
+    waitFor ::done
+    # The channel is closed at EOF
+    list $::got [expr {$rd in [chan names]}]
+} -cleanup {
+    catch {close $rd}
+    unset -nocomplain rd wr ::got ::done
+} -result {{{process abc.} eof} 0}
+
+test term-receive-2.2 {listen, channel is made non-blocking} -setup {
+    lassign [chan pipe] rd wr
+} -body {
+    ::term::receive::listen recv $rd
+    list [fconfigure $rd -blocking] [expr {[fileevent $rd readable] ne ""}]
+} -cleanup {
+    close $rd
+    close $wr
+    unset -nocomplain rd wr
+} -result {0 1}
+
+test term-receive-2.3 {listen, command prefix} -setup {
+    lassign [chan pipe] rd wr
+    set ::got {}
+    unset -nocomplain ::done
+} -body {
+    ::term::receive::listen {recv2 x} $rd
+    proc recv2 {extra method args} {
+        lappend ::got [list $extra $method {*}$args]
+        set ::done 1
+    }
+    puts -nonewline $wr "z"
+    flush $wr
+    waitFor ::done
+    set ::got
+} -cleanup {
+    close $rd
+    close $wr
+    rename recv2 {}
+    unset -nocomplain rd wr ::got ::done
+} -result {{x process z}}
+
+test term-receive-3.0 {unlisten, wrong # args} -body {
+    ::term::receive::unlisten a b
+} -returnCodes error -result {wrong # args: should be "::term::receive::unlisten ?chan?"}
+
+test term-receive-3.1 {unlisten} -setup {
+    lassign [chan pipe] rd wr
+    set ::got {}
+} -body {
+    ::term::receive::listen recv $rd
+    ::term::receive::unlisten $rd
+    puts -nonewline $wr "abc."
+    flush $wr
+    update
+    after 50
+    update
+    list [fileevent $rd readable] $::got
+} -cleanup {
+    close $rd
+    close $wr
+    unset -nocomplain rd wr ::got
+} -result {{} {}}
+
+test term-receive-3.2 {exported commands} -body {
+    lsort [namespace eval ::term::receive {namespace export}]
+} -result {getch listen}
+
+# -------------------------------------------------------------------------
+# term::receive::bind
+
+proc act {name seq} {
+    lappend ::got [list $name $seq]
+}
+
+test term-bind-1.1 {constructor, returns the fully qualified name} -body {
+    namespace eval ::bindtest {
+        ::term::receive::bind b
+    }
+} -cleanup {
+    ::bindtest::b destroy
+    namespace delete ::bindtest
+} -result ::bindtest::b
+
+test term-bind-1.2 {constructor, without map nothing is recognized} -setup {
+    ::term::receive::bind b
+    set ::got {}
+} -body {
+    b process abc
+    set ::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {}
+
+test term-bind-1.3 {constructor with map} -setup {
+    ::term::receive::bind b {x {act X} y {act Y}}
+    set ::got {}
+} -body {
+    b process xyzx
+    set ::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {{X x} {Y y} {X x}}
+
+test term-bind-1.4 {constructor, too many arguments} -body {
+    ::term::receive::bind b {} extra
+} -returnCodes error -match glob -result {*wrong # args*}
+
+test term-bind-2.1 {map, single characters} -setup {
+    ::term::receive::bind b
+    set ::got {}
+} -body {
+    list [b map a {act A}] [b process ba] $::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {{} {} {{A a}}}
+
+# The action is documented to get the character sequence causing the
+# invocation; it only gets the last character.
+test term-bind-2.2 {map, multi-character sequences} -constraints knownBug -setup {
+    ::term::receive::bind b
+    set ::got {}
+} -body {
+    b map "\033\[A" {act up}
+    b map "\033\[B" {act down}
+    b process "\033\[B\033\[A"
+    set ::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result [list [list down "\033\[B"] [list up "\033\[A"]]
+
+test term-bind-2.3 {map, multi-character sequences, actions are invoked} -setup {
+    ::term::receive::bind b
+    set ::got {}
+} -body {
+    b map "\033\[A" {act up}
+    b map "\033\[B" {act down}
+    b process "\033\[B\033\[Ax\033\[A"
+    lmap e $::got {lindex $e 0}
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got e
+} -result {down up up}
+
+test term-bind-2.4 {map, action is executed in the global namespace} -setup {
+    ::term::receive::bind b
+    set ::got {}
+    proc where {args} {lappend ::got [uplevel 1 {namespace current}] [info level]}
+} -body {
+    b map q where
+    b process q
+    set ::got
+} -cleanup {
+    b destroy
+    rename where {}
+    unset -nocomplain ::got
+} -result {:: 1}
+
+test term-bind-2.5 {map, replaces an existing action} -setup {
+    ::term::receive::bind b {a {act A}}
+    set ::got {}
+} -body {
+    b map a {act B}
+    b process a
+    set ::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {{B a}}
+
+test term-bind-2.6 {map, wrong # args} -setup {
+    ::term::receive::bind b
+} -body {
+    b map a
+} -cleanup {
+    b destroy
+} -returnCodes error -match glob -result {wrong # args: should be "* str cmd"}
+
+test term-bind-3.1 {default, unknown sequences} -setup {
+    ::term::receive::bind b {ab {act AB}}
+    set ::got {}
+} -body {
+    list [b default {act D}] [b process xab] $::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {{} {} {{D x} {AB b}}}
+
+test term-bind-3.2 {default, gets the unrecognized prefix} -setup {
+    ::term::receive::bind b {abc {act ABC}}
+    set ::got {}
+} -body {
+    b default {act D}
+    b process abx
+    set ::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {{D abx}}
+
+test term-bind-3.3 {default, after an unknown sequence the processor is reset} -setup {
+    ::term::receive::bind b {abc {act ABC} x {act X}}
+    set ::got {}
+} -body {
+    b default {act D}
+    b process abxx
+    lmap e $::got {lindex $e 0}
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got e
+} -result {D X}
+
+test term-bind-3.4 {default, empty command removes it} -setup {
+    ::term::receive::bind b
+    set ::got {}
+} -body {
+    b default {act D}
+    b default {}
+    b process x
+    set ::got
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {}
+
+test term-bind-4.1 {next, single characters} -setup {
+    ::term::receive::bind b {abc {act ABC}}
+    set ::got {}
+} -body {
+    list [b next a] [b next b] $::got [b next c] [llength $::got]
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got
+} -result {{} {} {} {} 1}
+
+test term-bind-4.2 {reset, returns to the beginning of the tree} -setup {
+    ::term::receive::bind b {abc {act ABC} c {act C}}
+    set ::got {}
+} -body {
+    b next a
+    b next b
+    b reset
+    b next c
+    lmap e $::got {lindex $e 0}
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got e
+} -result {C}
+
+test term-bind-4.3 {process, sequences split across calls} -setup {
+    ::term::receive::bind b {abc {act ABC}}
+    set ::got {}
+} -body {
+    b process a
+    b process bca
+    b process bc
+    lmap e $::got {lindex $e 0}
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got e
+} -result {ABC ABC}
+
+test term-bind-4.4 {map, takes effect while in a prefix} -setup {
+    ::term::receive::bind b {abc {act ABC}}
+    set ::got {}
+} -body {
+    b process ab
+    b map abd {act ABD}
+    b process d
+    lmap e $::got {lindex $e 0}
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got e
+} -result {ABD}
+
+test term-bind-4.5 {eof is a no-op} -setup {
+    ::term::receive::bind b {abc {act ABC}}
+    set ::got {}
+} -body {
+    b process ab
+    b eof
+    b process c
+    list [b eof] [lmap e $::got {lindex $e 0}]
+} -cleanup {
+    b destroy
+    unset -nocomplain ::got e
+} -result {{} ABC}
+
+test term-bind-5.1 {listen and unlisten} -setup {
+    lassign [chan pipe] rd wr
+    ::term::receive::bind b {. {set ::done}}
+    set ::got {}
+    unset -nocomplain ::done
+} -body {
+    b map x {act X}
+    b listen $rd
+    puts -nonewline $wr "x."
+    flush $wr
+    waitFor ::done
+    b unlisten $rd
+    list $::got [fileevent $rd readable]
+} -cleanup {
+    b destroy
+    close $rd
+    close $wr
+    unset -nocomplain rd wr ::got ::done
+} -result {{{X x}} {}}
+
+test term-bind-5.2 {listen, default channel is stdin} -setup {
+    ::term::receive::bind b
+} -body {
+    b listen
+    set r [expr {[fileevent stdin readable] ne ""}]
+    b unlisten
+    lappend r [fileevent stdin readable]
+} -cleanup {
+    b destroy
+    fconfigure stdin -blocking 1
+    unset -nocomplain r
+} -result {1 {}}
+
+# -------------------------------------------------------------------------
+
+rename tmpfile {}
+rename readFile {}
+rename waitFor {}
+rename recv {}
+rename act {}
+
+testsuiteCleanup
+return
