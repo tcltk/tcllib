@@ -1,0 +1,556 @@
+# -*- tcl -*-
+# grammar_fa-api.test:  API tests for grammar::fa, grammar::fa::op,
+#                       grammar::fa::dacceptor and grammar::fa::dexec
+#                       not covered by the tests in tests/*.test:
+#                       complement, op::constructor, dexec state and
+#                       options, snapshot semantics of acceptor/executor.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+    use struct/sets.tcl struct::set
+    use snit/snit.tcl   snit
+    use struct/list.tcl struct::list
+}
+testing {
+    useLocal     faop.tcl      grammar::fa::op
+    useLocalKeep fa.tcl        grammar::fa
+    useLocal     dacceptor.tcl grammar::fa::dacceptor
+    useLocal     dexec.tcl     grammar::fa::dexec
+}
+
+snitErrors
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# A complete DFA over {a b} accepting the words ending in 'a'.
+#   0 -a-> 1, 0 -b-> 0, 1 -a-> 1, 1 -b-> 0; start 0, final 1.
+proc mkendsa {name} {
+    grammar::fa $name
+    $name state add 0 1
+    $name symbol add a b
+    $name start add 0
+    $name final add 1
+    $name next 0 a --> 1
+    $name next 0 b --> 0
+    $name next 1 a --> 1
+    $name next 1 b --> 0
+    return $name
+}
+
+# A DFA accepting exactly "a b": 0 -a-> 1 -b-> 2, start 0, final 2.
+proc mkab {name} {
+    grammar::fa $name
+    $name state add 0 1 2
+    $name symbol add a b
+    $name start add 0
+    $name final add 2
+    $name next 0 a --> 1
+    $name next 1 b --> 2
+    return $name
+}
+
+proc accepts {fa word} {
+    grammar::fa::dacceptor ::acc $fa
+    set r [::acc accept? $word]
+    ::acc destroy
+    return $r
+}
+
+proc ev {args} {
+    lappend ::events $args
+    return
+}
+
+# -------------------------------------------------------------------------
+# grammar::fa::op::complement / fa complement
+# -------------------------------------------------------------------------
+
+test grammar_fa-api-1.0 {op::complement, swaps final and non-final states} -setup {
+    mkendsa fa
+} -body {
+    grammar::fa::op::complement fa
+    list [lsort [fa states]] [fa finalstates] [fa startstates]
+} -cleanup {
+    fa destroy
+} -result {{0 1} 0 0}
+
+test grammar_fa-api-1.1 {op::complement, complementary language} -setup {
+    mkendsa fa
+} -body {
+    grammar::fa::op::complement fa
+    list [accepts fa {}] [accepts fa a] [accepts fa {a b}] [accepts fa {b a}]
+} -cleanup {
+    fa destroy
+} -result {1 0 1 0}
+
+test grammar_fa-api-1.2 {op::complement, transitions are kept} -setup {
+    mkendsa fa
+    set before [fa serialize]
+} -body {
+    grammar::fa::op::complement fa
+    set after [fa serialize]
+    # Same symbols and transitions, only the final flags differ.
+    set res {}
+    foreach {s d} [lindex $before 2] {
+	lappend res $s [expr {[lindex $d 2] eq [lindex [dict get [lindex $after 2] $s] 2]}] \
+	    [expr {[lindex $d 1] != [lindex [dict get [lindex $after 2] $s] 1]}]
+    }
+    list [lindex $after 1] $res
+} -cleanup {
+    fa destroy
+    unset before after res s d
+} -result {{a b} {0 1 1 1 1 1}}
+
+test grammar_fa-api-1.3 {op::complement, twice is identity} -setup {
+    mkendsa fa
+} -body {
+    grammar::fa::op::complement fa
+    grammar::fa::op::complement fa
+    fa finalstates
+} -cleanup {
+    fa destroy
+} -result 1
+
+test grammar_fa-api-1.4 {op::complement, incomplete FA} -setup {
+    mkab fa
+} -body {
+    grammar::fa::op::complement fa
+} -cleanup {
+    fa destroy
+} -returnCodes error -result {Unable to complement incomplete FA}
+
+test grammar_fa-api-1.5 {op::complement, non-deterministic FA} -setup {
+    mkendsa fa
+    fa next 0 a --> 0
+} -body {
+    grammar::fa::op::complement fa
+} -cleanup {
+    fa destroy
+} -returnCodes error -result {Unable to complement non-deterministic FA}
+
+test grammar_fa-api-1.6 {op::complement, wrong # args} -body {
+    grammar::fa::op::complement
+} -returnCodes error -result {wrong # args: should be "grammar::fa::op::complement fa"}
+
+test grammar_fa-api-1.7 {op::complement, complete after completion} -setup {
+    mkab fa
+} -body {
+    fa complete
+    grammar::fa::op::complement fa
+    list [accepts fa {a b}] [accepts fa a] [accepts fa {}] [accepts fa {a b a}]
+} -cleanup {
+    fa destroy
+} -result {0 1 1 1}
+
+test grammar_fa-api-1.8 {op::complement, FA without symbols} -setup {
+    grammar::fa fa
+    fa state add x
+    fa start add x
+} -body {
+    grammar::fa::op::complement fa
+    fa finalstates
+} -cleanup {
+    fa destroy
+} -result x
+
+test grammar_fa-api-2.0 {fa complement method} -setup {
+    mkendsa fa
+} -body {
+    fa complement
+    list [fa finalstates] [accepts fa {b}] [accepts fa {b a}]
+} -cleanup {
+    fa destroy
+} -result {0 1 0}
+
+test grammar_fa-api-2.1 {fa complement method, incomplete FA} -setup {
+    mkab fa
+} -body {
+    fa complement
+} -cleanup {
+    fa destroy
+} -returnCodes error -result {Unable to complement incomplete FA}
+
+test grammar_fa-api-2.2 {fa complement method, wrong # args} -setup {
+    mkab fa
+} -body {
+    fa complement x
+} -cleanup {
+    fa destroy
+} -returnCodes error -result [snitTooManyArgs fa ::grammar::fa::Snit_methodcomplement {}]
+
+# -------------------------------------------------------------------------
+# grammar::fa::op::constructor
+# -------------------------------------------------------------------------
+
+test grammar_fa-api-3.0 {op::constructor, wrong # args} -body {
+    grammar::fa::op::constructor
+} -returnCodes error -result {wrong # args: should be "grammar::fa::op::constructor cmd"}
+
+test grammar_fa-api-3.1 {op::constructor, returns empty} -setup {
+    set saved $grammar::fa::op::cons
+} -body {
+    grammar::fa::op::constructor ::grammar::fa
+} -cleanup {
+    set grammar::fa::op::cons $saved
+    unset saved
+} -result {}
+
+test grammar_fa-api-3.2 {op::constructor, operations fail without a constructor} -setup {
+    set saved $grammar::fa::op::cons
+    mkendsa fa
+    mkab fb
+} -body {
+    grammar::fa::op::constructor {}
+    grammar::fa::op::union fa fb
+} -cleanup {
+    set grammar::fa::op::cons $saved
+    fa destroy
+    fb destroy
+    unset saved
+} -returnCodes error -result {No constructor for FA container was established.}
+
+test grammar_fa-api-3.3 {op::constructor, the command is used for transient containers} -setup {
+    set saved $grammar::fa::op::cons
+    set created {}
+    proc mycons {name args} {
+	lappend ::created $name
+	return [uplevel 1 [list ::grammar::fa $name {*}$args]]
+    }
+    mkendsa fa
+    mkab fb
+} -body {
+    grammar::fa::op::constructor mycons
+    grammar::fa::op::union fa fb
+    grammar::fa::op::determinize fa
+    list [expr {[llength $created] > 0}] [accepts fa {a b}] [accepts fa {b a}] [accepts fa b]
+} -cleanup {
+    set grammar::fa::op::cons $saved
+    fa destroy
+    fb destroy
+    rename mycons {}
+    unset saved created
+} -result {1 1 1 0}
+
+test grammar_fa-api-3.4 {grammar::fa sets itself as constructor} -body {
+    set grammar::fa::op::cons
+} -result ::grammar::fa
+
+# -------------------------------------------------------------------------
+# grammar::fa::dacceptor
+# -------------------------------------------------------------------------
+
+test grammar_fa-api-4.0 {dacceptor, result is the qualified name} -setup {
+    mkab fa
+} -body {
+    grammar::fa::dacceptor da fa
+} -cleanup {
+    da destroy
+    fa destroy
+} -result ::da
+
+test grammar_fa-api-4.1 {dacceptor, non-deterministic FA} -setup {
+    mkab fa
+    fa next 0 a --> 2
+} -body {
+    grammar::fa::dacceptor da fa
+} -cleanup {
+    fa destroy
+} -returnCodes error -result {Error in constructor: Source FA is not deterministic}
+
+test grammar_fa-api-4.2 {dacceptor, later changes to the FA do not influence it} -setup {
+    mkab fa
+    grammar::fa::dacceptor da fa
+} -body {
+    set r [da accept? {a b}]
+    fa final remove 2
+    fa final add 1
+    list $r [da accept? {a b}] [da accept? a] [accepts fa a]
+} -cleanup {
+    da destroy
+    fa destroy
+    unset r
+} -result {1 1 0 1}
+
+test grammar_fa-api-4.3 {dacceptor, acceptor survives destruction of the FA} -setup {
+    mkab fa
+    grammar::fa::dacceptor da fa
+    fa destroy
+} -body {
+    list [da accept? {a b}] [da accept? {a}]
+} -cleanup {
+    da destroy
+} -result {1 0}
+
+test grammar_fa-api-4.4 {dacceptor, bogus symbols are no error} -setup {
+    mkab fa
+    grammar::fa::dacceptor da fa
+} -body {
+    list [da accept? {x}] [da accept? {a x}] [da accept? {a b x}]
+} -cleanup {
+    da destroy
+    fa destroy
+} -result {0 0 0}
+
+test grammar_fa-api-4.5 {dacceptor, -any maps unknown symbols} -setup {
+    mkab fa
+    grammar::fa::dacceptor da fa -any b
+} -body {
+    list [da accept? {a x}] [da accept? {x b}] [da cget -any]
+} -cleanup {
+    da destroy
+    fa destroy
+} -result {1 0 b}
+
+test grammar_fa-api-4.6 {dacceptor accept?, wrong # args} -setup {
+    mkab fa
+    grammar::fa::dacceptor da fa
+} -body {
+    da accept?
+} -cleanup {
+    da destroy
+    fa destroy
+} -returnCodes error -result [snitWrongNumArgs da ::grammar::fa::dacceptor::Snit_methodaccept? {symbolstring} 0]
+
+test grammar_fa-api-4.7 {dacceptor, destroy removes the command} -setup {
+    mkab fa
+    grammar::fa::dacceptor da fa
+} -body {
+    da destroy
+    info commands ::da
+} -cleanup {
+    fa destroy
+} -result {}
+
+test grammar_fa-api-4.8 {dacceptor, empty input accepted iff start state is final} -setup {
+    mkendsa fa
+    grammar::fa::dacceptor da fa
+    mkendsa fb
+    fb final add 0
+    grammar::fa::dacceptor db fb
+} -body {
+    list [da accept? {}] [db accept? {}]
+} -cleanup {
+    da destroy
+    db destroy
+    fa destroy
+    fb destroy
+} -result {0 1}
+
+# -------------------------------------------------------------------------
+# grammar::fa::dexec
+# -------------------------------------------------------------------------
+
+test grammar_fa-api-5.0 {dexec, result, reset reported on construction} -setup {
+    mkab fa
+    set events {}
+} -body {
+    list [grammar::fa::dexec de fa -command ev] $events
+} -cleanup {
+    de destroy
+    fa destroy
+    unset events
+} -result {::de reset}
+
+test grammar_fa-api-5.1 {dexec, non-deterministic FA} -setup {
+    mkab fa
+    fa next 0 a --> 2
+} -body {
+    grammar::fa::dexec de fa -command ev
+} -cleanup {
+    fa destroy
+} -returnCodes error -result {Error in constructor: Source FA is not deterministic}
+
+test grammar_fa-api-5.2 {dexec, -command is optional as documented} -constraints {
+    knownBug
+} -setup {
+    mkab fa
+} -body {
+    # The synopsis shows [opt -command], but the constructor fails with
+    # "Command callback missing" without it.
+    grammar::fa::dexec de fa
+    de put a
+    de state
+} -cleanup {
+    catch {de destroy}
+    fa destroy
+} -result 1
+
+test grammar_fa-api-5.3 {dexec state, start state after construction} -setup {
+    mkab fa
+    set events {}
+    grammar::fa::dexec de fa -command ev
+} -body {
+    de state
+} -cleanup {
+    de destroy
+    fa destroy
+    unset events
+} -result 0
+
+test grammar_fa-api-5.4 {dexec state, follows transitions} -setup {
+    mkab fa
+    set events {}
+    grammar::fa::dexec de fa -command ev
+} -body {
+    set r [de state]
+    de put a
+    lappend r [de state]
+    de put b
+    lappend r [de state] $events
+} -cleanup {
+    de destroy
+    fa destroy
+    unset events r
+} -result {0 1 2 {reset {state 1} {state 2} {final 2}}}
+
+test grammar_fa-api-5.5 {dexec state, unchanged by an error, until reset} -setup {
+    mkab fa
+    set events {}
+    grammar::fa::dexec de fa -command ev
+} -body {
+    de put a
+    de put a
+    set r [de state]
+    de put b
+    lappend r [de state]
+    de reset
+    lappend r [de state] $events
+} -cleanup {
+    de destroy
+    fa destroy
+    unset events r
+} -result {1 1 0 {reset {state 1} {error BADTRANS {Bad transition ("1" "a"), no destination}} reset}}
+
+test grammar_fa-api-5.6 {dexec state, wrong # args} -setup {
+    mkab fa
+    grammar::fa::dexec de fa -command ev
+} -body {
+    de state x
+} -cleanup {
+    de destroy
+    fa destroy
+    unset -nocomplain events
+} -returnCodes error -result [snitTooManyArgs de ::grammar::fa::dexec::Snit_methodstate {}]
+
+test grammar_fa-api-5.7 {dexec put, wrong # args} -setup {
+    mkab fa
+    grammar::fa::dexec de fa -command ev
+} -body {
+    de put
+} -cleanup {
+    de destroy
+    fa destroy
+    unset -nocomplain events
+} -returnCodes error -result [snitWrongNumArgs de ::grammar::fa::dexec::Snit_methodput {sy} 0]
+
+test grammar_fa-api-5.8 {dexec, callback prefix with extra words, called at global level} -setup {
+    mkab fa
+    set events {}
+    proc ev2 {args} {
+	lappend ::events [list [info level] {*}$args]
+    }
+    grammar::fa::dexec de fa -command {ev2 X}
+} -body {
+    de put a
+    set events
+} -cleanup {
+    de destroy
+    fa destroy
+    rename ev2 {}
+    unset events
+} -result {{1 X reset} {1 X state 1}}
+
+test grammar_fa-api-5.9 {dexec, cget and configure -command} -setup {
+    mkab fa
+    set events {}
+    grammar::fa::dexec de fa -command ev
+    proc ev2 {args} {lappend ::events [list 2 {*}$args]}
+} -body {
+    set r [de cget -command]
+    de configure -command ev2
+    lappend r [de cget -command]
+    de put a
+    lappend r $events
+} -cleanup {
+    de destroy
+    fa destroy
+    rename ev2 {}
+    unset events r
+} -result {ev ev2 {reset {2 state 1}}}
+
+test grammar_fa-api-5.10 {dexec, configure -any after construction} -setup {
+    mkab fa
+    set events {}
+    grammar::fa::dexec de fa -command ev
+} -body {
+    set r [list [de cget -any]]
+    de configure -any a
+    lappend r [de cget -any]
+    de put x
+    lappend r [de state] $events
+} -cleanup {
+    de destroy
+    fa destroy
+    unset events r
+} -result {{} a 1 {reset {state 1}}}
+
+test grammar_fa-api-5.11 {dexec, later changes to the FA do not influence it} -setup {
+    mkab fa
+    set events {}
+    grammar::fa::dexec de fa -command ev
+} -body {
+    fa next 1 a --> 2
+    de put a
+    de put a
+    set events
+} -cleanup {
+    de destroy
+    fa destroy
+    unset events
+} -result {reset {state 1} {error BADTRANS {Bad transition ("1" "a"), no destination}}}
+
+test grammar_fa-api-5.12 {dexec, BADSYM blocks put until reset} -setup {
+    mkab fa
+    set events {}
+    grammar::fa::dexec de fa -command ev
+} -body {
+    de put x
+    de put a
+    de reset
+    de put a
+    set events
+} -cleanup {
+    de destroy
+    fa destroy
+    unset events
+} -result {reset {error BADSYM {Bad symbol "x"}} reset {state 1}}
+
+test grammar_fa-api-5.13 {dexec, destroy removes the command} -setup {
+    mkab fa
+    grammar::fa::dexec de fa -command ev
+} -body {
+    de destroy
+    info commands ::de
+} -cleanup {
+    fa destroy
+    unset -nocomplain events
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename mkendsa {}
+rename mkab {}
+rename accepts {}
+rename ev {}
+testsuiteCleanup
+return
