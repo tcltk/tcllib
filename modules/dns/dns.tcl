@@ -632,7 +632,7 @@ proc ::dns::PackString {text} {
 
 # Pack up a single DNS resource record. See RFC1035: 3.2 for the format
 # of each type.
-# eg: PackRecord name wiki.tcl.tk type MX class IN rdata {10 mail.example.com}
+# eg: PackRecord name wiki.tcl-lang.org type MX class IN rdata {10 mail.example.com}
 #
 proc ::dns::PackRecord {args} {
     variable types
@@ -1091,7 +1091,7 @@ proc ::dns::Pop {varname {nth 0}} {
 
 # -------------------------------------------------------------------------
 # Description:
-#   Reverse a list. Code from http://wiki.tcl.tk/tcl/43
+#   Reverse a list. Code from https://wiki.tcl-lang.org/tcl/43
 #
 proc ::dns::lreverse {lst} {
     set res {}
