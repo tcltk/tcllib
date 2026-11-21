@@ -1,0 +1,119 @@
+# -*- tcl -*-
+# urn-api.test: tests for the uri::urn package, complementing urn.test.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal uri.tcl uri
+}
+testing {
+    useLocal urn-scheme.tcl uri::urn
+}
+
+# -------------------------------------------------------------------------
+# quote, unquote
+
+test urn-api-1.1 {quote, wrong # args} -body {
+    uri::urn::quote
+} -returnCodes error -result {wrong # args: should be "uri::urn::quote url"}
+
+test urn-api-1.2 {quote, too many args} -body {
+    uri::urn::quote a b
+} -returnCodes error -result {wrong # args: should be "uri::urn::quote url"}
+
+test urn-api-1.3 {quote, disallowed ASCII characters} -body {
+    uri::urn::quote {a b/c?d#e%f"g<h>i[j]k\l^m`n{o}p|q~r&s}
+} -result {a%20b%2Fc%3Fd%23e%25f%22g%3Ch%3Ei%5Bj%5Dk%5Cl%5Em%60n%7Bo%7Dp%7Cq%7Er%26s}
+
+test urn-api-1.4 {quote, allowed characters unchanged} -body {
+    uri::urn::quote {azAZ09$_.+!*'(,):=@;-}
+} -result {azAZ09$_.+!*'(,):=@;-}
+
+test urn-api-1.5 {quote, empty string} -body {
+    uri::urn::quote {}
+} -result {}
+
+test urn-api-1.6 {quote, control characters} -body {
+    uri::urn::quote "a\tb\nc\x7f"
+} -result {a%09b%0Ac%7F}
+
+# The error message refers to an unset variable.
+test urn-api-1.7 {quote, NUL character} -constraints knownBug -body {
+    uri::urn::quote "a\0b"
+} -returnCodes error -match glob -result {invalid character*}
+
+test urn-api-1.8 {unquote, wrong # args} -body {
+    uri::urn::unquote
+} -returnCodes error -result {wrong # args: should be "uri::urn::unquote url"}
+
+test urn-api-1.9 {unquote, lower case hex digits} -body {
+    uri::urn::unquote %c5%82%2f%2F
+} -result "ł//"
+
+test urn-api-1.10 {unquote, incomplete escapes are kept} -body {
+    uri::urn::unquote %zz%2
+} -result %zz%2
+
+test urn-api-1.11 {unquote, text without escapes} -body {
+    uri::urn::unquote abc:def
+} -result abc:def
+
+test urn-api-1.12 {unquote reverses quote} -body {
+    set s "a b/ćй%€"
+    string equal [uri::urn::unquote [uri::urn::quote $s]] $s
+} -cleanup {
+    unset -nocomplain s
+} -result 1
+
+# -------------------------------------------------------------------------
+# split, join, registration
+
+test urn-api-2.1 {split, URN alias, scheme returned lower case} -body {
+    dictsort [uri::split URN:isbn:0451450523]
+} -result {nid isbn nss 0451450523 scheme urn}
+
+test urn-api-2.2 {split, missing NSS} -body {
+    uri::split urn:bad
+} -returnCodes error -result {invalid urn syntax: "bad" could not be parsed}
+
+test urn-api-2.3 {split does not decode the NSS} -body {
+    dict get [uri::split urn:example:a%2Fb] nss
+} -result a%2Fb
+
+test urn-api-2.4 {join, invalid NID} -body {
+    uri::join scheme urn nid -x nss y
+} -returnCodes error -result {invalid urn: nid is invalid}
+
+# uri::join expects percent-encoded slices, but the NSS is quoted again.
+test urn-api-2.5 {split/join round trip with escaped NSS} -constraints knownBug -body {
+    uri::join {*}[uri::split urn:example:a%2Fb]
+} -result urn:example:a%2Fb
+
+test urn-api-2.6 {urn and URN are registered schemes} -body {
+    list [expr {"urn" in $::uri::schemes}] [expr {"URN" in $::uri::schemes}]
+} -result {1 1}
+
+test urn-api-2.7 {urn url pattern} -body {
+    list [regexp -- "^$::uri::urn::url\$" urn:isbn:0451450523] \
+	[regexp -- "^$::uri::urn::url\$" urn:isbn]
+} -result {1 0}
+
+test urn-api-2.8 {canonicalize, urn has no path} -body {
+    uri::canonicalize urn:example:a/../b
+} -result urn:example:a/../b
+
+test urn-api-2.9 {isrelative} -body {
+    uri::isrelative urn:example:x
+} -result 0
+
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+return

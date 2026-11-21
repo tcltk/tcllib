@@ -1,0 +1,532 @@
+# -*- tcl -*-
+# uri-api.test: tests for the uri package, complementing uri.test and
+# uri-rfc2396.test.
+#
+# Covers setQuirkOption, default schemes, mailto/news/ldap(s), geturl,
+# register, the scheme pattern variables, extending split/join, and
+# argument errors.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal uri.tcl uri
+}
+
+# -------------------------------------------------------------------------
+
+proc saveQuirks {} {
+    foreach k {NoInitialSlash NoExtraKeys HostAsDriveLetter RemoveDoubleSlashes} {
+	set ::savedQuirks($k) [uri::setQuirkOption $k]
+    }
+}
+proc restoreQuirks {} {
+    foreach {k v} [array get ::savedQuirks] {
+	uri::setQuirkOption $k $v
+    }
+    unset ::savedQuirks
+}
+
+# Save and restore the state changed by uri::register.
+proc saveRegistry {} {
+    foreach v {schemes schemePattern url} {
+	set ::savedRegistry($v) [set ::uri::$v]
+    }
+    set ::savedRegistry(url2part) [array get ::uri::url2part]
+}
+proc restoreRegistry {} {
+    foreach v {schemes schemePattern url} {
+	set ::uri::$v $::savedRegistry($v)
+    }
+    unset ::uri::url2part
+    array set ::uri::url2part $::savedRegistry(url2part)
+    unset ::savedRegistry
+}
+
+# -------------------------------------------------------------------------
+# setQuirkOption
+
+test uri-api-1.1 {setQuirkOption, wrong # args} -body {
+    uri::setQuirkOption
+} -returnCodes error -result {wrong # args: should be "uri::setQuirkOption key ?arg ...?"}
+
+test uri-api-1.2 {setQuirkOption, too many args} -body {
+    uri::setQuirkOption NoExtraKeys 1 2
+} -returnCodes error -result {wrong # args: should be "::uri::setQuirkOption key ?newBooleanValue?"}
+
+test uri-api-1.3 {setQuirkOption, unknown option} -body {
+    uri::setQuirkOption NoSuchQuirk
+} -returnCodes error -result {unknown key}
+
+test uri-api-1.4 {setQuirkOption, unknown option with value} -body {
+    uri::setQuirkOption NoSuchQuirk 1
+} -returnCodes error -result {unknown key}
+
+test uri-api-1.5 {setQuirkOption, non-boolean value} -setup saveQuirks -body {
+    list [catch {uri::setQuirkOption NoExtraKeys maybe} msg] $msg \
+	[expr {[uri::setQuirkOption NoExtraKeys] == $::savedQuirks(NoExtraKeys)}]
+} -cleanup {
+    restoreQuirks
+    unset -nocomplain msg
+} -result {1 {boolean value required} 1}
+
+test uri-api-1.6 {setQuirkOption, all documented options readable as booleans} -body {
+    set r {}
+    foreach k {NoInitialSlash NoExtraKeys HostAsDriveLetter RemoveDoubleSlashes} {
+	lappend r [string is boolean -strict [uri::setQuirkOption $k]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r k
+} -result {1 1 1 1}
+
+test uri-api-1.7 {setQuirkOption, set returns the value, read returns new value} -setup saveQuirks -body {
+    list [uri::setQuirkOption NoExtraKeys 1] [uri::setQuirkOption NoExtraKeys] \
+	[uri::setQuirkOption NoExtraKeys 0] [uri::setQuirkOption NoExtraKeys]
+} -cleanup restoreQuirks -result {1 1 0 0}
+
+test uri-api-1.8 {setQuirkOption, other boolean spellings} -setup saveQuirks -body {
+    uri::setQuirkOption RemoveDoubleSlashes off
+    set a [expr {!![uri::setQuirkOption RemoveDoubleSlashes]}]
+    uri::setQuirkOption RemoveDoubleSlashes yes
+    set b [expr {!![uri::setQuirkOption RemoveDoubleSlashes]}]
+    list $a $b
+} -cleanup {
+    restoreQuirks
+    unset -nocomplain a b
+} -result {0 1}
+
+test uri-api-1.9 {NoExtraKeys 1 suppresses pbare} -setup {
+    saveQuirks
+    uri::setQuirkOption NoInitialSlash 1
+} -body {
+    uri::setQuirkOption NoExtraKeys 1
+    set a [dict exists [uri::split http://h/] pbare]
+    uri::setQuirkOption NoExtraKeys 0
+    set b [dict get [uri::split http://h/] pbare]
+    set c [dict get [uri::split http://h] pbare]
+    list $a $b $c
+} -cleanup {
+    restoreQuirks
+    unset -nocomplain a b c
+} -result {0 0 1}
+
+test uri-api-1.10 {RemoveDoubleSlashes} -setup saveQuirks -body {
+    uri::setQuirkOption RemoveDoubleSlashes 1
+    set a [uri::canonicalize http://h/a//b/./c]
+    uri::setQuirkOption RemoveDoubleSlashes 0
+    set b [uri::canonicalize http://h/a//b/./c]
+    list $a $b
+} -cleanup {
+    restoreQuirks
+    unset -nocomplain a b
+} -result {http://h/a/b/c http://h/a//b/c}
+
+# -------------------------------------------------------------------------
+# split: argument handling, default scheme, errors
+
+test uri-api-2.1 {split, wrong # args} -body {
+    uri::split
+} -returnCodes error -result {wrong # args: should be "uri::split url ?defaultscheme?"}
+
+test uri-api-2.2 {split, too many args} -body {
+    uri::split a b c
+} -returnCodes error -result {wrong # args: should be "uri::split url ?defaultscheme?"}
+
+test uri-api-2.3 {split, default scheme is http} -setup saveQuirks -body {
+    uri::setQuirkOption NoInitialSlash 0
+    dictsort [uri::split www.example.com/a/b]
+} -cleanup restoreQuirks -result {fragment {} host www.example.com path /a/b port {} pwd {} query {} scheme http user {}}
+
+test uri-api-2.4 {split, explicit default scheme ftp} -setup saveQuirks -body {
+    uri::setQuirkOption NoInitialSlash 0
+    dictsort [uri::split ftp.example.com/pub ftp]
+} -cleanup restoreQuirks -result {host ftp.example.com path /pub port {} pwd {} scheme ftp type {} user {}}
+
+test uri-api-2.5 {split, explicit default scheme file} -body {
+    dictsort [uri::split /tmp/x.txt file]
+} -result {path /tmp/x.txt scheme file}
+
+test uri-api-2.6 {split, default scheme ignored when URL has a scheme} -body {
+    dict get [uri::split https://h/ ftp] scheme
+} -result https
+
+test uri-api-2.7 {split, scheme is case-insensitive and returned lower case} -body {
+    dict get [uri::split HTTP://www.example.com/] scheme
+} -result http
+
+test uri-api-2.8 {split, surrounding whitespace is ignored} -body {
+    dict get [uri::split "  http://www.example.com/x  "] host
+} -result www.example.com
+
+test uri-api-2.9 {split, unknown scheme} -body {
+    uri::split foo:bar
+} -returnCodes error -result {unknown scheme 'foo' in 'foo:bar'}
+
+test uri-api-2.10 {split, unknown default scheme} -body {
+    uri::split bar foo
+} -returnCodes error -result {unknown scheme 'foo' in 'bar'}
+
+test uri-api-2.11 {split, https keys} -setup saveQuirks -body {
+    uri::setQuirkOption NoInitialSlash 0
+    dictsort [uri::split https://u:p@h.example.com:8443/p/q?x=1#frag]
+} -cleanup restoreQuirks -result {fragment frag host h.example.com path /p/q port 8443 pwd p query x=1 scheme https user u}
+
+test uri-api-2.12 {split does not decode percent-encoding} -body {
+    dict get [uri::split http://h/a%20b] path
+} -match glob -result {*a%20b}
+
+# -------------------------------------------------------------------------
+# join: argument handling
+
+test uri-api-3.1 {join, no scheme} -body {
+    uri::join host www.example.com
+} -returnCodes error -match glob -result {*scheme*}
+
+test uri-api-3.2 {join, unknown scheme} -body {
+    uri::join scheme foo path x
+} -returnCodes error -match glob -result {*JoinFoo*}
+
+test uri-api-3.3 {join, http default port omitted} -body {
+    list [uri::join scheme http host h port 80 path /x] \
+	[uri::join scheme http host h port 8080 path /x]
+} -result {http://h/x http://h:8080/x}
+
+test uri-api-3.4 {join, https default port omitted} -body {
+    list [uri::join scheme https host h port 443 path /x] \
+	[uri::join scheme https host h port 444 path /x]
+} -result {https://h/x https://h:444/x}
+
+# -------------------------------------------------------------------------
+# mailto and news
+
+test uri-api-4.1 {split mailto with host} -body {
+    dictsort [uri::split mailto:joe@example.com]
+} -result {host example.com scheme mailto user joe}
+
+test uri-api-4.2 {split mailto without host} -body {
+    dictsort [uri::split mailto:joe]
+} -result {scheme mailto user joe}
+
+test uri-api-4.3 {join mailto} -body {
+    uri::join scheme mailto user joe host example.com
+} -result mailto:joe@example.com
+
+test uri-api-4.4 {split/join mailto round trip} -body {
+    uri::join {*}[uri::split mailto:a.b@mail.example.com]
+} -result mailto:a.b@mail.example.com
+
+# The host is optional, but join adds "@" anyway.
+test uri-api-4.5 {join mailto without host} -constraints knownBug -body {
+    uri::join {*}[uri::split mailto:joe]
+} -result mailto:joe
+
+test uri-api-4.6 {split news, newsgroup} -body {
+    dictsort [uri::split news:comp.lang.tcl]
+} -result {newsgroup-name comp.lang.tcl scheme news}
+
+test uri-api-4.7 {split news, message id} -body {
+    dictsort [uri::split news:1234@news.example.com]
+} -result {message-id 1234@news.example.com scheme news}
+
+test uri-api-4.8 {join news, both kinds} -body {
+    list [uri::join scheme news newsgroup-name comp.lang.tcl] \
+	[uri::join scheme news message-id 1234@news.example.com]
+} -result {news:comp.lang.tcl news:1234@news.example.com}
+
+test uri-api-4.9 {canonicalize mailto and news returns the uri unchanged} -body {
+    list [uri::canonicalize mailto:joe@example.com] \
+	[uri::canonicalize news:comp.lang.tcl]
+} -result {mailto:joe@example.com news:comp.lang.tcl}
+
+# -------------------------------------------------------------------------
+# ldap and ldaps
+
+test uri-api-5.1 {split ldap, all parts} -body {
+    dictsort [uri::split {ldap://ldap.example.com:1389/o=Example,c=US?cn,mail?sub?(cn=Joe)?x-ext}]
+} -result {attrs {cn mail} dn o=Example,c=US extensions x-ext filter (cn=Joe) host ldap.example.com port 1389 scheme ldap scope sub}
+
+test uri-api-5.2 {split ldap, host only} -body {
+    dictsort [uri::split ldap://ldap.example.com]
+} -result {attrs {} dn {} extensions {} filter {} host ldap.example.com port {} scheme ldap scope {}}
+
+test uri-api-5.3 {split ldap, dn and scope only} -body {
+    dictsort [uri::split {ldap://h/o=x??one}]
+} -result {attrs {} dn o=x extensions {} filter {} host h port {} scheme ldap scope one}
+
+test uri-api-5.4 {split ldaps} -body {
+    dictsort [uri::split {ldaps://h:636/o=x?cn}]
+} -result {attrs cn dn o=x extensions {} filter {} host h port 636 scheme ldaps scope {}}
+
+test uri-api-5.5 {split ldap, invalid} -body {
+    uri::split ldap:nohost
+} -returnCodes error -result {unable to match URL "nohost"}
+
+test uri-api-5.6 {join ldap, default port omitted} -body {
+    list [uri::join scheme ldap host h port 389 dn o=x] \
+	[uri::join scheme ldap host h port 1389 dn o=x]
+} -result {ldap://h/o=x ldap://h:1389/o=x}
+
+test uri-api-5.7 {join ldaps, default port omitted} -body {
+    list [uri::join scheme ldaps host h port 636 dn o=x] \
+	[uri::join scheme ldaps host h port 389 dn o=x]
+} -result {ldaps://h/o=x ldaps://h:389/o=x}
+
+test uri-api-5.8 {join ldap, attribute list} -body {
+    uri::join scheme ldap host h dn o=x attrs {cn sn mail} scope base filter (objectClass=*)
+} -result {ldap://h/o=x?cn,sn,mail?base?(objectClass=*)}
+
+test uri-api-5.9 {split/join ldap round trip} -body {
+    set u {ldap://h:1389/o=Example?cn,mail?sub?(cn=Joe)?x-ext}
+    string equal [uri::join {*}[uri::split $u]] $u
+} -cleanup {
+    unset -nocomplain u
+} -result 1
+
+test uri-api-5.10 {canonicalize ldap returns the uri unchanged} -body {
+    uri::canonicalize {ldap://h/o=a?cn?sub}
+} -result {ldap://h/o=a?cn?sub}
+
+test uri-api-5.11 {canonicalize, unknown scheme returns the uri unchanged} -body {
+    uri::canonicalize foo:/a/../b
+} -result foo:/a/../b
+
+# -------------------------------------------------------------------------
+# Wrong # args for the other commands
+
+test uri-api-6.1 {resolve, wrong # args} -body {
+    uri::resolve http://h/
+} -returnCodes error -result {wrong # args: should be "uri::resolve base url"}
+
+test uri-api-6.2 {isrelative, wrong # args} -body {
+    uri::isrelative
+} -returnCodes error -result {wrong # args: should be "uri::isrelative url"}
+
+test uri-api-6.3 {canonicalize, wrong # args} -body {
+    uri::canonicalize
+} -returnCodes error -result {wrong # args: should be "uri::canonicalize uri"}
+
+test uri-api-6.4 {geturl, wrong # args} -body {
+    uri::geturl
+} -returnCodes error -result {wrong # args: should be "uri::geturl url ?arg ...?"}
+
+test uri-api-6.5 {register, wrong # args} -body {
+    uri::register x
+} -returnCodes error -result {wrong # args: should be "uri::register schemeList script"}
+
+test uri-api-6.6 {isrelative, any scheme} -body {
+    list [uri::isrelative urn:isbn:0451450523] [uri::isrelative mailto:x@y] \
+	[uri::isrelative a/b:c] [uri::isrelative 1abc:x]
+} -result {0 0 1 1}
+
+# -------------------------------------------------------------------------
+# geturl
+
+# file tempfile needs Tcl 8.6.
+tcltest::testConstraint fileTempfile [package vsatisfies [package provide Tcl] 8.6-]
+
+# Creates a temporary file with the given contents, returns its name.
+proc mkTemp {data} {
+    set f [file tempfile path]
+    puts -nonewline $f $data
+    close $f
+    return $path
+}
+
+test uri-api-7.1 {geturl, file URL is handled internally} -constraints fileTempfile -setup {
+    set path [mkTemp "line 1\nline 2\n"]
+} -body {
+    set token [uri::geturl file://[file normalize $path]]
+    list [string match ::uri::* $token] [set ${token}(data)]
+} -cleanup {
+    file delete $path
+    unset -nocomplain $token
+    unset -nocomplain path token
+} -result [list 1 "line 1\nline 2\n"]
+
+test uri-api-7.2 {geturl, file URL with host localhost} -constraints fileTempfile -setup {
+    set path [mkTemp data]
+} -body {
+    set token [uri::geturl file://localhost[file normalize $path]]
+    set ${token}(data)
+} -cleanup {
+    file delete $path
+    unset -nocomplain $token
+    unset -nocomplain path token
+} -result data
+
+test uri-api-7.3 {geturl, file URL, each call returns a new token} -constraints fileTempfile -setup {
+    set path [mkTemp data]
+} -body {
+    set t1 [uri::geturl file://[file normalize $path]]
+    set t2 [uri::geturl file://[file normalize $path]]
+    expr {$t1 ne $t2}
+} -cleanup {
+    file delete $path
+    unset -nocomplain $t1 $t2
+    unset -nocomplain path t1 t2
+} -result 1
+
+test uri-api-7.4 {geturl, dispatch to package SCHEME::geturl with options} -setup {
+    proc ::uri::SplitTestq {url} {return [list path $url]}
+    package ifneeded testq::geturl 1.0 {
+	namespace eval ::testq {}
+	proc ::testq::geturl {args} {return [list testq $args]}
+	package provide testq::geturl 1.0
+    }
+} -body {
+    uri::geturl testq://h/x -opt val
+} -cleanup {
+    rename ::uri::SplitTestq {}
+    package forget testq::geturl
+    namespace delete ::testq
+} -result {testq {testq://h/x -opt val}}
+
+test uri-api-7.5 {geturl, dispatch to package SCHEME as fallback} -setup {
+    proc ::uri::SplitTestr {url} {return [list path $url]}
+    package ifneeded testr 1.0 {
+	namespace eval ::testr {}
+	proc ::testr::geturl {args} {return [list testr $args]}
+	package provide testr 1.0
+    }
+} -body {
+    uri::geturl testr:x
+} -cleanup {
+    rename ::uri::SplitTestr {}
+    package forget testr
+    namespace delete ::testr
+} -result {testr testr:x}
+
+test uri-api-7.6 {geturl, unknown scheme} -body {
+    uri::geturl foo:bar
+} -returnCodes error -result {unknown scheme 'foo' in 'foo:bar'}
+
+# -------------------------------------------------------------------------
+# Scheme patterns
+
+test uri-api-8.1 {schemes variable lists the registered schemes} -body {
+    lsort $::uri::schemes
+} -result {file ftp gopher http https ldap ldaps mailto news prospero wais}
+
+test uri-api-8.2 {url pattern variable per scheme namespace} -body {
+    set r {}
+    foreach s {ftp file http gopher mailto news wais prospero ldap} {
+	lappend r $s [info exists ::uri::${s}::url]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r s
+} -result {ftp 1 file 1 http 1 gopher 1 mailto 1 news 1 wais 1 prospero 1 ldap 1}
+
+test uri-api-8.3 {url patterns recognize URLs} -body {
+    set r {}
+    foreach {s u} {
+	ftp      ftp://ftp.example.com/pub/file.txt
+	file     file:///tmp/x.txt
+	http     http://www.example.com/a/b?q=1
+	mailto   mailto:joe@example.com
+	news     news:comp.lang.tcl
+	gopher   gopher://gopher.example.com/1
+    } {
+	lappend r $s [regexp -- "^[set ::uri::${s}::url]\$" $u]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r s u
+} -result {ftp 1 file 1 http 1 mailto 1 news 1 gopher 1}
+
+# "\?" in a double-quoted string in the ldap pattern definition is
+# substituted by Tcl to "?", making ::uri::ldap::url an invalid regexp.
+test uri-api-8.5 {ldap url pattern recognizes URLs} -constraints knownBug -body {
+    list [regexp -- "^$::uri::ldap::url\$" ldap://ldap.example.com/o=x] \
+	[regexp -- "^$::uri::ldap::url\$" {ldap://h:389/o=x?cn?sub?(cn=a)}]
+} -result {1 1}
+
+test uri-api-8.4 {url patterns reject other URLs} -body {
+    list [regexp -- "^$::uri::ftp::url\$" http://h/] \
+	[regexp -- "^$::uri::mailto::url\$" news:comp.lang.tcl]
+} -result {0 0}
+
+# -------------------------------------------------------------------------
+# register
+
+test uri-api-9.1 {register, new scheme with alias} -setup saveRegistry -body {
+    set r [uri::register {testscheme testalias} {
+	variable schemepart {//[a-z]+}
+	variable url "testscheme:$schemepart"
+    }]
+    list $r [namespace exists ::uri::testscheme] \
+	[namespace exists ::uri::testalias] \
+	[lrange $::uri::schemes end-1 end] \
+	[string match {*|testscheme|testalias):} $::uri::schemePattern] \
+	$::uri::url2part(testscheme) $::uri::url2part(testalias) \
+	[regexp "^$::uri::testscheme::url\$" testscheme://abc]
+} -cleanup {
+    namespace delete ::uri::testscheme
+    restoreRegistry
+    unset -nocomplain r
+} -result {{} 1 0 {testscheme testalias} 1 {testscheme://[a-z]+} {testalias://[a-z]+} 1}
+
+test uri-api-9.2 {register, scheme already known} -setup saveRegistry -body {
+    uri::register ftp {variable schemepart x}
+} -cleanup restoreRegistry -returnCodes error -result {trying to register scheme ("ftp") which is already known}
+
+test uri-api-9.3 {register, alias already known} -setup saveRegistry -body {
+    list [catch {uri::register {testscheme http} {variable schemepart x}} msg] \
+	$msg [namespace exists ::uri::testscheme]
+} -cleanup {
+    restoreRegistry
+    unset -nocomplain msg
+} -result {1 {trying to register scheme ("http") which is already known} 0}
+
+test uri-api-9.4 {register, missing schemepart} -setup saveRegistry -body {
+    list [catch {uri::register testscheme {variable other x}} msg] \
+	$msg [namespace exists ::uri::testscheme] \
+	[expr {"testscheme" in $::uri::schemes}]
+} -cleanup {
+    restoreRegistry
+    unset -nocomplain msg
+} -result {1 {Variable "schemepart" is missing.} 0 0}
+
+test uri-api-9.5 {register, error in script} -setup saveRegistry -body {
+    list [catch {uri::register testscheme {error boom}} msg] \
+	$msg [namespace exists ::uri::testscheme]
+} -cleanup {
+    restoreRegistry
+    unset -nocomplain msg
+} -result {1 {error while evaluating scheme script: boom} 0}
+
+# -------------------------------------------------------------------------
+# Extending split, join, canonicalize
+
+test uri-api-10.1 {split/join/canonicalize dispatch to Split<Scheme> and Join<Scheme>} -setup {
+    proc ::uri::SplitTestx {url} {return [list path $url]}
+    proc ::uri::JoinTestx {args} {
+	array set c $args
+	return testx:$c(path)
+    }
+} -body {
+    list [dictsort [uri::split testx:/a/./b/../c]] \
+	[uri::join scheme testx path /p] \
+	[uri::canonicalize testx:/a/./b/../c] \
+	[uri::canonicalize TESTX:/a/./b/../c]
+} -cleanup {
+    rename ::uri::SplitTestx {}
+    rename ::uri::JoinTestx {}
+} -result {{path /a/./b/../c scheme testx} testx:/p testx:/a/c testx:/a/c}
+
+# -------------------------------------------------------------------------
+
+rename saveQuirks {}
+rename restoreQuirks {}
+rename saveRegistry {}
+rename restoreRegistry {}
+rename mkTemp {}
+testsuiteCleanup
+return
