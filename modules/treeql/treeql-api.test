@@ -1,0 +1,781 @@
+# -*- tcl -*-
+# treeql-api.test:  tests for the documented API of treeql not covered
+# by treeql.testsuite: object creation options, the query, result and
+# discard methods, sibling and path operators, attribute filters with
+# case and glob rules, mutators, accessors, node set operators and
+# iterators, and the typed node operators.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+    use snit/snit.tcl   snit
+    use struct/list.tcl struct::list
+    use struct/sets.tcl struct::set
+    use struct/tree.tcl struct::tree
+}
+testing {
+    useLocal treeql.tcl treeql
+}
+
+# -------------------------------------------------------------------------
+# Test tree:
+#
+# root
+#   a      @type Odd   val 1
+#     b    @type even  val 2  name Bee
+#     c    @type ODD   val 3
+#       d  @type even  val 4  name dee
+#       e  @type odd   val 5
+#       g  @type even  val 7
+#     h    @type odd   val 8
+#   f      @type Even  val 6
+
+proc mktree {} {
+    ::struct::tree ::tqt
+    foreach {n p ty v} {
+	a root Odd  1
+	b a    even 2
+	c a    ODD  3
+	d c    even 4
+	e c    odd  5
+	g c    even 7
+	h a    odd  8
+	f root Even 6
+    } {
+	::tqt insert $p end $n
+	::tqt set $n @type $ty
+	::tqt set $n val $v
+    }
+    ::tqt set b name Bee
+    ::tqt set d name dee
+    ::treeql ::tq -tree ::tqt
+}
+
+proc rmtree {} {
+    ::tq destroy
+    ::tqt destroy
+}
+
+# -------------------------------------------------------------------------
+# Class API
+
+test treeql-api-1.1 {treeql returns the fully qualified object name} -setup {
+    ::struct::tree ::tqt
+} -body {
+    namespace eval ::tqns {treeql q -tree ::tqt}
+} -cleanup {
+    ::tqns::q destroy
+    namespace delete ::tqns
+    ::tqt destroy
+} -result ::tqns::q
+
+test treeql-api-1.2 {treeql %AUTO%} -setup {
+    ::struct::tree ::tqt
+} -body {
+    set q [treeql %AUTO% -tree ::tqt]
+    list [string match ::treeql* $q] [llength [info commands $q]]
+} -cleanup {
+    $q destroy
+    ::tqt destroy
+    unset q
+} -result {1 1}
+
+test treeql-api-1.3 {treeql: default node set is empty} -setup {
+    mktree
+} -body {
+    tq result
+} -cleanup {
+    rmtree
+} -result {}
+
+test treeql-api-1.4 {treeql -nodes initializes the node set} -setup {
+    mktree
+} -body {
+    treeql ::tq2 -tree ::tqt -nodes {c f}
+    list [tq2 result] [tq2 query children]
+} -cleanup {
+    tq2 destroy
+    rmtree
+} -result {{c f} {d e g}}
+
+test treeql-api-1.5 {treeql: arguments after the options are run as query} -setup {
+    mktree
+} -body {
+    treeql ::tq2 -tree ::tqt -nodes {c} children select
+    tq2 result
+} -cleanup {
+    tq2 destroy
+    rmtree
+} -result d
+
+test treeql-api-1.6 {treeql -query: operators run in the parent query} -setup {
+    mktree
+} -body {
+    treeql ::tq2 -tree ::tqt -query ::tq
+    list [tq2 query root] [tq result] [tq2 result]
+} -cleanup {
+    tq2 destroy
+    rmtree
+} -result {{} root {}}
+
+# -------------------------------------------------------------------------
+# query, result, discard
+
+test treeql-api-2.1 {query: documented example} -setup {
+    mktree
+} -body {
+    tq query root children get val
+} -cleanup {
+    rmtree
+} -result {1 6}
+
+test treeql-api-2.2 {query: node set is kept between queries} -setup {
+    mktree
+} -body {
+    tq query root
+    tq query children
+    tq query children
+} -cleanup {
+    rmtree
+} -result {b c h}
+
+test treeql-api-2.3 {query without operators returns the node set} -setup {
+    mktree
+} -body {
+    tq query root children
+    tq query
+} -cleanup {
+    rmtree
+} -result {a f}
+
+test treeql-api-2.4 {query: unknown operator} -setup {
+    mktree
+} -body {
+    tq query root bogus
+} -cleanup {
+    rmtree
+} -returnCodes error -result {"::tq bogus" is not defined}
+
+test treeql-api-2.5 {query: an error leaves the intermediate node set} -setup {
+    mktree
+} -body {
+    catch {tq query root children bogus children}
+    tq result
+} -cleanup {
+    rmtree
+} -result {a f}
+
+test treeql-api-2.6 {result returns the node set} -setup {
+    mktree
+} -body {
+    tq query root children children
+    tq result
+} -cleanup {
+    rmtree
+} -result {b c h}
+
+test treeql-api-2.7 {discard returns the node set and destroys the object} -setup {
+    mktree
+} -body {
+    set q [treeql %AUTO% -tree ::tqt root children]
+    list [$q discard] [llength [info commands $q]]
+} -cleanup {
+    rmtree
+    unset q
+} -result {{a f} 0}
+
+# -------------------------------------------------------------------------
+# Structural generators
+
+test treeql-api-3.1 {parent: duplicates for siblings} -setup {
+    mktree
+} -body {
+    tq query reset root children children parent
+} -cleanup {
+    rmtree
+} -result {a a a}
+
+test treeql-api-3.2 {parent and children of nodes without them} -setup {
+    mktree
+} -body {
+    list [tq query reset root parent] [tq query replace {b f} children]
+} -cleanup {
+    rmtree
+} -result {{} {}}
+
+test treeql-api-3.3 {left and right} -setup {
+    mktree
+} -body {
+    list [tq query replace {b c h} left] [tq query replace {b c h} right]
+} -cleanup {
+    rmtree
+} -result {{b c} {c h}}
+
+test treeql-api-3.4 {prev: reverse tree order} -setup {
+    mktree
+} -body {
+    tq query replace h prev
+} -cleanup {
+    rmtree
+} -result {c b}
+
+test treeql-api-3.5 {esib: tree order} -setup {
+    mktree
+} -body {
+    tq query replace h esib
+} -cleanup {
+    rmtree
+} -result {b c}
+
+test treeql-api-3.6 {next: tree order, nothing for the last sibling} -setup {
+    mktree
+} -body {
+    list [tq query replace b next] [tq query replace h next]
+} -cleanup {
+    rmtree
+} -result {{c h} {}}
+
+test treeql-api-3.7 {prev and esib of the first sibling} -setup {
+    mktree
+} -body {
+    list [tq query replace b prev] [tq query replace b esib]
+} -cleanup {
+    rmtree
+} -result {{} {}}
+
+test treeql-api-3.8 {root replaces the node set} -setup {
+    mktree
+} -body {
+    tq query replace {a b c} root
+} -cleanup {
+    rmtree
+} -result root
+
+test treeql-api-3.9 {tree: pre-order} -setup {
+    mktree
+} -body {
+    tq query reset tree
+} -cleanup {
+    rmtree
+} -result {root a b c d e g h f}
+
+test treeql-api-3.10 {descendants and subtree} -setup {
+    mktree
+} -body {
+    list [tq query replace {c f} descendants] [tq query replace {c f} subtree]
+} -cleanup {
+    rmtree
+} -result {{d e g} {c d e g f}}
+
+test treeql-api-3.11 {later is an alias of forward} -setup {
+    mktree
+} -body {
+    list [tq query replace b forward] [tq query replace b later]
+} -cleanup {
+    rmtree
+} -result {{d e g} {d e g}}
+
+test treeql-api-3.12 {rootpath is ancestors in reverse order} -setup {
+    mktree
+} -body {
+    set anc [tq query replace e ancestors]
+    set rp  [tq query replace e rootpath]
+    list [lindex $rp 0] [string equal $rp [lreverse $anc]]
+} -cleanup {
+    rmtree
+    unset anc rp
+} -result {root 1}
+
+test treeql-api-3.13 {rootpath for several nodes} -setup {
+    mktree
+} -body {
+    tq query replace {b f} rootpath
+} -cleanup {
+    rmtree
+} -result {root a b root f}
+
+# Documented: "This includes the root, but not the node itself" and
+# "nodes without a parent do not contribute". The node itself is
+# included (see also treeql.testsuite, test 1.6).
+test treeql-api-3.14 {ancestors does not include the node} -constraints {
+    knownBug
+} -setup {
+    mktree
+} -body {
+    list [tq query replace e ancestors] [tq query reset root ancestors]
+} -cleanup {
+    rmtree
+} -result {{c a root} {}}
+
+test treeql-api-3.15 {rootpath does not include the node} -constraints {
+    knownBug
+} -setup {
+    mktree
+} -body {
+    list [tq query replace e rootpath] [tq query reset root rootpath]
+} -cleanup {
+    rmtree
+} -result {{root a c} {}}
+
+test treeql-api-3.16 {new nodes are not processed by the same operator} -setup {
+    mktree
+} -body {
+    tq query reset root children children
+} -cleanup {
+    rmtree
+} -result {b c h}
+
+# -------------------------------------------------------------------------
+# Attribute filters
+
+test treeql-api-4.1 {hasatt} -setup {
+    mktree
+} -body {
+    tq query reset tree hasatt name
+} -cleanup {
+    rmtree
+} -result {b d}
+
+test treeql-api-4.2 {withatt ignores case and nodes without the attribute} -setup {
+    mktree
+} -body {
+    list [tq query reset tree withatt @type odd] \
+	[tq query reset tree withatt name BEE]
+} -cleanup {
+    rmtree
+} -result {{a c e h} b}
+
+test treeql-api-4.3 {withatt! is case sensitive} -setup {
+    mktree
+} -body {
+    list [tq query reset tree hasatt @type withatt! @type odd] \
+	[tq query reset tree hasatt @type withatt! @type ODD]
+} -cleanup {
+    rmtree
+} -result {{e h} c}
+
+test treeql-api-4.4 {attof: attribute value is lowercased, list is not} -setup {
+    mktree
+} -body {
+    list [tq query reset tree hasatt name attof name {bee dee}] \
+	[tq query reset tree hasatt name attof name {Bee DEE}]
+} -cleanup {
+    rmtree
+} -result {{b d} {}}
+
+test treeql-api-4.5 {attof: attribute value used as glob pattern} -setup {
+    mktree
+    ::tqt set f pattern {x*}
+    ::tqt set a pattern {y?}
+} -body {
+    tq query reset root children attof pattern {xyz yz}
+} -cleanup {
+    rmtree
+} -result {a f}
+
+test treeql-api-4.6 {attmatch with options in the match list} -setup {
+    mktree
+} -body {
+    list [tq query reset tree hasatt name attmatch name {*E*}] \
+	[tq query reset tree hasatt name attmatch name {-nocase *E*}]
+} -cleanup {
+    rmtree
+} -result {{} {b d}}
+
+test treeql-api-4.7 {attmatch: pattern with spaces wrapped in a list} -setup {
+    mktree
+    ::tqt set a title {hello there}
+    ::tqt set f title {hello world}
+} -body {
+    tq query reset root children attmatch title {{* there}}
+} -cleanup {
+    rmtree
+} -result a
+
+# Documented as "same as withatt", which drops nodes without the
+# attribute; here such nodes cause an error.
+test treeql-api-4.8 {attmatch: nodes without the attribute} -constraints {
+    knownBug
+} -setup {
+    mktree
+} -body {
+    tq query reset tree attmatch name {-nocase *E*}
+} -cleanup {
+    rmtree
+} -result {b d}
+
+# Documented: "Reduces the node set to nodes which have an attribute
+# named attr and ..."; nodes without it cause an error.
+test treeql-api-4.9 {attof: nodes without the attribute} -constraints {
+    knownBug
+} -setup {
+    mktree
+} -body {
+    tq query reset tree attof name {bee}
+} -cleanup {
+    rmtree
+} -result b
+
+# -------------------------------------------------------------------------
+# Attribute mutators
+
+test treeql-api-5.1 {set: new and existing attributes} -setup {
+    mktree
+} -body {
+    tq query replace {b d} set name X set color red
+    list [tq query reset tree hasatt name get name] [tq query reset tree hasatt color]
+} -cleanup {
+    rmtree
+} -result {{X X} {b d}}
+
+test treeql-api-5.2 {set keeps the node set} -setup {
+    mktree
+} -body {
+    tq query replace {b d} set flag 1
+} -cleanup {
+    rmtree
+} -result {b d}
+
+test treeql-api-5.3 {unset} -setup {
+    mktree
+} -body {
+    tq query replace {b d} unset name
+    list [tq query reset tree hasatt name] [tq result]
+} -cleanup {
+    rmtree
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+# Attribute string accessors
+
+test treeql-api-6.1 {string: subcommand with arguments} -setup {
+    mktree
+} -body {
+    tq query reset root children children string {map {e E}} @type
+} -cleanup {
+    rmtree
+} -result {EvEn ODD odd}
+
+test treeql-api-6.2 {get: attributes matching a glob pattern} -setup {
+    mktree
+} -body {
+    lsort [lindex [tq query replace b get *a*] 0]
+} -cleanup {
+    rmtree
+} -result {2 Bee}
+
+test treeql-api-6.3 {get: nodes without matching attributes contribute empty} -setup {
+    mktree
+} -body {
+    tq query replace {a b} get name
+} -cleanup {
+    rmtree
+} -result {{} Bee}
+
+test treeql-api-6.4 {attlist: all values of all nodes} -setup {
+    mktree
+} -body {
+    lsort [lindex [tq query replace {b} attlist] 0]
+} -cleanup {
+    rmtree
+} -result {2 Bee even}
+
+test treeql-api-6.5 {attval: only nodes with the attribute} -setup {
+    mktree
+} -body {
+    tq query reset tree attval name
+} -cleanup {
+    rmtree
+} -result {Bee dee}
+
+test treeql-api-6.6 {attrs: attribute names matching the glob} -setup {
+    mktree
+} -body {
+    tq query replace {b} attrs n*
+} -cleanup {
+    rmtree
+} -result {name}
+
+# Documented: "The query interpreter will terminate after it has
+# finished processing one of these operators, silently discarding any
+# later query elements." The later elements are passed as arguments.
+foreach {n op} {
+    1 {get val}
+    2 {string toupper @type}
+    3 {attval val}
+    4 {attlist}
+    5 {nodetype}
+} {
+    test treeql-api-6.7.$n "$op terminates the query" -constraints {
+	knownBug
+    } -setup {
+	mktree
+    } -body {
+	set r1 [tq query reset root children {*}$op]
+	set r2 [tq query reset root children {*}$op children select]
+	string equal $r1 $r2
+    } -cleanup {
+	rmtree
+	unset r1 r2
+    } -result 1
+}
+
+# Documented: "The operator will fail if a node does not have an
+# attribute named attr." Such nodes are skipped instead.
+test treeql-api-6.8 {string: node without the attribute} -constraints {
+    knownBug
+} -setup {
+    mktree
+} -body {
+    tq query reset root children children string toupper name
+} -cleanup {
+    rmtree
+} -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------
+# Sub-queries
+
+test treeql-api-7.1 {andq: sub-query starts from the current node set} -setup {
+    mktree
+} -body {
+    tq query reset root children andq {children parent}
+} -cleanup {
+    rmtree
+} -result a
+
+test treeql-api-7.2 {orq: duplicates are removed} -setup {
+    mktree
+} -body {
+    lsort [tq query replace {b c} orq {replace {c d c}}]
+} -cleanup {
+    rmtree
+} -result {b c d}
+
+test treeql-api-7.3 {notq: set difference} -setup {
+    mktree
+} -body {
+    lsort [tq query replace a children notq {withatt @type odd}]
+} -cleanup {
+    rmtree
+} -result {b}
+
+test treeql-api-7.4 {sub-queries do not change the node set of the query} -setup {
+    mktree
+} -body {
+    tq query replace {b c h} andq {children}
+} -cleanup {
+    rmtree
+} -result {}
+
+# -------------------------------------------------------------------------
+# Node set operators
+
+test treeql-api-8.1 {unique keeps the first occurrence} -setup {
+    mktree
+} -body {
+    tq query replace {c b c a b} unique
+} -cleanup {
+    rmtree
+} -result {c b a}
+
+test treeql-api-8.2 {select: first node, empty set} -setup {
+    mktree
+} -body {
+    list [tq query replace {c b} select] [tq query reset select]
+} -cleanup {
+    rmtree
+} -result {c {}}
+
+test treeql-api-8.3 {transform: results of the body become the node set} -setup {
+    mktree
+} -body {
+    tq query replace {a f} transform {children} n {::tqt get $n val}
+} -cleanup {
+    rmtree
+} -result {2 3 8}
+
+test treeql-api-8.4 {map: results of the body become the node set} -setup {
+    mktree
+} -body {
+    tq query replace {a f} map n {string toupper $n}
+} -cleanup {
+    rmtree
+} -result {A F}
+
+test treeql-api-8.5 {map: break and continue} -setup {
+    mktree
+} -body {
+    list [tq query reset tree map n {if {$n eq "c"} break; set n}] \
+	[tq query reset tree map n {if {$n in {a b}} continue; set n}]
+} -cleanup {
+    rmtree
+} -result {{root a b} {root c d e g h f}}
+
+test treeql-api-8.6 {map: errors in the body propagate} -setup {
+    mktree
+} -body {
+    tq query reset tree map n {error boom}
+} -cleanup {
+    rmtree
+} -returnCodes error -result boom
+
+test treeql-api-8.7 {map and transform: body runs in the caller context} -setup {
+    mktree
+    proc ::tqproc {} {
+	set prefix P
+	list [::tq query replace {a f} map n {set x $prefix$n}] \
+	    [::tq query replace {a} transform {children} m {set y $prefix$m}] \
+	    $n $m
+    }
+} -body {
+    ::tqproc
+} -cleanup {
+    rename ::tqproc {}
+    rmtree
+} -result {{Pa Pf} {Pb Pc Ph} f h}
+
+test treeql-api-8.8 {quote appends a literal} -setup {
+    mktree
+} -body {
+    tq query replace {a} quote {x y} quote z
+} -cleanup {
+    rmtree
+} -result {a {x y} z}
+
+test treeql-api-8.9 {replace with a literal list} -setup {
+    mktree
+} -body {
+    list [tq query reset root replace {p q}] [tq result]
+} -cleanup {
+    rmtree
+} -result {{p q} {p q}}
+
+# -------------------------------------------------------------------------
+# Node set iterators
+
+test treeql-api-9.1 {foreach: node set is not changed} -setup {
+    mktree
+    set seen {}
+} -body {
+    list [tq query replace {c} foreach {children} n {lappend seen $n}] $seen
+} -cleanup {
+    rmtree
+    unset seen n
+} -result {c {d e g}}
+
+test treeql-api-9.2 {with: body sees the node set of the query} -setup {
+    mktree
+    set seen {}
+} -body {
+    list [tq query replace {f} with {root children} {set seen [tq result]}] \
+	$seen
+} -cleanup {
+    rmtree
+    unset seen
+} -result {f {a f}}
+
+test treeql-api-9.3 {with: the query starts with an empty node set} -setup {
+    mktree
+    set seen {}
+} -body {
+    tq query replace {c} with {children} {set seen [tq result]}
+    set seen
+} -cleanup {
+    rmtree
+    unset seen
+} -result {}
+
+test treeql-api-9.4 {over: body for each node, result ignored} -setup {
+    mktree
+    set seen {}
+} -body {
+    list [tq query replace {b c} over n {lappend seen [::tqt get $n val]}] \
+	$seen
+} -cleanup {
+    rmtree
+    unset seen n
+} -result {{b c} {2 3}}
+
+test treeql-api-9.5 {over: body runs in the caller context} -setup {
+    mktree
+    proc ::tqproc {} {
+	set acc {}
+	::tq query replace {b c} over node {lappend acc $node}
+	list $acc $node
+    }
+} -body {
+    ::tqproc
+} -cleanup {
+    rename ::tqproc {}
+    rmtree
+} -result {{b c} c}
+
+test treeql-api-9.6 {delete: node set becomes empty} -setup {
+    mktree
+} -body {
+    list [tq query replace {h} delete] [::tqt exists h] [tq query reset root children select children]
+} -cleanup {
+    rmtree
+} -result {{} 0 {b c}}
+
+# -------------------------------------------------------------------------
+# Typed node support
+
+test treeql-api-10.1 {nodetype} -setup {
+    mktree
+} -body {
+    tq query replace a children nodetype
+} -cleanup {
+    rmtree
+} -result {even ODD odd}
+
+test treeql-api-10.2 {oftype ignores case} -setup {
+    mktree
+} -body {
+    list [tq query reset tree hasatt @type oftype EVEN] \
+	[tq query reset tree hasatt @type oftype odd]
+} -cleanup {
+    rmtree
+} -result {{b d g f} {a c e h}}
+
+test treeql-api-10.3 {nottype ignores case} -setup {
+    mktree
+} -body {
+    tq query reset tree hasatt @type nottype ODD
+} -cleanup {
+    rmtree
+} -result {b d g f}
+
+test treeql-api-10.4 {oftypes: case is relevant} -setup {
+    mktree
+} -body {
+    list [tq query reset tree hasatt @type oftypes {odd Even}] \
+	[tq query reset tree hasatt @type oftypes {ODD}]
+} -cleanup {
+    rmtree
+} -result {{e h f} c}
+
+test treeql-api-10.5 {oftypes: type value is used as glob pattern} -setup {
+    mktree
+    ::tqt set f @type E*
+} -body {
+    tq query reset root children oftypes {Even}
+} -cleanup {
+    rmtree
+} -result f
+
+# -------------------------------------------------------------------------
+
+rename mktree {}
+rename rmtree {}
+unset -nocomplain n op
+testsuiteCleanup
+return
