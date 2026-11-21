@@ -1,0 +1,473 @@
+# -*- tcl -*-
+# nns-api.test: tests for the documented API of the name service
+# packages nameserv::common, nameserv::server and nameserv (client).
+#
+# The server runs in this process, on a free port of 127.0.0.1. A
+# second client runs in a child interpreter.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit2.tcl    snit
+    use comm/comm.tcl     comm
+    use interp/interp.tcl interp
+    use log/logger.tcl    logger
+    use uev/uevent.tcl    uevent
+}
+testing {
+    useLocal     common.tcl nameserv::common
+    useLocalKeep nns.tcl    nameserv
+    useLocalKeep server.tcl nameserv::server
+}
+
+# -------------------------------------------------------------------------
+
+logger::setlevel critical
+
+# Errors raised by the server while handling (asynchronous) requests
+# are reported as background errors. Collect them instead of printing.
+set bgerrors {}
+proc bgerror {msg} {lappend ::bgerrors $msg}
+
+proc freePort {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $p
+}
+
+# Wait (bounded) until the condition is true, processing events.
+proc waitFor {cond {ms 5000}} {
+    set end [expr {[clock milliseconds] + $ms}]
+    while {![uplevel #0 [list expr $cond]] && ([clock milliseconds] < $end)} {
+	after 10 {set ::nnsTick 1}
+	vwait ::nnsTick
+    }
+    return [uplevel #0 [list expr $cond]]
+}
+
+# A second, independent client, in a child interpreter.
+proc client2 {script} {
+    interp eval c2 $script
+}
+proc client2Create {} {
+    interp create c2
+    interp eval c2 [list set auto_path [linsert $::auto_path 0 $::modulesDir]]
+    interp eval c2 {
+	package require nameserv
+	logger::setlevel critical
+	proc bgerror {msg} {}
+    }
+    interp eval c2 [list nameserv::configure -host 127.0.0.1 -port $::P]
+}
+
+proc callback {args} {lappend ::events $args}
+
+set modulesDir [file dirname [file dirname [localPath nns.tcl]]]
+set P [freePort]
+
+# -------------------------------------------------------------------------
+# nameserv::common
+
+test nns-api-1.0 {common::port, default port} -body {
+    nameserv::common::port
+} -result 38573
+
+# -------------------------------------------------------------------------
+# nameserv::server, configuration while inactive
+
+test nns-api-2.0 {server, initially inactive} -body {
+    nameserv::server::active?
+} -result 0
+
+test nns-api-2.1 {server configure, defaults} -body {
+    nameserv::server::configure
+} -result {-localonly 1 -port 38573}
+
+test nns-api-2.2 {server cget} -body {
+    list [nameserv::server::cget -localonly] [nameserv::server::cget -port]
+} -result {1 38573}
+
+test nns-api-2.3 {server configure, single option is cget} -body {
+    list [nameserv::server::configure -localonly] [nameserv::server::configure -port]
+} -result {1 38573}
+
+test nns-api-2.4 {server cget, bad option} -body {
+    nameserv::server::cget -foo
+} -returnCodes error -result {bad option "-foo", expected -localonly, or -port}
+
+test nns-api-2.5 {server configure, bad option} -body {
+    nameserv::server::configure -foo 1
+} -returnCodes error -result {bad option "-foo", expected -localonly, or -port}
+
+test nns-api-2.6 {server configure, missing value} -body {
+    nameserv::server::configure -localonly 1 -port
+} -returnCodes error -result {value for "-port" is missing}
+
+test nns-api-2.7 {server configure, missing value} -body {
+    nameserv::server::configure -port 1 -localonly
+} -cleanup {
+    nameserv::server::configure -port 38573
+} -returnCodes error -result {value for "-localonly" is missing}
+
+test nns-api-2.8 {server configure, set options} -body {
+    list [nameserv::server::configure -port $P -localonly 1] \
+	[nameserv::server::configure]
+} -result [list {} [list -localonly 1 -port $P]]
+
+test nns-api-2.9 {server cget, wrong # args} -body {
+    nameserv::server::cget
+} -returnCodes error -result {wrong # args: should be "nameserv::server::cget option"}
+
+test nns-api-2.10 {server stop, not active} -body {
+    nameserv::server::stop
+} -result {}
+
+# -------------------------------------------------------------------------
+# nameserv client, configuration before contact
+
+test nns-api-3.0 {client protocol} -body {
+    nameserv::protocol
+} -result 1
+
+test nns-api-3.1 {client configure, defaults} -body {
+    nameserv::configure
+} -result {-host localhost -port 38573}
+
+test nns-api-3.2 {client cget} -body {
+    list [nameserv::cget -host] [nameserv::cget -port]
+} -result {localhost 38573}
+
+test nns-api-3.3 {client configure, single option is cget} -body {
+    list [nameserv::configure -host] [nameserv::configure -port]
+} -result {localhost 38573}
+
+test nns-api-3.4 {client cget, bad option} -body {
+    nameserv::cget -foo
+} -returnCodes error -result {bad option "-foo", expected -host, or -port}
+
+test nns-api-3.5 {client configure, bad option} -body {
+    nameserv::configure -foo 1
+} -returnCodes error -result {bad option "-foo", expected -host, or -port}
+
+test nns-api-3.6 {client configure, missing value} -body {
+    nameserv::configure -host localhost -port
+} -returnCodes error -result {value for "-port" is missing}
+
+test nns-api-3.7 {client configure, set options} -body {
+    list [nameserv::configure -host 127.0.0.1 -port $P] [nameserv::configure]
+} -result [list {} [list -host 127.0.0.1 -port $P]]
+
+test nns-api-3.8 {client, no server running} -body {
+    nameserv::server_protocol
+} -returnCodes error -result "No name server present @ $P 127.0.0.1"
+
+test nns-api-3.9 {client search, bad arguments} -body {
+    nameserv::search -foo bar
+} -returnCodes error -result {wrong#args: Expected ?-continuous|-async? ?pattern?}
+
+test nns-api-3.10 {client search, too many arguments} -body {
+    nameserv::search -async a b
+} -returnCodes error -result {wrong#args: Expected ?-continuous|-async? ?pattern?}
+
+test nns-api-3.11 {client bind, wrong # args} -body {
+    nameserv::bind a
+} -returnCodes error -result {wrong # args: should be "nameserv::bind name data"}
+
+# -------------------------------------------------------------------------
+# Server active
+
+test nns-api-4.0 {server start} -body {
+    list [nameserv::server::start] [nameserv::server::active?]
+} -result {{} 1}
+
+test nns-api-4.1 {server start again is a no-op} -body {
+    list [nameserv::server::start] [nameserv::server::active?]
+} -result {{} 1}
+
+test nns-api-4.2 {server configure -port while active} -body {
+    nameserv::server::configure -port 1
+} -returnCodes error -result {Unable to configure an active server}
+
+# The documentation says that an active server cannot be reconfigured,
+# but -localonly is accepted.
+test nns-api-4.3 {server configure -localonly while active} -constraints {
+    knownBug
+} -body {
+    nameserv::server::configure -localonly 0
+} -cleanup {
+    nameserv::server::configure -localonly 1
+} -returnCodes error -result {Unable to configure an active server}
+
+test nns-api-4.4 {server configure, query while active} -body {
+    nameserv::server::configure
+} -result [list -localonly 1 -port $P]
+
+# -------------------------------------------------------------------------
+# Client operations
+
+test nns-api-5.0 {server_protocol} -body {
+    nameserv::server_protocol
+} -result 1
+
+test nns-api-5.1 {server_features} -body {
+    nameserv::server_features
+} -result {Core Search/Continuous}
+
+test nns-api-5.2 {client configure after contact} -body {
+    nameserv::configure -port 1
+} -returnCodes error -result {Unable to configure an active connection}
+
+test nns-api-5.3 {client configure, query after contact} -body {
+    nameserv::configure
+} -result [list -host 127.0.0.1 -port $P]
+
+test nns-api-5.4 {search, nothing bound} -body {
+    nameserv::search
+} -result {}
+
+test nns-api-5.5 {bind and search} -body {
+    list [nameserv::bind alpha 1] [nameserv::bind beta {two words}] \
+	[dictsort [nameserv::search]]
+} -cleanup {
+    nameserv::release
+} -result {{} {} {alpha 1 beta {two words}}}
+
+test nns-api-5.6 {search, glob pattern} -setup {
+    nameserv::bind alpha 1
+    nameserv::bind beta 2
+    nameserv::bind alpine 3
+} -body {
+    list [dictsort [nameserv::search al*]] [nameserv::search beta] [nameserv::search nosuch]
+} -cleanup {
+    nameserv::release
+} -result {{alpha 1 alpine 3} {beta 2} {}}
+
+test nns-api-5.7 {bind, name already bound} -setup {
+    nameserv::bind alpha 1
+} -body {
+    nameserv::bind alpha 2
+} -cleanup {
+    nameserv::release
+    set bgerrors {}
+} -returnCodes error -result {Name "alpha" is already bound}
+
+test nns-api-5.8 {release, result and effect} -setup {
+    nameserv::bind alpha 1
+    nameserv::bind beta 2
+} -body {
+    list [nameserv::release] [nameserv::search]
+} -result {{} {}}
+
+test nns-api-5.9 {release, nothing bound} -body {
+    nameserv::release
+} -result {}
+
+test nns-api-5.10 {release, name can be bound again} -setup {
+    nameserv::bind alpha 1
+    nameserv::release
+} -body {
+    nameserv::bind alpha 2
+    nameserv::search
+} -cleanup {
+    nameserv::release
+} -result {alpha 2}
+
+# -------------------------------------------------------------------------
+# Two clients
+
+test nns-api-6.0 {second client sees the names of the first} -setup {
+    client2Create
+    nameserv::bind alpha 1
+} -body {
+    client2 {nameserv::search}
+} -cleanup {
+    nameserv::release
+    interp delete c2
+} -result {alpha 1}
+
+test nns-api-6.1 {name bound by another client} -setup {
+    client2Create
+    client2 {nameserv::bind alpha 1}
+} -body {
+    nameserv::bind alpha 2
+} -cleanup {
+    interp delete c2
+    waitFor {[nameserv::search] eq {}}
+    set bgerrors {}
+} -returnCodes error -result {Name "alpha" is already bound}
+
+test nns-api-6.2 {release only releases the own names} -setup {
+    client2Create
+    client2 {nameserv::bind other 2}
+    nameserv::bind alpha 1
+} -body {
+    nameserv::release
+    nameserv::search
+} -cleanup {
+    interp delete c2
+    waitFor {[nameserv::search] eq {}}
+} -result {other 2}
+
+test nns-api-6.3 {lost client connection releases its names} -setup {
+    client2Create
+    client2 {nameserv::bind other 2}
+    nameserv::bind alpha 1
+} -body {
+    set before [dictsort [nameserv::search]]
+    interp delete c2
+    list $before [waitFor {[nameserv::search] eq {alpha 1}}]
+} -cleanup {
+    nameserv::release
+    unset -nocomplain before
+} -result {{alpha 1 other 2} 1}
+
+# -------------------------------------------------------------------------
+# Loss of the connection
+
+test nns-api-7.0 {server stop, client gets lost-connection event} -setup {
+    set events {}
+    uevent::bind nameserv lost-connection ::callback
+    nameserv::bind alpha 1
+} -body {
+    list [nameserv::server::stop] [nameserv::server::active?] \
+	[waitFor {[llength $::events]}] $events
+} -cleanup {
+    uevent::unbind [lindex [uevent::list nameserv lost-connection] 0]
+    unset -nocomplain events
+} -match glob -result {{} 0 1 {{nameserv lost-connection {reason *}}}}
+
+test nns-api-7.1 {client can be reconfigured after the loss} -body {
+    nameserv::configure -host 127.0.0.1 -port $P
+} -result {}
+
+test nns-api-7.2 {client, server gone} -body {
+    nameserv::search
+} -returnCodes error -result "No name server present @ $P 127.0.0.1"
+
+test nns-api-7.3 {server restart, client reconnects, no state kept} -body {
+    nameserv::server::start
+    list [nameserv::server_protocol] [nameserv::search]
+} -result {1 {}}
+
+# -------------------------------------------------------------------------
+# Asynchronous and continuous searches.
+#
+# These run last: due to the bug shown in nns-api-8.4 the server keeps
+# stale search registrations which disturb later server operations.
+
+test nns-api-8.0 {search -async, result object} -setup {
+    nameserv::bind alpha 1
+    nameserv::bind beta {two words}
+    set events {}
+} -body {
+    set r [nameserv::search -async]
+    $r configure -command ::callback
+    set filled [waitFor {[$r filled]}]
+    waitFor {[llength $::events] >= 1}
+    list $filled [dictsort [$r getall]] [$r getall b*] [lsort [$r names]] [$r size] \
+	[$r get beta] [lindex $events 0 0] [dictsort [lindex $events 0 1]]
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    unset -nocomplain r filled events
+    set bgerrors {}
+} -result {1 {alpha 1 beta {two words}} {beta {two words}} {alpha beta} 2 {two words} add {alpha 1 beta {two words}}}
+
+test nns-api-8.1 {search -async, unknown key} -setup {
+    nameserv::bind alpha 1
+} -body {
+    set r [nameserv::search -async]
+    waitFor {[$r filled]}
+    $r get nosuch
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    unset -nocomplain r
+    set bgerrors {}
+} -returnCodes error -result {Unknown key "nosuch"}
+
+test nns-api-8.2 {search -continuous, additions and removals} -setup {
+    client2Create
+    nameserv::bind alpha 1
+    set events {}
+} -body {
+    set r [nameserv::search -continuous a*]
+    $r configure -command ::callback
+    waitFor {[$r filled]}
+    set res [list [$r getall]]
+    client2 {nameserv::bind alpine 2}
+    client2 {nameserv::bind beta 3}
+    waitFor {[$r size] == 2}
+    lappend res [dictsort [$r getall]]
+    client2 {nameserv::release}
+    waitFor {[$r size] == 1}
+    lappend res [$r getall]
+    waitFor {[llength $::events] >= 3}
+    lappend res $events
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    interp delete c2
+    unset -nocomplain r res events
+    set bgerrors {}
+} -result {{alpha 1} {alpha 1 alpine 2} {alpha 1} {{add {alpha 1}} {add {alpine 2}} {remove {alpine 2}}}}
+
+test nns-api-8.3 {search -continuous, result is not filled before the reply} -setup {
+    nameserv::bind alpha 1
+} -body {
+    set r [nameserv::search -continuous]
+    list [$r filled] [$r size] [waitFor {[$r filled]}] [$r size]
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    unset -nocomplain r
+    set bgerrors {}
+} -result {0 0 1 1}
+
+# The server fails to stop the search (Search/Continuous/Stop reads an
+# undefined variable), so the -async result is updated after it was
+# filled, contrary to the documentation.
+test nns-api-8.4 {search -async, result not modified after it was filled} -constraints {
+    knownBug
+} -setup {
+    client2Create
+    nameserv::bind alpha 1
+} -body {
+    set r [nameserv::search -async]
+    waitFor {[$r filled]}
+    client2 {nameserv::bind beta 2}
+    # A synchronous request is answered after any notification caused
+    # by the bind above.
+    nameserv::search
+    update
+    $r getall
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    interp delete c2
+    unset -nocomplain r
+    set bgerrors {}
+} -result {alpha 1}
+
+# -------------------------------------------------------------------------
+
+catch {nameserv::server::stop}
+waitFor {$::nameserv::comm eq ""} 2000
+rename freePort {}
+rename waitFor {}
+rename client2 {}
+rename client2Create {}
+rename callback {}
+rename bgerror {}
+unset -nocomplain P modulesDir bgerrors nnsTick
+testsuiteCleanup
+return

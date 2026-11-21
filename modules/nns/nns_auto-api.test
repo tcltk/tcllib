@@ -1,0 +1,320 @@
+# -*- tcl -*-
+# nns_auto-api.test: tests for the documented API of the name service
+# client nameserv::auto.
+#
+# The server runs in this process, on a free port of 127.0.0.1. A
+# second (plain nameserv) client runs in a child interpreter.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit2.tcl    snit
+    use comm/comm.tcl     comm
+    use interp/interp.tcl interp
+    use log/logger.tcl    logger
+    use uev/uevent.tcl    uevent
+}
+testing {
+    useLocal     common.tcl nameserv::common
+    useLocalKeep nns.tcl    nameserv
+    useLocalKeep server.tcl nameserv::server
+    useLocalKeep nns_auto.tcl nameserv::auto
+}
+
+# -------------------------------------------------------------------------
+
+logger::setlevel critical
+
+# Errors raised by the server while handling (asynchronous) requests
+# are reported as background errors. Collect them instead of printing.
+set bgerrors {}
+proc bgerror {msg} {lappend ::bgerrors $msg}
+
+proc freePort {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $p
+}
+
+# Wait (bounded) until the condition is true, processing events.
+proc waitFor {cond {ms 5000}} {
+    set end [expr {[clock milliseconds] + $ms}]
+    while {![uplevel #0 [list expr $cond]] && ([clock milliseconds] < $end)} {
+	after 10 {set ::nnsTick 1}
+	vwait ::nnsTick
+    }
+    return [uplevel #0 [list expr $cond]]
+}
+
+# A second, independent client, in a child interpreter.
+proc client2 {script} {
+    interp eval c2 $script
+}
+proc client2Create {} {
+    interp create c2
+    interp eval c2 [list set auto_path [linsert $::auto_path 0 $::modulesDir]]
+    interp eval c2 {
+	package require nameserv
+	logger::setlevel critical
+	proc bgerror {msg} {}
+    }
+    interp eval c2 [list nameserv::configure -host 127.0.0.1 -port $::P]
+}
+
+proc callback {args} {lappend ::events $args}
+
+set modulesDir [file dirname [file dirname [localPath nns.tcl]]]
+set P [freePort]
+
+# -------------------------------------------------------------------------
+# Configuration
+
+test nns-auto-api-1.0 {configure, defaults} -body {
+    nameserv::auto::configure
+} -result {-delay 1000 -host localhost -port 38573}
+
+test nns-auto-api-1.1 {cget} -body {
+    list [nameserv::auto::cget -delay] [nameserv::auto::cget -host] [nameserv::auto::cget -port]
+} -result {1000 localhost 38573}
+
+test nns-auto-api-1.2 {cget, bad option} -body {
+    nameserv::auto::cget -foo
+} -returnCodes error -result {bad option "-foo", expected -delay, -host, or -port}
+
+test nns-auto-api-1.3 {configure, bad option} -body {
+    nameserv::auto::configure -foo 1
+} -returnCodes error -result {bad option "-foo", expected -delay, -host, or -port}
+
+test nns-auto-api-1.4 {configure -delay, not an integer} -body {
+    nameserv::auto::configure -delay abc
+} -cleanup {
+    nameserv::auto::configure -delay 1000
+} -returnCodes error -result {bad value for "-delay", expected integer, got "abc"}
+
+test nns-auto-api-1.5 {configure -delay, not greater than zero} -body {
+    nameserv::auto::configure -delay 0
+} -cleanup {
+    nameserv::auto::configure -delay 1000
+} -returnCodes error -result {bad value for "-delay", is not greater than zero}
+
+test nns-auto-api-1.6 {configure -delay, missing value} -body {
+    nameserv::auto::configure -delay 10 -delay
+} -cleanup {
+    nameserv::auto::configure -delay 1000
+} -returnCodes error -result {value for "-delay" is missing}
+
+test nns-auto-api-1.7 {configure, options of the base client} -body {
+    list [nameserv::auto::configure -delay 50 -host 127.0.0.1 -port $P] \
+	[nameserv::auto::configure] [nameserv::configure]
+} -result [list {} [list -delay 50 -host 127.0.0.1 -port $P] [list -host 127.0.0.1 -port $P]]
+
+test nns-auto-api-1.8 {protocol} -body {
+    nameserv::auto::protocol
+} -result 1
+
+# -------------------------------------------------------------------------
+# Basic operation
+
+nameserv::server::configure -port $P
+nameserv::server::start
+
+test nns-auto-api-2.0 {server_protocol and server_features} -body {
+    list [nameserv::auto::server_protocol] [nameserv::auto::server_features]
+} -result {1 {Core Search/Continuous}}
+
+test nns-auto-api-2.1 {bind and search} -body {
+    list [nameserv::auto::bind alpha 1] [nameserv::auto::bind beta 2] \
+	[dictsort [nameserv::auto::search]] [nameserv::auto::search a*]
+} -cleanup {
+    nameserv::release
+    array unset ::nameserv::auto::bindings *
+} -result {{} {} {alpha 1 beta 2} {alpha 1}}
+
+# The error of the server is not passed on: [return -code $msg] is used.
+test nns-auto-api-2.2 {bind, name already bound} -constraints {
+    knownBug
+} -setup {
+    client2Create
+    client2 {nameserv::bind alpha 1}
+} -body {
+    nameserv::auto::bind alpha 2
+} -cleanup {
+    interp delete c2
+    waitFor {[nameserv::search] eq {}}
+    set bgerrors {}
+} -returnCodes error -result {Name "alpha" is already bound}
+
+# The server is only told to release the names while the connection is
+# down, i.e. the test of the reconnect timer is inverted.
+test nns-auto-api-2.3 {release} -constraints {
+    knownBug
+} -setup {
+    nameserv::auto::bind alpha 1
+} -body {
+    list [nameserv::auto::release] [nameserv::auto::search]
+} -cleanup {
+    nameserv::release
+    array unset ::nameserv::auto::bindings *
+} -result {{} {}}
+
+test nns-auto-api-2.4 {search, bad arguments} -body {
+    nameserv::auto::search -foo bar
+} -returnCodes error -result {wrong#args: Expected ?-continuous|-async? ?pattern?}
+
+# -------------------------------------------------------------------------
+# Restoration after the loss of the connection
+
+test nns-auto-api-3.0 {bound names are restored after reconnection} -setup {
+    set events {}
+    set ids [list [uevent::bind nameserv lost-connection ::callback] \
+		 [uevent::bind nameserv re-connection ::callback]]
+    nameserv::auto::bind alpha 1
+    nameserv::auto::bind beta 2
+} -body {
+    nameserv::server::stop
+    set lost [waitFor {[llength $::events] >= 1}]
+    nameserv::server::start
+    set reconnected [waitFor {[llength $::events] >= 2}]
+    list $lost $reconnected [lindex $events 0 1] [lindex $events 1] \
+	[dictsort [nameserv::auto::search]]
+} -cleanup {
+    foreach id $ids {uevent::unbind $id}
+    nameserv::release
+    array unset ::nameserv::auto::bindings *
+    unset -nocomplain events ids id lost reconnected
+} -result {1 1 lost-connection {nameserv re-connection {}} {alpha 1 beta 2}}
+
+test nns-auto-api-3.1 {lost-name event for a name taken by another client} -setup {
+    set events {}
+    set ids [list [uevent::bind nameserv lost-name ::callback] \
+		 [uevent::bind nameserv re-connection ::callback]]
+    nameserv::auto::bind alpha 1
+    nameserv::auto::bind beta 2
+} -body {
+    nameserv::server::stop
+    waitFor {$::nameserv::comm eq ""}
+    nameserv::server::start
+    client2Create
+    client2 {nameserv::bind alpha other}
+    set reconnected [waitFor {[llength $::events] >= 2}]
+    list $reconnected $events [dictsort [nameserv::auto::search]]
+} -cleanup {
+    foreach id $ids {uevent::unbind $id}
+    nameserv::release
+    interp delete c2
+    waitFor {[nameserv::search] eq {}}
+    array unset ::nameserv::auto::bindings *
+    set bgerrors {}
+    unset -nocomplain events ids id reconnected
+} -result {1 {{nameserv lost-name {name alpha data 1}} {nameserv re-connection {}}} {alpha other beta 2}}
+
+# -------------------------------------------------------------------------
+# Continuous searches, run last (see nns-api.test).
+#
+# On Tcl 9 the result objects cannot be created: the receiver refers to
+# "nameserv::auto::searches" relative to its own namespace, see
+# nns-auto-api-4.3.
+
+test nns-auto-api-4.0 {search -continuous, result object} -constraints {
+    tcl8.6only
+} -setup {
+    client2Create
+    nameserv::auto::bind alpha 1
+    set events {}
+} -body {
+    set r [nameserv::auto::search -continuous a*]
+    $r configure -command ::callback
+    set res [waitFor {[$r filled]}]
+    lappend res [$r getall] [$r names] [$r size]
+    client2 {nameserv::bind alpine 2}
+    waitFor {[$r size] == 2}
+    lappend res [dictsort [$r getall]]
+    client2 {nameserv::release}
+    waitFor {[$r size] == 1}
+    lappend res [$r getall]
+    waitFor {[llength $::events] >= 3}
+    lappend res $events
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    interp delete c2
+    array unset ::nameserv::auto::bindings *
+    unset -nocomplain r res events
+    set bgerrors {}
+} -result {1 {alpha 1} alpha 1 {alpha 1 alpine 2} {alpha 1} {{add {alpha 1}} {add {alpine 2}} {remove {alpine 2}}}}
+
+# The get method reads the wrong variable.
+test nns-auto-api-4.1 {search -continuous, get} -constraints {
+    tcl8.6only knownBug
+} -setup {
+    nameserv::auto::bind alpha 1
+} -body {
+    set r [nameserv::auto::search -continuous]
+    waitFor {[$r filled]}
+    $r get alpha
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    array unset ::nameserv::auto::bindings *
+    unset -nocomplain r
+    set bgerrors {}
+} -result 1
+
+test nns-auto-api-4.2 {search -async, result object} -constraints {
+    tcl8.6only
+} -setup {
+    nameserv::auto::bind alpha 1
+} -body {
+    set r [nameserv::auto::search -async]
+    list [waitFor {[$r filled]}] [$r getall]
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    array unset ::nameserv::auto::bindings *
+    unset -nocomplain r
+    set bgerrors {}
+} -result {1 {alpha 1}}
+
+# Fails with: Error in constructor: can't set
+# "nameserv::auto::searches(...)": parent namespace doesn't exist
+test nns-auto-api-4.3 {search -async, result object, Tcl 9} -constraints {
+    tcl9plus knownBug
+} -setup {
+    nameserv::auto::bind alpha 1
+} -body {
+    set r [nameserv::auto::search -async]
+    list [waitFor {[$r filled]}] [$r getall]
+} -cleanup {
+    catch {$r destroy}
+    nameserv::release
+    array unset ::nameserv::auto::bindings *
+    unset -nocomplain r
+    set bgerrors {}
+} -result {1 {alpha 1}}
+
+# -------------------------------------------------------------------------
+
+catch {nameserv::server::stop}
+waitFor {$::nameserv::comm eq ""} 2000
+foreach id [after info] {
+    if {[string match ::nameserv::auto::* [lindex [after info $id] 0]]} {after cancel $id}
+}
+unset -nocomplain id
+rename freePort {}
+rename waitFor {}
+rename client2 {}
+rename client2Create {}
+rename callback {}
+rename bgerror {}
+unset -nocomplain P modulesDir bgerrors nnsTick
+testsuiteCleanup
+return
