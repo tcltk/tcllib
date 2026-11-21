@@ -1,0 +1,338 @@
+# -*- tcl -*-
+# docstrip-api.test:  Additional tests for the documented API of the
+# docstrip package: guard expressions, all options of extract
+# (-annotate, -metaprefix, -onerror, -trimlines), error reporting,
+# \endinput, and sourcefrom.  Complements docstrip.test (which is
+# generated from tcldocstrip.dtx).
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal docstrip.tcl docstrip
+}
+
+# -------------------------------------------------------------------------
+
+proc lines {args} {
+    join $args \n
+}
+
+# -------------------------------------------------------------------------
+# extract, arguments
+
+test docstrip-api-1.0 {extract, wrong # args, not enough} -body {
+    docstrip::extract text
+} -returnCodes error -result [tcltest::wrongNumArgs docstrip::extract {text terminals ?arg ...?} 1]
+
+test docstrip-api-1.1 {extract, odd number of option words} -body {
+    docstrip::extract text {} -annotate
+} -returnCodes error -result {list must have an even number of elements}
+
+test docstrip-api-1.2 {extract, empty text} -body {
+    docstrip::extract {} {}
+} -result {}
+
+test docstrip-api-1.3 {extract, result lines are terminated with newline} -body {
+    docstrip::extract [lines a b] {}
+} -result "a\nb\n"
+
+test docstrip-api-1.4 {extract, empty lines are code} -body {
+    docstrip::extract [lines a {} b] {}
+} -result "a\n\nb\n"
+
+# -------------------------------------------------------------------------
+# Guard expressions
+
+foreach {n expr terminals expected} {
+    0  foo           {}        0
+    1  foo           foo       1
+    2  !foo          {}        1
+    3  !foo          foo       0
+    4  foo|bar       bar       1
+    5  foo|bar       {}        0
+    6  foo,bar       foo       1
+    7  foo,bar       baz       0
+    8  foo&bar       foo       0
+    9  foo&bar       {foo bar} 1
+    10 (foo|bar)&baz {foo baz} 1
+    11 (foo|bar)&baz {foo}     0
+    12 !(foo|bar)    {}        1
+    13 !(foo|bar)    bar       0
+    14 foo&!bar      foo       1
+    15 foo&!bar      {foo bar} 0
+    16 a1.x-y        a1.x-y    1
+    17 a1.x-y        a1        0
+    18 !!foo         foo       1
+} {
+    test docstrip-api-2.$n "guard expression $expr, true terminals {$terminals}" -body {
+	docstrip::extract [lines before "%<$expr>code" after] $terminals
+    } -result [expr {$expected ? "before\ncode\nafter\n" : "before\nafter\n"}]
+}
+
+test docstrip-api-2.20 {guard expression in block guards} -body {
+    set text [lines {%<*foo|bar>} 1 {%<*!baz>} 2 {%</!baz>} {%</foo|bar>} 3]
+    list [docstrip::extract $text bar] [docstrip::extract $text {bar baz}] \
+	[docstrip::extract $text baz]
+} -cleanup {
+    unset text
+} -result [list "1\n2\n3\n" "1\n3\n" "3\n"]
+
+test docstrip-api-2.21 {minus guard with expression} -body {
+    set text [lines {%<-foo&bar>x}]
+    list [docstrip::extract $text foo] [docstrip::extract $text {foo bar}]
+} -cleanup {
+    unset text
+} -result [list "x\n" ""]
+
+test docstrip-api-2.22 {guards inside excluded block are not output} -body {
+    docstrip::extract [lines {%<*foo>} {%<bar>a} {%<-bar>b} {%% meta} {%</foo>} c] bar
+} -result "c\n"
+
+test docstrip-api-2.23 {terminals are case sensitive} -body {
+    docstrip::extract [lines {%<Foo>a} {%<foo>b}] foo
+} -result "b\n"
+
+# -------------------------------------------------------------------------
+# \endinput
+
+test docstrip-api-3.0 {extraction stops at \endinput} -body {
+    docstrip::extract [lines a \\endinput b] {}
+} -result "a\n"
+
+test docstrip-api-3.1 {\endinput inside verbatim block is a code line} -body {
+    docstrip::extract [lines a {%<<END} \\endinput {%END} b] {}
+} -result "a\n\\endinput\nb\n"
+
+test docstrip-api-3.2 {indented \endinput is a code line} -body {
+    docstrip::extract [lines a { \endinput} b] {}
+} -result "a\n \\endinput\nb\n"
+
+# -------------------------------------------------------------------------
+# -metaprefix
+
+test docstrip-api-4.0 {-metaprefix default keeps %%} -body {
+    docstrip::extract [lines {%% meta}] {}
+} -result "%% meta\n"
+
+test docstrip-api-4.1 {-metaprefix, empty string} -body {
+    docstrip::extract [lines {%% meta}] {} -metaprefix {}
+} -result " meta\n"
+
+test docstrip-api-4.2 {-metaprefix, metacomment inside excluded block} -body {
+    docstrip::extract [lines {%<*foo>} {%% meta} {%</foo>}] {} -metaprefix #
+} -result ""
+
+# -------------------------------------------------------------------------
+# -trimlines
+
+test docstrip-api-5.0 {-trimlines default, trailing spaces removed} -body {
+    docstrip::extract "a  \nb\t \n" {}
+} -result "a\nb\t\n\n"
+
+test docstrip-api-5.1 {-trimlines false keeps trailing spaces} -body {
+    docstrip::extract "a  \nb\t \n" {} -trimlines 0
+} -result "a  \nb\t \n\n"
+
+test docstrip-api-5.2 {-trimlines, guard lines with trailing spaces} -body {
+    list [docstrip::extract [lines {%<*foo>  } a {%</foo>  }] foo] \
+	[catch {docstrip::extract [lines {%<*foo>  } a {%</foo>  }] foo -trimlines 0} msg] \
+	$msg
+} -cleanup {
+    unset msg
+} -result [list "a\n" 0 "a\n"]
+
+test docstrip-api-5.3 {-trimlines, verbatim end line with trailing spaces} -body {
+    list [docstrip::extract [lines {%<<END} a {%END  } b] {}] \
+	[docstrip::extract [lines {%<<END} a {%END  } b] {} -trimlines 0]
+} -result [list "a\nb\n" "a\n%END  \nb\n"]
+
+# -------------------------------------------------------------------------
+# -annotate
+
+test docstrip-api-6.0 {-annotate 1} -body {
+    docstrip::extract [lines a {%<foo>b} {%<-bar>c} {%% d} {%<<E} e {%E}] foo \
+	-annotate 1 -metaprefix #
+} -result [lines a {. "" ""} b {+ %<foo> {}} c {- %<-bar> {}} {# d} {M %% #} e {V "" ""} {}]
+
+test docstrip-api-6.1 {-annotate 2} -body {
+    docstrip::extract [lines a {%<*foo>} b {%</foo>}] foo -annotate 2
+} -result [lines a {. "" ""} 1 b {. "" ""} 3 {}]
+
+test docstrip-api-6.2 {-annotate 3, block stack} -body {
+    docstrip::extract [lines {%<*foo>} {%<*bar>} a {%</bar>} b {%</foo>}] {foo bar} -annotate 3
+} -result [lines a {. "" ""} 3 {foo bar} b {. "" ""} 5 foo {}]
+
+test docstrip-api-6.3 {-annotate, plus modifier recorded} -body {
+    docstrip::extract [lines {%<+foo>x}] foo -annotate 1
+} -result [lines x {+ %<+foo> {}} {}]
+
+# -------------------------------------------------------------------------
+# -onerror
+
+test docstrip-api-7.0 {format error, default throw, spurious end} -body {
+    list [catch {docstrip::extract [lines a {%</foo>} b] {}} msg] $msg $::errorCode
+} -cleanup {
+    unset msg
+} -result {1 {Spurious end block </foo>} {DOCSTRIP SPURIOUS 2}}
+
+test docstrip-api-7.1 {format error, throw, mismatched end} -body {
+    list [catch {docstrip::extract [lines {%<*foo>} a {%</bar>}] foo -onerror throw} msg] \
+	$msg $::errorCode
+} -cleanup {
+    unset msg
+} -result {1 {Found </bar> instead of </foo>} {DOCSTRIP MISMATCH 3}}
+
+test docstrip-api-7.2 {format error, throw, expression error} -body {
+    list [catch {docstrip::extract [lines a {%<foo&>b}] foo} msg] \
+	[lrange $::errorCode 0 0] [lrange $::errorCode 1 end]
+} -cleanup {
+    unset msg
+} -result {1 DOCSTRIP {EXPRERR 2}}
+
+test docstrip-api-7.3 {format error, throw, malformed guard} -body {
+    list [catch {docstrip::extract [lines a {%<foo} b] {}} msg] $::errorCode
+} -cleanup {
+    unset msg
+} -result {1 {DOCSTRIP BADGUARD 2}}
+
+test docstrip-api-7.4 {format error, ignore, spurious end} -body {
+    docstrip::extract [lines a {%</foo>} b] {} -onerror ignore
+} -result "a\nb\n"
+
+test docstrip-api-7.5 {format error, ignore, mismatched end closes the block} -body {
+    docstrip::extract [lines {%<*foo>} a {%</bar>} b] {} -onerror ignore
+} -result "b\n"
+
+test docstrip-api-7.6 {format error, ignore, expression error} -body {
+    docstrip::extract [lines a {%<foo&>b} c] foo -onerror ignore
+} -result "a\nb\nc\n"
+
+# The malformed guard error handler has a broken continuation line, so
+# that with -onerror ignore or puts the error message is evaluated as a
+# command.
+test docstrip-api-7.7 {format error, ignore, malformed guard} -constraints {
+    knownBug
+} -body {
+    docstrip::extract [lines a {%<foo} b] {} -onerror ignore
+} -result "a\nb\n"
+
+test docstrip-api-7.8 {format error, puts, message on stderr} -body {
+    docstrip::extract [lines a {%</foo>} b] {} -onerror puts
+} -result "a\nb\n" -errorOutput "docstrip: Spurious end block </foo> ignored on line 2.\n"
+
+test docstrip-api-7.9 {format error, puts, mismatched end} -body {
+    docstrip::extract [lines {%<*foo>} a {%</bar>}] foo -onerror puts
+} -result "a\n" -errorOutput "docstrip: Found </bar> instead of </foo> on line 3.\n"
+
+test docstrip-api-7.10 {-onerror keyword is case insensitive} -body {
+    docstrip::extract [lines a {%</foo>} b] {} -onerror IGNORE
+} -result "a\nb\n"
+
+# -------------------------------------------------------------------------
+# sourcefrom
+
+test docstrip-api-8.0 {sourcefrom, wrong # args} -body {
+    docstrip::sourcefrom file
+} -returnCodes error -result [tcltest::wrongNumArgs docstrip::sourcefrom {name terminals ?arg ...?} 1]
+
+test docstrip-api-8.1 {sourcefrom, missing file} -body {
+    docstrip::sourcefrom [file join [temporaryDirectory] nonexisting.dtx] {}
+} -returnCodes error -match glob -result {couldn't open *nonexisting.dtx*}
+
+test docstrip-api-8.2 {sourcefrom, evaluated in caller context, result returned} -setup {
+    set f [makeFile [lines {% comment} {%<foo>set x foo} {%<!foo>set x notfoo} {set y [info script]} {set z $x$x}] ds.dtx]
+    proc caller {f terms} {
+	set r [docstrip::sourcefrom $f $terms]
+	list $x $y $r
+    }
+} -body {
+    list [caller $f foo] [caller $f {}]
+} -cleanup {
+    removeFile ds.dtx
+    rename caller {}
+    unset f
+} -result [list [list foo [file join [temporaryDirectory] ds.dtx] foofoo] [list notfoo [file join [temporaryDirectory] ds.dtx] notfoonotfoo]]
+
+test docstrip-api-8.3 {sourcefrom, info script restored} -setup {
+    set f [makeFile {set x 1} ds.dtx]
+    set old [info script]
+} -body {
+    docstrip::sourcefrom $f {}
+    expr {[info script] eq $old}
+} -cleanup {
+    removeFile ds.dtx
+    unset f old
+} -result 1
+
+test docstrip-api-8.4 {sourcefrom, metacomments become Tcl comments} -setup {
+    set f [makeFile [lines {%% set x bad} {set x good}] ds.dtx]
+} -body {
+    docstrip::sourcefrom $f {}
+    set x
+} -cleanup {
+    removeFile ds.dtx
+    unset f x
+} -result good
+
+test docstrip-api-8.5 {sourcefrom, error in script, info script restored} -setup {
+    set f [makeFile [lines {error "from the script" {} {MY CODE}}] ds.dtx]
+    set old [info script]
+} -body {
+    list [catch {docstrip::sourcefrom $f {}} msg] $msg $::errorCode \
+	[expr {[info script] eq $old}]
+} -cleanup {
+    removeFile ds.dtx
+    unset f old msg
+} -result {1 {from the script} {MY CODE} 1}
+
+test docstrip-api-8.6 {sourcefrom, fconfigure options, -encoding} -setup {
+    set f [makeFile {} ds.dtx]
+    set fh [open $f w]
+    fconfigure $fh -encoding utf-8
+    puts $fh "set x \u0491\u0457"
+    close $fh
+} -body {
+    docstrip::sourcefrom $f {} -encoding utf-8
+    set x
+} -cleanup {
+    removeFile ds.dtx
+    unset f fh x
+} -result \u0491\u0457
+
+test docstrip-api-8.7 {sourcefrom, bad fconfigure option} -setup {
+    set f [makeFile {set x 1} ds.dtx]
+} -body {
+    docstrip::sourcefrom $f {} -foo bar
+} -cleanup {
+    removeFile ds.dtx
+    unset f
+} -returnCodes error -match glob -result {bad option "-foo": should be one of *}
+
+test docstrip-api-8.8 {sourcefrom, docstrip format error} -setup {
+    set f [makeFile [lines {%</foo>} {set x 1}] ds.dtx]
+} -body {
+    list [catch {docstrip::sourcefrom $f {}} msg] $msg $::errorCode
+} -cleanup {
+    removeFile ds.dtx
+    unset f msg
+} -result {1 {Spurious end block </foo>} {DOCSTRIP SPURIOUS 1}}
+
+test docstrip-api-8.9 {sourcefrom, return from the script} -setup {
+    set f [makeFile [lines {return value} {set x 1}] ds.dtx]
+} -body {
+    list [docstrip::sourcefrom $f {}] [info exists x]
+} -cleanup {
+    removeFile ds.dtx
+    unset f
+} -result {value 0}
+
+# -------------------------------------------------------------------------
+rename lines {}
+testsuiteCleanup
