@@ -1,0 +1,115 @@
+# -*- tcl -*-
+# msgcat-api.test: tests for doctools::msgcat, complementing msgcat.test.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal msgcat.tcl doctools::msgcat
+}
+
+# -------------------------------------------------------------------------
+
+# Declares catalog packages doctools::msgcat::<prefix>::<lang> which
+# record their loading in ::loaded.
+proc declare {prefix args} {
+    foreach lang $args {
+	package ifneeded doctools::msgcat::${prefix}::$lang 0.1 [list apply {{p} {
+	    lappend ::loaded $p
+	    package provide $p 0.1
+	}} doctools::msgcat::${prefix}::$lang]
+    }
+}
+
+proc forget {prefix args} {
+    foreach lang $args {
+	package forget doctools::msgcat::${prefix}::$lang
+    }
+}
+
+set savedLocale [msgcat::mclocale]
+
+# -------------------------------------------------------------------------
+
+test doctools-msgcat-api-1.1 {init, all preferences found} -setup {
+    set ::loaded {}
+    msgcat::mclocale pl_pl
+    declare zzta pl_pl pl
+} -body {
+    list [doctools::msgcat::init zzta] $::loaded
+} -cleanup {
+    forget zzta pl_pl pl
+    msgcat::mclocale $savedLocale
+    unset ::loaded
+} -result {2 {doctools::msgcat::zzta::pl_pl doctools::msgcat::zzta::pl}}
+
+test doctools-msgcat-api-1.2 {init, only the language without territory found} -setup {
+    set ::loaded {}
+    msgcat::mclocale cs_cz
+    declare zztb cs
+} -body {
+    list [doctools::msgcat::init zztb] $::loaded
+} -cleanup {
+    forget zztb cs
+    msgcat::mclocale $savedLocale
+    unset ::loaded
+} -result {1 doctools::msgcat::zztb::cs}
+
+test doctools-msgcat-api-1.3 {init, catalogs for other languages are not loaded} -setup {
+    set ::loaded {}
+    msgcat::mclocale pl_pl
+    declare zztc uk cs
+} -body {
+    list [doctools::msgcat::init zztc] $::loaded
+} -cleanup {
+    forget zztc uk cs
+    msgcat::mclocale $savedLocale
+    unset ::loaded
+} -result {0 {}}
+
+test doctools-msgcat-api-1.4 {init, unknown prefix} -setup {
+    msgcat::mclocale pl_pl
+} -body {
+    doctools::msgcat::init no-such-prefix
+} -cleanup {
+    msgcat::mclocale $savedLocale
+} -result 0
+
+test doctools-msgcat-api-1.5 {init, error while loading a catalog is ignored} -setup {
+    set ::loaded {}
+    msgcat::mclocale pl_pl
+    declare zztd pl
+    package ifneeded doctools::msgcat::zztd::pl_pl 0.1 {error broken}
+} -body {
+    list [doctools::msgcat::init zztd] $::loaded
+} -cleanup {
+    forget zztd pl_pl pl
+    msgcat::mclocale $savedLocale
+    unset ::loaded
+} -result {1 doctools::msgcat::zztd::pl}
+
+test doctools-msgcat-api-1.6 {init, repeated call counts already loaded catalogs} -setup {
+    set ::loaded {}
+    msgcat::mclocale pl_pl
+    declare zzte pl
+} -body {
+    list [doctools::msgcat::init zzte] [doctools::msgcat::init zzte] $::loaded
+} -cleanup {
+    forget zzte pl
+    msgcat::mclocale $savedLocale
+    unset ::loaded
+} -result {1 1 doctools::msgcat::zzte::pl}
+
+# -------------------------------------------------------------------------
+
+rename declare {}
+rename forget {}
+unset savedLocale
+testsuiteCleanup
+return
