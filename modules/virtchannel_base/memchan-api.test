@@ -1,0 +1,281 @@
+# -*- tcl -*-
+# memchan-api.test:  Tests for the documented API of package tcl::chan::memchan
+# (supplements the existing tests, if any).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal memchan.tcl tcl::chan::memchan
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-memchan-api-1.0 {constructor returns a new, empty channel} -body {
+    set c [tcl::chan::memchan]
+    list [expr {$c in [file channels]}] [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {1 {} 1}
+
+test tcl-chan-memchan-api-1.1 {each call creates an independent channel} -body {
+    set a [tcl::chan::memchan]
+    set b [tcl::chan::memchan]
+    puts -nonewline $a AAA
+    puts -nonewline $b B
+    flush $a ; flush $b
+    seek $a 0 ; seek $b 0
+    list [expr {$a ne $b}] [read $a] [read $b]
+} -cleanup {
+    close $a
+    close $b
+    unset a b
+} -result {1 AAA B}
+
+test tcl-chan-memchan-api-1.2 {close removes the channel and its handler} -body {
+    set c [tcl::chan::memchan]
+    set during [llength [info class instances ::tcl::chan::memchan::implementation]]
+    close $c
+    list $during [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::memchan::implementation]
+} -cleanup {
+    unset c during
+} -result {1 0 {}}
+
+test tcl-chan-memchan-api-2.0 {write, seek to start, read back} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+} -body {
+    puts -nonewline $c "hello world"
+    seek $c 0
+    list [tell $c] [read $c] [tell $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {0 {hello world} 11 1}
+
+test tcl-chan-memchan-api-2.1 {puts and gets, line by line} -setup {
+    set c [tcl::chan::memchan]
+} -body {
+    puts $c line1
+    puts $c line2
+    seek $c 0
+    set r {}
+    while {[gets $c line] >= 0} {lappend r $line}
+    set r
+} -cleanup {
+    close $c
+    unset c r line
+} -result {line1 line2}
+
+test tcl-chan-memchan-api-2.2 {overwrite in the middle} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c hello
+} -body {
+    seek $c 1
+    puts -nonewline $c EL
+    flush $c
+    set t [tell $c]
+    seek $c 0
+    list $t [read $c]
+} -cleanup {
+    close $c
+    unset c t
+} -result {3 hELlo}
+
+test tcl-chan-memchan-api-2.3 {overwrite across the end extends the content} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c hello
+} -body {
+    seek $c 3
+    puts -nonewline $c LOWORLD
+    flush $c
+    seek $c 0
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -result helLOWORLD
+
+test tcl-chan-memchan-api-2.4 {seek beyond the end, write: gap is filled with nulls} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c ab
+} -body {
+    seek $c 4
+    puts -nonewline $c Z
+    flush $c
+    seek $c 0
+    binary encode hex [read $c]
+} -cleanup {
+    close $c
+    unset c
+} -result 616200005a
+
+test tcl-chan-memchan-api-2.5 {binary data round trip} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    set data [binary format c* {0 1 2 -1 10 13 -128}]
+} -body {
+    puts -nonewline $c $data
+    seek $c 0
+    string equal [read $c] $data
+} -cleanup {
+    close $c
+    unset c data
+} -result 1
+
+test tcl-chan-memchan-api-2.6 {encoded text round trip} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -encoding utf-8
+} -body {
+    puts -nonewline $c "a\u0105\u0439b"
+    seek $c 0
+    list [read $c] [tell $c]
+} -cleanup {
+    close $c
+    unset c
+} -result [list "a\u0105\u0439b" 6]
+
+test tcl-chan-memchan-api-2.7 {writing an empty string changes nothing} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c abc
+} -body {
+    puts -nonewline $c ""
+    flush $c
+    seek $c 0
+    list [read $c] [tell $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {abc 3}
+
+test tcl-chan-memchan-api-3.0 {seek relative to current} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c abcdefgh
+} -body {
+    seek $c 2
+    seek $c 3 current
+    set a [read $c 1]
+    seek $c -4 current
+    list $a [read $c 2] [tell $c]
+} -cleanup {
+    close $c
+    unset c a
+} -result {f cd 4}
+
+test tcl-chan-memchan-api-3.1 {seek relative to end} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c abcdefgh
+} -body {
+    seek $c -3 end
+    list [tell $c] [read $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {5 fgh}
+
+test tcl-chan-memchan-api-3.2 {seek beyond the end from end extends the content} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c ab
+} -body {
+    seek $c 2 end
+    set t [tell $c]
+    seek $c 0
+    list $t [binary encode hex [read $c]]
+} -cleanup {
+    close $c
+    unset c t
+} -result {4 61620000}
+
+test tcl-chan-memchan-api-3.3 {seek before the start is an error} -setup {
+    set c [tcl::chan::memchan]
+} -body {
+    seek $c -1
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {Cannot seek before the start of the channel}
+
+test tcl-chan-memchan-api-3.4 {seek before the start from end is an error} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c abc
+} -body {
+    seek $c -4 end
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {Cannot seek before the start of the channel}
+
+test tcl-chan-memchan-api-3.5 {seek before the start from current is an error} -setup {
+    set c [tcl::chan::memchan]
+} -body {
+    seek $c -1 current
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {Cannot seek before the start of the channel}
+
+test tcl-chan-memchan-api-4.0 {readable events up to eof (ticket 864a0c83e3)} -setup {
+    set c [tcl::chan::memchan]
+    fconfigure $c -translation binary
+    puts -nonewline $c abcdefgh
+    seek $c 0
+    set ::result {}
+} -body {
+    fileevent $c readable {
+	if {[eof $c]} {
+	    fileevent $c readable {}
+	    set ::done 1
+	} else {
+	    lappend ::result [read $c 3]
+	}
+    }
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    list $::done $::result
+} -cleanup {
+    close $c
+    unset c id ::result ::done
+} -result {1 {abc def gh}}
+
+test tcl-chan-memchan-api-4.1 {writable events} -setup {
+    set c [tcl::chan::memchan]
+} -body {
+    fileevent $c writable {
+	fileevent $c writable {}
+	set ::done 1
+    }
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    set ::done
+} -cleanup {
+    close $c
+    unset c id ::done
+} -result 1
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

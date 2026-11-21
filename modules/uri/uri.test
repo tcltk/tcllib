@@ -831,18 +831,18 @@ test uri-2.42-0 {uri::join -- scheme file, trimleft excess "/", do not use first
 # file:///b/c/d
 test uri-2.43-0 {uri::join -- with uri::split, identity function preserves user:pwd for http} {
     ::uri::setQuirkOption NoInitialSlash 0
-  eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk]
-} http://anonymous:passw0rd@core.tcl.tk
+  eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl-lang.org]
+} http://anonymous:passw0rd@core.tcl-lang.org
 
 test uri-2.44-0 {uri::join -- with uri::split, identity function preserves user:pwd and port for http} {
     ::uri::setQuirkOption NoInitialSlash 0
-    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk:8080/foo]
-} http://anonymous:passw0rd@core.tcl.tk:8080/foo
+    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl-lang.org:8080/foo]
+} http://anonymous:passw0rd@core.tcl-lang.org:8080/foo
 
 test uri-2.45-0 {uri::join -- with uri::split, identity function preserves user:pwd and port for http FQDN} {
     ::uri::setQuirkOption NoInitialSlash 0
-    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk.:8080/foo]
-} http://anonymous:passw0rd@core.tcl.tk.:8080/foo
+    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl-lang.org.:8080/foo]
+} http://anonymous:passw0rd@core.tcl-lang.org.:8080/foo
 
 test uri-2.46-0 {uri::join - http - pbare is irrelevant - result differs from 2.46.1} {
     ::uri::setQuirkOption NoInitialSlash 0
@@ -1093,18 +1093,18 @@ test uri-2.42-1 {uri::join -- scheme file, trimleft excess "/", do not use first
 # file:///b/c/d
 test uri-2.43-1 {uri::join -- with uri::split, identity function preserves user:pwd for http} {
     ::uri::setQuirkOption NoInitialSlash 1
-  eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk]
-} http://anonymous:passw0rd@core.tcl.tk
+  eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl-lang.org]
+} http://anonymous:passw0rd@core.tcl-lang.org
 
 test uri-2.44-1 {uri::join -- with uri::split, identity function preserves user:pwd and port for http} {
     ::uri::setQuirkOption NoInitialSlash 1
-    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk:8080/foo]
-} http://anonymous:passw0rd@core.tcl.tk:8080/foo
+    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl-lang.org:8080/foo]
+} http://anonymous:passw0rd@core.tcl-lang.org:8080/foo
 
 test uri-2.45-1 {uri::join -- with uri::split, identity function preserves user:pwd and port for http FQDN} {
     ::uri::setQuirkOption NoInitialSlash 1
-    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk.:8080/foo]
-} http://anonymous:passw0rd@core.tcl.tk.:8080/foo
+    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl-lang.org.:8080/foo]
+} http://anonymous:passw0rd@core.tcl-lang.org.:8080/foo
 
 test uri-2.46-1 {uri::join - http - controlled by pbare - result differs from 2.46.0} {
     ::uri::setQuirkOption NoInitialSlash 1
@@ -1248,24 +1248,24 @@ test uri-3.24 {uri::resolve - two queries,
 } http://0-9.:8080/baz?shoo=bee
 
 test uri-3.25 {uri::resolve -- user:pwd for http} {
-    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk/foo/bar /some 
-} http://anonymous:passw0rd@core.tcl.tk/some
+    ::uri::resolve http://anonymous:passw0rd@core.tcl-lang.org/foo/bar /some 
+} http://anonymous:passw0rd@core.tcl-lang.org/some
 
 test uri-3.26 {uri::resolve -- user:pwd for http} {
-    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk/foo/bar //www.tcl.tk/foo/bar
-} http://www.tcl.tk/foo/bar
+    ::uri::resolve http://anonymous:passw0rd@core.tcl-lang.org/foo/bar //www.tcl-lang.org/foo/bar
+} http://www.tcl-lang.org/foo/bar
 
 test uri-3.27 {uri::resolve -- user:pwd for http} {
-    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk/foo/bar //core.tcl.tk/foo/bar
-} http://core.tcl.tk/foo/bar
+    ::uri::resolve http://anonymous:passw0rd@core.tcl-lang.org/foo/bar //core.tcl-lang.org/foo/bar
+} http://core.tcl-lang.org/foo/bar
 
 test uri-3.28 {uri::resolve -- port for http} {
-    ::uri::resolve http://core.tcl.tk:8080/foo/bar //core.tcl.tk/foo/bar
-} http://core.tcl.tk/foo/bar
+    ::uri::resolve http://core.tcl-lang.org:8080/foo/bar //core.tcl-lang.org/foo/bar
+} http://core.tcl-lang.org/foo/bar
 
 test uri-3.29 {uri::resolve -- user:pwd and port for http} {
-    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk:8080/foo/bar //core.tcl.tk/foo/bar
-} http://core.tcl.tk/foo/bar
+    ::uri::resolve http://anonymous:passw0rd@core.tcl-lang.org:8080/foo/bar //core.tcl-lang.org/foo/bar
+} http://core.tcl-lang.org/foo/bar
 
 # -------------------------------------------------------------------------
 

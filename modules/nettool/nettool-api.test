@@ -1,0 +1,561 @@
+# -*- tcl -*-
+# nettool-api.test:  Tests for the documented API of the nettool package
+# that are not covered by nettool.test.
+#
+# The platform dependent commands which run external programs (ifconfig,
+# arp) are tested against fake programs placed first on PATH, so that the
+# tests are deterministic and never contact the network.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use dns/ip.tcl ip
+}
+# nettool defines a global ::cat command (documented) only if no such
+# command exists, and testutilities.tcl defines an unrelated one.  Hide
+# the latter while nettool is loaded and tested, so that the documented
+# ::cat is used by nettool (cpuinfo, status) and by the tests.
+rename ::cat ::nettool-api-testutils-cat
+testing {
+    useLocal nettool.tcl nettool
+}
+
+# -------------------------------------------------------------------------
+
+set genus [lindex [split [::platform::generic] -] 0]
+tcltest::testConstraint linux [expr {
+    $::tcl_platform(platform) eq "unix" && $genus eq "linux"
+}]
+tcltest::testConstraint procfs [expr {
+    [file readable /proc/cpuinfo] && [file readable /proc/meminfo]
+    && [file readable /proc/loadavg]
+}]
+tcltest::testConstraint sh [expr {
+    $::tcl_platform(platform) eq "unix" && [file executable /bin/sh]
+}]
+unset genus
+
+# Fake external programs.  [fakeprog name output] creates a program
+# "name" in a private directory that prints "output", and puts that
+# directory first on PATH.  [fakecleanup] restores PATH and removes the
+# directory.
+
+proc fakeprog {name output} {
+    global fakedir fakepath
+    if {![info exists fakedir]} {
+        set fakedir [tcltest::makeDirectory nettool-fakebin]
+        set fakepath $::env(PATH)
+        set ::env(PATH) $fakedir:$fakepath
+    }
+    set data [file join $fakedir $name.out]
+    set f [open $data w]
+    fconfigure $f -translation lf
+    puts -nonewline $f $output
+    close $f
+    set prog [file join $fakedir $name]
+    set f [open $prog w]
+    fconfigure $f -translation lf
+    puts $f "#!/bin/sh"
+    puts $f "exec cat '$data'"
+    close $f
+    file attributes $prog -permissions 0755
+    return
+}
+
+proc fakecleanup {} {
+    global fakedir fakepath
+    if {[info exists fakepath]} {
+        set ::env(PATH) $fakepath
+    }
+    if {[info exists fakedir]} {
+        tcltest::removeDirectory nettool-fakebin
+    }
+    unset -nocomplain fakedir fakepath
+}
+
+# ifconfig output in the old net-tools format, which nettool::dump parses.
+set ifconfig_old {eth0      Link encap:Ethernet  HWaddr 00:11:22:33:44:55
+          inet addr:192.168.1.10  Bcast:192.168.1.255  Mask:255.255.255.0
+          inet6 addr: fe80::211:22ff:fe33:4455/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+
+}
+
+# ifconfig output in the current net-tools format.
+set ifconfig_new {eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.10  netmask 255.255.255.0  broadcast 192.168.1.255
+        inet6 fe80::211:22ff:fe33:4455  prefixlen 64  scopeid 0x20<link>
+        ether 00:11:22:33:44:55  txqueuelen 1000  (Ethernet)
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+
+}
+
+# =========================================================================
+# ::cat
+
+test nettool-api-1.0 {cat, wrong # args} -body {
+    cat
+} -returnCodes error -result {wrong # args: should be "cat filename"}
+
+test nettool-api-1.1 {cat, wrong # args} -body {
+    cat a b
+} -returnCodes error -result {wrong # args: should be "cat filename"}
+
+test nettool-api-1.2 {cat, returns file contents} -setup {
+    set f [tcltest::makeFile {} nettool-cat.txt]
+    set ch [open $f w]
+    puts -nonewline $ch "line 1\nline 2\n"
+    close $ch
+} -body {
+    cat $f
+} -cleanup {
+    tcltest::removeFile nettool-cat.txt
+    unset -nocomplain f ch
+} -result "line 1\nline 2\n"
+
+test nettool-api-1.3 {cat, empty file} -setup {
+    set f [tcltest::makeFile {} nettool-cat.txt]
+    close [open $f w]
+} -body {
+    cat $f
+} -cleanup {
+    tcltest::removeFile nettool-cat.txt
+    unset -nocomplain f
+} -result {}
+
+test nettool-api-1.4 {cat, missing file} -body {
+    cat [file join [tcltest::temporaryDirectory] nettool-no-such-file]
+} -returnCodes error -match glob -result {couldn't open "*nettool-no-such-file": no such file or directory}
+
+# =========================================================================
+# ::nettool::claim_port, ::nettool::release_port, ::nettool::port_busy
+
+test nettool-api-2.0 {claim_port, wrong # args} -body {
+    ::nettool::claim_port
+} -returnCodes error -result {wrong # args: should be "::nettool::claim_port port ?protocol?"}
+
+test nettool-api-2.1 {claim_port, wrong # args} -body {
+    ::nettool::claim_port 1 tcp x
+} -returnCodes error -result {wrong # args: should be "::nettool::claim_port port ?protocol?"}
+
+test nettool-api-2.2 {release_port, wrong # args} -body {
+    ::nettool::release_port
+} -returnCodes error -result {wrong # args: should be "::nettool::release_port port ?protocol?"}
+
+test nettool-api-2.3 {release_port, wrong # args} -body {
+    ::nettool::release_port 1 tcp x
+} -returnCodes error -result {wrong # args: should be "::nettool::release_port port ?protocol?"}
+
+test nettool-api-2.4 {port_busy, wrong # args} -body {
+    ::nettool::port_busy
+} -returnCodes error -result {wrong # args: should be "::nettool::port_busy port"}
+
+test nettool-api-2.5 {port_busy, wrong # args} -body {
+    ::nettool::port_busy 1 2
+} -returnCodes error -result {wrong # args: should be "::nettool::port_busy port"}
+
+test nettool-api-2.6 {claim_port tcp explicitly, then release} -body {
+    set r {}
+    lappend r [::nettool::port_busy 50001]
+    ::nettool::claim_port 50001 tcp
+    lappend r [::nettool::port_busy 50001]
+    ::nettool::release_port 50001 tcp
+    lappend r [::nettool::port_busy 50001]
+} -cleanup {
+    ::nettool::release_port 50001
+    unset -nocomplain r
+} -result {0 1 0}
+
+test nettool-api-2.7 {claim_port udp, then release udp} -body {
+    set r {}
+    lappend r [::nettool::port_busy 50002]
+    ::nettool::claim_port 50002 udp
+    lappend r [::nettool::port_busy 50002]
+    ::nettool::release_port 50002 udp
+    lappend r [::nettool::port_busy 50002]
+} -cleanup {
+    ::nettool::release_port 50002
+    unset -nocomplain r
+} -result {0 1 0}
+
+test nettool-api-2.8 {claim_port twice, a single release frees the port} -body {
+    ::nettool::claim_port 50003
+    ::nettool::claim_port 50003
+    ::nettool::release_port 50003
+    ::nettool::port_busy 50003
+} -cleanup {
+    ::nettool::release_port 50003
+} -result 0
+
+test nettool-api-2.9 {release_port of a port never claimed} -body {
+    ::nettool::release_port 50004
+    ::nettool::port_busy 50004
+} -result 0
+
+test nettool-api-2.10 {port_busy, last port of the free range} -body {
+    ::nettool::port_busy 65535
+} -result 0
+
+# =========================================================================
+# ::nettool::find_port
+
+test nettool-api-3.0 {find_port, wrong # args} -body {
+    ::nettool::find_port
+} -returnCodes error -result {wrong # args: should be "::nettool::find_port startingport"}
+
+test nettool-api-3.1 {find_port, wrong # args} -body {
+    ::nettool::find_port 1 2
+} -returnCodes error -result {wrong # args: should be "::nettool::find_port startingport"}
+
+test nettool-api-3.2 {find_port, free port is returned as is} -body {
+    ::nettool::find_port 50010
+} -result 50010
+
+test nettool-api-3.3 {find_port, skips known service ports} -body {
+    # Port 1 is not in a free block, the first free block starts at 1028.
+    ::nettool::find_port 1
+} -result 1028
+
+test nettool-api-3.4 {find_port, skips claimed ports} -setup {
+    ::nettool::claim_port 50020
+    ::nettool::claim_port 50021
+} -body {
+    ::nettool::find_port 50020
+} -cleanup {
+    ::nettool::release_port 50020
+    ::nettool::release_port 50021
+} -result 50022
+
+test nettool-api-3.5 {find_port, does not claim the port} -body {
+    list [::nettool::find_port 50030] [::nettool::port_busy 50030] \
+        [::nettool::find_port 50030]
+} -result {50030 0 50030}
+
+test nettool-api-3.6 {find_port, single-port free block} -constraints {
+    knownBug
+} -body {
+    # 1028 is free (block 1028-1028), but the block is skipped.
+    list [::nettool::port_busy 1028] [::nettool::find_port 1028]
+} -result {0 1028}
+
+test nettool-api-3.7 {find_port, last port of a free block} -constraints {
+    knownBug
+} -body {
+    # Block 7790-7793: 7793 is free but find_port 7793 skips to the next
+    # block.
+    list [::nettool::port_busy 7793] [::nettool::find_port 7793]
+} -result {0 7793}
+
+test nettool-api-3.8 {find_port, last port of the free range} -constraints {
+    knownBug
+} -body {
+    ::nettool::find_port 65535
+} -result 65535
+
+test nettool-api-3.9 {find_port, no free port after the starting port} -body {
+    ::nettool::find_port 65536
+} -returnCodes error -result {Could not locate a port}
+
+# =========================================================================
+# ::nettool::allocate_port
+
+test nettool-api-4.0 {allocate_port, wrong # args} -body {
+    ::nettool::allocate_port
+} -returnCodes error -result {wrong # args: should be "::nettool::allocate_port startingport"}
+
+test nettool-api-4.1 {allocate_port, wrong # args} -body {
+    ::nettool::allocate_port 1 2
+} -returnCodes error -result {wrong # args: should be "::nettool::allocate_port startingport"}
+
+test nettool-api-4.2 {allocate_port claims the returned port} -body {
+    set p [::nettool::allocate_port 50100]
+    list [expr {$p >= 50100}] [::nettool::port_busy $p] \
+        [expr {[::nettool::find_port $p] > $p}]
+} -cleanup {
+    ::nettool::release_port $p
+    unset -nocomplain p
+} -result {1 1 1}
+
+test nettool-api-4.3 {allocate_port skips claimed ports} -body {
+    set p [::nettool::allocate_port 50200]
+    set q [::nettool::allocate_port $p]
+    expr {$q > $p}
+} -cleanup {
+    ::nettool::release_port $p
+    ::nettool::release_port $q
+    unset -nocomplain p q
+} -result 1
+
+test nettool-api-4.4 {allocate_port, released port can be allocated again} -body {
+    set p [::nettool::allocate_port 50300]
+    ::nettool::release_port $p
+    expr {[::nettool::allocate_port $p] == $p}
+} -cleanup {
+    ::nettool::release_port $p
+    unset -nocomplain p
+} -result 1
+
+test nettool-api-4.5 {allocate_port, no free port after the starting port} -body {
+    ::nettool::allocate_port 65536
+} -returnCodes error -result {Could not locate a port}
+
+# =========================================================================
+# ::nettool::user_data_root
+
+test nettool-api-5.0 {user_data_root, wrong # args} -body {
+    ::nettool::user_data_root
+} -returnCodes error -result {wrong # args: should be "::nettool::user_data_root appname"}
+
+test nettool-api-5.1 {user_data_root, wrong # args} -body {
+    ::nettool::user_data_root a b
+} -returnCodes error -result {wrong # args: should be "::nettool::user_data_root appname"}
+
+test nettool-api-5.2 {user_data_root, fully qualified, not created} -body {
+    set p [::nettool::user_data_root nettool-test-app-xyzzy]
+    list [file pathtype $p] [string match *nettool-test-app-xyzzy $p] \
+        [file exists $p]
+} -cleanup {
+    unset -nocomplain p
+} -result {absolute 1 0}
+
+test nettool-api-5.3 {user_data_root, Linux: hidden directory in HOME} -constraints {
+    linux
+} -setup {
+    set home $::env(HOME)
+    set ::env(HOME) /nettool/home
+} -body {
+    ::nettool::user_data_root myapp
+} -cleanup {
+    set ::env(HOME) $home
+    unset -nocomplain home
+} -result /nettool/home/.myapp
+
+# =========================================================================
+# ::nettool::cpuinfo (Linux, read from /proc)
+
+test nettool-api-6.0 {cpuinfo, canonical fields} -constraints {
+    linux procfs
+} -body {
+    set info [::nettool::cpuinfo]
+    set r {}
+    foreach key {cpus speed memory vendor} {
+        if {![dict exists $info $key]} {lappend r $key}
+    }
+    set r
+} -cleanup {
+    unset -nocomplain info r key
+} -result {}
+
+test nettool-api-6.1 {cpuinfo, cpus is a positive integer} -constraints {
+    linux procfs
+} -body {
+    set n [dict get [::nettool::cpuinfo] cpus]
+    expr {[string is integer -strict $n] && $n > 0}
+} -cleanup {
+    unset -nocomplain n
+} -result 1
+
+test nettool-api-6.2 {cpuinfo, speed is a number (MHz)} -constraints {
+    linux procfs
+} -body {
+    string is double -strict [dict get [::nettool::cpuinfo] speed]
+} -result 1
+
+test nettool-api-6.3 {cpuinfo, memory is in MB} -constraints {
+    linux procfs knownBug
+} -body {
+    # The value is stored as an unevaluated "KB/1024" string.
+    set m [dict get [::nettool::cpuinfo] memory]
+    string is integer -strict $m
+} -cleanup {
+    unset -nocomplain m
+} -result 1
+
+test nettool-api-6.4 {cpuinfo, several fields: key/value list} -constraints {
+    linux procfs
+} -body {
+    set r [::nettool::cpuinfo cpus vendor]
+    list [dict keys $r] \
+        [expr {[dict get $r cpus] == [dict get [::nettool::cpuinfo] cpus]}]
+} -cleanup {
+    unset -nocomplain r
+} -result {{cpus vendor} 1}
+
+test nettool-api-6.5 {cpuinfo, single field: key/value list} -constraints {
+    linux procfs knownBug
+} -body {
+    # Documented to return a key/value list, returns the bare value.
+    dict keys [::nettool::cpuinfo cpus]
+} -result cpus
+
+test nettool-api-6.6 {cpuinfo, unknown field among several} -constraints {
+    linux procfs
+} -body {
+    dict get [::nettool::cpuinfo cpus nettool-no-such-field] \
+        nettool-no-such-field
+} -result {}
+
+# =========================================================================
+# ::nettool::status (Linux, read from /proc)
+
+test nettool-api-7.0 {status, wrong # args} -body {
+    ::nettool::status x
+} -returnCodes error -result {wrong # args: should be "::nettool::status"}
+
+test nettool-api-7.1 {status, common fields} -constraints {
+    linux procfs
+} -body {
+    set s [::nettool::status]
+    list [string is double -strict [dict get $s load]] \
+        [string is integer -strict [dict get $s memory_total]] \
+        [string is integer -strict [dict get $s memory_free]] \
+        [expr {[dict get $s memory_free] <= [dict get $s memory_total]}]
+} -cleanup {
+    unset -nocomplain s
+} -result {1 1 1 1}
+
+# =========================================================================
+# Commands based on ifconfig output (Linux, fake ifconfig)
+
+test nettool-api-8.0 {mac_list, old ifconfig format} -constraints {
+    linux sh
+} -setup {
+    fakeprog ifconfig $ifconfig_old
+} -body {
+    ::nettool::mac_list
+} -cleanup {
+    fakecleanup
+} -result 00:11:22:33:44:55
+
+test nettool-api-8.1 {mac_list, current ifconfig format} -constraints {
+    linux sh knownBug
+} -setup {
+    # Ticket 9a21637273: nettool cannot parse the ifconfig output
+    fakeprog ifconfig $ifconfig_new
+} -body {
+    ::nettool::mac_list
+} -cleanup {
+    fakecleanup
+} -result 00:11:22:33:44:55
+
+test nettool-api-8.2 {hwid_list, old ifconfig format} -constraints {
+    linux sh
+} -setup {
+    fakeprog ifconfig $ifconfig_old
+} -body {
+    ::nettool::hwid_list
+} -cleanup {
+    fakecleanup
+} -result 0x001122334455
+
+test nettool-api-8.3 {broadcast_list, old ifconfig format} -constraints {
+    linux sh
+} -setup {
+    fakeprog ifconfig $ifconfig_old
+} -body {
+    ::nettool::broadcast_list
+} -cleanup {
+    fakecleanup
+} -result {127.0.0.1 192.168.1.255}
+
+test nettool-api-8.4 {broadcast_list, current ifconfig format} -constraints {
+    linux sh knownBug
+} -setup {
+    # Ticket 9a21637273: nettool cannot parse the ifconfig output
+    fakeprog ifconfig $ifconfig_new
+} -body {
+    ::nettool::broadcast_list
+} -cleanup {
+    fakecleanup
+} -result {127.0.0.1 192.168.1.255}
+
+test nettool-api-8.5 {ip_list, old ifconfig format} -constraints {
+    linux sh knownBug
+} -setup {
+    fakeprog ifconfig $ifconfig_old
+} -body {
+    # Fails with: invalid command name "ldelete"
+    ::nettool::ip_list
+} -cleanup {
+    fakecleanup
+} -result 192.168.1.10
+
+test nettool-api-8.6 {network_list, old ifconfig format} -constraints {
+    linux sh knownBug
+} -setup {
+    fakeprog ifconfig $ifconfig_old
+} -body {
+    # The dotted mask is used directly in a bitwise expr.
+    lsort [::nettool::network_list]
+} -cleanup {
+    fakecleanup
+} -result {127.0.0.0/8 192.168.1.0/24}
+
+test nettool-api-8.7 {network_list, no IPv4 interface} -constraints {
+    linux sh knownBug
+} -setup {
+    fakeprog ifconfig "eth0      Link encap:Ethernet  HWaddr 00:11:22:33:44:55\n"
+} -body {
+    # Fails with: can't read "result": no such variable
+    ::nettool::network_list
+} -cleanup {
+    fakecleanup
+} -result {}
+
+test nettool-api-8.8 {hwid_list, no network card} -constraints {
+    linux sh
+} -setup {
+    fakeprog ifconfig "lo        Link encap:Local Loopback\n          inet addr:127.0.0.1  Mask:255.0.0.0\n"
+} -body {
+    ::nettool::hwid_list
+} -cleanup {
+    fakecleanup
+} -result 0x010203040506
+
+# =========================================================================
+# ::nettool::arp_table (Unix, fake arp)
+
+test nettool-api-9.0 {arp_table, macid ipaddr pairs} -constraints {
+    linux sh
+} -setup {
+    fakeprog arp "? (192.168.1.1) at 00:aa:bb:cc:dd:ee \[ether\] on eth0
+host.example (192.168.1.2) at 00:aa:bb:cc:dd:ff \[ether\] on eth0"
+} -body {
+    ::nettool::arp_table
+} -cleanup {
+    fakecleanup
+} -result {00:aa:bb:cc:dd:ee 192.168.1.1 00:aa:bb:cc:dd:ff 192.168.1.2}
+
+test nettool-api-9.1 {arp_table, empty table} -constraints {
+    linux sh
+} -setup {
+    fakeprog arp ""
+} -body {
+    ::nettool::arp_table
+} -cleanup {
+    fakecleanup
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename fakeprog {}
+rename fakecleanup {}
+rename ::cat {}
+rename ::nettool-api-testutils-cat ::cat
+unset -nocomplain ifconfig_old ifconfig_new
+testsuiteCleanup
+return

@@ -1,0 +1,143 @@
+# -*- tcl -*-
+# fifo-api.test:  Tests for the documented API of package tcl::chan::fifo
+# (supplements the existing tests, if any).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal fifo.tcl tcl::chan::fifo
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-fifo-api-1.0 {constructor, wrong # args} -body {
+    tcl::chan::fifo X
+} -returnCodes error -result {wrong # args: should be "tcl::chan::fifo"}
+
+test tcl-chan-fifo-api-1.1 {close removes the channel and its handler} -body {
+    set c [tcl::chan::fifo]
+    set during [llength [info class instances ::tcl::chan::fifo::implementation]]
+    close $c
+    list $during [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::fifo::implementation]
+} -cleanup {
+    unset c during
+} -result {1 0 {}}
+
+test tcl-chan-fifo-api-2.0 {data is read in the order written} -setup {
+    set c [tcl::chan::fifo]
+    fconfigure $c -translation binary -buffering none -blocking 0
+} -body {
+    puts -nonewline $c abc
+    puts -nonewline $c def
+    set a [read $c 4]
+    puts -nonewline $c ghi
+    list $a [read $c]
+} -cleanup {
+    close $c
+    unset c a
+} -result {abcd efghi}
+
+test tcl-chan-fifo-api-2.1 {empty fifo: non-blocking read returns nothing, no eof} -setup {
+    set c [tcl::chan::fifo]
+    fconfigure $c -blocking 0
+} -body {
+    list [read $c] [eof $c] [fblocked $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{} 0 1}
+
+test tcl-chan-fifo-api-2.2 {drained fifo: non-blocking read returns nothing, no eof} -setup {
+    set c [tcl::chan::fifo]
+    fconfigure $c -translation binary -buffering none -blocking 0
+    puts -nonewline $c abc
+} -body {
+    list [read $c] [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {abc {} 0}
+
+test tcl-chan-fifo-api-2.3 {lines} -setup {
+    set c [tcl::chan::fifo]
+    fconfigure $c -buffering line -blocking 0
+} -body {
+    puts $c first
+    puts $c second
+    list [gets $c] [gets $c] [gets $c line] [fblocked $c]
+} -cleanup {
+    close $c
+    unset c line
+} -result {first second -1 1}
+
+test tcl-chan-fifo-api-2.4 {binary data} -setup {
+    set c [tcl::chan::fifo]
+    fconfigure $c -translation binary -buffering none -blocking 0
+    set data [binary format c* {0 1 -1 10 13 -128}]
+} -body {
+    puts -nonewline $c $data
+    string equal [read $c] $data
+} -cleanup {
+    close $c
+    unset c data
+} -result 1
+
+test tcl-chan-fifo-api-2.5 {no misindexing after refill (cf. fifo2 ticket 3f48fd6ea2)} -constraints knownBug -setup {
+    set c [tcl::chan::fifo]
+    fconfigure $c -buffersize 1 -blocking 0 -buffering none
+    puts -nonewline $c foobar
+    read $c 2
+    read $c 4
+    puts -nonewline $c baz
+} -body {
+    read $c 1
+} -cleanup {
+    close $c
+    unset c
+} -result b
+
+test tcl-chan-fifo-api-2.6 {not seekable} -setup {
+    set c [tcl::chan::fifo]
+} -body {
+    list [tell $c] [catch {seek $c 0} msg] $msg
+} -cleanup {
+    close $c
+    unset c msg
+} -match glob -result {-1 1 {error during seek on "*": invalid argument}}
+
+test tcl-chan-fifo-api-3.0 {readable event after writing} -setup {
+    set c [tcl::chan::fifo]
+    fconfigure $c -translation binary -buffering none -blocking 0
+    set ::result {}
+} -body {
+    fileevent $c readable {
+	fileevent $c readable {}
+	set ::result [read $c]
+    }
+    puts -nonewline $c data
+    set id [after 5000 {set ::result timeout}]
+    vwait ::result
+    after cancel $id
+    set ::result
+} -cleanup {
+    close $c
+    unset c id ::result
+} -result data
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

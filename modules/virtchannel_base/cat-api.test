@@ -1,0 +1,146 @@
+# -*- tcl -*-
+# cat-api.test:  Tests for the documented API of package tcl::chan::cat
+# (supplements the existing tests in cat.test).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+    useLocal string.tcl tcl::chan::string
+}
+testing {
+    useLocal cat.tcl tcl::chan::cat
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-cat-api-1.0 {concatenation of all channels, in order} -setup {
+    set c [tcl::chan::cat \
+	       [tcl::chan::string "abc"] \
+	       [tcl::chan::string ""] \
+	       [tcl::chan::string "def\n"] \
+	       [tcl::chan::string "ghi"]]
+} -body {
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result [list "abcdef\nghi" 1]
+
+test tcl-chan-cat-api-1.1 {single channel} -setup {
+    set c [tcl::chan::cat [tcl::chan::string "only"]]
+} -body {
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -result only
+
+test tcl-chan-cat-api-1.2 {no channels: immediate eof} -setup {
+    set c [tcl::chan::cat]
+} -body {
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{} 1}
+
+test tcl-chan-cat-api-1.3 {lines spanning channel boundaries} -setup {
+    set c [tcl::chan::cat \
+	       [tcl::chan::string "li"] \
+	       [tcl::chan::string "ne1\nline2\nla"] \
+	       [tcl::chan::string "st"]]
+} -body {
+    set r {}
+    while {[gets $c line] >= 0} {lappend r $line}
+    set r
+} -cleanup {
+    close $c
+    unset c r line
+} -result {line1 line2 last}
+
+test tcl-chan-cat-api-1.4 {subordinate channels are switched to binary} -setup {
+    set s [tcl::chan::string "x"]
+    fconfigure $s -translation auto
+    set c [tcl::chan::cat $s]
+} -body {
+    fconfigure $s -translation
+} -cleanup {
+    close $c
+    unset c s
+} -result lf
+
+test tcl-chan-cat-api-2.0 {exhausted subordinate channels are closed} -setup {
+    set a [tcl::chan::string "abc"]
+    set b [tcl::chan::string "defgh"]
+    set c [tcl::chan::cat $a $b]
+    fconfigure $c -buffersize 4
+} -body {
+    # Read everything of a, and a bit of b.
+    read $c 4
+    list [expr {$a in [file channels]}] [expr {$b in [file channels]}]
+} -cleanup {
+    close $c
+    unset a b c
+} -result {0 1}
+
+test tcl-chan-cat-api-2.1 {closing the cat channel closes the remaining subordinates} -body {
+    set a [tcl::chan::string "abc"]
+    set b [tcl::chan::string "def"]
+    set c [tcl::chan::cat $a $b]
+    close $c
+    list [expr {$a in [file channels]}] [expr {$b in [file channels]}] \
+	[expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::cat::implementation]
+} -cleanup {
+    unset a b c
+} -result {0 0 0 {}}
+
+test tcl-chan-cat-api-2.2 {read-only: writing is an error} -setup {
+    set c [tcl::chan::cat [tcl::chan::string "abc"]]
+} -body {
+    puts $c x
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -match glob -result {channel "*" wasn't opened for writing}
+
+test tcl-chan-cat-api-2.3 {not seekable} -setup {
+    set c [tcl::chan::cat [tcl::chan::string "abc"]]
+} -body {
+    catch {seek $c 0} msg
+    set msg
+} -cleanup {
+    close $c
+    unset c msg
+} -match glob -result {error during seek on "*": invalid argument}
+
+test tcl-chan-cat-api-3.0 {readable event with no subordinates: eof} -setup {
+    set c [tcl::chan::cat]
+} -body {
+    fileevent $c readable {
+	fileevent $c readable {}
+	set ::done [list [read $c] [eof $c]]
+    }
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    set ::done
+} -cleanup {
+    close $c
+    unset c id ::done
+} -result {{} 1}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

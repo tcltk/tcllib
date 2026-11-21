@@ -1,0 +1,613 @@
+# -*- tcl -*-
+# bignum-api.test --
+#    Tests for the documented API of the math::bignum package, in
+#    addition to bignum.test. Results are checked against Tcl's own
+#    arbitrary precision integers.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal bignum.tcl math::bignum
+}
+
+# -------------------------------------------------------------------------
+
+namespace eval ::bntest {
+    proc B {string} {::math::bignum::fromstr $string}
+    proc T {bignum} {::math::bignum::tostr $bignum}
+    proc TL {bignums} {
+	set result {}
+	foreach b $bignums {
+	    lappend result [T $b]
+	}
+	return $result
+    }
+}
+
+set ::bntest::big1 123456789012345678901234567890
+set ::bntest::big2 -98765432109876543210
+
+# -------------------------------------------------------------------------
+# fromstr, tostr: prefixes and radix
+# -------------------------------------------------------------------------
+
+test bignum-api-1.1 "fromstr: 0x prefix means hexadecimal" -body {
+    ::bntest::T [::math::bignum::fromstr 0xff]
+} -result 255
+
+test bignum-api-1.2 "fromstr: ox prefix means octal" -body {
+    ::bntest::T [::math::bignum::fromstr ox17]
+} -result 15
+
+test bignum-api-1.3 "fromstr: bx prefix means binary" -body {
+    ::bntest::T [::math::bignum::fromstr bx101]
+} -result 5
+
+test bignum-api-1.4 "fromstr: negative number with prefix" -body {
+    ::bntest::T [::math::bignum::fromstr -0x10]
+} -result -16
+
+test bignum-api-1.5 "fromstr: radix 0 is the same as no radix" -body {
+    list [::bntest::T [::math::bignum::fromstr 0x10 0]] \
+	[::bntest::T [::math::bignum::fromstr 10 0]]
+} -result {16 10}
+
+test bignum-api-1.6 "fromstr: explicit radix 2" -body {
+    ::bntest::T [::math::bignum::fromstr 101 2]
+} -result 5
+
+test bignum-api-1.7 "fromstr: explicit radix 36" -body {
+    ::bntest::T [::math::bignum::fromstr zz 36]
+} -result 1295
+
+test bignum-api-1.8 "fromstr: big number in radix 16" -body {
+    ::bntest::T [::math::bignum::fromstr 123456789abcdef0123456789abcdef 16]
+} -result [expr {0x123456789abcdef0123456789abcdef}]
+
+test bignum-api-1.9 "fromstr: surrounding white space is ignored" -body {
+    ::bntest::T [::math::bignum::fromstr "  42  "]
+} -result 42
+
+test bignum-api-1.10 "fromstr: illegal character" -body {
+    ::math::bignum::fromstr 12#3
+} -returnCodes error -result {Illegal char '#' for base 10}
+
+test bignum-api-1.11 "fromstr: radix too big" -body {
+    ::math::bignum::fromstr 1 37
+} -returnCodes error -result {base too big for string convertion}
+
+# Digits that are valid characters but too big for the radix are accepted
+test bignum-api-1.12 "fromstr: digit not valid in the radix" -constraints knownBug -body {
+    ::math::bignum::fromstr 19 8
+} -returnCodes error -result {Illegal char '9' for base 8}
+
+test bignum-api-1.13 "fromstr: letter in a decimal number" -constraints knownBug -body {
+    ::math::bignum::fromstr 12a
+} -returnCodes error -result {Illegal char 'a' for base 10}
+
+test bignum-api-1.14 "fromstr: wrong # args" -body {
+    ::math::bignum::fromstr
+} -returnCodes error -result {wrong # args: should be "::math::bignum::fromstr str ?base?"}
+
+test bignum-api-2.1 "tostr: radix 16" -body {
+    ::math::bignum::tostr [::bntest::B 255] 16
+} -result ff
+
+test bignum-api-2.2 "tostr: radix 2" -body {
+    ::math::bignum::tostr [::bntest::B 255] 2
+} -result 11111111
+
+test bignum-api-2.3 "tostr: radix 36" -body {
+    ::math::bignum::tostr [::bntest::B 1295] 36
+} -result zz
+
+test bignum-api-2.4 "tostr: negative number in radix 16" -body {
+    ::math::bignum::tostr [::bntest::B -255] 16
+} -result -ff
+
+test bignum-api-2.5 "tostr: zero" -body {
+    list [::math::bignum::tostr [::bntest::B 0]] [::math::bignum::tostr [::bntest::B 0] 2]
+} -result {0 0}
+
+test bignum-api-2.6 "tostr: round trip in all radixes" -body {
+    set result {}
+    for {set radix 2} {$radix <= 36} {incr radix} {
+	set s [::math::bignum::tostr [::bntest::B $::bntest::big1] $radix]
+	if {[::bntest::T [::math::bignum::fromstr $s $radix]] ne $::bntest::big1} {
+	    lappend result $radix
+	}
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result radix s
+} -result {}
+
+test bignum-api-2.7 "tostr: radix too big" -body {
+    ::math::bignum::tostr [::bntest::B 1] 37
+} -returnCodes error -result {base too big for string convertion}
+
+test bignum-api-2.8 "tostr: wrong # args" -body {
+    ::math::bignum::tostr
+} -returnCodes error -result {wrong # args: should be "::math::bignum::tostr z ?base?"}
+
+# -------------------------------------------------------------------------
+# sign, abs
+# -------------------------------------------------------------------------
+
+test bignum-api-3.1 "sign: negative, positive, zero" -body {
+    list [::math::bignum::sign [::bntest::B -5]] \
+	[::math::bignum::sign [::bntest::B 5]] \
+	[::math::bignum::sign [::bntest::B 0]] \
+	[::math::bignum::sign [::bntest::B $::bntest::big2]]
+} -result {1 0 0 1}
+
+test bignum-api-3.2 "abs: negative and positive" -body {
+    list [::bntest::T [::math::bignum::abs [::bntest::B -5]]] \
+	[::bntest::T [::math::bignum::abs [::bntest::B 5]]] \
+	[::bntest::T [::math::bignum::abs [::bntest::B $::bntest::big2]]] \
+	[::bntest::T [::math::bignum::abs [::bntest::B 0]]]
+} -result [list 5 5 [expr {abs($::bntest::big2)}] 0]
+
+test bignum-api-3.3 "sign: wrong # args" -body {
+    ::math::bignum::sign
+} -returnCodes error -result {wrong # args: should be "::math::bignum::sign bignum"}
+
+test bignum-api-3.4 "abs: wrong # args" -body {
+    ::math::bignum::abs
+} -returnCodes error -result {wrong # args: should be "::math::bignum::abs n"}
+
+# -------------------------------------------------------------------------
+# Comparisons
+# -------------------------------------------------------------------------
+
+test bignum-api-4.1 "lt, le, gt, ge, eq, ne: all combinations" -body {
+    set values [list -$::bntest::big1 $::bntest::big2 -1 0 1 $::bntest::big1]
+    set result {}
+    foreach a $values {
+	foreach b $values {
+	    foreach op {lt le gt ge eq ne} expr {< <= > >= == !=} {
+		set got [::math::bignum::$op [::bntest::B $a] [::bntest::B $b]]
+		if {!!$got != [expr "\$a $expr \$b"]} {
+		    lappend result "$a $op $b"
+		}
+	    }
+	}
+    }
+    set result
+} -cleanup {
+    unset -nocomplain values result a b op expr got
+} -result {}
+
+test bignum-api-4.2 "lt, gt: the constants 0 and 1" -body {
+    list [::math::bignum::lt 0 1] [::math::bignum::gt 0 1] \
+	[::math::bignum::le 1 1] [::math::bignum::ge 0 1]
+} -result {1 0 1 0}
+
+foreach op {lt le gt ge eq ne} {
+    test bignum-api-4.3.$op "$op: wrong # args" -body {
+	::math::bignum::$op 1
+    } -returnCodes error -result "wrong # args: should be \"::math::bignum::$op a b\""
+}
+unset op
+
+# -------------------------------------------------------------------------
+# isodd, iseven
+# -------------------------------------------------------------------------
+
+test bignum-api-5.1 "isodd, iseven: small and big numbers" -body {
+    set result {}
+    foreach n [list 3 4 -3 -4 $::bntest::big1 [expr {$::bntest::big1 + 1}] $::bntest::big2] {
+	lappend result [::math::bignum::isodd [::bntest::B $n]] \
+	    [::math::bignum::iseven [::bntest::B $n]]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result n
+} -result {1 0 0 1 1 0 0 1 0 1 1 0 0 1}
+
+test bignum-api-5.2 "isodd, iseven: zero" -body {
+    list [::math::bignum::isodd [::bntest::B 0]] [::math::bignum::iseven [::bntest::B 0]]
+} -result {0 1}
+
+# The manual: "this conversion is not needed for two constants: 0 and 1"
+test bignum-api-5.3 "isodd, iseven: the constants 0 and 1" -constraints knownBug -body {
+    list [::math::bignum::isodd 0] [::math::bignum::iseven 0] \
+	[::math::bignum::isodd 1] [::math::bignum::iseven 1]
+} -result {0 1 1 0}
+
+test bignum-api-5.4 "isodd: wrong # args" -body {
+    ::math::bignum::isodd
+} -returnCodes error -result {wrong # args: should be "::math::bignum::isodd n"}
+
+test bignum-api-5.5 "iseven: wrong # args" -body {
+    ::math::bignum::iseven 1 2
+} -returnCodes error -result {wrong # args: should be "::math::bignum::iseven n"}
+
+# -------------------------------------------------------------------------
+# divqr, div, rem
+# -------------------------------------------------------------------------
+
+test bignum-api-6.1 "divqr: small numbers" -body {
+    ::bntest::TL [::math::bignum::divqr [::bntest::B 17] [::bntest::B 5]]
+} -result {3 2}
+
+test bignum-api-6.2 "divqr: signs (the remainder has the sign of the dividend)" -body {
+    set result {}
+    foreach {a b} {17 5 -17 5 17 -5 -17 -5} {
+	lappend result [::bntest::TL [::math::bignum::divqr [::bntest::B $a] [::bntest::B $b]]]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result a b
+} -result {{3 2} {-3 -2} {-3 2} {3 -2}}
+
+test bignum-api-6.3 "divqr: big numbers" -body {
+    set a [expr {$::bntest::big1 * 1000003 + 12345}]
+    set b $::bntest::big1
+    ::bntest::TL [::math::bignum::divqr [::bntest::B $a] [::bntest::B $b]]
+} -cleanup {
+    unset -nocomplain a b
+} -result {1000003 12345}
+
+test bignum-api-6.4 "divqr: consistent with div and rem" -body {
+    set a [::bntest::B $::bntest::big1]
+    set b [::bntest::B $::bntest::big2]
+    expr {[::math::bignum::divqr $a $b] eq
+	  [list [::math::bignum::div $a $b] [::math::bignum::rem $a $b]]}
+} -cleanup {
+    unset -nocomplain a b
+} -result 1
+
+test bignum-api-6.5 "divqr: quotient times divisor plus remainder" -body {
+    set a [::bntest::B $::bntest::big1]
+    set b [::bntest::B $::bntest::big2]
+    lassign [::math::bignum::divqr $a $b] q r
+    ::bntest::T [::math::bignum::add [::math::bignum::mul $q $b] $r]
+} -cleanup {
+    unset -nocomplain a b q r
+} -result $::bntest::big1
+
+test bignum-api-6.6 "divqr: dividend smaller than divisor" -body {
+    ::bntest::TL [::math::bignum::divqr [::bntest::B 3] [::bntest::B $::bntest::big1]]
+} -result {0 3}
+
+test bignum-api-6.7 "divqr: division by zero" -body {
+    ::math::bignum::divqr [::bntest::B 17] [::bntest::B 0]
+} -returnCodes error -result {Division by zero}
+
+test bignum-api-6.8 "divqr: division by the constant 0" -body {
+    ::math::bignum::divqr [::bntest::B 17] 0
+} -returnCodes error -result {Division by zero}
+
+test bignum-api-6.9 "div: division by zero" -body {
+    ::math::bignum::div [::bntest::B 17] [::bntest::B 0]
+} -returnCodes error -result {Division by zero}
+
+test bignum-api-6.10 "rem: division by zero" -body {
+    ::math::bignum::rem [::bntest::B 17] [::bntest::B 0]
+} -returnCodes error -result {Division by zero}
+
+test bignum-api-6.11 "mod: modulo zero" -body {
+    ::math::bignum::mod [::bntest::B 17] [::bntest::B 0]
+} -returnCodes error -result {Division by zero}
+
+test bignum-api-6.12 "mod: big numbers compared with expr" -body {
+    set result {}
+    foreach {a b} [list $::bntest::big1 $::bntest::big2 $::bntest::big2 $::bntest::big1 \
+		       -$::bntest::big1 97 $::bntest::big1 -97] {
+	lappend result [expr {[::bntest::T [::math::bignum::mod [::bntest::B $a] [::bntest::B $b]]] == $a % $b}]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result a b
+} -result {1 1 1 1}
+
+foreach {cmd args} {divqr {n d} div {n d} rem {n d} mod {n m}} {
+    test bignum-api-6.13.$cmd "$cmd: wrong # args" -body {
+	::math::bignum::$cmd 1
+    } -returnCodes error -result "wrong # args: should be \"::math::bignum::$cmd $args\""
+}
+unset cmd args
+
+# -------------------------------------------------------------------------
+# pow, powm
+# -------------------------------------------------------------------------
+
+test bignum-api-7.1 "pow: negative base, odd and even exponent" -body {
+    list [::bntest::T [::math::bignum::pow [::bntest::B -2] [::bntest::B 3]]] \
+	[::bntest::T [::math::bignum::pow [::bntest::B -2] [::bntest::B 4]]]
+} -result {-8 16}
+
+test bignum-api-7.2 "pow: zero exponent" -body {
+    list [::bntest::T [::math::bignum::pow [::bntest::B 7] [::bntest::B 0]]] \
+	[::bntest::T [::math::bignum::pow [::bntest::B 7] 0]]
+} -result {1 1}
+
+test bignum-api-7.3 "pow: big result compared with expr" -body {
+    ::bntest::T [::math::bignum::pow [::bntest::B 3] [::bntest::B 100]]
+} -result [expr {3**100}]
+
+test bignum-api-7.4 "pow: wrong # args" -body {
+    ::math::bignum::pow 1
+} -returnCodes error -result {wrong # args: should be "::math::bignum::pow b e"}
+
+test bignum-api-8.1 "powm: textbook example" -body {
+    ::bntest::T [::math::bignum::powm [::bntest::B 4] [::bntest::B 13] [::bntest::B 497]]
+} -result 445
+
+test bignum-api-8.2 "powm: exponent one" -body {
+    list [::bntest::T [::math::bignum::powm [::bntest::B 3] [::bntest::B 1] [::bntest::B 7]]] \
+	[::bntest::T [::math::bignum::powm [::bntest::B 10] [::bntest::B 1] [::bntest::B 7]]]
+} -result {3 3}
+
+test bignum-api-8.3 "powm: exponent zero" -body {
+    ::bntest::T [::math::bignum::powm [::bntest::B 2] [::bntest::B 0] [::bntest::B 7]]
+} -result 1
+
+test bignum-api-8.4 "powm: negative base" -body {
+    ::bntest::T [::math::bignum::powm [::bntest::B -2] [::bntest::B 3] [::bntest::B 7]]
+} -result 6
+
+test bignum-api-8.5 "powm: big numbers compared with expr" -body {
+    set b $::bntest::big1
+    set e 65537
+    set m [expr {2**127 - 1}]
+    set result [::bntest::T [::math::bignum::powm [::bntest::B $b] [::bntest::B $e] [::bntest::B $m]]]
+    # b^65537 = b^(2^16) * b
+    set x $b
+    for {set i 0} {$i < 16} {incr i} {
+	set x [expr {($x * $x) % $m}]
+    }
+    expr {$result == ($x * $b) % $m}
+} -cleanup {
+    unset -nocomplain b e m result x i
+} -result 1
+
+test bignum-api-8.6 "powm: Fermat's little theorem" -body {
+    set p 1000000007
+    set result {}
+    foreach a {2 3 12345 999999999} {
+	lappend result [::bntest::T [::math::bignum::powm [::bntest::B $a] [::bntest::B [expr {$p-1}]] [::bntest::B $p]]]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain p result a
+} -result {1 1 1 1}
+
+test bignum-api-8.7 "powm: modulus zero" -body {
+    ::math::bignum::powm [::bntest::B 2] [::bntest::B 3] [::bntest::B 0]
+} -returnCodes error -result {Division by zero}
+
+test bignum-api-8.8 "powm: wrong # args" -body {
+    ::math::bignum::powm 1 2
+} -returnCodes error -result {wrong # args: should be "::math::bignum::powm b e m"}
+
+# -------------------------------------------------------------------------
+# sqrt
+# -------------------------------------------------------------------------
+
+test bignum-api-9.1 "sqrt: integer part of the square root" -body {
+    set result {}
+    foreach n {2 3 4 99 100 101 65535 65536 4294967296} {
+	lappend result [::bntest::T [::math::bignum::sqrt [::bntest::B $n]]]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result n
+} -result {1 1 2 9 10 10 255 256 65536}
+
+test bignum-api-9.2 "sqrt: big number" -body {
+    set r [::bntest::T [::math::bignum::sqrt [::bntest::B $::bntest::big1]]]
+    expr {$r*$r <= $::bntest::big1 && ($r+1)*($r+1) > $::bntest::big1}
+} -cleanup {
+    unset -nocomplain r
+} -result 1
+
+test bignum-api-9.3 "sqrt: perfect square of a big number" -body {
+    ::bntest::T [::math::bignum::sqrt [::bntest::B [expr {$::bntest::big1 ** 2}]]]
+} -result $::bntest::big1
+
+test bignum-api-9.4 "sqrt: zero and one" -body {
+    list [::bntest::T [::math::bignum::sqrt [::bntest::B 0]]] \
+	[::bntest::T [::math::bignum::sqrt [::bntest::B 1]]]
+} -result {0 1}
+
+test bignum-api-9.5 "sqrt: the constants 0 and 1" -constraints knownBug -body {
+    list [::bntest::T [::math::bignum::sqrt 0]] [::bntest::T [::math::bignum::sqrt 1]]
+} -result {0 1}
+
+test bignum-api-9.6 "sqrt: negative number" -body {
+    ::math::bignum::sqrt [::bntest::B -4]
+} -returnCodes error -result {Square root of a negative number}
+
+test bignum-api-9.7 "sqrt: wrong # args" -body {
+    ::math::bignum::sqrt
+} -returnCodes error -result {wrong # args: should be "::math::bignum::sqrt n"}
+
+# -------------------------------------------------------------------------
+# rand
+# -------------------------------------------------------------------------
+
+test bignum-api-10.1 "rand: at most the requested number of bits" -body {
+    expr {srand(12345)}
+    set result {}
+    foreach bits {1 7 16 17 100} {
+	set ok 1
+	for {set i 0} {$i < 20} {incr i} {
+	    set r [::math::bignum::rand $bits]
+	    if {[::math::bignum::sign $r] || [::bntest::T $r] >= 2**$bits} {
+		set ok 0
+	    }
+	}
+	lappend result $ok
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result bits ok i r
+} -result {1 1 1 1 1}
+
+test bignum-api-10.2 "rand: not always the same value" -body {
+    expr {srand(12345)}
+    set values {}
+    for {set i 0} {$i < 10} {incr i} {
+	lappend values [::bntest::T [::math::bignum::rand 64]]
+    }
+    expr {[llength [lsort -unique $values]] > 1}
+} -cleanup {
+    unset -nocomplain values i
+} -result 1
+
+test bignum-api-10.3 "rand: wrong # args" -body {
+    ::math::bignum::rand
+} -returnCodes error -result {wrong # args: should be "::math::bignum::rand bits"}
+
+# -------------------------------------------------------------------------
+# setbit, clearbit, testbit, bits
+# -------------------------------------------------------------------------
+
+test bignum-api-11.1 "clearbit: clear a set bit" -body {
+    set x [::bntest::B 15]
+    ::math::bignum::clearbit x 0
+    ::math::bignum::clearbit x 2
+    ::bntest::T $x
+} -cleanup {
+    unset -nocomplain x
+} -result 10
+
+test bignum-api-11.2 "clearbit: clear a bit that is not set" -body {
+    set x [::bntest::B 10]
+    ::math::bignum::clearbit x 0
+    ::bntest::T $x
+} -cleanup {
+    unset -nocomplain x
+} -result 10
+
+test bignum-api-11.3 "clearbit: bit beyond the number" -body {
+    set x [::bntest::B 15]
+    ::math::bignum::clearbit x 100
+    ::bntest::T $x
+} -cleanup {
+    unset -nocomplain x
+} -result 15
+
+test bignum-api-11.4 "clearbit: high bit of a big number" -body {
+    set x [::bntest::B [expr {2**100 + 5}]]
+    ::math::bignum::clearbit x 100
+    ::bntest::T $x
+} -cleanup {
+    unset -nocomplain x
+} -result 5
+
+test bignum-api-11.5 "setbit, clearbit: round trip" -body {
+    set x [::bntest::B 0]
+    ::math::bignum::setbit x 70
+    set a [::bntest::T $x]
+    ::math::bignum::clearbit x 70
+    list $a [::bntest::T $x]
+} -cleanup {
+    unset -nocomplain x a
+} -result [list [expr {2**70}] 0]
+
+test bignum-api-11.6 "clearbit: wrong # args" -body {
+    ::math::bignum::clearbit x
+} -returnCodes error -result {wrong # args: should be "::math::bignum::clearbit bignumvar n"}
+
+test bignum-api-11.7 "setbit: wrong # args" -body {
+    ::math::bignum::setbit x
+} -returnCodes error -result {wrong # args: should be "::math::bignum::setbit bignumvar n"}
+
+test bignum-api-11.8 "testbit: wrong # args" -body {
+    ::math::bignum::testbit x
+} -returnCodes error -result {wrong # args: should be "::math::bignum::testbit z n"}
+
+test bignum-api-12.1 "bits: number of bits" -body {
+    set result {}
+    foreach n {1 2 255 256 65535 65536} {
+	lappend result [::math::bignum::bits [::bntest::B $n]]
+    }
+    lappend result [::math::bignum::bits [::bntest::B [expr {2**100}]]]
+} -cleanup {
+    unset -nocomplain result n
+} -result {1 2 8 9 16 17 101}
+
+test bignum-api-12.2 "bits: negative number" -body {
+    ::math::bignum::bits [::bntest::B -255]
+} -result 8
+
+test bignum-api-12.3 "bits: zero" -body {
+    ::math::bignum::bits [::bntest::B 0]
+} -result 0
+
+test bignum-api-12.4 "bits: wrong # args" -body {
+    ::math::bignum::bits
+} -returnCodes error -result {wrong # args: should be "::math::bignum::bits z"}
+
+# -------------------------------------------------------------------------
+# Arithmetic with big numbers compared with expr
+# -------------------------------------------------------------------------
+
+test bignum-api-13.1 "add, sub, mul: mixed signs compared with expr" -body {
+    set result {}
+    set values [list -$::bntest::big1 $::bntest::big2 -1 0 1 $::bntest::big1]
+    foreach a $values {
+	foreach b $values {
+	    foreach op {add sub mul} expr {+ - *} {
+		set got [::bntest::T [::math::bignum::$op [::bntest::B $a] [::bntest::B $b]]]
+		if {$got != [expr "\$a $expr \$b"]} {
+		    lappend result "$a $op $b = $got"
+		}
+	    }
+	}
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result values a b op expr got
+} -result {}
+
+foreach cmd {add sub mul bitand bitor bitxor cmp} {
+    test bignum-api-13.2.$cmd "$cmd: wrong # args" -body {
+	::math::bignum::$cmd 1
+    } -returnCodes error -result "wrong # args: should be \"::math::bignum::$cmd a b\""
+}
+unset cmd
+
+foreach cmd {lshift rshift} {
+    test bignum-api-13.3.$cmd "$cmd: wrong # args" -body {
+	::math::bignum::$cmd 1
+    } -returnCodes error -result "wrong # args: should be \"::math::bignum::$cmd z n\""
+}
+unset cmd
+
+test bignum-api-13.4 "iszero: wrong # args" -body {
+    ::math::bignum::iszero
+} -returnCodes error -result {wrong # args: should be "::math::bignum::iszero z"}
+
+test bignum-api-13.5 "bitand, bitor, bitxor: big numbers compared with expr" -body {
+    set a [expr {$::bntest::big1 * 7}]
+    set b [expr {abs($::bntest::big2)}]
+    list [expr {[::bntest::T [::math::bignum::bitand [::bntest::B $a] [::bntest::B $b]]] == ($a & $b)}] \
+	[expr {[::bntest::T [::math::bignum::bitor [::bntest::B $a] [::bntest::B $b]]] == ($a | $b)}] \
+	[expr {[::bntest::T [::math::bignum::bitxor [::bntest::B $a] [::bntest::B $b]]] == ($a ^ $b)}]
+} -cleanup {
+    unset -nocomplain a b
+} -result {1 1 1}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::bntest
+
+# End of test cases
+testsuiteCleanup

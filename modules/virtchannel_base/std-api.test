@@ -1,0 +1,117 @@
+# -*- tcl -*-
+# std-api.test:  Tests for the documented API of package tcl::chan::std
+#
+# The std channel takes over stdin/stdout, so it is exercised in a
+# child process connected through a pipe.
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+}
+testing {
+    useLocal std.tcl tcl::chan::std
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+# Run SCRIPT in a child tclsh which has tcl::chan::std loaded; feed it
+# INPUT on stdin and return everything it wrote to stdout.
+proc runchild {script input} {
+    set f [makeFile [list apply {{core std script} {
+	source $core
+	source $std
+	uplevel #0 $script
+    }} [tcllibPath virtchannel_core/core.tcl] [localPath std.tcl] $script] stdchild.tcl]
+    set p [open |[list [info nameofexecutable] $f 2>@1] r+]
+    fconfigure $p -translation binary
+    puts -nonewline $p $input
+    close $p write
+    set result [read $p]
+    close $p
+    removeFile stdchild.tcl
+    return $result
+}
+
+test tcl-chan-std-api-1.0 {constructor, wrong # args} -body {
+    tcl::chan::std X
+} -returnCodes error -result {wrong # args: should be "tcl::chan::std"}
+
+test tcl-chan-std-api-1.1 {the channel is created once} -body {
+    runchild {
+	set a [tcl::chan::std]
+	set b [tcl::chan::std]
+	puts -nonewline stdout [list [expr {$a eq $b}] [expr {$a in [file channels]}]]
+    } {}
+} -result {1 1}
+
+test tcl-chan-std-api-2.0 {reading comes from stdin, writing goes to stdout} -body {
+    runchild {
+	set c [tcl::chan::std]
+	set line [gets $c]
+	puts $c "got <$line>"
+	flush $c
+	set rest [read $c]
+	puts -nonewline $c "rest <$rest>"
+	flush $c
+    } "first\nsecond\nthird"
+} -result "got <first>\nrest <second\nthird>"
+
+test tcl-chan-std-api-2.1 {eof of stdin is eof of the channel} -body {
+    runchild {
+	set c [tcl::chan::std]
+	set data [read $c]
+	puts -nonewline $c [list $data [eof $c]]
+	flush $c
+    } "abc"
+} -result {abc 1}
+
+test tcl-chan-std-api-2.2 {not seekable} -body {
+    runchild {
+	set c [tcl::chan::std]
+	puts -nonewline stdout [list [catch {seek $c 0} msg] [string match {error during seek on *} $msg]]
+    } {}
+} -result {1 1}
+
+test tcl-chan-std-api-2.3 {readable event from stdin} -body {
+    runchild {
+	set c [tcl::chan::std]
+	fconfigure $c -blocking 0
+	fileevent $c readable {
+	    set d [read $c]
+	    if {$d ne ""} {append ::got $d}
+	    if {[eof $c]} {set ::done 1}
+	}
+	set ::got {}
+	after 5000 {set ::done timeout}
+	vwait ::done
+	fconfigure $c -blocking 1
+	puts -nonewline $c [list $::done $::got]
+	flush $c
+    } "data"
+} -result {1 data}
+
+test tcl-chan-std-api-3.0 {package index matches the provided version} -body {
+    set i [interp create]
+    $i eval [list set dir [localDirectory]]
+    $i eval [list package ifneeded tcl::chan::core 1.1 \
+		 [list source [tcllibPath virtchannel_core/core.tcl]]]
+    $i eval {source [file join $dir pkgIndex.tcl]}
+    $i eval {package require tcl::chan::std}
+} -cleanup {
+    interp delete $i
+    unset i
+} -result [package provide tcl::chan::std]
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename runchild {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

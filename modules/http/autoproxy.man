@@ -172,7 +172,7 @@ authentication details currently enabled.
 package require autoproxy
 autoproxy::init
 autoproxy::configure -basic -username ME -password SEKRET
-set tok [http::geturl http://wiki.tcl.tk/]
+set tok [http::geturl https://wiki.tcl-lang.org/]
 http::data $tok
 }]
 

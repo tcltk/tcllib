@@ -1,0 +1,191 @@
+# -*- tcl -*-
+# roman-api.test --
+#    Tests for the documented API of the math::roman package, in
+#    addition to roman.test: error cases, larger values, sorting and
+#    expressions with variables.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal romannumerals.tcl math::roman
+}
+
+# -------------------------------------------------------------------------
+# toroman
+# -------------------------------------------------------------------------
+
+test roman-api-1.1 "toroman: subtractive forms" -body {
+    set result {}
+    foreach i {4 9 14 19 40 44 49 90 99 400 444 900 999} {
+	lappend result [::math::roman::toroman $i]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result i
+} -result {IV IX XIV XIX XL XLIV XLIX XC XCIX CD CDXLIV CM CMXCIX}
+
+test roman-api-1.2 "toroman: large values" -body {
+    list [::math::roman::toroman 2024] [::math::roman::toroman 3999] \
+	[::math::roman::toroman 4000]
+} -result {MMXXIV MMMCMXCIX MMMM}
+
+test roman-api-1.3 "toroman: result is always upper case" -body {
+    string is upper [::math::roman::toroman 1888]
+} -result 1
+
+test roman-api-1.4 "toroman: not an integer" -body {
+    ::math::roman::toroman 1.5
+} -returnCodes error -result {expected integer but got "1.5"}
+
+test roman-api-1.5 "toroman: not a number" -body {
+    ::math::roman::toroman abc
+} -returnCodes error -result {expected integer but got "abc"}
+
+test roman-api-1.6 "toroman: wrong # args" -body {
+    ::math::roman::toroman
+} -returnCodes error -result {wrong # args: should be "::math::roman::toroman i"}
+
+# -------------------------------------------------------------------------
+# tointeger
+# -------------------------------------------------------------------------
+
+test roman-api-2.1 "tointeger: subtractive forms" -body {
+    set result {}
+    foreach r {IV IX XIV XIX XL XLIV XLIX XC XCIX CD CDXLIV CM CMXCIX MMMCMXCIX} {
+	lappend result [::math::roman::tointeger $r]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result r
+} -result {4 9 14 19 40 44 49 90 99 400 444 900 999 3999}
+
+test roman-api-2.2 "tointeger: lower case" -body {
+    list [::math::roman::tointeger mcmxcix] [::math::roman::tointeger xlii]
+} -result {1999 42}
+
+test roman-api-2.3 "tointeger: invalid character" -body {
+    ::math::roman::tointeger XIZ
+} -returnCodes error -result {roman::tointeger - un-Roman digit Z in XIZ}
+
+test roman-api-2.4 "tointeger: invalid first character" -body {
+    ::math::roman::tointeger ABC
+} -returnCodes error -result {roman::tointeger - un-Roman digit A in ABC}
+
+test roman-api-2.5 "tointeger: digits" -body {
+    ::math::roman::tointeger 12
+} -returnCodes error -result {roman::tointeger - un-Roman digit 1 in 12}
+
+test roman-api-2.6 "tointeger: wrong # args" -body {
+    ::math::roman::tointeger
+} -returnCodes error -result {wrong # args: should be "::math::roman::tointeger s"}
+
+# -------------------------------------------------------------------------
+# sort
+# -------------------------------------------------------------------------
+
+test roman-api-3.1 "sort: single digits" -body {
+    ::math::roman::sort {M D C L X V I}
+} -result {I V X L C D M}
+
+test roman-api-3.2 "sort: subtractive forms" -body {
+    ::math::roman::sort {CM M D CD XC C L XL}
+} -result {XL L XC C CD D CM M}
+
+test roman-api-3.3 "sort: mixed values" -body {
+    ::math::roman::sort {MM XIX XX IX XC XL MCM XLIX XLVIII L XXXIX CDXC CDL D CCCXC}
+} -result {IX XIX XX XXXIX XL XLVIII XLIX L XC CCCXC CDL CDXC D MCM MM}
+
+test roman-api-3.4 "sort: agrees with integer sorting" -body {
+    set values {}
+    foreach i {1 2 3 4 5 6 7 8 9 10 11 14 19 39 40 41 49 50 89 90 99 100 400 499 500 900 999 1000 1999} {
+	lappend values [::math::roman::toroman $i]
+    }
+    expr {[::math::roman::sort [lsort -decreasing $values]] eq $values}
+} -cleanup {
+    unset -nocomplain values i
+} -result 1
+
+test roman-api-3.5 "sort: empty list" -body {
+    ::math::roman::sort {}
+} -result {}
+
+# tointeger accepts lower case numerals, sort compares them as plain strings
+test roman-api-3.6 "sort: lower case numerals" -constraints knownBug -body {
+    ::math::roman::sort {mcm x iv}
+} -result {iv x mcm}
+
+test roman-api-3.7 "sort: wrong # args" -body {
+    ::math::roman::sort
+} -returnCodes error -result {wrong # args: should be "::math::roman::sort list"}
+
+# -------------------------------------------------------------------------
+# expr
+# -------------------------------------------------------------------------
+
+test roman-api-4.1 "expr: parentheses" -body {
+    ::math::roman::expr ( X + V ) * II
+} -result XXX
+
+test roman-api-4.2 "expr: no spaces around operators" -body {
+    ::math::roman::expr X+V
+} -result XV
+
+test roman-api-4.3 "expr: variables are substituted in the caller" -body {
+    apply {{} {
+	set a X
+	set b II
+	::math::roman::expr {$a * $b}
+    }}
+} -result XX
+
+test roman-api-4.4 "expr: integer division" -body {
+    ::math::roman::expr X / III
+} -result III
+
+test roman-api-4.5 "expr: modulo" -body {
+    ::math::roman::expr X % III
+} -result I
+
+test roman-api-4.6 "expr: lower case operands" -body {
+    ::math::roman::expr x + v
+} -result XV
+
+test roman-api-4.7 "expr: result zero or negative is empty" -body {
+    list [::math::roman::expr X - X] [::math::roman::expr X - XX]
+} -result {{} {}}
+
+test roman-api-4.8 "expr: division by zero" -body {
+    ::math::roman::expr X / 0
+} -returnCodes error -result {divide by zero}
+
+# -------------------------------------------------------------------------
+# Exports
+# -------------------------------------------------------------------------
+
+test roman-api-5.1 "Only toroman and tointeger are exported" -body {
+    lsort [namespace eval ::math::roman {namespace export}]
+} -result {tointeger toroman}
+
+test roman-api-5.2 "namespace import of the exported commands" -body {
+    namespace eval ::romantest {
+	namespace import ::math::roman::*
+	list [toroman 12] [tointeger XII] [lsort [info commands ::romantest::*]]
+    }
+} -cleanup {
+    namespace delete ::romantest
+} -result {XII 12 {::romantest::tointeger ::romantest::toroman}}
+
+# -------------------------------------------------------------------------
+
+# End of test cases
+testsuiteCleanup

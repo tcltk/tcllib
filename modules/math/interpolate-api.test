@@ -1,0 +1,159 @@
+# -*- tcl -*-
+# interpolate-api.test --
+#    Additional tests for the documented API of math::interpolate:
+#    interp-spatial-params, and edge and error cases of interp-linear,
+#    interp-lagrange, interp-spatial and neville.
+#    (The rest of the API is tested in interpolate.test.)
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use      textutil/wcswidth.tcl textutil::wcswidth
+    use      struct/matrix.tcl     struct::matrix
+    useLocal math.tcl              math
+}
+testing {
+    useLocal interpolate.tcl math::interpolate
+}
+
+# -------------------------------------------------------------------------
+
+proc ::matchTol {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach a $actual e $expected {
+        if {![string is double -strict $a]} {
+            return 0
+        }
+        set scale [expr {abs($e) > 1.0 ? abs($e) : 1.0}]
+        if {abs($a-$e) > $tol*$scale} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch approx {::matchTol 1.0e-9}
+
+# -------------------------------------------------------------------------
+# interp-spatial-params (the defaults are: no search radius, power 2)
+
+test interpolate-api-1.1 {interp-spatial - default: inverse squared distance} -match approx -body {
+    math::interpolate::interp-spatial {{0.0 0.0} {3.0 3.0}} {1.0}
+} -result 0.6
+
+test interpolate-api-1.2 {interp-spatial-params - power 1: inverse distance} -body {
+    math::interpolate::interp-spatial-params {} 1
+    math::interpolate::interp-spatial {{0.0 0.0} {3.0 3.0}} {1.0}
+} -cleanup {
+    math::interpolate::interp-spatial-params {} 2
+} -match approx -result 1.0
+
+test interpolate-api-1.3 {interp-spatial-params - power defaults to 2} -body {
+    math::interpolate::interp-spatial-params {} 1
+    math::interpolate::interp-spatial-params {}
+    math::interpolate::interp-spatial {{0.0 0.0} {3.0 3.0}} {1.0}
+} -cleanup {
+    math::interpolate::interp-spatial-params {} 2
+} -match approx -result 0.6
+
+test interpolate-api-1.4 {interp-spatial-params - search radius excludes far points} -body {
+    math::interpolate::interp-spatial-params 1.5 2
+    math::interpolate::interp-spatial {{0.0 0.0} {3.0 3.0} {1.5 6.0}} {1.0}
+} -cleanup {
+    math::interpolate::interp-spatial-params {} 2
+} -match approx -result 4.8
+
+test interpolate-api-1.5 {interp-spatial-params - power 1 with search radius, 2D} -body {
+    math::interpolate::interp-spatial-params 2.0 1
+    math::interpolate::interp-spatial {
+	{0.0 0.0 1.0}
+	{2.0 0.0 4.0}
+	{9.0 9.0 100.0}
+    } {1.0 0.0}
+} -cleanup {
+    math::interpolate::interp-spatial-params {} 2
+} -match approx -result 2.5
+
+test interpolate-api-1.6 {interp-spatial-params - wrong # args} -body {
+    math::interpolate::interp-spatial-params
+} -returnCodes error -result {wrong # args: should be "math::interpolate::interp-spatial-params max_search ?power?"}
+
+test interpolate-api-1.7 {interp-spatial - list of dependent values} -match approx -body {
+    math::interpolate::interp-spatial {{0 0 {1 2}} {2 0 {3 4}}} {1 0}
+} -result {2.0 3.0}
+
+test interpolate-api-1.8 {interp-spatial - wrong # args} -body {
+    math::interpolate::interp-spatial {{0 0 1}}
+} -returnCodes error -result {wrong # args: should be "math::interpolate::interp-spatial xyvalues coord"}
+
+# -------------------------------------------------------------------------
+# interp-linear
+
+test interpolate-api-2.1 {interp-linear - below the first breakpoint} -match approx -body {
+    math::interpolate::interp-linear {0.0 1.0 10.0 11.0} -5.0
+} -result 1.0
+
+test interpolate-api-2.2 {interp-linear - single breakpoint} -match approx -body {
+    math::interpolate::interp-linear {0.0 1.0} 3.0
+} -result 1.0
+
+test interpolate-api-2.3 {interp-linear - integer data} -match approx -body {
+    math::interpolate::interp-linear {0 0 2 1} 1
+} -result 0.5
+
+test interpolate-api-2.4 {interp-linear - wrong # args} -body {
+    math::interpolate::interp-linear {0.0 1.0}
+} -returnCodes error -result {wrong # args: should be "math::interpolate::interp-linear xyvalues xval"}
+
+# -------------------------------------------------------------------------
+# interp-lagrange
+
+test interpolate-api-3.1 {interp-lagrange - quadratic through three points} -match approx -body {
+    list [math::interpolate::interp-lagrange {0.0 1.0 1.0 2.0 2.0 5.0} 3.0] \
+	[math::interpolate::interp-lagrange {0.0 1.0 1.0 2.0 2.0 5.0} 0.5]
+} -result {10.0 1.25}
+
+test interpolate-api-3.2 {interp-lagrange - at a node returns the node value} -body {
+    math::interpolate::interp-lagrange {0.0 1.0 1.0 2.0 2.0 5.0} 1.0
+} -result 2.0
+
+test interpolate-api-3.3 {interp-lagrange - single point gives a constant} -match approx -body {
+    math::interpolate::interp-lagrange {0.0 7.0} 3.0
+} -result 7.0
+
+test interpolate-api-3.4 {interp-lagrange - integer data and abscissa} -constraints knownBug -match approx -body {
+    math::interpolate::interp-lagrange {0 1 1 2 2 5} 3
+} -result 10.0
+
+test interpolate-api-3.5 {interp-lagrange - wrong # args} -body {
+    math::interpolate::interp-lagrange {0.0 1.0}
+} -returnCodes error -result {wrong # args: should be "math::interpolate::interp-lagrange xyvalues xval"}
+
+# -------------------------------------------------------------------------
+# neville
+
+test interpolate-api-4.1 {neville - exact for a cubic, error estimate} -match approx -body {
+    math::interpolate::neville {0 1 2 3} {0 1 8 27} 1.5
+} -result {3.375 0.375}
+
+test interpolate-api-4.2 {neville - extrapolation of a quadratic} -match approx -body {
+    lindex [math::interpolate::neville {0.0 1.0 2.0} {1.0 2.0 5.0} 3.0] 0
+} -result 10.0
+
+test interpolate-api-4.3 {neville - wrong # args} -body {
+    math::interpolate::neville {0 1} {0 1}
+} -returnCodes error -result {wrong # args: should be "math::interpolate::neville xtable ytable x"}
+
+# -------------------------------------------------------------------------
+
+rename ::matchTol {}
+
+testsuiteCleanup

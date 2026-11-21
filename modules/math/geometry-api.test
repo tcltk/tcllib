@@ -1,0 +1,642 @@
+# -*- tcl -*-
+# geometry-api.test --
+#    Additional tests for the math::geometry package: documented commands
+#    not covered by geometry.test, plus edge and error cases.
+#
+# Copyright (c) 2026 by Serhiy Storchaka
+# All rights reserved.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal geometry.tcl math::geometry
+}
+
+# -------------------------------------------------------------------------
+
+# Tolerant comparison: nested lists are flattened, numbers are compared
+# with a relative/absolute tolerance of 1e-9, other words exactly.
+proc geomApiFlatten {list} {
+    set result {}
+    foreach e $list {
+	if {[llength $e] > 1} {
+	    lappend result {*}[geomApiFlatten $e]
+	} else {
+	    lappend result $e
+	}
+    }
+    return $result
+}
+proc geomApiMatch {expected actual} {
+    set expected [geomApiFlatten $expected]
+    set actual   [geomApiFlatten $actual]
+    if {[llength $expected] != [llength $actual]} {
+	return 0
+    }
+    foreach e $expected a $actual {
+	if {[string is double -strict $e] && [string is double -strict $a]} {
+	    if {abs($e - $a) > 1.0e-9 * max(1.0, abs($e))} {
+		return 0
+	    }
+	} elseif {$e ne $a} {
+	    return 0
+	}
+    }
+    return 1
+}
+customMatch tolerant geomApiMatch
+
+# -------------------------------------------------------------------------
+# Point and vector constructors / arithmetic (only lightly covered before)
+# -------------------------------------------------------------------------
+
+test geometry-api-1.1 {p: construct a point} -body {
+    ::math::geometry::p 1 2
+} -result {1 2}
+
+test geometry-api-1.2 {+: sum of two vectors} -body {
+    ::math::geometry::+ {1 2} {3 -4}
+} -match tolerant -result {4 -2}
+
+test geometry-api-1.3 {-: difference of two vectors} -body {
+    ::math::geometry::- {1 2} {3 -4}
+} -match tolerant -result {-2 6}
+
+test geometry-api-1.4 {s*: scale a vector} -body {
+    ::math::geometry::s* 2.5 {2 -4}
+} -match tolerant -result {5.0 -10.0}
+
+test geometry-api-1.5 {length of a vector} -body {
+    ::math::geometry::length {3 4}
+} -match tolerant -result 5.0
+
+test geometry-api-1.6 {length of the null vector} -body {
+    ::math::geometry::length {0 0}
+} -match tolerant -result 0.0
+
+test geometry-api-1.7 {distance equals length of difference} -body {
+    list [::math::geometry::distance {1 1} {4 5}] \
+	[::math::geometry::length [::math::geometry::- {1 1} {4 5}]]
+} -match tolerant -result {5.0 5.0}
+
+test geometry-api-1.8 {h: horizontal vector} -body {
+    list [::math::geometry::h 3] [::math::geometry::h -2]
+} -match tolerant -result {{3 0} {-2 0}}
+
+test geometry-api-1.9 {v: vertical vector} -body {
+    list [::math::geometry::v 3] [::math::geometry::v -2]
+} -match tolerant -result {{0 3} {0 -2}}
+
+test geometry-api-1.10 {between: s=0 returns point1, s=1 returns point2} -body {
+    list [::math::geometry::between {1 2} {5 10} 0] \
+	[::math::geometry::between {1 2} {5 10} 1]
+} -match tolerant -result {{1 2} {5 10}}
+
+test geometry-api-1.11 {between: extrapolation beyond the points} -body {
+    list [::math::geometry::between {0 0} {10 10} 2] \
+	[::math::geometry::between {0 0} {10 10} -0.5]
+} -match tolerant -result {{20 20} {-5 -5}}
+
+test geometry-api-1.12 {direction: unit vectors for main angles} -body {
+    list [::math::geometry::direction 0] [::math::geometry::direction 90] \
+	[::math::geometry::direction 180] [::math::geometry::direction 270]
+} -match tolerant -result {{1 0} {0 1} {-1 0} {0 -1}}
+
+# -------------------------------------------------------------------------
+# rect / nwse
+# -------------------------------------------------------------------------
+
+test geometry-api-2.1 {rect: construct from NW and SE corners} -body {
+    ::math::geometry::rect {1 2} {3 4}
+} -result {1 2 3 4}
+
+test geometry-api-2.2 {nwse: extract corners} -body {
+    ::math::geometry::nwse {1 2 3 4}
+} -result {{1 2} {3 4}}
+
+test geometry-api-2.3 {nwse is the inverse of rect} -body {
+    ::math::geometry::nwse [::math::geometry::rect {0 10} {5 -1}]
+} -result {{0 10} {5 -1}}
+
+test geometry-api-2.4 {rect: wrong # args} -body {
+    ::math::geometry::rect {1 2}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::rect pa pb"}
+
+test geometry-api-2.5 {nwse: wrong # args} -body {
+    ::math::geometry::nwse
+} -returnCodes error -result {wrong # args: should be "::math::geometry::nwse rect"}
+
+# -------------------------------------------------------------------------
+# inproduct / angleBetween / areaParallellogram
+# -------------------------------------------------------------------------
+
+test geometry-api-3.1 {inproduct: 2D vectors} -body {
+    ::math::geometry::inproduct {1 2} {3 4}
+} -match tolerant -result 11.0
+
+test geometry-api-3.2 {inproduct: orthogonal vectors} -body {
+    ::math::geometry::inproduct {1 0} {0 5}
+} -match tolerant -result 0.0
+
+test geometry-api-3.3 {inproduct: 3D vectors} -body {
+    ::math::geometry::inproduct {1 2 3} {4 5 6}
+} -match tolerant -result 32.0
+
+test geometry-api-3.4 {inproduct: wrong # args} -body {
+    ::math::geometry::inproduct {1 2}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::inproduct vector1 vector2"}
+
+test geometry-api-3.5 {angleBetween: perpendicular vectors} -body {
+    ::math::geometry::angleBetween {1 0} {0 1}
+} -match tolerant -result 90.0
+
+test geometry-api-3.6 {angleBetween: 45 degrees} -body {
+    ::math::geometry::angleBetween {1 0} {1 1}
+} -match tolerant -result 45.0
+
+test geometry-api-3.7 {angleBetween: opposite vectors} -body {
+    ::math::geometry::angleBetween {1 0} {-1 0}
+} -match tolerant -result 180.0
+
+test geometry-api-3.8 {angleBetween: same direction, different lengths} -body {
+    ::math::geometry::angleBetween {2 2} {5 5}
+} -match tolerant -result 0.0
+
+test geometry-api-3.9 {angleBetween: 3D vectors} -body {
+    ::math::geometry::angleBetween {1 0 0} {0 0 1}
+} -match tolerant -result 90.0
+
+test geometry-api-3.10 {angleBetween: wrong # args} -body {
+    ::math::geometry::angleBetween {1 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::angleBetween vector1 vector2"}
+
+# areaParallellogram has a syntax error in its expression (unbalanced
+# parenthesis), so it fails for every input.
+test geometry-api-3.11 {areaParallellogram: rectangle} -constraints knownBug -body {
+    ::math::geometry::areaParallellogram {2 0} {0 3}
+} -match tolerant -result 6.0
+
+test geometry-api-3.12 {areaParallellogram: order of vectors does not matter} -constraints knownBug -body {
+    list [::math::geometry::areaParallellogram {1 2} {3 1}] \
+	[::math::geometry::areaParallellogram {3 1} {1 2}]
+} -match tolerant -result {5.0 5.0}
+
+test geometry-api-3.13 {areaParallellogram: parallel vectors} -constraints knownBug -body {
+    ::math::geometry::areaParallellogram {1 1} {2 2}
+} -match tolerant -result 0.0
+
+test geometry-api-3.14 {areaParallellogram: wrong # args} -body {
+    ::math::geometry::areaParallellogram {1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::areaParallellogram vector1 vector2"}
+
+# -------------------------------------------------------------------------
+# unitVector
+# -------------------------------------------------------------------------
+
+test geometry-api-4.1 {unitVector: from a line} -body {
+    ::math::geometry::unitVector {10 10 15 15}
+} -match tolerant -result {0.7071067811865476 0.7071067811865476}
+
+test geometry-api-4.2 {unitVector: single point means line through origin} -body {
+    ::math::geometry::unitVector {10 10}
+} -match tolerant -result {0.7071067811865476 0.7071067811865476}
+
+test geometry-api-4.3 {unitVector: vertical line} -body {
+    ::math::geometry::unitVector {0 0 0 5}
+} -match tolerant -result {0 1}
+
+test geometry-api-4.4 {unitVector: pointing west} -body {
+    ::math::geometry::unitVector {0 0 -3 0}
+} -match tolerant -result {-1 0}
+
+test geometry-api-4.5 {unitVector: result has length 1} -body {
+    ::math::geometry::length [::math::geometry::unitVector {1 2 4 6}]
+} -match tolerant -result 1.0
+
+test geometry-api-4.6 {unitVector: wrong # args} -body {
+    ::math::geometry::unitVector
+} -returnCodes error -result {wrong # args: should be "::math::geometry::unitVector line"}
+
+# -------------------------------------------------------------------------
+# lengthOfPolyline
+# -------------------------------------------------------------------------
+
+test geometry-api-5.1 {lengthOfPolyline: example from the code} -body {
+    ::math::geometry::lengthOfPolyline {0 0 5 0 5 10}
+} -match tolerant -result 15.0
+
+test geometry-api-5.2 {lengthOfPolyline: single segment} -body {
+    ::math::geometry::lengthOfPolyline {0 0 3 4}
+} -match tolerant -result 5.0
+
+test geometry-api-5.3 {lengthOfPolyline: closed polyline is not treated as polygon} -body {
+    # The square is not closed automatically: 3 sides only
+    ::math::geometry::lengthOfPolyline {0 0 1 0 1 1 0 1}
+} -match tolerant -result 3.0
+
+test geometry-api-5.4 {lengthOfPolyline: single point} -body {
+    ::math::geometry::lengthOfPolyline {1 1}
+} -match tolerant -result 0
+
+test geometry-api-5.5 {lengthOfPolyline: wrong # args} -body {
+    ::math::geometry::lengthOfPolyline
+} -returnCodes error -result {wrong # args: should be "::math::geometry::lengthOfPolyline polyline"}
+
+# -------------------------------------------------------------------------
+# findClosestPointOnLineSegment (only one test before)
+# -------------------------------------------------------------------------
+
+test geometry-api-6.1 {findClosestPointOnLineSegment: projection inside segment} -body {
+    ::math::geometry::findClosestPointOnLineSegment {5 5} {0 0 10 0}
+} -match tolerant -result {5 0}
+
+test geometry-api-6.2 {findClosestPointOnLineSegment: beyond the end point} -body {
+    ::math::geometry::findClosestPointOnLineSegment {15 5} {0 0 10 0}
+} -match tolerant -result {10 0}
+
+test geometry-api-6.3 {findClosestPointOnLineSegment: before the start point} -body {
+    ::math::geometry::findClosestPointOnLineSegment {-5 5} {0 0 10 0}
+} -match tolerant -result {0 0}
+
+test geometry-api-6.4 {findClosestPointOnLineSegment: wrong # args} -body {
+    ::math::geometry::findClosestPointOnLineSegment {1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::findClosestPointOnLineSegment P linesegment"}
+
+# -------------------------------------------------------------------------
+# polylinesBoundingIntersect
+# -------------------------------------------------------------------------
+
+test geometry-api-7.1 {polylinesBoundingIntersect: crossing lines} -body {
+    ::math::geometry::polylinesBoundingIntersect {0 0 10 10 10 20} {0 10 10 0} 2
+} -result 1
+
+test geometry-api-7.2 {polylinesBoundingIntersect: bounding boxes overlap only} -body {
+    # The segments do not intersect, but the bounding boxes do
+    ::math::geometry::polylinesBoundingIntersect {0 0 10 10 10 20} {5 4 10 4} 2
+} -result 1
+
+test geometry-api-7.3 {polylinesBoundingIntersect: granularity 1 is exact} -body {
+    ::math::geometry::polylinesBoundingIntersect {0 0 10 10 10 20} {5 4 10 4} 1
+} -result 0
+
+test geometry-api-7.4 {polylinesBoundingIntersect: granularity <= 1 is exact} -body {
+    list [::math::geometry::polylinesBoundingIntersect {0 0 10 10 10 20} {0 10 10 0} 0] \
+	[::math::geometry::polylinesBoundingIntersect {0 0 10 10 10 20} {5 4 10 4} -1]
+} -result {1 0}
+
+test geometry-api-7.5 {polylinesBoundingIntersect: far apart} -body {
+    ::math::geometry::polylinesBoundingIntersect {0 0 10 10} {20 20 30 30} 2
+} -result 0
+
+test geometry-api-7.6 {polylinesBoundingIntersect: wrong # args} -body {
+    ::math::geometry::polylinesBoundingIntersect {0 0 10 10} {0 10 10 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::polylinesBoundingIntersect polyline1 polyline2 granularity"}
+
+# -------------------------------------------------------------------------
+# pointInsideBBox
+# -------------------------------------------------------------------------
+
+test geometry-api-8.1 {pointInsideBBox: inside} -body {
+    ::math::geometry::pointInsideBBox {0 0 40 20} {20 10}
+} -result 1
+
+test geometry-api-8.2 {pointInsideBBox: on the border} -body {
+    list [::math::geometry::pointInsideBBox {0 0 40 20} {30 20}] \
+	[::math::geometry::pointInsideBBox {0 0 40 20} {0 0}] \
+	[::math::geometry::pointInsideBBox {0 0 40 20} {40 5}]
+} -result {1 1 1}
+
+test geometry-api-8.3 {pointInsideBBox: outside} -body {
+    list [::math::geometry::pointInsideBBox {0 0 40 20} {50 10}] \
+	[::math::geometry::pointInsideBBox {0 0 40 20} {20 -1}] \
+	[::math::geometry::pointInsideBBox {0 0 40 20} {-0.5 25}]
+} -result {0 0 0}
+
+test geometry-api-8.4 {pointInsideBBox: corners given in other order} -body {
+    ::math::geometry::pointInsideBBox {40 20 0 0} {20 10}
+} -result 1
+
+test geometry-api-8.5 {pointInsideBBox: with result of bbox} -body {
+    ::math::geometry::pointInsideBBox [::math::geometry::bbox {0 0 10 5 -3 8}] {-2 7}
+} -result 1
+
+test geometry-api-8.6 {pointInsideBBox: wrong # args} -body {
+    ::math::geometry::pointInsideBBox {0 0 1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::pointInsideBBox bbox point"}
+
+# -------------------------------------------------------------------------
+# bbox (only one test before)
+# -------------------------------------------------------------------------
+
+test geometry-api-9.1 {bbox: polyline} -body {
+    ::math::geometry::bbox {0 0 10 5 -3 8}
+} -match tolerant -result {-3 0 10 8}
+
+test geometry-api-9.2 {bbox: single point} -body {
+    ::math::geometry::bbox {1 1}
+} -match tolerant -result {1 1 1 1}
+
+# -------------------------------------------------------------------------
+# polylineCutOrigin / polylineCutEnd
+#
+# The documentation says that polylineCutOrigin returns the part of the
+# first polyline from its origin up to the first intersection, and
+# polylineCutEnd the part from the last intersection to the end.  The
+# code does the opposite (polylineCutOrigin returns the part after the
+# intersection, polylineCutEnd the part before it), and for polylines with
+# more than one segment it drops or duplicates vertices.
+# -------------------------------------------------------------------------
+
+test geometry-api-10.1 {polylineCutOrigin: single segment} -constraints knownBug -body {
+    ::math::geometry::polylineCutOrigin {0 0 10 0} {5 -5 5 5}
+} -match tolerant -result {0 0 5 0}
+
+test geometry-api-10.2 {polylineCutOrigin: several segments} -constraints knownBug -body {
+    ::math::geometry::polylineCutOrigin {0 0 10 0 20 0 30 0} {15 -5 15 5}
+} -match tolerant -result {0 0 10 0 15 0}
+
+test geometry-api-10.3 {polylineCutOrigin: first of two intersections} -constraints knownBug -body {
+    ::math::geometry::polylineCutOrigin {0 0 10 0 20 0 30 0} {5 -5 5 5 25 5 25 -5}
+} -match tolerant -result {0 0 5 0}
+
+test geometry-api-10.4 {polylineCutOrigin: wrong # args} -body {
+    ::math::geometry::polylineCutOrigin {0 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::polylineCutOrigin polyline1 polyline2 ?granularity?"}
+
+test geometry-api-11.1 {polylineCutEnd: single segment} -constraints knownBug -body {
+    ::math::geometry::polylineCutEnd {0 0 10 0} {5 -5 5 5}
+} -match tolerant -result {5 0 10 0}
+
+test geometry-api-11.2 {polylineCutEnd: several segments} -constraints knownBug -body {
+    ::math::geometry::polylineCutEnd {0 0 10 0 20 0 30 0} {15 -5 15 5}
+} -match tolerant -result {15 0 20 0 30 0}
+
+test geometry-api-11.3 {polylineCutEnd: last of two intersections} -constraints knownBug -body {
+    ::math::geometry::polylineCutEnd {0 0 10 0 20 0 30 0} {5 -5 5 5 25 5 25 -5}
+} -match tolerant -result {25 0 30 0}
+
+test geometry-api-11.4 {polylineCutEnd: wrong # args} -body {
+    ::math::geometry::polylineCutEnd {0 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::polylineCutEnd polyline1 polyline2 ?granularity?"}
+
+# -------------------------------------------------------------------------
+# splitPolyline
+# -------------------------------------------------------------------------
+
+test geometry-api-12.1 {splitPolyline: one internal vertex per part} -body {
+    ::math::geometry::splitPolyline {0 0 1 0 2 0 3 0 4 0 5 0} 1
+} -result {{0 0 1 0 2 0} {2 0 3 0 4 0} {4 0 5 0}}
+
+test geometry-api-12.2 {splitPolyline: two internal vertices, remainder} -body {
+    ::math::geometry::splitPolyline {0 0 1 0 2 0 3 0 4 0} 2
+} -result {{0 0 1 0 2 0 3 0} {3 0 4 0}}
+
+test geometry-api-12.3 {splitPolyline: fewer vertices than requested} -body {
+    ::math::geometry::splitPolyline {0 0 1 0} 3
+} -result {{0 0 1 0}}
+
+# If the polyline ends exactly at a split point, a degenerate part holding
+# only the last vertex is appended.
+test geometry-api-12.4 {splitPolyline: exact split, no single-point part} -constraints knownBug -body {
+    ::math::geometry::splitPolyline {0 0 1 0 2 0 3 0 4 0} 1
+} -result {{0 0 1 0 2 0} {2 0 3 0 4 0}}
+
+test geometry-api-12.5 {splitPolyline: zero internal vertices} -constraints knownBug -body {
+    ::math::geometry::splitPolyline {0 0 1 0 2 0} 0
+} -result {{0 0 1 0} {1 0 2 0}}
+
+test geometry-api-12.6 {splitPolyline: wrong # args} -body {
+    ::math::geometry::splitPolyline {0 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::splitPolyline polyline numbVertex"}
+
+# -------------------------------------------------------------------------
+# enrichPolyline
+# -------------------------------------------------------------------------
+
+test geometry-api-13.1 {enrichPolyline: example from the code} -body {
+    ::math::geometry::enrichPolyline {0 0  40 0  40 20  80 20} 4
+} -match tolerant -result {0 0 10 0 20 0 30 0 40 0 40 5 40 10 40 15 40 20 50 20 60 20 70 20 80 20}
+
+test geometry-api-13.2 {enrichPolyline: accuracy 1 keeps the polyline} -body {
+    ::math::geometry::enrichPolyline {0 0 10 10 20 0} 1
+} -match tolerant -result {0 0 10 10 20 0}
+
+test geometry-api-13.3 {enrichPolyline: diagonal segment} -body {
+    ::math::geometry::enrichPolyline {0 0 3 6} 3
+} -match tolerant -result {0 0 1 2 2 4 3 6}
+
+test geometry-api-13.4 {enrichPolyline: single point} -body {
+    ::math::geometry::enrichPolyline {1 2} 3
+} -match tolerant -result {1 2}
+
+test geometry-api-13.5 {enrichPolyline: length is preserved} -body {
+    ::math::geometry::lengthOfPolyline [::math::geometry::enrichPolyline {0 0 3 4 3 10} 7]
+} -match tolerant -result 11.0
+
+test geometry-api-13.6 {enrichPolyline: wrong # args} -body {
+    ::math::geometry::enrichPolyline {0 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::enrichPolyline polyline accuracy"}
+
+# -------------------------------------------------------------------------
+# cleanupPolyline
+# -------------------------------------------------------------------------
+
+test geometry-api-14.1 {cleanupPolyline: example from the code} -body {
+    ::math::geometry::cleanupPolyline {0 0  40 0  40 20  40 20.0  80 20  80 20.0}
+} -result {0 0 40 0 40 20 80 20}
+
+test geometry-api-14.2 {cleanupPolyline: nothing to remove} -body {
+    ::math::geometry::cleanupPolyline {0 0 1 1 2 0}
+} -result {0 0 1 1 2 0}
+
+test geometry-api-14.3 {cleanupPolyline: only neighbouring duplicates removed} -body {
+    ::math::geometry::cleanupPolyline {0 0 1 1 0 0}
+} -result {0 0 1 1 0 0}
+
+test geometry-api-14.4 {cleanupPolyline: all vertices identical} -body {
+    ::math::geometry::cleanupPolyline {1 1 1 1 1.0 1.0}
+} -result {1 1}
+
+test geometry-api-14.5 {cleanupPolyline: empty polyline} -body {
+    ::math::geometry::cleanupPolyline {}
+} -result {}
+
+test geometry-api-14.6 {cleanupPolyline: wrong # args} -body {
+    ::math::geometry::cleanupPolyline
+} -returnCodes error -result {wrong # args: should be "::math::geometry::cleanupPolyline polyline"}
+
+# -------------------------------------------------------------------------
+# Optional arguments of commands tested only with defaults before
+# -------------------------------------------------------------------------
+
+test geometry-api-15.1 {overlapBBox: touching boxes, default non-strict} -body {
+    ::math::geometry::overlapBBox {0 0 10 10} {10 10 20 20}
+} -result 1
+
+test geometry-api-15.2 {overlapBBox: touching boxes, strict} -body {
+    ::math::geometry::overlapBBox {0 0 10 10} {10 10 20 20} 1
+} -result 0
+
+test geometry-api-15.3 {cathetusPoint: cathetus longer than hypotenuse} -body {
+    ::math::geometry::cathetusPoint {0 0} {10 0} 20
+} -result {}
+
+test geometry-api-15.4 {cathetusPoint: third point is a right angle} -body {
+    set c [::math::geometry::cathetusPoint {0 0} {10 0} 6]
+    list [::math::geometry::distance {0 0} $c] \
+	[::math::geometry::distance {10 0} $c] \
+	[::math::geometry::angleBetween [::math::geometry::- {0 0} $c] \
+	     [::math::geometry::- {10 0} $c]]
+} -cleanup {
+    unset c
+} -match tolerant -result {6.0 8.0 90.0}
+
+test geometry-api-15.5 {cathetusPoint: location b} -body {
+    set c [::math::geometry::cathetusPoint {0 0} {10 0} 6 b]
+    list [::math::geometry::distance {0 0} $c] \
+	[::math::geometry::distance {10 0} $c]
+} -cleanup {
+    unset c
+} -match tolerant -result {8.0 6.0}
+
+test geometry-api-15.6 {parallel: default orientation is right} -body {
+    ::math::geometry::parallel {0 0 10 0} 2
+} -match tolerant -result {0 -2 10 -2}
+
+test geometry-api-15.7 {parallel: left orientation} -body {
+    ::math::geometry::parallel {0 0 10 0} 2 left
+} -match tolerant -result {0 2 10 2}
+
+test geometry-api-15.8 {intersectionPolylines: no intersection} -body {
+    ::math::geometry::intersectionPolylines {0 0 10 0} {0 5 10 5}
+} -result {}
+
+test geometry-api-15.9 {intersectionPolylines: mode all} -body {
+    ::math::geometry::intersectionPolylines {0 0 10 0 10 10 0 10} {5 -5 5 15} all
+} -match tolerant -result {{5 0} {5 10}}
+
+test geometry-api-15.10 {intersectionPolylineCircle: all intersections} -body {
+    lsort -real -index 0 [::math::geometry::intersectionPolylineCircle {-10 0 10 0} {0 0 5} all]
+} -match tolerant -result {{-5 0} {5 0}}
+
+test geometry-api-15.11 {intersectionPolylineCircle: no intersection} -body {
+    ::math::geometry::intersectionPolylineCircle {-10 10 10 10} {0 0 5}
+} -result {}
+
+# -------------------------------------------------------------------------
+# Transformations (each had only a couple of tests)
+# -------------------------------------------------------------------------
+
+test geometry-api-16.1 {translate: polyline} -body {
+    ::math::geometry::translate {1 2} {0 0 1 1 -1 3}
+} -match tolerant -result {1 2 2 3 0 5}
+
+test geometry-api-16.2 {rotate: 90 degrees counter-clockwise} -body {
+    ::math::geometry::rotate 90 {1 0 0 1}
+} -match tolerant -result {0 1 -1 0}
+
+test geometry-api-16.3 {rotateAbout: around a point} -body {
+    ::math::geometry::rotateAbout {1 1} 90 {2 1 1 2}
+} -match tolerant -result {1 2 0 1}
+
+test geometry-api-16.4 {reflect: in the line at 45 degrees} -body {
+    ::math::geometry::reflect 45 {1 0 2 3}
+} -match tolerant -result {0 1 3 2}
+
+test geometry-api-16.5 {reflect: in the x-axis} -body {
+    ::math::geometry::reflect 0 {1 2}
+} -match tolerant -result {1 -2}
+
+test geometry-api-16.6 {degToRad and radToDeg} -body {
+    list [::math::geometry::degToRad 180] [::math::geometry::radToDeg [expr {acos(-1)/2}]]
+} -match tolerant -result {3.141592653589793 90.0}
+
+test geometry-api-16.7 {circleTwoPoints: centre and radius} -body {
+    ::math::geometry::circleTwoPoints {0 0} {4 0}
+} -match tolerant -result {2 0 2}
+
+# -------------------------------------------------------------------------
+# Wrong # args for other documented commands
+# -------------------------------------------------------------------------
+
+test geometry-api-17.1 {wrong # args: p} -body {
+    ::math::geometry::p 1
+} -returnCodes error -result {wrong # args: should be "::math::geometry::p x y"}
+
+test geometry-api-17.2 {wrong # args: between} -body {
+    ::math::geometry::between {0 0} {1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::between pa pb s"}
+
+test geometry-api-17.3 {wrong # args: direction} -body {
+    ::math::geometry::direction
+} -returnCodes error -result {wrong # args: should be "::math::geometry::direction angle"}
+
+test geometry-api-17.4 {wrong # args: octant} -body {
+    ::math::geometry::octant
+} -returnCodes error -result {wrong # args: should be "::math::geometry::octant p"}
+
+test geometry-api-17.5 {wrong # args: angle} -body {
+    ::math::geometry::angle
+} -returnCodes error -result {wrong # args: should be "::math::geometry::angle line"}
+
+test geometry-api-17.6 {wrong # args: movePointInDirection} -body {
+    ::math::geometry::movePointInDirection {0 0} 45
+} -returnCodes error -result {wrong # args: should be "::math::geometry::movePointInDirection P direction dist"}
+
+test geometry-api-17.7 {wrong # args: intervalsOverlap} -body {
+    ::math::geometry::intervalsOverlap 1 2 3 4
+} -returnCodes error -result {wrong # args: should be "::math::geometry::intervalsOverlap y1 y2 y3 y4 strict"}
+
+test geometry-api-17.8 {wrong # args: rectanglesOverlap} -body {
+    ::math::geometry::rectanglesOverlap {0 0} {1 1} {0 0} {1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::rectanglesOverlap P1 P2 Q1 Q2 strict"}
+
+test geometry-api-17.9 {wrong # args: overlapBBox} -body {
+    ::math::geometry::overlapBBox {0 0 1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::overlapBBox polyline1 polyline2 ?strict?"}
+
+test geometry-api-17.10 {wrong # args: cathetusPoint} -body {
+    ::math::geometry::cathetusPoint {0 0} {1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::cathetusPoint pa pb cathetus ?location?"}
+
+test geometry-api-17.11 {wrong # args: parallel} -body {
+    ::math::geometry::parallel {0 0 1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::parallel line offset ?orient?"}
+
+test geometry-api-17.12 {wrong # args: intersectionPolylines} -body {
+    ::math::geometry::intersectionPolylines {0 0 1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::intersectionPolylines polyline1 polyline2 ?mode? ?granularity?"}
+
+test geometry-api-17.13 {wrong # args: intersectionPolylineCircle} -body {
+    ::math::geometry::intersectionPolylineCircle {0 0 1 1}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::intersectionPolylineCircle polyline circle ?mode? ?granularity?"}
+
+test geometry-api-17.14 {wrong # args: rotateAbout} -body {
+    ::math::geometry::rotateAbout {0 0} 90
+} -returnCodes error -result {wrong # args: should be "::math::geometry::rotateAbout p angle polyline"}
+
+test geometry-api-17.15 {wrong # args: circle} -body {
+    ::math::geometry::circle {0 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::circle point radius"}
+
+test geometry-api-17.16 {wrong # args: tangentLinesToCircle} -body {
+    ::math::geometry::tangentLinesToCircle {0 0}
+} -returnCodes error -result {wrong # args: should be "::math::geometry::tangentLinesToCircle point circle"}
+
+# -------------------------------------------------------------------------
+
+rename geomApiMatch {}
+rename geomApiFlatten {}
+
+testsuiteCleanup
+

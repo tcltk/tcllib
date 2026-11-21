@@ -1,0 +1,170 @@
+# -*- tcl -*-
+# facade-api.test:  Tests for the documented API of package tcl::chan::facade
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use log/logger.tcl              logger
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+    useLocal string.tcl  tcl::chan::string
+    useLocal memchan.tcl tcl::chan::memchan
+}
+testing {
+    useLocal facade.tcl tcl::chan::facade
+}
+
+# Keep the debug logging of the facade quiet.
+logger::setlevel emergency
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-facade-api-1.0 {constructor, wrong # args} -body {
+    tcl::chan::facade
+} -returnCodes error -match glob -result {wrong # args: should be "*new thechan"}
+
+test tcl-chan-facade-api-1.1 {constructor, empty channel} -body {
+    tcl::chan::facade {}
+} -returnCodes error -result {Needs a chan argument}
+
+test tcl-chan-facade-api-1.2 {constructor, not a channel} -body {
+    tcl::chan::facade nosuchchannel
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test tcl-chan-facade-api-1.3 {closing the facade closes the wrapped channel} -body {
+    set s [tcl::chan::string abc]
+    set c [tcl::chan::facade $s]
+    close $c
+    list [expr {$s in [file channels]}] [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::facade::implementation]
+} -cleanup {
+    unset s c
+} -result {0 0 {}}
+
+test tcl-chan-facade-api-2.0 {reading is delegated} -setup {
+    set s [tcl::chan::string "hello\nworld"]
+    set c [tcl::chan::facade $s]
+} -body {
+    list [gets $c] [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset s c
+} -result {hello world 1}
+
+test tcl-chan-facade-api-2.1 {writing is delegated} -constraints knownBug -setup {
+    # The facade channel is created read-only.
+    set s [tcl::chan::memchan]
+    set c [tcl::chan::facade $s]
+} -body {
+    puts -nonewline $c hello
+    flush $c
+    seek $s 0
+    read $s
+} -cleanup {
+    close $c
+    unset s c
+} -result hello
+
+test tcl-chan-facade-api-2.2 {readable events are delegated} -constraints knownBug -setup {
+    set s [tcl::chan::string abc]
+    set c [tcl::chan::facade $s]
+    set ::result {}
+} -body {
+    fileevent $c readable {
+	fileevent $c readable {}
+	set ::result [read $c]
+    }
+    set id [after 2000 {set ::result timeout}]
+    vwait ::result
+    after cancel $id
+    set ::result
+} -cleanup {
+    close $c
+    unset s c id ::result
+} -result abc
+
+test tcl-chan-facade-api-3.0 {-fd is the wrapped channel} -setup {
+    set s [tcl::chan::string abc]
+    set c [tcl::chan::facade $s]
+} -body {
+    expr {[fconfigure $c -fd] eq $s}
+} -cleanup {
+    close $c
+    unset s c
+} -result 1
+
+test tcl-chan-facade-api-3.1 {-self is the handler object} -setup {
+    set s [tcl::chan::string abc]
+    set c [tcl::chan::facade $s]
+} -body {
+    set o [fconfigure $c -self]
+    list [info object isa object $o] [info object class $o]
+} -cleanup {
+    close $c
+    unset s c o
+} -result {1 ::tcl::chan::facade::implementation}
+
+test tcl-chan-facade-api-3.2 {-created and -used} -setup {
+    set before [clock milliseconds]
+    set s [tcl::chan::string abc]
+    set c [tcl::chan::facade $s]
+} -body {
+    set created [fconfigure $c -created]
+    set used0 [fconfigure $c -used]
+    read $c
+    set used1 [fconfigure $c -used]
+    list [expr {$created >= $before && $created <= [clock milliseconds]}] \
+	$used0 [expr {$used1 >= $created}]
+} -cleanup {
+    close $c
+    unset s c before created used0 used1
+} -result {1 0 1}
+
+test tcl-chan-facade-api-3.3 {-user, initially empty, writable} -setup {
+    set s [tcl::chan::string abc]
+    set c [tcl::chan::facade $s]
+} -body {
+    set a [fconfigure $c -user]
+    fconfigure $c -user {some user data}
+    list $a [fconfigure $c -user]
+} -cleanup {
+    close $c
+    unset s c a
+} -result {{} {some user data}}
+
+test tcl-chan-facade-api-3.4 {all options include the facade options} -setup {
+    set s [tcl::chan::string abc]
+    set c [tcl::chan::facade $s]
+    fconfigure $c -user U
+} -body {
+    set all [fconfigure $c]
+    list [dict get $all -fd] [dict get $all -user] \
+	[expr {[dict get $all -self] eq [fconfigure $c -self]}] \
+	[dict exists $all -used] [dict exists $all -created]
+} -cleanup {
+    close $c
+    unset s c all
+} -match glob -result {rc* U 1 1 1}
+
+test tcl-chan-facade-api-3.5 {setting other options is delegated to the wrapped channel} -constraints knownBug -setup {
+    set s [tcl::chan::memchan]
+    set c [tcl::chan::facade $s]
+} -body {
+    fconfigure $c -foo 1
+} -cleanup {
+    close $c
+    unset s c
+} -returnCodes error -match glob -result {bad option "-foo"*}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

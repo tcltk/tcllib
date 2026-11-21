@@ -1,0 +1,569 @@
+# -*- tcl -*-
+# special-api.test --
+#    Additional tests for the documented API of math::special:
+#    Gamma, Beta, the Bessel functions Jn, J1/2, J-1/2 and I_n,
+#    the exponential integrals and related functions, and the
+#    classical orthogonal polynomials.
+#    (The other functions are tested in special.test, bessel.test and
+#    elliptic.test.)
+#
+# Reference values: Abramowitz and Stegun, "Handbook of Mathematical
+# Functions", tables 4.1, 5.1, 6.1, 9.1, 9.8, and closed-form identities.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use      textutil/wcswidth.tcl textutil::wcswidth
+    use      struct/matrix.tcl  struct::matrix
+    useLocal math.tcl           math
+    useLocal constants.tcl      math::constants
+    useLocal linalg.tcl         math::linearalgebra
+    useLocal statistics.tcl     math::statistics
+    useLocal polynomials.tcl    math::polynomials
+    useLocal interpolate.tcl    math::interpolate
+    useLocal calculus.tcl       math::calculus
+}
+testing {
+    useLocal special.tcl math::special
+}
+
+# -------------------------------------------------------------------------
+# Tolerant comparison: every element of the actual list must be within
+# tol*max(1,|expected|) of the expected element, and the lists must have
+# the same length.
+
+proc ::matchTol {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach a $actual e $expected {
+        if {![string is double -strict $a]} {
+            return 0
+        }
+        set scale [expr {abs($e) > 1.0 ? abs($e) : 1.0}]
+        if {abs($a-$e) > $tol*$scale} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch approx8 {::matchTol 1.0e-8}
+customMatch approx6 {::matchTol 1.0e-6}
+customMatch approx4 {::matchTol 2.0e-4}
+
+# Evaluate a polynomial (as returned by legendre etc.) at several points
+proc ::evalAt {polyn xs} {
+    set result {}
+    foreach x $xs {
+        lappend result [::math::polynomials::evalPolyn $polyn $x]
+    }
+    return $result
+}
+
+# Directory holding the modules, for the tests using a separate interpreter
+set ::modulesDir [file dirname [file dirname [file join [pwd] [info script]]]]
+
+set ::pi [expr {4.0*atan(1.0)}]
+
+# -------------------------------------------------------------------------
+# Gamma and Beta
+
+test special-api-1.1 {Gamma - integer arguments give factorials} -match approx8 -body {
+    list [math::special::Gamma 1] [math::special::Gamma 2] \
+	[math::special::Gamma 5] [math::special::Gamma 7.0]
+} -result {1.0 1.0 24.0 720.0}
+
+test special-api-1.2 {Gamma - half-integer arguments} -match approx8 -body {
+    list [math::special::Gamma 0.5] [math::special::Gamma 1.5] \
+	[math::special::Gamma 3.5]
+} -result [list [expr {sqrt($pi)}] [expr {sqrt($pi)/2.0}] \
+	       [expr {15.0*sqrt($pi)/8.0}]]
+
+test special-api-1.3 {Gamma - recurrence Gamma(x+1) = x Gamma(x)} -match approx8 -body {
+    set x 2.3
+    expr {[math::special::Gamma [expr {$x+1.0}]] / [math::special::Gamma $x]}
+} -cleanup {
+    unset x
+} -result 2.3
+
+test special-api-1.4 {Gamma - pole at zero} -body {
+    math::special::Gamma 0
+} -returnCodes error -result {argument to ln_Gamma must be positive}
+
+test special-api-1.5 {Gamma - pole at zero, error code} -body {
+    catch {math::special::Gamma 0.0}
+    set ::errorCode
+} -result {ARITH DOMAIN {argument to ln_Gamma must be positive}}
+
+test special-api-1.6 {Gamma - non-numeric argument} -body {
+    math::special::Gamma abc
+} -returnCodes error -result {expected a floating-point number but found "abc"}
+
+test special-api-1.7 {Gamma - wrong # args} -body {
+    math::special::Gamma
+} -returnCodes error -result {wrong # args: should be "math::special::Gamma x"}
+
+test special-api-1.8 {Gamma - wrong # args} -body {
+    math::special::Gamma 1 2
+} -returnCodes error -result {wrong # args: should be "math::special::Gamma x"}
+
+test special-api-2.1 {Beta - integer arguments} -match approx8 -body {
+    list [math::special::Beta 1 1] [math::special::Beta 2 3] \
+	[math::special::Beta 3 2]
+} -result [list 1.0 [expr {1.0/12.0}] [expr {1.0/12.0}]]
+
+test special-api-2.2 {Beta - B(1/2,1/2) = pi} -match approx8 -body {
+    math::special::Beta 0.5 0.5
+} -result $pi
+
+test special-api-2.3 {Beta - relation with Gamma} -match approx8 -body {
+    expr {[math::special::Beta 1.7 2.4] /
+	  ([math::special::Gamma 1.7]*[math::special::Gamma 2.4]/[math::special::Gamma 4.1])}
+} -result 1.0
+
+test special-api-2.4 {Beta - wrong # args} -body {
+    math::special::Beta 1
+} -returnCodes error -match glob -result {wrong # args: should be "*Beta z w"}
+
+# -------------------------------------------------------------------------
+# Bessel functions
+
+test special-api-3.1 {Jn - orders 0, 1, 2 at x=1 (A&S table 9.1)} -match approx6 -body {
+    list [math::special::Jn 0 1.0] [math::special::Jn 1 1.0] \
+	[math::special::Jn 2 1.0]
+} -result {0.7651976866 0.4400505857 0.1149034849}
+
+test special-api-3.2 {Jn - agrees with J0 and J1} -match approx6 -body {
+    list [expr {[math::special::Jn 0 2.5] - [math::special::J0 2.5]}] \
+	[expr {[math::special::Jn 1 2.5] - [math::special::J1 2.5]}]
+} -result {0.0 0.0}
+
+test special-api-3.3 {Jn - value at zero} -match approx6 -body {
+    list [math::special::Jn 0 0.0] [math::special::Jn 1 0.0] \
+	[math::special::Jn 3 0]
+} -result {1.0 0.0 0.0}
+
+test special-api-3.4 {Jn - negative order, J(-n) = (-1)^n J(n)} -match approx6 -body {
+    list [math::special::Jn -1 1.0] [math::special::Jn -2 1.0]
+} -result {-0.4400505857 0.1149034849}
+
+test special-api-3.5 {Jn - higher order, larger argument} -match approx6 -body {
+    math::special::Jn 5 10.0
+} -result -0.2340615282
+
+test special-api-3.6 {Jn - non-integer order} -body {
+    math::special::Jn 1.5 1.0
+} -returnCodes error -result {Order argument must be integer}
+
+test special-api-3.7 {Jn - wrong # args} -body {
+    math::special::Jn 1
+} -returnCodes error -result {wrong # args: should be "math::special::Jn n x"}
+
+test special-api-4.1 {J1/2 - closed form sqrt(2/(pi x)) sin(x)} -match approx8 -body {
+    list [math::special::J1/2 1.0] [math::special::J1/2 2.0]
+} -result [list [expr {sqrt(2.0/$pi)*sin(1.0)}] [expr {sqrt(1.0/$pi)*sin(2.0)}]]
+
+test special-api-4.2 {J1/2 - value at zero} -body {
+    math::special::J1/2 0.0
+} -result 0.0
+
+test special-api-4.3 {J-1/2 - closed form sqrt(2/(pi x)) cos(x)} -constraints knownBug -match approx8 -body {
+    list [math::special::J-1/2 1.0] [math::special::J-1/2 2.0]
+} -result [list [expr {sqrt(2.0/$pi)*cos(1.0)}] [expr {sqrt(1.0/$pi)*cos(2.0)}]]
+
+test special-api-4.4 {J-1/2 - magnitude agrees with the closed form} -match approx8 -body {
+    list [expr {abs([math::special::J-1/2 1.0])}] \
+	[expr {abs([math::special::J-1/2 2.0])}]
+} -result [list [expr {abs(sqrt(2.0/$pi)*cos(1.0))}] \
+	       [expr {abs(sqrt(1.0/$pi)*cos(2.0))}]]
+
+test special-api-4.5 {J-1/2 - singularity at zero} -body {
+    math::special::J-1/2 0.0
+} -returnCodes error -result {Argument must not be zero (singularity)}
+
+test special-api-4.6 {J1/2 - wrong # args} -body {
+    math::special::J1/2
+} -returnCodes error -result {wrong # args: should be "math::special::J1/2 x"}
+
+test special-api-5.1 {I_n - orders 0 and 1 at x=1 (A&S table 9.8)} -match approx6 -body {
+    list [math::special::I_n 0 1.0] [math::special::I_n 1 1.0]
+} -result {1.266065878 0.565159104}
+
+test special-api-5.2 {I_n - orders 0, 1, 2 at x=2} -match approx6 -body {
+    list [math::special::I_n 0 2.0] [math::special::I_n 1 2.0] \
+	[math::special::I_n 2 2.0]
+} -result {2.279585302 1.590636855 0.688948448}
+
+test special-api-5.3 {I_n - integer argument} -match approx6 -body {
+    math::special::I_n 0 1
+} -result 1.266065878
+
+test special-api-5.4 {I_n - order 3} -match approx6 -body {
+    math::special::I_n 3 1.5
+} -result 0.0807741
+
+test special-api-5.5 {I_n - value at zero} -constraints knownBug -match approx8 -body {
+    list [math::special::I_n 0 0.0] [math::special::I_n 1 0.0]
+} -result {1.0 0.0}
+
+test special-api-5.6 {I_n - accuracy for larger arguments} -constraints knownBug -match approx6 -body {
+    list [math::special::I_n 0 10.0] [math::special::I_n 1 10.0]
+} -result {2815.716628 2670.988304}
+
+test special-api-5.7 {I_n - negative order} -body {
+    math::special::I_n -1 1.0
+} -returnCodes error -result {Wrong order: must be positive integer or zero}
+
+test special-api-5.8 {I_n - non-integer order} -body {
+    math::special::I_n 0.5 1.0
+} -returnCodes error -result {Wrong order: must be positive integer or zero}
+
+test special-api-5.9 {I_n - wrong # args} -body {
+    math::special::I_n 1.0
+} -returnCodes error -result {wrong # args: should be "math::special::I_n n x"}
+
+# -------------------------------------------------------------------------
+# Exponential integrals
+
+# Reference for Ei(x), x > 0: power series gamma + ln(x) + sum x^k/(k k!)
+proc ::EiSeries {x} {
+    set x    [expr {double($x)}]
+    set sum  0.0
+    set term 1.0
+    for {set k 1} {$k < 200} {incr k} {
+	set term [expr {$term*$x/$k}]
+	set sum  [expr {$sum + $term/$k}]
+    }
+    expr {0.5772156649015329 + log($x) + $sum}
+}
+
+test special-api-6.1 {exponential_Ei - small arguments (A&S table 5.1)} -match approx8 -body {
+    list [math::special::exponential_Ei 0.5] [math::special::exponential_Ei 1.0] \
+	[math::special::exponential_Ei 2.0]
+} -result {0.4542199049 1.8951178164 4.9542343560}
+
+test special-api-6.2 {exponential_Ei - large argument (asymptotic series)} -match approx6 -body {
+    expr {[math::special::exponential_Ei 30.0] / [EiSeries 30.0]}
+} -result 1.0
+
+test special-api-6.3 {exponential_Ei - negative argument, Ei(-x) = -E1(x)} -match approx8 -body {
+    list [math::special::exponential_Ei -1.0] \
+	[expr {[math::special::exponential_Ei -2.0] + [math::special::exponential_En 1 2.0]}]
+} -result {-0.2193839344 0.0}
+
+test special-api-6.4 {exponential_Ei - very small argument} -match approx8 -body {
+    expr {[math::special::exponential_Ei 1.0e-20] - log(1.0e-20)}
+} -result 0.5772156649
+
+test special-api-6.5 {exponential_Ei - integer arguments} -constraints knownBug -match approx6 -body {
+    list [math::special::exponential_Ei 1] [math::special::exponential_Ei 2] \
+	[expr {[math::special::exponential_Ei 30] / [EiSeries 30]}]
+} -result {1.8951178164 4.9542343560 1.0}
+
+test special-api-6.6 {exponential_Ei - zero} -body {
+    math::special::exponential_Ei 0.0
+} -returnCodes error -result {Argument to exponential_Ei must not be zero}
+
+test special-api-6.7 {exponential_Ei - zero, error code} -body {
+    catch {math::special::exponential_Ei 0}
+    set ::errorCode
+} -result {ARITH DOMAIN {Argument to exponential_Ei must not be zero}}
+
+test special-api-6.8 {exponential_Ei - non-numeric argument} -body {
+    math::special::exponential_Ei abc
+} -returnCodes error -result {expected a floating point number but found "abc"}
+
+test special-api-7.1 {exponential_En - E1, E2 (A&S table 5.1)} -match approx8 -body {
+    list [math::special::exponential_En 1 0.5] [math::special::exponential_En 1 1.0] \
+	[math::special::exponential_En 2 1.0] [math::special::exponential_En 1 2.0]
+} -result {0.5597735948 0.2193839344 0.1484955068 0.04890051071}
+
+test special-api-7.2 {exponential_En - continued fraction region} -match approx8 -body {
+    list [expr {[math::special::exponential_En 1 5.0] / 0.001148295591}] \
+	[expr {[math::special::exponential_En 2 5.0] / 0.0009964690427}]
+} -result {1.0 1.0}
+
+test special-api-7.3 {exponential_En - E0(x) = exp(-x)/x} -match approx8 -body {
+    math::special::exponential_En 0 2.0
+} -result [expr {exp(-2.0)/2.0}]
+
+test special-api-7.4 {exponential_En - En(0) = 1/(n-1)} -match approx8 -body {
+    list [math::special::exponential_En 2 0.0] [math::special::exponential_En 3 0] \
+	[math::special::exponential_En 5 0.0]
+} -result {1.0 0.5 0.25}
+
+test special-api-7.5 {exponential_En - recurrence n E(n+1)(x) = exp(-x) - x En(x)} -match approx8 -body {
+    set x 1.5
+    expr {3*[math::special::exponential_En 4 $x] -
+	  (exp(-$x) - $x*[math::special::exponential_En 3 $x])}
+} -cleanup {
+    unset x
+} -result 0.0
+
+test special-api-7.6 {exponential_En - negative order} -body {
+    math::special::exponential_En -1 1.0
+} -returnCodes error -result {expected a non-negative integer but found "-1"}
+
+test special-api-7.7 {exponential_En - non-integer order} -body {
+    math::special::exponential_En 1.5 1.0
+} -returnCodes error -result {expected a non-negative integer but found "1.5"}
+
+test special-api-7.8 {exponential_En - non-numeric argument} -body {
+    math::special::exponential_En 1 abc
+} -returnCodes error -result {expected a floating point number but found "abc"}
+
+test special-api-7.9 {exponential_En - E0(0) is indeterminate} -body {
+    math::special::exponential_En 0 0.0
+} -returnCodes error -result {E0(0) is indeterminate}
+
+test special-api-7.10 {exponential_En - negative argument} -body {
+    math::special::exponential_En 2 -1.0
+} -returnCodes error -result {can't evaluate En(x) for negative x}
+
+test special-api-7.11 {exponential_En - E1 of negative argument, E1(-x) = -Ei(x)} -constraints knownBug -match approx8 -body {
+    math::special::exponential_En 1 -1.0
+} -result -1.8951178164
+
+test special-api-8.1 {exponential_li - li(2), li(10)} -match approx8 -body {
+    list [math::special::exponential_li 2.0] [math::special::exponential_li 10]
+} -result {1.0451637801 6.1655995048}
+
+test special-api-8.2 {exponential_li - li(0) = 0} -body {
+    math::special::exponential_li 0.0
+} -result 0.0
+
+test special-api-8.3 {exponential_li - negative argument} -body {
+    math::special::exponential_li -1.0
+} -returnCodes error -result {Argument must be positive or zero}
+
+test special-api-9.1 {exponential_Si - x < 1 (A&S table 5.1)} -match approx6 -body {
+    list [math::special::exponential_Si 0.5] [math::special::exponential_Si 0.9]
+} -result {0.4931074180 0.8604707107}
+
+test special-api-9.2 {exponential_Si - x >= 1 (rational approximation)} -match approx4 -body {
+    list [math::special::exponential_Si 1.0] [math::special::exponential_Si 2.0] \
+	[math::special::exponential_Si 5.0] [math::special::exponential_Si 10.0]
+} -result {0.9460830704 1.6054129768 1.5499312449 1.6583475942}
+
+test special-api-9.3 {exponential_Si - tends to pi/2} -match approx4 -body {
+    math::special::exponential_Si 1.0e6
+} -result [expr {$pi/2.0}]
+
+test special-api-9.4 {exponential_Si - zero} -body {
+    math::special::exponential_Si 0.0
+} -result 0.0
+
+test special-api-9.5 {exponential_Ci - x < 1 and x >= 1} -match approx4 -body {
+    list [math::special::exponential_Ci 0.5] [math::special::exponential_Ci 1.0] \
+	[math::special::exponential_Ci 2.0] [math::special::exponential_Ci 5.0]
+} -result {-0.1777840788 0.3374039229 0.4229808288 -0.1900297497}
+
+test special-api-9.6 {exponential_Ci - x < 1, accurate} -match approx6 -body {
+    math::special::exponential_Ci 0.5
+} -result -0.1777840788
+
+test special-api-9.7 {exponential_Shi - values} -match approx6 -body {
+    list [math::special::exponential_Shi 0.5] [math::special::exponential_Shi 1.0] \
+	[math::special::exponential_Shi 2.0]
+} -result {0.5069967498 1.0572508754 2.5015674333}
+
+test special-api-9.8 {exponential_Chi - values} -match approx6 -body {
+    list [math::special::exponential_Chi 0.5] [math::special::exponential_Chi 1.0] \
+	[math::special::exponential_Chi 2.0]
+} -result {-0.0527768449 0.8378669410 2.4526669226}
+
+test special-api-9.9 {exponential_Shi, exponential_Chi - Chi + Shi = Ei} -match approx6 -body {
+    expr {[math::special::exponential_Chi 1.5] + [math::special::exponential_Shi 1.5]
+	  - [math::special::exponential_Ei 1.5]}
+} -result 0.0
+
+test special-api-9.10 {exponential_Shi, exponential_Chi - zero} -body {
+    list [math::special::exponential_Shi 0.0] [math::special::exponential_Chi 0.0]
+} -result {0.0 0.0}
+
+test special-api-9.11 {exponential_Ci, Si, Chi, Shi - negative argument} -body {
+    set result {}
+    foreach f {Ci Si Chi Shi} {
+	catch {math::special::exponential_$f -1.0} msg
+	lappend result $msg
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result f msg
+} -result [lrepeat 4 {Argument must be positive or zero}]
+
+test special-api-9.12 {exponential_Si etc. - work without loading math::calculus first} -constraints knownBug -setup {
+    set ip [interp create]
+    $ip eval [list set auto_path [linsert $::auto_path 0 $::modulesDir]]
+} -body {
+    $ip eval {
+	package require math::special
+	set result {}
+	foreach f {Si Ci Shi Chi} {
+	    lappend result [catch {math::special::exponential_$f 0.5}]
+	}
+	set result
+    }
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result {0 0 0 0}
+
+test special-api-9.13 {exponential_Si - wrong # args} -body {
+    math::special::exponential_Si
+} -returnCodes error -result {wrong # args: should be "math::special::exponential_Si x"}
+
+# -------------------------------------------------------------------------
+# Orthogonal polynomials
+
+test special-api-10.1 {legendre - P0, P1} -body {
+    list [math::special::legendre 0] [math::special::legendre 1]
+} -result {{POLYNOMIAL 1.0} {POLYNOMIAL {1.0 0.0}}}
+
+test special-api-10.2 {legendre - P2 = (3x^2-1)/2} -match approx8 -body {
+    math::polynomials::allCoeffsPolyn [math::special::legendre 2]
+} -result {-0.5 0.0 1.5}
+
+test special-api-10.3 {legendre - P3 = (5x^3-3x)/2} -match approx8 -body {
+    math::polynomials::allCoeffsPolyn [math::special::legendre 3]
+} -result {0.0 -1.5 0.0 2.5}
+
+test special-api-10.4 {legendre - Pn(1) = 1, Pn(-1) = (-1)^n} -match approx8 -body {
+    evalAt [math::special::legendre 7] {1.0 -1.0}
+} -result {1.0 -1.0}
+
+test special-api-10.5 {legendre - bad degree} -body {
+    list [catch {math::special::legendre -1} m1] $m1 \
+	[catch {math::special::legendre 1.5} m2] $m2 \
+	[catch {math::special::legendre a} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result [lrepeat 3 1 {Degree must be a non-negative integer}]
+
+test special-api-11.1 {chebyshev - T0, T1} -body {
+    list [math::special::chebyshev 0] [math::special::chebyshev 1]
+} -result {{POLYNOMIAL 1.0} {POLYNOMIAL {1.0 0.0}}}
+
+test special-api-11.2 {chebyshev - T3 = 4x^3-3x} -match approx8 -body {
+    math::polynomials::allCoeffsPolyn [math::special::chebyshev 3]
+} -result {0.0 -3.0 0.0 4.0}
+
+test special-api-11.3 {chebyshev - Tn(cos t) = cos(n t)} -match approx8 -body {
+    evalAt [math::special::chebyshev 5] [list [expr {cos(0.3)}] [expr {cos(1.1)}]]
+} -result [list [expr {cos(1.5)}] [expr {cos(5.5)}]]
+
+test special-api-11.4 {chebyshev - bad degree} -body {
+    math::special::chebyshev -2
+} -returnCodes error -result {Degree must be a non-negative integer}
+
+test special-api-12.1 {laguerre - alpha=0: L0, L1, L2} -match approx8 -body {
+    concat [math::polynomials::allCoeffsPolyn [math::special::laguerre 0 0]] \
+	[math::polynomials::allCoeffsPolyn [math::special::laguerre 0 1]] \
+	[math::polynomials::allCoeffsPolyn [math::special::laguerre 0 2]]
+} -result {1.0  1.0 -1.0  1.0 -2.0 0.5}
+
+test special-api-12.2 {laguerre - alpha=0: Ln(0) = 1} -match approx8 -body {
+    evalAt [math::special::laguerre 0.0 6] 0.0
+} -result 1.0
+
+test special-api-12.3 {laguerre - generalised, L1(alpha) = 1+alpha-x} -constraints knownBug -match approx8 -body {
+    math::polynomials::allCoeffsPolyn [math::special::laguerre 1.0 1]
+} -result {2.0 -1.0}
+
+test special-api-12.4 {laguerre - generalised, L2(1) = (x^2-6x+6)/2} -constraints knownBug -match approx8 -body {
+    math::polynomials::allCoeffsPolyn [math::special::laguerre 1.0 2]
+} -result {3.0 -3.0 0.5}
+
+test special-api-12.5 {laguerre - bad parameter} -body {
+    math::special::laguerre x 2
+} -returnCodes error -result {Parameter must be a double}
+
+test special-api-12.6 {laguerre - bad degree} -body {
+    math::special::laguerre 0.0 -1
+} -returnCodes error -result {Degree must be a non-negative integer}
+
+test special-api-12.7 {laguerre - wrong # args} -body {
+    math::special::laguerre 2
+} -returnCodes error -result {wrong # args: should be "math::special::laguerre alpha n"}
+
+test special-api-13.1 {hermite - H0, H1} -body {
+    list [math::special::hermite 0] [math::special::hermite 1]
+} -result {{POLYNOMIAL 1.0} {POLYNOMIAL {2.0 0.0}}}
+
+test special-api-13.2 {hermite - H3 = 8x^3-12x, H4 = 16x^4-48x^2+12} -match approx8 -body {
+    concat [math::polynomials::allCoeffsPolyn [math::special::hermite 3]] \
+	[math::polynomials::allCoeffsPolyn [math::special::hermite 4]]
+} -result {0.0 -12.0 0.0 8.0  12.0 0.0 -48.0 0.0 16.0}
+
+test special-api-13.3 {hermite - bad degree} -body {
+    math::special::hermite 1.5
+} -returnCodes error -result {Degree must be a non-negative integer}
+
+test special-api-13.4 {hermite - wrong # args} -body {
+    math::special::hermite
+} -returnCodes error -result {wrong # args: should be "math::special::hermite n"}
+
+# -------------------------------------------------------------------------
+# Other functions: edge cases not covered elsewhere
+
+test special-api-14.1 {elliptic_K, elliptic_E - k=0 gives pi/2} -match approx6 -body {
+    list [math::special::elliptic_K 0.0] [math::special::elliptic_E 0.0]
+} -result [list [expr {$pi/2.0}] [expr {$pi/2.0}]]
+
+test special-api-14.2 {sn, cn, dn - k=0 reduces to sin, cos, 1} -match approx6 -body {
+    list [math::special::sn 0.7 0.0] [math::special::cn 0.7 0.0] \
+	[math::special::dn 0.7 0.0]
+} -result [list [expr {sin(0.7)}] [expr {cos(0.7)}] 1.0]
+
+test special-api-14.3 {erf, erfc - erf(x) + erfc(x) = 1, erf odd} -match approx6 -body {
+    list [expr {[math::special::erf 0.8] + [math::special::erfc 0.8]}] \
+	[expr {[math::special::erf -0.8] + [math::special::erf 0.8]}] \
+	[math::special::erf 0.0]
+} -result {1.0 0.0 0.0}
+
+test special-api-14.4 {invnorm - out of domain} -body {
+    list [catch {math::special::invnorm 0.0} m1] $m1 \
+	[catch {math::special::invnorm 1.0} m2] $m2
+} -cleanup {
+    unset -nocomplain m1 m2
+} -result {1 {Domain error (invnorm)} 1 {Domain error (invnorm)}}
+
+test special-api-14.5 {incBeta - x out of bounds} -body {
+    math::special::incBeta 1.0 1.0 1.5
+} -returnCodes error -result {Incomplete Beta function: x out of bounds (must be between 0 and 1)}
+
+test special-api-14.6 {incBeta - parameter out of bounds} -body {
+    math::special::incBeta 0.0 1.0 0.5
+} -returnCodes error -result {Incomplete Beta function: parameter a or b out of bounds (both must be > 0)}
+
+test special-api-14.7 {regIncBeta - I_x(1,1) = x} -match approx6 -body {
+    math::special::regIncBeta 1.0 1.0 0.3
+} -result 0.3
+
+test special-api-14.8 {fresnel_C - negative argument} -body {
+    math::special::fresnel_C -1.0
+} -returnCodes error -result {Domain error: x must be non-negative}
+
+test special-api-14.9 {fresnel_S - negative argument} -body {
+    math::special::fresnel_S -1.0
+} -returnCodes error -result {Domain error: x must be non-negative}
+
+test special-api-14.10 {sinc - value at zero} -match approx8 -body {
+    math::special::sinc 0.0
+} -result 1.0
+
+# -------------------------------------------------------------------------
+
+rename ::matchTol {}
+rename ::evalAt {}
+rename ::EiSeries {}
+unset ::modulesDir ::pi
+
+testsuiteCleanup

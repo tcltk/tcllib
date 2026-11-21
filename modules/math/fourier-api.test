@@ -1,0 +1,246 @@
+# -*- tcl -*-
+# fourier-api.test --
+#    Tests for the documented API of the math::fourier package, in
+#    addition to fourier.test: complex input, edge cases and the
+#    lowpass/highpass filters.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl     math
+    useLocal qcomplex.tcl math::complexnumbers
+}
+testing {
+    useLocal fourier.tcl math::fourier
+}
+
+# -------------------------------------------------------------------------
+
+# Compare lists of complex numbers (pairs) with an absolute tolerance;
+# the lists must have the same length.
+proc matchComplexList {expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+	return 0
+    }
+    foreach a $actual e $expected {
+	if {[llength $a] != 2} {
+	    return 0
+	}
+	foreach {are aim} $a break
+	foreach {ere eim} $e break
+	if {abs($are-$ere) > 1.0e-9 || abs($aim-$eim) > 1.0e-9} {
+	    return 0
+	}
+    }
+    return 1
+}
+customMatch complex matchComplexList
+
+# Naive DFT for reference: X_k = sum_j x_j exp(-2 pi i j k / n)
+proc refDft {data {sign -1}} {
+    set n [llength $data]
+    set pi [expr {4.0*atan(1.0)}]
+    set result {}
+    for {set k 0} {$k < $n} {incr k} {
+	set re 0.0
+	set im 0.0
+	set j 0
+	foreach x $data {
+	    foreach {xr xi} [concat $x 0.0] break
+	    set phi [expr {$sign*2.0*$pi*$j*$k/$n}]
+	    set re [expr {$re + $xr*cos($phi) - $xi*sin($phi)}]
+	    set im [expr {$im + $xr*sin($phi) + $xi*cos($phi)}]
+	    incr j
+	}
+	if {$sign > 0} {
+	    set re [expr {$re/$n}]
+	    set im [expr {$im/$n}]
+	}
+	lappend result [list $re $im]
+    }
+    return $result
+}
+
+# -------------------------------------------------------------------------
+# dft, inverse_dft
+# -------------------------------------------------------------------------
+
+test fourier-api-1.1 "dft: complex input (power of two)" -match complex -body {
+    ::math::fourier::dft {{1 1} {0 2} {-1 0} {3 -1}}
+} -result [refDft {{1 1} {0 2} {-1 0} {3 -1}}]
+
+test fourier-api-1.2 "dft: complex input (not a power of two)" -match complex -body {
+    ::math::fourier::dft {{1 1} {0 2} {-1 0}}
+} -result [refDft {{1 1} {0 2} {-1 0}}]
+
+test fourier-api-1.3 "dft: mixed real and complex input" -match complex -body {
+    ::math::fourier::dft {1 {0 2} -1 {3 -1} 2 {0.5 0.5}}
+} -result [refDft {1 {0 2} -1 {3 -1} 2 {0.5 0.5}}]
+
+test fourier-api-1.4 "dft: single value" -match complex -body {
+    ::math::fourier::dft {5}
+} -result {{5.0 0.0}}
+
+test fourier-api-1.5 "dft: two values" -match complex -body {
+    ::math::fourier::dft {1 2}
+} -result {{3.0 0.0} {-1.0 0.0}}
+
+test fourier-api-1.6 "dft: impulse gives a flat spectrum" -match complex -body {
+    ::math::fourier::dft {1 0 0 0 0 0 0 0}
+} -result [lrepeat 8 {1.0 0.0}]
+
+test fourier-api-1.7 "dft: constant gives a single component" -match complex -body {
+    ::math::fourier::dft {2 2 2 2 2 2}
+} -result {{12.0 0.0} {0 0} {0 0} {0 0} {0 0} {0 0}}
+
+test fourier-api-1.8 "dft: result is always a list of pairs" -body {
+    set result {}
+    foreach c [::math::fourier::dft {1 2 3}] {
+	lappend result [llength $c]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result c
+} -result {2 2 2}
+
+test fourier-api-1.9 "dft: empty list" -body {
+    ::math::fourier::dft {}
+} -result {}
+
+test fourier-api-1.10 "dft: wrong # args" -body {
+    ::math::fourier::dft
+} -returnCodes error -result {wrong # args: should be "::math::fourier::dft in_data"}
+
+test fourier-api-2.1 "inverse_dft: complex input (power of two)" -match complex -body {
+    ::math::fourier::inverse_dft {{1.0 1.0} {0.0 2.0} {-1.0 0.0} {3.0 -1.0}}
+} -result [refDft {{1 1} {0 2} {-1 0} {3 -1}} 1]
+
+# With integer input the Fast_DFT result stays integer, and the final
+# division by the number of values is an integer division.
+test fourier-api-2.1.1 "inverse_dft: integer complex input (power of two)" -constraints knownBug -match complex -body {
+    ::math::fourier::inverse_dft {{1 1} {0 2} {-1 0} {3 -1}}
+} -result [refDft {{1 1} {0 2} {-1 0} {3 -1}} 1]
+
+test fourier-api-2.2 "inverse_dft: complex input (not a power of two)" -match complex -body {
+    ::math::fourier::inverse_dft {{1 1} {0 2} {-1 0}}
+} -result [refDft {{1 1} {0 2} {-1 0}} 1]
+
+test fourier-api-2.3 "inverse_dft: real input" -match complex -body {
+    ::math::fourier::inverse_dft {4 0 0 0}
+} -result {{1.0 0.0} {1.0 0.0} {1.0 0.0} {1.0 0.0}}
+
+test fourier-api-2.4 "inverse_dft: round trip with complex data" -match complex -body {
+    set data {{1 1} {0 2} {-1 0} {3 -1} {2.5 0.5} {0 0} {-2 -2}}
+    ::math::fourier::inverse_dft [::math::fourier::dft $data]
+} -cleanup {
+    unset -nocomplain data
+} -result {{1 1} {0 2} {-1 0} {3 -1} {2.5 0.5} {0 0} {-2 -2}}
+
+test fourier-api-2.5 "inverse_dft: wrong # args" -body {
+    ::math::fourier::inverse_dft
+} -returnCodes error -result {wrong # args: should be "::math::fourier::inverse_dft in_data"}
+
+# -------------------------------------------------------------------------
+# lowpass, highpass
+# The filters multiply the amplitude of the k-th component by
+#   lowpass:  1 / (1 + i k/cutoff)
+#   highpass: (i k/cutoff) / (1 + i k/cutoff)
+# -------------------------------------------------------------------------
+
+test fourier-api-3.1 "lowpass: unit amplitudes" -match complex -body {
+    ::math::fourier::lowpass 1.0 {{1 0} {1 0} {1 0}}
+} -result {{1.0 0.0} {0.5 -0.5} {0.2 -0.4}}
+
+test fourier-api-3.2 "lowpass: zero frequency component is not changed" -match complex -body {
+    lrange [::math::fourier::lowpass 2.0 {{3 4} {1 0}}] 0 0
+} -result {{3.0 4.0}}
+
+test fourier-api-3.3 "lowpass: complex amplitudes are scaled" -match complex -body {
+    ::math::fourier::lowpass 2.0 {{2 0} {2 2} {0 4}}
+} -result {{2.0 0.0} {2.4 0.8} {2.0 2.0}}
+
+test fourier-api-3.4 "lowpass: high frequencies are suppressed" -body {
+    set out [::math::fourier::lowpass 1.0 [lrepeat 100 {1.0 0.0}]]
+    set mags {}
+    foreach c $out {
+	lappend mags [expr {hypot([lindex $c 0], [lindex $c 1])}]
+    }
+    list [expr {[lindex $mags 0] == 1.0}] \
+	[expr {[lindex $mags 1] < [lindex $mags 0]}] \
+	[expr {[lindex $mags end] < 0.011}]
+} -cleanup {
+    unset -nocomplain out mags c
+} -result {1 1 1}
+
+test fourier-api-3.5 "lowpass: empty list" -body {
+    ::math::fourier::lowpass 1.0 {}
+} -result {}
+
+test fourier-api-3.6 "lowpass: wrong # args" -body {
+    ::math::fourier::lowpass 1.0
+} -returnCodes error -result {wrong # args: should be "::math::fourier::lowpass cutoff in_data"}
+
+test fourier-api-4.1 "highpass: unit amplitudes" -match complex -body {
+    ::math::fourier::highpass 1.0 {{1 0} {1 0} {1 0}}
+} -result {{0.0 0.0} {0.5 0.5} {0.8 0.4}}
+
+test fourier-api-4.2 "highpass: zero frequency component is removed" -match complex -body {
+    lrange [::math::fourier::highpass 2.0 {{3 4} {1 0}}] 0 0
+} -result {{0.0 0.0}}
+
+# highpass returns the transfer function itself and ignores the amplitudes
+test fourier-api-4.3 "highpass: complex amplitudes are scaled" -constraints knownBug -match complex -body {
+    ::math::fourier::highpass 2.0 {{2 0} {2 2} {0 4}}
+} -result {{0.0 0.0} {-0.4 1.2} {-2.0 2.0}}
+
+test fourier-api-4.4 "highpass: lowpass + highpass is the identity" -constraints knownBug -match complex -body {
+    set data {{2 0} {2 2} {0 4} {-1 3}}
+    set low  [::math::fourier::lowpass 1.5 $data]
+    set high [::math::fourier::highpass 1.5 $data]
+    set result {}
+    foreach l $low h $high {
+	lappend result [::math::complexnumbers::+ $l $h]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain data low high result l h
+} -result {{2 0} {2 2} {0 4} {-1 3}}
+
+test fourier-api-4.5 "highpass: low frequencies are suppressed" -body {
+    set out [::math::fourier::highpass 10.0 [lrepeat 100 {1.0 0.0}]]
+    set mags {}
+    foreach c $out {
+	lappend mags [expr {hypot([lindex $c 0], [lindex $c 1])}]
+    }
+    list [expr {[lindex $mags 0] == 0.0}] \
+	[expr {[lindex $mags 1] < 0.1}] \
+	[expr {[lindex $mags end] > 0.99}]
+} -cleanup {
+    unset -nocomplain out mags c
+} -result {1 1 1}
+
+test fourier-api-4.6 "highpass: empty list" -body {
+    ::math::fourier::highpass 1.0 {}
+} -result {}
+
+test fourier-api-4.7 "highpass: wrong # args" -body {
+    ::math::fourier::highpass
+} -returnCodes error -result {wrong # args: should be "::math::fourier::highpass cutoff in_data"}
+
+# -------------------------------------------------------------------------
+
+rename matchComplexList {}
+rename refDft {}
+
+# End of test cases
+testsuiteCleanup

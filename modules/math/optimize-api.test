@@ -1,0 +1,138 @@
+# -*- tcl -*-
+# optimize-api.test --
+#    Additional tests for the documented API of math::optimize:
+#    linearProgramMaximum, and the maxerr argument and argument errors
+#    of minimum and maximum.
+#    (The rest of the API is tested in optimize.test.)
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal optimize.tcl math::optimize
+}
+
+# -------------------------------------------------------------------------
+
+proc ::matchTol {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach a $actual e $expected {
+        if {![string is double -strict $a]} {
+            return 0
+        }
+        set scale [expr {abs($e) > 1.0 ? abs($e) : 1.0}]
+        if {abs($a-$e) > $tol*$scale} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch approx9 {::matchTol 1.0e-9}
+customMatch approx6 {::matchTol 1.0e-6}
+
+proc ::optapi_parabola {x} {expr {($x-1.0)*($x-1.0)}}
+proc ::optapi_bump     {x} {expr {-($x-1.0)*($x-1.0)}}
+
+# -------------------------------------------------------------------------
+# linearProgramMaximum
+
+test optimize-api-1.1 {linearProgramMaximum - value of the objective} -match approx9 -body {
+    math::optimize::linearProgramMaximum {3.0 2.0} {4.0 0.0}
+} -result 12.0
+
+test optimize-api-1.2 {linearProgramMaximum - with the result of solveLinearProgram} -match approx6 -body {
+    # Maximise 3x + 2y with x + y <= 4, x + 3y <= 6: optimum at (4,0)
+    set objective {3.0 2.0}
+    set solution [math::optimize::solveLinearProgram $objective {{1.0 1.0 4.0} {1.0 3.0 6.0}}]
+    math::optimize::linearProgramMaximum $objective $solution
+} -cleanup {
+    unset -nocomplain objective solution
+} -result 12.0
+
+test optimize-api-1.3 {linearProgramMaximum - interior vertex} -match approx6 -body {
+    # Maximise x + y with 2x + y <= 4, x + 2y <= 4: optimum at (4/3,4/3)
+    set objective {1.0 1.0}
+    set solution [math::optimize::solveLinearProgram $objective {{2.0 1.0 4.0} {1.0 2.0 4.0}}]
+    list {*}$solution [math::optimize::linearProgramMaximum $objective $solution]
+} -cleanup {
+    unset -nocomplain objective solution
+} -result [list [expr {4.0/3.0}] [expr {4.0/3.0}] [expr {8.0/3.0}]]
+
+test optimize-api-1.4 {linearProgramMaximum - three variables} -match approx6 -body {
+    set objective {1.0 1.0 1.0}
+    set solution [math::optimize::solveLinearProgram $objective {
+	{1.0 1.0 2.0 1.0}
+	{1.0 2.0 1.0 1.0}
+	{2.0 1.0 1.0 1.0}
+    }]
+    math::optimize::linearProgramMaximum $objective $solution
+} -cleanup {
+    unset -nocomplain objective solution
+} -result 0.75
+
+test optimize-api-1.5 {linearProgramMaximum - integer input} -match approx9 -body {
+    math::optimize::linearProgramMaximum {1 2 3} {1 1 1}
+} -result 6.0
+
+test optimize-api-1.6 {linearProgramMaximum - empty program} -body {
+    math::optimize::linearProgramMaximum {} {}
+} -result 0.0
+
+test optimize-api-1.7 {linearProgramMaximum - wrong # args} -body {
+    math::optimize::linearProgramMaximum {1.0 2.0}
+} -returnCodes error -result {wrong # args: should be "math::optimize::linearProgramMaximum objective result"}
+
+# -------------------------------------------------------------------------
+# minimum, maximum
+
+test optimize-api-2.1 {minimum - explicit maxerr gives a more accurate result} -body {
+    set x [math::optimize::minimum 0.0 3.0 ::optapi_parabola 1.0e-8]
+    expr {abs($x-1.0) < 1.0e-6}
+} -cleanup {
+    unset -nocomplain x
+} -result 1
+
+test optimize-api-2.2 {maximum - explicit maxerr gives a more accurate result} -body {
+    set x [math::optimize::maximum 0.0 3.0 ::optapi_bump 1.0e-8]
+    expr {abs($x-1.0) < 1.0e-6}
+} -cleanup {
+    unset -nocomplain x
+} -result 1
+
+test optimize-api-2.3 {maximum - monotonic function: maximum at the end} -body {
+    set x [math::optimize::maximum 0.0 3.0 ::optapi_parabola]
+    expr {abs($x-3.0) < 1.0e-3}
+} -cleanup {
+    unset -nocomplain x
+} -result 1
+
+test optimize-api-2.4 {minimum - wrong # args} -body {
+    math::optimize::minimum 0.0 3.0
+} -returnCodes error -result {wrong # args: should be "math::optimize::minimum begin end func ?maxerr?"}
+
+test optimize-api-2.5 {maximum - wrong # args} -body {
+    math::optimize::maximum 0.0 3.0 ::optapi_bump 1.0e-4 extra
+} -returnCodes error -result {wrong # args: should be "math::optimize::maximum begin end func ?maxerr?"}
+
+test optimize-api-3.1 {solveLinearProgram - wrong # args} -body {
+    math::optimize::solveLinearProgram {1.0 1.0}
+} -returnCodes error -result {wrong # args: should be "math::optimize::solveLinearProgram objective constraints"}
+
+# -------------------------------------------------------------------------
+
+rename ::matchTol {}
+rename ::optapi_parabola {}
+rename ::optapi_bump {}
+
+testsuiteCleanup

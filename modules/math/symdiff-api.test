@@ -1,0 +1,111 @@
+# -*- tcl -*-
+# symdiff-api.test --
+#    Additional tests for the documented API of math::calculus::symdiff:
+#    the jacobian command and argument errors of symdiff.
+#    (symdiff itself is tested thoroughly in symdiff.test.)
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use     grammar_aycock/aycock-runtime.tcl grammar::aycock::runtime grammar::aycock
+    useKeep grammar_aycock/aycock-debug.tcl   grammar::aycock::debug   grammar::aycock
+    useKeep grammar_aycock/aycock-build.tcl   grammar::aycock          grammar::aycock
+}
+testing {
+    useLocal symdiff.tcl math::calculus::symdiff
+}
+
+# -------------------------------------------------------------------------
+
+# Evaluate every expression of a Jacobian (list of lists of expressions)
+# for the given variable values and return the numeric matrix.
+proc ::evalJacobian {jacobian values} {
+    dict with values {}
+    set result {}
+    foreach row $jacobian {
+	set r {}
+	foreach e $row {
+	    lappend r [expr "double($e)"]
+	}
+	lappend result $r
+    }
+    return $result
+}
+
+# -------------------------------------------------------------------------
+
+test symdiff-api-1.1 {jacobian - single equation} -body {
+    evalJacobian [math::calculus::symdiff::jacobian {x {$x*$x}}] {x 3.0}
+} -result {6.0}
+
+test symdiff-api-1.2 {jacobian - two equations, sublist j is the gradient of expression j} -body {
+    set J [math::calculus::symdiff::jacobian {x {$x*$y} y {$x+2*$y}}]
+    evalJacobian $J {x 3.0 y 5.0}
+} -cleanup {
+    unset J
+} -result {{5.0 3.0} {1.0 2.0}}
+
+test symdiff-api-1.3 {jacobian - three equations} -body {
+    set J [math::calculus::symdiff::jacobian {
+	x {sin($x)}
+	y {$y*$y}
+	z {$x*$z}
+    }]
+    list [llength $J] [llength [lindex $J 0]] \
+	[evalJacobian $J {x 0.0 y 2.0 z 4.0}]
+} -cleanup {
+    unset J
+} -result {3 3 {{1.0 0.0 0.0} {0.0 4.0 0.0} {4.0 0.0 0.0}}}
+
+test symdiff-api-1.4 {jacobian - result contains Tcl expressions} -body {
+    lindex [math::calculus::symdiff::jacobian {x {exp($x)} y {$y}}] 0 0
+} -result {exp($x)}
+
+test symdiff-api-1.5 {jacobian - empty list} -body {
+    math::calculus::symdiff::jacobian {}
+} -returnCodes error -result {list of variables and expressions must have an odd number of elements}
+
+test symdiff-api-1.6 {jacobian - odd number of elements} -body {
+    math::calculus::symdiff::jacobian {x {$x} y}
+} -returnCodes error -result {list of variables and expressions must have an odd number of elements}
+
+test symdiff-api-1.7 {jacobian - expression that cannot be parsed} -body {
+    math::calculus::symdiff::jacobian {x {$x+} y 1}
+} -returnCodes error -result {syntax error: incomplete parse}
+
+test symdiff-api-1.8 {jacobian - function that cannot be differentiated} -body {
+    math::calculus::symdiff::jacobian {x {int($x)}}
+} -returnCodes error -result {symdiff can't differentiate the "int" function}
+
+test symdiff-api-1.9 {jacobian - wrong # args} -body {
+    math::calculus::symdiff::jacobian
+} -returnCodes error -result {wrong # args: should be "math::calculus::symdiff::jacobian list"}
+
+test symdiff-api-1.10 {jacobian - available under the documented name math::calculus::jacobian} -constraints knownBug -body {
+    evalJacobian [math::calculus::jacobian {x {$x*$x}}] {x 3.0}
+} -result {6.0}
+
+test symdiff-api-1.11 {jacobian, symdiff - exported} -body {
+    lsort [namespace eval ::math::calculus::symdiff {namespace export}]
+} -result {jacobian symdiff}
+
+test symdiff-api-2.1 {symdiff - wrong # args} -body {
+    math::calculus::symdiff::symdiff {$x}
+} -returnCodes error -result {wrong # args: should be "math::calculus::symdiff::symdiff expr var"}
+
+test symdiff-api-2.2 {symdiff - derivative w.r.t. a variable not in the expression} -body {
+    math::calculus::symdiff::symdiff {$x*$x} y
+} -result 0.0
+
+# -------------------------------------------------------------------------
+
+rename ::evalJacobian {}
+
+testsuiteCleanup

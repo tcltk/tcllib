@@ -1,0 +1,110 @@
+# -*- tcl -*-
+# textwindow-api.test:  Tests for the documented API of package tcl::chan::textwindow
+#
+# The widget is replaced by a recording command, so Tk is not needed.
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal textwindow.tcl tcl::chan::textwindow
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+proc fakewidget {args} {
+    lappend ::calls $args
+    return
+}
+
+test tcl-chan-textwindow-api-1.0 {constructor, wrong # args, none} -body {
+    tcl::chan::textwindow
+} -returnCodes error -result {wrong # args: should be "tcl::chan::textwindow w"}
+
+test tcl-chan-textwindow-api-1.1 {constructor, wrong # args, too many} -body {
+    tcl::chan::textwindow .t X
+} -returnCodes error -result {wrong # args: should be "tcl::chan::textwindow w"}
+
+test tcl-chan-textwindow-api-1.2 {new channel is unbuffered, utf-8, write-only} -setup {
+    set c [tcl::chan::textwindow fakewidget]
+} -body {
+    list [fconfigure $c -buffering] [fconfigure $c -encoding] \
+	[catch {read $c} msg] [string match {*wasn't opened for reading} $msg]
+} -cleanup {
+    close $c
+    unset c msg
+} -result {none utf-8 1 1}
+
+test tcl-chan-textwindow-api-1.3 {close removes the channel and its handler} -body {
+    set c [tcl::chan::textwindow fakewidget]
+    close $c
+    list [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::textwindow::implementation]
+} -cleanup {
+    unset c
+} -result {0 {}}
+
+test tcl-chan-textwindow-api-2.0 {written text is inserted at the end and shown} -setup {
+    set ::calls {}
+    set c [tcl::chan::textwindow fakewidget]
+} -body {
+    puts -nonewline $c hello
+    set ::calls
+} -cleanup {
+    close $c
+    unset c ::calls
+} -result {{insert end hello} {see end}}
+
+test tcl-chan-textwindow-api-2.1 {non-ASCII text arrives unchanged} -setup {
+    set ::calls {}
+    set c [tcl::chan::textwindow fakewidget]
+} -body {
+    puts -nonewline $c "a\u0105\u0439"
+    lindex $::calls 0
+} -cleanup {
+    close $c
+    unset c ::calls
+} -result [list insert end "a\u0105\u0439"]
+
+test tcl-chan-textwindow-api-2.2 {each write goes to the widget immediately} -setup {
+    set ::calls {}
+    set c [tcl::chan::textwindow fakewidget]
+} -body {
+    puts $c one
+    set n [llength $::calls]
+    puts $c two
+    set text {}
+    foreach call $::calls {
+	if {[lindex $call 0] eq "insert"} {append text [lindex $call 2]}
+    }
+    list [expr {$n > 0}] $text
+} -cleanup {
+    close $c
+    unset c ::calls n text call
+} -result [list 1 "one\ntwo\n"]
+
+test tcl-chan-textwindow-api-2.3 {not seekable} -setup {
+    set c [tcl::chan::textwindow fakewidget]
+} -body {
+    list [tell $c] [catch {seek $c 0} msg] $msg
+} -cleanup {
+    close $c
+    unset c msg
+} -match glob -result {-1 1 {error during seek on "*": invalid argument}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename fakewidget {}
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

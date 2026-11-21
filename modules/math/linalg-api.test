@@ -1,0 +1,594 @@
+# -*- tcl -*-
+# linalg-api.test --
+#    Additional tests for the math::linearalgebra package: documented
+#    commands not covered by linalg.test, plus edge and error cases.
+#
+# Copyright (c) 2026 by Serhiy Storchaka
+# All rights reserved.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal linalg.tcl math::linearalgebra
+}
+
+# -------------------------------------------------------------------------
+
+# Tolerant comparison: nested lists are flattened, numbers are compared
+# with a relative/absolute tolerance of 1e-9, other words exactly.
+proc linalgApiFlatten {list} {
+    set result {}
+    foreach e $list {
+	if {[llength $e] > 1} {
+	    lappend result {*}[linalgApiFlatten $e]
+	} else {
+	    lappend result $e
+	}
+    }
+    return $result
+}
+proc linalgApiMatch {expected actual} {
+    set expected [linalgApiFlatten $expected]
+    set actual   [linalgApiFlatten $actual]
+    if {[llength $expected] != [llength $actual]} {
+	return 0
+    }
+    foreach e $expected a $actual {
+	if {[string is double -strict $e] && [string is double -strict $a]} {
+	    if {abs($e - $a) > 1.0e-9 * max(1.0, abs($e))} {
+		return 0
+	    }
+	} elseif {$e ne $a} {
+	    return 0
+	}
+    }
+    return 1
+}
+customMatch tolerant linalgApiMatch
+
+# -------------------------------------------------------------------------
+# crossproduct
+# -------------------------------------------------------------------------
+
+test linalg-api-1.1 {crossproduct: unit vectors} -body {
+    list [::math::linearalgebra::crossproduct {1 0 0} {0 1 0}] \
+	[::math::linearalgebra::crossproduct {0 1 0} {0 0 1}] \
+	[::math::linearalgebra::crossproduct {0 0 1} {1 0 0}]
+} -match tolerant -result {{0 0 1} {1 0 0} {0 1 0}}
+
+test linalg-api-1.2 {crossproduct: general vectors} -body {
+    ::math::linearalgebra::crossproduct {1 2 3} {4 5 6}
+} -match tolerant -result {-3 6 -3}
+
+test linalg-api-1.3 {crossproduct: anticommutative} -body {
+    ::math::linearalgebra::crossproduct {4 5 6} {1 2 3}
+} -match tolerant -result {3 -6 3}
+
+test linalg-api-1.4 {crossproduct: parallel vectors} -body {
+    ::math::linearalgebra::crossproduct {1 2 3} {2 4 6}
+} -match tolerant -result {0 0 0}
+
+test linalg-api-1.5 {crossproduct: 2D vectors} -body {
+    ::math::linearalgebra::crossproduct {1 2} {3 4}
+} -returnCodes error -result {Cross-product only defined for 3D vectors}
+
+test linalg-api-1.6 {crossproduct: 4D vectors} -body {
+    ::math::linearalgebra::crossproduct {1 2 3 4} {1 2 3 4}
+} -returnCodes error -result {Cross-product only defined for 3D vectors}
+
+test linalg-api-1.7 {crossproduct: wrong # args} -body {
+    ::math::linearalgebra::crossproduct {1 2 3}
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::crossproduct vect1 vect2"}
+
+# -------------------------------------------------------------------------
+# angle
+# -------------------------------------------------------------------------
+
+test linalg-api-2.1 {angle: perpendicular vectors (radians)} -body {
+    ::math::linearalgebra::angle {1 0} {0 1}
+} -match tolerant -result 1.5707963267948966
+
+test linalg-api-2.2 {angle: 45 degrees} -body {
+    ::math::linearalgebra::angle {1 0} {1 1}
+} -match tolerant -result 0.7853981633974483
+
+test linalg-api-2.3 {angle: opposite vectors} -body {
+    ::math::linearalgebra::angle {1 0 0} {-2 0 0}
+} -match tolerant -result 3.141592653589793
+
+test linalg-api-2.4 {angle: null vector} -body {
+    ::math::linearalgebra::angle {1 0} {0 0}
+} -returnCodes error -result {Angle not defined for null vector}
+
+test linalg-api-2.5 {angle: wrong # args} -body {
+    ::math::linearalgebra::angle {1 0}
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::angle vect1 vect2"}
+
+# -------------------------------------------------------------------------
+# norm_one / norm_two / norm_max / norm / normMatrix
+# -------------------------------------------------------------------------
+
+test linalg-api-3.1 {norm_one: sum of absolute values} -body {
+    ::math::linearalgebra::norm_one {1 -2 3}
+} -match tolerant -result 6.0
+
+test linalg-api-3.2 {norm_one: empty vector} -body {
+    ::math::linearalgebra::norm_one {}
+} -match tolerant -result 0.0
+
+test linalg-api-3.3 {norm_two: Euclidean norm} -body {
+    ::math::linearalgebra::norm_two {3 -4}
+} -match tolerant -result 5.0
+
+test linalg-api-3.4 {norm_two: no overflow for large components} -body {
+    expr {[::math::linearalgebra::norm_two {1e200 1e200}] / 1e200}
+} -match tolerant -result 1.4142135623730951
+
+test linalg-api-3.5 {norm_two: no underflow for small components} -body {
+    expr {[::math::linearalgebra::norm_two {3e-200 4e-200}] / 1e-200}
+} -match tolerant -result 5.0
+
+test linalg-api-3.6 {norm_max: maximum absolute value} -body {
+    ::math::linearalgebra::norm_max {1 -5 3}
+} -match tolerant -result 5
+
+test linalg-api-3.7 {norm_max: with index} -body {
+    ::math::linearalgebra::norm_max {1 -5 3} 1
+} -match tolerant -result {5 1}
+
+test linalg-api-3.8 {norm_max: negative first element} -body {
+    list [::math::linearalgebra::norm_max {-5 1}] \
+	[::math::linearalgebra::norm_max {-5 1} 1]
+} -match tolerant -result {5 {5 0}}
+
+test linalg-api-3.9 {norm_max: index 0 returns only the value} -body {
+    ::math::linearalgebra::norm_max {2 -7 3} 0
+} -match tolerant -result 7
+
+test linalg-api-3.10 {norm: all documented types} -body {
+    set v {1 -2 2}
+    list [::math::linearalgebra::norm $v 1] [::math::linearalgebra::norm $v 2] \
+	[::math::linearalgebra::norm $v inf] [::math::linearalgebra::norm $v max] \
+	[::math::linearalgebra::norm $v]
+} -cleanup {
+    unset v
+} -match tolerant -result {5.0 3.0 2 2 3.0}
+
+test linalg-api-3.11 {norm: unknown type} -body {
+    ::math::linearalgebra::norm {1 2} 3
+} -returnCodes error -result {Unknown norm: 3}
+
+test linalg-api-3.12 {normMatrix: all documented types} -body {
+    set m {{1 2} {3 4}}
+    list [::math::linearalgebra::normMatrix $m 1] [::math::linearalgebra::normMatrix $m 2] \
+	[::math::linearalgebra::normMatrix $m inf] [::math::linearalgebra::normMatrix $m max] \
+	[::math::linearalgebra::normMatrix $m]
+} -cleanup {
+    unset m
+} -match tolerant -result {10.0 5.477225575051661 4 4 5.477225575051661}
+
+test linalg-api-3.13 {normMatrix: unknown type} -body {
+    ::math::linearalgebra::normMatrix {{1 2}} x
+} -returnCodes error -result {Unknown norm: x}
+
+test linalg-api-3.14 {norm_max: wrong # args} -body {
+    ::math::linearalgebra::norm_max
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::norm_max vector ?index?"}
+
+# -------------------------------------------------------------------------
+# mkUnitVector / mkOnes / mkRandom / mkFrank and other matrix makers
+# -------------------------------------------------------------------------
+
+test linalg-api-4.1 {mkUnitVector: direction 1 in 3D} -body {
+    ::math::linearalgebra::mkUnitVector 3 1
+} -match tolerant -result {0 1 0}
+
+test linalg-api-4.2 {mkUnitVector: first and last direction} -body {
+    list [::math::linearalgebra::mkUnitVector 4 0] [::math::linearalgebra::mkUnitVector 4 3]
+} -match tolerant -result {{1 0 0 0} {0 0 0 1}}
+
+test linalg-api-4.3 {mkUnitVector: one-dimensional} -body {
+    ::math::linearalgebra::mkUnitVector 1 0
+} -match tolerant -result 1
+
+test linalg-api-4.4 {mkUnitVector: direction too large} -body {
+    ::math::linearalgebra::mkUnitVector 3 3
+} -returnCodes error -result {Invalid direction for unit vector - 3}
+
+test linalg-api-4.5 {mkUnitVector: negative direction} -body {
+    ::math::linearalgebra::mkUnitVector 3 -1
+} -returnCodes error -result {Invalid direction for unit vector - -1}
+
+test linalg-api-4.6 {mkUnitVector: wrong # args} -body {
+    ::math::linearalgebra::mkUnitVector 3
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::mkUnitVector ndim dir"}
+
+test linalg-api-4.7 {mkOnes: 2x2} -body {
+    ::math::linearalgebra::mkOnes 2
+} -match tolerant -result {{1 1} {1 1}}
+
+test linalg-api-4.8 {mkOnes: shape} -body {
+    ::math::linearalgebra::shape [::math::linearalgebra::mkOnes 4]
+} -result {4 4}
+
+test linalg-api-4.9 {mkRandom: shape and range} -body {
+    set m [::math::linearalgebra::mkRandom 5]
+    set ok 1
+    foreach row $m {
+	foreach e $row {
+	    if {$e < 0.0 || $e > 1.0} {set ok 0}
+	}
+    }
+    list [::math::linearalgebra::shape $m] $ok
+} -cleanup {
+    unset -nocomplain m ok row e
+} -result {{5 5} 1}
+
+test linalg-api-4.10 {mkRandom: size 0} -body {
+    ::math::linearalgebra::mkRandom 0
+} -result {}
+
+test linalg-api-4.11 {mkFrank: shape} -body {
+    ::math::linearalgebra::shape [::math::linearalgebra::mkFrank 4]
+} -result {4 4}
+
+# Frank matrices (both Frank's original upper Hessenberg matrix and Nash's
+# symmetric variant min(i,j)) have determinant 1.  mkFrank returns
+# min(i,j)-2 (0-based), whose determinant is -2.
+test linalg-api-4.12 {mkFrank: determinant is 1} -constraints knownBug -body {
+    list [::math::linearalgebra::det [::math::linearalgebra::mkFrank 3]] \
+	[::math::linearalgebra::det [::math::linearalgebra::mkFrank 5]]
+} -match tolerant -result {1.0 1.0}
+
+test linalg-api-4.13 {mkMoler: 4x4} -body {
+    ::math::linearalgebra::mkMoler 4
+} -match tolerant -result {{1 -1 -1 -1} {-1 2 0 0} {-1 0 3 1} {-1 0 1 4}}
+
+test linalg-api-4.14 {mkMoler: Choleski factor is unit lower triangular} -body {
+    ::math::linearalgebra::choleski [::math::linearalgebra::mkMoler 3]
+} -match tolerant -result {{1 0 0} {-1 1 0} {-1 -1 1}}
+
+test linalg-api-4.15 {mkDingdong: 3x3} -body {
+    ::math::linearalgebra::mkDingdong 3
+} -match tolerant -result {{0.2 0.3333333333333333 1.0} {0.3333333333333333 1.0 -1.0} {1.0 -1.0 -0.3333333333333333}}
+
+test linalg-api-4.16 {mkDingdong: symmetric} -body {
+    ::math::linearalgebra::symmetric [::math::linearalgebra::mkDingdong 6]
+} -result 1
+
+test linalg-api-4.17 {mkBorder: 3x3} -body {
+    ::math::linearalgebra::mkBorder 3
+} -match tolerant -result {{1 0 1} {0 1 0.5} {1 0.5 1}}
+
+test linalg-api-4.18 {mkWilkinsonW+ and W-: order 3} -body {
+    list [::math::linearalgebra::mkWilkinsonW+ 3] [::math::linearalgebra::mkWilkinsonW- 3]
+} -match tolerant -result {{{1 1 0} {1 0 1} {0 1 1}} {{1 1 0} {1 0 1} {0 1 -1}}}
+
+test linalg-api-4.19 {mkTriangular: default upper with value 1} -body {
+    ::math::linearalgebra::mkTriangular 3
+} -match tolerant -result {{1 1 1} {0 1 1} {0 0 1}}
+
+test linalg-api-4.20 {mkTriangular: lower with given value} -body {
+    ::math::linearalgebra::mkTriangular 3 L 2
+} -match tolerant -result {{2 0 0} {2 2 0} {2 2 2}}
+
+test linalg-api-4.21 {mkTriangular: bad uplo} -body {
+    ::math::linearalgebra::mkTriangular 3 X
+} -returnCodes error -result {Unknown value for parameter uplo : X}
+
+test linalg-api-4.22 {mkIdentity, mkDiagonal, mkVector, mkMatrix: empty} -body {
+    list [::math::linearalgebra::mkIdentity 0] [::math::linearalgebra::mkDiagonal {}] \
+	[::math::linearalgebra::mkVector 0] [::math::linearalgebra::mkMatrix 0 3]
+} -result {{} {} {} {}}
+
+test linalg-api-4.23 {mkVector, mkMatrix: default value is 0.0} -body {
+    list [::math::linearalgebra::mkVector 2] [::math::linearalgebra::mkMatrix 1 2]
+} -result {{0.0 0.0} {{0.0 0.0}}}
+
+test linalg-api-4.24 {mkMatrix: wrong # args} -body {
+    ::math::linearalgebra::mkMatrix 1
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::mkMatrix nrows ncols ?value?"}
+
+# -------------------------------------------------------------------------
+# show
+# -------------------------------------------------------------------------
+
+test linalg-api-5.1 {show: vector with default format} -body {
+    ::math::linearalgebra::show {1 2 3}
+} -result "1.0000\n2.0000\n3.0000\n"
+
+test linalg-api-5.2 {show: matrix with default format} -body {
+    ::math::linearalgebra::show {{1 2} {3 4}}
+} -result "1.0000 2.0000 \n3.0000 4.0000 \n"
+
+test linalg-api-5.3 {show: custom format and separators} -body {
+    ::math::linearalgebra::show {{1 2} {3 4}} %g | ,
+} -result "1,2,|3,4,|"
+
+test linalg-api-5.4 {show: vector with custom row separator} -body {
+    ::math::linearalgebra::show {1.5 2.25} %.2f { }
+} -result "1.50 2.25 "
+
+test linalg-api-5.5 {show: wrong # args} -body {
+    ::math::linearalgebra::show
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::show obj ?format? ?rowsep? ?colsep?"}
+
+# -------------------------------------------------------------------------
+# transpose / matmul / rotate / scale (matrix forms)
+# -------------------------------------------------------------------------
+
+test linalg-api-6.1 {transpose: 2x3 matrix} -body {
+    ::math::linearalgebra::transpose {{1 2 3} {4 5 6}}
+} -result {{1 4} {2 5} {3 6}}
+
+test linalg-api-6.2 {transpose: twice gives the original} -body {
+    ::math::linearalgebra::transpose [::math::linearalgebra::transpose {{1 2 3} {4 5 6}}]
+} -result {{1 2 3} {4 5 6}}
+
+test linalg-api-6.3 {matmul: outer product of two vectors} -body {
+    ::math::linearalgebra::matmul {1 2} {3 4}
+} -match tolerant -result {{3 4} {6 8}}
+
+test linalg-api-6.4 {matmul: matrix times vector} -body {
+    ::math::linearalgebra::matmul {{1 2} {3 4}} {1 1}
+} -match tolerant -result {3 7}
+
+test linalg-api-6.5 {matmul: vector times matrix} -body {
+    ::math::linearalgebra::matmul {1 1} {{1 2} {3 4}}
+} -match tolerant -result {4 6}
+
+test linalg-api-6.6 {matmul: matrix times row vector} -body {
+    ::math::linearalgebra::matmul {{1 2}} {{1 2}}
+} -returnCodes error -result {Can not multiply a matrix with a row vector - wrong order}
+
+test linalg-api-6.7 {rotate: c*x-s*y and s*x+c*y} -body {
+    ::math::linearalgebra::rotate 0 1 {1 2} {3 4}
+} -match tolerant -result {{-3 -4} {1 2}}
+
+test linalg-api-6.8 {scale: matrix} -body {
+    ::math::linearalgebra::scale 2 {{1 2} {3 4}}
+} -match tolerant -result {{2 4} {6 8}}
+
+# -------------------------------------------------------------------------
+# Error cases of basic operations
+# -------------------------------------------------------------------------
+
+test linalg-api-7.1 {conforming: unknown type} -body {
+    ::math::linearalgebra::conforming foo {1} {1}
+} -returnCodes error -result {Unknown type of conforming check - foo - should be one of: shape rows matmul}
+
+test linalg-api-7.2 {unitLengthVector: null vector} -body {
+    ::math::linearalgebra::unitLengthVector {0 0}
+} -returnCodes error -result {Can not normalize a null-vector}
+
+test linalg-api-7.3 {unitLengthVector: 4D vector} -body {
+    ::math::linearalgebra::unitLengthVector {1 1 1 1}
+} -match tolerant -result {0.5 0.5 0.5 0.5}
+
+test linalg-api-7.4 {dotproduct: vectors of different length} -body {
+    ::math::linearalgebra::dotproduct {1 2} {3 4 5}
+} -returnCodes error -result {Vectors must be of equal length}
+
+test linalg-api-7.5 {symmetric: tolerance argument} -body {
+    list [::math::linearalgebra::symmetric {{1 2} {2.1 1}}] \
+	[::math::linearalgebra::symmetric {{1 2} {2.1 1}} 0.2]
+} -result {0 1}
+
+test linalg-api-7.6 {normalizeStat: matrix columns} -body {
+    ::math::linearalgebra::normalizeStat {{1 2} {3 4} {5 6}}
+} -match tolerant -result {{-1 -1} {0 0} {1 1}}
+
+# -------------------------------------------------------------------------
+# solveGaussBand / solveTriangularBand
+#
+# Band storage: row i holds the elements A(i,i-m) ... A(i,i+m), the main
+# diagonal is in the middle column.  For a symmetric tridiagonal matrix
+# every reading of the storage description in the man page gives the same
+# band matrix.
+# -------------------------------------------------------------------------
+
+test linalg-api-8.1 {solveTriangularBand: diagonal matrix} -body {
+    ::math::linearalgebra::solveTriangularBand {{0 2 0} {0 3 0}} {{4} {6}}
+} -match tolerant -result {2 2}
+
+# The band solvers give wrong results for most matrices with more than two
+# rows, even diagonal ones, and as soon as there are off-diagonal elements.
+test linalg-api-8.2 {solveGaussBand: diagonal matrix} -constraints knownBug -body {
+    ::math::linearalgebra::solveGaussBand {{0 2 0} {0 4 0} {0 5 0}} {{2} {8} {10}}
+} -match tolerant -result {1 2 2}
+
+test linalg-api-8.3 {solveTriangularBand: upper bidiagonal matrix} -constraints knownBug -body {
+    # A = {{1 1 0} {0 1 1} {0 0 1}}, x = {1 1 1}
+    ::math::linearalgebra::solveTriangularBand {{0 1 1} {0 1 1} {0 1 0}} {{2} {2} {1}}
+} -match tolerant -result {1 1 1}
+
+test linalg-api-8.4 {solveGaussBand: tridiagonal matrix} -constraints knownBug -body {
+    # A = {{2 -1 0} {-1 2 -1} {0 -1 2}}, x = {1 2 3}
+    ::math::linearalgebra::solveGaussBand {{0 2 -1} {-1 2 -1} {-1 2 0}} {{0} {0} {4}}
+} -match tolerant -result {1 2 3}
+
+test linalg-api-8.5 {solveGaussBand: agrees with solveGauss} -constraints knownBug -body {
+    set band {{0 4 1} {1 4 1} {1 4 1} {1 4 0}}
+    set full {{4 1 0 0} {1 4 1 0} {0 1 4 1} {0 0 1 4}}
+    set b    {5 6 6 5}
+    set x1 [::math::linearalgebra::solveGaussBand $band [::math::linearalgebra::transpose [list $b]]]
+    set x2 [::math::linearalgebra::solveGauss $full $b]
+    list $x1 $x2
+} -cleanup {
+    unset -nocomplain band full b x1 x2
+} -match tolerant -result {{1 1 1 1} {1 1 1 1}}
+
+test linalg-api-8.6 {solveGaussBand: wrong # args} -body {
+    ::math::linearalgebra::solveGaussBand {{0 1 0}}
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::solveGaussBand matrix bvect"}
+
+test linalg-api-8.7 {solveTriangularBand: wrong # args} -body {
+    ::math::linearalgebra::solveTriangularBand {{0 1 0}}
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::solveTriangularBand matrix bvect"}
+
+# -------------------------------------------------------------------------
+# Other solvers and decompositions: properties not checked by linalg.test
+# -------------------------------------------------------------------------
+
+test linalg-api-9.1 {solvePGauss: needs pivoting} -body {
+    ::math::linearalgebra::solvePGauss {{0 1} {1 0}} {2 3}
+} -match tolerant -result {3 2}
+
+test linalg-api-9.2 {solveGauss: several right-hand sides} -body {
+    ::math::linearalgebra::solveGauss {{2 -1 0} {-1 2 -1} {0 -1 2}} {{0 1} {0 0} {4 1}}
+} -match tolerant -result {{1 1} {2 1} {3 1}}
+
+test linalg-api-9.3 {determineSVD: A = U S Vt for a non-symmetric square matrix} -body {
+    set A {{4 0} {3 -5}}
+    lassign [::math::linearalgebra::determineSVD $A] U S V
+    ::math::linearalgebra::matmul [::math::linearalgebra::matmul $U \
+	[::math::linearalgebra::mkDiagonal $S]] [::math::linearalgebra::transpose $V]
+} -cleanup {
+    unset -nocomplain A U S V
+} -match tolerant -result {{4 0} {3 -5}}
+
+test linalg-api-9.4 {determineSVD: A = U S Vt for a 3x2 matrix (thin U)} -body {
+    set A {{1 2} {3 4} {5 6}}
+    lassign [::math::linearalgebra::determineSVD $A] U S V
+    list [::math::linearalgebra::shape $U] [llength $S] [::math::linearalgebra::shape $V] \
+	[::math::linearalgebra::matmul [::math::linearalgebra::matmul $U \
+	     [::math::linearalgebra::mkDiagonal $S]] [::math::linearalgebra::transpose $V]]
+} -cleanup {
+    unset -nocomplain A U S V
+} -match tolerant -result {{3 2} 2 {2 2} {{1 2} {3 4} {5 6}}}
+
+test linalg-api-9.5 {determineSVD: singular values of a diagonal matrix} -body {
+    lsort -real -decreasing [lindex [::math::linearalgebra::determineSVD {{2 0} {0 3}}] 1]
+} -match tolerant -result {3 2}
+
+test linalg-api-9.6 {eigenvectorsSVD: A v = lambda v} -body {
+    set A {{2 1} {1 2}}
+    lassign [::math::linearalgebra::eigenvectorsSVD $A] E L
+    set res {}
+    foreach i {0 1} {
+	set v [::math::linearalgebra::getcol $E $i]
+	lappend res [::math::linearalgebra::norm \
+	    [::math::linearalgebra::sub [::math::linearalgebra::matmul $A $v] \
+		 [::math::linearalgebra::scale [lindex $L $i] $v]]]
+    }
+    list [lsort -real $L] $res
+} -cleanup {
+    unset -nocomplain A E L res i v
+} -match tolerant -result {{1 3} {0 0}}
+
+test linalg-api-9.7 {leastSquaresSVD: straight line with intercept} -body {
+    ::math::linearalgebra::leastSquaresSVD {{1 0} {1 1} {1 2} {1 3}} {1 3 5 7.1}
+} -match tolerant -result {0.98 2.03}
+
+test linalg-api-9.8 {leastSquaresSVD: qmin discards small singular values} -body {
+    # Rank-deficient system: the minimum-norm solution is returned
+    ::math::linearalgebra::leastSquaresSVD {{1 1} {1 1} {1 1}} {1 2 3} 1.0e-6
+} -match tolerant -result {1 1}
+
+test linalg-api-9.9 {largesteigen: symmetric 2x2 matrix} -body {
+    lassign [::math::linearalgebra::largesteigen {{2 1} {1 2}} 1.0e-10 200] value vector
+    list $value [::math::linearalgebra::unitLengthVector $vector]
+} -cleanup {
+    unset -nocomplain value vector
+} -match tolerant -result {3 {0.7071067811865475 0.7071067811865475}}
+
+test linalg-api-9.10 {det: 3x3 matrix} -body {
+    ::math::linearalgebra::det {{1 2 3} {4 5 6} {7 8 10}}
+} -match tolerant -result -3.0
+
+test linalg-api-9.11 {choleski: L Lt = A} -body {
+    set L [::math::linearalgebra::choleski {{4 2} {2 3}}]
+    list $L [::math::linearalgebra::matmul $L [::math::linearalgebra::transpose $L]]
+} -cleanup {
+    unset L
+} -match tolerant -result {{{2 0} {1 1.4142135623730951}} {{4 2} {2 3}}}
+
+test linalg-api-9.12 {orthonormalizeColumns: 2x2} -body {
+    ::math::linearalgebra::orthonormalizeColumns {{1 1} {0 1}}
+} -match tolerant -result {{1 0} {0 1}}
+
+test linalg-api-9.13 {orthonormalizeRows: 2x2} -body {
+    ::math::linearalgebra::orthonormalizeRows {{1 0} {1 1}}
+} -match tolerant -result {{1 0} {0 1}}
+
+# -------------------------------------------------------------------------
+# Element access on matrices given by name
+# -------------------------------------------------------------------------
+
+test linalg-api-10.1 {setcol: replaces a column} -body {
+    set M {{1 2 3} {4 5 6}}
+    list [::math::linearalgebra::setcol M 1 {7 8}] $M
+} -cleanup {
+    unset M
+} -result {{{1 7 3} {4 8 6}} {{1 7 3} {4 8 6}}}
+
+test linalg-api-10.2 {swapcols: whole columns} -body {
+    set M {{1 2 3} {4 5 6}}
+    ::math::linearalgebra::swapcols M 0 2
+} -cleanup {
+    unset M
+} -result {{3 2 1} {6 5 4}}
+
+test linalg-api-10.3 {getelem: matrix element} -body {
+    ::math::linearalgebra::getelem {{1 2} {3 4}} 1 0
+} -result 3
+
+# -------------------------------------------------------------------------
+# Wrong # args for other documented commands
+# -------------------------------------------------------------------------
+
+test linalg-api-11.1 {wrong # args: mkVector} -body {
+    ::math::linearalgebra::mkVector
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::mkVector ndim ?value?"}
+
+test linalg-api-11.2 {wrong # args: mkTriangular} -body {
+    ::math::linearalgebra::mkTriangular
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::mkTriangular size ?uplo? ?value?"}
+
+test linalg-api-11.3 {wrong # args: largesteigen} -body {
+    ::math::linearalgebra::largesteigen
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::largesteigen matrix ?tolerance? ?maxiter?"}
+
+test linalg-api-11.4 {wrong # args: determineSVD} -body {
+    ::math::linearalgebra::determineSVD
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::determineSVD A ?epsilon?"}
+
+test linalg-api-11.5 {wrong # args: leastSquaresSVD} -body {
+    ::math::linearalgebra::leastSquaresSVD {{1 0}}
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::leastSquaresSVD A y ?qmin? ?epsilon?"}
+
+test linalg-api-11.6 {wrong # args: dger} -body {
+    ::math::linearalgebra::dger
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::dger matrix alpha x y ?scope?"}
+
+test linalg-api-11.7 {wrong # args: symmetric} -body {
+    ::math::linearalgebra::symmetric
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::symmetric matrix ?eps?"}
+
+test linalg-api-11.8 {wrong # args: to_LA and from_LA} -body {
+    list [catch {::math::linearalgebra::to_LA} m1] $m1 \
+	[catch {::math::linearalgebra::from_LA} m2] $m2
+} -cleanup {
+    unset -nocomplain m1 m2
+} -result {1 {wrong # args: should be "::math::linearalgebra::to_LA mv"} 1 {wrong # args: should be "::math::linearalgebra::from_LA mv"}}
+
+test linalg-api-11.9 {wrong # args: conforming} -body {
+    ::math::linearalgebra::conforming shape {1}
+} -returnCodes error -result {wrong # args: should be "::math::linearalgebra::conforming type obj1 obj2"}
+
+# -------------------------------------------------------------------------
+
+rename linalgApiMatch {}
+rename linalgApiFlatten {}
+
+testsuiteCleanup

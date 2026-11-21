@@ -1,0 +1,238 @@
+# -*- tcl -*-
+# variable-api.test:  Tests for the documented API of package tcl::chan::variable
+# (supplements the existing tests, if any).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal variable.tcl tcl::chan::variable
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-variable-api-1.0 {constructor creates a missing variable as empty} -setup {
+    unset -nocomplain ::content
+} -body {
+    set c [tcl::chan::variable ::content]
+    list [info exists ::content] $::content
+} -cleanup {
+    close $c
+    unset c ::content
+} -result {1 {}}
+
+test tcl-chan-variable-api-1.1 {constructor keeps an existing value} -setup {
+    set ::content abc
+} -body {
+    set c [tcl::chan::variable ::content]
+    list $::content [read $c]
+} -cleanup {
+    close $c
+    unset c ::content
+} -result {abc abc}
+
+test tcl-chan-variable-api-1.2 {close removes the channel and its handler, keeps the variable} -setup {
+    set ::content abc
+} -body {
+    set c [tcl::chan::variable ::content]
+    set during [llength [info class instances ::tcl::chan::variable::implementation]]
+    close $c
+    list $during [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::variable::implementation] $::content
+} -cleanup {
+    unset c during ::content
+} -result {1 0 {} abc}
+
+test tcl-chan-variable-api-2.0 {writes are stored in the variable} -setup {
+    set ::content ""
+    set c [tcl::chan::variable ::content]
+    fconfigure $c -translation binary
+} -body {
+    puts -nonewline $c hello
+    flush $c
+    set ::content
+} -cleanup {
+    close $c
+    unset c ::content
+} -result hello
+
+test tcl-chan-variable-api-2.1 {write appends at the end after reading} -setup {
+    set ::content abc
+    set c [tcl::chan::variable ::content]
+    fconfigure $c -translation binary
+} -body {
+    read $c
+    puts -nonewline $c XYZ
+    flush $c
+    set ::content
+} -cleanup {
+    close $c
+    unset c ::content
+} -result abcXYZ
+
+test tcl-chan-variable-api-2.2 {overwrite in the middle} -setup {
+    set ::content abcdef
+    set c [tcl::chan::variable ::content]
+    fconfigure $c -translation binary
+} -body {
+    seek $c 2
+    puts -nonewline $c XY
+    flush $c
+    list $::content [tell $c]
+} -cleanup {
+    close $c
+    unset c ::content
+} -result {abXYef 4}
+
+test tcl-chan-variable-api-2.3 {overwrite across the end extends the variable} -setup {
+    set ::content abc
+    set c [tcl::chan::variable ::content]
+    fconfigure $c -translation binary
+} -body {
+    seek $c 2
+    puts -nonewline $c XYZ
+    flush $c
+    set ::content
+} -cleanup {
+    close $c
+    unset c ::content
+} -result abXYZ
+
+test tcl-chan-variable-api-2.4 {changes of the variable are seen by reading} -setup {
+    set ::content abc
+    set c [tcl::chan::variable ::content]
+} -body {
+    set ::content 123456
+    seek $c 0
+    read $c
+} -cleanup {
+    close $c
+    unset c ::content
+} -result 123456
+
+test tcl-chan-variable-api-2.5 {seek beyond the end pads the variable with nulls} -setup {
+    set ::content ab
+    set c [tcl::chan::variable ::content]
+} -body {
+    seek $c 4
+    binary encode hex $::content
+} -cleanup {
+    close $c
+    unset c ::content
+} -result 61620000
+
+test tcl-chan-variable-api-2.6 {namespace variable} -setup {
+    namespace eval ::vtest {variable data {}}
+    set c [tcl::chan::variable ::vtest::data]
+} -body {
+    puts $c hi
+    flush $c
+    set ::vtest::data
+} -cleanup {
+    close $c
+    unset c
+    namespace delete ::vtest
+} -result "hi\n"
+
+test tcl-chan-variable-api-2.7 {relative names are resolved globally} -setup {
+    unset -nocomplain ::content
+    proc vtestproc {} {
+	set content local
+	set c [tcl::chan::variable content]
+	puts -nonewline $c X
+	close $c
+	return $content
+    }
+} -body {
+    list [vtestproc] $::content
+} -cleanup {
+    rename vtestproc {}
+    unset ::content
+} -result {local X}
+
+test tcl-chan-variable-api-2.8 {two channels on one variable} -setup {
+    set ::content ""
+    set a [tcl::chan::variable ::content]
+    set b [tcl::chan::variable ::content]
+    fconfigure $a -translation binary
+} -body {
+    puts -nonewline $a shared
+    flush $a
+    read $b
+} -cleanup {
+    close $a
+    close $b
+    unset a b ::content
+} -result shared
+
+test tcl-chan-variable-api-3.0 {seek relative to current and end} -setup {
+    set ::content abcdefgh
+    set c [tcl::chan::variable ::content]
+} -body {
+    seek $c 2
+    seek $c 3 current
+    set a [read $c 1]
+    seek $c -2 end
+    list $a [read $c] [tell $c]
+} -cleanup {
+    close $c
+    unset c a ::content
+} -result {f gh 8}
+
+test tcl-chan-variable-api-3.1 {seek before the start is an error} -setup {
+    set ::content abc
+    set c [tcl::chan::variable ::content]
+} -body {
+    seek $c -1
+} -cleanup {
+    close $c
+    unset c ::content
+} -returnCodes error -result {Cannot seek before the start of the channel}
+
+test tcl-chan-variable-api-3.2 {seek before the start from end is an error} -setup {
+    set ::content abc
+    set c [tcl::chan::variable ::content]
+} -body {
+    seek $c -4 end
+} -cleanup {
+    close $c
+    unset c ::content
+} -returnCodes error -result {Cannot seek before the start of the channel}
+
+test tcl-chan-variable-api-4.0 {readable events up to eof (ticket 864a0c83e3)} -setup {
+    set ::content abcdefgh
+    set c [tcl::chan::variable ::content]
+    set ::result {}
+} -body {
+    fileevent $c readable {
+	if {[eof $c]} {
+	    fileevent $c readable {}
+	    set ::done 1
+	} else {
+	    lappend ::result [read $c 3]
+	}
+    }
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    list $::done $::result
+} -cleanup {
+    close $c
+    unset c id ::result ::done ::content
+} -result {1 {abc def gh}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

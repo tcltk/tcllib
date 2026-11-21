@@ -1,0 +1,228 @@
+# -*- tcl -*-
+# string-api.test:  Tests for the documented API of package tcl::chan::string
+# (supplements the existing tests, if any).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal string.tcl tcl::chan::string
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-string-api-1.0 {constructor returns a readable channel} -body {
+    set c [tcl::chan::string abc]
+    list [expr {$c in [file channels]}] [read $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {1 abc}
+
+test tcl-chan-string-api-1.1 {close removes the channel and its handler} -body {
+    set c [tcl::chan::string abc]
+    set during [llength [info class instances ::tcl::chan::string::implementation]]
+    close $c
+    list $during [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::string::implementation]
+} -cleanup {
+    unset c during
+} -result {1 0 {}}
+
+test tcl-chan-string-api-2.0 {read whole content, then eof} -setup {
+    set c [tcl::chan::string "hello world"]
+} -body {
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{hello world} 1}
+
+test tcl-chan-string-api-2.1 {partial reads advance the position} -setup {
+    set c [tcl::chan::string "hello world"]
+} -body {
+    list [read $c 5] [tell $c] [read $c 1] [read $c 100] [tell $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {hello 5 { } world 11 1}
+
+test tcl-chan-string-api-2.2 {gets, line by line} -setup {
+    set c [tcl::chan::string "line1\nline2\nlast"]
+} -body {
+    set r {}
+    while {[gets $c line] >= 0} {lappend r $line}
+    list $r [eof $c]
+} -cleanup {
+    close $c
+    unset c r line
+} -result {{line1 line2 last} 1}
+
+test tcl-chan-string-api-2.3 {empty content, immediate eof} -setup {
+    set c [tcl::chan::string ""]
+} -body {
+    list [read $c] [eof $c] [gets $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{} 1 {} 1}
+
+test tcl-chan-string-api-2.4 {binary content} -setup {
+    set data [binary format c* {0 1 2 -1 10 13 -128}]
+    set c [tcl::chan::string $data]
+    fconfigure $c -translation binary
+} -body {
+    string equal [read $c] $data
+} -cleanup {
+    close $c
+    unset c data
+} -result 1
+
+test tcl-chan-string-api-2.5 {content with non-Latin-1 characters} -constraints knownBug -setup {
+    # The read method returns characters instead of bytes.
+    set c [tcl::chan::string "a\u0105\u0439b"]
+    fconfigure $c -encoding utf-8
+} -body {
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -result "a\u0105\u0439b"
+
+test tcl-chan-string-api-2.6 {read-only: writing is an error} -setup {
+    set c [tcl::chan::string abc]
+} -body {
+    puts $c x
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -match glob -result {channel "*" wasn't opened for writing}
+
+test tcl-chan-string-api-2.7 {content is fixed at construction} -setup {
+    set data abc
+    set c [tcl::chan::string $data]
+} -body {
+    set data xyz
+    read $c
+} -cleanup {
+    close $c
+    unset c data
+} -result abc
+
+test tcl-chan-string-api-3.0 {seek from start, read} -setup {
+    set c [tcl::chan::string "hello world"]
+} -body {
+    seek $c 6
+    list [tell $c] [read $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {6 world}
+
+test tcl-chan-string-api-3.1 {seek relative to current} -setup {
+    set c [tcl::chan::string "hello world"]
+} -body {
+    read $c 3
+    seek $c 2 current
+    set a [read $c 3]
+    seek $c -4 current
+    list $a [read $c 2] [tell $c]
+} -cleanup {
+    close $c
+    unset c a
+} -result {{ wo} {o } 6}
+
+test tcl-chan-string-api-3.2 {seek relative to end, read tail} -setup {
+    set c [tcl::chan::string "hello world"]
+} -body {
+    seek $c -5 end
+    list [tell $c] [read $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {6 world}
+
+test tcl-chan-string-api-3.3 {seek back to start after eof} -setup {
+    set c [tcl::chan::string "abc"]
+} -body {
+    read $c
+    seek $c 0
+    list [eof $c] [read $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {0 abc}
+
+test tcl-chan-string-api-3.4 {seek before the start is an error} -setup {
+    set c [tcl::chan::string "abc"]
+} -body {
+    seek $c -1
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {Cannot seek before the start of the channel}
+
+test tcl-chan-string-api-3.5 {seek before the start from end is an error} -setup {
+    set c [tcl::chan::string "abc"]
+} -body {
+    seek $c -4 end
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {Cannot seek before the start of the channel}
+
+test tcl-chan-string-api-3.6 {seek after the end from current is an error} -setup {
+    set c [tcl::chan::string "abc"]
+} -body {
+    seek $c 4 current
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {Cannot seek after the end of the channel}
+
+test tcl-chan-string-api-3.7 {failed seek keeps the position} -setup {
+    set c [tcl::chan::string "abcdef"]
+} -body {
+    catch {seek $c 10}
+    list [tell $c] [read $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {0 abcdef}
+
+test tcl-chan-string-api-4.0 {readable events up to eof (ticket 864a0c83e3)} -setup {
+    set c [tcl::chan::string "abcdefgh"]
+    set ::result {}
+} -body {
+    fileevent $c readable {
+	if {[eof $c]} {
+	    fileevent $c readable {}
+	    set ::done 1
+	} else {
+	    lappend ::result [read $c 3]
+	}
+    }
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    list $::done $::result
+} -cleanup {
+    close $c
+    unset c id ::result ::done
+} -result {1 {abc def gh}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

@@ -1,0 +1,216 @@
+# -*- tcl -*-
+# exact-api.test --
+#     Additional API tests for the math::exact package: the example of
+#     the manual page, the ref/unref life cycle, the precision argument
+#     of asFloat, formatting by asPrint, domain errors of the inverse
+#     functions and other error cases.
+#     Complements exact.test.
+#
+
+source [file join \
+	    [file dirname [file dirname [file join [pwd] [info script]]]] \
+	    devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.3
+
+support {
+    use     grammar_aycock/aycock-runtime.tcl grammar::aycock::runtime grammar::aycock
+    useKeep grammar_aycock/aycock-debug.tcl   grammar::aycock::debug   grammar::aycock
+    useKeep grammar_aycock/aycock-build.tcl   grammar::aycock          grammar::aycock
+}
+testing {
+    useLocal exact.tcl             math::exact
+}
+
+# -------------------------------------------------------------------------
+
+# Evaluate an expression, format it and release it again
+proc exactApiFloat {expression precision} {
+    set v [[::math::exact::exactexpr $expression] ref]
+    try {
+        return [$v asFloat $precision]
+    } finally {
+        $v unref
+    }
+}
+
+proc exactApiPrint {expression precision} {
+    set v [[::math::exact::exactexpr $expression] ref]
+    try {
+        return [$v asPrint $precision]
+    } finally {
+        $v unref
+    }
+}
+
+# -------------------------------------------------------------------------
+# Example of the manual page
+
+test exact-api-1.1 {quadratic formula example from the manual page} -setup {
+    proc exactquad {a b c} {
+        set d [[::math::exact::exactexpr {sqrt($b*$b - 4*$a*$c)}] ref]
+        set r0 [[::math::exact::exactexpr {(-$b - $d) / (2 * $a)}] ref]
+        set r1 [[::math::exact::exactexpr {(-$b + $d) / (2 * $a)}] ref]
+        $d unref
+        return [list $r0 $r1]
+    }
+} -body {
+    set a [[::math::exact::exactexpr 1] ref]
+    set b [[::math::exact::exactexpr 200] ref]
+    set c [[::math::exact::exactexpr {(-3/2) * 10**-12}] ref]
+    lassign [exactquad $a $b $c] r0 r1
+    $a unref; $b unref; $c unref
+    set result [list [$r0 asFloat 70] [$r1 asFloat 110]]
+    $r0 unref; $r1 unref
+    set result
+} -cleanup {
+    rename exactquad {}
+    unset -nocomplain a b c r0 r1 result
+} -result {-2.000000000000000075e2 7.499999999999999719e-15}
+
+# -------------------------------------------------------------------------
+# ref, unref
+
+test exact-api-2.1 {ref returns the number itself} -body {
+    set v [::math::exact::exactexpr {sqrt(3)}]
+    set r [expr {[$v ref] eq $v}]
+    $v unref
+    set r
+} -cleanup {
+    unset -nocomplain v r
+} -result 1
+
+test exact-api-2.2 {unref destroys the number when the count reaches zero} -body {
+    set v [[::math::exact::exactexpr {sqrt(3)}] ref]
+    $v ref
+    $v unref
+    set r [llength [info commands $v]]
+    $v unref
+    lappend r [llength [info commands $v]]
+} -cleanup {
+    unset -nocomplain v r
+} -result {1 0}
+
+test exact-api-2.3 {a number used in an expression survives its unref} -body {
+    set x [[::math::exact::exactexpr {sqrt(3)}] ref]
+    set y [[::math::exact::exactexpr {$x * $x * $x}] ref]
+    $x unref
+    set r [$y asFloat 57]
+    $y unref
+    set r
+} -cleanup {
+    unset -nocomplain x y r
+} -result 5.196152422706631e0
+
+# -------------------------------------------------------------------------
+# asFloat, asPrint
+
+test exact-api-3.1 {asFloat, precision determines the number of digits} -body {
+    list [exactApiFloat {1/3} 20] [exactApiFloat {1/3} 57] [exactApiFloat {1/3} 120]
+} -result {3.3333e-1 3.3333333333333334e-1 3.33333333333333333333333333333333334e-1}
+
+test exact-api-3.2 {asFloat of pi with several precisions} -body {
+    list [exactApiFloat {pi()} 30] [exactApiFloat {pi()} 100]
+} -result {3.1415926e0 3.14159265358979323846264338328e0}
+
+test exact-api-3.3 {asFloat, large number needs more precision} -body {
+    exactApiFloat {1000000} 80
+} -result 1.000000000000000000e6
+
+test exact-api-3.4 {asPrint formats rational numbers as fractions} -body {
+    list [exactApiPrint {1/3} 57] [exactApiPrint {-3/4} 57] \
+         [exactApiPrint {6/4} 57] [exactApiPrint {1000000} 57]
+} -result {1/3 -3/4 3/2 1000000}
+
+test exact-api-3.5 {asPrint formats irrational numbers as floating point} -body {
+    exactApiPrint {pi()} 57
+} -result 3.1415926535897933e0
+
+test exact-api-3.6 {asFloat, wrong # args} -body {
+    set v [[::math::exact::exactexpr 2] ref]
+    catch {$v asFloat} m
+    $v unref
+    set m
+} -cleanup {
+    unset -nocomplain v m
+} -match glob -result {wrong # args: should be "* asFloat relDigits"}
+
+test exact-api-3.7 {asPrint, wrong # args} -body {
+    set v [[::math::exact::exactexpr 2] ref]
+    catch {$v asPrint} m
+    $v unref
+    set m
+} -cleanup {
+    unset -nocomplain v m
+} -match glob -result {wrong # args: should be "* asPrint relDigits"}
+
+# -------------------------------------------------------------------------
+# Expressions
+
+test exact-api-4.1 {exponentiation with rational exponents} -body {
+    list [exactApiFloat {2**(1/2)} 57] [exactApiFloat {2**-1} 57] \
+         [exactApiFloat {(-8)**(1/3)} 57]
+} -result {1.4142135623730950e0 5.000000000000000e-1 -2.0000000000000000e0}
+
+test exact-api-4.2 {e()} -body {
+    exactApiFloat {e()} 57
+} -result 2.7182818284590452e0
+
+test exact-api-4.3 {only decimal integers are accepted as literals} -body {
+    ::math::exact::exactexpr {1.5}
+} -returnCodes error -match glob -result {invalid character*}
+
+test exact-api-4.4 {empty expression} -body {
+    ::math::exact::exactexpr {}
+} -returnCodes error -match glob -result {syntax error*}
+
+test exact-api-4.5 {unknown function} -body {
+    ::math::exact::exactexpr {foo(1)}
+} -returnCodes error -result {invalid command name "::math::exact::function::foo"}
+
+test exact-api-4.6 {function with too many arguments} -body {
+    ::math::exact::exactexpr {sin(1,2)}
+} -returnCodes error -result {wrong # args: should be "::math::exact::function::sin x"}
+
+test exact-api-4.7 {function without arguments called with one} -body {
+    ::math::exact::exactexpr {pi(1)}
+} -returnCodes error -result {wrong # args: should be "::math::exact::function::pi"}
+
+test exact-api-4.8 {undefined variable} -body {
+    ::math::exact::exactexpr {$exactApiUndefined + 1}
+} -returnCodes error -result {can't read "exactApiUndefined": no such variable}
+
+test exact-api-4.9 {exactexpr, wrong # args} -body {
+    ::math::exact::exactexpr
+} -returnCodes error -result {wrong # args: should be "::math::exact::exactexpr expr"}
+
+# -------------------------------------------------------------------------
+# Domain errors of the inverse functions
+
+test exact-api-5.1 {acos, argument out of range} -body {
+    exactApiFloat {acos(2)} 57
+} -returnCodes error -result {square root of negative argument}
+
+test exact-api-5.2 {asin, argument out of range} -body {
+    exactApiFloat {asin(2)} 57
+} -returnCodes error -result {square root of negative argument}
+
+test exact-api-5.3 {acosh, argument less than 1} -body {
+    exactApiFloat {acosh(1/2)} 57
+} -returnCodes error -result {square root of negative argument}
+
+test exact-api-5.4 {atanh, argument 1} -body {
+    exactApiFloat {atanh(1)} 57
+} -returnCodes error -result {log of negative argument}
+
+test exact-api-5.5 {log of zero} -body {
+    exactApiFloat {log(0)} 57
+} -returnCodes error -result {log of negative argument}
+
+# -------------------------------------------------------------------------
+
+rename exactApiFloat {}
+rename exactApiPrint {}
+
+testsuiteCleanup

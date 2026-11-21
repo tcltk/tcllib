@@ -1,0 +1,358 @@
+# combinatorics-api.test --
+#     Additional API tests for the math::combinatorics package
+#     (combinatoricsExt.tcl): partitionP, edge and error cases,
+#     the order of the generated lists and the object methods.
+#     Complements combinatoricsExt.test.
+#
+source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal combinatoricsExt.tcl math::combinatorics
+}
+
+# -------------------------------------------------------------------------
+# partitionP
+
+test combinatorics-api-1.1 {partitionP, small values} -body {
+    set r {}
+    foreach n {0 1 2 3 4 5 6 7 8 9 10} {
+        lappend r [::math::combinatorics::partitionP $n]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r n
+} -result {1 1 2 3 5 7 11 15 22 30 42}
+
+test combinatorics-api-1.2 {partitionP, larger values} -body {
+    list [::math::combinatorics::partitionP 20] \
+         [::math::combinatorics::partitionP 50] \
+         [::math::combinatorics::partitionP 100]
+} -result {627 204226 190569292}
+
+test combinatorics-api-1.3 {partitionP, wrong # args} -body {
+    ::math::combinatorics::partitionP
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::partitionP n"}
+
+test combinatorics-api-1.4 {partitionP, too many args} -body {
+    ::math::combinatorics::partitionP 1 2
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::partitionP n"}
+
+# -------------------------------------------------------------------------
+# Counting functions: large numbers, edge and error cases
+
+test combinatorics-api-2.1 {permutations, arbitrary precision} -body {
+    ::math::combinatorics::permutations 25
+} -result 15511210043330985984000000
+
+test combinatorics-api-2.2 {combinations, arbitrary precision} -body {
+    ::math::combinatorics::combinations 60 30
+} -result 118264581564861424
+
+test combinatorics-api-2.3 {variations n n equals permutations n} -body {
+    expr {[::math::combinatorics::variations 22 22] ==
+          [::math::combinatorics::permutations 22]}
+} -result 1
+
+test combinatorics-api-2.4 {combinations, symmetry} -body {
+    expr {[::math::combinatorics::combinations 40 13] ==
+          [::math::combinatorics::combinations 40 27]}
+} -result 1
+
+test combinatorics-api-2.5 {permutations, wrong # args} -body {
+    ::math::combinatorics::permutations
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::permutations n"}
+
+test combinatorics-api-2.6 {variations, wrong # args} -body {
+    ::math::combinatorics::variations 1
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::variations n k"}
+
+test combinatorics-api-2.7 {combinations, wrong # args} -body {
+    ::math::combinatorics::combinations 1
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::combinations n k"}
+
+test combinatorics-api-2.8 {derangements, wrong # args} -body {
+    ::math::combinatorics::derangements
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::derangements n"}
+
+test combinatorics-api-2.9 {derangements, larger value} -body {
+    ::math::combinatorics::derangements 20
+} -result 895014631192902121
+
+# -------------------------------------------------------------------------
+# catalan, Stirling numbers
+
+test combinatorics-api-3.1 {catalan 0} -body {
+    ::math::combinatorics::catalan 0
+} -result 1
+
+test combinatorics-api-3.2 {catalan, negative argument} -body {
+    ::math::combinatorics::catalan -1
+} -returnCodes error -result {The argument must be a non-negative integer}
+
+test combinatorics-api-3.3 {catalan, non-integer argument} -body {
+    ::math::combinatorics::catalan 1.5
+} -returnCodes error -result {The argument must be a non-negative integer}
+
+test combinatorics-api-3.4 {catalan, wrong # args} -body {
+    ::math::combinatorics::catalan
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::catalan n"}
+
+test combinatorics-api-3.5 {catalan, large index} -body {
+    ::math::combinatorics::catalan 30
+} -result 3814986502092304
+
+test combinatorics-api-3.6 {firstStirling, edge cases} -body {
+    list [::math::combinatorics::firstStirling 0 0] \
+         [::math::combinatorics::firstStirling 5 0] \
+         [::math::combinatorics::firstStirling 3 5] \
+         [::math::combinatorics::firstStirling 6 1]
+} -result {1 0 0 -120}
+
+test combinatorics-api-3.7 {secondStirling, edge cases} -body {
+    list [::math::combinatorics::secondStirling 0 0] \
+         [::math::combinatorics::secondStirling 5 0] \
+         [::math::combinatorics::secondStirling 3 5] \
+         [::math::combinatorics::secondStirling 10 3]
+} -result {1 0 0 9330}
+
+test combinatorics-api-3.8 {Stirling numbers, wrong # args} -body {
+    list [catch {::math::combinatorics::firstStirling 1} m1] $m1 \
+         [catch {::math::combinatorics::secondStirling 1} m2] $m2
+} -cleanup {
+    unset -nocomplain m1 m2
+} -result {1 {wrong # args: should be "::math::combinatorics::firstStirling n m"} 1 {wrong # args: should be "::math::combinatorics::secondStirling n m"}}
+
+test combinatorics-api-3.9 {secondStirling sum equals Bell number} -body {
+    set sum 0
+    for {set m 0} {$m <= 8} {incr m} {
+        incr sum [::math::combinatorics::secondStirling 8 $m]
+    }
+    set sum
+} -cleanup {
+    unset -nocomplain sum m
+} -result 4140
+
+# -------------------------------------------------------------------------
+# Lists
+
+test combinatorics-api-4.1 {list-permutations 1} -body {
+    ::math::combinatorics::list-permutations 1
+} -result 0
+
+test combinatorics-api-4.2 {list-permutations 3, complete set} -body {
+    lsort [::math::combinatorics::list-permutations 3]
+} -result {{0 1 2} {0 2 1} {1 0 2} {1 2 0} {2 0 1} {2 1 0}}
+
+test combinatorics-api-4.3 {list-variations 3 2} -body {
+    lsort [::math::combinatorics::list-variations 3 2]
+} -result {{0 1} {0 2} {1 0} {1 2} {2 0} {2 1}}
+
+test combinatorics-api-4.4 {list-variations, count matches variations} -body {
+    expr {[llength [::math::combinatorics::list-variations 5 3]] ==
+          [::math::combinatorics::variations 5 3]}
+} -result 1
+
+test combinatorics-api-4.5 {list-combinations 4 2, order} -body {
+    ::math::combinatorics::list-combinations 4 2
+} -result {{0 1} {0 2} {0 3} {1 2} {1 3} {2 3}}
+
+test combinatorics-api-4.6 {list-combinations, k = 0 and k = n} -body {
+    list [::math::combinatorics::list-combinations 3 0] \
+         [::math::combinatorics::list-combinations 3 3]
+} -result {{{}} {{0 1 2}}}
+
+test combinatorics-api-4.7 {list-derangements 3} -body {
+    lsort [::math::combinatorics::list-derangements 3]
+} -result {{1 2 0} {2 0 1}}
+
+test combinatorics-api-4.8 {list-powerset 3} -body {
+    ::math::combinatorics::list-powerset 3
+} -result {{} 0 1 2 {0 1} {0 2} {1 2} {0 1 2}}
+
+test combinatorics-api-4.9 {list-powerset 0 is the set with the empty set} -body {
+    ::math::combinatorics::list-powerset 0
+} -result {{}}
+
+test combinatorics-api-4.10 {list commands, wrong # args} -body {
+    set r {}
+    foreach {cmd args} {
+        list-permutations  {}
+        list-variations    {1}
+        list-combinations  {1}
+        list-derangements  {}
+        list-powerset      {}
+    } {
+        lappend r [catch {::math::combinatorics::$cmd {*}$args} m] $m
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r cmd args m
+} -result {1 {wrong # args: should be "::math::combinatorics::list-permutations n"} 1 {wrong # args: should be "::math::combinatorics::list-variations n k"} 1 {wrong # args: should be "::math::combinatorics::list-combinations n k"} 1 {wrong # args: should be "::math::combinatorics::list-derangements n"} 1 {wrong # args: should be "::math::combinatorics::list-powerset n"}}
+
+# -------------------------------------------------------------------------
+# permutationObj
+
+test combinatorics-api-5.1 {permutationObj create NAME} -body {
+    ::math::combinatorics::permutationObj create perm 3
+} -cleanup {
+    perm destroy
+} -result ::perm
+
+test combinatorics-api-5.2 {permutationObj next, lexicographic order and end} -setup {
+    ::math::combinatorics::permutationObj create perm 3
+} -body {
+    set r {}
+    while {[set p [perm next]] ne {}} {
+        lappend r $p
+    }
+    list $r [perm next]
+} -cleanup {
+    perm destroy
+    unset -nocomplain r p
+} -result {{{0 1 2} {0 2 1} {1 0 2} {1 2 0} {2 0 1} {2 1 0}} {}}
+
+test combinatorics-api-5.3 {permutationObj reset} -setup {
+    ::math::combinatorics::permutationObj create perm 3
+} -body {
+    perm next
+    perm next
+    perm reset
+    set r [list [perm next]]
+    while {[perm next] ne {}} {}
+    perm reset
+    lappend r [perm next]
+} -cleanup {
+    perm destroy
+    unset -nocomplain r
+} -result {{0 1 2} {0 1 2}}
+
+test combinatorics-api-5.4 {permutationObj n = 1} -setup {
+    ::math::combinatorics::permutationObj create perm 1
+} -body {
+    list [perm next] [perm next]
+} -cleanup {
+    perm destroy
+} -result {0 {}}
+
+test combinatorics-api-5.5 {permutationObj setElements, implicit reset} -setup {
+    ::math::combinatorics::permutationObj create perm 3
+} -body {
+    perm next
+    perm next
+    perm setElements {a b c}
+    list [perm nextElements] [perm nextElements]
+} -cleanup {
+    perm destroy
+} -result {{a b c} {a c b}}
+
+test combinatorics-api-5.6 {permutationObj nextElements, end} -setup {
+    ::math::combinatorics::permutationObj create perm 2
+} -body {
+    perm setElements {x y}
+    list [perm nextElements] [perm nextElements] [perm nextElements]
+} -cleanup {
+    perm destroy
+} -result {{x y} {y x} {}}
+
+test combinatorics-api-5.7 {permutationObj setElements, wrong length} -setup {
+    ::math::combinatorics::permutationObj create perm 3
+} -body {
+    perm setElements {a b}
+} -cleanup {
+    perm destroy
+} -returnCodes error -result {The number of elements should be 3}
+
+test combinatorics-api-5.8 {permutationObj, non-positive size} -body {
+    ::math::combinatorics::permutationObj new 0
+} -returnCodes error -result {Size of the set must be positive}
+
+test combinatorics-api-5.9 {permutationObj, wrong # args} -body {
+    ::math::combinatorics::permutationObj new
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::permutationObj new n_in"}
+
+# -------------------------------------------------------------------------
+# combinationObj
+
+test combinatorics-api-6.1 {combinationObj create NAME} -body {
+    ::math::combinatorics::combinationObj create comb 3 2
+} -cleanup {
+    comb destroy
+} -result ::comb
+
+test combinatorics-api-6.2 {combinationObj next, order and end} -setup {
+    ::math::combinatorics::combinationObj create comb 4 2
+} -body {
+    set r {}
+    while {[set c [comb next]] ne {}} {
+        lappend r $c
+    }
+    list $r [comb next]
+} -cleanup {
+    comb destroy
+    unset -nocomplain r c
+} -result {{{0 1} {0 2} {0 3} {1 2} {1 3} {2 3}} {}}
+
+test combinatorics-api-6.3 {combinationObj reset} -setup {
+    ::math::combinatorics::combinationObj create comb 4 2
+} -body {
+    comb next
+    comb next
+    comb reset
+    set r [list [comb next]]
+    while {[comb next] ne {}} {}
+    comb reset
+    lappend r [comb next]
+} -cleanup {
+    comb destroy
+    unset -nocomplain r
+} -result {{0 1} {0 1}}
+
+test combinatorics-api-6.4 {combinationObj k = n} -setup {
+    ::math::combinatorics::combinationObj create comb 3 3
+} -body {
+    list [comb next] [comb next]
+} -cleanup {
+    comb destroy
+} -result {{0 1 2} {}}
+
+test combinatorics-api-6.5 {combinationObj setElements, implicit reset} -setup {
+    ::math::combinatorics::combinationObj create comb 4 2
+} -body {
+    comb next
+    comb next
+    comb setElements {a b c d}
+    list [comb nextElements] [comb nextElements]
+} -cleanup {
+    comb destroy
+} -result {{a b} {a c}}
+
+test combinatorics-api-6.6 {combinationObj setElements, wrong length} -setup {
+    ::math::combinatorics::combinationObj create comb 4 2
+} -body {
+    comb setElements {a}
+} -cleanup {
+    comb destroy
+} -returnCodes error -result {The number of elements should be 4}
+
+test combinatorics-api-6.7 {combinationObj, k larger than n} -body {
+    ::math::combinatorics::combinationObj new 3 4
+} -returnCodes error -result {Sizes of the set and subset must be positive, subset may not be larger than the set}
+
+test combinatorics-api-6.8 {combinationObj, k = 0} -body {
+    ::math::combinatorics::combinationObj new 3 0
+} -returnCodes error -result {Sizes of the set and subset must be positive, subset may not be larger than the set}
+
+test combinatorics-api-6.9 {combinationObj, wrong # args} -body {
+    ::math::combinatorics::combinationObj new 3
+} -returnCodes error -result {wrong # args: should be "::math::combinatorics::combinationObj new n_in k_in"}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup

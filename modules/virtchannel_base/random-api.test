@@ -1,0 +1,186 @@
+# -*- tcl -*-
+# random-api.test:  Tests for the documented API of packages
+# tcl::chan::random and tcl::randomseed
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal random.tcl   tcl::chan::random
+    useLocal randseed.tcl tcl::randomseed
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## tcl::chan::random
+
+test tcl-chan-random-api-1.0 {constructor, wrong # args, none} -body {
+    tcl::chan::random
+} -returnCodes error -result {wrong # args: should be "tcl::chan::random seed"}
+
+test tcl-chan-random-api-1.1 {constructor, wrong # args, too many} -body {
+    tcl::chan::random {1 2} X
+} -returnCodes error -result {wrong # args: should be "tcl::chan::random seed"}
+
+test tcl-chan-random-api-1.2 {close removes the channel and its handler} -body {
+    set c [tcl::chan::random {1 2 3}]
+    set during [llength [info class instances ::tcl::chan::random::implementation]]
+    close $c
+    list $during [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::random::implementation]
+} -cleanup {
+    unset c during
+} -result {1 0 {}}
+
+test tcl-chan-random-api-2.0 {reading delivers the requested number of bytes} -setup {
+    set c [tcl::chan::random {1 2 3}]
+    fconfigure $c -translation binary
+} -body {
+    list [string length [read $c 1]] [string length [read $c 1000]] \
+	[string length [read $c 100000]] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {1 1000 100000 0}
+
+test tcl-chan-random-api-2.1 {same seed, same sequence} -body {
+    set r {}
+    foreach i {1 2} {
+	set c [tcl::chan::random {1 2 3}]
+	fconfigure $c -translation binary
+	lappend r [binary encode hex [read $c 8]]
+	close $c
+    }
+    set r
+} -cleanup {
+    unset r c i
+} -result {060b1425447de6a7 060b1425447de6a7}
+
+test tcl-chan-random-api-2.2 {different seeds, different sequences} -body {
+    set r {}
+    foreach seed {{1 2 3} {4 5 6 7}} {
+	set c [tcl::chan::random $seed]
+	fconfigure $c -translation binary
+	lappend r [read $c 16]
+	close $c
+    }
+    string equal {*}$r
+} -cleanup {
+    unset r c seed
+} -result 0
+
+test tcl-chan-random-api-2.3 {single-element seed} -setup {
+    set c [tcl::chan::random 7]
+    fconfigure $c -translation binary
+} -body {
+    string length [read $c 10]
+} -cleanup {
+    close $c
+    unset c
+} -result 10
+
+test tcl-chan-random-api-2.4 {read-only: writing is an error} -setup {
+    set c [tcl::chan::random {1 2 3}]
+} -body {
+    puts $c x
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -match glob -result {channel "*" wasn't opened for writing}
+
+test tcl-chan-random-api-2.5 {not seekable} -setup {
+    set c [tcl::chan::random {1 2 3}]
+} -body {
+    list [tell $c] [catch {seek $c 0} msg] $msg
+} -cleanup {
+    close $c
+    unset c msg
+} -match glob -result {-1 1 {error during seek on "*": invalid argument}}
+
+test tcl-chan-random-api-3.0 {always readable} -setup {
+    set c [tcl::chan::random {1 2 3}]
+    fconfigure $c -translation binary
+    set ::result {}
+} -body {
+    fileevent $c readable {
+	lappend ::result [string length [read $c 2]]
+	if {[llength $::result] >= 3} {fileevent $c readable {}; set ::done 1}
+    }
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    set ::result
+} -cleanup {
+    close $c
+    unset c id ::result ::done
+} -result {2 2 2}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## tcl::randomseed, tcl::combine
+
+test tcl-randomseed-api-1.0 {randomseed, wrong # args} -body {
+    tcl::randomseed X
+} -returnCodes error -result {wrong # args: should be "tcl::randomseed"}
+
+test tcl-randomseed-api-1.1 {randomseed returns a list of integers 0..255} -body {
+    set s [tcl::randomseed]
+    set ok 1
+    foreach v $s {
+	if {![string is integer -strict $v] || $v < 0 || $v > 255} {set ok 0}
+    }
+    list [llength $s] $ok
+} -cleanup {
+    unset s ok v
+} -result {4 1}
+
+test tcl-randomseed-api-1.2 {randomseed is usable as seed of a random channel} -body {
+    set c [tcl::chan::random [tcl::randomseed]]
+    fconfigure $c -translation binary
+    string length [read $c 5]
+} -cleanup {
+    close $c
+    unset c
+} -result 5
+
+test tcl-randomseed-api-2.0 {combine, wrong # args, too few} -body {
+    tcl::combine {1 2}
+} -returnCodes error -result {wrong # args: should be "tcl::combine a b"}
+
+test tcl-randomseed-api-2.1 {combine, wrong # args, too many} -body {
+    tcl::combine {1} {2} {3}
+} -returnCodes error -result {wrong # args: should be "tcl::combine a b"}
+
+test tcl-randomseed-api-2.2 {combine XORs elementwise} -body {
+    tcl::combine {1 2 255} {3 2 15}
+} -result {2 0 240}
+
+test tcl-randomseed-api-2.3 {combine pads the shorter first list with 0s} -body {
+    tcl::combine {1} {5 6 7}
+} -result {4 6 7}
+
+test tcl-randomseed-api-2.4 {combine pads the shorter second list with 0s} -body {
+    tcl::combine {5 6 7} {1}
+} -result {4 6 7}
+
+test tcl-randomseed-api-2.5 {combine results are modulo 256} -body {
+    tcl::combine {300 256} {1 0}
+} -result {45 0}
+
+test tcl-randomseed-api-2.6 {combine of empty lists} -body {
+    tcl::combine {} {}
+} -result {}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return
