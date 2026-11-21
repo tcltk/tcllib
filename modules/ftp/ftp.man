@@ -48,8 +48,9 @@ commands. The default value is "0".
 [para]
 
 The command [cmd ::ftp::DisplayMsg] is used to show the different
-messages from the ftp session. The setting of [var ::ftp::VERBOSE]
-determines if this command is called or not. The current
+messages from the ftp session. The settings of [var ::ftp::VERBOSE]
+and [var ::ftp::DEBUG] determine if this command is called for
+informational messages. Error messages are always passed to it. The current
 implementation of the command uses the [package log] package of tcllib
 to write the messages to their final destination. This means that the
 behaviour of [cmd ::ftp::DisplayMsg] can be customized without
@@ -58,6 +59,21 @@ implementation by the application is of course still possible. Note
 that the default implementation honors the option [option -output] to
 
 [cmd ::ftp::Open] for a session specific log command.
+
+[para]
+
+The default implementation logs error messages at level [const error]
+and all other messages at level [const debug]. As the [package log]
+package suppresses level [const debug] by default, an application
+setting [var ::ftp::VERBOSE] or [var ::ftp::DEBUG] has to enable that
+level as well, e.g.:
+
+[example {
+    log::lvSuppress debug 0
+    set ::ftp::VERBOSE 1
+}]
+
+Alternatively, use the option [option -output] of [cmd ::ftp::Open].
 
 [para]
 
@@ -80,14 +96,15 @@ specified by the caller.
 [para]
 
 The command takes a host name [arg server], a user name [arg user] and
-a password [arg password] as its parameters and returns a session
+a password [arg passwd] as its parameters and returns a session
 handle that is an integer number greater than or equal to "0", if the
 connection is successfully established. Otherwise it returns "-1".
 The [arg server] parameter must be the name or internet address (in
 dotted decimal notation) of the ftp server to connect to. The
 
 [arg user] and [arg passwd] parameters must contain a valid user name
-and password to complete the login process.
+and password to complete the login process. After the login the
+transfer type is set to [const binary].
 
 [para]
 
@@ -203,8 +220,9 @@ directory on the ftp server, or an empty string in case of an error.
 [call [cmd ::ftp::Type] [arg handle] [opt [const ascii|binary|tenex]]]
 
 This command sets the ftp file transfer type to either [const ascii],
-[const binary], or [const tenex]. The command always returns the
-currently set type. If called without type no change is made.
+[const binary], or [const tenex]. The command returns the currently
+set type, or an empty string if the type could not be changed. If
+called without type no change is made.
 
 [para]
 
@@ -240,11 +258,14 @@ reported by this command.
 
 If the command fails an empty list is returned.
 
-[call [cmd ::ftp::NList] [arg handle] [opt [arg directory]]]
+[call [cmd ::ftp::NList] [arg handle] [opt [arg pattern]]]
 
 This command has the same behavior as the [cmd ::ftp::List] command,
 except that it only retrieves an abbreviated listing. This means only
-file names are returned in a sorted list.
+file names are returned in a sorted list. Like for [cmd ::ftp::List],
+the [arg pattern] is passed to the server, which expands any wildcards.
+The names are returned as sent by the server, i.e. whether they are
+prefixed with the directory part of [arg pattern] depends on the server.
 
 [call [cmd ::ftp::FileSize] [arg handle] [arg file]]
 
@@ -256,13 +277,22 @@ server. If the command fails an empty string is returned.
 [emph ATTENTION!] It will not work properly when in ascii mode and
 is not supported by all ftp server implementations.
 
-[call [cmd ::ftp::ModTime] [arg handle] [arg file]]
+[call [cmd ::ftp::ModTime] [arg handle] [arg file] [opt [arg newtime]]]
 
 This command retrieves the time of the last modification of the
 
-[arg file] on the ftp server as a system dependent integer value in
-seconds or an empty string if an error occurred. Use the built-in
-command [cmd clock] to convert the retrieves value into other formats.
+[arg file] on the ftp server as an integer value in seconds, as used
+by the built-in command [cmd clock], or an empty string if an error
+occurred. Use [cmd clock] to convert the retrieved value into other
+formats.
+
+[para]
+
+If [arg newtime] (in seconds, as used by [cmd clock]) is specified,
+the command asks the server to set the modification time of the
+
+[arg file] to it instead, using the [const MDTM] command with a time
+argument. Not all servers support this.
 
 [call [cmd ::ftp::Delete] [arg handle] [arg file]]
 
@@ -306,7 +336,7 @@ name of the remote file has to be specified. After the transfer
 
 [call [cmd ::ftp::Append] [arg handle] ([arg local] | -data [arg data] | -channel [arg chan]) [opt [arg remote]]]
 
-This command behaves like [cmd ::ftp::Puts], but appends the
+This command behaves like [cmd ::ftp::Put], but appends the
 transfered information to the remote file. If the file did not exist
 on the server it will be created.
 
@@ -396,15 +426,12 @@ verbatim to the caller.
 [call [cmd ::ftp::DisplayMsg] [arg handle] [arg msg] [opt [arg state]]]
 
 This command is used by the package itself to show the different
-messages from the ftp sessions. The package itself declares this
-command very simple, writing the messages to [const stdout] (if
-
-[var ::ftp::VERBOSE] was set, see below) and throwing tcl errors for
-error messages. It is the responsibility of the application to
-overwrite it as needed. A state variable for different states assigned
-to different colors is recommended by the author. The package
-
-[package log] is useful for this.
+messages from the ftp sessions. The [arg state] is one of
+[const error], [const control] (responses from the server),
+[const data] (data connection events), or empty. The default implementation calls the [option -output] callback
+of the session, if set, and otherwise writes the messages through the
+[package log] package, see the description above. The application can
+overwrite it as needed.
 
 [def [var ::ftp::VERBOSE]]
 
