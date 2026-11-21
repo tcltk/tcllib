@@ -97,7 +97,7 @@ test string-token-api-2.8 {text, same label for several regexps} -body {
 } -result {{TOK 0 1} {TOK 2 3}}
 
 test string-token-api-2.9 {text, non-ASCII characters} -body {
-    string token text [list {\w+} WORD {\s+} WS] "йога ї"
+    string token text [list {\w+} WORD {\s+} WS] "\u0439\u043e\u0433\u0430 \u0457"
 } -result {{WORD 0 3} {WS 4 4} {WORD 5 5}}
 
 test string-token-api-2.10 {text, documented ini example, lines} -setup {

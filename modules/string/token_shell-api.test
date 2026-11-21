@@ -42,12 +42,12 @@ test string-token-shell-api-2.0 {tab and newline are whitespace} -body {
 } -result {a b c d}
 
 test string-token-shell-api-2.1 {unicode whitespace separates words} -body {
-    string token shell "a b c"
+    string token shell "a\u00a0b\u2003c"
 } -result {a b c}
 
 test string-token-shell-api-2.2 {non-ASCII words} -body {
-    string token shell -indices "  йога 'їж'"
-} -result [list [list PLAIN 2 5 йога] [list S:QUOTED 7 10 їж]]
+    string token shell -indices "  \u0439\u043e\u0433\u0430 '\u0457\u0436'"
+} -result [list [list PLAIN 2 5 \u0439\u043e\u0433\u0430] [list S:QUOTED 7 10 \u0457\u0436]]
 
 test string-token-shell-api-2.3 {backslash is literal in single quotes} -body {
     string token shell {'a\b' 'c\\'}
