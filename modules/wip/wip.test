@@ -1,0 +1,39 @@
+# -*- tcl -*- Tests for the wip module, version 2 (wip2.tcl).
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      snit/snit.tcl    snit
+    use      struct/sets.tcl  struct::set
+}
+
+testing {
+    useLocal wip2.tcl wip
+}
+
+source [localPath wip.testsuite]
+
+# -------------------------------------------------------------------------
+
+namespace delete ::wiptest
+unset wipUnknownBug
+rename engine {}
+rename setup {}
+rename cleanup {}
+
+testsuiteCleanup
+return

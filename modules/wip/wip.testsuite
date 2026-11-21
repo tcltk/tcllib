@@ -1,0 +1,873 @@
+# -*- tcl -*- Tests for the wip module, shared by wip.test (wip 2,
+# wip2.tcl) and wip1.test (wip 1, wip.tcl).
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# In wip 1 the unknown handler is invoked without removing the unknown
+# word from the program, so a handler which returns normally causes an
+# endless loop (fixed in wip 2).  The handlers in the tests below guard
+# against this.
+if {[package vsatisfies [package present wip] 2]} {
+    set wipUnknownBug {}
+} else {
+    set wipUnknownBug knownBug
+}
+
+# -------------------------------------------------------------------------
+# A test engine.  Every method records its invocation in the global ::log
+# and returns a result derived from its name and arguments.  The engine
+# knows the word interpreter through its variable 'wip'.
+
+snit::type ::wiptest::engine {
+    variable wip {}
+    method setwip {w} { set wip $w }
+
+    method a {}          { lappend ::log a ;            return A }
+    method b {x}         { lappend ::log [list b $x] ;   return B$x }
+    method c {x y}       { lappend ::log [list c $x $y] ; return C$x$y }
+    method v {x args}    { return V }
+    method fixed {f x}   { lappend ::log [list fixed $f $x] ; return F$f$x }
+
+    # Methods accessing the word interpreter
+    method nextword {}   { lappend ::log nextword ; return [$wip next] }
+    method peekword {}   { return [$wip peek] }
+    method rest {}       { set r [$wip peekall] ; $wip replace ; return $r }
+    method twice {}      {
+        # Run the next two commands.
+        $wip run_next
+        return [$wip run_next]
+    }
+    method nested {}     { return [$wip run a b 1] }
+    method while {}      { return [$wip run_next_while {a b}] }
+    method until {}      { return [$wip run_next_until {stop}] }
+    method if {}         { return [$wip run_next_if {a}] }
+    method ifnot {}      { return [$wip run_next_ifnot {stop}] }
+    method stop {}       { lappend ::log stop ; return STOP }
+    method fail {}       { error "engine failure" }
+}
+
+proc engine {} {
+    return [::wiptest::engine %AUTO%]
+}
+
+# Create an engine and a word interpreter for it, with the given
+# definitions.  The interpreter is ::wiptest::w, the engine ::wiptest::e.
+proc setup {args} {
+    set e [::wiptest::engine ::wiptest::e]
+    ::wip ::wiptest::w $e {*}$args
+    $e setwip ::wiptest::w
+    set ::log {}
+    return
+}
+
+proc cleanup {} {
+    catch {::wiptest::w destroy}
+    catch {::wiptest::e destroy}
+    unset -nocomplain ::log
+    return
+}
+
+# -------------------------------------------------------------------------
+# Construction
+
+test wip-1.0 {constructor, no engine} -body {
+    ::wip ::wiptest::w {}
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Error in constructor: No engine specified}
+
+test wip-1.1 {constructor, returns the object name} -setup {
+    set e [engine]
+} -body {
+    ::wip ::wiptest::w $e
+} -cleanup {
+    cleanup
+    $e destroy
+    unset e
+} -result ::wiptest::w
+
+test wip-1.2 {constructor, %AUTO% name} -setup {
+    set e [engine]
+} -body {
+    set w [::wip %AUTO% $e]
+    list [string match ::wip* $w] [llength [info commands $w]]
+} -cleanup {
+    $w destroy
+    $e destroy
+    unset e w
+} -result {1 1}
+
+test wip-1.3 {constructor, no definitions} -setup {
+    setup
+} -body {
+    ::wiptest::w run a
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Unknown command "a"}
+
+test wip-1.4 {constructor, "def name" definitions} -setup {
+    setup def a def b
+} -body {
+    list [::wiptest::w run a b 1] $::log
+} -cleanup {
+    cleanup
+} -result {B1 {a {b 1}}}
+
+test wip-1.5 {constructor, "def name method_prefix" definitions} -setup {
+    setup def x a def y {fixed 7} def b
+} -body {
+    list [::wiptest::w run x y 1 b 2] $::log
+} -cleanup {
+    cleanup
+} -result {B2 {a {fixed 7 1} {b 2}}}
+
+test wip-1.6 {constructor, definition does not start with def} -body {
+    setup a
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Error in constructor: Expected "def", got "a"}
+
+test wip-1.7 {constructor, garbage after a complete definition} -body {
+    setup def x a b
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Error in constructor: Expected "def", got "b"}
+
+test wip-1.8 {constructor, name missing at end} -body {
+    setup def a def
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Error in constructor: Incomplete definition at end, name missing.}
+
+test wip-1.9 {constructor, varargs method} -body {
+    setup def v
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Error in constructor: Unable to handle Tcl varargs}
+
+test wip-1.10 {destroy} -setup {
+    setup
+} -body {
+    ::wiptest::w destroy
+    info commands ::wiptest::w
+} -cleanup {
+    cleanup
+} -result {}
+
+# -------------------------------------------------------------------------
+# Definitions
+
+test wip-2.0 {def, wrong # args} -setup {
+    setup
+} -body {
+    ::wiptest::w def
+} -cleanup {
+    cleanup
+} -returnCodes error -match glob -result {wrong # args: should be "* name ?mp?"}
+
+test wip-2.1 {def, name only} -setup {
+    setup
+} -body {
+    list [::wiptest::w def c] [::wiptest::w run c 1 2] $::log
+} -cleanup {
+    cleanup
+} -result {{} C12 {{c 1 2}}}
+
+test wip-2.2 {def, with method name} -setup {
+    setup
+} -body {
+    ::wiptest::w def plus c
+    list [::wiptest::w run plus 1 2] $::log
+} -cleanup {
+    cleanup
+} -result {C12 {{c 1 2}}}
+
+test wip-2.3 {def, method prefix with fixed arguments reduces the arity} -setup {
+    setup
+} -body {
+    ::wiptest::w def one {c 1}
+    ::wiptest::w def onetwo {c 1 2}
+    list [::wiptest::w run one 2 onetwo one 3] $::log
+} -cleanup {
+    cleanup
+} -result {C13 {{c 1 2} {c 1 2} {c 1 3}}}
+
+test wip-2.4 {def, varargs methods are rejected} -setup {
+    setup
+} -body {
+    ::wiptest::w def v
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Unable to handle Tcl varargs}
+
+test wip-2.5 {def, redefinition replaces the mapping} -setup {
+    setup def x a
+} -body {
+    ::wiptest::w def x b
+    list [::wiptest::w run x 1] $::log
+} -cleanup {
+    cleanup
+} -result {B1 {{b 1}}}
+
+test wip-2.6 {def, unknown engine method} -setup {
+    setup
+} -body {
+    ::wiptest::w def nosuchmethod
+} -cleanup {
+    cleanup
+} -returnCodes error -match glob -result {*nosuchmethod*}
+
+test wip-2.7 {defl} -setup {
+    setup
+} -body {
+    list [::wiptest::w defl {a b c}] [::wiptest::w run a b 1 c 2 3] $::log
+} -cleanup {
+    cleanup
+} -result {{} C23 {a {b 1} {c 2 3}}}
+
+test wip-2.8 {defl, empty list} -setup {
+    setup
+} -body {
+    ::wiptest::w defl {}
+} -cleanup {
+    cleanup
+} -result {}
+
+test wip-2.9 {defl, wrong # args} -setup {
+    setup
+} -body {
+    ::wiptest::w defl a b
+} -cleanup {
+    cleanup
+} -returnCodes error -match glob -result {wrong # args: should be "* names"}
+
+test wip-2.10 {deflva} -setup {
+    setup
+} -body {
+    list [::wiptest::w deflva a b] [::wiptest::w run a b 1] $::log
+} -cleanup {
+    cleanup
+} -result {{} B1 {a {b 1}}}
+
+test wip-2.11 {defd} -setup {
+    setup
+} -body {
+    list [::wiptest::w defd {x a y {fixed 1} z c}] \
+        [::wiptest::w run x y 2 z 3 4] $::log
+} -cleanup {
+    cleanup
+} -result {{} C34 {a {fixed 1 2} {c 3 4}}}
+
+test wip-2.12 {defd, not a dictionary} -setup {
+    setup
+} -body {
+    ::wiptest::w defd {x a y}
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Expected a dictionary, got "x a y"}
+
+test wip-2.13 {defdva} -setup {
+    setup
+} -body {
+    list [::wiptest::w defdva x a y {fixed 1}] [::wiptest::w run x y 2] $::log
+} -cleanup {
+    cleanup
+} -result {{} F12 {a {fixed 1 2}}}
+
+test wip-2.14 {defdva, odd number of arguments} -setup {
+    setup
+} -body {
+    ::wiptest::w defdva x a y
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Expected a dictionary, got "x a y"}
+
+test wip-2.15 {undefl} -setup {
+    setup def a def b def c
+} -body {
+    list [::wiptest::w undefl {a c}] [::wiptest::w run b 1] \
+        [catch {::wiptest::w run a} msg] $msg \
+        [catch {::wiptest::w run c 1 2} msg] $msg
+} -cleanup {
+    cleanup
+    unset -nocomplain msg
+} -result {{} B1 1 {Unknown command "a"} 1 {Unknown command "c"}}
+
+test wip-2.16 {undefl, unknown names are ignored} -setup {
+    setup
+} -body {
+    ::wiptest::w undefl {nosuch other}
+} -cleanup {
+    cleanup
+} -result {}
+
+test wip-2.17 {undefva} -setup {
+    setup def a def b
+} -body {
+    list [::wiptest::w undefva a b] [catch {::wiptest::w run b 1} msg] $msg
+} -cleanup {
+    cleanup
+    unset -nocomplain msg
+} -result {{} 1 {Unknown command "b"}}
+
+test wip-2.18 {def/, explicit arity (undocumented)} -setup {
+    setup
+} -body {
+    ::wiptest::w def/ x 1 {b}
+    list [::wiptest::w run x 5] $::log
+} -cleanup {
+    cleanup
+} -result {B5 {{b 5}}}
+
+# -------------------------------------------------------------------------
+# Execution
+
+test wip-3.0 {runl, wrong # args} -setup {
+    setup
+} -body {
+    ::wiptest::w runl
+} -cleanup {
+    cleanup
+} -returnCodes error -match glob -result {wrong # args: should be "* alist"}
+
+test wip-3.1 {runl, empty program} -setup {
+    setup def a
+} -body {
+    list [::wiptest::w runl {}] $::log
+} -cleanup {
+    cleanup
+} -result {{} {}}
+
+test wip-3.2 {runl, result of the last command} -setup {
+    setup def a def b def c
+} -body {
+    list [::wiptest::w runl {c 1 2 a b 3}] $::log
+} -cleanup {
+    cleanup
+} -result {B3 {{c 1 2} a {b 3}}}
+
+test wip-3.3 {run, words as arguments} -setup {
+    setup def a def b def c
+} -body {
+    list [::wiptest::w run c 1 2 a b 3] $::log
+} -cleanup {
+    cleanup
+} -result {B3 {{c 1 2} a {b 3}}}
+
+test wip-3.4 {run, no words} -setup {
+    setup
+} -body {
+    ::wiptest::w run
+} -cleanup {
+    cleanup
+} -result {}
+
+test wip-3.5 {run, arguments are not interpreted} -setup {
+    setup def b def c
+} -body {
+    list [::wiptest::w run c b c b {x y}] $::log
+} -cleanup {
+    cleanup
+} -result {{Bx y} {{c b c} {b {x y}}}}
+
+test wip-3.6 {run, not enough arguments} -setup {
+    setup def a def c
+} -body {
+    list [catch {::wiptest::w run a c 1} msg] $msg $::errorCode $::log
+} -cleanup {
+    cleanup
+    unset -nocomplain msg
+} -result {1 {Not enough arguments for command "c"} WIP a}
+
+test wip-3.7 {run, unknown command} -setup {
+    setup def a
+} -body {
+    list [catch {::wiptest::w run a nosuch a} msg] $msg $::errorCode $::log
+} -cleanup {
+    cleanup
+    unset -nocomplain msg
+} -result {1 {Unknown command "nosuch"} WIP a}
+
+test wip-3.8 {run, error in an engine method propagates} -setup {
+    setup def a def fail
+} -body {
+    list [catch {::wiptest::w run a fail a} msg] $msg $::log \
+        [::wiptest::w run a]
+} -cleanup {
+    cleanup
+    unset -nocomplain msg
+} -result {1 {engine failure} a A}
+
+test wip-3.9 {runl, nested runs save and restore the program} -setup {
+    setup def a def b def c def nested
+} -body {
+    list [::wiptest::w run c 1 2 nested c 3 4] $::log
+} -cleanup {
+    cleanup
+} -result {C34 {{c 1 2} a {b 1} {c 3 4}}}
+
+test wip-3.10 {runl, the program is restored after a nested run} -setup {
+    setup def a def b def nested def rest
+} -body {
+    list [::wiptest::w run nested rest x y] $::log
+} -cleanup {
+    cleanup
+} -result {{x y} {a {b 1}}}
+
+test wip-3.11 {run_next, outside of run: empty program} -setup {
+    setup
+} -body {
+    ::wiptest::w run_next
+} -cleanup {
+    cleanup
+} -returnCodes error -result {Unknown command ""}
+
+test wip-3.12 {run_next, outside of run, on a replaced program} -setup {
+    setup def a def b
+} -body {
+    ::wiptest::w replace b 1 a
+    list [::wiptest::w run_next] [::wiptest::w peekall] $::log
+} -cleanup {
+    cleanup
+} -result {B1 a {{b 1}}}
+
+test wip-3.13 {run_next, from a command implementation} -setup {
+    setup def b def twice
+} -body {
+    list [::wiptest::w run twice b 1 b 2] $::log
+} -cleanup {
+    cleanup
+} -result {B2 {{b 1} {b 2}}}
+
+test wip-3.14 {run_next_while} -setup {
+    setup def a def b def c def stop def while
+} -body {
+    list [::wiptest::w run while a b 1 a stop c 1 2] $::log
+} -cleanup {
+    cleanup
+} -result {C12 {a {b 1} a stop {c 1 2}}}
+
+test wip-3.15 {run_next_while, result of the last executed command} -setup {
+    setup def a def b def while
+} -body {
+    list [::wiptest::w run while a b 1] [::wiptest::w run while] $::log
+} -cleanup {
+    cleanup
+} -result {B1 {} {a {b 1}}}
+
+test wip-3.16 {run_next_until} -setup {
+    setup def a def b def stop def until
+} -body {
+    list [::wiptest::w runl {until a b 1 a}] [::wiptest::w run until a stop b 2] $::log
+} -cleanup {
+    cleanup
+} -result {A B2 {a {b 1} a a stop {b 2}}}
+
+test wip-3.17 {run_next_if, acceptable} -setup {
+    setup def a def b def if
+} -body {
+    list [::wiptest::w run if a b 1] $::log
+} -cleanup {
+    cleanup
+} -result {B1 {a {b 1}}}
+
+test wip-3.18 {run_next_if, not acceptable, runs only once} -setup {
+    setup def a def b def if def rest
+} -body {
+    list [::wiptest::w run if b 1 rest] $::log
+} -cleanup {
+    cleanup
+} -result {{} {{b 1}}}
+
+test wip-3.19 {run_next_if, empty program} -setup {
+    setup def if
+} -body {
+    ::wiptest::w run if
+} -cleanup {
+    cleanup
+} -result {}
+
+test wip-3.20 {run_next_ifnot} -setup {
+    setup def a def stop def ifnot
+} -body {
+    list [::wiptest::w run ifnot a] [::wiptest::w run ifnot stop] \
+        [::wiptest::w run ifnot] $::log
+} -cleanup {
+    cleanup
+} -result {A STOP {} {a stop}}
+
+test wip-3.21 {run_next_while, wrong # args} -setup {
+    setup
+} -body {
+    ::wiptest::w run_next_while
+} -cleanup {
+    cleanup
+} -returnCodes error -match glob -result {wrong # args: should be "* accept"}
+
+test wip-3.22 {run_next_*, outside of run} -setup {
+    setup def a def b
+} -body {
+    ::wiptest::w replace a b 1 a
+    list [::wiptest::w run_next_if a] [::wiptest::w run_next_ifnot a] \
+        [::wiptest::w run_next_until b] [::wiptest::w run_next_while a] \
+        [::wiptest::w peekall] $::log
+} -cleanup {
+    cleanup
+} -result {A B1 A {} {} {a {b 1} a}}
+
+# -------------------------------------------------------------------------
+# Unknown words
+
+test wip-4.0 {unknown, wrong # args} -setup {
+    setup
+} -body {
+    ::wiptest::w unknown
+} -cleanup {
+    cleanup
+} -returnCodes error -match glob -result {wrong # args: should be "* cmdprefix"}
+
+test wip-4.1 {unknown, handler gets the word and returns the result} -setup {
+    setup def a
+    proc ::wiptest::unk {prefix word} {
+        lappend ::log [list unknown $prefix $word]
+        # Guard against endless loops if the word is not consumed.
+        if {[llength $::log] > 10} {error "endless loop"}
+        return U$word
+    }
+} -constraints $wipUnknownBug -body {
+    list [::wiptest::w unknown {::wiptest::unk P}] \
+        [::wiptest::w run a x] [::wiptest::w run y] $::log
+} -cleanup {
+    cleanup
+    rename ::wiptest::unk {}
+} -result {{} Ux Uy {a {unknown P x} {unknown P y}}}
+
+test wip-4.2 {unknown, handler can consume more words} -setup {
+    setup def a
+    proc ::wiptest::unk {word} {
+        lappend ::log [list unknown $word [::wiptest::w next]]
+        if {[llength $::log] > 10} {error "endless loop"}
+        return U
+    }
+} -constraints $wipUnknownBug -body {
+    ::wiptest::w unknown ::wiptest::unk
+    list [::wiptest::w run x 1 a] $::log
+} -cleanup {
+    cleanup
+    rename ::wiptest::unk {}
+} -result {A {{unknown x 1} a}}
+
+test wip-4.3 {unknown, handler errors propagate} -setup {
+    setup
+    proc ::wiptest::unk {word} {
+        error "bad word $word"
+    }
+} -body {
+    ::wiptest::w unknown ::wiptest::unk
+    ::wiptest::w run x
+} -cleanup {
+    cleanup
+    rename ::wiptest::unk {}
+} -returnCodes error -result {bad word x}
+
+test wip-4.4 {unknown, handler runs in the global namespace} -setup {
+    setup
+    proc ::wiptest::unk {word} {
+        if {[incr ::count] > 10} {error "endless loop"}
+        return [uplevel 1 {namespace current}][info level]
+    }
+} -constraints $wipUnknownBug -body {
+    ::wiptest::w unknown ::wiptest::unk
+    ::wiptest::w run x
+} -cleanup {
+    cleanup
+    rename ::wiptest::unk {}
+    unset -nocomplain ::count
+} -result ::1
+
+# -------------------------------------------------------------------------
+# Program accessors
+
+test wip-5.0 {peek, next, peekall on an empty program} -setup {
+    setup
+} -body {
+    list [::wiptest::w peek] [::wiptest::w next] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {} {}}
+
+test wip-5.1 {next removes the word, peek does not} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b c
+    list [::wiptest::w peek] [::wiptest::w peek] [::wiptest::w next] \
+        [::wiptest::w peekall] [::wiptest::w next] [::wiptest::w next] \
+        [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {a a a {b c} b c {}}
+
+test wip-5.2 {next and peek from a command implementation} -setup {
+    setup def nextword def peekword def b
+} -body {
+    list [::wiptest::w run nextword skipped] [::wiptest::w run peekword b 1] $::log
+} -cleanup {
+    cleanup
+} -result {skipped B1 {nextword {b 1}}}
+
+test wip-5.3 {replacel} -setup {
+    setup
+} -body {
+    ::wiptest::w replace x
+    list [::wiptest::w replacel {a {b c} d}] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {a {b c} d}}
+
+test wip-5.4 {replace} -setup {
+    setup
+} -body {
+    ::wiptest::w replacel {x y}
+    list [::wiptest::w replace a {b c}] [::wiptest::w peekall] \
+        [::wiptest::w replace] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {a {b c}} {} {}}
+
+test wip-5.5 {insertl} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b c
+    list [::wiptest::w insertl 1 {x {y z}}] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {a x {y z} b c}}
+
+test wip-5.6 {insertl, positions 0 and end} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b
+    ::wiptest::w insertl 0 {p}
+    ::wiptest::w insertl end {q}
+    ::wiptest::w insertl end-1 {r}
+    ::wiptest::w peekall
+} -cleanup {
+    cleanup
+} -result {p a b r q}
+
+test wip-5.7 {insertl, bad index} -setup {
+    setup
+} -body {
+    ::wiptest::w insertl foo {x}
+} -cleanup {
+    cleanup
+} -returnCodes error -result {bad index "foo": must be integer?[+-]integer? or end?[+-]integer?}
+
+test wip-5.8 {insert} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b
+    list [::wiptest::w insert 1 x {y z}] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {a x {y z} b}}
+
+test wip-5.9 {insert, wrong # args} -setup {
+    setup
+} -body {
+    ::wiptest::w insert
+} -cleanup {
+    cleanup
+} -returnCodes error -match glob -result {wrong # args: should be "* at ?arg*"}
+
+test wip-5.10 {pushl} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b
+    list [::wiptest::w pushl {x {y z}}] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {x {y z} a b}}
+
+test wip-5.11 {push} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b
+    list [::wiptest::w push x {y z}] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {x {y z} a b}}
+
+test wip-5.12 {addl} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b
+    list [::wiptest::w addl {x {y z}}] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {a b x {y z}}}
+
+test wip-5.13 {add} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a b
+    list [::wiptest::w add x {y z}] [::wiptest::w peekall]
+} -cleanup {
+    cleanup
+} -result {{} {a b x {y z}}}
+
+test wip-5.14 {program changes from a command are executed} -setup {
+    setup def a def b
+    snit::method ::wiptest::engine pushb {} {
+        $wip push b 9
+        return P
+    }
+    snit::method ::wiptest::engine addb {} {
+        $wip add b 8
+        return Q
+    }
+    ::wiptest::w defl {pushb addb}
+} -body {
+    list [::wiptest::w run pushb a addb a] $::log
+} -cleanup {
+    cleanup
+} -result {B8 {{b 9} a a {b 8}}}
+
+test wip-5.15 {accessors with empty word lists} -setup {
+    setup
+} -body {
+    ::wiptest::w replace a
+    ::wiptest::w pushl {}
+    ::wiptest::w addl {}
+    ::wiptest::w insertl 0 {}
+    ::wiptest::w push
+    ::wiptest::w add
+    ::wiptest::w peekall
+} -cleanup {
+    cleanup
+} -result a
+
+# -------------------------------------------------------------------------
+# Engines which are not snit objects
+
+test wip-6.1 {engine, any command understanding "info args"} -setup {
+    proc ::wiptest::eng {method args} {
+        switch -- $method {
+            info {
+                # info args m
+                switch -- [lindex $args 1] {
+                    hello {return {who}}
+                    bye   {return {}}
+                }
+            }
+            hello { return "hello [lindex $args 0]" }
+            bye   { return bye }
+        }
+    }
+    ::wip ::wiptest::w ::wiptest::eng def hello def bye
+} -body {
+    list [::wiptest::w run hello world] [::wiptest::w run bye hello you]
+} -cleanup {
+    cleanup
+    rename ::wiptest::eng {}
+} -result {{hello world} {hello you}}
+
+# -------------------------------------------------------------------------
+# wip::dsl
+
+snit::type ::wiptest::dsl0 {
+    wip::dsl
+    constructor {} {
+        $self wip_setup
+        def a
+        defl {b c}
+    }
+    method a {}    { return A }
+    method b {x}   { return B$x }
+    method c {x y} { return C$x$y }
+    method go {args} { return [runl $args] }
+    method go2 {args} {
+        replacel $args
+        push b 1
+        add c 2 3
+        set r [list [peek] [peekall]]
+        lappend r [run_next] [next] [next] [peekall]
+        return $r
+    }
+}
+
+snit::type ::wiptest::dsl2 {
+    wip::dsl foo
+    wip::dsl bar
+    constructor {} {
+        $self wip_foo_setup
+        $self wip_bar_setup
+        def_foo x a
+        def_bar x b
+    }
+    method a {}  { return A }
+    method b {v} { return B$v }
+    method go {args} {
+        return [list [runl_foo $args] [run_bar x 1]]
+    }
+}
+
+test wip-7.1 {wip::dsl, setup and procedures} -setup {
+    set o [::wiptest::dsl0 %AUTO%]
+} -body {
+    $o go a b 1 c 2 3
+} -cleanup {
+    $o destroy
+    unset o
+} -result C23
+
+test wip-7.2 {wip::dsl, program accessor procedures} -setup {
+    set o [::wiptest::dsl0 %AUTO%]
+} -body {
+    $o go2 a
+} -cleanup {
+    $o destroy
+    unset o
+} -result {b {b 1 a c 2 3} B1 a c {2 3}}
+
+test wip-7.3 {wip::dsl, installed setup method and procedures} -setup {
+    set o [::wiptest::dsl0 %AUTO%]
+} -body {
+    list [lsort [$o info methods wip*]] \
+        [lsort [namespace eval ::wiptest::dsl0 {info procs run*}]]
+} -cleanup {
+    $o destroy
+    unset o
+} -result {wip_setup {run run_next run_next_if run_next_ifnot run_next_until run_next_while runl}}
+
+test wip-7.4 {wip::dsl, suffixes} -setup {
+    set o [::wiptest::dsl2 %AUTO%]
+} -body {
+    list [$o go x] [lsort [$o info methods wip*]] \
+        [lsort [namespace eval ::wiptest::dsl2 {info procs def*}]]
+} -cleanup {
+    $o destroy
+    unset o
+} -result {{A B1} {wip_bar_setup wip_foo_setup} {def/_bar def/_foo def_bar def_foo defd_bar defd_foo defdva_bar defdva_foo defl_bar defl_foo deflva_bar deflva_foo}}
+
+# The manpage says that the component is named "wip", or "wip_$suffix"
+# with a suffix; it is "mywip" and "mywip_$suffix".
+test wip-7.5 {wip::dsl, component name} -setup {
+    set o [::wiptest::dsl0 %AUTO%]
+} -body {
+    llength [lsearch -all -glob [$o info vars] *::wip]
+} -cleanup {
+    $o destroy
+    unset o
+} -constraints knownBug -result 1
+
+test wip-7.6 {wip::dsl, actual component name} -setup {
+    set o [::wiptest::dsl0 %AUTO%]
+} -body {
+    llength [lsearch -all -glob [$o info vars] *::mywip]
+} -cleanup {
+    $o destroy
+    unset o
+} -result 1
+
