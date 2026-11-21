@@ -198,22 +198,22 @@ be found then the loopback address (127.0.0.1) is used as a default.
 
 [para]
 [example {
-% set tok [dns::resolve www.tcl.tk]
+% set tok [dns::resolve www.tcl-lang.org]
 ::dns::1
 % dns::status $tok
 ok
 % dns::address $tok
 199.175.6.239
 % dns::name $tok
-www.tcl.tk
+www.tcl-lang.org
 % dns::cleanup $tok
 }]
 
 [para]
 Using DNS URIs as queries:
 [example {
-% set tok [dns::resolve "dns:tcl.tk;type=MX"]
-% set tok [dns::resolve "dns://l.root-servers.net/www.tcl.tk"]
+% set tok [dns::resolve "dns:tcl-lang.org;type=MX"]
+% set tok [dns::resolve "dns://l.root-servers.net/www.tcl-lang.org"]
 }]
 
 [para]
@@ -229,7 +229,7 @@ localhost
 [para]
 Using DNS over TLS (RFC 7858):
 [example {
-% set tok [dns::resolve www.tcl.tk -nameserver dns-tls.bitwiseshift.net \
+% set tok [dns::resolve www.tcl-lang.org -nameserver dns-tls.bitwiseshift.net \
   -usetls 1 -cafile /etc/ssl/certs/ca-certificates.crt]
 ::dns::12
 % dns::wait $tok

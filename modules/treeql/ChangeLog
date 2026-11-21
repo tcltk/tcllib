@@ -186,7 +186,7 @@
 	* docs/api.dtd:    trees structures. The trees are expected to
 	* docs/index.html: follow the API of "struct::tree".
 	* docs/treeql.xml:
-	* docs/treeapi.xml:    CoST:   http://wiki.tcl.tk/cost
-	* docs/treeql-int.xml: TreeQL: http://wiki.tcl.tk/treecl
+	* docs/treeapi.xml:    CoST:   https://wiki.tcl-lang.org/cost
+	* docs/treeql-int.xml: TreeQL: https://wiki.tcl-lang.org/treecl
 	* docs/treeql-low.xml: The 'cl' is not a typo. The old name
 	* docs/api+xhtml.dtd:  was "Tree Control Language".
