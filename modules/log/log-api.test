@@ -1,0 +1,444 @@
+# -*- tcl -*-
+# log-api.test:  additional tests for the documented API of the log package.
+#
+# Complements log.test: logarray, loghex, ::log::Puts output, level
+# abbreviations in the setter commands, the default suppress argument,
+# lvCompare with lsort, error propagation and error cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal log.tcl log
+}
+
+# -------------------------------------------------------------------------
+# Helpers: save/restore the package state, collect log calls in a list.
+
+proc saveState {} {
+    global logstate
+    foreach a {cmdMap channelMap colorMap suppressed} {
+        set logstate($a) [array get ::log::$a]
+    }
+}
+proc restoreState {} {
+    global logstate
+    foreach a {cmdMap channelMap colorMap suppressed} {
+        array set ::log::$a $logstate($a)
+    }
+}
+proc memLog {level text} {
+    lappend ::memlog $level $text
+}
+proc memSetup {} {
+    saveState
+    set ::memlog {}
+    ::log::lvCmdForall memLog
+    ::log::lvSuppressLE emergency 0
+}
+proc memCleanup {} {
+    restoreState
+    unset -nocomplain ::memlog
+}
+
+set badlevel {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
+
+# -------------------------------------------------------------------------
+# Level abbreviations accepted by the setters and queries
+
+test log-api-1.1 {lvSuppress: default suppress argument is 1, abbreviation} -setup {
+    saveState
+} -body {
+    ::log::lvSuppress em 0
+    set r [::log::lvIsSuppressed emergency]
+    ::log::lvSuppress em
+    lappend r [::log::lvIsSuppressed emerg]
+} -cleanup {
+    restoreState
+    unset r
+} -result {0 1}
+
+test log-api-1.2 {lvSuppressLE: default suppress argument is 1, abbreviation} -setup {
+    saveState
+} -body {
+    ::log::lvSuppressLE emergency 0
+    ::log::lvSuppressLE wa
+    set r {}
+    foreach l [::log::levels] {lappend r [::log::lvIsSuppressed $l]}
+    set r
+} -cleanup {
+    restoreState
+    unset r l
+} -result {0 0 1 0 0 1 1 1}
+
+test log-api-1.3 {lvCmd: abbreviation} -setup {
+    saveState
+} -body {
+    ::log::lvCmd cr myCmd
+    ::log::lv2cmd critical
+} -cleanup {
+    restoreState
+} -result myCmd
+
+test log-api-1.4 {lvChannel: abbreviation} -setup {
+    saveState
+} -body {
+    ::log::lvChannel no myChan
+    ::log::lv2channel notice
+} -cleanup {
+    restoreState
+} -result myChan
+
+test log-api-1.5 {lvColor: abbreviation} -setup {
+    saveState
+} -body {
+    ::log::lvColor i blue
+    ::log::lv2color info
+} -cleanup {
+    restoreState
+} -result blue
+
+test log-api-1.6 {lvColorForall, then restore single level} -setup {
+    saveState
+} -body {
+    ::log::lvColorForall green
+    ::log::lvColor debug white
+    set r {}
+    foreach l [::log::levels] {lappend r [::log::lv2color $l]}
+    set r
+} -cleanup {
+    restoreState
+    unset r l
+} -result {green green white green green green green green}
+
+test log-api-1.7 {lvCompare usable as lsort -command} -body {
+    lsort -command ::log::lvCompare {info emergency debug warning error}
+} -result {debug info warning error emergency}
+
+test log-api-1.8 {lvCompare: abbreviations} -body {
+    list [::log::lvCompare em d] [::log::lvCompare d em] [::log::lvCompare w warning]
+} -result {1 -1 0}
+
+test log-api-1.9 {setters return empty} -setup {
+    saveState
+} -body {
+    list [::log::lvSuppress debug] [::log::lvSuppressLE debug] \
+        [::log::lvCmd debug x] [::log::lvCmdForall x] \
+        [::log::lvChannel debug x] [::log::lvChannelForall x] \
+        [::log::lvColor debug x] [::log::lvColorForall x]
+} -cleanup {
+    restoreState
+} -result {{} {} {} {} {} {} {} {}}
+
+# -------------------------------------------------------------------------
+# Errors for unknown levels
+
+foreach {n script} {
+    1 {::log::lvSuppress foo}
+    2 {::log::lvSuppressLE foo}
+    3 {::log::lvIsSuppressed foo}
+    4 {::log::lvCmd foo cmd}
+    5 {::log::lvChannel foo chan}
+    6 {::log::lvColor foo red}
+    7 {::log::logarray foo arr}
+    8 {::log::loghex foo text data}
+    9 {::log::logsubst foo text}
+} {
+    test log-api-2.$n "bad level: $script" -setup {
+        saveState
+    } -body $script -cleanup {
+        restoreState
+    } -returnCodes error -result $badlevel
+}
+
+test log-api-2.10 {lvSuppress: e is ambiguous} -body {
+    ::log::lvSuppress e
+} -returnCodes error -result {bad level "e": must be alert, critical, debug, emergency, error, info, notice, or warning.}
+
+# -------------------------------------------------------------------------
+# Wrong # args
+
+foreach {n script usage} {
+    1  {::log::levels x}           {::log::levels}
+    2  {::log::lv2longform}        {::log::lv2longform level}
+    3  {::log::lv2color}           {::log::lv2color level}
+    4  {::log::lv2priority}        {::log::lv2priority level}
+    5  {::log::lv2cmd}             {::log::lv2cmd level}
+    6  {::log::lv2channel}         {::log::lv2channel level}
+    7  {::log::lvCompare debug}    {::log::lvCompare level1 level2}
+    8  {::log::lvSuppress}         {::log::lvSuppress level ?suppress?}
+    9  {::log::lvSuppressLE}       {::log::lvSuppressLE level ?suppress?}
+    10 {::log::lvIsSuppressed}     {::log::lvIsSuppressed level}
+    11 {::log::lvCmd debug}        {::log::lvCmd level cmd}
+    12 {::log::lvCmdForall}        {::log::lvCmdForall cmd}
+    13 {::log::lvChannel debug}    {::log::lvChannel level chan}
+    14 {::log::lvChannelForall}    {::log::lvChannelForall chan}
+    15 {::log::lvColor debug}      {::log::lvColor level color}
+    16 {::log::lvColorForall}      {::log::lvColorForall color}
+    17 {::log::log debug}          {::log::log level text}
+    18 {::log::logarray debug}     {::log::logarray level arrayvar ?pattern?}
+    19 {::log::loghex debug text}  {::log::loghex level text data}
+    20 {::log::logsubst debug}     {::log::logsubst level text}
+    21 {::log::logMsg}             {::log::logMsg text}
+    22 {::log::logError}           {::log::logError text}
+    23 {::log::Puts debug}         {::log::Puts level text}
+} {
+    test log-api-3.$n "wrong # args: $script" -body $script \
+        -returnCodes error -result "wrong # args: should be \"$usage\""
+}
+
+# -------------------------------------------------------------------------
+# ::log::log
+
+test log-api-4.1 {log: multi-line text is logged line by line} -setup {
+    memSetup
+} -body {
+    ::log::log info "line1\nline2"
+    set ::memlog
+} -cleanup {
+    memCleanup
+} -result {info line1 info line2}
+
+test log-api-4.2 {log: abbreviated level is passed in long form} -setup {
+    memSetup
+} -body {
+    ::log::log wa hello
+    set ::memlog
+} -cleanup {
+    memCleanup
+} -result {warning hello}
+
+test log-api-4.3 {log: command prefix gets level and text appended} -setup {
+    memSetup
+    proc prefixLog {a b level text} {lappend ::memlog $a $b $level $text}
+} -body {
+    ::log::lvCmd error {prefixLog x y}
+    ::log::log error msg
+    set ::memlog
+} -cleanup {
+    memCleanup
+    rename prefixLog {}
+} -result {x y error msg}
+
+test log-api-4.4 {log: errors in the logging command propagate} -setup {
+    memSetup
+    proc failLog {level text} {error "failed: $level $text"}
+} -body {
+    ::log::lvCmd error failLog
+    ::log::log error msg
+} -cleanup {
+    memCleanup
+    rename failLog {}
+} -returnCodes error -result {failed: error msg}
+
+test log-api-4.5 {log: no command for the level, nothing logged} -setup {
+    memSetup
+} -body {
+    ::log::lvCmd debug {}
+    list [::log::log debug msg] $::memlog
+} -cleanup {
+    memCleanup
+} -result {{} {}}
+
+test log-api-4.6 {log: suppressed level, command not called} -setup {
+    memSetup
+    proc failLog {level text} {error "must not be called"}
+} -body {
+    ::log::lvCmd debug failLog
+    ::log::lvSuppress debug
+    ::log::log debug msg
+} -cleanup {
+    memCleanup
+    rename failLog {}
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::log::logarray
+
+test log-api-5.1 {logarray: all entries, sorted and aligned} -setup {
+    memSetup
+    array set arr {x 1 yy 2 zzz 3}
+} -body {
+    ::log::logarray info arr
+    set ::memlog
+} -cleanup {
+    memCleanup
+    unset arr
+} -result {info {arr(x)   = 1} info {arr(yy)  = 2} info {arr(zzz) = 3}}
+
+test log-api-5.2 {logarray: pattern} -setup {
+    memSetup
+    array set arr {x 1 yy 2 zzz 3 y 4}
+} -body {
+    ::log::logarray notice arr y*
+    set ::memlog
+} -cleanup {
+    memCleanup
+    unset arr
+} -result {notice {arr(y)  = 4} notice {arr(yy) = 2}}
+
+test log-api-5.3 {logarray: pattern matches nothing} -setup {
+    memSetup
+    array set arr {x 1}
+} -body {
+    ::log::logarray info arr q*
+    set ::memlog
+} -cleanup {
+    memCleanup
+    unset arr
+} -result {}
+
+test log-api-5.4 {logarray: array in the caller's scope, abbreviated level} -setup {
+    memSetup
+    proc logLocal {} {
+        array set local {k v}
+        ::log::logarray er local
+    }
+} -body {
+    logLocal
+    set ::memlog
+} -cleanup {
+    memCleanup
+    rename logLocal {}
+} -result {error {local(k) = v}}
+
+test log-api-5.5 {logarray: not an array} -setup {
+    memSetup
+    set scalar 1
+} -body {
+    ::log::logarray info scalar
+} -cleanup {
+    memCleanup
+    unset scalar
+} -returnCodes error -result {"scalar" isn't an array}
+
+test log-api-5.6 {logarray: suppressed level, no error for a non-array} -setup {
+    memSetup
+} -body {
+    ::log::lvSuppress info
+    list [::log::logarray info nosucharray] $::memlog
+} -cleanup {
+    memCleanup
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+# ::log::loghex
+
+test log-api-6.1 {loghex: hex/ascii dump} -setup {
+    memSetup
+} -body {
+    ::log::loghex debug Data "Hello\x00\x01World, longer than 16 bytes"
+    join $::memlog \n
+} -cleanup {
+    memCleanup
+} -result {debug
+Data (34 bytes):
+debug
+0000  48 65 6c 6c 6f 00 01 57 6f 72 6c 64 2c 20 6c 6f   |Hello..World, lo|
+debug
+0016  6e 67 65 72 20 74 68 61 6e 20 31 36 20 62 79 74   |nger than 16 byt|
+debug
+0032  65 73                                             |es|
+debug
+}
+
+test log-api-6.2 {loghex: empty data} -setup {
+    memSetup
+} -body {
+    ::log::loghex info Empty ""
+    set ::memlog
+} -cleanup {
+    memCleanup
+} -result {info {Empty (0 bytes):} info {}}
+
+test log-api-6.3 {loghex: suppressed level} -setup {
+    memSetup
+} -body {
+    ::log::lvSuppress info
+    ::log::loghex info Data abc
+    set ::memlog
+} -cleanup {
+    memCleanup
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::log::Puts
+
+test log-api-7.1 {Puts: writes padded level and text to the channel} -setup {
+    saveState
+    set fn [makeFile {} logapi[pid].log]
+    set ch [open $fn w]
+} -body {
+    ::log::lvChannelForall $ch
+    foreach l [::log::levels] {
+        ::log::Puts $l text
+    }
+    close $ch
+    viewFile $fn
+} -cleanup {
+    restoreState
+    removeFile $fn
+    unset fn ch l
+} -result {alert     text
+critical  text
+debug     text
+emergency text
+error     text
+info      text
+notice    text
+warning   text}
+
+test log-api-7.2 {Puts: no channel, nothing written} -setup {
+    saveState
+} -body {
+    ::log::lvChannel debug {}
+    ::log::Puts debug text
+} -cleanup {
+    restoreState
+} -result {}
+
+test log-api-7.3 {Puts: abbreviations are not allowed} -body {
+    ::log::Puts deb text
+} -returnCodes error -match glob -result {can't read "channelMap(deb)": *}
+
+test log-api-7.4 {Puts via log: default command writes to the level channel} -setup {
+    saveState
+    set fn [makeFile {} logapi[pid].log]
+    set ch [open $fn w]
+} -body {
+    ::log::lvCmdForall ::log::Puts
+    ::log::lvSuppressLE emergency 0
+    ::log::lvChannelForall {}
+    ::log::lvChannel error $ch
+    ::log::logError "two\nlines"
+    ::log::logMsg not-written
+    close $ch
+    viewFile $fn
+} -cleanup {
+    restoreState
+    removeFile $fn
+    unset fn ch
+} -result {error     two
+error     lines}
+
+# -------------------------------------------------------------------------
+
+memCleanup
+rename saveState {}
+rename restoreState {}
+rename memLog {}
+rename memSetup {}
+rename memCleanup {}
+unset -nocomplain logstate badlevel n script usage
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

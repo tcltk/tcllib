@@ -1,0 +1,162 @@
+# -*- tcl -*-
+# loggerAppender-api.test:  tests for the documented API of logger::appender.
+#
+# logger::appender::console and logger::appender::colorConsole, with
+# their options.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.2
+
+support {
+    use      md5/md5x.tcl       md5
+    useLocal logger.tcl         logger
+}
+testing {
+    useLocal loggerAppender.tcl logger::appender
+    useLocal loggerUtils.tcl    logger::utils
+}
+
+# -------------------------------------------------------------------------
+
+set datere {\[\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d\]}
+
+# -------------------------------------------------------------------------
+# console
+
+test loggerAppender-api-1.1 {console: -procName, default pattern} -setup {
+    eval [logger::appender::console -level error -service apiSvc \
+              -procName ::apiProc]
+} -body {
+    ::apiProc "the message"
+} -cleanup {
+    rename ::apiProc {}
+} -match regexp -output "^$datere \\\[apiSvc\\\] \\\[global\\\] \\\[error\\\] the message\n\$"
+
+test loggerAppender-api-1.2 {console: %M is the calling proc} -setup {
+    eval [logger::appender::console -level info -service apiSvc \
+              -procName ::apiProc]
+    proc ::apiCaller {} {::apiProc hello}
+} -body {
+    ::apiCaller
+} -cleanup {
+    rename ::apiProc {}
+    rename ::apiCaller {}
+} -match regexp -output {\[::apiCaller\] \[info\] hello\n$}
+
+test loggerAppender-api-1.3 {console: -procNameVar returns the generated name} -body {
+    set text [logger::appender::console -level warn -service apiSvc \
+                  -procNameVar pname]
+    eval $text
+    list [string match ::logger::appender::* $pname] \
+        [llength [info commands $pname]]
+} -cleanup {
+    rename $pname {}
+    unset text pname
+} -result {1 1}
+
+test loggerAppender-api-1.4 {console: generated names differ per level/service} -body {
+    logger::appender::console -level warn  -service apiSvc -procNameVar p1
+    logger::appender::console -level error -service apiSvc -procNameVar p2
+    logger::appender::console -level warn  -service other  -procNameVar p3
+    llength [lsort -unique [list $p1 $p2 $p3]]
+} -cleanup {
+    unset p1 p2 p3
+} -result 3
+
+test loggerAppender-api-1.5 {console: -procName and -procNameVar} -body {
+    logger::appender::console -level warn -service apiSvc \
+        -procName ::apiProc -procNameVar pname
+    set pname
+} -cleanup {
+    unset pname
+} -result ::apiProc
+
+test loggerAppender-api-1.6 {console: -conversionPattern} -setup {
+    eval [logger::appender::console -level notice -service apiSvc \
+              -procName ::apiProc -conversionPattern {%c/%p: %m}]
+} -body {
+    ::apiProc "the message"
+} -cleanup {
+    rename ::apiProc {}
+} -output "apiSvc/notice: the message\n"
+
+test loggerAppender-api-1.7 {console: -appenderArgs} -setup {
+    eval [logger::appender::console -level debug -service apiSvc \
+              -appenderArgs {-procName ::apiProc -conversionPattern {<%p> %m}}]
+} -body {
+    ::apiProc text
+} -cleanup {
+    rename ::apiProc {}
+} -output "<debug> text\n"
+
+test loggerAppender-api-1.8 {console: the message is not substituted} -setup {
+    eval [logger::appender::console -level debug -service apiSvc \
+              -procName ::apiProc -conversionPattern {%m}]
+} -body {
+    ::apiProc {$x [y] \n}
+} -cleanup {
+    rename ::apiProc {}
+} -output "\$x \[y\] \\n\n"
+
+test loggerAppender-api-1.9 {console: unknown option} -body {
+    logger::appender::console -level debug -service apiSvc -foo bar
+} -returnCodes error -match glob -result {Unknown argument: "-foo" :*Usage:*console*}
+
+# -------------------------------------------------------------------------
+# colorConsole
+
+test loggerAppender-api-2.1 {colorConsole: colored output per level} -setup {
+    eval [logger::appender::colorConsole -level error -service apiSvc \
+              -procName ::apiProc -procNameVar pname -conversionPattern {%p %m}]
+} -body {
+    ::apiProc msg
+} -cleanup {
+    rename ::apiProc {}
+    unset pname
+} -output "\033\[31merror msg\033\[0m\n"
+
+test loggerAppender-api-2.2 {colorConsole: colors of all levels} -body {
+    set r {}
+    foreach l [logger::levels] {
+        eval [logger::appender::colorConsole -level $l -service apiSvc \
+                  -procName ::apiProc -procNameVar pname -conversionPattern x]
+        regexp {"\\033\\\[([0-9;]*)m} [info body ::apiProc] -> code
+        lappend r $l $code
+        rename ::apiProc {}
+    }
+    set r
+} -cleanup {
+    unset r l pname code
+} -result {debug 36 info 1 notice {} warn 31 error 31 critical {1;31} alert {1;31} emergency {1;31}}
+
+# knownBug: colorConsole requires -procNameVar, which is documented as
+# optional (and is optional for console).
+test loggerAppender-api-2.3 {colorConsole: without -procNameVar} -constraints {
+    knownBug
+} -body {
+    eval [logger::appender::colorConsole -level warn -service apiSvc \
+              -procName ::apiProc -conversionPattern {%m}]
+    ::apiProc msg
+} -cleanup {
+    catch {rename ::apiProc {}}
+} -output "\033\[31mmsg\033\[0m\n"
+
+test loggerAppender-api-2.4 {colorConsole: unknown option} -body {
+    logger::appender::colorConsole -level debug -service apiSvc -foo bar
+} -returnCodes error -match glob -result {Unknown argument: "-foo" :*Usage:*}
+
+# -------------------------------------------------------------------------
+
+unset datere
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

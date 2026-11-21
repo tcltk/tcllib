@@ -1,0 +1,302 @@
+# -*- tcl -*-
+# loggerUtils-api.test:  additional tests for the documented API of
+# logger::utils.
+#
+# Complements loggerUtils.test: createFormatCmd with several
+# substitutions, createLogProc options (-outputChannel, %m, %P, %H, %c,
+# %p), applyAppender with -service, -levels, -appenderArgs and errors,
+# autoApplyAppender.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.2
+
+support {
+    use      md5/md5x.tcl       md5
+    useLocal logger.tcl         logger
+    useLocal loggerAppender.tcl logger::appender
+}
+testing {
+    useLocal loggerUtils.tcl logger::utils
+}
+
+# -------------------------------------------------------------------------
+
+proc removeAutoApply {} {
+    trace remove execution ::logger::init leave ::logger::utils::autoApplyAppender
+    unset -nocomplain ::logger::utils::autoApplyAppenderArgs
+}
+
+# -------------------------------------------------------------------------
+# createFormatCmd
+
+test loggerUtils-api-1.1 {createFormatCmd: several substitutions} -body {
+    subst [logger::utils::createFormatCmd {%c %p %P %H} \
+               -category apiCat -priority warn]
+} -result [list apiCat warn [pid] [info hostname]]
+
+test loggerUtils-api-1.2 {createFormatCmd: no category/priority, kept as is} -body {
+    logger::utils::createFormatCmd {%c %C %p}
+} -result {%c %C %p}
+
+test loggerUtils-api-1.3 {createFormatCmd: plain text} -body {
+    logger::utils::createFormatCmd {plain text}
+} -result {plain text}
+
+test loggerUtils-api-1.4 {createFormatCmd: %d is evaluated by subst} -body {
+    set cmd [logger::utils::createFormatCmd {<%d>}]
+    list [string match {*clock*} $cmd] \
+        [regexp {^<\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d>$} [subst $cmd]]
+} -cleanup {
+    unset cmd
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# createLogProc
+
+test loggerUtils-api-2.1 {createLogProc: -outputChannel} -setup {
+    set fn [makeFile {} loggerutils[pid].log]
+    set ch [open $fn w]
+} -body {
+    eval [logger::utils::createLogProc -procName ::apiProc \
+              -conversionPattern {%c|%p|%m} -category apiCat \
+              -priority error -outputChannel $ch]
+    ::apiProc "text 1"
+    ::apiProc "text 2"
+    close $ch
+    viewFile $fn
+} -cleanup {
+    rename ::apiProc {}
+    removeFile $fn
+    unset fn ch
+} -result "apiCat|error|text 1\napiCat|error|text 2"
+
+test loggerUtils-api-2.2 {createLogProc: default channel is stdout} -setup {
+    eval [logger::utils::createLogProc -procName ::apiProc \
+              -conversionPattern {%p: %m} -priority info]
+} -body {
+    ::apiProc hello
+} -cleanup {
+    rename ::apiProc {}
+} -output "info: hello\n"
+
+test loggerUtils-api-2.3 {createLogProc: %P and %H} -setup {
+    eval [logger::utils::createLogProc -procName ::apiProc \
+              -conversionPattern {%P %H %m}]
+} -body {
+    ::apiProc x
+} -cleanup {
+    rename ::apiProc {}
+} -output "[pid] [info hostname] x\n"
+
+test loggerUtils-api-2.4 {createLogProc: %C} -setup {
+    eval [logger::utils::createLogProc -procName ::apiProc \
+              -conversionPattern {%C %m} -category top::sub]
+} -body {
+    ::apiProc x
+} -cleanup {
+    rename ::apiProc {}
+} -output "top x\n"
+
+test loggerUtils-api-2.5 {createLogProc: %M in a namespace proc} -setup {
+    eval [logger::utils::createLogProc -procName ::apiProc \
+              -conversionPattern {%M %m}]
+    namespace eval ::apiNs {
+        proc caller {} {::apiProc x}
+    }
+} -body {
+    ::apiNs::caller
+} -cleanup {
+    rename ::apiProc {}
+    namespace delete ::apiNs
+} -output "::apiNs::caller x\n"
+
+test loggerUtils-api-2.6 {createLogProc: %M at global level} -setup {
+    eval [logger::utils::createLogProc -procName ::apiProc \
+              -conversionPattern {%M %m}]
+} -body {
+    ::apiProc x
+} -cleanup {
+    rename ::apiProc {}
+} -output "global x\n"
+
+test loggerUtils-api-2.7 {createLogProc: returns a proc definition} -body {
+    set text [logger::utils::createLogProc -procName ::apiProc \
+                  -conversionPattern {%m}]
+    list [lindex $text 0] [lindex $text 1] [lindex $text 2]
+} -cleanup {
+    unset text
+} -result {proc ::apiProc text}
+
+# knownBug: -conversionPattern is documented as an option, but omitting it
+# makes createLogProc fail.
+test loggerUtils-api-2.8 {createLogProc: without -conversionPattern} -constraints {
+    knownBug
+} -body {
+    eval [logger::utils::createLogProc -procName ::apiProc]
+    info commands ::apiProc
+} -cleanup {
+    catch {rename ::apiProc {}}
+} -result ::apiProc
+
+# -------------------------------------------------------------------------
+# applyAppender
+
+test loggerUtils-api-3.1 {applyAppender: -service by name} -setup {
+    set log [logger::init apiSvc]
+    ${log}::setlevel debug
+} -body {
+    logger::utils::applyAppender -appender console -service apiSvc \
+        -appenderArgs {-conversionPattern {\[%c\] \[%p\] %m}}
+    ${log}::warn "w"
+} -cleanup {
+    ${log}::delete
+    unset log
+} -output "\[apiSvc\] \[warn\] w\n"
+
+test loggerUtils-api-3.2 {applyAppender: -levels restricts the levels} -setup {
+    set log [logger::init apiSvc]
+    ${log}::setlevel debug
+    set default [${log}::logproc info]
+} -body {
+    logger::utils::applyAppender -appender console -serviceCmd $log \
+        -levels {error critical}
+    list [string equal [${log}::logproc info] $default] \
+        [string equal [${log}::logproc error] $default] \
+        [string match ::logger::appender::* [${log}::logproc error]] \
+        [string match ::logger::appender::* [${log}::logproc critical]]
+} -cleanup {
+    ${log}::delete
+    unset log default
+} -result {1 0 1 1}
+
+test loggerUtils-api-3.3 {applyAppender: all levels by default} -setup {
+    set log [logger::init apiSvc]
+} -body {
+    logger::utils::applyAppender -appender console -serviceCmd $log
+    set r {}
+    foreach l [logger::levels] {
+        lappend r [string match ::logger::appender::* [${log}::logproc $l]]
+    }
+    set r
+} -cleanup {
+    ${log}::delete
+    unset log r l
+} -result {1 1 1 1 1 1 1 1}
+
+test loggerUtils-api-3.4 {applyAppender: colorConsole on a service} -setup {
+    set log [logger::init apiSvc]
+    ${log}::setlevel debug
+} -body {
+    logger::utils::applyAppender -appender colorConsole -serviceCmd $log \
+        -levels debug -appenderArgs {-conversionPattern {%p %m}}
+    ${log}::debug d
+} -cleanup {
+    ${log}::delete
+    unset log
+} -output "\033\[36mdebug d\033\[0m\n"
+
+test loggerUtils-api-3.5 {applyAppender: documented example with %M} -setup {
+    set log [logger::init apiSvc]
+    ${log}::setlevel debug
+    proc ::apiCaller {} {${::log}::error "an error"}
+} -body {
+    logger::utils::applyAppender -serviceCmd $log -appender console \
+        -appenderArgs {-conversionPattern {\[%M\] \[%p\] - %m}}
+    ::apiCaller
+} -cleanup {
+    ${log}::delete
+    rename ::apiCaller {}
+    unset log
+} -output "\[::apiCaller\] \[error\] - an error\n"
+
+test loggerUtils-api-3.6 {applyAppender: unknown appender} -setup {
+    set log [logger::init apiSvc]
+} -body {
+    logger::utils::applyAppender -appender nosuch -serviceCmd $log
+} -cleanup {
+    ${log}::delete
+    unset log
+} -returnCodes error -result {could not find appender '::logger::appender::nosuch'}
+
+test loggerUtils-api-3.7 {applyAppender: unknown option} -body {
+    logger::utils::applyAppender -appender console -foo bar
+} -returnCodes error -match glob -result {Unknown argument: "-foo" :*Usage:*logger::utils::applyAppender*}
+
+test loggerUtils-api-3.8 {applyAppender: unknown service} -body {
+    logger::utils::applyAppender -appender console -service apiNoSuchService
+} -returnCodes error -result {Service "apiNoSuchService" does not exist.}
+
+test loggerUtils-api-3.9 {applyAppender: returns empty} -setup {
+    set log [logger::init apiSvc]
+} -body {
+    logger::utils::applyAppender -appender console -serviceCmd $log
+} -cleanup {
+    ${log}::delete
+    unset log
+} -result {}
+
+# -------------------------------------------------------------------------
+# autoApplyAppender
+
+test loggerUtils-api-4.1 {applyAppender without service: auto applied with -levels} -setup {
+    logger::utils::applyAppender -appender console -levels warn \
+        -appenderArgs {-conversionPattern {auto %c %p %m}}
+} -body {
+    set log [logger::init apiAuto]
+    ${log}::setlevel debug
+    ${log}::warn w
+    list [string match ::logger::appender::* [${log}::logproc warn]] \
+        [string match ::logger::appender::* [${log}::logproc error]]
+} -cleanup {
+    removeAutoApply
+    ${log}::delete
+    unset log
+} -result {1 0} -output "auto apiAuto warn w\n"
+
+test loggerUtils-api-4.2 {autoApplyAppender: returns its log argument} -setup {
+    set log [logger::init apiAuto]
+    set ::logger::utils::autoApplyAppenderArgs {-appender console}
+} -body {
+    string equal $log \
+        [logger::utils::autoApplyAppender logger::init {logger::init apiAuto} $log leave]
+} -cleanup {
+    removeAutoApply
+    ${log}::delete
+    unset log
+} -result 1
+
+test loggerUtils-api-4.3 {autoApplyAppender: needs -appender} -setup {
+    set log [logger::init apiAuto]
+    set ::logger::utils::autoApplyAppenderArgs {-levels warn}
+} -body {
+    logger::utils::autoApplyAppender logger::init {logger::init apiAuto} $log leave
+} -cleanup {
+    removeAutoApply
+    ${log}::delete
+    unset log
+} -returnCodes error -result {need to specify -appender}
+
+test loggerUtils-api-4.4 {applyAppender without service: trace added only once} -body {
+    logger::utils::applyAppender -appender console
+    logger::utils::applyAppender -appender console
+    llength [lsearch -all [trace info execution ::logger::init] \
+                 {leave ::logger::utils::autoApplyAppender}]
+} -cleanup {
+    removeAutoApply
+} -result 1
+
+# -------------------------------------------------------------------------
+
+rename removeAutoApply {}
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

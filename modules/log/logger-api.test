@@ -1,0 +1,381 @@
+# -*- tcl -*-
+# logger-api.test:  additional tests for the documented API of logger.
+#
+# Complements logger.test and logger_trace.test: the global
+# logger::enable/disable, the per-level log commands and the default
+# log procs, logproc/enable/disable/setlevel errors, delete and
+# lvlchangeproc/delproc defaults.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal logger.tcl logger
+}
+
+# -------------------------------------------------------------------------
+
+set badlevel {Invalid level 'foo' - levels are debug info notice warn error critical alert emergency}
+
+proc memLog {text} {
+    lappend ::memlog $text
+}
+
+# -------------------------------------------------------------------------
+# logger::enable / logger::disable
+
+test logger-api-1.1 {logger::disable: applies to all services} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiB]
+    ${a}::setlevel debug
+    ${b}::setlevel info
+} -body {
+    logger::disable warn
+    list [${a}::currentloglevel] [${b}::currentloglevel]
+} -cleanup {
+    ${a}::delete
+    ${b}::delete
+    unset a b
+} -result {error error}
+
+test logger-api-1.2 {logger::disable emergency switches all logging off} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiA::child]
+} -body {
+    logger::disable emergency
+    list [${a}::currentloglevel] [${b}::currentloglevel]
+} -cleanup {
+    ${a}::delete
+    unset a b
+} -result {none none}
+
+test logger-api-1.3 {logger::enable: applies to all services} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiB]
+    ${a}::setlevel error
+    ${b}::disable emergency
+} -body {
+    logger::enable notice
+    list [${a}::currentloglevel] [${b}::currentloglevel]
+} -cleanup {
+    ${a}::delete
+    ${b}::delete
+    unset a b
+} -result {notice notice}
+
+test logger-api-1.4 {logger::enable does not disable lower levels} -setup {
+    set a [logger::init apiA]
+    ${a}::setlevel debug
+} -body {
+    logger::enable error
+    ${a}::currentloglevel
+} -cleanup {
+    ${a}::delete
+    unset a
+} -result debug
+
+test logger-api-1.5 {logger::enable/disable: messages are (not) logged} -setup {
+    set a [logger::init apiA]
+    ${a}::logproc info memLog
+    set ::memlog {}
+} -body {
+    logger::disable emergency
+    ${a}::info one
+    logger::enable info
+    ${a}::info two
+    set ::memlog
+} -cleanup {
+    ${a}::delete
+    unset a ::memlog
+} -result two
+
+test logger-api-1.6 {logger::enable: invalid level} -setup {
+    set a [logger::init apiA]
+} -body {
+    logger::enable foo
+} -cleanup {
+    ${a}::delete
+    unset a
+} -returnCodes error -result $badlevel
+
+test logger-api-1.7 {logger::disable: invalid level} -setup {
+    set a [logger::init apiA]
+} -body {
+    logger::disable foo
+} -cleanup {
+    ${a}::delete
+    unset a
+} -returnCodes error -result $badlevel
+
+test logger-api-1.8 {logger::enable: wrong # args} -body {
+    logger::enable
+} -returnCodes error -result {wrong # args: should be "logger::enable lv"}
+
+test logger-api-1.9 {logger::disable: wrong # args} -body {
+    logger::disable
+} -returnCodes error -result {wrong # args: should be "logger::disable lv"}
+
+# -------------------------------------------------------------------------
+# Log level commands
+
+test logger-api-2.1 {each level command calls the logproc of its level} -setup {
+    set a [logger::init apiA]
+    ${a}::setlevel debug
+    foreach l [logger::levels] {
+        proc memLog-$l {text} "lappend ::memlog $l \$text"
+        ${a}::logproc $l memLog-$l
+    }
+    set ::memlog {}
+} -body {
+    foreach l [logger::levels] {
+        ${a}::$l "message $l"
+    }
+    set ::memlog
+} -cleanup {
+    ${a}::delete
+    foreach l [logger::levels] {rename memLog-$l {}}
+    unset a l ::memlog
+} -result {debug {message debug} info {message info} notice {message notice} warn {message warn} error {message error} critical {message critical} alert {message alert} emergency {message emergency}}
+
+test logger-api-2.2 {default log procs write to stdout} -setup {
+    set a [logger::init apiA]
+    ${a}::setlevel debug
+} -body {
+    foreach l [logger::levels] {
+        ${a}::$l "msg $l"
+    }
+} -cleanup {
+    ${a}::delete
+    unset a l
+} -match regexp -output {^\[[^]]+\] \[apiA\] \[debug\] 'msg debug'
+\[[^]]+\] \[apiA\] \[info\] 'msg info'
+\[[^]]+\] \[apiA\] \[notice\] 'msg notice'
+\[[^]]+\] \[apiA\] \[warn\] 'msg warn'
+\[[^]]+\] \[apiA\] \[error\] 'msg error'
+\[[^]]+\] \[apiA\] \[critical\] 'msg critical'
+\[[^]]+\] \[apiA\] \[alert\] 'msg alert'
+\[[^]]+\] \[apiA\] \[emergency\] 'msg emergency'
+$}
+
+test logger-api-2.3 {default log proc of a child service uses the child name} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiA::sub]
+    ${b}::setlevel debug
+} -body {
+    ${b}::notice hello
+} -cleanup {
+    ${a}::delete
+    unset a b
+} -match regexp -output {^\[[^]]+\] \[apiA::sub\] \[notice\] 'hello'\n$}
+
+test logger-api-2.4 {disabled level writes nothing} -setup {
+    set a [logger::init apiA]
+    ${a}::setlevel error
+} -body {
+    ${a}::warn hidden
+    ${a}::debug hidden
+} -cleanup {
+    ${a}::delete
+    unset a
+} -output {}
+
+test logger-api-2.5 {logproc: query the default log proc} -setup {
+    set a [logger::init apiA]
+} -body {
+    list [${a}::logproc info] [${a}::logproc emergency]
+} -cleanup {
+    ${a}::delete
+    unset a
+} -result {::logger::tree::apiA::infocmd ::logger::tree::apiA::emergencycmd}
+
+test logger-api-2.6 {logproc: invalid level} -setup {
+    set a [logger::init apiA]
+} -body {
+    ${a}::logproc foo
+} -cleanup {
+    ${a}::delete
+    unset a
+} -returnCodes error -result $badlevel
+
+test logger-api-2.7 {logproc: nonexistent command} -setup {
+    set a [logger::init apiA]
+} -body {
+    ${a}::logproc info nosuchcommand
+} -cleanup {
+    ${a}::delete
+    unset a
+} -returnCodes error -result {Invalid cmd 'nosuchcommand' - does not exist}
+
+test logger-api-2.8 {enable: invalid level} -setup {
+    set a [logger::init apiA]
+} -body {
+    ${a}::enable foo
+} -cleanup {
+    ${a}::delete
+    unset a
+} -returnCodes error -result $badlevel
+
+test logger-api-2.9 {disable: invalid level} -setup {
+    set a [logger::init apiA]
+} -body {
+    ${a}::disable foo
+} -cleanup {
+    ${a}::delete
+    unset a
+} -returnCodes error -result $badlevel
+
+test logger-api-2.10 {service setlevel: invalid level} -setup {
+    set a [logger::init apiA]
+} -body {
+    ${a}::setlevel foo
+} -cleanup {
+    ${a}::delete
+    unset a
+} -returnCodes error -result $badlevel
+
+test logger-api-2.11 {enable/disable/setlevel apply to children} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiA::sub]
+    ${a}::setlevel debug
+} -body {
+    set r [${b}::currentloglevel]
+    ${a}::disable notice
+    lappend r [${b}::currentloglevel]
+    ${a}::enable info
+    lappend r [${b}::currentloglevel]
+    ${a}::setlevel critical
+    lappend r [${b}::currentloglevel]
+} -cleanup {
+    ${a}::delete
+    unset a b r
+} -result {debug warn info critical}
+
+# -------------------------------------------------------------------------
+# init / delete / introspection
+
+test logger-api-3.1 {logger::init: wrong # args} -body {
+    logger::init
+} -returnCodes error -result {wrong # args: should be "logger::init service"}
+
+test logger-api-3.2 {logger::init: creates the missing parent} -setup {
+    set b [logger::init apiP::sub]
+} -body {
+    list [lsort [logger::services]] [logger::servicecmd apiP]
+} -cleanup {
+    [logger::servicecmd apiP]::delete
+    unset b
+} -result {{apiP apiP::sub} ::logger::tree::apiP}
+
+test logger-api-3.3 {logger::init: existing service returns the same token} -setup {
+    set a [logger::init apiA]
+} -body {
+    string equal $a [logger::init apiA]
+} -cleanup {
+    ${a}::delete
+    # Drop the stale duplicate entry, see logger-api-3.11.
+    set ::logger::services [lsearch -all -inline -not -exact $::logger::services apiA]
+    unset a
+} -result 1
+
+test logger-api-3.4 {delete: removes the service and its children} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiA::sub]
+} -body {
+    ${a}::delete
+    list [namespace exists $a] [namespace exists $b] \
+        [logger::services]
+} -cleanup {
+    unset a b
+} -result {0 0 {}}
+
+test logger-api-3.5 {delete: log commands are gone} -setup {
+    set a [logger::init apiA]
+    ${a}::delete
+} -body {
+    ${a}::info x
+} -cleanup {
+    unset a
+} -returnCodes error -result {invalid command name "::logger::tree::apiA::info"}
+
+test logger-api-3.6 {delete: child only, parent stays} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiA::sub]
+} -body {
+    ${b}::delete
+    list [${a}::services] [lsearch -exact [logger::services] apiA]
+} -cleanup {
+    ${a}::delete
+    unset a b
+} -result {{} 0}
+
+test logger-api-3.7 {delproc and lvlchangeproc: default is a no-op} -setup {
+    set a [logger::init apiA]
+} -body {
+    list [${a}::delproc] [${a}::lvlchangeproc]
+} -cleanup {
+    ${a}::delete
+    unset a
+} -result {::logger::tree::apiA::no-op ::logger::tree::apiA::no-op}
+
+test logger-api-3.8 {lvlchangeproc: called with old and new level} -setup {
+    set a [logger::init apiA]
+    ${a}::setlevel warn
+    set ::memlog {}
+    ${a}::lvlchangeproc {lappend ::memlog}
+} -body {
+    ${a}::setlevel error
+    ${a}::enable info
+    ${a}::disable emergency
+    set ::memlog
+} -cleanup {
+    ${a}::delete
+    unset a ::memlog
+} -result {warn error error info info none}
+
+test logger-api-3.9 {servicename of a child service} -setup {
+    set a [logger::init apiA]
+    set b [logger::init apiA::sub]
+} -body {
+    list [${a}::servicename] [${b}::servicename]
+} -cleanup {
+    ${a}::delete
+    unset a b
+} -result {apiA apiA::sub}
+
+# knownBug: logger::init of an existing service appends a duplicate entry
+# to the list of services; after delete a stale entry remains, and the
+# global logger::enable/disable/setlevel then fail on it.
+test logger-api-3.11 {logger::init twice, then delete} -constraints {
+    knownBug
+} -setup {
+    set a [logger::init apiA]
+    logger::init apiA
+} -body {
+    set r [list [logger::services]]
+    ${a}::delete
+    lappend r [logger::services] [catch {logger::enable warn}]
+} -cleanup {
+    set ::logger::services [lsearch -all -inline -not -exact $::logger::services apiA]
+    unset a r
+} -result {apiA {} 0}
+
+test logger-api-3.10 {logger::levels} -body {
+    logger::levels
+} -result {debug info notice warn error critical alert emergency}
+
+# -------------------------------------------------------------------------
+
+rename memLog {}
+unset badlevel
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
