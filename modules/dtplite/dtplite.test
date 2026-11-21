@@ -1,0 +1,693 @@
+# -*- tcl -*-
+# dtplite.test:  Tests for the dtplite package.
+#
+# This file contains a collection of tests for the package dtplite
+# (lightweight doctools processor, the foundation of the dtplite
+# application). Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+# The doctools formatting engines load their helper packages through
+# the package management, from the local tcllib.
+set savedAutoPath $auto_path
+set auto_path [linsert $auto_path 0 [tcllibPath {}]]
+
+support {
+    use cmdline/cmdline.tcl     cmdline
+    use fileutil/fileutil.tcl   fileutil
+    use textutil/expander.tcl   textutil::expander
+    use textutil/repeat.tcl     textutil::repeat
+    use doctools/doctools.tcl   doctools
+    use doctools/doctoc.tcl     doctools::toc
+    use doctools/docidx.tcl     doctools::idx
+}
+testing {
+    useLocal dtplite.tcl dtplite
+}
+
+array_unset env LANG*
+array_unset env LC_*
+set env(LANG) C
+
+# -------------------------------------------------------------------------
+## Helpers
+
+set work [makeDirectory dtplite-work]
+
+proc wpath {args} {
+    file join $::work {*}$args
+}
+
+proc writeFile {path content} {
+    file mkdir [file dirname $path]
+    set ch [open $path w]
+    puts -nonewline $ch $content
+    close $ch
+    return $path
+}
+
+proc readFile {path} {
+    set ch [open $path r]
+    set d [read $ch]
+    close $ch
+    return $d
+}
+
+proc manpage {name keywords {body {Hello [cmd world].}}} {
+    return "\[manpage_begin $name n 1.0\]
+\[keywords $keywords\]
+\[moddesc {Module of $name}\]
+\[titledesc {Title of $name}\]
+\[description\]
+$body
+\[manpage_end\]
+"
+}
+
+# Messages printed by the package are collected here.
+proc collect {args} {
+    lappend ::printed $args
+    return
+}
+
+# Run dtplite::do, return {code result printed-messages}.
+proc dodt {arguments} {
+    set ::printed {}
+    set code [catch {dtplite::do $arguments} res]
+    list $code $res $::printed
+}
+
+# Reset the state left behind by the known bugs, to keep the tests
+# independent of each other.
+proc resetdt {} {
+    catch {dt destroy}
+    set ::dtplite::raw off
+    set ::printed {}
+    foreach f [glob -nocomplain -directory $::work * .*] {
+	if {[file tail $f] in {. ..}} continue
+	file delete -force $f
+    }
+}
+
+proc setupdocs {} {
+    writeFile [wpath foo.man]            [manpage foo {alpha beta}]
+    writeFile [wpath src foo.man]        [manpage foo {alpha beta}]
+    writeFile [wpath src sub bar.man]    [manpage bar {beta gamma}]
+    writeFile [wpath src readme.txt]     "Not a manpage.\n"
+    writeFile [wpath pkg2 baz.man]       [manpage baz {delta}]
+    writeFile [wpath bad.man]            "\[manpage_begin x n 1\]\n\[description\]\n\[bogus\]\n\[manpage_end\]\n"
+    writeFile [wpath header.inc]         "<p>HEADER</p>"
+    writeFile [wpath footer.inc]         "<p>FOOTER</p>"
+    writeFile [wpath style.css]          "body {}\n"
+    file mkdir [wpath out]
+    file mkdir [wpath empty]
+}
+
+dtplite::print-via collect
+
+# -------------------------------------------------------------------------
+## print-via
+
+test dtplite-1.0 {print-via, wrong # args} -body {
+    dtplite::print-via
+} -returnCodes error -result [wrongNumArgs dtplite::print-via {cmd} 0]
+
+test dtplite-1.1 {print-via, wrong # args, too many} -body {
+    dtplite::print-via a b
+} -returnCodes error -result [tooManyArgs dtplite::print-via {cmd}]
+
+test dtplite-1.2 {print-via, result, redirection of messages} -setup {
+    set log {}
+    proc mylog {args} {lappend ::log $args}
+} -body {
+    list [dtplite::print-via mylog] [dtplite::do {}] $log
+} -cleanup {
+    dtplite::print-via collect
+    rename mylog {}
+    unset -nocomplain log
+    resetdt
+} -match glob -result {{} 1 {{stderr {* wrong#args, expected: -o outputpath ?-merge? ?-raw? ?-ext ext? ?-style file? ?-header file? ?-footer file? ?-module string? ?-nav label url?... format inputpath}}}}
+
+test dtplite-1.3 {print-via, command prefix} -setup {
+    set log {}
+    proc mylog {tag args} {lappend ::log $tag [lindex $args 0]}
+} -body {
+    dtplite::print-via {mylog TAG}
+    dtplite::do {}
+    set log
+} -cleanup {
+    dtplite::print-via collect
+    rename mylog {}
+    unset -nocomplain log
+    resetdt
+} -result {TAG stderr}
+
+# -------------------------------------------------------------------------
+## do, command line errors.
+
+test dtplite-2.0 {do, wrong # args} -body {
+    dtplite::do
+} -returnCodes error -result [wrongNumArgs dtplite::do {arguments} 0]
+
+test dtplite-2.1 {do, wrong # args, too many} -body {
+    dtplite::do a b
+} -returnCodes error -result [tooManyArgs dtplite::do {arguments}]
+
+set usage {* wrong#args, expected: -o outputpath ?-merge? ?-raw? ?-ext ext? ?-style file? ?-header file? ?-footer file? ?-module string? ?-nav label url?... format inputpath}
+
+set n 0
+foreach arguments {
+    {}
+    {html}
+    {-o}
+    {-o out html foo.man extra}
+    {-bogus html foo.man}
+    {-o out -ext}
+    {-o out -toc}
+    {-o out -post+toc label}
+    {-o out -pre+toc label}
+    {-o out -exclude}
+    {-o out -style}
+    {-o out -header}
+    {-o out -footer}
+    {-o out -module}
+    {-o out -nav label}
+    {-o out -prenav label}
+    {-o out -postnav label}
+} {
+    test dtplite-2.2.$n "do, usage error: $arguments" -setup {
+	setupdocs
+    } -body {
+	dodt $arguments
+    } -cleanup {
+	resetdt
+    } -match glob -result [list 0 1 [list [list stderr $usage]]]
+    incr n
+}
+
+foreach {n arguments message} {
+    0 {-o @out@ {} @foo.man@}
+    {Illegal empty format specification}
+    1 {-o @out@ bogus @foo.man@}
+    {Unknown format "bogus"}
+    2 {-o @out@ html @nosuch.man@}
+    {Unable to find Input path "@nosuch.man@"}
+    3 {-o @out@ -header @header.inc@ nroff @foo.man@}
+    {-header not supported by format "nroff"}
+    4 {-o @out@ -footer @footer.inc@ nroff @foo.man@}
+    {-footer not supported by format "nroff"}
+    5 {-o @out@ -raw nroff @foo.man@}
+    {-raw not supported by format "nroff"}
+    6 {-o @out@ -style @style.css@ nroff @foo.man@}
+    {-style not supported by format "nroff"}
+    7 {-o @out@ -style @nosuch.css@ html @foo.man@}
+    {Unable to find style file "@nosuch.css@"}
+    8 {-o @out@ -header @nosuch.inc@ html @foo.man@}
+    {Unable to find Header file "@nosuch.inc@"}
+    9 {-o @out@ -footer @nosuch.inc@ html @foo.man@}
+    {Unable to find Footer file "@nosuch.inc@"}
+    10 {-merge -o @out@ html @foo.man@}
+    {-merge illegal when processing a single input file.}
+    11 {html @foo.man@}
+    {No output path specified}
+    12 {-o @nosuchdir/x.html@ html @foo.man@}
+    {Output base path "@nosuchdir@" not found}
+    13 {-o @foo.man@ html @src@}
+    {Output path "@foo.man@" not a directory}
+    14 {html @src@}
+    {No output path specified}
+} {
+    set map [list @ $work/]
+    regsub -all {@([^@]*)@} $arguments "$work/\\1" arguments
+    regsub -all {@([^@]*)@} $message   "$work/\\1" message
+    test dtplite-2.3.$n "do, argument error: $message" -setup {
+	setupdocs
+    } -body {
+	dodt $arguments
+    } -cleanup {
+	resetdt
+    } -match glob -result [list 0 1 [list [list stderr "*: $message"]]]
+}
+unset -nocomplain n arguments message map
+
+test dtplite-2.4 {do, -nav requires header support} -constraints knownBug -setup {
+    # The check looks at the never set variable "nav" instead of the
+    # navigation buttons collected from -nav/-prenav.
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] -nav label url nroff [wpath foo.man]]
+} -cleanup {
+    resetdt
+} -match glob -result {0 1 {{stderr {*: -nav not supported by format "nroff"}}}}
+
+test dtplite-2.5 {do, usable again after an unknown format} -constraints knownBug -setup {
+    # The doctools object "dt" created for the format check is not
+    # destroyed on argument errors, all later calls fail silently.
+    setupdocs
+    catch {dtplite::do [list -o [wpath out] bogus [wpath foo.man]]}
+} -body {
+    dodt [list -o [wpath out.nroff] nroff [wpath foo.man]]
+} -cleanup {
+    resetdt
+} -result {0 0 {}}
+
+test dtplite-2.6 {do, -raw does not stick to later calls} -constraints knownBug -setup {
+    # Init does not reset the raw flag.
+    setupdocs
+    dtplite::do [list -o [wpath out raw.html] -raw html [wpath foo.man]]
+    catch {dt destroy}
+} -body {
+    dodt [list -o [wpath out.nroff] nroff [wpath foo.man]]
+} -cleanup {
+    resetdt
+} -result {0 0 {}}
+
+test dtplite-2.7 {do, documented result is the empty string} -constraints knownBug -setup {
+    # The manpage documents an empty result, the code returns 0 or 1
+    # (exit status for the application).
+    setupdocs
+} -body {
+    dtplite::do [list -o [wpath out.nroff] nroff [wpath foo.man]]
+} -cleanup {
+    resetdt
+} -result {}
+
+# -------------------------------------------------------------------------
+## do, single file modes.
+
+test dtplite-3.0 {do, validate a valid document} -setup {
+    setupdocs
+} -body {
+    list [dodt [list validate [wpath foo.man]]] [glob -nocomplain -directory [wpath out] *]
+} -cleanup {
+    resetdt
+} -result {{0 0 {}} {}}
+
+test dtplite-3.1 {do, validate an invalid document} -constraints knownBug -setup {
+    # Processing errors are printed, then do throws an error with an
+    # empty message instead of returning 1.
+    setupdocs
+} -body {
+    dodt [list validate [wpath bad.man]]
+} -cleanup {
+    resetdt
+} -match glob -result {0 1 {{stderr {*: Doctools Error in macro at line 3, column 0:
+\[bogus\]
+--> invalid command name "bogus"}}}}
+
+test dtplite-3.2 {do, invalid document, message printed} -setup {
+    setupdocs
+} -body {
+    set r [dodt [list validate [wpath bad.man]]]
+    list [lindex $r 0] [lindex $r 2]
+} -cleanup {
+    resetdt
+    unset -nocomplain r
+} -match glob -result {1 {{stderr {*: Doctools Error in macro at line 3, column 0:
+\[bogus\]
+--> invalid command name "bogus"}}}}
+
+test dtplite-3.3 {do, file to file, nroff} -setup {
+    setupdocs
+} -body {
+    set r [dodt [list -o [wpath out foo.n] nroff [wpath foo.man]]]
+    set d [readFile [wpath out foo.n]]
+    list $r [regexp {\.TH "foo" n 1\\&\.0 foo "Module of foo"} $d] \
+	[regexp {foo \\- Title of foo} $d] [regexp {Hello \\fBworld\\fR} $d] \
+	[regexp {alpha, beta} $d]
+} -cleanup {
+    resetdt
+    unset -nocomplain r d
+} -result {{0 0 {}} 1 1 1 1}
+
+test dtplite-3.4 {do, file to file, validate is null format} -setup {
+    setupdocs
+} -body {
+    list [dodt [list -o [wpath out x] validate [wpath foo.man]]] [file exists [wpath out x]]
+} -cleanup {
+    resetdt
+} -result {{0 0 {}} 1}
+
+test dtplite-3.5 {do, file to file, null format} -setup {
+    setupdocs
+} -body {
+    list [dodt [list -o [wpath out x] null [wpath foo.man]]] [file size [wpath out x]]
+} -cleanup {
+    resetdt
+} -result {{0 0 {}} 0}
+
+test dtplite-3.6 {do, file to existing directory, name derived from format} -setup {
+    setupdocs
+} -body {
+    list [dodt [list -o [wpath out] text [wpath foo.man]]] \
+	[glob -nocomplain -tails -directory [wpath out] *]
+} -cleanup {
+    resetdt
+} -result {{0 0 {}} foo.text}
+
+test dtplite-3.7 {do, file to existing directory, -ext} -setup {
+    setupdocs
+} -body {
+    list [dodt [list -o [wpath out] -ext txt -ext asc text [wpath foo.man]]] \
+	[glob -nocomplain -tails -directory [wpath out] *]
+} -cleanup {
+    resetdt
+} -result {{0 0 {}} foo.asc}
+
+test dtplite-3.8 {do, file to file, -ext ignored} -setup {
+    setupdocs
+} -body {
+    list [dodt [list -o [wpath out my.out] -ext txt text [wpath foo.man]]] \
+	[glob -nocomplain -tails -directory [wpath out] *]
+} -cleanup {
+    resetdt
+} -result {{0 0 {}} my.out}
+
+test dtplite-3.9 {do, format as path to engine file} -setup {
+    setupdocs
+} -body {
+    set fmt [tcllibPath doctools/mpformats/fmt.text]
+    set r [dodt [list -o [wpath out foo.txt] $fmt [wpath foo.man]]]
+    list $r [regexp {foo - Title of foo} [readFile [wpath out foo.txt]]]
+} -cleanup {
+    resetdt
+    unset -nocomplain r fmt
+} -result {{0 0 {}} 1}
+
+test dtplite-3.10 {do, html with header, footer, style, navigation} -setup {
+    setupdocs
+} -body {
+    set r [dodt [list -o [wpath out foo.html] \
+		     -header [wpath header.inc] -footer [wpath footer.inc] \
+		     -style [wpath style.css] \
+		     -nav N1 u1.html -prenav N2 u2.html -postnav P1 p1.html -postnav P2 p2.html \
+		     html [wpath foo.man]]]
+    set d [readFile [wpath out foo.html]]
+    list $r \
+	[regexp {<body><p>HEADER</p>} $d] \
+	[regexp {<p>FOOTER</p>\s*</div></body>} $d] \
+	[regexp "<link rel=\"stylesheet\" href=\"[wpath style.css]\"" $d] \
+	[regexp {<a href="u1.html">N1</a>\s*&#124; <a href="u2.html">N2</a>\s*&#124; <a href="p1.html">P1</a>\s*&#124; <a href="p2.html">P2</a>} $d] \
+	[regexp {<title>foo - Module of foo</title>} $d]
+} -cleanup {
+    resetdt
+    unset -nocomplain r d
+} -result {{0 0 {}} 1 1 1 1 1}
+
+test dtplite-3.11 {do, html, last -header wins} -setup {
+    setupdocs
+    writeFile [wpath header2.inc] "<p>SECOND</p>"
+} -body {
+    dodt [list -o [wpath out foo.html] -header [wpath header.inc] -header [wpath header2.inc] \
+	      html [wpath foo.man]]
+    set d [readFile [wpath out foo.html]]
+    list [regexp {HEADER} $d] [regexp {SECOND} $d]
+} -cleanup {
+    resetdt
+    unset -nocomplain d
+} -result {0 1}
+
+test dtplite-3.12 {do, html raw output} -setup {
+    setupdocs
+} -body {
+    set r [dodt [list -o [wpath out foo.html] -raw html [wpath foo.man]]]
+    set d [readFile [wpath out foo.html]]
+    list $r [string match {<div class="doctools">*} $d] [regexp {<html>|<body>} $d]
+} -cleanup {
+    resetdt
+    unset -nocomplain r d
+} -result {{0 0 {}} 1 0}
+
+test dtplite-3.13 {do, output to stdout} -setup {
+    setupdocs
+    writeFile [wpath run.tcl] [string map [list @AP@ [list [tcllibPath {}]] @M@ [list [tcllibPath {}]]] {
+	set auto_path [linsert $auto_path 0 @AP@]
+	foreach f {
+	    cmdline/cmdline.tcl fileutil/fileutil.tcl textutil/expander.tcl
+	    textutil/repeat.tcl doctools/doctools.tcl doctools/doctoc.tcl
+	    doctools/docidx.tcl dtplite/dtplite.tcl
+	} {
+	    source [file join @M@ $f]
+	}
+	exit [dtplite::do $argv]
+    }]
+} -body {
+    set d [exec [info nameofexecutable] [wpath run.tcl] -o - text [wpath foo.man]]
+    list [regexp {foo - Title of foo} $d] [regexp {Hello world} $d] \
+	[glob -nocomplain -directory [wpath out] *]
+} -cleanup {
+    resetdt
+    unset -nocomplain d
+} -result {1 1 {}}
+
+# -------------------------------------------------------------------------
+## do, directory mode.
+
+test dtplite-4.0 {do, directory, structure} -setup {
+    setupdocs
+} -body {
+    set r [dodt [list -o [wpath out] html [wpath src]]]
+    list $r [lsort [fileutil::find [wpath out]]]
+} -cleanup {
+    resetdt
+    unset -nocomplain r
+} -result [list {0 0 {{stdout {Writing toc (html) toc.html ...}} {stdout {Writing index (html) index.html ...}} {stdout {	foo.man}} {stdout {	sub/bar.man}}}} \
+	       [lsort [list [wpath out .idxdoc] [wpath out .tocdoc] [wpath out files] \
+			   [wpath out files foo.html] [wpath out files sub] \
+			   [wpath out files sub bar.html] [wpath out index.html] \
+			   [wpath out toc.html]]]]
+
+test dtplite-4.1 {do, directory, output directory created} -setup {
+    setupdocs
+} -body {
+    dodt [list -o [wpath newout] html [wpath src]]
+    list [file isfile [wpath newout toc.html]] [file isfile [wpath newout files foo.html]]
+} -cleanup {
+    resetdt
+} -result {1 1}
+
+test dtplite-4.2 {do, directory, table of contents and index} -setup {
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] html [wpath src]]
+    set toc [readFile [wpath out toc.html]]
+    set idx [readFile [wpath out index.html]]
+    list [regexp {<h2>src</h2>} $toc] \
+	[regexp {<a href="files/foo.html">foo</a>} $toc] \
+	[regexp {<a href="files/sub/bar.html">bar</a>} $toc] \
+	[regexp {<a href="index.html">Keyword Index</a>} $toc] \
+	[regexp {alpha} $idx] [regexp {gamma} $idx] \
+	[regexp {<a href="files/sub/bar.html">} $idx] \
+	[regexp {<a href="toc.html">Table Of Contents</a>} $idx]
+} -cleanup {
+    resetdt
+    unset -nocomplain toc idx
+} -result {1 1 1 1 1 1 1 1}
+
+test dtplite-4.3 {do, directory, documents link to toc and index} -setup {
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] html [wpath src]]
+    set d [readFile [wpath out files sub bar.html]]
+    list [regexp {<a href="../../toc.html">} $d] [regexp {<a href="../../index.html">} $d]
+} -cleanup {
+    resetdt
+    unset -nocomplain d
+} -result {1 1}
+
+test dtplite-4.4 {do, directory, intermediate doctoc and docidx files} -setup {
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] html [wpath src]]
+    list [string match {*\[toc_begin*} [readFile [wpath out .tocdoc]]] \
+	[string match {*\[index_begin*} [readFile [wpath out .idxdoc]]]
+} -cleanup {
+    resetdt
+} -result {1 1}
+
+test dtplite-4.5 {do, directory, -exclude (multiple)} -setup {
+    setupdocs
+    writeFile [wpath src other.man] [manpage other {omega}]
+} -body {
+    set r [dodt [list -o [wpath out] -exclude *bar* -exclude *other* html [wpath src]]]
+    list [lindex $r 2] [glob -nocomplain -tails -directory [wpath out files] *]
+} -cleanup {
+    resetdt
+    unset -nocomplain r
+} -result {{{stdout {Writing toc (html) toc.html ...}} {stdout {Writing index (html) index.html ...}} {stdout {	foo.man}}} foo.html}
+
+test dtplite-4.6 {do, directory, -ext} -setup {
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] -ext htm html [wpath src]]
+    list [lsort [glob -nocomplain -tails -directory [wpath out] *]] \
+	[regexp {files/foo.htm"} [readFile [wpath out toc.htm]]]
+} -cleanup {
+    resetdt
+} -result {{files index.htm toc.htm} 1}
+
+test dtplite-4.7 {do, directory, -style copied into output} -setup {
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] -style [wpath style.css] html [wpath src]]
+    list [file exists [wpath out style.css]] \
+	[regexp {<link rel="stylesheet" href="style.css"} [readFile [wpath out toc.html]]] \
+	[regexp {<link rel="stylesheet" href="../style.css"} [readFile [wpath out files foo.html]]]
+} -cleanup {
+    resetdt
+} -result {1 1 1}
+
+test dtplite-4.8 {do, directory without manpages} -constraints knownBug -setup {
+    # See dtplite-3.1, do throws an error instead of returning 1.
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] html [wpath empty]]
+} -cleanup {
+    resetdt
+} -match glob -result {0 1 {{stderr {*: Module "empty" has no files to process.}}}}
+
+test dtplite-4.9 {do, directory without manpages, message} -setup {
+    setupdocs
+} -body {
+    lindex [dodt [list -o [wpath out] html [wpath empty]]] 2 0
+} -cleanup {
+    resetdt
+} -match glob -result {stderr {*: Module "empty" has no files to process.}}
+
+test dtplite-4.10 {do, directory, -module} -setup {
+    setupdocs
+} -body {
+    dodt [list -o [wpath out] -module MyMod html [wpath src]]
+    regexp {<h2>MyMod</h2>} [readFile [wpath out toc.html]]
+} -cleanup {
+    resetdt
+} -result 1
+
+test dtplite-4.11 {do, directory, user toc} -setup {
+    setupdocs
+    writeFile [wpath my.toc] "\[toc_begin {My Contents} Mine\]\n\[item files/foo.html foo {Own description}\]\n\[toc_end\]\n"
+} -body {
+    dodt [list -o [wpath out] -toc [wpath my.toc] html [wpath src]]
+    set toc [readFile [wpath out toc.html]]
+    list [regexp {Own description} $toc] [regexp {files/sub/bar.html} $toc]
+} -cleanup {
+    resetdt
+    unset -nocomplain toc
+} -result {1 0}
+
+test dtplite-4.12 {do, directory, -post+toc and -pre+toc} -setup {
+    setupdocs
+    writeFile [wpath extra.toc] "\[toc_begin {Extra} Extra\]\n\[item files/foo.html foo {Extra description}\]\n\[toc_end\]\n"
+} -body {
+    set r [dodt [list -o [wpath out] -pre+toc PRE [wpath extra.toc] \
+		     -post+toc POST "\[toc_begin T T\]\[toc_end\]" html [wpath src]]]
+    set toc [readFile [wpath out toc.html]]
+    list [lsort [glob -nocomplain -tails -directory [wpath out] toc*]] \
+	[regexp {Extra description} [readFile [wpath out toc0.html]]] \
+	[regexp {<a href="toc0.html">PRE</a>.*<a href="toc1.html">POST</a>} $toc]
+} -cleanup {
+    resetdt
+    unset -nocomplain r toc
+} -result {{toc.html toc0.html toc1.html} 1 1}
+
+test dtplite-4.13 {do, directory, nroff} -setup {
+    setupdocs
+} -body {
+    set r [dodt [list -o [wpath out] nroff [wpath src]]]
+    lsort [glob -nocomplain -tails -directory [wpath out] * files/* files/sub/*]
+} -cleanup {
+    resetdt
+    unset -nocomplain r
+} -result {files files/foo.nroff files/sub files/sub/bar.nroff index.nroff toc.nroff}
+
+# -------------------------------------------------------------------------
+## do, directory merge mode.
+
+test dtplite-5.0 {do, merge two packages} -setup {
+    setupdocs
+} -body {
+    set r1 [dodt [list -merge -o [wpath out] html [wpath src]]]
+    set r2 [dodt [list -merge -o [wpath out] html [wpath pkg2]]]
+    list $r1 $r2 \
+	[file isfile [wpath out src toc.html]] \
+	[file isfile [wpath out src files foo.html]] \
+	[file isfile [wpath out src files sub bar.html]] \
+	[file isfile [wpath out pkg2 toc.html]] \
+	[file isfile [wpath out pkg2 files baz.html]] \
+	[file isfile [wpath out toc.html]] \
+	[file isfile [wpath out index.html]] \
+	[file exists [wpath out src index.html]]
+} -cleanup {
+    resetdt
+    unset -nocomplain r1 r2
+} -result [list \
+	       {0 0 {{stdout {Writing toc (html) src/toc.html ...}} {stdout {Writing toc (html) toc.html ...}} {stdout {Writing index (html) index.html ...}} {stdout {	foo.man}} {stdout {	sub/bar.man}}}} \
+	       {0 0 {{stdout {Writing toc (html) pkg2/toc.html ...}} {stdout {Writing toc (html) toc.html ...}} {stdout {Writing index (html) index.html ...}} {stdout {	baz.man}}}} \
+	       1 1 1 1 1 1 1 0]
+
+test dtplite-5.1 {do, merge, state files} -setup {
+    setupdocs
+} -body {
+    dodt [list -merge -o [wpath out] html [wpath src]]
+    dodt [list -merge -o [wpath out] html [wpath pkg2]]
+    list [file isfile [wpath out .toc]] [file isfile [wpath out .idx]] \
+	[file isfile [wpath out .xrf]] [file isfile [wpath out .tocdoc]] \
+	[file isfile [wpath out .idxdoc]]
+} -cleanup {
+    resetdt
+} -result {1 1 1 1 1}
+
+test dtplite-5.2 {do, merge, unified toc and index} -setup {
+    setupdocs
+} -body {
+    dodt [list -merge -o [wpath out] html [wpath src]]
+    dodt [list -merge -o [wpath out] html [wpath pkg2]]
+    set toc [readFile [wpath out .tocdoc]]
+    set idx [readFile [wpath out index.html]]
+    list [regexp {division_start pkg2 pkg2/toc.html} $toc] \
+	[regexp {division_start src src/toc.html} $toc] \
+	[regexp {item src/files/in.html|item src/files/foo.html} $toc] \
+	[regexp {item pkg2/files/baz.html} $toc] \
+	[regexp {delta} $idx] [regexp {gamma} $idx] [regexp {alpha} $idx]
+} -cleanup {
+    resetdt
+    unset -nocomplain toc idx
+} -result {1 1 1 1 1 1 1}
+
+test dtplite-5.3 {do, merge, rerun of same package keeps one division} -setup {
+    setupdocs
+} -body {
+    dodt [list -merge -o [wpath out] html [wpath src]]
+    dodt [list -merge -o [wpath out] html [wpath pkg2]]
+    dodt [list -merge -o [wpath out] html [wpath src]]
+    regexp -all {division_start src } [readFile [wpath out .tocdoc]]
+} -cleanup {
+    resetdt
+} -result 1
+
+# -------------------------------------------------------------------------
+
+resetdt
+removeDirectory dtplite-work
+dtplite::print-via ::puts
+unset work usage
+rename wpath {}
+rename writeFile {}
+rename readFile {}
+rename manpage {}
+rename collect {}
+rename dodt {}
+rename resetdt {}
+rename setupdocs {}
+set auto_path $savedAutoPath
+unset savedAutoPath
+testsuiteCleanup
+return
