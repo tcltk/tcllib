@@ -37,7 +37,7 @@ the section for the [sectref {Instance API}].
 
 The API of channel core instances provides only two methods, both
 corresponding to channel handler commands (For reference see
-[uri http:/tip.tcl.tk/219 {TIP 219}]). They expect to be called
+[uri https://core.tcl-lang.org/tips/doc/trunk/tip/219.md {TIP 219}]). They expect to be called
 from whichever object instance the channel core was made a part of.
 
 [list_begin definitions]

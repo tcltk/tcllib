@@ -1,0 +1,928 @@
+# -*- tcl -*-
+# tiff-api.test:  Additional tests for the documented API of the TIFF
+# utilities: multi-image files, byte orders, data types, entry lists,
+# reading and writing Tk images, tag name mapping and debug output.
+# Complements tiff.test.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal tiff.tcl tiff
+}
+
+# Tk is needed for getImage and writeImage.  Use it when running under
+# wish, or when a display is available.
+if {![info exists tk_version] && [info exists ::env(DISPLAY)]} {
+    if {![catch {package require Tk}]} {
+	wm withdraw .
+    }
+}
+tcltest::testConstraint tk [info exists tk_version]
+
+# -------------------------------------------------------------------------
+# Helper: write a TIFF file from scratch.
+#
+#   order: big or little
+#   ifds:  list of images, each a list {entries ?pixels?}
+#          entries: list of {tag type values}; values is a list of
+#          numbers (for RATIONAL types a flat list of num den pairs),
+#          or a string for type 2 (ASCII).
+#          pixels: raw strip data, written right after the header
+#          of the first image; if not empty and no StripOffsets entry
+#          is given, StripOffsets and StripByteCounts are added.
+
+proc mkTiff {file order ifds} {
+    if {$order eq "big"} {
+	set s S ; set i I ; set magic MM
+    } else {
+	set s s ; set i i ; set magic II
+    }
+    set data [binary format a2${s}${i} $magic 42 0]
+    set prevptr 4
+    foreach ifd $ifds {
+	set entries [lindex $ifd 0]
+	set pixels  [lindex $ifd 1]
+	if {$pixels ne "" && [lsearch -index 0 $entries 0111] < 0} {
+	    set poff [string length $data]
+	    lappend entries [list 0111 4 $poff] \
+		[list 0117 4 [string length $pixels]]
+	}
+	append data $pixels
+	if {[string length $data] % 2} {append data \0}
+	set ifdoff [string length $data]
+	set data [string replace $data $prevptr [expr {$prevptr + 3}] \
+		      [binary format $i $ifdoff]]
+	set n [llength $entries]
+	set extoff [expr {$ifdoff + 2 + 12 * $n + 4}]
+	set dir [binary format $s $n]
+	set ext {}
+	foreach e [lsort -index 0 $entries] {
+	    lassign $e tag type vals
+	    switch -- $type {
+		1 - 6 - 7 {set v [binary format c* $vals] ; set cnt [llength $vals]}
+		2         {set v $vals\0 ; set cnt [string length $v]}
+		3 - 8     {set v [binary format $s* $vals] ; set cnt [llength $vals]}
+		4 - 9     {set v [binary format $i* $vals] ; set cnt [llength $vals]}
+		5 - 10    {set v [binary format $i* $vals] ; set cnt [expr {[llength $vals] / 2}]}
+		11        {set v [binary format [expr {$order eq "big" ? "R" : "r"}]* $vals] ; set cnt [llength $vals]}
+		12        {set v [binary format [expr {$order eq "big" ? "Q" : "q"}]* $vals] ; set cnt [llength $vals]}
+	    }
+	    append dir [binary format $s$s$i [scan $tag %x] $type $cnt]
+	    if {[string length $v] <= 4} {
+		append dir [binary format a4 $v]
+	    } else {
+		append dir [binary format $i [expr {$extoff + [string length $ext]}]]
+		append ext $v
+	    }
+	}
+	set prevptr [expr {$ifdoff + 2 + 12 * $n}]
+	append dir [binary format $i 0]
+	append data $dir $ext
+    }
+    set fh [open $file wb]
+    puts -nonewline $fh $data
+    close $fh
+    return $file
+}
+
+# Basic image description entries for a w x h image.
+proc rgbEntries {w h} {
+    list [list 0100 3 $w] [list 0101 3 $h] [list 0102 3 {8 8 8}] \
+	[list 0103 3 1] [list 0106 3 2] [list 0115 3 3] [list 0116 3 $h] \
+	[list 011c 3 1]
+}
+
+# A 2x2 RGB image: red green / blue white.
+proc rgbPixels {} {
+    binary format c* {255 0 0  0 255 0  0 0 255  255 255 255}
+}
+
+# A three-image file.  Image sizes 2x2, 3x1, 1x4.
+proc mkMulti {file {order little}} {
+    mkTiff $file $order [list \
+	[list [concat [rgbEntries 2 2] {{013b 2 first}}] [rgbPixels]] \
+	[list [concat [rgbEntries 3 1] {{013b 2 second}}] [string repeat \0 9]] \
+	[list [concat [rgbEntries 1 4] {{010e 2 third}}] [string repeat \0 12]]]
+}
+
+proc pixels {img} {
+    set res {}
+    for {set y 0} {$y < [image height $img]} {incr y} {
+	for {set x 0} {$x < [image width $img]} {incr x} {
+	    lappend res [$img get $x $y]
+	}
+    }
+    return $res
+}
+
+# -------------------------------------------------------------------------
+# isTIFF
+
+test tiff-api-1.0 {isTIFF, big endian file} -setup {
+    set f [mkTiff [makeFile {} t.tif] big [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::isTIFF $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result 1
+
+test tiff-api-1.1 {isTIFF, nonexisting file} -body {
+    tiff::isTIFF [file join [temporaryDirectory] nonexisting.tif]
+} -result 0
+
+test tiff-api-1.2 {isTIFF, empty file} -setup {
+    set f [makeFile {} t.tif]
+    close [open $f w]
+} -body {
+    tiff::isTIFF $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result 0
+
+test tiff-api-1.3 {isTIFF, byte order mark but bad version} -setup {
+    set f [makeFile {} t.tif]
+    set fh [open $f wb]
+    puts -nonewline $fh [binary format a2si II 43 8]
+    close $fh
+} -body {
+    tiff::isTIFF $f
+} -cleanup {
+    removeFile t.tif
+    unset f fh
+} -result 0
+
+# -------------------------------------------------------------------------
+# byteOrder
+
+test tiff-api-2.0 {byteOrder, big endian} -setup {
+    set f [mkTiff [makeFile {} t.tif] big [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::byteOrder $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result big
+
+test tiff-api-2.1 {byteOrder, little endian} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::byteOrder $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result little
+
+test tiff-api-2.2 {byteOrder, nonexisting file} -body {
+    tiff::byteOrder [file join [temporaryDirectory] nonexisting.tif]
+} -returnCodes error -match glob -result {couldn't open *nonexisting.tif*}
+
+test tiff-api-2.3 {byteOrder, bad version} -setup {
+    set f [makeFile {} t.tif]
+    set fh [open $f wb]
+    puts -nonewline $fh [binary format a2SI MM 43 8]
+    close $fh
+} -body {
+    tiff::byteOrder $f
+} -cleanup {
+    removeFile t.tif
+    unset f fh
+} -returnCodes error -result {not a tiff file}
+
+# -------------------------------------------------------------------------
+# Multi-image files: numImages, dimensions, imageInfo, entries, getEntry
+
+foreach {n order} {0 little 1 big} {
+    test tiff-api-3.$n "numImages, three images, $order endian" -setup {
+	set f [mkMulti [makeFile {} t.tif] $order]
+    } -body {
+	tiff::numImages $f
+    } -cleanup {
+	removeFile t.tif
+	unset f
+    } -result 3
+
+    test tiff-api-4.$n "dimensions, each image, $order endian" -setup {
+	set f [mkMulti [makeFile {} t.tif] $order]
+    } -body {
+	list [tiff::dimensions $f] [tiff::dimensions $f 0] \
+	    [tiff::dimensions $f 1] [tiff::dimensions $f 2]
+    } -cleanup {
+	removeFile t.tif
+	unset f
+    } -result {{2 2} {2 2} {3 1} {1 4}}
+
+    test tiff-api-5.$n "imageInfo, second image, $order endian" -setup {
+	set f [mkMulti [makeFile {} t.tif] $order]
+    } -body {
+	tiff::imageInfo $f 1
+    } -cleanup {
+	removeFile t.tif
+	unset f
+    } -result {ImageWidth 3 ImageLength 1 BitsPerSample {8 8 8} Compression 1 PhotometricInterpretation 2 ImageDescription {} Orientation {} XResolution {} YResolution {} ResolutionUnit {} DateTime {} Artist second HostComputer {}}
+
+    test tiff-api-6.$n "entries, third image, $order endian" -setup {
+	set f [mkMulti [makeFile {} t.tif] $order]
+    } -body {
+	tiff::entries $f 2
+    } -cleanup {
+	removeFile t.tif
+	unset f
+    } -result {ImageWidth ImageLength BitsPerSample Compression PhotometricInterpretation ImageDescription StripOffsets SamplesPerPixel RowsPerStrip StripByteCounts PlanarConfiguration}
+
+    test tiff-api-7.$n "getEntry, per image, $order endian" -setup {
+	set f [mkMulti [makeFile {} t.tif] $order]
+    } -body {
+	list [tiff::getEntry $f {Artist ImageDescription}] \
+	    [tiff::getEntry $f {Artist ImageDescription} 1] \
+	    [tiff::getEntry $f {Artist ImageDescription} 2]
+    } -cleanup {
+	removeFile t.tif
+	unset f
+    } -result {{Artist first ImageDescription {}} {Artist second ImageDescription {}} {Artist {} ImageDescription third}}
+}
+
+test tiff-api-8.0 {entries, image index out of range} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::entries $f 3
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {}
+
+test tiff-api-8.1 {getEntry, image index out of range} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::getEntry $f Artist 3
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {}
+
+# -------------------------------------------------------------------------
+# entries: the documentation says the list is in hexadecimal format, but
+# the tag names are returned (tags without a name in hexadecimal).
+
+test tiff-api-9.0 {entries, tag without name is returned in hex} -setup {
+    set f [mkTiff [makeFile {} t.tif] little \
+	       [list [list [concat [rgbEntries 1 1] {{c000 3 7}}]]]]
+} -body {
+    lindex [tiff::entries $f] end
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result c000
+
+# -------------------------------------------------------------------------
+# getEntry: entry lists, tag names and hex tags, data types
+
+test tiff-api-10.0 {getEntry, hex tags, keys as given} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::getEntry $f {0100 0101 013b}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {0100 2 0101 2 013b first}
+
+test tiff-api-10.1 {getEntry, names and hex mixed, missing entry} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::getEntry $f {ImageWidth 0101 Software c000}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {ImageWidth 2 0101 2 Software {} c000 {}}
+
+test tiff-api-10.2 {getEntry, empty entry list} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::getEntry $f {}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {}
+
+test tiff-api-10.3 {getEntry, unknown tag name} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::getEntry $f Fufara
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -returnCodes error -result {unknown tag Fufara}
+
+set n 0
+foreach {type vals expected} {
+    2  {hello world} {hello world}
+    3  {32767}       32767
+    3  {1 2 3}       {1 2 3}
+    4  {2147483647}  2147483647
+    4  {7 8}         {7 8}
+    5  {1 2}         0.5
+    5  {3 1 1 4}     {3 0.25}
+    6  {-5}          -5
+    8  {-300}        -300
+    9  {-70000}      -70000
+    10 {-1 4}        -0.25
+} {
+    foreach order {little big} {
+	test tiff-api-11.$n "getEntry, data type $type, $order endian" -setup {
+	    set f [mkTiff [makeFile {} t.tif] $order \
+		       [list [list [list [list c000 $type $vals]]]]]
+	} -body {
+	    tiff::getEntry $f c000
+	} -cleanup {
+	    removeFile t.tif
+	    unset f
+	} -result [list c000 $expected]
+	incr n
+    }
+}
+
+# SHORT and LONG are documented as unsigned, values with the highest
+# bit set are read as 64 bit (Tcl 8.6) or 32 bit (Tcl 9) unsigned
+# numbers of the sign extended value (LONG: Tcl 8.6 only).
+test tiff-api-11.48 {getEntry, data type 3 (SHORT), high bit set} -constraints {
+    knownBug
+} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list {{{c000 3 {1 65535}}}}]]
+} -body {
+    tiff::getEntry $f c000
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {c000 {1 65535}}
+
+test tiff-api-11.49 {getEntry, data type 4 (LONG), high bit set} -constraints {
+    knownBug
+} -setup {
+    set f [mkTiff [makeFile {} t.tif] big [list {{{c000 4 4294967295}}}]]
+} -body {
+    tiff::getEntry $f c000
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {c000 4294967295}
+
+# BYTE is documented as an unsigned 8 bit integer, but is read signed.
+test tiff-api-11.50 {getEntry, data type 1 (BYTE) is unsigned} -constraints {
+    knownBug
+} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list {{{c000 1 {1 200}}}}]]
+} -body {
+    tiff::getEntry $f c000
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {c000 {1 200}}
+
+test tiff-api-11.51 {getEntry, data type 1 (BYTE), small values} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list {{{c000 1 {1 127}}}}]]
+} -body {
+    tiff::getEntry $f c000
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {c000 {1 127}}
+
+# FLOAT and DOUBLE values are read as integers.
+test tiff-api-11.52 {getEntry, data type 11 (FLOAT)} -constraints {
+    knownBug
+} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list {{{c000 11 1.5}}}]]
+} -body {
+    tiff::getEntry $f c000
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {c000 1.5}
+
+test tiff-api-11.53 {getEntry, data type 12 (DOUBLE)} -constraints {
+    knownBug
+} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list {{{c000 12 1.5}}}]]
+} -body {
+    tiff::getEntry $f c000
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {c000 1.5}
+
+# -------------------------------------------------------------------------
+# addEntry
+
+foreach {n order} {0 little 1 big} {
+    test tiff-api-12.$n "addEntry, several entries and types, $order endian" -setup {
+	set f [mkTiff [makeFile {} t.tif] $order [list [list [rgbEntries 1 1]]]]
+    } -body {
+	tiff::addEntry $f {{ImageDescription 2 {an example}} {Artist 2 Aaron} {Software 3 {1 2 3}} {DateTime 4 100000} {XResolution 5 1/4} {YResolution 5 {3/2 5/1}} {Make 8 -2} {Model 9 -100000} {HostComputer 1 {1 2}} {Copyright 6 -3}}
+	list [tiff::byteOrder $f] \
+	    [tiff::getEntry $f {ImageDescription Artist Software DateTime XResolution YResolution Make Model HostComputer Copyright ImageWidth}]
+    } -cleanup {
+	removeFile t.tif
+	unset f
+    } -result [list $order {ImageDescription {an example} Artist Aaron Software {1 2 3} DateTime 100000 XResolution 0.25 YResolution {1.5 5} Make -2 Model -100000 HostComputer {1 2} Copyright -3 ImageWidth 1}]
+}
+
+test tiff-api-12.10 {addEntry, hex tags as in the documentation example} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    ::tiff::addEntry $f {{010e 2 "an example photo"} {013b 2 "Aaron F"} {c000 3 7}}
+    tiff::getEntry $f {ImageDescription Artist c000}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {ImageDescription {an example photo} Artist {Aaron F} c000 7}
+
+test tiff-api-12.2 {addEntry, data type 7 (UNDEFINED)} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::addEntry $f {{Software 7 abcdefgh}}
+    tiff::getEntry $f Software
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {Software abcdefgh}
+
+test tiff-api-12.3 {addEntry, strip data is preserved} -constraints tk -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 2 2] [rgbPixels]]]]
+} -body {
+    tiff::addEntry $f {{Artist 2 {a rather long artist name}}}
+    set img [tiff::getImage $f]
+    pixels $img
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img
+} -result {{255 0 0} {0 255 0} {0 0 255} {255 255 255}}
+
+test tiff-api-12.4 {addEntry, unknown type} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::addEntry $f {{Artist 13 1}}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -returnCodes error -result {unknown data type 13}
+
+test tiff-api-12.5 {addEntry, unknown tag name} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::addEntry $f {{Fufara 2 x}}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -returnCodes error -result {unknown tag Fufara}
+
+test tiff-api-12.6 {addEntry, data type 11 (FLOAT)} -constraints {
+    knownBug
+} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::addEntry $f {{Software 11 1.5}}
+    tiff::getEntry $f Software
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {Software 1.5}
+
+test tiff-api-12.7 {addEntry, data type 12 (DOUBLE)} -constraints {
+    knownBug
+} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::addEntry $f {{Software 12 1.5}}
+    tiff::getEntry $f Software
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {Software 1.5}
+
+# Rewriting a multi-image file loses all images but the first one: the
+# pointer to the next image directory is always written as 0.
+test tiff-api-13.0 {addEntry, multi-image file keeps all images} -constraints {
+    knownBug
+} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::addEntry $f {{Software 2 test}}
+    tiff::numImages $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result 3
+
+test tiff-api-13.1 {addEntry, default image 0} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::addEntry $f {{Software 2 test}}
+    tiff::getEntry $f {Software Artist}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {Software test Artist first}
+
+test tiff-api-13.2 {addEntry, image 1} -constraints {
+    knownBug
+} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::addEntry $f {{Software 2 test}} 1
+    list [tiff::getEntry $f Software 0] [tiff::getEntry $f Software 1] \
+	[tiff::getEntry $f Software 2]
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {{Software {}} {Software test} {Software {}}}
+
+test tiff-api-13.3 {addEntry, all images} -constraints {
+    knownBug
+} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::addEntry $f {{Software 2 test}} all
+    list [tiff::getEntry $f Software 0] [tiff::getEntry $f Software 1] \
+	[tiff::getEntry $f Software 2]
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {{Software test} {Software test} {Software test}}
+
+test tiff-api-13.4 {addEntry, all, single image file} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::addEntry $f {{Software 2 test}} all
+    tiff::getEntry $f Software
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {Software test}
+
+# -------------------------------------------------------------------------
+# deleteEntry
+
+foreach {n order} {0 little 1 big} {
+    test tiff-api-14.$n "deleteEntry, names and hex, $order endian" -setup {
+	set f [mkTiff [makeFile {} t.tif] $order \
+		   [list [list [concat [rgbEntries 1 1] {{013b 2 me} {0131 2 tool} {c000 3 5}}]]]]
+    } -body {
+	tiff::deleteEntry $f {Artist 0131 c000}
+	list [tiff::byteOrder $f] [tiff::entries $f] \
+	    [tiff::getEntry $f {Artist Software c000}]
+    } -cleanup {
+	removeFile t.tif
+	unset f
+    } -result [list $order {ImageWidth ImageLength BitsPerSample Compression PhotometricInterpretation SamplesPerPixel RowsPerStrip PlanarConfiguration} {Artist {} Software {} c000 {}}]
+}
+
+test tiff-api-14.2 {deleteEntry, entry not present} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::deleteEntry $f {Artist}
+    tiff::entries $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {ImageWidth ImageLength BitsPerSample Compression PhotometricInterpretation SamplesPerPixel RowsPerStrip PlanarConfiguration}
+
+test tiff-api-14.3 {deleteEntry, unknown tag name} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list [list [rgbEntries 1 1]]]]
+} -body {
+    tiff::deleteEntry $f {Fufara}
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -returnCodes error -result {unknown tag Fufara}
+
+test tiff-api-14.4 {deleteEntry, default image 0} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::deleteEntry $f Artist
+    tiff::getEntry $f Artist
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {Artist {}}
+
+test tiff-api-14.5 {deleteEntry, image 1} -constraints {
+    knownBug
+} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::deleteEntry $f Artist 1
+    list [tiff::getEntry $f Artist 0] [tiff::getEntry $f Artist 1]
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {{Artist first} {Artist {}}}
+
+test tiff-api-14.6 {deleteEntry, all images} -constraints {
+    knownBug
+} -setup {
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::deleteEntry $f Artist all
+    list [tiff::numImages $f] [tiff::getEntry $f Artist 0] \
+	[tiff::getEntry $f Artist 1]
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -result {3 {Artist {}} {Artist {}}}
+
+test tiff-api-14.7 {deleteEntry, strip data is preserved} -constraints tk -setup {
+    set f [mkTiff [makeFile {} t.tif] big \
+	       [list [list [concat [rgbEntries 2 2] {{013b 2 {somebody else}}}] [rgbPixels]]]]
+} -body {
+    tiff::deleteEntry $f Artist
+    set img [tiff::getImage $f]
+    pixels $img
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img
+} -result {{255 0 0} {0 255 0} {0 0 255} {255 255 255}}
+
+# -------------------------------------------------------------------------
+# getImage
+
+test tiff-api-15.0 {getImage, unsupported (compressed) format} -body {
+    tiff::getImage [lindex [TestFilesGlob test-assets/*.tiff] 0]
+} -returnCodes error -result {I cant read that image format}
+
+foreach {n order} {0 little 1 big} {
+    test tiff-api-15.[expr {$n + 1}] "getImage, 24 bit RGB, $order endian" -constraints tk -setup {
+	set f [mkTiff [makeFile {} t.tif] $order [list [list [rgbEntries 2 2] [rgbPixels]]]]
+    } -body {
+	set img [tiff::getImage $f]
+	list [image type $img] [image width $img] [image height $img] [pixels $img]
+    } -cleanup {
+	image delete $img
+	removeFile t.tif
+	unset f img
+    } -result {photo 2 2 {{255 0 0} {0 255 0} {0 0 255} {255 255 255}}}
+}
+
+test tiff-api-15.3 {getImage, 8 bit palette} -constraints tk -setup {
+    # Palette of 256 entries, 16 bit components: R values, G values, B values.
+    set r [lrepeat 256 0] ; set g [lrepeat 256 0] ; set b [lrepeat 256 0]
+    lset r 1 65535 ; lset g 2 65535 ; lset b 3 65535
+    lset r 200 32768 ; lset g 200 32768 ; lset b 200 32768
+    set f [mkTiff [makeFile {} t.tif] little [list [list \
+	[list {0100 3 2} {0101 3 3} {0102 3 8} {0103 3 1} {0106 3 3} \
+	     {0115 3 1} {0116 3 3} {011c 3 1} [list 0140 3 [concat $r $g $b]]] \
+	[binary format c* {1 2 3 0 200 1}]]]]
+} -body {
+    set img [tiff::getImage $f]
+    list [image width $img] [image height $img] [pixels $img]
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img r g b
+} -result {2 3 {{255 0 0} {0 255 0} {0 0 255} {0 0 0} {128 128 128} {255 0 0}}}
+
+test tiff-api-15.4 {getImage, image index} -constraints tk -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list \
+	[list [rgbEntries 2 2] [rgbPixels]] \
+	[list [rgbEntries 1 2] [binary format c* {1 2 3 4 5 6}]]]]
+} -body {
+    set img [tiff::getImage $f 1]
+    list [image width $img] [image height $img] [pixels $img]
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img
+} -result {1 2 {{1 2 3} {4 5 6}}}
+
+test tiff-api-15.5 {getImage, several strips} -constraints tk -setup {
+    # Two strips of one row each, right after the 8 byte header.
+    set f [mkTiff [makeFile {} t.tif] big [list [list \
+	[concat [rgbEntries 2 2] {{0116 3 1} {0111 4 {8 14}} {0117 4 {6 6}}}] \
+	[rgbPixels]]]]
+} -body {
+    set img [tiff::getImage $f]
+    pixels $img
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img
+} -result {{255 0 0} {0 255 0} {0 0 255} {255 255 255}}
+
+# -------------------------------------------------------------------------
+# writeImage
+
+test tiff-api-16.0 {writeImage, file entries} -constraints tk -setup {
+    set img [image create photo -width 3 -height 2]
+    $img put {{#ff0000 #00ff00 #0000ff} {#010203 #fffefd #808080}}
+    set f [makeFile {} t.tif]
+} -body {
+    tiff::writeImage $img $f
+    list [tiff::isTIFF $f] [tiff::byteOrder $f] [tiff::numImages $f] \
+	[tiff::dimensions $f] \
+	[tiff::getEntry $f {BitsPerSample Compression PhotometricInterpretation SamplesPerPixel PlanarConfiguration}]
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img
+} -result {1 big 1 {3 2} {BitsPerSample {8 8 8} Compression 1 PhotometricInterpretation 2 SamplesPerPixel 3 PlanarConfiguration 1}}
+
+test tiff-api-16.1 {writeImage, round trip through getImage} -constraints tk -setup {
+    set img [image create photo -width 3 -height 2]
+    $img put {{#ff0000 #00ff00 #0000ff} {#010203 #fffefd #808080}}
+    set f [makeFile {} t.tif]
+} -body {
+    tiff::writeImage $img $f
+    set img2 [tiff::getImage $f]
+    list [image width $img2] [image height $img2] [pixels $img2]
+} -cleanup {
+    image delete $img $img2
+    removeFile t.tif
+    unset f img img2
+} -result {3 2 {{255 0 0} {0 255 0} {0 0 255} {1 2 3} {255 254 253} {128 128 128}}}
+
+test tiff-api-16.2 {writeImage, larger image with several strips} -constraints tk -setup {
+    set img [image create photo -width 100 -height 50]
+    for {set y 0} {$y < 50} {incr y} {
+	$img put [format #%02x%02x%02x $y [expr {2 * $y}] 7] -to 0 $y 100 [expr {$y + 1}]
+    }
+    set f [makeFile {} t.tif]
+} -body {
+    tiff::writeImage $img $f
+    set img2 [tiff::getImage $f]
+    list [llength [lindex [tiff::getEntry $f StripOffsets] 1]] \
+	[image width $img2] [image height $img2] \
+	[$img2 get 0 0] [$img2 get 99 26] [$img2 get 50 49]
+} -cleanup {
+    image delete $img $img2
+    removeFile t.tif
+    unset f img img2 y
+} -result {2 100 50 {0 0 7} {26 52 7} {49 98 7}}
+
+# The documentation says the entries have the same format as for
+# addEntry (a list of {tag type value} lists), the code expects a flat
+# list of tag type value triples and only hexadecimal tags.
+test tiff-api-16.3 {writeImage, additional entries as documented} -constraints {
+    tk knownBug
+} -setup {
+    set img [image create photo -width 1 -height 1]
+    set f [makeFile {} t.tif]
+} -body {
+    tiff::writeImage $img $f {{010e 2 {an example}} {Artist 2 Aaron}}
+    tiff::getEntry $f {ImageDescription Artist}
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img
+} -result {ImageDescription {an example} Artist Aaron}
+
+test tiff-api-16.4 {writeImage, overwrite existing file} -constraints tk -setup {
+    set img [image create photo -width 4 -height 5]
+    set f [mkMulti [makeFile {} t.tif]]
+} -body {
+    tiff::writeImage $img $f
+    list [tiff::numImages $f] [tiff::dimensions $f] [tiff::getEntry $f Artist]
+} -cleanup {
+    image delete $img
+    removeFile t.tif
+    unset f img
+} -result {1 {4 5} {Artist {}}}
+
+test tiff-api-16.5 {writeImage, not an image} -constraints tk -setup {
+    set f [makeFile {} t.tif]
+} -body {
+    tiff::writeImage nosuchimage $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -returnCodes error -result {invalid command name "nosuchimage"}
+
+# -------------------------------------------------------------------------
+# nametotag, tagtoname: lists, pass-through
+
+test tiff-api-17.0 {nametotag, list of names} -body {
+    tiff::nametotag {ImageWidth Artist Copyright}
+} -result {0100 013b 8298}
+
+test tiff-api-17.1 {nametotag, 4 digit tags passed through} -body {
+    tiff::nametotag {0100 c000 Artist ffff}
+} -result {0100 c000 013b ffff}
+
+test tiff-api-17.2 {nametotag, empty list} -body {
+    tiff::nametotag {}
+} -result {}
+
+test tiff-api-17.3 {nametotag, unknown name in list} -body {
+    tiff::nametotag {Artist Fufara ImageWidth}
+} -returnCodes error -result {unknown tag Fufara}
+
+test tiff-api-17.4 {nametotag, upper case hex digits are not tags} -body {
+    tiff::nametotag {C000}
+} -returnCodes error -result {unknown tag C000}
+
+test tiff-api-17.5 {tagtoname, list of tags} -body {
+    tiff::tagtoname {0100 013b 8298}
+} -result {ImageWidth Artist Copyright}
+
+test tiff-api-17.6 {tagtoname, unknown tags passed through} -body {
+    tiff::tagtoname {0100 c000 ffff 013b}
+} -result {ImageWidth c000 ffff Artist}
+
+test tiff-api-17.7 {tagtoname, empty list} -body {
+    tiff::tagtoname {}
+} -result {}
+
+test tiff-api-17.8 {nametotag and tagtoname are inverse} -body {
+    set res {}
+    foreach tag [lsort [array names ::tiff::tiff_tags]] {
+	if {[tiff::nametotag [tiff::tagtoname $tag]] ne $tag} {
+	    lappend res $tag
+	}
+    }
+    set res
+} -cleanup {
+    unset res tag
+} -result {}
+
+# -------------------------------------------------------------------------
+# Variables tiff_tags and tiff_sgat
+
+test tiff-api-18.0 {tiff_tags and tiff_sgat are reverse mappings} -body {
+    set res {}
+    foreach {tag name} [array get ::tiff::tiff_tags] {
+	if {$::tiff::tiff_sgat($name) ne $tag} {
+	    lappend res $tag
+	}
+    }
+    foreach {name tag} [array get ::tiff::tiff_sgat] {
+	if {$::tiff::tiff_tags($tag) ne $name} {
+	    lappend res $name
+	}
+    }
+    list [array size ::tiff::tiff_tags] [array size ::tiff::tiff_sgat] $res
+} -cleanup {
+    unset res tag name
+} -match glob -result {* * {}}
+
+test tiff-api-18.1 {tiff_tags and tiff_sgat have the same size} -body {
+    expr {[array size ::tiff::tiff_tags] == [array size ::tiff::tiff_sgat]}
+} -result 1
+
+# -------------------------------------------------------------------------
+# debug
+
+test tiff-api-19.0 {debug, output} -setup {
+    set f [mkTiff [makeFile {} t.tif] little [list \
+	[list {{0100 3 2} {0101 3 1} {013b 2 me} {c000 4 {1 2}}}] \
+	[list {{0100 3 5}}]]]
+} -body {
+    tiff::debug $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -output {IFD 0 (4 entries)
+  ImageWidth: 2
+  ImageLength: 1
+  Artist: me
+  c000: 1 2
+IFD 1 (1 entries)
+  ImageWidth: 5
+}
+
+test tiff-api-19.1 {debug, large entries show offset and size} -setup {
+    set f [mkTiff [makeFile {} t.tif] big \
+	[list [list [list {0100 3 2} [list 0140 3 [lrepeat 120 1]]]]]]
+} -body {
+    tiff::debug $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -match glob -output {IFD 0 (2 entries)
+  ImageWidth: 2
+  ColorMap offset * size 240 bytes
+}
+
+test tiff-api-19.2 {debug, not a tiff file} -setup {
+    set f [makeFile {not a tiff} t.tif]
+} -body {
+    tiff::debug $f
+} -cleanup {
+    removeFile t.tif
+    unset f
+} -returnCodes error -result {not a tiff file}
+
+# -------------------------------------------------------------------------
+rename mkTiff {}
+rename rgbEntries {}
+rename rgbPixels {}
+rename mkMulti {}
+rename pixels {}
+testsuiteCleanup
