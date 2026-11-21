@@ -1,0 +1,258 @@
+# -*- tcl -*-
+# transformcore.test:  Tests for the tcl::transform::core package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal transformcore.tcl tcl::transform::core
+}
+
+# -------------------------------------------------------------------------
+## Helper classes
+
+namespace eval ::test {}
+
+# Upper-cases data read, lower-cases data written.
+oo::class create ::test::case {
+    superclass ::tcl::transform::core
+    method read {c data} {
+	string toupper $data
+    }
+    method write {c data} {
+	string tolower $data
+    }
+    method thechannel {} {
+	my variable channel
+	return $channel
+    }
+}
+
+# Same as mixin.
+oo::class create ::test::mcase {
+    mixin ::tcl::transform::core
+    method read {c data} {
+	string toupper $data
+    }
+}
+
+proc ::test::readfile {path} {
+    set c [open $path r]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-core-1.0 {class exists} -body {
+    info object isa class ::tcl::transform::core
+} -result 1
+
+test tcl-transform-core-1.1 {create instance} -body {
+    ::tcl::transform::core create t
+} -cleanup {
+    t finalize {}
+} -result ::t
+
+test tcl-transform-core-1.2 {create instance, documented form} -constraints {
+    knownBug
+} -body {
+    ::tcl::transform::core t
+} -cleanup {
+    catch {t finalize {}}
+} -result ::t
+
+test tcl-transform-core-1.3 {public methods} -setup {
+    ::tcl::transform::core create t
+} -body {
+    lsort [info object methods t -all]
+} -cleanup {
+    t finalize {}
+} -result {destroy finalize initialize}
+
+# -------------------------------------------------------------------------
+## initialize
+
+test tcl-transform-core-2.0 {initialize, wrong # args} -setup {
+    ::tcl::transform::core create t
+} -body {
+    t initialize x
+} -cleanup {
+    t finalize {}
+} -returnCodes error -result {wrong # args: should be "t initialize thechannel mode"}
+
+test tcl-transform-core-2.1 {initialize, plain core} -setup {
+    ::tcl::transform::core create t
+} -body {
+    t initialize chanX read
+} -cleanup {
+    t finalize {}
+} -result {initialize finalize}
+
+test tcl-transform-core-2.2 {initialize, subclass methods} -setup {
+    ::test::case create t
+} -body {
+    t initialize chanX {read write}
+} -cleanup {
+    t finalize {}
+} -result {initialize finalize read write}
+
+test tcl-transform-core-2.3 {initialize, all handler methods, in fixed order} -setup {
+    oo::class create ::test::full {
+	superclass ::tcl::transform::core
+	method limit? {c} {}
+	method flush  {c} {}
+	method drain  {c} {}
+	method write  {c d} {}
+	method read   {c d} {}
+	method watch  {c m} {}
+	method seek   {c o b} {}
+    }
+    ::test::full create t
+} -body {
+    t initialize chanX {read write}
+} -cleanup {
+    t finalize {}
+    ::test::full destroy
+} -result {initialize finalize read write drain flush limit?}
+
+test tcl-transform-core-2.4 {initialize, remembers the channel} -setup {
+    ::test::case create t
+} -body {
+    t initialize chanX read
+    t thechannel
+} -cleanup {
+    t finalize {}
+} -result chanX
+
+test tcl-transform-core-2.5 {initialize, mixin} -setup {
+    ::test::mcase create t
+} -body {
+    t initialize chanX read
+} -cleanup {
+    t finalize {}
+} -result {initialize finalize read}
+
+# -------------------------------------------------------------------------
+## finalize
+
+test tcl-transform-core-3.0 {finalize, wrong # args} -setup {
+    ::tcl::transform::core create t
+} -body {
+    t finalize
+} -cleanup {
+    t finalize {}
+} -returnCodes error -result {wrong # args: should be "t finalize c"}
+
+test tcl-transform-core-3.1 {finalize destroys the object} -setup {
+    ::tcl::transform::core create t
+    t initialize chanX read
+} -body {
+    list [t finalize chanX] [info commands ::t]
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+## Use as transform
+
+test tcl-transform-core-4.0 {transform on read} -setup {
+    set f [tcltest::makeFile {Hello World} tc.txt]
+    set ch [open $f r]
+    chan push $ch [::test::case create t]
+} -body {
+    read -nonewline $ch
+} -cleanup {
+    close $ch
+    tcltest::removeFile tc.txt
+    unset f ch
+} -result {HELLO WORLD}
+
+test tcl-transform-core-4.1 {transform on write} -setup {
+    set f [tcltest::makeFile {} tc.txt]
+    set ch [open $f w]
+    chan push $ch [::test::case create t]
+} -body {
+    puts -nonewline $ch "Hello World"
+    close $ch
+    ::test::readfile $f
+} -cleanup {
+    tcltest::removeFile tc.txt
+    unset f ch
+} -result {hello world}
+
+test tcl-transform-core-4.3 {pop destroys the handler, channel stays open} -setup {
+    set f [tcltest::makeFile {Hello World} tc.txt]
+    set ch [open $f r]
+    chan push $ch [::test::case create t]
+} -body {
+    chan pop $ch
+    list [info commands ::t] [expr {$ch in [chan names]}] [read -nonewline $ch]
+} -cleanup {
+    close $ch
+    tcltest::removeFile tc.txt
+    unset f ch
+} -result {{} 1 {Hello World}}
+
+test tcl-transform-core-4.4 {close destroys the handler} -setup {
+    set f [tcltest::makeFile {Hello World} tc.txt]
+    set ch [open $f r]
+    chan push $ch [::test::case create t]
+} -body {
+    close $ch
+    list [info commands ::t] [expr {$ch in [chan names]}]
+} -cleanup {
+    tcltest::removeFile tc.txt
+    unset f ch
+} -result {{} 0}
+
+# The handle given to initialize is the handle of the transformation, not
+# of the channel, and [close] does not accept it: the destructor fails with
+# 'can not find channel named "rtN"' and the channel stays open.
+test tcl-transform-core-4.5 {destroying the handler closes the channel} -constraints {
+    knownBug
+} -setup {
+    set f [tcltest::makeFile {Hello World} tc.txt]
+    set ch [open $f r]
+    chan push $ch [::test::case create t]
+} -body {
+    t destroy
+    list [info commands ::t] [expr {$ch in [chan names]}]
+} -cleanup {
+    catch {close $ch}
+    tcltest::removeFile tc.txt
+    unset f ch
+} -result {{} 0}
+
+test tcl-transform-core-4.6 {destroy uninitialized instance} -constraints {
+    knownBug
+} -setup {
+    ::tcl::transform::core create t
+} -body {
+    t destroy
+} -cleanup {
+    catch {t finalize {}}
+} -result {}
+
+test tcl-transform-core-4.7 {mixin transform} -setup {
+    set f [tcltest::makeFile {Hello World} tc.txt]
+    set ch [open $f r]
+    chan push $ch [::test::mcase create t]
+} -body {
+    read -nonewline $ch
+} -cleanup {
+    close $ch
+    tcltest::removeFile tc.txt
+    unset f ch
+} -result {HELLO WORLD}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::test
+testsuiteCleanup
+return

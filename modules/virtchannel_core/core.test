@@ -1,0 +1,281 @@
+# -*- tcl -*-
+# core.test:  Tests for the tcl::chan::core package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+
+testing {
+    useLocal core.tcl tcl::chan::core
+}
+
+# -------------------------------------------------------------------------
+## Helper classes
+
+namespace eval ::test {}
+
+# A read-only channel returning a fixed string, built on the core class.
+oo::class create ::test::rchan {
+    superclass ::tcl::chan::core
+    variable data
+    constructor {d} {
+	set data $d
+    }
+    method watch {c m} {}
+    method read {c n} {
+	set r [string range $data 0 [expr {$n - 1}]]
+	set data [string range $data $n end]
+	return $r
+    }
+    # Access to the channel remembered by initialize.
+    method thechannel {} {
+	my variable channel
+	return $channel
+    }
+}
+
+# Same, using the core class as mixin.
+oo::class create ::test::mchan {
+    mixin ::tcl::chan::core
+    variable data
+    constructor {d} {
+	set data $d
+    }
+    method watch {c m} {}
+    method read {c n} {
+	set r [string range $data 0 [expr {$n - 1}]]
+	set data [string range $data $n end]
+	return $r
+    }
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-chan-core-1.0 {class exists} -body {
+    info object isa class ::tcl::chan::core
+} -result 1
+
+test tcl-chan-core-1.1 {create instance} -body {
+    ::tcl::chan::core create c
+} -cleanup {
+    # Avoid the destructor, see tcl-chan-core-4.3.
+    c finalize {}
+} -result ::c
+
+test tcl-chan-core-1.2 {create instance, documented form} -constraints {
+    knownBug
+} -body {
+    ::tcl::chan::core c
+} -cleanup {
+    catch {c finalize {}}
+} -result ::c
+
+test tcl-chan-core-1.3 {public methods} -setup {
+    ::tcl::chan::core create c
+} -body {
+    lsort [info object methods c -all]
+} -cleanup {
+    c finalize {}
+} -result {destroy finalize initialize}
+
+# -------------------------------------------------------------------------
+## initialize
+
+test tcl-chan-core-2.0 {initialize, wrong # args} -setup {
+    ::tcl::chan::core create c
+} -body {
+    c initialize x
+} -cleanup {
+    c finalize {}
+} -returnCodes error -result {wrong # args: should be "c initialize thechannel mode"}
+
+test tcl-chan-core-2.1 {initialize, wrong # args, too many} -setup {
+    ::tcl::chan::core create c
+} -body {
+    c initialize x y z
+} -cleanup {
+    c finalize {}
+} -returnCodes error -result {wrong # args: should be "c initialize thechannel mode"}
+
+test tcl-chan-core-2.2 {initialize, plain core supports initialize and finalize} -setup {
+    ::tcl::chan::core create c
+} -body {
+    c initialize chanX read
+} -cleanup {
+    c finalize {}
+} -result {initialize finalize}
+
+test tcl-chan-core-2.3 {initialize, reports subclass methods} -setup {
+    ::test::rchan create c abc
+} -body {
+    c initialize chanX read
+} -cleanup {
+    c finalize {}
+} -result {initialize finalize watch read}
+
+test tcl-chan-core-2.4 {initialize, all handler methods, in fixed order} -setup {
+    oo::class create ::test::full {
+	superclass ::tcl::chan::core
+	method blocking  {c m} {}
+	method cgetall   {c} {}
+	method cget      {c o} {}
+	method configure {c o v} {}
+	method seek      {c o b} {}
+	method write     {c d} {}
+	method read      {c n} {}
+	method watch     {c m} {}
+    }
+    ::test::full create c
+} -body {
+    c initialize chanX {read write}
+} -cleanup {
+    c finalize {}
+    ::test::full destroy
+} -result {initialize finalize watch read write seek configure cget cgetall blocking}
+
+test tcl-chan-core-2.5 {initialize, other and unexported methods are not reported} -setup {
+    oo::class create ::test::other {
+	superclass ::tcl::chan::core
+	method foo   {} {}
+	method Read  {c n} {}
+	method write {c d} {}
+	method watch {c m} {}
+	unexport write
+    }
+    ::test::other create c
+} -body {
+    c initialize chanX write
+} -cleanup {
+    c finalize {}
+    ::test::other destroy
+} -result {initialize finalize watch}
+
+test tcl-chan-core-2.6 {initialize, remembers the channel} -setup {
+    ::test::rchan create c abc
+} -body {
+    c initialize chanX read
+    c thechannel
+} -cleanup {
+    c finalize {}
+} -result chanX
+
+test tcl-chan-core-2.7 {initialize, works as mixin} -setup {
+    ::test::mchan create c abc
+} -body {
+    c initialize chanX read
+} -cleanup {
+    c finalize {}
+} -result {initialize finalize watch read}
+
+test tcl-chan-core-2.8 {initialize, method mixed into an object} -setup {
+    oo::object create c
+    oo::objdefine c {
+	method watch {c m} {}
+	method write {c d} {}
+    }
+    oo::objdefine c mixin ::tcl::chan::core
+} -body {
+    c initialize chanX write
+} -cleanup {
+    c finalize {}
+} -result {initialize finalize watch write}
+
+# -------------------------------------------------------------------------
+## finalize
+
+test tcl-chan-core-3.0 {finalize, wrong # args} -setup {
+    ::tcl::chan::core create c
+} -body {
+    c finalize
+} -cleanup {
+    c finalize {}
+} -returnCodes error -result {wrong # args: should be "c finalize c"}
+
+test tcl-chan-core-3.1 {finalize destroys the object} -setup {
+    ::tcl::chan::core create c
+    c initialize chanX read
+} -body {
+    list [c finalize chanX] [info commands ::c]
+} -result {{} {}}
+
+test tcl-chan-core-3.2 {finalize does not close the channel} -setup {
+    set ch [chan create read [::test::rchan create c abc]]
+} -body {
+    c finalize $ch
+    expr {$ch in [chan names]}
+} -cleanup {
+    # The handler is gone; closing the channel now reports an error.
+    catch {close $ch}
+    unset ch
+} -result 1
+
+# -------------------------------------------------------------------------
+## Use as channel handler, destroy
+
+test tcl-chan-core-4.0 {reflected channel built on core, read} -setup {
+    set ch [chan create read [::test::rchan create c "hello world"]]
+} -body {
+    list [read $ch] [eof $ch]
+} -cleanup {
+    close $ch
+    unset ch
+} -result {{hello world} 1}
+
+test tcl-chan-core-4.1 {closing the channel destroys the handler} -setup {
+    set ch [chan create read [::test::rchan create c abc]]
+} -body {
+    close $ch
+    list [info commands ::c] [expr {$ch in [chan names]}]
+} -cleanup {
+    unset ch
+} -result {{} 0}
+
+test tcl-chan-core-4.2 {destroying the handler closes the channel} -setup {
+    set ch [chan create read [::test::rchan create c abc]]
+} -body {
+    c destroy
+    list [info commands ::c] [expr {$ch in [chan names]}]
+} -cleanup {
+    unset ch
+} -result {{} 0}
+
+test tcl-chan-core-4.3 {destroy uninitialized instance} -constraints {
+    knownBug
+} -setup {
+    ::tcl::chan::core create c
+} -body {
+    c destroy
+} -cleanup {
+    catch {c finalize {}}
+} -result {}
+
+test tcl-chan-core-4.4 {mixin handler, channel works and is closed} -setup {
+    set ch [chan create read [::test::mchan create c abc]]
+} -body {
+    set r [read $ch]
+    c destroy
+    list $r [info commands ::c] [expr {$ch in [chan names]}]
+} -cleanup {
+    unset ch r
+} -result {abc {} 0}
+
+test tcl-chan-core-4.5 {channel handle passed to initialize} -setup {
+    set ch [chan create read [::test::rchan create c abc]]
+} -body {
+    expr {[c thechannel] eq $ch}
+} -cleanup {
+    close $ch
+    unset ch
+} -result 1
+
+# -------------------------------------------------------------------------
+
+namespace delete ::test
+testsuiteCleanup
+return

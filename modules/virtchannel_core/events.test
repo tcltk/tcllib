@@ -1,0 +1,353 @@
+# -*- tcl -*-
+# events.test:  Tests for the tcl::chan::events package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal core.tcl tcl::chan::core
+}
+testing {
+    useLocal events.tcl tcl::chan::events
+}
+
+# -------------------------------------------------------------------------
+## Helper classes and procs
+
+namespace eval ::test {}
+
+# A channel which can always be read (returns "x" per call) and written
+# (discards data).  Whether it reports readable/writable events is
+# controlled by explicit allow/disallow calls from the tests.
+oo::class create ::test::echan {
+    superclass ::tcl::chan::events
+    method read {c n} {
+	return x
+    }
+    method write {c d} {
+	return [string length $d]
+    }
+    # Introspection of the event timer for the tests.
+    method timerActive {} {
+	my variable timer
+	info exists timer
+    }
+}
+
+# Wait until the variable gets set, at most ms milliseconds.
+# Returns the value of the variable or "timeout".
+proc ::test::wait {varname ms} {
+    upvar #0 $varname v
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+    return $v
+}
+
+# Count events delivered to a channel during ms milliseconds.
+proc ::test::count {varname ms} {
+    upvar #0 $varname v
+    set v 0
+    set id [after $ms {set ::test::done 1}]
+    vwait ::test::done
+    unset ::test::done
+    return $v
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-chan-events-1.0 {class exists, superclass is core} -body {
+    list [info object isa class ::tcl::chan::events] \
+	[info class superclasses ::tcl::chan::events]
+} -result {1 ::tcl::chan::core}
+
+test tcl-chan-events-1.1 {create instance} -body {
+    ::tcl::chan::events create e
+} -cleanup {
+    e finalize {}
+} -result ::e
+
+test tcl-chan-events-1.2 {create instance, documented form} -constraints {
+    knownBug
+} -body {
+    ::tcl::chan::events e
+} -cleanup {
+    catch {e finalize {}}
+} -result ::e
+
+test tcl-chan-events-1.3 {public methods} -setup {
+    ::tcl::chan::events create e
+} -body {
+    lsort [info object methods e -all]
+} -cleanup {
+    e finalize {}
+} -result {allow destroy disallow finalize initialize watch}
+
+test tcl-chan-events-1.4 {initialize reports watch} -setup {
+    ::tcl::chan::events create e
+} -body {
+    e initialize chanX read
+} -cleanup {
+    e finalize {}
+} -result {initialize finalize watch}
+
+test tcl-chan-events-1.5 {initialize, subclass} -setup {
+    ::test::echan create e
+} -body {
+    e initialize chanX {read write}
+} -cleanup {
+    e finalize {}
+} -result {initialize finalize watch read write}
+
+# -------------------------------------------------------------------------
+## allow, disallow
+
+test tcl-chan-events-2.0 {allow, no events} -setup {
+    ::tcl::chan::events create e
+} -body {
+    e allow
+} -cleanup {
+    e finalize {}
+} -result {}
+
+test tcl-chan-events-2.1 {disallow, no events} -setup {
+    ::tcl::chan::events create e
+} -body {
+    e disallow
+} -cleanup {
+    e finalize {}
+} -result {}
+
+test tcl-chan-events-2.2 {allow, read and write} -setup {
+    ::tcl::chan::events create e
+} -body {
+    list [e allow read] [e allow write] [e allow read write]
+} -cleanup {
+    e finalize {}
+} -result {{} {} {}}
+
+test tcl-chan-events-2.3 {disallow, read and write} -setup {
+    ::tcl::chan::events create e
+    e allow read write
+} -body {
+    list [e disallow read] [e disallow write] [e disallow read write]
+} -cleanup {
+    e finalize {}
+} -result {{} {} {}}
+
+test tcl-chan-events-2.4 {allow, unknown event} -setup {
+    ::tcl::chan::events create e
+} -body {
+    e allow bogus
+} -cleanup {
+    e finalize {}
+} -returnCodes error -result {can't read "allowed(bogus)": no such element in array}
+
+test tcl-chan-events-2.5 {disallow, unknown event} -setup {
+    ::tcl::chan::events create e
+} -body {
+    e disallow bogus
+} -cleanup {
+    e finalize {}
+} -returnCodes error -result {can't read "allowed(bogus)": no such element in array}
+
+test tcl-chan-events-2.6 {allow without requested events starts no timer} -setup {
+    ::test::echan create e
+} -body {
+    e allow read write
+    e timerActive
+} -cleanup {
+    e finalize {}
+} -result 0
+
+# -------------------------------------------------------------------------
+## watch
+
+test tcl-chan-events-3.0 {watch, wrong # args} -setup {
+    ::tcl::chan::events create e
+} -body {
+    e watch c
+} -cleanup {
+    e finalize {}
+} -returnCodes error -result {wrong # args: should be "e watch c requestmask"}
+
+test tcl-chan-events-3.1 {watch, requested and allowed starts timer} -setup {
+    ::test::echan create e
+    e initialize chanX read
+} -body {
+    e allow read
+    set r [e timerActive]
+    e watch chanX read
+    lappend r [e timerActive]
+} -cleanup {
+    e finalize {}
+    unset r
+} -result {0 1}
+
+test tcl-chan-events-3.2 {watch, requested but not allowed, no timer} -setup {
+    ::test::echan create e
+    e initialize chanX read
+} -body {
+    e watch chanX {read write}
+    e timerActive
+} -cleanup {
+    e finalize {}
+} -result 0
+
+test tcl-chan-events-3.3 {watch, empty mask stops timer} -setup {
+    ::test::echan create e
+    e initialize chanX read
+    e allow read
+    e watch chanX read
+} -body {
+    e watch chanX {}
+    e timerActive
+} -cleanup {
+    e finalize {}
+} -result 0
+
+test tcl-chan-events-3.4 {disallow stops timer} -setup {
+    ::test::echan create e
+    e initialize chanX read
+    e allow read
+    e watch chanX read
+} -body {
+    e disallow read
+    e timerActive
+} -cleanup {
+    e finalize {}
+} -result 0
+
+test tcl-chan-events-3.5 {finalize stops timer} -setup {
+    ::test::echan create e
+    e initialize chanX read
+    e allow read write
+    e watch chanX {read write}
+    set before [after info]
+} -body {
+    e finalize chanX
+    list [info commands ::e] [llength $before] [llength [after info]]
+} -cleanup {
+    unset before
+} -result {{} 1 0}
+
+# -------------------------------------------------------------------------
+## Event generation through a real reflected channel
+
+test tcl-chan-events-4.0 {readable events delivered when allowed} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    fconfigure $ch -blocking 0
+    e allow read
+    fileevent $ch readable {set ::ev readable}
+} -body {
+    ::test::wait ::ev 5000
+} -cleanup {
+    close $ch
+    unset -nocomplain ch ::ev
+} -result readable
+
+test tcl-chan-events-4.1 {writable events delivered when allowed} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    fconfigure $ch -blocking 0
+    e allow write
+    fileevent $ch writable {set ::ev writable}
+} -body {
+    ::test::wait ::ev 5000
+} -cleanup {
+    close $ch
+    unset -nocomplain ch ::ev
+} -result writable
+
+test tcl-chan-events-4.2 {readable events repeat} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    fconfigure $ch -blocking 0
+    e allow read
+    set ::n 0
+    fileevent $ch readable {
+	read $::ch
+	if {[incr ::n] == 3} {set ::ev done}
+    }
+} -body {
+    list [::test::wait ::ev 5000] $::n
+} -cleanup {
+    close $ch
+    unset -nocomplain ch ::ev ::n
+} -result {done 3}
+
+test tcl-chan-events-4.3 {no events when not allowed} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    fconfigure $ch -blocking 0
+    fileevent $ch readable {incr ::n}
+    fileevent $ch writable {incr ::n}
+} -body {
+    ::test::count ::n 200
+} -cleanup {
+    close $ch
+    unset -nocomplain ch ::n
+} -result 0
+
+test tcl-chan-events-4.4 {no events after disallow} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    fconfigure $ch -blocking 0
+    e allow read
+    fileevent $ch readable {set ::ev readable}
+    ::test::wait ::ev 5000
+    e disallow read
+    fileevent $ch readable {incr ::n}
+} -body {
+    ::test::count ::n 200
+} -cleanup {
+    close $ch
+    unset -nocomplain ch ::n ::ev
+} -result 0
+
+test tcl-chan-events-4.5 {no events without fileevent handler} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    fconfigure $ch -blocking 0
+    e allow read
+    fileevent $ch readable {set ::ev readable}
+    ::test::wait ::ev 5000
+} -body {
+    fileevent $ch readable {}
+    e timerActive
+} -cleanup {
+    close $ch
+    unset -nocomplain ch ::ev
+} -result 0
+
+test tcl-chan-events-4.6 {close destroys handler and cancels timer} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    fconfigure $ch -blocking 0
+    e allow read write
+    fileevent $ch readable {set ::ev readable}
+    ::test::wait ::ev 5000
+} -body {
+    close $ch
+    list [info commands ::e] [after info]
+} -cleanup {
+    unset -nocomplain ch ::ev
+} -result {{} {}}
+
+test tcl-chan-events-4.7 {destroying the handler closes the channel} -setup {
+    set ch [chan create {read write} [::test::echan create e]]
+    e allow read
+    fileevent $ch readable {set ::ev readable}
+    ::test::wait ::ev 5000
+} -body {
+    e destroy
+    list [expr {$ch in [chan names]}] [info commands ::e]
+} -cleanup {
+    unset -nocomplain ch ::ev
+} -result {0 {}}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::test
+testsuiteCleanup
+return
