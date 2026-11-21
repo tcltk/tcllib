@@ -1,0 +1,1063 @@
+# -*- tcl -*-
+# pluginmgr-api.test:  Tests for the pluginmgr package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl  snit
+    use try/fhome.tcl  file::home
+}
+testing {
+    useLocal pluginmgr.tcl pluginmgr
+}
+
+# -------------------------------------------------------------------------
+## Helpers and test data
+
+# On Tcl 9 the safe base keeps the auto_path of a safe interpreter apart
+# from its access path, and ::safe::interpAddToAccessPath no longer makes
+# the added directories visible to [package require] in the safe
+# interpreter.  pluginmgr only extends the access path, so plugins in the
+# paths added by the method "path" are neither found by "load" nor by
+# "list".
+set pathKB [expr {[package vsatisfies [package provide Tcl] 9] ? "knownBug" : ""}]
+
+namespace eval ::tpm {
+    variable dir [tcltest::makeDirectory tpm-plugins]
+}
+
+# Plugin packages tpmtest::alpha, tpmtest::beta, and the unrelated
+# package tpmother, in the directory tpm-plugins.
+tcltest::makeFile {
+    package ifneeded tpmtest::alpha 1.0 [list source [file join $dir alpha.tcl]]
+    package ifneeded tpmtest::beta  1.0 [list source [file join $dir beta.tcl]]
+    package ifneeded tpmother       1.0 [list source [file join $dir beta.tcl]]
+} pkgIndex.tcl $::tpm::dir
+tcltest::makeFile {
+    package provide tpmtest::alpha 1.0
+    proc hello {} {return alpha}
+} alpha.tcl $::tpm::dir
+tcltest::makeFile {
+    package provide tpmtest::beta 1.0
+    proc hello {} {return beta}
+} beta.tcl $::tpm::dir
+
+# Plugin files loaded by path.
+set ::tpm::fileA [tcltest::makeFile {
+    proc hello {} {return fileA}
+    proc api1 {} {return api1}
+    namespace eval ::ns {proc api2 {} {return api2}}
+    proc echo {args} {return $args}
+} tpm-fileA.tcl]
+set ::tpm::fileB [tcltest::makeFile {
+    proc hello {} {return fileB}
+} tpm-fileB.tcl]
+set ::tpm::fileEnv [tcltest::makeFile {
+    proc hello {} {return [greet World]}
+} tpm-fileEnv.tcl]
+set ::tpm::fileSetup [tcltest::makeFile {
+    set loadtime [setupcmd]
+    proc hello {} {variable ::loadtime; return $loadtime}
+} tpm-fileSetup.tcl]
+set ::tpm::fileBad [tcltest::makeFile {
+    error "plugin failed"
+} tpm-fileBad.tcl]
+
+proc ::tpm::normlist {paths} {
+    set r {}
+    foreach p $paths {lappend r [file normalize $p]}
+    return $r
+}
+
+proc ::tpm::children {} {
+    lsort [interp children]
+}
+
+# -------------------------------------------------------------------------
+## Creation and configuration
+
+test pluginmgr-1.0 {create, returns the object command} -body {
+    pluginmgr m
+} -cleanup {
+    m destroy
+} -result ::m
+
+test pluginmgr-1.1 {create in a namespace} -setup {
+    namespace eval ::tpm::x {}
+} -body {
+    namespace eval ::tpm::x {pluginmgr m}
+} -cleanup {
+    ::tpm::x::m destroy
+    namespace delete ::tpm::x
+} -result ::tpm::x::m
+
+test pluginmgr-1.2 {create, fully qualified name} -setup {
+    namespace eval ::tpm::x {}
+} -body {
+    pluginmgr ::tpm::x::m
+} -cleanup {
+    ::tpm::x::m destroy
+    namespace delete ::tpm::x
+} -result ::tpm::x::m
+
+test pluginmgr-1.3 {create with options} -body {
+    pluginmgr m -pattern tpm::* -api {a b}
+    list [m cget -pattern] [m cget -api]
+} -cleanup {
+    m destroy
+} -result {tpm::* {a b}}
+
+test pluginmgr-1.4 {create, unknown option} -body {
+    pluginmgr m -bogus x
+} -returnCodes error -result {Error in constructor: unknown option "-bogus"}
+
+test pluginmgr-1.5 {create, bad pattern} -body {
+    pluginmgr m -pattern nostar
+} -returnCodes error -result {Error in constructor: Invalid pattern, * missing}
+
+test pluginmgr-1.6 {initial state} -setup {
+    pluginmgr m
+} -body {
+    list [m plugin] [m interpreter] [m paths]
+} -cleanup {
+    m destroy
+} -result {{} {} {}}
+
+# The documentation says that configure without arguments returns the
+# options and their values, and with one option the value like cget.
+# snit returns Tk-style lists {name dbname dbclass default value}.
+test pluginmgr-2.0 {configure, all options and defaults} -setup {
+    pluginmgr m
+} -body {
+    m configure
+} -cleanup {
+    m destroy
+} -result {{-pattern pattern Pattern {} {}} {-api api Api {} {}} {-check check Check {} {}} {-cmds cmds Cmds {} {}} {-cmdip cmdip Cmdip {} {}} {-setup setup Setup {} {}}}
+
+test pluginmgr-2.1 {configure, single option} -setup {
+    pluginmgr m -pattern a*
+} -body {
+    m configure -pattern
+} -cleanup {
+    m destroy
+} -result {-pattern pattern Pattern {} a*}
+
+test pluginmgr-2.2 {configure, set several options} -setup {
+    pluginmgr m
+} -body {
+    list [m configure -pattern p::* -api {x y} -check {chk 1} -cmds {a b} -cmdip ip -setup {stp 2}] \
+	[m cget -pattern] [m cget -api] [m cget -check] [m cget -cmds] [m cget -cmdip] [m cget -setup]
+} -cleanup {
+    m destroy
+} -result {{} p::* {x y} {chk 1} {a b} ip {stp 2}}
+
+test pluginmgr-2.3 {configure, unknown option} -setup {
+    pluginmgr m
+} -body {
+    m configure -bogus 1
+} -cleanup {
+    m destroy
+} -returnCodes error -result {unknown option "-bogus"}
+
+test pluginmgr-2.4 {configure -pattern without *} -setup {
+    pluginmgr m
+} -body {
+    m configure -pattern abc
+} -cleanup {
+    m destroy
+} -returnCodes error -result {Invalid pattern, * missing}
+
+test pluginmgr-2.5 {configure -pattern with two *} -setup {
+    pluginmgr m
+} -body {
+    m configure -pattern a*b*
+} -cleanup {
+    m destroy
+} -returnCodes error -result {Invalid pattern, too many *'s}
+
+test pluginmgr-2.6 {configure -pattern, failure keeps the old value} -setup {
+    pluginmgr m -pattern a*
+} -body {
+    catch {m configure -pattern **}
+    m cget -pattern
+} -cleanup {
+    m destroy
+} -result a*
+
+test pluginmgr-2.7 {configure -pattern, star anywhere} -setup {
+    pluginmgr m
+} -body {
+    m configure -pattern *-plugin
+    m cget -pattern
+} -cleanup {
+    m destroy
+} -result *-plugin
+
+test pluginmgr-2.8 {cget, each option} -setup {
+    pluginmgr m -pattern p* -api a -check c -cmds {k v} -cmdip i -setup s
+} -body {
+    set r {}
+    foreach o {-pattern -api -check -cmds -cmdip -setup} {lappend r [m cget $o]}
+    set r
+} -cleanup {
+    m destroy
+    unset r o
+} -result {p* a c {k v} i s}
+
+test pluginmgr-2.9 {cget, unknown option} -setup {
+    pluginmgr m
+} -body {
+    m cget -bogus
+} -cleanup {
+    m destroy
+} -returnCodes error -result {unknown option "-bogus"}
+
+# -------------------------------------------------------------------------
+## path, paths
+
+test pluginmgr-3.0 {path, absolute path} -setup {
+    pluginmgr m
+} -body {
+    list [m path /tpm/a] [m paths]
+} -cleanup {
+    m destroy
+} -result {{} /tpm/a}
+
+test pluginmgr-3.1 {path, relative path made absolute} -setup {
+    pluginmgr m
+} -body {
+    m path tpm/rel
+    expr {[m paths] eq [list [file join [pwd] tpm/rel]]}
+} -cleanup {
+    m destroy
+} -result 1
+
+test pluginmgr-3.2 {path, duplicates ignored} -setup {
+    pluginmgr m
+} -body {
+    m path /tpm/a
+    m path /tpm/b
+    m path /tpm/a
+    m paths
+} -cleanup {
+    m destroy
+} -result {/tpm/a /tpm/b}
+
+test pluginmgr-3.3 {path, not normalized} -setup {
+    pluginmgr m
+} -body {
+    m path /tpm/a/../b
+    m path /tpm/b
+    m paths
+} -cleanup {
+    m destroy
+} -result {/tpm/a/../b /tpm/b}
+
+test pluginmgr-3.4 {path, wrong # args} -setup {
+    pluginmgr m
+} -body {
+    m path
+} -cleanup {
+    m destroy
+} -returnCodes error -result {wrong # args: should be "::pluginmgr::Snit_methodpath type selfns win self path"}
+
+# -------------------------------------------------------------------------
+## load, plugin, interpreter, do
+
+test pluginmgr-4.0 {load, pattern not configured} -setup {
+    pluginmgr m
+} -body {
+    m load foo
+} -cleanup {
+    m destroy
+} -returnCodes error -result {Translation pattern is not configured}
+
+test pluginmgr-4.1 {load, unknown plugin} -setup {
+    pluginmgr m -pattern tpmtest::*
+} -body {
+    m load nosuch
+} -cleanup {
+    m destroy
+} -returnCodes error -match glob -result {Unable to locate or load plugin "nosuch" (*)}
+
+test pluginmgr-4.2 {load file} -setup {
+    pluginmgr m -pattern tpmtest::*
+} -body {
+    list [m load $::tpm::fileA] [expr {[m plugin] eq $::tpm::fileA}] \
+	[interp issafe [m interpreter]] [m do hello]
+} -cleanup {
+    m destroy
+} -result {{} 1 1 fileA}
+
+test pluginmgr-4.3 {load file, pattern still required} -setup {
+    pluginmgr m
+} -body {
+    m load $::tpm::fileA
+} -cleanup {
+    m destroy
+} -returnCodes error -result {Translation pattern is not configured}
+
+test pluginmgr-4.4 {load package from added path} -constraints $pathKB -setup {
+    pluginmgr m -pattern tpmtest::*
+    m path $::tpm::dir
+} -body {
+    m load alpha
+    list [m plugin] [m do hello]
+} -cleanup {
+    m destroy
+} -result {alpha alpha}
+
+test pluginmgr-4.5 {load package, pattern with suffix} -constraints $pathKB -setup {
+    pluginmgr m -pattern tpm*::beta
+    m path $::tpm::dir
+} -body {
+    m load test
+    list [m plugin] [m do hello]
+} -cleanup {
+    m destroy
+} -result {test beta}
+
+test pluginmgr-4.6 {load, plugin code fails} -setup {
+    pluginmgr m -pattern tpmtest::*
+} -body {
+    m load $::tpm::fileBad
+} -cleanup {
+    m destroy
+} -returnCodes error -result {plugin failed}
+
+test pluginmgr-4.7 {load replaces the previous plugin and interpreter} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set old [m interpreter]
+} -body {
+    m load $::tpm::fileB
+    list [m do hello] [expr {[m interpreter] ne $old}] [interp exists $old]
+} -cleanup {
+    m destroy
+    unset old
+} -result {fileB 1 0}
+
+test pluginmgr-4.8 {load of the current plugin does nothing} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set old [m interpreter]
+    m do set ::marker 1
+} -body {
+    m load $::tpm::fileA
+    list [expr {[m interpreter] eq $old}] [m do set ::marker]
+} -cleanup {
+    m destroy
+    unset old
+} -result {1 1}
+
+test pluginmgr-4.9 {failed load keeps the previous plugin} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set old [m interpreter]
+} -body {
+    catch {m load nosuch}
+    list [expr {[m plugin] eq $::tpm::fileA}] [expr {[m interpreter] eq $old}] [m do hello]
+} -cleanup {
+    m destroy
+    unset old
+} -result {1 1 fileA}
+
+test pluginmgr-4.10 {two managers use separate interpreters} -setup {
+    pluginmgr m1 -pattern tpmtest::*
+    pluginmgr m2 -pattern tpmtest::*
+} -body {
+    m1 load $::tpm::fileA
+    m2 load $::tpm::fileB
+    list [m1 do hello] [m2 do hello] [expr {[m1 interpreter] ne [m2 interpreter]}]
+} -cleanup {
+    m1 destroy
+    m2 destroy
+} -result {fileA fileB 1}
+
+test pluginmgr-4.11 {plugin interpreter is safe} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+} -body {
+    m do open [info script]
+} -cleanup {
+    m destroy
+} -returnCodes error -result {invalid command name "open"}
+
+test pluginmgr-4.12 {load, wrong # args} -setup {
+    pluginmgr m
+} -body {
+    m load
+} -cleanup {
+    m destroy
+} -returnCodes error -result {wrong # args: should be "::pluginmgr::Snit_methodload type selfns win self name"}
+
+test pluginmgr-5.0 {do without plugin} -setup {
+    pluginmgr m
+} -body {
+    m do hello
+} -cleanup {
+    m destroy
+} -returnCodes error -result {No plugin defined}
+
+test pluginmgr-5.1 {do, arguments are the words of the command} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+} -body {
+    m do echo {a b} c {$x} {[y]}
+} -cleanup {
+    m destroy
+} -result {{a b} c {$x} {[y]}}
+
+test pluginmgr-5.2 {do, error in plugin} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+} -body {
+    m do error oops
+} -cleanup {
+    m destroy
+} -returnCodes error -result oops
+
+test pluginmgr-5.3 {do, commands run in the plugin interpreter} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+} -body {
+    m do set ::tpmvar 42
+    list [[m interpreter] eval {set ::tpmvar}] [info exists ::tpmvar]
+} -cleanup {
+    m destroy
+} -result {42 0}
+
+# -------------------------------------------------------------------------
+## -api, -check
+
+test pluginmgr-6.0 {-api, all commands present} -setup {
+    pluginmgr m -pattern tpmtest::* -api {hello api1 ::ns::api2}
+} -body {
+    m load $::tpm::fileA
+    m do hello
+} -cleanup {
+    m destroy
+} -result fileA
+
+test pluginmgr-6.1 {-api, missing command} -setup {
+    pluginmgr m -pattern tpmtest::* -api {hello api1}
+} -body {
+    m load $::tpm::fileB
+} -cleanup {
+    m destroy
+} -returnCodes error -result "Cannot use plugin \"$::tpm::fileB\", API incomplete: \"api1\" missing"
+
+test pluginmgr-6.2 {-api, unqualified names are global} -setup {
+    pluginmgr m -pattern tpmtest::* -api {api2}
+} -body {
+    m load $::tpm::fileA
+} -cleanup {
+    m destroy
+} -returnCodes error -result "Cannot use plugin \"$::tpm::fileA\", API incomplete: \"api2\" missing"
+
+test pluginmgr-6.3 {-api failure keeps the previous plugin, interp deleted} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileB
+    m configure -api {api1 nothere}
+    set before [::tpm::children]
+} -body {
+    catch {m load $::tpm::fileA} msg
+    list $msg [m do hello] [expr {[::tpm::children] eq $before}]
+} -cleanup {
+    m destroy
+    unset before msg
+} -result [list "Cannot use plugin \"$::tpm::fileA\", API incomplete: \"nothere\" missing" fileB 1]
+
+test pluginmgr-6.4 {-check, called with the manager, passes} -setup {
+    set ::calls {}
+    proc ::tpm::check {args} {
+	lappend ::calls $args
+	return 1
+    }
+    pluginmgr m -pattern tpmtest::* -check ::tpm::check
+} -body {
+    m load $::tpm::fileA
+    list $::calls [m do hello]
+} -cleanup {
+    m destroy
+    rename ::tpm::check {}
+    unset ::calls
+} -result {::m fileA}
+
+test pluginmgr-6.5 {-check, command prefix, plugin visible to the check} -setup {
+    proc ::tpm::check {extra mgr} {
+	set ::calls [list $extra $mgr [$mgr do hello] [expr {[$mgr plugin] eq $::tpm::fileA}]]
+	return true
+    }
+    pluginmgr m -pattern tpmtest::* -check {::tpm::check X}
+} -body {
+    m load $::tpm::fileA
+    set ::calls
+} -cleanup {
+    m destroy
+    rename ::tpm::check {}
+    unset ::calls
+} -result {X ::m fileA 1}
+
+test pluginmgr-6.6 {-check returns false} -setup {
+    pluginmgr m -pattern tpmtest::* -check {apply {{m} {return 0}}}
+} -body {
+    m load $::tpm::fileA
+} -cleanup {
+    m destroy
+} -returnCodes error -result "Cannot use plugin \"$::tpm::fileA\", API bad"
+
+test pluginmgr-6.7 {-check false keeps the previous plugin} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileB
+    m configure -check {apply {{m} {return no}}}
+} -body {
+    catch {m load $::tpm::fileA}
+    list [expr {[m plugin] eq $::tpm::fileB}] [m do hello]
+} -cleanup {
+    m destroy
+} -result {1 fileB}
+
+test pluginmgr-6.8 {-check not called when -api fails} -setup {
+    set ::calls {}
+    pluginmgr m -pattern tpmtest::* -api nothere \
+	-check {apply {{m} {lappend ::calls $m; return 1}}}
+} -body {
+    catch {m load $::tpm::fileA}
+    set ::calls
+} -cleanup {
+    m destroy
+    unset ::calls
+} -result {}
+
+# The candidate interpreter is not deleted.
+test pluginmgr-6.9 {-check false unloads the candidate} -constraints {
+    knownBug
+} -setup {
+    pluginmgr m -pattern tpmtest::* -check {apply {{m} {return 0}}}
+    set before [::tpm::children]
+} -body {
+    catch {m load $::tpm::fileA}
+    expr {[::tpm::children] eq $before}
+} -cleanup {
+    m destroy
+    foreach i [::tpm::children] {if {$i ni $before} {interp delete $i}}
+    unset before i
+} -result 1
+
+# The candidate interpreter is not deleted.
+test pluginmgr-6.10 {failed load leaves no interpreter behind} -constraints {
+    knownBug
+} -setup {
+    pluginmgr m -pattern tpmtest::*
+    set before [::tpm::children]
+} -body {
+    catch {m load nosuch}
+    expr {[::tpm::children] eq $before}
+} -cleanup {
+    m destroy
+    foreach i [::tpm::children] {if {$i ni $before} {interp delete $i}}
+    unset before i
+} -result 1
+
+# -------------------------------------------------------------------------
+## -cmds, -cmdip, -setup
+
+test pluginmgr-7.0 {-cmds, commands provided to the plugin} -setup {
+    proc ::tpm::greet {who} {return "Hello $who from [info level 0]"}
+    pluginmgr m -pattern tpmtest::* -cmds {greet ::tpm::greet}
+} -body {
+    m load $::tpm::fileEnv
+    m do hello
+} -cleanup {
+    m destroy
+    rename ::tpm::greet {}
+} -result {Hello World from ::tpm::greet World}
+
+test pluginmgr-7.1 {-cmds, value is a command prefix} -setup {
+    proc ::tpm::greet {prefix who} {return "$prefix $who"}
+    pluginmgr m -pattern tpmtest::* -cmds {greet {::tpm::greet Hi}}
+} -body {
+    m load $::tpm::fileEnv
+    m do hello
+} -cleanup {
+    m destroy
+    rename ::tpm::greet {}
+} -result {Hi World}
+
+test pluginmgr-7.2 {-cmds installed after the checks} -setup {
+    proc ::tpm::greet {who} {return $who}
+    pluginmgr m -pattern tpmtest::* -cmds {greet ::tpm::greet} \
+	-check {apply {{m} {set ::seen [$m do info commands greet]; return 1}}}
+} -body {
+    m load $::tpm::fileA
+    list $::seen [m do info commands greet]
+} -cleanup {
+    m destroy
+    rename ::tpm::greet {}
+    unset ::seen
+} -result {{} greet}
+
+test pluginmgr-7.3 {-cmdip, trusted commands run in the given interpreter} -setup {
+    interp create tpmtrusted
+    tpmtrusted eval {proc greet {who} {return "trusted $who"}}
+    pluginmgr m -pattern tpmtest::* -cmds {greet greet} -cmdip tpmtrusted
+} -body {
+    m load $::tpm::fileEnv
+    m do hello
+} -cleanup {
+    m destroy
+    interp delete tpmtrusted
+} -result {trusted World}
+
+test pluginmgr-7.4 {-setup, called with manager and interpreter before load} -setup {
+    set ::calls {}
+    proc ::tpm::setup {mgr ip} {
+	lappend ::calls $mgr [interp issafe $ip]
+	interp alias $ip setupcmd {} set ::tpmsetup loaded
+	return ignored
+    }
+    pluginmgr m -pattern tpmtest::* -setup ::tpm::setup
+} -body {
+    m load $::tpm::fileSetup
+    list $::calls [m do hello]
+} -cleanup {
+    m destroy
+    rename ::tpm::setup {}
+    unset ::calls ::tpmsetup
+} -result {{::m 1} loaded}
+
+test pluginmgr-7.5 {-setup, command prefix} -setup {
+    proc ::tpm::setup {x mgr ip} {
+	interp alias $ip setupcmd {} set ::tpmsetup $x
+    }
+    pluginmgr m -pattern tpmtest::* -setup {::tpm::setup Y}
+} -body {
+    m load $::tpm::fileSetup
+    m do hello
+} -cleanup {
+    m destroy
+    rename ::tpm::setup {}
+    unset ::tpmsetup
+} -result Y
+
+test pluginmgr-7.6 {-setup interpreter is the plugin interpreter} -setup {
+    proc ::tpm::setup {mgr ip} {
+	set ::tpmip $ip
+	interp alias $ip setupcmd {} set ::tpmsetup x
+    }
+    pluginmgr m -pattern tpmtest::* -setup ::tpm::setup
+} -body {
+    m load $::tpm::fileSetup
+    expr {$::tpmip eq [m interpreter]}
+} -cleanup {
+    m destroy
+    rename ::tpm::setup {}
+    unset ::tpmsetup ::tpmip
+} -result 1
+
+# -------------------------------------------------------------------------
+## unload, destroy
+
+test pluginmgr-8.0 {unload} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set ip [m interpreter]
+} -body {
+    list [m unload] [m plugin] [m interpreter] [interp exists $ip]
+} -cleanup {
+    m destroy
+    unset ip
+} -result {{} {} {} 0}
+
+test pluginmgr-8.1 {unload without plugin} -setup {
+    pluginmgr m
+} -body {
+    m unload
+} -cleanup {
+    m destroy
+} -result {}
+
+test pluginmgr-8.2 {unload, then do fails} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    m unload
+} -body {
+    m do hello
+} -cleanup {
+    m destroy
+} -returnCodes error -result {No plugin defined}
+
+test pluginmgr-8.3 {unload, then load again} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    m unload
+} -body {
+    m load $::tpm::fileA
+    m do hello
+} -cleanup {
+    m destroy
+} -result fileA
+
+test pluginmgr-8.4 {destroy deletes command and interpreter} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set ip [m interpreter]
+} -body {
+    m destroy
+    list [info commands ::m] [interp exists $ip]
+} -cleanup {
+    unset ip
+} -result {{} 0}
+
+test pluginmgr-8.5 {destroy without plugin} -setup {
+    pluginmgr m
+} -body {
+    m destroy
+    info commands ::m
+} -result {}
+
+# -------------------------------------------------------------------------
+## clone
+
+test pluginmgr-9.0 {clone, same configuration and paths} -setup {
+    pluginmgr m -pattern p::* -api {a} -check {c} -cmds {k v} -cmdip {} -setup {s}
+    m path /tpm/a
+} -body {
+    set c [m clone]
+    list [expr {$c ne "::m"}] [$c cget -pattern] [$c cget -api] [$c cget -check] \
+	[$c cget -cmds] [$c cget -cmdip] [$c cget -setup] [$c paths]
+} -cleanup {
+    m destroy
+    $c destroy
+    unset c
+} -result {1 p::* a c {k v} {} s /tpm/a}
+
+test pluginmgr-9.1 {clone moves the loaded plugin} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set ip [m interpreter]
+} -body {
+    set c [m clone]
+    list [expr {[$c plugin] eq $::tpm::fileA}] [expr {[$c interpreter] eq $ip}] \
+	[$c do hello] [m plugin] [m interpreter]
+} -cleanup {
+    m destroy
+    $c destroy
+    unset c ip
+} -result {1 1 fileA {} {}}
+
+test pluginmgr-9.2 {clone, original can load again} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set c [m clone]
+} -body {
+    m load $::tpm::fileB
+    list [m do hello] [$c do hello]
+} -cleanup {
+    m destroy
+    $c destroy
+    unset c
+} -result {fileB fileA}
+
+test pluginmgr-9.3 {clone, destroying the original keeps the clone working} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m load $::tpm::fileA
+    set c [m clone]
+} -body {
+    m destroy
+    $c do hello
+} -cleanup {
+    $c destroy
+    unset c
+} -result fileA
+
+test pluginmgr-9.4 {clone without plugin} -setup {
+    pluginmgr m -pattern tpmtest::*
+} -body {
+    set c [m clone]
+    list [$c plugin] [$c interpreter]
+} -cleanup {
+    m destroy
+    $c destroy
+    unset c
+} -result {{} {}}
+
+test pluginmgr-9.5 {clone, paths of clone are independent} -setup {
+    pluginmgr m
+    m path /tpm/a
+    set c [m clone]
+} -body {
+    $c path /tpm/b
+    list [m paths] [$c paths]
+} -cleanup {
+    m destroy
+    $c destroy
+    unset c
+} -result {/tpm/a {/tpm/a /tpm/b}}
+
+# -------------------------------------------------------------------------
+## list
+
+test pluginmgr-10.0 {list, pattern not configured} -setup {
+    pluginmgr m
+} -body {
+    m list
+} -cleanup {
+    m destroy
+} -returnCodes error -result {Translation pattern is not configured}
+
+test pluginmgr-10.1 {list, plugins in added path} -constraints $pathKB -setup {
+    pluginmgr m -pattern tpmtest::*
+    m path $::tpm::dir
+} -body {
+    lsort [m list]
+} -cleanup {
+    m destroy
+} -result {alpha beta}
+
+test pluginmgr-10.2 {list, pattern with suffix} -constraints $pathKB -setup {
+    pluginmgr m -pattern tpm*::alpha
+    m path $::tpm::dir
+} -body {
+    m list
+} -cleanup {
+    m destroy
+} -result test
+
+test pluginmgr-10.3 {list, nothing matches} -setup {
+    pluginmgr m -pattern tpmnothing::*
+    m path $::tpm::dir
+} -body {
+    m list
+} -cleanup {
+    m destroy
+} -result {}
+
+test pluginmgr-10.4 {list leaves no interpreter behind} -setup {
+    pluginmgr m -pattern tpmtest::*
+    set before [::tpm::children]
+} -body {
+    m list
+    expr {[::tpm::children] eq $before}
+} -cleanup {
+    m destroy
+    unset before
+} -result 1
+
+test pluginmgr-10.5 {list keeps the loaded plugin} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m path $::tpm::dir
+    m load $::tpm::fileA
+    set ip [m interpreter]
+} -body {
+    m list
+    list [expr {[m interpreter] eq $ip}] [m do hello]
+} -cleanup {
+    m destroy
+    unset ip
+} -result {1 fileA}
+
+# "list" uses the instance variable holding the plugin name as the
+# match variable of its regexp, so the name of the last plugin found
+# becomes the name of the current plugin.  The standard package msgcat
+# is visible in every safe interpreter.
+test pluginmgr-10.6 {list does not change the current plugin name} -constraints {
+    knownBug
+} -setup {
+    pluginmgr m -pattern msgca*
+} -body {
+    list [m list] [m plugin]
+} -cleanup {
+    m destroy
+} -result {t {}}
+
+# The pattern is converted to an unanchored regular expression, so it also
+# matches package names which only contain it, e.g. "cat*" matches msgcat.
+test pluginmgr-10.8 {list, pattern matches whole package names} -constraints {
+    knownBug
+} -setup {
+    pluginmgr m -pattern cat*
+} -body {
+    m list
+} -cleanup {
+    m destroy
+} -result {}
+
+test pluginmgr-10.9 {list, pattern matches whole package names, path} -constraints {
+    knownBug
+} -setup {
+    pluginmgr m -pattern test::*
+    m path $::tpm::dir
+} -body {
+    m list
+} -cleanup {
+    m destroy
+} -result {}
+
+test pluginmgr-10.7 {load after list} -constraints {
+    knownBug
+} -setup {
+    pluginmgr m -pattern tpmtest::*
+    m path $::tpm::dir
+} -body {
+    m list
+    m load alpha
+    m do hello
+} -cleanup {
+    m destroy
+} -result alpha
+
+# -------------------------------------------------------------------------
+## ::pluginmgr::paths
+
+test pluginmgr-11.0 {paths, no names} -setup {
+    pluginmgr m
+} -body {
+    ::pluginmgr::paths ::m
+} -cleanup {
+    m destroy
+} -returnCodes error -result {wrong#args: Expect "::pluginmgr::paths ::m object name..."}
+
+test pluginmgr-11.1 {paths, nothing found} -setup {
+    pluginmgr m
+    set oldhome $::env(HOME)
+    set ::env(HOME) [tcltest::makeDirectory tpm-home]
+} -body {
+    list [::pluginmgr::paths ::m tpmnone] [m paths]
+} -cleanup {
+    m destroy
+    set ::env(HOME) $oldhome
+    tcltest::removeDirectory tpm-home
+    unset oldhome
+} -result {{} {}}
+
+test pluginmgr-11.2 {paths, environment variable} -constraints unix -setup {
+    pluginmgr m
+    set ::env(TPMAPP_PLUGINS) /tpm/a:/tpm/b
+} -body {
+    ::pluginmgr::paths ::m tpmapp
+    m paths
+} -cleanup {
+    m destroy
+    unset ::env(TPMAPP_PLUGINS)
+} -result {/tpm/a /tpm/b}
+
+test pluginmgr-11.3 {paths, environment variable, windows separator} -constraints win -setup {
+    pluginmgr m
+    set ::env(TPMAPP_PLUGINS) {C:/tpm/a;C:/tpm/b}
+} -body {
+    ::pluginmgr::paths ::m tpmapp
+    m paths
+} -cleanup {
+    m destroy
+    unset ::env(TPMAPP_PLUGINS)
+} -result {C:/tpm/a C:/tpm/b}
+
+test pluginmgr-11.4 {paths, name converted to upper case} -constraints unix -setup {
+    pluginmgr m
+    set ::env(TPMAPP_PLUGINS) /tpm/upper
+} -body {
+    ::pluginmgr::paths ::m TpmApp
+    m paths
+} -cleanup {
+    m destroy
+    unset ::env(TPMAPP_PLUGINS)
+} -result /tpm/upper
+
+test pluginmgr-11.5 {paths, namespaced name, one variable per prefix} -constraints unix -setup {
+    pluginmgr m
+    set ::env(TPMNS_PLUGINS) /tpm/ns
+    set ::env(TPMNS_IDX_PLUGINS) /tpm/ns/idx
+} -body {
+    ::pluginmgr::paths ::m tpmns::idx
+    m paths
+} -cleanup {
+    m destroy
+    unset ::env(TPMNS_PLUGINS) ::env(TPMNS_IDX_PLUGINS)
+} -result {/tpm/ns /tpm/ns/idx}
+
+test pluginmgr-11.6 {paths, several names} -constraints unix -setup {
+    pluginmgr m
+    set ::env(TPMONE_PLUGINS) /tpm/one
+    set ::env(TPMTWO_PLUGINS) /tpm/two
+} -body {
+    ::pluginmgr::paths ::m tpmone tpmtwo
+    m paths
+} -cleanup {
+    m destroy
+    unset ::env(TPMONE_PLUGINS) ::env(TPMTWO_PLUGINS)
+} -result {/tpm/one /tpm/two}
+
+test pluginmgr-11.7 {paths, home directory plugin and plugins} -setup {
+    pluginmgr m
+    set oldhome $::env(HOME)
+    set home [tcltest::makeDirectory tpm-home]
+    set ::env(HOME) $home
+    file mkdir [file join $home .tpmapp plugin] [file join $home .tpmapp plugins]
+} -body {
+    ::pluginmgr::paths ::m tpmapp
+    expr {[::tpm::normlist [m paths]] eq
+	  [list [file normalize [file join $home .tpmapp plugin]] \
+	       [file normalize [file join $home .tpmapp plugins]]]}
+} -cleanup {
+    m destroy
+    set ::env(HOME) $oldhome
+    tcltest::removeDirectory tpm-home
+    unset oldhome home
+} -result 1
+
+test pluginmgr-11.8 {paths, home directory, namespaced name} -setup {
+    pluginmgr m
+    set oldhome $::env(HOME)
+    set home [tcltest::makeDirectory tpm-home]
+    set ::env(HOME) $home
+    file mkdir [file join $home .tpmns plugin] [file join $home .tpmns idx plugin]
+} -body {
+    ::pluginmgr::paths ::m tpmns::idx
+    expr {[::tpm::normlist [m paths]] eq
+	  [list [file normalize [file join $home .tpmns plugin]] \
+	       [file normalize [file join $home .tpmns idx plugin]]]}
+} -cleanup {
+    m destroy
+    set ::env(HOME) $oldhome
+    tcltest::removeDirectory tpm-home
+    unset oldhome home
+} -result 1
+
+test pluginmgr-11.9 {paths, environment before home directory} -constraints unix -setup {
+    pluginmgr m
+    set oldhome $::env(HOME)
+    set home [tcltest::makeDirectory tpm-home]
+    set ::env(HOME) $home
+    file mkdir [file join $home .tpmapp plugins]
+    set ::env(TPMAPP_PLUGINS) /tpm/env
+} -body {
+    ::pluginmgr::paths ::m tpmapp
+    set p [m paths]
+    list [lindex $p 0] [file normalize [lindex $p 1]] [llength $p]
+} -cleanup {
+    m destroy
+    set ::env(HOME) $oldhome
+    unset ::env(TPMAPP_PLUGINS)
+    tcltest::removeDirectory tpm-home
+    unset oldhome home p
+} -result [list /tpm/env [file normalize [file join [tcltest::temporaryDirectory] tpm-home .tpmapp plugins]] 2]
+
+# -------------------------------------------------------------------------
+
+tcltest::removeDirectory tpm-plugins
+foreach f {fileA fileB fileEnv fileSetup fileBad} {
+    tcltest::removeFile tpm-$f.tcl
+}
+namespace delete ::tpm
+unset pathKB f
+testsuiteCleanup
+return
