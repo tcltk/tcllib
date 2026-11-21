@@ -53,7 +53,9 @@ way), the new dialect starts with all keywords of [arg parent] and its
 [term {dynamic methods}] hook (see below), and [var name][cmd ::object]
 inherits from [arg parent][cmd ::object]. Keywords added to [arg parent]
 later are not seen by the new dialect, so a derived dialect should be
-created after its parent is complete.
+created after its parent is complete. Later redefinitions of existing
+keywords and of the hook of [arg parent] do take effect in the new dialect
+(see section [sectref Keywords]).
 
 [call [var name][cmd ::class] [method create] [arg class] [opt [arg script]]]
 
@@ -68,10 +70,11 @@ definition [arg script] is evaluated like one given to
 Like [cmd oo::define], evaluates the definition [arg script] for
 [arg class], or applies a single [arg keyword] with its arguments, using
 the keywords of the dialect. A relative [arg class] name is resolved in the
-namespace of the caller. If [arg class] does not exist yet, it is created
-as by [var name][cmd ::class] [method create], and its fully qualified name
-is returned. This allows the same command to be used for creating a class
-and extending it later, for example when a library is reloaded.
+namespace of the caller. If [arg class] does not exist yet, the first form
+creates it as by [var name][cmd ::class] [method create] and returns its
+fully qualified name. This allows the same command to be used for
+creating a class and extending it later, for example when a library is
+reloaded.
 
 [para]
 
@@ -104,9 +107,9 @@ what the procedures implementing new keywords use to find their class.
 [call [cmd superclass] [opt [arg "class ..."]]]
 
 Sets the superclasses of the class being defined, as [cmd oo::define]
-does, but always keeps [var name][cmd ::object] as the last superclass
-(unless the class being defined is [var name][cmd ::object] itself).
-Duplicate classes are removed. Each [arg class] may be an alias declared
+does, but adds [var name][cmd ::object] as the last superclass unless it
+is already listed (or the class being defined is [var name][cmd ::object]
+itself). Duplicate classes are removed. Each [arg class] may be an alias declared
 with [cmd aliases]. Other names are looked up first in the namespace of the
 class being defined, then in the global namespace.
 
@@ -131,8 +134,11 @@ proc ::mydialect::define::option {name default} {
 }]
 
 Defining a keyword with the name of an existing one, for example
-[cmd constructor], replaces it for this dialect and for dialects derived
-from it later.
+[cmd constructor], replaces it for this dialect and for all dialects
+derived from it, including those created earlier, except for a derived
+dialect that has defined its own keyword with that name. Likewise,
+redefining [var name][cmd ::dynamic_methods] also changes the hook of the
+derived dialects that have not defined their own.
 
 [section {Class methods}]
 
