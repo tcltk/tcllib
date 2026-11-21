@@ -1,0 +1,783 @@
+# -*- tcl -*- Tests for the mapproj module.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      textutil/wcswidth.tcl   textutil::wcswidth
+    use      struct/matrix.tcl       struct::matrix
+    use      math/math.tcl           math
+    use      math/constants.tcl      math::constants
+    use      math/linalg.tcl         math::linearalgebra
+    use      math/statistics.tcl     math::statistics
+    use      math/polynomials.tcl    math::polynomials
+    use      math/special.tcl        math::special
+    use      math/interpolate.tcl    math::interpolate
+}
+
+testing {
+    useLocal mapproj.tcl mapproj
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Compare two (possibly nested) lists of numbers with an absolute
+# tolerance.
+proc approxMatch {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach e $expected a $actual {
+        if {[llength $e] != 1} {
+            if {![approxMatch $tol $e $a]} {
+                return 0
+            }
+        } elseif {![string is double -strict $a] || abs($e - $a) > $tol} {
+            return 0
+        }
+    }
+    return 1
+}
+tcltest::customMatch approx      {::approxMatch 1e-6}
+tcltest::customMatch approx4     {::approxMatch 1e-4}
+# fromRobinson finds the latitude by 12 bisection steps in a 5 degree
+# interval, so its precision is about 0.0012 degrees.
+tcltest::customMatch approxLoose {::approxMatch 2e-3}
+
+# Project each point with the "to" command and back with the "from"
+# command; return the points for which the round trip does not give the
+# original point back.  Longitudes are compared modulo 360.
+proc roundTrip {to from points {tol 1e-6}} {
+    set bad {}
+    foreach {lambda phi} $points {
+        set xy [{*}$to $lambda $phi]
+        if {[llength $xy] != 2} {
+            lappend bad [list $lambda $phi -> $xy]
+            continue
+        }
+        set ll [{*}$from {*}$xy]
+        lassign $ll l p
+        set dl [expr {fmod($l - $lambda + 540.0, 360.0) - 180.0}]
+        if {abs($dl) > $tol || abs($p - $phi) > $tol} {
+            lappend bad [list $lambda $phi -> $xy -> $ll]
+        }
+    }
+    return $bad
+}
+
+# Points of the whole world, avoiding the poles and the antimeridian.
+set worldPoints {}
+foreach lambda {-179 -150 -90 -30 -1 0 1 45 120 179} {
+    foreach phi {-85 -60 -30 -1 0 1 30 60 85} {
+        lappend worldPoints [expr {$lambda + 20}] $phi
+    }
+}
+# Points within 80 degrees of (20, 10), as longitude/latitude pairs.
+set nearPoints {
+    20 10   25 15   0 -20   60 40   -30 10   20 85   20 -65   95 10
+    -55 10  40 -30  10 50   70 70  -10 -50   21 11   19 9    20 11
+}
+# The reference point and sheet center used for the reference values
+# (Snyder, "Map Projections - A Working Manual", numerical examples).
+set refLambda0 -96.0
+set refPhi0     23.0
+set refLambda  -75.0
+set refPhi      35.0
+
+# -------------------------------------------------------------------------
+# Wrong # args
+
+set n 0
+foreach {cmd argnames} {
+    toPlateCarree                  {lambda_0 phi_0 lambda phi}
+    toMercator                     {lambda_0 phi_0 lambda phi}
+    fromMercator                   {lambda_0 phi_0 x y}
+    toMillerCylindrical            {lambda_0 lambda phi}
+    fromMillerCylindrical          {lambda_0 x y}
+    toSinusoidal                   {lambda_0 phi_0 lambda phi}
+    fromSinusoidal                 {lambda_0 phi_0 x y}
+    toMollweide                    {lambda_0 lambda phi}
+    fromMollweide                  {lambda_0 x y}
+    toEckertIV                     {lambda_0 lambda phi}
+    fromEckertIV                   {lambda_0 x y}
+    toEckertVI                     {lambda_0 lambda phi}
+    fromEckertVI                   {lambda_0 x y}
+    toRobinson                     {lambda_0 lambda phi}
+    fromRobinson                   {lambda_0 x y}
+    toCassini                      {lambda_0 phi_0 lambda phi}
+    fromCassini                    {lambda_0 phi_0 x y}
+    toPeirceQuincuncial            {lambda_0 lambda phi}
+    fromPeirceQuincuncial          {lambda_0 x y}
+    toOrthographic                 {lambda_0 phi_0 lambda phi}
+    fromOrthographic               {lambda_0 phi_0 x y}
+    toStereographic                {lambda_0 phi_0 lambda phi}
+    fromStereographic              {lambda_0 phi_0 x y}
+    toGnomonic                     {lambda_0 phi_0 lambda phi}
+    fromGnomonic                   {lambda_0 phi_0 x y}
+    toAzimuthalEquidistant         {lambda_0 phi_0 lambda phi}
+    fromAzimuthalEquidistant       {lambda_0 phi_0 x y}
+    toLambertAzimuthalEqualArea    {lambda_0 phi_0 lambda phi}
+    fromLambertAzimuthalEqualArea  {lambda_0 phi_0 x y}
+    toHammer                       {lambda_0 lambda phi}
+    fromHammer                     {lambda_0 x y}
+    toConicEquidistant             {lambda_0 phi_0 phi_1 phi_2 lambda phi}
+    fromConicEquidistant           {lambda_0 phi_0 phi_1 phi_2 x y}
+    toAlbersEqualAreaConic         {lambda_0 phi_0 phi_1 phi_2 lambda phi}
+    fromAlbersEqualAreaConic       {lambda_0 phi_0 phi_1 phi_2 x y}
+    toLambertConformalConic        {lambda_0 phi_0 phi_1 phi_2 lambda phi}
+    fromLambertConformalConic      {lambda_0 phi_0 phi_1 phi_2 x y}
+    toLambertCylindricalEqualArea  {lambda_0 phi_0 lambda phi}
+    fromLambertCylindricalEqualArea {lambda_0 phi_0 x y}
+    toBehrmann                     {lambda_0 phi_0 lambda phi}
+    fromBehrmann                   {lambda_0 phi_0 x y}
+    toTrystanEdwards               {lambda_0 phi_0 lambda phi}
+    fromTrystanEdwards             {lambda_0 phi_0 x y}
+    toHoboDyer                     {lambda_0 phi_0 lambda phi}
+    fromHoboDyer                   {lambda_0 phi_0 x y}
+    toGallPeters                   {lambda_0 phi_0 lambda phi}
+    fromGallPeters                 {lambda_0 phi_0 x y}
+    toBalthasart                   {lambda_0 phi_0 lambda phi}
+    fromBalthasart                 {lambda_0 phi_0 x y}
+} {
+    incr n
+    set msg "wrong # args: should be \"::mapproj::$cmd $argnames\""
+    test mapproj-1.$n.0 "$cmd, too few arguments" -body {
+        ::mapproj::$cmd {*}[lrange $argnames 1 end]
+    } -returnCodes error -result $msg
+    test mapproj-1.$n.1 "$cmd, too many arguments" -body {
+        ::mapproj::$cmd {*}$argnames extra
+    } -returnCodes error -result $msg
+}
+unset n cmd argnames msg
+
+test mapproj-1.50 {fromPlateCarree, wrong # args} -body {
+    ::mapproj::fromPlateCarree 0 0 0
+} -returnCodes error -match glob -result {wrong # args: should be "::mapproj::fromPlateCarree * x y"}
+
+# The manpage documents the arguments as "lambda_0 phi_0 x y"; the code
+# has "phi_0 lambda_0 x y".
+test mapproj-1.51 {fromPlateCarree, documented argument names} -body {
+    ::mapproj::fromPlateCarree 0 0 0
+} -constraints knownBug -returnCodes error -result {wrong # args: should be "::mapproj::fromPlateCarree lambda_0 phi_0 x y"}
+
+# The manpage documents toCylindricalEqualArea and fromCylindricalEqualArea
+# with the arguments "lambda_0 phi_0 lambda phi" and "lambda_0 phi_0 x y";
+# the code requires an additional first argument phi_1, the standard
+# parallel.
+test mapproj-1.52 {toCylindricalEqualArea, wrong # args} -body {
+    ::mapproj::toCylindricalEqualArea 0 0 0 0
+} -returnCodes error -result {wrong # args: should be "::mapproj::toCylindricalEqualArea phi_1 lambda_0 phi_0 lambda phi"}
+
+test mapproj-1.53 {fromCylindricalEqualArea, wrong # args} -body {
+    ::mapproj::fromCylindricalEqualArea 0 0 0 0
+} -returnCodes error -result {wrong # args: should be "::mapproj::fromCylindricalEqualArea phi_1 lambda_0 phi_0 x y"}
+
+test mapproj-1.54 {toCylindricalEqualArea, documented arguments} -body {
+    ::mapproj::toCylindricalEqualArea 0 0 0 0
+} -constraints knownBug -match approx -result {0 0}
+
+test mapproj-1.55 {fromCylindricalEqualArea, documented arguments} -body {
+    ::mapproj::fromCylindricalEqualArea 0 0 0 0
+} -constraints knownBug -match approx -result {0 0}
+
+test mapproj-1.56 {exported commands} -body {
+    lsort [namespace eval ::mapproj {namespace export}]
+} -result [lsort {
+    toPlateCarree fromPlateCarree toCassini fromCassini
+    toCylindricalEqualArea fromCylindricalEqualArea toMercator fromMercator
+    toLambertCylindricalEqualArea fromLambertCylindricalEqualArea
+    toBehrmann fromBehrmann toTrystanEdwards fromTrystanEdwards
+    toHoboDyer fromHoboDyer toGallPeters fromGallPeters
+    toBalthasart fromBalthasart toSinusoidal fromSinusoidal
+    toMillerCylindrical fromMillerCylindrical toMollweide fromMollweide
+    toEckertIV fromEckertIV toEckertVI fromEckertVI toRobinson fromRobinson
+    toAzimuthalEquidistant fromAzimuthalEquidistant
+    toLambertAzimuthalEqualArea fromLambertAzimuthalEqualArea
+    toStereographic fromStereographic toOrthographic fromOrthographic
+    toGnomonic fromGnomonic toHammer fromHammer
+    toConicEquidistant fromConicEquidistant
+    toLambertConformalConic fromLambertConformalConic
+    toAlbersEqualAreaConic fromAlbersEqualAreaConic
+    toPeirceQuincuncial fromPeirceQuincuncial
+}]
+
+# -------------------------------------------------------------------------
+# Reference values: the point 35N 75W on a sheet centered at 23N 96W.
+# The expected values were computed independently from the formulas in
+# Snyder, "Map Projections - A Working Manual" (USGS PP 1395), for a
+# sphere of radius 1.  The conic ones are Snyder's numerical examples.
+
+foreach {n cmd extra expected} {
+    1  toPlateCarree                 - {0.366519143 0.209439510}
+    2  toLambertCylindricalEqualArea - {0.366519143 0.182845308}
+    3  toBehrmann                    - {0.317414889 0.211131575}
+    4  toTrystanEdwards              - {0.291168166 0.230163573}
+    5  toHoboDyer                    - {0.290779186 0.230471467}
+    6  toGallPeters                  - {0.259168171 0.258582314}
+    7  toBalthasart                  - {0.235593964 0.284456802}
+    8  toMercator                    - {0.366519143 0.240173973}
+    9  toSinusoidal                  - {0.300234905 0.209439510}
+    10 toCassini                     - {0.297946539 0.242090612}
+    11 toOrthographic                - {0.293557838 0.229170484}
+    12 toStereographic               - {0.304510310 0.237720701}
+    13 toGnomonic                    - {0.316311715 0.246933651}
+    14 toAzimuthalEquidistant        - {0.300805855 0.234828761}
+    15 toLambertAzimuthalEqualArea   - {0.298983927 0.233406444}
+    16 toMillerCylindrical           {} {0.366519143 0.636740358}
+    17 toMollweide                   {} {0.291579855 0.662140462}
+    18 toEckertIV                    {} {0.286510160 0.695904276}
+    19 toEckertVI                    {} {0.277129444 0.683483428}
+    20 toHammer                      {} {0.314232858 0.603691885}
+} {
+    if {$extra eq "-"} {
+        set script "::mapproj::$cmd \$::refLambda0 \$::refPhi0 \$::refLambda \$::refPhi"
+    } else {
+        set script "::mapproj::$cmd \$::refLambda0 \$::refLambda \$::refPhi"
+    }
+    test mapproj-2.$n "$cmd, reference point" -body $script \
+        -match approx -result $expected
+}
+unset n cmd extra expected script
+
+test mapproj-2.21 {toCylindricalEqualArea, standard parallel 20, reference point} -body {
+    ::mapproj::toCylindricalEqualArea 20 $refLambda0 $refPhi0 $refLambda $refPhi
+} -match approx -result {0.344415334 0.194579912}
+
+test mapproj-2.22 {toConicEquidistant, Snyder example} -body {
+    ::mapproj::toConicEquidistant $refLambda0 $refPhi0 29.5 45.5 $refLambda $refPhi
+} -match approx -result {0.2952057 0.2424021}
+
+test mapproj-2.23 {toAlbersEqualAreaConic, Snyder example} -body {
+    ::mapproj::toAlbersEqualAreaConic $refLambda0 $refPhi0 29.5 45.5 $refLambda $refPhi
+} -match approx -result {0.2952720 0.2416774}
+
+test mapproj-2.24 {toLambertConformalConic, Snyder example} -body {
+    ::mapproj::toLambertConformalConic $refLambda0 $refPhi0 33 45 $refLambda $refPhi
+} -match approx -result {0.2966785 0.2462112}
+
+test mapproj-2.25 {toRobinson, at a table latitude} -body {
+    # 40N: parallel length 0.9216, distance from the Equator 0.4958
+    # (times 0.5072*pi, scale is true at the Equator)
+    ::mapproj::toRobinson 0 30 40
+} -match approx -result {0.482548632 0.790015551}
+
+test mapproj-2.26 {toRobinson, Equator} -body {
+    ::mapproj::toRobinson 10 100 0
+} -match approx -result {1.570796327 0}
+
+test mapproj-2.27 {toRobinson, poles} -body {
+    list {*}[::mapproj::toRobinson 0 90 90] {*}[::mapproj::toRobinson 0 -90 -90]
+} -match approx -result {0.835977805 1.593415794 -0.835977805 -1.593415794}
+
+# -------------------------------------------------------------------------
+# Inverse projections of the reference values
+
+foreach {n cmd extra xy} {
+    1  fromLambertCylindricalEqualArea - {0.366519143 0.182845308}
+    2  fromBehrmann                    - {0.317414889 0.211131575}
+    3  fromTrystanEdwards              - {0.291168166 0.230163573}
+    4  fromHoboDyer                    - {0.290779186 0.230471467}
+    5  fromGallPeters                  - {0.259168171 0.258582314}
+    6  fromBalthasart                  - {0.235593964 0.284456802}
+    7  fromMercator                    - {0.366519143 0.240173973}
+    8  fromSinusoidal                  - {0.300234905 0.209439510}
+    9  fromCassini                     - {0.297946539 0.242090612}
+    10 fromOrthographic                - {0.293557838 0.229170484}
+    11 fromStereographic               - {0.304510310 0.237720701}
+    12 fromGnomonic                    - {0.316311715 0.246933651}
+    13 fromAzimuthalEquidistant        - {0.300805855 0.234828761}
+    14 fromLambertAzimuthalEqualArea   - {0.298983927 0.233406444}
+    15 fromMillerCylindrical           {} {0.366519143 0.636740358}
+    16 fromMollweide                   {} {0.291579855 0.662140462}
+    17 fromEckertIV                    {} {0.286510160 0.695904276}
+    18 fromEckertVI                    {} {0.277129444 0.683483428}
+    19 fromHammer                      {} {0.314232858 0.603691885}
+} {
+    if {$extra eq "-"} {
+        set script "::mapproj::$cmd \$::refLambda0 \$::refPhi0 $xy"
+    } else {
+        set script "::mapproj::$cmd \$::refLambda0 $xy"
+    }
+    test mapproj-3.$n "$cmd, reference point" -body $script \
+        -match approx -result {-75 35}
+}
+unset n cmd extra xy script
+
+# The manpage documents the argument order "lambda_0 phi_0 x y".
+test mapproj-3.20 {fromPlateCarree, reference point} -body {
+    ::mapproj::fromPlateCarree $refLambda0 $refPhi0 0.366519143 0.209439510
+} -constraints knownBug -match approx -result {-75 35}
+
+test mapproj-3.21 {fromPlateCarree, reference point, actual argument order} -body {
+    ::mapproj::fromPlateCarree $refPhi0 $refLambda0 0.366519143 0.209439510
+} -match approx -result {-75 35}
+
+test mapproj-3.22 {fromCylindricalEqualArea, standard parallel 20} -body {
+    ::mapproj::fromCylindricalEqualArea 20 $refLambda0 $refPhi0 0.344415334 0.194579912
+} -match approx -result {-75 35}
+
+test mapproj-3.23 {fromConicEquidistant, Snyder example} -body {
+    ::mapproj::fromConicEquidistant $refLambda0 $refPhi0 29.5 45.5 0.2952057 0.2424021
+} -match approxLoose -result {-75 35}
+
+test mapproj-3.24 {fromAlbersEqualAreaConic, Snyder example} -body {
+    ::mapproj::fromAlbersEqualAreaConic $refLambda0 $refPhi0 29.5 45.5 0.2952720 0.2416774
+} -match approxLoose -result {-75 35}
+
+test mapproj-3.25 {fromLambertConformalConic, Snyder example} -body {
+    ::mapproj::fromLambertConformalConic $refLambda0 $refPhi0 33 45 0.2966785 0.2462112
+} -match approxLoose -result {-75 35}
+
+test mapproj-3.26 {fromRobinson, at a table latitude} -body {
+    ::mapproj::fromRobinson 0 0.482548632 0.790015551
+} -match approxLoose -result {30 40}
+
+test mapproj-3.27 {fromPeirceQuincuncial, center of the map is the North Pole} -body {
+    lindex [::mapproj::fromPeirceQuincuncial 0 0 0] 1
+} -match approx -result 90
+
+# -------------------------------------------------------------------------
+# The center of the sheet maps to (0, 0)
+
+foreach {n cmd args} {
+    1  toPlateCarree                  {30 40 30 40}
+    2  toCylindricalEqualArea         {20 30 40 30 40}
+    3  toMercator                     {30 40 30 40}
+    4  toSinusoidal                   {30 40 30 40}
+    5  toCassini                      {30 40 30 40}
+    6  toOrthographic                 {30 40 30 40}
+    7  toStereographic                {30 40 30 40}
+    8  toGnomonic                     {30 40 30 40}
+    9  toAzimuthalEquidistant         {30 40 30 40}
+    10 toLambertAzimuthalEqualArea    {30 40 30 40}
+    11 toConicEquidistant             {30 40 20 60 30 40}
+    12 toAlbersEqualAreaConic         {30 40 20 60 30 40}
+    13 toLambertConformalConic        {30 40 20 60 30 40}
+    14 toLambertCylindricalEqualArea  {30 40 30 40}
+    15 toBehrmann                     {30 40 30 40}
+    16 toTrystanEdwards               {30 40 30 40}
+    17 toHoboDyer                     {30 40 30 40}
+    18 toGallPeters                   {30 40 30 40}
+    19 toBalthasart                   {30 40 30 40}
+    20 toMillerCylindrical            {30 30 0}
+    21 toMollweide                    {30 30 0}
+    22 toEckertIV                     {30 30 0}
+    23 toEckertVI                     {30 30 0}
+    24 toRobinson                     {30 30 0}
+    25 toHammer                       {30 30 0}
+    26 toPeirceQuincuncial            {30 30 90}
+} {
+    test mapproj-4.$n "$cmd, center of the sheet" -body \
+        [list ::mapproj::$cmd {*}$args] -match approx -result {0 0}
+}
+
+foreach {n cmd args} {
+    31 fromPlateCarree                  {40 30 0 0}
+    32 fromCylindricalEqualArea         {20 30 40 0 0}
+    33 fromMercator                     {30 40 0 0}
+    34 fromSinusoidal                   {30 40 0 0}
+    35 fromCassini                      {30 40 0 0}
+    36 fromOrthographic                 {30 40 0 0}
+    37 fromStereographic                {30 40 0 0}
+    38 fromGnomonic                     {30 40 0 0}
+    39 fromConicEquidistant             {30 40 20 60 0 0}
+    40 fromAlbersEqualAreaConic         {30 40 20 60 0 0}
+    41 fromLambertConformalConic        {30 40 20 60 0 0}
+    42 fromLambertCylindricalEqualArea  {30 40 0 0}
+    43 fromBehrmann                     {30 40 0 0}
+    44 fromTrystanEdwards               {30 40 0 0}
+    45 fromHoboDyer                     {30 40 0 0}
+    46 fromGallPeters                   {30 40 0 0}
+    47 fromBalthasart                   {30 40 0 0}
+} {
+    test mapproj-4.$n "$cmd, center of the sheet" -body \
+        [list ::mapproj::$cmd {*}$args] -match approx -result {30 40}
+}
+
+foreach {n cmd args} {
+    51 fromMillerCylindrical            {30 0 0}
+    52 fromMollweide                    {30 0 0}
+    53 fromEckertIV                     {30 0 0}
+    54 fromEckertVI                     {30 0 0}
+} {
+    test mapproj-4.$n "$cmd, center of the sheet" -body \
+        [list ::mapproj::$cmd {*}$args] -match approx -result {30 0}
+}
+
+test mapproj-4.55 {fromRobinson, center of the sheet} -body {
+    ::mapproj::fromRobinson 30 0 0
+} -match approxLoose -result {30 0}
+unset n cmd args
+
+# The inverse azimuthal projections divide by the distance from the
+# center of the sheet, which fails for the center itself.
+test mapproj-4.61 {fromAzimuthalEquidistant, center of the sheet} -body {
+    ::mapproj::fromAzimuthalEquidistant 30 40 0 0
+} -constraints knownBug -match approx -result {30 40}
+
+test mapproj-4.62 {fromLambertAzimuthalEqualArea, center of the sheet} -body {
+    ::mapproj::fromLambertAzimuthalEqualArea 30 40 0 0
+} -constraints knownBug -match approx -result {30 40}
+
+test mapproj-4.63 {fromHammer, center of the sheet} -body {
+    ::mapproj::fromHammer 30 0 0
+} -constraints knownBug -match approx -result {30 0}
+
+# -------------------------------------------------------------------------
+# Round trips: from(to(point)) gives the point back
+
+foreach {n to from points tol} {
+    1  {toPlateCarree 20 10}                   {fromPlateCarree 10 20}                   world 1e-6
+    2  {toCylindricalEqualArea 25 20 10}       {fromCylindricalEqualArea 25 20 10}       world 1e-6
+    3  {toLambertCylindricalEqualArea 20 10}   {fromLambertCylindricalEqualArea 20 10}   world 1e-6
+    4  {toBehrmann 20 10}                      {fromBehrmann 20 10}                      world 1e-6
+    5  {toTrystanEdwards 20 10}                {fromTrystanEdwards 20 10}                world 1e-6
+    6  {toHoboDyer 20 10}                      {fromHoboDyer 20 10}                      world 1e-6
+    7  {toGallPeters 20 10}                    {fromGallPeters 20 10}                    world 1e-6
+    8  {toBalthasart 20 10}                    {fromBalthasart 20 10}                    world 1e-6
+    9  {toMercator 20 10}                      {fromMercator 20 10}                      world 1e-6
+    10 {toMillerCylindrical 20}                {fromMillerCylindrical 20}                world 1e-6
+    11 {toSinusoidal 20 10}                    {fromSinusoidal 20 10}                    world 1e-6
+    12 {toMollweide 20}                        {fromMollweide 20}                        world 1e-6
+    13 {toEckertIV 20}                         {fromEckertIV 20}                         world 1e-6
+    14 {toEckertVI 20}                         {fromEckertVI 20}                         world 1e-6
+    15 {toRobinson 20}                         {fromRobinson 20}                         world 1e-2
+    16 {toHammer 20}                           {fromHammer 20}                           world0 1e-6
+    17 {toPeirceQuincuncial 20}                {fromPeirceQuincuncial 20}                world 1e-5
+    18 {toCassini 20 10}                       {fromCassini 20 10}                       near  1e-6
+    19 {toOrthographic 20 10}                  {fromOrthographic 20 10}                  near  1e-6
+    20 {toStereographic 20 10}                 {fromStereographic 20 10}                 world2 1e-6
+    21 {toGnomonic 20 10}                      {fromGnomonic 20 10}                      near  1e-6
+    22 {toAzimuthalEquidistant 20 10}          {fromAzimuthalEquidistant 20 10}          world2 1e-6
+    23 {toLambertAzimuthalEqualArea 20 10}     {fromLambertAzimuthalEqualArea 20 10}     world2 1e-6
+    24 {toConicEquidistant 20 10 30 60}        {fromConicEquidistant 20 10 30 60}        world 1e-6
+    25 {toAlbersEqualAreaConic 20 10 30 60}    {fromAlbersEqualAreaConic 20 10 30 60}    world 1e-6
+    26 {toLambertConformalConic 20 10 30 60}   {fromLambertConformalConic 20 10 30 60}   world 1e-6
+} {
+    switch -- $points {
+        world  {set pts $worldPoints}
+        near   {set pts $nearPoints}
+        world0 {
+            # Without the center of the sheet (see mapproj-4.63)
+            set pts {}
+            foreach {l p} $worldPoints {
+                if {$l != 20 || $p != 0} {lappend pts $l $p}
+            }
+        }
+        world2 {
+            # Within 120 degrees of the center
+            set pts {}
+            foreach {l p} $worldPoints {
+                foreach {x y z} [::mapproj::ToCartesian [expr {$l - 20}] $p] break
+                foreach {x y z} [::mapproj::RotateCartesianY -10 $x $y $z] break
+                if {$x > -0.5} {lappend pts $l $p}
+            }
+        }
+    }
+    test mapproj-5.$n "[lindex $to 0]/[lindex $from 0], round trip" -body \
+        [list roundTrip [lreplace $to 0 0 ::mapproj::[lindex $to 0]] \
+             [lreplace $from 0 0 ::mapproj::[lindex $from 0]] $pts $tol] \
+        -result {}
+}
+unset n to from points tol pts
+
+# The inverse conic projections do not handle cones with the apex at
+# the South Pole (both standard parallels in the Southern Hemisphere):
+# the longitude is wrong.
+test mapproj-5.27 {ConicEquidistant, southern hemisphere, round trip} -body {
+    roundTrip {::mapproj::toConicEquidistant 20 -40 -30 -50} \
+        {::mapproj::fromConicEquidistant 20 -40 -30 -50} {35 -45 0 -20 60 -70}
+} -constraints knownBug -result {}
+
+test mapproj-5.28 {AlbersEqualAreaConic, southern hemisphere, round trip} -body {
+    roundTrip {::mapproj::toAlbersEqualAreaConic 20 -40 -30 -50} \
+        {::mapproj::fromAlbersEqualAreaConic 20 -40 -30 -50} {35 -45 0 -20 60 -70}
+} -constraints knownBug -result {}
+
+test mapproj-5.29 {LambertConformalConic, southern hemisphere, round trip} -body {
+    roundTrip {::mapproj::toLambertConformalConic 20 -40 -30 -50} \
+        {::mapproj::fromLambertConformalConic 20 -40 -30 -50} {35 -45 0 -20 60 -70}
+} -constraints knownBug -result {}
+
+test mapproj-5.30 {conic projections, southern hemisphere, latitude is right} -body {
+    set r {}
+    foreach c {ConicEquidistant AlbersEqualAreaConic LambertConformalConic} {
+        set xy [::mapproj::to$c 20 -40 -30 -50 35 -45]
+        lappend r [lindex [::mapproj::from$c 20 -40 -30 -50 {*}$xy] 1]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r c xy
+} -match approx -result {-45 -45 -45}
+
+# -------------------------------------------------------------------------
+# Longitudes
+
+test mapproj-6.1 {to*, longitude difference is reduced to -180..180} -body {
+    list {*}[::mapproj::toPlateCarree 170 0 -170 0] \
+        {*}[::mapproj::toPlateCarree -170 0 170 0] \
+        {*}[::mapproj::toPlateCarree 0 0 400 0] \
+        {*}[::mapproj::toPlateCarree 0 0 -400 0]
+} -match approx -result {0.349065850 0 -0.349065850 0 0.698131701 0 -0.698131701 0}
+
+test mapproj-6.2 {to*, longitude reduction in all projections} -body {
+    set bad {}
+    foreach {cmd args} {
+        toPlateCarree {0} toMercator {0} toSinusoidal {0} toCassini {0}
+        toOrthographic {0} toStereographic {0} toGnomonic {0}
+        toAzimuthalEquidistant {0} toLambertAzimuthalEqualArea {0}
+        toConicEquidistant {0 30 60} toAlbersEqualAreaConic {0 30 60}
+        toLambertConformalConic {0 30 60} toLambertCylindricalEqualArea {0}
+        toMillerCylindrical {} toMollweide {} toEckertIV {} toEckertVI {}
+        toRobinson {} toHammer {} toPeirceQuincuncial {}
+    } {
+        set a [::mapproj::$cmd 100 {*}$args 120 30]
+        set b [::mapproj::$cmd -260 {*}$args 120 30]
+        set c [::mapproj::$cmd 100 {*}$args -240 30]
+        if {![approxMatch 1e-9 $a $b] || ![approxMatch 1e-9 $a $c]} {
+            lappend bad $cmd $a $b $c
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad cmd args a b c
+} -result {}
+
+test mapproj-6.3 {from*, longitude is in -180..180} -body {
+    concat [::mapproj::fromPlateCarree 0 170 0.5 0] \
+        [::mapproj::fromPlateCarree 0 -170 -0.5 0] \
+        [::mapproj::fromMercator 170 0 0.5 0] \
+        [::mapproj::fromSinusoidal -170 0 -0.5 0]
+} -match approx -result [list \
+    [expr {170 + 0.5 * 180 / acos(-1) - 360}] 0 \
+    [expr {-170 - 0.5 * 180 / acos(-1) + 360}] 0 \
+    [expr {170 + 0.5 * 180 / acos(-1) - 360}] 0 \
+    [expr {-170 - 0.5 * 180 / acos(-1) + 360}] 0]
+
+test mapproj-6.4 {from*, longitude reduction in all projections} -body {
+    set bad {}
+    foreach {to from args} {
+        toMercator fromMercator {0} toSinusoidal fromSinusoidal {0}
+        toCassini fromCassini {0} toOrthographic fromOrthographic {0}
+        toStereographic fromStereographic {0} toGnomonic fromGnomonic {0}
+        toAzimuthalEquidistant fromAzimuthalEquidistant {0}
+        toLambertAzimuthalEqualArea fromLambertAzimuthalEqualArea {0}
+        toConicEquidistant fromConicEquidistant {0 30 60}
+        toAlbersEqualAreaConic fromAlbersEqualAreaConic {0 30 60}
+        toLambertConformalConic fromLambertConformalConic {0 30 60}
+        toLambertCylindricalEqualArea fromLambertCylindricalEqualArea {0}
+        toMillerCylindrical fromMillerCylindrical {}
+        toMollweide fromMollweide {} toEckertIV fromEckertIV {}
+        toEckertVI fromEckertVI {} toHammer fromHammer {}
+        toPeirceQuincuncial fromPeirceQuincuncial {}
+    } {
+        set xy [::mapproj::$to 170 {*}$args -165 20]
+        set ll [::mapproj::$from 170 {*}$args {*}$xy]
+        if {![approxMatch 1e-6 {-165 20} $ll]} {
+            lappend bad $from $ll
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad to from args xy ll
+} -result {}
+
+# -------------------------------------------------------------------------
+# Properties of particular projections
+
+test mapproj-7.1 {toPlateCarree, x and y are the angles in radians} -body {
+    ::mapproj::toPlateCarree 10 20 100 65
+} -match approx -result {1.570796327 0.785398163}
+
+test mapproj-7.2 {toMercator, symmetry about the Equator} -body {
+    list {*}[::mapproj::toMercator 0 0 30 45] {*}[::mapproj::toMercator 0 0 30 -45]
+} -match approx -result {0.523598776 0.881373587 0.523598776 -0.881373587}
+
+test mapproj-7.3 {toMercator, phi_0 shifts y only} -body {
+    set a [::mapproj::toMercator 0 0 30 45]
+    set b [::mapproj::toMercator 0 20 30 45]
+    set c [::mapproj::toMercator 0 0 30 20]
+    list [expr {[lindex $a 0] - [lindex $b 0]}] \
+        [expr {[lindex $a 1] - [lindex $b 1] - [lindex $c 1]}]
+} -cleanup {
+    unset -nocomplain a b c
+} -match approx -result {0 0}
+
+test mapproj-7.4 {toMillerCylindrical, y is 1.25 Mercator at 0.8 latitude} -body {
+    lindex [::mapproj::toMillerCylindrical 0 0 50] 1
+} -match approx -result [expr {1.25 * log(tan(acos(-1)/4 + 0.4 * 50 * acos(-1)/180))}]
+
+test mapproj-7.5 {cylindrical equal area: y = sin(phi) / cos(phi_1)} -body {
+    list [lindex [::mapproj::toLambertCylindricalEqualArea 0 0 0 90] 1] \
+        [lindex [::mapproj::toGallPeters 0 0 0 90] 1] \
+        [lindex [::mapproj::toBehrmann 0 0 0 -90] 1]
+} -match approx -result [list 1 [expr {sqrt(2)}] [expr {-2/sqrt(3)}]]
+
+test mapproj-7.6 {cylindrical equal area: scale true at standard parallel} -body {
+    # x = lambda * cos(phi_1)
+    list [lindex [::mapproj::toBalthasart 0 0 90 0] 0] \
+        [lindex [::mapproj::toTrystanEdwards 0 0 90 0] 0] \
+        [lindex [::mapproj::toHoboDyer 0 0 90 0] 0]
+} -match approx -result [list \
+    [expr {acos(-1)/2 * cos(50*acos(-1)/180)}] \
+    [expr {acos(-1)/2 * cos(37.4*acos(-1)/180)}] \
+    [expr {acos(-1)/2 * cos(37.5*acos(-1)/180)}]]
+
+test mapproj-7.7 {toSinusoidal, x = lambda * cos(phi)} -body {
+    ::mapproj::toSinusoidal 0 0 90 60
+} -match approx -result {0.785398163 1.047197551}
+
+test mapproj-7.8 {toEckertIV, poles} -body {
+    list {*}[::mapproj::toEckertIV 0 50 90] {*}[::mapproj::toEckertIV 0 50 -90]
+} -match approx4 -result [list \
+    [expr {2/sqrt(acos(-1)*(4+acos(-1))) * 50*acos(-1)/180}] \
+    [expr {2*sqrt(acos(-1)/(4+acos(-1)))}] \
+    [expr {2/sqrt(acos(-1)*(4+acos(-1))) * 50*acos(-1)/180}] \
+    [expr {-2*sqrt(acos(-1)/(4+acos(-1)))}]]
+
+test mapproj-7.9 {toEckertVI, poles} -body {
+    list {*}[::mapproj::toEckertVI 0 50 90] {*}[::mapproj::toEckertVI 0 50 -90]
+} -match approx -result [list \
+    [expr {50*acos(-1)/180 / sqrt(2+acos(-1))}] \
+    [expr {acos(-1) / sqrt(2+acos(-1))}] \
+    [expr {50*acos(-1)/180 / sqrt(2+acos(-1))}] \
+    [expr {-acos(-1) / sqrt(2+acos(-1))}]]
+
+test mapproj-7.10 {toMollweide, Equator and edge} -body {
+    list {*}[::mapproj::toMollweide 0 90 0] {*}[::mapproj::toMollweide 0 180 0]
+} -match approx -result [list [expr {sqrt(2)}] 0 [expr {2*sqrt(2)}] 0]
+
+test mapproj-7.11 {toMollweide, poles} -body {
+    list {*}[::mapproj::toMollweide 0 50 90] {*}[::mapproj::toMollweide 0 50 -90]
+} -constraints knownBug -match approx -result [list 0 [expr {sqrt(2)}] 0 [expr {-sqrt(2)}]]
+
+test mapproj-7.12 {toHammer, the whole world in an ellipse} -body {
+    list {*}[::mapproj::toHammer 0 180 0] {*}[::mapproj::toHammer 0 0 90] \
+        {*}[::mapproj::toHammer 0 90 0]
+} -match approx -result [list [expr {2*sqrt(2)}] 0 0 [expr {sqrt(2)}] 1.530733729 0]
+
+test mapproj-7.13 {toCassini, central meridian is true to scale} -body {
+    list {*}[::mapproj::toCassini 10 20 10 50] {*}[::mapproj::toCassini 10 0 100 0]
+} -match approx -result {0 0.523598776 1.570796327 0}
+
+test mapproj-7.14 {toOrthographic, points on the far side} -body {
+    list [::mapproj::toOrthographic 0 0 120 0] [::mapproj::toOrthographic 0 90 0 -10] \
+        [::mapproj::toOrthographic 0 0 90 0]
+} -match approx -result {{} {} {1 0}}
+
+test mapproj-7.15 {toStereographic, points more than 120 degrees away} -body {
+    list [::mapproj::toStereographic 0 0 125 0] [::mapproj::toStereographic 0 0 115 0]
+} -match approx -result [list {} [list [expr {2*tan(57.5*acos(-1)/180)}] 0]]
+
+test mapproj-7.16 {toGnomonic, points too far away} -body {
+    list [::mapproj::toGnomonic 0 0 90 0] [::mapproj::toGnomonic 0 0 45 0] \
+        [::mapproj::toGnomonic 0 0 0 45]
+} -match approx -result {{} {1 0} {0 1}}
+
+test mapproj-7.17 {toAzimuthalEquidistant, distance is preserved} -body {
+    list {*}[::mapproj::toAzimuthalEquidistant 0 90 0 0] \
+        {*}[::mapproj::toAzimuthalEquidistant 0 0 0 -60] \
+        {*}[::mapproj::toAzimuthalEquidistant 0 0 179 0]
+} -match approx -result {0 -1.570796327 0 -1.047197551 3.124139361 0}
+
+test mapproj-7.18 {toLambertAzimuthalEqualArea, 90 degrees from the center} -body {
+    list {*}[::mapproj::toLambertAzimuthalEqualArea 0 0 90 0] \
+        {*}[::mapproj::toLambertAzimuthalEqualArea 0 90 0 0]
+} -match approx -result [list [expr {sqrt(2)}] 0 0 [expr {-sqrt(2)}]]
+
+test mapproj-7.19 {toLambertAzimuthalEqualArea, antipode} -body {
+    set xy [::mapproj::toLambertAzimuthalEqualArea 0 0 180 0]
+    expr {hypot([lindex $xy 0], [lindex $xy 1])}
+} -cleanup {
+    unset -nocomplain xy
+} -match approx -result 2
+
+test mapproj-7.20 {toPeirceQuincuncial, pole, Equator and South Pole} -body {
+    list {*}[::mapproj::toPeirceQuincuncial 0 0 90] \
+        {*}[::mapproj::toPeirceQuincuncial 0 0 0] \
+        {*}[::mapproj::toPeirceQuincuncial 0 0 -90]
+} -match approx -result {0 0 1.311028777 -1.311028777 2.622057554 -2.622057554}
+
+test mapproj-7.21 {toPeirceQuincuncial, symmetry} -body {
+    set a [::mapproj::toPeirceQuincuncial 0 30 40]
+    set b [::mapproj::toPeirceQuincuncial 0 -30 40]
+    # Mirror about the central meridian (the line y = -x on the map)
+    list [expr {[lindex $a 0] + [lindex $b 1]}] [expr {[lindex $a 1] + [lindex $b 0]}]
+} -cleanup {
+    unset -nocomplain a b
+} -match approx -result {0 0}
+
+test mapproj-7.22 {toConicEquidistant, distances along meridians are true} -body {
+    set a [::mapproj::toConicEquidistant 0 40 30 60 0 40]
+    set b [::mapproj::toConicEquidistant 0 40 30 60 0 70]
+    expr {[lindex $b 1] - [lindex $a 1]}
+} -cleanup {
+    unset -nocomplain a b
+} -match approx -result 0.523598776
+
+# A single standard parallel (phi_1 == phi_2, a tangent cone) gives a
+# division by zero in the computation of the cone constant.
+test mapproj-7.23 {toConicEquidistant, single standard parallel} -constraints knownBug -body {
+    # n = sin(phi_1) when phi_1 == phi_2
+    ::mapproj::toConicEquidistant 0 40 40 40 0 40
+} -match approx -result {0 0}
+
+test mapproj-7.24 {toLambertConformalConic, North Pole is the apex} -body {
+    set a [::mapproj::toLambertConformalConic 0 40 30 60 0 90]
+    set b [::mapproj::toLambertConformalConic 0 40 30 60 120 90]
+    list [lindex $a 0] [expr {[lindex $a 1] - [lindex $b 1]}]
+} -cleanup {
+    unset -nocomplain a b
+} -match approx -result {0 0}
+
+test mapproj-7.25 {toAlbersEqualAreaConic, scale along the standard parallel} -body {
+    # Parallel phi_1 has length 2*pi*cos(phi_1); on the map the arc is
+    # rho_1 * n * dlambda.
+    set n [expr {0.5 * (sin(30*acos(-1)/180) + sin(60*acos(-1)/180))}]
+    set a [::mapproj::toAlbersEqualAreaConic 0 30 30 60 0 30]
+    set b [::mapproj::toAlbersEqualAreaConic 0 30 30 60 1 30]
+    set c [::mapproj::toAlbersEqualAreaConic 0 30 30 60 -1 30]
+    # chord between +-1 degree, compared with the length of 2 degrees of
+    # the parallel
+    expr {hypot([lindex $b 0] - [lindex $c 0], [lindex $b 1] - [lindex $c 1])
+          / (2*acos(-1)/180 * cos(30*acos(-1)/180))}
+} -cleanup {
+    unset -nocomplain n a b c
+} -match approx4 -result 1
+
+# -------------------------------------------------------------------------
+# Output
+
+# fromEckertVI and fromRobinson print debugging output on stdout.
+test mapproj-8.1 {fromEckertVI, no output} -body {
+    ::mapproj::fromEckertVI 0 0.1 0.1
+    return
+} -constraints knownBug -output {}
+
+test mapproj-8.2 {fromRobinson, no output} -body {
+    ::mapproj::fromRobinson 0 0.1 0.1
+    return
+} -constraints knownBug -output {}
+
+# -------------------------------------------------------------------------
+
+rename approxMatch {}
+rename roundTrip {}
+unset worldPoints nearPoints refLambda0 refPhi0 refLambda refPhi
+
+testsuiteCleanup
+return
