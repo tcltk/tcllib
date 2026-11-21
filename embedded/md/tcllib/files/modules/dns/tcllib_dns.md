@@ -253,20 +253,20 @@ DNS queries\. Using this feature requires the TLS package\.
 
 # <a name='section3'></a>EXAMPLES
 
-    % set tok [dns::resolve www.tcl.tk]
+    % set tok [dns::resolve www.tcl-lang.org]
     ::dns::1
     % dns::status $tok
     ok
     % dns::address $tok
     199.175.6.239
     % dns::name $tok
-    www.tcl.tk
+    www.tcl-lang.org
     % dns::cleanup $tok
 
 Using DNS URIs as queries:
 
-    % set tok [dns::resolve "dns:tcl.tk;type=MX"]
-    % set tok [dns::resolve "dns://l.root-servers.net/www.tcl.tk"]
+    % set tok [dns::resolve "dns:tcl-lang.org;type=MX"]
+    % set tok [dns::resolve "dns://l.root-servers.net/www.tcl-lang.org"]
 
 Reverse address lookup:
 
@@ -278,7 +278,7 @@ Reverse address lookup:
 
 Using DNS over TLS \(RFC 7858\):
 
-    % set tok [dns::resolve www.tcl.tk -nameserver dns-tls.bitwiseshift.net  -usetls 1 -cafile /etc/ssl/certs/ca-certificates.crt]
+    % set tok [dns::resolve www.tcl-lang.org -nameserver dns-tls.bitwiseshift.net  -usetls 1 -cafile /etc/ssl/certs/ca-certificates.crt]
     ::dns::12
     % dns::wait $tok
     ok
@@ -323,7 +323,7 @@ Pat Thoyts
 If you find errors in this document or bugs or problems with the package it
 describes, or if you want to suggest improvements for the documentation or the
 package, please use the [Tcllib
-Trackers](http://core\.tcl\.tk/tcllib/reportlist) and specify *dns* as the
+Trackers](https://core\.tcl\-lang\.org/tcllib/reportlist) and specify *dns* as the
 category\.
 
 When proposing code changes, please provide *unified diffs*, i\.e the output of

@@ -1,0 +1,391 @@
+# -*- tcl -*-
+# encode-api.test:  tests for the documented API of zipfile::encode not
+# covered by encode.test: method results and argument errors, repeated
+# comment:, duplicate paths and bad owned values, owned files,
+# noCompress, the order of files in the archive, empty archives and
+# round trips of binary data.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+support {
+    use      cmdline/cmdline.tcl   cmdline
+    use      fileutil/fileutil.tcl fileutil
+    useKeep  fileutil/decode.tcl   fileutil::decode
+    use      log/logger.tcl        logger
+    use      crc/crc32.tcl         crc32
+    use      snit/snit2.tcl        snit
+    useLocal decode.tcl            zipfile::decode
+}
+testing {
+    useLocal encode.tcl            zipfile::encode
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc writefile {name data} {
+    set f [open $name wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+proc readfile {name} {
+    set f [open $name rb]
+    set data [read $f]
+    close $f
+    return $data
+}
+
+# Global comment and {path content} pairs of a zip archive.
+proc zipdata {path} {
+    zipfile::decode::open $path
+    set d [zipfile::decode::archive]
+    set res [list [zipfile::decode::comment $d]]
+    foreach f [lsort [zipfile::decode::files $d]] {
+	lappend res $f [zipfile::decode::getfile $d $f]
+    }
+    zipfile::decode::close
+    return $res
+}
+
+set allbytes {}
+for {set i 0} {$i < 256} {incr i} {append allbytes [binary format c $i]}
+unset i
+
+set textdata [string repeat "hello world " 100]
+
+# -------------------------------------------------------------------------
+# Method results and argument errors
+
+test zipfile-encode-api-1.1 {comment: wrong # args} -setup {
+    zipfile::encode ::zea
+} -body {
+    ::zea comment:
+} -cleanup {
+    ::zea destroy
+} -returnCodes error -result {wrong # args: should be "::zea comment: text"}
+
+test zipfile-encode-api-1.2 {file: wrong # args, too few} -setup {
+    zipfile::encode ::zea
+} -body {
+    ::zea file: a 0
+} -cleanup {
+    ::zea destroy
+} -returnCodes error -result {wrong # args: should be "::zea file: dst owned src ?noCompress?"}
+
+test zipfile-encode-api-1.3 {file: wrong # args, too many} -setup {
+    zipfile::encode ::zea
+} -body {
+    ::zea file: a 0 b c d
+} -cleanup {
+    ::zea destroy
+} -returnCodes error -result {wrong # args: should be "::zea file: dst owned src ?noCompress?"}
+
+test zipfile-encode-api-1.4 {write: wrong # args} -setup {
+    zipfile::encode ::zea
+} -body {
+    ::zea write
+} -cleanup {
+    ::zea destroy
+} -returnCodes error -result {wrong # args: should be "::zea write archive"}
+
+test zipfile-encode-api-1.5 {unknown method} -setup {
+    zipfile::encode ::zea
+} -body {
+    ::zea bogus
+} -cleanup {
+    ::zea destroy
+} -returnCodes error -match glob -result {unknown subcommand "bogus": *}
+
+test zipfile-encode-api-1.6 {methods return the empty string} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    list [::zea comment: c] [::zea file: x 0 $src] [::zea write $zip]
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api.zip
+    unset src zip
+} -result {{} {} {}}
+
+test zipfile-encode-api-1.7 {destroy removes the instance command} -body {
+    zipfile::encode ::zea
+    ::zea destroy
+    llength [info commands ::zea]
+} -result 0
+
+# -------------------------------------------------------------------------
+# comment:
+
+test zipfile-encode-api-2.1 {comment: the last call prevails} -setup {
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea comment: first
+    ::zea comment: second
+    ::zea write $zip
+    lindex [zipdata $zip] 0
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api.zip
+    unset zip
+} -result second
+
+test zipfile-encode-api-2.2 {comment: default is empty} -setup {
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea write $zip
+    lindex [zipdata $zip] 0
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api.zip
+    unset zip
+} -result {}
+
+# -------------------------------------------------------------------------
+# file:
+
+test zipfile-encode-api-3.1 {file: duplicate destination path} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    zipfile::encode ::zea
+    ::zea file: a/x 0 $src
+} -body {
+    list [catch {::zea file: a/x 0 $src} msg] $msg $::errorCode
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    unset src msg
+} -result {1 {Duplicate destination path "a/x"} {ZIP ENCODE DUPLICATE PATH}}
+
+test zipfile-encode-api-3.2 {file: owned must be a boolean} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    zipfile::encode ::zea
+} -body {
+    list [catch {::zea file: a/x maybe $src} msg] $msg $::errorCode
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    unset src msg
+} -result {1 {Expected boolean, got "maybe"} {ZIP ENCODE OWNED VALUE BOOLEAN}}
+
+test zipfile-encode-api-3.3 {file: rejected path can be added afterwards} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    catch {::zea file: a/x maybe $src}
+    ::zea file: a/x no $src
+    ::zea write $zip
+    zipfile::decode::content $zip
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api.zip
+    unset src zip
+} -result a/x
+
+test zipfile-encode-api-3.4 {file: owned files are deleted on write} -setup {
+    set dir [makeDirectory encode-api-src]
+    writefile [file join $dir own.txt] owned
+    writefile [file join $dir keep.txt] kept
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea file: own.txt  true  [file join $dir own.txt]
+    ::zea file: keep.txt false [file join $dir keep.txt]
+    set before [list [file exists [file join $dir own.txt]] \
+		    [file exists [file join $dir keep.txt]]]
+    ::zea write $zip
+    list $before [file exists [file join $dir own.txt]] \
+	[file exists [file join $dir keep.txt]] [zipdata $zip]
+} -cleanup {
+    ::zea destroy
+    removeDirectory encode-api-src
+    removeFile encode-api.zip
+    unset dir zip before
+} -result {{1 1} 0 1 {{} keep.txt kept own.txt owned}}
+
+test zipfile-encode-api-3.5 {file: noCompress stores the file uncompressed} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    writefile $src $textdata
+    set zip1 [makeFile {} encode-api-1.zip]
+    set zip2 [makeFile {} encode-api-2.zip]
+    zipfile::encode ::zea1
+    zipfile::encode ::zea2
+} -body {
+    ::zea1 file: a.txt 0 $src
+    ::zea2 file: a.txt 0 $src 1
+    ::zea1 write $zip1
+    ::zea2 write $zip2
+    list [expr {[file size $zip1] < [string length $textdata]}] \
+	[expr {[file size $zip2] > [string length $textdata]}] \
+	[string first $textdata [readfile $zip1]] \
+	[expr {[string first $textdata [readfile $zip2]] >= 0}] \
+	[string equal [zipdata $zip1] [zipdata $zip2]] \
+	[string equal [lindex [zipdata $zip2] 2] $textdata]
+} -cleanup {
+    ::zea1 destroy
+    ::zea2 destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api-1.zip
+    removeFile encode-api-2.zip
+    unset src zip1 zip2
+} -result {1 1 -1 1 1 1}
+
+test zipfile-encode-api-3.6 {file: binary and empty files round trip} -setup {
+    set dir [makeDirectory encode-api-src]
+    writefile [file join $dir b.bin] $allbytes
+    writefile [file join $dir empty] {}
+    writefile [file join $dir crlf] "a\r\nb\rc\n"
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea file: b.bin 0 [file join $dir b.bin]
+    ::zea file: empty 0 [file join $dir empty]
+    ::zea file: crlf  0 [file join $dir crlf]
+    ::zea write $zip
+    string equal [zipdata $zip] [list {} b.bin $allbytes crlf "a\r\nb\rc\n" empty {}]
+} -cleanup {
+    ::zea destroy
+    removeDirectory encode-api-src
+    removeFile encode-api.zip
+    unset dir zip
+} -result 1
+
+test zipfile-encode-api-3.7 {file: the same source under several names} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    writefile $src data
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea file: one 0 $src
+    ::zea file: two/three 0 $src
+    ::zea write $zip
+    zipdata $zip
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api.zip
+    unset src zip
+} -result {{} one data two/three data}
+
+# -------------------------------------------------------------------------
+# write
+
+test zipfile-encode-api-4.1 {write: files are stored in the order of file:} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    writefile $src data
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    foreach name {zzz.txt aaa.txt mmm.txt} {
+	::zea file: $name 0 $src
+    }
+    ::zea write $zip
+    set raw [readfile $zip]
+    set pos {}
+    foreach name {zzz.txt aaa.txt mmm.txt} {
+	lappend pos [string first $name $raw]
+    }
+    expr {[lindex $pos 0] < [lindex $pos 1] && [lindex $pos 1] < [lindex $pos 2]}
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api.zip
+    unset src zip raw pos name
+} -result 1
+
+test zipfile-encode-api-4.2 {write: archive without files} -setup {
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea comment: {nothing here}
+    ::zea write $zip
+    list [zipfile::decode::iszip $zip] [zipdata $zip]
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api.zip
+    unset zip
+} -result {1 {{nothing here}}}
+
+test zipfile-encode-api-4.3 {write: an existing archive is replaced} -setup {
+    set zip [makeFile {old contents} encode-api.zip]
+    set src [makeFile {} encode-api-src.txt]
+    writefile $src new
+    zipfile::encode ::zea
+} -body {
+    ::zea file: f 0 $src
+    ::zea write $zip
+    zipdata $zip
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api.zip
+    unset src zip
+} -result {{} f new}
+
+test zipfile-encode-api-4.4 {write: archive can be written twice} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    writefile $src data
+    set zip1 [makeFile {} encode-api-1.zip]
+    set zip2 [makeFile {} encode-api-2.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea file: f 0 $src
+    ::zea write $zip1
+    ::zea comment: c
+    ::zea write $zip2
+    list [zipdata $zip1] [zipdata $zip2]
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api-1.zip
+    removeFile encode-api-2.zip
+    unset src zip1 zip2
+} -result {{{} f data} {c f data}}
+
+# Names and comments are written in UTF-8, but zipfile::decode returns
+# the raw bytes.
+test zipfile-encode-api-4.5 {write: non-ASCII comment and names} -constraints {
+    knownBug
+} -setup {
+    set src [makeFile {} encode-api-src.txt]
+    writefile $src data
+    set zip [makeFile {} encode-api.zip]
+    zipfile::encode ::zea
+} -body {
+    ::zea comment: "їжак"
+    ::zea file: "файл.txt" 0 $src
+    ::zea write $zip
+    zipdata $zip
+} -cleanup {
+    ::zea destroy
+    removeFile encode-api-src.txt
+    removeFile encode-api.zip
+    unset src zip
+} -result [list "їжак" "файл.txt" data]
+
+# -------------------------------------------------------------------------
+
+rename writefile {}
+rename readfile {}
+rename zipdata {}
+unset allbytes textdata
+
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:

@@ -67,4 +67,4 @@ They are for
 
 ## See also
 
-   * [Landing page for this package at the Tcl Developer eXchange](http://www.tcl.tk/software/tcllib/)
+   * [Landing page for this package at the Tcl Developer eXchange](https://www.tcl-lang.org/software/tcllib/)

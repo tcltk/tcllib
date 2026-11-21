@@ -7,9 +7,9 @@ middle position between two extremes:
 [enum] On one side a strongly interdependent set of packages, usually
        by a single author, for a single project. Looking at my
        (Andreas Kupries) own work examples of such are
-       [uri https://core.tcl.tk/akupries/marpa/index Marpa],
-       [uri https://core.tcl.tk/akupries/crimp/index CRIMP],
-       [uri https://core.tcl.tk/akupries/kinetcl/index Kinetcl], etc.
+       [uri https://core.tcl-lang.org/akupries/marpa/index Marpa],
+       [uri https://core.tcl-lang.org/akupries/crimp/index CRIMP],
+       [uri https://core.tcl-lang.org/akupries/kinetcl/index Kinetcl], etc.
 
 [para] For every change the author of the project handles all the
        modifications cascading from any incompatibilities it
