@@ -1,0 +1,541 @@
+# -*- tcl -*-
+# hook-api.test:  tests for the parts of the hook API not covered by
+# hook.test: wrong # args, hook arguments, global scope of bindings,
+# return values, configure details, observers in several subjects, and
+# queries after deleting bindings.
+
+#-----------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal hook.tcl hook
+}
+
+#-----------------------------------------------------------------------
+# Helpers
+
+proc cleanup {} {
+    foreach subject [hook bind] {
+        hook forget $subject
+    }
+    hook configure -errorcommand {} -tracecommand {}
+    set ::hook::observerCounter 0
+    set ::calls {}
+}
+
+set calls {}
+
+proc Record {args} {
+    lappend ::calls $args
+    return ignored
+}
+
+#-----------------------------------------------------------------------
+# wrong # args, unknown subcommand
+
+test hook-api-1.0 {hook, no subcommand} -body {
+    hook
+} -returnCodes error -match glob -result {wrong # args: should be "hook subcommand ?arg ...?"*}
+
+test hook-api-1.1 {hook, unknown subcommand} -body {
+    hook foo
+} -returnCodes error -result {unknown or ambiguous subcommand "foo": must be bind, call, cget, configure, or forget}
+
+test hook-api-1.2 {call, wrong # args, none} -body {
+    hook call
+} -returnCodes error -result {wrong # args: should be "hook call subject hook ?arg ...?"}
+
+test hook-api-1.3 {call, wrong # args, subject only} -body {
+    hook call S
+} -returnCodes error -result {wrong # args: should be "hook call subject hook ?arg ...?"}
+
+test hook-api-1.4 {forget, wrong # args, none} -body {
+    hook forget
+} -returnCodes error -result {wrong # args: should be "hook forget object"}
+
+test hook-api-1.5 {forget, wrong # args, too many} -body {
+    hook forget a b
+} -returnCodes error -result {wrong # args: should be "hook forget object"}
+
+test hook-api-1.6 {cget, wrong # args, none} -body {
+    hook cget
+} -returnCodes error -result {wrong # args: should be "hook cget option"}
+
+test hook-api-1.7 {cget, wrong # args, too many} -body {
+    hook cget -errorcommand -tracecommand
+} -returnCodes error -result {wrong # args: should be "hook cget option"}
+
+#-----------------------------------------------------------------------
+# bind
+
+test hook-api-2.0 {bind, returns the given observer} -body {
+    hook bind S1 <H1> O1 {B1 x}
+} -cleanup {
+    cleanup
+} -result O1
+
+test hook-api-2.1 {bind, updating a binding returns the observer and keeps one entry} -body {
+    hook bind S1 <H1> O1 B1
+    list [hook bind S1 <H1> O1 B2] [hook bind S1 <H1>] [hook bind S1 <H1> O1]
+} -cleanup {
+    cleanup
+} -result {O1 O1 B2}
+
+test hook-api-2.2 {bind, unknown subject/hook/observer queries} -body {
+    hook bind S1 <H1> O1 B1
+    list [hook bind S9] [hook bind S1 <H9>] [hook bind S1 <H1> O9] [hook bind S9 <H1> O1]
+} -cleanup {
+    cleanup
+} -result {{} {} {} {}}
+
+test hook-api-2.3 {bind, no bindings at all} -body {
+    hook bind
+} -result {}
+
+test hook-api-2.4 {bind, auto-generated observer, update and delete} -body {
+    set ob [hook bind S1 <H1> "" B1]
+    hook bind S1 <H1> $ob B2
+    set a [hook bind S1 <H1> $ob]
+    hook bind S1 <H1> $ob {}
+    list [string match ::hook::ob* $ob] $a [hook bind S1 <H1> $ob]
+} -cleanup {
+    cleanup
+    unset ob a
+} -result {1 B2 {}}
+
+test hook-api-2.5 {bind, empty observer and empty binding creates nothing} -body {
+    list [hook bind S1 <H1> "" ""] [hook bind S1 <H1>]
+} -cleanup {
+    cleanup
+} -result {{} {}}
+
+test hook-api-2.6 {bind, observer bound to several subjects and hooks} -body {
+    hook bind S1 <H1> O1 B1
+    hook bind S1 <H2> O1 B2
+    hook bind S2 <H1> O1 B3
+    list [hook bind S1] [hook bind S2] [hook bind S1 <H2> O1] [hook bind S2 <H1> O1]
+} -cleanup {
+    cleanup
+} -result {{<H1> <H2>} <H1> B2 B3}
+
+test hook-api-2.7 {bind, names with spaces and special characters} -body {
+    hook bind {my subject} {<my hook>} {an observer} {Record x}
+    list [hook bind] [hook bind {my subject}] [hook bind {my subject} {<my hook>}] \
+        [hook bind {my subject} {<my hook>} {an observer}]
+} -cleanup {
+    cleanup
+} -result {{{my subject}} {{<my hook>}} {{an observer}} {Record x}}
+
+# Bug: deleting the last binding leaves the subject and hook in the query
+# results.
+test hook-api-2.8 {bind, subject not listed after its last binding is deleted} -constraints knownBug -body {
+    hook bind S1 <H1> O1 B1
+    hook bind S1 <H1> O1 {}
+    list [hook bind] [hook bind S1]
+} -cleanup {
+    cleanup
+} -result {{} {}}
+
+test hook-api-2.9 {bind, deleting a binding keeps other observers} -body {
+    hook bind S1 <H1> O1 B1
+    hook bind S1 <H1> O2 B2
+    hook bind S1 <H1> O1 {}
+    list [hook bind S1 <H1>] [hook bind S1 <H1> O2]
+} -cleanup {
+    cleanup
+} -result {O2 B2}
+
+#-----------------------------------------------------------------------
+# call
+
+test hook-api-3.0 {call, arguments appended to the binding} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 {Record fixed}
+    hook call S1 <H1> a {b c} {}
+    set calls
+} -cleanup {
+    cleanup
+} -result {{fixed a {b c} {}}}
+
+test hook-api-3.1 {call, returns the empty string, binding results ignored} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 Record
+    hook call S1 <H1> x
+} -cleanup {
+    cleanup
+} -result {}
+
+test hook-api-3.2 {call, bindings called in the global namespace} -setup {
+    namespace eval ::hookapi {
+        proc caller {} {
+            hook call S1 <H1>
+        }
+    }
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 {apply {{} {lappend ::calls [namespace current] [info level]}}}
+    ::hookapi::caller
+    set calls
+} -cleanup {
+    cleanup
+    namespace delete ::hookapi
+} -result {:: 1}
+
+test hook-api-3.3 {call, binding sees global variables, not local ones} -setup {
+    set ::hookapivar global
+    proc caller {} {
+        set hookapivar local
+        hook call S1 <H1>
+    }
+    proc GetVar {} {
+        lappend ::calls [uplevel 1 {set hookapivar}]
+    }
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 GetVar
+    caller
+    set calls
+} -cleanup {
+    cleanup
+    rename caller {}
+    rename GetVar {}
+    unset ::hookapivar
+} -result global
+
+test hook-api-3.4 {call, arguments not substituted again} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 Record
+    hook call S1 <H1> {[error bad]} {$nosuchvar}
+    set calls
+} -cleanup {
+    cleanup
+} -result {{{[error bad]} {$nosuchvar}}}
+
+test hook-api-3.5 {call, binding is a command prefix list} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 [list Record {a b} c]
+    hook call S1 <H1> d
+    set calls
+} -cleanup {
+    cleanup
+} -result {{{a b} c d}}
+
+test hook-api-3.6 {call, only bindings of the called hook} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 {Record H1}
+    hook bind S1 <H2> O1 {Record H2}
+    hook call S1 <H2>
+    set calls
+} -cleanup {
+    cleanup
+} -result H2
+
+test hook-api-3.7 {call, error propagates, remaining bindings not called} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 {error boom {} {HOOK BOOM}}
+    hook bind S1 <H1> O2 {Record O2}
+    list [catch {hook call S1 <H1>} msg opts] $msg [dict get $opts -errorcode] $calls
+} -cleanup {
+    cleanup
+    unset msg opts
+} -result {1 boom {HOOK BOOM} {}}
+
+#-----------------------------------------------------------------------
+# forget
+
+test hook-api-4.0 {forget, returns the empty string} -body {
+    hook bind S1 <H1> O1 B1
+    hook forget S1
+} -cleanup {
+    cleanup
+} -result {}
+
+test hook-api-4.1 {forget, observer removed from all subjects and hooks} -body {
+    hook bind S1 <H1> O1 B1
+    hook bind S1 <H2> O1 B2
+    hook bind S2 <H1> O1 B3
+    hook bind S2 <H1> O2 B4
+    hook forget O1
+    list [hook bind S1 <H1>] [hook bind S1 <H2>] [hook bind S2 <H1>]
+} -cleanup {
+    cleanup
+} -result {{} {} O2}
+
+test hook-api-4.2 {forget, object that is subject and observer} -body {
+    hook bind X <H1> O1 B1
+    hook bind S1 <H1> X B2
+    hook bind S1 <H1> O2 B3
+    hook forget X
+    list [hook bind X] [hook bind S1 <H1>]
+} -cleanup {
+    cleanup
+} -result {{} O2}
+
+test hook-api-4.3 {forget, forgotten subject's bindings not called} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 {Record O1}
+    hook forget S1
+    hook call S1 <H1>
+    set calls
+} -cleanup {
+    cleanup
+} -result {}
+
+test hook-api-4.4 {forget, subject can be bound again} -setup {
+    set calls {}
+} -body {
+    hook bind S1 <H1> O1 {Record old}
+    hook forget S1
+    hook bind S1 <H1> O1 {Record new}
+    hook call S1 <H1>
+    set calls
+} -cleanup {
+    cleanup
+} -result new
+
+# Bug: forgetting the only observer leaves the subject and hook in the
+# query results.
+test hook-api-4.5 {forget, subject not listed after its only observer is forgotten} -constraints knownBug -body {
+    hook bind S1 <H1> O1 B1
+    hook forget O1
+    list [hook bind] [hook bind S1]
+} -cleanup {
+    cleanup
+} -result {{} {}}
+
+#-----------------------------------------------------------------------
+# cget, configure
+
+test hook-api-5.0 {cget, default -tracecommand} -body {
+    hook cget -tracecommand
+} -result {}
+
+test hook-api-5.1 {configure, no arguments} -body {
+    hook configure
+} -result {}
+
+test hook-api-5.2 {configure, returns the empty string} -body {
+    hook configure -tracecommand Record
+} -cleanup {
+    cleanup
+} -result {}
+
+test hook-api-5.3 {configure, one option at a time} -body {
+    hook configure -errorcommand E1
+    hook configure -tracecommand T1
+    list [hook cget -errorcommand] [hook cget -tracecommand]
+} -cleanup {
+    cleanup
+} -result {E1 T1}
+
+test hook-api-5.4 {configure, unknown option, nothing changed} -body {
+    hook configure -errorcommand E1
+    list [catch {hook configure -errorcommand E2 -bogus x} msg] $msg \
+        [hook cget -errorcommand]
+} -cleanup {
+    cleanup
+    unset msg
+} -result {1 {unknown option "-bogus"} E1}
+
+test hook-api-5.5 {configure, missing value, nothing changed} -body {
+    list [catch {hook configure -errorcommand E2 -tracecommand} msg] $msg \
+        [hook cget -errorcommand]
+} -cleanup {
+    cleanup
+    unset msg
+} -result {1 {value for "-tracecommand" missing} {}}
+
+test hook-api-5.6 {configure, option repeated, last wins} -body {
+    hook configure -errorcommand E1 -errorcommand E2
+    hook cget -errorcommand
+} -cleanup {
+    cleanup
+} -result E2
+
+test hook-api-5.7 {configure, option names are not abbreviated} -body {
+    hook configure -error E1
+} -returnCodes error -result {unknown option "-error"}
+
+test hook-api-5.8 {cget, option names are not abbreviated} -body {
+    hook cget -trace
+} -returnCodes error -result {unknown option "-trace"}
+
+#-----------------------------------------------------------------------
+# -errorcommand, -tracecommand
+
+test hook-api-6.0 {-errorcommand, call list includes the hook arguments} -setup {
+    set calls {}
+    proc Err {call result opts} {
+        lappend ::calls [list $call $result [dict get $opts -code] [dict get $opts -errorcode]]
+    }
+    proc Fail {args} {error boom {} {HOOK BOOM}}
+} -body {
+    hook configure -errorcommand Err
+    hook bind S1 <H1> O1 Fail
+    list [hook call S1 <H1> a {b c}] $calls
+} -cleanup {
+    cleanup
+    rename Err {}
+    rename Fail {}
+} -result {{} {{{S1 <H1> {a {b c}} O1} boom 1 {HOOK BOOM}}}}
+
+test hook-api-6.1 {-errorcommand, command prefix with arguments, called in global namespace} -setup {
+    set calls {}
+    proc Err {tag call result opts} {
+        lappend ::calls [list $tag [lindex $call 3] $result [uplevel 1 {namespace current}]]
+    }
+    namespace eval ::hookapi {
+        proc caller {} {hook call S1 <H1>}
+    }
+} -body {
+    hook configure -errorcommand {Err mytag}
+    hook bind S1 <H1> O1 {error boom}
+    ::hookapi::caller
+    set calls
+} -cleanup {
+    cleanup
+    rename Err {}
+    namespace delete ::hookapi
+} -result {{mytag O1 boom ::}}
+
+test hook-api-6.2 {-errorcommand, continue and return codes} -setup {
+    set calls {}
+    proc Err {call result opts} {
+        lappend ::calls [list [lindex $call 3] $result [dict get $opts -code]]
+    }
+} -body {
+    hook configure -errorcommand Err
+    hook bind S1 <H1> O1 {return -code continue c}
+    hook bind S1 <H1> O2 {return -code 7 seven}
+    hook call S1 <H1>
+    lsort $calls
+} -cleanup {
+    cleanup
+    rename Err {}
+} -result {{O1 c 4} {O2 seven 7}}
+
+test hook-api-6.3 {-errorcommand, not called for normal returns} -setup {
+    set calls {}
+    proc Err {args} {lappend ::calls error}
+} -body {
+    hook configure -errorcommand Err
+    hook bind S1 <H1> O1 {Record ok}
+    hook call S1 <H1>
+    set calls
+} -cleanup {
+    cleanup
+    rename Err {}
+} -result ok
+
+test hook-api-6.4 {-errorcommand, can delete the errant binding} -setup {
+    set calls {}
+    proc Err {call result opts} {
+        lassign $call subject hook arglist observer
+        lappend ::calls $observer
+        hook bind $subject $hook $observer {}
+    }
+} -body {
+    hook configure -errorcommand Err
+    hook bind S1 <H1> O1 {error boom}
+    hook call S1 <H1>
+    hook call S1 <H1>
+    list $calls [hook bind S1 <H1>]
+} -cleanup {
+    cleanup
+    rename Err {}
+} -result {O1 {}}
+
+test hook-api-6.5 {-tracecommand, hook arguments and called observers} -setup {
+    set calls {}
+    proc Trace {args} {lappend ::calls [list trace {*}$args]}
+} -body {
+    hook bind S1 <H1> O1 {Record O1}
+    hook bind S1 <H1> O2 {Record O2}
+    hook configure -tracecommand Trace
+    hook call S1 <H1> a {b c}
+    set calls
+} -cleanup {
+    cleanup
+    rename Trace {}
+} -result {{O1 a {b c}} {O2 a {b c}} {trace S1 <H1> {a {b c}} {O1 O2}}}
+
+test hook-api-6.6 {-tracecommand, deleted binding not listed} -setup {
+    set calls {}
+    proc Trace {subject hook arglist observers} {lappend ::calls $observers}
+} -body {
+    hook bind S1 <H1> O1 {hook bind S1 <H1> O2 {}}
+    hook bind S1 <H1> O2 {Record O2}
+    hook bind S1 <H1> O3 {Record O3}
+    hook configure -tracecommand Trace
+    hook call S1 <H1>
+    set calls
+} -cleanup {
+    cleanup
+    rename Trace {}
+} -result {O3 {O1 O3}}
+
+test hook-api-6.7 {-tracecommand, command prefix with arguments} -setup {
+    set calls {}
+    proc Trace {tag subject hook arglist observers} {
+        lappend ::calls [list $tag $subject $hook $arglist $observers]
+    }
+} -body {
+    hook configure -tracecommand {Trace mytag}
+    hook call S9 <H9> x
+    set calls
+} -cleanup {
+    cleanup
+    rename Trace {}
+} -result {{mytag S9 <H9> x {}}}
+
+test hook-api-6.8 {-tracecommand, observers with handled errors listed} -setup {
+    set calls {}
+    proc Trace {subject hook arglist observers} {lappend ::calls $observers}
+    proc Err {args} {}
+} -body {
+    hook configure -tracecommand Trace -errorcommand Err
+    hook bind S1 <H1> O1 {error boom}
+    hook call S1 <H1>
+    set calls
+} -cleanup {
+    cleanup
+    rename Trace {}
+    rename Err {}
+} -result O1
+
+#-----------------------------------------------------------------------
+# Documented example
+
+test hook-api-7.0 {documented example, model and view} -setup {
+    set calls {}
+    proc .view {method args} {lappend ::calls [list .view $method {*}$args]}
+} -body {
+    hook bind ::model <Update> .view [list .view ModelUpdate]
+    hook call ::model <Update>
+    hook forget .view
+    hook call ::model <Update>
+    set calls
+} -cleanup {
+    cleanup
+    rename .view {}
+} -result {{.view ModelUpdate}}
+
+#-----------------------------------------------------------------------
+
+rename cleanup {}
+rename Record {}
+unset calls
+testsuiteCleanup
