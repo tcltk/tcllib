@@ -1328,6 +1328,7 @@ breed, a color, a flag that says whether it's pedigreed with the
 American Kennel Club, and another flag that says whether it has had
 its shots.  The default dog, evidently, is a brown mutt.
 
+
 [para]
 
 There are a number of options you can specify when defining an option;
@@ -1351,6 +1352,21 @@ will be the empty string (but see [sectref {THE TK OPTION DATABASE}]).
 [para]
 
 The Snit man page refers to options like these as "locally defined" options.
+
+[subsection {Are there any limitations on option names?}]
+
+Yes. Option names follow the Tk conventions: an option name must begin
+with a hyphen, and must not contain upper case letters or spaces.
+Thus [const -transformbefore] is a valid option name, but
+[const transformBefore] and [const -transformBefore] are not; Snit
+rejects them with a "badly named option" error.  The same rule applies
+to delegated options.
+
+[para]
+
+The option's resource and class names, which are used with
+[sectref "THE TK OPTION DATABASE"], may contain upper case letters;
+see [sectref "What are option resource and class names?"].
 
 [subsection {How can a client set options at object creation?}]
 
@@ -1586,7 +1602,9 @@ array, the [var options] array won't get updated.
 
 [subsection {How can I validate an option's value?}]
 
-Define a [const -validatemethod].
+Define a [const -validatemethod], or give the option a validation type
+with [const -type], e.g. [const "option -count -type snit::integer"];
+see the [cmd option] statement in the Snit man page.
 
 [subsection {What is a -validatemethod?}]
 
