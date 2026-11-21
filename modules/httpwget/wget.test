@@ -1,0 +1,410 @@
+# -*- tcl -*-
+# wget.test:  Tests for the http::wget package.
+#
+# The tests run against a small HTTP server started inside this file on
+# 127.0.0.1 with a port chosen by the system.  No external host is contacted.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    package require http
+}
+testing {
+    useLocal wget.tcl http::wget ::http::wget
+}
+
+# -------------------------------------------------------------------------
+## Local HTTP server.
+#
+# Routes are kept in the array ::srv::route, indexed by path, each value a
+# list {code headers body}.  All requests are recorded in ::srv::log as
+# lists {method path}.
+
+namespace eval ::srv {
+    variable route
+    variable log {}
+    variable sock
+    variable port
+}
+
+proc ::srv::start {} {
+    variable sock
+    variable port
+    set sock [socket -server ::srv::accept -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $sock -sockname] 2]
+    return
+}
+
+proc ::srv::stop {} {
+    variable sock
+    close $sock
+    return
+}
+
+proc ::srv::url {path} {
+    variable port
+    return http://127.0.0.1:$port$path
+}
+
+proc ::srv::accept {chan addr p} {
+    fconfigure $chan -blocking 0 -translation {auto crlf}
+    fileevent $chan readable [list ::srv::read $chan {}]
+    return
+}
+
+proc ::srv::read {chan request} {
+    if {[catch {gets $chan line} n] || $n < 0} {
+	if {[eof $chan]} {close $chan}
+	return
+    }
+    if {$line ne ""} {
+	lappend request $line
+	fileevent $chan readable [list ::srv::read $chan $request]
+	return
+    }
+    fileevent $chan readable {}
+    variable log
+    variable route
+    lassign [lindex $request 0] method path
+    lappend log [list $method $path]
+    if {[info exists route($path)]} {
+	lassign $route($path) code headers body
+    } else {
+	lassign {404 {} {not found}} code headers body
+    }
+    fconfigure $chan -translation {auto crlf}
+    puts $chan "HTTP/1.0 $code Status"
+    foreach {k v} $headers {
+	puts $chan "$k: $v"
+    }
+    puts $chan "Content-Type: application/octet-stream"
+    puts $chan "Content-Length: [string length $body]"
+    puts $chan "Connection: close"
+    puts $chan ""
+    fconfigure $chan -translation binary
+    if {$method ne "HEAD"} {
+	puts -nonewline $chan $body
+    }
+    close $chan
+    return
+}
+
+proc ::srv::reset {} {
+    variable route
+    variable log
+    array unset route
+    set log {}
+    return
+}
+
+# Close channels opened since the last call of [snapshot].
+proc snapshot {} {
+    set ::chans [file channels]
+}
+proc closeleaked {} {
+    foreach c [file channels] {
+	if {$c ni $::chans} {close $c}
+    }
+    unset ::chans
+}
+
+proc readfile {path} {
+    set c [open $path rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+::srv::start
+set body [binary format c* {0 1 2 13 10 255 128 65 66 67}]
+set dest [tcltest::makeFile {} wget.out]
+
+# -------------------------------------------------------------------------
+
+test http-wget-1.0 {wget, wrong # args, none} -body {
+    http::wget
+} -returnCodes error -result {wrong # args: should be "http::wget url destfile ?verbose?"}
+
+test http-wget-1.1 {wget, wrong # args, one} -body {
+    http::wget a
+} -returnCodes error -result {wrong # args: should be "http::wget url destfile ?verbose?"}
+
+test http-wget-1.2 {wget, wrong # args, too many} -body {
+    http::wget a b c d
+} -returnCodes error -result {wrong # args: should be "http::wget url destfile ?verbose?"}
+
+# -------------------------------------------------------------------------
+
+test http-wget-2.0 {wget, plain download, binary content kept} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /f] $dest 0
+    expr {[readfile $dest] eq $body}
+} -cleanup {
+    ::srv::reset
+} -result 1
+
+test http-wget-2.1 {wget, HEAD request is sent before GET} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /f] $dest 0
+    set ::srv::log
+} -cleanup {
+    ::srv::reset
+} -result {{HEAD /f} {GET /f}}
+
+test http-wget-2.2 {wget, verbose output by default} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /f] $dest
+} -cleanup {
+    ::srv::reset
+} -output "GETTING wget.out from [::srv::url /f]\n" -result {}
+
+test http-wget-2.3 {wget, verbose 1} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /f] $dest 1
+} -cleanup {
+    ::srv::reset
+} -output "GETTING wget.out from [::srv::url /f]\n" -result {}
+
+test http-wget-2.4 {wget, verbose 0, no output} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /f] $dest 0
+} -cleanup {
+    ::srv::reset
+} -output {} -result {}
+
+test http-wget-2.5 {wget, empty file} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} {}]
+} -body {
+    http::wget [::srv::url /f] $dest 0
+    file size $dest
+} -cleanup {
+    ::srv::reset
+} -result 0
+
+test http-wget-2.6 {wget, existing file is truncated} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} abc]
+    tcltest::makeFile [string repeat x 100] wget.out
+} -body {
+    http::wget [::srv::url /f] $dest 0
+    readfile $dest
+} -cleanup {
+    ::srv::reset
+} -result abc
+
+test http-wget-2.7 {wget, no file channel left open} -setup {
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} abc]
+    set before [llength [file channels]]
+} -body {
+    http::wget [::srv::url /f] $dest 0
+    expr {[llength [file channels]] - $before}
+} -cleanup {
+    ::srv::reset
+    unset before
+} -result 0
+
+test http-wget-2.8 {wget, bad verbose value} -setup {
+    snapshot
+    ::srv::reset
+    set ::srv::route(/f) [list 200 {} abc]
+} -body {
+    http::wget [::srv::url /f] $dest bogus
+} -cleanup {
+    ::srv::reset
+    closeleaked
+} -returnCodes error -result {expected boolean value but got "bogus"}
+
+test http-wget-2.9 {wget, destination cannot be created} -body {
+    http::wget [::srv::url /f] [file join [tcltest::temporaryDirectory] nonexistent-dir x] 0
+} -returnCodes error -match glob -result {couldn't open "*x": no such file or directory}
+
+# -------------------------------------------------------------------------
+## Redirects
+
+foreach {n code} {0 301 1 302 2 303 3 307} {
+    test http-wget-3.$n "wget, follows $code redirect" -setup {
+	::srv::reset
+	set ::srv::route(/a) [list $code [list Location [::srv::url /b]] {}]
+	set ::srv::route(/b) [list 200 {} $body]
+    } -body {
+	http::wget [::srv::url /a] $dest 0
+	list [expr {[readfile $dest] eq $body}] $::srv::log
+    } -cleanup {
+	::srv::reset
+    } -result {1 {{HEAD /a} {HEAD /b} {GET /b}}}
+}
+
+test http-wget-3.4 {wget, follows redirect chain} -setup {
+    ::srv::reset
+    set ::srv::route(/a) [list 301 [list Location [::srv::url /b]] {}]
+    set ::srv::route(/b) [list 302 [list Location [::srv::url /c]] {}]
+    set ::srv::route(/c) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /a] $dest 0
+    list [expr {[readfile $dest] eq $body}] $::srv::log
+} -cleanup {
+    ::srv::reset
+} -result {1 {{HEAD /a} {HEAD /b} {HEAD /c} {GET /c}}}
+
+test http-wget-3.5 {wget, lowercase location header} -setup {
+    ::srv::reset
+    set ::srv::route(/a) [list 302 [list location [::srv::url /b]] {}]
+    set ::srv::route(/b) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /a] $dest 0
+    expr {[readfile $dest] eq $body}
+} -cleanup {
+    ::srv::reset
+} -result 1
+
+test http-wget-3.6 {wget, verbose output shows the original url} -setup {
+    ::srv::reset
+    set ::srv::route(/a) [list 302 [list Location [::srv::url /b]] {}]
+    set ::srv::route(/b) [list 200 {} $body]
+} -body {
+    http::wget [::srv::url /a] $dest
+} -cleanup {
+    ::srv::reset
+} -output "GETTING wget.out from [::srv::url /a]\n" -result {}
+
+# http::wget and http::_followRedirects call [error] inside the ::http
+# namespace, which resolves to the command ::http::error (returns the error
+# state of a token) instead of ::error.  So no error is raised for 404 or
+# any non-200 status: the call returns normally.
+test http-wget-3.7 {wget, redirect without Location fails} -constraints knownBug -setup {
+    snapshot
+    ::srv::reset
+    set ::srv::route(/a) [list 302 {} {}]
+} -body {
+    http::wget [::srv::url /a] $dest 0
+} -cleanup {
+    ::srv::reset
+    closeleaked
+} -returnCodes error -result {DOWNLOAD FAILED}
+
+# -------------------------------------------------------------------------
+## Errors
+
+test http-wget-4.0 {wget, 404} -constraints knownBug -setup {
+    snapshot
+    ::srv::reset
+} -body {
+    http::wget [::srv::url /missing] $dest 0
+} -cleanup {
+    ::srv::reset
+    closeleaked
+} -returnCodes error -result {URL Not found}
+
+test http-wget-4.1 {wget, 404 after redirect} -constraints knownBug -setup {
+    snapshot
+    ::srv::reset
+    set ::srv::route(/a) [list 301 [list Location [::srv::url /missing]] {}]
+} -body {
+    http::wget [::srv::url /a] $dest 0
+} -cleanup {
+    ::srv::reset
+    closeleaked
+} -returnCodes error -result {URL Not found}
+
+test http-wget-4.2 {wget, server error} -constraints knownBug -setup {
+    snapshot
+    ::srv::reset
+    set ::srv::route(/e) [list 500 {} oops]
+} -body {
+    http::wget [::srv::url /e] $dest 0
+} -cleanup {
+    ::srv::reset
+    closeleaked
+} -returnCodes error -result {DOWNLOAD FAILED}
+
+test http-wget-4.3 {wget, 403} -constraints knownBug -setup {
+    snapshot
+    ::srv::reset
+    set ::srv::route(/e) [list 403 {} no]
+} -body {
+    http::wget [::srv::url /e] $dest 0
+} -cleanup {
+    ::srv::reset
+    closeleaked
+} -returnCodes error -result {DOWNLOAD FAILED}
+
+# The destination file channel is opened before the download starts; it
+# must also be closed when the download fails.
+test http-wget-4.4 {wget, failed download leaves no file channel open} -setup {
+    snapshot
+    ::srv::reset
+    set before [llength [file channels]]
+} -body {
+    catch {http::wget [::srv::url /missing] $dest 0}
+    expr {[llength [file channels]] - $before}
+} -cleanup {
+    ::srv::reset
+    closeleaked
+    unset before
+} -result 0
+
+test http-wget-4.5 {wget, server error leaves no file channel open} -setup {
+    snapshot
+    ::srv::reset
+    set ::srv::route(/e) [list 500 {} oops]
+    set before [llength [file channels]]
+} -body {
+    catch {http::wget [::srv::url /e] $dest 0}
+    expr {[llength [file channels]] - $before}
+} -cleanup {
+    ::srv::reset
+    closeleaked
+    unset before
+} -result 0
+
+test http-wget-4.6 {wget, connection refused} -setup {
+    snapshot
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+} -body {
+    http::wget http://127.0.0.1:$p/x $dest 0
+} -cleanup {
+    closeleaked
+    unset s p
+} -returnCodes error -match glob -result {*connect*}
+
+test http-wget-4.7 {wget, unsupported url} -setup {
+    snapshot
+} -body {
+    http::wget nosuch://x/y $dest 0
+} -cleanup {
+    closeleaked
+} -returnCodes error -match glob -result {Unsupported URL*}
+
+# -------------------------------------------------------------------------
+
+::srv::stop
+tcltest::removeFile wget.out
+rename readfile {}
+rename snapshot {}
+rename closeleaked {}
+namespace delete ::srv
+unset body dest n code
+
+testsuiteCleanup
+return
