@@ -1,0 +1,188 @@
+# -*- tcl -*-
+# otp-api.test:  tests for the parts of the otp API not covered by
+# otp.test: the documented example, the default (binary) output,
+# option handling and error cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use md4/md4.tcl          md4
+    use md5/md5x.tcl         md5
+    use sha1/sha1.tcl        sha1
+    use ripemd/ripemd160.tcl ripemd160 ::ripemd
+}
+testing {
+    useLocal otp.tcl otp
+}
+
+# -------------------------------------------------------------------------
+# Documented example
+
+set phrase "My Secret Pass Phrase"
+
+test otp-api-1.0 {otp-md5, documented example, words} -body {
+    otp::otp-md5 -words -count 99 -seed host67821 $phrase
+} -result {SOON ARAB BURG LIMB FILE WAD}
+
+test otp-api-1.1 {otp-md5, documented example, hex} -body {
+    otp::otp-md5 -hex -count 99 -seed host67821 $phrase
+} -result e249b58257c80087
+
+test otp-api-1.2 {otp-md5, documented example, binary} -body {
+    set r [otp::otp-md5 -count 99 -seed host67821 $phrase]
+    binary scan $r H* hex
+    list [string length $r] $hex
+} -cleanup {
+    unset r hex
+} -result {8 e249b58257c80087}
+
+foreach {n cmd} {3 otp-md4 4 otp-sha1 5 otp-rmd160} {
+    test otp-api-1.$n "$cmd, default output is the binary form of -hex" -body {
+	set r [otp::$cmd -count 5 -seed seed $phrase]
+	binary scan $r H* hex
+	list [string length $r] [expr {$hex eq [otp::$cmd -hex -count 5 -seed seed $phrase]}]
+    } -cleanup {
+	unset r hex
+    } -result {8 1}
+}
+
+# -------------------------------------------------------------------------
+# Options
+
+test otp-api-2.0 {count defaults to 0} -body {
+    expr {[otp::otp-md5 -hex -seed TeSt "This is a test."] eq
+	  [otp::otp-md5 -hex -seed TeSt -count 0 "This is a test."]}
+} -result 1
+
+test otp-api-2.1 {count defaults to 0, RFC 2289 value} -body {
+    otp::otp-md5 -hex -seed TeSt "This is a test."
+} -result 9e876134d90499dd
+
+test otp-api-2.2 {seed is case insensitive} -body {
+    list [otp::otp-sha1 -hex -seed TEST -count 1 "This is a test."] \
+	[otp::otp-sha1 -hex -seed test -count 1 "This is a test."]
+} -result {63d936639734385b 63d936639734385b}
+
+test otp-api-2.3 {options in any order} -body {
+    otp::otp-md5 -count 1 -seed TeSt -words "This is a test."
+} -result {EASE OIL FUM CURE AWRY AVIS}
+
+test otp-api-2.4 {-word is accepted as -words} -body {
+    otp::otp-md5 -word -seed TeSt -count 1 "This is a test."
+} -result {EASE OIL FUM CURE AWRY AVIS}
+
+test otp-api-2.5 {-hex takes precedence over -words} -body {
+    list [otp::otp-md5 -hex -words -seed TeSt -count 1 "This is a test."] \
+	[otp::otp-md5 -words -hex -seed TeSt -count 1 "This is a test."]
+} -result {7965e05436f5029f 7965e05436f5029f}
+
+test otp-api-2.6 {-- ends options} -body {
+    otp::otp-md5 -hex -seed TeSt -- "This is a test."
+} -result 9e876134d90499dd
+
+test otp-api-2.7 {data starting with -} -body {
+    expr {[otp::otp-md5 -hex -seed s -- -data] eq [otp::otp-md5 -hex -seed s -data]}
+} -result 1
+
+test otp-api-2.8 {seed of 16 characters} -body {
+    string length [otp::otp-md5 -hex -seed [string repeat a 16] data]
+} -result 16
+
+test otp-api-2.9 {seed of 1 character} -body {
+    string length [otp::otp-md5 -hex -seed a data]
+} -result 16
+
+test otp-api-2.10 {count iterates the folded hash} -body {
+    set s1 [otp::otp-md5 -seed TeSt -count 1 "This is a test."]
+    set s0 [otp::otp-md5 -seed TeSt -count 0 "This is a test."]
+    expr {$s1 eq [otp::Fold64LE [::md5::md5 $s0]]}
+} -cleanup {
+    unset s0 s1
+} -result 1
+
+test otp-api-2.11 {each count gives a different password} -body {
+    set res {}
+    for {set i 0} {$i < 5} {incr i} {
+	lappend res [otp::otp-sha1 -hex -seed s -count $i data]
+    }
+    llength [lsort -unique $res]
+} -cleanup {
+    unset res i
+} -result 5
+
+test otp-api-2.12 {all words from the RFC 2289 dictionary} -body {
+    set bad {}
+    for {set i 0} {$i < 20} {incr i} {
+	foreach w [otp::otp-md5 -words -seed s -count $i data] {
+	    if {$w ni $::otp::Words} {lappend bad $w}
+	}
+    }
+    set bad
+} -cleanup {
+    unset bad i w
+} -result {}
+
+test otp-api-2.13 {dictionary has 2048 unique words} -body {
+    list [llength $::otp::Words] [llength [lsort -unique $::otp::Words]]
+} -result {2048 2048}
+
+# -------------------------------------------------------------------------
+# Errors
+
+foreach {n cmd} {0 otp-md4 1 otp-md5 2 otp-sha1 3 otp-rmd160} {
+    test otp-api-3.$n "$cmd, missing seed" -body {
+	otp::$cmd -count 1 data
+    } -returnCodes error -result {seed must be between 1 and 16 characters in length}
+}
+
+test otp-api-3.4 {seed too long} -body {
+    otp::otp-md5 -seed [string repeat a 17] data
+} -returnCodes error -result {seed must be between 1 and 16 characters in length}
+
+test otp-api-3.5 {empty seed} -body {
+    otp::otp-md5 -seed {} data
+} -returnCodes error -result {seed must be between 1 and 16 characters in length}
+
+test otp-api-3.6 {bad option} -body {
+    otp::otp-md5 -bogus 1 data
+} -returnCodes error -result {bad option "-bogus": must be one of -count, -hash, -hex, -seed, -words}
+
+test otp-api-3.7 {bad option, otp-sha1} -body {
+    otp::otp-sha1 -seed s -bogus data
+} -returnCodes error -result {bad option "-bogus": must be one of -count, -hash, -hex, -seed, -words}
+
+test otp-api-3.8 {otp, invalid hash type} -body {
+    otp::otp -hash foo -seed s data
+} -returnCodes error -result {invalid hash type "foo": must be one of md4, md5, rmd160 or sha1}
+
+test otp-api-3.9 {otp_encode, wrong data length} -body {
+    otp::otp_encode abc
+} -returnCodes error -result {invalid input: 64 bits of data required and 24  bits provided}
+
+# Bug: a non-numeric count is compared as a string and the loop never
+# ends. The child interpreter with a command limit keeps the test from
+# hanging.
+test otp-api-3.10 {non-numeric count} -constraints knownBug -setup {
+    set ci [interp create]
+    $ci eval [list set auto_path $auto_path]
+    $ci eval [list source [tcllibPath md5/md5x.tcl]]
+    $ci eval [list source [localPath otp.tcl]]
+    interp limit $ci command -value [expr {[$ci eval info cmdcount] + 200000}]
+} -body {
+    $ci eval {otp::otp-md5 -seed s -count foo data}
+} -cleanup {
+    interp delete $ci
+    unset ci
+} -returnCodes error -match glob -result {*"foo"*}
+
+# -------------------------------------------------------------------------
+
+unset phrase
+testsuiteCleanup
