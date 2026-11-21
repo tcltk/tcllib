@@ -1,0 +1,427 @@
+# profiler-api.test - Additional API tests for the profiler package.
+#
+# Covers the documented dump keys, caller distribution and descendants,
+# namespaced procedures, patterns of dump/print/reset/suspend/resume,
+# the sortFunctions keys, and the error cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal profiler.tcl profiler
+}
+
+# Run a script in a fresh interpreter with profiling initialized.
+proc do {script} {
+    set c [interp create]
+    $c eval [list source [localPath profiler.tcl]]
+    $c eval profiler::init
+    set code [catch {$c eval $script} result]
+    interp delete $c
+    return -code $code $result
+}
+
+# Common setup: ::foo calls ::bar, ::bar is also called from global level.
+set fooBar {
+    proc ::foo {} {
+        ::bar
+        ::bar
+        return foo-result
+    }
+    proc ::bar {} {
+        return bar-result
+    }
+    foo
+    bar
+}
+
+# -------------------------------------------------------------------------
+# init and profiled procedures
+
+test profiler-api-1.1 {init, wrong # args} -body {
+    do {profiler::init x}
+} -returnCodes error -result {wrong # args: should be "profiler::init"}
+
+test profiler-api-1.2 {profiled procedure returns its result} -body {
+    do {
+        proc ::sum {a b} {expr {$a + $b}}
+        sum 2 3
+    }
+} -result 5
+
+test profiler-api-1.3 {profiled procedure with default and args arguments} -body {
+    do {
+        proc ::f {a {b B} args} {list $a $b $args}
+        list [f 1] [f 1 2 3 4]
+    }
+} -result {{1 B {}} {1 2 {3 4}}}
+
+test profiler-api-1.4 {errors propagate through profiled procedures} -body {
+    do {
+        proc ::bad {} {error oops}
+        list [catch bad msg] $msg [lindex [profiler::dump ::bad] 1 1]
+    }
+} -result {1 oops 1}
+
+test profiler-api-1.5 {proc inside a namespace is profiled by qualified name} -body {
+    do {
+        namespace eval ::ns {
+            proc f {} {return 1}
+        }
+        ns::f
+        ns::f
+        set d [profiler::dump ::ns::f]
+        list [lindex $d 0] [dict get [lindex $d 1] callCount]
+    }
+} -result {::ns::f 2}
+
+test profiler-api-1.6 {procedure created before init is not profiled} -body {
+    set c [interp create]
+    $c eval {proc ::early {} {return 1}}
+    $c eval [list source [localPath profiler.tcl]]
+    $c eval {profiler::init; early}
+    $c eval {profiler::dump ::early}
+} -cleanup {
+    interp delete $c
+    unset c
+} -result {}
+
+test profiler-api-1.7 {procedure redefinition resets its statistics} -body {
+    do {
+        proc ::f {} {return 1}
+        f; f
+        proc ::f {} {return 2}
+        list [f] [dict get [lindex [profiler::dump ::f] 1] callCount]
+    }
+} -result {2 1}
+
+# -------------------------------------------------------------------------
+# dump
+
+test profiler-api-2.1 {dump, documented keys} -constraints knownBug -body {
+    # The manual documents "totalCalls", the code uses "callCount".
+    do "$fooBar
+        lsort \[dict keys \[lindex \[profiler::dump ::foo\] 1\]\]"
+} -result {averageDescendantTime averageRuntime callerDist compileTime descendantTime totalCalls totalRuntime}
+
+test profiler-api-2.2 {dump, keys returned} -body {
+    do "$fooBar
+        lsort \[dict keys \[lindex \[profiler::dump ::foo\] 1\]\]"
+} -result {averageDescendantTime averageRuntime callCount callerDist compileTime covpercentRuntime descendantTime descendants stddevRuntime totalRuntime}
+
+test profiler-api-2.3 {dump, caller distribution} -body {
+    do "$fooBar
+        dict get \[lindex \[profiler::dump ::bar\] 1\] callerDist"
+} -result {::foo 2 GLOBAL 1}
+
+test profiler-api-2.4 {dump, call counts} -body {
+    do "$fooBar
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] callCount\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] callCount\]"
+} -result {1 3}
+
+test profiler-api-2.5 {dump, descendants} -body {
+    do "$fooBar
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] descendants\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] descendants\]"
+} -result {::bar {}}
+
+test profiler-api-2.6 {dump, time statistics are consistent} -body {
+    do {
+        proc ::slow {} {after 20}
+        proc ::outer {} {slow; slow}
+        outer
+        outer
+        set o [lindex [profiler::dump ::outer] 1]
+        set s [lindex [profiler::dump ::slow] 1]
+        list \
+            [expr {[dict get $s totalRuntime] > 0}] \
+            [expr {[dict get $o totalRuntime] >= [dict get $o descendantTime]}] \
+            [expr {[dict get $o descendantTime] == [dict get $s totalRuntime]}] \
+            [expr {[dict get $o averageDescendantTime] == [dict get $o descendantTime] / 2}] \
+            [expr {[dict get $o compileTime] > 0}] \
+            [expr {[dict get $s averageRuntime] > 0}]
+    }
+} -result {1 1 1 1 1 1}
+
+test profiler-api-2.7 {dump, procedure never called} -body {
+    do {
+        proc ::never {} {}
+        set d [lindex [profiler::dump ::never] 1]
+        list [dict get $d callCount] [dict get $d callerDist] \
+            [dict get $d totalRuntime] [dict get $d averageRuntime] \
+            [dict get $d descendantTime] [dict get $d averageDescendantTime] \
+            [dict get $d descendants]
+    }
+} -result {0 {} 0 0 0 0 {}}
+
+test profiler-api-2.8 {dump, without pattern returns all functions sorted} -body {
+    do "$fooBar
+        set r {}
+        foreach {k v} \[profiler::dump\] {lappend r \$k}
+        set r"
+} -result {::bar ::foo}
+
+test profiler-api-2.9 {dump, glob pattern} -body {
+    do {
+        proc ::aa {} {}
+        proc ::ab {} {}
+        proc ::b {} {}
+        set r {}
+        foreach {k v} [profiler::dump ::a*] {lappend r $k}
+        set r
+    }
+} -result {::aa ::ab}
+
+test profiler-api-2.10 {dump, pattern matching nothing} -body {
+    do "$fooBar
+        profiler::dump ::nothing*"
+} -result {}
+
+test profiler-api-2.11 {dump, wrong # args} -body {
+    do {profiler::dump a b}
+} -returnCodes error -result {wrong # args: should be "profiler::dump ?pattern?"}
+
+# -------------------------------------------------------------------------
+# print
+
+test profiler-api-3.1 {print, procedure never called} -body {
+    do {
+        proc ::never {} {}
+        profiler::print ::never
+    }
+} -result "Profiling information for ::never\n[string repeat = 60]\n            Total calls:  0\n\n"
+
+test profiler-api-3.2 {print, contains caller distribution and descendants} -body {
+    do "$fooBar
+        profiler::print ::foo"
+} -match glob -result "Profiling information for ::foo\n*Total calls:  1\n    Caller distribution:\n  GLOBAL:  1\n*Descendants:\n  ::bar:  2\n\n"
+
+test profiler-api-3.3 {print, without pattern prints all functions} -body {
+    do "$fooBar
+        regexp -all -line {^Profiling information for} \[profiler::print\]"
+} -result 2
+
+test profiler-api-3.4 {print, pattern matching nothing} -body {
+    do "$fooBar
+        profiler::print ::nothing*"
+} -result {}
+
+test profiler-api-3.5 {print, wrong # args} -body {
+    do {profiler::print a b}
+} -returnCodes error -result {wrong # args: should be "profiler::print ?pattern?"}
+
+# -------------------------------------------------------------------------
+# reset
+
+test profiler-api-4.1 {reset clears all statistics} -body {
+    do "$fooBar
+        profiler::reset
+        set d \[lindex \[profiler::dump ::foo\] 1\]
+        list \[dict get \$d callCount\] \[dict get \$d callerDist\] \\
+            \[dict get \$d totalRuntime\] \[dict get \$d compileTime\] \\
+            \[dict get \$d descendantTime\] \[dict get \$d descendants\]"
+} -result {0 {} 0 0 0 {}}
+
+test profiler-api-4.2 {reset, functions are still profiled afterwards} -body {
+    do "$fooBar
+        profiler::reset
+        foo
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] callCount\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] callerDist\]"
+} -result {1 {::foo 2}}
+
+test profiler-api-4.3 {reset, glob pattern} -body {
+    do "$fooBar
+        profiler::reset ::f*
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] callCount\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] callCount\]"
+} -result {0 3}
+
+test profiler-api-4.4 {reset returns empty string} -body {
+    do "$fooBar
+        profiler::reset ::nothing"
+} -result {}
+
+test profiler-api-4.5 {reset, wrong # args} -body {
+    do {profiler::reset a b}
+} -returnCodes error -result {wrong # args: should be "profiler::reset ?pattern?"}
+
+# -------------------------------------------------------------------------
+# suspend / resume / new-disabled / new-enabled
+
+test profiler-api-5.1 {suspend without pattern stops all profiling} -body {
+    do "$fooBar
+        profiler::suspend
+        foo
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] callCount\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] callCount\]"
+} -result {1 3}
+
+test profiler-api-5.2 {suspend keeps gathered information} -body {
+    do "$fooBar
+        profiler::suspend
+        dict get \[lindex \[profiler::dump ::bar\] 1\] callerDist"
+} -result {::foo 2 GLOBAL 1}
+
+test profiler-api-5.3 {suspend with pattern affects only matching functions} -body {
+    do "$fooBar
+        profiler::suspend ::bar
+        foo
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] callCount\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] callCount\]"
+} -result {2 3}
+
+test profiler-api-5.4 {resume with pattern} -body {
+    do "$fooBar
+        profiler::suspend
+        profiler::resume ::foo
+        foo
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] callCount\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] callCount\]"
+} -result {2 3}
+
+test profiler-api-5.5 {resume without pattern} -body {
+    do "$fooBar
+        profiler::suspend
+        foo
+        profiler::resume
+        foo
+        list \[dict get \[lindex \[profiler::dump ::foo\] 1\] callCount\] \\
+            \[dict get \[lindex \[profiler::dump ::bar\] 1\] callCount\]"
+} -result {2 5}
+
+test profiler-api-5.6 {suspended procedure still returns its result} -body {
+    do "$fooBar
+        profiler::suspend
+        foo"
+} -result foo-result
+
+test profiler-api-5.7 {suspend and resume return empty string} -body {
+    do {list [profiler::suspend] [profiler::resume]}
+} -result {{} {}}
+
+test profiler-api-5.8 {new-disabled, procedure enabled with resume pattern} -body {
+    do {
+        profiler::new-disabled
+        proc ::a {} {}
+        proc ::b {} {}
+        profiler::new-enabled
+        profiler::resume ::a
+        a; b
+        list [dict get [lindex [profiler::dump ::a] 1] callCount] \
+            [dict get [lindex [profiler::dump ::b] 1] callCount]
+    }
+} -result {1 0}
+
+test profiler-api-5.9 {new-enabled, prevent profiling with suspend} -body {
+    do {
+        profiler::new-disabled
+        profiler::new-enabled
+        proc ::a {} {}
+        proc ::b {} {}
+        profiler::suspend ::b
+        a; b
+        list [dict get [lindex [profiler::dump ::a] 1] callCount] \
+            [dict get [lindex [profiler::dump ::b] 1] callCount]
+    }
+} -result {1 0}
+
+test profiler-api-5.10 {new-disabled and new-enabled return empty string} -body {
+    do {list [profiler::new-disabled] [profiler::new-enabled]}
+} -result {{} {}}
+
+test profiler-api-5.11 {suspend, wrong # args} -body {
+    do {profiler::suspend a b}
+} -returnCodes error -result {wrong # args: should be "profiler::suspend ?pattern?"}
+
+test profiler-api-5.12 {resume, wrong # args} -body {
+    do {profiler::resume a b}
+} -returnCodes error -result {wrong # args: should be "profiler::resume ?pattern?"}
+
+test profiler-api-5.13 {new-disabled, wrong # args} -body {
+    do {profiler::new-disabled a}
+} -returnCodes error -result {wrong # args: should be "profiler::new-disabled"}
+
+test profiler-api-5.14 {new-enabled, wrong # args} -body {
+    do {profiler::new-enabled a}
+} -returnCodes error -result {wrong # args: should be "profiler::new-enabled"}
+
+# -------------------------------------------------------------------------
+# sortFunctions
+
+test profiler-api-6.1 {sortFunctions calls, sorted by value} -body {
+    do "$fooBar
+        profiler::sortFunctions calls"
+} -result {{::foo 1} {::bar 3}}
+
+foreach {n key} {
+    2 compileTime
+    3 totalRuntime
+    4 nonCompileTime
+    5 exclusiveRuntime
+    6 avgExclusiveRuntime
+} {
+    test profiler-api-6.$n "sortFunctions $key, list of name/value pairs sorted by value" -body {
+        do "$fooBar
+            set r \[profiler::sortFunctions $key\]
+            set names {}
+            set values {}
+            foreach pair \$r {
+                lappend names \[lindex \$pair 0\]
+                lappend values \[lindex \$pair 1\]
+            }
+            list \[lsort \$names\] \[string equal \$values \[lsort -integer \$values\]\]"
+    } -result {{::bar ::foo} 1}
+}
+
+test profiler-api-6.7 {sortFunctions nonCompileTime is totalRuntime minus compileTime} -body {
+    do "$fooBar
+        set d \[lindex \[profiler::dump ::bar\] 1\]
+        expr {\[lindex \[lsearch -inline -index 0 \[profiler::sortFunctions nonCompileTime\] ::bar\] 1\] ==
+              \[dict get \$d totalRuntime\] - \[dict get \$d compileTime\]}"
+} -result 1
+
+test profiler-api-6.8 {sortFunctions exclusiveRuntime is totalRuntime minus descendantTime} -body {
+    do "$fooBar
+        set d \[lindex \[profiler::dump ::foo\] 1\]
+        expr {\[lindex \[lsearch -inline -index 0 \[profiler::sortFunctions exclusiveRuntime\] ::foo\] 1\] ==
+              \[dict get \$d totalRuntime\] - \[dict get \$d descendantTime\]}"
+} -result 1
+
+test profiler-api-6.9 {sortFunctions, documented key exclusiveTime} -constraints knownBug -body {
+    # The manual documents "exclusiveTime", the code accepts "exclusiveRuntime".
+    do "$fooBar
+        llength \[profiler::sortFunctions exclusiveTime\]"
+} -result 2
+
+test profiler-api-6.10 {sortFunctions, documented key avgExclusiveTime} -constraints knownBug -body {
+    # The manual documents "avgExclusiveTime", the code accepts "avgExclusiveRuntime".
+    do "$fooBar
+        llength \[profiler::sortFunctions avgExclusiveTime\]"
+} -result 2
+
+test profiler-api-6.11 {sortFunctions, no functions} -body {
+    do {profiler::sortFunctions calls}
+} -result {}
+
+test profiler-api-6.12 {sortFunctions, unknown key} -body {
+    do {profiler::sortFunctions bogus}
+} -returnCodes error -result {unknown statistic "bogus": should be calls, compileTime, exclusiveRuntime, nonCompileTime, totalRuntime, avgExclusiveRuntime, or avgRuntime}
+
+test profiler-api-6.13 {sortFunctions, wrong # args} -body {
+    do {profiler::sortFunctions a b}
+} -returnCodes error -result {wrong # args: should be "profiler::sortFunctions ?field?"}
+
+# -------------------------------------------------------------------------
+
+rename do {}
+unset fooBar n key
+testsuiteCleanup
+return
