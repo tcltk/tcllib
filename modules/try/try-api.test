@@ -1,0 +1,664 @@
+# -*- tcl -*-
+# try-api.test:  tests for the Tcl 8.5 compatibility packages try and throw.
+#
+# On Tcl 8.6 and later the packages do nothing, because [try] and [throw]
+# are built in. To test the Tcl implementations anyway, the files are
+# sourced into a child interpreter in which the built-in commands have
+# been removed.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal try.tcl try
+    useLocal throw.tcl throw
+}
+
+# -------------------------------------------------------------------------
+# Child interpreter with the Tcl implementations.
+
+set tryFile   [localPath try.tcl]
+set throwFile [localPath throw.tcl]
+
+interp create ti
+ti eval {
+    catch {rename ::try {}}
+    catch {rename ::throw {}}
+}
+ti eval [list source $tryFile]
+ti eval [list source $throwFile]
+
+proc t {script} {
+    interp eval ti $script
+}
+
+# -------------------------------------------------------------------------
+# Packages in the main interpreter
+
+test try-api-0.1 {package try, version} -body {
+    package present try
+} -result 1.1
+
+test try-api-0.2 {package throw, version} -body {
+    package present throw
+} -result 1.1
+
+test try-api-0.3 {package try does not replace the built-in try} -constraints tcl8.6plus -body {
+    namespace origin try
+} -result ::try
+
+test try-api-0.4 {package throw does not replace the built-in throw} -constraints tcl8.6plus -body {
+    namespace origin throw
+} -result ::throw
+
+test try-api-0.5 {child interpreter uses the Tcl implementations} -body {
+    list [t {namespace origin try}] [t {info procs throw}]
+} -result {::tcl::control::try throw}
+
+# -------------------------------------------------------------------------
+# try, argument errors
+
+test try-api-1.0 {try, wrong # args, no body} -body {
+    t {try}
+} -returnCodes error -result {wrong # args: should be "try body ?handler ...? ?finally body?"}
+
+test try-api-1.1 {try, wrong # args, incomplete on clause} -body {
+    t {try {} on error}
+} -returnCodes error -result {wrong # args: should be "try body ?handler ...? ?finally body?"}
+
+test try-api-1.2 {try, wrong # args, incomplete trap clause} -body {
+    t {try {} trap {A} {}}
+} -returnCodes error -result {wrong # args: should be "try body ?handler ...? ?finally body?"}
+
+test try-api-1.3 {try, wrong # args, finally without script} -body {
+    t {try {} finally}
+} -returnCodes error -result {wrong # args: should be "try body ?handler ...? ?finally body?"}
+
+test try-api-1.4 {try, wrong # args, words after finally} -body {
+    t {try {} finally {} on error {} {}}
+} -returnCodes error -result {wrong # args: should be "try body ?handler ...? ?finally body?"}
+
+test try-api-1.5 {try, last handler with script "-"} -body {
+    t {try {} on error {} -}
+} -returnCodes error -result {wrong # args: should be "try body ?handler ...? ?finally body?"}
+
+test try-api-1.6 {try, bad handler keyword} -body {
+    t {try {} catch {} {}}
+} -returnCodes error -result {bad handler 'catch': must be "on code varlist body", or "trap prefix varlist body"}
+
+test try-api-1.7 {try, bad code} -body {
+    t {try {} on foo {} {}}
+} -returnCodes error -result {bad code 'foo': must be integer or "ok", "error", "return", "break", "continue"}
+
+test try-api-1.8 {try, bad prefix} -body {
+    t [list try {} trap "\{" {} {}]
+} -returnCodes error -result "bad prefix '\{': must be a list"
+
+test try-api-1.9 {try, body not evaluated on argument error} -body {
+    t {
+	set ::x 0
+	catch {try {set ::x 1} on foo {} {}}
+	set ::x
+    }
+} -cleanup {
+    t {unset ::x}
+} -result 0
+
+# -------------------------------------------------------------------------
+# try, body only
+
+test try-api-2.0 {try, body result} -body {
+    t {try {set a 42}}
+} -cleanup {
+    t {unset a}
+} -result 42
+
+test try-api-2.1 {try, empty body} -body {
+    t {try {}}
+} -result {}
+
+test try-api-2.2 {try, body evaluated in caller's scope} -body {
+    t {
+	proc p {} {
+	    set local 1
+	    try {incr local}
+	    set local
+	}
+	p
+    }
+} -cleanup {
+    t {rename p {}}
+} -result 2
+
+test try-api-2.3 {try, error propagates without handler} -body {
+    t {
+	list [catch {try {error msg {} {MY CODE}}} m o] $m [dict get $o -errorcode]
+    }
+} -cleanup {
+    t {unset m o}
+} -result {1 msg {MY CODE}}
+
+test try-api-2.4 {try, error info mentions the try body} -body {
+    t {
+	catch {try {
+	    set a 1
+	    error msg
+	}} m o
+	dict get $o -errorinfo
+    }
+} -cleanup {
+    t {unset a m o}
+} -match glob -result {msg
+    while executing
+"error msg"
+    ("try" body line 3)*}
+
+test try-api-2.5 {try, return from the body returns from the caller} -body {
+    t {
+	proc p {} {
+	    try {return 5}
+	    return 6
+	}
+	p
+    }
+} -cleanup {
+    t {rename p {}}
+} -result 5
+
+test try-api-2.6 {try, break in the body breaks the caller's loop} -body {
+    t {
+	set l {}
+	foreach i {1 2 3} {
+	    try {if {$i == 2} break}
+	    lappend l $i
+	}
+	set l
+    }
+} -cleanup {
+    t {unset l i}
+} -result 1
+
+test try-api-2.7 {try, continue in the body} -body {
+    t {
+	set l {}
+	foreach i {1 2 3} {
+	    try {if {$i == 2} continue}
+	    lappend l $i
+	}
+	set l
+    }
+} -cleanup {
+    t {unset l i}
+} -result {1 3}
+
+# -------------------------------------------------------------------------
+# try, on handlers
+
+test try-api-3.0 {try, on ok} -body {
+    t {try {set a 1} on ok {r o} {list handler $r [dict get $o -code]}}
+} -cleanup {
+    t {unset a r o}
+} -result {handler 1 0}
+
+test try-api-3.1 {try, on error} -body {
+    t {
+	try {
+	    error msg {} {MY CODE}
+	} on error {r o} {
+	    list $r [dict get $o -code] [dict get $o -errorcode]
+	}
+    }
+} -cleanup {
+    t {unset r o}
+} -result {msg 1 {MY CODE}}
+
+test try-api-3.2 {try, on return} -body {
+    t {try {return -level 0 -code return val} on return {r} {list return $r}}
+} -cleanup {
+    t {unset r}
+} -result {return val}
+
+test try-api-3.3 {try, on break} -body {
+    t {try {break} on break {} {set x b}}
+} -cleanup {
+    t {unset x}
+} -result b
+
+test try-api-3.4 {try, on continue} -body {
+    t {try {continue} on continue {} {set x c}}
+} -cleanup {
+    t {unset x}
+} -result c
+
+foreach {n code literal} {5 0 ok 6 1 error 7 2 return 8 3 break 9 4 continue} {
+    test try-api-3.$n "try, on with integer code $code ($literal)" -body {
+	t [list try [list return -level 0 -code $code val] on $code {r} {set r}]
+    } -cleanup {
+	t {unset r}
+    } -result val
+}
+
+test try-api-3.10 {try, on with custom integer code} -body {
+    t {try {return -level 0 -code 42 val} on 42 {r o} {list $r [dict get $o -code]}}
+} -cleanup {
+    t {unset r o}
+} -result {val 42}
+
+test try-api-3.11 {try, unmatched code propagates} -body {
+    t {catch {try {return -level 0 -code 42 val} on error {} {set x}} m}
+} -cleanup {
+    t {unset m}
+} -result 42
+
+test try-api-3.12 {try, empty variable list} -body {
+    t {try {error msg} on error {} {set x handled}}
+} -cleanup {
+    t {unset x}
+} -result handled
+
+test try-api-3.13 {try, only result variable} -body {
+    t {
+	try {error msg} on error {r} {set x handled}
+	list $r [info exists o]
+    }
+} -cleanup {
+    t {unset r x}
+} -result {msg 0}
+
+test try-api-3.14 {try, variables set in caller's scope} -body {
+    t {
+	proc p {} {
+	    try {error msg} on error {r o} {}
+	    list $r [dict get $o -code]
+	}
+	p
+    }
+} -cleanup {
+    t {rename p {}}
+} -result {msg 1}
+
+test try-api-3.15 {try, handler result replaces body result} -body {
+    t {try {set a 1} on ok {} {set b 2}}
+} -cleanup {
+    t {unset a b}
+} -result 2
+
+test try-api-3.16 {try, first matching handler selected} -body {
+    t {try {error msg} on error {} {set x first} on error {} {set x second}}
+} -cleanup {
+    t {unset x}
+} -result first
+
+test try-api-3.17 {try, on error masks later trap} -body {
+    t {try {error msg {} {A B}} on error {} {set x on} trap {A B} {} {set x trap}}
+} -cleanup {
+    t {unset x}
+} -result on
+
+test try-api-3.18 {try, return from a handler returns from the caller} -body {
+    t {
+	proc p {} {
+	    try {error msg} on error {} {return 5}
+	    return 6
+	}
+	p
+    }
+} -cleanup {
+    t {rename p {}}
+} -result 5
+
+test try-api-3.19 {try, error in handler, -during holds the original} -body {
+    t {
+	catch {try {error orig {} {ORIG}} on error {} {error new {} {NEW}}} m o
+	list $m [dict get $o -errorcode] [dict get $o -during -errorcode] \
+	    [dict get $o -during -code]
+    }
+} -cleanup {
+    t {unset m o}
+} -result {new NEW ORIG 1}
+
+test try-api-3.20 {try, error in handler, error info} -body {
+    t {
+	catch {try {error orig} on error {} {
+	    error new
+	}} m o
+	dict get $o -errorinfo
+    }
+} -cleanup {
+    t {unset m o}
+} -match glob -result {new
+    while executing
+"error new"
+    ("try ... error" body line 2)*}
+
+# -------------------------------------------------------------------------
+# try, trap handlers
+
+test try-api-4.0 {try, trap exact errorcode} -body {
+    t {try {error msg {} {A B C}} trap {A B C} {r o} {list $r [dict get $o -errorcode]}}
+} -cleanup {
+    t {unset r o}
+} -result {msg {A B C}}
+
+test try-api-4.1 {try, trap errorcode prefix} -body {
+    t {try {error msg {} {A B C}} trap {A B} {r} {set r}}
+} -cleanup {
+    t {unset r}
+} -result msg
+
+test try-api-4.2 {try, trap empty pattern matches every error} -body {
+    t {try {error msg {} {A B C}} trap {} {r} {set r}}
+} -cleanup {
+    t {unset r}
+} -result msg
+
+test try-api-4.3 {try, trap does not match other words} -body {
+    t {list [catch {try {error msg {} {A B C}} trap {A X} {} {set x}} m] $m}
+} -cleanup {
+    t {unset m}
+} -result {1 msg}
+
+test try-api-4.4 {try, trap pattern longer than errorcode} -body {
+    t {list [catch {try {error msg {} {A}} trap {A B} {} {set x}} m] $m}
+} -cleanup {
+    t {unset m}
+} -result {1 msg}
+
+test try-api-4.5 {try, trap normalizes spaces} -body {
+    t {try {error msg {} "A   B\tC"} trap "  A  B " {r} {set r}}
+} -cleanup {
+    t {unset r}
+} -result msg
+
+test try-api-4.6 {try, trap selects first matching} -body {
+    t {
+	try {
+	    error msg {} {POSIX ENOENT {no such file}}
+	} trap {POSIX EISDIR} {} {
+	    set x isdir
+	} trap {POSIX ENOENT} {} {
+	    set x noent
+	} trap {POSIX} {} {
+	    set x posix
+	}
+    }
+} -cleanup {
+    t {unset x}
+} -result noent
+
+test try-api-4.7 {try, trap does not match non-error codes} -body {
+    t {catch {try {return -level 0 -code break} trap {} {} {set x trapped}}}
+} -result 3
+
+test try-api-4.8 {try, trap does not match success} -body {
+    t {try {set a ok} trap {} {} {set x trapped}}
+} -cleanup {
+    t {unset a}
+} -result ok
+
+test try-api-4.9 {try, trap with real error} -body {
+    t {
+	try {
+	    expr {1/0}
+	} trap {ARITH DIVZERO} {r} {
+	    set r
+	}
+    }
+} -cleanup {
+    t {unset r}
+} -result {divide by zero}
+
+# -------------------------------------------------------------------------
+# try, fall-through with "-"
+
+test try-api-5.0 {try, "-" falls through to the next handler} -body {
+    t {try {break} on break {} - on continue {} {set x shared}}
+} -cleanup {
+    t {unset x}
+} -result shared
+
+test try-api-5.1 {try, "-" falls through several handlers} -body {
+    t {try {error msg {} {A}} trap {A} {} - on break {} - on continue {r} {list shared $r}}
+} -cleanup {
+    t {unset r}
+} -result {shared msg}
+
+test try-api-5.2 {try, "-" not taken when not matched} -body {
+    t {try {continue} on break {} - on continue {} {set x b} on continue {} {set x c}}
+} -cleanup {
+    t {unset x}
+} -result b
+
+test try-api-5.3 {try, variables of the executed handler are used} -body {
+    t {
+	try {error msg} on error {a} - on ok {b} {}
+	list [info exists a] [info exists b] $b
+    }
+} -cleanup {
+    t {unset b}
+} -result {0 1 msg}
+
+# -------------------------------------------------------------------------
+# try, finally
+
+test try-api-6.0 {try, finally after success, body result kept} -body {
+    t {
+	set l {}
+	set r [try {lappend l body; set x 1} finally {lappend l finally; set y 2}]
+	list $r $l
+    }
+} -cleanup {
+    t {unset l r x y}
+} -result {1 {body finally}}
+
+test try-api-6.1 {try, finally after error, error propagated} -body {
+    t {
+	set l {}
+	list [catch {try {lappend l body; error msg} finally {lappend l finally}} m] $m $l
+    }
+} -cleanup {
+    t {unset l m}
+} -result {1 msg {body finally}}
+
+test try-api-6.2 {try, finally after handler, handler result kept} -body {
+    t {
+	set l {}
+	set r [try {
+	    lappend l body
+	    error msg
+	} on error {} {
+	    lappend l handler
+	    set x handled
+	} finally {
+	    lappend l finally
+	    set y fin
+	}]
+	list $r $l
+    }
+} -cleanup {
+    t {unset l r x y}
+} -result {handled {body handler finally}}
+
+test try-api-6.3 {try, finally after handler error} -body {
+    t {
+	set l {}
+	list [catch {try {error a} on error {} {error b} finally {lappend l fin}} m] $m $l
+    }
+} -cleanup {
+    t {unset l m}
+} -result {1 b fin}
+
+test try-api-6.4 {try, error in finally replaces the result} -body {
+    t {
+	catch {try {set a 1} finally {error fin {} FIN}} m o
+	list $m [dict get $o -errorcode] [dict get $o -during]
+    }
+} -cleanup {
+    t {unset a m o}
+} -result {fin FIN {-code 0 -level 0}}
+
+test try-api-6.5 {try, error in finally after error, -during holds the original} -body {
+    t {
+	catch {try {error orig {} ORIG} finally {error fin {} FIN}} m o
+	list $m [dict get $o -errorcode] [dict get $o -during -errorcode]
+    }
+} -cleanup {
+    t {unset m o}
+} -result {fin FIN ORIG}
+
+test try-api-6.6 {try, error in finally, error info} -body {
+    t {
+	catch {try {} finally {
+	    error fin
+	}} m o
+	dict get $o -errorinfo
+    }
+} -cleanup {
+    t {unset m o}
+} -match glob -result {fin
+    while executing
+"error fin"
+    ("try ... finally" body line 2)*}
+
+test try-api-6.7 {try, break in finally overrides the result} -body {
+    t {
+	set l {}
+	foreach i {1 2} {
+	    lappend l [try {set i} finally {break}]
+	}
+	set l
+    }
+} -cleanup {
+    t {unset l i}
+} -result {}
+
+test try-api-6.8 {try, finally result ignored on success} -body {
+    t {try {set a body} finally {set b finally}}
+} -cleanup {
+    t {unset a b}
+} -result body
+
+test try-api-6.9 {try, finally evaluated when body returns} -body {
+    t {
+	set ::l {}
+	proc p {} {
+	    try {return 5} finally {lappend ::l fin}
+	    return 6
+	}
+	list [p] $::l
+    }
+} -cleanup {
+    t {rename p {}; unset ::l}
+} -result {5 fin}
+
+test try-api-6.10 {try, finally evaluated when no handler matches} -body {
+    t {
+	set l {}
+	list [catch {try {error msg} on break {} {lappend l h} finally {lappend l fin}} m] $m $l
+    }
+} -cleanup {
+    t {unset l m}
+} -result {1 msg fin}
+
+test try-api-6.11 {try, documented example: file closed} -setup {
+    set f [makeFile {} tryapi.txt]
+} -body {
+    interp eval ti [list set fname $f]
+    t {
+	set f [open $fname a]
+	catch {
+	    try {
+		puts $f "some message"
+		error oops
+	    } finally {
+		close $f
+	    }
+	} m
+	list $m [expr {$f in [chan names]}]
+    }
+} -cleanup {
+    t {unset fname f m}
+    removeFile tryapi.txt
+    unset f
+} -result {oops 0}
+
+test try-api-6.12 {try, documented example: trap open errors} -constraints unix -body {
+    interp eval ti [list set dir [temporaryDirectory]]
+    t {
+	set r {}
+	foreach {fname mode} [list $dir w [file join $dir no-such-file-tryapi] r] {
+	    try {
+		close [open $fname $mode]
+	    } trap {POSIX EISDIR} {} {
+		lappend r isdir
+	    } trap {POSIX ENOENT} {} {
+		lappend r noent
+	    }
+	}
+	set r
+    }
+} -cleanup {
+    t {unset dir r fname mode}
+} -result {isdir noent}
+
+# -------------------------------------------------------------------------
+# throw
+
+test try-api-7.0 {throw, wrong # args} -body {
+    t {throw a}
+} -returnCodes error -result {wrong # args: should be "throw code msg"}
+
+test try-api-7.1 {throw, wrong # args, too many} -body {
+    t {throw a b c}
+} -returnCodes error -result {wrong # args: should be "throw code msg"}
+
+test try-api-7.2 {throw, error code and message} -body {
+    t {
+	list [catch {throw {MYERROR CODE} "My error message"} m o] $m \
+	    [dict get $o -errorcode]
+    }
+} -cleanup {
+    t {unset m o}
+} -result {1 {My error message} {MYERROR CODE}}
+
+test try-api-7.3 {throw, sets errorCode} -body {
+    t {
+	catch {throw {A B} msg}
+	set ::errorCode
+    }
+} -result {A B}
+
+test try-api-7.4 {throw, caught by trap} -body {
+    t {try {throw {A B C} msg} trap {A B} {r o} {list $r [dict get $o -errorcode]}}
+} -cleanup {
+    t {unset r o}
+} -result {msg {A B C}}
+
+test try-api-7.5 {throw, error info} -body {
+    t {
+	catch {throw {A} msg} m o
+	dict get $o -errorinfo
+    }
+} -cleanup {
+    t {unset m o}
+} -result {msg
+    while executing
+"throw {A} msg"}
+
+# -------------------------------------------------------------------------
+
+interp delete ti
+rename t {}
+unset tryFile throwFile
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
