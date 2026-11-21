@@ -1,0 +1,623 @@
+# -*- tcl -*-
+# oauth-api.test:  tests for the documented API of the oauth package.
+#
+# The real tls package is not needed: oauth only uses it to register
+# the https scheme with http.  If it is not installed, a stub package is
+# provided so that the package can be loaded.  All requests go to a
+# local plain HTTP server on 127.0.0.1.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+if {[catch {package require tls}]} {
+    namespace eval ::tls {
+	proc socket {args} {
+	    return -code error "tls stub: no TLS support"
+	}
+    }
+    package provide tls 0.0
+}
+
+support {
+    use sha1/sha1.tcl     sha1
+    use base64/base64.tcl base64
+}
+testing {
+    useLocal oauth.tcl oauth
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Save and restore the global configuration around tests.
+proc saveConfig {} {
+    set ::savedConfig [oauth::config]
+}
+proc restoreConfig {} {
+    oauth::config {*}$::savedConfig
+    unset ::savedConfig
+}
+
+# Make nonce and timestamp predictable.  oauth::header calls
+# "sha1::sha1" and "clock" relative to ::oauth, so commands in the
+# namespace ::oauth take precedence over the global ones.
+proc fixNonceTime {nonce timestamp} {
+    namespace eval ::oauth::sha1 [list proc sha1 {args} [list return $nonce]]
+    proc ::oauth::clock {args} [list return $timestamp]
+}
+proc unfixNonceTime {} {
+    namespace delete ::oauth::sha1
+    rename ::oauth::clock {}
+}
+
+# The example from the Twitter developer documentation ("Creating a
+# signature"), also used in the comments of oauth.tcl.
+proc twitterConfig {} {
+    oauth::config \
+	-consumerkey       xvz1evFS4wEEPTGEFPHBog \
+	-consumersecret    kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw \
+	-accesstoken       370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb \
+	-accesstokensecret LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE \
+	-signmethod        HMAC-SHA1 \
+	-oauthversion      1.0 \
+	-debug             0
+    fixNonceTime kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg 1318622958
+}
+set twitterURL   https://api.twitter.com/1.1/statuses/update.json
+set twitterQuery "include_entities=true&status=Hello%20Ladies%20%2B%20Gentlemen%2C%20a%20signed%20OAuth%20request%21"
+
+# Parse the result of oauth::header into a dict of oauth_* parameters.
+proc headerParams {header} {
+    set value [lindex $header 1]
+    if {![string match "OAuth *" $value]} {
+	return -code error "bad header value: $value"
+    }
+    set result {}
+    foreach item [split [string range $value 6 end] ,] {
+	set item [string trim $item]
+	regexp {^([^=]+)="(.*)"$} $item -> k v
+	dict set result $k $v
+    }
+    return $result
+}
+
+# A minimal local HTTP server recording the last request.
+proc srvAccept {chan addr port} {
+    fconfigure $chan -translation {auto crlf} -blocking 0
+    set ::srv(state,$chan) {}
+    set ::srv(headers,$chan) {}
+    fileevent $chan readable [list srvRead $chan]
+}
+proc srvRead {chan} {
+    if {$::srv(state,$chan) eq "body"} {
+	append ::srv(body,$chan) [read $chan]
+	if {[string length $::srv(body,$chan)] >= $::srv(length,$chan)} {
+	    srvReply $chan
+	}
+	return
+    }
+    while {[gets $chan line] >= 0} {
+	if {$::srv(state,$chan) eq ""} {
+	    set ::srv(request) $line
+	    set ::srv(state,$chan) headers
+	} elseif {$line ne ""} {
+	    regexp {^([^:]+):\s*(.*)$} $line -> k v
+	    lappend ::srv(headers,$chan) [string tolower $k] $v
+	} else {
+	    set ::srv(length,$chan) 0
+	    if {[dict exists $::srv(headers,$chan) content-length]} {
+		set ::srv(length,$chan) \
+		    [dict get $::srv(headers,$chan) content-length]
+	    }
+	    set ::srv(state,$chan) body
+	    set ::srv(body,$chan) ""
+	    fconfigure $chan -translation binary
+	    srvRead $chan
+	    return
+	}
+    }
+    if {[eof $chan]} {
+	srvClose $chan
+    }
+}
+proc srvReply {chan} {
+    set ::srv(headers) $::srv(headers,$chan)
+    set ::srv(body) $::srv(body,$chan)
+    set data {{"ok":true}}
+    puts -nonewline $chan "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nX-Rate-Limit-Remaining: 99\r\nContent-Length: [string length $data]\r\nConnection: close\r\n\r\n$data"
+    srvClose $chan
+}
+proc srvClose {chan} {
+    catch {close $chan}
+    array unset ::srv *,$chan
+}
+proc startServer {} {
+    array unset ::srv
+    set ::srv(sock) [socket -server srvAccept -myaddr 127.0.0.1 0]
+    return [lindex [fconfigure $::srv(sock) -sockname] 2]
+}
+proc stopServer {} {
+    foreach chan [array names ::srv state,*] {
+	srvClose [string range $chan 6 end]
+    }
+    close $::srv(sock)
+    array unset ::srv
+}
+
+# -------------------------------------------------------------------------
+# oauth::config
+
+test oauth-api-1.0 {config, no arguments, returns all documented options} -body {
+    set result {}
+    set conf [oauth::config]
+    foreach opt {
+	-accesstoken -accesstokensecret -consumerkey -consumersecret -debug
+	-oauthversion -proxyhost -proxyport -signmethod -timeout -urlencoding
+    } {
+	lappend result $opt [dict exists $conf $opt]
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result conf opt
+} -result {-accesstoken 1 -accesstokensecret 1 -consumerkey 1 -consumersecret 1 -debug 1 -oauthversion 1 -proxyhost 1 -proxyport 1 -signmethod 1 -timeout 1 -urlencoding 1}
+
+test oauth-api-1.1 {config, documented defaults} -body {
+    set conf [oauth::config]
+    list [dict get $conf -debug] [dict get $conf -oauthversion] \
+	[dict get $conf -signmethod] [dict get $conf -timeout] \
+	[dict get $conf -urlencoding] [dict get $conf -proxyhost] \
+	[dict get $conf -proxyport]
+} -cleanup {
+    unset -nocomplain conf
+} -result {0 1.0 HMAC-SHA1 6000 utf-8 {} {}}
+
+test oauth-api-1.2 {config, result is a dictionary} -body {
+    expr {[dict size [oauth::config]] == [llength [oauth::config]] / 2}
+} -result 1
+
+test oauth-api-1.3 {config, set options, returns the full configuration} -setup {
+    saveConfig
+} -body {
+    set conf [oauth::config -consumerkey ck -consumersecret cs \
+		  -accesstoken at -accesstokensecret ats]
+    list [dict get $conf -consumerkey] [dict get $conf -consumersecret] \
+	[dict get $conf -accesstoken] [dict get $conf -accesstokensecret] \
+	[expr {[dict size $conf] == [dict size $::savedConfig]}]
+} -cleanup {
+    restoreConfig
+    unset -nocomplain conf
+} -result {ck cs at ats 1}
+
+test oauth-api-1.4 {config, settings persist} -setup {
+    saveConfig
+} -body {
+    oauth::config -timeout 1234 -proxyhost proxy.example -proxyport 3128
+    set conf [oauth::config]
+    list [dict get $conf -timeout] [dict get $conf -proxyhost] \
+	[dict get $conf -proxyport]
+} -cleanup {
+    restoreConfig
+    unset -nocomplain conf
+} -result {1234 proxy.example 3128}
+
+test oauth-api-1.5 {config, every documented option can be set} -setup {
+    saveConfig
+} -body {
+    set result {}
+    foreach opt {
+	-accesstoken -accesstokensecret -consumerkey -consumersecret -debug
+	-oauthversion -proxyhost -proxyport -signmethod -timeout -urlencoding
+    } {
+	lappend result [dict get [oauth::config $opt value$opt] $opt]
+    }
+    set result
+} -cleanup {
+    restoreConfig
+    unset -nocomplain result opt
+} -result {value-accesstoken value-accesstokensecret value-consumerkey value-consumersecret value-debug value-oauthversion value-proxyhost value-proxyport value-signmethod value-timeout value-urlencoding}
+
+test oauth-api-1.6 {config, the last value of a repeated option wins} -setup {
+    saveConfig
+} -body {
+    dict get [oauth::config -timeout 1 -timeout 2] -timeout
+} -cleanup {
+    restoreConfig
+} -result 2
+
+test oauth-api-1.7 {config, unknown option} -body {
+    oauth::config -bogus 1
+} -returnCodes error -match glob -result {Unknown option "-bogus", must be: *-consumerkey*}
+
+test oauth-api-1.8 {config, unknown option, error code} -body {
+    catch {oauth::config -bogus 1} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    unset -nocomplain msg opts
+} -result {OAUTH BAD OPTION}
+
+test oauth-api-1.9 {config, unknown option leaves configuration unchanged} -setup {
+    saveConfig
+} -body {
+    catch {oauth::config -timeout 1 -bogus 1}
+    catch {oauth::config -bogus 1 -timeout 2}
+    dict get [oauth::config] -timeout
+} -cleanup {
+    restoreConfig
+} -result 1
+
+# -------------------------------------------------------------------------
+# oauth::header
+
+test oauth-api-2.0 {header, wrong # args} -body {
+    oauth::header
+} -returnCodes error -result {wrong # args: should be "oauth::header baseURL ?postQuery?"}
+
+test oauth-api-2.1 {header, wrong # args} -body {
+    oauth::header a b c
+} -returnCodes error -result {wrong # args: should be "oauth::header baseURL ?postQuery?"}
+
+test oauth-api-2.2 {header, missing consumer key} -setup {
+    saveConfig
+    oauth::config -consumerkey {} -accesstoken at
+} -body {
+    catch {oauth::header http://example.com/} msg opts
+    list $msg [dict get $opts -errorcode]
+} -cleanup {
+    restoreConfig
+    unset -nocomplain msg opts
+} -result {{ERROR: please define your consumer key. ::oauth::config -consumerkey <...>} {OAUTH BAD CONSUMER-KEY}}
+
+test oauth-api-2.3 {header, missing access token} -setup {
+    saveConfig
+    oauth::config -consumerkey ck -accesstoken {}
+} -body {
+    catch {oauth::header http://example.com/} msg opts
+    list $msg [dict get $opts -errorcode]
+} -cleanup {
+    restoreConfig
+    unset -nocomplain msg opts
+} -result {{ERROR: please define your app's access token. ::oauth::config -accesstoken <...>} {OAUTH BAD ACCESS-TOKEN}}
+
+test oauth-api-2.4 {header, empty signature method} -setup {
+    saveConfig
+    oauth::config -consumerkey ck -accesstoken at -signmethod {}
+} -body {
+    catch {oauth::header http://example.com/} msg opts
+    list $msg [dict get $opts -errorcode]
+} -cleanup {
+    restoreConfig
+    unset -nocomplain msg opts
+} -result {{ERROR: invalid argument for -signmethod.} {OAUTH BAD SIGN-METHOD}}
+
+test oauth-api-2.5 {header, unsupported OAuth version} -setup {
+    saveConfig
+    oauth::config -consumerkey ck -accesstoken at -oauthversion 2.0
+} -body {
+    catch {oauth::header http://example.com/} msg opts
+    list $msg [dict get $opts -errorcode]
+} -cleanup {
+    restoreConfig
+    unset -nocomplain msg opts
+} -result {{ERROR: this script only supports oauth_version 1.0} {OAUTH BAD OAUTH-VERSION}}
+
+test oauth-api-2.6 {header, result is an Authorization header name/value pair} -setup {
+    saveConfig
+    twitterConfig
+} -body {
+    set h [oauth::header $twitterURL $twitterQuery]
+    list [llength $h] [lindex $h 0] [string range [lindex $h 1] 0 5]
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain h
+} -result {2 Authorization {OAuth }}
+
+test oauth-api-2.7 {header, POST, signature of the Twitter documentation example} -setup {
+    saveConfig
+    twitterConfig
+} -body {
+    headerParams [oauth::header $twitterURL $twitterQuery]
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+} -result {oauth_consumer_key xvz1evFS4wEEPTGEFPHBog oauth_nonce kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg oauth_signature hCtSmYh%2BiHYCEqBWrE7C7hYmtUk%3D oauth_signature_method HMAC-SHA1 oauth_timestamp 1318622958 oauth_token 370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb oauth_version 1.0}
+
+test oauth-api-2.8 {header, parameters are sorted and quoted} -setup {
+    saveConfig
+    twitterConfig
+} -body {
+    lindex [oauth::header $twitterURL $twitterQuery] 1
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+} -result {OAuth oauth_consumer_key="xvz1evFS4wEEPTGEFPHBog", oauth_nonce="kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg", oauth_signature="hCtSmYh%2BiHYCEqBWrE7C7hYmtUk%3D", oauth_signature_method="HMAC-SHA1", oauth_timestamp="1318622958", oauth_token="370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb", oauth_version="1.0"}
+
+test oauth-api-2.9 {header, -debug prints the signature base string} -setup {
+    saveConfig
+    twitterConfig
+    oauth::config -debug 1
+} -body {
+    oauth::header $twitterURL $twitterQuery
+    return
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+} -output {oauth::header: Authorization Oauth
+	oauth_consumer_key=xvz1evFS4wEEPTGEFPHBog
+	oauth_nonce=kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg
+	oauth_signature_method=HMAC-SHA1
+	oauth_timestamp=1318622958
+	oauth_token=370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb
+	oauth_version=1.0
+
+BaseString: POST&https%3A%2F%2Fapi.twitter.com%2F1.1%2Fstatuses%2Fupdate.json&include_entities%3Dtrue%26oauth_consumer_key%3Dxvz1evFS4wEEPTGEFPHBog%26oauth_nonce%3DkYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1318622958%26oauth_token%3D370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb%26oauth_version%3D1.0%26status%3DHello%2520Ladies%2520%252B%2520Gentlemen%252C%2520a%2520signed%2520OAuth%2520request%2521
+}
+
+test oauth-api-2.10 {header, -debug off prints nothing} -setup {
+    saveConfig
+    twitterConfig
+} -body {
+    oauth::header $twitterURL $twitterQuery
+    return
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+} -output {}
+
+# oauth::Split uses its separator in a regexp unquoted, so "?" is a
+# quantifier there and the "?" stays at the start of the query string,
+# which ends up in the signature base string as "%3Fscreen_name".
+test oauth-api-2.11 {header, GET, query string of the URL is signed} -constraints knownBug -setup {
+    saveConfig
+    twitterConfig
+    oauth::config -debug 1
+} -body {
+    oauth::header {https://api.twitter.com/1.1/users/lookup.json?screen_name=AbiertaMente}
+    return
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+} -match glob -output {*
+BaseString: GET&https%3A%2F%2Fapi.twitter.com%2F1.1%2Fusers%2Flookup.json&oauth_consumer_key%3Dxvz1evFS4wEEPTGEFPHBog%26*%26oauth_version%3D1.0%26screen_name%3DAbiertaMente
+}
+
+test oauth-api-2.12 {header, GET and POST of the same parameters differ} -setup {
+    saveConfig
+    twitterConfig
+} -body {
+    set get [dict get [headerParams [oauth::header http://example.com/x?a=1]] oauth_signature]
+    set post [dict get [headerParams [oauth::header http://example.com/x a=1]] oauth_signature]
+    expr {$get ne $post}
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain get post
+} -result 1
+
+test oauth-api-2.13 {header, signature depends on the secrets} -setup {
+    saveConfig
+    twitterConfig
+} -body {
+    set s1 [dict get [headerParams [oauth::header $twitterURL $twitterQuery]] oauth_signature]
+    oauth::config -consumersecret other
+    set s2 [dict get [headerParams [oauth::header $twitterURL $twitterQuery]] oauth_signature]
+    oauth::config -accesstokensecret other
+    set s3 [dict get [headerParams [oauth::header $twitterURL $twitterQuery]] oauth_signature]
+    list [expr {$s1 ne $s2}] [expr {$s2 ne $s3}] [expr {$s1 ne $s3}]
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain s1 s2 s3
+} -result {1 1 1}
+
+test oauth-api-2.14 {header, works without secrets} -setup {
+    saveConfig
+    twitterConfig
+    oauth::config -consumersecret {} -accesstokensecret {}
+} -body {
+    dict get [headerParams [oauth::header http://example.com/]] oauth_token
+} -cleanup {
+    unfixNonceTime
+    restoreConfig
+} -result 370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb
+
+test oauth-api-2.15 {header, fresh nonce and current timestamp} -setup {
+    saveConfig
+    oauth::config -consumerkey ck -accesstoken at
+} -body {
+    set before [clock seconds]
+    set p [headerParams [oauth::header http://example.com/]]
+    set after [clock seconds]
+    list [regexp {^[0-9a-f]{40}$} [dict get $p oauth_nonce]] \
+	[expr {$before <= [dict get $p oauth_timestamp] &&
+	       [dict get $p oauth_timestamp] <= $after}]
+} -cleanup {
+    restoreConfig
+    unset -nocomplain before after p
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# oauth::query
+
+test oauth-api-3.0 {query, wrong # args} -body {
+    oauth::query
+} -returnCodes error -result {wrong # args: should be "oauth::query baseURL ?postQuery?"}
+
+test oauth-api-3.1 {query, wrong # args} -body {
+    oauth::query a b c
+} -returnCodes error -result {wrong # args: should be "oauth::query baseURL ?postQuery?"}
+
+foreach {n opt code} {
+    2 -consumerkey       CONSUMER-KEY
+    3 -consumersecret    CONSUMER-SECRET
+    4 -accesstoken       ACCESS-TOKEN
+    5 -accesstokensecret ACCESS-TOKEN-SECRET
+} {
+    test oauth-api-3.$n "query, missing $opt" -setup {
+	saveConfig
+	oauth::config -consumerkey ck -consumersecret cs \
+	    -accesstoken at -accesstokensecret ats
+	oauth::config $opt {}
+    } -body {
+	catch {oauth::query http://127.0.0.1:1/} msg opts
+	list $msg [dict get $opts -errorcode]
+    } -cleanup {
+	restoreConfig
+	unset -nocomplain msg opts
+    } -match glob -result [list "ERROR: please define your * ::oauth::config $opt <...>" [list OAUTH BAD $code]]
+}
+
+test oauth-api-3.6 {query, POST request with Authorization header and body} -setup {
+    saveConfig
+    twitterConfig
+    unfixNonceTime
+    set port [startServer]
+} -body {
+    set res [oauth::query http://127.0.0.1:$port/1.1/statuses/update.json \
+		 $twitterQuery]
+    set p [headerParams [list Authorization [dict get $::srv(headers) authorization]]]
+    list $::srv(request) $::srv(body) [lindex $res 1] \
+	[dict get $p oauth_consumer_key] [dict get $p oauth_token] \
+	[dict get $p oauth_signature_method] [dict get $p oauth_version]
+} -cleanup {
+    stopServer
+    restoreConfig
+    unset -nocomplain port res p
+} -result [list {POST /1.1/statuses/update.json HTTP/1.1} $twitterQuery {{"ok":true}} xvz1evFS4wEEPTGEFPHBog 370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb HMAC-SHA1 1.0]
+
+test oauth-api-3.7 {query, POST request is signed as by header} -setup {
+    saveConfig
+    twitterConfig
+    set port [startServer]
+} -body {
+    set url http://127.0.0.1:$port/1.1/statuses/update.json
+    oauth::query $url $twitterQuery
+    expr {[dict get $::srv(headers) authorization] eq
+	  [lindex [oauth::header $url $twitterQuery] 1]}
+} -cleanup {
+    stopServer
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain port url
+} -result 1
+
+test oauth-api-3.8 {query, GET request without query string} -setup {
+    saveConfig
+    twitterConfig
+    set port [startServer]
+} -body {
+    set url http://127.0.0.1:$port/1.1/account/settings.json
+    set res [oauth::query $url]
+    list $::srv(request) $::srv(body) [lindex $res 1] \
+	[expr {[dict get $::srv(headers) authorization] eq
+	       [lindex [oauth::header $url] 1]}]
+} -cleanup {
+    stopServer
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain port url res
+} -result {{GET /1.1/account/settings.json HTTP/1.1} {} {{"ok":true}} 1}
+
+test oauth-api-3.9 {query, GET request with query string} -setup {
+    saveConfig
+    twitterConfig
+    set port [startServer]
+} -body {
+    set url http://127.0.0.1:$port/1.1/users/lookup.json?screen_name=AbiertaMente
+    set res [oauth::query $url]
+    list $::srv(request) $::srv(body) [lindex $res 1]
+} -cleanup {
+    stopServer
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain port url res
+} -result {{GET /1.1/users/lookup.json?screen_name=AbiertaMente HTTP/1.1} {} {{"ok":true}}}
+
+# oauth::query passes the URL with the query string appended (again)
+# and the query string to oauth::header, so a GET request with a query
+# string is signed as a POST request and the signature is wrong.
+test oauth-api-3.10 {query, GET request with query string is signed as by header} -setup {
+    saveConfig
+    twitterConfig
+    set port [startServer]
+} -constraints knownBug -body {
+    set url http://127.0.0.1:$port/1.1/users/lookup.json?screen_name=AbiertaMente
+    oauth::query $url
+    expr {[dict get $::srv(headers) authorization] eq
+	  [lindex [oauth::header $url] 1]}
+} -cleanup {
+    stopServer
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain port url
+} -result 1
+
+test oauth-api-3.11 {query, -useragent is sent} -setup {
+    saveConfig
+    twitterConfig
+    set port [startServer]
+} -body {
+    oauth::query http://127.0.0.1:$port/
+    string match *oauth/* [dict get $::srv(headers) user-agent]
+} -cleanup {
+    stopServer
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain port
+} -result 1
+
+test oauth-api-3.12 {query, result is a list of 2 elements} -setup {
+    saveConfig
+    twitterConfig
+    set port [startServer]
+} -body {
+    llength [oauth::query http://127.0.0.1:$port/]
+} -cleanup {
+    stopServer
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain port
+} -result 2
+
+# The first element is documented as a dictionary of the HTTP response
+# header, but it is a list of the names of the http state array.
+test oauth-api-3.13 {query, first element is a dictionary of the response header} -setup {
+    saveConfig
+    twitterConfig
+    set port [startServer]
+} -constraints knownBug -body {
+    set res [oauth::query http://127.0.0.1:$port/]
+    set hdr [dict create]
+    dict for {k v} [lindex $res 0] {
+	dict set hdr [string tolower $k] $v
+    }
+    dict get $hdr x-rate-limit-remaining
+} -cleanup {
+    stopServer
+    unfixNonceTime
+    restoreConfig
+    unset -nocomplain port res hdr k v
+} -result 99
+
+# -------------------------------------------------------------------------
+rename saveConfig {}
+rename restoreConfig {}
+rename fixNonceTime {}
+rename unfixNonceTime {}
+rename twitterConfig {}
+rename headerParams {}
+foreach p {srvAccept srvRead srvReply srvClose startServer stopServer} {
+    rename $p {}
+}
+unset -nocomplain p twitterURL twitterQuery
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
