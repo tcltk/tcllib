@@ -16,7 +16,7 @@
     arithmetic on roman numerals.
   [para]
     This code was originally harvested from the Tcler's wiki at
-    http://wiki.tcl.tk/1823 and as such is free for any use for
+    https://wiki.tcl-lang.org/1823 and as such is free for any use for
     any purpose. Many thanks to the ingeneous folk who devised
     these clever routines and generously contributed them to the
     Tcl community.

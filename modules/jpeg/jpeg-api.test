@@ -1,0 +1,440 @@
+# -*- tcl -*-
+# jpeg-api.test: tests for the documented API of the jpeg package,
+# complementing jpeg.test.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal jpeg.tcl jpeg
+}
+
+# -------------------------------------------------------------------------
+
+proc markerTypes {file} {
+    set fh [open $file rb]
+    seek $fh 2 start
+    set res {}
+    foreach m [::jpeg::markers $fh] {lappend res [lindex $m 0]}
+    close $fh
+    return $res
+}
+
+proc copyAsset {name} {
+    set fx [makeFile {} jpeg-api.jpg]
+    file copy -force [asset $name] $fx
+    return $fx
+}
+
+# -------------------------------------------------------------------------
+# ::jpeg::isJPEG
+
+test jpeg-api-1.0 {isJPEG, missing file} -body {
+    ::jpeg::isJPEG [file join [temporaryDirectory] jpeg-api.none]
+} -result 0
+
+test jpeg-api-1.1 {isJPEG, empty file} -setup {
+    set fx [makeFile {} jpeg-api.jpg]
+    close [open $fx w]
+} -body {
+    ::jpeg::isJPEG $fx
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result 0
+
+test jpeg-api-1.2 {isJPEG, thumbnail data without JFIF/EXIF header} -body {
+    ::jpeg::isJPEG [asset IMG_7898.JPG.thumb]
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::jpeg::imageInfo, ::jpeg::dimensions
+
+test jpeg-api-2.0 {imageInfo, no JFIF segment} -body {
+    ::jpeg::imageInfo [asset IMG_7898.JPG.thumb]
+} -result {}
+
+test jpeg-api-2.1 {imageInfo, keys} -body {
+    dict keys [::jpeg::imageInfo [asset IMG_7950_none.JPG]]
+} -result {version units xdensity ydensity xthumb ythumb}
+
+test jpeg-api-2.2 {dimensions, thumbnail data} -body {
+    ::jpeg::dimensions [asset IMG_7898.JPG.thumb]
+} -result {160 120}
+
+test jpeg-api-2.3 {dimensions, missing file} -body {
+    ::jpeg::dimensions [file join [temporaryDirectory] jpeg-api.none]
+} -returnCodes error -match glob -result {couldn't open "*jpeg-api.none": no such file or directory}
+
+# -------------------------------------------------------------------------
+# ::jpeg::getThumbnail
+
+test jpeg-api-3.0 {getThumbnail, thumbnail is a JPEG image} -setup {
+    set fx [makeFile {} jpeg-api.thumb]
+} -body {
+    set fh [open $fx wb]
+    puts -nonewline $fh [::jpeg::getThumbnail [asset IMG_7898.JPG]]
+    close $fh
+    list [::jpeg::isJPEG $fx] [::jpeg::dimensions $fx]
+} -cleanup {
+    removeFile $fx
+    unset -nocomplain fx fh
+} -result {1 {160 120}}
+
+test jpeg-api-3.1 {getThumbnail, no thumbnail} -body {
+    ::jpeg::getThumbnail [asset IMG_7950_none.JPG]
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::jpeg::getExifFromChannel
+
+test jpeg-api-4.0 {getExifFromChannel, main section, same as getExif} -setup {
+    set fh [open [asset IMG_7898.JPG] rb]
+    seek $fh 2 start
+} -body {
+    string equal [::jpeg::getExifFromChannel $fh] [::jpeg::getExif [asset IMG_7898.JPG]]
+} -cleanup {
+    close $fh
+    unset fh
+} -result 1
+
+test jpeg-api-4.1 {getExifFromChannel, explicit main section} -setup {
+    set fh [open [asset IMG_7898.JPG] rb]
+    seek $fh 2 start
+} -body {
+    string equal [::jpeg::getExifFromChannel $fh main] [::jpeg::getExif [asset IMG_7898.JPG] main]
+} -cleanup {
+    close $fh
+    unset fh
+} -result 1
+
+test jpeg-api-4.2 {getExifFromChannel, thumbnail section, same as getExif} -setup {
+    set fh [open [asset IMG_7898.JPG] rb]
+    seek $fh 2 start
+} -body {
+    string equal [::jpeg::getExifFromChannel $fh thumbnail] \
+	[::jpeg::getExif [asset IMG_7898.JPG] thumbnail]
+} -cleanup {
+    close $fh
+    unset fh
+} -result 1
+
+test jpeg-api-4.3 {getExifFromChannel, channel is not closed} -setup {
+    set fh [open [asset IMG_7898.JPG] rb]
+    seek $fh 2 start
+} -body {
+    ::jpeg::getExifFromChannel $fh
+    expr {$fh in [file channels]}
+} -cleanup {
+    close $fh
+    unset fh
+} -result 1
+
+test jpeg-api-4.4 {getExifFromChannel, no EXIF data} -setup {
+    set fh [open [asset IMG_7950_none.JPG] rb]
+    seek $fh 2 start
+} -body {
+    ::jpeg::getExifFromChannel $fh
+} -cleanup {
+    close $fh
+    unset fh
+} -result {}
+
+test jpeg-api-4.5 {getExifFromChannel, values} -setup {
+    set fh [open [asset IMG_7898.JPG] rb]
+    seek $fh 2 start
+} -body {
+    array set exif [::jpeg::getExifFromChannel $fh]
+    list $exif(Make) $exif(Model) $exif(DateTime)
+} -cleanup {
+    close $fh
+    unset fh exif
+} -result {Canon {Canon PowerShot S5 IS} {2008:03:14 15:40:06}}
+
+# The documentation says that the parser expects the start of the
+# channel to be the start of the image data, but a channel positioned
+# at the start of the file (on the SOI marker) yields no EXIF data:
+# the command expects the channel to be positioned after the SOI marker.
+test jpeg-api-4.6 {getExifFromChannel, channel at the start of the image} -constraints {
+    knownBug
+} -setup {
+    set fh [open [asset IMG_7898.JPG] rb]
+} -body {
+    string equal [::jpeg::getExifFromChannel $fh] [::jpeg::getExif [asset IMG_7898.JPG]]
+} -cleanup {
+    close $fh
+    unset fh
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::jpeg::formatExif
+
+test jpeg-api-5.0 {formatExif, empty list} -body {
+    ::jpeg::formatExif {}
+} -result {}
+
+test jpeg-api-5.1 {formatExif, single key, enumerated values} -body {
+    list [::jpeg::formatExif {Orientation 1}] [::jpeg::formatExif {MeteringMode 5}] \
+	[::jpeg::formatExif {ColorSpace 1}] [::jpeg::formatExif {Flash 0}] \
+	[::jpeg::formatExif {ResolutionUnit 2}]
+} -result {{Orientation normal} {MeteringMode multi-segment} {ColorSpace sRGB} {Flash {no flash}} {ResolutionUnit inch}}
+
+test jpeg-api-5.2 {formatExif, unknown keys are passed through} -body {
+    ::jpeg::formatExif {Foo bar 0110 {some value}}
+} -result {Foo bar 0110 {some value}}
+
+test jpeg-api-5.3 {formatExif, numeric values} -body {
+    ::jpeg::formatExif {FNumber 4 ExposureTime 0.004 ShutterSpeedValue 5.90625 ExifVersion 0220}
+} -result {FNumber 4.0 ExposureTime 1/250 ShutterSpeedValue 1/60 ExifVersion 2.2}
+
+test jpeg-api-5.4 {formatExif, ComponentsConfiguration} -body {
+    ::jpeg::formatExif [list ComponentsConfiguration \1\2\3\0]
+} -result {ComponentsConfiguration 1,2,3,0}
+
+test jpeg-api-5.5 {formatExif, UserComment} -body {
+    ::jpeg::formatExif [list UserComment "ASCII\0\0\0hello\0\0"]
+} -result {UserComment hello}
+
+test jpeg-api-5.6 {formatExif, manpage example with MaxApertureValue} -body {
+    array set exif [::jpeg::getExif [asset IMG_7898.JPG]]
+    ::jpeg::formatExif [list MaxApertureValue $exif(MaxApertureValue)]
+} -cleanup {
+    unset exif
+} -result {MaxApertureValue 3.0}
+
+test jpeg-api-5.7 {formatExif, keys and order are preserved} -body {
+    set exif [::jpeg::getExif [asset IMG_7898.JPG]]
+    string equal [dict keys $exif] [dict keys [::jpeg::formatExif $exif]]
+} -cleanup {
+    unset exif
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::jpeg::removeExif
+
+test jpeg-api-6.0 {removeExif, keeps the JFIF segment and image} -setup {
+    set fx [copyAsset IMG_7898.JPG]
+} -body {
+    ::jpeg::removeExif $fx
+    list [markerTypes $fx] [::jpeg::imageInfo $fx] [::jpeg::dimensions $fx]
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result {{e0 db db c0 c4 c4 c4 c4 da} {version 1.1 units 1 xdensity 180 ydensity 180 xthumb 0 ythumb 0} {320 240}}
+
+test jpeg-api-6.1 {removeExif, adds a JFIF segment if there is none} -setup {
+    set fx [copyAsset IMG_7898.JPG]
+    # Build an EXIF-only file: drop the JFIF APP0 segment.
+    set fh [open $fx rb]
+    set data [read $fh]
+    close $fh
+    binary scan $data @4S len
+    set fh [open $fx wb]
+    puts -nonewline $fh [string range $data 0 1][string range $data [expr {4 + $len}] end]
+    close $fh
+} -body {
+    set before [markerTypes $fx]
+    ::jpeg::removeExif $fx
+    list $before [markerTypes $fx] [::jpeg::imageInfo $fx] [::jpeg::dimensions $fx]
+} -cleanup {
+    removeFile $fx
+    unset -nocomplain fx fh data len before
+} -result {{e1 db db c0 c4 c4 c4 c4 da} {e0 db db c0 c4 c4 c4 c4 da} {version 1.2 units 1 xdensity 72 ydensity 72 xthumb 0 ythumb 0} {320 240}}
+
+test jpeg-api-6.2 {removeExif, no EXIF data, file unchanged} -setup {
+    set fx [copyAsset IMG_7950_none.JPG]
+} -body {
+    ::jpeg::removeExif $fx
+    list [file size $fx] [markerTypes $fx]
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result [list [file size [asset IMG_7950_none.JPG]] {e0 db db c0 c4 c4 c4 c4 da}]
+
+# -------------------------------------------------------------------------
+# ::jpeg::stripJPEG
+
+test jpeg-api-7.0 {stripJPEG, only the JFIF header and image segments are left} -setup {
+    set fx [copyAsset IMG_7898.JPG]
+    ::jpeg::addComment $fx hello
+} -body {
+    ::jpeg::stripJPEG $fx
+    list [markerTypes $fx] [::jpeg::imageInfo $fx] [::jpeg::dimensions $fx] [::jpeg::getThumbnail $fx]
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result {{e0 db db c0 c4 c4 c4 c4 da} {version 1.1 units 1 xdensity 180 ydensity 180 xthumb 0 ythumb 0} {320 240} {}}
+
+test jpeg-api-7.1 {stripJPEG, file without JFIF header gets one} -setup {
+    set fx [makeFile {} jpeg-api.jpg]
+    file copy -force [asset IMG_7898.JPG.thumb] $fx
+} -body {
+    ::jpeg::stripJPEG $fx
+    list [markerTypes $fx] [::jpeg::imageInfo $fx] [::jpeg::dimensions $fx]
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result {{e0 db c0 c4 da} {version 1.2 units 1 xdensity 72 ydensity 72 xthumb 0 ythumb 0} {160 120}}
+
+# -------------------------------------------------------------------------
+# Comments
+
+test jpeg-api-8.0 {getComments, no comments} -body {
+    ::jpeg::getComments [asset IMG_7898.JPG]
+} -result {}
+
+test jpeg-api-8.1 {addComment, single comment} -setup {
+    set fx [copyAsset IMG_7950_none.JPG]
+} -body {
+    ::jpeg::addComment $fx hello
+    ::jpeg::getComments $fx
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result hello
+
+test jpeg-api-8.2 {addComment, empty comments are skipped} -setup {
+    set fx [copyAsset IMG_7950_none.JPG]
+} -body {
+    ::jpeg::addComment $fx {} one {} two
+    ::jpeg::getComments $fx
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result {one two}
+
+test jpeg-api-8.3 {addComment, comments are added to existing ones} -setup {
+    set fx [copyAsset IMG_7950_none.JPG]
+} -body {
+    ::jpeg::addComment $fx one
+    ::jpeg::addComment $fx two three
+    ::jpeg::getComments $fx
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result {one two three}
+
+test jpeg-api-8.4 {addComment, image is preserved} -setup {
+    set fx [copyAsset IMG_7898.JPG]
+} -body {
+    ::jpeg::addComment $fx hello
+    list [::jpeg::dimensions $fx] [string equal [::jpeg::getExif $fx] [::jpeg::getExif [asset IMG_7898.JPG]]] \
+	[string equal [::jpeg::getThumbnail $fx] [::jpeg::getThumbnail [asset IMG_7898.JPG]]]
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result {{320 240} 1 1}
+
+test jpeg-api-8.5 {replaceComment, no previous comment} -setup {
+    set fx [copyAsset IMG_7950_none.JPG]
+} -body {
+    ::jpeg::replaceComment $fx new
+    ::jpeg::getComments $fx
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result new
+
+test jpeg-api-8.6 {comments with binary data} -setup {
+    set fx [copyAsset IMG_7950_none.JPG]
+} -body {
+    ::jpeg::addComment $fx "a\0b\xff"
+    ::jpeg::getComments $fx
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -result [list "a\0b\xff"]
+
+# -------------------------------------------------------------------------
+# ::jpeg::markers
+
+test jpeg-api-9.0 {markers, wrong # args} -body {
+    ::jpeg::markers
+} -returnCodes error -result [tcltest::wrongNumArgs {::jpeg::markers} {fh} 0]
+
+test jpeg-api-9.1 {markers, list of type, offset and length} -setup {
+    set fh [open [asset IMG_7950_none.JPG] rb]
+    seek $fh 2 start
+} -body {
+    ::jpeg::markers $fh
+} -cleanup {
+    close $fh
+    unset fh
+} -result {{e0 6 14} {db 24 65} {db 93 65} {c0 162 15} {c4 181 29} {c4 214 65} {c4 283 26} {c4 313 58} {da 375 10}}
+
+test jpeg-api-9.2 {markers, offsets point to the segment data} -setup {
+    set fh [open [asset IMG_7950_none.JPG] rb]
+    seek $fh 2 start
+} -body {
+    set m [lindex [::jpeg::markers $fh] 0]
+    seek $fh [lindex $m 1] start
+    read $fh 5
+} -cleanup {
+    close $fh
+    unset fh m
+} -result "JFIF\0"
+
+test jpeg-api-9.3 {markers, not at a marker} -setup {
+    set fh [open [asset IMG_7950_none.JPG] rb]
+    seek $fh 1 start
+} -body {
+    ::jpeg::markers $fh
+} -cleanup {
+    close $fh
+    unset fh
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::jpeg::debug
+
+test jpeg-api-10.0 {debug, JFIF file} -body {
+    ::jpeg::debug [asset IMG_7950_none.JPG]
+} -match glob -output {marker: d8 length: 0
+  SOI (Start Of Image)
+marker: e0 length: 14
+  JFIF
+    Header: 1.1 1 300 300 0 0
+marker: db length: 65
+  DQT (Define Quantization Table)
+*marker: c0 length: 15
+  SOF (Start Of Frame) Baseline
+    Image dimensions: 320 240
+    Precision: 8
+    Color Components: 3
+marker: c4 length: 29
+  DHT (Define Huffman Table)
+*marker: da length: 10
+  SOS (Start Of Scan)
+    Components: 3
+} -result {}
+
+test jpeg-api-10.1 {debug, EXIF data and comments} -setup {
+    set fx [copyAsset IMG_7898.JPG]
+    ::jpeg::addComment $fx hello
+} -body {
+    ::jpeg::debug $fx
+} -cleanup {
+    removeFile $fx
+    unset fx
+} -match glob -output {*marker: e1 length: 11772
+  EXIF data
+    MAIN EXIF
+*    Make Canon
+*    THUMBNAIL EXIF
+*marker: fe length: 5
+  Comment: hello
+*} -result {}
+
+# -------------------------------------------------------------------------
+
+rename markerTypes {}
+rename copyAsset {}
+testsuiteCleanup
+return
