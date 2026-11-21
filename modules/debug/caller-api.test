@@ -1,0 +1,147 @@
+# -*- tcl -*-
+# caller-api.test:  tests for debug::caller (no tests existed before).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal debug.tcl debug
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal caller.tcl debug::caller
+}
+
+tcltest::testConstraint tcloo [llength [info commands ::oo::class]]
+
+# -------------------------------------------------------------------------
+
+test debug-caller-api-1.0 {caller, proc and its arguments} -setup {
+    proc p {a b c} {debug caller}
+} -body {
+    p 1 {2 3} 4
+} -cleanup {
+    rename p {}
+} -result {p 1 {2 3} 4}
+
+test debug-caller-api-1.1 {caller, proc without arguments} -setup {
+    proc p {} {debug caller}
+} -body {
+    p
+} -cleanup {
+    rename p {}
+} -result p
+
+test debug-caller-api-1.2 {caller, excluded arguments replaced by *} -setup {
+    proc p {a b c} {debug caller 0 2}
+} -body {
+    p 1 2 3
+} -cleanup {
+    rename p {}
+} -result {p * 2 *}
+
+test debug-caller-api-1.3 {caller, exclusion order does not matter} -setup {
+    proc p {a b c} {debug caller 2 0}
+} -body {
+    p 1 2 3
+} -cleanup {
+    rename p {}
+} -result {p * 2 *}
+
+test debug-caller-api-1.4 {caller, name as invoked} -setup {
+    namespace eval ::dcapi {proc p {x} {debug caller}}
+} -body {
+    list [::dcapi::p 1] [namespace eval ::dcapi {p 2}]
+} -cleanup {
+    namespace delete ::dcapi
+} -result {{::dcapi::p 1} {p 2}}
+
+test debug-caller-api-1.5 {caller, at global level} -body {
+    uplevel #0 {debug caller}
+} -returnCodes error -result {bad level "-1"}
+
+test debug-caller-api-1.6 {caller, in a tag prefix} -setup {
+    set fd [open [makeFile {} dcapi.log] w]
+    debug on dcapi16
+    debug level dcapi16 1 $fd
+    debug prefix dcapi16 {[debug caller] - }
+    proc p {x} {debug.dcapi16 msg}
+} -body {
+    p 42
+    close $fd
+    viewFile dcapi.log
+} -cleanup {
+    rename p {}
+    removeFile dcapi.log
+    unset fd
+} -result {dcapi16 | p 42 - msg}
+
+# -------------------------------------------------------------------------
+# snit
+
+test debug-caller-api-2.0 {caller, snit method} -setup {
+    snit::type ::dcapiT {
+	method m {x y} {debug caller}
+	method {sub m} {x} {debug caller}
+	typemethod tm {x} {debug caller}
+	typemethod {sub tm} {x} {debug caller}
+	method excl {x y} {debug caller 0}
+    }
+    ::dcapiT create ::dcapiO
+} -body {
+    list [::dcapiO m 1 2] [::dcapiO sub m 3] [::dcapiT tm 4] [::dcapiT sub tm 5] \
+	[::dcapiO excl 6 7]
+} -cleanup {
+    ::dcapiT destroy
+} -result {{::dcapiO m 1 2} {::dcapiO sub m 3} {::dcapiT tm 4} {::dcapiT sub tm 5} {::dcapiO excl * 7}}
+
+test debug-caller-api-2.1 {caller, snit constructor and destructor} -setup {
+    snit::type ::dcapiT {
+	constructor {args} {set ::dcapi(c) [debug caller]}
+	destructor {set ::dcapi(d) [debug caller]}
+    }
+} -body {
+    ::dcapiT create ::dcapiO a b
+    ::dcapiO destroy
+    list $::dcapi(c) $::dcapi(d)
+} -cleanup {
+    ::dcapiT destroy
+    unset ::dcapi
+} -result {{::dcapiO constructor a b} {::dcapiO destructor}}
+
+# -------------------------------------------------------------------------
+# TclOO
+
+test debug-caller-api-3.0 {caller, TclOO method} -constraints tcloo -setup {
+    oo::class create ::dcapiC {
+	method m {x y} {debug caller}
+	method n {x} {my m $x 2}
+    }
+    ::dcapiC create ::dcapiO
+} -body {
+    list [::dcapiO m 1 2] [::dcapiO n 5]
+} -cleanup {
+    ::dcapiC destroy
+} -result {{::dcapiO m 1 2} {::dcapiO m 5 2}}
+
+# Note: for TclOO methods the indices count the method name as argument 0,
+# unlike for snit methods (see 2.0), where 0 is the first method argument.
+test debug-caller-api-3.1 {caller, TclOO method, excluded arguments} -constraints tcloo -setup {
+    oo::class create ::dcapiC {
+	method m {x y} {debug caller 1}
+    }
+    ::dcapiC create ::dcapiO
+} -body {
+    ::dcapiO m 1 2
+} -cleanup {
+    ::dcapiC destroy
+} -result {::dcapiO m * 2}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup

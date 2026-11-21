@@ -1,0 +1,95 @@
+# -*- tcl -*-
+# heartbeat-api.test:  tests for debug::heartbeat not covered by
+# heartbeat.test: turning the heartbeat off, the tag state.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal debug.tcl debug
+}
+testing {
+    useLocal heartbeat.tcl debug::heartbeat
+}
+
+# -------------------------------------------------------------------------
+
+test debug-heartbeat-api-1.0 {heartbeat on activates the tag and schedules a timer} -setup {
+    set fd [open [makeFile {} dhapi.log] w]
+    debug level heartbeat 1 $fd
+} -body {
+    debug heartbeat 10000
+    set timers [after info]
+    list [dict get [debug 2array] heartbeat] [interp alias {} debug.heartbeat] \
+	[expr {$::debug::timer in $timers}]
+} -cleanup {
+    debug heartbeat 0
+    close $fd
+    removeFile dhapi.log
+    unset fd timers
+} -result {1 {::debug::debug heartbeat} 1}
+
+test debug-heartbeat-api-1.1 {heartbeat 0 deactivates the tag and cancels the timer} -setup {
+    set fd [open [makeFile {} dhapi.log] w]
+    debug level heartbeat 1 $fd
+} -body {
+    debug heartbeat 10000
+    set timer $::debug::timer
+    debug heartbeat 0
+    list [dict get [debug 2array] heartbeat] [interp alias {} debug.heartbeat] \
+	[expr {$timer in [after info]}]
+} -cleanup {
+    close $fd
+    removeFile dhapi.log
+    unset fd timer
+} -result {-1 ::debug::noop 0}
+
+test debug-heartbeat-api-1.2 {heartbeat, negative delta turns it off} -setup {
+    set fd [open [makeFile {} dhapi.log] w]
+    debug level heartbeat 1 $fd
+} -body {
+    debug heartbeat 10000
+    debug heartbeat -5
+    interp alias {} debug.heartbeat
+} -cleanup {
+    close $fd
+    removeFile dhapi.log
+    unset fd
+} -result ::debug::noop
+
+test debug-heartbeat-api-1.3 {heartbeat, restart keeps a single timer} -setup {
+    set fd [open [makeFile {} dhapi.log] w]
+    debug level heartbeat 1 $fd
+} -body {
+    set before [llength [after info]]
+    debug heartbeat 10000
+    debug heartbeat 20000
+    expr {[llength [after info]] - $before}
+} -cleanup {
+    debug heartbeat 0
+    close $fd
+    removeFile dhapi.log
+    unset fd before
+} -result 1
+
+test debug-heartbeat-api-1.4 {heartbeat, first beat written immediately} -setup {
+    set fd [open [makeFile {} dhapi.log] w]
+    debug level heartbeat 1 $fd
+} -body {
+    debug heartbeat 10000
+    debug heartbeat 0
+    close $fd
+    regexp {^heartbeat \| \d+ -?\d+$} [viewFile dhapi.log]
+} -cleanup {
+    removeFile dhapi.log
+    unset fd
+} -result 1
+
+# -------------------------------------------------------------------------
+testsuiteCleanup

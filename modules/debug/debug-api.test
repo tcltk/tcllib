@@ -1,0 +1,412 @@
+# -*- tcl -*-
+# debug-api.test:  tests for the debug package (no tests existed before,
+# only for debug::heartbeat).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal debug.tcl debug
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Opens a temporary file for the narrative of the tags, returns the channel.
+proc capture {} {
+    set ::capfile [makeFile {} debugapi.log]
+    return [open $::capfile w]
+}
+
+# Closes the channel and returns what was written into it.
+proc captured {fd} {
+    close $fd
+    set in [open $::capfile r]
+    set data [read $in]
+    close $in
+    removeFile debugapi.log
+    unset ::capfile
+    return $data
+}
+
+proc state {tag} {
+    dict get [debug 2array] $tag
+}
+
+# -------------------------------------------------------------------------
+# define, on, off, names, 2array, level
+
+test debug-api-1.0 {define, unknown tag is inactive} -body {
+    list [debug define t10] [state t10] [interp alias {} debug.t10] \
+	[expr {"t10" in [debug names]}]
+} -result {{} -1 ::debug::noop 1}
+
+test debug-api-1.1 {define, known tag left untouched} -body {
+    debug on t11
+    debug level t11 4
+    debug define t11
+    state t11
+} -result 4
+
+test debug-api-1.2 {on, result and state} -body {
+    list [debug on t12] [state t12] [interp alias {} debug.t12]
+} -result {{} 1 {::debug::debug t12}}
+
+test debug-api-1.3 {off, result and state} -body {
+    debug on t13
+    debug level t13 3
+    list [debug off t13] [state t13] [interp alias {} debug.t13]
+} -result {{} -3 ::debug::noop}
+
+test debug-api-1.4 {names, sorted} -body {
+    debug define t14b
+    debug define t14a
+    set n [debug names]
+    expr {[lsearch -exact $n t14a] < [lsearch -exact $n t14b] && $n eq [lsort $n]}
+} -cleanup {
+    unset n
+} -result 1
+
+test debug-api-1.5 {2array, dictionary sorted by tag} -body {
+    set d [debug 2array]
+    expr {[dict keys $d] eq [lsort [dict keys $d]] && [dict keys $d] eq [debug names]}
+} -cleanup {
+    unset d
+} -result 1
+
+test debug-api-1.6 {level, default 1 for a new tag} -body {
+    debug level t16
+} -result 1
+
+test debug-api-1.7 {level, set and query} -body {
+    list [debug level t17 5] [debug level t17]
+} -result {5 5}
+
+test debug-api-1.8 {level, wrong # args} -body {
+    debug level
+} -returnCodes error -result {wrong # args: should be "debug level tag ?level? ?fd?"}
+
+test debug-api-1.9 {define, wrong # args} -body {
+    debug define
+} -returnCodes error -result {wrong # args: should be "debug define tag"}
+
+test debug-api-1.10 {unknown method} -body {
+    debug foo
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "foo": must be 2array, *}
+
+# -------------------------------------------------------------------------
+# setting
+
+test debug-api-2.0 {setting, pairs, positive activates, negative deactivates} -body {
+    list [debug setting t20a 2 t20b -3] [state t20a] [state t20b] \
+	[interp alias {} debug.t20a] [interp alias {} debug.t20b]
+} -result {{} 2 -3 {::debug::debug t20a} ::debug::noop}
+
+test debug-api-2.1 {setting, single list argument} -body {
+    debug setting {t21a 4 t21b -1}
+    list [state t21a] [state t21b]
+} -result {4 -1}
+
+test debug-api-2.2 {setting, trailing channel} -body {
+    set fd [capture]
+    debug setting t22 1 $fd
+    debug.t22 hello
+    captured $fd
+} -cleanup {
+    unset fd
+} -result "t22 | hello\n"
+
+test debug-api-2.3 {setting, existing tag changed} -body {
+    debug on t23
+    debug setting t23 -2
+    state t23
+} -result -2
+
+# -------------------------------------------------------------------------
+# debug.tag
+
+test debug-api-3.0 {narrative, active tag writes the message} -body {
+    set fd [capture]
+    debug on t30
+    debug level t30 1 $fd
+    debug.t30 hello
+    captured $fd
+} -cleanup {
+    unset fd
+} -result "t30 | hello\n"
+
+test debug-api-3.1 {narrative, inactive tag writes nothing} -body {
+    set fd [capture]
+    debug off t31
+    debug level t31 1 $fd
+    debug.t31 hello
+    captured $fd
+} -cleanup {
+    unset fd
+} -result {}
+
+test debug-api-3.2 {narrative, message level above tag level is suppressed} -body {
+    set fd [capture]
+    debug on t32
+    debug level t32 2 $fd
+    debug.t32 one 1
+    debug.t32 two 2
+    debug.t32 three 3
+    captured $fd
+} -cleanup {
+    unset fd
+} -result "t32 | one\nt32 | two\n"
+
+test debug-api-3.3 {narrative, message substituted in the caller's scope} -setup {
+    proc p {} {
+	set local value
+	debug.t33 {local=$local cmd=[string toupper abc]}
+    }
+} -body {
+    set fd [capture]
+    debug on t33
+    debug level t33 1 $fd
+    p
+    captured $fd
+} -cleanup {
+    rename p {}
+    unset fd
+} -result "t33 | local=value cmd=ABC\n"
+
+test debug-api-3.4 {narrative, message not substituted when suppressed} -body {
+    set ::t34 0
+    debug off t34
+    debug.t34 {[incr ::t34]}
+    debug on t34
+    debug level t34 1
+    debug.t34 {[incr ::t34]} 2
+    set ::t34
+} -cleanup {
+    unset ::t34
+} -result 0
+
+test debug-api-3.5 {narrative, backslashes not substituted} -body {
+    set fd [capture]
+    debug on t35
+    debug level t35 1 $fd
+    debug.t35 {a\tb}
+    captured $fd
+} -cleanup {
+    unset fd
+} -result "t35 | a\\tb\n"
+
+test debug-api-3.6 {narrative, multi-line message} -body {
+    set fd [capture]
+    debug on t36
+    debug level t36 1 $fd
+    debug.t36 "line 1\nline 2"
+    captured $fd
+} -cleanup {
+    unset fd
+} -result "t36 | line 1\nt36 | line 2\n"
+
+test debug-api-3.7 {narrative, nl and tab in the message} -body {
+    set fd [capture]
+    debug on t37
+    debug level t37 1 $fd
+    debug.t37 {a[debug tab]b[debug nl]c}
+    captured $fd
+} -cleanup {
+    unset fd
+} -result "t37 | a\tb\nt37 | c\n"
+
+test debug-api-3.8 {narrative, result is empty} -body {
+    set fd [capture]
+    debug on t38
+    debug level t38 1 $fd
+    list [debug.t38 x] [captured $fd]
+} -cleanup {
+    unset fd
+} -result [list {} "t38 | x\n"]
+
+# -------------------------------------------------------------------------
+# header, trailer, prefix, suffix
+
+test debug-api-4.0 {header and trailer, once per message for each line} -setup {
+    set ::t40 0
+} -body {
+    set fd [capture]
+    debug on t40
+    debug level t40 1 $fd
+    debug header {<[incr ::t40]>}
+    debug trailer {<$::t40>}
+    debug.t40 "a\nb"
+    debug.t40 c
+    captured $fd
+} -cleanup {
+    debug header {}
+    debug trailer {}
+    unset fd ::t40
+} -result "<1>t40 | a<1>\n<1>t40 | b<1>\n<2>t40 | c<2>\n"
+
+# Bug: header and trailer return the empty string (result of [variable]).
+test debug-api-4.1 {header, result is the text} -constraints knownBug -body {
+    debug header HEAD
+} -cleanup {
+    debug header {}
+} -result HEAD
+
+test debug-api-4.2 {trailer, result is the text} -constraints knownBug -body {
+    debug trailer TRAIL
+} -cleanup {
+    debug trailer {}
+} -result TRAIL
+
+test debug-api-4.3 {prefix and suffix, order with global ones} -body {
+    set fd [capture]
+    debug on t43
+    debug level t43 1 $fd
+    list [debug prefix t43 <P>] [debug suffix t43 <S>] \
+	[debug prefix :: <GP>] [debug suffix :: <GS>] \
+	[debug.t43 msg] [captured $fd]
+} -cleanup {
+    debug prefix :: {}
+    debug suffix :: {}
+    unset fd
+} -result [list {} {} {} {} {} "t43 | <GP><P>msg<S><GS>\n"]
+
+test debug-api-4.4 {prefix substituted once per message, before splitting} -setup {
+    set ::t44 0
+} -body {
+    set fd [capture]
+    debug on t44
+    debug level t44 1 $fd
+    debug prefix t44 {#[incr ::t44] }
+    debug.t44 "a\nb"
+    captured $fd
+} -cleanup {
+    unset fd ::t44
+} -result "t44 | #1 a\nt44 | b\n"
+
+test debug-api-4.5 {prefix with caller information} -setup {
+    proc p {x} {debug.t45 {in}}
+} -body {
+    set fd [capture]
+    debug on t45
+    debug level t45 1 $fd
+    debug prefix t45 {[lindex [info level 0] 0]: }
+    p 1
+    captured $fd
+} -cleanup {
+    rename p {}
+    unset fd
+} -result "t45 | p: in\n"
+
+test debug-api-4.6 {prefix, registers unknown tag as inactive} -body {
+    debug prefix t46 X
+    list [state t46] [interp alias {} debug.t46]
+} -result {-1 ::debug::noop}
+
+test debug-api-4.7 {suffix, registers unknown tag as inactive} -body {
+    debug suffix t47 X
+    list [state t47] [interp alias {} debug.t47]
+} -result {-1 ::debug::noop}
+
+test debug-api-4.8 {prefix, known active tag stays active} -body {
+    debug on t48
+    debug prefix t48 X
+    state t48
+} -result 1
+
+test debug-api-4.9 {prefix, default text clears the prefix} -body {
+    set fd [capture]
+    debug on t49
+    debug level t49 1 $fd
+    debug prefix t49 X
+    debug prefix t49
+    debug.t49 msg
+    captured $fd
+} -cleanup {
+    unset fd
+} -result "t49 | msg\n"
+
+# -------------------------------------------------------------------------
+# parray, pdict
+
+test debug-api-5.0 {pdict, aligned, sorted} -body {
+    debug pdict {b 2 aaa {x y} c 3}
+} -result "(aaa) = x y\n(b)   = 2\n(c)   = 3"
+
+test debug-api-5.1 {pdict, empty} -body {
+    debug pdict {}
+} -result {}
+
+test debug-api-5.2 {parray} -setup {
+    array set arr {k1 v1 key2 v2}
+} -body {
+    debug parray arr
+} -cleanup {
+    unset arr
+} -result "(k1)   = v1\n(key2) = v2"
+
+test debug-api-5.3 {parray, array in the caller's scope} -setup {
+    proc p {} {
+	array set local {x 1}
+	debug parray local
+    }
+} -body {
+    p
+} -cleanup {
+    rename p {}
+} -result "(x) = 1"
+
+test debug-api-5.4 {parray, not an array} -body {
+    debug parray nosuch
+} -returnCodes error -result {"nosuch" isn't an array}
+
+test debug-api-5.5 {parray, wrong # args} -body {
+    debug parray
+} -returnCodes error -result {wrong # args: should be "debug parray a ?pattern?"}
+
+# -------------------------------------------------------------------------
+# hexl, nl, tab
+
+test debug-api-6.0 {nl, tab} -body {
+    list [debug nl] [debug tab]
+} -result [list \n \t]
+
+test debug-api-6.1 {hexl, short data} -body {
+    debug hexl "ab\x00\x01~"
+} -result "0000 | 61 62 00 01 7e                                   |ab..~           |\n"
+
+test debug-api-6.2 {hexl, prefix} -body {
+    debug hexl "ab" "> "
+} -result "> 0000 | 61 62                                            |ab              |\n"
+
+test debug-api-6.3 {hexl, more than one line} -body {
+    debug hexl "Hello, World! 0123456789abcdefghABCDEFGH"
+} -result "0000 | 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 20 30 31  |Hello, World! 01|\n0010 | 32 33 34 35 36 37 38 39 61 62 63 64 65 66 67 68  |23456789abcdefgh|\n0020 | 41 42 43 44 45 46 47 48                          |ABCDEFGH        |\n"
+
+# Bug: the ascii column of the last line is not padded when the data
+# length modulo 32 is between 17 and 31.
+test debug-api-6.4 {hexl, last line padded} -constraints knownBug -body {
+    debug hexl "Hello, World! 0123456789"
+} -result "0000 | 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 20 30 31  |Hello, World! 01|\n0010 | 32 33 34 35 36 37 38 39                          |23456789        |\n"
+
+# Bug: data whose length is a multiple of 16 bytes gives an additional
+# empty line.
+test debug-api-6.5 {hexl, exactly one line} -constraints knownBug -body {
+    debug hexl "abcdefghijklmnop"
+} -result "0000 | 61 62 63 64 65 66 67 68 69 6a 6b 6c 6d 6e 6f 70  |abcdefghijklmnop|\n"
+
+test debug-api-6.6 {hexl, wrong # args} -body {
+    debug hexl
+} -returnCodes error -result {wrong # args: should be "debug hexl data ?prefix?"}
+
+# -------------------------------------------------------------------------
+
+rename capture {}
+rename captured {}
+rename state {}
+testsuiteCleanup
