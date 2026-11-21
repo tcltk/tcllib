@@ -159,6 +159,19 @@ test autoproxy-1.2.3 "autoproxy::configure -basic reset (2)" -setup {
     autoproxy::cget -basic
 } -result {}
 
+test autoproxy-1.2.3.1 "autoproxy::configure -basic long credentials not wrapped" -setup {
+    packageReset
+} -body {
+    set user [string repeat u 40]
+    set pass [string repeat p 40]
+    autoproxy::configure -basic -user $user -password $pass
+    set header [lindex [autoproxy::cget -basic] 1]
+    list [string match "Basic *" $header] [string first \n $header] \
+        [expr {[base64::decode [lindex $header 1]] eq "$user:$pass"}]
+} -cleanup {
+    unset -nocomplain user pass header
+} -result {1 -1 1}
+
 test autoproxy-1.2.4.0 "autoproxy::configure -tls_package tls" -setup {
     packageReset
 } -body {

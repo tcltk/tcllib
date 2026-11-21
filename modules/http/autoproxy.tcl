@@ -343,7 +343,8 @@ proc ::autoproxy::configure:basic {arglist} {
         # Store the encoded string to avoid re-encoding all the time.
         set options(basic) [list "Proxy-Authorization" \
                                 [concat "Basic" \
-                                     [base64::encode $opts(user):$opts(passwd)]]]
+                                     [base64::encode -maxlen 0 \
+                                          $opts(user):$opts(passwd)]]]
     }
     return
 }
@@ -578,7 +579,7 @@ proc ::autoproxy::tls_socket {args} {
 
 # -------------------------------------------------------------------------
 
-package provide autoproxy 1.8.1
+package provide autoproxy 1.8.2
 
 # -------------------------------------------------------------------------
 #
