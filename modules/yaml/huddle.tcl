@@ -11,7 +11,7 @@
 # Copyright (c) 2015 Miguel Martínez López <aplicacionamedida@gmail.com>
 
 package require Tcl 8.5 9
-package provide huddle 0.5
+package provide huddle 0.5.1
 
 namespace eval ::huddle {
     namespace export huddle wrap unwrap isHuddle strip_node are_equal_nodes \
@@ -489,9 +489,11 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
     set type [huddle type $huddle_object]
 
     switch -- $type {
-        boolean -
-        number {
+        boolean {
             return [huddle get_stripped $huddle_object]
+        }
+        number {
+            return [JsonNumber [huddle get_stripped $huddle_object]]
         }
 	null {
 	    return null
@@ -541,6 +543,36 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
 	    return [$types(callback:$tag) jsondump $huddle_object $offset $newline $nextoff]
         }
     }
+}
+
+# Convert a Tcl number to a valid JSON number. Numbers which already are
+# valid JSON are returned unchanged. Decimal numbers are normalized
+# textually (to keep all digits; leading zeros are decimal, not octal),
+# other integers (0x.., 0b.., 0o..) and doubles are converted with expr.
+# Infinities and NaN cannot be represented in JSON.
+
+proc ::huddle::JsonNumber {data} {
+    if {[regexp {^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?$} $data]} {
+        return $data
+    }
+    set num [string trim $data]
+    if {[regexp {^([-+]?)([0-9]*)(?:\.([0-9]*))?([eE][-+]?[0-9]+)?$} $num \
+            -> sign int frac exp] && ($int ne "" || $frac ne "")} {
+        if {$sign eq "+"} {set sign ""}
+        set int [string trimleft $int 0]
+        if {$int eq ""} {set int 0}
+        if {$frac ne ""} {append int . $frac}
+        return $sign$int$exp
+    }
+    if {[string is entier -strict $num]} {
+        return [expr {$num}]
+    }
+    if {[string is double -strict $num]
+            && ![catch {expr {double($num)}} num]
+            && ![regexp -nocase {inf|nan} $num]} {
+        return $num
+    }
+    return -code error "Cannot represent \"$data\" as a JSON number"
 }
 
 # data is plain old tcl values

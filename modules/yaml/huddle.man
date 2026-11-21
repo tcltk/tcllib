@@ -1,4 +1,4 @@
-[vset VERSION 0.5]
+[vset VERSION 0.5.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin huddle n [vset VERSION]]
 [see_also yaml]
@@ -189,6 +189,11 @@ Stripped all tags. Converted to normal Tcl's list/dict.
 [call [cmd "huddle jsondump"] [arg object] [opt [arg offset]] [opt [arg newline]] [opt [arg begin_offset]]]
 
 dump a json-stream from the huddle-object.
+Numbers which are not valid JSON numbers (for example [const 007],
+[const +5], [const .5] or [const 0x1F]) are written in JSON form
+([const 7], [const 5], [const 0.5], [const 31]); leading zeros of a
+decimal number are not treated as octal. Infinities and NaN cannot be
+represented in JSON and cause an error.
 
 [para]
 [list_begin options]

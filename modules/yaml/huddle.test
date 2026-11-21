@@ -237,6 +237,42 @@ test huddle-3.6 "test of huddle jsondump - dict and null handling" -body {
   "b": null
 }}
 
+test huddle-3.7 "test of huddle jsondump - number with leading zeros" -body {
+    huddle jsondump [huddle create a [huddle number 007]] {} {}
+} -result {{"a":7}}
+
+test huddle-3.8 "test of huddle jsondump - numbers normalized to JSON" -body {
+    set data [huddle list]
+    foreach n {010 -007 +5 .5 -.5e3 5. 1.e5 -00.250 { 5 } 0x1F -0x10 0b101 0o17} {
+        huddle append data [huddle number $n]
+    }
+    huddle jsondump $data {} {}
+} -cleanup {
+    unset -nocomplain data n
+} -result {[10,-7,5,0.5,-0.5e3,5,1e5,-0.250,5,31,-16,5,15]}
+
+test huddle-3.9 "test of huddle jsondump - valid JSON numbers unchanged" -body {
+    set data [huddle list]
+    foreach n {0 -0 1.50 1E+05 2e-3 -12.5E10 123456789012345678901234567890} {
+        huddle append data [huddle number $n]
+    }
+    huddle jsondump $data {} {}
+} -cleanup {
+    unset -nocomplain data n
+} -result {[0,-0,1.50,1E+05,2e-3,-12.5E10,123456789012345678901234567890]}
+
+test huddle-3.10 "test of huddle jsondump - number not representable in JSON" -body {
+    huddle jsondump [huddle create a [huddle number Inf]]
+} -returnCodes error -result {Cannot represent "Inf" as a JSON number}
+
+test huddle-3.11 "test of huddle jsondump - original number is kept" -body {
+    set data [huddle create a [huddle number 007]]
+    huddle jsondump $data {} {}
+    huddle get_stripped $data a
+} -cleanup {
+    unset -nocomplain data
+} -result 007
+
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
 
