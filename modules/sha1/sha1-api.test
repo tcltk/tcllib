@@ -1,0 +1,387 @@
+# -*- tcl -*-
+# sha1-api.test:  additional tests for the documented API of sha1 (v2).
+#
+# Complements sha1.test: -bin, -channel, -file/-filename, hmac with
+# options, the incremental programming interface and error cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    if {[useTcllibC]} {
+        useLocalKeep sha1.tcl sha1
+    } else {
+        useLocal     sha1.tcl sha1
+    }
+    TestAccelInit             sha1
+}
+
+# -------------------------------------------------------------------------
+
+proc mkdata {} {
+    # 10240 bytes, all byte values: more than one read chunk.
+    set d {}
+    for {set i 0} {$i < 256} {incr i} {append d [format %c $i]}
+    string repeat $d 40
+}
+
+set datafile [makeFile {} sha1api[pid].data]
+set f [open $datafile wb]
+puts -nonewline $f [mkdata]
+close $f
+unset f
+
+set msg     "Tcl does SHA1"
+set msgHash 285a6a91c45a9066bf39fcf24425796ef0b2a8bf
+set msgHmac ae6251fa51b95b18cba2be95eb031d07475ff03c
+set fileHash 36812e99f2d591c5114a7b09519ea9d7daba2380
+set fileHmac 339f766cce0210000ae956e968b456fc34e45d12
+
+# -------------------------------------------------------------------------
+
+TestAccelDo sha1 impl {
+
+    # ---------------------------------------------------------------------
+    # ::sha1::sha1
+
+    test sha1-api-$impl-1.1 "sha1: documented example ($impl)" -body {
+        ::sha1::sha1 $msg
+    } -result $msgHash
+
+    test sha1-api-$impl-1.2 "sha1: empty string ($impl)" -body {
+        ::sha1::sha1 ""
+    } -result da39a3ee5e6b4b0d3255bfef95601890afd80709
+
+    test sha1-api-$impl-1.3 "sha1 -hex ($impl)" -body {
+        ::sha1::sha1 -hex $msg
+    } -result $msgHash
+
+    test sha1-api-$impl-1.4 "sha1 -bin: 20 bytes of binary data ($impl)" -body {
+        set r [::sha1::sha1 -bin $msg]
+        list [string length $r] [::sha1::Hex $r]
+    } -cleanup {
+        unset r
+    } -result [list 20 $msgHash]
+
+    test sha1-api-$impl-1.5 "sha1: last of -hex/-bin wins ($impl)" -body {
+        list [string length [::sha1::sha1 -hex -bin $msg]] \
+            [::sha1::sha1 -bin -hex $msg]
+    } -result [list 20 $msgHash]
+
+    test sha1-api-$impl-1.6 "sha1 -bin -- string ($impl)" -body {
+        ::sha1::Hex [::sha1::sha1 -bin -- -hello]
+    } -result bd32f1769a47f98c73348c87f5d6842ccd129911
+
+    # knownBug: the documentation promises a hex result unless -bin is
+    # given, but with more than one argument the result is binary unless
+    # -hex is given explicitly.
+    test sha1-api-$impl-1.7 "sha1 -- string: result is hex by default ($impl)" -constraints {
+        knownBug
+    } -body {
+        ::sha1::sha1 -- -hello
+    } -result bd32f1769a47f98c73348c87f5d6842ccd129911
+
+    test sha1-api-$impl-1.8 "sha1: binary data ($impl)" -body {
+        ::sha1::sha1 [mkdata]
+    } -result $fileHash
+
+    test sha1-api-$impl-2.1 "sha1 -hex -file ($impl)" -body {
+        ::sha1::sha1 -hex -file $datafile
+    } -result $fileHash
+
+    test sha1-api-$impl-2.2 "sha1 -hex -filename ($impl)" -body {
+        ::sha1::sha1 -hex -filename $datafile
+    } -result $fileHash
+
+    test sha1-api-$impl-2.3 "sha1 -bin -file ($impl)" -body {
+        ::sha1::Hex [::sha1::sha1 -bin -file $datafile]
+    } -result $fileHash
+
+    test sha1-api-$impl-2.4 "sha1 -file: result is hex by default ($impl)" -constraints {
+        knownBug
+    } -body {
+        ::sha1::sha1 -file $datafile
+    } -result $fileHash
+
+    test sha1-api-$impl-2.5 "sha1 -file: file is closed afterwards ($impl)" -setup {
+        set before [lsort [file channels]]
+    } -body {
+        ::sha1::sha1 -hex -file $datafile
+        expr {[lsort [file channels]] eq $before}
+    } -cleanup {
+        unset before
+    } -result 1
+
+    test sha1-api-$impl-2.6 "sha1 -file: missing file ($impl)" -body {
+        ::sha1::sha1 -hex -file [file join [temporaryDirectory] nosuchfile.sha1]
+    } -returnCodes error -match glob -result {couldn't open "*nosuchfile.sha1": no such file or directory}
+
+    test sha1-api-$impl-2.7 "sha1 -file: empty file ($impl)" -setup {
+        set ef [makeFile {} sha1api[pid].empty]
+        close [open $ef w]
+    } -body {
+        ::sha1::sha1 -hex -file $ef
+    } -cleanup {
+        removeFile $ef
+        unset ef
+    } -result da39a3ee5e6b4b0d3255bfef95601890afd80709
+
+    test sha1-api-$impl-3.1 "sha1 -hex -channel ($impl)" -setup {
+        set ch [open $datafile rb]
+    } -body {
+        ::sha1::sha1 -hex -channel $ch
+    } -cleanup {
+        close $ch
+        unset ch
+    } -result $fileHash
+
+    test sha1-api-$impl-3.2 "sha1 -channel: channel stays open, at eof ($impl)" -setup {
+        set ch [open $datafile rb]
+    } -body {
+        ::sha1::sha1 -hex -channel $ch
+        list [expr {$ch in [file channels]}] [eof $ch]
+    } -cleanup {
+        close $ch
+        unset ch
+    } -result {1 1}
+
+    test sha1-api-$impl-3.3 "sha1 -channel: reads from current position ($impl)" -setup {
+        set ch [open $datafile rb]
+        read $ch 256
+    } -body {
+        ::sha1::sha1 -hex -channel $ch
+    } -cleanup {
+        close $ch
+        unset ch
+    } -result [::sha1::sha1 -hex [string range [mkdata] 256 end]]
+
+    test sha1-api-$impl-3.4 "sha1 -bin -channel ($impl)" -setup {
+        set ch [open $datafile rb]
+    } -body {
+        ::sha1::Hex [::sha1::sha1 -bin -channel $ch]
+    } -cleanup {
+        close $ch
+        unset ch
+    } -result $fileHash
+
+    test sha1-api-$impl-3.5 "sha1 -channel: result is hex by default ($impl)" -constraints {
+        knownBug
+    } -setup {
+        set ch [open $datafile rb]
+    } -body {
+        ::sha1::sha1 -channel $ch
+    } -cleanup {
+        close $ch
+        unset ch
+    } -result $fileHash
+
+    test sha1-api-$impl-4.1 "sha1: bad option ($impl)" -body {
+        ::sha1::sha1 -foo bar
+    } -returnCodes error -result {bad option -foo: must be one of -bin, -channel, -chunksize, -filename, -hex}
+
+    test sha1-api-$impl-4.2 "sha1: too many strings ($impl)" -body {
+        ::sha1::sha1 a b
+    } -returnCodes error -result {wrong # args: should be "sha1 ?-hex? -filename file | string"}
+
+    test sha1-api-$impl-4.3 "sha1: options but no string ($impl)" -body {
+        ::sha1::sha1 -hex -bin
+    } -returnCodes error -result {wrong # args: should be "sha1 ?-hex? -filename file | string"}
+
+    test sha1-api-$impl-4.4 "sha1: invalid channel ($impl)" -body {
+        ::sha1::sha1 -hex -channel nosuchchannel
+    } -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+    # ---------------------------------------------------------------------
+    # ::sha1::hmac
+
+    test sha1-api-$impl-5.1 "hmac key string: documented example ($impl)" -body {
+        ::sha1::hmac Sekret $msg
+    } -result $msgHmac
+
+    test sha1-api-$impl-5.2 "hmac -key key string ($impl)" -body {
+        ::sha1::hmac -key Sekret -- $msg
+    } -result $msgHmac
+
+    test sha1-api-$impl-5.3 "hmac -hex -key key string ($impl)" -body {
+        ::sha1::hmac -hex -key Sekret -- $msg
+    } -result $msgHmac
+
+    test sha1-api-$impl-5.4 "hmac -bin ($impl)" -body {
+        set r [::sha1::hmac -bin -key Sekret -- $msg]
+        list [string length $r] [::sha1::Hex $r]
+    } -cleanup {
+        unset r
+    } -result [list 20 $msgHmac]
+
+    test sha1-api-$impl-5.5 "hmac -key key -- string with leading dash ($impl)" -body {
+        ::sha1::hmac -key k -- -hello
+    } -result f0f2be93974e65a3e985e417c8da23ef02eb7be3
+
+    test sha1-api-$impl-5.6 "hmac: key longer than the block size ($impl)" -body {
+        ::sha1::hmac [string repeat k 100] data
+    } -result e3dc391a03c12663fd33148b959da47d0c5b8c66
+
+    test sha1-api-$impl-6.1 "hmac -key -file ($impl)" -body {
+        ::sha1::hmac -key key -file $datafile
+    } -result $fileHmac
+
+    test sha1-api-$impl-6.2 "hmac -key -filename ($impl)" -body {
+        ::sha1::hmac -key key -filename $datafile
+    } -result $fileHmac
+
+    test sha1-api-$impl-6.3 "hmac -bin -key -file ($impl)" -body {
+        ::sha1::Hex [::sha1::hmac -bin -key key -file $datafile]
+    } -result $fileHmac
+
+    test sha1-api-$impl-6.4 "hmac -key -channel, channel stays open ($impl)" -setup {
+        set ch [open $datafile rb]
+    } -body {
+        list [::sha1::hmac -key key -channel $ch] \
+            [expr {$ch in [file channels]}]
+    } -cleanup {
+        close $ch
+        unset ch
+    } -result [list $fileHmac 1]
+
+    test sha1-api-$impl-6.5 "hmac -file: file is closed afterwards ($impl)" -setup {
+        set before [lsort [file channels]]
+    } -body {
+        ::sha1::hmac -key key -file $datafile
+        expr {[lsort [file channels]] eq $before}
+    } -cleanup {
+        unset before
+    } -result 1
+
+    test sha1-api-$impl-7.1 "hmac: bad option ($impl)" -body {
+        ::sha1::hmac -foo bar baz
+    } -returnCodes error -result {bad option -foo: must be one of -channel, -chunksize, -filename, -hex}
+
+    test sha1-api-$impl-7.2 "hmac: -key without string ($impl)" -body {
+        ::sha1::hmac -hex -key k
+    } -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+    test sha1-api-$impl-7.3 "hmac: no -key ($impl)" -body {
+        ::sha1::hmac -hex -- text
+    } -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+    # knownBug: "-key k" is silently replaced by the first of the two
+    # remaining arguments instead of raising "wrong # args".
+    test sha1-api-$impl-7.4 "hmac: -key and two more arguments ($impl)" -constraints {
+        knownBug
+    } -body {
+        ::sha1::hmac -key k a b
+    } -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+    # ---------------------------------------------------------------------
+    # Programming interface
+
+    test sha1-api-$impl-8.1 "SHA1Init/Update/Final: documented example ($impl)" -body {
+        set tok [::sha1::SHA1Init]
+        ::sha1::SHA1Update $tok "Tcl "
+        ::sha1::SHA1Update $tok "does "
+        ::sha1::SHA1Update $tok "SHA1"
+        ::sha1::Hex [::sha1::SHA1Final $tok]
+    } -cleanup {
+        unset tok
+    } -result $msgHash
+
+    test sha1-api-$impl-8.2 "SHA1Update returns empty, Final returns 20 bytes ($impl)" -body {
+        set tok [::sha1::SHA1Init]
+        set u [::sha1::SHA1Update $tok abc]
+        list $u [string length [::sha1::SHA1Final $tok]]
+    } -cleanup {
+        unset tok u
+    } -result {{} 20}
+
+    test sha1-api-$impl-8.3 "SHA1Init/Final without data ($impl)" -body {
+        ::sha1::Hex [::sha1::SHA1Final [::sha1::SHA1Init]]
+    } -result da39a3ee5e6b4b0d3255bfef95601890afd80709
+
+    test sha1-api-$impl-8.4 "SHA1Update: byte-wise updates equal one update ($impl)" -body {
+        set data [mkdata]
+        set tok [::sha1::SHA1Init]
+        foreach c [split [string range $data 0 199] {}] {
+            ::sha1::SHA1Update $tok $c
+        }
+        ::sha1::SHA1Update $tok [string range $data 200 end]
+        ::sha1::Hex [::sha1::SHA1Final $tok]
+    } -cleanup {
+        unset tok data c
+    } -result $fileHash
+
+    test sha1-api-$impl-8.5 "SHA1Init: independent tokens ($impl)" -body {
+        set t1 [::sha1::SHA1Init]
+        set t2 [::sha1::SHA1Init]
+        ::sha1::SHA1Update $t1 "Tcl does SHA1"
+        ::sha1::SHA1Update $t2 ""
+        list [expr {$t1 ne $t2}] \
+            [::sha1::Hex [::sha1::SHA1Final $t1]] \
+            [::sha1::Hex [::sha1::SHA1Final $t2]]
+    } -cleanup {
+        unset t1 t2
+    } -result [list 1 $msgHash da39a3ee5e6b4b0d3255bfef95601890afd80709]
+
+    test sha1-api-$impl-8.6 "SHA1Final: token is invalid afterwards ($impl)" -body {
+        set tok [::sha1::SHA1Init]
+        ::sha1::SHA1Final $tok
+        info exists $tok
+    } -cleanup {
+        unset tok
+    } -result 0
+
+    test sha1-api-$impl-9.1 "HMACInit/Update/Final ($impl)" -body {
+        set tok [::sha1::HMACInit Sekret]
+        ::sha1::HMACUpdate $tok "Tcl "
+        ::sha1::HMACUpdate $tok "does "
+        ::sha1::HMACUpdate $tok "SHA1"
+        set r [::sha1::HMACFinal $tok]
+        list [string length $r] [::sha1::Hex $r]
+    } -cleanup {
+        unset tok r
+    } -result [list 20 $msgHmac]
+
+    test sha1-api-$impl-9.2 "HMACInit/Final without data ($impl)" -body {
+        ::sha1::Hex [::sha1::HMACFinal [::sha1::HMACInit ""]]
+    } -result fbdb1d1b18aa6c08324b7d64b71fb76370690e1d
+
+    test sha1-api-$impl-9.3 "HMACFinal: token is invalid afterwards ($impl)" -body {
+        set tok [::sha1::HMACInit k]
+        ::sha1::HMACFinal $tok
+        info exists $tok
+    } -cleanup {
+        unset tok
+    } -result 0
+
+    test sha1-api-$impl-9.4 "SHA1Init: wrong # args ($impl)" -body {
+        ::sha1::SHA1Init x
+    } -returnCodes error -match glob -result {wrong # args: should be "*SHA1Init"}
+
+    test sha1-api-$impl-9.5 "SHA1Update: wrong # args ($impl)" -body {
+        ::sha1::SHA1Update x
+    } -returnCodes error -match glob -result {wrong # args: should be "*SHA1Update token data"}
+
+    test sha1-api-$impl-9.6 "HMACInit: wrong # args ($impl)" -body {
+        ::sha1::HMACInit
+    } -returnCodes error -result {wrong # args: should be "::sha1::HMACInit K"}
+}
+
+# -------------------------------------------------------------------------
+
+removeFile $datafile
+unset datafile msg msgHash msgHmac fileHash fileHmac
+rename mkdata {}
+
+TestAccelExit sha1
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
