@@ -1,0 +1,713 @@
+# -*- tcl -*-
+# comm-api.test:  Tests for the documented API of package comm
+# (supplements comm.test: channels, configuration, send variants,
+# hooks, connection management, asynchronous results).
+#
+# Both ends of the communication live in this interpreter: channel A
+# sends to channel B, both listening on 127.0.0.1 only (-local 1).
+# The TLS variant is not tested here, see comm.test (and ticket
+# ffd5dc794d about the test certificates).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    # Using snit1 here, whatever the version of Tcl
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal comm.tcl comm
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+namespace eval ::ctest {
+    variable bgerrs {}
+}
+
+# Errors of remotely evaluated scripts and of callbacks are also
+# reported through bgerror on the receiving side.
+proc bgerror {msg} {
+    lappend ::ctest::bgerrs $msg
+    return
+}
+
+proc ::ctest::setup {} {
+    variable bgerrs {}
+    ::comm::comm new ::ctest::A -listen 1
+    ::comm::comm new ::ctest::B -listen 1
+    return
+}
+
+proc ::ctest::cleanup {args} {
+    foreach c {::ctest::A ::ctest::B} {
+	if {[llength [info commands $c]]} {catch {$c destroy}}
+    }
+    uplevel #0 [linsert $args 0 unset -nocomplain]
+    pause 10
+    variable bgerrs {}
+    return
+}
+
+# Bounded wait for the global variable VAR to be set.
+proc ::ctest::waitvar {var} {
+    set id [after 5000 [list set $var timeout]]
+    if {![info exists $var]} {vwait $var}
+    after cancel $id
+    return [set $var]
+}
+
+proc pause {ms} {
+    after $ms {set ::ctest::pause 1}
+    vwait ::ctest::pause
+}
+
+proc ::ctest::callback {args} {
+    set ::ctest::cb $args
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Multiple channels: new, channels, destroy
+
+test comm-api-1.0 {new returns the fully qualified name} -body {
+    ::comm::comm new ctestN
+} -cleanup {
+    ::ctestN destroy
+} -result ::ctestN
+
+test comm-api-1.1 {new channel defaults} -body {
+    ::comm::comm new ::ctest::N
+    list [::ctest::N config -local] [::ctest::N config -listen] \
+	[::ctest::N config -silent] [::ctest::N config -chan] [::ctest::N self]
+} -cleanup {
+    ::ctest::N destroy
+} -result {1 0 0 ::ctest::N 0}
+
+test comm-api-1.2 {new passes options to config} -body {
+    ::comm::comm new ::ctest::N -listen 1 -silent 1
+    list [::ctest::N config -listen] [::ctest::N config -silent] \
+	[expr {[::ctest::N self] > 0}]
+} -cleanup {
+    ::ctest::N destroy
+} -result {1 1 1}
+
+test comm-api-1.3 {new with a bad option} -body {
+    ::comm::comm new ::ctest::N -bogus 1
+} -cleanup {
+    catch {::ctest::N destroy}
+} -returnCodes error -result {Unknown configuration option: -bogus}
+
+test comm-api-1.4 {channels lists all channels} -setup {
+    ::ctest::setup
+} -body {
+    set c [::comm::comm channels]
+    list [expr {"::comm::comm" in $c}] [expr {"::ctest::A" in $c}] \
+	[expr {"::ctest::B" in $c}]
+} -cleanup {
+    ::ctest::cleanup c
+} -result {1 1 1}
+
+test comm-api-1.5 {destroy removes the channel and closes the listener} -setup {
+    ::ctest::setup
+} -body {
+    set port [::ctest::B self]
+    ::ctest::B destroy
+    list [info commands ::ctest::B] [expr {"::ctest::B" in [::comm::comm channels]}] \
+	[catch {::ctest::A send $port list} msg] [string match {Connect to remote failed*} $msg]
+} -cleanup {
+    ::ctest::cleanup port msg
+} -result {{} 0 1 1}
+
+test comm-api-1.6 {unknown method} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A bogus
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -match glob -result {unknown subcommand "bogus": must be one of abort, channels, configure, connect, *}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Configuration
+
+test comm-api-2.0 {config without arguments returns all options} -setup {
+    ::ctest::setup
+} -body {
+    set opts {}
+    foreach {k v} [::ctest::A config] {lappend opts $k}
+    set missing {}
+    foreach o {-listen -local -port -silent -socketcmd -interp -events -chan -serial -socket} {
+	if {$o ni $opts} {lappend missing $o}
+    }
+    set missing
+} -cleanup {
+    ::ctest::cleanup opts missing o k v
+} -result {}
+
+test comm-api-2.1 {config of a single option} -setup {
+    ::ctest::setup
+} -body {
+    list [::ctest::A config -chan] [expr {[::ctest::A config -port] == [::ctest::A self]}] \
+	[::ctest::A config -socketcmd] [::ctest::A config -interp] [::ctest::A config -events]
+} -cleanup {
+    ::ctest::cleanup
+} -result {::ctest::A 1 ::socket {} {}}
+
+test comm-api-2.2 {config, unknown option} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A config -bogus
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -result {Unknown configuration option: -bogus}
+
+foreach {n opt} {0 -chan 1 -serial 2 -socket} {
+    test comm-api-2.3.$n "config, read-only option $opt" -setup {
+	::ctest::setup
+    } -body {
+	::ctest::A config $opt 1
+    } -cleanup {
+	::ctest::cleanup
+    } -returnCodes error -result "Readonly configuration option: $opt"
+}
+unset n opt
+
+test comm-api-2.4 {config, bad port} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A config -port foo
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -result {Non-port to configuration option: -port}
+
+test comm-api-2.5 {changing the port reopens the listener with a new id} -setup {
+    ::ctest::setup
+} -body {
+    set old [::ctest::B self]
+    ::ctest::B config -port 0
+    set new [::ctest::B self]
+    list [expr {$new != $old}] [expr {$new == [::ctest::B config -port]}] \
+	[::ctest::A send $new list ok]
+} -cleanup {
+    ::ctest::cleanup old new
+} -result {1 1 ok}
+
+test comm-api-2.6 {-listen 0: no listener, id 0} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A config -listen 0
+    list [::ctest::A self] [::ctest::A config -socket] [::ctest::A send [::ctest::B self] list ok]
+} -cleanup {
+    ::ctest::cleanup
+} -result {0 {} ok}
+
+test comm-api-2.7 {-port {}: a high-numbered port is allocated} -constraints knownBug -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A config -port {}
+    expr {[::ctest::A self] > 10000}
+} -cleanup {
+    ::ctest::cleanup
+} -result 1
+
+test comm-api-2.8 {-socketcmd is used to open sockets} -setup {
+    set ::ctest::sockcalls {}
+    proc ::ctest::mysocket {args} {
+	lappend ::ctest::sockcalls [lindex $args 0]
+	uplevel 1 [linsert $args 0 ::socket]
+    }
+    ::ctest::setup
+} -body {
+    ::ctest::A config -socketcmd ::ctest::mysocket
+    set r [list [::ctest::A config -socketcmd] [lindex $::ctest::sockcalls 0]]
+    ::ctest::A send [::ctest::B self] list
+    lappend r [llength $::ctest::sockcalls]
+} -cleanup {
+    ::ctest::cleanup r ::ctest::sockcalls
+    rename ::ctest::mysocket {}
+} -result {::ctest::mysocket -server 2}
+
+test comm-api-2.9 {-silent 1 ignores failed protocol negotiation} -setup {
+    ::ctest::setup
+    ::ctest::B config -silent 1
+} -body {
+    set s [socket 127.0.0.1 [::ctest::B self]]
+    puts $s garbage
+    flush $s
+    pause 100
+    set ::ctest::bgerrs
+} -cleanup {
+    close $s
+    ::ctest::cleanup s
+} -result {}
+
+test comm-api-2.10 {-silent 0 reports failed protocol negotiation} -setup {
+    ::ctest::setup
+} -body {
+    set s [socket 127.0.0.1 [::ctest::B self]]
+    puts $s garbage
+    flush $s
+    pause 100
+    set ::ctest::bgerrs
+} -cleanup {
+    close $s
+    ::ctest::cleanup s
+} -match glob -result {{Unknown offered protocols "garbage" from 127.0.0.1/*}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## send
+
+test comm-api-3.0 {send, wrong # args} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A send [::ctest::B self]
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -result {wrong # args: should be "send ?-async? id arg ?arg ...?"}
+
+test comm-api-3.1 {send, synchronous result} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A send [::ctest::B self] {expr {6 * 7}}
+} -cleanup {
+    ::ctest::cleanup
+} -result 42
+
+test comm-api-3.2 {send has double eval semantics like Tk send} -setup {
+    ::ctest::setup
+} -body {
+    list [::ctest::A send [::ctest::B self] list a {b c}] \
+	[catch {::ctest::A send [::ctest::B self] llength {a b c}} msg] $msg
+} -cleanup {
+    ::ctest::cleanup msg
+} -result {{a b c} 1 {wrong # args: should be "llength list"}}
+
+test comm-api-3.3 {send, remote error with error code} -setup {
+    ::ctest::setup
+} -body {
+    list [catch {::ctest::A send [::ctest::B self] {error boom {} {MY CODE}}} msg] \
+	$msg $::errorCode
+} -cleanup {
+    ::ctest::cleanup msg
+} -result {1 boom {MY CODE}}
+
+test comm-api-3.4 {send -async returns at once, script is run} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::v
+} -body {
+    set r [::ctest::A send -async [::ctest::B self] {set ::ctest::v done}]
+    list $r [::ctest::waitvar ::ctest::v]
+} -cleanup {
+    ::ctest::cleanup r ::ctest::v
+} -result {{} done}
+
+test comm-api-3.5 {send -command: serial returned, callback arguments} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::cb
+} -body {
+    set ser [::ctest::A send -command ::ctest::callback [::ctest::B self] {expr 1+1}]
+    array set r [::ctest::waitvar ::ctest::cb]
+    list [string is integer -strict $ser] [expr {$r(-serial) == $ser}] \
+	[expr {$r(-id) == [::ctest::B self]}] $r(-chan) $r(-code) $r(-result) \
+	[lsort [array names r]]
+} -cleanup {
+    ::ctest::cleanup ser r ::ctest::cb
+} -result {1 1 1 ::ctest::A 0 2 {-chan -code -errorcode -errorinfo -id -result -serial}}
+
+test comm-api-3.6 {send -command, remote error} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::cb
+} -body {
+    ::ctest::A send -command ::ctest::callback [::ctest::B self] {error oops {} {E X}}
+    array set r [::ctest::waitvar ::ctest::cb]
+    list $r(-code) $r(-result) $r(-errorcode)
+} -cleanup {
+    ::ctest::cleanup r ::ctest::cb
+} -result {1 oops {E X}}
+
+test comm-api-3.7 {send -command, connection lost: code -1} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::cb
+} -body {
+    ::ctest::A send -command ::ctest::callback [::ctest::B self] {after 2000}
+    ::ctest::A shutdown [::ctest::B self]
+    array set r [::ctest::waitvar ::ctest::cb]
+    list $r(-code) $r(-result)
+} -cleanup {
+    ::ctest::cleanup r ::ctest::cb
+} -result {-1 {Connection shutdown by request}}
+
+test comm-api-3.8 {send -async and -command are mutually exclusive} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A send -async -command ::ctest::callback [::ctest::B self] list
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -match glob -result *
+
+test comm-api-3.9 {send to the own id} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A send [::ctest::A self] list self
+} -cleanup {
+    ::ctest::cleanup
+} -result self
+
+#- - -- --- ----- -------- ------------- ---------------------
+## self, interps, ids, connect, remoteid, shutdown, abort
+
+test comm-api-4.0 {self is the port} -setup {
+    ::ctest::setup
+} -body {
+    expr {[::ctest::A self] == [::ctest::A config -port]}
+} -cleanup {
+    ::ctest::cleanup
+} -result 1
+
+test comm-api-4.1 {interps and ids learn remote ids, both sides} -setup {
+    ::ctest::setup
+} -body {
+    set b [::ctest::B self]
+    set a [::ctest::A self]
+    set r [expr {$b in [::ctest::A interps]}]
+    ::ctest::A send $b list
+    lappend r [expr {$b in [::ctest::A interps]}] [expr {$b in [::ctest::A ids]}] \
+	[expr {$a in [::ctest::B interps]}]
+} -cleanup {
+    ::ctest::cleanup a b r
+} -result {0 1 1 1}
+
+test comm-api-4.2 {connect without sending} -setup {
+    ::ctest::setup
+} -body {
+    set b [::ctest::B self]
+    ::ctest::A connect $b
+    expr {$b in [::ctest::A interps]}
+} -cleanup {
+    ::ctest::cleanup b
+} -result 1
+
+test comm-api-4.3 {remoteid is the sender of the last command} -setup {
+    ::ctest::setup
+} -body {
+    expr {[::ctest::A send [::ctest::B self] {::ctest::B remoteid}] == [::ctest::A self]}
+} -cleanup {
+    ::ctest::cleanup
+} -result 1
+
+test comm-api-4.4 {shutdown closes the connection} -setup {
+    ::ctest::setup
+} -body {
+    set b [::ctest::B self]
+    ::ctest::A send $b list
+    ::ctest::A shutdown $b
+    set r [expr {$b in [::ctest::A interps]}]
+    # The connection can be reopened.
+    lappend r [::ctest::A send $b list again]
+} -cleanup {
+    ::ctest::cleanup b r
+} -result {0 again}
+
+test comm-api-4.5 {abort closes all connections} -setup {
+    ::ctest::setup
+    ::comm::comm new ::ctest::C -listen 1
+} -body {
+    ::ctest::A send [::ctest::B self] list
+    ::ctest::A send [::ctest::C self] list
+    ::ctest::A abort
+    list [expr {[::ctest::B self] in [::ctest::A interps]}] \
+	[expr {[::ctest::C self] in [::ctest::A interps]}]
+} -cleanup {
+    ::ctest::C destroy
+    ::ctest::cleanup
+} -result {0 0}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Hooks
+
+test comm-api-5.0 {hook, wrong # args} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A hook
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -result {wrong # args: should be "::comm::comm_cmd_hook chan hook ?script?"}
+
+test comm-api-5.1 {hook, unknown event} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A hook bogus {}
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -result {Unknown hook invoked}
+
+test comm-api-5.2 {hook without script returns the current script} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook eval {set x 1}
+    list [::ctest::B hook eval] [::ctest::B hook lost]
+} -cleanup {
+    ::ctest::cleanup
+} -result {{set x 1} {}}
+
+test comm-api-5.3 {hook, + prefix appends} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook eval {set ::ctest::h1 1}
+    ::ctest::B hook eval {+set ::ctest::h2 2}
+    ::ctest::A send [::ctest::B self] list
+    list [::ctest::B hook eval] $::ctest::h1 $::ctest::h2
+} -cleanup {
+    ::ctest::cleanup ::ctest::h1 ::ctest::h2
+} -result [list "set ::ctest::h1 1\nset ::ctest::h2 2" 1 2]
+
+test comm-api-5.4 {hook with a separate + argument appends} -constraints knownBug -setup {
+    ::ctest::setup
+} -body {
+    # The documented syntax is "hook event ?+? ?script?".
+    ::ctest::B hook eval {set ::ctest::h1 1}
+    ::ctest::B hook eval + {set ::ctest::h2 2}
+    ::ctest::B hook eval
+} -cleanup {
+    ::ctest::cleanup
+} -result "set ::ctest::h1 1\nset ::ctest::h2 2"
+
+test comm-api-5.5 {eval hook: variables} -body {
+    ::ctest::B hook eval {
+	set ::ctest::h [list $chan [expr {$id == [::ctest::A self]}] $cmd $buffer]
+    }
+    ::ctest::A send [::ctest::B self] list x
+    set r [list $::ctest::h]
+    ::ctest::A send -async [::ctest::B self] list y
+    ::ctest::waitvar ::ctest::dummy
+    lappend r $::ctest::h
+} -setup {
+    ::ctest::setup
+    after 200 {set ::ctest::dummy 1}
+} -cleanup {
+    ::ctest::cleanup ::ctest::h ::ctest::dummy r
+} -result {{::ctest::B 1 send {list x}} {::ctest::B 1 async {list y}}}
+
+test comm-api-5.6 {eval hook: modify the buffer} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook eval {set buffer [list string toupper $buffer]}
+    ::ctest::A send [::ctest::B self] abc
+} -cleanup {
+    ::ctest::cleanup
+} -result ABC
+
+test comm-api-5.7 {eval hook: short circuit by return} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook eval {return "not run: $buffer"}
+    ::ctest::A send [::ctest::B self] {set ::ctest::ran 1}
+} -cleanup {
+    ::ctest::cleanup
+} -result {not run: {set ::ctest::ran 1}}
+
+test comm-api-5.8 {eval hook: error is returned as result} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook eval {error "$buffer is a no-no"}
+    ::ctest::A send [::ctest::B self] pid
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -result {pid is a no-no}
+
+test comm-api-5.9 {eval hook: single eval semantics} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook eval {return [uplevel #0 $buffer]}
+    ::ctest::A send [::ctest::B self] llength {a b c}
+} -cleanup {
+    ::ctest::cleanup
+} -result 3
+
+test comm-api-5.10 {connecting hook: error aborts the connection} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A hook connecting {error "not to $id"}
+    ::ctest::A send [::ctest::B self] list
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -match glob -result {Connect to remote failed: not to *}
+
+test comm-api-5.11 {connected hook: variables} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A hook connected {set ::ctest::h [list $chan $id $host $port [string length $fid]]}
+    ::ctest::A send [::ctest::B self] list
+    lassign $::ctest::h c i h p f
+    list $c [expr {$i == [::ctest::B self]}] $h [expr {$p == [::ctest::B self]}] [expr {$f > 0}]
+} -cleanup {
+    ::ctest::cleanup ::ctest::h c i h p f
+} -result {::ctest::A 1 127.0.0.1 1 1}
+
+test comm-api-5.12 {incoming hook: variables} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook incoming {set ::ctest::h [list $chan $addr [string is integer $remport]]}
+    ::ctest::A send [::ctest::B self] list
+    set ::ctest::h
+} -cleanup {
+    ::ctest::cleanup ::ctest::h
+} -result {::ctest::B 127.0.0.1 1}
+
+test comm-api-5.13 {incoming hook: error closes the connection} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::B hook incoming {error "go away"}
+    ::ctest::A send [::ctest::B self] list
+} -cleanup {
+    ::ctest::cleanup
+} -returnCodes error -result {target application died or connection lost}
+
+test comm-api-5.14 {reply hook: modify the result} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A hook reply {set ret "<$ret>"}
+    ::ctest::A send [::ctest::B self] list x
+} -cleanup {
+    ::ctest::cleanup
+} -result <x>
+
+test comm-api-5.15 {reply hook: return() array} -setup {
+    ::ctest::setup
+} -body {
+    ::ctest::A hook reply {set ::ctest::h [list $return(-code) $ret]}
+    catch {::ctest::A send [::ctest::B self] error bad}
+    set ::ctest::h
+} -cleanup {
+    ::ctest::cleanup ::ctest::h
+} -result {1 bad}
+
+test comm-api-5.16 {callback hook: modify the result} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::cb
+} -body {
+    ::ctest::A hook callback {set ret "<$ret>"}
+    ::ctest::A send -command ::ctest::callback [::ctest::B self] list x
+    array set r [::ctest::waitvar ::ctest::cb]
+    set r(-result)
+} -cleanup {
+    ::ctest::cleanup r ::ctest::cb
+} -result <x>
+
+test comm-api-5.17 {lost hook: variables} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::h
+} -body {
+    ::ctest::A hook lost {set ::ctest::h [list $chan $id $reason]}
+    ::ctest::A send [::ctest::B self] list
+    ::ctest::B shutdown [::ctest::A self]
+    lassign [::ctest::waitvar ::ctest::h] c i r
+    list $c [expr {$i == [::ctest::B self]}] $r
+} -cleanup {
+    ::ctest::cleanup ::ctest::h c i r
+} -result {::ctest::A 1 {target application died or connection lost}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Asynchronous result generation
+
+test comm-api-6.0 {return_async: future delivers the result} -setup {
+    ::ctest::setup
+    proc ::ctest::later {v} {
+	set f [::ctest::B return_async]
+	after 10 [list $f return $v]
+	return ignored
+    }
+} -body {
+    ::ctest::A send [::ctest::B self] ::ctest::later value
+} -cleanup {
+    rename ::ctest::later {}
+    ::ctest::cleanup
+} -result value
+
+test comm-api-6.1 {return_async: future delivers an error} -setup {
+    ::ctest::setup
+    proc ::ctest::later {} {
+	set f [::ctest::B return_async]
+	after 10 [list $f return -code error failed]
+	return
+    }
+} -body {
+    ::ctest::A send [::ctest::B self] ::ctest::later
+} -cleanup {
+    rename ::ctest::later {}
+    ::ctest::cleanup
+} -returnCodes error -result failed
+
+test comm-api-6.2 {future configure/cget -command, destroyed after return} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::cb
+    proc ::ctest::later {} {
+	set ::ctest::future [::ctest::B return_async]
+	set ::ctest::h [list [$::ctest::future cget -command] \
+			    [$::ctest::future configure -command foo] \
+			    [$::ctest::future cget -command]]
+	return
+    }
+} -body {
+    ::ctest::A send -command ::ctest::callback [::ctest::B self] ::ctest::later
+    pause 100
+    set r [list $::ctest::h [llength [info commands $::ctest::future]]]
+    $::ctest::future return done
+    array set res [::ctest::waitvar ::ctest::cb]
+    lappend r $res(-result) [llength [info commands $::ctest::future]]
+} -cleanup {
+    rename ::ctest::later {}
+    ::ctest::cleanup ::ctest::cb ::ctest::h ::ctest::future r res
+} -result {{{} {} foo} 1 done 0}
+
+test comm-api-6.3 {future -command is called when the invoker is lost} -setup {
+    ::ctest::setup
+    unset -nocomplain ::ctest::lostf
+    proc ::ctest::later {} {
+	set ::ctest::future [::ctest::B return_async]
+	$::ctest::future configure -command {set ::ctest::lostf}
+	return
+    }
+} -body {
+    ::ctest::A send -async [::ctest::B self] ::ctest::later
+    pause 100
+    ::ctest::A shutdown [::ctest::B self]
+    set r [expr {[::ctest::waitvar ::ctest::lostf] eq $::ctest::future}]
+    # Delivering the result now just destroys the future.
+    $::ctest::future return late
+    lappend r [llength [info commands $::ctest::future]]
+} -cleanup {
+    rename ::ctest::later {}
+    ::ctest::cleanup ::ctest::lostf ::ctest::future r
+} -result {1 0}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## comm_send
+
+test comm-api-7.0 {comm_send replaces send and winfo interps} -constraints knownBug -setup {
+    # The replacement commands are created in the ::comm namespace.
+    set i [interp create]
+    $i eval [list set auto_path $auto_path]
+    $i eval [list source [tcllibPath snit/snit.tcl]]
+    $i eval [list source [localPath comm.tcl]]
+    $i eval {proc winfo {args} {return "tk:$args"}}
+} -body {
+    $i eval {
+	::comm::comm_send
+	list [winfo exists .] [winfo interps] [send [::comm::comm self] list sent]
+    }
+} -cleanup {
+    interp delete $i
+    unset i
+} -result {{tk:exists .} {} sent}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename pause {}
+rename bgerror {}
+namespace delete ::ctest
+testsuiteCleanup
+return
