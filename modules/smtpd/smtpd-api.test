@@ -1,0 +1,807 @@
+# smtpd-api.test - Tests for the documented API of the smtpd package  -*- tcl -*-
+#
+# The server is started in this process on 127.0.0.1 and a free port,
+# and the tests talk to it through a non-blocking client socket while
+# the event loop runs.
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use md5/md5x.tcl md5
+    use base64/base64.tcl base64
+    use log/logger.tcl logger
+    use virtchannel_core/core.tcl tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+    use virtchannel_base/memchan.tcl tcl::chan::memchan
+    use mime/mime.tcl mime
+}
+testing {
+    useLocal smtpd.tcl smtpd
+}
+
+::smtpd::configure -loglevel critical
+
+# -------------------------------------------------------------------------
+# Talks to the server from the event loop.  'groups' is a list of
+# groups of lines; after the greeting and after each reply the next
+# group is sent.  A line starting with ! is a script evaluated instead
+# of sent.  Returns the replies of the server, multi-line replies joined
+# with newlines, followed by EOF if the server closed the connection
+# before all groups were sent.
+
+proc smtp {port groups} {
+    set sock [socket 127.0.0.1 $port]
+    fconfigure $sock -translation crlf -buffering line -blocking 0 -encoding ascii
+    set ::smtp(replies) {}
+    set ::smtp(cur) {}
+    set ::smtp(groups) $groups
+    set ::smtp(done) 0
+    fileevent $sock readable [list smtpread $sock]
+    set id [after 5000 {set ::smtp(done) timeout}]
+    vwait ::smtp(done)
+    after cancel $id
+    close $sock
+    if {$::smtp(done) eq "timeout"} {
+	lappend ::smtp(replies) TIMEOUT
+    }
+    set res $::smtp(replies)
+    unset ::smtp
+    return $res
+}
+
+proc smtpread {sock} {
+    if {[gets $sock line] < 0} {
+	if {[eof $sock]} {
+	    lappend ::smtp(replies) EOF
+	    set ::smtp(done) eof
+	}
+	return
+    }
+    lappend ::smtp(cur) $line
+    if {[string index $line 3] eq "-"} return
+    lappend ::smtp(replies) [join $::smtp(cur) \n]
+    set ::smtp(cur) {}
+    if {![llength $::smtp(groups)]} {
+	set ::smtp(done) 1
+	return
+    }
+    foreach line [lindex $::smtp(groups) 0] {
+	if {[string index $line 0] eq "!"} {
+	    uplevel #0 [string range $line 1 end]
+	} else {
+	    puts $sock $line
+	}
+    }
+    set ::smtp(groups) [lrange $::smtp(groups) 1 end]
+}
+
+# Only the reply codes.
+proc codes {replies} {
+    set res {}
+    foreach r $replies {
+	lappend res [string range [lindex [split $r \n] end] 0 2]
+    }
+    return $res
+}
+
+proc startserver {} {
+    lindex [fconfigure [::smtpd::start 127.0.0.1 0] -sockname] 2
+}
+
+proc stopserver {} {
+    ::smtpd::stop
+    ::smtpd::configure -deliver {} -deliverMIME {} -validate_host {} \
+	-validate_sender {} -validate_recipient {} \
+	-banner "tcllib smtpd [package present smtpd]"
+}
+
+# Callbacks
+proc deliverto {from to data} {
+    lappend ::delivered $from $to $data
+}
+proc deliverprefix {var from to data} {
+    lappend ::$var $from $to
+}
+proc delivermime {token} {
+    lappend ::delivered [mime::getheader $token Subject] \
+	[string trimright [mime::getbody $token]]
+}
+proc failing {args} {
+    error "no space left"
+}
+proc rejecthost {ip} {
+    lappend ::called $ip
+    error "not welcome"
+}
+proc acceptany {args} {
+    lappend ::called $args
+}
+proc rejectuser {address} {
+    lappend ::called $address
+    if {[string match denied@* $address]} {
+	error "mailbox denied"
+    }
+}
+
+set mail {
+    {{HELO client}}
+    {{MAIL FROM:<a@example.com>}}
+    {{RCPT TO:<b@example.com>}}
+    DATA
+    {{Subject: test} {} hello .}
+    QUIT
+}
+
+# -------------------------------------------------------------------------
+# ::smtpd::start / ::smtpd::stop
+
+test smtpd-1.0 {start, wrong # args} -body {
+    ::smtpd::start a b c
+} -returnCodes error -result {wrong # args: should be "::smtpd::start ?myaddr? ?port?"}
+
+test smtpd-1.1 {start, returns the listening socket} -body {
+    set sock [::smtpd::start 127.0.0.1 0]
+    list [expr {$sock in [file channels]}] [lindex [fconfigure $sock -sockname] 0] \
+	[set ::smtpd::stopped]
+} -cleanup {
+    stopserver
+    unset sock
+} -result {1 127.0.0.1 0}
+
+test smtpd-1.2 {start, greeting} -setup {
+    set port [startserver]
+} -body {
+    lindex [smtp $port {}] 0
+} -cleanup {
+    stopserver
+    unset port
+} -match regexp -result "^220 127\\.0\\.0\\.1 tcllib smtpd [package present smtpd]; \\w{3}, \\d\\d \\w{3} \\d{4} \\d\\d:\\d\\d:\\d\\d \[-+\]\\d{4}$"
+
+test smtpd-1.3 {start, already running} -setup {
+    set sock [::smtpd::start 127.0.0.1 0]
+} -body {
+    list [catch {::smtpd::start 127.0.0.1 0} msg] \
+	[expr {$msg eq "smtpd service already running on socket $sock"}]
+} -cleanup {
+    stopserver
+    unset sock msg
+} -result {1 1}
+
+test smtpd-1.4 {stop} -setup {
+    set sock [::smtpd::start 127.0.0.1 0]
+} -body {
+    list [::smtpd::stop] [set ::smtpd::stopped] [expr {$sock in [file channels]}]
+} -cleanup {
+    stopserver
+    unset sock
+} -result {{} 1 0}
+
+test smtpd-1.5 {stop, not running} -body {
+    ::smtpd::stop
+    ::smtpd::stop
+} -result {}
+
+test smtpd-1.6 {stop, then start again} -setup {
+    ::smtpd::start 127.0.0.1 0
+    ::smtpd::stop
+} -body {
+    set port [startserver]
+    codes [smtp $port {QUIT}]
+} -cleanup {
+    stopserver
+    unset port
+} -result {220 221}
+
+test smtpd-1.7 {stop does not close active sessions} -setup {
+    set port [startserver]
+} -body {
+    smtp $port {{!::smtpd::stop NOOP} QUIT}
+} -cleanup {
+    stopserver
+    unset port
+} -match glob -result {{220 *} {250 OK} {221 *}}
+
+test smtpd-1.8 {stopped variable for vwait} -setup {
+    set port [startserver]
+} -body {
+    after 0 ::smtpd::stop
+    vwait ::smtpd::stopped
+    set ::smtpd::stopped
+} -cleanup {
+    stopserver
+    unset port
+} -result 1
+
+test smtpd-1.9 {namespace export} -body {
+    lsort [namespace eval ::smtpd {namespace export}]
+} -result {configure start stop}
+
+# -------------------------------------------------------------------------
+# ::smtpd::configure / ::smtpd::cget
+
+test smtpd-2.0 {cget, documented options} -body {
+    set res {}
+    foreach o {-banner -validate_host -validate_sender -validate_recipient
+	-deliverMIME -deliver} {
+	lappend res [::smtpd::cget $o]
+    }
+    set res
+} -cleanup {
+    unset res o
+} -result "{tcllib smtpd [package present smtpd]} {} {} {} {} {}"
+
+test smtpd-2.1 {configure and cget} -body {
+    list [::smtpd::configure -banner "My server" -validate_host acceptany \
+	      -validate_sender acceptany -validate_recipient acceptany \
+	      -deliverMIME delivermime -deliver deliverto] \
+	[::smtpd::cget -banner] [::smtpd::cget -validate_host] \
+	[::smtpd::cget -validate_sender] [::smtpd::cget -validate_recipient] \
+	[::smtpd::cget -deliverMIME] [::smtpd::cget -deliver]
+} -cleanup {
+    stopserver
+} -result {{} {My server} acceptany acceptany acceptany delivermime deliverto}
+
+test smtpd-2.2 {configure, option set twice} -body {
+    ::smtpd::configure -banner one -banner two
+    ::smtpd::cget -banner
+} -cleanup {
+    stopserver
+} -result two
+
+test smtpd-2.3 {configure, unknown option} -body {
+    ::smtpd::configure -foo bar
+} -returnCodes error -result {unknown option: "-foo": must be one of -deliverMIME, -deliver, -validate_host, -validate_recipient, -validate_sender or an option suitable to tls::init}
+
+test smtpd-2.4 {configure, end of options} -body {
+    list [::smtpd::configure -banner x -- -foo bar] [::smtpd::cget -banner]
+} -cleanup {
+    stopserver
+} -result {{} x}
+
+test smtpd-2.5 {configure, all options} -body {
+    set opts [::smtpd::configure]
+    set res [list [lindex $opts [expr {[lsearch -exact $opts -banner] + 1}]]]
+    foreach o {-deliver -deliverMIME -validate_host -validate_sender -validate_recipient} {
+	lappend res [expr {[lsearch -exact $opts $o] >= 0}]
+    }
+    set res
+} -cleanup {
+    unset opts res o
+} -result "{tcllib smtpd [package present smtpd]} 1 1 1 1 1"
+
+test smtpd-2.6 {cget, unknown option} -body {
+    ::smtpd::cget -foo
+} -returnCodes error -match glob -result {unknown option "-foo":*must be one of -*}
+
+test smtpd-2.7 {cget, without option returns all options (documented)} -constraints {
+    knownBug
+} -body {
+    set opts [::smtpd::cget]
+    list [dict get $opts -banner] [dict exists $opts -deliver]
+} -cleanup {
+    unset -nocomplain opts
+} -result "{tcllib smtpd [package present smtpd]} 1"
+
+test smtpd-2.8 {cget, too many args} -body {
+    ::smtpd::cget -banner -deliver
+} -returnCodes error -result {wrong # args: should be "::smtpd::cget option"}
+
+test smtpd-2.9 {configure -banner, greeting} -setup {
+    ::smtpd::configure -banner "My mail server"
+    set port [startserver]
+} -body {
+    smtp $port {}
+} -cleanup {
+    stopserver
+    unset port
+} -match glob -result {{220 127.0.0.1 My mail server; *}}
+
+# -------------------------------------------------------------------------
+# SMTP commands
+
+test smtpd-3.0 {HELO} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {{{HELO client.example.com}} QUIT}] 1 end
+} -cleanup {
+    stopserver
+    unset port
+} -result {{250 127.0.0.1 Hello client.example.com [127.0.0.1], pleased to meet you} {221 127.0.0.1 Service closing transmission channel}}
+
+test smtpd-3.1 {HELO, twice} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {{{HELO client}} {{HELO client}} QUIT}] 2 2
+} -cleanup {
+    stopserver
+    unset port
+} -result {{503 bad sequence of commands}}
+
+test smtpd-3.2 {HELO, syntax error} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {HELO {{HELO a b}} QUIT}] 1 2
+} -cleanup {
+    stopserver
+    unset port
+} -result {{501 Syntax error in parameters or arguments} {501 Syntax error in parameters or arguments}}
+
+test smtpd-3.3 {EHLO} -setup {
+    set port [startserver]
+} -body {
+    set r [split [lindex [smtp $port {{{EHLO client}} QUIT}] 1] \n]
+    list [lindex $r 0] [lsort [lrange $r 1 end-1]] [lindex $r end]
+} -cleanup {
+    stopserver
+    unset port r
+} -result {{250-127.0.0.1 Hello client [127.0.0.1], pleased to meet you} {250-8BITMIME {250-SIZE 0}} {250 Ready for mail.}}
+
+test smtpd-3.4 {EHLO, after HELO and syntax error} -setup {
+    set port [startserver]
+} -body {
+    codes [smtp $port {EHLO {{HELO client}} {{EHLO client}} QUIT}]
+} -cleanup {
+    stopserver
+    unset port
+} -result {220 501 250 503 221}
+
+test smtpd-3.5 {commands are case-insensitive} -setup {
+    set port [startserver]
+} -body {
+    codes [smtp $port {{{helo client}} {{mail from:<a@example.com>}} {{rcpt to:<b@example.com>}} noop rset quit}]
+} -cleanup {
+    stopserver
+    unset port
+} -result {220 250 250 250 250 250 221}
+
+test smtpd-3.6 {unknown command} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {{{VRFY joe}} QUIT}] 1 end
+} -cleanup {
+    stopserver
+    unset port
+} -result {{500 Invalid command} {221 127.0.0.1 Service closing transmission channel}}
+
+test smtpd-3.7 {NOOP} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {NOOP {{NOOP something}} QUIT}] 1 2
+} -cleanup {
+    stopserver
+    unset port
+} -result {{250 OK} {250 OK}}
+
+test smtpd-3.8 {HELP} -setup {
+    set port [startserver]
+} -body {
+    lindex [smtp $port {HELP QUIT}] 1
+} -cleanup {
+    stopserver
+    unset port
+} -result "214-Topics:\n214-   HELO MAIL DATA RSET NOOP QUIT\n214-For more information use \"HELP <topic>\".\n214 End of HELP"
+
+test smtpd-3.9 {HELP topic} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {{{HELP DATA}} {{HELP FOO}} QUIT}] 1 2
+} -cleanup {
+    stopserver
+    unset port
+} -result {{214-DATA
+214-   Send your mail message.
+214-   End with a line containing a single dot.
+214 End of HELP} {504 HELP topic "FOO" unknown.}}
+
+test smtpd-3.10 {QUIT closes the connection} -setup {
+    set port [startserver]
+} -body {
+    # The empty group after QUIT waits for the end of the connection.
+    lrange [smtp $port {QUIT {{!}}}] 1 end
+} -cleanup {
+    stopserver
+    unset port
+} -result {{221 127.0.0.1 Service closing transmission channel} EOF}
+
+# -------------------------------------------------------------------------
+# MAIL / RCPT / DATA / RSET and delivery
+
+test smtpd-4.0 {MAIL, RCPT, DATA, deliver} -setup {
+    set delivered {}
+    ::smtpd::configure -deliver deliverto
+    set port [startserver]
+} -body {
+    set r [smtp $port $mail]
+    lassign $delivered from to data
+    list [lrange $r 1 3] [lindex $r 4] [regexp {^250 \w{12} Message accepted for delivery$} [lindex $r 5]] \
+	[lindex $r 6] $from $to [lrange $data end-2 end] [lindex $data 0] \
+	[string match "Received: from client \\\[127.0.0.1\\\]" [lindex $data 1]]
+} -cleanup {
+    stopserver
+    unset delivered port r from to data
+} -result {{{250 127.0.0.1 Hello client [127.0.0.1], pleased to meet you} {250 OK} {250 OK}} {354 Enter mail, end with "." on a line by itself} 1 {221 127.0.0.1 Service closing transmission channel} <a@example.com> <b@example.com> {{Subject: test} {} hello} {Return-Path: <a@example.com>} 1}
+
+test smtpd-4.1 {DATA, trace lines} -setup {
+    set delivered {}
+    ::smtpd::configure -deliver deliverto
+    set port [startserver]
+} -body {
+    set r [smtp $port $mail]
+    set data [lindex $delivered 2]
+    list [llength $data] [string match "\tby * with tcllib smtpd ([package present smtpd])" [lindex $data 2]] \
+	[regexp "^\tid (\\w{12}); \\w{3}, \\d\\d \\w{3} \\d{4} \\d\\d:\\d\\d:\\d\\d \[-+\]\\d{4}$" [lindex $data 3] -> id] \
+	[string match "250 $id *" [lindex $r 5]]
+} -cleanup {
+    stopserver
+    unset delivered port r data id
+} -result {7 1 1 1}
+
+test smtpd-4.2 {DATA, dot-stuffed lines} -setup {
+    set delivered {}
+    ::smtpd::configure -deliver deliverto
+    set port [startserver]
+} -body {
+    smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}} {{RCPT TO:<b@example.com>}}
+	DATA {{Subject: dots} {} ..one ...two {. three} .}
+	QUIT
+    }
+    lrange [lindex $delivered 2] end-2 end
+} -cleanup {
+    stopserver
+    unset delivered port
+} -result {.one ..two {. three}}
+
+test smtpd-4.3 {RCPT, several recipients} -setup {
+    set delivered {}
+    ::smtpd::configure -deliver deliverto
+    set port [startserver]
+} -body {
+    smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}}
+	{{RCPT TO:<b@example.com>}} {{RCPT TO:<c@example.com>}}
+	DATA {x .} QUIT
+    }
+    lrange $delivered 0 1
+} -cleanup {
+    stopserver
+    unset delivered port
+} -result {<a@example.com> {<b@example.com> <c@example.com>}}
+
+test smtpd-4.4 {MAIL, null sender} -setup {
+    set delivered {}
+    ::smtpd::configure -deliver deliverto
+    set port [startserver]
+} -body {
+    list [codes [smtp $port {
+	{{HELO client}} {{MAIL FROM:<>}} {{RCPT TO:<b@example.com>}}
+	DATA {x .} QUIT
+    }]] [lrange $delivered 0 1]
+} -cleanup {
+    stopserver
+    unset delivered port
+} -result {{220 250 250 250 354 250 221} {<> <b@example.com>}}
+
+test smtpd-4.5 {MAIL, with parameters} -setup {
+    set delivered {}
+    ::smtpd::configure -deliver deliverto
+    set port [startserver]
+} -body {
+    list [codes [smtp $port {
+	{{EHLO client}} {{MAIL FROM:<a@example.com> BODY=8BITMIME}}
+	{{RCPT TO:<b@example.com>}} DATA {x .} QUIT
+    }]] [lrange $delivered 0 1]
+} -cleanup {
+    stopserver
+    unset delivered port
+} -result {{220 250 250 250 354 250 221} {<a@example.com> <b@example.com>}}
+
+test smtpd-4.6 {MAIL and RCPT, syntax errors} -setup {
+    set port [startserver]
+} -body {
+    lrange [codes [smtp $port {
+	{{HELO client}} MAIL {{MAIL TO:<a@example.com>}} {{MAIL FROM:<@>}}
+	RCPT {{RCPT FROM:<a@example.com>}} {{RCPT TO:<@>}} QUIT
+    }]] 2 end-1
+} -cleanup {
+    stopserver
+    unset port
+} -result {501 501 501 501 501 501}
+
+test smtpd-4.7 {DATA without sender} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {{{HELO client}} DATA QUIT}] 2 2
+} -cleanup {
+    stopserver
+    unset port
+} -result {{503 bad sequence: no sender specified}}
+
+test smtpd-4.8 {DATA without recipient} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {{{HELO client}} {{MAIL FROM:<a@example.com>}} DATA QUIT}] 3 3
+} -cleanup {
+    stopserver
+    unset port
+} -result {{503 bad sequence: no recipient specified}}
+
+test smtpd-4.9 {RSET} -setup {
+    set port [startserver]
+} -body {
+    lrange [smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}} {{RCPT TO:<b@example.com>}}
+	RSET DATA QUIT
+    }] 4 5
+} -cleanup {
+    stopserver
+    unset port
+} -result {{250 OK} {503 bad sequence: no sender specified}}
+
+test smtpd-4.10 {no deliver callback} -setup {
+    set port [startserver]
+} -body {
+    codes [smtp $port $mail]
+} -cleanup {
+    stopserver
+    unset port
+} -result {220 250 250 250 354 250 221}
+
+test smtpd-4.11 {deliver callback fails} -setup {
+    ::smtpd::configure -deliver failing
+    set port [startserver]
+} -body {
+    lindex [smtp $port $mail] 5
+} -cleanup {
+    stopserver
+    unset port
+} -result {554 Transaction failed: no space left}
+
+test smtpd-4.12 {deliver callback as command prefix, ticket 1dd19ccd14} -setup {
+    set got {}
+    ::smtpd::configure -deliver [list deliverprefix got]
+    set port [startserver]
+} -body {
+    list [codes [smtp $port $mail]] $got
+} -cleanup {
+    stopserver
+    unset got port
+} -result {{220 250 250 250 354 250 221} {<a@example.com> <b@example.com>}}
+
+test smtpd-4.13 {second message in the same session} -constraints {
+    knownBug
+} -setup {
+    set delivered {}
+    ::smtpd::configure -deliver deliverto
+    set port [startserver]
+} -body {
+    smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}} {{RCPT TO:<b@example.com>}}
+	DATA {first .}
+	{{MAIL FROM:<c@example.com>}} {{RCPT TO:<d@example.com>}}
+	DATA {second .} QUIT
+    }
+    list [lrange $delivered 0 1] [lrange $delivered 3 4] [lindex $delivered 5 end]
+} -cleanup {
+    stopserver
+    unset delivered port
+} -result {{<a@example.com> <b@example.com>} {<c@example.com> <d@example.com>} second}
+
+test smtpd-4.14 {deliverMIME} -setup {
+    set delivered {}
+    ::smtpd::configure -deliverMIME delivermime
+    set port [startserver]
+} -body {
+    list [codes [smtp $port $mail]] $delivered
+} -cleanup {
+    stopserver
+    unset delivered port
+} -result {{220 250 250 250 354 250 221} {test hello}}
+
+test smtpd-4.15 {deliverMIME takes precedence over deliver} -setup {
+    set delivered {}
+    ::smtpd::configure -deliverMIME delivermime -deliver deliverto
+    set port [startserver]
+} -body {
+    smtp $port $mail
+    set delivered
+} -cleanup {
+    stopserver
+    unset delivered port
+} -result {test hello}
+
+test smtpd-4.16 {deliverMIME, token headers} -setup {
+    set delivered {}
+    proc ::delivermime2 {token} {
+	lappend ::delivered [mime::getheader $token From] \
+	    [mime::getheader $token Return-Path]
+    }
+    ::smtpd::configure -deliverMIME delivermime2
+    set port [startserver]
+} -body {
+    smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}} {{RCPT TO:<b@example.com>}}
+	DATA {{From: A <a@example.com>} {Subject: x} {} body .} QUIT
+    }
+    set delivered
+} -cleanup {
+    stopserver
+    rename ::delivermime2 {}
+    unset delivered port
+} -result {{{A <a@example.com>}} <a@example.com>}
+
+test smtpd-4.17 {deliverMIME callback fails} -setup {
+    ::smtpd::configure -deliverMIME failing
+    set port [startserver]
+} -body {
+    lindex [smtp $port $mail] 5
+} -cleanup {
+    stopserver
+    unset port
+} -result {554 Transaction failed: no space left}
+
+test smtpd-4.18 {deliverMIME as command prefix} -setup {
+    set delivered {}
+    proc ::delivermime3 {tag token} {
+	lappend ::delivered $tag [mime::getheader $token Subject]
+    }
+    ::smtpd::configure -deliverMIME [list delivermime3 mytag]
+    set port [startserver]
+} -body {
+    smtp $port $mail
+    set delivered
+} -cleanup {
+    stopserver
+    rename ::delivermime3 {}
+    unset delivered port
+} -result {mytag test}
+
+# -------------------------------------------------------------------------
+# Validation callbacks
+
+test smtpd-5.0 {validate_host, accepted} -setup {
+    set called {}
+    ::smtpd::configure -validate_host acceptany
+    set port [startserver]
+} -body {
+    list [codes [smtp $port {{{HELO client}} QUIT}]] $called
+} -cleanup {
+    stopserver
+    unset called port
+} -result {{220 250 221} 127.0.0.1}
+
+test smtpd-5.1 {validate_host, denied} -setup {
+    set called {}
+    ::smtpd::configure -validate_host rejecthost
+    set port [startserver]
+} -body {
+    list [smtp $port {{{HELO client}} {{MAIL FROM:<a@example.com>}} NOOP QUIT}] $called
+} -cleanup {
+    stopserver
+    unset called port
+} -result {{{550 Access denied: not welcome} {503 bad sequence of commands} {503 bad sequence of commands} {503 bad sequence of commands} {221 127.0.0.1 Service closing transmission channel}} 127.0.0.1}
+
+test smtpd-5.2 {validate_sender, accepted} -setup {
+    set called {}
+    ::smtpd::configure -validate_sender rejectuser
+    set port [startserver]
+} -body {
+    list [codes [smtp $port {{{HELO client}} {{MAIL FROM:<joe@example.com>}} QUIT}]] $called
+} -cleanup {
+    stopserver
+    unset called port
+} -result {{220 250 250 221} joe@example.com}
+
+test smtpd-5.3 {validate_sender, denied} -setup {
+    set called {}
+    ::smtpd::configure -validate_sender rejectuser
+    set port [startserver]
+} -body {
+    list [lrange [smtp $port {
+	{{HELO client}} {{MAIL FROM:<denied@example.com>}}
+	{{RCPT TO:<b@example.com>}} DATA QUIT
+    }] 2 4] $called
+} -cleanup {
+    stopserver
+    unset called port
+} -result {{{553 Requested action not taken: mailbox name not allowed} {250 OK} {503 bad sequence: no sender specified}} denied@example.com}
+
+test smtpd-5.4 {validate_recipient, accepted and denied} -setup {
+    set called {}
+    set delivered {}
+    ::smtpd::configure -validate_recipient rejectuser -deliver deliverto
+    set port [startserver]
+} -body {
+    list [lrange [smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}}
+	{{RCPT TO:<denied@example.com>}} {{RCPT TO:<b@example.com>}}
+	DATA {x .} QUIT
+    }] 3 4] $called [lindex $delivered 1]
+} -cleanup {
+    stopserver
+    unset called delivered port
+} -result {{{553 Requested action not taken: mailbox name not allowed} {250 OK}} {denied@example.com b@example.com} <b@example.com>}
+
+test smtpd-5.5 {validate_recipient, postmaster is always accepted} -setup {
+    set called {}
+    ::smtpd::configure -validate_recipient rejecthost
+    set port [startserver]
+} -body {
+    list [codes [smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}}
+	{{RCPT TO:<postmaster@example.com>}} {{RCPT TO:<b@example.com>}} QUIT
+    }]] $called
+} -cleanup {
+    stopserver
+    unset called port
+} -result {{220 250 250 250 553 221} b@example.com}
+
+test smtpd-5.6 {validation callbacks as command prefixes} -setup {
+    set called {}
+    ::smtpd::configure -validate_host {acceptany host} \
+	-validate_sender {acceptany sender} -validate_recipient {acceptany rcpt}
+    set port [startserver]
+} -body {
+    list [codes [smtp $port {
+	{{HELO client}} {{MAIL FROM:<a@example.com>}} {{RCPT TO:<b@example.com>}} QUIT
+    }]] $called
+} -cleanup {
+    stopserver
+    unset called port
+} -result {{220 250 250 250 221} {{host 127.0.0.1} {sender a@example.com} {rcpt b@example.com}}}
+
+# -------------------------------------------------------------------------
+# Time stamps
+
+test smtpd-6.0 {greeting time stamp, time zone offset with minutes} -constraints {
+    knownBug
+} -setup {
+    set oldtz [array get env TZ]
+    set env(TZ) :Asia/Kolkata
+    set port [startserver]
+} -body {
+    smtp $port {}
+} -cleanup {
+    stopserver
+    unset env(TZ)
+    array set env $oldtz
+    unset oldtz port
+} -match glob -result {{220 127.0.0.1 * +0530}}
+
+test smtpd-6.1 {greeting time stamp, negative offset} -setup {
+    set oldtz [array get env TZ]
+    set env(TZ) :America/New_York
+    set port [startserver]
+} -body {
+    lindex [smtp $port {}] 0 end
+} -cleanup {
+    stopserver
+    unset env(TZ)
+    array set env $oldtz
+    unset oldtz port
+} -match regexp -result {^-0[45]00$}
+
+# -------------------------------------------------------------------------
+
+::smtpd::configure -loglevel warn
+rename smtp {}
+rename smtpread {}
+rename codes {}
+rename startserver {}
+rename stopserver {}
+foreach p {deliverto deliverprefix delivermime failing rejecthost acceptany rejectuser} {
+    rename $p {}
+}
+unset p mail
+testsuiteCleanup
+return

@@ -14,7 +14,7 @@
 [para]
 The technique of [emph "simulated annealing"] provides methods to
 estimate the global optimum of a function. It is described in some
-detail on the Wiki [uri http://wiki.tcl.tk/...]. The idea is simple:
+detail on the Wiki [uri https://wiki.tcl-lang.org/...]. The idea is simple:
 
 [list_begin itemized]
 [item]

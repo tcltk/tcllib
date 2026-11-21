@@ -5,7 +5,7 @@ Description: This package is intended to be a collection of
     large collection of Tcl programmers.
 Rights: BSD
 Version: 2.0
-URL: http://core.tcl.tk/tcllib
+URL: https://core.tcl-lang.org/tcllib
 Architecture: tcl
 Contributor:  <jeffh at activestate dot com>
 Contributor: Aaron Faupell <afaupell at users dot sourceforge dot net>

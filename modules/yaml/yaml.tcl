@@ -1201,7 +1201,7 @@ proc ::yaml::_doFolding {value offset} {
     return $value
 }
 
-# http://wiki.tcl.tk/1774
+# https://wiki.tcl-lang.org/1774
 proc ::yaml::_simple_justify {text width {wrap \n} {cut 0}} {
     set brk ""
     for {set result {}} {[string length $text] > $width} {
