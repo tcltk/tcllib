@@ -49,7 +49,13 @@ beginning of the token stream, with the first token found in the
 stream located at offset 0 (zero).
 
 [enum]
-The end location has to be equal to or larger than the start location.
+The end location has to be equal to or larger than the start location,
+except for a node which covers no tokens, i.e. which matched the empty
+string (possible for a symbol whose expression is, for example, a
+repetition [const *] or an optional [const ?]). The end location of
+such a node is the start location minus 1, i.e. [const -1] for an
+empty node at the beginning of the token stream. See
+[cmd {::pt::ast new0}].
 
 [list_end][comment {--- location constraints}]
 

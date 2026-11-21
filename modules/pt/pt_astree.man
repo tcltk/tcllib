@@ -115,7 +115,7 @@ children of this node.
 
 [list_end]
 
-[call [cmd ::pt::ast] [method topdown] [arg cmdprefix] [arg pe]]
+[call [cmd ::pt::ast] [method topdown] [arg cmdprefix] [arg ast]]
 
 This command walks the abstract syntax tree [arg ast] from the root
 down to the leaves, invoking the command prefix [arg cmdprefix] for
@@ -134,7 +134,7 @@ The result returned by the command prefix is [emph ignored].
 [call [cmd ::pt::ast] [method equal] \
 	[arg seriala] [arg serialb]]
 
-This command tests the two sbstract syntax trees [arg seriala] and
+This command tests the two abstract syntax trees [arg seriala] and
 [arg serialb] for structural equality. The result of the command is a
 boolean value. It will be set to [const true] if the trees are
 identical, and [const false] otherwise.
@@ -147,22 +147,24 @@ pure Tcl lists.
 [call [cmd ::pt::ast] [method new0] [arg s] \
 	[arg loc] [opt [arg child]...]]
 
-This command command constructs the ast for a nonterminal node
-refering refering to the symbol [arg s] at position [arg loc] in the
-input, and the set of child nodes [arg child] ..., from left
+This command constructs the ast for a nonterminal node
+referring to the symbol [arg s] at position [arg loc] in the
+input, and the set of child nodes [arg child] ..., from left to
 right. The latter may be empty. The constructed node is returned as
 the result of the command. The end position is [arg loc]-1, i.e. one
-character before the start. This type of node is possible for rules
-containing optional parts.
+character before the start: the node matched the empty string. This
+type of node is possible for rules containing optional parts.
 
 [call [cmd ::pt::ast] [method new] [arg s] \
 	[arg start] [arg end] [opt [arg child]...]]
 
-This command command constructs the ast for a nonterminal node
-refering to the symbol [arg s] covering the range of positions
+This command constructs the ast for a nonterminal node
+referring to the symbol [arg s] covering the range of positions
 [arg start] to [arg end] in the input, and the set of child nodes
-[arg child] ..., from left right. The latter may be empty. The
-constructed node is returned as the result of the command.
+[arg child] ..., from left to right. The latter may be empty. The
+constructed node is returned as the result of the command. An error
+is thrown if [arg start] or [arg end] is not a non-negative integer,
+or if [arg end] is smaller than [arg start].
 
 [list_end]
 

@@ -1,4 +1,4 @@
-[vset VERSION 1.0.2]
+[vset VERSION 1.0.3]
 [comment {-*- text -*- doctools manpage}]
 [manpage_begin pt::pe n [vset VERSION]]
 [include include/module.inc]
@@ -186,7 +186,7 @@ This command constructs the atomic parsing expression for graph.
 
 This command constructs the atomic parsing expression for lower.
 
-[call [cmd ::pt::pe] [method print]]
+[call [cmd ::pt::pe] [method printable]]
 
 This command constructs the atomic parsing expression for print.
 
@@ -222,7 +222,27 @@ symbol [arg t].
 [call [cmd ::pt::pe] [method range] [arg ta] [arg tb]]
 
 This command constructs the atomic parsing expression for the range of
-terminal symbols [arg ta] ... [arg tb].
+terminal symbols [arg ta] ... [arg tb]. If [arg ta] and [arg tb] are
+the same character the result is the terminal for it, see
+[method terminal].
+
+[call [cmd ::pt::pe] [method class] [arg set]]
+
+This command constructs the pseudo-parsing expression
+[lb]list cl [arg set][rb] for the character class consisting of the
+characters in the string [arg set], or the terminal for it, if
+[arg set] is a single character. This and [method str] are used for
+the syntax errors reported by parsers. The pseudo-operator [const cl]
+is not part of the [sectref {PE serialization format}] and is rejected
+by [method verify].
+
+[call [cmd ::pt::pe] [method str] [arg str]]
+
+This command constructs the pseudo-parsing expression
+[lb]list str [arg str][rb] for the string [arg str], or the terminal
+for it, if [arg str] is a single character. The pseudo-operator
+[const str] is not part of the [sectref {PE serialization format}] and
+is rejected by [method verify].
 
 [call [cmd ::pt::pe] [method nonterminal] [arg nt]]
 

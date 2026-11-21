@@ -99,13 +99,24 @@ based on Tcl's builtin command [cmd {string is}].
 
 [enum]
 The string [const ddigit] is an atomic parsing expression. It matches
-any decimal digit character. This is a custom extension of PEs based
-on Tcl's builtin command [cmd regexp].
+the decimal digit characters [lb]0..9[rb] only, unlike [const digit],
+which matches other Unicode digit characters as well. This is a custom
+extension of PEs.
 
 [enum]
 The expression
     [lb]list t [var x][rb]
-is an atomic parsing expression. It matches the terminal string [var x].
+is an atomic parsing expression. It matches the terminal [var x],
+which is a single character. A string of several characters is
+written as a sequence of terminals.
+
+[enum]
+The expression
+    [lb]list .. [var a] [var b][rb]
+is an atomic parsing expression. It matches any character in the
+range from [var a] to [var b], inclusive, i.e. any character whose
+code point is not smaller than that of [var a] and not larger than
+that of [var b]. Both [var a] and [var b] are single characters.
 
 [enum]
 The expression
@@ -186,6 +197,30 @@ This is the [term {optional input}].
 
 [list_end][comment {-- combined points --}]
 [list_end][comment {-- regular points --}]
+
+[para]
+
+The pseudo-operators [const str] (string) and [const cl] (character
+class) are [emph not] part of this format, and
+[cmd {::pt::pe verify}] rejects them. They are only found in
+[term {pseudo-parsing expressions}]:
+
+[list_begin itemized]
+[item]
+[cmd {::pt::pe::op fusechars}] returns
+[lb]list str [var c1] [var c2] ...[rb] for a sequence of terminals,
+one character per argument, and
+[lb]list cl [var e1] [var e2] ...[rb] for a choice of terminals and
+ranges, where each element is either a single character or a list of
+the two characters of a range.
+
+[item]
+The syntax errors reported by parsers can use
+[lb]list str [var s][rb] and [lb]list cl [var s][rb], see
+[cmd {::pt::pe str}] and [cmd {::pt::pe class}]. Here the whole
+string, respectively all characters of the class, are a single
+argument.
+[list_end]
 
 [def {Canonical serialization}]
 

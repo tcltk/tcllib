@@ -22,7 +22,8 @@ The serialization of any PEG is a nested Tcl dictionary.
 
 [enum]
 This dictionary holds a single key, [const pt::grammar::peg], and its
-value. This value holds the contents of the grammar.
+value. This value holds the contents of the grammar. The key marks
+the value as the serialization of a parsing expression grammar.
 
 [enum]
 The contents of the grammar are a Tcl dictionary holding the set of
@@ -50,7 +51,7 @@ keys and their values in this dictionary are
 [def [const is]]
 
 The value is the serialization of the parsing expression describing
-the symbols sentennial structure, as specified in the section
+the symbol's sentential structure, as specified in the section
 [sectref {PE serialization format}].
 
 [def [const mode]]
