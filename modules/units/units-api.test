@@ -1,0 +1,479 @@
+# units-api.test - Additional API tests for the units package.
+#
+# Covers the examples of the manual page, all documented unit names,
+# abbreviations and prefixes not exercised by units.test, and further
+# error cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal units.tcl units
+}
+
+# -------------------------------------------------------------------------
+
+# Relative comparison of floating point results.
+proc approx {value expected} {
+    expr {abs($value - $expected) <= 1e-9 * abs($expected)}
+}
+
+# -------------------------------------------------------------------------
+# Examples from the manual page
+
+test units-api-1.1 {convert, manual example: miles to km} -body {
+    units::convert "2.3 miles" km
+} -result 3.7014912
+
+test units-api-1.2 {convert, manual example: m/s to miles/hour} -body {
+    format %.9f [units::convert 300m/s miles/hour]
+} -result 671.080887616
+
+test units-api-1.3 {convert, manual example: m kg/s^2 to newton} -body {
+    units::convert "1.0 m kg/s^2" newton
+} -result 1.0
+
+test units-api-1.4 {convert, manual example: unitless value is scaled} -body {
+    units::convert 1.0 millimeter
+} -result 1000.0
+
+test units-api-1.5 {reduce, manual example: pascal} -body {
+    units::reduce pascal
+} -result {1000.0 gram / meter second second}
+
+test units-api-1.6 {new, manual example: furlongs per fortnight} -setup {
+    units::new apifurlong "220 yards"
+    units::new apifortnight "14 days"
+} -body {
+    format %.4f [units::convert 100m/s apifurlongs/apifortnight]
+} -result 601288.4753
+
+foreach {n str reduced} {
+    1  meter                 {1.0 meter}
+    2  kilometer             {1000.0 meter}
+    3  km                    {1000.0 meter}
+    4  km/s                  {1000.0 meter / second}
+    5  /microsecond          {1000000.0 / second}
+    6  /us                   {1000000.0 / second}
+    7  kg-m/s^2              {1000.0 gram meter / second second}
+    8  30second              {30.0 second}
+    9  {30 second}           {30.0 second}
+    10 {30 seconds}          {30.0 second}
+} {
+    test units-api-2.$n "reduce, manual table of valid unit strings: $str" -body {
+        units::reduce $str
+    } -result $reduced
+}
+
+test units-api-2.11 {reduce, manual table: 200*meter/20.5*second} -body {
+    set r [units::reduce 200*meter/20.5*second]
+    list [format %.11f [lindex $r 0]] {*}[lrange $r 1 end]
+} -cleanup {
+    unset r
+} -result {9.75609756098 meter / second}
+
+# -------------------------------------------------------------------------
+# reduce: further unit string syntax
+
+test units-api-3.1 {reduce, empty string} -body {
+    units::reduce ""
+} -result 1.0
+
+test units-api-3.2 {reduce, scale factor only} -body {
+    units::reduce 42
+} -result 42.0
+
+test units-api-3.3 {reduce, leading and trailing white space} -body {
+    units::reduce "  m  "
+} -result {1.0 meter}
+
+test units-api-3.4 {reduce, tab separator} -body {
+    units::reduce "m\ts"
+} -result {1.0 meter second}
+
+test units-api-3.5 {reduce, exponential scale factor} -body {
+    units::reduce 2.5e3m
+} -result {2500.0 meter}
+
+test units-api-3.6 {reduce, negative scale factor} -body {
+    units::reduce -3m
+} -result {-3.0 meter}
+
+test units-api-3.7 {reduce, scale factor with leading decimal point} -body {
+    units::reduce .5m
+} -result {0.5 meter}
+
+test units-api-3.8 {reduce, subunit scale factor} -body {
+    units::reduce "m 2 m"
+} -result {2.0 meter meter}
+
+test units-api-3.9 {reduce, trailing subunit scale factor} -body {
+    units::reduce "m 0.5"
+} -result {0.5 meter}
+
+test units-api-3.10 {reduce, scale factor in the denominator} -body {
+    units::reduce "m / 4 s"
+} -result {0.25 meter / second}
+
+test units-api-3.11 {reduce, subunits are sorted and cancelled} -body {
+    units::reduce "s s A m/K s"
+} -result {1.0 ampere meter second / kelvin}
+
+test units-api-3.12 {reduce, -primitive is returned unchanged} -body {
+    units::reduce -primitive
+} -result -primitive
+
+test units-api-3.13 {reduce, plural "es" of an abbreviation} -body {
+    units::reduce inches
+} -result {0.0254 meter}
+
+test units-api-3.14 {reduce, prefix with exponent} -body {
+    units::reduce km^2
+} -result {1000000.0 meter meter}
+
+test units-api-3.15 {reduce, prefixed denominator with exponent} -body {
+    units::reduce /ms^2
+} -result {1000000.0 / second second}
+
+test units-api-3.16 {reduce, compound prefixes are not allowed} -body {
+    units::reduce kilokilometer
+} -returnCodes error -result {invalid unit name 'kilokilometer' in 'kilokilometer'}
+
+test units-api-3.17 {reduce, prefix alone is not allowed} -body {
+    units::reduce kilo
+} -returnCodes error -result {invalid unit name 'kilo' in 'kilo'}
+
+test units-api-3.18 {reduce, zero exponent} -body {
+    units::reduce m^0
+} -returnCodes error -result {invalid non-positive exponent in 'm^0'}
+
+test units-api-3.19 {reduce, missing exponent} -body {
+    units::reduce m^
+} -returnCodes error -result {invalid integer exponent in 'm^'}
+
+test units-api-3.20 {reduce, plus sign inside a unit string} -body {
+    units::reduce m+s
+} -returnCodes error -result {invalid non-alphabetic unit name in 'm+s'}
+
+test units-api-3.21 {reduce, zero leading scale factor in a subunit} -body {
+    units::reduce "m 0 s"
+} -returnCodes error -result {illegal zero factor in 'm 0 s'}
+
+test units-api-3.22 {reduce, wrong # args} -body {
+    units::reduce a b
+} -returnCodes error -result {wrong # args: should be "units::reduce unitString"}
+
+# -------------------------------------------------------------------------
+# SI base units and their abbreviations
+
+foreach {n name abbr} {
+    1 meter    m
+    2 kilogram kg
+    3 second   s
+    4 ampere   A
+    5 kelvin   K
+    6 mole     mol
+    7 candela  cd
+} {
+    test units-api-4.$n "SI base unit $name, abbreviation $abbr" -body {
+        list [units::convert "1 $abbr" $name] [units::convert "1 $name" $abbr]
+    } -result {1.0 1.0}
+}
+
+test units-api-4.8 {SI base units reduce to primitive units} -body {
+    set r {}
+    foreach u {meter gram second ampere kelvin mole candela} {
+        lappend r [units::reduce $u]
+    }
+    set r
+} -cleanup {
+    unset r u
+} -result {{1.0 meter} {1.0 gram} {1.0 second} {1.0 ampere} {1.0 kelvin} {1.0 mole} {1.0 candela}}
+
+test units-api-4.9 {kilogram is implemented as grams} -body {
+    list [units::reduce kg] [units::convert 1mg kg] [units::convert 1kg g]
+} -result {{1000.0 gram} 1e-6 1000.0}
+
+# -------------------------------------------------------------------------
+# SI derived units with special names: abbreviations and base units
+
+foreach {n name abbr base} {
+    1  radian    rad  m/m
+    2  steradian sr   m^2/m^2
+    3  hertz     Hz   /s
+    4  newton    N    m-kg/s^2
+    5  pascal    Pa   kg/m-s^2
+    6  joule     J    m^2-kg/s^2
+    7  watt      W    m^2-kg/s^3
+    8  coulomb   C    s-A
+    9  volt      V    m^2-kg/s^3-A
+    10 farad     F    s^4-A^2/m^2-kg
+    11 ohm       {}   m^2-kg/s^3-A^2
+    12 siemens   S    s^3-A^2/m^2-kg
+    13 weber     Wb   m^2-kg/s^2-A
+    14 tesla     T    kg/s^2-A
+    15 henry     H    m^2-kg/s^2-A^2
+    16 lumen     lm   cd-sr
+    17 lux       lx   cd-sr/m^2
+    18 becquerel Bq   /s
+    19 gray      Gy   m^2/s^2
+    20 sievert   Sv   m^2/s^2
+} {
+    if {$abbr ne ""} {
+        test units-api-5.$n.0 "SI derived unit $name, abbreviation $abbr" -body {
+            units::reduce $abbr
+        } -result [units::reduce $name]
+    }
+    test units-api-5.$n.1 "SI derived unit $name, base units $base" -body {
+        units::convert "1 $name" $base
+    } -result 1.0
+}
+
+test units-api-5.21 {derived units from their documented units} -body {
+    list [units::convert 1Pa N/m^2] [units::convert 1J N-m] [units::convert 1W J/s] \
+        [units::convert 1V W/A] [units::convert 1F C/V] [units::convert 1ohm V/A] \
+        [units::convert 1S A/V] [units::convert 1Wb V-s] [units::convert 1T Wb/m^2] \
+        [units::convert 1H Wb/A] [units::convert 1lx lm/m^2] [units::convert 1Gy J/kg] \
+        [units::convert 1Sv J/kg]
+} -result {1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0}
+
+test units-api-5.22 {plural of an SI derived unit} -body {
+    units::convert "3 ohms" ohm
+} -result 3.0
+
+# -------------------------------------------------------------------------
+# SI prefixes
+
+foreach {n prefix abbr factor} {
+    1  yotta Y  1e24
+    2  zetta Z  1e21
+    3  exa   E  1e18
+    4  peta  P  1e15
+    5  tera  T  1e12
+    6  giga  G  1e9
+    7  mega  M  1e6
+    8  kilo  k  1e3
+    9  hecto h  1e2
+    10 deka  da 1e1
+    11 deca  {} 1e1
+    12 deci  d  1e-1
+    13 centi c  1e-2
+    14 milli m  1e-3
+    15 micro u  1e-6
+    16 nano  n  1e-9
+    17 pico  p  1e-12
+    18 femto f  1e-15
+    19 atto  a  1e-18
+    20 zepto z  1e-21
+    21 yocto y  1e-24
+} {
+    test units-api-6.$n.0 "prefix $prefix, factor $factor" -body {
+        approx [units::convert 1${prefix}meter meter] $factor
+    } -result 1
+    if {$abbr ne ""} {
+        test units-api-6.$n.1 "prefix abbreviation $abbr for $prefix" -body {
+            units::convert 1${abbr}m ${prefix}meter
+        } -result 1.0
+    }
+}
+
+test units-api-6.22 {prefix applies to a unit in the denominator} -body {
+    approx [units::convert 1/ns hertz] 1e9
+} -result 1
+
+test units-api-6.23 {prefix applies with an exponent} -body {
+    approx [units::convert 1cm^3 m^3] 1e-6
+} -result 1
+
+test units-api-6.24 {prefix on a non-SI unit} -body {
+    units::convert 1kilomile mile
+} -result 1000.0
+
+# -------------------------------------------------------------------------
+# Non-SI units
+
+foreach {n name abbr factor base} {
+    1  angstrom            {}  1.0E-10     m
+    2  astronomicalUnit    AU  1.495979E11 m
+    3  atmosphere          {}  1.01325E5   Pa
+    4  bar                 {}  1.0E5       Pa
+    5  calorie             {}  4.1868      J
+    6  curie               {}  3.7E10      Bq
+    7  day                 {}  8.64E4      s
+    8  degree              {}  1.745329E-2 rad
+    9  erg                 {}  1.0E-7      J
+    10 faraday             {}  9.648531    C
+    11 fermi               {}  1.0E-15     m
+    12 foot                ft  3.048E-1    m
+    13 gauss               {}  1.0E-4      T
+    14 gilbert             {}  7.957747E-1 A
+    15 grain               gr  6.479891E-5 kg
+    16 hectare             ha  1.0E4       m^2
+    17 hour                h   3.6E3       s
+    18 inch                in  2.54E-2     m
+    19 lightYear           {}  9.46073E15  m
+    20 liter               L   1.0E-3      m^3
+    21 maxwell             Mx  1.0E-8      Wb
+    22 mho                 {}  1.0         S
+    23 micron              {}  1.0E-6      m
+    24 mil                 {}  2.54E-5     m
+    25 mile                mi  1.609344E3  m
+    26 minute              min 6.0E1       s
+    27 parsec              pc  3.085E16    m
+    28 pica                {}  4.233333E-3 m
+    29 pound               lb  4.535924E-1 kg
+    30 revolution          {}  6.283185    rad
+    31 revolutionPerMinute rpm 1.047198E-1 rad/s
+    32 yard                yd  9.144E-1    m
+    33 year                {}  3.1536E7    s
+} {
+    test units-api-7.$n.0 "non-SI unit $name = $factor $base" -body {
+        approx [units::convert "1 $name" $base] $factor
+    } -result 1
+    if {$abbr eq "min"} {
+        # "min" is parsed as milli-inch ("m" + "in") instead of minute.
+        set constraints knownBug
+    } else {
+        set constraints {}
+    }
+    if {$abbr ne ""} {
+        test units-api-7.$n.1 "non-SI abbreviation $abbr for $name" \
+                -constraints $constraints -body {
+            units::convert "1 $abbr" $name
+        } -result 1.0
+    }
+}
+
+test units-api-7.34 {"h" alone is hour, not the hecto prefix} -body {
+    units::convert 2h minute
+} -result 120.0
+
+test units-api-7.35 {"hm" is hectometer} -body {
+    units::convert 1hm m
+} -result 100.0
+
+test units-api-7.36 {"ms" is millisecond} -body {
+    units::convert 1000ms s
+} -result 1.0
+
+test units-api-7.37 {conversions between non-SI units} -body {
+    list [units::convert 1yd ft] [units::convert "1 day" hours] \
+        [units::convert 1year days] [approx [units::convert 12in ft] 1.0]
+} -result {3.0 24.0 365.0 1}
+
+# -------------------------------------------------------------------------
+# new
+
+test units-api-8.1 {new, returns empty string} -body {
+    units::new apiwidget "3 meters"
+} -result {}
+
+test units-api-8.2 {new, unit usable with prefix and plural} -setup {
+    units::new apigadget "2 meters"
+} -body {
+    list [units::convert 1kiloapigadget m] [units::convert "3 apigadgets" m] \
+        [units::reduce apigadget]
+} -result {2000.0 6.0 {2.0 meter}}
+
+test units-api-8.3 {new, primitive unit with prefix and exponent} -setup {
+    units::new apiquux -primitive
+} -body {
+    list [units::reduce kapiquux^2] [units::convert 3000apiquux kapiquux]
+} -result {{1000000.0 apiquux apiquux} 3.0}
+
+test units-api-8.4 {new, primitive unit is incompatible with others} -setup {
+    units::new apiblip -primitive
+} -body {
+    units::convert 1apiblip meter
+} -returnCodes error -result {'1apiblip' and 'meter' have incompatible units}
+
+test units-api-8.5 {new, base units with prefixes, exponents and denominator} -setup {
+    units::new apiflow "2.5 km^3/hour"
+} -body {
+    approx [units::convert 1apiflow m^3/s] [expr {2.5e9/3600}]
+} -result 1
+
+test units-api-8.6 {new, defined in terms of another user unit} -setup {
+    units::new apibase "10 m"
+    units::new apiderived "5 apibase"
+} -body {
+    units::convert 1apiderived m
+} -result 50.0
+
+test units-api-8.7 {new, abbreviation name already defined} -body {
+    units::new m "2 meter"
+} -returnCodes error -result {unit 'm' is already defined}
+
+test units-api-8.8 {new, non-SI unit already defined} -body {
+    units::new mile "2 km"
+} -returnCodes error -result {unit 'mile' is already defined}
+
+test units-api-8.9 {new, unit name with a space} -body {
+    units::new "api unit" meter
+} -returnCodes error -result {non-alphabetic characters in unit name 'api unit'}
+
+test units-api-8.10 {new, invalid base unit string} -body {
+    units::new apibad "m/s/s"
+} -returnCodes error -result {'m/s/s' cannot be reduced to primitive units}
+
+test units-api-8.11 {new, failed definition does not define the unit} -body {
+    catch {units::new apibadunit "bogus"}
+    units::reduce apibadunit
+} -returnCodes error -result {invalid unit name 'apibadunit' in 'apibadunit'}
+
+# The manual says the name must be only alphabetic letters, but an
+# empty name is accepted, which then makes a prefix alone a valid unit.
+test units-api-8.12 {new, empty unit name} -constraints knownBug -body {
+    catch {units::new "" meter}
+} -cleanup {
+    dict unset ::units::UnitList ""
+    array unset ::units::cache
+} -result 1
+
+test units-api-8.13 {new, wrong # args} -body {
+    units::new a b c
+} -returnCodes error -result {wrong # args: should be "units::new name baseUnits"}
+
+# -------------------------------------------------------------------------
+# convert
+
+test units-api-9.1 {convert, target with a scale factor} -body {
+    units::convert 1km "100 m"
+} -result 10.0
+
+test units-api-9.2 {convert, value and target are unit strings with prefixes} -body {
+    units::convert "36 km/h" m/s
+} -result 10.0
+
+test units-api-9.3 {convert, unitless value to a compound unit} -body {
+    units::convert 2 km/h
+} -result [expr {2.0 / (1000.0 / 3600.0)}]
+
+test units-api-9.4 {convert, invalid value string} -body {
+    units::convert 1bogus m
+} -returnCodes error -result {invalid unit name 'bogus' in '1bogus'}
+
+test units-api-9.5 {convert, invalid target string} -body {
+    units::convert 1m m/s/s
+} -returnCodes error -result {invalid unit string 'm/s/s':  only one '/' allowed}
+
+test units-api-9.6 {convert, wrong # args} -body {
+    units::convert 1 m s
+} -returnCodes error -result {wrong # args: should be "units::convert value targetUnits"}
+
+# -------------------------------------------------------------------------
+
+rename approx {}
+unset n name abbr factor base prefix str reduced constraints
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
