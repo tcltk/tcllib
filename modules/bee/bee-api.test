@@ -1,0 +1,592 @@
+# -*- tcl -*-
+# bee-api.test:  additional tests for the documented API of package bee.
+#
+# Complements bee.test: decoder start index and end variable, the
+# -prefix option, decodePush, decodeCancel, option errors of
+# decodeChannel, round trips and wrong # args of the remaining commands.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal bee.tcl bee
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc beeapi_gen {name data} {
+    set path [makeFile {} $name]
+    set f [open $path w]
+    fconfigure $f -translation binary
+    puts -nonewline $f $data
+    close $f
+    return $path
+}
+
+# Collects all callback invocations; stops waiting at eof/error.
+proc beeapi_cb {m tok args} {
+    global beeapi_res beeapi_done
+    lappend beeapi_res $m $args
+    if {$m eq "eof" || $m eq "error"} {set beeapi_done 1}
+    return
+}
+
+# Waits (bounded) for beeapi_done to be set.
+proc beeapi_wait {} {
+    global beeapi_done
+    set id [after 5000 {set ::beeapi_done timeout}]
+    if {$beeapi_done eq ""} {vwait ::beeapi_done}
+    after cancel $id
+    return $beeapi_done
+}
+
+proc beeapi_init {} {
+    global beeapi_res beeapi_done
+    set beeapi_res {}
+    set beeapi_done {}
+}
+
+proc beeapi_reset {} {
+    global beeapi_res beeapi_done
+    unset -nocomplain beeapi_res beeapi_done
+}
+
+# -------------------------------------------------------------------------
+# encodeString
+
+test bee-api-1.0 {encodeString, length counts characters, not bytes} {
+    bee::encodeString "Δ÷™"
+} "3:Δ÷™"
+
+test bee-api-1.1 {encodeString, data containing colons, digits and e} {
+    bee::encodeString "12:e:i5e"
+} {8:12:e:i5e}
+
+test bee-api-1.2 {encodeString, binary data with NUL} {
+    bee::encodeString "a\x00b"
+} "3:a\x00b"
+
+# encodeNumber
+
+test bee-api-2.0 {encodeNumber, positive} {
+    bee::encodeNumber 482
+} {i482e}
+
+test bee-api-2.1 {encodeNumber, negative from manpage} {
+    bee::encodeNumber -482
+} {i-482e}
+
+test bee-api-2.2 {encodeNumber, empty string} -body {
+    bee::encodeNumber {}
+} -returnCodes error -result {Expected integer number, got ""}
+
+test bee-api-2.3 {encodeNumber, floating point} -body {
+    bee::encodeNumber 1.5
+} -returnCodes error -result {Expected integer number, got "1.5"}
+
+# Bencode integers are unbounded. Tcl 8.6 rejects values outside of 32
+# bits ([string is integer]), Tcl 9 accepts them but [format %d]
+# truncates them to 32 bits, silently producing a wrong value.
+test bee-api-2.4 {encodeNumber, integer larger than 32 bit} -constraints knownBug -body {
+    bee::encodeNumber 1099511627777
+} -result {i1099511627777e}
+
+test bee-api-2.5 {encodeNumber, integer just within 32 bit} -body {
+    bee::encodeNumber 2147483647
+} -result {i2147483647e}
+
+# encodeList / encodeListArgs
+
+test bee-api-3.0 {encodeListArgs, nested list} {
+    bee::encodeListArgs [bee::encodeListArgs [bee::encodeNumber 1]] [bee::encodeString a]
+} {lli1ee1:ae}
+
+test bee-api-3.1 {encodeList, nested dict} {
+    bee::encodeList [list [bee::encodeDictArgs k [bee::encodeNumber 2]]]
+} {ld1:ki2eee}
+
+test bee-api-3.2 {encodeList and encodeListArgs give the same result} {
+    set l [list [bee::encodeString x] [bee::encodeNumber -1] [bee::encodeListArgs]]
+    set r [list [bee::encodeList $l] [bee::encodeListArgs {*}$l]]
+    unset l
+    set r
+} {l1:xi-1elee l1:xi-1elee}
+
+# encodeDict / encodeDictArgs
+
+test bee-api-4.0 {encodeDict, odd number of elements} -body {
+    bee::encodeDict {a}
+} -returnCodes error -result {Expected even number of elements, got "1"}
+
+test bee-api-4.1 {encodeDictArgs, odd number of elements} -body {
+    bee::encodeDictArgs a [bee::encodeNumber 1] b
+} -returnCodes error -result {Expected even number of elements, got "3"}
+
+test bee-api-4.2 {encodeDictArgs, keys are sorted} {
+    bee::encodeDictArgs zz [bee::encodeNumber 1] a [bee::encodeNumber 2] m [bee::encodeNumber 3]
+} {d1:ai2e1:mi3e2:zzi1ee}
+
+test bee-api-4.3 {encodeDict, keys are bee-encoded strings} {
+    bee::encodeDict [list "a b" [bee::encodeString c] 12 [bee::encodeNumber 0]]
+} {d2:12i0e3:a b1:ce}
+
+test bee-api-4.4 {encodeDict, wrong # args} -body {
+    bee::encodeDict
+} -returnCodes error -result [tcltest::wrongNumArgs {bee::encodeDict} {dict} 0]
+
+test bee-api-4.5 {encodeDict, too many args} -body {
+    bee::encodeDict a b
+} -returnCodes error -result [tcltest::tooManyArgs {bee::encodeDict} {dict}]
+
+# -------------------------------------------------------------------------
+# decode
+
+test bee-api-5.0 {decode, wrong # args} -body {
+    bee::decode
+} -returnCodes error -result [tcltest::wrongNumArgs {bee::decode} {value ?evar? ?start?} 0]
+
+test bee-api-5.1 {decode, too many args} -body {
+    bee::decode i1e e 0 x
+} -returnCodes error -result [tcltest::tooManyArgs {bee::decode} {value ?evar? ?start?}]
+
+test bee-api-5.2 {decode, start index} -body {
+    list [bee::decode xxi42e4:spam end 2] $end
+} -cleanup {
+    unset end
+} -result {42 6}
+
+test bee-api-5.3 {decode, start index, string} -body {
+    list [bee::decode i42e4:spam end 4] $end
+} -cleanup {
+    unset end
+} -result {spam 10}
+
+test bee-api-5.4 {decode, empty endVar name means no variable} -body {
+    bee::decode i42e4:spam {} 4
+} -result spam
+
+test bee-api-5.5 {decode, endVar in caller's scope} -body {
+    proc beeapi_p {} {
+	set r [bee::decode li1ei2ee e]
+	list $r $e
+    }
+    beeapi_p
+} -cleanup {
+    rename beeapi_p {}
+} -result {{1 2} 8}
+
+test bee-api-5.6 {decode, sequence of separate values (manpage example)} -body {
+    set stream [bee::encodeString "€⅔•"][bee::encodeNumber -91][bee::encodeString "α-ω"][bee::encodeNumber 68]
+    set items {}
+    for {set i 0} {$i < [string length $stream]} {} {
+	lappend items [bee::decode $stream i $i]
+    }
+    set items
+} -cleanup {
+    unset stream items i
+} -result [list "€⅔•" -91 "α-ω" 68]
+
+test bee-api-5.7 {decode, string with unicode characters} {
+    bee::decode "3:Δ÷™"
+} "Δ÷™"
+
+test bee-api-5.8 {decode, start index beyond the string} -body {
+    bee::decode i1e {} 5
+} -returnCodes error -result {String not large enough for value}
+
+test bee-api-5.9 {decode, unterminated list} -body {
+    bee::decode li5e
+} -returnCodes error -result {String not large enough for value}
+
+test bee-api-5.10 {decode, leading zero in integer} -body {
+    bee::decode i05e
+} -returnCodes error -result {Expected integer number, got "05"}
+
+test bee-api-5.11 {decode, nested containers (manpage example)} -body {
+    set enc [bee::encodeDictArgs label [bee::encodeString L] point [bee::encodeList [list [bee::encodeNumber 834] [bee::encodeNumber -172]]]]
+    list $enc [bee::decode $enc]
+} -cleanup {
+    unset enc
+} -result {d5:label1:L5:pointli834ei-172eee {label L point {834 -172}}}
+
+test bee-api-5.12 {decode, integer larger than 32 bit} -constraints knownBug -body {
+    bee::decode i1099511627777e
+} -result 1099511627777
+
+# -------------------------------------------------------------------------
+# decodeIndices
+
+test bee-api-6.0 {decodeIndices, wrong # args} -body {
+    bee::decodeIndices
+} -returnCodes error -result [tcltest::wrongNumArgs {bee::decodeIndices} {value ?evar? ?start?} 0]
+
+test bee-api-6.1 {decodeIndices, start index} -body {
+    list [bee::decodeIndices i42e4:spam end 4] $end
+} -cleanup {
+    unset end
+} -result {{string 4 9} 10}
+
+test bee-api-6.2 {decodeIndices, start index into list} -body {
+    list [bee::decodeIndices 1:ali5ee end 3] $end
+} -cleanup {
+    unset end
+} -result {{list 3 7 {{integer 4 6}}} 8}
+
+test bee-api-6.3 {decodeIndices, manpage example} -body {
+    set enc [bee::encodeString "Δ÷ “Utf-8” ♞ℤ"]
+    lassign [bee::decodeIndices $enc] type i j
+    list $type $i $j [bee::decode [string range $enc $i $j]]
+} -cleanup {
+    unset enc type i j
+} -result [list string 0 15 "Δ÷ “Utf-8” ♞ℤ"]
+
+test bee-api-6.4 {decodeIndices, error} -body {
+    bee::decodeIndices x
+} -returnCodes error -result {String not large enough for value}
+
+test bee-api-6.5 {decodeIndices, unknown type} -body {
+    bee::decodeIndices xy
+} -returnCodes error -result {Unknown bee-type "x"}
+
+# -------------------------------------------------------------------------
+# decodeChannel, option handling
+
+test bee-api-7.0 {decodeChannel, missing -command} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+} -body {
+    bee::decodeChannel $f
+} -cleanup {
+    close $f
+    removeFile beeapi7
+    unset f
+} -returnCodes error -result {Missing required completion callback.}
+
+test bee-api-7.1 {decodeChannel, -command without value} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+} -body {
+    bee::decodeChannel $f -command
+} -cleanup {
+    close $f
+    removeFile beeapi7
+    unset f
+} -returnCodes error -result {Missing value for option -command.}
+
+test bee-api-7.2 {decodeChannel, -prefix without value} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+} -body {
+    bee::decodeChannel $f -command beeapi_cb -prefix
+} -cleanup {
+    close $f
+    removeFile beeapi7
+    unset f
+} -returnCodes error -result {Missing value for option -prefix.}
+
+test bee-api-7.3 {decodeChannel, unknown option} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+} -body {
+    bee::decodeChannel $f -command beeapi_cb -bogus
+} -cleanup {
+    close $f
+    removeFile beeapi7
+    unset f
+} -returnCodes error -match glob -result {Illegal option "-bogus", expected "-command", "-prefix", *}
+
+# The error message lists a non-existing option -keep instead of -exact.
+test bee-api-7.4 {decodeChannel, unknown option lists -exact} -constraints knownBug -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+} -body {
+    bee::decodeChannel $f -command beeapi_cb -bogus
+} -cleanup {
+    close $f
+    removeFile beeapi7
+    unset f
+} -returnCodes error -result {Illegal option "-bogus", expected "-command", "-prefix", or "-exact"}
+
+test bee-api-7.5 {decodeChannel, failed creation leaves no decoder behind} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+    beeapi_init
+} -body {
+    catch {bee::decodeChannel $f -bogus}
+    bee::decodeChannel $f -command beeapi_cb
+    beeapi_wait
+    set beeapi_res
+} -cleanup {
+    catch {close $f}
+    removeFile beeapi7
+    unset f
+    beeapi_reset
+} -result {value 1 eof {}}
+
+test bee-api-7.6 {decodeChannel, second decoder on same channel} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+} -body {
+    set tok [bee::decodeChannel $f -command beeapi_cb]
+    bee::decodeChannel $f -command beeapi_cb
+} -cleanup {
+    bee::decodeCancel $tok
+    close $f
+    removeFile beeapi7
+    unset f tok
+} -returnCodes error -result {bee-Decoder already active for channel}
+
+test bee-api-7.7 {decodeChannel, returns a handle passed to the callback} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+    set toks {}
+    proc beeapi_tokcb {m tok args} {
+	lappend ::toks $tok
+	if {$m eq "eof"} {set ::beeapi_done 1}
+    }
+    beeapi_init
+} -body {
+    set tok [bee::decodeChannel $f -command beeapi_tokcb]
+    beeapi_wait
+    expr {$toks eq [list $tok $tok]}
+} -cleanup {
+    removeFile beeapi7
+    rename beeapi_tokcb {}
+    unset f tok toks
+    beeapi_reset
+} -result 1
+
+test bee-api-7.8 {decodeChannel, channel is closed at eof} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+    beeapi_init
+} -body {
+    bee::decodeChannel $f -command beeapi_cb
+    beeapi_wait
+    expr {$f in [file channels]}
+} -cleanup {
+    removeFile beeapi7
+    unset f
+    beeapi_reset
+} -result 0
+
+test bee-api-7.9 {decodeChannel, channel stays open after error} -setup {
+    set f [open [beeapi_gen beeapi7 x] r]
+    beeapi_init
+} -body {
+    bee::decodeChannel $f -command beeapi_cb
+    beeapi_wait
+    list $beeapi_res [expr {$f in [file channels]}]
+} -cleanup {
+    close $f
+    removeFile beeapi7
+    unset f
+    beeapi_reset
+} -result {{error {{Unknown bee-type "x"}}} 1}
+
+test bee-api-7.10 {decodeChannel, callback runs at global level} -setup {
+    set f [open [beeapi_gen beeapi7 i1e] r]
+    proc beeapi_lvl {m tok args} {
+	lappend ::lvls [info level]
+	if {$m eq "eof"} {set ::beeapi_done 1}
+    }
+    set lvls {}
+    beeapi_init
+} -body {
+    bee::decodeChannel $f -command beeapi_lvl
+    beeapi_wait
+    set lvls
+} -cleanup {
+    removeFile beeapi7
+    rename beeapi_lvl {}
+    unset f lvls
+    beeapi_reset
+} -result {1 1}
+
+test bee-api-7.11 {decodeChannel, -command is a command prefix} -setup {
+    set f [open [beeapi_gen beeapi7 4:spam] r]
+    proc beeapi_pfx {extra m tok args} {
+	lappend ::beeapi_res $extra $m
+	if {$m eq "eof"} {set ::beeapi_done 1}
+    }
+    beeapi_init
+} -body {
+    bee::decodeChannel $f -command {beeapi_pfx X}
+    beeapi_wait
+    set beeapi_res
+} -cleanup {
+    removeFile beeapi7
+    rename beeapi_pfx {}
+    unset f
+    beeapi_reset
+} -result {X value X eof}
+
+# -prefix
+
+# With -exact a partial string in the -prefix makes the decoder wait
+# for the full string length again instead of only the missing part.
+foreach {n exact c} {0 {} {} 1 -exact knownBug} {
+    test bee-api-8.$n "decodeChannel -prefix $exact, completes a value" -constraints $c -setup {
+	set f [open [beeapi_gen beeapi8 am] r]
+	beeapi_init
+    } -body {
+	bee::decodeChannel $f -command beeapi_cb -prefix 4:sp {*}$exact
+	beeapi_wait
+	set beeapi_res
+    } -cleanup {
+	removeFile beeapi8
+	unset f
+	beeapi_reset
+    } -result {value spam eof {}}
+
+    test bee-api-8.[expr {$n+2}] "decodeChannel -prefix $exact, complete value in prefix" -setup {
+	set f [open [beeapi_gen beeapi8 i2e] r]
+	beeapi_init
+    } -body {
+	bee::decodeChannel $f -command beeapi_cb -prefix i1e {*}$exact
+	beeapi_wait
+	set beeapi_res
+    } -cleanup {
+	removeFile beeapi8
+	unset f
+	beeapi_reset
+    } -result {value 1 value 2 eof {}}
+}
+
+test bee-api-8.4 {decodeChannel -prefix, incomplete at eof} -setup {
+    set f [open [beeapi_gen beeapi8 {}] r]
+    beeapi_init
+} -body {
+    bee::decodeChannel $f -command beeapi_cb -prefix l
+    beeapi_wait
+    set beeapi_res
+} -cleanup {
+    catch {close $f}
+    removeFile beeapi8
+    unset f
+    beeapi_reset
+} -result {error {{Incomplete value at end of channel}}}
+
+# -exact leaves non-bee data after the cancelled decoder in the channel
+
+test bee-api-9.0 {decodeChannel -exact, trailing data stays in channel} -setup {
+    set f [open [beeapi_gen beeapi9 "4:spamREST"] r]
+    proc beeapi_stop {m tok args} {
+	lappend ::beeapi_res $m $args
+	bee::decodeCancel $tok
+	set ::beeapi_done 1
+    }
+    beeapi_init
+} -body {
+    bee::decodeChannel $f -command beeapi_stop -exact
+    beeapi_wait
+    lappend beeapi_res [read $f]
+} -cleanup {
+    close $f
+    removeFile beeapi9
+    rename beeapi_stop {}
+    unset f
+    beeapi_reset
+} -result {value spam REST}
+
+# -------------------------------------------------------------------------
+# decodeCancel
+
+test bee-api-10.0 {decodeCancel, wrong # args} -body {
+    bee::decodeCancel
+} -returnCodes error -result [tcltest::wrongNumArgs {bee::decodeCancel} {token} 0]
+
+test bee-api-10.1 {decodeCancel, before any data, channel stays open} -setup {
+    set f [open [beeapi_gen beeapi10 i1e] r]
+} -body {
+    set tok [bee::decodeChannel $f -command beeapi_cb]
+    bee::decodeCancel $tok
+    list [expr {$f in [file channels]}] [read $f]
+} -cleanup {
+    close $f
+    removeFile beeapi10
+    unset f tok
+} -result {1 i1e}
+
+test bee-api-10.2 {decodeCancel, a new decoder can be created afterwards} -setup {
+    set f [open [beeapi_gen beeapi10 i1e] r]
+    beeapi_init
+} -body {
+    bee::decodeCancel [bee::decodeChannel $f -command beeapi_cb]
+    bee::decodeChannel $f -command beeapi_cb
+    beeapi_wait
+    set beeapi_res
+} -cleanup {
+    removeFile beeapi10
+    unset f
+    beeapi_reset
+} -result {value 1 eof {}}
+
+# decodeCancel does not remove the readable fileevent handler, which
+# then fails with the destroyed decoder state in the background.
+test bee-api-10.3 {decodeCancel, removes the fileevent handler} -constraints knownBug -setup {
+    set f [open [beeapi_gen beeapi10 i1e] r]
+} -body {
+    set tok [bee::decodeChannel $f -command beeapi_cb]
+    bee::decodeCancel $tok
+    fileevent $f readable
+} -cleanup {
+    close $f
+    removeFile beeapi10
+    unset f tok
+} -result {}
+
+# -------------------------------------------------------------------------
+# decodePush
+
+test bee-api-11.0 {decodePush, wrong # args} -body {
+    bee::decodePush x
+} -returnCodes error -result [tcltest::wrongNumArgs {bee::decodePush} {token string} 1]
+
+# Data pushed from the callback is discarded when the reported value
+# was a string completed from the channel.
+test bee-api-11.1 {decodePush, pushes data read by the callback back} -constraints knownBug -setup {
+    set f [open [beeapi_gen beeapi11 "1:ali7ee"] r]
+    proc beeapi_push {m tok args} {
+	lappend ::beeapi_res $m $args
+	if {$m eq "value" && [lindex $args 0] eq "a"} {
+	    # Peek at the next character, then give it back.
+	    set c [read $::f 1]
+	    lappend ::beeapi_res peek $c
+	    bee::decodePush $tok $c
+	}
+	if {$m eq "eof" || $m eq "error"} {set ::beeapi_done 1}
+    }
+    beeapi_init
+} -body {
+    bee::decodeChannel $f -command beeapi_push -exact
+    beeapi_wait
+    set beeapi_res
+} -cleanup {
+    catch {close $f}
+    removeFile beeapi11
+    rename beeapi_push {}
+    unset f
+    beeapi_reset
+} -result {value a peek l value 7 eof {}}
+
+test bee-api-11.2 {decodePush, before data arrives} -setup {
+    set f [open [beeapi_gen beeapi11 "pam"] r]
+    beeapi_init
+} -body {
+    set tok [bee::decodeChannel $f -command beeapi_cb]
+    bee::decodePush $tok 4:s
+    beeapi_wait
+    set beeapi_res
+} -cleanup {
+    removeFile beeapi11
+    unset f tok
+    beeapi_reset
+} -result {value spam eof {}}
+
+# -------------------------------------------------------------------------
+rename beeapi_gen {}
+rename beeapi_cb {}
+rename beeapi_wait {}
+rename beeapi_init {}
+rename beeapi_reset {}
+testsuiteCleanup
+return
