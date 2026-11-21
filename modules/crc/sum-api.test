@@ -1,0 +1,239 @@
+# -*- tcl -*-
+# sum-api.test:  tests for the documented API of sum not covered by
+# sum.test: the documented examples, the default algorithm, -filename
+# and -channel on binary data, -chunksize, option combinations and
+# the state left behind by channel processing.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal sum.tcl sum ::crc
+}
+
+# -------------------------------------------------------------------------
+# Test data with checksums verified with sum(1) and sum -s.
+
+set allbytes {}
+for {set i 0} {$i < 256} {incr i} {append allbytes [binary format c $i]}
+set pattern {}
+for {set i 0} {$i < 10000} {incr i} {
+    append pattern [binary format c [expr {($i * 7 + 3) % 256}]]
+}
+unset i
+
+proc writefile {name data} {
+    set f [open $name wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+# Pending timers created by the package.
+proc sumtimers {} {
+    set res {}
+    foreach id [after info] {
+	if {[string match *SumTimeout* [lindex [after info $id] 0]]} {
+	    lappend res $id
+	}
+    }
+    return $res
+}
+
+proc cancelsumtimers {} {
+    foreach id [sumtimers] {after cancel $id}
+}
+
+# -------------------------------------------------------------------------
+# Errors
+
+test sum-api-1.1 {sum: too many data arguments} -body {
+    ::crc::sum -- a b
+} -returnCodes error -match glob -result {wrong # args: should be *}
+
+test sum-api-1.2 {sum: -filename of a missing file} -setup {
+    set name [makeFile {} sum-api-missing.dat]
+    removeFile sum-api-missing.dat
+} -body {
+    ::crc::sum -filename $name
+} -cleanup {
+    unset name
+} -returnCodes error -match glob -result {couldn't open "*sum-api-missing.dat": no such file or directory}
+
+# -------------------------------------------------------------------------
+# String data
+
+test sum-api-2.1 {documented example, BSD is the default} -body {
+    list [::crc::sum "Hello, World!"] [::crc::sum -bsd "Hello, World!"]
+} -result {37287 37287}
+
+test sum-api-2.2 {documented example with -format} -body {
+    ::crc::sum -format 0x%X "Hello, World!"
+} -result 0x91A7
+
+test sum-api-2.3 {SysV of the example} -body {
+    ::crc::sum -sysv "Hello, World!"
+} -result 1129
+
+test sum-api-2.4 {all byte values} -body {
+    list [::crc::sum -bsd $allbytes] [::crc::sum -sysv $allbytes]
+} -result {512 32640}
+
+test sum-api-2.5 {10000 bytes} -body {
+    list [::crc::sum -bsd $pattern] [::crc::sum -sysv $pattern]
+} -result {38812 28683}
+
+test sum-api-2.6 {the last algorithm option wins} -body {
+    list [::crc::sum -sysv -bsd "Hello, World!"] \
+	[::crc::sum -bsd -sysv "Hello, World!"]
+} -result {37287 1129}
+
+test sum-api-2.7 {data starting with a hyphen after --} -body {
+    list [::crc::sum -- -abc] [::crc::sum -sysv -- -abc]
+} -result {57521 339}
+
+test sum-api-2.8 {SysV ignores the order of the data, BSD does not} -body {
+    list [expr {[::crc::sum -sysv abcd] == [::crc::sum -sysv dcba]}] \
+	[expr {[::crc::sum -bsd abcd] == [::crc::sum -bsd dcba]}]
+} -result {1 0}
+
+test sum-api-2.9 {result fits in 16 bits} -body {
+    set ok 1
+    foreach d [list $allbytes $pattern [string repeat \xff 1000]] {
+	foreach alg {-bsd -sysv} {
+	    set r [::crc::sum $alg $d]
+	    if {$r < 0 || $r > 0xFFFF} {set ok 0}
+	}
+    }
+    set ok
+} -cleanup {
+    unset ok d alg r
+} -result 1
+
+# -------------------------------------------------------------------------
+# -filename, -channel, -chunksize
+
+test sum-api-3.1 {-filename reads binary data} -setup {
+    set name [makeFile {} sum-api.dat]
+    writefile $name $pattern
+} -body {
+    list [::crc::sum -filename $name] [::crc::sum -sysv -filename $name]
+} -cleanup {
+    cancelsumtimers
+    removeFile sum-api.dat
+    unset name
+} -result {38812 28683}
+
+test sum-api-3.2 {-filename: the file is closed} -setup {
+    set name [makeFile {} sum-api.dat]
+    writefile $name abc
+    set before [lsort [file channels]]
+} -body {
+    ::crc::sum -filename $name
+    string equal $before [lsort [file channels]]
+} -cleanup {
+    cancelsumtimers
+    removeFile sum-api.dat
+    unset name before
+} -result 1
+
+test sum-api-3.3 {-filename: empty file} -setup {
+    set name [makeFile {} sum-api.dat]
+    writefile $name {}
+} -body {
+    list [::crc::sum -filename $name] [::crc::sum -sysv -filename $name]
+} -cleanup {
+    cancelsumtimers
+    removeFile sum-api.dat
+    unset name
+} -result {0 0}
+
+test sum-api-3.4 {-channel: read until eof, not closed} -setup {
+    set name [makeFile {} sum-api.dat]
+    writefile $name $allbytes
+    set f [open $name rb]
+} -body {
+    list [::crc::sum -channel $f] [eof $f] [expr {$f in [file channels]}]
+} -cleanup {
+    cancelsumtimers
+    close $f
+    removeFile sum-api.dat
+    unset name f
+} -result {512 1 1}
+
+test sum-api-3.5 {-channel: from the current position} -setup {
+    set name [makeFile {} sum-api.dat]
+    writefile $name "xyzHello, World!"
+    set f [open $name rb]
+    read $f 3
+} -body {
+    ::crc::sum -sysv -channel $f
+} -cleanup {
+    cancelsumtimers
+    close $f
+    removeFile sum-api.dat
+    unset name f
+} -result 1129
+
+foreach {n size} {1 1 2 7 3 512 4 4096 5 100000} {
+    test sum-api-3.6.$n "-chunksize $size" -setup {
+	set name [makeFile {} sum-api.dat]
+	writefile $name $pattern
+    } -body {
+	list [::crc::sum -chunksize $size -filename $name] \
+	    [::crc::sum -sysv -chunksize $size -filename $name]
+    } -cleanup {
+	cancelsumtimers
+	removeFile sum-api.dat
+	unset name
+    } -result {38812 28683}
+}
+
+test sum-api-3.7 {-channel with -format} -setup {
+    set name [makeFile {} sum-api.dat]
+    writefile $name "Hello, World!"
+    set f [open $name rb]
+} -body {
+    ::crc::sum -format %04x -channel $f
+} -cleanup {
+    cancelsumtimers
+    close $f
+    removeFile sum-api.dat
+    unset name f
+} -result 91a7
+
+# After processing a channel a timer remains pending; when it fires
+# it recreates the state variable of the finished computation.
+test sum-api-3.8 {-channel: no timer is left pending} -constraints {
+    knownBug
+} -setup {
+    cancelsumtimers
+    set name [makeFile {} sum-api.dat]
+    writefile $name "Hello, World!"
+} -body {
+    ::crc::sum -filename $name
+    sumtimers
+} -cleanup {
+    cancelsumtimers
+    removeFile sum-api.dat
+    unset name
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename writefile {}
+rename sumtimers {}
+rename cancelsumtimers {}
+unset allbytes pattern n size
+
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
