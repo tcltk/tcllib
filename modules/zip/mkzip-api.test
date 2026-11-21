@@ -1,0 +1,398 @@
+# -*- tcl -*-
+# mkzip-api.test:  tests for the documented options and arguments of
+# zipfile::mkzip::mkzip not covered by mkzip.test: -comment, -exclude
+# (default and custom), path arguments, --, -zipkit, -runtime,
+# -prepend-base-directory with a value, file contents, and UTF-8
+# names and comments.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+support {
+    useKeep  fileutil/decode.tcl fileutil::decode
+    useLocal decode.tcl          zipfile::decode
+}
+testing {
+    useLocal mkzip.tcl           zipfile::mkzip
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc writefile {name data} {
+    file mkdir [file dirname $name]
+    set f [open $name wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+proc readfile {name} {
+    set f [open $name rb]
+    set data [read $f]
+    close $f
+    return $data
+}
+
+# Global comment and {path content} pairs of a zip archive.
+proc zipdata {path} {
+    zipfile::decode::open $path
+    set d [zipfile::decode::archive]
+    set res [list [zipfile::decode::comment $d]]
+    foreach f [lsort [zipfile::decode::files $d]] {
+	lappend res $f [zipfile::decode::getfile $d $f]
+    }
+    zipfile::decode::close
+    return $res
+}
+
+# Creates a source tree in directory mkzip-api-src and returns its path.
+proc mksrc {} {
+    set dir [makeDirectory mkzip-api-src]
+    foreach f {a.txt b.log c~ sub/e.txt CVS/Root sub/CVS/Entries .#d sub/.#f} {
+	writefile [file join $dir $f] "data $f"
+    }
+    return $dir
+}
+
+set allbytes {}
+for {set i 0} {$i < 256} {incr i} {append allbytes [binary format c $i]}
+unset i
+
+# -------------------------------------------------------------------------
+# Results, -directory, -exclude
+
+test zipfile-mkzip-api-1.1 {mkzip returns the empty string} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -directory $src
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {}
+
+test zipfile-mkzip-api-1.2 {-directory: default exclude patterns} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -directory $src
+    lsort [zipfile::decode::content $zip]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {a.txt b.log sub/ sub/e.txt}
+
+test zipfile-mkzip-api-1.3 {-exclude replaces the default patterns} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -exclude {*.log} -directory $src
+    lsort [zipfile::decode::content $zip]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {CVS/ CVS/Root a.txt c~ sub/ sub/CVS/ sub/CVS/Entries sub/e.txt}
+
+test zipfile-mkzip-api-1.4 {-exclude: several patterns, directories} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -exclude {*.log *~ sub/* */CVS/* CVS/*} -directory $src
+    lsort [zipfile::decode::content $zip]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {a.txt}
+
+test zipfile-mkzip-api-1.5 {-directory: file contents} -setup {
+    set src [makeDirectory mkzip-api-src]
+    writefile [file join $src text.txt] [string repeat "hello world\n" 100]
+    writefile [file join $src bin.dat] $allbytes
+    writefile [file join $src empty] {}
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -directory $src
+    string equal [zipdata $zip] [list {} bin.dat $allbytes empty {} \
+				     text.txt [string repeat "hello world\n" 100]]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result 1
+
+test zipfile-mkzip-api-1.6 {-directory: path arguments are ignored} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -directory [file join $src sub] \
+	[file join $src a.txt]
+    lsort [zipfile::decode::content $zip]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {e.txt}
+
+test zipfile-mkzip-api-1.7 {an existing archive is replaced} -setup {
+    set src [mksrc]
+    set zip [makeFile {not a zip} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -directory [file join $src sub]
+    lsort [zipfile::decode::content $zip]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {e.txt}
+
+# -------------------------------------------------------------------------
+# -comment
+
+test zipfile-mkzip-api-2.1 {-comment} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -comment {An archive comment} \
+	-directory [file join $src sub]
+    zipdata $zip
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {{An archive comment} e.txt {data sub/e.txt}}
+
+test zipfile-mkzip-api-2.2 {default comment is empty} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -directory [file join $src sub]
+    lindex [zipdata $zip] 0
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result {}
+
+# mkzip stores comments and names in UTF-8 and sets the UTF-8 flag,
+# zipfile::decode returns the raw bytes.
+test zipfile-mkzip-api-2.3 {-comment and file names in UTF-8} -constraints {
+    knownBug
+} -setup {
+    set src [makeDirectory mkzip-api-src]
+    writefile [file join $src "файл.txt"] data
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -comment "їжак" -directory $src
+    zipdata $zip
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -result [list "їжак" "файл.txt" data]
+
+# -------------------------------------------------------------------------
+# Path arguments and --
+
+test zipfile-mkzip-api-3.1 {paths: glob patterns relative to the current directory} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set here [pwd]
+    cd $src
+} -body {
+    zipfile::mkzip::mkzip $zip *.txt *.log
+    zipdata $zip
+} -cleanup {
+    cd $here
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip here
+} -result {{} a.txt {data a.txt} b.log {data b.log}}
+
+test zipfile-mkzip-api-3.2 {paths: files in subdirectories} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set here [pwd]
+    cd $src
+} -body {
+    zipfile::mkzip::mkzip $zip sub/e.txt a.txt
+    zipdata $zip
+} -cleanup {
+    cd $here
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip here
+} -result {{} a.txt {data a.txt} sub/e.txt {data sub/e.txt}}
+
+test zipfile-mkzip-api-3.3 {paths: no match gives an empty archive} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set here [pwd]
+    cd $src
+} -body {
+    zipfile::mkzip::mkzip $zip -comment c *.nomatch
+    list [zipfile::decode::iszip $zip] [zipdata $zip]
+} -cleanup {
+    cd $here
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip here
+} -result {1 c}
+
+test zipfile-mkzip-api-3.4 {--: ends the options} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set here [pwd]
+    cd $src
+} -body {
+    zipfile::mkzip::mkzip $zip -comment c -- a.txt
+    zipdata $zip
+} -cleanup {
+    cd $here
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip here
+} -result {c a.txt {data a.txt}}
+
+# The paths are passed to glob, which treats a leading dash as an option.
+test zipfile-mkzip-api-3.5 {--: path beginning with a dash} -constraints {
+    knownBug
+} -setup {
+    set src [mksrc]
+    writefile [file join $src -dash.txt] dash
+    set zip [makeFile {} mkzip-api.zip]
+    set here [pwd]
+    cd $src
+} -body {
+    zipfile::mkzip::mkzip $zip -- -dash.txt
+    zipdata $zip
+} -cleanup {
+    cd $here
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip here
+} -result {{} -dash.txt dash}
+
+# -------------------------------------------------------------------------
+# -zipkit and -runtime
+
+test zipfile-mkzip-api-4.1 {-zipkit: starkit header before the archive} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -zipkit -directory [file join $src sub]
+    set f [open $zip rb]
+    set first [gets $f]
+    close $f
+    list $first [zipfile::decode::iszip $zip] [zipdata $zip]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip f first
+} -result {{#!/usr/bin/env tclkit} 1 {{} e.txt {data sub/e.txt}}}
+
+test zipfile-mkzip-api-4.2 {-runtime: prefix file before the archive} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set pre [makeFile {} mkzip-api-prefix.bin]
+    writefile $pre "PREFIX\x00\xff\n"
+} -body {
+    zipfile::mkzip::mkzip $zip -runtime $pre -comment hi -directory [file join $src sub]
+    list [string equal [string range [readfile $zip] 0 8] "PREFIX\x00\xff\n"] \
+	[zipfile::decode::iszip $zip] [zipdata $zip]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    removeFile mkzip-api-prefix.bin
+    unset src zip pre
+} -result {1 1 {hi e.txt {data sub/e.txt}}}
+
+test zipfile-mkzip-api-4.3 {-runtime takes precedence over -zipkit} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set pre [makeFile {} mkzip-api-prefix.bin]
+    writefile $pre "PREFIX\n"
+} -body {
+    zipfile::mkzip::mkzip $zip -zipkit -runtime $pre -directory [file join $src sub]
+    set data [readfile $zip]
+    list [string range $data 0 6] [string first tclkit $data]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    removeFile mkzip-api-prefix.bin
+    unset src zip pre data
+} -result [list "PREFIX\n" -1]
+
+test zipfile-mkzip-api-4.4 {-runtime: missing prefix file} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+} -body {
+    zipfile::mkzip::mkzip $zip -runtime [file join $src nonexistent] \
+	-directory [file join $src sub]
+} -cleanup {
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip
+} -returnCodes error -match glob -result {couldn't open "*nonexistent": no such file or directory}
+
+# -------------------------------------------------------------------------
+# -prepend-base-directory with a value, as documented
+
+test zipfile-mkzip-api-5.1 {-prepend-base-directory true} -constraints {
+    knownBug
+} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set here [pwd]
+    cd $src
+} -body {
+    zipfile::mkzip::mkzip $zip -prepend-base-directory true -directory sub
+    lsort [zipfile::decode::content $zip]
+} -cleanup {
+    cd $here
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip here
+} -result {sub/ sub/e.txt}
+
+test zipfile-mkzip-api-5.2 {-prepend-base-directory false} -constraints {
+    knownBug
+} -setup {
+    set src [mksrc]
+    set zip [makeFile {} mkzip-api.zip]
+    set here [pwd]
+    cd $src
+} -body {
+    zipfile::mkzip::mkzip $zip -prepend-base-directory false -directory sub
+    lsort [zipfile::decode::content $zip]
+} -cleanup {
+    cd $here
+    removeDirectory mkzip-api-src
+    removeFile mkzip-api.zip
+    unset src zip here
+} -result {e.txt}
+
+# -------------------------------------------------------------------------
+
+rename writefile {}
+rename readfile {}
+rename zipdata {}
+rename mksrc {}
+unset allbytes
+
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:

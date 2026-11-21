@@ -1,0 +1,430 @@
+# -*- tcl -*-
+# decode-api.test:  tests for the documented API of zipfile::decode not
+# covered by encode.test and mkzip.test: hasfile, getfile, copyfile,
+# filesize, filecomment, filetime, unzip, iszip and open on bad
+# input, and the errors for unknown paths.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+support {
+    use      cmdline/cmdline.tcl   cmdline
+    use      fileutil/fileutil.tcl fileutil
+    useKeep  fileutil/decode.tcl   fileutil::decode
+    use      log/logger.tcl        logger
+    use      crc/crc32.tcl         crc32
+    use      snit/snit2.tcl        snit
+    useLocal encode.tcl            zipfile::encode
+}
+testing {
+    useLocal decode.tcl zipfile::decode
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc writefile {name data} {
+    set f [open $name wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+proc readfile {name} {
+    set f [open $name rb]
+    set data [read $f]
+    close $f
+    return $data
+}
+
+# Write a zip archive with stored (uncompressed) entries. Each entry
+# is a list {name data comment}. All entries get the modification
+# time 2020-01-02 03:04:06.
+proc storedzip {path entries {comment {}}} {
+    set time [expr {(3 << 11) | (4 << 5) | (6 / 2)}]
+    set date [expr {((2020 - 1980) << 9) | (1 << 5) | 2}]
+    set out {}
+    set cd {}
+    foreach e $entries {
+	lassign $e name data fcomment
+	set crc  [zlib crc32 $data]
+	set size [string length $data]
+	set off  [string length $out]
+	append out [binary format a4sssssiiiss PK\3\4 20 0 0 $time $date \
+			$crc $size $size [string length $name] 0] \
+	    $name $data
+	append cd [binary format a4ssssssiiisssssii PK\1\2 20 20 0 0 \
+		       $time $date $crc $size $size [string length $name] \
+		       0 [string length $fcomment] 0 0 0 $off] \
+	    $name $fcomment
+    }
+    set cdoff [string length $out]
+    append out $cd [binary format a4ssssiis PK\5\6 0 0 \
+			[llength $entries] [llength $entries] \
+			[string length $cd] $cdoff [string length $comment]] \
+	$comment
+    writefile $path $out
+}
+
+set allbytes {}
+for {set i 0} {$i < 256} {incr i} {append allbytes [binary format c $i]}
+unset i
+
+set textdata [string repeat "hello world " 100]
+
+# Archive made by zipfile::encode: a compressed text file, a binary
+# file stored without compression, and an empty file.
+set srcdir [makeDirectory decode-api-src]
+writefile [file join $srcdir a.txt] $textdata
+writefile [file join $srcdir b.bin] $allbytes
+writefile [file join $srcdir empty] {}
+set encodezip [makeFile {} decode-api-enc.zip]
+zipfile::encode ::decodeApiEnc
+::decodeApiEnc comment: {Global comment}
+::decodeApiEnc file: dir/a.txt 0 [file join $srcdir a.txt]
+::decodeApiEnc file: b.bin     0 [file join $srcdir b.bin] 1
+::decodeApiEnc file: empty     0 [file join $srcdir empty]
+::decodeApiEnc write $encodezip
+::decodeApiEnc destroy
+removeDirectory decode-api-src
+unset srcdir
+
+# Archive with per-file comments and known timestamps.
+set storedzip [makeFile {} decode-api-stored.zip]
+storedzip $storedzip {
+    {one.txt   {first file}  {comment one}}
+    {d/two.txt {second file} {}}
+    {d/        {}            {a directory}}
+} {stored archive}
+
+# -------------------------------------------------------------------------
+# iszip / open / close / archive
+
+test zipfile-decode-api-1.1 {iszip: missing file} -body {
+    zipfile::decode::iszip [file join [temporaryDirectory] decode-api-missing.zip]
+} -result 0
+
+test zipfile-decode-api-1.2 {iszip: empty file} -setup {
+    set name [makeFile {} decode-api-empty.zip]
+    writefile $name {}
+} -body {
+    zipfile::decode::iszip $name
+} -cleanup {
+    removeFile decode-api-empty.zip
+    unset name
+} -result 0
+
+test zipfile-decode-api-1.3 {iszip: archives made by encode and by hand} -body {
+    list [zipfile::decode::iszip $encodezip] [zipfile::decode::iszip $storedzip]
+} -result {1 1}
+
+test zipfile-decode-api-1.4 {open: not a zip file} -setup {
+    set name [makeFile {plain text} decode-api-text.zip]
+} -body {
+    zipfile::decode::open $name
+} -cleanup {
+    removeFile decode-api-text.zip
+    unset name
+} -returnCodes error -match glob -result {"*decode-api-text.zip" is not a zip file}
+
+test zipfile-decode-api-1.5 {open: error code for a non-zip file} -setup {
+    set name [makeFile {plain text} decode-api-text.zip]
+} -body {
+    catch {zipfile::decode::open $name}
+    set ::errorCode
+} -cleanup {
+    removeFile decode-api-text.zip
+    unset name
+} -result {ZIP DECODE BAD ARCHIVE}
+
+test zipfile-decode-api-1.6 {open: missing file} -body {
+    zipfile::decode::open [file join [temporaryDirectory] decode-api-missing.zip]
+} -returnCodes error -match glob -result {"*decode-api-missing.zip" is not a zip file}
+
+test zipfile-decode-api-1.7 {open and close return the empty string} -body {
+    list [zipfile::decode::open $encodezip] [zipfile::decode::close]
+} -result {{} {}}
+
+test zipfile-decode-api-1.8 {the last open call wins} -body {
+    zipfile::decode::open $encodezip
+    zipfile::decode::open $storedzip
+    set d [zipfile::decode::archive]
+    zipfile::decode::close
+    zipfile::decode::comment $d
+} -cleanup {
+    unset d
+} -result {stored archive}
+
+test zipfile-decode-api-1.9 {archive dictionary stays usable for queries} -body {
+    zipfile::decode::open $storedzip
+    set d [zipfile::decode::archive]
+    zipfile::decode::close
+    list [lsort [zipfile::decode::files $d]] [zipfile::decode::hasfile $d one.txt]
+} -cleanup {
+    unset d
+} -result {{d/ d/two.txt one.txt} 1}
+
+test zipfile-decode-api-1.10 {content of a hand-made archive} -body {
+    lsort [zipfile::decode::content $storedzip]
+} -result {d/ d/two.txt one.txt}
+
+test zipfile-decode-api-1.11 {comment: empty global comment} -setup {
+    set name [makeFile {} decode-api-nocomment.zip]
+    storedzip $name {{x {data} {}}}
+} -body {
+    zipfile::decode::open $name
+    set d [zipfile::decode::archive]
+    zipfile::decode::close
+    zipfile::decode::comment $d
+} -cleanup {
+    removeFile decode-api-nocomment.zip
+    unset name d
+} -result {}
+
+# -------------------------------------------------------------------------
+# Queries on the archive dictionary
+
+proc withzip {path script} {
+    zipfile::decode::open $path
+    set ::d [zipfile::decode::archive]
+    try {
+	uplevel 1 $script
+    } finally {
+	zipfile::decode::close
+	unset ::d
+    }
+}
+
+test zipfile-decode-api-2.1 {hasfile} -body {
+    withzip $encodezip {
+	list [zipfile::decode::hasfile $d dir/a.txt] \
+	    [zipfile::decode::hasfile $d b.bin] \
+	    [zipfile::decode::hasfile $d empty] \
+	    [zipfile::decode::hasfile $d nope] \
+	    [zipfile::decode::hasfile $d dir] \
+	    [zipfile::decode::hasfile $d a.txt]
+    }
+} -result {1 1 1 0 0 0}
+
+test zipfile-decode-api-2.2 {getfile: compressed text} -body {
+    withzip $encodezip {
+	string equal [zipfile::decode::getfile $d dir/a.txt] $textdata
+    }
+} -result 1
+
+test zipfile-decode-api-2.3 {getfile: binary data stored uncompressed} -body {
+    withzip $encodezip {
+	string equal [zipfile::decode::getfile $d b.bin] $allbytes
+    }
+} -result 1
+
+test zipfile-decode-api-2.4 {getfile: empty file} -body {
+    withzip $encodezip {
+	zipfile::decode::getfile $d empty
+    }
+} -result {}
+
+test zipfile-decode-api-2.5 {getfile: stored entries and directory entry} -body {
+    withzip $storedzip {
+	list [zipfile::decode::getfile $d one.txt] \
+	    [zipfile::decode::getfile $d d/two.txt] \
+	    [zipfile::decode::getfile $d d/]
+    }
+} -result {{first file} {second file} {}}
+
+test zipfile-decode-api-2.6 {filesize} -body {
+    withzip $encodezip {
+	list [zipfile::decode::filesize $d dir/a.txt] \
+	    [zipfile::decode::filesize $d b.bin] \
+	    [zipfile::decode::filesize $d empty]
+    }
+} -result {1200 256 0}
+
+test zipfile-decode-api-2.7 {filecomment} -body {
+    withzip $storedzip {
+	list [zipfile::decode::filecomment $d one.txt] \
+	    [zipfile::decode::filecomment $d d/two.txt] \
+	    [zipfile::decode::filecomment $d d/]
+    }
+} -result {{comment one} {} {a directory}}
+
+test zipfile-decode-api-2.8 {filetime} -body {
+    withzip $storedzip {
+	zipfile::decode::filetime $d one.txt
+    }
+} -result [clock scan "2020-01-02 03:04:06" -format "%Y-%m-%d %H:%M:%S"]
+
+foreach {n cmd} {
+    1 getfile
+    2 filesize
+    3 filecomment
+    4 filetime
+} {
+    test zipfile-decode-api-3.$n "$cmd: unknown path" -body {
+	withzip $encodezip {
+	    list [catch {zipfile::decode::$cmd $d nope} msg] $msg $::errorCode
+	}
+    } -cleanup {
+	unset msg
+    } -result {1 {File "nope" not known} {ZIP DECODE BAD PATH}}
+}
+
+test zipfile-decode-api-3.5 {copyfile: unknown path} -setup {
+    set dst [file join [temporaryDirectory] decode-api-out]
+} -body {
+    withzip $encodezip {
+	list [catch {zipfile::decode::copyfile $d nope $dst} msg] $msg \
+	    $::errorCode [file exists $dst]
+    }
+} -cleanup {
+    unset msg dst
+} -result {1 {File "nope" not known} {ZIP DECODE BAD PATH} 0}
+
+foreach {n cmd args} {
+    1 archive     {x}
+    2 close       {x}
+    3 comment     {}
+    4 files       {}
+    5 hasfile     {d}
+    6 getfile     {d}
+    7 filesize    {d}
+    8 filecomment {d}
+    9 filetime    {d}
+   10 copyfile    {d p}
+   11 unzip       {d}
+   12 unzipfile   {a}
+   13 content     {}
+   14 iszip       {}
+   15 open        {}
+} {
+    test zipfile-decode-api-4.$n "$cmd: wrong # args" -body {
+	catch {zipfile::decode::$cmd {*}$args} msg
+	string match "wrong # args: should be *" $msg
+    } -cleanup {
+	unset msg
+    } -result 1
+}
+
+# -------------------------------------------------------------------------
+# copyfile / unzip / unzipfile
+
+test zipfile-decode-api-5.1 {copyfile: compressed and binary files} -setup {
+    set dir [makeDirectory decode-api-out]
+} -body {
+    withzip $encodezip {
+	list [zipfile::decode::copyfile $d dir/a.txt [file join $dir a]] \
+	    [zipfile::decode::copyfile $d b.bin [file join $dir b]] \
+	    [string equal [readfile [file join $dir a]] $textdata] \
+	    [string equal [readfile [file join $dir b]] $allbytes]
+    }
+} -cleanup {
+    removeDirectory decode-api-out
+    unset dir
+} -result {{} {} 1 1}
+
+test zipfile-decode-api-5.2 {copyfile: creates missing directories} -setup {
+    set dir [makeDirectory decode-api-out]
+} -body {
+    withzip $storedzip {
+	zipfile::decode::copyfile $d d/two.txt [file join $dir x y two]
+    }
+    readfile [file join $dir x y two]
+} -cleanup {
+    removeDirectory decode-api-out
+    unset dir
+} -result {second file}
+
+test zipfile-decode-api-5.3 {copyfile: empty file} -setup {
+    set dir [makeDirectory decode-api-out]
+} -body {
+    withzip $encodezip {
+	zipfile::decode::copyfile $d empty [file join $dir e]
+    }
+    list [file isfile [file join $dir e]] [file size [file join $dir e]]
+} -cleanup {
+    removeDirectory decode-api-out
+    unset dir
+} -result {1 0}
+
+test zipfile-decode-api-5.4 {unzip: all entries} -setup {
+    set dir [makeDirectory decode-api-out]
+} -body {
+    set r [withzip $storedzip {
+	zipfile::decode::unzip $d $dir
+    }]
+    list $r [lsort [glob -directory $dir -tails * */*]] \
+	[file isdirectory [file join $dir d]] \
+	[readfile [file join $dir one.txt]] \
+	[readfile [file join $dir d two.txt]]
+} -cleanup {
+    removeDirectory decode-api-out
+    unset dir r
+} -result {{} {d d/two.txt one.txt} 1 {first file} {second file}}
+
+test zipfile-decode-api-5.5 {unzip: creates the destination directory} -setup {
+    set dir [file join [makeDirectory decode-api-out] new]
+} -body {
+    withzip $encodezip {
+	zipfile::decode::unzip $d $dir
+    }
+    list [lsort [glob -directory $dir -tails * */*]] \
+	[string equal [readfile [file join $dir dir a.txt]] $textdata] \
+	[string equal [readfile [file join $dir b.bin]] $allbytes] \
+	[file size [file join $dir empty]]
+} -cleanup {
+    removeDirectory decode-api-out
+    unset dir
+} -result {{b.bin dir dir/a.txt empty} 1 1 0}
+
+test zipfile-decode-api-5.6 {unzipfile returns the empty string} -setup {
+    set dir [makeDirectory decode-api-out]
+} -body {
+    list [zipfile::decode::unzipfile $storedzip $dir] \
+	[readfile [file join $dir one.txt]]
+} -cleanup {
+    removeDirectory decode-api-out
+    unset dir
+} -result {{} {first file}}
+
+test zipfile-decode-api-5.7 {unzipfile: not a zip file} -setup {
+    set name [makeFile {plain text} decode-api-text.zip]
+    set dir [makeDirectory decode-api-out]
+} -body {
+    zipfile::decode::unzipfile $name $dir
+} -cleanup {
+    removeFile decode-api-text.zip
+    removeDirectory decode-api-out
+    unset name dir
+} -returnCodes error -match glob -result {"*decode-api-text.zip" is not a zip file}
+
+test zipfile-decode-api-5.8 {content: not a zip file} -setup {
+    set name [makeFile {plain text} decode-api-text.zip]
+} -body {
+    zipfile::decode::content $name
+} -cleanup {
+    removeFile decode-api-text.zip
+    unset name
+} -returnCodes error -match glob -result {"*decode-api-text.zip" is not a zip file}
+
+# -------------------------------------------------------------------------
+
+removeFile decode-api-enc.zip
+removeFile decode-api-stored.zip
+rename writefile {}
+rename readfile {}
+rename storedzip {}
+rename withzip {}
+unset allbytes textdata encodezip storedzip n cmd args
+
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
