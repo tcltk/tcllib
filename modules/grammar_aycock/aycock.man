@@ -2,6 +2,7 @@
 [manpage_begin grammar::aycock n 1.1]
 [keywords ambiguous]
 [keywords aycock]
+[keywords compiler]
 [keywords earley]
 [keywords grammar]
 [keywords horspool]
@@ -28,11 +29,13 @@ in John Aycock and R. Nigel Horspool. Practical Earley Parsing.
 The [package grammar::aycock] package exports the single procedure:
 
 [list_begin definitions]
-[call [cmd ::aycock::parser] [arg grammar] [opt [option -verbose]]]
+[call [cmd ::grammar::aycock::parser] [arg grammar] [opt [option -verbose]]]
 
 Generates a parser for the given [arg grammar], and returns its
 name.  If the optional [option -verbose] flag is given, dumps verbose
 information relating to the generated parser to the standard output.
+An error is thrown if the grammar contains rules which can never be
+reduced.
 The returned parser is an object that accepts commands as shown in
 [sectref {OBJECT COMMAND}] below.
 
@@ -43,14 +46,15 @@ The returned parser is an object that accepts commands as shown in
 [list_begin definitions]
 [call [arg parserName] [method parse] [arg symList] [arg valList] [opt [arg clientData]]]
 
-Invokes a parser returned from [cmd ::aycock::parser]. [arg symList] is
+Invokes a parser returned from [cmd ::grammar::aycock::parser]. [arg symList] is
 a list of grammar symbols representing the terminals in an input
 string, and [arg valList] is a list of their semantic values. The
 result is the semantic value of the entire string when parsed.
+If the input cannot be parsed, a syntax error is thrown.
 
 [call [arg parserName] [method destroy]]
 
-Destroys a parser constructed by [cmd ::aycock::parser].
+Destroys a parser constructed by [cmd ::grammar::aycock::parser].
 
 [call [arg parserName] [method terminals]]
 
@@ -66,10 +70,12 @@ parser's grammar.
 
 Returns a Tcl script that will reconstruct the parser without
 needing all the mechanism of the parser generator at run time.
+The script returns the name of the reconstructed parser.
 The reconstructed parser depends on a set of commands in the
 package [package grammar::aycock::runtime],
 which is also automatically loaded
 when the [package grammar::aycock] package is loaded.
+The script does not load it itself.
 
 [list_end]
 
@@ -83,6 +89,7 @@ elements in the list:
 [list_begin itemized]
 
 [item] The name of the nonterminal symbol that the rule reduces.
+The nonterminal of the first rule is the start symbol of the grammar.
 
 [item] The literal string, [const "::="]
 
@@ -90,6 +97,7 @@ elements in the list:
 comprise the right-hand-side of the rule.
 
 [item] Finally, a Tcl script to execute when the rule is reduced.
+The script is executed as the body of a procedure.
 Within the given script, a variable called [var _] contains a list of
 the semantic values of the symbols on the right-hand side. The value
 returned by the script is expected to be the semantic value of the
@@ -103,6 +111,11 @@ empty string.
 
 [list_end]
 
+Symbols which do not appear on the left-hand side of any rule are
+terminal symbols.
+
+[para]
+
 Parsing is done with an Earley parser, which is not terribly efficient
 in speed or memory consumption, but which deals effectively with
 ambiguous grammars.  For this reason, the [package grammar::aycock] package is
@@ -112,12 +125,35 @@ extraordinarily complex languages in which ambiguity can be tolerated.
 [section EXAMPLE]
 
 The following code demonstrates a trivial desk calculator, admitting
-only [const +], [const *] and parentheses as its operators.  It also
-shows the format in which the lexical analyzer is expected to present
-terminal symbols to the parser.
+only [const +], [const *] and parentheses as its operators.  It
+includes a simple lexical analyzer, which shows the format in which
+terminal symbols are presented to the parser: a list of the terminal
+symbols, and a list of their semantic values.
 
 [example {
-set p [aycock::parser {
+proc lex {expression} {
+    set tokens {}
+    set values {}
+    while {$expression ne {}} {
+        if {[regexp {^([+*()])(.*)} $expression -> token rest]} {
+            # Operators and parentheses
+            lappend tokens $token
+            lappend values {}
+        } elseif {[regexp {^([[:digit:]]+)(.*)} $expression -> token rest]} {
+            # Numbers
+            lappend tokens NUMBER
+            lappend values $token
+        } elseif {[regexp {^[[:space:]]+(.*)} $expression -> rest]} {
+            # Whitespace is skipped
+        } else {
+            return -code error "invalid character \"[string index $expression 0]\""
+        }
+        set expression $rest
+    }
+    return [list $tokens $values]
+}
+
+set p [grammar::aycock::parser {
     start ::= E {}
     E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
     E ::= T {}
@@ -126,14 +162,11 @@ set p [aycock::parser {
     F ::= NUMBER {}
     F ::= ( E ) {lindex $_ 1}
 }]
-puts [$p parse {(  NUMBER +  NUMBER )  *  ( NUMBER +  NUMBER ) } \
-	       {{} 2      {} 3      {} {} {} 7     {} 1      {}}]
+lassign [lex {(2 + 3) * (7 + 1)}] tokens values
+puts [$p parse $tokens $values]
 $p destroy
 }]
 
 The example, when run, prints [const 40].
 
-[section KEYWORDS]
-
-Aycock, Earley, Horspool, parser, compiler
 [manpage_end]
