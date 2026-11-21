@@ -1,0 +1,730 @@
+# -*- tcl -*-
+# websocket-api.test:  Tests for the documented API of package websocket
+#
+# Unlike websocket.test, which needs the external echo server
+# ws.ifelse.io, these tests only use servers started in this
+# interpreter on 127.0.0.1, with all waits bounded.
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+support {
+    use log/logger.tcl   logger
+    use base64/base64.tcl base64
+    use sha1/sha1.tcl    sha1
+}
+testing {
+    useLocal websocket.tcl websocket
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Helpers: a minimal HTTP server doing the upgrade, recording
+## handlers for both ends.
+
+namespace eval ::wst {
+    variable srv {}
+    variable port {}
+    variable srvev {}
+    variable cliev {}
+    variable srvsock {}
+    variable tick 0
+}
+
+proc ::wst::start {{path /echo*} {proto *}} {
+    variable srv
+    variable port
+    variable srvev {}
+    variable cliev {}
+    variable srvsock {}
+    set srv [socket -server ::wst::Accept -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $srv -sockname] 2]
+    ::websocket::server $srv
+    ::websocket::live $srv $path ::wst::SrvHandler $proto
+    return
+}
+
+proc ::wst::Accept {s addr p} {
+    fileevent $s readable [list ::wst::Request $s]
+}
+
+proc ::wst::Request {s} {
+    variable srv
+    fileevent $s readable {}
+    fconfigure $s -translation crlf -blocking 1
+    gets $s line
+    set path [lindex $line 1]
+    set hdrs {}
+    while {[gets $s l] > 0} {
+	if {[regexp {^([^:]+):\s*(.*)$} $l -> k v]} {lappend hdrs $k $v}
+    }
+    set ::wst::lasthdrs $hdrs
+    if {[::websocket::test $srv $s $path $hdrs]} {
+	::websocket::upgrade $s
+    } else {
+	puts $s "HTTP/1.1 404 Not Found"
+	puts $s "Content-Length: 0"
+	puts $s ""
+	close $s
+    }
+}
+
+proc ::wst::SrvHandler {sock type msg} {
+    variable srvsock $sock
+    lappend ::wst::srvev [list $type $msg]
+    switch -- $type {
+	text   {::websocket::send $sock text "echo:$msg"}
+	binary {::websocket::send $sock binary $msg}
+    }
+    set ::wst::tick 1
+}
+
+proc ::wst::CliHandler {sock type msg} {
+    lappend ::wst::cliev [list $type $msg]
+    set ::wst::tick 1
+}
+
+# Wait (bounded) until the expression COND, evaluated globally, is true.
+proc ::wst::waitfor {cond} {
+    set id [after 5000 {set ::wst::tick timeout}]
+    while {![uplevel #0 [list expr $cond]]} {
+	vwait ::wst::tick
+	if {$::wst::tick eq "timeout"} break
+    }
+    after cancel $id
+    return
+}
+
+# Open a client to the test server and wait for the connection.
+proc ::wst::connect {{path /echo} args} {
+    variable port
+    set c [::websocket::open ws://127.0.0.1:$port$path ::wst::CliHandler {*}$args]
+    waitfor {[llength $::wst::cliev] >= 1 && $::wst::srvsock ne ""}
+    return $c
+}
+
+proc ::wst::stop {args} {
+    variable srv
+    foreach c [::websocket::find] {catch {::websocket::close $c}}
+    foreach s $args {catch {close $s}}
+    catch {close $srv}
+    # Forget server registrations and pending test contexts.
+    foreach v [info vars ::websocket::Server_*] {unset $v}
+    foreach v [info vars ::websocket::Client_*] {unset $v}
+    variable srvev {}
+    variable cliev {}
+    variable srvsock {}
+    update
+    return
+}
+
+proc ::wst::nl {} {return \n}
+
+# Valid upgrade request headers, key from RFC 6455.
+set ::wst::hdrs {
+    Host           127.0.0.1
+    Upgrade        websocket
+    Connection     Upgrade
+    Sec-WebSocket-Key     dGhlIHNhbXBsZSBub25jZQ==
+    Sec-WebSocket-Version 13
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## loglevel
+
+test websocket-api-1.0 {loglevel, default} -body {
+    ::websocket::loglevel
+} -result error
+
+test websocket-api-1.1 {loglevel, set and query} -body {
+    list [::websocket::loglevel debug] [::websocket::loglevel]
+} -cleanup {
+    ::websocket::loglevel error
+} -result {debug debug}
+
+test websocket-api-1.2 {loglevel, bad level is ignored} -body {
+    ::websocket::loglevel bogus
+} -result error
+
+test websocket-api-1.3 {loglevel, wrong # args} -body {
+    ::websocket::loglevel a b
+} -returnCodes error -result {wrong # args: should be "::websocket::loglevel ?loglvl?"}
+
+# Keep the expected error messages of the following tests quiet.
+::websocket::loglevel emergency
+
+#- - -- --- ----- -------- ------------- ---------------------
+## server, live, test, upgrade
+
+test websocket-api-2.0 {server returns the socket} -setup {
+    set s [socket -server dummy -myaddr 127.0.0.1 0]
+} -body {
+    expr {[::websocket::server $s] eq $s}
+} -cleanup {
+    close $s
+    unset ::websocket::Server_$s
+    unset s
+} -result 1
+
+test websocket-api-2.1 {live on an unknown server} -body {
+    ::websocket::live nosuchsock / cb
+} -returnCodes error -result {nosuchsock is not a WebSocket}
+
+test websocket-api-2.2 {test on an unknown server} -body {
+    ::websocket::test nosuchsock cli / $::wst::hdrs
+} -returnCodes error -result {nosuchsock is not a WebSocket}
+
+test websocket-api-2.3 {test, no headers: not an upgrade} -setup {
+    ::wst::start
+} -body {
+    ::websocket::test $::wst::srv cli /echo
+} -cleanup {
+    ::wst::stop
+} -result 0
+
+test websocket-api-2.4 {test, valid upgrade request} -setup {
+    ::wst::start
+} -body {
+    ::websocket::test $::wst::srv cli /echo $::wst::hdrs
+} -cleanup {
+    ::wst::stop
+} -result 1
+
+test websocket-api-2.5 {test, path does not match any live pattern} -setup {
+    ::wst::start
+} -body {
+    ::websocket::test $::wst::srv cli /other $::wst::hdrs
+} -cleanup {
+    ::wst::stop
+} -result 0
+
+test websocket-api-2.6 {test, path is a glob pattern} -setup {
+    ::wst::start /a/*/c
+} -body {
+    list [::websocket::test $::wst::srv cli1 /a/b/c $::wst::hdrs] \
+	[::websocket::test $::wst::srv cli2 /a/c $::wst::hdrs]
+} -cleanup {
+    ::wst::stop
+} -result {1 0}
+
+foreach {n desc change} {
+    0 {no Connection: Upgrade}      {Connection keep-alive}
+    1 {no Upgrade: websocket}       {Upgrade h2c}
+    2 {wrong version}               {Sec-WebSocket-Version 12}
+    3 {bad key length}              {Sec-WebSocket-Key abc=}
+} {
+    test websocket-api-2.7.$n "test, invalid request: $desc" -setup {
+	::wst::start
+	set h [dict merge $::wst::hdrs $change]
+    } -body {
+	::websocket::test $::wst::srv cli /echo $h
+    } -cleanup {
+	::wst::stop
+	unset h
+    } -result 0
+}
+unset n desc change
+
+test websocket-api-2.8 {test, protocol matching} -setup {
+    ::wst::start /echo chat*
+} -body {
+    list [::websocket::test $::wst::srv cli1 /echo \
+	      [dict merge $::wst::hdrs {Sec-WebSocket-Protocol {foo, chat2}}]] \
+	[::websocket::test $::wst::srv cli2 /echo \
+	     [dict merge $::wst::hdrs {Sec-WebSocket-Protocol {foo, bar}}]] \
+	[::websocket::test $::wst::srv cli3 /echo $::wst::hdrs]
+} -cleanup {
+    ::wst::stop
+} -result {1 0 1}
+
+test websocket-api-2.9 {upgrade of an untested socket} -body {
+    ::websocket::upgrade nosuchsock
+} -returnCodes error -result {nosuchsock is not a WebSocket client}
+
+test websocket-api-2.10 {upgrade sends the handshake response} -setup {
+    ::wst::start
+    set l [socket -server {apply {{s a p} {set ::wst::raw $s}}} -myaddr 127.0.0.1 0]
+    set cli [socket 127.0.0.1 [lindex [fconfigure $l -sockname] 2]]
+    ::wst::waitfor {[info exists ::wst::raw]}
+    fconfigure $cli -translation crlf
+    fconfigure $::wst::raw -translation crlf
+} -body {
+    ::websocket::test $::wst::srv $::wst::raw /echo \
+	[dict merge $::wst::hdrs {Sec-WebSocket-Protocol chat}]
+    ::websocket::upgrade $::wst::raw
+    set r {}
+    while {[gets $cli line] > 0} {lappend r $line}
+    lappend r [::websocket::conninfo $::wst::raw type] [lindex $::wst::srvev 0]
+} -cleanup {
+    ::wst::stop $cli $l
+    catch {close $::wst::raw}
+    unset -nocomplain ::wst::raw l cli r line
+} -result {{HTTP/1.1 101 Switching Protocols} {Upgrade: websocket} {Connection: Upgrade} {Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=} {Sec-WebSocket-Protocol: chat} server {connect {/echo {}}}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## open
+
+test websocket-api-3.0 {open, connect event on both ends} -setup {
+    ::wst::start
+} -body {
+    set c [::wst::connect /echo?q=1]
+    list [lindex $::wst::cliev 0] [lindex $::wst::srvev 0] \
+	[expr {$c in [::websocket::find]}]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{connect {}} {connect {/echo?q=1 {}}} 1}
+
+test websocket-api-3.1 {open, unsupported option} -body {
+    ::websocket::open ws://127.0.0.1:1/ ::wst::CliHandler -validate 1
+} -returnCodes error -result {-validate is not a recognised option}
+
+foreach {n opt} {0 -handler 1 -command} {
+    test websocket-api-3.2.$n "open, internal option $opt" -body {
+	::websocket::open ws://127.0.0.1:1/ ::wst::CliHandler $opt foo
+    } -returnCodes error -result "$opt is not a recognised option"
+}
+unset n opt
+
+test websocket-api-3.3 {open, server refuses the upgrade: error event} -setup {
+    ::wst::start
+} -body {
+    ::websocket::open ws://127.0.0.1:$::wst::port/nowhere ::wst::CliHandler
+    ::wst::waitfor {[llength $::wst::cliev] >= 1}
+    set ::wst::cliev
+} -cleanup {
+    ::wst::stop
+} -match glob -result {{error {HTTP error code 404 when establishing WebSocket connection with ws://127.0.0.1:*/nowhere}}}
+
+test websocket-api-3.4 {open, -protocol negotiation} -constraints knownBug -setup {
+    # Fails with http 2.10 (Tcl 9): the response headers are looked up
+    # with their original case in the result of http::meta.
+    ::wst::start /echo super*
+} -body {
+    set c [::wst::connect /echo -protocol {chat superchat}]
+    lindex $::wst::cliev 0
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {connect superchat}
+
+test websocket-api-3.5 {open, -headers are sent with the upgrade headers} -setup {
+    ::wst::start
+} -body {
+    set c [::wst::connect /echo -headers {X-Test yes}]
+    set h {}
+    foreach {k v} $::wst::lasthdrs {dict set h [string tolower $k] $v}
+    list [lindex $::wst::cliev 0] [dict get $h x-test] [dict get $h upgrade] \
+	[dict get $h sec-websocket-version] [string length [dict get $h sec-websocket-key]]
+} -cleanup {
+    ::wst::stop
+    unset c h k v
+} -result {{connect {}} yes websocket 13 24}
+
+test websocket-api-3.6 {open, -timeout: timeout event} -setup {
+    set l [socket -server {apply {{s a p} {set ::wst::raw $s}}} -myaddr 127.0.0.1 0]
+    set ::wst::cliev {}
+} -body {
+    # The server accepts but never answers.
+    ::websocket::open ws://127.0.0.1:[lindex [fconfigure $l -sockname] 2]/ \
+	::wst::CliHandler -timeout 100
+    ::wst::waitfor {[llength $::wst::cliev] >= 1}
+    lindex $::wst::cliev 0 0
+} -cleanup {
+    catch {close $::wst::raw}
+    close $l
+    set ::wst::cliev {}
+    unset -nocomplain ::wst::raw l
+} -result timeout
+
+#- - -- --- ----- -------- ------------- ---------------------
+## send
+
+test websocket-api-4.0 {send, unknown socket} -body {
+    ::websocket::send nosuchsock text hello
+} -returnCodes error -result {nosuchsock is not a WebSocket}
+
+test websocket-api-4.1 {send, bad type} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    # Only the first letter is checked, so use a non-matching one.
+    ::websocket::send $c xyz x
+} -cleanup {
+    ::wst::stop
+    unset c
+} -returnCodes error -result {Unrecognised type, should be one of text, binary, ping or a protocol valid integer}
+
+test websocket-api-4.2 {send text: number of bytes sent, echo} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    set n [::websocket::send $c text hello]
+    ::wst::waitfor {[llength $::wst::cliev] >= 2}
+    # 2 header bytes, 4 mask bytes, 5 payload bytes
+    list $n [lindex $::wst::srvev 1] [lindex $::wst::cliev 1]
+} -cleanup {
+    ::wst::stop
+    unset c n
+} -result {11 {text hello} {text echo:hello}}
+
+test websocket-api-4.3 {send, type is case-insensitive and abbreviable} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::send $c TEXT a
+    ::websocket::send $c t b
+    ::wst::waitfor {[llength $::wst::srvev] >= 3}
+    lrange $::wst::srvev 1 end
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{text a} {text b}}
+
+test websocket-api-4.4 {send text with non-ASCII characters} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::send $c text "a\u0105\u0439\u20ac"
+    ::wst::waitfor {[llength $::wst::cliev] >= 2}
+    expr {[lindex $::wst::cliev 1] eq [list text "echo:a\u0105\u0439\u20ac"]}
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result 1
+
+test websocket-api-4.5 {send binary} -setup {
+    ::wst::start
+    set c [::wst::connect]
+    set data {}
+    for {set i 0} {$i < 256} {incr i} {append data [binary format c $i]}
+} -body {
+    ::websocket::send $c binary $data
+    ::wst::waitfor {[llength $::wst::cliev] >= 2}
+    list [lindex $::wst::cliev 1 0] [string equal [lindex $::wst::cliev 1 1] $data]
+} -cleanup {
+    ::wst::stop
+    unset c data i
+} -result {binary 1}
+
+foreach {n len} {0 0 1 125 2 126 3 65535 4 65536 5 100000} {
+    test websocket-api-4.6.$n "send, payload length $len" -setup {
+	::wst::start
+	set c [::wst::connect]
+	set data [string repeat x $len]
+    } -body {
+	::websocket::send $c text $data
+	::wst::waitfor {[llength $::wst::cliev] >= 2}
+	list [lindex $::wst::srvev 1 0] [string length [lindex $::wst::srvev 1 1]] \
+	    [string length [lindex $::wst::cliev 1 1]]
+    } -cleanup {
+	::wst::stop
+	unset c data
+    } -result [list text $len [expr {$len + 5}]]
+}
+unset n len
+
+test websocket-api-4.7 {send, fragmented message is reassembled} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::send $c text "one, " 0
+    ::websocket::send $c text "two, " 0
+    ::websocket::send $c text "three" 1
+    ::wst::waitfor {[llength $::wst::srvev] >= 2}
+    lindex $::wst::srvev 1
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {text {one, two, three}}
+
+test websocket-api-4.8 {send, type change under continuation} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::send $c text "one" 0
+    ::websocket::send $c binary "two" 1
+} -cleanup {
+    ::wst::stop
+    unset c
+} -returnCodes error -result {Cannot change type of message under continuation!}
+
+test websocket-api-4.9 {send ping: pong event with the same data} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::send $c ping hello
+    ::wst::waitfor {[llength $::wst::cliev] >= 2}
+    list [lindex $::wst::srvev 1] [lindex $::wst::cliev 1]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{ping hello} {pong hello}}
+
+test websocket-api-4.10 {send, integer opcode} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::send $c 1 numeric
+    ::wst::waitfor {[llength $::wst::srvev] >= 2}
+    lindex $::wst::srvev 1
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {text numeric}
+
+test websocket-api-4.11 {send from the server side} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::send $::wst::srvsock ping srvping
+    ::websocket::send $::wst::srvsock text "from server"
+    ::wst::waitfor {[llength $::wst::cliev] >= 3 && [llength $::wst::srvev] >= 2}
+    list [lrange $::wst::cliev 1 end] [lindex $::wst::srvev 1]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{{ping srvping} {text {from server}}} {pong srvping}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## conninfo, find, configure
+
+test websocket-api-5.0 {conninfo, client side} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    list [::websocket::conninfo $c closed] [::websocket::conninfo $c client] \
+	[::websocket::conninfo $c server] [::websocket::conninfo $c type] \
+	[::websocket::conninfo $c handler] [::websocket::conninfo $c state]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {0 1 0 client ::wst::CliHandler CONNECTED}
+
+test websocket-api-5.1 {conninfo, server side} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    set s $::wst::srvsock
+    list [::websocket::conninfo $s client] [::websocket::conninfo $s server] \
+	[::websocket::conninfo $s type] [::websocket::conninfo $s handler]
+} -cleanup {
+    ::wst::stop
+    unset c s
+} -result {0 1 server ::wst::SrvHandler}
+
+test websocket-api-5.2 {conninfo, peername and sockname} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    list [expr {[::websocket::conninfo $c peername] ne ""}] \
+	[expr {[::websocket::conninfo $c sockname] eq [::websocket::conninfo $c name]}]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {1 1}
+
+test websocket-api-5.3 {conninfo, unknown piece of information} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::conninfo $c bogus
+} -cleanup {
+    ::wst::stop
+    unset c
+} -returnCodes error -result {bogus is not a known information piece for a websocket}
+
+test websocket-api-5.4 {conninfo, unknown socket} -body {
+    ::websocket::conninfo nosuchsock state
+} -returnCodes error -result {nosuchsock is not a WebSocket}
+
+test websocket-api-5.5 {find without filters lists both ends} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    expr {[lsort [::websocket::find]] eq [lsort [list $c $::wst::srvsock]]}
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result 1
+
+test websocket-api-5.6 {find, host filter matches the IP address} -constraints knownBug -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    expr {$c in [::websocket::find 127.0.0.1]}
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result 1
+
+test websocket-api-5.7 {find, port filter} -constraints knownBug -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    list [expr {$c in [::websocket::find * $::wst::port]}] \
+	[expr {$c in [::websocket::find * 1]}]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {1 0}
+
+test websocket-api-5.8 {configure, unknown socket} -body {
+    ::websocket::configure nosuchsock -keepalive 1
+} -returnCodes error -result {nosuchsock is not a WebSocket}
+
+test websocket-api-5.9 {configure, unknown option} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::configure $c -bogus 1
+} -cleanup {
+    ::wst::stop
+    unset c
+} -returnCodes error -result {-bogus is not a recognised option}
+
+test websocket-api-5.10 {configure -keepalive and -ping: automatic pings} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::configure $::wst::srvsock -ping alive -keep 1
+    ::wst::waitfor {[llength $::wst::cliev] >= 2 && [llength $::wst::srvev] >= 2}
+    ::websocket::configure $::wst::srvsock -keepalive 0
+    list [lindex $::wst::cliev 1] [lindex $::wst::srvev 1]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{ping alive} {pong alive}}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## close
+
+test websocket-api-6.0 {close, unknown socket} -body {
+    ::websocket::close nosuchsock
+} -returnCodes error -result {nosuchsock is not a WebSocket}
+
+test websocket-api-6.1 {close: close and disconnect events, socket forgotten} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::close $c
+    list [lrange $::wst::cliev 1 end] [expr {$c in [::websocket::find]}] \
+	[catch {::websocket::conninfo $c state}]
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{{close {1000 {Normal closure}}} {disconnect {Disconnected from remote end}}} 0 1}
+
+test websocket-api-6.2 {close, known code: default reason} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::close $c 1008
+    lindex $::wst::cliev 1
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {close {1008 {Policy violation}}}
+
+test websocket-api-6.3 {close, code and reason} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::close $c 4000 "my reason"
+    lindex $::wst::cliev 1
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {close {4000 {my reason}}}
+
+test websocket-api-6.4 {close, empty code} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::close $c {}
+    lrange $::wst::cliev 1 end
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{close {}} {disconnect {Disconnected from remote end}}}
+
+test websocket-api-6.5 {close: the remote end gets the code and reason (ticket 13d8e3ca06)} -constraints knownBug -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::close $c 4000 "my reason"
+    ::wst::waitfor {[llength $::wst::srvev] >= 3}
+    lrange $::wst::srvev 1 end
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{close {4000 {my reason}}} {disconnect {Disconnected from remote end}}}
+
+test websocket-api-6.6 {close from the server: the client gets the code (ticket 13d8e3ca06)} -constraints knownBug -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    ::websocket::close $::wst::srvsock 4001 "server reason"
+    ::wst::waitfor {[llength $::wst::cliev] >= 3}
+    lrange $::wst::cliev 1 end
+} -cleanup {
+    ::wst::stop
+    unset c
+} -result {{close {4001 {server reason}}} {disconnect {Disconnected from remote end}}}
+
+test websocket-api-6.7 {close: the remote end is disconnected} -setup {
+    ::wst::start
+    set c [::wst::connect]
+} -body {
+    set s $::wst::srvsock
+    ::websocket::close $c
+    ::wst::waitfor {[lindex $::wst::srvev end 0] eq "disconnect"}
+    list [lindex $::wst::srvev end 0] [expr {$s in [::websocket::find]}]
+} -cleanup {
+    ::wst::stop
+    unset c s
+} -result {disconnect 0}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## takeover
+
+test websocket-api-7.0 {takeover of a plain socket pair} -setup {
+    set l [socket -server {apply {{s a p} {set ::wst::raw $s}}} -myaddr 127.0.0.1 0]
+    set cli [socket 127.0.0.1 [lindex [fconfigure $l -sockname] 2]]
+    ::wst::waitfor {[info exists ::wst::raw]}
+    set ::wst::cliev {}
+    set ::wst::srvev {}
+} -body {
+    ::websocket::takeover $::wst::raw ::wst::SrvHandler 1
+    ::websocket::takeover $cli ::wst::CliHandler
+    ::websocket::configure $::wst::raw -keepalive 0
+    ::websocket::send $cli text hi
+    ::wst::waitfor {[llength $::wst::cliev] >= 2}
+    list $::wst::cliev $::wst::srvev \
+	[::websocket::conninfo $cli type] [::websocket::conninfo $::wst::raw type]
+} -cleanup {
+    catch {::websocket::close $cli}
+    catch {::websocket::close $::wst::raw}
+    close $l
+    set ::wst::cliev {}
+    set ::wst::srvev {}
+    set ::wst::srvsock {}
+    unset -nocomplain ::wst::raw l cli
+} -result {{{connect {}} {text echo:hi}} {{connect {}} {text hi}} client server}
+
+#- - -- --- ----- -------- ------------- ---------------------
+## Ensemble
+
+test websocket-api-8.0 {websocket is an ensemble of the public commands} -body {
+    websocket loglevel
+} -result emergency
+
+#- - -- --- ----- -------- ------------- ---------------------
+::websocket::loglevel error
+namespace delete ::wst
+testsuiteCleanup
+return
