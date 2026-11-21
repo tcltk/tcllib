@@ -1,0 +1,192 @@
+# -*- tcl -*-
+# md5crypt-api.test:  tests for the parts of the md5crypt API not covered
+# by md5crypt.test: documented examples, aprcrypt salt handling, password
+# checking with a stored hash, and ::md5crypt::salt.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal ../md5/md5x.tcl md5
+}
+testing {
+    useLocal md5crypt.tcl md5crypt
+}
+
+# -------------------------------------------------------------------------
+# Wrong # args
+
+test md5crypt-api-1.0 {aprcrypt, wrong # args, none} -body {
+    ::md5crypt::aprcrypt
+} -returnCodes error -match glob -result {wrong # args: should be "*"}
+
+test md5crypt-api-1.1 {aprcrypt, wrong # args, one} -body {
+    ::md5crypt::aprcrypt pw
+} -returnCodes error -match glob -result {wrong # args: should be "*"}
+
+test md5crypt-api-1.2 {aprcrypt, wrong # args, three} -body {
+    ::md5crypt::aprcrypt pw salt other
+} -returnCodes error -match glob -result {wrong # args: should be "*"}
+
+test md5crypt-api-1.3 {salt, wrong # args} -body {
+    ::md5crypt::salt 1 2
+} -returnCodes error -result {wrong # args: should be "::md5crypt::salt ?len?"}
+
+# -------------------------------------------------------------------------
+# Documented examples (results checked with "openssl passwd")
+
+test md5crypt-api-2.0 {md5crypt, documented example} -body {
+    ::md5crypt::md5crypt password 01234567
+} -result {$1$01234567$b5lh2mHyD2PdJjFfALlEz1}
+
+test md5crypt-api-2.1 {aprcrypt, documented example} -body {
+    ::md5crypt::aprcrypt password 01234567
+} -result {$apr1$01234567$IXBaQywhAhc0d75ZbaSDp/}
+
+# -------------------------------------------------------------------------
+# aprcrypt salt handling
+
+test md5crypt-api-3.0 {aprcrypt, short salt} -body {
+    ::md5crypt::aprcrypt pass abc
+} -result {$apr1$abc$p2BVMETKPhAwJTvOd59Vk.}
+
+test md5crypt-api-3.1 {aprcrypt, magic prefix removed from salt} -body {
+    ::md5crypt::aprcrypt password {$apr1$01234567}
+} -result {$apr1$01234567$IXBaQywhAhc0d75ZbaSDp/}
+
+test md5crypt-api-3.2 {aprcrypt, salt ends at $} -body {
+    ::md5crypt::aprcrypt pass {abc$junk}
+} -result {$apr1$abc$p2BVMETKPhAwJTvOd59Vk.}
+
+test md5crypt-api-3.3 {aprcrypt, salt limited to 8 characters} -body {
+    ::md5crypt::aprcrypt password 0123456789
+} -result {$apr1$01234567$IXBaQywhAhc0d75ZbaSDp/}
+
+test md5crypt-api-3.4 {aprcrypt, full hash as salt} -body {
+    ::md5crypt::aprcrypt password {$apr1$01234567$IXBaQywhAhc0d75ZbaSDp/}
+} -result {$apr1$01234567$IXBaQywhAhc0d75ZbaSDp/}
+
+test md5crypt-api-3.5 {md5crypt, full hash as salt} -body {
+    ::md5crypt::md5crypt password {$1$01234567$b5lh2mHyD2PdJjFfALlEz1}
+} -result {$1$01234567$b5lh2mHyD2PdJjFfALlEz1}
+
+test md5crypt-api-3.6 {md5crypt and aprcrypt differ for the same input} -body {
+    string equal [string range [::md5crypt::md5crypt pw abc] 3 end] \
+	[string range [::md5crypt::aprcrypt pw abc] 6 end]
+} -result 0
+
+test md5crypt-api-3.7 {md5crypt, empty password} -body {
+    ::md5crypt::md5crypt {} xyz
+} -result {$1$xyz$kjXWClpYD0.j9bPLUk/Ii.}
+
+# -------------------------------------------------------------------------
+# Non-ASCII passwords, as bytes (results checked with "openssl passwd")
+
+test md5crypt-api-4.0 {md5crypt, ISO 8859-1 password} -body {
+    ::md5crypt::md5crypt "café" ab
+} -result {$1$ab$k/QpeKJ5j3PDthiHvPKU4.}
+
+test md5crypt-api-4.1 {md5crypt, UTF-8 encoded password} -body {
+    ::md5crypt::md5crypt [encoding convertto utf-8 пароль] ab
+} -result {$1$ab$4ki.6dLIJdFQKQc3PVsJz1}
+
+# -------------------------------------------------------------------------
+# salt
+
+set itoa64 {./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
+
+test md5crypt-api-5.0 {salt, default length 8} -body {
+    string length [::md5crypt::salt]
+} -result 8
+
+test md5crypt-api-5.1 {salt, characters} -body {
+    set bad {}
+    for {set i 0} {$i < 50} {incr i} {
+	foreach c [split [::md5crypt::salt 20] {}] {
+	    if {[string first $c $itoa64] < 0} {lappend bad $c}
+	}
+    }
+    set bad
+} -cleanup {
+    unset bad i c
+} -result {}
+
+test md5crypt-api-5.2 {salt, explicit lengths} -body {
+    set res {}
+    foreach n {0 1 3 8 12 100} {
+	lappend res [string length [::md5crypt::salt $n]]
+    }
+    set res
+} -cleanup {
+    unset res n
+} -result {0 1 3 8 12 100}
+
+test md5crypt-api-5.3 {salt, negative length} -body {
+    ::md5crypt::salt -1
+} -result {}
+
+test md5crypt-api-5.4 {salt, random} -body {
+    expr {[::md5crypt::salt 16] ne [::md5crypt::salt 16]}
+} -result 1
+
+test md5crypt-api-5.5 {salt, does not contain $} -body {
+    string first $ [::md5crypt::salt 1000]
+} -result -1
+
+# Bug: a non-numeric length is compared as a string and the loop never
+# ends. The child interpreter with a command limit keeps the test from
+# hanging.
+test md5crypt-api-5.6 {salt, non-numeric length} -constraints knownBug -setup {
+    set ci [interp create]
+    $ci eval [list set auto_path $auto_path]
+    $ci eval [list source [localPath ../md5/md5x.tcl]]
+    $ci eval [list source [localPath md5crypt.tcl]]
+    interp limit $ci command -value [expr {[$ci eval info cmdcount] + 100000}]
+} -body {
+    $ci eval {::md5crypt::salt foo}
+} -cleanup {
+    interp delete $ci
+    unset ci
+} -returnCodes error -match glob -result {*"foo"*}
+
+test md5crypt-api-5.7 {md5crypt with generated salt, check password} -body {
+    set hash [::md5crypt::md5crypt secret [::md5crypt::salt]]
+    list [string match {$1$????????$*} $hash] [string length $hash] \
+	[string equal [::md5crypt::md5crypt secret $hash] $hash] \
+	[string equal [::md5crypt::md5crypt wrong $hash] $hash]
+} -cleanup {
+    unset hash
+} -result {1 34 1 0}
+
+test md5crypt-api-5.8 {aprcrypt with generated salt, check password} -body {
+    set hash [::md5crypt::aprcrypt secret [::md5crypt::salt]]
+    list [string match {$apr1$????????$*} $hash] [string length $hash] \
+	[string equal [::md5crypt::aprcrypt secret $hash] $hash] \
+	[string equal [::md5crypt::aprcrypt wrong $hash] $hash]
+} -cleanup {
+    unset hash
+} -result {1 37 1 0}
+
+test md5crypt-api-5.9 {md5crypt with short generated salt, check password} -body {
+    set hash [::md5crypt::md5crypt secret [::md5crypt::salt 2]]
+    list [string match {$1$??$*} $hash] [string length $hash] \
+	[string equal [::md5crypt::md5crypt secret $hash] $hash]
+} -cleanup {
+    unset hash
+} -result {1 28 1}
+
+# -------------------------------------------------------------------------
+
+unset itoa64
+testsuiteCleanup
+
+# Local variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
