@@ -808,7 +808,7 @@ procedures of this package used this convention inconsistently.
 [section References]
 
 [list_begin enumerated]
-[enum] [uri http:/wiki.tcl.tk/12070 {Polygon Intersection}]
+[enum] [uri https://wiki.tcl-lang.org/12070 {Polygon Intersection}]
 [enum] [uri http://en.wikipedia.org/wiki/Line-line_intersection]
 [enum] [uri http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/]
 [list_end]

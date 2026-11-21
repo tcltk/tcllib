@@ -1,0 +1,1216 @@
+# mime-api.test - Additional API tests for the mime package       -*- tcl -*-
+#
+#	Covers the documented commands and options not exercised by
+#	mime.test: initialize option errors, finalize -subordinates,
+#	getproperty, getheader, setheader modes, getbody -command and
+#	-blocksize, copymessage, parsing from -file, parseaddress,
+#	parsedatetime properties and the encoding mapping commands.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/core.tcl     tcl::chan::core
+    use virtchannel_core/events.tcl   tcl::chan::events
+    use virtchannel_base/memchan.tcl  tcl::chan::memchan
+    use base64/base64.tcl             base64
+    use md5/md5x.tcl                  md5
+}
+testing {
+    useLocal mime.tcl mime
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Sorted dictionary, for comparing serialized arrays.
+proc sdict {d} {
+    set res {}
+    foreach k [lsort [dict keys $d]] {
+	lappend res $k [dict get $d $k]
+    }
+    return $res
+}
+
+# Callback for getbody -command, records all invocations in ::calls.
+proc recorder {args} {
+    lappend ::calls $args
+    return result-[llength $::calls]
+}
+
+# The names of all existing tokens.
+proc tokens {} {
+    lsort [info vars ::mime::\[0-9\]*]
+}
+
+# A multipart message with a quoted-printable text part and a base64
+# binary part.
+set multimsg [join {
+    {MIME-Version: 1.0}
+    {Content-Type: multipart/mixed; boundary="XX"}
+    {Subject: Test}
+    {}
+    {preamble}
+    {--XX}
+    {Content-Type: text/plain; charset=iso-8859-2}
+    {Content-Transfer-Encoding: quoted-printable}
+    {}
+    {Za=BF=F3=B3=E6 g=EA=B6l=B1 ja=BC=F1}
+    {--XX}
+    {Content-Type: application/octet-stream}
+    {Content-Transfer-Encoding: base64}
+    {}
+    {AAH/YWJj}
+    {--XX--}
+    {epilogue}
+    {}
+} \n]
+set multitext "Za\u017C\u00F3\u0142\u0107 g\u0119\u015Bl\u0105 ja\u017A\u0144"
+set multitext2 [encoding convertto iso8859-2 $multitext]
+
+# -------------------------------------------------------------------------
+# ::mime::initialize
+
+test mime-api-1.1 {initialize: missing option value} -body {
+    mime::initialize -canonical text/plain -string
+} -returnCodes error -result {missing argument to -string}
+
+test mime-api-1.2 {initialize: unknown option} -body {
+    mime::initialize -canonical text/plain -string x -bogus 1
+} -returnCodes error -result {unknown option -bogus}
+
+test mime-api-1.3 {initialize: bad -encoding value} -constraints knownBug -body {
+    # The message does not contain the bad value.
+    mime::initialize -canonical text/plain -encoding foo -string x
+} -returnCodes error -result {unknown value for -encoding foo}
+
+test mime-api-1.4 {initialize: -param needs a key and a value} -body {
+    mime::initialize -canonical text/plain -param charset -string x
+} -returnCodes error -result {-param expects a key and a value, not charset}
+
+test mime-api-1.5 {initialize: -param given twice, case insensitive} -body {
+    mime::initialize -canonical text/plain \
+	-param {charset us-ascii} -param {CHARSET utf-8} -string x
+} -returnCodes error -result {the CHARSET parameter may be specified at most once}
+
+test mime-api-1.6 {initialize: -header needs a key and a value} -body {
+    mime::initialize -canonical text/plain -header X-Foo -string x
+} -returnCodes error -result {-header expects a key and a value, not X-Foo}
+
+test mime-api-1.7 {initialize: -header Content-Type is refused} -body {
+    mime::initialize -canonical text/plain -header {Content-Type text/html} -string x
+} -returnCodes error -result {use -canonical instead of -header Content-Type text/html}
+
+test mime-api-1.8 {initialize: -header Content-Transfer-Encoding is refused} -body {
+    mime::initialize -canonical text/plain \
+	-header {content-transfer-encoding base64} -string x
+} -returnCodes error -result {use -encoding instead of -header content-transfer-encoding base64}
+
+test mime-api-1.9 {initialize: -header MIME-Version and Content-MD5 are refused} -body {
+    list [catch {mime::initialize -canonical text/plain \
+		     -header {MIME-Version 2.0} -string x} r1] $r1 \
+	[catch {mime::initialize -canonical text/plain \
+		    -header {Content-MD5 xyz} -string x} r2] $r2
+} -cleanup {
+    unset -nocomplain r1 r2
+} -result {1 {don't go there...} 1 {don't go there...}}
+
+test mime-api-1.10 {initialize: -parts with a discrete content type} -body {
+    mime::initialize -canonical text/plain -parts {}
+} -returnCodes error -result {-canonical text/plain and -parts do not mix}
+
+test mime-api-1.11 {initialize: -parts with -encoding} -body {
+    mime::initialize -canonical multipart/mixed -encoding base64 -parts {}
+} -returnCodes error -result {-encoding and -parts do not mix}
+
+test mime-api-1.12 {initialize: -param without -canonical} -body {
+    mime::initialize -param {charset us-ascii} -string x
+} -returnCodes error -result {-param requires -canonical}
+
+test mime-api-1.13 {initialize: -encoding without -canonical} -body {
+    mime::initialize -encoding base64 -string x
+} -returnCodes error -result {-encoding requires -canonical}
+
+test mime-api-1.14 {initialize: -header without -canonical} -body {
+    mime::initialize -header {X-Foo bar} -string x
+} -returnCodes error -result {-header requires -canonical}
+
+test mime-api-1.15 {initialize: -parts without -canonical} -body {
+    mime::initialize -parts {}
+} -returnCodes error -result {-parts requires -canonical}
+
+test mime-api-1.16 {initialize: both -string and -file} -constraints knownBug -body {
+    mime::initialize -canonical text/plain -string x -file nonexistent
+} -returnCodes error -result {specify exactly one of -file, -parts, or -string}
+
+test mime-api-1.17 {initialize: -file that does not exist} -body {
+    mime::initialize -file [file join [temporaryDirectory] nonexistent.eml]
+} -returnCodes error -match glob -result {couldn't open "*nonexistent.eml": no such file or directory}
+
+test mime-api-1.18 {initialize: no token is left after an error} -setup {
+    set before [tokens]
+} -body {
+    catch {mime::initialize -canonical text/plain -string x -bogus 1}
+    catch {mime::initialize -string "not a header"}
+    expr {[tokens] eq $before}
+} -cleanup {
+    unset before
+} -result 1
+
+test mime-api-1.19 {initialize: -canonical is case insensitive, returns a token} -body {
+    set tok [mime::initialize -canonical TEXT/Plain -string x]
+    list [string match ::mime::* $tok] [mime::getproperty $tok content]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {1 text/plain}
+
+test mime-api-1.20 {initialize: -encoding values, case insensitive} -body {
+    set res {}
+    foreach e {7bit 8bit binary quoted-printable base64 BASE64} {
+	set tok [mime::initialize -canonical text/plain -encoding $e -string x]
+	lappend res [mime::getproperty $tok encoding]
+	mime::finalize $tok
+    }
+    set res
+} -cleanup {
+    unset res e tok
+} -result {7bit 8bit binary quoted-printable base64 base64}
+
+test mime-api-1.21 {initialize: -param and -header} -body {
+    set tok [mime::initialize -canonical text/plain \
+		 -param {charset iso-8859-2} -param {format flowed} \
+		 -header {X-Foo bar} -header {X-Foo baz} \
+		 -header {Content-Description Test} -string x]
+    list [sdict [mime::getproperty $tok params]] \
+	[mime::getheader $tok X-Foo] [mime::getheader $tok Content-Description]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {{charset iso-8859-2 format flowed} {bar baz} Test}
+
+test mime-api-1.22 {initialize: a Content-ID is generated} -body {
+    set tok [mime::initialize -canonical text/plain -string x]
+    regexp {^<[^@>]+@[^>]+>$} [mime::getheader $tok Content-ID]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result 1
+
+test mime-api-1.23 {initialize: user Content-ID is kept} -body {
+    set tok [mime::initialize -canonical text/plain \
+		 -header {Content-ID <part1@example.com>} -string x]
+    mime::getheader $tok Content-ID
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {<part1@example.com>}
+
+test mime-api-1.24 {initialize: parse a message from -file} -setup {
+    set f [makeBinaryFile $multimsg multi.eml]
+} -body {
+    set tok [mime::initialize -file $f]
+    set parts [mime::getproperty $tok parts]
+    list [mime::getproperty $tok content] [llength $parts] \
+	[mime::getheader $tok Subject] \
+	[mime::getbody [lindex $parts 0] -decode] \
+	[binary encode hex [mime::getbody [lindex $parts 1]]]
+} -cleanup {
+    mime::finalize $tok
+    removeFile multi.eml
+    unset f tok parts
+} -result [list multipart/mixed 2 Test $multitext 0001ff616263]
+
+test mime-api-1.25 {initialize: canonical body from -file} -setup {
+    set f [makeBinaryFile "line 1\nline 2\n" body.txt]
+} -body {
+    set tok [mime::initialize -canonical text/plain -file $f]
+    list [mime::getbody $tok] [mime::getproperty $tok size]
+} -cleanup {
+    mime::finalize $tok
+    removeFile body.txt
+    unset f tok
+} -result [list "line 1\nline 2\n" 14]
+
+test mime-api-1.26 {initialize: parse errors} -body {
+    set res {}
+    foreach msg [list \
+	"Content-Type: multipart/mixed\n\nx" \
+	"Content-Type: multipart/mixed; boundary=b\n\n--b\n\nx" \
+	"Content-Type: text/plain\nContent-Type: text/html\n\nx" \
+	"Content-Transfer-Encoding: 7bit\nContent-Transfer-Encoding: 8bit\n\nx"] {
+	catch {mime::initialize -string $msg} r
+	lappend res $r
+    }
+    set res
+} -cleanup {
+    unset res msg r
+} -result {{boundary parameter is missing in multipart/mixed} {end-of-string encountered while parsing multipart/mixed} {multiple Content-Type fields starting with Content-Type: text/html} {multiple Content-Transfer-Encoding fields starting with Content-Transfer-Encoding: 8bit}}
+
+test mime-api-1.27 {initialize: empty message defaults to text/plain} -body {
+    set tok [mime::initialize -string ""]
+    list [sdict [mime::getproperty $tok]] [mime::getbody $tok]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {{content text/plain encoding {} params {charset us-ascii} size 0} {}}
+
+test mime-api-1.28 {initialize: parse message/rfc822} -body {
+    set tok [mime::initialize -string [join {
+	{MIME-Version: 1.0}
+	{Content-Type: message/rfc822}
+	{}
+	{Subject: inner}
+	{Content-Type: text/plain}
+	{}
+	{inner body}
+    } \n]]
+    set inner [mime::getproperty $tok parts]
+    list [mime::getproperty $tok content] [llength $inner] \
+	[mime::getheader $inner Subject] [mime::getbody $inner]
+} -cleanup {
+    mime::finalize $tok
+    unset tok inner
+} -result {message/rfc822 1 inner {inner body}}
+
+test mime-api-1.29 {initialize: header continuation lines and repeated keys} -body {
+    set tok [mime::initialize -string \
+		 "Content-Type: text/plain\nX-A: 1\nx-a: 2\nX-Long: a\n  b\n\nbody"]
+    list [mime::getheader $tok X-A] [mime::getheader $tok X-Long] \
+	[mime::getbody $tok]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result [list {1 2} [list "a\n  b"] body]
+
+# -------------------------------------------------------------------------
+# ::mime::finalize
+
+test mime-api-2.1 {finalize: wrong # args} -body {
+    mime::finalize
+} -returnCodes error -result {wrong # args: should be "mime::finalize token ?arg ...?"}
+
+test mime-api-2.2 {finalize: returns empty string, token is gone} -body {
+    set tok [mime::initialize -canonical text/plain -string x]
+    list [mime::finalize $tok] [info exists $tok]
+} -cleanup {
+    unset tok
+} -result {{} 0}
+
+test mime-api-2.3 {finalize: bad -subordinates value} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    mime::finalize $tok -subordinates bogus
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {unknown value for -subordinates bogus}
+
+test mime-api-2.4 {finalize: default destroys parsed subordinates} -body {
+    set tok [mime::initialize -string $multimsg]
+    set parts [mime::getproperty $tok parts]
+    mime::finalize $tok
+    list [info exists [lindex $parts 0]] [info exists [lindex $parts 1]]
+} -cleanup {
+    unset tok parts
+} -result {0 0}
+
+test mime-api-2.5 {finalize -subordinates dynamic: keeps user parts} -body {
+    set a [mime::initialize -canonical text/plain -string A]
+    set b [mime::initialize -canonical text/plain -string B]
+    set m [mime::initialize -canonical multipart/mixed -parts [list $a $b]]
+    mime::finalize $m -subordinates dynamic
+    list [info exists $m] [info exists $a] [info exists $b]
+} -cleanup {
+    mime::finalize $a
+    mime::finalize $b
+    unset a b m
+} -result {0 1 1}
+
+test mime-api-2.6 {finalize -subordinates all: destroys user parts} -body {
+    set a [mime::initialize -canonical text/plain -string A]
+    set b [mime::initialize -canonical text/plain -string B]
+    set m [mime::initialize -canonical multipart/mixed -parts [list $a $b]]
+    mime::finalize $m -subordinates all
+    list [info exists $m] [info exists $a] [info exists $b]
+} -cleanup {
+    unset a b m
+} -result {0 0 0}
+
+test mime-api-2.7 {finalize -subordinates all: parsed subordinates} -body {
+    set tok [mime::initialize -string $multimsg]
+    set parts [mime::getproperty $tok parts]
+    mime::finalize $tok -subordinates all
+    list [info exists [lindex $parts 0]] [info exists [lindex $parts 1]]
+} -cleanup {
+    unset tok parts
+} -result {0 0}
+
+test mime-api-2.8 {finalize -subordinates none: keeps parsed subordinates} -body {
+    set tok [mime::initialize -string $multimsg]
+    set parts [mime::getproperty $tok parts]
+    mime::finalize $tok -subordinates none
+    list [info exists $tok] [info exists [lindex $parts 0]] \
+	[info exists [lindex $parts 1]] \
+	[mime::getbody [lindex $parts 0] -decode]
+} -cleanup {
+    foreach p $parts {mime::finalize $p}
+    unset tok parts p
+} -result [list 0 1 1 $multitext]
+
+# -------------------------------------------------------------------------
+# ::mime::getproperty
+
+test mime-api-3.1 {getproperty: wrong # args} -body {
+    mime::getproperty
+} -returnCodes error -result {wrong # args: should be "mime::getproperty token ?property?"}
+
+test mime-api-3.2 {getproperty: all properties of a leaf} -setup {
+    set tok [mime::initialize -canonical text/plain -encoding base64 \
+		 -param {charset us-ascii} -string "hello world"]
+} -body {
+    sdict [mime::getproperty $tok]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {content text/plain encoding base64 params {charset us-ascii} size 11}
+
+test mime-api-3.3 {getproperty: single properties of a leaf} -setup {
+    set tok [mime::initialize -canonical text/plain -encoding base64 \
+		 -param {charset us-ascii} -string "hello world"]
+} -body {
+    list [mime::getproperty $tok content] [mime::getproperty $tok encoding] \
+	[mime::getproperty $tok params] [mime::getproperty $tok size]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {text/plain base64 {charset us-ascii} 11}
+
+test mime-api-3.4 {getproperty: parts of a leaf} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    mime::getproperty $tok parts
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {MIME part is a leaf}
+
+test mime-api-3.5 {getproperty: unknown property} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    mime::getproperty $tok bogus
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {unknown property bogus}
+
+test mime-api-3.6 {getproperty: multipart has parts} -setup {
+    set a [mime::initialize -canonical text/plain -string A]
+    set b [mime::initialize -canonical text/plain -string BB]
+    set m [mime::initialize -canonical multipart/mixed -parts [list $a $b]]
+} -body {
+    list [expr {[mime::getproperty $m parts] eq [list $a $b]}] \
+	[mime::getproperty $m content] \
+	[expr {[dict get [mime::getproperty $m] parts] eq [list $a $b]}]
+} -cleanup {
+    mime::finalize $m -subordinates all
+    unset a b m
+} -result {1 multipart/mixed 1}
+
+test mime-api-3.7 {getproperty -names: leaf} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    lsort [mime::getproperty $tok -names]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {content encoding params}
+
+test mime-api-3.8 {getproperty -names: multipart} -setup {
+    set tok [mime::initialize -string $multimsg]
+} -body {
+    lsort [mime::getproperty $tok -names]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {content encoding params parts}
+
+test mime-api-3.9 {getproperty -names: includes size} -constraints knownBug -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    # size is a documented property and is returned without arguments,
+    # but -names does not list it.
+    expr {[lsort [mime::getproperty $tok -names]] eq
+	  [lsort [dict keys [mime::getproperty $tok]]]}
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result 1
+
+test mime-api-3.10 {getproperty: parsed parts} -setup {
+    set tok [mime::initialize -string $multimsg]
+} -body {
+    set res {}
+    foreach p [mime::getproperty $tok parts] {
+	lappend res [sdict [mime::getproperty $p]]
+    }
+    list [sdict [mime::getproperty $tok params]] $res
+} -cleanup {
+    mime::finalize $tok
+    unset tok res p
+} -result {{boundary XX} {{content text/plain encoding quoted-printable params {charset iso-8859-2} size 35} {content application/octet-stream encoding base64 params {} size 6}}}
+
+# -------------------------------------------------------------------------
+# ::mime::getheader
+
+test mime-api-4.1 {getheader: wrong # args} -body {
+    mime::getheader
+} -returnCodes error -result {wrong # args: should be "mime::getheader token ?key?"}
+
+test mime-api-4.2 {getheader: whole header} -setup {
+    set tok [mime::initialize -canonical text/plain \
+		 -header {X-Foo bar} -header {X-Foo baz} \
+		 -header {Content-ID <id@example.com>} -string x]
+} -body {
+    mime::getheader $tok
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {MIME-Version 1.0 X-Foo bar X-Foo baz Content-ID <id@example.com> Content-Type text/plain}
+
+test mime-api-4.3 {getheader: key is case insensitive, all values} -setup {
+    set tok [mime::initialize -canonical text/plain \
+		 -header {X-Foo bar} -header {x-foo baz} -string x]
+} -body {
+    list [mime::getheader $tok X-Foo] [mime::getheader $tok X-FOO] \
+	[mime::getheader $tok x-foo]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {{bar baz} {bar baz} {bar baz}}
+
+test mime-api-4.4 {getheader: unknown key} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    mime::getheader $tok X-Nope
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {key X-Nope not in header}
+
+test mime-api-4.5 {getheader: generated keys} -setup {
+    set tok [mime::initialize -canonical text/plain -encoding base64 \
+		 -param {charset us-ascii} -string x]
+} -body {
+    list [mime::getheader $tok MIME-Version] \
+	[mime::getheader $tok content-type] \
+	[mime::getheader $tok Content-Transfer-Encoding]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result [list 1.0 [list "text/plain;\n              charset=\"us-ascii\""] base64]
+
+test mime-api-4.6 {getheader -names: contains the header keys} -setup {
+    set tok [mime::initialize -canonical text/plain \
+		 -header {X-Foo bar} -header {X-Bar baz} -string x]
+} -body {
+    set names [mime::getheader $tok -names]
+    list [lsearch -exact $names X-Foo] [lsearch -exact $names X-Bar] \
+	[lsearch -exact $names Content-ID]
+} -cleanup {
+    mime::finalize $tok
+    unset tok names
+} -result {0 1 2}
+
+test mime-api-4.7 {getheader: parsed message keeps key spelling} -setup {
+    set tok [mime::initialize -string $multimsg]
+} -body {
+    list [mime::getheader $tok subject] [mime::getheader $tok -names]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {Test Subject}
+
+# -------------------------------------------------------------------------
+# ::mime::setheader
+
+test mime-api-5.1 {setheader: wrong # args} -body {
+    mime::setheader tok key
+} -returnCodes error -result {wrong # args: should be "mime::setheader token key value ?arg ...?"}
+
+test mime-api-5.2 {setheader: write new key} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    list [mime::setheader $tok X-New v1] [mime::getheader $tok X-New]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {{} v1}
+
+test mime-api-5.3 {setheader: write replaces all values, returns old ones} -setup {
+    set tok [mime::initialize -canonical text/plain \
+		 -header {X-Foo bar} -header {X-Foo baz} -string x]
+} -body {
+    list [mime::setheader $tok x-foo new -mode write] \
+	[mime::getheader $tok X-Foo]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {{bar baz} new}
+
+test mime-api-5.4 {setheader: append} -setup {
+    set tok [mime::initialize -canonical text/plain -header {X-Foo bar} -string x]
+} -body {
+    list [mime::setheader $tok X-Foo baz -mode append] \
+	[mime::setheader $tok X-New v -mode append] \
+	[mime::getheader $tok X-Foo] [mime::getheader $tok X-New]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result {bar {} {bar baz} v}
+
+test mime-api-5.5 {setheader: delete} -setup {
+    set tok [mime::initialize -canonical text/plain \
+		 -header {X-Foo bar} -header {X-Foo baz} -header {X-Bar 1} -string x]
+} -body {
+    list [mime::setheader $tok X-FOO ignored -mode delete] \
+	[catch {mime::getheader $tok X-Foo} r] $r \
+	[lsearch -exact [mime::getheader $tok -names] X-Foo] \
+	[mime::getheader $tok X-Bar]
+} -cleanup {
+    mime::finalize $tok
+    unset tok r
+} -result {{bar baz} 1 {key X-Foo not in header} -1 1}
+
+test mime-api-5.6 {setheader: delete a missing key} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    mime::setheader $tok X-Nope "" -mode delete
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {key X-Nope not in header}
+
+test mime-api-5.7 {setheader: bad -mode} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    mime::setheader $tok X-Foo v -mode bogus
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {unknown value for -mode bogus}
+
+test mime-api-5.8 {setheader: reserved keys may not be changed} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    set res {}
+    foreach {key value} {
+	Content-Type text/html
+	MIME-Version 2.0
+	Content-Transfer-Encoding base64
+    } {
+	catch {mime::setheader $tok $key $value} r
+	lappend res $r
+    }
+    set res
+} -cleanup {
+    mime::finalize $tok
+    unset tok res key value r
+} -result {{key Content-Type may not be set} {key MIME-Version may not be set} {key Content-Transfer-Encoding may not be set}}
+
+test mime-api-5.9 {setheader: new header appears in the built message} -setup {
+    set tok [mime::initialize -canonical text/plain -string body]
+} -body {
+    mime::setheader $tok Subject "Hello there"
+    set msg [mime::buildmessage $tok]
+    list [regexp "\r\nSubject: Hello there\r\n" $msg] \
+	[mime::getheader [set tok2 [mime::initialize -string $msg]] Subject]
+} -cleanup {
+    mime::finalize $tok
+    mime::finalize $tok2
+    unset tok tok2 msg
+} -result [list 1 [list "Hello there"]]
+
+# -------------------------------------------------------------------------
+# ::mime::getbody
+
+test mime-api-6.1 {getbody: wrong # args} -body {
+    mime::getbody
+} -returnCodes error -result {wrong # args: should be "mime::getbody token ?arg ...?"}
+
+test mime-api-6.2 {getbody: multipart is not a leaf} -setup {
+    set tok [mime::initialize -string $multimsg]
+} -body {
+    mime::getbody $tok
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {MIME part isn't a leaf}
+
+test mime-api-6.3 {getbody: bad -blocksize} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    mime::getbody $tok -blocksize 0
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {-blocksize expects a positive integer, not 0}
+
+test mime-api-6.4 {getbody: decodes the transfer encoding} -setup {
+    set tok [mime::initialize -string $multimsg]
+} -body {
+    set res {}
+    foreach p [mime::getproperty $tok parts] {
+	lappend res [mime::getbody $p]
+    }
+    list [expr {[lindex $res 0] eq $multitext2}] \
+	[binary encode hex [lindex $res 1]]
+} -cleanup {
+    mime::finalize $tok
+    unset tok res p
+} -result {1 0001ff616263}
+
+test mime-api-6.5 {getbody -command: data and end, result of last call} -setup {
+    set tok [mime::initialize -canonical text/plain -string "hello world"]
+    set ::calls {}
+} -body {
+    list [mime::getbody $tok -command recorder -blocksize 4] $::calls
+} -cleanup {
+    mime::finalize $tok
+    unset tok ::calls
+} -result {result-4 {{data hell} {data {o wo}} {data rld} end}}
+
+test mime-api-6.6 {getbody -command: default block size} -setup {
+    set tok [mime::initialize -canonical text/plain \
+		 -string [string repeat x 5000]]
+    set ::calls {}
+} -body {
+    mime::getbody $tok -command recorder
+    set res {}
+    foreach c $::calls {
+	lappend res [lindex $c 0] [string length [lindex $c 1]]
+    }
+    set res
+} -cleanup {
+    mime::finalize $tok
+    unset tok ::calls res c
+} -result {data 4096 data 904 end 0}
+
+test mime-api-6.7 {getbody -command: error in a data callback} -setup {
+    set tok [mime::initialize -canonical text/plain -string "hello"]
+    set ::calls {}
+    proc failer {reason args} {
+	lappend ::calls [list $reason {*}$args]
+	if {$reason eq "data"} {error boom}
+	return final
+    }
+} -body {
+    list [mime::getbody $tok -command failer] $::calls
+} -cleanup {
+    mime::finalize $tok
+    rename failer {}
+    unset tok ::calls
+} -result {final {{data hello} {error boom}}}
+
+test mime-api-6.8 {getbody -command: error from the final callback} -setup {
+    set tok [mime::initialize -canonical text/plain -string "hello"]
+    proc failer {reason args} {
+	if {$reason eq "end"} {error "end failed"}
+    }
+} -body {
+    mime::getbody $tok -command failer
+} -cleanup {
+    mime::finalize $tok
+    rename failer {}
+    unset tok
+} -returnCodes error -result {end failed}
+
+test mime-api-6.9 {getbody -command: called at global level} -setup {
+    set tok [mime::initialize -canonical text/plain -string "hello"]
+    proc leveler {args} {lappend ::levels [info level]}
+} -body {
+    apply {{tok} {mime::getbody $tok -command leveler}} $tok
+    set ::levels
+} -cleanup {
+    mime::finalize $tok
+    rename leveler {}
+    unset tok ::levels
+} -result {1 1}
+
+test mime-api-6.10 {getbody -command: empty body gives only end} -setup {
+    set tok [mime::initialize -canonical text/plain -string ""]
+    set ::calls {}
+} -body {
+    list [mime::getbody $tok -command recorder] $::calls
+} -cleanup {
+    mime::finalize $tok
+    unset tok ::calls
+} -result {result-1 end}
+
+test mime-api-6.11 {getbody -blocksize: parsed string part is decoded} -setup {
+    set tok [mime::initialize -string $multimsg]
+    set ::calls {}
+} -body {
+    mime::getbody [lindex [mime::getproperty $tok parts] 0] \
+	-command recorder -blocksize 5
+    set data {}
+    foreach c $::calls {
+	if {[lindex $c 0] eq "data"} {append data [lindex $c 1]}
+    }
+    expr {$data eq $multitext2}
+} -cleanup {
+    mime::finalize $tok
+    unset tok ::calls data c
+} -result 1
+
+test mime-api-6.12 {getbody -blocksize: parsed file part is decoded} -constraints {
+    knownBug
+} -setup {
+    set f [makeBinaryFile $multimsg multi.eml]
+    set tok [mime::initialize -file $f]
+    set ::calls {}
+} -body {
+    # Fragments smaller than a line are passed to the callback without
+    # quoted-printable decoding.
+    mime::getbody [lindex [mime::getproperty $tok parts] 0] \
+	-command recorder -blocksize 5
+    set data {}
+    foreach c $::calls {
+	if {[lindex $c 0] eq "data"} {append data [lindex $c 1]}
+    }
+    expr {$data eq $multitext2}
+} -cleanup {
+    mime::finalize $tok
+    removeFile multi.eml
+    unset f tok ::calls data c
+} -result 1
+
+test mime-api-6.13 {getbody -decode: charset of the part} -body {
+    set tok [mime::initialize -canonical text/plain -param {charset iso-8859-2} \
+		 -string $multitext2]
+    expr {[mime::getbody $tok -decode] eq $multitext}
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result 1
+
+test mime-api-6.14 {getbody -decode with -command} -setup {
+    set tok [mime::initialize -canonical text/plain -param {charset utf-8} \
+		 -string [encoding convertto utf-8 $multitext]]
+    proc collect {reason {data {}}} {
+	if {$reason eq "data"} {append ::collected $data; return}
+	return $::collected
+    }
+    set ::collected {}
+} -body {
+    expr {[mime::getbody $tok -decode -command collect -blocksize 3] eq $multitext}
+} -cleanup {
+    mime::finalize $tok
+    rename collect {}
+    unset tok ::collected
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::mime::copymessage and ::mime::buildmessage
+
+test mime-api-7.1 {copymessage: wrong # args} -body {
+    mime::copymessage tok
+} -returnCodes error -result {wrong # args: should be "mime::copymessage token channel"}
+
+test mime-api-7.2 {buildmessage: wrong # args} -body {
+    mime::buildmessage
+} -returnCodes error -result {wrong # args: should be "mime::buildmessage token"}
+
+test mime-api-7.3 {copymessage: writes the same as buildmessage, returns empty} -setup {
+    set tok [mime::initialize -canonical text/plain \
+		 -header {Subject Test} -string "line 1\nline 2"]
+    set f [makeFile {} copy.eml]
+} -body {
+    set ch [open $f w]
+    set res [mime::copymessage $tok $ch]
+    close $ch
+    set ch [open $f r]
+    set data [read $ch]
+    close $ch
+    list $res [expr {[string map {\r\n \n} [mime::buildmessage $tok]] eq $data}]
+} -cleanup {
+    mime::finalize $tok
+    removeFile copy.eml
+    unset tok f ch res data
+} -result {{} 1}
+
+test mime-api-7.4 {buildmessage: round trip through all encodings} -body {
+    set body "a=b c?d_e\tf"
+    set res {}
+    foreach e {7bit 8bit binary quoted-printable base64} {
+	set tok [mime::initialize -canonical text/plain -encoding $e \
+		     -string $body]
+	set tok2 [mime::initialize -string [mime::buildmessage $tok]]
+	lappend res [mime::getproperty $tok2 encoding] \
+	    [expr {[mime::getbody $tok2] eq $body}]
+	mime::finalize $tok
+	mime::finalize $tok2
+    }
+    set res
+} -cleanup {
+    unset body res e tok tok2
+} -result {7bit 1 8bit 1 binary 1 quoted-printable 1 base64 1}
+
+test mime-api-7.11 {buildmessage: round trip of non-ASCII bytes} -body {
+    set body "Za\u017C\u00F3\u0142\u0107"
+    set bytes [encoding convertto utf-8 $body]
+    set res {}
+    foreach e {quoted-printable base64} {
+	set tok [mime::initialize -canonical text/plain -encoding $e \
+		     -param {charset utf-8} -string $bytes]
+	set tok2 [mime::initialize -string [mime::buildmessage $tok]]
+	lappend res [expr {[mime::getbody $tok2 -decode] eq $body}]
+	mime::finalize $tok
+	mime::finalize $tok2
+    }
+    set res
+} -cleanup {
+    unset body bytes res e tok tok2
+} -result {1 1}
+
+test mime-api-7.12 {buildmessage: 8bit and binary bodies are not re-encoded} -constraints {
+    knownBug
+} -body {
+    # The bytes of the body are encoded once more (in the system
+    # encoding) by buildmessage.
+    set body "Za\u017C\u00F3\u0142\u0107"
+    set bytes [encoding convertto utf-8 $body]
+    set res {}
+    foreach e {8bit binary} {
+	set tok [mime::initialize -canonical text/plain -encoding $e \
+		     -param {charset utf-8} -string $bytes]
+	set tok2 [mime::initialize -string [mime::buildmessage $tok]]
+	lappend res [expr {[mime::getbody $tok2 -decode] eq $body}]
+	mime::finalize $tok
+	mime::finalize $tok2
+    }
+    set res
+} -cleanup {
+    unset body bytes res e tok tok2
+} -result {1 1}
+
+test mime-api-7.5 {buildmessage: encoded body} -body {
+    set res {}
+    foreach e {quoted-printable base64} {
+	set tok [mime::initialize -canonical text/plain -encoding $e \
+		     -string "a=b"]
+	set msg [mime::buildmessage $tok]
+	lappend res [string range $msg [expr {[string first \r\n\r\n $msg] + 4}] end]
+	mime::finalize $tok
+    }
+    set res
+} -cleanup {
+    unset res e tok msg
+} -result {a=3Db YT1i}
+
+test mime-api-7.13 {buildmessage: quoted-printable line with a single dot} -constraints {
+    knownBug
+} -body {
+    # The line break before a line containing only "." is lost.
+    set body "a\n.\nb"
+    set tok [mime::initialize -canonical text/plain -encoding quoted-printable \
+		 -string $body]
+    set tok2 [mime::initialize -string [mime::buildmessage $tok]]
+    string map {\r\n \n} [mime::getbody $tok2]
+} -cleanup {
+    mime::finalize $tok
+    mime::finalize $tok2
+    unset body tok tok2
+} -result "a\n.\nb"
+
+test mime-api-7.6 {buildmessage: Content-Transfer-Encoding once} -constraints {
+    knownBug
+} -body {
+    # Ticket dcf333e549
+    set tok [mime::initialize -canonical text/plain -encoding 8bit -string x]
+    regexp -all {Content-Transfer-Encoding:} [mime::buildmessage $tok]
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -result 1
+
+test mime-api-7.7 {buildmessage: binary data gets base64 automatically} -body {
+    set tok [mime::initialize -canonical application/octet-stream \
+		 -string "\x00\x01\xFFabc"]
+    set tok2 [mime::initialize -string [mime::buildmessage $tok]]
+    list [mime::getproperty $tok2 encoding] \
+	[binary encode hex [mime::getbody $tok2]]
+} -cleanup {
+    mime::finalize $tok
+    mime::finalize $tok2
+    unset tok tok2
+} -result {base64 0001ff616263}
+
+test mime-api-7.8 {buildmessage: message/rfc822 with a part} -body {
+    set a [mime::initialize -canonical text/plain -header {Subject inner} \
+	       -string "inner body"]
+    set m [mime::initialize -canonical message/rfc822 -parts [list $a]]
+    set tok [mime::initialize -string [mime::buildmessage $m]]
+    set inner [mime::getproperty $tok parts]
+    list [mime::getproperty $tok content] [mime::getheader $inner Subject] \
+	[mime::getbody $inner]
+} -cleanup {
+    mime::finalize $m -subordinates all
+    mime::finalize $tok
+    unset a m tok inner
+} -result {message/rfc822 inner {inner body}}
+
+test mime-api-7.9 {buildmessage: parsed multipart message round trip} -body {
+    set tok [mime::initialize -string $multimsg]
+    set tok2 [mime::initialize -string [mime::buildmessage $tok]]
+    set parts [mime::getproperty $tok2 parts]
+    list [mime::getheader $tok2 Subject] [llength $parts] \
+	[expr {[mime::getbody [lindex $parts 0] -decode] eq $multitext}] \
+	[binary encode hex [mime::getbody [lindex $parts 1]]]
+} -cleanup {
+    mime::finalize $tok
+    mime::finalize $tok2
+    unset tok tok2 parts
+} -result {Test 2 1 0001ff616263}
+
+test mime-api-7.10 {copymessage: parsed file part} -setup {
+    set f [makeBinaryFile $multimsg multi.eml]
+    set out [makeFile {} part.eml]
+} -body {
+    set tok [mime::initialize -file $f]
+    set ch [open $out w]
+    fconfigure $ch -translation binary
+    mime::copymessage [lindex [mime::getproperty $tok parts] 1] $ch
+    close $ch
+    set tok2 [mime::initialize -file $out]
+    list [mime::getproperty $tok2 content] \
+	[binary encode hex [mime::getbody $tok2]]
+} -cleanup {
+    mime::finalize $tok
+    mime::finalize $tok2
+    removeFile multi.eml
+    removeFile part.eml
+    unset f out tok tok2 ch
+} -result {application/octet-stream 0001ff616263}
+
+# -------------------------------------------------------------------------
+# ::mime::parseaddress
+
+test mime-api-8.1 {parseaddress: wrong # args} -body {
+    mime::parseaddress
+} -returnCodes error -result {wrong # args: should be "mime::parseaddress string"}
+
+test mime-api-8.2 {parseaddress: phrase and angle address} -body {
+    sdict [lindex [mime::parseaddress "John Doe <jdoe@example.com>"] 0]
+} -result {address jdoe@example.com comment {} domain example.com error {} friendly {John Doe} group {} local jdoe memberP 0 phrase {John Doe} proper {John Doe <jdoe@example.com>} route {}}
+
+test mime-api-8.3 {parseaddress: address with comment} -body {
+    sdict [lindex [mime::parseaddress "jdoe@example.com (John Doe)"] 0]
+} -result {address jdoe@example.com comment {(John Doe)} domain example.com error {} friendly {John Doe} group {} local jdoe memberP 0 phrase {} proper jdoe@example.com route {}}
+
+test mime-api-8.4 {parseaddress: bare address} -body {
+    sdict [lindex [mime::parseaddress "jdoe@example.com"] 0]
+} -result {address jdoe@example.com comment {} domain example.com error {} friendly jdoe group {} local jdoe memberP 0 phrase {} proper jdoe@example.com route {}}
+
+test mime-api-8.5 {parseaddress: list of addresses} -body {
+    set res {}
+    foreach a [mime::parseaddress {a@b.example, "Q Z" <q@z.example>, d@e.example}] {
+	lappend res [dict get $a address] [dict get $a friendly]
+    }
+    set res
+} -cleanup {
+    unset res a
+} -result {a@b.example a q@z.example {Q Z} d@e.example d}
+
+test mime-api-8.6 {parseaddress: group} -body {
+    set res {}
+    foreach a [mime::parseaddress "friends: a@b.example, d@e.example;"] {
+	lappend res [dict get $a address] [dict get $a group] \
+	    [dict get $a memberP]
+    }
+    set res
+} -cleanup {
+    unset res a
+} -result {a@b.example friends 1 d@e.example {} 1}
+
+test mime-api-8.7 {parseaddress: route} -body {
+    set a [lindex [mime::parseaddress "<@r1.example,@r2.example:u@h.example>"] 0]
+    list [dict get $a address] [dict get $a route] [dict get $a error]
+} -cleanup {
+    unset a
+} -result {u@h.example @r1.example,@r2.example: {}}
+
+test mime-api-8.8 {parseaddress: parse error is reported in the error property} -body {
+    set a [lindex [mime::parseaddress "<a@b.example"] 0]
+    dict get $a error
+} -cleanup {
+    unset a
+} -result {expecting right-bracket (found end-of-input)}
+
+test mime-api-8.9 {parseaddress: empty string} -body {
+    mime::parseaddress ""
+} -result {}
+
+test mime-api-8.10 {parseaddress: quoted local part} -body {
+    set a [lindex [mime::parseaddress {"john doe"@example.com}] 0]
+    list [dict get $a local] [dict get $a domain] [dict get $a error]
+} -cleanup {
+    unset a
+} -result {{"john doe"} example.com {}}
+
+# -------------------------------------------------------------------------
+# ::mime::parsedatetime
+
+set savedTZ [expr {[info exists ::env(TZ)] ? $::env(TZ) : {}}]
+set ::env(TZ) UTC0
+
+test mime-api-9.1 {parsedatetime: wrong # args} -body {
+    mime::parsedatetime x
+} -returnCodes error -result {wrong # args: should be "mime::parsedatetime value property"}
+
+test mime-api-9.2 {parsedatetime: all properties} -body {
+    set res {}
+    foreach p {hour lmonth lweekday mday min mon month proper sec wday
+	       weekday yday year} {
+	lappend res $p [mime::parsedatetime {Tue, 29 Feb 2000 21:07:03 +0000} $p]
+    }
+    set res
+} -cleanup {
+    unset res p
+} -result {hour 21 lmonth February lweekday Tuesday mday 29 min 7 mon 2 month Feb proper {Tue, 29 Feb 2000 21:07:03 +0000} sec 3 wday 2 weekday Tue yday 60 year 2000}
+
+test mime-api-9.3 {parsedatetime: leading zeros are removed} -body {
+    set res {}
+    foreach p {hour mday min mon sec yday} {
+	lappend res [mime::parsedatetime {Sat, 01 Jan 2000 00:00:00 +0000} $p]
+    }
+    set res
+} -cleanup {
+    unset res p
+} -result {0 1 0 1 0 1}
+
+test mime-api-9.4 {parsedatetime: numeric zone is applied} -body {
+    list [mime::parsedatetime {Tue, 29 Feb 2000 21:57:03 +0130} proper] \
+	[mime::parsedatetime {Tue, 29 Feb 2000 21:57:03 -0500} proper]
+} -result {{Tue, 29 Feb 2000 20:27:03 +0000} {Wed, 01 Mar 2000 02:57:03 +0000}}
+
+test mime-api-9.5 {parsedatetime: zone mnemonics} -body {
+    set res {}
+    foreach z {UT GMT EST EDT CST CDT MST MDT PST PDT} {
+	lappend res [mime::parsedatetime "Tue, 29 Feb 2000 21:57:03 $z" zone]
+    }
+    set res
+} -cleanup {
+    unset res z
+} -result {0 0 -300 -240 -360 -300 -420 -360 -480 -420}
+
+test mime-api-9.6 {parsedatetime: numeric zone property} -constraints {
+    knownBug
+} -body {
+    list [mime::parsedatetime {Tue, 29 Feb 2000 21:57:03 +0130} zone] \
+	[mime::parsedatetime {Tue, 29 Feb 2000 21:57:03 -0500} zone]
+} -result {90 -300}
+
+test mime-api-9.7 {parsedatetime: date without weekday and seconds} -body {
+    mime::parsedatetime {29 Feb 2000 21:57 GMT} proper
+} -result {Tue, 29 Feb 2000 21:57:00 +0000}
+
+test mime-api-9.8 {parsedatetime: clock property} -body {
+    mime::parsedatetime {Sat, 01 Jan 2000 00:00:00 +0000} clock
+} -result 946684800
+
+test mime-api-9.9 {parsedatetime: rclock is the age in seconds} -body {
+    set then [mime::parsedatetime {Sat, 01 Jan 2000 00:00:00 +0000} clock]
+    set before [expr {[clock seconds] - $then}]
+    set age [mime::parsedatetime {Sat, 01 Jan 2000 00:00:00 +0000} rclock]
+    set after [expr {[clock seconds] - $then}]
+    expr {$before <= $age && $age <= $after}
+} -cleanup {
+    unset then before age after
+} -result 1
+
+test mime-api-9.10 {parsedatetime -now} -body {
+    set before [clock seconds]
+    set now [mime::parsedatetime -now clock]
+    set after [clock seconds]
+    list [expr {$before <= $now && $now <= $after}] \
+	[mime::parsedatetime -now rclock] \
+	[regexp {^[A-Z][a-z][a-z], [0-9][0-9] [A-Z][a-z][a-z] [0-9]{4} [0-9:]{8} [+-][0-9]{4}$} \
+	     [mime::parsedatetime -now proper]]
+} -cleanup {
+    unset before now after
+} -result {1 0 1}
+
+test mime-api-9.11 {parsedatetime: unknown property} -body {
+    mime::parsedatetime {Tue, 29 Feb 2000 21:57:03 +0000} bogus
+} -returnCodes error -result {unknown property bogus}
+
+test mime-api-9.12 {parsedatetime: malformed numeric zone} -body {
+    mime::parsedatetime {Tue, 29 Feb 2000 21:57:03 +01} zone
+} -returnCodes error -result {malformed timezone-specification: 01}
+
+test mime-api-9.13 {parsedatetime: unparsable date} -body {
+    mime::parsedatetime {not a date} hour
+} -returnCodes error -match glob -result {unable to convert date-time string "not a date"*}
+
+set ::env(TZ) $savedTZ
+if {$savedTZ eq {}} {unset ::env(TZ)}
+unset savedTZ
+
+# -------------------------------------------------------------------------
+# ::mime::mapencoding and ::mime::reversemapencoding
+
+test mime-api-10.1 {mapencoding: wrong # args} -body {
+    mime::mapencoding
+} -returnCodes error -result {wrong # args: should be "mime::mapencoding enc"}
+
+test mime-api-10.2 {reversemapencoding: wrong # args} -body {
+    mime::reversemapencoding
+} -returnCodes error -result {wrong # args: should be "mime::reversemapencoding mimeType"}
+
+test mime-api-10.3 {mapencoding: Tcl encodings to charsets} -body {
+    set res {}
+    foreach e {ascii utf-8 iso8859-1 iso8859-2 cp1250 koi8-u shiftjis euc-jp} {
+	lappend res [mime::mapencoding $e]
+    }
+    set res
+} -cleanup {
+    unset res e
+} -result {US-ASCII UTF-8 ISO-8859-1 ISO-8859-2 Windows-1250 KOI8-U Shift_JIS EUC-JP}
+
+test mime-api-10.4 {mapencoding: unknown encoding} -body {
+    list [mime::mapencoding bogus] [mime::mapencoding identity]
+} -result {{} {}}
+
+test mime-api-10.5 {reversemapencoding: charsets to Tcl encodings} -body {
+    set res {}
+    foreach c {US-ASCII us-ascii UTF-8 utf8 ISO-8859-1 iso-8859-2 latin1
+	       windows-1250 KOI8-U Shift_JIS} {
+	lappend res [mime::reversemapencoding $c]
+    }
+    set res
+} -cleanup {
+    unset res c
+} -result {ascii ascii utf-8 utf-8 iso8859-1 iso8859-2 iso8859-1 cp1250 koi8-u shiftjis}
+
+test mime-api-10.6 {reversemapencoding: unknown charset} -body {
+    list [mime::reversemapencoding x-bogus] [mime::reversemapencoding ""]
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+
+rename sdict {}
+rename recorder {}
+rename tokens {}
+unset multimsg multitext multitext2
+testsuiteCleanup
+return

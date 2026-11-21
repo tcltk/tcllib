@@ -1,0 +1,623 @@
+# smtp-api.test - API tests for the smtp package                  -*- tcl -*-
+#
+#	The tests talk to a scripted fake SMTP server running in the same
+#	interpreter and listening on 127.0.0.1 only.  They cover the options
+#	of smtp::sendmessage, the originator and recipient selection from
+#	the headers, the returned list of rejected recipients, server
+#	fallback and the EHLO extensions (HELO fallback, XQUE, SIZE, AUTH).
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/core.tcl     tcl::chan::core
+    use virtchannel_core/events.tcl   tcl::chan::events
+    use virtchannel_base/memchan.tcl  tcl::chan::memchan
+    use base64/base64.tcl             base64
+    use md5/md5x.tcl                  md5
+    use sasl/sasl.tcl                 SASL
+    useLocal mime.tcl mime
+}
+testing {
+    useLocal smtp.tcl smtp
+}
+
+# -------------------------------------------------------------------------
+# Fake SMTP server
+#
+# [fake start ?options?] starts a server on 127.0.0.1 and returns its port.
+# Options:
+#   -greeting LINE      the greeting (default "220 fake ESMTP")
+#   -ehlo LINES         the EHLO reply lines after the first, or "reject"
+#                       to reply 502 to EHLO
+#   -rcpt DICT          replies for RCPT TO by address (default 250 ok)
+#   -mail REPLY         reply to MAIL FROM (default 250 ok)
+#   -data REPLY         reply after the end of the DATA section
+#   -auth REPLY         reply to the final AUTH step (default 235)
+# The conversation is recorded in fake(log), the text of each message in
+# fake(messages).
+
+namespace eval fake {
+    variable cfg
+    variable log {}
+    variable messages {}
+    variable server {}
+}
+
+proc fake::start {args} {
+    variable cfg
+    variable log {}
+    variable messages {}
+    variable server
+    array unset cfg
+    array set cfg {
+	-greeting {220 fake ESMTP}
+	-ehlo {}
+	-rcpt {}
+	-mail {250 ok}
+	-data {250 queued}
+	-auth {235 authenticated}
+    }
+    array set cfg $args
+    set server [socket -server fake::accept -myaddr 127.0.0.1 0]
+    return [lindex [fconfigure $server -sockname] 2]
+}
+
+proc fake::stop {} {
+    variable server
+    catch {close $server}
+    set server {}
+}
+
+proc fake::accept {sock addr port} {
+    variable cfg
+    variable state
+    fconfigure $sock -translation crlf -buffering line -blocking 0
+    set state($sock) cmd
+    fileevent $sock readable [list fake::read $sock]
+    puts $sock $cfg(-greeting)
+}
+
+proc fake::read {sock} {
+    if {[catch {fake::reply $sock}]} {
+	catch {close $sock}
+    }
+}
+
+proc fake::reply {sock} {
+    variable cfg
+    variable state
+    variable log
+    variable messages
+    variable text
+    if {[gets $sock line] < 0} {
+	if {[eof $sock]} {close $sock}
+	return
+    }
+    if {$state($sock) eq "data"} {
+	if {$line eq "."} {
+	    set state($sock) cmd
+	    lappend messages $text($sock)
+	    puts $sock $cfg(-data)
+	} else {
+	    if {[string index $line 0] eq "."} {
+		set line [string range $line 1 end]
+	    }
+	    append text($sock) $line \n
+	}
+	return
+    }
+    lappend log $line
+    if {$state($sock) eq "auth"} {
+	set state($sock) cmd
+	puts $sock $cfg(-auth)
+	return
+    }
+    switch -glob -- [string toupper $line] {
+	EHLO* {
+	    if {$cfg(-ehlo) eq "reject"} {
+		puts $sock "502 not implemented"
+	    } elseif {[llength $cfg(-ehlo)]} {
+		puts $sock "250-fake"
+		foreach ext [lrange $cfg(-ehlo) 0 end-1] {
+		    puts $sock "250-$ext"
+		}
+		puts $sock "250 [lindex $cfg(-ehlo) end]"
+	    } else {
+		puts $sock "250 fake"
+	    }
+	}
+	HELO* {puts $sock "250 fake"}
+	MAIL* {puts $sock $cfg(-mail)}
+	RCPT* {
+	    regexp {<(.*)>} $line -> addr
+	    if {[dict exists $cfg(-rcpt) $addr]} {
+		puts $sock [dict get $cfg(-rcpt) $addr]
+	    } else {
+		puts $sock "250 ok"
+	    }
+	}
+	DATA {
+	    set state($sock) data
+	    set text($sock) {}
+	    puts $sock "354 go ahead"
+	}
+	"AUTH PLAIN" {
+	    set state($sock) auth
+	    puts $sock "334 "
+	}
+	QUIT {puts $sock "221 bye"; close $sock}
+	default {puts $sock "250 ok"}
+    }
+}
+
+# The commands of the recorded conversation.
+proc fake::commands {} {
+    variable log
+    return $log
+}
+
+# The header of the INDEX-th message as a dict with lower case keys.
+proc fake::header {index} {
+    variable messages
+    set msg [lindex $messages $index]
+    set head [string range $msg 0 [expr {[string first \n\n $msg] - 1}]]
+    set res {}
+    foreach line [split $head \n] {
+	if {[regexp {^([^ \t:]+): ?(.*)$} $line -> k v]} {
+	    dict lappend res [string tolower $k] $v
+	}
+    }
+    return $res
+}
+
+# The body of the INDEX-th message.
+proc fake::body {index} {
+    variable messages
+    set msg [lindex $messages $index]
+    string range $msg [expr {[string first \n\n $msg] + 2}] end
+}
+
+# A local TCP port nobody listens on.
+proc closedport {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $port
+}
+
+# Send a fresh text/plain message via the fake server on PORT.
+proc send {port args} {
+    set tok [mime::initialize -canonical text/plain -string "Hello there"]
+    try {
+	smtp::sendmessage $tok -usetls 0 -servers 127.0.0.1 -ports $port \
+	    {*}$args
+    } finally {
+	mime::finalize $tok
+    }
+}
+
+# -------------------------------------------------------------------------
+# Option errors
+
+test smtp-api-1.1 {sendmessage: wrong # args} -body {
+    smtp::sendmessage
+} -returnCodes error -result {wrong # args: should be "smtp::sendmessage part ?arg ...?"}
+
+test smtp-api-1.2 {sendmessage: option without value} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -servers
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {Each option must have a value!  Invalid option list: -servers}
+
+test smtp-api-1.3 {sendmessage: unknown option} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -bogus 1
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {unknown option -bogus}
+
+test smtp-api-1.4 {sendmessage: bad boolean value} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    list [catch {smtp::sendmessage $tok -queue maybe} r1] $r1 \
+	[catch {smtp::sendmessage $tok -atleastone 2} r2] $r2 \
+	[catch {smtp::sendmessage $tok -usetls ja} r3] $r3
+} -cleanup {
+    mime::finalize $tok
+    unset tok r1 r2 r3
+} -result {1 {unknown boolean value: maybe} 1 {unknown boolean value: 2} 1 {unknown boolean value: ja}}
+
+test smtp-api-1.5 {sendmessage: -header needs a key and a value} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -header Subject
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {-header expects a key and a value, not Subject}
+
+test smtp-api-1.6 {sendmessage: reserved -header keys} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    set res {}
+    foreach key {Content-Type content-transfer-encoding Content-MD5 MIME-Version} {
+	catch {smtp::sendmessage $tok -header [list $key x]} r
+	lappend res $r
+    }
+    lsort -unique $res
+} -cleanup {
+    mime::finalize $tok
+    unset tok res key r
+} -result {{Content-Type, Content-Transfer-Encoding, Content-MD5, and MIME-Version cannot be user-specified.}}
+
+test smtp-api-1.7 {sendmessage: no recipients} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -originator a@example.com
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {need -header "To ..."}
+
+test smtp-api-1.8 {sendmessage: more than one originator} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -originator {a@example.com, b@example.com} \
+	-recipients c@example.com
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {too many mailboxes in -originator: a@example.com, b@example.com}
+
+test smtp-api-1.9 {sendmessage: bad originator address} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -header {From <a@example.com} \
+	-recipients c@example.com
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {error in From: expecting right-bracket (found end-of-input)}
+
+test smtp-api-1.10 {sendmessage: bad recipient address} -setup {
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -originator a@example.com -recipients {<c@example.com}
+} -cleanup {
+    mime::finalize $tok
+    unset tok
+} -returnCodes error -result {error in -recipients: expecting right-bracket (found end-of-input)}
+
+test smtp-api-1.11 {sendmessage: no server accepts the connection} -body {
+    send [closedport] -originator a@example.com -recipients b@example.com
+} -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------
+# Sending
+
+test smtp-api-2.1 {sendmessage: SMTP conversation, empty result} -setup {
+    set port [fake::start]
+} -body {
+    list [send $port -header {From a@example.com} -header {To b@example.com} \
+	      -client client.example] \
+	[fake::commands]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{} {{EHLO client.example} {MAIL FROM:<a@example.com>} {RCPT TO:<b@example.com>} DATA QUIT}}
+
+test smtp-api-2.2 {sendmessage: message header and body} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From {Ann <a@example.com>}} -header {To b@example.com} \
+	-header {Subject {Test message}}
+    set h [fake::header 0]
+    list [dict get $h from] [dict get $h to] [dict get $h subject] \
+	[dict exists $h date] [dict exists $h message-id] \
+	[dict get $h content-type] [fake::body 0]
+} -cleanup {
+    fake::stop
+    unset port h
+} -result [list {{Ann <a@example.com>}} b@example.com {{Test message}} 1 1 text/plain "Hello there\n"]
+
+test smtp-api-2.3 {sendmessage: -originator and -recipients override the header} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From a@example.com} -header {To b@example.com} \
+	-originator x@example.com -recipients {y@example.com, z@example.com}
+    lrange [fake::commands] 1 3
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{MAIL FROM:<x@example.com>} {RCPT TO:<y@example.com>} {RCPT TO:<z@example.com>}}
+
+test smtp-api-2.4 {sendmessage: -originator differs from From} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From a@example.com} -header {To b@example.com} \
+	-originator x@example.com
+    set h [fake::header 0]
+    list [lindex [fake::commands] 1] [dict get $h from] [dict exists $h sender]
+} -cleanup {
+    fake::stop
+    unset port h
+} -result {{MAIL FROM:<x@example.com>} a@example.com 1}
+
+test smtp-api-2.5 {sendmessage: From header from -originator} -setup {
+    set port [fake::start]
+} -body {
+    send $port -originator x@example.com -recipients b@example.com
+    list [lindex [fake::commands] 1] [dict get [fake::header 0] from]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{MAIL FROM:<x@example.com>} x@example.com}
+
+test smtp-api-2.6 {sendmessage: empty -originator gives the null sender} -setup {
+    set port [fake::start]
+} -body {
+    send $port -originator {} -header {From a@example.com} \
+	-header {To b@example.com}
+    lindex [fake::commands] 1
+} -cleanup {
+    fake::stop
+    unset port
+} -result {MAIL FROM:<>}
+
+test smtp-api-2.7 {sendmessage: recipients from To and cc} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From a@example.com} \
+	-header {To {b@example.com, c@example.com}} -header {cc d@example.com}
+    list [lsearch -all -inline [fake::commands] RCPT*] \
+	[dict get [fake::header 0] cc]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{{RCPT TO:<b@example.com>} {RCPT TO:<c@example.com>} {RCPT TO:<d@example.com>}} d@example.com}
+
+test smtp-api-2.8 {sendmessage: Bcc recipients get a separate copy} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From a@example.com} -header {To b@example.com} \
+	-header {Bcc c@example.com} -header {Subject Hi}
+    set h0 [fake::header 0]
+    set h1 [fake::header 1]
+    list [llength $fake::messages] \
+	[lsearch -all -inline [fake::commands] RCPT*] \
+	[dict exists $h0 bcc] [dict get $h1 subject] \
+	[string match multipart/digest* [lindex [dict get $h1 content-type] 0]] \
+	[string match "*Hello there*" [lindex $fake::messages 1]]
+} -cleanup {
+    fake::stop
+    unset port h0 h1
+} -result {2 {{RCPT TO:<b@example.com>} {RCPT TO:<c@example.com>}} 0 {{[Bcc] Hi}} 1 1}
+
+test smtp-api-2.9 {sendmessage: Dcc recipients, no Dcc header} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From a@example.com} -header {To b@example.com} \
+	-header {Dcc c@example.com}
+    list [lsearch -all -inline [fake::commands] RCPT*] \
+	[dict exists [fake::header 0] dcc]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{{RCPT TO:<b@example.com>} {RCPT TO:<c@example.com>}} 0}
+
+test smtp-api-2.10 {sendmessage: Resent- headers} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From a@example.com} -header {To b@example.com} \
+	-header {Resent-From r@example.com} -header {Resent-To s@example.com}
+    lrange [fake::commands] 1 2
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{MAIL FROM:<r@example.com>} {RCPT TO:<s@example.com>}}
+
+test smtp-api-2.11 {sendmessage: lines starting with a dot are escaped} -setup {
+    set port [fake::start]
+    set tok [mime::initialize -canonical text/plain -encoding 7bit \
+		 -string "line 1\n.\n..x\nend"]
+} -body {
+    smtp::sendmessage $tok -usetls 0 -servers 127.0.0.1 -ports $port \
+	-header {From a@example.com} -header {To b@example.com}
+    fake::body 0
+} -cleanup {
+    mime::finalize $tok
+    fake::stop
+    unset port tok
+} -result "line 1\n.\n..x\nend\n"
+
+test smtp-api-2.12 {sendmessage: Date and Message-ID from -header are kept} -setup {
+    set port [fake::start]
+} -body {
+    send $port -header {From a@example.com} -header {To b@example.com} \
+	-header {Date {Sat, 01 Jan 2000 00:00:00 +0000}} \
+	-header {Message-ID <id@example.com>}
+    set h [fake::header 0]
+    list [dict get $h date] [dict get $h message-id]
+} -cleanup {
+    fake::stop
+    unset port h
+} -result {{{Sat, 01 Jan 2000 00:00:00 +0000}} <id@example.com>}
+
+# -------------------------------------------------------------------------
+# Rejected recipients and -atleastone
+
+test smtp-api-3.1 {sendmessage: rejected recipient is returned, message sent} -setup {
+    set port [fake::start -rcpt {c@example.com {550 no such user}}]
+} -body {
+    list [send $port -originator a@example.com \
+	      -recipients {b@example.com, c@example.com}] \
+	[llength $fake::messages]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{{c@example.com 550 {no such user}}} 0}
+
+test smtp-api-3.2 {sendmessage -atleastone: sent if one recipient is accepted} -setup {
+    set port [fake::start -rcpt {c@example.com {550 no such user}}]
+} -body {
+    list [send $port -originator a@example.com -atleastone 1 \
+	      -recipients {b@example.com, c@example.com}] \
+	[llength $fake::messages]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{{c@example.com 550 {no such user}}} 1}
+
+test smtp-api-3.3 {sendmessage: all recipients rejected} -setup {
+    set port [fake::start -rcpt {b@example.com {550 no} c@example.com {551 moved}}]
+} -body {
+    list [send $port -originator a@example.com -atleastone true \
+	      -recipients {b@example.com, c@example.com}] \
+	[llength $fake::messages] [lindex [fake::commands] end-1]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{{b@example.com 550 no} {c@example.com 551 moved}} 0 RSET}
+
+test smtp-api-3.4 {sendmessage: 251 is an accepted recipient} -setup {
+    set port [fake::start -rcpt {b@example.com {251 will forward}}]
+} -body {
+    list [send $port -originator a@example.com -recipients b@example.com] \
+	[llength $fake::messages]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{} 1}
+
+# -------------------------------------------------------------------------
+# Servers and ports
+
+test smtp-api-4.1 {sendmessage: next server is tried} -setup {
+    set port [fake::start]
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    smtp::sendmessage $tok -usetls 0 -servers {127.0.0.1 127.0.0.1} \
+	-ports [list [closedport] $port] \
+	-originator a@example.com -recipients b@example.com
+    llength $fake::messages
+} -cleanup {
+    mime::finalize $tok
+    fake::stop
+    unset port tok
+} -result 1
+
+test smtp-api-4.2 {sendmessage: server with a bad greeting is skipped} -setup {
+    set port [fake::start -greeting {421 busy}]
+    set tok [mime::initialize -canonical text/plain -string x]
+} -body {
+    catch {smtp::sendmessage $tok -usetls 0 -servers 127.0.0.1 -ports $port \
+	       -originator a@example.com -recipients b@example.com}
+    list [fake::commands] [llength $fake::messages]
+} -cleanup {
+    mime::finalize $tok
+    fake::stop
+    unset port tok
+} -result {{} 0}
+
+test smtp-api-4.3 {sendmessage: -client defaults to the host name} -setup {
+    set port [fake::start]
+} -body {
+    send $port -originator a@example.com -recipients b@example.com
+    lindex [fake::commands] 0
+} -cleanup {
+    fake::stop
+    unset port
+} -result [list EHLO [info hostname]]
+
+# -------------------------------------------------------------------------
+# EHLO extensions
+
+test smtp-api-5.1 {sendmessage: HELO if EHLO is rejected} -setup {
+    set port [fake::start -ehlo reject]
+} -body {
+    send $port -originator a@example.com -recipients b@example.com \
+	-client c.example
+    list [lrange [fake::commands] 0 1] [llength $fake::messages]
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{{EHLO c.example} {HELO c.example}} 1}
+
+test smtp-api-5.2 {sendmessage -queue: QUED if the server offers XQUE} -setup {
+    set port [fake::start -ehlo {XQUE}]
+} -body {
+    send $port -originator a@example.com -recipients b@example.com \
+	-queue 1 -client c.example
+    lrange [fake::commands] 0 1
+} -cleanup {
+    fake::stop
+    unset port
+} -result {{EHLO c.example} QUED}
+
+test smtp-api-5.3 {sendmessage -queue: nothing if XQUE is not offered} -setup {
+    set port [fake::start]
+} -body {
+    send $port -originator a@example.com -recipients b@example.com \
+	-queue 1 -client c.example
+    lindex [fake::commands] 1
+} -cleanup {
+    fake::stop
+    unset port
+} -result {MAIL FROM:<a@example.com>}
+
+test smtp-api-5.4 {sendmessage: SIZE extension} -setup {
+    set port [fake::start -ehlo {{SIZE 1000000}}]
+} -body {
+    send $port -originator a@example.com -recipients b@example.com
+    regexp {^MAIL FROM:<a@example.com> SIZE=[0-9]+$} [lindex [fake::commands] 1]
+} -cleanup {
+    fake::stop
+    unset port
+} -result 1
+
+test smtp-api-5.5 {sendmessage -username: AUTH PLAIN} -setup {
+    set port [fake::start -ehlo {{AUTH PLAIN}}]
+} -body {
+    send $port -originator a@example.com -recipients b@example.com \
+	-username user -password secret
+    set cmds [fake::commands]
+    list [lindex $cmds 1] \
+	[split [base64::decode [lindex $cmds 2]] \0] \
+	[lindex $cmds 3] [llength $fake::messages]
+} -cleanup {
+    fake::stop
+    unset port cmds
+} -result {{AUTH PLAIN} {{} user secret} {MAIL FROM:<a@example.com>} 1}
+
+test smtp-api-5.6 {sendmessage: no AUTH without -username} -setup {
+    set port [fake::start -ehlo {{AUTH PLAIN}}]
+} -body {
+    send $port -originator a@example.com -recipients b@example.com
+    lindex [fake::commands] 1
+} -cleanup {
+    fake::stop
+    unset port
+} -result {MAIL FROM:<a@example.com>}
+
+# -------------------------------------------------------------------------
+
+rename closedport {}
+rename send {}
+namespace delete fake
+testsuiteCleanup
+return

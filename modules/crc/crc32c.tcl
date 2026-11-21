@@ -14,7 +14,7 @@
 #
 # INSTALLATION
 # ------------
-# This package uses critcl (http://wiki.tcl.tk/critcl). To build do:
+# This package uses critcl (https://wiki.tcl-lang.org/critcl). To build do:
 #  critcl -libdir <your-tcl-lib-dir> -pkg crcc crc32c.tcl sumc.tcl
 #
 # To build this for tcllib use sak.tcl:
