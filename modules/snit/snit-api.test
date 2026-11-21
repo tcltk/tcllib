@@ -1,0 +1,393 @@
+# -*- tcl -*-
+# snit-api.test:  additional tests for the snit package.
+#
+# Complements snit.test: validation types (return values, bounds,
+# error codes and messages not covered there), options with -type,
+# "expose ... as", configurelist and cget errors.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.2
+
+testing {
+    useLocal snit2.tcl snit
+}
+
+# -------------------------------------------------------------------------
+
+proc invalid {script} {
+    # Returns the error code and the message of a failing script.
+    if {![catch {uplevel 1 $script} msg opts]} {
+	return [list OK $msg]
+    }
+    list [dict get $opts -errorcode] $msg
+}
+
+# -------------------------------------------------------------------------
+# Validation types return the validated value
+
+test snit-api-1.0 {validate returns the value} -body {
+    list [snit::integer validate 5] [snit::integer validate 0x10] \
+	[snit::double validate 1e3] [snit::boolean validate TRUE] \
+	[snit::enum validate anything] [snit::stringtype validate abc] \
+	[snit::listtype validate {a b}]
+} -result {5 0x10 1e3 TRUE anything abc {a b}}
+
+test snit-api-1.1 {subtype validate returns the value} -setup {
+    snit::integer ::sapi_int -min 0 -max 10
+    snit::double ::sapi_dbl -min 0 -max 1
+    snit::enum ::sapi_enum -values {a b}
+    snit::stringtype ::sapi_str -minlen 1
+    snit::listtype ::sapi_list -type snit::integer
+} -body {
+    list [::sapi_int validate 10] [::sapi_dbl validate 0.5] \
+	[::sapi_enum validate b] [::sapi_str validate x] \
+	[::sapi_list validate {1 2}]
+} -cleanup {
+    foreach t {int dbl enum str list} {::sapi_$t destroy}
+    unset t
+} -result {10 0.5 b x {1 2}}
+
+foreach {n type} {
+    0 integer 1 double 2 boolean 3 enum 4 stringtype 5 listtype
+} {
+    test snit-api-1.2.$n "$type validate, wrong # args" -body {
+	snit::$type validate
+    } -returnCodes error -result "wrong # args: should be \"snit::$type validate value\""
+}
+unset n type
+
+# -------------------------------------------------------------------------
+# snit::integer
+
+test snit-api-2.0 {integer subtype, bounds are inclusive} -setup {
+    snit::integer ::sapi_int -min -2 -max 3
+} -body {
+    list [::sapi_int validate -2] [::sapi_int validate 3]
+} -cleanup {
+    ::sapi_int destroy
+} -result {-2 3}
+
+test snit-api-2.1 {integer subtype, greater than max, with min} -setup {
+    snit::integer ::sapi_int -min 0 -max 5
+} -body {
+    invalid {::sapi_int validate 6}
+} -cleanup {
+    ::sapi_int destroy
+} -result {INVALID {invalid value "6", expected integer in range 0, 5}}
+
+test snit-api-2.2 {integer subtype, max only} -setup {
+    snit::integer ::sapi_int -max 5
+} -body {
+    list [::sapi_int validate -100] [lindex [invalid {::sapi_int validate 6}] 0]
+} -cleanup {
+    ::sapi_int destroy
+} -result {-100 INVALID}
+
+# Unlike snit::double, the message does not mention the bound.
+test snit-api-2.3 {integer subtype, greater than max, no min, message} -constraints knownBug -setup {
+    snit::integer ::sapi_int -max 5
+} -body {
+    invalid {::sapi_int validate 6}
+} -cleanup {
+    ::sapi_int destroy
+} -result {INVALID {invalid value "6", expected integer no greater than 5}}
+
+test snit-api-2.4 {integer, floating point value is invalid} -body {
+    invalid {snit::integer validate 1.5}
+} -result {INVALID {invalid value "1.5", expected integer}}
+
+test snit-api-2.5 {integer subtype, unknown option} -body {
+    snit::integer ::sapi_int -bogus 1
+} -returnCodes error -cleanup {
+    catch {::sapi_int destroy}
+} -result {Error in constructor: unknown option "-bogus"}
+
+# -------------------------------------------------------------------------
+# snit::double
+
+test snit-api-3.0 {double subtype, bounds are inclusive} -setup {
+    snit::double ::sapi_dbl -min 0.0 -max 1.0
+} -body {
+    list [::sapi_dbl validate 0.0] [::sapi_dbl validate 1.0]
+} -cleanup {
+    ::sapi_dbl destroy
+} -result {0.0 1.0}
+
+test snit-api-3.1 {double subtype, greater than max, with min} -setup {
+    snit::double ::sapi_dbl -min 0.0 -max 1.0
+} -body {
+    invalid {::sapi_dbl validate 1.5}
+} -cleanup {
+    ::sapi_dbl destroy
+} -result {INVALID {invalid value "1.5", expected double in range 0.0, 1.0}}
+
+test snit-api-3.2 {double subtype, less than min, no max} -setup {
+    snit::double ::sapi_dbl -min 0
+} -body {
+    invalid {::sapi_dbl validate -0.1}
+} -cleanup {
+    ::sapi_dbl destroy
+} -result {INVALID {invalid value "-0.1", expected double no less than 0}}
+
+test snit-api-3.3 {double, integer value is valid} -body {
+    snit::double validate 7
+} -result 7
+
+# -------------------------------------------------------------------------
+# snit::boolean
+
+test snit-api-4.0 {boolean, case-insensitive} -body {
+    list [snit::boolean validate TRUE] [snit::boolean validate No] \
+	[snit::boolean validate oFF]
+} -result {TRUE No oFF}
+
+test snit-api-4.1 {boolean, empty value is invalid} -body {
+    invalid {snit::boolean validate {}}
+} -result {INVALID {invalid boolean "", should be one of: 1, 0, true, false, yes, no, on, off}}
+
+test snit-api-4.2 {boolean, numbers other than 0 and 1} -body {
+    invalid {snit::boolean validate 2}
+} -result {INVALID {invalid boolean "2", should be one of: 1, 0, true, false, yes, no, on, off}}
+
+# -------------------------------------------------------------------------
+# snit::enum
+
+test snit-api-5.0 {enum, the base type accepts anything} -body {
+    list [snit::enum validate {}] [snit::enum validate {a b}]
+} -result {{} {a b}}
+
+test snit-api-5.1 {enum subtype, case-sensitive} -setup {
+    snit::enum ::sapi_enum -values {a b}
+} -body {
+    invalid {::sapi_enum validate A}
+} -cleanup {
+    ::sapi_enum destroy
+} -result {INVALID {invalid value "A", should be one of: a, b}}
+
+test snit-api-5.2 {enum subtype, empty -values} -body {
+    snit::enum ::sapi_enum -values {}
+} -returnCodes error -cleanup {
+    catch {::sapi_enum destroy}
+} -result {Error in constructor: invalid -values: ""}
+
+test snit-api-5.3 {enum subtype, values with spaces} -setup {
+    snit::enum ::sapi_enum -values {{a b} c}
+} -body {
+    list [::sapi_enum validate {a b}] [lindex [invalid {::sapi_enum validate a}] 0]
+} -cleanup {
+    ::sapi_enum destroy
+} -result {{a b} INVALID}
+
+# -------------------------------------------------------------------------
+# snit::stringtype
+
+test snit-api-6.0 {stringtype subtype, -minlen and -maxlen bounds are inclusive} -setup {
+    snit::stringtype ::sapi_str -minlen 2 -maxlen 4
+} -body {
+    list [::sapi_str validate ab] [::sapi_str validate abcd]
+} -cleanup {
+    ::sapi_str destroy
+} -result {ab abcd}
+
+test snit-api-6.1 {stringtype subtype, too short} -setup {
+    snit::stringtype ::sapi_str -minlen 2 -maxlen 4
+} -body {
+    invalid {::sapi_str validate a}
+} -cleanup {
+    ::sapi_str destroy
+} -result {INVALID {too short: at least 2 characters expected}}
+
+test snit-api-6.2 {stringtype subtype, too long} -setup {
+    snit::stringtype ::sapi_str -minlen 2 -maxlen 4
+} -body {
+    invalid {::sapi_str validate abcde}
+} -cleanup {
+    ::sapi_str destroy
+} -result {INVALID {too long: no more than 4 characters expected}}
+
+test snit-api-6.3 {stringtype subtype, -minlen only} -setup {
+    snit::stringtype ::sapi_str -minlen 2
+} -body {
+    list [::sapi_str validate [string repeat x 100]] [invalid {::sapi_str validate {}}]
+} -cleanup {
+    ::sapi_str destroy
+} -result [list [string repeat x 100] {INVALID {too short: at least 2 characters expected}}]
+
+test snit-api-6.4 {stringtype subtype, -maxlen only} -setup {
+    snit::stringtype ::sapi_str -maxlen 2
+} -body {
+    list [::sapi_str validate {}] [invalid {::sapi_str validate abc}]
+} -cleanup {
+    ::sapi_str destroy
+} -result {{} {INVALID {too long: no more than 2 characters expected}}}
+
+test snit-api-6.5 {stringtype subtype, length counts characters} -setup {
+    snit::stringtype ::sapi_str -maxlen 2
+} -body {
+    ::sapi_str validate йї
+} -cleanup {
+    ::sapi_str destroy
+} -result йї
+
+test snit-api-6.6 {stringtype subtype, both -glob and -regexp must match} -setup {
+    snit::stringtype ::sapi_str -glob a* -regexp {b$}
+} -body {
+    list [::sapi_str validate ab] [invalid {::sapi_str validate ac}] \
+	[invalid {::sapi_str validate cb}]
+} -cleanup {
+    ::sapi_str destroy
+} -result {ab {INVALID {invalid value "ac"}} {INVALID {invalid value "cb"}}}
+
+# -------------------------------------------------------------------------
+# snit::listtype
+
+test snit-api-7.0 {listtype, not a list} -body {
+    invalid {snit::listtype validate "\{"}
+} -result [list INVALID "invalid value \"\{\", expected list"]
+
+test snit-api-7.1 {listtype subtype, -type and length} -setup {
+    snit::listtype ::sapi_list -type snit::integer -minlen 1 -maxlen 2
+} -body {
+    list [invalid {::sapi_list validate {1 x}}] [invalid {::sapi_list validate {1 2 3}}] \
+	[invalid {::sapi_list validate {}}]
+} -cleanup {
+    ::sapi_list destroy
+} -result {{INVALID {invalid value "x", expected integer}} {INVALID {value has too many elements; no more than 2 expected}} {INVALID {value has too few elements; at least 1 expected}}}
+
+test snit-api-7.2 {listtype subtype, -type is a subtype} -setup {
+    snit::integer ::sapi_gt4 -min 5
+    snit::listtype ::sapi_list -type ::sapi_gt4
+} -body {
+    list [::sapi_list validate {5 6}] [invalid {::sapi_list validate {5 4}}]
+} -cleanup {
+    ::sapi_list destroy
+    ::sapi_gt4 destroy
+} -result {{5 6} {INVALID {invalid value "4", expected integer no less than 5}}}
+
+# -------------------------------------------------------------------------
+# Options with -type
+
+test snit-api-8.0 {option -type, invalid value on configure, value unchanged} -setup {
+    snit::type ::sapi_dog {
+	option -age -type {snit::integer -min 0} -default 1
+    }
+    ::sapi_dog d1
+} -body {
+    list [catch {d1 configure -age -1} msg] $msg [d1 cget -age]
+} -cleanup {
+    ::sapi_dog destroy
+    unset msg
+} -result {1 {invalid -age value: invalid value "-1", expected integer no less than 0} 1}
+
+test snit-api-8.1 {option -type, invalid value at creation} -setup {
+    snit::type ::sapi_dog {
+	option -age -type snit::integer -default 1
+    }
+} -body {
+    list [catch {::sapi_dog d1 -age x} msg] $msg [info commands ::d1]
+} -cleanup {
+    ::sapi_dog destroy
+    unset msg
+} -result {1 {Error in constructor: invalid -age value: invalid value "x", expected integer} {}}
+
+test snit-api-8.2 {option -type, enum subtype defined on the fly} -setup {
+    snit::type ::sapi_dog {
+	option -breed -type {snit::enum -values {mutt retriever}} -default mutt
+    }
+    ::sapi_dog d1
+} -body {
+    d1 configure -breed retriever
+    list [d1 cget -breed] [catch {d1 configure -breed cat} msg] $msg
+} -cleanup {
+    ::sapi_dog destroy
+    unset msg
+} -result {retriever 1 {invalid -breed value: invalid value "cat", should be one of: mutt, retriever}}
+
+test snit-api-8.3 {option -type with a listtype of a subtype} -setup {
+    snit::integer ::sapi_gt4 -min 5
+    snit::type ::sapi_dog {
+	option -numbers -type {snit::listtype -type ::sapi_gt4}
+    }
+    ::sapi_dog d1
+} -body {
+    d1 configure -numbers {5 6}
+    list [d1 cget -numbers] [catch {d1 configure -numbers {1}} msg] $msg
+} -cleanup {
+    ::sapi_dog destroy
+    ::sapi_gt4 destroy
+    unset msg
+} -result {{5 6} 1 {invalid -numbers value: invalid value "1", expected integer no less than 5}}
+
+# -------------------------------------------------------------------------
+# expose ... as
+
+test snit-api-9.0 {expose component as another method name} -setup {
+    snit::type ::sapi_tail {
+	method wag {} {return wagging}
+    }
+    snit::type ::sapi_dog {
+	expose mytail as tail
+	constructor {} {
+	    install mytail using ::sapi_tail $self.tail
+	}
+	destructor {
+	    catch {$mytail destroy}
+	}
+    }
+    ::sapi_dog d1
+} -body {
+    list [d1 tail wag] [d1 tail] [catch {d1 mytail} msg] $msg
+} -cleanup {
+    ::sapi_dog destroy
+    ::sapi_tail destroy
+    unset msg
+} -result {wagging ::d1.tail 1 {unknown subcommand "mytail": must be tail}}
+
+# -------------------------------------------------------------------------
+# configurelist, cget
+
+test snit-api-10.0 {configurelist, unknown option} -setup {
+    snit::type ::sapi_cat {
+	option -a 1
+    }
+    ::sapi_cat c1
+} -body {
+    c1 configurelist {-z 1}
+} -returnCodes error -cleanup {
+    ::sapi_cat destroy
+} -result {unknown option "-z"}
+
+test snit-api-10.1 {configurelist, several options} -setup {
+    snit::type ::sapi_cat {
+	option -a 1
+	option -b 2
+    }
+    ::sapi_cat c1
+} -body {
+    list [c1 configurelist {-a 5 -b 6}] [c1 cget -a] [c1 cget -b]
+} -cleanup {
+    ::sapi_cat destroy
+} -result {{} 5 6}
+
+test snit-api-10.2 {cget, wrong # args} -setup {
+    snit::type ::sapi_cat {
+	option -a 1
+    }
+    ::sapi_cat c1
+} -body {
+    list [catch {c1 cget} m1] $m1 [catch {c1 cget -a -a} m2] $m2
+} -cleanup {
+    ::sapi_cat destroy
+    unset m1 m2
+} -result {1 {wrong # args: should be "c1 cget option"} 1 {wrong # args: should be "c1 cget option"}}
+
+# -------------------------------------------------------------------------
+
+rename invalid {}
+testsuiteCleanup
+return
