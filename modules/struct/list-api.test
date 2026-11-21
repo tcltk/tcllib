@@ -1,0 +1,357 @@
+# -*- tcl -*-
+# list-api.test:  Additional tests for the documented API of struct::list.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements list.test / list.test.tcl, covering what those do not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+}
+testing {
+    useLocal list.tcl struct::list
+}
+
+# -------------------------------------------------------------------------
+## Command dispatch
+
+test list-api-1.0 {struct::list, no subcommand} -body {
+    struct::list
+} -returnCodes error -result {wrong # args: should be "struct::list cmd ?arg ...?"}
+
+test list-api-1.1 {struct::list, unknown subcommand, error lists the subcommands} -body {
+    catch {struct::list bogus} msg
+    # The subcommand names must be listed without the internal
+    # namespace and "L" prefix (currently ":struct::list::Lreverse", ...).
+    list [string match {bad option "bogus": must be *} $msg] \
+	[string first : $msg] \
+	[expr {[lsearch -exact [split $msg ", "] reverse] >= 0}]
+} -cleanup {
+    unset -nocomplain msg
+} -constraints knownBug -result {1 -1 1}
+
+test list-api-1.2 {struct::list, ::struct::list::list is the same dispatcher} -body {
+    ::struct::list::list reverse {a b c}
+} -result {c b a}
+
+# -------------------------------------------------------------------------
+## lcsInvert2, lcsInvertMerge2
+#
+# sequence 1 = a b r a c a d a b r a
+# lcs 1      =   1 2   4 5     8 9 10
+# lcs 2      =   0 1   3 4     5 6 7
+# sequence 2 =   b r i c a     b r a c
+
+test list-api-2.0 {lcsInvert2, wrong # args} -body {
+    struct::list lcsInvert2 {} {} 0
+} -returnCodes error -result {wrong # args: should be "::struct::list::LlcsInvert2 idx1 idx2 len1 len2"}
+
+test list-api-2.1 {lcsInvert2, mixed changes} -body {
+    struct::list lcsInvert2 {1 2 4 5 8 9 10} {0 1 3 4 5 6 7} 11 9
+} -result {{deleted {0 0} {-1 0}} {changed {3 3} {2 2}} {deleted {6 7} {4 5}} {added {10 11} {8 8}}}
+
+test list-api-2.2 {lcsInvert2 agrees with lcsInvert} -body {
+    set a {a b r a c a d a b r a}
+    set b {b r i c a b r a c}
+    set lcs [struct::list longestCommonSubsequence $a $b]
+    string equal \
+	[struct::list lcsInvert $lcs [llength $a] [llength $b]] \
+	[struct::list lcsInvert2 {*}$lcs [llength $a] [llength $b]]
+} -cleanup {
+    unset -nocomplain a b lcs
+} -result 1
+
+test list-api-2.3 {lcsInvert2, identical sequences, no changes} -body {
+    struct::list lcsInvert2 {0 1} {0 1} 2 2
+} -result {}
+
+test list-api-2.4 {lcsInvert2, two empty sequences} -body {
+    struct::list lcsInvert2 {} {} 0 0
+} -result {}
+
+test list-api-2.5 {lcsInvert2, nothing in common} -body {
+    struct::list lcsInvert2 {} {} 2 3
+} -result {{changed {0 1} {0 2}}}
+
+test list-api-3.0 {lcsInvertMerge2, wrong # args} -body {
+    struct::list lcsInvertMerge2 {} {} 0
+} -returnCodes error -result {wrong # args: should be "::struct::list::LlcsInvertMerge2 idx1 idx2 len1 len2"}
+
+test list-api-3.1 {lcsInvertMerge2, mixed changes} -body {
+    struct::list lcsInvertMerge2 {1 2 4 5 8 9 10} {0 1 3 4 5 6 7} 11 9
+} -result {{deleted {0 0} {-1 0}} {unchanged {1 2} {0 1}} {changed {3 3} {2 2}} {unchanged {4 5} {3 4}} {deleted {6 7} {4 5}} {unchanged {8 10} {5 7}} {added {10 11} {8 8}}}
+
+test list-api-3.2 {lcsInvertMerge2 agrees with lcsInvertMerge} -body {
+    set a {a b c d e}
+    set b {a f c g e}
+    set lcs [struct::list longestCommonSubsequence $a $b]
+    string equal \
+	[struct::list lcsInvertMerge $lcs [llength $a] [llength $b]] \
+	[struct::list lcsInvertMerge2 {*}$lcs [llength $a] [llength $b]]
+} -cleanup {
+    unset -nocomplain a b lcs
+} -result 1
+
+test list-api-3.3 {lcsInvertMerge2, identical sequences, all unchanged} -body {
+    struct::list lcsInvertMerge2 {0 1} {0 1} 2 2
+} -result {{unchanged {0 1} {0 1}}}
+
+test list-api-3.4 {lcsInvertMerge2, nothing in common} -body {
+    struct::list lcsInvertMerge2 {} {} 2 3
+} -result {{changed {0 1} {0 2}}}
+
+# -------------------------------------------------------------------------
+## dbJoin / dbJoinKeyed: -keys, column selection, errors
+
+set ::left  {{1 a} {2 b}}
+set ::right {{1 x} {3 y}}
+
+test list-api-4.0 {dbJoin -keys, inner join} -body {
+    list [struct::list dbJoin -keys kv 0 $::left 0 $::right] [lsort $kv]
+} -cleanup {
+    unset -nocomplain kv
+} -result {{{1 a 1 x}} 1}
+
+test list-api-4.1 {dbJoin -keys, left outer join} -body {
+    list [lsort [struct::list dbJoin -left -keys kv 0 $::left 0 $::right]] [lsort $kv]
+} -cleanup {
+    unset -nocomplain kv
+} -result {{{1 a 1 x} {2 b {} {}}} {1 2}}
+
+test list-api-4.2 {dbJoin -keys, right outer join} -body {
+    list [lsort [struct::list dbJoin -right -keys kv 0 $::left 0 $::right]] [lsort $kv]
+} -cleanup {
+    unset -nocomplain kv
+} -result {{{1 a 1 x} {{} {} 3 y}} {1 3}}
+
+test list-api-4.3 {dbJoin -keys, full outer join} -body {
+    list [lsort [struct::list dbJoin -full -keys kv 0 $::left 0 $::right]] [lsort $kv]
+} -cleanup {
+    unset -nocomplain kv
+} -result {{{1 a 1 x} {2 b {} {}} {{} {} 3 y}} {1 2 3}}
+
+test list-api-4.4 {dbJoin, key column other than 0} -body {
+    struct::list dbJoin 1 {{a 1} {b 2}} 0 $::right
+} -result {{a 1 1 x}}
+
+test list-api-4.5 {dbJoin, duplicate keys produce the cartesian product} -body {
+    lsort [struct::list dbJoin 0 {{1 a} {1 b}} 0 {{1 x}}]
+} -result {{1 a 1 x} {1 b 1 x}}
+
+test list-api-4.6 {dbJoin, single table} -body {
+    struct::list dbJoin 0 $::left
+} -result {{1 a} {2 b}}
+
+test list-api-4.7 {dbJoin, unknown option} -body {
+    struct::list dbJoin -bogus 0 $::left
+} -returnCodes error -result {wrong#args: dbJoin ?-inner|-left|-right|-full? ?-keys varname? {key table}...}
+
+test list-api-4.8 {dbJoin, -keys without variable name} -body {
+    struct::list dbJoin -keys
+} -returnCodes error -result {wrong#args: dbJoin ?-inner|-left|-right|-full? ?-keys varname? {key table}...}
+
+test list-api-4.9 {dbJoin, key column without table} -body {
+    struct::list dbJoin 0
+} -returnCodes error -result {wrong#args: dbJoin ?-inner|-left|-right|-full? {key table}...}
+
+test list-api-4.10 {dbJoin, no tables at all} -body {
+    # Currently fails with: can't read "table": no such variable
+    struct::list dbJoin -inner
+} -constraints knownBug -returnCodes error -match glob -result {wrong#args: dbJoin *}
+
+test list-api-4.11 {dbJoin, key column beyond the table width} -body {
+    # Documented: "An error will be thrown if there are less" columns.
+    # Currently the join silently returns an empty table.
+    struct::list dbJoin 2 {{1 a}} 0 {{1 x}}
+} -constraints knownBug -returnCodes error -match glob -result *
+
+test list-api-5.0 {dbJoinKeyed -keys, inner join} -body {
+    list [struct::list dbJoinKeyed -keys kv {{1 {1 a}} {2 {2 b}}} {{1 {1 x}} {3 {3 y}}}] [lsort $kv]
+} -cleanup {
+    unset -nocomplain kv
+} -result {{{1 a 1 x}} 1}
+
+test list-api-5.1 {dbJoinKeyed -keys, full outer join} -body {
+    list [lsort [struct::list dbJoinKeyed -full -keys kv {{1 {1 a}} {2 {2 b}}} {{1 {1 x}} {3 {3 y}}}]] [lsort $kv]
+} -cleanup {
+    unset -nocomplain kv
+} -result {{{1 a 1 x} {2 b {} {}} {{} {} 3 y}} {1 2 3}}
+
+test list-api-5.2 {dbJoinKeyed, keys are separate from the column values} -body {
+    struct::list dbJoinKeyed {{k {1 a}}} {{k {2 x}}}
+} -result {{1 a 2 x}}
+
+test list-api-5.3 {dbJoinKeyed, unknown option} -body {
+    struct::list dbJoinKeyed -bogus {}
+} -returnCodes error -result {wrong#args: dbJoin ?-inner|-left|-right|-full? table...}
+
+unset ::left ::right
+
+# -------------------------------------------------------------------------
+## swap: result and in-place modification
+
+test list-api-6.0 {swap, result and variable} -body {
+    set l {a b c}
+    list [struct::list swap l 0 2] $l
+} -cleanup {
+    unset -nocomplain l
+} -result {{c b a} {c b a}}
+
+# -------------------------------------------------------------------------
+## nextperm, permutations: boundaries
+
+test list-api-7.0 {nextperm, last permutation has no successor} -body {
+    struct::list nextperm {3 2 1}
+} -result {}
+
+test list-api-7.1 {nextperm, wrong # args} -body {
+    struct::list nextperm
+} -returnCodes error -result {wrong # args: should be "::struct::list::Lnextperm perm"}
+
+test list-api-7.2 {firstperm, sorts the input} -body {
+    struct::list firstperm {c a b}
+} -result {a b c}
+
+test list-api-7.3 {permutations, duplicates are not repeated} -body {
+    struct::list permutations {a b a}
+} -result {{a a b} {a b a} {b a a}}
+
+# -------------------------------------------------------------------------
+## foreachperm: result and control flow in the body
+
+test list-api-8.0 {foreachperm, wrong # args} -body {
+    struct::list foreachperm p {1 2}
+} -returnCodes error -result {wrong # args: should be "::struct::list::Lforeachperm var list body"}
+
+test list-api-8.1 {foreachperm, result is the empty string} -body {
+    struct::list foreachperm p {1 2} {set x $p}
+} -cleanup {
+    unset -nocomplain p x
+} -result {}
+
+test list-api-8.2 {foreachperm, break ends the loop} -body {
+    set r {}
+    struct::list foreachperm p {1 2 3} {
+	if {$p eq {2 1 3}} break
+	lappend r $p
+    }
+    set r
+} -cleanup {
+    unset -nocomplain p r
+} -result {{1 2 3} {1 3 2}}
+
+test list-api-8.3 {foreachperm, continue skips to the next permutation} -body {
+    set r {}
+    struct::list foreachperm p {1 2 3} {
+	if {$p eq {1 3 2}} continue
+	lappend r $p
+    }
+    set r
+} -cleanup {
+    unset -nocomplain p r
+} -result {{1 2 3} {2 1 3} {2 3 1} {3 1 2} {3 2 1}}
+
+test list-api-8.4 {foreachperm, error in body is passed on} -body {
+    struct::list foreachperm p {1 2} {error boom}
+} -cleanup {
+    unset -nocomplain p
+} -returnCodes error -result boom
+
+test list-api-8.5 {foreachperm, loop variable holds the last permutation} -body {
+    struct::list foreachperm p {b a} {}
+    set p
+} -cleanup {
+    unset -nocomplain p
+} -result {b a}
+
+test list-api-8.6 {foreachperm, body runs in the caller's scope} -setup {
+    proc fp {} {
+	set n 0
+	struct::list foreachperm p {1 2 3} {incr n}
+	return $n
+    }
+} -body {
+    fp
+} -cleanup {
+    rename fp {}
+} -result 6
+
+test list-api-8.7 {foreachperm, return in body returns from the caller} -setup {
+    proc fp {} {
+	struct::list foreachperm p {1 2} {return inside}
+	return outside
+    }
+} -body {
+    # Like foreach. The return is currently swallowed by the
+    # struct::list dispatcher (calling ::struct::list::Lforeachperm
+    # directly works).
+    fp
+} -cleanup {
+    rename fp {}
+} -constraints knownBug -result inside
+
+# -------------------------------------------------------------------------
+## Misc. documented behaviour not covered elsewhere
+
+test list-api-9.0 {assign, fewer values than variables} -body {
+    list [struct::list assign {1 2} a b c] $a $b $c
+} -cleanup {
+    unset -nocomplain a b c
+} -result {{} 1 2 {}}
+
+test list-api-9.1 {assign, more values than variables} -body {
+    list [struct::list assign {1 2 3} a] $a
+} -cleanup {
+    unset -nocomplain a
+} -result {{2 3} 1}
+
+test list-api-9.3 {split, only one variable given} -body {
+    struct::list split {1 2 3 4} {apply {x {expr {$x % 2}}}} p
+} -returnCodes error -result {wrong#args: should be "::struct::list::Lsplit sequence cmdprefix ?passVar failVar?}
+
+test list-api-9.4 {fold, empty sequence returns the initial value} -body {
+    struct::list fold {} 7 ::tcl::mathop::+
+} -result 7
+
+test list-api-9.5 {equal -simple compares strings} -body {
+    list [struct::list equal -simple {{a b}} {{a  b}}] [struct::list equal {{a b}} {{a  b}}]
+} -result {0 1}
+
+test list-api-9.6 {equal, -- ends the options} -body {
+    struct::list equal -- -simple -simple
+} -result 1
+
+test list-api-9.7 {equal, unknown option} -body {
+    struct::list equal -bogus a b
+} -returnCodes error -result {Bad option "-bogus", expected -simple, or --}
+
+test list-api-9.8 {flatten, -- ends the options} -body {
+    struct::list flatten -- {-full {a b}}
+} -result {-full a b}
+
+test list-api-9.9 {flatten, unknown option} -body {
+    struct::list flatten -bogus x
+} -returnCodes error -result {Unknown option "-bogus", should be either -full, or --}
+
+test list-api-9.10 {longestCommonSubsequence, maxOccurs limits matching} -body {
+    list [struct::list longestCommonSubsequence {a b a b} {a b a b}] \
+	[struct::list longestCommonSubsequence {a b a b} {a b a b} 1]
+} -result {{{0 1 2 3} {0 1 2 3}} {{} {}}}
+
+test list-api-9.11 {longestCommonSubsequence2, maxOccurs} -body {
+    struct::list longestCommonSubsequence2 {a b a b} {a b a b} 1
+} -result {{0 1 2 3} {0 1 2 3}}
+
+#----------------------------------------------------------------------
+testsuiteCleanup

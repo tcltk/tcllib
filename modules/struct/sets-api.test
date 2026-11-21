@@ -1,0 +1,134 @@
+# -*- tcl -*-
+# sets-api.test:  Additional tests for the documented API of struct::set.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements sets.test / sets.testsuite, covering what those do not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useAccel [useTcllibC] struct/sets.tcl struct::set
+    TestAccelInit                         struct::set
+}
+
+# -------------------------------------------------------------------------
+
+interp alias {} setop {} ::struct::set
+
+TestAccelDo struct::set impl {
+
+    proc tmWrong {m loarg n} {
+	return [tcltest::wrongNumArgs "setop $m" $loarg $n]
+    }
+    proc tmTooMany {m loarg} {
+	return [tcltest::tooManyArgs "setop $m" $loarg]
+    }
+
+    # ---------------------------------------------------------------------
+    ## contains
+
+    test set-api-${impl}-1.0 {contains, wrong # args, not enough} -body {
+	setop contains {a b}
+    } -returnCodes error -result [tmWrong contains {set item} 1]
+
+    test set-api-${impl}-1.1 {contains, wrong # args, too many} -body {
+	setop contains {a b} a b
+    } -returnCodes error -result [tmTooMany contains {set item}]
+
+    test set-api-${impl}-1.2 {contains, element present} -body {
+	setop contains {a b c} b
+    } -result 1
+
+    test set-api-${impl}-1.3 {contains, element missing} -body {
+	setop contains {a b c} d
+    } -result 0
+
+    test set-api-${impl}-1.4 {contains, empty set} -body {
+	setop contains {} a
+    } -result 0
+
+    test set-api-${impl}-1.5 {contains, empty string element} -body {
+	list [setop contains {a {} b} {}] [setop contains {a b} {}]
+    } -result {1 0}
+
+    test set-api-${impl}-1.6 {contains, element with spaces} -body {
+	list [setop contains {{a b} c} {a b}] [setop contains {{a b} c} a]
+    } -result {1 0}
+
+    test set-api-${impl}-1.7 {contains, no glob matching} -body {
+	list [setop contains {a* b} a] [setop contains {ab b} a*] [setop contains {a* b} a*]
+    } -result {0 0 1}
+
+    test set-api-${impl}-1.8 {contains, duplicates in the set value} -body {
+	setop contains {a a b} a
+    } -result 1
+
+    test set-api-${impl}-1.9 {contains, comparison is case sensitive} -body {
+	setop contains {A b} a
+    } -result 0
+
+    # ---------------------------------------------------------------------
+    ## include / exclude / add / subtract: return values and
+    ## agreement with contains.
+
+    test set-api-${impl}-2.0 {include, result and membership} -setup {
+	set S {a b}
+    } -body {
+	list [setop include S c] [setop contains $S c] [setop size $S]
+    } -cleanup {
+	unset S
+    } -result {{} 1 3}
+
+    test set-api-${impl}-2.1 {exclude, result and membership} -setup {
+	set S {a b c}
+    } -body {
+	list [setop exclude S b] [setop contains $S b] [setop size $S]
+    } -cleanup {
+	unset S
+    } -result {{} 0 2}
+
+    test set-api-${impl}-2.2 {exclude, element with spaces is a single element} -setup {
+	set S {{a b} a b}
+    } -body {
+	setop exclude S {a b}
+	lsort $S
+    } -cleanup {
+	unset S
+    } -result {a b}
+
+    test set-api-${impl}-2.3 {subtract, element with spaces is a set of words} -setup {
+	set S {{a b} a b c}
+    } -body {
+	setop subtract S {a b}
+	lsort $S
+    } -cleanup {
+	unset S
+    } -result {{a b} c}
+
+    test set-api-${impl}-2.4 {add, result and membership} -setup {
+	set S {a}
+    } -body {
+	list [setop add S {b c}] [setop contains $S b] [setop contains $S c] [setop size $S]
+    } -cleanup {
+	unset S
+    } -result {{} 1 1 3}
+
+    rename tmWrong {}
+    rename tmTooMany {}
+}
+
+interp alias {} setop {}
+
+#----------------------------------------------------------------------
+TestAccelExit struct::set
+testsuiteCleanup

@@ -1,0 +1,229 @@
+# -*- tcl -*-
+# matrix-api.test:  Additional tests for the documented API of struct::matrix.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements matrix.test, covering what that does not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use textutil/wcswidth.tcl textutil::wcswidth
+}
+testing {
+    useLocal matrix.tcl struct::matrix
+}
+
+# -------------------------------------------------------------------------
+
+proc mksource {} {
+    struct::matrix src
+    src add columns 2
+    src add row {a b}
+    src add row {C d}
+    return
+}
+
+# -------------------------------------------------------------------------
+## Constructor, copy operators := and as
+
+test matrix-api-1.0 {constructor, := copies the source matrix} -setup {
+    mksource
+} -body {
+    struct::matrix m := src
+    list [m serialize] [src serialize]
+} -cleanup {
+    m destroy
+    src destroy
+} -result {{2 2 {{a b} {C d}}} {2 2 {{a b} {C d}}}}
+
+test matrix-api-1.1 {constructor, as copies the source matrix} -setup {
+    mksource
+} -body {
+    struct::matrix m as src
+    m serialize
+} -cleanup {
+    m destroy
+    src destroy
+} -result {2 2 {{a b} {C d}}}
+
+test matrix-api-1.2 {constructor, copy is independent of the source} -setup {
+    mksource
+} -body {
+    struct::matrix m := src
+    m set cell 0 0 X
+    list [m get cell 0 0] [src get cell 0 0]
+} -cleanup {
+    m destroy
+    src destroy
+} -result {X a}
+
+test matrix-api-1.3 {constructor, := with unknown source creates no matrix} -body {
+    # Like struct::tree and struct::graph do. Currently the new
+    # matrix command ::m is left behind.
+    list [catch {struct::matrix m := ::bogus} msg] $msg [info commands ::m]
+} -cleanup {
+    catch {m destroy}
+    unset -nocomplain msg
+} -constraints knownBug -result {1 {invalid command name "::bogus"} {}}
+
+test matrix-api-1.3.1 {constructor, = with unknown source creates no matrix} -body {
+    list [catch {struct::matrix m = ::bogus} msg] $msg [info commands ::m]
+} -cleanup {
+    catch {m destroy}
+    unset -nocomplain msg
+} -constraints knownBug -result {1 {invalid command name "::bogus"} {}}
+
+test matrix-api-1.3.2 {constructor, deserialize of a bad value creates no matrix} -body {
+    list [catch {struct::matrix m deserialize {x y z}} msg] $msg [info commands ::m]
+} -cleanup {
+    catch {m destroy}
+    unset -nocomplain msg
+} -constraints knownBug -result {1 {error in serialization: bad number of rows "x".} {}}
+
+test matrix-api-1.4 {constructor, automatic name in the caller's namespace} -setup {
+    namespace eval ::mns {}
+} -body {
+    set m [namespace eval ::mns {struct::matrix}]
+    list [string match ::mns::matrix* $m] [llength [info commands $m]] [$m rows] [$m columns]
+} -cleanup {
+    $m destroy
+    namespace delete ::mns
+    unset m
+} -result {1 1 0 0}
+
+test matrix-api-1.5 {constructor, explicit name in a namespace} -setup {
+    namespace eval ::mns {}
+} -body {
+    namespace eval ::mns {struct::matrix X}
+} -cleanup {
+    ::mns::X destroy
+    namespace delete ::mns
+} -result ::mns::X
+
+test matrix-api-1.6 {constructor, result is the qualified name} -body {
+    struct::matrix m
+} -cleanup {
+    m destroy
+} -result ::m
+
+# -------------------------------------------------------------------------
+## Assignment method: documented as =, := or as
+
+test matrix-api-2.0 {method :=, alias of =} -setup {
+    mksource
+    struct::matrix m
+} -body {
+    m := src
+    m serialize
+} -cleanup {
+    m destroy
+    src destroy
+} -constraints knownBug -result {2 2 {{a b} {C d}}}
+
+test matrix-api-2.1 {method as, alias of =} -setup {
+    mksource
+    struct::matrix m
+} -body {
+    m as src
+    m serialize
+} -cleanup {
+    m destroy
+    src destroy
+} -constraints knownBug -result {2 2 {{a b} {C d}}}
+
+test matrix-api-2.2 {method =, old contents are replaced} -setup {
+    mksource
+    struct::matrix m
+    m add columns 3
+    m add rows 3
+} -body {
+    m = src
+    list [m columns] [m rows] [m get row 1]
+} -cleanup {
+    m destroy
+    src destroy
+} -result {2 2 {C d}}
+
+# -------------------------------------------------------------------------
+## search -nocase
+
+foreach {n options range pattern result} {
+    1 {-nocase}         {all}          c      {{0 1}}
+    2 {-nocase}         {row 1}        c      {{0 1}}
+    3 {-nocase}         {column 0}     c      {{0 1}}
+    4 {-nocase -exact}  {all}          B      {{1 0}}
+    5 {-nocase -glob}   {all}          {[c]}  {{0 1}}
+    6 {-nocase -regexp} {all}          {^c$}  {{0 1}}
+    7 {}                {all}          c      {}
+    8 {-glob}           {all}          {[c]}  {}
+    9 {-nocase}         {rect 0 0 1 0} c      {}
+} {
+    test matrix-api-3.$n "search $options $range $pattern" -setup {
+	mksource
+    } -body {
+	src search {*}$options {*}$range $pattern
+    } -cleanup {
+	src destroy
+    } -result $result
+}
+
+# -------------------------------------------------------------------------
+## links, link -transpose
+
+test matrix-api-4.0 {links, lists the linked arrays} -setup {
+    mksource
+} -body {
+    src link A
+    src link -transpose B
+    lsort [src links]
+} -cleanup {
+    src destroy
+    unset -nocomplain A B
+} -result {A B}
+
+test matrix-api-4.1 {link -transpose, element names are row,column} -setup {
+    mksource
+} -body {
+    src link -transpose A
+    list $A(1,0) $A(0,1)
+} -cleanup {
+    src destroy
+    unset -nocomplain A
+} -result {C b}
+
+test matrix-api-4.2 {link -transpose, writes go to the transposed cell} -setup {
+    mksource
+} -body {
+    src link -transpose A
+    set A(1,0) X
+    src get cell 0 1
+} -cleanup {
+    src destroy
+    unset -nocomplain A
+} -result X
+
+test matrix-api-4.3 {unlink, array keeps its contents, no more updates} -setup {
+    mksource
+    src link A
+} -body {
+    src unlink A
+    src set cell 0 0 X
+    list [src links] $A(0,0)
+} -cleanup {
+    src destroy
+    unset -nocomplain A
+} -result {{} a}
+
+# -------------------------------------------------------------------------
+rename mksource {}
+testsuiteCleanup

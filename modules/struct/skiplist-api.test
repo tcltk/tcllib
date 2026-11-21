@@ -1,0 +1,291 @@
+# -*- tcl -*-
+# skiplist-api.test:  Additional tests for the documented API of
+# struct::skiplist.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements skiplist.test, covering what that does not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal skiplist.tcl struct::skiplist
+}
+
+# -------------------------------------------------------------------------
+## Wrong # args of the methods
+
+foreach {n m sig} {
+    1 destroy {name}
+    2 size    {name}
+} {
+    test skiplist-api-1.$n "$m, wrong # args, too many" -setup {
+	struct::skiplist sl
+    } -body {
+	sl $m X
+    } -cleanup {
+	sl destroy
+    } -returnCodes error -result [tcltest::tooManyArgs ::struct::skiplist::_$m $sig]
+}
+
+foreach {n m sig nargs} {
+    3 delete {name key}       1
+    4 insert {name key value} 1
+    5 search {name key}       1
+    6 walk   {name cmd}       1
+} {
+    test skiplist-api-1.$n "$m, wrong # args, not enough" -setup {
+	struct::skiplist sl
+    } -body {
+	sl $m
+    } -cleanup {
+	sl destroy
+    } -returnCodes error -result [tcltest::wrongNumArgs ::struct::skiplist::_$m $sig $nargs]
+}
+
+# -------------------------------------------------------------------------
+## Creation and destruction
+
+test skiplist-api-2.0 {creation, automatic name} -body {
+    set s [struct::skiplist]
+    list [string match skiplist* $s] [llength [info commands ::$s]] [$s size]
+} -cleanup {
+    $s destroy
+    unset s
+} -result {1 1 0}
+
+test skiplist-api-2.1 {destroy removes the command} -body {
+    struct::skiplist sl
+    sl destroy
+    info commands ::sl
+} -result {}
+
+test skiplist-api-2.2 {two skiplists are independent} -setup {
+    struct::skiplist sl
+    struct::skiplist sk
+} -body {
+    sl insert 1 a
+    sk insert 1 b
+    sk insert 2 c
+    list [sl size] [sk size] [sl search 1] [sk search 1]
+} -cleanup {
+    sl destroy
+    sk destroy
+} -result {1 2 {1 a} {1 b}}
+
+# -------------------------------------------------------------------------
+## insert
+
+test skiplist-api-3.0 {insert of a new key returns 0} -setup {
+    struct::skiplist sl
+} -body {
+    # Documented: 0 for a new node, the node level for an update.
+    # The implementation does it the other way around.
+    sl insert 1 a
+} -cleanup {
+    sl destroy
+} -constraints knownBug -result 0
+
+test skiplist-api-3.1 {insert of an existing key returns its level} -setup {
+    struct::skiplist sl
+    sl insert 1 a
+} -body {
+    expr {[sl insert 1 b] >= 1}
+} -cleanup {
+    sl destroy
+} -constraints knownBug -result 1
+
+test skiplist-api-3.2 {insert of an existing key updates the value, not the size} -setup {
+    struct::skiplist sl
+    sl insert 1 a
+} -body {
+    sl insert 1 b
+    list [sl size] [sl search 1]
+} -cleanup {
+    sl destroy
+} -result {1 {1 b}}
+
+test skiplist-api-3.3 {insert, values with spaces} -setup {
+    struct::skiplist sl
+} -body {
+    sl insert 1 {a b}
+    sl search 1
+} -cleanup {
+    sl destroy
+} -result {1 {a b}}
+
+test skiplist-api-3.4 {numeric keys are compared numerically} -setup {
+    struct::skiplist sl
+} -body {
+    foreach k {10 9 100 -1 2.5} {sl insert $k v}
+    set r {}
+    sl walk {apply {{k v} {lappend ::r $k}}}
+    set r
+} -cleanup {
+    sl destroy
+    unset -nocomplain r
+} -result {-1 2.5 9 10 100}
+
+test skiplist-api-3.5 {string keys are compared as strings} -setup {
+    struct::skiplist sl
+} -body {
+    foreach k {b A a ab} {sl insert $k v}
+    set r {}
+    sl walk {apply {{k v} {lappend ::r $k}}}
+    set r
+} -cleanup {
+    sl destroy
+    unset -nocomplain r
+} -result {A a ab b}
+
+# -------------------------------------------------------------------------
+## delete
+
+test skiplist-api-4.0 {delete of an unknown key} -setup {
+    struct::skiplist sl
+    sl insert 1 a
+} -body {
+    list [sl delete 2] [sl size]
+} -cleanup {
+    sl destroy
+} -result {0 1}
+
+test skiplist-api-4.1 {delete of an existing key} -setup {
+    struct::skiplist sl
+    sl insert 1 a
+    sl insert 2 b
+} -body {
+    list [sl delete 1] [sl size] [sl search 1] [sl search 2]
+} -cleanup {
+    sl destroy
+} -result {1 1 0 {1 b}}
+
+test skiplist-api-4.2 {delete of several nodes} -setup {
+    struct::skiplist sl
+    sl insert 1 a
+    sl insert 2 b
+    sl insert 3 c
+} -body {
+    # Documented as "delete node ?node...?"; the implementation
+    # accepts a single key only.
+    sl delete 1 3
+    list [sl size] [sl search 2]
+} -cleanup {
+    sl destroy
+} -constraints knownBug -result {1 {1 b}}
+
+test skiplist-api-4.3 {delete, key can be inserted again} -setup {
+    struct::skiplist sl
+    sl insert 1 a
+    sl delete 1
+} -body {
+    sl insert 1 b
+    list [sl size] [sl search 1]
+} -cleanup {
+    sl destroy
+} -result {1 {1 b}}
+
+# -------------------------------------------------------------------------
+## search
+
+test skiplist-api-5.0 {search of an empty skiplist} -setup {
+    struct::skiplist sl
+} -body {
+    sl search 1
+} -cleanup {
+    sl destroy
+} -result 0
+
+# -------------------------------------------------------------------------
+## walk
+
+test skiplist-api-6.0 {walk of an empty skiplist} -setup {
+    struct::skiplist sl
+} -body {
+    set r {}
+    list [sl walk {lappend r}] $r
+} -cleanup {
+    sl destroy
+    unset -nocomplain r
+} -result {{} {}}
+
+test skiplist-api-6.1 {walk, command evaluated in the caller's scope} -setup {
+    struct::skiplist sl
+    sl insert 2 b
+    sl insert 1 a
+    proc walker {} {
+	set local {}
+	sl walk {lappend local}
+	return $local
+    }
+} -body {
+    walker
+} -cleanup {
+    sl destroy
+    rename walker {}
+} -result {1 a 2 b}
+
+test skiplist-api-6.2 {walk, break from the command stops the walk} -setup {
+    struct::skiplist sl
+    foreach k {1 2 3} {sl insert $k v$k}
+    proc w {k v} {lappend ::r $k; if {$k == 2} {return -code break}}
+} -body {
+    set r {}
+    sl walk w
+    set r
+} -cleanup {
+    sl destroy
+    rename w {}
+    unset -nocomplain r
+} -result {1 2}
+
+test skiplist-api-6.3 {walk, continue from the command goes on} -setup {
+    struct::skiplist sl
+    foreach k {1 2 3} {sl insert $k v$k}
+    proc w {k v} {lappend ::r $k; return -code continue}
+} -body {
+    set r {}
+    sl walk w
+    set r
+} -cleanup {
+    sl destroy
+    rename w {}
+    unset -nocomplain r
+} -result {1 2 3}
+
+test skiplist-api-6.4 {walk, error from the command is passed on} -setup {
+    struct::skiplist sl
+    foreach k {1 2 3} {sl insert $k v$k}
+    proc w {k v} {lappend ::r $k; error oops}
+} -body {
+    set r {}
+    list [catch {sl walk w} msg] $msg $r
+} -cleanup {
+    sl destroy
+    rename w {}
+    unset -nocomplain r msg
+} -result {1 oops 1}
+
+test skiplist-api-6.5 {walk, values with spaces are passed as one argument} -setup {
+    struct::skiplist sl
+    sl insert 1 {a b}
+} -body {
+    set r {}
+    sl walk {apply {{k v} {lappend ::r $k $v}}}
+    set r
+} -cleanup {
+    sl destroy
+    unset -nocomplain r
+} -result {1 {a b}}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
