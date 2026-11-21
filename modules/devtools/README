@@ -18,5 +18,5 @@ The code is used in some of the tcllib testsuites.
 Currently: "comm", and "pop3".
 
 These certificates have been created with SimpleCA,
-see http://wiki.tcl.tk/11419
+see https://wiki.tcl-lang.org/11419
 and http://users.skynet.be/ballet/joris/SimpleCA/

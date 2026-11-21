@@ -27,7 +27,7 @@ archives.
 	[opt "[option -exclude] [arg exclude]"] \
 	[opt [option --]] [opt [arg path]...]]
 
-From [uri http://wiki.tcl.tk/15158]
+From [uri https://wiki.tcl-lang.org/15158]
 
 [para] This command constructs a zip archive from a directory tree
 using nothing but Tcl 8.6 core features. The resulting zip file should

@@ -613,7 +613,7 @@ proc ::mkdoc::run {argv} {
 #' 
 #' Installation as Tcl package by copying the mkdoc folder to a folder 
 #' which is in your library path for Tcl. Alternatively you can install it as Tcl mode by copying it 
-#' in your module path as `mkdoc-0.6.0.tm` for instance. See the [tm manual page](https://www.tcl.tk/man/tcl8.6/TclCmd/tm.htm)
+#' in your module path as `mkdoc-0.6.0.tm` for instance. See the [tm manual page](https://www.tcl-lang.org/man/tcl8.6/TclCmd/tm.htm)
 #'
 #' ## <a name='see'>SEE ALSO</a>
 #' 
