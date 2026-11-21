@@ -428,7 +428,7 @@ command.
 
 [para]
 
-The code was taken from [uri http://wiki.tcl.tk/772], attributed to
+The code was taken from [uri https://wiki.tcl-lang.org/772], attributed to
 Igor Volobouev and anon.
 
 [call [cmd ::fileutil::maketempdir] \

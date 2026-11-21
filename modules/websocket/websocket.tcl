@@ -10,7 +10,7 @@
 ##    reception.  The library is also server-aware, i.e. implementing
 ##    the slightly different framing when communicating from a server
 ##    to a client.  Part of the code comes (with modifications) from
-##    the following Wiki page: http://wiki.tcl.tk/26556
+##    the following Wiki page: https://wiki.tcl-lang.org/26556
 
 ##
 ##################

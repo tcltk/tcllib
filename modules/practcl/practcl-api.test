@@ -1,0 +1,2452 @@
+# -*- tcl -*-
+# practcl-api.test:  Tests for the documented API of the practcl package:
+# the utility commands and the parts of the class library which can be
+# exercised without compilers, downloads or installation.
+#
+# practcl.test only checks ::practcl::findByPattern.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+testsNeed        TclOO 1
+
+support {
+    use try/fhome.tcl file::home
+}
+testing {
+    useLocal practcl.tcl practcl
+}
+
+# -------------------------------------------------------------------------
+# Environment.  A private home directory keeps ::practcl::local_os (and
+# the ::practcl::LOCAL project created from it) away from the user's own
+# ~/tcl/practcl.rc.  ::CWD is used by the project classes as the master
+# build directory.
+
+set ::PracWork [file normalize [tcltest::makeDirectory practcl-api-work]]
+set ::PracHome [file join $::PracWork home]
+file mkdir $::PracHome
+set ::env(HOME) $::PracHome
+unset -nocomplain ::env(FOSSIL_MIRROR) ::env(VisualStudioVersion)
+unset -nocomplain ::practcl::LOCAL_INFO
+set ::CWD $::PracWork
+
+proc pwrite {path data} {
+    file mkdir [file dirname $path]
+    set f [open $path w]
+    fconfigure $f -translation lf
+    puts -nonewline $f $data
+    close $f
+    return $path
+}
+proc pread {path} {
+    set f [open $path r]
+    set data [read $f]
+    close $f
+    return $data
+}
+proc pdir {name} {
+    # A fresh, empty scratch directory below the work directory.
+    set d [file join $::PracWork $name]
+    file delete -force $d
+    file mkdir $d
+    return $d
+}
+proc pmode {path} {
+    file stat $path st
+    return [format %o [expr {$st(mode) & 0o777}]]
+}
+proc tailsorted {base paths} {
+    set result {}
+    foreach p $paths {
+	lappend result [::practcl::file_relative $base $p]
+    }
+    return [lsort $result]
+}
+
+tcltest::testConstraint makeExe   [expr {[auto_execok make] ne {}}]
+tcltest::testConstraint fossilExe [expr {[auto_execok fossil] ne {}}]
+tcltest::testConstraint notWin    [expr {$::tcl_platform(platform) ne "windows"}]
+
+# -------------------------------------------------------------------------
+# ::practcl::cat
+
+test practcl-api-1.1 {cat, wrong # args} -body {
+    ::practcl::cat
+} -returnCodes error -result {wrong # args: should be "::practcl::cat fname"}
+
+test practcl-api-1.2 {cat returns the whole file} -setup {
+    set f [pwrite [file join $::PracWork cat.txt] "line1\nline2\n"]
+} -body {
+    ::practcl::cat $f
+} -cleanup {
+    file delete $f
+    unset f
+} -result "line1\nline2\n"
+
+test practcl-api-1.3 {cat of a missing file returns empty} -body {
+    ::practcl::cat [file join $::PracWork no-such-file]
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::practcl::docstrip
+
+test practcl-api-2.1 {docstrip, wrong # args} -body {
+    ::practcl::docstrip
+} -returnCodes error -result {wrong # args: should be "::practcl::docstrip text"}
+
+test practcl-api-2.2 {docstrip removes global comments and blank lines} -body {
+    ::practcl::docstrip "# comment\nset a 1\n\n  # indented\nset b 2\n"
+} -result "set a 1\nset b 2\n"
+
+test practcl-api-2.3 {docstrip descends into namespace eval, keeps proc bodies} -body {
+    ::practcl::docstrip {namespace eval foo {
+  # inner comment
+  set b 2
+}
+proc x {} {
+ # kept
+ return
+}
+}
+} -result {namespace eval foo {
+  set b 2
+}
+proc x {} {
+ # kept
+ return
+}
+}
+
+test practcl-api-2.4 {docstrip descends into ::define and oo::class create} -body {
+    ::practcl::docstrip {clay::define ::foo {
+  # strip me
+  method m {} {}
+}
+oo::class create ::bar {
+  # strip me too
+  method n {} {}
+}
+}
+} -result {clay::define ::foo {
+  method m {} {}
+}
+oo::class create ::bar {
+  method n {} {}
+}
+}
+
+test practcl-api-2.5 {docstrip of empty text} -body {
+    ::practcl::docstrip {}
+} -result {}
+
+# -------------------------------------------------------------------------
+# putb
+
+test practcl-api-3.1 {putb, wrong # args} -body {
+    putb
+} -returnCodes error -result {wrong # args: should be "putb buffername ?arg ...?"}
+
+test practcl-api-3.2 {putb, missing text} -body {
+    putb buf
+} -cleanup {
+    unset -nocomplain buf
+} -returnCodes error -result {usage: putb buffername ?map? string}
+
+test practcl-api-3.3 {putb, too many arguments} -body {
+    putb buf a b c
+} -cleanup {
+    unset -nocomplain buf
+} -returnCodes error -result {usage: putb buffername ?map? string}
+
+test practcl-api-3.4 {putb appends a line} -setup {
+    set buf x
+} -body {
+    putb buf hello
+    putb buf world
+    set buf
+} -cleanup {
+    unset buf
+} -result "xhello\nworld\n"
+
+test practcl-api-3.5 {putb creates the variable} -setup {
+    unset -nocomplain buf
+} -body {
+    putb buf hello
+} -cleanup {
+    unset buf
+} -result "hello\n"
+
+test practcl-api-3.6 {putb with a string map} -setup {
+    set buf {}
+} -body {
+    putb buf {%a% 1 %b% 2} {x%a%y%b%z}
+} -cleanup {
+    unset buf
+} -result "x1y2z\n"
+
+# -------------------------------------------------------------------------
+# Proc, noop
+
+test practcl-api-4.1 {Proc, wrong # args} -body {
+    Proc a b
+} -returnCodes error -result {wrong # args: should be "Proc name arglist body"}
+
+test practcl-api-4.2 {Proc creates a missing command} -setup {
+    catch {rename ::practcl_api_p {}}
+} -body {
+    Proc ::practcl_api_p {x} {return <$x>}
+    ::practcl_api_p 1
+} -cleanup {
+    rename ::practcl_api_p {}
+} -result <1>
+
+test practcl-api-4.3 {Proc does not replace an existing command} -setup {
+    proc ::practcl_api_p {} {return old}
+} -body {
+    Proc ::practcl_api_p {} {return new}
+    ::practcl_api_p
+} -cleanup {
+    rename ::practcl_api_p {}
+} -result old
+
+test practcl-api-4.4 {noop accepts anything and does nothing} -body {
+    list [noop] [noop a b {c d}]
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+# ::practcl::debug
+
+test practcl-api-5.1 {debug appends its arguments to ::DEBUG_INFO} -setup {
+    set saved [info exists ::DEBUG_INFO]
+    if {$saved} {set old $::DEBUG_INFO}
+    set ::DEBUG_INFO {}
+} -body {
+    ::practcl::debug a b
+    ::practcl::debug c
+    set ::DEBUG_INFO
+} -cleanup {
+    if {$saved} {set ::DEBUG_INFO $old} else {unset ::DEBUG_INFO}
+    unset -nocomplain saved old
+} -result "\na b\nc"
+
+# -------------------------------------------------------------------------
+# ::practcl::doexec, doexec_in, dotclexec, domake, domake.tcl
+
+test practcl-api-6.1 {doexec, runs the command and echoes it} -setup {
+    set d [pdir exec]
+    set script [pwrite [file join $d s.tcl] {
+	set f [open [lindex $argv 0] w]; puts -nonewline $f [lrange $argv 1 end]; close $f
+    }]
+    set out [file join $d out.txt]
+} -body {
+    ::practcl::doexec [info nameofexecutable] $script $out a b
+    pread $out
+} -cleanup {
+    file delete -force $d
+    unset d script out
+} -result {a b} -output "[list [info nameofexecutable] [file join $::PracWork exec s.tcl] [file join $::PracWork exec out.txt] a b]\n"
+
+test practcl-api-6.2 {doexec, error of the command} -body {
+    ::practcl::doexec [info nameofexecutable] [file join $::PracWork no-such-script.tcl]
+} -returnCodes error -match glob -result * -output *
+
+test practcl-api-6.3 {doexec_in runs in the directory, restores pwd} -setup {
+    set d [pdir execin]
+    pwrite [file join $d s.tcl] {
+	set f [open here.txt w]; puts -nonewline $f [pwd]; close $f
+    }
+    set here [pwd]
+} -body {
+    ::practcl::doexec_in $d [info nameofexecutable] s.tcl
+    list [expr {[pwd] eq $here}] [expr {[pread [file join $d here.txt]] eq [file normalize $d]}]
+} -cleanup {
+    cd $here
+    file delete -force $d
+    unset d here
+} -result {1 1} -output "[list [info nameofexecutable] s.tcl]\n"
+
+test practcl-api-6.4 {dotclexec runs a script with the current interpreter} -setup {
+    set d [pdir tclexec]
+    set script [pwrite [file join $d s.tcl] {
+	set f [open [lindex $argv 0] w]; puts -nonewline $f [info patchlevel]; close $f
+    }]
+    set out [file join $d out.txt]
+} -body {
+    ::practcl::dotclexec $script $out
+    expr {[pread $out] eq [info patchlevel]}
+} -cleanup {
+    file delete -force $d
+    unset d script out
+} -result 1 -output "[list [info nameofexecutable] [file join $::PracWork tclexec s.tcl] [file join $::PracWork tclexec out.txt]]\n"
+
+test practcl-api-6.5 {domake runs make in the directory} -constraints makeExe -setup {
+    set d [pdir make]
+    pwrite [file join $d Makefile] "all:\n\t@echo built > made.txt\n\nother:\n\t@echo other > other.txt\n"
+    set here [pwd]
+} -body {
+    ::practcl::domake $d -s other
+    list [expr {[pwd] eq $here}] [file exists [file join $d made.txt]] \
+	[string trim [pread [file join $d other.txt]]]
+} -cleanup {
+    cd $here
+    file delete -force $d
+    unset d here
+} -result {1 0 other} -output "[list *** [file join $::PracWork make] ***]\nmake -s other\n"
+
+test practcl-api-6.6 {domake.tcl runs make.tcl in the directory} -setup {
+    set d [pdir maketcl]
+    pwrite [file join $d make.tcl] {
+	set f [open made.txt w]; puts -nonewline $f $argv; close $f
+    }
+    set here [pwd]
+} -body {
+    ::practcl::domake.tcl $d x y
+    list [expr {[pwd] eq $here}] [pread [file join $d made.txt]]
+} -cleanup {
+    cd $here
+    file delete -force $d
+    unset d here
+} -result {1 {x y}} -output "[list *** [file join $::PracWork maketcl] ***]\nmake.tcl x y\n"
+
+# -------------------------------------------------------------------------
+# ::practcl::fossil, ::practcl::fossil_status
+# These use a private fossil repository created by the test itself.
+
+proc mkfossil {d} {
+    set ::PracFossilHome [array get ::env FOSSIL_HOME]
+    set ::env(FOSSIL_HOME) [file join $d fhome]
+    file mkdir $::env(FOSSIL_HOME)
+    exec fossil init [file join $d repo.fossil] --admin-user tester >/dev/null 2>/dev/null
+    file mkdir [file join $d co]
+    set here [pwd]
+    cd [file join $d co]
+    exec fossil open --nested [file join $d repo.fossil] >/dev/null 2>/dev/null
+    cd $here
+    return [file join $d co]
+}
+proc rmfossil {d} {
+    unset -nocomplain ::env(FOSSIL_HOME)
+    array set ::env $::PracFossilHome
+    unset ::PracFossilHome
+    file delete -force $d
+}
+
+test practcl-api-7.1 {fossil runs fossil in the directory} -constraints fossilExe -setup {
+    set d [pdir fossil]
+    set co [mkfossil $d]
+    set here [pwd]
+} -body {
+    ::practcl::fossil $co settings ignore-glob *.practcl
+    list [expr {[pwd] eq $here}] \
+	[string match {*\*.practcl*} [exec fossil settings ignore-glob -R [file join $d repo.fossil]]]
+} -cleanup {
+    cd $here
+    rmfossil $d
+    unset d co here
+} -result {1 1} -output "settings ignore-glob *.practcl\n"
+
+test practcl-api-7.2 {fossil_status returns the checkout information} -constraints fossilExe -setup {
+    set d [pdir fossilst]
+    set co [mkfossil $d]
+    unset -nocomplain ::fosdat($co)
+} -body {
+    set info [::practcl::fossil_status $co]
+    list [lsort [dict keys $info]] \
+	[regexp {^[0-9a-f]{40,64}$} [dict get $info hash]] \
+	[regexp {^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$} [dict get $info maxdate]] \
+	[regexp {^\d{14}$} [dict get $info isodate]] \
+	[dict get $info tags] [dict get $info version]
+} -cleanup {
+    unset -nocomplain ::fosdat($co)
+    rmfossil $d
+    unset d co info
+} -result {{hash isodate maxdate tags version} 1 1 1 trunk {}}
+
+test practcl-api-7.3 {fossil_status caches its result per directory} -setup {
+    set d [file join $::PracWork not-a-checkout]
+    set ::fosdat($d) {tags cached}
+} -body {
+    ::practcl::fossil_status $d
+} -cleanup {
+    unset ::fosdat($d) d
+} -result {tags cached}
+
+# -------------------------------------------------------------------------
+# ::practcl::os, ::practcl::local_os
+
+test practcl-api-8.1 {local_os, documented fields} -body {
+    set info [::practcl::local_os]
+    set missing {}
+    foreach f {download EXEEXT local_install prefix sandbox TEACUP_PROFILE
+	       TEACUP_OS TEA_PLATFORM TEACUP_ARCH teapot userhome} {
+	if {![dict exists $info $f]} {lappend missing $f}
+    }
+    set missing
+} -cleanup {
+    unset info missing f
+} -result {}
+
+test practcl-api-8.2 {local_os, user home and derived paths} -constraints {notWin} -body {
+    set info [::practcl::local_os]
+    set uh [dict get $info userhome]
+    if {[dict get $info TEACUP_OS] eq "macosx"} {
+	set expect [file join [file normalize $::PracHome] Library {Application Support} Tcl]
+    } else {
+	set expect [file normalize [file join $::PracHome tcl]]
+    }
+    list [expr {$uh eq $expect}] \
+	[expr {[dict get $info teapot] eq [file join $uh teapot]}] \
+	[expr {[dict get $info download] eq [file join $uh download]}] \
+	[expr {[dict get $info prefix] eq $uh}] \
+	[dict get $info EXEEXT]
+} -cleanup {
+    unset info uh expect
+} -result {1 1 1 1 {}}
+
+test practcl-api-8.3 {local_os, platform fields are consistent} -body {
+    set info [::practcl::local_os]
+    list [expr {[dict get $info os] eq [dict get $info TEACUP_OS]}] \
+	[expr {[dict get $info TEACUP_PROFILE] ne "unknown"}] \
+	[expr {$::tcl_platform(platform) ne "windows" ||
+	       [dict get $info TEA_PLATFORM] eq "windows"}]
+} -cleanup {
+    unset info
+} -result {1 1 1}
+
+test practcl-api-8.4 {local_os caches its result} -body {
+    expr {[::practcl::local_os] eq $::practcl::LOCAL_INFO}
+} -result 1
+
+test practcl-api-8.5 {local_os reads practcl.rc in userhome} -setup {
+    set uh [dict get [::practcl::local_os] userhome]
+    pwrite [file join $uh practcl.rc] "# comment\nsandbox /my/sandbox\nextra_key {a b}\n"
+    set saved $::practcl::LOCAL_INFO
+    unset ::practcl::LOCAL_INFO
+} -body {
+    set info [::practcl::local_os]
+    list [dict get $info sandbox] [dict get $info extra_key]
+} -cleanup {
+    file delete [file join $uh practcl.rc]
+    set ::practcl::LOCAL_INFO $saved
+    unset -nocomplain uh saved info
+} -result {/my/sandbox {a b}}
+
+test practcl-api-8.6 {os returns TEACUP_OS of the main project} -body {
+    expr {[::practcl::os] eq [dict get [::practcl::local_os] TEACUP_OS]}
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::practcl::mkzip
+
+test practcl-api-9.1 {mkzip, wrong # args} -body {
+    ::practcl::mkzip a b
+} -returnCodes error -result {wrong # args: should be "::practcl::mkzip exename barekit vfspath"}
+
+test practcl-api-9.2 {mkzip appends a zip of the directory to the kit} -setup {
+    set d [pdir mkzip]
+    set kit [pwrite [file join $d kit.bin] "BAREKIT"]
+    pwrite [file join $d vfs main.tcl] "puts hello\n"
+    pwrite [file join $d vfs lib sub.tcl] "# sub\n"
+    set exe [file join $d out.exe]
+} -body {
+    ::practcl::mkzip $exe $kit [file join $d vfs]
+    set f [open $exe rb]
+    set data [read $f]
+    close $f
+    list [string range $data 0 6] \
+	[expr {[string first "PK\x03\x04" $data] >= 7}] \
+	[expr {[string first main.tcl $data] > 0}] \
+	[expr {[string first lib/sub.tcl $data] > 0}]
+} -cleanup {
+    file delete -force $d
+    unset -nocomplain d kit exe data f
+} -result {BAREKIT 1 1 1}
+
+# -------------------------------------------------------------------------
+# ::practcl::sort_dict
+
+test practcl-api-10.1 {sort_dict, wrong # args} -body {
+    ::practcl::sort_dict
+} -returnCodes error -result {wrong # args: should be "::practcl::sort_dict list"}
+
+test practcl-api-10.2 {sort_dict sorts by key in dictionary order} -body {
+    ::practcl::sort_dict {b 2 a 1 c10 x c9 y}
+} -result {a 1 b 2 c9 y c10 x}
+
+test practcl-api-10.3 {sort_dict of empty list} -body {
+    ::practcl::sort_dict {}
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::practcl::read_configuration, ::practcl::config.tcl
+
+test practcl-api-11.1 {read_configuration without guidance returns local_os} -setup {
+    set d [pdir conf0]
+} -body {
+    set r [::practcl::read_configuration $d]
+    list [dict get $r USEMSVC] [expr {[dict remove $r USEMSVC] eq [::practcl::local_os]}]
+} -cleanup {
+    file delete -force $d
+    unset d r
+} -result {0 1}
+
+test practcl-api-11.2 {read_configuration reads config.tcl} -setup {
+    set d [pdir conf1]
+    pwrite [file join $d config.tcl] "# from configure\nname foo\nversion 1.0\nprefix /p\nsrcdir /s/foo\nLIBDIR {\${prefix}/lib}\n"
+} -body {
+    set r [::practcl::read_configuration $d]
+    list [dict get $r name] [dict get $r version] [dict get $r prefix] \
+	[dict get $r LIBDIR] [dict get $r sandbox] [dict get $r USEMSVC]
+} -cleanup {
+    file delete -force $d
+    unset d r
+} -result {foo 1.0 /p /p/lib /s 0}
+
+test practcl-api-11.3 {read_configuration reads config.site for cross compiling} -setup {
+    set d [pdir conf2]
+    pwrite [file join $d config.site] "CC=x86_64-w64-mingw32-gcc\nAR=x86_64-w64-mingw32-ar\n"
+} -body {
+    set r [::practcl::read_configuration $d]
+    list [dict get $r CC] [dict get $r XCOMPILE_CC] [dict get $r XCOMPILE_AR] \
+	[expr {[dict get $r CONFIG_SITE] eq [file join $d config.site]}] \
+	[dict get $r TEACUP_OS] [dict get $r EXEEXT] [dict get $r USEMSVC]
+} -cleanup {
+    file delete -force $d
+    unset d r
+} -result {x86_64-w64-mingw32-gcc x86_64-w64-mingw32-gcc x86_64-w64-mingw32-ar 1 windows .exe 0}
+
+test practcl-api-11.4 {read_configuration, mingw keeps a known architecture} -constraints knownBug -setup {
+    # "dict exists exists $result TEACUP_ARCH" is always false, so the
+    # architecture is always overwritten with ix86.
+    set d [pdir conf3]
+    pwrite [file join $d config.site] "CC=x86_64-w64-mingw32-gcc\n"
+} -body {
+    set r [::practcl::read_configuration $d]
+    set arch [dict get [::practcl::local_os] TEACUP_ARCH]
+    list [expr {[dict get $r TEACUP_ARCH] eq $arch}] \
+	[expr {[dict get $r TEACUP_PROFILE] eq "win32-$arch"}]
+} -cleanup {
+    file delete -force $d
+    unset d r arch
+} -result {1 1}
+
+test practcl-api-11.5 {read_configuration, VisualStudioVersion selects MSVC} -setup {
+    set d [pdir conf4]
+    set ::env(VisualStudioVersion) 17.0
+} -body {
+    set r [::practcl::read_configuration $d]
+    list [dict get $r USEMSVC] [dict get $r TEACUP_OS] [dict get $r EXEEXT]
+} -cleanup {
+    unset ::env(VisualStudioVersion)
+    file delete -force $d
+    unset d r
+} -result {1 windows .exe}
+
+test practcl-api-11.6 {config.tcl is the same as read_configuration} -setup {
+    set d [pdir conf5]
+    pwrite [file join $d config.tcl] "name bar\nversion 2.0\nprefix /p\n"
+} -body {
+    expr {[::practcl::config.tcl $d] eq [::practcl::read_configuration $d]}
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::practcl::tcllib_require
+
+test practcl-api-12.1 {tcllib_require loads an available package} -body {
+    expr {[::practcl::tcllib_require practcl] eq [package present practcl]}
+} -result 1
+
+test practcl-api-12.2 {tcllib_require with a version requirement} -body {
+    expr {[::practcl::tcllib_require practcl 0.16] eq [package present practcl]}
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::practcl::platform::tcl_core_options, tk_core_options
+
+test practcl-api-13.1 {tcl_core_options, windows} -body {
+    ::practcl::platform::tcl_core_options windows
+} -result {--with-tzdata --with-encoding utf-8}
+
+test practcl-api-13.2 {tcl_core_options, macosx} -body {
+    ::practcl::platform::tcl_core_options macosx
+} -result {--enable-corefoundation=yes --enable-framework=no --with-tzdata --with-encoding utf-8}
+
+test practcl-api-13.3 {tcl_core_options, other} -body {
+    list [::practcl::platform::tcl_core_options linux] \
+	[::practcl::platform::tcl_core_options freebsd]
+} -result {{--with-tzdata --with-encoding utf-8} {--with-tzdata --with-encoding utf-8}}
+
+test practcl-api-13.4 {tk_core_options} -body {
+    list [::practcl::platform::tk_core_options windows] \
+	[::practcl::platform::tk_core_options linux] \
+	[::practcl::platform::tk_core_options macosx] \
+	[::practcl::platform::tk_core_options freebsd]
+} -result {{} {--enable-xft=no --enable-xss=no} --enable-aqua=yes {}}
+
+test practcl-api-13.5 {tcl_core_options, wrong # args} -body {
+    ::practcl::platform::tcl_core_options
+} -returnCodes error -result {wrong # args: should be "::practcl::platform::tcl_core_options os"}
+
+# -------------------------------------------------------------------------
+# ::practcl::read_rc_file
+
+test practcl-api-14.1 {read_rc_file, key/value lines and comments} -setup {
+    set f [pwrite [file join $::PracWork rc.txt] "# comment\nkey1 value1\nkey2 {multi\nline}\n  # indented comment\n  key3 v3\n"]
+} -body {
+    set r [::practcl::read_rc_file $f]
+    list [dict keys $r] [dict get $r key2]
+} -cleanup {
+    file delete $f
+    unset f r
+} -result [list {key1 key2 key3} "multi\nline"]
+
+test practcl-api-14.2 {read_rc_file appends to localdat} -setup {
+    set f [pwrite [file join $::PracWork rc.txt] "key1 value1\nkey0 new\n"]
+} -body {
+    set r [::practcl::read_rc_file $f {key0 old other x}]
+    list [dict get $r key0] [dict get $r other] [dict get $r key1]
+} -cleanup {
+    file delete $f
+    unset f r
+} -result {new x value1}
+
+test practcl-api-14.3 {read_rc_file, missing file} -body {
+    ::practcl::read_rc_file [file join $::PracWork no-such.rc]
+} -returnCodes error -match glob -result {couldn't open "*no-such.rc": no such file or directory}
+
+# -------------------------------------------------------------------------
+# ::practcl::read_sh_subst, read_sh_file
+
+test practcl-api-15.1 {read_sh_subst substitutes ${VAR} and $(VAR)} -body {
+    ::practcl::read_sh_subst {${A}-$(B)} {A 1 B 2}
+} -result 1-2
+
+test practcl-api-15.2 {read_sh_subst strips quotes and blanks} -body {
+    ::practcl::read_sh_subst { '${A}' } {A q}
+} -result q
+
+test practcl-api-15.3 {read_sh_subst of an unknown variable} -body {
+    ::practcl::read_sh_subst {${NOPE}} {A 1}
+} -result {}
+
+test practcl-api-15.4 {read_sh_file, assignments, export and comments} -setup {
+    set f [pwrite [file join $::PracWork sh.sh] "# comment\nA=1\nB='\${A}x'\n\nexport C=\$(A)y\nexport D=hello world\n"]
+} -body {
+    ::practcl::read_sh_file $f {X 1}
+} -cleanup {
+    file delete $f
+    unset f
+} -result {A 1 B {${A}x} C 1y D {hello world}}
+
+test practcl-api-15.5 {read_sh_file, include of another file} -setup {
+    set inc [pwrite [file join $::PracWork inc.sh] "INC=yes\n"]
+    set f [pwrite [file join $::PracWork main.sh] "A=1\ninclude $inc\nB=2\n"]
+} -body {
+    ::practcl::read_sh_file $f {X 1}
+} -cleanup {
+    file delete $f $inc
+    unset f inc
+} -result {A 1 INC yes B 2}
+
+test practcl-api-15.6 {read_sh_file, missing file} -body {
+    ::practcl::read_sh_file [file join $::PracWork no-such.sh]
+} -returnCodes error -match glob -result {couldn't open "*no-such.sh": no such file or directory}
+
+# -------------------------------------------------------------------------
+# ::practcl::read_Config.sh, read_Makefile
+
+test practcl-api-16.1 {read_Config.sh reads values without substitution} -setup {
+    set f [pwrite [file join $::PracWork tclConfig.sh] "# c\nTCL_VERSION='8.6'\nTCL_LIB_FILE='libtcl\${TCL_VERSION}.so'\n\nTCL_PREFIX=/usr\nnot an assignment\n"]
+} -body {
+    ::practcl::read_Config.sh $f
+} -cleanup {
+    file delete $f
+    unset f
+} -result {TCL_VERSION 8.6 TCL_LIB_FILE {libtcl${TCL_VERSION}.so} TCL_PREFIX /usr}
+
+test practcl-api-16.2 {read_Makefile picks the TEA fields} -setup {
+    set d [pdir mkf]
+    set f [pwrite [file join $d Makefile] "# c\nPACKAGE_NAME = foo\nPACKAGE_VERSION = 1.2\nPKG_LIB_FILE = libfoo1.2.so\nsrcdir = .\nLIBS = -lm\nOTHER = x\ncompile = gcc\nAFTER = y\n"]
+} -body {
+    set r [::practcl::read_Makefile $f]
+    list [dict get $r name] [dict get $r version] [dict get $r libfile] \
+	[dict get $r PRACTCL_LIBS] [expr {[dict get $r srcdir] eq $d}] [lsort [dict keys $r]]
+} -cleanup {
+    file delete -force $d
+    unset d f r
+} -result {foo 1.2 libfoo1.2.so -lm 1 {PRACTCL_LIBS libfile name srcdir version}}
+
+test practcl-api-16.3 {read_Makefile, explicit srcdir} -setup {
+    set f [pwrite [file join $::PracWork Makefile2] "srcdir = /src/foo\n"]
+} -body {
+    ::practcl::read_Makefile $f
+} -cleanup {
+    file delete $f
+    unset f
+} -result {srcdir /src/foo}
+
+# -------------------------------------------------------------------------
+# ::practcl::cputs
+
+test practcl-api-17.1 {cputs, wrong # args} -body {
+    ::practcl::cputs
+} -returnCodes error -result {wrong # args: should be "::practcl::cputs varname ?arg ...?"}
+
+test practcl-api-17.2 {cputs adds a line feed before each line} -setup {
+    unset -nocomplain buf
+} -body {
+    ::practcl::cputs buf one
+    ::practcl::cputs buf two
+    set buf
+} -cleanup {
+    unset buf
+} -result "\none\ntwo"
+
+test practcl-api-17.3 {cputs suppresses leading blank lines and joins arguments} -setup {
+    set buf start
+} -body {
+    ::practcl::cputs buf "\n\nline"
+    ::practcl::cputs buf a b c
+    set buf
+} -cleanup {
+    unset buf
+} -result "start\nline\nabc"
+
+test practcl-api-17.4 {cputs does not double an existing line feed} -setup {
+    set buf "start\n"
+} -body {
+    ::practcl::cputs buf x
+} -cleanup {
+    unset buf
+} -result "start\nx"
+
+# -------------------------------------------------------------------------
+# ::practcl::tcl_to_c, _tagblock
+
+test practcl-api-18.1 {tcl_to_c quotes each line as a C string} -body {
+    ::practcl::tcl_to_c "puts \"hi\"\nset a \\\\"
+} -result "\n        \"puts \\\"hi\\\"\\n\" \\\n        \"set a \\\\\\\\\\n\" "
+
+test practcl-api-18.2 {tcl_to_c result is a valid C string literal body} -body {
+    # The generated text, wrapped by a C compiler, would be the original
+    # script with a line feed after each line.
+    set c [::practcl::tcl_to_c "a {b}\nc"]
+    set out {}
+    foreach {- s} [regexp -all -inline {"((?:[^"\\]|\\.)*)"} $c] {
+	append out [subst -nocommands -novariables $s]
+    }
+    set out
+} -cleanup {
+    unset c out s
+} -result "a {b}\nc\n"
+
+test practcl-api-18.3 {_tagblock, tcl style} -body {
+    ::practcl::_tagblock "set a 1" tcl note
+} -result "\n# BEGIN note\nset a 1\n# END note"
+
+test practcl-api-18.4 {_tagblock, c style} -body {
+    ::practcl::_tagblock "int a;" c note
+} -result "\n/* BEGIN note */\nint a;\n/* END note */"
+
+test practcl-api-18.5 {_tagblock, default and unknown styles} -body {
+    list [::practcl::_tagblock x] [::practcl::_tagblock x other n]
+} -result [list "\n# BEGIN \nx\n# END " "\n# BEGIN n\nx\n# END n"]
+
+test practcl-api-18.6 {_tagblock of blank text is empty} -body {
+    list [::practcl::_tagblock {}] [::practcl::_tagblock " \n\t" c n]
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+# ::practcl::de_shell
+
+test practcl-api-19.1 {de_shell resolves ${X}, $(X) and %X% references} -body {
+    ::practcl::de_shell {A 1 B {${A}x} C {$(B)y} D {%C%z}}
+} -result {A 1 B 1x C 1xy D 1xyz}
+
+test practcl-api-19.2 {de_shell keeps DEFS unchanged} -body {
+    ::practcl::de_shell {A 1 DEFS {-DX=${A}} TCL_DEFS {-DY=$(A)} TK_DEFS %A%}
+} -result {DEFS {-DX=${A}} TCL_DEFS {-DY=$(A)} TK_DEFS %A% A 1}
+
+test practcl-api-19.3 {de_shell library macros} -body {
+    dict get [::practcl::de_shell {
+	name foo version 1.2 prefix /p
+	E %LIBRARY_NAME%-%LIBRARY_VERSION%-%LIBRARY_VERSION_NODOTS%-%LIBRARY_PREFIX%
+	F {${PKG_OBJECTS} $(PKG_STUB_OBJECTS)}
+    }] E
+} -result foo-1.2-12-/p
+
+test practcl-api-19.4 {de_shell, libprefix overrides prefix, object macros} -body {
+    set r [::practcl::de_shell {
+	name foo version 1.2 prefix /p libprefix lib
+	E %LIBRARY_PREFIX% F {${PKG_OBJECTS} $(PKG_STUB_OBJECTS)}
+    }]
+    list [dict get $r E] [dict get $r F]
+} -cleanup {
+    unset r
+} -result {lib {%LIBRARY_OBJECTS% %LIBRARY_STUB_OBJECTS%}}
+
+test practcl-api-19.5 {de_shell of empty data} -body {
+    ::practcl::de_shell {}
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::practcl::grep
+
+test practcl-api-20.1 {grep over several files} -setup {
+    set a [pwrite [file join $::PracWork a.txt] "foo\nbar\nfoobar\n"]
+    set b [pwrite [file join $::PracWork b.txt] "nothing\nfoo2\n"]
+} -body {
+    ::practcl::grep foo [list $a $b]
+} -cleanup {
+    file delete $a $b
+    unset a b
+} -result [list [file join $::PracWork a.txt]:1:foo [file join $::PracWork a.txt]:3:foobar [file join $::PracWork b.txt]:2:foo2]
+
+test practcl-api-20.2 {grep, regular expression, no match} -setup {
+    set a [pwrite [file join $::PracWork a.txt] "foo\nbar\nfoobar\n"]
+} -body {
+    list [::practcl::grep ^bar $a] [::practcl::grep zzz $a]
+} -cleanup {
+    file delete $a
+    unset a
+} -result [list [list [file join $::PracWork a.txt]:2:bar] {}]
+
+test practcl-api-20.3 {grep, missing file} -body {
+    ::practcl::grep foo [file join $::PracWork no-such.txt]
+} -returnCodes error -match glob -result {couldn't open "*no-such.txt": no such file or directory}
+
+# -------------------------------------------------------------------------
+# ::practcl::file_lexnormalize, file_relative
+
+test practcl-api-21.1 {file_lexnormalize without relative parts} -body {
+    list [::practcl::file_lexnormalize a/b] [::practcl::file_lexnormalize /a/b]
+} -result {a/b /a/b}
+
+test practcl-api-21.2 {file_lexnormalize resolves . and ..} -body {
+    list [::practcl::file_lexnormalize a/./b/../c] \
+	[::practcl::file_lexnormalize /x/y/../../z] \
+	[::practcl::file_lexnormalize /../a] \
+	[::practcl::file_lexnormalize a/..]
+} -result {a/c /z /a {}}
+
+test practcl-api-21.3 {file_relative, documented example} -body {
+    ::practcl::file_relative build/tcl/unix build/tcl/library
+} -result ../library
+
+test practcl-api-21.4 {file_relative, same, sub and parent directories} -body {
+    list [::practcl::file_relative /a/b /a/b] \
+	[::practcl::file_relative /a/b /a/b/c/d] \
+	[::practcl::file_relative /a/b/c/d /a/b] \
+	[::practcl::file_relative /a/b/./c /a/x/../b/y]
+} -result {. c/d ../.. ../y}
+
+test practcl-api-21.5 {file_relative, different path types} -body {
+    ::practcl::file_relative /a/b c
+} -returnCodes error -result {Unable to compute relation for paths of different pathtypes: absolute vs. relative, (/a/b vs. c)}
+
+test practcl-api-21.6 {file_relative, wrong # args} -body {
+    ::practcl::file_relative a
+} -returnCodes error -result {wrong # args: should be "::practcl::file_relative base dst"}
+
+# -------------------------------------------------------------------------
+# ::practcl::findByPattern (practcl.test has the basic case)
+
+test practcl-api-22.1 {findByPattern, several patterns} -setup {
+    set d [pdir find]
+    foreach f {a.tcl b.c sub/c.tcl sub/d.h sub/deeper/e.h} {
+	pwrite [file join $d $f] x
+    }
+} -body {
+    tailsorted $d [::practcl::findByPattern $d {*.tcl *.h}]
+} -cleanup {
+    file delete -force $d
+    unset d f
+} -result {a.tcl sub/c.tcl sub/d.h sub/deeper/e.h}
+
+test practcl-api-22.2 {findByPattern, no pattern matches nothing} -setup {
+    set d [pdir find]
+    pwrite [file join $d a.tcl] x
+} -body {
+    ::practcl::findByPattern $d {}
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result {}
+
+test practcl-api-22.3 {findByPattern on a file} -setup {
+    set d [pdir find]
+    set f [pwrite [file join $d a.tcl] x]
+} -body {
+    list [::practcl::findByPattern $f *.tcl] [::practcl::findByPattern $f *.c]
+} -cleanup {
+    file delete -force $d
+    unset d f
+} -result [list [list [file join $::PracWork find a.tcl]] {}]
+
+# -------------------------------------------------------------------------
+# ::practcl::log
+
+test practcl-api-23.1 {log appends to the file} -setup {
+    set f [file join $::PracWork log.txt]
+    file delete $f
+    set errs {}
+    set oldbg [interp bgerror {}]
+    interp bgerror {} [list apply {{m o} {lappend ::errs $m}}]
+} -body {
+    ::practcl::log $f one
+    ::practcl::log $f two
+    update
+    pread $f
+} -cleanup {
+    interp bgerror {} $oldbg
+    file delete $f
+    unset f errs oldbg
+} -result "one\ntwo\n"
+
+test practcl-api-23.2 {log, deferred close raises no background error} -constraints knownBug -setup {
+    # The channel is never stored in ::practcl::logchan, so the idle
+    # handler fails to unset it.
+    set f [file join $::PracWork log.txt]
+    file delete $f
+    set ::errs {}
+    set oldbg [interp bgerror {}]
+    interp bgerror {} [list apply {{m o} {lappend ::errs $m}}]
+} -body {
+    ::practcl::log $f one
+    ::practcl::log $f two
+    update
+    set ::errs
+} -cleanup {
+    interp bgerror {} $oldbg
+    file delete $f
+    unset f ::errs oldbg
+} -result {}
+
+# -------------------------------------------------------------------------
+# Package index helpers
+
+proc mkpkgtree {d} {
+    pwrite [file join $d foo foo.tcl] "package provide foo 1.0\nproc foo {} {}\n"
+    pwrite [file join $d bar bar.tcl] "package provide bar 2.0\n"
+    pwrite [file join $d bar other.tcl] "proc x {} {}\n"
+    pwrite [file join $d bar pkgIndex.tcl] "package ifneeded bar 2.0 \[list source \[file join \$dir bar.tcl\]\]\n"
+    pwrite [file join $d baz pkgIndex.tcl] "if {!\[package vsatisfies \[package provide Tcl\] 8.6\]} {return}\npackage ifneeded baz 3.0 \[list load \[file join \$dir libbaz.so\]\]\n"
+    pwrite [file join $d qux pkgIndex.tcl] "set x 1\npackage ifneeded qux 1 {}\n"
+    pwrite [file join $d tm mod-1.5.tm] "# a module\n"
+    pwrite [file join $d tm pm-0.1.tm] "package provide realname 0.2\n"
+}
+
+test practcl-api-24.1 {_pkgindex_simpleIndex, single file module} -setup {
+    set d [pdir pkgidx]
+    mkpkgtree $d
+} -body {
+    ::practcl::_pkgindex_simpleIndex [file join $d foo]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result "package ifneeded foo 1.0 \[list source \[file join %DIR% foo.tcl\]\]\n"
+
+test practcl-api-24.2 {_pkgindex_simpleIndex, not a single file module} -setup {
+    set d [pdir pkgidx]
+    mkpkgtree $d
+} -body {
+    list [::practcl::_pkgindex_simpleIndex [file join $d bar]] \
+	[::practcl::_pkgindex_simpleIndex [file join $d baz]]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result {{} {}}
+
+test practcl-api-24.3 {_pkgindex_directory, source file without index} -setup {
+    set d [pdir pkgidx]
+    mkpkgtree $d
+} -body {
+    ::practcl::_pkgindex_directory [file join $d foo]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result "package ifneeded foo 1.0 \[list source \[file join \$dir foo.tcl\]\]\n"
+
+test practcl-api-24.4 {_pkgindex_directory, plain package ifneeded index is merged} -setup {
+    set d [pdir pkgidx]
+    mkpkgtree $d
+} -body {
+    list [::practcl::_pkgindex_directory [file join $d bar]] \
+	[::practcl::_pkgindex_directory [file join $d baz]]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result [list "package ifneeded bar 2.0 \[list source \[file join \$dir bar.tcl\]\]\n\n" \
+	       "package ifneeded baz 3.0 \[list load \[file join \$dir libbaz.so\]\]\n\n"]
+
+test practcl-api-24.5 {_pkgindex_directory, index with other code is sourced} -setup {
+    set d [pdir pkgidx]
+    mkpkgtree $d
+} -body {
+    ::practcl::_pkgindex_directory [file join $d qux]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result {source [file join $dir pkgIndex.tcl]}
+
+test practcl-api-24.6 {_pkgindex_directory, tcl modules} -setup {
+    set d [pdir pkgidx]
+    mkpkgtree $d
+} -body {
+    lsort [split [string trim [::practcl::_pkgindex_directory [file join $d tm]]] \n]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result {{package ifneeded mod 1.5 [list source [file join $dir mod-1.5.tm]]} {package ifneeded realname 0.2 [list source [file join $dir pm-0.1.tm]]}}
+
+test practcl-api-24.7 {_pkgindex_path_subdir} -setup {
+    set d [pdir pkgsub]
+    pwrite [file join $d deep a b x.tcl] {}
+    pwrite [file join $d deep build build.tcl] {}
+    pwrite [file join $d tool src build.tcl] {}
+    pwrite [file join $d tool sub x.tcl] {}
+    pwrite [file join $d flat x.tcl] {}
+} -body {
+    list [tailsorted $d [::practcl::_pkgindex_path_subdir [file join $d deep]]] \
+	[tailsorted $d [::practcl::_pkgindex_path_subdir [file join $d tool]]] \
+	[::practcl::_pkgindex_path_subdir [file join $d flat]]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result {{deep/a deep/a/b} tool {}}
+
+test practcl-api-24.8 {pkgindex_path, generated index loads all packages} -setup {
+    set d [pdir pkgall]
+    mkpkgtree $d
+    set i [interp create]
+} -body {
+    set idx [::practcl::pkgindex_path $d]
+    $i eval [list set dir $d]
+    $i eval $idx
+    set r {}
+    foreach {p v} {foo 1.0 bar 2.0 baz 3.0 mod 1.5 realname 0.2} {
+	lappend r [lindex [$i eval [list package ifneeded $p $v]] 0]
+    }
+    list $r [$i eval {info exists PATHSTACK}] [$i eval {llength $PATHSTACK}] \
+	[expr {[$i eval {set dir}] eq $d}]
+} -cleanup {
+    interp delete $i
+    file delete -force $d
+    unset d i idx r p v
+} -result {{source source load source source} 1 0 1}
+
+test practcl-api-24.9 {pkgindex_path, paths are relative to $dir} -setup {
+    set d [pdir pkgall]
+    mkpkgtree $d
+    # qux has its own index, which would be sourced from /elsewhere
+    file delete -force [file join $d qux]
+    set i [interp create]
+} -body {
+    set idx [::practcl::pkgindex_path $d]
+    $i eval [list set dir /elsewhere]
+    $i eval $idx
+    $i eval {package ifneeded foo 1.0}
+} -cleanup {
+    interp delete $i
+    file delete -force $d
+    unset d i idx
+} -result {source /elsewhere/foo/foo.tcl}
+
+test practcl-api-24.10 {pkgindex_path, pkgs directory with own indexes} -setup {
+    set d [pdir pkgpkgs]
+    pwrite [file join $d pkgs one pkgIndex.tcl] "package ifneeded one 1 {}\n"
+    pwrite [file join $d lib two two.tcl] "package provide two 2\n"
+    set i [interp create]
+} -body {
+    set idx [::practcl::pkgindex_path $d]
+    $i eval [list set dir $d]
+    $i eval $idx
+    list [$i eval {package versions one}] [$i eval {package versions two}]
+} -cleanup {
+    interp delete $i
+    file delete -force $d
+    unset d i idx
+} -result {1 2}
+
+# -------------------------------------------------------------------------
+# ::practcl::installDir, copyDir
+
+test practcl-api-25.1 {copyDir copies a tree recursively} -setup {
+    set d [pdir copy]
+    foreach f {a.tcl b.c sub/c.tcl sub/d.h} {
+	pwrite [file join $d src $f] $f
+    }
+    pwrite [file join $d dst old.txt] old
+} -body {
+    ::practcl::copyDir [file join $d src] [file join $d dst]
+    list [tailsorted [file join $d dst] [::practcl::findByPattern [file join $d dst] *]] \
+	[pread [file join $d dst sub c.tcl]]
+} -cleanup {
+    file delete -force $d
+    unset d f
+} -result {{a.tcl b.c old.txt sub/c.tcl sub/d.h} sub/c.tcl}
+
+test practcl-api-25.2 {copyDir of a file copies it into the directory} -constraints notWin -setup {
+    set d [pdir copy]
+    set f [pwrite [file join $d a.tcl] x]
+    file attributes $f -permissions 0o600
+} -body {
+    ::practcl::copyDir $f [file join $d dst]
+    list [glob -tails -directory [file join $d dst] *] [pmode [file join $d dst a.tcl]]
+} -cleanup {
+    file delete -force $d
+    unset d f
+} -result {a.tcl 644}
+
+test practcl-api-25.3 {copyDir skips CVS directories} -setup {
+    set d [pdir copy]
+    pwrite [file join $d src a.tcl] x
+    pwrite [file join $d src CVS Entries] x
+} -body {
+    ::practcl::copyDir [file join $d src] [file join $d dst]
+    glob -tails -directory [file join $d dst] *
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result a.tcl
+
+test practcl-api-25.4 {installDir replaces the destination} -constraints notWin -setup {
+    set d [pdir inst]
+    foreach f {a.tcl sub/c.tcl} {
+	pwrite [file join $d src $f] $f
+    }
+    pwrite [file join $d src CVS Entries] x
+    pwrite [file join $d dst old.txt] old
+} -body {
+    ::practcl::installDir [file join $d src] [file join $d dst]
+    list [tailsorted [file join $d dst] [::practcl::findByPattern [file join $d dst] *]] \
+	[pmode [file join $d dst]] [pmode [file join $d dst sub]] \
+	[pmode [file join $d dst a.tcl]]
+} -cleanup {
+    file delete -force $d
+    unset d f
+} -result {{a.tcl sub/c.tcl} 755 755 644} -match glob -output "*Creating dst\n*Creating sub\n"
+
+# -------------------------------------------------------------------------
+# ::practcl::buildModule, installModule
+
+test practcl-api-26.1 {buildModule without build/build.tcl does nothing} -setup {
+    set d [pdir bmod]
+    pwrite [file join $d mod mod.tcl] "package provide mod 1\n"
+} -body {
+    ::practcl::buildModule [file join $d mod]
+} -cleanup {
+    file delete -force $d
+    unset d
+} -result {}
+
+test practcl-api-26.2 {buildModule runs build/build.tcl when pkgIndex is out of date} -setup {
+    set d [pdir bmod]
+    set m [file join $d mod]
+    pwrite [file join $m build build.tcl] {
+	set f [open [file join [file dirname [file dirname [info script]]] built.txt] w]; close $f
+    }
+    pwrite [file join $m pkgIndex.tcl] {}
+    file mtime [file join $m pkgIndex.tcl] [expr {[clock seconds] - 100}]
+} -body {
+    ::practcl::buildModule $m
+    file exists [file join $m built.txt]
+} -cleanup {
+    file delete -force $d
+    unset d m
+} -result 1 -match glob -output "*build.tcl*\n"
+
+test practcl-api-26.3 {buildModule skips an up to date module} -setup {
+    set d [pdir bmod]
+    set m [file join $d mod]
+    pwrite [file join $m build build.tcl] {
+	set f [open [file join [file dirname [file dirname [info script]]] built.txt] w]; close $f
+    }
+    file mtime [file join $m build build.tcl] [expr {[clock seconds] - 100}]
+    pwrite [file join $m pkgIndex.tcl] {}
+} -body {
+    ::practcl::buildModule $m
+    file exists [file join $m built.txt]
+} -cleanup {
+    file delete -force $d
+    unset d m
+} -result 0
+
+test practcl-api-26.4 {installModule copies the .tcl files} -setup {
+    set d [pdir imod]
+    set m [file join $d src mod]
+    pwrite [file join $m mod.tcl] "package provide mod 1\n"
+    pwrite [file join $m pkgIndex.tcl] "package ifneeded mod 1 \[list source \[file join \$dir mod.tcl\]\]\n"
+    pwrite [file join $m README] x
+    pwrite [file join $d dest old.tcl] x
+} -body {
+    ::practcl::installModule $m [file join $d dest]
+    lsort [glob -tails -directory [file join $d dest] *]
+} -cleanup {
+    file delete -force $d
+    unset d m
+} -result {mod.tcl pkgIndex.tcl}
+
+test practcl-api-26.5 {installModule into DEST/modules/NAME, with htdocs} -setup {
+    set d [pdir imod]
+    set m [file join $d src mod]
+    pwrite [file join $m mod.tcl] "package provide mod 1\n"
+    pwrite [file join $m htdocs index.html] x
+    file mkdir [file join $d dest modules]
+} -body {
+    ::practcl::installModule $m [file join $d dest]
+    tailsorted [file join $d dest] [::practcl::findByPattern [file join $d dest] *]
+} -cleanup {
+    file delete -force $d
+    unset d m
+} -result {modules/mod/htdocs/index.html modules/mod/mod.tcl}
+
+test practcl-api-26.6 {installModule generates a pkgIndex.tcl for several files} -setup {
+    set d [pdir imod]
+    set m [file join $d src mod]
+    pwrite [file join $m mod.tcl] "package provide mod 1\nproc ::mod {} {}\n"
+    pwrite [file join $m extra.tcl] "package provide modextra 1\n"
+} -body {
+    ::practcl::installModule $m [file join $d dest]
+    set i [interp create]
+    $i eval [list set dir $m]
+    $i eval [list source [file join $m pkgIndex.tcl]]
+    list [lsort [glob -tails -directory [file join $d dest] *.tcl]] \
+	[lsort [$i eval {package names}]]
+} -cleanup {
+    interp delete $i
+    file delete -force $d
+    unset d m i
+} -match glob -result {{extra.tcl mod.tcl} {*mod modextra*}}
+
+test practcl-api-26.6.1 {installModule installs the generated pkgIndex.tcl} -constraints knownBug -setup {
+    # The list of files to copy is taken before pkg_mkIndex runs.
+    set d [pdir imod]
+    set m [file join $d src mod]
+    pwrite [file join $m mod.tcl] "package provide mod 1\nproc ::mod {} {}\n"
+    pwrite [file join $m extra.tcl] "package provide modextra 1\n"
+} -body {
+    ::practcl::installModule $m [file join $d dest]
+    lsort [glob -tails -directory [file join $d dest] *]
+} -cleanup {
+    file delete -force $d
+    unset d m
+} -result {extra.tcl mod.tcl pkgIndex.tcl}
+
+test practcl-api-26.7 {installModule copies a tao style module verbatim} -setup {
+    set d [pdir imod]
+    set m [file join $d src mod]
+    pwrite [file join $m index.tcl] "# index\n"
+    pwrite [file join $m sub data.txt] x
+    pwrite [file join $d dest stale.txt] x
+} -body {
+    ::practcl::installModule $m [file join $d dest]
+    tailsorted [file join $d dest] [::practcl::findByPattern [file join $d dest] *]
+} -cleanup {
+    file delete -force $d
+    unset d m
+} -result {index.tcl sub/data.txt} -match glob -output *
+
+test practcl-api-26.8 {installModule does nothing for a symlinked destination} -constraints notWin -setup {
+    set d [pdir imod]
+    set m [file join $d src mod]
+    pwrite [file join $m mod.tcl] "package provide mod 1\n"
+    file mkdir [file join $d real]
+    file link -symbolic [file join $d dest] [file join $d real]
+} -body {
+    ::practcl::installModule $m [file join $d dest]
+    glob -nocomplain -tails -directory [file join $d real] *
+} -cleanup {
+    file delete -force $d
+    unset d m
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::practcl::target, trigger, depends (use ::practcl::LOCAL)
+
+test practcl-api-27.1 {target registers a build product} -constraints knownBug -setup {
+    # ::practcl::target calls "make task", which does not exist.
+    unset -nocomplain ::make(practcl_api_t1) ::target(practcl_api_t1)
+} -body {
+    ::practcl::target practcl_api_t1 {filename t1.out} {}
+    list $::make(practcl_api_t1) $::target(practcl_api_t1)
+} -cleanup {
+    unset -nocomplain ::make(practcl_api_t1) ::target(practcl_api_t1)
+} -result {0 t1.out}
+
+test practcl-api-27.2 {trigger sets ::make for the triggered targets} -setup {
+    unset -nocomplain ::make
+    ::practcl::LOCAL make target practcl_api_t2 [list filename [file join $::PracWork no-such.out]] {}
+} -body {
+    ::practcl::depends practcl_api_t2
+    ::practcl::trigger practcl_api_t2
+    set ::make(practcl_api_t2)
+} -cleanup {
+    unset -nocomplain ::make
+} -result 1
+
+test practcl-api-27.3 {depends checks the targets} -setup {
+    set f [pwrite [file join $::PracWork exists.out] x]
+    ::practcl::LOCAL make target practcl_api_t3 [list filename $f] {}
+} -body {
+    ::practcl::depends practcl_api_t3
+    [::practcl::LOCAL make object practcl_api_t3] check
+} -cleanup {
+    file delete $f
+    unset f
+} -result 0
+
+# -------------------------------------------------------------------------
+# practcl::doctool
+
+test practcl-api-30.1 {doctool argspec, documented example} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT argspec {a b {c 10}}
+} -cleanup {
+    DT destroy
+} -result {a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}}
+
+test practcl-api-30.2 {doctool argspec, args and dictargs} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    list [DT argspec {a args}] \
+	[DT argspec {{dictargs {-opt {default 1} name: {mandatory 1}}}}]
+} -cleanup {
+    DT destroy
+} -result {{a {positional 1 mandatory 1} args {positional 1 mandatory 0}} {dictargs {positional 1 mandatory 1} opt {positional 1 mandatory 0 default 1} name {positional 1 mandatory 1}}}
+
+test practcl-api-30.3 {doctool argspec, bad argument} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT argspec {{a b c}}
+} -cleanup {
+    DT destroy
+} -returnCodes error -result {Bad argument}
+
+test practcl-api-30.4 {doctool comment, plain text is the description} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT comment {Does something cool}
+} -cleanup {
+    DT destroy
+} -result "description {Does something cool\n}"
+
+test practcl-api-30.5 {doctool comment, fields ending in a colon} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT comment "title: Something really cool\nauthor: Sean Woods\nauthor: John Doe\ndescription:\nThis does something really cool!\ndesc: More."
+} -cleanup {
+    DT destroy
+} -result "description {This does something really cool!\nMore.\n} title {Something really cool\n} author {Sean Woods\nJohn Doe\n}"
+
+test practcl-api-30.6 {doctool comment, arglist is an alias of argspec} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT comment "arglist: a b\ndictargs: c"
+} -cleanup {
+    DT destroy
+} -result "description {} argspec {a b\nc\n}"
+
+test practcl-api-30.7 {doctool scan_text collects procs and classes} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT scan_text {
+###
+# Add two numbers
+###
+proc ::mymod::add {a {b 1}} {
+  return [expr {$a+$b}]
+}
+###
+# A class
+###
+clay::define ::mymod::thing {
+  superclass ::mymod::base
+  ###
+  # Do it
+  ###
+  method doit {x args} {}
+}
+}
+    set m [DT manpage header {[description]} footer {[para]END} authors {{Jane Doe} jd@example.com}]
+    list [string match {*\[call proc \[cmd mymod::add\] \[arg a\] \[opt "\[arg b\] \[const "1"\]"\]\]*} $m] \
+	[string match "*Add two numbers*" $m] \
+	[string match {*\[subsection {Class  mymod::thing}\]*} $m] \
+	[string match {*\[emph "ancestors"\]: \[class mymod::base\]*} $m] \
+	[string match {*\[call method \[cmd "doit"\] \[arg x\] \[opt "\[arg args\]"\]\]*} $m] \
+	[string match "*Do it*" $m] \
+	[string match {*\[section AUTHORS\]*Jane Doe \[uri mailto:jd@example.com\]*} $m] \
+	[string match "*\\\[description\\\]*" $m] \
+	[string match "*\\\[para\\\]END\n\\\[manpage_end\\\]\n" $m] \
+	[string match "\\\[comment {-\\*- tcl -\\*- doctools manpage}\\\]\n*" $m]
+} -cleanup {
+    DT destroy
+    unset m
+} -result {1 1 1 1 1 1 1 1 1 1}
+
+test practcl-api-30.8 {doctool scan_file and reset} -setup {
+    ::practcl::doctool create ::DT
+    set f [pwrite [file join $::PracWork doc.tcl] "\n# Say hello\nproc hello {} {}\n"]
+} -body {
+    DT scan_file $f
+    set before [string match {*\[cmd hello\]*Say hello*} [DT manpage]]
+    DT reset
+    set after [string match {*\[cmd hello\]*} [DT manpage]]
+    list $before $after
+} -cleanup {
+    DT destroy
+    file delete $f
+    unset f before after
+} -result {1 0}
+
+test practcl-api-30.9 {doctool manpage without content} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT manpage
+} -cleanup {
+    DT destroy
+} -result "\[comment {-*- tcl -*- doctools manpage}\]\n\[vset PACKAGE_VERSION 0.0\]\n\[manpage_begin Your_Module_Here n \[vset PACKAGE_VERSION\]\]\n\n\n\[manpage_end\]\n"
+
+test practcl-api-30.10 {doctool proc with show_body includes internals} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT scan_text "\n###\n# The body\n# show_body: 1\n###\nproc shown {} {return 42}\n"
+    string match {*\[call proc \[cmd shown\]\]*The body*Internals: \[example {return 42}\]*} [DT manpage]
+} -cleanup {
+    DT destroy
+} -result 1
+
+test practcl-api-30.11 {doctool keyword.proc} -setup {
+    ::practcl::doctool create ::DT
+} -body {
+    DT keyword.proc "A proc\n" foo {a {b 2}}
+} -cleanup {
+    DT destroy
+} -result "description {A proc\n\n} argspec {a {positional 1 mandatory 1} b {positional 1 mandatory 0 default 2}}"
+
+test practcl-api-30.12 {doctool scan_text does not lose the first line} -constraints knownBug -setup {
+    # The first value sent to the coroutine only resumes the initial yield.
+    ::practcl::doctool create ::DT
+} -body {
+    DT scan_text "proc first {} {}\nproc second {} {}"
+    list [string match {*\[cmd first\]*} [DT manpage]] \
+	[string match {*\[cmd second\]*} [DT manpage]]
+} -cleanup {
+    DT destroy
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# practcl::metaclass (through practcl::project)
+
+proc mkproject {name args} {
+    ::practcl::project create $name [dict merge {name foo version 1.0} $args]
+}
+
+test practcl-api-40.1 {define get, exists, default value} -setup {
+    mkproject ::PR
+} -body {
+    list [PR define get name] [PR define get nokey] [PR define get nokey dflt] \
+	[PR define exists name] [PR define exists nokey] \
+	[PR define getnull name] [PR define cget version]
+} -cleanup {
+    PR destroy
+} -result {foo {} dflt 1 0 foo 1.0}
+
+test practcl-api-40.2 {define set, key/value pairs or one list} -setup {
+    mkproject ::PR
+} -body {
+    PR define set k1 v1 k2 v2
+    PR define set {k3 v3}
+    list [PR define get k1] [PR define get k2] [PR define get k3]
+} -cleanup {
+    PR destroy
+} -result {v1 v2 v3}
+
+test practcl-api-40.3 {define add and remove list elements} -setup {
+    mkproject ::PR
+} -body {
+    list [PR define add lst a b a] [PR define add lst b c] \
+	[PR define remove lst b] [PR define remove nolist b] [PR define get lst]
+} -cleanup {
+    PR destroy
+} -result {{a b} {a b c} {a c} {} {a c}}
+
+test practcl-api-40.4 {define dump and array subcommands} -setup {
+    mkproject ::PR
+} -body {
+    PR define set k1 v1 k2 v2
+    list [dict get [PR define dump] k2] [lsort [PR define names k*]] [PR define size]
+} -cleanup {
+    PR destroy
+} -result {v2 {k1 k2} 4}
+
+test practcl-api-40.5 {define, bad subcommand} -setup {
+    mkproject ::PR
+} -body {
+    PR define bogus
+} -cleanup {
+    PR destroy
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be anymore, *}
+
+test practcl-api-40.6 {link add, list, remove} -setup {
+    mkproject ::PR
+} -body {
+    PR link add custom X
+    PR link add custom X
+    PR link add custom Y
+    PR link add other X
+    set r [list [PR link list custom] [PR link list nonesuch]]
+    PR link remove Y custom
+    lappend r [PR link list custom]
+    PR link remove X
+    lappend r [PR link list custom] [PR link list other] [lsort -stride 2 [PR link dump]]
+} -cleanup {
+    PR destroy
+    unset r
+} -result {{X Y} {} X {} {} {custom {} other {}}}
+
+test practcl-api-40.7 {link, usage errors} -setup {
+    mkproject ::PR
+} -body {
+    list [catch {PR link add a b c} m1] $m1 [catch {PR link list a b} m2] $m2
+} -cleanup {
+    PR destroy
+    unset m1 m2
+} -result {1 {Usage: link add LINKTYPE OBJECT} 1 {Usage: link list LINKTYPE}}
+
+test practcl-api-40.8 {link object uses the object's linktype} -setup {
+    mkproject ::PR
+    mkproject ::PR2 name sub
+} -body {
+    PR link object ::PR2
+    list [PR link list project] [lsort -stride 2 [PR link list]]
+} -cleanup {
+    PR destroy
+    PR2 destroy
+} -result {::PR2 {project ::PR2}}
+
+test practcl-api-40.9 {script runs in the object context} -setup {
+    mkproject ::PR
+} -body {
+    PR script {my define set fromscript [self]}
+    PR define get fromscript
+} -cleanup {
+    PR destroy
+} -result ::PR
+
+test practcl-api-40.10 {source reads a file in the object context} -setup {
+    mkproject ::PR
+    set f [pwrite [file join $::PracWork defs.tcl] "my define set sourced yes\n"]
+} -body {
+    PR source $f
+    PR define get sourced
+} -cleanup {
+    PR destroy
+    file delete $f
+    unset f
+} -result yes
+
+test practcl-api-40.11 {graft creates a delegate} -setup {
+    mkproject ::PR
+} -body {
+    PR graft helper ::practcl_api_helper
+    PR clay delegate helper
+} -cleanup {
+    PR destroy
+} -result ::practcl_api_helper
+
+test practcl-api-40.12 {morph changes the class} -setup {
+    mkproject ::PR
+} -body {
+    PR morph library
+    list [info object class PR] [PR define get class] [PR linktype]
+} -cleanup {
+    PR destroy
+} -result {::practcl::library ::practcl::library library}
+
+test practcl-api-40.13 {define set class selects the class} -setup {
+    mkproject ::PR
+} -body {
+    PR define set class library
+    info object class PR
+} -cleanup {
+    PR destroy
+} -result ::practcl::library
+
+test practcl-api-40.14 {morph into a mixin slot} -setup {
+    mkproject ::PR
+} -body {
+    PR morph toolset.msvc
+    PR clay mixinmap toolset
+} -cleanup {
+    PR destroy
+} -result ::practcl::toolset.msvc
+
+test practcl-api-40.15 {select applies oodefine} -setup {
+    mkproject ::PR
+} -body {
+    PR define set oodefine {method practcl_api_extra {} {return extra}}
+    PR select
+    PR practcl_api_extra
+} -cleanup {
+    PR destroy
+} -result extra
+
+# -------------------------------------------------------------------------
+# practcl::project
+
+test practcl-api-41.1 {project, constructor and basic introspection} -setup {
+    mkproject ::PR
+} -body {
+    list [info object class PR] [PR linktype] [PR child organs] [PR child delegate] \
+	[PR define get name]
+} -cleanup {
+    PR destroy
+} -result {::practcl::project project {project ::PR module ::PR} {project ::PR module ::PR} foo}
+
+test practcl-api-41.2 {project, constructor with key/value arguments} -setup {
+    ::practcl::project create ::PR name foo version 1.0 extra [expr {1+1}]
+} -body {
+    list [PR define get name] [PR define get extra]
+} -cleanup {
+    PR destroy
+} -result {foo 2}
+
+test practcl-api-41.3 {project, DEFS are not substituted} -setup {
+    ::practcl::project create ::PR {name foo DEFS {-DX=\"a\ b\"} other {[expr {1+1}]}}
+} -body {
+    list [PR define get DEFS] [PR define get other]
+} -cleanup {
+    PR destroy
+} -result {{-DX=\"a\ b\"} 2}
+
+test practcl-api-41.4 {project selects a toolset mixin} -setup {
+    unset -nocomplain ::env(VisualStudioVersion)
+    mkproject ::PR
+} -body {
+    PR clay mixinmap toolset
+} -cleanup {
+    PR destroy
+} -result ::practcl::toolset.gcc
+
+test practcl-api-41.5 {project, explicit toolset is kept} -setup {
+    mkproject ::PR toolset ::practcl::toolset.msvc
+} -body {
+    list [::practcl::toolset select PR] [PR clay mixinmap toolset]
+} -cleanup {
+    PR destroy
+} -result {::practcl::toolset.msvc {}}
+
+test practcl-api-41.6 {project and tool return object names} -setup {
+    mkproject ::PR
+} -body {
+    list [string match *::PROJECT.foo [PR project foo]] [PR tool foo]
+} -cleanup {
+    PR destroy
+} -result {1 ::practcl::OBJECT::TOOL.foo}
+
+test practcl-api-41.7 {project forwards to a subproject} -setup {
+    mkproject ::PR
+    set obj [PR project sub]
+    ::practcl::subproject create $obj ::PR {name sub srcdir /nonexist}
+} -body {
+    PR project sub define get name
+} -cleanup {
+    $obj destroy
+    PR destroy
+    unset obj
+} -result sub
+
+test practcl-api-41.8 {add_object links an object by its linktype} -setup {
+    mkproject ::PR
+    ::practcl::subproject create ::SP ::PR {name sub srcdir /nonexist}
+} -body {
+    PR add_object ::SP
+    list [PR link list subordinate] [PR link list package]
+} -cleanup {
+    SP destroy
+    PR destroy
+} -result {::SP ::SP}
+
+# -------------------------------------------------------------------------
+# practcl::module: add, make ensemble; practcl::make_obj
+
+test practcl-api-42.1 {add, product selected from the file type} -setup {
+    set d [pdir prod]
+    foreach f {foo.h foo.c libx.a} {pwrite [file join $d $f] {}}
+    mkproject ::PR
+} -body {
+    set r {}
+    foreach f {foo.h foo.c libx.a} {
+	set o [PR add [file join $d $f]]
+	lappend r [info object mixins $o]
+    }
+    list $r [llength [PR link list product]]
+} -cleanup {
+    PR destroy
+    file delete -force $d
+    unset d f o r
+} -result {{::practcl::product.cheader ::practcl::product.csource ::practcl::product.clibrary} 3}
+
+test practcl-api-42.2 {add, a .tcl file is sourced into a dynamic product} -setup {
+    set d [pdir prod]
+    pwrite [file join $d dyn.tcl] "my define set fromfile yes\n"
+    mkproject ::PR
+} -body {
+    set o [PR add [file join $d dyn.tcl]]
+    list [info object mixins $o] [$o define get fromfile] [$o define get name] \
+	[$o define get localpath] [$o linktype]
+} -cleanup {
+    PR destroy
+    file delete -force $d
+    unset d o
+} -result {::practcl::product.dynamic yes dyn _dyn {subordinate product dynamic}}
+
+test practcl-api-42.3 {add, explicit class} -setup {
+    mkproject ::PR
+} -body {
+    set o [PR add {class product.csource filename zz.c}]
+    list [info object mixins $o] [$o define get filename] [$o project-compile-products]
+} -cleanup {
+    PR destroy
+    unset o
+} -result {::practcl::product.csource zz.c {foo_zz {cfile zz.c extra {} external 0 object ::*}}} -match glob
+
+test practcl-api-42.4 {make target, objects, object, filename} -setup {
+    mkproject ::PR
+} -body {
+    set o [PR make target t1 {filename out.txt} {}]
+    list [info object class $o] [expr {[PR make objects] eq [list t1 $o]}] \
+	[expr {[PR make object t1] eq $o}] [PR make object nope] \
+	[PR make filename t1] [PR make filename nope] [$o define get name]
+} -cleanup {
+    PR destroy
+    unset o
+} -result {::practcl::make_obj 1 1 {} out.txt {} t1}
+
+test practcl-api-42.5 {make target substitutes the info at global level} -setup {
+    mkproject ::PR
+    set ::practcl_api_v sub.txt
+} -body {
+    PR make target t1 {filename $::practcl_api_v} {}
+    PR make filename t1
+} -cleanup {
+    PR destroy
+    unset ::practcl_api_v
+} -result sub.txt
+
+test practcl-api-42.6 {make target, aliases} -setup {
+    mkproject ::PR
+} -body {
+    set o [PR make target t1 {filename a.out aliases {a1 a2}} {}]
+    list [expr {[PR make object a1] eq $o}] [expr {[PR make object a2] eq $o}]
+} -cleanup {
+    PR destroy
+    unset o
+} -result {1 1}
+
+test practcl-api-42.7 {make target, redefinition returns the same object} -constraints knownBug -setup {
+    # "dict get $$make_object $name"
+    mkproject ::PR
+} -body {
+    set o [PR make target t1 {filename a.out} {}]
+    expr {[PR make target t1 {filename a.out} {}] eq $o}
+} -cleanup {
+    PR destroy
+    unset o
+} -result 1
+
+test practcl-api-42.8 {make, bad subcommand} -setup {
+    mkproject ::PR
+} -body {
+    PR make bogus
+} -cleanup {
+    PR destroy
+} -returnCodes error -match glob -result {unknown method make bogus. Valid: *}
+
+test practcl-api-42.9 {make pkginfo} -setup {
+    mkproject ::PR TEACUP_OS testos TEACUP_PROFILE testprof libdir /lib/x
+} -body {
+    set r [PR make pkginfo]
+    list [lsort [dict keys $r]] [dict get $r PKG_DIR] [dict get $r profile] [dict get $r os] \
+	[dict get $r libdir] [dict get $r zipfile] \
+	[expr {[dict get $r platform] eq $::tcl_platform(platform)}]
+} -cleanup {
+    PR destroy
+    unset r
+} -result {{PKG_DIR libdir name os platform profile version zipfile} foo1.0 testprof testos /lib/x foo-1.0-testprof.zip 1}
+
+test practcl-api-42.10 {make depends, trigger, todo, do} -setup {
+    mkproject ::PR
+    set d [pdir make]
+    set ::practcl_api_ran {}
+    PR make target t1 [list filename [file join $d t1.out]] {lappend ::practcl_api_ran t1}
+    PR make target t2 [list filename [file join $d t2.out] depends t1 triggers t3] {lappend ::practcl_api_ran t2}
+    PR make target t3 [list filename [file join $d t3.out]] {lappend ::practcl_api_ran t3}
+    PR make target t4 [list filename [file join $d t4.out]] {lappend ::practcl_api_ran t4}
+} -body {
+    PR make depends t2
+    PR make trigger t2
+    set r [lsort [PR make todo]]
+    PR make do
+    list $r [lsort $::practcl_api_ran]
+} -cleanup {
+    PR destroy
+    file delete -force $d
+    unset d r ::practcl_api_ran
+} -result {{t1 t2 t3} {t1 t2 t3}}
+
+test practcl-api-42.11 {make todo when nothing is to be done} -constraints knownBug -setup {
+    # The result variable is never initialised.
+    mkproject ::PR
+    PR make target t1 {filename x.out} {}
+} -body {
+    PR make todo
+} -cleanup {
+    PR destroy
+} -result {}
+
+test practcl-api-42.12 {make_obj check: missing output, existing output, dependency} -setup {
+    mkproject ::PR
+    set d [pdir make]
+    set e [pwrite [file join $d exists.out] x]
+    set a [PR make target a [list filename $e] {}]
+    set b [PR make target b [list filename [file join $d missing.out]] {}]
+    set c [PR make target c [list filename $e depends b] {}]
+    set n [PR make target n [list filename $e depends nosuch] {}]
+} -body {
+    list [$a check] [$b check] [$c check] [$n check]
+} -cleanup {
+    PR destroy
+    file delete -force $d
+    unset d e a b c n
+} -result {0 1 1 0}
+
+test practcl-api-42.13 {make_obj output, do, triggers} -setup {
+    mkproject ::PR
+    set o [PR make target a {filename f1 files {f2 {} f3}} {}]
+} -body {
+    set r [list [$o output] [$o do]]
+    $o triggers
+    lappend r [$o do]
+} -cleanup {
+    PR destroy
+    unset o r
+} -result {{f1 f2 f3} 0 1}
+
+test practcl-api-42.14 {make_obj reset} -setup {
+    mkproject ::PR
+    set o [PR make target a {filename f1} {}]
+} -body {
+    $o triggers
+    $o reset
+    list [$o do] [$o check]
+} -cleanup {
+    PR destroy
+    unset o
+} -result {0 0}
+
+test practcl-api-42.15 {make reset allows a target to trigger again} -constraints knownBug -setup {
+    # make_obj reset sets "triggerd" instead of "triggered".
+    mkproject ::PR
+    set o [PR make target a {filename f1} {}]
+} -body {
+    $o triggers
+    PR make reset
+    $o triggers
+    $o do
+} -cleanup {
+    PR destroy
+    unset o
+} -result 1
+
+test practcl-api-42.16 {make_obj constructor, action body} -setup {
+    mkproject ::PR
+} -body {
+    set o [::practcl::make_obj new ::PR t9 {filename x} {set a 1}]
+    list [$o define get name] [$o define get filename] [$o define get action]
+} -cleanup {
+    PR destroy
+    unset o
+} -result {t9 x {set a 1}}
+
+# -------------------------------------------------------------------------
+# practcl::dynamic, product, module code generation
+
+proc mklibrary {} {
+    ::practcl::library create ::LB {name foo version 1.0 output_c foo.c initfunc Foo_Init pkg_name foo}
+}
+
+test practcl-api-43.1 {include, include_dir, include_directory} -setup {
+    mklibrary
+} -body {
+    LB include <stdio.h>
+    LB include <stdio.h>
+    LB include_dir /a /b
+    LB include_directory /b /c
+    list [LB define get include] [LB define get include_dir]
+} -cleanup {
+    LB destroy
+} -result {<stdio.h> {/a /b /c}}
+
+test practcl-api-43.2 {cstructure, defaults to public} -setup {
+    mklibrary
+} -body {
+    LB cstructure Point {int x; int y;}
+    LB cstructure Priv {int z;} {public 0 deleteproc PrivDelete}
+    LB script {my variable cstruct; set cstruct}
+} -cleanup {
+    LB destroy
+} -result {Point {body {int x; int y;} public 1} Priv {body {int z;} public 0 deleteproc PrivDelete}}
+
+test practcl-api-43.3 {c_function, keywords set the flags} -setup {
+    mklibrary
+} -body {
+    LB c_function {static int add(int a, int b)} {return a+b;}
+    LB c_function {STUB_EXPORT int pub(void)} {return 0;}
+    LB c_function {extern int ext(void)} {return 1;}
+    LB c_function {static inline int inl(void)} {return 2;}
+    LB c_function {char *ptr(void)} {return 0;}
+    LB script {
+	my variable cfunct
+	set r {}
+	foreach f {add pub ext inl *ptr} {
+	    lappend r $f [dict filter [dict get $cfunct $f] key public extern export inline]
+	}
+	set r
+    }
+} -cleanup {
+    LB destroy
+} -result {add {export 0 extern 0 public 0 inline 0} pub {export 1 extern 1 public 1 inline 0} ext {export 0 extern 1 public 1 inline 0} inl {export 0 extern 0 public 0 inline 1} *ptr {export 0 extern 0 public 1 inline 0}}
+
+test practcl-api-43.4 {c_function, non conforming definition is kept verbatim} -constraints knownBug -setup {
+    # The warning refers to an unset variable "headers".
+    mklibrary
+} -body {
+    LB c_function {nonsense} {x}
+} -cleanup {
+    LB destroy
+} -match glob -result * -output "WARNING: *"
+
+test practcl-api-43.5 {c_header, c_code accumulate code} -setup {
+    mklibrary
+} -body {
+    LB c_header {#define X 1}
+    LB c_header {#define Y 2}
+    LB c_code {static int y = 2;}
+} -cleanup {
+    LB destroy
+} -result "\nstatic int y = 2;"
+
+test practcl-api-43.6 {cmethod, c_tcloomethod, c_tclcmd, c_tclproc_raw store definitions} -setup {
+    mklibrary
+} -body {
+    LB cmethod m1 {return TCL_OK;}
+    LB c_tcloomethod m2 {return TCL_OK;} {aliases m2a}
+    LB c_tclcmd ::foo::c1 {return TCL_OK;}
+    LB c_tclproc_raw ::foo::c2 {return TCL_ERROR;} {callproc MyProc}
+    LB c_tclproc_nspace ::foo
+    LB c_tclproc_nspace ::foo
+    LB script {
+	my variable methods tclprocs code
+	list [dict keys $methods] [string match {Tcl_Object thisObject = *return TCL_OK;} [dict get $methods m1 body]] \
+	    [dict get $methods m2 aliases] $tclprocs $code(nspace)
+    }
+} -cleanup {
+    LB destroy
+} -result {{m1 m2} 1 m2a {::foo::c1 {body {return TCL_OK;}} ::foo::c2 {callproc MyProc body {return TCL_ERROR;}}} ::foo}
+
+test practcl-api-43.7 {tcltype generates the type functions} -setup {
+    mklibrary
+} -body {
+    LB tcltype Foo {freeproc {free (1);} dupproc dupFoo updatestringproc {upd (1);} setfromanyproc {return TCL_OK;}}
+    LB script {
+	my variable tcltype cfunct
+	list [dict get $tcltype Foo cname] [dict get $tcltype Foo freeproc] \
+	    [dict get $tcltype Foo dupproc] [lsort [dict keys $cfunct]]
+    }
+} -cleanup {
+    LB destroy
+} -result {foo_tclobjtype FooObj_freeIntRepProc dupFoo {FooObj_freeIntRepProc FooObj_setFromAnyProc FooObj_updateStringRepProc}}
+
+test practcl-api-43.8 {tcltype keeps an explicit cname} -constraints knownBug -setup {
+    # "dict exists tcltype $name cname" tests the literal string.
+    mklibrary
+} -body {
+    LB tcltype Foo {cname my_type freeproc f dupproc d updatestringproc u setfromanyproc s}
+    LB script {my variable tcltype; dict get $tcltype Foo cname}
+} -cleanup {
+    LB destroy
+} -result my_type
+
+test practcl-api-43.9 {tcltype, missing function} -setup {
+    mklibrary
+} -body {
+    LB tcltype Bar {freeproc f}
+} -cleanup {
+    LB destroy
+} -returnCodes error -result {Bar does not define dupproc}
+
+test practcl-api-43.10 {code, generate-tcl-pre, generate-tcl-post} -setup {
+    mklibrary
+} -body {
+    set r [list [LB generate-tcl-pre] [LB generate-tcl-post]]
+    LB code tcl {set a 1}
+    LB code tcl-post {set b 2}
+    lappend r [string match "*# BEGIN*set a 1*# END*" [LB generate-tcl-pre]] \
+	[string match "*set b 2*" [LB generate-tcl-post]]
+} -cleanup {
+    LB destroy
+    unset r
+} -result {{} {} 1 1}
+
+proc fillLibrary {} {
+    LB include <stdio.h>
+    LB c_header {#define X 1}
+    LB c_code {static int y = 2;}
+    LB c_function {static int add(int a, int b)} {return a+b;}
+    LB c_function {STUB_EXPORT int pub(void)} {return 0;}
+    LB cstructure Point {int x; int y;}
+    LB c_tclproc_nspace ::foo
+    LB c_tclcmd ::foo::bar {return TCL_OK;}
+    LB cmethod meth {return TCL_OK;}
+}
+
+test practcl-api-43.11 {generate-h describes the public API} -setup {
+    mklibrary
+    fillLibrary
+} -body {
+    set h [LB generate-h]
+    list [string match "*typedef struct Point Point;*" $h] \
+	[string match "*struct Point {int x; int y;};*" $h] \
+	[string match "*int Foo_Init(Tcl_Interp \\*interp);*" $h] \
+	[string match "*STUB_EXPORT int pub(void);*" $h] \
+	[string match "*add(*" $h]
+} -cleanup {
+    LB destroy
+    unset h
+} -result {1 1 1 1 0}
+
+test practcl-api-43.12 {generate-c, after go} -setup {
+    mklibrary
+    fillLibrary
+} -body {
+    LB go
+    LB script {my Collate_Source $::CWD}
+    set c [LB generate-c]
+    list [string match "*#include <tcl.h>\n#include <tclOO.h>*" $c] \
+	[string match "*#include <stdio.h>*" $c] \
+	[string match "*#define X 1*" $c] \
+	[string match "*static int y = 2;*" $c] \
+	[string match "*static int add(int a, int b)\{return a+b;\}*" $c] \
+	[string match "*PointDataType*" $c] \
+	[string match "*static int TclCmd_foo_bar(*" $c] \
+	[string match "*OOMethod_meth(*" $c]
+} -cleanup {
+    LB destroy
+    unset c
+} -result {1 1 1 1 1 1 1 1}
+
+test practcl-api-43.13 {generate-loader, after go} -setup {
+    mklibrary
+    fillLibrary
+} -body {
+    LB go
+    LB script {my Collate_Source $::CWD}
+    set l [LB generate-loader]
+    list [string match "*extern int DLLEXPORT Foo_Init( Tcl_Interp \\*interp ) \{*" $l] \
+	[string match {*Tcl_InitStubs(interp, "8.6", 0)*} $l] \
+	[string match {*Tcl_CreateObjCommand(interp,"::foo::bar",*} $l] \
+	[string match {*Tcl_PkgProvide(interp, "foo" , "1.0" )*} $l] \
+	[string match "*return TCL_OK;\n\}\n" $l]
+} -cleanup {
+    LB destroy
+    unset l
+} -result {1 1 1 1 1}
+
+test practcl-api-43.14 {generate-loader without initfunc} -setup {
+    ::practcl::library create ::LB {name foo version 1.0}
+} -body {
+    LB generate-loader
+} -cleanup {
+    LB destroy
+} -result {}
+
+test practcl-api-43.15 {implement writes the .c and .h files} -setup {
+    mklibrary
+    fillLibrary
+    set d [pdir impl]
+} -body {
+    LB implement $d
+    list [lsort [glob -tails -directory $d *]] \
+	[string match "*Foo_Init*" [pread [file join $d foo.c]]] \
+	[string match "*struct Point*" [pread [file join $d foo.h]]]
+} -cleanup {
+    LB destroy
+    file delete -force $d
+    unset d
+} -result {{foo.c foo.h} 1 1}
+
+test practcl-api-43.16 {project-compile-products and project-static-packages} -setup {
+    mklibrary
+    set d [pdir pcp]
+    pwrite [file join $d bar.c] {}
+} -body {
+    LB add [file join $d bar.c]
+    list [lindex [LB project-compile-products] 0] [LB project-static-packages]
+} -cleanup {
+    LB destroy
+    file delete -force $d
+    unset d
+} -result {foo_bar {foo {initfunc Foo_Init version 1.0 autoload 0}}}
+
+# -------------------------------------------------------------------------
+# practcl::library
+
+test practcl-api-44.1 {library linktype} -setup {
+    mklibrary
+} -body {
+    LB linktype
+} -cleanup {
+    LB destroy
+} -result library
+
+test practcl-api-44.2 {package-ifneeded, null passthrough and aliases} -setup {
+    ::practcl::library create ::LB {name foo version 1.0}
+} -body {
+    LB package-ifneeded foo_alias
+} -cleanup {
+    LB destroy
+} -result "package ifneeded foo 1.0 \[list package provide foo 1.0\]\n\npackage ifneeded foo_alias 1.0 {package require foo 1.0 ; package provide foo_alias 1.0}"
+
+test practcl-api-44.3 {package-ifneeded, output_tcl and shared library} -setup {
+    ::practcl::library create ::LB {name foo pkg_vers 2.0 output_tcl foo.tcl}
+    ::practcl::library create ::LB2 {name bar SHARED_BUILD 1 libfile libbar.so}
+} -body {
+    list [LB package-ifneeded] [LB2 package-ifneeded]
+} -cleanup {
+    LB destroy
+    LB2 destroy
+} -result {{package ifneeded foo 2.0 [list source [file join $dir foo.tcl]]} {package ifneeded bar 0.1a [list load [file join $dir libbar.so] bar]}}
+
+test practcl-api-44.4 {shared_library, static_library} -setup {
+    ::practcl::library create ::LB {name Foo version 1.2 libprefix lib
+	PRACTCL_NAME_LIBRARY %LIBRARY_PREFIX%%LIBRARY_NAME%%LIBRARY_VERSION_NODOTS%
+	SHLIB_SUFFIX .so}
+} -body {
+    list [LB shared_library] [LB static_library]
+} -cleanup {
+    LB destroy
+} -result {libfoo12.so libfoo12.a}
+
+test practcl-api-44.5 {clean removes object files and the library, regenerates} -setup {
+    mklibrary
+    LB define set libfile libfoo.a
+    set d [pdir clean]
+    foreach f {a.o objs/b.o keep.c libfoo.a} {pwrite [file join $d $f] {}}
+} -body {
+    LB clean $d
+    tailsorted $d [::practcl::findByPattern $d *]
+} -cleanup {
+    LB destroy
+    file delete -force $d
+    unset d f
+} -result {foo.c foo.h keep.c}
+
+test practcl-api-44.6 {clean without libfile keeps the directory} -constraints knownBug -setup {
+    # [file join $PATH {}] is PATH itself, which clean tries to delete.
+    mklibrary
+    set d [pdir clean]
+    pwrite [file join $d a.o] {}
+    pwrite [file join $d keep.c] {}
+} -body {
+    LB clean $d
+    tailsorted $d [::practcl::findByPattern $d *]
+} -cleanup {
+    LB destroy
+    file delete -force $d
+    unset d
+} -result {foo.c foo.h keep.c}
+
+# -------------------------------------------------------------------------
+# practcl::toolset
+
+test practcl-api-45.1 {toolset select, gcc unless MSVC} -setup {
+    unset -nocomplain ::env(VisualStudioVersion)
+    mkproject ::PR
+} -body {
+    PR clay mixinmap toolset {}
+    ::practcl::toolset select PR
+    set r [PR clay mixinmap toolset]
+    set ::env(VisualStudioVersion) 17.0
+    ::practcl::toolset select PR
+    lappend r [PR clay mixinmap toolset]
+} -cleanup {
+    unset -nocomplain ::env(VisualStudioVersion)
+    PR destroy
+    unset r
+} -result {::practcl::toolset.gcc ::practcl::toolset.msvc}
+
+test practcl-api-45.2 {build-cflags} -setup {
+    mkproject ::PR name Foo version 1.2
+} -body {
+    set r [PR build-cflags ::PR {-DX=1} n v d]
+    list $n $v $NAME [expr {$r eq $d}] $d
+} -cleanup {
+    PR destroy
+    unset -nocomplain r n v d NAME
+} -result {foo 1.2 FOO 1 {-DX=1 -DPACKAGE_NAME="foo" -DPACKAGE_VERSION="1.2" -DPACKAGE_TARNAME="foo" -DPACKAGE_STRING="foo\ 1.2"}}
+
+test practcl-api-45.3 {build-cflags, default version} -setup {
+    ::practcl::project create ::PR {name bar}
+} -body {
+    PR build-cflags ::PR {} n v d
+    set v
+} -cleanup {
+    PR destroy
+    unset -nocomplain n v d NAME
+} -result 0.1a
+
+test practcl-api-45.4 {build-cflags replaces existing package defines} -constraints knownBug -setup {
+    # The end of the old define is searched in the flag, not in DEFS.
+    mkproject ::PR
+} -body {
+    set d [PR build-cflags ::PR {-DFOO=1 -DPACKAGE_NAME="old" -DBAR=2} n v d]
+    list [regexp {"old"} $d] [regexp -all PACKAGE_NAME $d] [regexp -all -- -DFOO=1 $d] [regexp -all -- -DBAR=2 $d]
+} -cleanup {
+    PR destroy
+    unset -nocomplain d n v NAME
+} -result {0 1 1 1}
+
+# -------------------------------------------------------------------------
+# practcl::subproject
+
+proc mksub {name args} {
+    mkproject ::PR
+    ::practcl::subproject create $name ::PR [dict merge {name sub} $args]
+}
+
+test practcl-api-46.1 {subproject linktype, BuildDir, child} -setup {
+    mksub ::SP srcdir /some/src
+} -body {
+    list [SP linktype] [SP script {my BuildDir /x}] [SP child organs]
+} -cleanup {
+    SP destroy
+    PR destroy
+} -result {{subordinate package} /some/src {project ::SP module ::SP}}
+
+test practcl-api-46.2 {subproject linker-external and linker-extra} -setup {
+    mksub ::SP srcdir /some/src
+} -body {
+    list [SP linker-external {LIBS -lm}] \
+	[SP linker-external {PRACTCL_PKG_LIBS -lz LIBS -lm}] \
+	[SP linker-external {}] \
+	[SP linker-extra {PRACTCL_LINKER_EXTRA -x}] \
+	[SP linker-extra {}] [SP linker-products {}]
+} -cleanup {
+    SP destroy
+    PR destroy
+} -result {-lm -lz {} -x {} {}}
+
+test practcl-api-46.3 {subproject env-present} -setup {
+    mksub ::SP srcdir /some/src pkg_name practcl
+    ::practcl::subproject create ::SP2 ::PR {name practcl_api_no_such_package srcdir /x}
+} -body {
+    list [SP env-present] [SP2 env-present]
+} -cleanup {
+    SP destroy
+    SP2 destroy
+    PR destroy
+} -result {1 0}
+
+test practcl-api-46.4 {subproject go selects the distribution and build directory} -setup {
+    set d [pdir sub]
+    file mkdir [file join $d src .git]
+    mksub ::SP srcdir [file join $d src] masterpath $d
+} -body {
+    SP go
+    list [SP define get scm] [expr {[SP define get builddir] eq [file join $d src]}]
+} -cleanup {
+    SP destroy
+    PR destroy
+    file delete -force $d
+    unset d
+} -result {git 1}
+
+# -------------------------------------------------------------------------
+# practcl::distribution
+
+test practcl-api-47.1 {claim_option of the distribution classes} -body {
+    list [::practcl::distribution claim_option] \
+	[::practcl::distribution.snapshot claim_option] \
+	[::practcl::distribution.fossil claim_option] \
+	[::practcl::distribution.git claim_option]
+} -result {Unknown snapshot fossil git}
+
+test practcl-api-47.2 {claim_path detects the source markers} -setup {
+    set d [pdir claim]
+    file mkdir [file join $d git .git] [file join $d none]
+    pwrite [file join $d fsl .fslckout] {}
+    pwrite [file join $d fsl2 _FOSSIL_] {}
+    pwrite [file join $d snap .download] {}
+} -body {
+    set r {}
+    foreach c {distribution distribution.snapshot distribution.fossil distribution.git} {
+	set l {}
+	foreach p {git fsl fsl2 snap none} {
+	    lappend l [::practcl::$c claim_path [file join $d $p]]
+	}
+	lappend r $l
+    }
+    set r
+} -cleanup {
+    file delete -force $d
+    unset d r l c p
+} -result {{false false false false false} {false false false true false} {false true true false false} {true false false false false}}
+
+test practcl-api-47.3 {claim_object uses the urls} -setup {
+    mksub ::SP srcdir /nonexist fossil_url http://example.invalid/f
+    ::practcl::subproject create ::SP2 ::PR {name s2 srcdir /nonexist git_url http://example.invalid/g}
+} -body {
+    list [::practcl::distribution claim_object ::SP] \
+	[::practcl::distribution.fossil claim_object ::SP] \
+	[::practcl::distribution.fossil claim_object ::SP2] \
+	[::practcl::distribution.git claim_object ::SP] \
+	[::practcl::distribution.git claim_object ::SP2] \
+	[::practcl::distribution.snapshot claim_object ::SP]
+} -cleanup {
+    SP destroy
+    SP2 destroy
+    PR destroy
+} -result {false true false false true false}
+
+test practcl-api-47.4 {distribution select, by path} -setup {
+    set d [pdir dsel]
+    file mkdir [file join $d src .git]
+    mksub ::SP srcdir [file join $d src] fossil_url http://example.invalid/f
+} -body {
+    list [::practcl::distribution select ::SP] [SP define get scm] \
+	[SP clay mixinmap distribution]
+} -cleanup {
+    SP destroy
+    PR destroy
+    file delete -force $d
+    unset d
+} -result {git git ::practcl::distribution.git}
+
+test practcl-api-47.5 {distribution select, by url and file_url} -setup {
+    mksub ::SP srcdir /nonexist fossil_url http://example.invalid/f
+    ::practcl::subproject create ::SP2 ::PR {name s2 srcdir /nonexist file_url http://example.invalid/s2.zip}
+    ::practcl::subproject create ::SP3 ::PR {name s3 srcdir /nonexist scm preset}
+} -body {
+    list [::practcl::distribution select ::SP] [::practcl::distribution select ::SP2] \
+	[::practcl::distribution select ::SP3] [SP2 clay mixinmap distribution]
+} -cleanup {
+    SP destroy
+    SP2 destroy
+    SP3 destroy
+    PR destroy
+} -result {fossil snapshot preset ::practcl::distribution.snapshot}
+
+test practcl-api-47.6 {distribution select, nothing found} -setup {
+    mksub ::SP srcdir /nonexist
+} -body {
+    ::practcl::distribution select ::SP
+} -cleanup {
+    SP destroy
+    PR destroy
+} -returnCodes error -result {Cannot determine source distribution method}
+
+test practcl-api-47.7 {distribution Sandbox and SrcDir} -setup {
+    mksub ::SP srcdir /nonexist fossil_url http://example.invalid/f sandbox /my/sandbox
+    ::practcl::subproject create ::SP2 ::PR {name s2 fossil_url http://example.invalid/f}
+    PR define set sandbox /prj/sandbox
+} -body {
+    ::practcl::distribution select ::SP
+    ::practcl::distribution select ::SP2
+    list [SP script {my Sandbox}] [SP script {my SrcDir}] \
+	[SP2 script {my Sandbox}] [SP2 script {my SrcDir}]
+} -cleanup {
+    SP destroy
+    SP2 destroy
+    PR destroy
+} -result {/my/sandbox /nonexist /prj/sandbox /prj/sandbox/s2}
+
+test practcl-api-47.8 {distribution scm_info} -setup {
+    set d [pdir dsel]
+    file mkdir [file join $d src .git]
+    mksub ::SP srcdir [file join $d src]
+} -body {
+    ::practcl::distribution select ::SP
+    SP scm_info
+} -cleanup {
+    SP destroy
+    PR destroy
+    file delete -force $d
+    unset d
+} -result {
+      scm  None
+      hash {}
+      maxdate {}
+      tags {}
+      isodate {}
+    }
+
+test practcl-api-47.9 {git ScmTag} -setup {
+    set d [pdir dsel]
+    file mkdir [file join $d src .git] [file join $d src2 .git]
+    mksub ::SP srcdir [file join $d src]
+    ::practcl::subproject create ::SP2 ::PR [list name s2 srcdir [file join $d src2] tag v1]
+} -body {
+    ::practcl::distribution select ::SP
+    ::practcl::distribution select ::SP2
+    list [SP script {my ScmTag}] [SP2 script {my ScmTag}] [SP2 define get scm_tag]
+} -cleanup {
+    SP destroy
+    SP2 destroy
+    PR destroy
+    file delete -force $d
+    unset d
+} -result {master v1 v1}
+
+test practcl-api-47.10 {Unpack does nothing for an existing source directory} -setup {
+    set d [pdir dsel]
+    file mkdir [file join $d src .git]
+    mksub ::SP srcdir [file join $d src]
+} -body {
+    ::practcl::distribution select ::SP
+    SP script {my Unpack}
+} -cleanup {
+    SP destroy
+    PR destroy
+    file delete -force $d
+    unset d
+} -result {}
+
+# -------------------------------------------------------------------------
+
+file delete -force $::PracWork
+rename pwrite {}
+rename pread {}
+rename pdir {}
+rename pmode {}
+rename tailsorted {}
+rename mkfossil {}
+rename rmfossil {}
+rename mkpkgtree {}
+rename mkproject {}
+rename mklibrary {}
+rename fillLibrary {}
+rename mksub {}
+unset ::PracWork ::PracHome
+testsuiteCleanup
+return

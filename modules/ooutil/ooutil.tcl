@@ -13,7 +13,7 @@ package require TclOO
 
 # # ## ### ##### ######## ############# ####################
 ## Easy callback support.
-## http://wiki.tcl.tk/21595. v20, Donal Fellows
+## https://wiki.tcl-lang.org/21595. v20, Donal Fellows
 
 proc ::oo::Helpers::mymethod {method args} {
     list [uplevel 1 {namespace which my}] $method {*}$args
@@ -22,7 +22,7 @@ proc ::oo::Helpers::mymethod {method args} {
 # # ## ### ##### ######## ############# ####################
 ## Class variable support. Use within instance methods.
 ## No use in class definitions.
-## http://wiki.tcl.tk/21595. v63, Donal Fellows, tweaked name, comments
+## https://wiki.tcl-lang.org/21595. v63, Donal Fellows, tweaked name, comments
 
 proc ::oo::Helpers::classvariable {name args} {
     # Get a reference to the class's namespace
@@ -64,7 +64,7 @@ proc ::oo::Helpers::classvariable {name args} {
 
 # # ## ### ##### ######## ############# ####################
 ## Class method support, with access in derived classes
-## http://wiki.tcl.tk/21595. v63, Donal Fellows
+## https://wiki.tcl-lang.org/21595. v63, Donal Fellows
 
 proc ::oo::define::classmethod {name {args ""} {body ""}} {
     # Create the method on the class if the caller gave arguments and body
@@ -133,7 +133,7 @@ oo::define oo::class self mixin oo::class.Delegate
 
 # # ## ### ##### ######## ############# ####################
 ## Singleton Metaclass
-## http://wiki.tcl.tk/21595. v63, Donal Fellows
+## https://wiki.tcl-lang.org/21595. v63, Donal Fellows
 
 oo::class create ooutil::singleton {
    superclass oo::class
@@ -167,7 +167,7 @@ oo::class create ooutil::singleton {
 
 # # ## ### ##### ######## ############# ####################
 ## Linking instance methods into instance namespace for access without 'my'
-## http://wiki.tcl.tk/27999, AK
+## https://wiki.tcl-lang.org/27999, AK
 
 proc ::oo::Helpers::link {args} {
     set ns [uplevel 1 {namespace current}]

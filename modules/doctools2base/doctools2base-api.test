@@ -1,0 +1,66 @@
+# -*- tcl -*-
+# doctools2base-api.test: tests for doctools::html::cssdefaults and
+# doctools::nroff::man_macros.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal html_cssdefaults.tcl doctools::html::cssdefaults
+    useLocal nroff_manmacros.tcl  doctools::nroff::man_macros
+}
+
+# -------------------------------------------------------------------------
+
+test doctools-cssdefaults-1.1 {contents, wrong # args} -body {
+    doctools::html::cssdefaults::contents x
+} -returnCodes error -result {wrong # args: should be "doctools::html::cssdefaults::contents"}
+
+test doctools-cssdefaults-1.2 {contents, a CSS style sheet} -body {
+    set c [doctools::html::cssdefaults::contents]
+    list [regexp {^\s*HTML \{} $c] [string match "*DIV.doctools*" $c] \
+	[expr {[regexp -all \{ $c] == [regexp -all \} $c]}] \
+	[string match *<* $c]
+} -cleanup {
+    unset -nocomplain c
+} -result {1 1 1 0}
+
+test doctools-cssdefaults-1.3 {contents, same result on every call} -body {
+    string equal [doctools::html::cssdefaults::contents] \
+	[doctools::html::cssdefaults::contents]
+} -result 1
+
+test doctools-man-macros-1.1 {contents, wrong # args} -body {
+    doctools::nroff::man_macros::contents x
+} -returnCodes error -result {wrong # args: should be "doctools::nroff::man_macros::contents"}
+
+test doctools-man-macros-1.2 {contents, nroff macro definitions} -body {
+    set c [doctools::nroff::man_macros::contents]
+    set lines [split $c \n]
+    set defs {}
+    foreach l $lines {
+	if {[regexp {^\.de (\S+)} $l -> m]} {lappend defs $m}
+    }
+    list [string match {'\\"*} [lindex $lines 0]] \
+	[expr {[lsearch -exact $defs AP] >= 0}] \
+	[expr {[lsearch -exact $defs SH] >= 0 || [lsearch -exact $defs CS] >= 0}] \
+	[expr {[llength $defs] > 5}]
+} -cleanup {
+    unset -nocomplain c lines defs l m
+} -result {1 1 1 1}
+
+test doctools-man-macros-1.3 {contents, same result on every call} -body {
+    string equal [doctools::nroff::man_macros::contents] \
+	[doctools::nroff::man_macros::contents]
+} -result 1
+
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+return
