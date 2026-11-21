@@ -1,0 +1,1120 @@
+# -*- tcl -*-
+# clay-api.test:  additional tests for the API of the clay package.
+#
+# Complements clay.test: utility procs, uuid, tree::sanitize/merge,
+# dictargs, option handling, the object and class clay methods not
+# covered there (cache, cget, dump, eval, evolve, flush, forward, leaf,
+# merge, mixin, replace, search, source, ...), and events.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use md5/md5x.tcl md5
+}
+testing {
+    useLocal clay.tcl clay
+}
+
+set ::clay::trace 0
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc objvar {obj var} {
+    # Value of a variable in the namespace of an object.
+    namespace eval [info object namespace $obj] [list set $var]
+}
+
+# -------------------------------------------------------------------------
+# Simple utility procs
+
+test clay-api-1.0 {args_to_dict, several arguments} -body {
+    clay::args_to_dict a 1 b 2
+} -result {a 1 b 2}
+
+test clay-api-1.1 {args_to_dict, single dict argument} -body {
+    clay::args_to_dict {a 1 b 2}
+} -result {a 1 b 2}
+
+test clay-api-1.2 {args_to_dict, no arguments} -body {
+    clay::args_to_dict
+} -result {}
+
+test clay-api-1.3 {args_to_options strips dashes and colons} -body {
+    clay::args_to_options -a 1 b: 2 -c: 3 d 4
+} -result {a 1 b 2 c 3 d 4}
+
+test clay-api-1.4 {args_to_options, single dict argument} -body {
+    clay::args_to_options {-a 1 -b 2}
+} -result {a 1 b 2}
+
+test clay-api-1.5 {is_dict} -body {
+    list [clay::is_dict {}] [clay::is_dict {a b}] [clay::is_dict a] \
+	[clay::is_dict {a b c}] [clay::is_dict "\{"]
+} -result {1 1 0 0 0}
+
+test clay-api-1.6 {is_null} -body {
+    list [clay::is_null {}] [clay::is_null NULL] [clay::is_null x] \
+	[clay::is_null { }]
+} -result {1 1 0 0}
+
+test clay-api-1.7 {K returns the first argument} -body {
+    clay::K a b
+} -result a
+
+test clay-api-1.8 {K, wrong # args} -body {
+    clay::K a
+} -returnCodes error -result {wrong # args: should be "clay::K a b"}
+
+test clay-api-1.9 {noop accepts anything and returns empty} -body {
+    list [clay::noop] [clay::noop a b c]
+} -result {{} {}}
+
+test clay-api-1.10 {putb appends a line} -setup {
+    set buf {}
+} -body {
+    clay::putb buf hello
+    clay::putb buf world
+    set buf
+} -cleanup {
+    unset buf
+} -result "hello\nworld\n"
+
+test clay-api-1.11 {putb with a string map} -setup {
+    set buf start\n
+} -body {
+    clay::putb buf {%who% world} {hello %who%}
+    set buf
+} -cleanup {
+    unset buf
+} -result "start\nhello world\n"
+
+test clay-api-1.12 {putb, wrong # args} -setup {
+    set buf {}
+} -body {
+    clay::putb buf a b c
+} -returnCodes error -cleanup {
+    unset buf
+} -result {usage: putb buffername ?map? string}
+
+test clay-api-1.13 {NSNormalize, relative name} -body {
+    clay::NSNormalize foo
+} -result ::clay::classes::foo
+
+test clay-api-1.14 {NSNormalize, absolute name with repeated colons} -body {
+    clay::NSNormalize ::a::::b:::c
+} -result ::a::b::c
+
+test clay-api-1.15 {path normalizes elements into branches} -body {
+    clay::path foo/bar baz. :qux/
+} -result {foo/ bar/ baz/ qux/}
+
+test clay-api-1.16 {path, no arguments} -body {
+    clay::path
+} -result {}
+
+test clay-api-1.17 {leaf, last element is a leaf} -body {
+    clay::leaf foo/bar baz
+} -result {foo/ bar/ baz}
+
+test clay-api-1.18 {leaf, last element ends with a slash} -body {
+    clay::leaf foo/bar baz/
+} -result {foo/ bar/ baz/}
+
+test clay-api-1.19 {script_path is the directory of the current script} -body {
+    expr {[clay::script_path] eq [file dirname [file join [pwd] [info script]]]}
+} -result 1
+
+test clay-api-1.20 {PROC creates a missing command and runs the ninja script} -setup {
+    set ::ninja 0
+} -body {
+    clay::PROC ::clayapi_proc {x} {return x$x} {set ::ninja 1}
+    list [::clayapi_proc 1] $::ninja
+} -cleanup {
+    rename ::clayapi_proc {}
+    unset ::ninja
+} -result {x1 1}
+
+test clay-api-1.21 {PROC does not replace an existing command} -setup {
+    proc ::clayapi_proc {x} {return old}
+    set ::ninja 0
+} -body {
+    clay::PROC ::clayapi_proc {x} {return new} {set ::ninja 1}
+    list [::clayapi_proc 1] $::ninja
+} -cleanup {
+    rename ::clayapi_proc {}
+    unset ::ninja
+} -result {old 0}
+
+test clay-api-1.22 {dynamic_wrongargs_message} -body {
+    list [clay::dynamic_wrongargs_message {a b}] \
+	[clay::dynamic_wrongargs_message {a {b 2} args}] \
+	[clay::dynamic_wrongargs_message {a dictargs}] \
+	[clay::dynamic_wrongargs_message {}]
+} -result {{ a b} { a ?b? ?option value?...} { a ?option value?...} {}}
+
+test clay-api-1.23 {dynamic_arguments sets variables in the caller} -setup {
+    proc dyn args {
+	clay::dynamic_arguments ens meth {a {b 2}} {*}$args
+	list $a $b
+    }
+} -body {
+    dyn 1 3
+} -cleanup {
+    rename dyn {}
+} -result {1 3}
+
+test clay-api-1.24 {dynamic_arguments, too many arguments} -setup {
+    proc dyn args {
+	clay::dynamic_arguments ens meth {a {b 2}} {*}$args
+	list $a $b
+    }
+} -body {
+    dyn 1 3 4
+} -returnCodes error -cleanup {
+    rename dyn {}
+} -result {Usage: ens meth a ?b?}
+
+test clay-api-1.25 {dynamic_arguments, args and dictargs} -setup {
+    proc dyn args {
+	clay::dynamic_arguments ens meth {a dictargs} {*}$args
+	list $a $args $dictargs
+    }
+} -body {
+    dyn 1 -x 2 y: 3
+} -cleanup {
+    rename dyn {}
+} -result {1 {-x 2 y: 3} {x 2 y 3}}
+
+# Default values of missing trailing arguments are not applied (off by
+# one in the "too few arguments" check).
+test clay-api-1.26 {dynamic_arguments, default value} -constraints knownBug -setup {
+    proc dyn args {
+	clay::dynamic_arguments ens meth {a {b 2}} {*}$args
+	list $a $b
+    }
+} -body {
+    dyn 1
+} -cleanup {
+    rename dyn {}
+} -result {1 2}
+
+test clay-api-1.27 {dynamic_arguments, too few arguments} -constraints knownBug -setup {
+    proc dyn args {
+	clay::dynamic_arguments ens meth {a {b 2}} {*}$args
+	list $a $b
+    }
+} -body {
+    dyn
+} -returnCodes error -cleanup {
+    rename dyn {}
+} -result {Usage: ens meth a ?b?}
+
+# -------------------------------------------------------------------------
+# uuid
+
+set uuidRE {^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$}
+
+test clay-api-2.0 {uuid generate, format} -body {
+    regexp $uuidRE [clay::uuid generate]
+} -result 1
+
+test clay-api-2.1 {uuid generate, unique} -body {
+    expr {[clay::uuid generate] ne [clay::uuid generate]}
+} -result 1
+
+test clay-api-2.2 {uuid_generate} -body {
+    regexp $uuidRE [clay::uuid_generate]
+} -result 1
+
+test clay-api-2.3 {uuid short} -body {
+    regexp {^[0-9a-f]{17}$} [clay::uuid short]
+} -result 1
+
+test clay-api-2.4 {uuid equal, same uuid in different notations} -body {
+    clay::uuid equal 01234567-89ab-cdef-0123-456789abcdef 0123456789ABCDEF0123456789abcdef
+} -result 1
+
+test clay-api-2.5 {uuid equal, different uuids} -body {
+    clay::uuid equal 01234567-89ab-cdef-0123-456789abcdef 01234567-89ab-cdef-0123-456789abcdee
+} -result 0
+
+test clay-api-2.6 {uuid, bad subcommand} -body {
+    clay::uuid bogus
+} -returnCodes error -result {bad option "bogus": must be generate or equal}
+
+test clay-api-2.7 {uuid, wrong # args} -body {
+    clay::uuid
+} -returnCodes error -result {wrong # args: should be "clay::uuid cmd ?arg ...?"}
+
+test clay-api-2.8 {uuid::fromstring returns 16 bytes} -body {
+    set b [clay::uuid::fromstring 01234567-89ab-cdef-0123-456789abcdef]
+    binary scan $b H* h
+    list [string length $b] $h
+} -cleanup {
+    unset b h
+} -result {16 0123456789abcdef0123456789abcdef}
+
+test clay-api-2.9 {uuid::tostring, round trip} -body {
+    clay::uuid::tostring [clay::uuid::fromstring 0123456789ABCDEF0123456789abcdef]
+} -result 01234567-89ab-cdef-0123-456789abcdef
+
+test clay-api-2.10 {uuid::equal} -body {
+    list [clay::uuid::equal 00000000-0000-0000-0000-000000000001 00000000000000000000000000000001] \
+	[clay::uuid::equal 00000000-0000-0000-0000-000000000001 00000000-0000-0000-0000-000000000002]
+} -result {1 0}
+
+test clay-api-2.11 {uuid::generate_tcl_machinfo is cached} -body {
+    expr {[clay::uuid::generate_tcl_machinfo] eq [clay::uuid::generate_tcl_machinfo]}
+} -result 1
+
+unset uuidRE
+
+# -------------------------------------------------------------------------
+# tree
+
+test clay-api-3.0 {tree::sanitize removes branch markers} -body {
+    clay::tree::sanitize {. {} a {. {} b 1 c {. {} d 2}} e 3}
+} -result {a {b 1 c {d 2}} e 3}
+
+test clay-api-3.1 {tree::sanitize, no branches} -body {
+    clay::tree::sanitize {a 1 b 2}
+} -result {a 1 b 2}
+
+test clay-api-3.2 {tree::sanitize, empty} -body {
+    clay::tree::sanitize {}
+} -result {}
+
+test clay-api-3.3 {tree::merge, no arguments} -body {
+    clay::tree::merge
+} -result {. {}}
+
+test clay-api-3.4 {tree::merge, branches are merged recursively} -body {
+    clay::tree::merge {a/ {b 1}} {a/ {c 2}}
+} -result {. {} a {. {} b 1 c 2}}
+
+test clay-api-3.5 {tree::merge, leaf replaces a branch} -body {
+    clay::tree::merge {a/ {b 1}} {a 2}
+} -result {. {} a 2}
+
+test clay-api-3.6 {tree::merge, later leaf wins} -body {
+    clay::tree::merge {a 1 b 2} {a 3}
+} -result {. {} a 3 b 2}
+
+test clay-api-3.7 {tree::merge, not a dictionary} -body {
+    clay::tree::merge {a 1} x
+} -returnCodes error -result {Element x is not a dictionary}
+
+test clay-api-3.8 {tree::merge, example from the documentation} -body {
+    clay::tree::sanitize [clay::tree::merge \
+	{sub/ {sub/ {description {a block of text}}}} \
+	{sub/ {sub/ {field {another block of text}}}}]
+} -result {sub {sub {description {a block of text} field {another block of text}}}}
+
+test clay-api-3.9 {tree::print} -body {
+    clay::tree::print {. {} a {. {} b 1} c 2}
+} -result "a \{\n  b 1\n\}\nc 2\n"
+
+# -------------------------------------------------------------------------
+# dictargs
+
+test clay-api-4.0 {dictargs::proc, defaults and mandatory arguments} -setup {
+    dictargs::proc dp {
+	a {default: 1}
+	b {mandatory: 1}
+	c {aliases: cc mandatory: 0}
+    } {list $a $b [info exists c]}
+} -body {
+    list [dp b 2] [dp b 2 a 5 cc 7]
+} -cleanup {
+    rename dp {}
+} -result {{1 2 0} {5 2 1}}
+
+test clay-api-4.1 {dictargs::proc, aliases} -setup {
+    dictargs::proc dp {c {aliases: {cc ccc}}} {set c}
+} -body {
+    list [dp c 1] [dp cc 2] [dp ccc 3]
+} -cleanup {
+    rename dp {}
+} -result {1 2 3}
+
+test clay-api-4.2 {dictargs::proc, missing mandatory argument} -setup {
+    dictargs::proc dp {b {mandatory: 1}} {set b}
+} -body {
+    dp a 5
+} -returnCodes error -cleanup {
+    rename dp {}
+} -result {b is required}
+
+test clay-api-4.3 {dictargs::proc, arguments are mandatory by default} -setup {
+    dictargs::proc dp {b {}} {set b}
+} -body {
+    dp
+} -returnCodes error -cleanup {
+    rename dp {}
+} -result {b is required}
+
+test clay-api-4.4 {dictargs::method} -setup {
+    oo::class create ::clayapi_D
+    oo::define ::clayapi_D {
+	dictargs::method dm {x {default: 7}} {return $x}
+    }
+    ::clayapi_D create d1
+} -body {
+    list [d1 dm] [d1 dm x 8]
+} -cleanup {
+    ::clayapi_D destroy
+} -result {7 8}
+
+# -------------------------------------------------------------------------
+# Class definition keywords
+
+test clay-api-5.0 {Option, default value and aliases} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Option color default green aliases colour
+    }
+    ::clayapi::A create a1
+} -body {
+    list [a1 clay cget color] [a1 clay cget colour] [a1 clay cget -color] \
+	[objvar a1 config]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {green green green {color green}}
+
+test clay-api-5.1 {Option stored in the class clay data} -setup {
+    clay::define ::clayapi::A {
+	Option color default green aliases colour
+	Option size
+    }
+} -body {
+    list [::clayapi::A clay get option color] [::clayapi::A clay get option size]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {{default green aliases colour} {default {}}}
+
+test clay-api-5.2 {Option, default-command} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Option size default-command {::list computed %field%}
+    }
+    ::clayapi::A create a1
+} -body {
+    a1 clay cget size
+} -cleanup {
+    ::clayapi::A destroy
+} -result {computed size}
+
+test clay-api-5.3 {Option, set-command is run on initialization} -setup {
+    set ::setlog {}
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Option shape default round set-command {lappend ::setlog %field% %value%}
+    }
+    ::clayapi::A create a1
+} -body {
+    set ::setlog
+} -cleanup {
+    ::clayapi::A destroy
+    unset ::setlog
+} -result {shape round}
+
+test clay-api-5.4 {Option_Class, fields are inherited by the option} -setup {
+    clay::define ::clayapi::A {
+	Option_Class flag default 0 type boolean
+	Option verbose class flag
+    }
+} -body {
+    list [::clayapi::A clay get option_class flag] \
+	[dict get [::clayapi::A clay get option verbose] type]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {{default 0 type boolean} boolean}
+
+# Option always starts with "default {}", so the default of the option
+# class is never inherited.
+test clay-api-5.5 {Option_Class, default is inherited by the option} -constraints knownBug -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Option_Class flag default 0 type boolean
+	Option verbose class flag
+    }
+    ::clayapi::A create a1
+} -body {
+    a1 clay cget verbose
+} -cleanup {
+    ::clayapi::A destroy
+} -result 0
+
+test clay-api-5.6 {Variable, Dict and Array are initialized in the constructor} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Variable counter 5
+	Dict d {a 1 b 2}
+	Array arr {x 10}
+	method getarr {} {my variable arr; array get arr}
+    }
+    ::clayapi::A create a1
+} -body {
+    list [objvar a1 counter] [objvar a1 d] [a1 getarr]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {5 {a 1 b 2} {x 10}}
+
+test clay-api-5.7 {Variable does not overwrite a value set before initialization} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {
+	    my variable counter
+	    set counter 1
+	    my InitializePublic
+	}
+	Variable counter 5
+    }
+    ::clayapi::A create a1
+} -body {
+    objvar a1 counter
+} -cleanup {
+    ::clayapi::A destroy
+} -result 1
+
+# The documentation says InitializePublic is called on object creation,
+# but this only happens if the class defines a constructor through
+# clay::define.
+test clay-api-5.8 {Variable initialized for class without constructor} -constraints knownBug -setup {
+    clay::define ::clayapi::A {
+	Variable counter 5
+    }
+    ::clayapi::A create a1
+} -body {
+    objvar a1 counter
+} -cleanup {
+    ::clayapi::A destroy
+} -result 5
+
+test clay-api-5.9 {Delegate stores the annotation} -setup {
+    clay::define ::clayapi::A {
+	Delegate store {description {Storage} other x}
+    }
+} -body {
+    ::clayapi::A clay get component store
+} -cleanup {
+    ::clayapi::A destroy
+} -result {description Storage other x}
+
+test clay-api-5.10 {Class_Method and class_method define methods of the class} -setup {
+    clay::define ::clayapi::A {
+	Class_Method hello {x} {return "hello $x from [self]"}
+	class_method bye {} {return bye}
+    }
+} -body {
+    list [::clayapi::A hello w] [::clayapi::A bye] \
+	[dict get [::clayapi::A clay get class_typemethod bye] arglist]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {{hello w from ::clayapi::A} bye {}}
+
+test clay-api-5.11 {Class_Method is inherited by subclasses} -setup {
+    clay::define ::clayapi::A {
+	Class_Method hello {} {return "hello from [self]"}
+    }
+    clay::define ::clayapi::B {
+	superclass ::clayapi::A
+    }
+} -body {
+    ::clayapi::B hello
+} -cleanup {
+    ::clayapi::A destroy
+} -result {hello from ::clayapi::B}
+
+test clay-api-5.12 {Method with dictargs} -setup {
+    clay::define ::clayapi::A {
+	Method opts dictargs {a {default: 1} b {mandatory: 1}} {list $a $b}
+    }
+    ::clayapi::A create a1
+} -body {
+    list [a1 opts b 2] [a1 opts b 3 a 4] [catch {a1 opts} msg] $msg
+} -cleanup {
+    ::clayapi::A destroy
+    unset msg
+} -result {{1 2} {4 3} 1 {b is required}}
+
+test clay-api-5.13 {clay keyword sets class clay data} -setup {
+    clay::define ::clayapi::A {
+	clay set const/ answer 42
+	clay color blue
+    }
+} -body {
+    list [::clayapi::A clay get const answer] [::clayapi::A clay get color]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {42 blue}
+
+test clay-api-5.14 {destructor runs only once} -setup {
+    set ::dlog {}
+    clay::define ::clayapi::A {
+	constructor {} {}
+	destructor {lappend ::dlog [self]}
+    }
+    ::clayapi::A create a1
+} -body {
+    a1 destroy
+    set ::dlog
+} -cleanup {
+    ::clayapi::A destroy
+    unset ::dlog
+} -result ::a1
+
+# -------------------------------------------------------------------------
+# clay::class methods
+
+test clay-api-6.0 {class clay, wrong # args} -setup {
+    clay::define ::clayapi::A {}
+} -body {
+    ::clayapi::A clay
+} -returnCodes error -cleanup {
+    ::clayapi::A destroy
+} -result {wrong # args: should be "::clayapi::A clay submethod ?arg ...?"}
+
+test clay-api-6.1 {class clay ancestors} -setup {
+    clay::define ::clayapi::A {}
+    clay::define ::clayapi::B {superclass ::clayapi::A}
+} -body {
+    ::clayapi::B clay ancestors
+} -cleanup {
+    ::clayapi::A destroy
+} -result {::clayapi::B ::clayapi::A ::clay::object}
+
+test clay-api-6.2 {class clay dump returns only the class data} -setup {
+    clay::define ::clayapi::A {clay set const/ a 1}
+    clay::define ::clayapi::B {superclass ::clayapi::A; clay set const/ b 2}
+} -body {
+    ::clayapi::B clay dump
+} -cleanup {
+    ::clayapi::A destroy
+} -result {. {} const {. {} b 2}}
+
+test clay-api-6.3 {class clay get vs find vs search} -setup {
+    clay::define ::clayapi::A {clay set const/ a 1}
+    clay::define ::clayapi::B {superclass ::clayapi::A; clay set const/ b 2}
+} -body {
+    list [::clayapi::B clay get const a] [::clayapi::B clay find const a] \
+	[::clayapi::B clay search const a] [::clayapi::B clay find const] \
+	[::clayapi::B clay get nothing] [::clayapi::B clay search nothing]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {{} 1 1 {a 1 b 2} {} {}}
+
+test clay-api-6.4 {class clay set and exists} -setup {
+    clay::define ::clayapi::A {}
+} -body {
+    ::clayapi::A clay set foo/ bar 1
+    list [::clayapi::A clay exists foo bar] [::clayapi::A clay exists foo/bar] \
+	[::clayapi::A clay exists foo baz] [::clayapi::A clay get foo]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {1 1 0 {bar 1}}
+
+# merge expands each dictionary into separate arguments of
+# tree::dictmerge.
+test clay-api-6.5 {class clay merge} -constraints knownBug -setup {
+    clay::define ::clayapi::A {clay set const/ a 1}
+} -body {
+    ::clayapi::A clay merge {const/ {b 2}} {const/ {c 3}}
+    ::clayapi::A clay get const
+} -cleanup {
+    ::clayapi::A destroy
+} -result {a 1 b 2 c 3}
+
+# Documented, but not implemented for classes.
+test clay-api-6.6 {class clay replace} -constraints knownBug -setup {
+    clay::define ::clayapi::A {clay set const/ a 1}
+} -body {
+    ::clayapi::A clay replace {x 1}
+    ::clayapi::A clay dump
+} -cleanup {
+    ::clayapi::A destroy
+} -result {x 1}
+
+# Documented, but not implemented.
+test clay-api-6.7 {class clay GET} -constraints knownBug -setup {
+    clay::define ::clayapi::A {clay set const/ a 1}
+} -body {
+    list [::clayapi::A clay GET const a] [::clayapi::A clay GET nothing]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {1 {}}
+
+# -------------------------------------------------------------------------
+# clay::object methods
+
+test clay-api-7.0 {object clay, wrong # args} -setup {
+    clay::object create o1
+} -body {
+    o1 clay
+} -returnCodes error -cleanup {
+    o1 destroy
+} -result {wrong # args: should be "o1 clay submethod ?arg ...?"}
+
+test clay-api-7.1 {cget search order: config, local clay, class, const, option default} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Option color default green
+	clay set answer 43
+	clay set const/ answer2 42
+    }
+    ::clayapi::A create a1
+} -body {
+    set res [list [a1 clay cget color] [a1 clay cget answer] [a1 clay cget answer2] \
+	[a1 clay cget nonesuch]]
+    a1 clay set answer 7
+    lappend res [a1 clay cget answer]
+} -cleanup {
+    ::clayapi::A destroy
+    unset res
+} -result {green 43 42 {} 7}
+
+test clay-api-7.2 {cget prefers the subclass} -setup {
+    clay::define ::clayapi::A {constructor {} {}; clay set const/ answer 42}
+    clay::define ::clayapi::B {superclass ::clayapi::A; clay set const/ answer 99}
+    ::clayapi::B create b1
+} -body {
+    b1 clay cget answer
+} -cleanup {
+    ::clayapi::A destroy
+} -result 99
+
+test clay-api-7.3 {exists: 1 local, 2 cache, >2 class, 0 missing} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Option color default green
+	clay set const/ answer 42
+    }
+    ::clayapi::A create a1
+} -body {
+    a1 clay set local 1
+    a1 clay cache cached 1
+    list [a1 clay exists local] [a1 clay exists cached] \
+	[a1 clay exists const answer] [a1 clay exists nothing]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {1 2 3 0}
+
+test clay-api-7.4 {cache, search and flush} -setup {
+    clay::object create o1
+} -body {
+    o1 clay cache foo/bar 99
+    set res [list [o1 clay search foo/bar v l] $v $l]
+    lappend res [o1 clay search nothing v2 l2]
+    o1 clay flush
+    lappend res [o1 clay search foo/bar v3 l3] [info exists v3]
+} -cleanup {
+    o1 destroy
+    unset -nocomplain res v l v2 l2 v3 l3
+} -result {1 99 1 0 0 0}
+
+test clay-api-7.5 {search, cached branch} -setup {
+    clay::object create o1
+} -body {
+    o1 clay cache br {. {} a 1}
+    list [o1 clay search br v l] $v $l
+} -cleanup {
+    o1 destroy
+    unset -nocomplain v l
+} -result {1 {. {} a 1} 0}
+
+test clay-api-7.6 {dump blends class and object data} -setup {
+    clay::define ::clayapi::A {constructor {} {}; clay set const/ a 1}
+    ::clayapi::A create a1
+} -body {
+    a1 clay set const/ b 2
+    a1 clay set mine 3
+    set d [a1 clay dump]
+    list [dict get $d const a] [dict get $d const b] [dict get $d mine]
+} -cleanup {
+    ::clayapi::A destroy
+    unset d
+} -result {1 2 3}
+
+test clay-api-7.7 {replace the object clay data} -setup {
+    clay::define ::clayapi::A {constructor {} {}; clay set const/ answer 42}
+    ::clayapi::A create a1
+} -body {
+    a1 clay set foo 1
+    a1 clay replace {z 1}
+    list [a1 clay get z] [a1 clay get foo] [a1 clay get const answer]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {1 {} 42}
+
+test clay-api-7.8 {provenance} -setup {
+    clay::define ::clayapi::A {constructor {} {}; Option color default green; clay set const/ a 1}
+    clay::define ::clayapi::B {superclass ::clayapi::A; clay set const/ a 2}
+    ::clayapi::B create b1
+} -body {
+    b1 clay set z 1
+    list [b1 clay provenance z] [b1 clay provenance const a] \
+	[b1 clay provenance option color] [b1 clay provenance nothing]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {self ::clayapi::B ::clayapi::A {}}
+
+test clay-api-7.9 {leaf} -setup {
+    clay::define ::clayapi::A {constructor {} {}; Option color default green; clay set const/ a 1}
+    ::clayapi::A create a1
+} -body {
+    a1 clay set mybranch/ x 5
+    list [a1 clay leaf const a] [a1 clay leaf option color] [a1 clay leaf mybranch] \
+	[a1 clay leaf nothing]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {1 {default green} {x 5} {}}
+
+# merge expands each dictionary into separate arguments of
+# tree::dictmerge.
+test clay-api-7.10 {object clay merge} -constraints knownBug -setup {
+    clay::object create o1
+} -body {
+    o1 clay merge {local/ {a 1}} {local/ {b 2}}
+    o1 clay get local
+} -cleanup {
+    o1 destroy
+} -result {a 1 b 2}
+
+test clay-api-7.11 {forward} -setup {
+    clay::object create o1
+} -body {
+    o1 clay forward greet ::format "hi %s"
+    o1 greet bob
+} -cleanup {
+    o1 destroy
+} -result {hi bob}
+
+test clay-api-7.12 {source evaluates a file in the object namespace} -setup {
+    set f [tcltest::makeFile {variable sourced 1; namespace current} clayapi-src.tcl]
+    clay::object create o1
+} -body {
+    list [expr {[o1 clay source $f] eq [info object namespace o1]}] [objvar o1 sourced]
+} -cleanup {
+    o1 destroy
+    tcltest::removeFile clayapi-src.tcl
+    unset f
+} -result {1 1}
+
+# The line parser in [clay eval] is broken (malformed "elseif", the
+# line buffer is not reset after comments), commands are not evaluated.
+test clay-api-7.13 {eval prefixes commands with my} -constraints knownBug -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	method hello {} {return hello}
+    }
+    ::clayapi::A create a1
+} -body {
+    a1 clay eval {
+	# a comment
+	hello
+    }
+} -cleanup {
+    ::clayapi::A destroy
+} -result hello
+
+test clay-api-7.14 {eval, empty script} -setup {
+    clay::object create o1
+} -body {
+    o1 clay eval {}
+} -cleanup {
+    o1 destroy
+} -result {}
+
+test clay-api-7.15 {evolve initializes variables added later} -setup {
+    clay::define ::clayapi::A {constructor {} {}}
+    ::clayapi::A create a1
+} -body {
+    clay::define ::clayapi::A {Variable late 11}
+    set res [info exists [info object namespace a1]::late]
+    a1 clay evolve
+    lappend res [objvar a1 late]
+} -cleanup {
+    ::clayapi::A destroy
+    unset res
+} -result {0 11}
+
+test clay-api-7.16 {delegate, introspection and forwarding} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Class_Method hello {x} {return "hello $x"}
+    }
+    ::clayapi::A create a1
+} -body {
+    set res [list [a1 clay delegate] [a1 clay delegate db]]
+    a1 clay delegate db ::clayapi::A
+    lappend res [a1 clay delegate] [a1 clay delegate db] [a1 clay delegate <db>] \
+	[a1 <db> hello x]
+} -cleanup {
+    ::clayapi::A destroy
+    unset res
+} -result {{<class> ::clayapi::A} {} {<class> ::clayapi::A <db> ::clayapi::A} ::clayapi::A ::clayapi::A {hello x}}
+
+test clay-api-7.17 {delegate, odd number of arguments} -setup {
+    clay::object create o1
+} -body {
+    o1 clay delegate a b c
+} -returnCodes error -cleanup {
+    o1 destroy
+} -match glob -result {Usage: delegate*}
+
+test clay-api-7.18 {ensemble_map} -setup {
+    clay::define ::clayapi::A {
+	constructor {} {}
+	Ensemble pet::dog {} {return woof}
+    }
+    ::clayapi::A create a1
+} -body {
+    list [a1 clay ensemble_map] [a1 pet dog]
+} -cleanup {
+    ::clayapi::A destroy
+} -result {{pet {dog: {class: ::clayapi::A body: {tailcall my Pet_dog {*}$args}}}} woof}
+
+test clay-api-7.19 {mixin runs map, unmap and react scripts} -setup {
+    set ::log {}
+    clay::define ::clayapi::A {constructor {} {}}
+    clay::define ::clayapi::M1 {
+	clay set mixin/ map-script {lappend ::log map1}
+	clay set mixin/ unmap-script {lappend ::log unmap1}
+	clay set mixin/ react-script {lappend ::log react1}
+	Variable mvar mv
+    }
+    ::clayapi::A create a1
+} -body {
+    a1 clay mixin ::clayapi::M1
+    set res [list $::log [info object mixins a1] [objvar a1 mvar]]
+    set ::log {}
+    a1 clay mixin
+    lappend res $::log [info object mixins a1]
+} -cleanup {
+    ::clayapi::A destroy
+    ::clayapi::M1 destroy
+    unset res ::log
+} -result {{map1 react1} ::clayapi::M1 mv unmap1 {}}
+
+test clay-api-7.20 {mixin, react script is not run for removed classes} -setup {
+    set ::log {}
+    clay::define ::clayapi::A {constructor {} {}}
+    clay::define ::clayapi::M1 {clay set mixin/ react-script {lappend ::log react1}}
+    clay::define ::clayapi::M2 {clay set mixin/ unmap-script {lappend ::log unmap2}}
+    ::clayapi::A create a1
+    a1 clay mixin ::clayapi::M2
+} -body {
+    set ::log {}
+    a1 clay mixin ::clayapi::M1
+    list $::log [info object mixins a1]
+} -cleanup {
+    ::clayapi::A destroy
+    ::clayapi::M1 destroy
+    ::clayapi::M2 destroy
+    unset ::log
+} -result {{unmap2 react1} ::clayapi::M1}
+
+# The react script is run only for the first class which has one.
+test clay-api-7.21 {mixin runs react scripts of all mixed in classes} -constraints knownBug -setup {
+    set ::log {}
+    clay::define ::clayapi::A {constructor {} {}}
+    clay::define ::clayapi::M1 {clay set mixin/ react-script {lappend ::log react1}}
+    clay::define ::clayapi::M2 {clay set mixin/ react-script {lappend ::log react2}}
+    ::clayapi::A create a1
+} -body {
+    a1 clay mixin ::clayapi::M1 ::clayapi::M2
+    lsort $::log
+} -cleanup {
+    ::clayapi::A destroy
+    ::clayapi::M1 destroy
+    ::clayapi::M2 destroy
+    unset ::log
+} -result {react1 react2}
+
+test clay-api-7.22 {mixin changes clay ancestors} -setup {
+    clay::define ::clayapi::A {constructor {} {}}
+    clay::define ::clayapi::M1 {clay set const/ x 1}
+    ::clayapi::A create a1
+} -body {
+    a1 clay mixin ::clayapi::M1
+    list [a1 clay ancestors] [a1 clay cget x]
+} -cleanup {
+    ::clayapi::A destroy
+    ::clayapi::M1 destroy
+} -result {{::clayapi::M1 ::clayapi::A ::clay::object} 1}
+
+# -------------------------------------------------------------------------
+# Object life cycle
+
+test clay-api-8.0 {object_destroy defers destruction to cleanup} -setup {
+    clay::object create o1
+    set ::clay::idle_destroy {}
+} -body {
+    clay::object_destroy o1 o1
+    set res [list $::clay::idle_destroy [info commands o1]]
+    clay::cleanup
+    lappend res [info commands o1] $::clay::idle_destroy
+} -cleanup {
+    catch {o1 destroy}
+    unset res
+} -result {o1 o1 {} {}}
+
+test clay-api-8.1 {cleanup ignores objects which are already gone} -setup {
+    clay::object create o1
+    set ::clay::idle_destroy {}
+} -body {
+    clay::object_destroy o1
+    o1 destroy
+    list [clay::cleanup] $::clay::idle_destroy
+} -result {{} {}}
+
+test clay-api-8.2 {object_create and object_rename are no-ops} -body {
+    list [clay::object_create foo] [clay::object_create foo ::clay::object] \
+	[clay::object_rename foo bar]
+} -result {{} {} {}}
+
+# -------------------------------------------------------------------------
+# Events
+
+test clay-api-9.0 {nextid} -body {
+    set a [clay::event::nextid]
+    set b [clay::event::nextid]
+    list [regexp {^event#[0-9a-f]{8}$} $a] [expr {$a ne $b}]
+} -cleanup {
+    unset a b
+} -result {1 1}
+
+test clay-api-9.1 {subscribe and Notification_list} -setup {
+    array unset ::clay::object_subscribe
+} -body {
+    clay::event::subscribe rcpt1 sender* ping
+    clay::event::subscribe rcpt2 * p*
+    clay::event::subscribe rcpt2 * ping
+    list [lsort [clay::event::Notification_list sender1 ping]] \
+	[clay::event::Notification_list sender1 pong] \
+	[clay::event::Notification_list other ping] \
+	$::clay::object_subscribe(rcpt2)
+} -cleanup {
+    array unset ::clay::object_subscribe
+} -result {{rcpt1 rcpt2} rcpt2 rcpt2 {* p*}}
+
+test clay-api-9.2 {sender does not notify itself} -setup {
+    array unset ::clay::object_subscribe
+} -body {
+    clay::event::subscribe obj * ping
+    clay::event::Notification_list obj ping
+} -cleanup {
+    array unset ::clay::object_subscribe
+} -result {}
+
+test clay-api-9.3 {unsubscribe} -setup {
+    array unset ::clay::object_subscribe
+} -body {
+    clay::event::subscribe rcpt a ping
+    clay::event::subscribe rcpt a pong
+    clay::event::subscribe rcpt b ping
+    clay::event::unsubscribe rcpt pong
+    set res [list $::clay::object_subscribe(rcpt)]
+    clay::event::unsubscribe rcpt b ping
+    lappend res $::clay::object_subscribe(rcpt)
+    clay::event::unsubscribe rcpt *
+    lappend res $::clay::object_subscribe(rcpt)
+} -cleanup {
+    array unset ::clay::object_subscribe
+    unset res
+} -result {{a ping b ping} {} {}}
+
+test clay-api-9.4 {notify calls the notify method of the recipient} -setup {
+    set ::events {}
+    clay::define ::clayapi::A {
+	constructor {} {}
+	method notify {event sender info} {lappend ::events [self] $event $sender $info}
+    }
+    ::clayapi::A create a1
+} -body {
+    clay::event::notify a1 me pong {x 1}
+    clay::event::notify nosuchobject me pong {x 1}
+    set ::events
+} -cleanup {
+    ::clayapi::A destroy
+    unset ::events
+} -result {::a1 pong me {x 1}}
+
+test clay-api-9.5 {generate, no subscribers} -setup {
+    array unset ::clay::object_subscribe
+} -body {
+    clay::event::generate sender ping x 1
+} -result {}
+
+# generate calls ::oo::meta::args_to_options, which is not part of clay.
+test clay-api-9.6 {generate delivers the event} -constraints knownBug -setup {
+    array unset ::clay::object_subscribe
+    set ::events {}
+    clay::define ::clayapi::A {
+	constructor {} {}
+	method notify {event sender info} {
+	    lappend ::events [self] $event $sender [dict get $info origin] [dict get $info x]
+	}
+    }
+    ::clayapi::A create a1
+    clay::event::subscribe ::a1 * ping
+} -body {
+    clay::event::generate sender ping x 1
+    set ::events
+} -cleanup {
+    ::clayapi::A destroy
+    array unset ::clay::object_subscribe
+    unset ::events
+} -result {::a1 ping sender sender 1}
+
+test clay-api-9.7 {schedule and process} -setup {
+    set ::done 0
+} -body {
+    clay::event::schedule obj tick 1 {set ::done 1}
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    list $::done [info exists ::clay::event::timer_event(obj:tick)]
+} -cleanup {
+    unset ::done id
+} -result {1 0}
+
+test clay-api-9.8 {cancel} -setup {
+    set ::done 0
+} -body {
+    clay::event::schedule obj tick 10 {set ::done 1}
+    clay::event::cancel obj tick
+    set id [after 100 {set ::w 1}]
+    vwait ::w
+    list $::done $::clay::event::timer_event(obj:tick)
+} -cleanup {
+    array unset ::clay::event::timer_event obj:*
+    array unset ::clay::event::timer_script obj:*
+    unset ::done ::w id
+} -result {0 {}}
+
+test clay-api-9.9 {process evaluates the script in the global namespace} -setup {
+    set ::where {}
+} -body {
+    namespace eval ::clayapi_ns {
+	clay::event::process obj h {set ::where [namespace current]}
+    }
+    set ::where
+} -cleanup {
+    namespace delete ::clayapi_ns
+    unset ::where
+} -result ::
+
+# -------------------------------------------------------------------------
+
+catch {namespace delete ::clayapi}
+rename objvar {}
+testsuiteCleanup
+return
