@@ -1,0 +1,488 @@
+# ooutil-api.test - Additional tests for the oo::util package.
+#
+# ooutil.test covers two tickets and classmethod with inheritance. This
+# file adds mymethod, classvariable, link, ooutil::singleton and more
+# classmethod cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testsNeed TclOO 1
+
+testing {
+    useLocal ooutil.tcl oo::util
+}
+
+# -------------------------------------------------------------------------
+## Helper
+
+# Destroy classes together with the helper classes NAME.Delegate which
+# oo::util creates for every class (they are not destroyed with it).
+proc ooutilDestroy {args} {
+    foreach cls $args {
+	catch {$cls destroy}
+	catch {$cls.Delegate destroy}
+    }
+}
+
+# -------------------------------------------------------------------------
+## mymethod
+
+test ooutil-api-1.0 {mymethod returns a command prefix calling the method} -setup {
+    oo::class create ooT {
+	method get {} { mymethod cb a }
+	method cb {args} { return [list [self] $args] }
+    }
+    set o [ooT new]
+} -body {
+    set cmd [$o get]
+    list [llength $cmd] [lrange $cmd 1 end] [expr {[lindex [{*}$cmd] 0] eq $o}]
+} -cleanup {
+    ooutilDestroy ooT
+    unset -nocomplain o cmd
+} -result {3 {cb a} 1}
+
+test ooutil-api-1.1 {mymethod, invocation arguments are appended} -setup {
+    oo::class create ooT {
+	method get {} { mymethod cb a {b c} }
+	method cb {args} { return $args }
+    }
+    set o [ooT new]
+} -body {
+    {*}[$o get] d {e f}
+} -cleanup {
+    ooutilDestroy ooT
+    unset -nocomplain o
+} -result {a {b c} d {e f}}
+
+test ooutil-api-1.2 {mymethod, method name only} -setup {
+    oo::class create ooT {
+	method get {} { mymethod cb }
+	method cb {args} { return $args }
+    }
+    set o [ooT new]
+} -body {
+    list [{*}[$o get]] [{*}[$o get] x]
+} -cleanup {
+    ooutilDestroy ooT
+    unset -nocomplain o
+} -result {{} x}
+
+test ooutil-api-1.3 {mymethod, unexported methods can be called} -setup {
+    oo::class create ooT {
+	method get {} { mymethod Private }
+	method Private {} { return private }
+    }
+    set o [ooT new]
+} -body {
+    {*}[$o get]
+} -cleanup {
+    ooutilDestroy ooT
+    unset -nocomplain o
+} -result private
+
+test ooutil-api-1.4 {mymethod, callback still works after renaming the object} -setup {
+    oo::class create ooT {
+	method get {} { mymethod cb }
+	method cb {} { return ok }
+    }
+    set o [ooT create ooObj]
+} -body {
+    set cmd [$o get]
+    rename ooObj ooObj2
+    {*}$cmd
+} -cleanup {
+    ooutilDestroy ooT
+    unset -nocomplain o cmd
+} -result ok
+
+test ooutil-api-1.5 {mymethod as an event callback} -setup {
+    oo::class create ooT {
+	method start {} { after 0 [mymethod done 1] }
+	method done {v} { set ::ooutilDone $v }
+    }
+    set o [ooT new]
+} -body {
+    $o start
+    for {set i 0} {$i < 100 && ![info exists ::ooutilDone]} {incr i} {
+	after 10 {set ::ooutilTick 1}
+	vwait ::ooutilTick
+    }
+    set ::ooutilDone
+} -cleanup {
+    ooutilDestroy ooT
+    unset -nocomplain o i ::ooutilDone ::ooutilTick
+} -result 1
+
+test ooutil-api-1.6 {mymethod, wrong # args} -setup {
+    oo::class create ooT {
+	method get {} { mymethod }
+    }
+    set o [ooT new]
+} -body {
+    $o get
+} -cleanup {
+    ooutilDestroy ooT
+    unset -nocomplain o
+} -returnCodes error -result {wrong # args: should be "mymethod method ?arg ...?"}
+
+# -------------------------------------------------------------------------
+## classvariable
+
+test ooutil-api-2.0 {classvariable, documented example} -setup {
+    oo::class create Foo {
+	method bar {z} {
+	    classvariable x y
+	    return [incr x $z],[incr y]
+	}
+    }
+    Foo create a
+    Foo create b
+} -body {
+    list [a bar 2] [a bar 3] [b bar 7] [b bar -1] [a bar 0]
+} -cleanup {
+    ooutilDestroy Foo
+} -result {2,1 5,2 12,3 11,4 11,5}
+
+test ooutil-api-2.1 {classvariable, variables live in the class namespace} -setup {
+    oo::class create Foo {
+	method put {v} {
+	    classvariable cv
+	    set cv $v
+	}
+    }
+    set o [Foo new]
+} -body {
+    $o put hello
+    set [info object namespace Foo]::cv
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain o
+} -result hello
+
+test ooutil-api-2.2 {classvariable, separate classes do not share} -setup {
+    oo::class create Foo {
+	method put {v} { classvariable cv; set cv $v }
+	method get {} { classvariable cv; set cv }
+    }
+    oo::class create Bar {
+	method put {v} { classvariable cv; set cv $v }
+	method get {} { classvariable cv; set cv }
+    }
+    set f [Foo new]
+    set b [Bar new]
+} -body {
+    $f put F
+    $b put B
+    list [$f get] [$b get] [[Foo new] get]
+} -cleanup {
+    ooutilDestroy Foo
+    ooutilDestroy Bar
+    unset -nocomplain f b
+} -result {F B F}
+
+test ooutil-api-2.3 {classvariable, arrays} -setup {
+    oo::class create Foo {
+	method put {k v} { classvariable arr; set arr($k) $v }
+	method names {} { classvariable arr; lsort [array names arr] }
+    }
+} -body {
+    [Foo new] put a 1
+    [Foo new] put b 2
+    [Foo new] names
+} -cleanup {
+    ooutilDestroy Foo
+} -result {a b}
+
+test ooutil-api-2.4 {classvariable, not shared with instance variables} -setup {
+    oo::class create Foo {
+	variable iv
+	method put {v} { set iv $v; classvariable cv; set cv $v }
+	method get {} { list $iv }
+    }
+    set a [Foo new]
+    set b [Foo new]
+} -body {
+    $a put A
+    $b put B
+    list [$a get] [$b get]
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain a b
+} -result {A B}
+
+# -------------------------------------------------------------------------
+## link
+
+test ooutil-api-3.0 {link, method under its own name} -setup {
+    oo::class create Foo {
+	constructor {} { link foo }
+	method foo {args} { return [list foo {*}$args] }
+	method t {} { foo 1 2 }
+    }
+    set o [Foo new]
+} -body {
+    $o t
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain o
+} -result {foo 1 2}
+
+test ooutil-api-3.1 {link, alias/method pair} -setup {
+    oo::class create Foo {
+	constructor {} { link {bar foo} }
+	method foo {args} { return [list foo {*}$args] }
+	method t {} { bar x }
+    }
+    set o [Foo new]
+} -body {
+    list [$o t] [info commands [info object namespace $o]::foo]
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain o
+} -result {{foo x} {}}
+
+test ooutil-api-3.2 {link, several methods and pairs} -setup {
+    oo::class create Foo {
+	constructor {} { link a {bb b} c }
+	method a {} { return A }
+	method b {} { return B }
+	method c {} { return C }
+	method t {} { list [a] [bb] [c] }
+    }
+    set o [Foo new]
+} -body {
+    $o t
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain o
+} -result {A B C}
+
+test ooutil-api-3.3 {link returns the empty string} -setup {
+    oo::class create Foo {
+	method l {} { link foo }
+	method foo {} {}
+    }
+    set o [Foo new]
+} -body {
+    $o l
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain o
+} -result {}
+
+test ooutil-api-3.4 {link, no arguments} -setup {
+    oo::class create Foo {
+	method l {} { link }
+    }
+    set o [Foo new]
+} -body {
+    $o l
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain o
+} -result {}
+
+test ooutil-api-3.5 {link, linked commands are per object} -setup {
+    oo::class create Foo {
+	variable name
+	constructor {n} { set name $n; link who }
+	method who {} { return $name }
+	method t {} { who }
+    }
+    set a [Foo new A]
+    set b [Foo new B]
+} -body {
+    list [$a t] [$b t]
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain a b
+} -result {A B}
+
+test ooutil-api-3.6 {link, unexported method} -setup {
+    oo::class create Foo {
+	constructor {} { link {pub Priv} }
+	method Priv {} { return private }
+	method t {} { pub }
+    }
+    set o [Foo new]
+} -body {
+    $o t
+} -cleanup {
+    ooutilDestroy Foo
+    unset -nocomplain o
+} -result private
+
+# -------------------------------------------------------------------------
+## ooutil::singleton
+
+test ooutil-api-4.0 {singleton, create defines a class} -body {
+    ooutil::singleton create ooS {
+	method m {} { return m }
+    }
+} -cleanup {
+    ooutilDestroy ooS
+} -result {::ooS}
+
+test ooutil-api-4.1 {singleton, new always returns the same instance} -setup {
+    ooutil::singleton create ooS {
+	method m {} { self }
+    }
+} -body {
+    set a [ooS new]
+    set b [ooS new]
+    list [expr {$a eq $b}] [expr {[$a m] eq $a}] [info object class $a]
+} -cleanup {
+    ooutilDestroy ooS
+    unset -nocomplain a b
+} -result {1 1 ::ooS}
+
+test ooutil-api-4.2 {singleton, create returns the first instance} -setup {
+    ooutil::singleton create ooS {}
+} -body {
+    list [ooS create ooOne] [ooS create ooTwo] [ooS new] [info commands ooTwo]
+} -cleanup {
+    ooutilDestroy ooS
+} -result {::ooOne ::ooOne ::ooOne {}}
+
+test ooutil-api-4.3 {singleton, constructor runs once} -setup {
+    set ::ooutilCount 0
+    ooutil::singleton create ooS {
+	constructor {args} { incr ::ooutilCount }
+    }
+} -body {
+    ooS new
+    ooS new
+    ooS create x
+    set ::ooutilCount
+} -cleanup {
+    ooutilDestroy ooS
+    unset -nocomplain ::ooutilCount
+} -result 1
+
+test ooutil-api-4.4 {singleton, separate classes have separate instances} -setup {
+    ooutil::singleton create ooS1 {}
+    ooutil::singleton create ooS2 {}
+} -body {
+    expr {[ooS1 new] ne [ooS2 new]}
+} -cleanup {
+    ooutilDestroy ooS1
+    ooutilDestroy ooS2
+} -result 1
+
+test ooutil-api-4.5 {singleton as mixin, documented example} -constraints {
+    knownBug
+} -setup {
+    # Ticket 3609183fff: the mixin is replaced by oo::class.Delegate.
+    oo::class create ooExample {
+	self mixin ooutil::singleton
+	method foo {} {self}
+    }
+} -body {
+    expr {[[ooExample new] foo] eq [[ooExample new] foo]}
+} -cleanup {
+    ooutilDestroy ooExample
+} -result 1
+
+# -------------------------------------------------------------------------
+## classmethod
+
+test ooutil-api-5.0 {classmethod, called on the defining class} -setup {
+    oo::class create ooC {
+	classmethod cm {a {b B}} { list [self] $a $b }
+    }
+} -body {
+    list [ooC cm x] [ooC cm x y]
+} -cleanup {
+    ooutilDestroy ooC
+} -result {{::ooC x B} {::ooC x y}}
+
+test ooutil-api-5.1 {classmethod, inherited through several levels} -constraints {
+    knownBug
+} -setup {
+    # Ticket f990aa37bc: classmethods are inherited only one level.
+    oo::class create ooC {
+	classmethod cm {} { self }
+    }
+    oo::class create ooD { superclass ooC }
+    oo::class create ooE { superclass ooD }
+} -body {
+    list [ooD cm] [ooE cm]
+} -cleanup {
+    ooutilDestroy ooE ooD ooC
+} -result {::ooD ::ooE}
+
+test ooutil-api-5.2 {classmethod, not an instance method} -setup {
+    oo::class create ooC {
+	classmethod cm {} { self }
+    }
+    set o [ooC new]
+} -body {
+    $o cm
+} -cleanup {
+    ooutilDestroy ooC
+    unset -nocomplain o
+} -returnCodes error -match glob -result {unknown method "cm": *}
+
+test ooutil-api-5.3 {classmethod via oo::define} -setup {
+    oo::class create ooC {}
+} -body {
+    oo::define ooC classmethod cm {} { return [self]! }
+    ooC cm
+} -cleanup {
+    ooutilDestroy ooC
+} -result {::ooC!}
+
+test ooutil-api-5.4 {classmethod, wrong # args (name and args only)} -setup {
+    oo::class create ooC {}
+} -body {
+    oo::define ooC classmethod cm {}
+} -cleanup {
+    ooutilDestroy ooC
+} -returnCodes error -match glob -result {wrong # args: should be "*classmethod name ?args body?"}
+
+test ooutil-api-5.5 {classmethod, wrong # args (none)} -setup {
+    oo::class create ooC {}
+} -body {
+    oo::define ooC classmethod
+} -cleanup {
+    ooutilDestroy ooC
+} -returnCodes error -match glob -result {wrong # args: should be "*classmethod name ?args? ?body?"}
+
+test ooutil-api-5.6 {classmethod, instances still work normally} -setup {
+    oo::class create ooC {
+	classmethod make {} { my new }
+	method hello {} { return hello }
+    }
+} -body {
+    [ooC make] hello
+} -cleanup {
+    ooutilDestroy ooC
+} -result hello
+
+test ooutil-api-5.7 {a destroyed class can be created again} -constraints {
+    knownBug
+} -setup {
+    oo::class create ooC {}
+    ooC destroy
+} -body {
+    # The class ooC.Delegate created by oo::util survives the class.
+    oo::class create ooC {}
+} -cleanup {
+    ooutilDestroy ooC
+} -result {::ooC}
+
+# -------------------------------------------------------------------------
+rename ooutilDestroy {}
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
