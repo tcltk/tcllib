@@ -1,0 +1,477 @@
+# -*- tcl -*-
+# mkdoc.test:  Tests for the mkdoc package.
+#
+# This file contains a collection of tests for the package mkdoc
+# (extraction of Markdown documentation embedded in source code).
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl   cmdline
+    use json/json.tcl         json
+    use yaml/huddle.tcl       huddle
+    use yaml/yaml.tcl         yaml
+    use textutil/string.tcl   textutil::string
+    use textutil/repeat.tcl   textutil::repeat
+    use textutil/tabify.tcl   textutil::tabify
+    use markdown/markdown.tcl Markdown
+    use hook/hook.tcl         hook
+}
+testing {
+    useLocal mkdoc.tcl mkdoc
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+proc writeFile {name content} {
+    set path [tempPath $name]
+    set ch [open $path w]
+    fconfigure $ch -translation lf
+    puts -nonewline $ch $content
+    close $ch
+    return $path
+}
+
+proc readFile {path} {
+    set ch [open $path r]
+    set d [read $ch]
+    close $ch
+    return $d
+}
+
+proc today {} {
+    clock format [clock seconds] -format "%Y-%m-%d"
+}
+
+# Removes the given files from the temporary directory.
+proc rmFiles {args} {
+    foreach f $args {file delete -force [tempPath $f]}
+}
+
+set code {# A Tcl file with embedded documentation.
+#' # Heading
+#'
+#' Some *text*.
+#'
+  #'   indented marker, kept indentation
+#'no space after marker
+proc foo {} {
+    # #' not at the start of the line
+    return 1
+}
+#' Last line.
+}
+
+# -------------------------------------------------------------------------
+## mkdoc::mkdoc, argument checking
+
+test mkdoc-1.0 {mkdoc, wrong # args} -body {
+    mkdoc::mkdoc
+} -returnCodes error -result [wrongNumArgs mkdoc::mkdoc {filename outfile args} 0]
+
+test mkdoc-1.1 {mkdoc, wrong # args, one} -body {
+    mkdoc::mkdoc a.tcl
+} -returnCodes error -result [wrongNumArgs mkdoc::mkdoc {filename outfile args} 1]
+
+test mkdoc-1.2 {mkdoc, same extension} -body {
+    mkdoc::mkdoc a.md b.md
+} -returnCodes error -result {Error: infile and outfile must have different file extensions!}
+
+test mkdoc-1.3 {mkdoc, same extension (html)} -body {
+    mkdoc::mkdoc a.html b.html
+} -returnCodes error -result {Error: infile and outfile must have different file extensions!}
+
+test mkdoc-1.4 {mkdoc, missing input file} -body {
+    mkdoc::mkdoc [tempPath nosuchfile.tcl] [tempPath out.md]
+} -cleanup {
+    rmFiles out.md
+} -returnCodes error -match glob -result {Cannot open */nosuchfile.tcl: couldn't open "*/nosuchfile.tcl": no such file or directory}
+
+test mkdoc-1.5 {mkdoc, missing input file creates no output} -body {
+    catch {mkdoc::mkdoc [tempPath nosuchfile.tcl] [tempPath out.md]}
+    file exists [tempPath out.md]
+} -result 0
+
+# -------------------------------------------------------------------------
+## Code to Markdown
+
+test mkdoc-2.0 {mkdoc, code to markdown, result and content} -setup {
+    set in [writeFile input.tcl $code]
+} -body {
+    set r [mkdoc::mkdoc $in [tempPath out.md]]
+    list $r [readFile [tempPath out.md]]
+} -cleanup {
+    rmFiles input.tcl out.md
+    unset -nocomplain in r
+} -result [list {} "---
+author: NN
+css: mkdoc.css
+date: [today]
+title: Documentation input
+---
+# Heading
+
+Some *text*.
+
+  indented marker, kept indentation
+no space after marker
+Last line.
+
+
+"]
+
+test mkdoc-2.1 {mkdoc, code to markdown, YAML header merged} -constraints knownBug -setup {
+    # The yaml package turns the date into a clock value (1650142800),
+    # mkdoc writes that instead of the date given in the header.
+    set in [writeFile doc.tcl {#' ---
+#' title: My Title
+#' author: Somebody
+#' date: 2022-04-17
+#' ---
+#' Text.
+}]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.md]
+    readFile [tempPath out.md]
+} -cleanup {
+    rmFiles doc.tcl out.md
+    unset -nocomplain in
+} -result {---
+author: Somebody
+css: mkdoc.css
+date: 2022-04-17
+title: My Title
+---
+Text.
+
+
+}
+
+test mkdoc-2.1.1 {mkdoc, code to markdown, YAML header merged, no date} -setup {
+    set in [writeFile doc.tcl {#' ---
+#' title: My Title
+#' author: Somebody
+#' ---
+#' Text.
+}]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.md]
+    readFile [tempPath out.md]
+} -cleanup {
+    rmFiles doc.tcl out.md
+    unset -nocomplain in
+} -result "---
+author: Somebody
+css: mkdoc.css
+date: [today]
+title: My Title
+---
+Text.
+
+
+"
+
+test mkdoc-2.2 {mkdoc, code to markdown, -css option} -setup {
+    set in [writeFile doc.tcl "#' Text.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.md] -css my.css
+    lindex [split [readFile [tempPath out.md]] \n] 2
+} -cleanup {
+    rmFiles doc.tcl out.md
+    unset -nocomplain in
+} -result {css: my.css}
+
+test mkdoc-2.3 {mkdoc, code to .man output is markup too} -setup {
+    set in [writeFile doc.tcl "#' Text.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.man]
+    lrange [split [readFile [tempPath out.man]] \n] 5 6
+} -cleanup {
+    rmFiles doc.tcl out.man
+    unset -nocomplain in
+} -result {--- Text.}
+
+test mkdoc-2.4 {mkdoc, image shortcut} -setup {
+    set in [writeFile doc.tcl "#' !\[\](pic.png) and !\[\](b.gif)\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.md]
+    lindex [split [readFile [tempPath out.md]] \n] 6
+} -cleanup {
+    rmFiles doc.tcl out.md
+    unset -nocomplain in
+} -result {<img src="pic.png"></img> and <img src="b.gif"></img>}
+
+test mkdoc-2.5 {mkdoc, include file, relative to cwd} -setup {
+    set in [writeFile doc.tcl "#' Before.\n#' #include \"inc.md\"\n#' After.\n"]
+    writeFile inc.md "Included *one*.\nIncluded two.\n"
+    set cwd [pwd]
+    cd [temporaryDirectory]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.md]
+    lrange [split [readFile [tempPath out.md]] \n] 6 9
+} -cleanup {
+    cd $cwd
+    rmFiles doc.tcl inc.md out.md
+    unset -nocomplain in cwd
+} -result {Before. {Included *one*.} {Included two.} After.}
+
+test mkdoc-2.6 {mkdoc, missing include file} -setup {
+    set in [writeFile doc.tcl "#' #include \"nosuchinclude.md\"\n"]
+    set cwd [pwd]
+    cd [temporaryDirectory]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.md]
+} -cleanup {
+    cd $cwd
+    rmFiles doc.tcl out.md
+    unset -nocomplain in cwd
+} -returnCodes error -result {Cannot open include file nosuchinclude.md: couldn't open "nosuchinclude.md": no such file or directory}
+
+test mkdoc-2.7 {mkdoc, code without documentation} -setup {
+    set in [writeFile doc.tcl "proc a {} {}\n# plain comment\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.md]
+    readFile [tempPath out.md]
+} -cleanup {
+    rmFiles doc.tcl out.md
+    unset -nocomplain in
+} -result "---\nauthor: NN\ncss: mkdoc.css\ndate: [today]\ntitle: Documentation doc\n---\n\n"
+
+test mkdoc-2.8 {mkdoc, markdown input to .man output keeps all lines} -setup {
+    set in [writeFile doc.md "# Title\nplain line\n#' marker line\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.man]
+    lrange [split [readFile [tempPath out.man]] \n] 6 8
+} -cleanup {
+    rmFiles doc.md out.man
+    unset -nocomplain in
+} -result {{# Title} {plain line} {#' marker line}}
+
+test mkdoc-2.9 {mkdoc, code to plain text output is Markdown} -constraints knownBug -setup {
+    # The manpage says only .html/.htm outputs are converted to HTML;
+    # the code converts to HTML for anything but .md and .man.
+    set in [writeFile doc.tcl "#' Text.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.txt]
+    string match "---*" [readFile [tempPath out.txt]]
+} -cleanup {
+    rmFiles doc.tcl out.txt
+    unset -nocomplain in
+} -result 1
+
+# -------------------------------------------------------------------------
+## HTML output
+
+test mkdoc-3.0 {mkdoc, code to html, default style} -setup {
+    set in [writeFile mydoc.tcl $code]
+} -body {
+    set r [mkdoc::mkdoc $in [tempPath out.html]]
+    set html [readFile [tempPath out.html]]
+    list $r \
+	[string match "<!DOCTYPE html>*" [string trimleft $html]] \
+	[regexp {<title>Documentation mydoc</title>} $html] \
+	[regexp {<meta name="author" content="NN">} $html] \
+	[regexp {<style>} $html] \
+	[regexp {<link rel="stylesheet"} $html] \
+	[regexp {<h1>Heading</h1>} $html] \
+	[regexp {<em>text</em>} $html] \
+	[regexp {<h1 class="title">} $html] \
+	[string match "*</body>\n</html>\n" $html]
+} -cleanup {
+    rmFiles mydoc.tcl out.html
+    unset -nocomplain in r html
+} -result {{} 1 1 1 1 0 1 1 0 1}
+
+test mkdoc-3.1 {mkdoc, html with YAML header} -setup {
+    set in [writeFile doc.tcl {#' ---
+#' title: My Title
+#' author: Somebody
+#' date: 2022-04-17
+#' ---
+#' Text.
+}]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.htm]
+    set html [readFile [tempPath out.htm]]
+    list \
+	[regexp {<title>My Title</title>} $html] \
+	[regexp {<meta name="title" content="My Title">} $html] \
+	[regexp {<meta name="author" content="Somebody">} $html] \
+	[regexp {<h1 class="title">My Title</h1>} $html] \
+	[regexp {<h2 class="author">Somebody</h2>} $html] \
+	[regexp {<p>Text.</p>} $html] \
+	[regexp {title:} $html]
+} -cleanup {
+    rmFiles doc.tcl out.htm
+    unset -nocomplain in html
+} -result {1 1 1 1 1 1 0}
+
+test mkdoc-3.1.1 {mkdoc, html with YAML date} -constraints knownBug -setup {
+    # See mkdoc-2.1, the date is shown as a clock value.
+    set in [writeFile doc.tcl "#' ---\n#' date: 2022-04-17\n#' ---\n#' Text.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.html]
+    regexp {<h2 class="date">2022-04-17</h2>} [readFile [tempPath out.html]]
+} -cleanup {
+    rmFiles doc.tcl out.html
+    unset -nocomplain in
+} -result 1
+
+test mkdoc-3.2 {mkdoc, html with -css option} -setup {
+    set in [writeFile doc.tcl "#' Text.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.html] -css my.css
+    set html [readFile [tempPath out.html]]
+    list [regexp {<link rel="stylesheet" href="my.css">} $html] [regexp {<style>} $html]
+} -cleanup {
+    rmFiles doc.tcl out.html
+    unset -nocomplain in html
+} -result {1 0}
+
+test mkdoc-3.3 {mkdoc, html with css in YAML header} -setup {
+    set in [writeFile doc.tcl "#' ---\n#' css: mini.css\n#' ---\n#' Text.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.html]
+    set html [readFile [tempPath out.html]]
+    list [regexp {<link rel="stylesheet" href="mini.css">} $html] [regexp {<style>} $html]
+} -cleanup {
+    rmFiles doc.tcl out.html
+    unset -nocomplain in html
+} -result {1 0}
+
+test mkdoc-3.4 {mkdoc, -css option overrides YAML css} -setup {
+    set in [writeFile doc.tcl "#' ---\n#' css: mini.css\n#' ---\n#' Text.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.html] -css other.css
+    regexp {<link rel="stylesheet" href="other.css">} [readFile [tempPath out.html]]
+} -cleanup {
+    rmFiles doc.tcl out.html
+    unset -nocomplain in
+} -result 1
+
+test mkdoc-3.5 {mkdoc, markdown to html (two step)} -setup {
+    set in [writeFile doc.tcl $code]
+} -body {
+    mkdoc::mkdoc $in [tempPath doc.md]
+    mkdoc::mkdoc [tempPath doc.md] [tempPath doc.html]
+    set html [readFile [tempPath doc.html]]
+    list [regexp {<h1>Heading</h1>} $html] [regexp {<em>text</em>} $html] \
+	[regexp {<title>Documentation doc</title>} $html] \
+	[regexp {<h2 class="author">NN</h2>} $html]
+} -cleanup {
+    rmFiles doc.tcl doc.md doc.html
+    unset -nocomplain in html
+} -result {1 1 1 1}
+
+test mkdoc-3.6 {mkdoc, markdown input keeps lines without marker} -setup {
+    set in [writeFile doc.md "Plain *paragraph*.\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.html]
+    regexp {<p>Plain <em>paragraph</em>.</p>} [readFile [tempPath out.html]]
+} -cleanup {
+    rmFiles doc.md out.html
+    unset -nocomplain in
+} -result 1
+
+test mkdoc-3.7 {mkdoc, YAML header must start within the first lines} -setup {
+    set in [writeFile doc.tcl "#' a\n#' b\n#' c\n#' d\n#' e\n#' ---\n#' title: X\n#' ---\n"]
+} -body {
+    mkdoc::mkdoc $in [tempPath out.html]
+    regexp {<title>Documentation doc</title>} [readFile [tempPath out.html]]
+} -cleanup {
+    rmFiles doc.tcl out.html
+    unset -nocomplain in
+} -result 1
+
+# -------------------------------------------------------------------------
+## mkdoc::run
+
+test mkdoc-4.0 {run, wrong # args} -body {
+    mkdoc::run
+} -returnCodes error -result [wrongNumArgs mkdoc::run {argv} 0]
+
+test mkdoc-4.1 {run, executes the first example} -setup {
+    set in [writeFile ex.tcl {
+set ::mkdocTestSourced 1
+#' ## <a name="example">Example</a>
+#'
+#' ```
+#' lappend ::mkdocTestRun first
+#' lappend ::mkdocTestRun [info exists ::mkdocTestSourced]
+#' ```
+#'
+#' ## Example 2
+#'
+#' ```
+#' lappend ::mkdocTestRun second
+#' ```
+}]
+} -body {
+    mkdoc::run [list $in x -1]
+    set ::mkdocTestRun
+} -cleanup {
+    rmFiles ex.tcl
+    unset -nocomplain in ::mkdocTestRun ::mkdocTestSourced
+} -result {first 1}
+
+test mkdoc-4.2 {run, documented single argument form} -setup {
+    set in [writeFile ex.tcl {
+#' ### <a name="example">Example</a>
+#' ```
+#' set ::mkdocTestRun ok
+#' ```
+}]
+} -body {
+    # NOTE: In this form the command waits one second.
+    mkdoc::run $in
+    set ::mkdocTestRun
+} -cleanup {
+    rmFiles ex.tcl
+    unset -nocomplain in ::mkdocTestRun
+} -result ok
+
+test mkdoc-4.2.1 {run, plain Example heading} -constraints knownBug -setup {
+    # The heading pattern requires at least one character between the
+    # hash marks and "Example", so "## Example" is not recognized.
+    set in [writeFile ex.tcl "#' ## Example\n#' ```\n#' set ::mkdocTestRun ok\n#' ```\n"]
+} -body {
+    mkdoc::run [list $in x -1]
+    set ::mkdocTestRun
+} -cleanup {
+    rmFiles ex.tcl
+    unset -nocomplain in ::mkdocTestRun
+} -result ok
+
+test mkdoc-4.3 {run, no example section} -setup {
+    set in [writeFile ex.tcl "#' ## Usage\n#' ```\n#' set ::mkdocTestRun bad\n#' ```\n"]
+} -body {
+    mkdoc::run [list $in x -1]
+    info exists ::mkdocTestRun
+} -cleanup {
+    rmFiles ex.tcl
+    unset -nocomplain in ::mkdocTestRun
+} -result 0
+
+test mkdoc-4.4 {run, missing input file throws an error} -body {
+    mkdoc::run [list [tempPath nosuchfile.tcl] x -1]
+} -returnCodes error -match glob -result {couldn't read file "*/nosuchfile.tcl": no such file or directory}
+
+# -------------------------------------------------------------------------
+
+unset code
+rename writeFile {}
+rename readFile {}
+rename today {}
+rename rmFiles {}
+testsuiteCleanup
+return
