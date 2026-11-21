@@ -1,0 +1,458 @@
+# -*- tcl -*-
+# htmlparse-api.test:  tests for the documented API of htmlparse not
+# covered by htmlparse.test: default callback and virtual root,
+# DOCTYPE and line ending handling, -incvar in a namespace, the
+# queue (incremental) mode with execution of the generated scripts,
+# debugCallback, more mapEscapes cases, and the structure of the
+# trees made by 2tree, removeVisualFluff and removeFormDefs.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+    use struct/list.tcl     struct::list
+    use struct/tree.tcl     struct::tree
+    use struct/queue.tcl    struct::queue
+    use struct/stack.tcl    struct::stack
+}
+testing {
+    useLocal htmlparse.tcl htmlparse
+}
+
+# -------------------------------------------------------------------------
+
+# Remembering callback.
+proc cb {args} {global tags ; lappend tags $args ; return}
+
+# Evaluate all scripts in queue q, replacing the clientdata placeholder.
+proc runqueue {q cd} {
+    while {[$q size]} {
+	eval [string map [list @win@ [list $cd]] [$q get]]
+    }
+}
+
+# A minimal queue object: only the put method is used by the parser.
+proc myqueue {method args} {
+    global myq
+    switch -- $method {
+	put {lappend myq {*}$args}
+	default {error "unexpected method $method"}
+    }
+}
+
+# List of {depth type data} of all nodes in tree t, in pre-order.
+proc tdump {t} {
+    set res {}
+    $t walk root n {
+	if {[$t keyexists $n data]} {
+	    lappend res [list [$t depth $n] [$t get $n type] [$t get $n data]]
+	} else {
+	    lappend res [list [$t depth $n] [$t get $n type]]
+	}
+    }
+    return $res
+}
+
+# -------------------------------------------------------------------------
+# ::htmlparse::parse, normal mode
+
+test htmlparse-api-1.1 {parse returns the empty string} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb {<a>x</a>}
+} -cleanup {
+    unset tags
+} -result {}
+
+test htmlparse-api-1.2 {parse: default callback and virtual root} -body {
+    htmlparse::parse {<a href="x">t</a>}
+} -output {==> hmstart {} {} {}
+==> a {} href=\"x\" t
+==> a / {} {}
+==> hmstart / {} {}
+} -result {}
+
+test htmlparse-api-1.3 {parse: missing option value} -body {
+    htmlparse::parse -cmd
+} -returnCodes error -result {::htmlparse::parse : Option "cmd" requires an argument}
+
+test htmlparse-api-1.4 {parse: -split 0 is not allowed} -body {
+    htmlparse::parse -split 0 x
+} -returnCodes error -result {::htmlparse::parse : -split illegal argument (<= 0)}
+
+test htmlparse-api-1.5 {parse: errors from the callback propagate} -setup {
+    proc bad {args} {error oops}
+} -body {
+    htmlparse::parse -cmd bad {<a>x</a>}
+} -cleanup {
+    rename bad {}
+} -returnCodes error -result oops
+
+test htmlparse-api-1.6 {parse: leading DOCTYPE is ignored} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb -vroot r {<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"><p>x</p>}
+    set tags
+} -cleanup {
+    unset tags
+} -result {{r {} {} {}} {p {} {} x} {p / {} {}} {r / {} {}}}
+
+test htmlparse-api-1.7 {parse: carriage returns become newlines} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb -vroot r "<p>a\r\nb\rc</p>"
+    set tags
+} -cleanup {
+    unset tags
+} -result [list {r {} {} {}} [list p {} {} "a\n\nb\nc"] {p / {} {}} {r / {} {}}]
+
+test htmlparse-api-1.8 {parse: tag case and uninterpreted parameters are kept} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb -vroot r {<P CLASS=a ID='b'  x="1 2">t</P >}
+    set tags
+} -cleanup {
+    unset tags
+} -result {{r {} {} {}} {P {} {CLASS=a ID='b'  x="1 2"} t} {P / {} {}} {r / {} {}}}
+
+test htmlparse-api-1.9 {parse: text before the first and after the last tag} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb -vroot r {before<a>x</a>after}
+    set tags
+} -cleanup {
+    unset tags
+} -result {{r {} {} before} {a {} {} x} {a / {} after} {r / {} {}}}
+
+test htmlparse-api-1.10 {parse: -split is ignored in normal mode} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb -split 1 -vroot r {<a>x</a><b>y</b>}
+    set tags
+} -cleanup {
+    unset tags
+} -result {{r {} {} {}} {a {} {} x} {a / {} {}} {b {} {} y} {b / {} {}} {r / {} {}}}
+
+test htmlparse-api-1.11 {parse: text without tags} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb -vroot r {just text}
+    set tags
+} -cleanup {
+    unset tags
+} -result {{r {} {} {just text}} {r / {} {}}}
+
+test htmlparse-api-1.12 {parse: empty string} -setup {
+    set tags {}
+} -body {
+    htmlparse::parse -cmd cb -vroot r {}
+    set tags
+} -cleanup {
+    unset tags
+} -result {{r {} {} {}} {r / {} {}}}
+
+# -------------------------------------------------------------------------
+# -incvar
+
+test htmlparse-api-2.1 {-incvar: namespace variable} -setup {
+    set tags {}
+    namespace eval ::hpapi {variable inc {}}
+} -body {
+    htmlparse::parse -cmd cb -vroot r -incvar ::hpapi::inc {<a>b</a><c x}
+    list $tags $::hpapi::inc
+} -cleanup {
+    namespace delete ::hpapi
+    unset tags
+} -result {{{r {} {} {}} {a {} {} b} {a / {} {}} {r / {} {}}} {<c x}}
+
+test htmlparse-api-2.2 {-incvar: cleared when the input is complete} -setup {
+    set tags {}
+    set inc {}
+} -body {
+    htmlparse::parse -cmd cb -vroot r -incvar inc {<a>b<}
+    set first $inc
+    htmlparse::parse -cmd cb -vroot r -incvar inc {/a>c}
+    list $first $inc $tags
+} -cleanup {
+    unset tags inc first
+} -result {< {} {{r {} {} {}} {a {} {} b} {r / {} {}} {r {} {} {}} {a / {} c} {r / {} {}}}}
+
+test htmlparse-api-2.3 {-incvar: variable need not exist} -setup {
+    set tags {}
+    catch {unset inc}
+} -body {
+    htmlparse::parse -cmd cb -vroot r -incvar inc {<a>b</a><i}
+    set inc
+} -cleanup {
+    unset tags inc
+} -result {<i}
+
+# -------------------------------------------------------------------------
+# -queue: incremental mode
+
+test htmlparse-api-3.1 {queue mode: returns empty, invokes nothing} -setup {
+    set tags {}
+    struct::queue q
+} -body {
+    list [htmlparse::parse -cmd cb -queue q -split 5 {<a>1</a><b>2</b>}] \
+	$tags [q size]
+} -cleanup {
+    q destroy
+    unset tags
+} -result {{} {} 1}
+
+test htmlparse-api-3.2 {queue mode: generated scripts call with clientdata} -setup {
+    set tags {}
+    struct::queue q
+} -body {
+    htmlparse::parse -cmd cb -vroot r -queue q -split 5 {<a>1</a><b>2</b>}
+    runqueue q .w
+    set tags
+} -cleanup {
+    q destroy
+    unset tags
+} -result {{.w r {} {} {}} {.w a {} {} 1} {.w a / {} {}} {.w b {} {} 2} {.w b / {} {}}}
+
+test htmlparse-api-3.3 {queue mode: default split size is 10} -setup {
+    struct::queue q
+} -body {
+    htmlparse::parse -cmd cb -queue q [string repeat <x>y</x> 10]
+    set res [q size]
+    foreach s [q peek [q size]] {
+	lappend res [llength [split $s \n]]
+    }
+    set res
+} -cleanup {
+    q destroy
+    unset res s
+} -result {3 10 10 10}
+
+test htmlparse-api-3.4 {queue mode: each invocation starts with the vroot} -setup {
+    set tags {}
+    struct::queue q
+} -body {
+    htmlparse::parse -cmd cb -vroot V -queue q -split 3 {<a>1</a>}
+    htmlparse::parse -cmd cb -vroot V -queue q -split 3 {<b>2</b>}
+    runqueue q W
+    set tags
+} -cleanup {
+    q destroy
+    unset tags
+} -result {{W V {} {} {}} {W a {} {} 1} {W a / {} {}} {W V {} {} {}} {W b {} {} 2} {W b / {} {}}}
+
+test htmlparse-api-3.5 {queue mode: any object with a put method} -setup {
+    set myq {}
+} -body {
+    htmlparse::parse -cmd cb -vroot V -queue myqueue -split 1 {<a>1</a>}
+    set myq
+} -cleanup {
+    unset myq
+} -result {{{cb} @win@ {V} {} {} {}} {{cb} @win@ {a} {} {} {1}} {{cb} @win@ {a} {/} {} {}}}
+
+# The last script is padded with invocations of an empty command when
+# the number of tags is not a multiple of the -split value.
+test htmlparse-api-3.6 {queue mode: scripts for a partial last group} -constraints {
+    knownBug
+} -setup {
+    set tags {}
+    struct::queue q
+} -body {
+    htmlparse::parse -cmd cb -vroot r -queue q {<a>1</a><b>2</b>}
+    runqueue q .w
+    set tags
+} -cleanup {
+    q destroy
+    unset tags
+} -result {{.w r {} {} {}} {.w a {} {} 1} {.w a / {} {}} {.w b {} {} 2} {.w b / {} {}}}
+
+test htmlparse-api-3.7 {queue mode: command prefix with several words} -setup {
+    set tags {}
+    struct::queue q
+} -body {
+    htmlparse::parse -cmd {cb x y} -vroot r -queue q -split 3 {<a>1</a>}
+    runqueue q W
+    set tags
+} -cleanup {
+    q destroy
+    unset tags
+} -result {{x y W r {} {} {}} {x y W a {} {} 1} {x y W a / {} {}}}
+
+# -------------------------------------------------------------------------
+# ::htmlparse::debugCallback
+
+test htmlparse-api-4.1 {debugCallback: four arguments} -body {
+    htmlparse::debugCallback a / {} x
+} -output "==> a / {} x\n" -result {}
+
+test htmlparse-api-4.2 {debugCallback: five arguments} -body {
+    htmlparse::debugCallback .w a {} {href="x"} text
+} -output "==> [list .w a {} {href="x"} text]\n" -result {}
+
+# -------------------------------------------------------------------------
+# ::htmlparse::mapEscapes
+
+test htmlparse-api-5.1 {mapEscapes: wrong # args} -body {
+    htmlparse::mapEscapes
+} -returnCodes error -result [tcltest::wrongNumArgs htmlparse::mapEscapes html 0]
+
+test htmlparse-api-5.2 {mapEscapes: string without escapes is unchanged} -body {
+    htmlparse::mapEscapes {[exit] \n $x {a b} "q"}
+} -result {[exit] \n $x {a b} "q"}
+
+test htmlparse-api-5.3 {mapEscapes: Tcl special characters around entities} -body {
+    htmlparse::mapEscapes {&amp;[set y] \&lt;$z}
+} -result {&[set y] \<$z}
+
+test htmlparse-api-5.4 {mapEscapes: more named entities} -body {
+    htmlparse::mapEscapes {&nbsp;&quot;&copy;&eacute;&auml;}
+} -result " \"©éä"
+
+test htmlparse-api-5.5 {mapEscapes: numeric references without semicolon} -body {
+    htmlparse::mapEscapes {&#65 &#x42 &lt x}
+} -result {A B < x}
+
+test htmlparse-api-5.6 {mapEscapes: upper limit of numeric references} -body {
+    htmlparse::mapEscapes {&#65533; &#65534; &#xFFFD; &#xfffe;}
+} -result "� &#65534; � &#xfffe;"
+
+test htmlparse-api-5.7 {mapEscapes: empty string} -body {
+    htmlparse::mapEscapes {}
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::htmlparse::2tree
+
+test htmlparse-api-6.1 {2tree: wrong # args} -body {
+    htmlparse::2tree <a>
+} -returnCodes error -result [tcltest::wrongNumArgs htmlparse::2tree {html tree} 1]
+
+test htmlparse-api-6.2 {2tree returns the tree} -setup {
+    struct::tree t
+} -body {
+    htmlparse::2tree {<a>x</a>} t
+} -cleanup {
+    t destroy
+} -result t
+
+test htmlparse-api-6.3 {2tree: tag names, raw attributes and PCDATA} -setup {
+    struct::tree t
+} -body {
+    htmlparse::2tree {<HTML><Body BGCOLOR="red" x=1>  text  </Body></HTML>} t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 hmstart {}} {2 html {}} {3 body {BGCOLOR="red" x=1}} {4 PCDATA text}}
+
+test htmlparse-api-6.4 {2tree: paragraphs and list items without end tags} -setup {
+    struct::tree t
+} -body {
+    htmlparse::2tree {<body><p>a<p>b<ul><li>i1<li>i2</ul></body>} t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 hmstart {}} {2 body {}} {3 p {}} {4 PCDATA a} {3 p {}} {4 PCDATA b} {4 ul {}} {5 li {}} {6 PCDATA i1} {5 li {}} {6 PCDATA i2}}
+
+test htmlparse-api-6.5 {2tree: text behind a closing tag belongs to the parent} -setup {
+    struct::tree t
+} -body {
+    htmlparse::2tree {<div><b>x</b>y</div>} t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 hmstart {}} {2 div {}} {3 b {}} {4 PCDATA x} {3 PCDATA y}}
+
+test htmlparse-api-6.6 {2tree: text behind empty elements} -setup {
+    struct::tree t
+} -body {
+    htmlparse::2tree {<div><img src=x>a<br>b<input name=q>c</div>} t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 hmstart {}} {2 div {}} {3 img src=x} {3 PCDATA a} {3 br {}} {3 PCDATA b} {3 input name=q} {3 PCDATA c}}
+
+test htmlparse-api-6.7 {2tree: missing and unmatched closing tags} -setup {
+    struct::tree t
+} -body {
+    htmlparse::2tree {<a><b>x</a>y</b></c>z} t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 hmstart {}} {2 a {}} {3 b {}} {4 PCDATA x} {2 PCDATA y} {2 PCDATA z}}
+
+test htmlparse-api-6.8 {2tree: tree does not exist} -body {
+    htmlparse::2tree {<a>} nosuchtree
+} -returnCodes error -result {invalid command name "nosuchtree"}
+
+test htmlparse-api-6.9 {2tree: meta and headings have no content} -setup {
+    struct::tree t
+} -body {
+    htmlparse::2tree {<head><meta name=x></head><h1>T</h1>after} t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 hmstart {}} {2 head {}} {3 meta name=x} {2 h1 {}} {3 PCDATA T} {3 PCDATA after}}
+
+# -------------------------------------------------------------------------
+# ::htmlparse::removeVisualFluff and ::htmlparse::removeFormDefs
+
+test htmlparse-api-7.1 {removeVisualFluff returns the empty string} -setup {
+    struct::tree t
+    htmlparse::2tree {<b>x</b>} t
+} -body {
+    htmlparse::removeVisualFluff t
+} -cleanup {
+    t destroy
+} -result {}
+
+test htmlparse-api-7.2 {removeVisualFluff: visual tags are replaced by their content} -setup {
+    struct::tree t
+    htmlparse::2tree {<html><body><center>c</center><div>d<font>f</font></div><sup>s</sup><b>b<i>i</i></b></body></html>} t
+} -body {
+    htmlparse::removeVisualFluff t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 body {}} {2 PCDATA c} {2 PCDATA d} {2 PCDATA f} {2 PCDATA s} {2 PCDATA b} {2 PCDATA i}}
+
+test htmlparse-api-7.3 {removeVisualFluff: some tags are removed with their content} -setup {
+    struct::tree t
+    htmlparse::2tree {<body><script>s()</script><select><option>o</select><map><area></map><meta name=x><img src=y>t</body>} t
+} -body {
+    htmlparse::removeVisualFluff t
+    tdump t
+} -cleanup {
+    t destroy
+} -result {{0 root} {1 body {}} {2 PCDATA t}}
+
+test htmlparse-api-7.4 {removeVisualFluff: wrong # args} -body {
+    htmlparse::removeVisualFluff
+} -returnCodes error -result [tcltest::wrongNumArgs htmlparse::removeVisualFluff tree 0]
+
+test htmlparse-api-7.5 {removeFormDefs: forms are removed with their content} -setup {
+    struct::tree t
+    htmlparse::2tree {<body><b>x</b><form action=a><input name=q><p>in form</form><input name=out></body>} t
+} -body {
+    list [htmlparse::removeFormDefs t] [tdump t]
+} -cleanup {
+    t destroy
+} -result {{} {{0 root} {1 hmstart {}} {2 body {}} {3 b {}} {4 PCDATA x} {3 input name=out}}}
+
+test htmlparse-api-7.6 {removeFormDefs: wrong # args} -body {
+    htmlparse::removeFormDefs
+} -returnCodes error -result [tcltest::wrongNumArgs htmlparse::removeFormDefs tree 0]
+
+# -------------------------------------------------------------------------
+
+rename cb {}
+rename runqueue {}
+rename myqueue {}
+rename tdump {}
+testsuiteCleanup
+return
