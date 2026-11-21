@@ -1,0 +1,315 @@
+# oodialect-api.test - additional tests for oo::dialect
+# -------------------------------------------------------------------------
+#
+# oodialect.test covers custom keywords along a chain of four dialects,
+# naming, aliases and ancestry. This file adds argument checks, the
+# oo::define keywords, define on existing and new classes, the single
+# keyword form, the class stack, dynamic_methods, superclass handling and
+# the structure of a dialect. Documentation: oodialect.md.
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+testsNeed        TclOO 1
+
+testing {
+    useLocal oodialect.tcl oo::dialect
+}
+
+# -------------------------------------------------------------------------
+## oo::dialect::create
+
+test oodialect-api-1.0 {create, wrong # args (none)} -body {
+    oo::dialect::create
+} -returnCodes error -result {wrong # args: should be "oo::dialect::create name ?parent?"}
+
+test oodialect-api-1.1 {create, wrong # args (too many)} -body {
+    oo::dialect::create a b c
+} -returnCodes error -result {wrong # args: should be "oo::dialect::create name ?parent?"}
+
+test oodialect-api-1.2 {create, structure of a new dialect} -body {
+    oo::dialect::create ::odtA
+    list [lsort [info commands ::odtA::*]] \
+	[namespace exists ::odtA::define] \
+	[info class superclass ::odtA::class] \
+	[info object class ::odtA::object] \
+	[info class superclass ::odtA::object]
+} -cleanup {
+    namespace delete ::odtA
+} -result {{::odtA::class ::odtA::define ::odtA::dynamic_methods ::odtA::object} 1 ::oo::dialect::MotherOfAllMetaClasses ::odtA::class ::oo::object}
+
+test oodialect-api-1.3 {create, relative name is resolved in the caller's namespace} -body {
+    namespace eval ::odtNs {
+	oo::dialect::create sub
+    }
+    list [namespace exists ::odtNs::sub] [info commands ::odtNs::sub::class]
+} -cleanup {
+    namespace delete ::odtNs
+} -result {1 ::odtNs::sub::class}
+
+test oodialect-api-1.4 {create, define namespace has the oo::define keywords} -body {
+    oo::dialect::create ::odtA
+    set missing {}
+    foreach c [info commands ::oo::define::*] {
+	set c [namespace tail $c]
+	if {[info commands ::odtA::define::$c] eq {}} {lappend missing $c}
+    }
+    set missing
+} -cleanup {
+    namespace delete ::odtA
+    unset -nocomplain missing c
+} -result {}
+
+test oodialect-api-1.5 {create, child dialect object inherits parent object} -body {
+    oo::dialect::create ::odtA
+    oo::dialect::create ::odtB ::odtA
+    info class superclass ::odtB::object
+} -cleanup {
+    namespace delete ::odtB ::odtA
+} -result {::odtA::object}
+
+test oodialect-api-1.6 {create, child dialect sees keywords of the parent} -body {
+    oo::dialect::create ::odtA
+    proc ::odtA::define::kwA {} { return A }
+    oo::dialect::create ::odtB ::odtA
+    ::odtB::define::kwA
+} -cleanup {
+    namespace delete ::odtB ::odtA
+} -result {A}
+
+# -------------------------------------------------------------------------
+# A dialect for the remaining tests.
+
+oo::dialect::create ::odt
+
+test oodialect-api-2.0 {class create, oo::define keywords work} -body {
+    ::odt::class create odtC {
+	variable v
+	constructor {x} { set v $x }
+	method get {} { return $v }
+    }
+    [odtC new 42] get
+} -cleanup {
+    odtC destroy
+} -result 42
+
+test oodialect-api-2.1 {class create returns the qualified name} -body {
+    ::odt::class create odtC {}
+} -cleanup {
+    odtC destroy
+} -result {::odtC}
+
+test oodialect-api-2.2 {class create, without definition script} -body {
+    ::odt::class create odtC
+    info class superclass odtC
+} -cleanup {
+    odtC destroy
+} -result {::odt::object}
+
+test oodialect-api-2.3 {class create, dialect object is always a superclass} -setup {
+    oo::class create odtPlain {}
+} -body {
+    ::odt::class create odtC {
+	superclass odtPlain
+    }
+    info class superclass odtC
+} -cleanup {
+    odtC destroy
+    odtPlain destroy
+} -result {::odtPlain ::odt::object}
+
+test oodialect-api-2.4 {class create, classes of the dialect are instances of class} -body {
+    ::odt::class create odtC {}
+    info object class odtC
+} -cleanup {
+    odtC destroy
+} -result {::odt::class}
+
+test oodialect-api-2.5 {class create, wrong # args} -body {
+    ::odt::class create
+} -returnCodes error -result {wrong # args: should be "::odt::class create name ?definitionScript?"}
+
+test oodialect-api-2.6 {class create, error in definition script} -body {
+    ::odt::class create odtC {
+	error boom
+    }
+} -cleanup {
+    catch {odtC destroy}
+} -returnCodes error -result {boom}
+
+# -------------------------------------------------------------------------
+## define
+
+test oodialect-api-3.0 {define creates a new class} -body {
+    set r [::odt::define odtC {
+	method hi {} { return hi }
+    }]
+    list $r [info object class odtC] [[odtC new] hi]
+} -cleanup {
+    odtC destroy
+    unset -nocomplain r
+} -result {::odtC ::odt::class hi}
+
+test oodialect-api-3.1 {define extends an existing class} -setup {
+    ::odt::class create odtC {
+	method a {} { return a }
+    }
+    set o [odtC new]
+} -body {
+    ::odt::define odtC {
+	method b {} { return b }
+    }
+    list [$o a] [$o b]
+} -cleanup {
+    odtC destroy
+    unset -nocomplain o
+} -result {a b}
+
+test oodialect-api-3.2 {define, single keyword form} -setup {
+    ::odt::class create odtC {}
+} -body {
+    ::odt::define odtC method c {x} { return c$x }
+    [odtC new] c 1
+} -cleanup {
+    odtC destroy
+} -result {c1}
+
+test oodialect-api-3.3 {define, relative class name in a namespace} -body {
+    namespace eval ::odtNs {
+	::odt::define odtC {}
+    }
+    info commands ::odtNs::odtC
+} -cleanup {
+    namespace delete ::odtNs
+} -result {::odtNs::odtC}
+
+test oodialect-api-3.4 {define, unknown keyword} -setup {
+    ::odt::class create odtC {}
+} -body {
+    ::odt::define odtC nosuchkeyword
+} -cleanup {
+    odtC destroy
+} -returnCodes error -result {invalid command name "nosuchkeyword"}
+
+test oodialect-api-3.5 {define, class stack is restored after an error} -setup {
+    ::odt::class create odtC {}
+    set before $::oo::dialect::class_stack
+} -body {
+    catch {::odt::define odtC { error boom }} msg
+    list $msg [string equal $before $::oo::dialect::class_stack]
+} -cleanup {
+    odtC destroy
+    unset -nocomplain before msg
+} -result {boom 1}
+
+# -------------------------------------------------------------------------
+## Custom keywords, current_class, dynamic_methods
+
+test oodialect-api-4.0 {current_class inside a keyword} -setup {
+    proc ::odt::define::whoami {} {
+	set ::odtWho [current_class]
+    }
+} -body {
+    ::odt::class create odtC {
+	whoami
+    }
+    set ::odtWho
+} -cleanup {
+    odtC destroy
+    rename ::odt::define::whoami {}
+    unset -nocomplain ::odtWho
+} -result {::odtC}
+
+test oodialect-api-4.1 {current_class, nested definitions} -setup {
+    proc ::odt::define::whoami {} {
+	lappend ::odtWho [current_class]
+    }
+} -body {
+    ::odt::class create odtC {
+	whoami
+	::odt::class create ::odtD {
+	    whoami
+	}
+	whoami
+    }
+    set ::odtWho
+} -cleanup {
+    odtD destroy
+    odtC destroy
+    rename ::odt::define::whoami {}
+    unset -nocomplain ::odtWho
+} -result {::odtC ::odtD ::odtC}
+
+test oodialect-api-4.2 {keyword overriding an oo::define keyword} -setup {
+    rename ::odt::define::constructor ::odt::define::constructor.orig
+    proc ::odt::define::constructor {arglist body} {
+	oo::define [current_class] constructor $arglist "my Init\n$body"
+    }
+} -body {
+    ::odt::define ::odt::object {
+	method Init {} { my variable inited; set inited 1 }
+    }
+    ::odt::class create odtC {
+	constructor {} { my variable seen; my variable inited; set seen $inited }
+	method seen {} { my variable seen; return $seen }
+    }
+    [odtC new] seen
+} -cleanup {
+    odtC destroy
+    oo::define ::odt::object deletemethod Init
+    rename ::odt::define::constructor {}
+    rename ::odt::define::constructor.orig ::odt::define::constructor
+} -result 1
+
+test oodialect-api-4.3 {dynamic_methods is called after definitions} -setup {
+    rename ::odt::dynamic_methods ::odt::dynamic_methods.orig
+    proc ::odt::dynamic_methods {class} {
+	lappend ::odtDyn $class [llength [info class methods $class]]
+    }
+} -body {
+    ::odt::class create odtC {}
+    set ::odtDyn {}
+    ::odt::define odtC method m {} {}
+    set ::odtDyn
+} -cleanup {
+    odtC destroy
+    rename ::odt::dynamic_methods {}
+    rename ::odt::dynamic_methods.orig ::odt::dynamic_methods
+    unset -nocomplain ::odtDyn
+} -result {::odtC 1}
+
+# -------------------------------------------------------------------------
+## aliases
+
+test oodialect-api-5.0 {aliases method, class without aliases} -body {
+    ::odt::class create odtC {}
+    odtC aliases
+} -cleanup {
+    odtC destroy
+} -result {}
+
+test oodialect-api-5.1 {aliases, superclass by alias} -body {
+    ::odt::class create odtC {
+	aliases odtAliasC
+	method m {} { return m }
+    }
+    ::odt::class create odtD {
+	superclass odtAliasC
+    }
+    list [odtC aliases] [info class superclass odtD] [[odtD new] m]
+} -cleanup {
+    odtC destroy
+} -result {::odtAliasC {::odtC ::odt::object} m}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::odt
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
