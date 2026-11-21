@@ -1,0 +1,320 @@
+# -*- tcl -*-
+# switched-api.test: tests for the documented API of the switched
+# class (package switched), which had no tests.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal stooop.tcl stooop
+}
+testing {
+    useLocalKeep switched.tcl switched
+}
+
+# -------------------------------------------------------------------------
+
+namespace import ::stooop::*
+
+# A class derived from switched, recording the calls of its set-option
+# procedures in the global list ::calls. The switched data members are
+# accessed fully qualified: the relative form "$switched::(...)" used
+# in the manual page does not resolve from within the class namespace
+# on Tcl 9.
+class car {
+    proc car {this args} switched {$args} {
+	set ($this,completeBefore) $::switched::($this,complete)
+	switched::complete $this
+    }
+    proc ~car {this} {}
+    proc options {this} {
+	return [list \
+	    [list -fuel petrol] \
+	    [list -length {} {}] \
+	    [list -power 100 50] \
+	    [list -width 2 2] \
+	]
+    }
+    proc set-fuel {this value} {
+	if {$value eq "water"} {error "cars do not run on water"}
+	lappend ::calls [list fuel $value]
+    }
+    proc set-length {this value} {lappend ::calls [list length $value]}
+    proc set-power  {this value} {lappend ::calls [list power $value]}
+    proc set-width  {this value} {
+	if {$::switched::($this,complete)} {
+	    error {option -width cannot be set dynamically}
+	}
+	lappend ::calls [list width $value]
+    }
+}
+
+# A class which does not complete itself.
+class bike {
+    proc bike {this args} switched {$args} {}
+    proc ~bike {this} {}
+    proc options {this} {return {{-gears 1}}}
+    proc set-gears {this value} {lappend ::calls [list gears $value]}
+}
+
+# -------------------------------------------------------------------------
+# Construction and complete
+
+test switched-api-1.0 {complete, forced configuration} -setup {
+    set calls {}
+} -body {
+    set c [new car]
+    lsort $calls
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {{fuel petrol} {power 50}}
+
+test switched-api-1.1 {complete, construction arguments override} -setup {
+    set calls {}
+} -body {
+    set c [new car -length 4.5 -fuel diesel -width 2]
+    list [lsort $calls] [switched::cget $c -length] [switched::cget $c -fuel] \
+	[switched::cget $c -power] [switched::cget $c -width]
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {{{fuel diesel} {length 4.5} {power 50}} 4.5 diesel 50 2}
+
+test switched-api-1.2 {complete, construction argument equal to the initial value} -setup {
+    set calls {}
+} -body {
+    set c [new car -power 50]
+    lsort $calls
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {{fuel petrol} {power 50}}
+
+test switched-api-1.3 {complete data member} -setup {
+    set calls {}
+} -body {
+    set c [new car]
+    list $car::($c,completeBefore) $switched::($c,complete)
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {0 1}
+
+test switched-api-1.4 {complete data member, not completed} -setup {
+    set calls {}
+} -body {
+    set b [new bike -gears 3]
+    list $switched::($b,complete) $calls
+} -cleanup {
+    delete $b
+    unset b calls
+} -result {0 {}}
+
+test switched-api-1.5 {complete called later} -setup {
+    set calls {}
+    set b [new bike -gears 3]
+} -body {
+    switched::complete $b
+    list $switched::($b,complete) $calls [switched::cget $b -gears]
+} -cleanup {
+    delete $b
+    unset b calls
+} -result {1 {{gears 3}} 3}
+
+test switched-api-1.6 {construction, value missing} -setup {
+    set calls {}
+} -body {
+    new car -fuel diesel -length
+} -cleanup {
+    unset calls
+} -returnCodes error -result {value for "-length" missing}
+
+test switched-api-1.7 {construction, unknown option} -setup {
+    set calls {}
+} -body {
+    new car -color red
+} -cleanup {
+    unset calls
+} -returnCodes error -result {::car: unknown option "-color"}
+
+test switched-api-1.8 {-option data members} -setup {
+    set calls {}
+} -body {
+    set c [new car -length 4.5]
+    list $switched::($c,-fuel) $switched::($c,-length) $switched::($c,-power) $switched::($c,-width)
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {petrol 4.5 50 2}
+
+# -------------------------------------------------------------------------
+# cget
+
+test switched-api-2.0 {cget, unknown option} -setup {
+    set calls {}
+    set c [new car]
+} -body {
+    switched::cget $c -color
+} -cleanup {
+    delete $c
+    unset c calls
+} -returnCodes error -result {::car: unknown option "-color"}
+
+test switched-api-2.1 {cget, wrong # args} -body {
+    switched::cget x
+} -returnCodes error -result {wrong # args: should be "switched::cget this option"}
+
+# -------------------------------------------------------------------------
+# configure
+
+test switched-api-3.0 {configure, all descriptions} -setup {
+    set calls {}
+    set c [new car -length 4.5]
+} -body {
+    switched::configure $c
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {{-fuel petrol petrol} {-length {} 4.5} {-power 100 50} {-width 2 2}}
+
+test switched-api-3.1 {configure, one description} -setup {
+    set calls {}
+    set c [new car -length 4.5]
+} -body {
+    list [switched::configure $c -fuel] [switched::configure $c -length]
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {{-fuel petrol petrol} {-length {} 4.5}}
+
+test switched-api-3.2 {configure, set options} -setup {
+    set calls {}
+    set c [new car]
+    set calls {}
+} -body {
+    switched::configure $c -power 40 -fuel electricity
+    list $calls [switched::cget $c -power] [switched::cget $c -fuel]
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {{{power 40} {fuel electricity}} 40 electricity}
+
+test switched-api-3.3 {configure, unchanged value does not call set-option} -setup {
+    set calls {}
+    set c [new car]
+    set calls {}
+} -body {
+    switched::configure $c -power 50 -fuel petrol
+    set calls
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {}
+
+test switched-api-3.4 {configure, unknown option} -setup {
+    set calls {}
+    set c [new car]
+} -body {
+    switched::configure $c -power 40 -color red
+} -cleanup {
+    delete $c
+    unset c calls
+} -returnCodes error -result {::car: unknown option "-color"}
+
+test switched-api-3.5 {configure, unknown option, nothing is set} -setup {
+    set calls {}
+    set c [new car]
+    set calls {}
+} -body {
+    catch {switched::configure $c -power 40 -color red}
+    list $calls [switched::cget $c -power]
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {{} 50}
+
+test switched-api-3.6 {configure, value missing} -setup {
+    set calls {}
+    set c [new car]
+} -body {
+    switched::configure $c -power 40 -fuel
+} -cleanup {
+    delete $c
+    unset c calls
+} -returnCodes error -result {value for "-fuel" missing}
+
+test switched-api-3.7 {configure, error from set-option} -setup {
+    set calls {}
+    set c [new car]
+} -body {
+    switched::configure $c -fuel water
+} -cleanup {
+    delete $c
+    unset c calls
+} -returnCodes error -result {cars do not run on water}
+
+test switched-api-3.8 {configure, option settable at construction time only} -setup {
+    set calls {}
+    set c [new car -width 3]
+} -body {
+    list [lsearch -inline $calls {width *}] [catch {switched::configure $c -width 4} msg] $msg
+} -cleanup {
+    delete $c
+    unset c calls msg
+} -result {{width 3} 1 {option -width cannot be set dynamically}}
+
+# The value is stored before the set-option procedure is called, so
+# after a rejected value the cached value is the rejected one, and a
+# second attempt with the same value is silently accepted.
+test switched-api-3.9 {configure, rejected value is not kept} -constraints {
+    knownBug
+} -setup {
+    set calls {}
+    set c [new car]
+} -body {
+    catch {switched::configure $c -fuel water}
+    list [switched::cget $c -fuel] [catch {switched::configure $c -fuel water}]
+} -cleanup {
+    delete $c
+    unset c calls
+} -result {petrol 1}
+
+# -------------------------------------------------------------------------
+# Manpage example
+
+test switched-api-4.0 {manpage example} -setup {
+    set calls {}
+} -body {
+    set vehicle [new car -length 4.5 -width 2 -power 100 -fuel diesel]
+    set res [switched::cget $vehicle -fuel]
+    switched::configure $vehicle -power 40 -fuel electricity
+    lappend res [switched::cget $vehicle -fuel] [switched::cget $vehicle -power]
+} -cleanup {
+    delete $vehicle
+    unset vehicle calls res
+} -result {diesel electricity 40}
+
+test switched-api-4.1 {classof a switched object} -setup {
+    set calls {}
+    set c [new car]
+} -body {
+    classof $c
+} -cleanup {
+    delete $c
+    unset c calls
+} -result ::car
+
+# -------------------------------------------------------------------------
+
+namespace delete ::car ::bike
+namespace forget ::stooop::*
+testsuiteCleanup
+return
