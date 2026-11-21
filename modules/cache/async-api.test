@@ -1,0 +1,488 @@
+# -*- tcl -*-
+# Additional tests for the cache::async module.
+#
+# async.test covers get with preset values/holes, provider values/holes,
+# request merging, -full-async-results 0 and clear of single keys. This
+# file adds argument errors, exists, clear of all keys, reloading,
+# set/unset notifications, delegation and option handling.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal async.tcl cache::async
+}
+
+# -------------------------------------------------------------------------
+# Helper commands
+
+# Log of all calls made to the helpers below.
+set ::log {}
+
+# Provider which records its calls and answers nothing.
+proc PROVIDER {args} {
+    lappend ::log [linsert $args 0 PROVIDER]
+    return provider-result
+}
+
+# Provider which answers with a value derived from the key.
+proc PROVIDER_VALUE {method key cache} {
+    lappend ::log [list PROVIDER_VALUE $method $key $cache]
+    $cache set $key value-$key
+    return
+}
+
+proc DONE {args} {
+    lappend ::log [linsert $args 0 DONE]
+    return
+}
+
+# Process pending idle and timer events, bounded.
+proc settle {} {
+    for {set i 0} {$i < 20} {incr i} {
+	update
+    }
+}
+
+# -------------------------------------------------------------------------
+## Construction and options
+
+test cache-async-api-1.0 {constructor, missing command prefix} -body {
+    cache::async ca
+} -returnCodes error -match glob -result {Error in constructor: wrong # args: *provider*}
+
+test cache-async-api-1.1 {constructor returns the qualified object name} -body {
+    cache::async ca PROVIDER
+} -cleanup {
+    ca destroy
+} -result {::ca}
+
+test cache-async-api-1.2 {option -full-async-results defaults to true} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca cget -full-async-results
+} -cleanup {
+    ca destroy
+} -result 1
+
+test cache-async-api-1.3 {option -full-async-results set at construction} -setup {
+    cache::async ca PROVIDER -full-async-results no
+} -body {
+    ca cget -full-async-results
+} -cleanup {
+    ca destroy
+} -result no
+
+test cache-async-api-1.4 {option -full-async-results, invalid value} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca configure -full-async-results maybe
+} -cleanup {
+    ca destroy
+} -returnCodes error -match glob -result {invalid -full-async-results value: invalid boolean "maybe"*}
+
+test cache-async-api-1.5 {option -full-async-results changed by configure} -setup {
+    cache::async ca PROVIDER
+    ca set KEY VALUE
+    set ::log {}
+} -body {
+    ca configure -full-async-results 0
+    ca get KEY DONE
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{DONE set KEY VALUE}}
+
+# -------------------------------------------------------------------------
+## Argument checks of the methods
+
+test cache-async-api-2.0 {get, wrong # args} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca get KEY
+} -cleanup {
+    ca destroy
+} -returnCodes error -match glob -result {wrong # args: should be "*get* key donecmd"}
+
+test cache-async-api-2.1 {set, wrong # args} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca set KEY
+} -cleanup {
+    ca destroy
+} -returnCodes error -match glob -result {wrong # args: should be "*set* key value"}
+
+test cache-async-api-2.2 {unset, wrong # args} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca unset
+} -cleanup {
+    ca destroy
+} -returnCodes error -match glob -result {wrong # args: should be "*unset* key"}
+
+test cache-async-api-2.3 {exists, wrong # args} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca exists
+} -cleanup {
+    ca destroy
+} -returnCodes error -match glob -result {wrong # args: should be "*exists* key"}
+
+test cache-async-api-2.4 {clear, wrong # args} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca clear A B
+} -cleanup {
+    ca destroy
+} -returnCodes error -result {wrong#args: Expected ?key?}
+
+# -------------------------------------------------------------------------
+## exists
+
+test cache-async-api-3.0 {exists, unknown key} -setup {
+    cache::async ca PROVIDER
+} -body {
+    ca exists KEY
+} -cleanup {
+    ca destroy
+} -result 0
+
+test cache-async-api-3.1 {exists, key with value} -setup {
+    cache::async ca PROVIDER
+    ca set KEY VALUE
+} -body {
+    ca exists KEY
+} -cleanup {
+    ca destroy
+} -result 1
+
+test cache-async-api-3.2 {exists, key known as undefined} -setup {
+    cache::async ca PROVIDER
+    ca unset KEY
+} -body {
+    ca exists KEY
+} -cleanup {
+    ca destroy
+} -result 1
+
+test cache-async-api-3.3 {exists, pending get does not make a key known} -setup {
+    cache::async ca PROVIDER
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    ca exists KEY
+} -cleanup {
+    ca destroy
+    after cancel [list PROVIDER get KEY ::ca]
+    set ::log {}
+} -result 0
+
+test cache-async-api-3.4 {exists, after clear of the key} -setup {
+    cache::async ca PROVIDER
+    ca set KEY VALUE
+    ca unset HOLE
+} -body {
+    ca clear KEY
+    ca clear HOLE
+    list [ca exists KEY] [ca exists HOLE]
+} -cleanup {
+    ca destroy
+} -result {0 0}
+
+# -------------------------------------------------------------------------
+## clear
+
+test cache-async-api-4.0 {clear all keys} -setup {
+    cache::async ca PROVIDER
+    ca set A 1
+    ca set B 2
+    ca unset C
+} -body {
+    set r [ca clear]
+    list $r [ca exists A] [ca exists B] [ca exists C]
+} -cleanup {
+    ca destroy
+    unset -nocomplain r
+} -result {{} 0 0 0}
+
+test cache-async-api-4.1 {clear one key leaves the others} -setup {
+    cache::async ca PROVIDER
+    ca set A 1
+    ca set B 2
+} -body {
+    ca clear A
+    list [ca exists A] [ca exists B]
+} -cleanup {
+    ca destroy
+} -result {0 1}
+
+test cache-async-api-4.2 {clear forces a reload from the provider} -setup {
+    cache::async ca PROVIDER_VALUE
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    settle
+    ca get KEY DONE
+    settle
+    ca clear KEY
+    ca get KEY DONE
+    settle
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{PROVIDER_VALUE get KEY ::ca} {DONE set KEY value-KEY} {DONE set KEY value-KEY} {PROVIDER_VALUE get KEY ::ca} {DONE set KEY value-KEY}}
+
+test cache-async-api-4.3 {clear all forces a reload from the provider} -setup {
+    cache::async ca PROVIDER_VALUE
+    ca set KEY old
+    set ::log {}
+} -body {
+    ca clear
+    ca get KEY DONE
+    settle
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{PROVIDER_VALUE get KEY ::ca} {DONE set KEY value-KEY}}
+
+# -------------------------------------------------------------------------
+## get
+
+test cache-async-api-5.0 {get returns the empty string, provider runs later} -setup {
+    cache::async ca PROVIDER
+    set ::log {}
+} -body {
+    set r [ca get KEY DONE]
+    set before $::log
+    settle
+    list $r $before $::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+    unset -nocomplain r before
+} -result {{} {} {{PROVIDER get KEY ::ca}}}
+
+test cache-async-api-5.1 {get, hit is async by default} -setup {
+    cache::async ca PROVIDER
+    ca set KEY VALUE
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    set before $::log
+    settle
+    list $before $::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+    unset -nocomplain before
+} -result {{} {{DONE set KEY VALUE}}}
+
+test cache-async-api-5.2 {get, done command prefix with extra words} -setup {
+    cache::async ca PROVIDER -full-async-results 0
+    ca set KEY {two words}
+    set ::log {}
+} -body {
+    ca get KEY [list DONE x y]
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{DONE x y set KEY {two words}}}
+
+test cache-async-api-5.3 {get, provider command prefix with extra words} -setup {
+    cache::async ca [list PROVIDER extra]
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    settle
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{PROVIDER extra get KEY ::ca}}
+
+test cache-async-api-5.4 {get, different keys are requested separately} -setup {
+    cache::async ca PROVIDER_VALUE
+    set ::log {}
+} -body {
+    ca get A DONE
+    ca get B DONE
+    settle
+    lsort $::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{DONE set A value-A} {DONE set B value-B} {PROVIDER_VALUE get A ::ca} {PROVIDER_VALUE get B ::ca}}
+
+test cache-async-api-5.5 {get, cached value is not requested again} -setup {
+    cache::async ca PROVIDER_VALUE
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    settle
+    ca get KEY DONE
+    settle
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{PROVIDER_VALUE get KEY ::ca} {DONE set KEY value-KEY} {DONE set KEY value-KEY}}
+
+test cache-async-api-5.6 {get, provider answering later through set} -setup {
+    cache::async ca PROVIDER
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    ca get KEY [list DONE second]
+    settle
+    ca set KEY late
+    settle
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{PROVIDER get KEY ::ca} {DONE set KEY late} {DONE second set KEY late}}
+
+test cache-async-api-5.7 {get, provider answering later through unset} -setup {
+    cache::async ca PROVIDER
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    settle
+    ca unset KEY
+    settle
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{PROVIDER get KEY ::ca} {DONE unset KEY}}
+
+# -------------------------------------------------------------------------
+## set and unset
+
+test cache-async-api-6.0 {set and unset return the empty string} -setup {
+    cache::async ca PROVIDER
+} -body {
+    list [ca set KEY VALUE] [ca unset KEY]
+} -cleanup {
+    ca destroy
+} -result {{} {}}
+
+test cache-async-api-6.1 {set replaces a value} -setup {
+    cache::async ca PROVIDER -full-async-results 0
+    set ::log {}
+} -body {
+    ca set KEY one
+    ca set KEY two
+    ca get KEY DONE
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{DONE set KEY two}}
+
+test cache-async-api-6.2 {unset replaces a value by a hole} -setup {
+    cache::async ca PROVIDER -full-async-results 0
+    set ::log {}
+} -body {
+    ca set KEY one
+    ca unset KEY
+    ca get KEY DONE
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{DONE unset KEY}}
+
+test cache-async-api-6.3 {set replaces a hole by a value} -setup {
+    cache::async ca PROVIDER -full-async-results 0
+    set ::log {}
+} -body {
+    ca unset KEY
+    ca set KEY one
+    ca get KEY DONE
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {{DONE set KEY one}}
+
+test cache-async-api-6.4 {set without waiting requests notifies nobody} -setup {
+    cache::async ca PROVIDER
+    set ::log {}
+} -body {
+    ca set KEY one
+    ca unset KEY
+    settle
+    set ::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {}
+
+test cache-async-api-6.5 {set notifies waiters asynchronously, even if not full-async} -setup {
+    cache::async ca PROVIDER -full-async-results 0
+    set ::log {}
+} -body {
+    ca get KEY DONE
+    set ::log {}
+    ca set KEY v
+    set before $::log
+    settle
+    list $before [lrange $::log end end]
+} -cleanup {
+    ca destroy
+    set ::log {}
+    unset -nocomplain before
+} -result {{} {{DONE set KEY v}}}
+
+test cache-async-api-6.6 {empty key and value} -setup {
+    cache::async ca PROVIDER -full-async-results 0
+    set ::log {}
+} -body {
+    ca set {} {}
+    ca get {} DONE
+    list [ca exists {}] $::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {1 {{DONE set {} {}}}}
+
+# -------------------------------------------------------------------------
+## Delegation to the provider
+
+test cache-async-api-7.0 {unknown methods are delegated to the provider} -setup {
+    cache::async ca PROVIDER
+    set ::log {}
+} -body {
+    list [ca frobnicate a {b c}] $::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {provider-result {{PROVIDER frobnicate a {b c}}}}
+
+test cache-async-api-7.1 {unknown options are delegated to the provider} -setup {
+    cache::async ca PROVIDER
+    set ::log {}
+} -body {
+    ca configure -other 1
+    list [ca cget -other] $::log
+} -cleanup {
+    ca destroy
+    set ::log {}
+} -result {provider-result {{PROVIDER configure -other 1} {PROVIDER cget -other}}}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
