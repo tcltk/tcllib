@@ -1,0 +1,225 @@
+# -*- tcl -*-
+# json-api.test:  Additional tests for the documented API of the json
+# package: json2dict for all kinds of JSON values (literals, numbers,
+# strings with escapes, nesting, whitespace), the first entity rule,
+# errors, and many-json2dict limits.  Complements json.test.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useAccel [useTcllibC] json/json.tcl json
+    TestAccelInit                       json
+}
+
+# -------------------------------------------------------------------------
+
+TestAccelDo json impl {
+
+    # ---------------------------------------------------------------------
+    # json2dict, arguments
+
+    test json-api-${impl}-1.0 {json2dict, wrong # args, not enough} -body {
+	json::json2dict
+    } -returnCodes error -match glob -result {wrong # args: should be "*json2dict* jsonText"}
+
+    test json-api-${impl}-1.1 {json2dict, wrong # args, too many} -body {
+	json::json2dict a b
+    } -returnCodes error -match glob -result {wrong # args: should be "*json2dict* jsonText"}
+
+    # ---------------------------------------------------------------------
+    # json2dict, literals and numbers
+
+    set n 0
+    foreach {json tcl} {
+	true      true
+	false     false
+	null      null
+	0         0
+	-1        -1
+	42        42
+	-0        -0
+	3.25      3.25
+	-0.5      -0.5
+	1e10      1e10
+	1E+2      1E+2
+	-1.5e-3   -1.5e-3
+	123456789012345678901234567890 123456789012345678901234567890
+    } {
+	test json-api-${impl}-2.[incr n] "json2dict, top level value $json" -body {
+	    json::json2dict $json
+	} -result $tcl
+    }
+
+    test json-api-${impl}-2.20 {json2dict, literals in an array} -body {
+	json::json2dict {[true,false,null,0,"null"]}
+    } -result {true false null 0 null}
+
+    test json-api-${impl}-2.21 {json2dict, null as object value} -body {
+	json::json2dict {{"a":null,"b":true}}
+    } -result {a null b true}
+
+    # ---------------------------------------------------------------------
+    # json2dict, strings
+
+    test json-api-${impl}-3.0 {json2dict, string with spaces} -body {
+	json::json2dict {"a b"}
+    } -result {a b}
+
+    test json-api-${impl}-3.1 {json2dict, empty string} -body {
+	json::json2dict {""}
+    } -result {}
+
+    test json-api-${impl}-3.2 {json2dict, unicode escapes} -body {
+	json::json2dict {"Aéґ"}
+    } -result Aéґ
+
+    test json-api-${impl}-3.3 {json2dict, unicode escape, upper case hex digits} -body {
+	json::json2dict {"Éé"}
+    } -result Éé
+
+    test json-api-${impl}-3.4 {json2dict, non-ASCII characters} -body {
+	json::json2dict "\"łódź їж\""
+    } -result "łódź їж"
+
+    test json-api-${impl}-3.5 {json2dict, escaped solidus and backslash} -body {
+	json::json2dict {"a\/b\\c"}
+    } -result {a/b\c}
+
+    test json-api-${impl}-3.6 {json2dict, Tcl special characters are not substituted} -body {
+	json::json2dict {"[set x] $y {z}"}
+    } -result {[set x] $y {z}}
+
+    test json-api-${impl}-3.7 {json2dict, keys with special characters} -body {
+	json::json2dict {{"key with space":"v","[x]":"$y"}}
+    } -result {{key with space} v {[x]} {$y}}
+
+    test json-api-${impl}-3.8 {json2dict, string escapes in object keys} -body {
+	json::json2dict {{"a\tb":1}}
+    } -result [list "a\tb" 1]
+
+    # ---------------------------------------------------------------------
+    # json2dict, structures
+
+    test json-api-${impl}-4.0 {json2dict, empty object} -body {
+	json::json2dict {{}}
+    } -result {}
+
+    test json-api-${impl}-4.1 {json2dict, empty array} -body {
+	json::json2dict {[]}
+    } -result {}
+
+    test json-api-${impl}-4.2 {json2dict, nested structures} -body {
+	json::json2dict {{"a":{"b":[1,{"c":"d"}],"e":[]},"f":[[1,2],[3]]}}
+    } -result {a {b {1 {c d}} e {}} f {{1 2} 3}}
+
+    test json-api-${impl}-4.3 {json2dict, duplicate keys, last wins} -body {
+	json::json2dict {{"a":1,"b":2,"a":3}}
+    } -result {a 3 b 2}
+
+    test json-api-${impl}-4.4 {json2dict, whitespace around tokens} -body {
+	json::json2dict " \n\t\r\[ 1 ,\n 2 , \{ \"a\" : \"b\" \} \]\n "
+    } -result {1 2 {a b}}
+
+    test json-api-${impl}-4.5 {json2dict, object result is a dict} -body {
+	dict get [json::json2dict {{"x":{"y":"z"}}}] x y
+    } -result z
+
+    # ---------------------------------------------------------------------
+    # json2dict, more than one entity: only the first one is returned
+
+    test json-api-${impl}-5.0 {json2dict, two arrays} -body {
+	json::json2dict {[1,2] [3]}
+    } -result {1 2}
+
+    test json-api-${impl}-5.1 {json2dict, two objects} -body {
+	json::json2dict {{"a":1}{"b":2}}
+    } -result {a 1}
+
+    test json-api-${impl}-5.2 {json2dict, two strings} -body {
+	json::json2dict {"x" "y"}
+    } -result x
+
+    # ---------------------------------------------------------------------
+    # json2dict, errors
+
+    set n 0
+    foreach json {
+	{}
+	{   }
+	{[}
+	{[1,}
+	{[1,]}
+	{{"a"}}
+	{{"a":}}
+	{{"a":1,}}
+	{{a:1}}
+	{[1 2]}
+	{"abc}
+	{'a'}
+	{tru}
+	{nul}
+	{]}
+	{:}
+    } {
+	test json-api-${impl}-6.[incr n] "json2dict, invalid JSON <$json>" -body {
+	    json::json2dict $json
+	} -returnCodes error -match glob -result *
+    }
+
+    # ---------------------------------------------------------------------
+    # many-json2dict
+
+    test json-api-${impl}-7.0 {many-json2dict, empty text} -body {
+	json::many-json2dict {}
+    } -result {}
+
+    test json-api-${impl}-7.1 {many-json2dict, single entity, list of one element} -body {
+	json::many-json2dict {[1,2]}
+    } -result {{1 2}}
+
+    test json-api-${impl}-7.2 {many-json2dict, mixed entities and whitespace} -body {
+	json::many-json2dict "1\n\"two\"\t\[3\] \{\"four\":4\}\ntrue"
+    } -result {1 two 3 {four 4} true}
+
+    test json-api-${impl}-7.3 {many-json2dict, limit} -body {
+	json::many-json2dict {1 2 3 4} 2
+    } -result {1 2}
+
+    test json-api-${impl}-7.4 {many-json2dict, limit equal to count} -body {
+	json::many-json2dict {1 2 3} 3
+    } -result {1 2 3}
+
+    test json-api-${impl}-7.5 {many-json2dict, limit over count} -body {
+	json::many-json2dict {1 2} 5
+    } -returnCodes error -result {Bad limit 5 of json entities to extract, found only 2.}
+
+    test json-api-${impl}-7.6 {many-json2dict, limit not an integer} -body {
+	json::many-json2dict {1 2} abc
+    } -returnCodes error -match glob -result *
+
+    # The documentation says the limit must be a positive integer.
+    test json-api-${impl}-7.7 {many-json2dict, negative limit} -constraints {
+	knownBug
+    } -body {
+	json::many-json2dict {1 2} -1
+    } -returnCodes error -match glob -result {Bad limit -1 *}
+
+    test json-api-${impl}-7.8 {many-json2dict, error in second entity} -body {
+	json::many-json2dict {[1] [2,}
+    } -returnCodes error -match glob -result *
+
+    test json-api-${impl}-7.9 {many-json2dict, error in second entity, limit 1} -body {
+	json::many-json2dict {[1] [2,} 1
+    } -result [list [list 1]]
+}
+
+# -------------------------------------------------------------------------
+TestAccelExit json
+testsuiteCleanup

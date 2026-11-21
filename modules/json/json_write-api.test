@@ -1,0 +1,245 @@
+# -*- tcl -*-
+# json_write-api.test:  Additional tests for the documented API of the
+# json::write package: object and object-strings in all layouts, nested
+# values, empty arrays and objects, string quoting, configuration
+# errors.  Complements json_write.test.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use json/json.tcl json
+}
+testing {
+    useLocal json_write.tcl json::write
+}
+
+# -------------------------------------------------------------------------
+
+proc layout {indented aligned} {
+    json::write indented $indented
+    json::write aligned  $aligned
+}
+
+proc reset {} {
+    json::write indented 1
+    json::write aligned  1
+}
+
+proc sample {} {
+    json::write object \
+	a   [json::write string 1] \
+	bbb [json::write array 1 2] \
+	c   [json::write object x 1 yy 2]
+}
+
+# -------------------------------------------------------------------------
+# Configuration
+
+test json-write-api-1.0 {indented, not a boolean} -body {
+    json::write indented foo
+} -cleanup reset -returnCodes error -result {Expected boolean, got "foo"}
+
+test json-write-api-1.1 {aligned, not a boolean} -body {
+    json::write aligned foo
+} -cleanup reset -returnCodes error -result {Expected boolean, got "foo"}
+
+test json-write-api-1.2 {indented, setting returns the new value} -body {
+    list [json::write indented false] [json::write indented yes]
+} -cleanup reset -result {false yes}
+
+test json-write-api-1.3 {aligned 0 keeps indented} -body {
+    layout 1 1
+    json::write aligned 0
+    list [json::write indented] [json::write aligned]
+} -cleanup reset -result {1 0}
+
+test json-write-api-1.4 {indented 1 keeps aligned off} -body {
+    layout 0 0
+    json::write indented 1
+    list [json::write indented] [json::write aligned]
+} -cleanup reset -result {1 0}
+
+test json-write-api-1.5 {unknown method} -body {
+    json::write bogus
+} -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be aligned, array, array-strings, indented, object, object-strings, or string}
+
+# -------------------------------------------------------------------------
+# object in the three layouts
+
+test json-write-api-2.0 {object, indented and aligned} -setup {
+    layout 1 1
+} -body {
+    sample
+} -cleanup reset -result {{
+    "a"   : "1",
+    "bbb" : [1,2],
+    "c"   : {
+        "x"  : 1,
+        "yy" : 2
+    }
+}}
+
+test json-write-api-2.1 {object, indented, not aligned} -setup {
+    layout 1 0
+} -body {
+    sample
+} -cleanup reset -result {{
+    "a" : "1",
+    "bbb" : [1,2],
+    "c" : {
+        "x" : 1,
+        "yy" : 2
+    }
+}}
+
+test json-write-api-2.2 {object, compact} -setup {
+    layout 0 0
+} -body {
+    sample
+} -cleanup reset -result {{"a":"1","bbb":[1,2],"c":{"x":1,"yy":2}}}
+
+test json-write-api-2.3 {object, empty, indented} -setup {
+    layout 1 1
+} -body {
+    json::write object
+} -cleanup reset -result {{}}
+
+test json-write-api-2.4 {object, empty, compact} -setup {
+    layout 0 0
+} -body {
+    json::write object
+} -cleanup reset -result {{}}
+
+test json-write-api-2.5 {object, keys are quoted as JSON strings} -setup {
+    layout 0 0
+} -body {
+    json::write object "a\"b" 1 "c\nd" 2
+} -cleanup reset -result {{"a\"b":1,"c\nd":2}}
+
+test json-write-api-2.6 {object, values are inserted as given} -setup {
+    layout 0 0
+} -body {
+    json::write object a true b null c 1.5 d {"s"}
+} -cleanup reset -result {{"a":true,"b":null,"c":1.5,"d":"s"}}
+
+test json-write-api-2.7 {object, alignment uses the longest key} -setup {
+    layout 1 1
+} -body {
+    json::write object a 1 abcdef 2
+} -cleanup reset -result "\{\n    \"a\"      : 1,\n    \"abcdef\" : 2\n\}"
+
+test json-write-api-2.8 {object, odd number of arguments} -body {
+    json::write object a 1 b
+} -returnCodes error -result {wrong # args, expected an even number of arguments}
+
+# -------------------------------------------------------------------------
+# object-strings
+
+test json-write-api-3.0 {object-strings, values quoted} -setup {
+    layout 0 0
+} -body {
+    json::write object-strings k "v\"" e {} n 1
+} -cleanup reset -result {{"k":"v\"","e":"","n":"1"}}
+
+test json-write-api-3.1 {object-strings, indented and aligned} -setup {
+    layout 1 1
+} -body {
+    json::write object-strings a x bb y
+} -cleanup reset -result "\{\n    \"a\"  : \"x\",\n    \"bb\" : \"y\"\n\}"
+
+test json-write-api-3.2 {object-strings, empty} -setup {
+    layout 0 0
+} -body {
+    json::write object-strings
+} -cleanup reset -result {{}}
+
+# Unlike object, object-strings accepts a missing last value and uses
+# the empty string for it.
+test json-write-api-3.3 {object-strings, odd number of arguments} -constraints knownBug -body {
+    json::write object-strings a
+} -returnCodes error -result {wrong # args, expected an even number of arguments}
+
+# -------------------------------------------------------------------------
+# array, array-strings
+
+test json-write-api-4.0 {array, empty} -body {
+    json::write array
+} -result {[]}
+
+test json-write-api-4.1 {array-strings, empty} -body {
+    json::write array-strings
+} -result {[]}
+
+test json-write-api-4.2 {array, values inserted as given, never indented} -setup {
+    layout 1 1
+} -body {
+    json::write array 1 true null {"x"} [json::write array] {{}}
+} -cleanup reset -result {[1,true,null,"x",[],{}]}
+
+test json-write-api-4.3 {array-strings, values quoted} -body {
+    json::write array-strings 1 "a\"b" {}
+} -result {["1","a\"b",""]}
+
+test json-write-api-4.4 {array containing indented objects} -setup {
+    layout 1 1
+} -body {
+    json::write array [json::write object a 1] [json::write object b 2]
+} -cleanup reset -result "\[\{\n    \"a\" : 1\n\},\{\n    \"b\" : 2\n\}\]"
+
+test json-write-api-4.5 {object containing an array of objects, indented} -setup {
+    layout 1 1
+} -body {
+    json::write object list [json::write array [json::write object a 1]]
+} -cleanup reset -result "\{\n    \"list\" : \[\{\n        \"a\" : 1\n    \}\]\n\}"
+
+# -------------------------------------------------------------------------
+# string
+
+test json-write-api-5.0 {string, empty} -body {
+    json::write string {}
+} -result {""}
+
+test json-write-api-5.1 {string, solidus and Tcl special characters unchanged} -body {
+    json::write string {a/b [x] $y {z}}
+} -result {"a/b [x] $y {z}"}
+
+test json-write-api-5.2 {string, non-ASCII characters unchanged} -body {
+    json::write string "łódź їж"
+} -result "\"łódź їж\""
+
+test json-write-api-5.3 {string, all control characters escaped} -body {
+    set res {}
+    for {set i 0} {$i < 32} {incr i} {
+	set s [json::write string [format %c $i]]
+	if {![regexp {^"\\(u00[01][0-9a-f]|[bfnrt])"$} $s]} {
+	    lappend res $i $s
+	}
+    }
+    set res
+} -cleanup {
+    unset res i s
+} -result {}
+
+test json-write-api-5.4 {string, C1 control characters escaped} -body {
+    json::write string "\x80\x9f\xa0"
+} -result "\"\\u0080\\u009f\xa0\""
+
+test json-write-api-5.5 {string, round trip through json2dict} -body {
+    set s "a\"b\\c\n\t\u0001ł"
+    expr {[json::json2dict [json::write string $s]] eq $s}
+} -cleanup {
+    unset s
+} -result 1
+
+# -------------------------------------------------------------------------
+rename layout {}
+rename reset {}
+rename sample {}
+testsuiteCleanup
