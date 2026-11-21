@@ -63,8 +63,12 @@ is the domain whose record is checked, usually the domain part of
 An error with the error code [const permanent] is thrown if
 [arg sender] is empty or the record is not of version 1; an error with
 the error code [const temporary] is thrown if the name server reports
-a failure for the record lookup. Other DNS errors while evaluating
-a mechanism throw an error [const {error in "}][arg mechanism][const {": }][arg message].
+a failure for the record lookup. A failure reported by the name server
+while evaluating an [const include], [const a], [const mx] or
+[const exists] mechanism or a [const redirect] modifier throws an error
+[const {error in "}][arg mechanism][const {": }][arg message]. A domain
+that does not exist counts as a domain without records. Failed lookups
+in a [const ptr] mechanism only make it not match.
 
 [list_end]
 
@@ -87,8 +91,10 @@ These mechanisms are supported:
    visited are skipped.
 [def "[const a][opt [const :][arg domain]][opt [const /][arg bits]]"]
    Matches if the host has one of the addresses of [arg domain]
-   (default: the domain being checked). With [arg bits], the host only
-   needs to be in the network of that prefix length around an address.
+   (default: the domain being checked): its IPv4 addresses for an IPv4
+   host, its IPv6 addresses for an IPv6 host. With [arg bits], the host
+   only needs to be in the network of that prefix length around an
+   address.
 [def "[const mx][opt [const :][arg domain]][opt [const /][arg bits]]"]
    Like [const a], for the addresses of the mail exchangers of
    [arg domain].
@@ -105,9 +111,11 @@ These mechanisms are supported:
    Matches if [arg domain] has an address record.
 [list_end]
 
-The [const redirect=][arg domain] modifier replaces the result by the
-result for the record of [arg domain]. The [const exp] and
-[const accredit] modifiers and unknown modifiers are ignored.
+The [const redirect=][arg domain] modifier is used only if no mechanism
+of the record matches: the result is then the result for the record of
+[arg domain], or [const none] if [arg domain] has no SPF record. The
+[const exp] and [const accredit] modifiers and unknown modifiers are
+ignored.
 
 [para]
 
@@ -124,6 +132,7 @@ Domain arguments may contain macros of the form
 [def [const c]] The IP address of the host in readable form.
 [def [const v]] [const in-addr] for an IPv4 address, [const ip6] for
    an IPv6 address.
+[def [const r]] The name of the host performing the check.
 [def [const t]] The current time in seconds.
 [list_end]
 
