@@ -644,11 +644,11 @@ test peg-8.7 {nonterminal add, wrong # args, too many} -setup {
 test peg-8.8 {nonterminal add, unicode names and terminals} -setup {
     grammar::peg g
 } -body {
-    g nonterminal add й {t ї}
-    list [g nonterminals] [g nonterminal rule й]
+    g nonterminal add \u0439 {t \u0457}
+    list [g nonterminals] [g nonterminal rule \u0439]
 } -cleanup {
     g destroy
-} -result [list й [list t ї]]
+} -result [list \u0439 [list t \u0457]]
 
 test peg-8.9 {nonterminal exists, unknown and referenced} -setup {
     grammar::peg g

@@ -279,9 +279,9 @@ test peg-interp-2.9 {parse, reusable after setup} -setup {
 
 test peg-interp-2.10 {parse, unicode terminals} -setup {
     grammar::peg g
-    g start [list x [list t й] [list t ї]]
+    g start [list x [list t \u0439] [list t \u0457]]
 } -body {
-    run йї
+    run \u0439\u0457
 } -cleanup {
     cleanall
 } -result {1 {ALL 0 1 {{} 0 0} {{} 1 1}}}
