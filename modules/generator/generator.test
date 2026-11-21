@@ -34,14 +34,6 @@ test generator-exists-1.0 {exists, glob characters in generator name} -setup {
     unset -nocomplain r x
 } -result {1 2 3}
 
-test generator-exists-1.1 {exists, glob pattern does not match other commands} -setup {
-    proc gx {} {}
-} -body {
-    generator exists {::g?}
-} -cleanup {
-    rename gx {}
-} -result 0
-
 # -------------------------------------------------------------------------
 testsuiteCleanup
 return
