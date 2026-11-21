@@ -1,0 +1,333 @@
+# md4-api.test - additional tests for the documented md4 API.
+#
+# Covers what md4.test does not: -channel/-filename input, HMAC values,
+# the programming interface (MD4Init/Update/Final, HMACInit/Update/Final),
+# the man page examples and option errors.
+# HMAC-MD4 reference values were computed with OpenSSL.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal md4.tcl md4
+}
+
+# -------------------------------------------------------------------------
+# Implementations (same scheme as md4.test)
+
+::md4::LoadAccelerator critcl
+::md4::LoadAccelerator cryptkit
+array set preserve [array get ::md4::accel]
+
+proc implementations {} {
+    set r {}
+    foreach {a v} [array get ::md4::accel] {if {$v} {lappend r $a}}
+    lappend r tcl
+}
+
+proc select_implementation {impl} {
+    foreach e [array names ::md4::accel] { set ::md4::accel($e) 0 }
+    if {$impl ne "tcl"} {
+        set ::md4::accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    array set ::md4::accel [array get ::preserve]
+}
+
+proc writeTestFile {name data} {
+    set path [makeFile {} $name]
+    set f [open $path wb]
+    puts -nonewline $f $data
+    close $f
+    return $path
+}
+
+set filedata [string repeat "0123456789abcdef\0\xff" 300]
+
+# -------------------------------------------------------------------------
+
+foreach impl [implementations] {
+    select_implementation $impl
+
+    # ---------------------------------------------------------------------
+    # md4::md4
+
+    test md4-api-$impl-1.0 {md4: man page example (case-insensitive hex)} -body {
+        string tolower [md4::md4 -hex "Tcl does MD4"]
+    } -result 858da9b31f57648a032230447bd15f25
+
+    test md4-api-$impl-1.1 {md4: binary result is 16 bytes} -body {
+        set r [md4::md4 abc]
+        list [string length $r] [md4::Hex $r]
+    } -cleanup {
+        unset -nocomplain r
+    } -result {16 A448017AAF21D8525FC10AE87AA6729D}
+
+    test md4-api-$impl-1.2 {md4: -filename} -setup {
+        set path [writeTestFile md4api.data $filedata]
+    } -body {
+        string equal [md4::md4 -hex -filename $path] [md4::md4 -hex $filedata]
+    } -cleanup {
+        removeFile md4api.data
+        unset -nocomplain path
+    } -result 1
+
+    test md4-api-$impl-1.3 {md4: -file abbreviation, file closed} -setup {
+        set path [writeTestFile md4api.data $filedata]
+        set before [lsort [file channels]]
+    } -body {
+        list [string equal [md4::md4 -hex -file $path] [md4::md4 -hex $filedata]] \
+            [string equal $before [lsort [file channels]]]
+    } -cleanup {
+        removeFile md4api.data
+        unset -nocomplain path before
+    } -result {1 1}
+
+    test md4-api-$impl-1.4 {md4: -channel, channel left open} -setup {
+        set path [writeTestFile md4api.data $filedata]
+        set f [open $path rb]
+    } -body {
+        set r [md4::md4 -hex -channel $f]
+        list [string equal $r [md4::md4 -hex $filedata]] \
+            [expr {[lsearch -exact [file channels] $f] >= 0}] [eof $f]
+    } -cleanup {
+        close $f
+        removeFile md4api.data
+        unset -nocomplain path f r
+    } -result {1 1 1}
+
+    test md4-api-$impl-1.5 {md4: -channel with -chunksize} -setup {
+        set path [writeTestFile md4api.data $filedata]
+        set f [open $path rb]
+    } -body {
+        string equal [md4::md4 -hex -chunksize 13 -channel $f] \
+            [md4::md4 -hex $filedata]
+    } -cleanup {
+        close $f
+        removeFile md4api.data
+        unset -nocomplain path f
+    } -result 1
+
+    test md4-api-$impl-1.6 {md4: -channel on an empty file} -setup {
+        set path [writeTestFile md4api.data {}]
+        set f [open $path rb]
+    } -body {
+        md4::md4 -hex -channel $f
+    } -cleanup {
+        close $f
+        removeFile md4api.data
+        unset -nocomplain path f
+    } -result 31D6CFE0D16AE931B73C59D7E0C089C0
+
+    # ---------------------------------------------------------------------
+    # md4::hmac
+
+    test md4-api-$impl-2.0 {hmac: man page example (case-insensitive hex)} -body {
+        string tolower [md4::hmac -hex -key Sekret "Tcl does MD4"]
+    } -result c324088e5752872689caedf2a0464758
+
+    test md4-api-$impl-2.1 {hmac: short key} -body {
+        md4::hmac -hex -key Jefe "what do ya want for nothing?"
+    } -result BE192C588A8E914D8A59B474A828128F
+
+    test md4-api-$impl-2.2 {hmac: binary result} -body {
+        md4::Hex [md4::hmac -key key abcdefghijklmnopqrstuvwxyz]
+    } -result 691319FA060C56F8908279E0FA51A163
+
+    test md4-api-$impl-2.3 {hmac: 64 byte key is used as is} -body {
+        md4::hmac -hex -key [string repeat k 64] abc
+    } -result A32054542E4356892BEBEB54ABBD0876
+
+    test md4-api-$impl-2.4 {hmac: key longer than 64 bytes is hashed} -body {
+        list [md4::hmac -hex -key [string repeat k 100] abc] \
+            [md4::hmac -hex -key [md4::md4 [string repeat k 100]] abc]
+    } -result {5A7D5D828AE6422C0B966DFBE73765AA 5A7D5D828AE6422C0B966DFBE73765AA}
+
+    test md4-api-$impl-2.5 {hmac: -filename} -setup {
+        set path [writeTestFile md4api.data $filedata]
+    } -body {
+        string equal [md4::hmac -hex -key k -filename $path] \
+            [md4::hmac -hex -key k $filedata]
+    } -cleanup {
+        removeFile md4api.data
+        unset -nocomplain path
+    } -result 1
+
+    test md4-api-$impl-2.6 {hmac: -channel, channel left open} -setup {
+        set path [writeTestFile md4api.data $filedata]
+        set f [open $path rb]
+    } -body {
+        set r [md4::hmac -hex -key k -chunksize 100 -channel $f]
+        list [string equal $r [md4::hmac -hex -key k $filedata]] \
+            [expr {[lsearch -exact [file channels] $f] >= 0}]
+    } -cleanup {
+        close $f
+        removeFile md4api.data
+        unset -nocomplain path f r
+    } -result {1 1}
+
+    # ---------------------------------------------------------------------
+    # Programming interface
+
+    test md4-api-$impl-3.0 {MD4Init/MD4Update/MD4Final: man page example} -body {
+        set tok [md4::MD4Init]
+        md4::MD4Update $tok "Tcl "
+        md4::MD4Update $tok "does "
+        md4::MD4Update $tok "MD4"
+        string tolower [md4::Hex [md4::MD4Final $tok]]
+    } -cleanup {
+        unset -nocomplain tok
+    } -result 858da9b31f57648a032230447bd15f25
+
+    test md4-api-$impl-3.1 {MD4Update returns empty} -body {
+        set tok [md4::MD4Init]
+        set r [md4::MD4Update $tok abc]
+        md4::MD4Final $tok
+        set r
+    } -cleanup {
+        unset -nocomplain tok r
+    } -result {}
+
+    test md4-api-$impl-3.2 {MD4Update: chunked data across block boundaries} -body {
+        set tok [md4::MD4Init]
+        set data $filedata
+        foreach n {1 63 64 65 0 127 1000} {
+            md4::MD4Update $tok [string range $data 0 [expr {$n - 1}]]
+            set data [string range $data $n end]
+        }
+        md4::MD4Update $tok $data
+        string equal [md4::MD4Final $tok] [md4::md4 $filedata]
+    } -cleanup {
+        unset -nocomplain tok data n
+    } -result 1
+
+    test md4-api-$impl-3.3 {MD4Final without updates} -body {
+        md4::Hex [md4::MD4Final [md4::MD4Init]]
+    } -result 31D6CFE0D16AE931B73C59D7E0C089C0
+
+    test md4-api-$impl-3.4 {MD4Final invalidates the token} -body {
+        set tok [md4::MD4Init]
+        md4::MD4Final $tok
+        info exists $tok
+    } -cleanup {
+        unset -nocomplain tok
+    } -result 0
+
+    test md4-api-$impl-3.5 {MD4Init returns distinct tokens} -body {
+        set t1 [md4::MD4Init]
+        set t2 [md4::MD4Init]
+        md4::MD4Update $t1 a
+        md4::MD4Update $t2 abc
+        list [string equal $t1 $t2] [md4::Hex [md4::MD4Final $t1]] \
+            [md4::Hex [md4::MD4Final $t2]]
+    } -cleanup {
+        unset -nocomplain t1 t2
+    } -result {0 BDE52CB31DE33E46245E05FBDBD6FB24 A448017AAF21D8525FC10AE87AA6729D}
+
+    test md4-api-$impl-3.6 {HMACInit/HMACUpdate/HMACFinal} -body {
+        set tok [md4::HMACInit Sekret]
+        md4::HMACUpdate $tok "Tcl "
+        md4::HMACUpdate $tok "does "
+        md4::HMACUpdate $tok "MD4"
+        md4::Hex [md4::HMACFinal $tok]
+    } -cleanup {
+        unset -nocomplain tok
+    } -result C324088E5752872689CAEDF2A0464758
+
+    test md4-api-$impl-3.7 {HMACUpdate returns empty, HMACFinal invalidates token} -body {
+        set tok [md4::HMACInit k]
+        set r [md4::HMACUpdate $tok abc]
+        md4::HMACFinal $tok
+        list $r [info exists $tok]
+    } -cleanup {
+        unset -nocomplain tok r
+    } -result {{} 0}
+
+    test md4-api-$impl-3.8 {HMACInit with long key} -body {
+        set tok [md4::HMACInit [string repeat k 100]]
+        md4::HMACUpdate $tok abc
+        md4::Hex [md4::HMACFinal $tok]
+    } -cleanup {
+        unset -nocomplain tok
+    } -result 5A7D5D828AE6422C0B966DFBE73765AA
+
+    reset_implementation
+}
+
+# -------------------------------------------------------------------------
+# Errors
+
+test md4-api-4.0 {md4: no arguments} -body {
+    md4::md4
+} -returnCodes error -result {wrong # args: should be "md4 ?-hex? -filename file | string"}
+
+test md4-api-4.1 {md4: too many arguments} -body {
+    md4::md4 -hex a b
+} -returnCodes error -result {wrong # args: should be "md4 ?-hex? -filename file | string"}
+
+test md4-api-4.2 {md4: unknown option} -body {
+    md4::md4 -bogus x data
+} -returnCodes error -result {bad option -bogus: must be one of -channel, -chunksize, -filename, -hex}
+
+test md4-api-4.3 {md4: missing file} -body {
+    md4::md4 -filename [file join [temporaryDirectory] nonexistent.md4]
+} -returnCodes error -match glob -result {couldn't open "*nonexistent.md4": no such file or directory}
+
+test md4-api-4.4 {hmac: missing -key} -body {
+    md4::hmac -hex data
+} -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+test md4-api-4.5 {hmac: too many arguments} -body {
+    md4::hmac -key k a b
+} -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+test md4-api-4.6 {hmac: unknown option} -body {
+    md4::hmac -key k -bogus x data
+} -returnCodes error -result {bad option -bogus: must be one of -channel, -chunksize, -filename, -hex, -key}
+
+test md4-api-4.7 {MD4Init: wrong # args} -body {
+    md4::MD4Init x
+} -returnCodes error -result {wrong # args: should be "md4::MD4Init"}
+
+test md4-api-4.8 {MD4Update: wrong # args} -body {
+    md4::MD4Update x
+} -returnCodes error -result {wrong # args: should be "md4::MD4Update token data"}
+
+test md4-api-4.9 {MD4Final: wrong # args} -body {
+    md4::MD4Final
+} -returnCodes error -result {wrong # args: should be "md4::MD4Final token"}
+
+test md4-api-4.10 {HMACInit: wrong # args} -body {
+    md4::HMACInit
+} -returnCodes error -result {wrong # args: should be "md4::HMACInit K"}
+
+test md4-api-4.11 {HMACUpdate: wrong # args} -body {
+    md4::HMACUpdate x
+} -returnCodes error -result {wrong # args: should be "md4::HMACUpdate token data"}
+
+test md4-api-4.12 {HMACFinal: wrong # args} -body {
+    md4::HMACFinal
+} -returnCodes error -result {wrong # args: should be "md4::HMACFinal token"}
+
+# -------------------------------------------------------------------------
+
+reset_implementation
+rename implementations {}
+rename select_implementation {}
+rename reset_implementation {}
+rename writeTestFile {}
+unset -nocomplain preserve impl filedata
+testsuiteCleanup
+
+# Local variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
