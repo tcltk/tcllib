@@ -1,0 +1,148 @@
+# -*- tcl -*-
+# spacer.test:  Tests for the tcl::transform::spacer package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal spacer.tcl tcl::transform::spacer
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-spacer.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-spacer-1.0 {wrong # args, none} -body {
+    tcl::transform::spacer
+} -returnCodes error -result {wrong # args: should be "tcl::transform::spacer chan n ?space?"}
+
+test tcl-transform-spacer-1.1 {wrong # args, one} -body {
+    tcl::transform::spacer a
+} -returnCodes error -result {wrong # args: should be "tcl::transform::spacer chan n ?space?"}
+
+test tcl-transform-spacer-1.2 {wrong # args, too many} -body {
+    tcl::transform::spacer a b c d
+} -returnCodes error -result {wrong # args: should be "tcl::transform::spacer chan n ?space?"}
+
+# The command returns the empty string.
+test tcl-transform-spacer-2.0 {returns the channel handle} -constraints {
+    knownBug
+} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::spacer $c 4] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+foreach {n data args enc} {
+    1 {Hello World} {4}      {Hell o Wo rld}
+    2 {Hello World} {4 --}   {Hell--o Wo--rld}
+    3 {abcdefgh}    {4}      {abcd efgh }
+    4 {abcdefgh}    {1 .}    {a.b.c.d.e.f.g.h.}
+    5 {abc}         {4}      {abc}
+    6 {}            {4}      {}
+    7 {abcdefgh}    {3 {}}   {abcdefgh}
+} {
+    test tcl-transform-spacer-2.$n "write \"$data\" with $args" -setup {
+	set c [vt::open w]
+    } -body {
+	tcl::transform::spacer $c {*}$args
+	puts -nonewline $c $data
+	close $c
+	vt::get
+    } -cleanup {
+	unset c
+    } -result $enc
+}
+
+test tcl-transform-spacer-2.8 {write in pieces, unbuffered} -setup {
+    set c [vt::open w]
+    fconfigure $c -buffering none
+} -body {
+    tcl::transform::spacer $c 4
+    foreach x {H e llo { } Wor ld 0123456789} {puts -nonewline $c $x}
+    close $c
+    vt::get
+} -cleanup {
+    unset c x
+} -result {Hell o Wo rld0 1234 5678 9}
+
+# The read handler returns a list {data offset} instead of the data.
+foreach {n data args enc} {
+    1 {Hello World} {4}      {Hell o Wo rld}
+    2 {Hello World} {4 --}   {Hell--o Wo--rld}
+    3 {abcdefgh}    {4}      {abcd efgh }
+    4 {abc}         {4}      {abc}
+} {
+    test tcl-transform-spacer-3.$n "read \"$enc\" with $args" -constraints {
+	knownBug
+    } -setup {
+	vt::put $enc
+	set c [vt::open r]
+    } -body {
+	tcl::transform::spacer $c {*}$args
+	read $c
+    } -cleanup {
+	close $c
+	unset c
+    } -result $data
+}
+
+test tcl-transform-spacer-3.5 {read empty} -setup {
+    vt::put {}
+    set c [vt::open r]
+} -body {
+    tcl::transform::spacer $c 4
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{} 1}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-spacer.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

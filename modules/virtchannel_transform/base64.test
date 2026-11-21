@@ -1,0 +1,177 @@
+# -*- tcl -*-
+# base64.test:  Tests for the tcl::transform::base64 package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal base64.tcl tcl::transform::base64
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-base64.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-base64-1.0 {wrong # args, none} -body {
+    tcl::transform::base64
+} -returnCodes error -result {wrong # args: should be "tcl::transform::base64 chan"}
+
+test tcl-transform-base64-1.1 {wrong # args, too many} -body {
+    tcl::transform::base64 a b
+} -returnCodes error -result {wrong # args: should be "tcl::transform::base64 chan"}
+
+test tcl-transform-base64-1.2 {bad channel} -body {
+    tcl::transform::base64 nosuchchannel
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+# The command returns the empty string.
+test tcl-transform-base64-2.0 {returns the channel handle} -constraints {
+    knownBug
+} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::base64 $c] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+foreach {n data enc} {
+    1 {}            {}
+    2 H             SA==
+    3 He            SGU=
+    4 Hel           SGVs
+    5 Hello         SGVsbG8=
+    6 {Hello World} SGVsbG8gV29ybGQ=
+} {
+    test tcl-transform-base64-2.$n "write encodes \"$data\"" -setup {
+	set c [vt::open w]
+    } -body {
+	tcl::transform::base64 $c
+	puts -nonewline $c $data
+	close $c
+	vt::get
+    } -cleanup {
+	unset c
+    } -result $enc
+
+    test tcl-transform-base64-3.$n "read decodes \"$enc\"" -setup {
+	vt::put $enc
+	set c [vt::open r]
+    } -body {
+	tcl::transform::base64 $c
+	read $c
+    } -cleanup {
+	close $c
+	unset c
+    } -result $data
+}
+
+test tcl-transform-base64-2.7 {write in pieces, unbuffered} -setup {
+    set c [vt::open w]
+    fconfigure $c -buffering none
+} -body {
+    tcl::transform::base64 $c
+    foreach x {H e llo { } W orld} {puts -nonewline $c $x}
+    close $c
+    vt::get
+} -cleanup {
+    unset c x
+} -result SGVsbG8gV29ybGQ=
+
+test tcl-transform-base64-2.8 {write binary data} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::base64 $c
+    puts -nonewline $c [binary format c* {0 1 2 255 254 253 128}]
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result AAEC//79gA==
+
+test tcl-transform-base64-2.9 {write long data, no line breaks} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::base64 $c
+    puts -nonewline $c [string repeat a 300]
+    close $c
+    set r [vt::get]
+    list [string length $r] [string first \n $r]
+} -cleanup {
+    unset c r
+} -result {400 -1}
+
+test tcl-transform-base64-3.7 {read in small chunks} -setup {
+    vt::put SGVsbG8gV29ybGQ=
+    set c [vt::open r]
+    fconfigure $c -buffersize 3
+} -body {
+    tcl::transform::base64 $c
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -result {Hello World}
+
+test tcl-transform-base64-3.8 {round trip binary data} -setup {
+    set data {}
+    for {set i 0} {$i < 256} {incr i} {append data [binary format c $i]}
+    set c [vt::open w]
+    tcl::transform::base64 $c
+    puts -nonewline $c $data
+    close $c
+    set c [vt::open r]
+} -body {
+    tcl::transform::base64 $c
+    expr {[read $c] eq $data}
+} -cleanup {
+    close $c
+    unset c data i
+} -result 1
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-base64.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

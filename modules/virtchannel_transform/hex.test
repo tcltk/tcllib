@@ -1,0 +1,166 @@
+# -*- tcl -*-
+# hex.test:  Tests for the tcl::transform::hex package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal hex.tcl tcl::transform::hex
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-hex.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-hex-1.0 {wrong # args, none} -body {
+    tcl::transform::hex
+} -returnCodes error -result {wrong # args: should be "tcl::transform::hex chan"}
+
+test tcl-transform-hex-1.1 {wrong # args, too many} -body {
+    tcl::transform::hex a b
+} -returnCodes error -result {wrong # args: should be "tcl::transform::hex chan"}
+
+test tcl-transform-hex-1.2 {bad channel} -body {
+    tcl::transform::hex nosuchchannel
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+# The command returns the empty string.
+test tcl-transform-hex-2.0 {returns the channel handle} -constraints {
+    knownBug
+} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::hex $c] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-transform-hex-2.1 {write encodes} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::hex $c
+    puts -nonewline $c "Hello"
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result 48656c6c6f
+
+test tcl-transform-hex-2.2 {write encodes binary data} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::hex $c
+    puts -nonewline $c [binary format c* {0 1 15 16 127 128 254 255}]
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result 00010f107f80feff
+
+test tcl-transform-hex-2.3 {write in pieces, unbuffered} -setup {
+    set c [vt::open w]
+    fconfigure $c -buffering none
+} -body {
+    tcl::transform::hex $c
+    foreach x {H e llo { } World} {puts -nonewline $c $x}
+    close $c
+    vt::get
+} -cleanup {
+    unset c x
+} -result 48656c6c6f20576f726c64
+
+test tcl-transform-hex-3.0 {read decodes} -setup {
+    vt::put 48656c6c6f
+    set c [vt::open r]
+} -body {
+    tcl::transform::hex $c
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -result Hello
+
+test tcl-transform-hex-3.1 {read decodes upper case digits} -setup {
+    vt::put 00010F107F80FEFF
+    set c [vt::open r]
+} -body {
+    tcl::transform::hex $c
+    binary scan [read $c] c* r
+    set r
+} -cleanup {
+    close $c
+    unset c r
+} -result {0 1 15 16 127 -128 -2 -1}
+
+test tcl-transform-hex-3.2 {round trip} -setup {
+    set data [binary format c* {0 1 2 13 10 255 128 65}]
+    set c [vt::open w]
+    tcl::transform::hex $c
+    puts -nonewline $c $data
+    close $c
+    set c [vt::open r]
+} -body {
+    tcl::transform::hex $c
+    expr {[read $c] eq $data}
+} -cleanup {
+    close $c
+    unset c data
+} -result 1
+
+test tcl-transform-hex-3.3 {read empty} -setup {
+    vt::put ""
+    set c [vt::open r]
+} -body {
+    tcl::transform::hex $c
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{} 1}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-hex.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

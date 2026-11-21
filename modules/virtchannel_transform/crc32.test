@@ -1,0 +1,190 @@
+# -*- tcl -*-
+# crc32.test:  Tests for the tcl::transform::crc32 package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal crc32.tcl tcl::transform::crc32
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-crc32.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-crc32-1.0 {wrong # args, none} -body {
+    tcl::transform::crc32
+} -returnCodes error -result {wrong # args: should be "tcl::transform::crc32 chan ?arg ...?"}
+
+test tcl-transform-crc32-1.1 {odd number of option arguments} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::crc32 $c -read-variable
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {list must have an even number of elements}
+
+test tcl-transform-crc32-2.0 {returns the channel handle} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::crc32 $c] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-transform-crc32-2.1 {variables initialized at construction} -setup {
+    unset -nocomplain ::sr ::sw
+    set c [vt::open w]
+} -body {
+    tcl::transform::crc32 $c -read-variable ::sr -write-variable ::sw
+    list $::sr $::sw
+} -cleanup {
+    close $c
+    unset c ::sr ::sw
+} -result {0 0}
+
+test tcl-transform-crc32-2.2 {checksum of written data, data unchanged} -setup {
+    unset -nocomplain ::sw
+    set c [vt::open w]
+} -body {
+    tcl::transform::crc32 $c -write-variable ::sw
+    puts -nonewline $c "Hello World"
+    close $c
+    list [expr {$::sw == [zlib crc32 "Hello World"]}] [vt::get]
+} -cleanup {
+    unset c ::sw
+} -result {1 {Hello World}}
+
+test tcl-transform-crc32-2.3 {checksum of read data, data unchanged} -setup {
+    unset -nocomplain ::sr
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::crc32 $c -read-variable ::sr
+    list [read $c] [expr {$::sr == [zlib crc32 "Hello World"]}]
+} -cleanup {
+    close $c
+    unset c ::sr
+} -result {{Hello World} 1}
+
+test tcl-transform-crc32-2.4 {checksum continues over several writes} -setup {
+    unset -nocomplain ::sw
+    set c [vt::open w]
+    fconfigure $c -buffering none
+} -body {
+    tcl::transform::crc32 $c -write-variable ::sw
+    foreach x {Hel lo { } World} {puts -nonewline $c $x}
+    expr {$::sw == [zlib crc32 "Hello World"]}
+} -cleanup {
+    close $c
+    unset c x ::sw
+} -result 1
+
+test tcl-transform-crc32-2.5 {known value} -setup {
+    unset -nocomplain ::sw
+    set c [vt::open w]
+} -body {
+    tcl::transform::crc32 $c -write-variable ::sw
+    puts -nonewline $c "The quick brown fox jumps over the lazy dog"
+    close $c
+    format %08x $::sw
+} -cleanup {
+    unset c ::sw
+} -result 414fa339
+
+test tcl-transform-crc32-2.6 {binary data} -setup {
+    unset -nocomplain ::sr
+    set data [binary format c* {0 1 2 255 254 128 10 13}]
+    vt::put $data
+    set c [vt::open r]
+} -body {
+    tcl::transform::crc32 $c -read-variable ::sr
+    list [expr {[read $c] eq $data}] [expr {$::sr == [zlib crc32 $data]}]
+} -cleanup {
+    close $c
+    unset c data ::sr
+} -result {1 1}
+
+test tcl-transform-crc32-2.7 {namespaced variable} -setup {
+    namespace eval ::vt::ns {variable sum}
+    set c [vt::open w]
+} -body {
+    tcl::transform::crc32 $c -write-variable ::vt::ns::sum
+    puts -nonewline $c "Hello World"
+    close $c
+    expr {$::vt::ns::sum == [zlib crc32 "Hello World"]}
+} -cleanup {
+    namespace delete ::vt::ns
+    unset c
+} -result 1
+
+test tcl-transform-crc32-2.8 {no variables, data unchanged} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::crc32 $c -read-variable {} -write-variable {}
+    puts -nonewline $c "Hello"
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result Hello
+
+test tcl-transform-crc32-2.9 {empty data keeps initial value} -setup {
+    unset -nocomplain ::sr
+    vt::put ""
+    set c [vt::open r]
+} -body {
+    tcl::transform::crc32 $c -read-variable ::sr
+    list [read $c] $::sr
+} -cleanup {
+    close $c
+    unset c ::sr
+} -result {{} 0}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-crc32.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

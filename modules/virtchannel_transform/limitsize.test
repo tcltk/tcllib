@@ -1,0 +1,160 @@
+# -*- tcl -*-
+# limitsize.test:  Tests for the tcl::transform::limitsize package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal limitsize.tcl tcl::transform::limitsize
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-limitsize.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-limitsize-1.0 {wrong # args, none} -body {
+    tcl::transform::limitsize
+} -returnCodes error -result {wrong # args: should be "tcl::transform::limitsize chan max"}
+
+test tcl-transform-limitsize-1.1 {wrong # args, one} -body {
+    tcl::transform::limitsize a
+} -returnCodes error -result {wrong # args: should be "tcl::transform::limitsize chan max"}
+
+test tcl-transform-limitsize-1.2 {wrong # args, too many} -body {
+    tcl::transform::limitsize a b c
+} -returnCodes error -result {wrong # args: should be "tcl::transform::limitsize chan max"}
+
+test tcl-transform-limitsize-2.0 {returns the channel handle} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    expr {[tcl::transform::limitsize $c 5] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-transform-limitsize-2.1 {read stops at limit} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::limitsize $c 5
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {Hello 1}
+
+test tcl-transform-limitsize-2.2 {limit larger than data} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::limitsize $c 100
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{Hello World} 1}
+
+test tcl-transform-limitsize-2.3 {limit equal to data size} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::limitsize $c 11
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -result {Hello World}
+
+test tcl-transform-limitsize-2.4 {limit counts bytes over several reads} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::limitsize $c 7
+    list [read $c 3] [read $c 3] [read $c 3] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {Hel {lo } W 1}
+
+test tcl-transform-limitsize-2.5 {gets at limit} -setup {
+    vt::put "line1\nline2\nline3\n"
+    set c [vt::open r]
+} -body {
+    tcl::transform::limitsize $c 8
+    list [gets $c] [gets $c] [eof $c] [gets $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {line1 li 1 {}}
+
+test tcl-transform-limitsize-2.6 {popping clears EOF} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::limitsize $c 5
+    set r [list [read $c] [eof $c]]
+    chan pop $c
+    lappend r [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c r
+} -result {Hello 1 { World} 1}
+
+test tcl-transform-limitsize-2.7 {writes are not limited} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::limitsize $c 2
+    puts -nonewline $c "Hello World"
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result {Hello World}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-limitsize.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

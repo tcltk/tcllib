@@ -1,0 +1,141 @@
+# -*- tcl -*-
+# identity.test:  Tests for the tcl::transform::identity package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal identity.tcl tcl::transform::identity
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-identity.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-identity-1.0 {wrong # args, none} -body {
+    tcl::transform::identity
+} -returnCodes error -result {wrong # args: should be "tcl::transform::identity chan"}
+
+test tcl-transform-identity-1.1 {wrong # args, too many} -body {
+    tcl::transform::identity a b
+} -returnCodes error -result {wrong # args: should be "tcl::transform::identity chan"}
+
+test tcl-transform-identity-1.2 {bad channel} -body {
+    tcl::transform::identity nosuchchannel
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test tcl-transform-identity-2.0 {returns the channel handle} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::identity $c] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-transform-identity-2.1 {write, data unchanged} -setup {
+    set c [vt::open w]
+    set data [binary format c* {0 1 2 13 10 255 128 65}]
+} -body {
+    tcl::transform::identity $c
+    puts -nonewline $c $data
+    close $c
+    expr {[vt::get] eq $data}
+} -cleanup {
+    unset c data
+} -result 1
+
+test tcl-transform-identity-2.2 {read, data unchanged} -setup {
+    set data [binary format c* {0 1 2 13 10 255 128 65}]
+    vt::put $data
+    set c [vt::open r]
+} -body {
+    tcl::transform::identity $c
+    expr {[read $c] eq $data}
+} -cleanup {
+    close $c
+    unset c data
+} -result 1
+
+test tcl-transform-identity-2.3 {stacked twice} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::identity $c
+    tcl::transform::identity $c
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -result {Hello World}
+
+test tcl-transform-identity-2.4 {pop restores the channel} -setup {
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::identity $c
+    set r [read $c 5]
+    chan pop $c
+    seek $c 6
+    lappend r [read $c]
+} -cleanup {
+    close $c
+    unset c r
+} -result {Hello World}
+
+test tcl-transform-identity-2.5 {empty data} -setup {
+    vt::put ""
+    set c [vt::open r]
+} -body {
+    tcl::transform::identity $c
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{} 1}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-identity.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

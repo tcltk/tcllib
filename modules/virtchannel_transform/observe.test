@@ -1,0 +1,173 @@
+# -*- tcl -*-
+# observe.test:  Tests for the tcl::transform::observe package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal observe.tcl tcl::transform::observe
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-observe.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+proc ::vt::logfile {name} {
+    set f [tcltest::makeFile {} $name]
+    set c [::open $f wb]
+    return $c
+}
+proc ::vt::logget {name} {
+    set c [::open [file join [tcltest::temporaryDirectory] $name] rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+test tcl-transform-observe-1.0 {wrong # args, none} -body {
+    tcl::transform::observe
+} -returnCodes error -result {wrong # args: should be "tcl::transform::observe chan logw logr"}
+
+test tcl-transform-observe-1.1 {wrong # args, two} -body {
+    tcl::transform::observe a b
+} -returnCodes error -result {wrong # args: should be "tcl::transform::observe chan logw logr"}
+
+test tcl-transform-observe-1.2 {wrong # args, too many} -body {
+    tcl::transform::observe a b c d
+} -returnCodes error -result {wrong # args: should be "tcl::transform::observe chan logw logr"}
+
+test tcl-transform-observe-2.0 {returns the channel handle} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::observe $c {} {}] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-transform-observe-2.1 {written data copied to logw} -setup {
+    set lw [vt::logfile vt-logw.dat]
+    set c [vt::open w]
+} -body {
+    tcl::transform::observe $c $lw {}
+    puts -nonewline $c "Hello World"
+    close $c
+    close $lw
+    list [vt::get] [vt::logget vt-logw.dat]
+} -cleanup {
+    tcltest::removeFile vt-logw.dat
+    unset c lw
+} -result {{Hello World} {Hello World}}
+
+test tcl-transform-observe-2.2 {read data copied to logr} -setup {
+    vt::put "Hello World"
+    set lr [vt::logfile vt-logr.dat]
+    set c [vt::open r]
+} -body {
+    tcl::transform::observe $c {} $lr
+    set r [read $c]
+    close $lr
+    list $r [vt::logget vt-logr.dat]
+} -cleanup {
+    close $c
+    tcltest::removeFile vt-logr.dat
+    unset c lr r
+} -result {{Hello World} {Hello World}}
+
+test tcl-transform-observe-2.3 {both directions, separate logs} -setup {
+    vt::put "Hello World"
+    set lr [vt::logfile vt-logr.dat]
+    set lw [vt::logfile vt-logw.dat]
+    set c [vt::open r+]
+} -body {
+    tcl::transform::observe $c $lw $lr
+    set r [read $c]
+    puts -nonewline $c "abc"
+    flush $c
+    close $lr
+    close $lw
+    list $r [vt::logget vt-logr.dat] [vt::logget vt-logw.dat]
+} -cleanup {
+    close $c
+    tcltest::removeFile vt-logr.dat
+    tcltest::removeFile vt-logw.dat
+    unset c lr lw r
+} -result {{Hello World} {Hello World} abc}
+
+test tcl-transform-observe-2.4 {binary data copied unchanged} -setup {
+    set data [binary format c* {0 1 2 255 254 128 10 13}]
+    set lw [vt::logfile vt-logw.dat]
+    set c [vt::open w]
+} -body {
+    tcl::transform::observe $c $lw {}
+    puts -nonewline $c $data
+    close $c
+    close $lw
+    list [expr {[vt::get] eq $data}] [expr {[vt::logget vt-logw.dat] eq $data}]
+} -cleanup {
+    tcltest::removeFile vt-logw.dat
+    unset c lw data
+} -result {1 1}
+
+test tcl-transform-observe-2.5 {same log channel for both directions} -setup {
+    vt::put "Hello"
+    set l [vt::logfile vt-log.dat]
+    set c [vt::open r+]
+} -body {
+    tcl::transform::observe $c $l $l
+    read $c
+    puts -nonewline $c " World"
+    flush $c
+    close $l
+    vt::logget vt-log.dat
+} -cleanup {
+    close $c
+    tcltest::removeFile vt-log.dat
+    unset c l
+} -result {Hello World}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-observe.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

@@ -1,0 +1,182 @@
+# -*- tcl -*-
+# counter.test:  Tests for the tcl::transform::counter package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal counter.tcl tcl::transform::counter
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-counter.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-counter-1.0 {wrong # args, none} -body {
+    tcl::transform::counter
+} -returnCodes error -result {wrong # args: should be "tcl::transform::counter chan ?arg ...?"}
+
+test tcl-transform-counter-1.1 {odd number of option arguments} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::counter $c -read-variable
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -result {list must have an even number of elements}
+
+test tcl-transform-counter-2.0 {returns the channel handle} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::counter $c] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-transform-counter-2.1 {count written bytes, data unchanged} -setup {
+    unset -nocomplain ::cw
+    set c [vt::open w]
+} -body {
+    tcl::transform::counter $c -write-variable ::cw
+    puts -nonewline $c "Hello World"
+    close $c
+    list $::cw [vt::get]
+} -cleanup {
+    unset c ::cw
+} -result {11 {Hello World}}
+
+test tcl-transform-counter-2.2 {count read bytes, data unchanged} -setup {
+    unset -nocomplain ::cr
+    vt::put "Hello World"
+    set c [vt::open r]
+} -body {
+    tcl::transform::counter $c -read-variable ::cr
+    list [read $c] $::cr
+} -cleanup {
+    close $c
+    unset c ::cr
+} -result {{Hello World} 11}
+
+test tcl-transform-counter-2.3 {counts add up, variable initial value kept} -setup {
+    set ::cw 100
+    set c [vt::open w]
+    fconfigure $c -buffering none
+} -body {
+    tcl::transform::counter $c -write-variable ::cw
+    puts -nonewline $c "abc"
+    set r $::cw
+    puts -nonewline $c "defgh"
+    lappend r $::cw
+} -cleanup {
+    close $c
+    unset c r ::cw
+} -result {103 108}
+
+test tcl-transform-counter-2.4 {namespaced variable} -setup {
+    namespace eval ::vt::ns {variable cnt}
+    set c [vt::open w]
+} -body {
+    tcl::transform::counter $c -write-variable ::vt::ns::cnt
+    puts -nonewline $c "Hello"
+    close $c
+    set ::vt::ns::cnt
+} -cleanup {
+    namespace delete ::vt::ns
+    unset c
+} -result 5
+
+test tcl-transform-counter-2.5 {no variables, nothing saved} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::counter $c
+    puts -nonewline $c "Hello"
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result Hello
+
+test tcl-transform-counter-2.6 {empty variable name, direction not saved} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::counter $c -write-variable {} -read-variable {}
+    puts -nonewline $c "Hello"
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result Hello
+
+test tcl-transform-counter-2.7 {binary data counted in bytes} -setup {
+    unset -nocomplain ::cw
+    set c [vt::open w]
+} -body {
+    tcl::transform::counter $c -write-variable ::cw
+    puts -nonewline $c [binary format c* {0 255 128 10 13}]
+    close $c
+    set ::cw
+} -cleanup {
+    unset c ::cw
+} -result 5
+
+test tcl-transform-counter-2.8 {only the requested direction is counted} -setup {
+    unset -nocomplain ::cr ::cw
+    vt::put "Hello World"
+    set c [vt::open r+]
+} -body {
+    tcl::transform::counter $c -read-variable ::cr
+    read $c
+    puts -nonewline $c abc
+    flush $c
+    list $::cr [info exists ::cw]
+} -cleanup {
+    close $c
+    unset c ::cr
+} -result {11 0}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-counter.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

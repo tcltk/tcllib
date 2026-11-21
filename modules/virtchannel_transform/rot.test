@@ -1,0 +1,151 @@
+# -*- tcl -*-
+# rot.test:  Tests for the tcl::transform::rot package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal rot.tcl tcl::transform::rot
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-rot.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-rot-1.0 {wrong # args, none} -body {
+    tcl::transform::rot
+} -returnCodes error -result {wrong # args: should be "tcl::transform::rot chan key"}
+
+test tcl-transform-rot-1.1 {wrong # args, one} -body {
+    tcl::transform::rot a
+} -returnCodes error -result {wrong # args: should be "tcl::transform::rot chan key"}
+
+test tcl-transform-rot-1.2 {wrong # args, too many} -body {
+    tcl::transform::rot a b c
+} -returnCodes error -result {wrong # args: should be "tcl::transform::rot chan key"}
+
+test tcl-transform-rot-1.3 {bad key} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::rot $c foo
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -match glob -result {*non-numeric string*}
+
+test tcl-transform-rot-1.4 {bad key leaves the channel unchanged} -setup {
+    set c [vt::open w]
+} -body {
+    catch {tcl::transform::rot $c foo}
+    puts -nonewline $c abc
+    close $c
+    vt::get
+} -cleanup {
+    unset c
+} -result abc
+
+test tcl-transform-rot-2.0 {returns the channel handle} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::rot $c 13] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+foreach {n key enc} {
+    1 13  {Uryyb, Jbeyq! 0123 nopqrstuvwxyzabcdefghijklm NOPQRSTUVWXYZABCDEFGHIJKLM}
+    2 1   {Ifmmp, Xpsme! 0123 bcdefghijklmnopqrstuvwxyza BCDEFGHIJKLMNOPQRSTUVWXYZA}
+    3 0   {Hello, World! 0123 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+    4 26  {Hello, World! 0123 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+    5 39  {Uryyb, Jbeyq! 0123 nopqrstuvwxyzabcdefghijklm NOPQRSTUVWXYZABCDEFGHIJKLM}
+    6 -1  {Gdkkn, Vnqkc! 0123 zabcdefghijklmnopqrstuvwxy ZABCDEFGHIJKLMNOPQRSTUVWXY}
+    7 25  {Gdkkn, Vnqkc! 0123 zabcdefghijklmnopqrstuvwxy ZABCDEFGHIJKLMNOPQRSTUVWXY}
+} {
+    set plain {Hello, World! 0123 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+
+    test tcl-transform-rot-2.$n "write encrypts, key $key" -setup {
+	set c [vt::open w]
+    } -body {
+	tcl::transform::rot $c $key
+	puts -nonewline $c $plain
+	close $c
+	vt::get
+    } -cleanup {
+	unset c
+    } -result $enc
+
+    test tcl-transform-rot-3.$n "read decrypts, key $key" -setup {
+	vt::put $enc
+	set c [vt::open r]
+    } -body {
+	tcl::transform::rot $c $key
+	read $c
+    } -cleanup {
+	close $c
+	unset c
+    } -result $plain
+}
+unset plain
+
+test tcl-transform-rot-2.8 {non-alphabetic bytes unchanged} -setup {
+    set data {}
+    for {set i 0} {$i < 256} {incr i} {
+	if {($i >= 65 && $i <= 90) || ($i >= 97 && $i <= 122)} continue
+	append data [binary format c $i]
+    }
+    set c [vt::open w]
+} -body {
+    tcl::transform::rot $c 7
+    puts -nonewline $c $data
+    close $c
+    expr {[vt::get] eq $data}
+} -cleanup {
+    unset c data i
+} -result 1
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-rot.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

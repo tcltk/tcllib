@@ -1,0 +1,157 @@
+# -*- tcl -*-
+# otp.test:  Tests for the tcl::transform::otp package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal otp.tcl tcl::transform::otp
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-otp.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+proc ::vt::keychan {name data} {
+    set f [tcltest::makeFile {} $name]
+    set c [::open $f wb]
+    puts -nonewline $c $data
+    close $c
+    return [::open $f rb]
+}
+
+test tcl-transform-otp-1.0 {wrong # args, none} -body {
+    tcl::transform::otp
+} -returnCodes error -result {wrong # args: should be "tcl::transform::otp chan keychanw keychanr"}
+
+test tcl-transform-otp-1.1 {wrong # args, two} -body {
+    tcl::transform::otp a b
+} -returnCodes error -result {wrong # args: should be "tcl::transform::otp chan keychanw keychanr"}
+
+test tcl-transform-otp-1.2 {wrong # args, too many} -body {
+    tcl::transform::otp a b c d
+} -returnCodes error -result {wrong # args: should be "tcl::transform::otp chan keychanw keychanr"}
+
+test tcl-transform-otp-2.0 {returns the channel handle} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::otp $c {} {}] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-transform-otp-2.1 {write xors with the write pad} -setup {
+    set kw [vt::keychan vt-kw.dat [binary format c* {1 2 3 4 5 0 255}]]
+    set c [vt::open w]
+} -body {
+    tcl::transform::otp $c $kw {}
+    puts -nonewline $c [binary format c* {0 0 0 0 0 65 255}]
+    close $c
+    binary scan [vt::get] cu* r
+    set r
+} -cleanup {
+    close $kw
+    tcltest::removeFile vt-kw.dat
+    unset c kw r
+} -result {1 2 3 4 5 65 0}
+
+test tcl-transform-otp-2.2 {read xors with the read pad} -setup {
+    set kr [vt::keychan vt-kr.dat [binary format c* {1 2 3 4 5}]]
+    vt::put [binary format c* {73 103 111 104 106}]
+    set c [vt::open r]
+} -body {
+    tcl::transform::otp $c {} $kr
+    read $c
+} -cleanup {
+    close $c
+    close $kr
+    tcltest::removeFile vt-kr.dat
+    unset c kr
+} -result Hello
+
+test tcl-transform-otp-2.3 {round trip with the same pad} -setup {
+    set pad {}
+    for {set i 0} {$i < 64} {incr i} {append pad [binary format c [expr {($i * 37 + 11) & 255}]]}
+    set kw [vt::keychan vt-kw.dat $pad]
+    set kr [vt::keychan vt-kr.dat $pad]
+    set c [vt::open w]
+    tcl::transform::otp $c $kw {}
+    puts -nonewline $c "The quick brown fox jumps over the lazy dog"
+    close $c
+} -body {
+    set enc [vt::get]
+    set c [vt::open r]
+    tcl::transform::otp $c {} $kr
+    list [expr {$enc ne "The quick brown fox jumps over the lazy dog"}] [read $c]
+} -cleanup {
+    close $c
+    close $kw
+    close $kr
+    tcltest::removeFile vt-kw.dat
+    tcltest::removeFile vt-kr.dat
+    unset c kw kr pad i enc
+} -result {1 {The quick brown fox jumps over the lazy dog}}
+
+test tcl-transform-otp-2.4 {pad consumed across writes} -setup {
+    set kw [vt::keychan vt-kw.dat [binary format c* {1 2 3 4}]]
+    set c [vt::open w]
+    fconfigure $c -buffering none
+} -body {
+    tcl::transform::otp $c $kw {}
+    puts -nonewline $c [binary format c* {0 0}]
+    puts -nonewline $c [binary format c* {0 0}]
+    close $c
+    binary scan [vt::get] cu* r
+    set r
+} -cleanup {
+    close $kw
+    tcltest::removeFile vt-kw.dat
+    unset c kw r
+} -result {1 2 3 4}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-otp.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return

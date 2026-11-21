@@ -1,0 +1,160 @@
+# -*- tcl -*-
+# zlib.test:  Tests for the tcl::transform::zlib package.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use virtchannel_core/transformcore.tcl tcl::transform::core
+}
+testing {
+    useLocal zlib.tcl tcl::transform::zlib
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+namespace eval ::vt {
+    variable file [tcltest::makeFile {} vt-zlib.dat]
+}
+
+# Write data (binary) to the test file.
+proc ::vt::put {data} {
+    variable file
+    set c [::open $file wb]
+    puts -nonewline $c $data
+    close $c
+    return
+}
+
+# Read the test file (binary).
+proc ::vt::get {} {
+    variable file
+    set c [::open $file rb]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# Open the test file in binary mode.
+proc ::vt::open {mode} {
+    variable file
+    ::open $file ${mode}b
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-transform-zlib-1.0 {wrong # args, none} -body {
+    tcl::transform::zlib
+} -returnCodes error -result {wrong # args: should be "tcl::transform::zlib chan ?level?"}
+
+test tcl-transform-zlib-1.1 {wrong # args, too many} -body {
+    tcl::transform::zlib a b c
+} -returnCodes error -result {wrong # args: should be "tcl::transform::zlib chan ?level?"}
+
+# The command returns the empty string.
+test tcl-transform-zlib-2.0 {returns the channel handle} -constraints {
+    knownBug
+} -setup {
+    set c [vt::open w]
+} -body {
+    expr {[tcl::transform::zlib $c] eq $c}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+# The flush handler calls "$stream flush", which only sets the flush mode
+# of the next put and produces no output; the stream is never finalized.
+# Nothing is written to the channel.
+test tcl-transform-zlib-2.1 {write compresses} -constraints {
+    knownBug
+} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::zlib $c
+    puts -nonewline $c [string repeat "Hello World " 100]
+    close $c
+    expr {[zlib inflate [vt::get]] eq [string repeat "Hello World " 100]}
+} -cleanup {
+    unset c
+} -result 1
+
+foreach level {0 9} {
+    test tcl-transform-zlib-2.2.$level "write compresses, level $level" -constraints {
+	knownBug
+    } -setup {
+	set c [vt::open w]
+    } -body {
+	tcl::transform::zlib $c $level
+	puts -nonewline $c [string repeat "Hello World " 100]
+	close $c
+	expr {[zlib inflate [vt::get]] eq [string repeat "Hello World " 100]}
+    } -cleanup {
+	unset c
+    } -result 1
+}
+
+test tcl-transform-zlib-2.3 {bad level} -setup {
+    set c [vt::open w]
+} -body {
+    tcl::transform::zlib $c 10
+} -cleanup {
+    catch {close $c}
+    unset c
+} -returnCodes error -match glob -result {*level*}
+
+test tcl-transform-zlib-3.0 {read decompresses} -constraints {
+    knownBug
+} -setup {
+    vt::put [zlib deflate [string repeat "Hello World " 100]]
+    set c [vt::open r]
+} -body {
+    tcl::transform::zlib $c
+    expr {[read $c] eq [string repeat "Hello World " 100]}
+} -cleanup {
+    catch {close $c}
+    unset c
+} -result 1
+
+test tcl-transform-zlib-3.1 {read empty} -setup {
+    vt::put {}
+    set c [vt::open r]
+} -body {
+    tcl::transform::zlib $c
+    list [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {{} 1}
+
+test tcl-transform-zlib-3.2 {round trip} -constraints {
+    knownBug
+} -setup {
+    set data [string repeat "Hello World " 100]
+    set c [vt::open w]
+    tcl::transform::zlib $c
+    puts -nonewline $c $data
+    close $c
+    set c [vt::open r]
+} -body {
+    tcl::transform::zlib $c
+    expr {[read $c] eq $data}
+} -cleanup {
+    catch {close $c}
+    unset c data
+} -result 1
+
+# -------------------------------------------------------------------------
+
+tcltest::removeFile vt-zlib.dat
+namespace delete ::vt
+unset -nocomplain n key data enc args level
+testsuiteCleanup
+return
