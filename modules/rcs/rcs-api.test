@@ -71,8 +71,8 @@ test rcs-api-1.7 {text2dict and dict2text round trip} -body {
 } -result 1
 
 test rcs-api-1.8 {text2dict, non-ASCII text} -body {
-    dictsortint [::rcs::text2dict "їжак\nйога"]
-} -result [list 1 їжак 2 йога]
+    dictsortint [::rcs::text2dict "\u0457\u0436\u0430\u043a\n\u0439\u043e\u0433\u0430"]
+} -result [list 1 \u0457\u0436\u0430\u043a 2 \u0439\u043e\u0433\u0430]
 
 # -------------------------------------------------------------------------
 ## file2dict, dict2file
