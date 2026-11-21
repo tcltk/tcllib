@@ -1,0 +1,385 @@
+# -*- tcl -*-
+# des-api.test:  additional tests for the documented API of des.
+#
+# Complements des.test: the cbc, cfb and ofb modes, 3DES, option
+# defaults and abbreviations, -out/-in channels, the programming
+# interface (Init/Encrypt/Decrypt/Reset/Final) and error cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    # Base implementation first, then the package for the public API
+    useLocal [expr {
+        [tcltest::testConstraint no3des] ?
+        "tcldesjr.tcl" :
+        "tcldes.tcl"}] tclDES ::des
+    useLocal des.tcl   des    ::DES
+}
+
+tcltest::testConstraint 3des [llength [package provide tclDES]]
+
+# -------------------------------------------------------------------------
+# FIPS 81 sample: key 0123456789abcdef, iv 1234567890abcdef,
+# plaintext "Now is the time for all ".  The 3DES results were computed
+# with OpenSSL (des-ede3-*).
+
+set plain "Now is the time for all "
+set iv    [binary format H* 1234567890abcdef]
+set key1  [binary format H* 0123456789abcdef]
+set key3  [binary format H* 0123456789abcdef23456789abcdef01456789abcdef0123]
+
+set vectors {
+    ecb 3fa40e8a984d48156a271787ab8883f9893d51ec4b563b53
+        314f8327fa7a09a84362760cc13ba7daff55c5f80faaac45
+    cbc e5c7cdde872bf27c43e934008c389c0f683788499a7c05f6
+        f3c0ff026c023089656fbb169def7edb30ba36075d6f0176
+    cfb f3096249c7f46e51a69e839b1a92f78403467133898ea622
+        ee7ec75c1a101301c4ab2f10462e5dd417400b445b5f2a72
+    ofb f3096249c7f46e5135f24a242eeb3d3f3d6d5be3255af8c3
+        ee7ec75c1a1013019a8a610002668e0787e28af9ec26b889
+}
+
+# -------------------------------------------------------------------------
+# ::DES::des - modes
+
+foreach {mode c1 c3} $vectors {
+    test des-api-1.$mode-enc "des -mode $mode encryption (FIPS 81)" -body {
+        DES::des -mode $mode -dir encrypt -key $key1 -iv $iv -hex $plain
+    } -result $c1
+
+    test des-api-1.$mode-dec "des -mode $mode decryption (FIPS 81)" -body {
+        DES::des -mode $mode -dir decrypt -key $key1 -iv $iv \
+            [binary format H* $c1]
+    } -result $plain
+
+    test des-api-2.$mode-enc "3DES -mode $mode encryption" -constraints {
+        3des
+    } -body {
+        DES::des -mode $mode -dir encrypt -key $key3 -iv $iv -hex $plain
+    } -result $c3
+
+    test des-api-2.$mode-dec "3DES -mode $mode decryption" -constraints {
+        3des
+    } -body {
+        DES::des -mode $mode -dir decrypt -key $key3 -iv $iv \
+            [binary format H* $c3]
+    } -result $plain
+}
+unset mode c1 c3
+
+# -------------------------------------------------------------------------
+# ::DES::des - options
+
+test des-api-3.1 {des: default mode is cbc, default direction is encrypt} -body {
+    DES::des -key $key1 -iv $iv -hex $plain
+} -result e5c7cdde872bf27c43e934008c389c0f683788499a7c05f6
+
+test des-api-3.2 {des: default iv is all zeros} -body {
+    string equal [DES::des -key $key1 $plain] \
+        [DES::des -key $key1 -iv [string repeat \0 8] $plain]
+} -result 1
+
+test des-api-3.3 {des: result is binary without -hex} -body {
+    set r [DES::des -mode ecb -key $key1 $plain]
+    list [string length $r] [DES::Hex $r]
+} -cleanup {
+    unset r
+} -result {24 3fa40e8a984d48156a271787ab8883f9893d51ec4b563b53}
+
+test des-api-3.4 {des: abbreviated -mode and -dir values} -body {
+    list [DES::des -mode cb -dir enc -key $key1 -iv $iv -hex $plain] \
+        [DES::des -mode o -dir d -key $key1 -iv $iv \
+             [binary format H* f3096249c7f46e5135f24a242eeb3d3f3d6d5be3255af8c3]]
+} -result [list e5c7cdde872bf27c43e934008c389c0f683788499a7c05f6 $plain]
+
+test des-api-3.5 {des: -- ends option processing} -body {
+    DES::des -mode ecb -key $key1 -hex -- -bcdefgh
+} -result 5e351c478fd7126d
+
+test des-api-3.6 {des: data is padded with NULs to the block size} -body {
+    list [DES::des -mode ecb -key $key1 -hex "Now is"] \
+        [DES::des -mode ecb -key $key1 -hex "Now is\0\0"]
+} -result {0f527a62f3a118f6 0f527a62f3a118f6}
+
+test des-api-3.7 {des: -weak allows a weak key} -body {
+    DES::des -weak -mode ecb -key [string repeat \1 8] -hex [string repeat \0 8]
+} -result 8ca64de9c1b123a7
+
+test des-api-3.8 {des: weak key without -weak is rejected} -body {
+    DES::des -mode ecb -key [string repeat \1 8] [string repeat \0 8]
+} -returnCodes error -result {Key 1 is weak!}
+
+test des-api-3.9 {des: -out channel} -setup {
+    set fn [makeFile {} desapi[pid].out]
+    set ch [open $fn wb]
+} -body {
+    set r [DES::des -mode cbc -key $key1 -iv $iv -out $ch $plain]
+    close $ch
+    set ch [open $fn rb]
+    list $r [DES::Hex [read $ch]]
+} -cleanup {
+    close $ch
+    removeFile $fn
+    unset fn ch r
+} -result {{} e5c7cdde872bf27c43e934008c389c0f683788499a7c05f6}
+
+test des-api-3.10 {des: -out channel with -hex returns empty} -setup {
+    set fn [makeFile {} desapi[pid].out]
+    set ch [open $fn wb]
+} -body {
+    set r [DES::des -hex -mode ecb -key $key1 -out $ch $plain]
+    close $ch
+    list $r [file size $fn]
+} -cleanup {
+    removeFile $fn
+    unset fn ch r
+} -result {{} 24}
+
+# knownBug: -in calls the undefined command Chunk, ticket a1dec8173c.
+test des-api-3.11 {des: -in channel} -constraints {
+    knownBug
+} -setup {
+    set fn [makeFile {} desapi[pid].in]
+    set ch [open $fn wb]
+    puts -nonewline $ch $plain
+    close $ch
+    set ch [open $fn rb]
+} -body {
+    DES::des -mode cbc -key $key1 -iv $iv -hex -in $ch
+} -cleanup {
+    close $ch
+    removeFile $fn
+    unset fn ch
+} -result e5c7cdde872bf27c43e934008c389c0f683788499a7c05f6
+
+# knownBug: -in calls the undefined command Chunk, ticket a1dec8173c.
+test des-api-3.12 {des: -in and -out channels} -constraints {
+    knownBug
+} -setup {
+    set fin [makeFile {} desapi[pid].in]
+    set ch [open $fin wb]
+    puts -nonewline $ch $plain
+    close $ch
+    set fout [makeFile {} desapi[pid].out]
+    set in [open $fin rb]
+    set out [open $fout wb]
+} -body {
+    set r [DES::des -mode ecb -key $key1 -chunksize 8 -in $in -out $out]
+    close $out
+    set out [open $fout rb]
+    list $r [DES::Hex [read $out]]
+} -cleanup {
+    close $in
+    close $out
+    removeFile $fin
+    removeFile $fout
+    unset fin fout in out r
+} -result {{} 3fa40e8a984d48156a271787ab8883f9893d51ec4b563b53}
+
+# -------------------------------------------------------------------------
+# ::DES::des - errors
+
+test des-api-4.1 {des: no arguments} -body {
+    DES::des
+} -returnCodes error -result {no key provided: the -key option is required}
+
+test des-api-4.2 {des: missing -key} -body {
+    DES::des -mode ecb abcdefgh
+} -returnCodes error -result {no key provided: the -key option is required}
+
+test des-api-4.3 {des: no data} -body {
+    DES::des -key $key1
+} -returnCodes error -result {wrong # args: should be "des ?options...? -key keydata plaintext"}
+
+test des-api-4.4 {des: too many arguments} -body {
+    DES::des -key $key1 abcdefgh abcdefgh
+} -returnCodes error -result {wrong # args: should be "des ?options...? -key keydata plaintext"}
+
+test des-api-4.5 {des: -in and data} -setup {
+    set ch [open [info script] r]
+} -body {
+    DES::des -key $key1 -in $ch abcdefgh
+} -cleanup {
+    close $ch
+    unset ch
+} -returnCodes error -result {wrong # args: should be "des ?options...? -key keydata -in channel"}
+
+test des-api-4.6 {des: bad option} -body {
+    DES::des -foo bar -key $key1 abcdefgh
+} -returnCodes error -result {bad option "-foo": must be one of -chunksize, -dir, -hex, -in, -iv, -key, -mode, -out, -weak}
+
+test des-api-4.7 {des: bad -mode} -body {
+    DES::des -mode xyz -key $key1 abcdefgh
+} -returnCodes error -result {invalid mode "xyz": must be one of ecb, cbc, cfb, ofb}
+
+test des-api-4.8 {des: bad -dir} -body {
+    DES::des -dir sideways -key $key1 abcdefgh
+} -returnCodes error -result {invalid mode "sideways": must be one of encrypt, decrypt}
+
+test des-api-4.9 {des: key too short} -body {
+    DES::des -key 1234567 abcdefgh
+} -returnCodes error -result {invalid key length of 56 bits: DES requires 64 bit keys (56 bits plus parity bits)}
+
+test des-api-4.10 {des: key length not a multiple of 8 bytes} -body {
+    DES::des -key 123456789 abcdefgh
+} -returnCodes error -result {invalid key length of 72 bits: DES requires 64 bit keys (56 bits plus parity bits)}
+
+test des-api-4.11 {des: bad -iv size} -body {
+    DES::des -mode cbc -key $key1 -iv 1234567 abcdefgh
+} -returnCodes error -result {invalid initialization vector size: the initialization vector must be 8 bytes}
+
+# -------------------------------------------------------------------------
+# Programming interface
+
+test des-api-5.1 {Init/Encrypt/Reset/Decrypt/Final: documented example} -body {
+    set ivz [string repeat \0 8]
+    set Key [DES::Init cbc \0\1\2\3\4\5\6\7 $ivz]
+    set ciphertext [DES::Encrypt $Key "somedata"]
+    append ciphertext [DES::Encrypt $Key "moredata"]
+    DES::Reset $Key $ivz
+    set plaintext [DES::Decrypt $Key $ciphertext]
+    DES::Final $Key
+    list [DES::Hex $ciphertext] $plaintext
+} -cleanup {
+    unset ivz Key ciphertext plaintext
+} -result {3eef4072d9fa87cbc7113eb53bfdcc58 somedatamoredata}
+
+test des-api-5.2 {Encrypt: chained calls equal one call} -body {
+    set res {}
+    foreach mode {cbc cfb ofb} {
+        set Key [DES::Init $mode $key1 $iv]
+        set c [DES::Encrypt $Key [string range $plain 0 7]]
+        append c [DES::Encrypt $Key [string range $plain 8 end]]
+        DES::Final $Key
+        lappend res [string equal $c \
+            [DES::des -mode $mode -key $key1 -iv $iv $plain]]
+    }
+    set res
+} -cleanup {
+    unset res mode Key c
+} -result {1 1 1}
+
+test des-api-5.3 {Decrypt: chained calls} -body {
+    set Key [DES::Init cbc $key1 $iv]
+    set c [binary format H* e5c7cdde872bf27c43e934008c389c0f683788499a7c05f6]
+    set p [DES::Decrypt $Key [string range $c 0 15]]
+    append p [DES::Decrypt $Key [string range $c 16 end]]
+    DES::Final $Key
+    set p
+} -cleanup {
+    unset Key c p
+} -result $plain
+
+test des-api-5.4 {Reset: restarts the chain with a new iv} -body {
+    set Key [DES::Init cbc $key1 [string repeat \0 8]]
+    DES::Encrypt $Key "previous"
+    DES::Reset $Key $iv
+    set c [DES::Encrypt $Key $plain]
+    DES::Final $Key
+    DES::Hex $c
+} -cleanup {
+    unset Key c
+} -result e5c7cdde872bf27c43e934008c389c0f683788499a7c05f6
+
+test des-api-5.5 {Reset returns empty} -body {
+    set Key [DES::Init cbc $key1 $iv]
+    set r [DES::Reset $Key $iv]
+    DES::Final $Key
+    set r
+} -cleanup {
+    unset Key r
+} -result {}
+
+test des-api-5.6 {ECB: state does not depend on the input} -body {
+    set Key [DES::Init ecb $key1 $iv]
+    set a [DES::Encrypt $Key "Now is t"]
+    set b [DES::Encrypt $Key "Now is t"]
+    DES::Final $Key
+    list [string equal $a $b] [DES::Hex $a]
+} -cleanup {
+    unset Key a b
+} -result {1 3fa40e8a984d4815}
+
+test des-api-5.7 {Encrypt: result has the size of the input} -body {
+    set Key [DES::Init ecb $key1 $iv]
+    set r [string length [DES::Encrypt $Key [string repeat x 64]]]
+    DES::Final $Key
+    set r
+} -cleanup {
+    unset Key r
+} -result 64
+
+test des-api-5.8 {3DES with the programming interface} -constraints {
+    3des
+} -body {
+    set Key [DES::Init cbc $key3 $iv]
+    set c [DES::Encrypt $Key $plain]
+    DES::Reset $Key $iv
+    set p [DES::Decrypt $Key $c]
+    DES::Final $Key
+    list [DES::Hex $c] $p
+} -cleanup {
+    unset Key c p
+} -result [list f3c0ff026c023089656fbb169def7edb30ba36075d6f0176 $plain]
+
+test des-api-5.9 {Final: key may not be used again} -body {
+    set Key [DES::Init ecb $key1 $iv]
+    DES::Final $Key
+    info exists $Key
+} -cleanup {
+    unset Key
+} -result 0
+
+test des-api-5.10 {Init: weak key is rejected by default} -body {
+    DES::Init ecb [string repeat \1 8] $iv
+} -returnCodes error -result {Key 1 is weak!}
+
+test des-api-5.11 {Init: weak argument accepts a weak key} -body {
+    set Key [DES::Init ecb [string repeat \1 8] $iv 1]
+    set r [DES::Encrypt $Key [string repeat \0 8]]
+    DES::Final $Key
+    DES::Hex $r
+} -cleanup {
+    unset Key r
+} -result 8ca64de9c1b123a7
+
+test des-api-5.12 {Init: bad key length} -body {
+    DES::Init ecb 1234567 $iv
+} -returnCodes error -result {invalid key length of 56 bits: DES requires 64 bit keys (56 bits plus parity bits)}
+
+test des-api-5.13 {Init: wrong # args} -body {
+    DES::Init ecb $key1
+} -returnCodes error -result {wrong # args: should be "DES::Init mode key iv ?weak?"}
+
+test des-api-5.14 {Encrypt: wrong # args} -body {
+    DES::Encrypt x
+} -returnCodes error -result {wrong # args: should be "DES::Encrypt Key data"}
+
+test des-api-5.15 {Decrypt: wrong # args} -body {
+    DES::Decrypt x
+} -returnCodes error -result {wrong # args: should be "DES::Decrypt Key data"}
+
+test des-api-5.16 {Reset: wrong # args} -body {
+    DES::Reset x
+} -returnCodes error -result {wrong # args: should be "DES::Reset Key iv"}
+
+test des-api-5.17 {Final: wrong # args} -body {
+    DES::Final
+} -returnCodes error -result {wrong # args: should be "DES::Final Key"}
+
+# -------------------------------------------------------------------------
+
+unset plain iv key1 key3 vectors
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
