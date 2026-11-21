@@ -1,0 +1,298 @@
+# -*- tcl -*-
+# doc_gen-api.test:  Tests for the documented API of tepam::doc_gen
+# (tepam_doc_gen.man) that are not covered by doc_gen.test: argument
+# errors, -style, patch, the format options and custom formats.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+catch {namespace delete ::tepam::doc_gen}
+catch {namespace delete ::tepam}
+testing {
+    useLocal tepam.tcl tepam
+    useLocal tepam_doc_gen.tcl tepam::doc_gen
+}
+
+# -------------------------------------------------------------------------
+
+tepam::procedure tdgapi_p {
+    -short_description "Short descr"
+    -description "Long descr"
+    -example "tdgapi_p -n 1 x"
+    -args {
+        {-n -type integer -default 1 -description "A number"}
+        {-f -type none -description "A flag"}
+        {u -description "Unnamed"}
+    }
+} {}
+
+set tdgapi_txt {  NAME
+      tdgapi_p - Short descr
+  SYNOPSIS
+      tdgapi_p [-n <n>] [-f] <u>
+  DESCRIPTION
+      Long descr
+  ARGUMENTS
+      [-n <n>]
+        A number
+        Type: integer
+        Default: 1
+      [-f]
+        A flag
+      <u>
+        Unnamed
+  EXAMPLE
+      tdgapi_p -n 1 x
+}
+
+# =========================================================================
+# generate
+
+test doc_gen-api-1.0 {generate, default format is TXT} -body {
+    tepam::doc_gen::generate tdgapi_p
+} -result $tdgapi_txt
+
+test doc_gen-api-1.1 {generate, -format TXT explicitly} -body {
+    string equal [tepam::doc_gen::generate -format TXT tdgapi_p] $tdgapi_txt
+} -result 1
+
+test doc_gen-api-1.2 {generate, -style C} -body {
+    join [lrange [split [tepam::doc_gen::generate -style C tdgapi_p] \n] 0 3] \n
+} -result {  NAME
+      tdgapi_p() - Short descr
+  SYNOPSIS
+      tdgapi_p([-n <n>], [-f], <u>)}
+
+test doc_gen-api-1.3 {generate, -style Tcl explicitly} -body {
+    string equal [tepam::doc_gen::generate -style Tcl tdgapi_p] $tdgapi_txt
+} -result 1
+
+test doc_gen-api-1.4 {generate, bad -style} -body {
+    tepam::doc_gen::generate -style X tdgapi_p
+} -returnCodes error -result {tepam::doc_gen::generate: Argument 'style' has to be one of the following elements: Tcl(Tcl style), C(C style)}
+
+test doc_gen-api-1.5 {generate, unknown format} -body {
+    tepam::doc_gen::generate -format NOSUCH tdgapi_p
+} -returnCodes error -result {tepam::doc_gen::generate: Argument 'format' requires type 'tepam_doc_format'. Provided value: 'NOSUCH'}
+
+test doc_gen-api-1.6 {generate, unknown procedure} -body {
+    tepam::doc_gen::generate tdgapi_nosuch
+} -returnCodes error -result {tepam::doc_gen::generate: Unknown procedure provided (argument 'name')}
+
+test doc_gen-api-1.7 {generate, missing name} -body {
+    tepam::doc_gen::generate
+} -returnCodes error -result {tepam::doc_gen::generate: Required argument is missing: name}
+
+test doc_gen-api-1.8 {generate, fully qualified name} -body {
+    string equal [tepam::doc_gen::generate ::tdgapi_p] $tdgapi_txt
+} -result 1
+
+test doc_gen-api-1.9 {generate, -dest_file: header/footer added, file name returned} -setup {
+    set f [file join [tcltest::temporaryDirectory] tdgapi.html]
+} -body {
+    set r [tepam::doc_gen::generate -format HTML -dest_file $f tdgapi_p]
+    set ch [open $f]
+    set data [read $ch]
+    close $ch
+    list [string equal $r $f] [string match {<html>*<h1 class="tepam_page_title">tdgapi_p</h1>*</body>*} $data]
+} -cleanup {
+    file delete $f
+    unset -nocomplain f r ch data
+} -result {1 1}
+
+test doc_gen-api-1.10 {generate, HTML footer closes the html element} -constraints {
+    knownBug
+} -body {
+    # The footer ends with "<html>" instead of "</html>".
+    string trim [tepam::doc_gen::generate -format HTML -header_footer tdgapi_p]
+} -match glob -result {<html>*</html>}
+
+test doc_gen-api-1.11 {generate, HTML refers to Option(HTML,CssFile)} -setup {
+    set saved $tepam::doc_gen::Option(HTML,CssFile)
+} -body {
+    set r [list $tepam::doc_gen::Option(HTML,CssFile)]
+    set tepam::doc_gen::Option(HTML,CssFile) tdgapi.css
+    lappend r [regexp {<link rel="stylesheet" href="tdgapi.css">} \
+        [tepam::doc_gen::generate -format HTML -header_footer tdgapi_p]]
+} -cleanup {
+    set tepam::doc_gen::Option(HTML,CssFile) $saved
+    unset -nocomplain saved r
+} -result {tepam_doc_stylesheet.css 1}
+
+test doc_gen-api-1.12 {generate, HTML CSS classes} -body {
+    set doc [tepam::doc_gen::generate -format HTML tdgapi_p]
+    set r {}
+    foreach class {
+        div.tepam_command_help p.tepam_section_title p.tepam_name
+        p.tepam_synopsis p.tepam_description dt.tepam_argument
+        p.tepam_argument_description p.tepam_argument_attribute
+        pre.tepam_example
+    } {
+        lassign [split $class .] tag cls
+        if {![regexp "<$tag class=\"$cls\">" $doc]} {lappend r $class}
+    }
+    set r
+} -cleanup {
+    unset -nocomplain doc r class tag cls
+} -result {}
+
+test doc_gen-api-1.13 {generate, Option(TXT,MaxLineLength)} -setup {
+    set saved $tepam::doc_gen::Option(TXT,MaxLineLength)
+    tepam::procedure tdgapi_long {
+        -description "one two three four five six seven eight nine ten eleven twelve"
+    } {}
+} -body {
+    set r [list $saved]
+    set tepam::doc_gen::Option(TXT,MaxLineLength) 30
+    set doc [tepam::doc_gen::generate tdgapi_long]
+    set max 0
+    foreach line [split $doc \n] {
+        if {[string length $line] > $max} {set max [string length $line]}
+    }
+    lappend r [expr {$max <= 30}] [regexp {\n      one two three four five\n      six seven} $doc]
+} -cleanup {
+    set tepam::doc_gen::Option(TXT,MaxLineLength) $saved
+    rename tdgapi_long {}
+    array unset ::tepam::ProcDef ::tdgapi_long,*
+    unset -nocomplain saved r doc max line
+} -result {80 1 1}
+
+# =========================================================================
+# patch
+
+test doc_gen-api-2.0 {patch, default search pattern} -body {
+    tepam::doc_gen::patch -src_string "A {!tdgapi_p!} B"
+} -result "A $tdgapi_txt B"
+
+test doc_gen-api-2.1 {patch, custom search pattern} -body {
+    tepam::doc_gen::patch -src_string "A {*tdgapi_p*} B {!tdgapi_p!}" \
+        -search_pattern {\{\*(.*?)\*\}}
+} -result "A $tdgapi_txt B {!tdgapi_p!}"
+
+test doc_gen-api-2.2 {patch, unknown procedures are left as is} -body {
+    tepam::doc_gen::patch -src_string "A {!tdgapi_p!} B {!tdgapi_nosuch!} C"
+} -result "A $tdgapi_txt B {!tdgapi_nosuch!} C"
+
+test doc_gen-api-2.3 {patch, several placeholders} -body {
+    tepam::doc_gen::patch -src_string "{!tdgapi_p!}|{!tdgapi_p!}"
+} -result "$tdgapi_txt|$tdgapi_txt"
+
+test doc_gen-api-2.4 {patch, restricted to one procedure} -body {
+    tepam::doc_gen::patch \
+        -src_string "A {!tdgapi_p!} {!tepam::doc_gen::generate!}" tdgapi_p
+} -result "A $tdgapi_txt {!tepam::doc_gen::generate!}"
+
+test doc_gen-api-2.5 {patch, -format and -style are used} -body {
+    tepam::doc_gen::patch -format HTML -style C -src_string "<{!tdgapi_p!}>"
+} -match glob -result {<<div class="tepam_command_help">*tdgapi_p(\[-n &lt;n&gt;\], \[-f\], &lt;u&gt;)*</div>*>}
+
+test doc_gen-api-2.6 {patch, neither -src_string nor -src_file} -body {
+    tepam::doc_gen::patch
+} -returnCodes error -result {tepam::doc_gen::patch: Either src_string or src_file need to be defined!}
+
+test doc_gen-api-2.7 {patch, both -src_string and -src_file} -setup {
+    set f [tcltest::makeFile {} tdgapi.src]
+} -body {
+    tepam::doc_gen::patch -src_string a -src_file $f
+} -cleanup {
+    tcltest::removeFile tdgapi.src
+    unset -nocomplain f
+} -returnCodes error -result {tepam::doc_gen::patch: Either src_string or src_file need to be defined!}
+
+test doc_gen-api-2.8 {patch, -src_file must exist} -body {
+    tepam::doc_gen::patch -src_file [file join [tcltest::temporaryDirectory] tdgapi-nosuch]
+} -returnCodes error -match glob -result {tepam::doc_gen::patch: Argument 'src_file' requires type 'existingfile'. Provided value: '*tdgapi-nosuch'}
+
+test doc_gen-api-2.9 {patch, -src_file and -dest_file: count returned} -setup {
+    set src [file join [tcltest::temporaryDirectory] tdgapi.src]
+    set dst [file join [tcltest::temporaryDirectory] tdgapi.dst]
+    set ch [open $src w]
+    puts -nonewline $ch "A {!tdgapi_p!} B {!tdgapi_nosuch!} C {!tdgapi_p!}"
+    close $ch
+} -body {
+    set n [tepam::doc_gen::patch -src_file $src -dest_file $dst]
+    set ch [open $dst]
+    set data [read $ch]
+    close $ch
+    list $n [string equal $data "A $tdgapi_txt B {!tdgapi_nosuch!} C $tdgapi_txt\n"]
+} -cleanup {
+    file delete $src $dst
+    unset -nocomplain src dst ch n data
+} -result {2 1}
+
+test doc_gen-api-2.10 {patch, unknown procedure name restriction} -body {
+    tepam::doc_gen::patch -src_string "x" tdgapi_nosuch
+} -returnCodes error -result {tepam::doc_gen::patch: Unknown procedure provided (argument 'name')}
+
+# =========================================================================
+# Custom document formats and the generation procedures
+
+test doc_gen-api-3.0 {gen(TXT,ArgumentString), example from the man page} -body {
+    tepam::doc_gen::gen(TXT,ArgumentString) close 1 1 none
+} -result {[-close]}
+
+test doc_gen-api-3.1 {gen(TXT,ArgumentString), other combinations} -body {
+    list [tepam::doc_gen::gen(TXT,ArgumentString) name 0 0 string] \
+        [tepam::doc_gen::gen(TXT,ArgumentString) name 1 0 string] \
+        [tepam::doc_gen::gen(TXT,ArgumentString) name 0 1 string] \
+        [tepam::doc_gen::gen(TXT,ArgumentString) name 1 1 string]
+} -result {<name> {[<name>]} {-name <name>} {[-name <name>]}}
+
+# Define format "TDGAPI" which wraps the TXT generators with markers.
+proc makeFormat {} {
+    foreach p [info procs ::tepam::doc_gen::gen(TXT,*)] {
+        regexp {,(.*)\)$} $p -> part
+        set refs {}
+        foreach a [info args $p] {lappend refs "\$$a"}
+        proc ::tepam::doc_gen::gen(TDGAPI,$part) [info args $p] [format {
+            return "<%1$s>[%2$s %3$s]"
+        } $part [list $p] [join $refs]]
+    }
+}
+proc deleteFormat {} {
+    foreach p [info procs ::tepam::doc_gen::gen(TDGAPI,*)] {rename $p {}}
+}
+
+test doc_gen-api-3.2 {custom format defined by gen(<format>,*) procedures} -setup {
+    makeFormat
+} -body {
+    set doc [tepam::doc_gen::generate -format TDGAPI tdgapi_p]
+    list [string match {<Begin>*<SectionTitle>*<Name>*<Synopsis>*<Description>*<ArgumentListBegin>*<ArgumentListItem>*<ArgumentDetailBegin>*<ArgumentDescription>*<ArgumentAttribute>*<ExampleBegin>*<ExampleCommandLine>*<ExampleEnd>*<End>*} $doc] \
+        [string match *<Header>* $doc] \
+        [string match {<Header>*<Footer>*} \
+            [tepam::doc_gen::generate -format TDGAPI -header_footer tdgapi_p]]
+} -cleanup {
+    deleteFormat
+    unset -nocomplain doc
+} -result {1 0 1}
+
+test doc_gen-api-3.3 {custom format with the documented procedure names} -constraints {
+    knownBug
+} -setup {
+    makeFormat
+    # tepam_doc_gen.man documents gen($Format,ArgumentDetailEnd) and
+    # gen($Format,ArgumentListEnd), but generate calls
+    # gen($Format,OptionDetailEnd) and gen($Format,OptionEnd).
+    rename ::tepam::doc_gen::gen(TDGAPI,OptionDetailEnd) \
+        ::tepam::doc_gen::gen(TDGAPI,ArgumentDetailEnd)
+    rename ::tepam::doc_gen::gen(TDGAPI,OptionEnd) \
+        ::tepam::doc_gen::gen(TDGAPI,ArgumentListEnd)
+} -body {
+    string match {*<ArgumentDetailEnd>*<ArgumentListEnd>*} \
+        [tepam::doc_gen::generate -format TDGAPI tdgapi_p]
+} -cleanup {
+    deleteFormat
+} -result 1
+
+# -------------------------------------------------------------------------
+
+rename tdgapi_p {}
+rename makeFormat {}
+rename deleteFormat {}
+unset tdgapi_txt
+testsuiteCleanup
+return

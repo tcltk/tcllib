@@ -1,0 +1,729 @@
+# -*- tcl -*-
+# tepam-api.test:  Tests for the documented API of tepam::procedure
+# (tepam_procedure.man) that are not covered by the other test files:
+# declaration errors, procedure attributes, argument attributes and
+# types, help, logging and the configuration variables.
+#
+# Interactive calls (they need Tk) are not tested here.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+catch {namespace delete ::tepam}
+testing {
+    useLocal tepam.tcl tepam
+}
+
+tcltest::testConstraint noTk [catch {package present Tk}]
+
+# -------------------------------------------------------------------------
+
+# All procedures declared by the tests are named tepamapi_*.  Remove them
+# and their TEPAM declarations.
+proc cleanupProcs {} {
+    foreach p [info procs ::tepamapi_*] {
+        rename $p {}
+    }
+    array unset ::tepam::ProcDef ::tepamapi_*
+    set l {}
+    foreach p $::tepam::ProcedureList {
+        if {![string match ::tepamapi_* $p]} {lappend l $p}
+    }
+    set ::tepam::ProcedureList $l
+    catch {rename ::tepam::Validate(tepamapi_two_char) {}}
+    unset -nocomplain ::tepamapi_var
+}
+
+# Restore a configuration variable after a test.
+proc saveVar {name} {
+    set ::tepamapi_saved($name) [set ::tepam::$name]
+}
+proc restoreVars {} {
+    foreach {name value} [array get ::tepamapi_saved] {
+        set ::tepam::$name $value
+    }
+    unset -nocomplain ::tepamapi_saved
+}
+
+# =========================================================================
+# Declaration errors
+
+test tepam-api-1.0 {procedure, wrong # args} -body {
+    tepam::procedure tepamapi_p {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Missing procedure arguments, correct usage: procedure <ProcedureName> <ProcedureAttributes> <ProcedureBody>}
+
+test tepam-api-1.1 {procedure, too many args} -body {
+    tepam::procedure tepamapi_p {} {} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Missing procedure arguments, correct usage: procedure <ProcedureName> <ProcedureAttributes> <ProcedureBody>}
+
+test tepam-api-1.2 {procedure, unknown procedure attribute} -body {
+    tepam::procedure tepamapi_p {-foo 1} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Procedure attribute '-foo' not known}
+
+test tepam-api-1.3 {procedure, argument defined twice} -body {
+    tepam::procedure tepamapi_p {-args {{x} {x}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Argument 'x' defined multiple times}
+
+test tepam-api-1.4 {procedure, named argument defined twice} -body {
+    tepam::procedure tepamapi_p {-args {{-x} {-x}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Argument 'x' defined multiple times}
+
+test tepam-api-1.5 {procedure, unknown argument attribute} -body {
+    tepam::procedure tepamapi_p {-args {{x -foo 1}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Argument attribute '-foo' not known}
+
+test tepam-api-1.6 {procedure, -range with one value} -body {
+    tepam::procedure tepamapi_p {-args {{x -type integer -range {1}}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Invalid range definition - 1}
+
+test tepam-api-1.7 {procedure, -range with a non-numeric value} -body {
+    tepam::procedure tepamapi_p {-args {{x -type integer -range {a 2}}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Invalid range definition - a 2}
+
+test tepam-api-1.8 {procedure, -range requires integer or double} -body {
+    tepam::procedure tepamapi_p {-args {{x -range {1 2}}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Argument 'x' - range specification requires type integer or double}
+
+test tepam-api-1.9 {procedure, mandatory unnamed after optional unnamed} -body {
+    tepam::procedure tepamapi_p {-args {{x -optional} {y}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Argument 'y' has to be optional}
+
+test tepam-api-1.10 {procedure, -multiple unnamed not last} -body {
+    tepam::procedure tepamapi_p {-args {{x -multiple} {y}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Attribute '-multiple' is only for the last unnamed argument allowed}
+
+test tepam-api-1.11 {procedure, -choicelabels size mismatch, unnamed} -body {
+    tepam::procedure tepamapi_p {-args {{x -choices {a b} -choicelabels {A}}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Argument 'x' - Choice label list and choice list have different sizes}
+
+test tepam-api-1.12 {procedure, -choicelabels size mismatch, named} -constraints {
+    knownBug
+} -body {
+    # The size check is only done for unnamed arguments.
+    tepam::procedure tepamapi_p {-args {{-x -choices {a b} -choicelabels {A}}}} {}
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {Procedure declaration 'tepamapi_p': Argument 'x' - Choice label list and choice list have different sizes}
+
+test tepam-api-1.13 {procedure, -help prints the declaration syntax} -body {
+    tepam::procedure -help
+} -cleanup {
+    cleanupProcs
+} -match glob -output {*procedure <ProcedureName> <ProcedureAttributes> <ProcedureBody>*<ArgumentDeclaration> = \{*} -result {}
+
+test tepam-api-1.14 {procedure, -help as procedure attribute} -body {
+    list [tepam::procedure tepamapi_p {-help} {}] [info procs tepamapi_p]
+} -cleanup {
+    cleanupProcs
+} -match glob -output {*procedure <ProcedureName>*} -result {{} {}}
+
+test tepam-api-1.15 {procedure, the body sees the argument variables} -setup {
+    tepam::procedure tepamapi_p {
+        -args {
+            {-mtype -default Warning -choices {Warning Error}}
+            {text -type string}
+        }
+    } {
+        list $mtype $text
+    }
+} -body {
+    list [tepamapi_p hello] [tepamapi_p -mtype Error hello]
+} -cleanup {
+    cleanupProcs
+} -result {{Warning hello} {Error hello}}
+
+test tepam-api-1.16 {procedure, redeclaration replaces the declaration} -setup {
+    tepam::procedure tepamapi_p {-args {{a}}} {list a $a}
+    tepam::procedure tepamapi_p {-args {{-b -default B}}} {list b $b}
+} -body {
+    list [tepamapi_p] [catch {tepamapi_p -a 1} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {{b B} 1 {tepamapi_p: Argument '-a' not known}}
+
+# =========================================================================
+# Procedure attributes
+
+test tepam-api-2.0 {argument name completion, enabled by default} -setup {
+    tepam::procedure tepamapi_p {
+        -args {{-value -type integer} {-verbose -type none}}
+    } {list $value $verbose}
+} -body {
+    list [tepamapi_p -val 3] [tepamapi_p -value 4 -verb]
+} -cleanup {
+    cleanupProcs
+} -result {{3 0} {4 1}}
+
+test tepam-api-2.1 {argument name completion, ambiguous abbreviation} -setup {
+    tepam::procedure tepamapi_p {
+        -args {{-value -type integer} {-verbose -type none}}
+    } {list $value $verbose}
+} -body {
+    tepamapi_p -v 3
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {tepamapi_p: Argument '-v' may match multiple options: value verbose}
+
+test tepam-api-2.2 {argument name completion, unknown name} -setup {
+    tepam::procedure tepamapi_p {-args {{-value -type integer}}} {set value}
+} -body {
+    tepamapi_p -nosuch 3
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {tepamapi_p: Argument '-nosuch' not known}
+
+test tepam-api-2.3 {-auto_argument_name_completion 0} -setup {
+    tepam::procedure tepamapi_p {
+        -auto_argument_name_completion 0
+        -args {{-value -type integer}}
+    } {set value}
+} -body {
+    list [tepamapi_p -value 3] [catch {tepamapi_p -val 3} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {3 1 {tepamapi_p: Argument '-val' not known}}
+
+test tepam-api-2.4 {variable auto_argument_name_completion} -setup {
+    saveVar auto_argument_name_completion
+    set tepam::auto_argument_name_completion 0
+    tepam::procedure tepamapi_p {-args {{-value -type integer}}} {set value}
+    restoreVars
+} -body {
+    # The setting at declaration time is used.
+    list [catch {tepamapi_p -val 3} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {1 {tepamapi_p: Argument '-val' not known}}
+
+test tepam-api-2.5 {-auto_argument_name_completion 1 overrides the variable} -setup {
+    saveVar auto_argument_name_completion
+    set tepam::auto_argument_name_completion 0
+    tepam::procedure tepamapi_p {
+        -auto_argument_name_completion 1
+        -args {{-value -type integer}}
+    } {set value}
+    restoreVars
+} -body {
+    tepamapi_p -val 3
+} -cleanup {
+    cleanupProcs
+} -result 3
+
+test tepam-api-2.6 {-named_arguments_first 0 overrides the variable} -setup {
+    tepam::procedure tepamapi_p {
+        -named_arguments_first 0
+        -args {{-n -default N} {u}}
+    } {list $n $u}
+} -body {
+    # "-n" is assigned to the mandatory unnamed argument u first.
+    list [tepamapi_p U -n X] [catch {tepamapi_p -n X U} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {{X U} 1 {tepamapi_p: Argument 'X' is not an option}}
+
+test tepam-api-2.7 {variable named_arguments_first} -setup {
+    saveVar named_arguments_first
+    set tepam::named_arguments_first 0
+    tepam::procedure tepamapi_p {-args {{-n -default N} {u}}} {list $n $u}
+    restoreVars
+} -body {
+    tepamapi_p U -n X
+} -cleanup {
+    cleanupProcs
+} -result {X U}
+
+test tepam-api-2.8 {procedure -validatecommand} -setup {
+    tepam::procedure tepamapi_p {
+        -args {{a -type integer} {b -type integer}}
+        -validatecommand {expr {$a < $b}}
+    } {list $a $b}
+} -body {
+    list [tepamapi_p 1 2] [catch {tepamapi_p 2 1} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {{1 2} 1 {tepamapi_p: Invalid argument(s) provided. Constraint: 'expr {$a < $b}'}}
+
+test tepam-api-2.9 {procedure -validatecommand, repeated, with error texts} -setup {
+    tepam::procedure tepamapi_p {
+        -args {{a -type integer} {b -type integer}}
+        -validatecommand {expr {$a < $b}}
+        -validatecommand_error_text "a must be less than b"
+        -validatecommand {expr {$b < 10}}
+        -validatecommand_error_text "b is too big"
+    } {list $a $b}
+} -body {
+    list [tepamapi_p 1 2] \
+        [catch {tepamapi_p 2 1} msg] $msg \
+        [catch {tepamapi_p 1 20} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {{1 2} 1 {tepamapi_p: a must be less than b} 1 {tepamapi_p: b is too big}}
+
+test tepam-api-2.10 {procedure -validatecommand, body not executed on failure} -setup {
+    set ::tepamapi_var 0
+    tepam::procedure tepamapi_p {
+        -args {{a -type integer}}
+        -validatecommand {expr {$a > 0}}
+    } {incr ::tepamapi_var}
+} -body {
+    catch {tepamapi_p 0}
+    tepamapi_p 1
+    set ::tepamapi_var
+} -cleanup {
+    cleanupProcs
+} -result 1
+
+test tepam-api-2.11 {-category, -return, -example, -short_description, -description} -setup {
+    tepam::procedure tepamapi_p {
+        -category Cat
+        -return Ret
+        -example "tepamapi_p 1"
+        -short_description "Short descr"
+        -description "Long descr"
+        -args {{x}}
+    } {set x}
+} -body {
+    tepamapi_p 1
+} -cleanup {
+    cleanupProcs
+} -result 1
+
+test tepam-api-2.12 {-interactive without Tk} -constraints {
+    noTk
+} -setup {
+    tepam::procedure tepamapi_p {-args {{x -default 1}}} {set x}
+} -body {
+    tepamapi_p -interactive
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {tepamapi_p: Interactive calls are only supported if Tk is loaded!}
+
+# =========================================================================
+# Logging: -command_log, command_log, ProcedureCallLogList
+
+test tepam-api-3.0 {-command_log 1 logs every call} -setup {
+    tepam::procedure tepamapi_p {-command_log 1 -args {{x}}} {set x}
+    set tepam::ProcedureCallLogList ""
+} -body {
+    tepamapi_p 1
+    tepamapi_p {2 3}
+    set tepam::ProcedureCallLogList
+} -cleanup {
+    cleanupProcs
+    set tepam::ProcedureCallLogList ""
+} -result "tepamapi_p 1\ntepamapi_p {2 3}\n"
+
+test tepam-api-3.1 {-command_log 0 logs nothing} -setup {
+    tepam::procedure tepamapi_p {-command_log 0 -args {{x}}} {set x}
+    set tepam::ProcedureCallLogList ""
+} -body {
+    tepamapi_p 1
+    set tepam::ProcedureCallLogList
+} -cleanup {
+    cleanupProcs
+} -result {}
+
+test tepam-api-3.2 {default command_log "interactive": non-interactive calls not logged} -setup {
+    tepam::procedure tepamapi_p {-args {{x}}} {set x}
+    set tepam::ProcedureCallLogList ""
+} -body {
+    tepamapi_p 1
+    list $tepam::command_log $tepam::ProcedureCallLogList
+} -cleanup {
+    cleanupProcs
+} -result {interactive {}}
+
+test tepam-api-3.3 {variable command_log} -setup {
+    saveVar command_log
+    set tepam::command_log 1
+    tepam::procedure tepamapi_p {-args {{x}}} {set x}
+    restoreVars
+    set tepam::ProcedureCallLogList ""
+} -body {
+    tepamapi_p 5
+    set tepam::ProcedureCallLogList
+} -cleanup {
+    cleanupProcs
+    set tepam::ProcedureCallLogList ""
+} -result "tepamapi_p 5\n"
+
+test tepam-api-3.4 {failed calls are not logged} -setup {
+    tepam::procedure tepamapi_p {-command_log 1 -args {{x -type integer}}} {set x}
+    set tepam::ProcedureCallLogList ""
+} -body {
+    catch {tepamapi_p a}
+    set tepam::ProcedureCallLogList
+} -cleanup {
+    cleanupProcs
+} -result {}
+
+# =========================================================================
+# Argument declarations
+
+test tepam-api-4.0 {-mandatory} -setup {
+    tepam::procedure tepamapi_p {-args {{-a -mandatory} {b -mandatory}}} {list $a $b}
+} -body {
+    list [tepamapi_p -a 1 2] [catch {tepamapi_p 2} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {{1 2} 1 {tepamapi_p: Required argument is missing: a}}
+
+test tepam-api-4.1 {-optional: variable not defined when not given} -setup {
+    tepam::procedure tepamapi_p {-args {{-a -optional} {b -optional}}} {
+        list [info exists a] [info exists b]
+    }
+} -body {
+    list [tepamapi_p] [tepamapi_p -a 1] [tepamapi_p 2] [tepamapi_p -a 1 2]
+} -cleanup {
+    cleanupProcs
+} -result {{0 0} {1 0} {0 1} {1 1}}
+
+test tepam-api-4.2 {-default makes an argument optional} -setup {
+    tepam::procedure tepamapi_p {-args {{-a -default A} {b -default B}}} {list $a $b}
+} -body {
+    list [tepamapi_p] [tepamapi_p -a x] [tepamapi_p y]
+} -cleanup {
+    cleanupProcs
+} -result {{A B} {x B} {A y}}
+
+test tepam-api-4.3 {named argument without value} -setup {
+    tepam::procedure tepamapi_p {-args {{-c -default C}}} {set c}
+} -body {
+    tepamapi_p -c
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {tepamapi_p: No value is provided for argument '-c'}
+
+test tepam-api-4.4 {flag: type none} -setup {
+    tepam::procedure tepamapi_p {-args {{-flag -type none}}} {set flag}
+} -body {
+    list [tepamapi_p] [tepamapi_p -flag] [tepamapi_p -flag -flag]
+} -cleanup {
+    cleanupProcs
+} -result {0 1 1}
+
+test tepam-api-4.5 {named argument given twice, last one retained} -setup {
+    tepam::procedure tepamapi_p {-args {{-mtype -choices {Info Warning}} {-text}}} {
+        list $mtype $text
+    }
+} -body {
+    tepamapi_p -mtype Info -text T -mtype Warning
+} -cleanup {
+    cleanupProcs
+} -result {Warning T}
+
+test tepam-api-4.6 {-multiple named argument, given once} -setup {
+    tepam::procedure tepamapi_p {-args {{-text -multiple}}} {set text}
+} -body {
+    list [tepamapi_p -text {a b}] [tepamapi_p -text {a b} -text c]
+} -cleanup {
+    cleanupProcs
+} -result {{{a b}} {{a b} c}}
+
+test tepam-api-4.7 {argument comments and section comments are not arguments} -setup {
+    tepam::procedure tepamapi_p {
+        -args {
+            {#### Section ####}
+            {- An argument comment}
+            {"" Another comment}
+            {x}
+        }
+    } {set x}
+} -body {
+    list [tepamapi_p 1] [catch {tepamapi_p 1 2} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {1 1 {tepamapi_p: Too many unnamed arguments: 2}}
+
+test tepam-api-4.8 {section comment appears in the help} -setup {
+    tepam::procedure tepamapi_p {
+        -args {
+            {#### First complex number ####}
+            {-r0 -type double -description "First number real part"}
+        }
+    } {}
+} -body {
+    tepamapi_p -help
+} -cleanup {
+    cleanupProcs
+} -match glob -output {*--- First complex number ---*-r0 <r0>*First number real part*} -result {}
+
+test tepam-api-4.9 {-choices, error lists the choices} -setup {
+    tepam::procedure tepamapi_p {-args {{x -choices {a b c}}}} {set x}
+} -body {
+    tepamapi_p d
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {tepamapi_p: Argument 'x' has to be one of the following elements: a, b, c}
+
+test tepam-api-4.10 {-range, out of range} -setup {
+    tepam::procedure tepamapi_p {-args {{x -type integer -range {1 10}}}} {set x}
+} -body {
+    list [tepamapi_p 1] [tepamapi_p 10] [catch {tepamapi_p 11} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {1 10 1 {tepamapi_p: Argument 'x' has to be between 1 and 10}}
+
+test tepam-api-4.11 {argument -validatecommand_error_text} -setup {
+    tepam::procedure tepamapi_p {
+        -args {
+            {a -type integer -validatecommand {expr %P > 0}
+               -validatecommand_error_text "a must be positive"}
+        }
+    } {set a}
+} -body {
+    list [tepamapi_p 1] [catch {tepamapi_p 0} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {1 1 {tepamapi_p: a must be positive}}
+
+test tepam-api-4.12 {argument -validatecommand, default error message} -setup {
+    tepam::procedure tepamapi_p {
+        -args {{a -type integer -validatecommand {expr %P > 0}}}
+    } {set a}
+} -body {
+    tepamapi_p 0
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {tepamapi_p: Argument 'a' is invalid. Provided value: '0'. Constraint: 'expr %P > 0'}
+
+test tepam-api-4.13 {-widget, -auxargs, -auxargs_commands are accepted} -setup {
+    tepam::procedure tepamapi_p {
+        -args {
+            {f -type existingfile -widget file -auxargs {-filetypes {{GIF {*.gif}}}}
+               -auxargs_commands {-initialfile {pwd}}}
+        }
+    } {set f}
+} -body {
+    tepamapi_p [info script]
+} -cleanup {
+    cleanupProcs
+} -result [info script]
+
+# =========================================================================
+# Argument types
+
+test tepam-api-5.0 {type char} -setup {
+    tepam::procedure tepamapi_p {-args {{c -type char}}} {set c}
+} -body {
+    list [tepamapi_p x] [catch {tepamapi_p xy} msg] $msg \
+        [catch {tepamapi_p {}} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {x 1 {tepamapi_p: Argument 'c' requires type 'char'. Provided value: 'xy'} 1 {tepamapi_p: Argument 'c' requires type 'char'. Provided value: ''}}
+
+test tepam-api-5.1 {type file} -setup {
+    tepam::procedure tepamapi_p {-args {{f -type file}}} {set f}
+} -body {
+    set r [list [tepamapi_p no/such/dir/file.txt]]
+    foreach v {{} a*b a?b {a"b} a<b a>b} {
+        lappend r [catch {tepamapi_p $v}]
+    }
+    set r
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain r v
+} -result {no/such/dir/file.txt 1 1 1 1 1 1}
+
+test tepam-api-5.2 {type existingfile} -setup {
+    set f [tcltest::makeFile {} tepamapi.txt]
+    tepam::procedure tepamapi_p {-args {{f -type existingfile}}} {set f}
+} -body {
+    list [string equal [tepamapi_p $f] $f] \
+        [catch {tepamapi_p [file join [tcltest::temporaryDirectory] tepamapi-nosuch]}]
+} -cleanup {
+    cleanupProcs
+    tcltest::removeFile tepamapi.txt
+    unset -nocomplain f
+} -result {1 1}
+
+test tepam-api-5.3 {type directory: accepted values} -setup {
+    tepam::procedure tepamapi_p {-args {{d -type directory}}} {set d}
+} -body {
+    tepamapi_p no/such/dir
+} -cleanup {
+    cleanupProcs
+} -result no/such/dir
+
+test tepam-api-5.4 {type directory: validated like file} -constraints {
+    knownBug
+} -setup {
+    tepam::procedure tepamapi_p {-args {{d -type directory}}} {set d}
+} -body {
+    # Validate(directory) accepts any value.
+    list [catch {tepamapi_p {}}] [catch {tepamapi_p a*b}]
+} -cleanup {
+    cleanupProcs
+} -result {1 1}
+
+test tepam-api-5.5 {type existingdirectory} -setup {
+    set d [tcltest::makeDirectory tepamapi.dir]
+    set f [tcltest::makeFile {} tepamapi.txt]
+    tepam::procedure tepamapi_p {-args {{d -type existingdirectory}}} {set d}
+} -body {
+    list [string equal [tepamapi_p $d] $d] [catch {tepamapi_p $f} msg] \
+        [catch {tepamapi_p [file join $d nosuch]}]
+} -cleanup {
+    cleanupProcs
+    tcltest::removeDirectory tepamapi.dir
+    tcltest::removeFile tepamapi.txt
+    unset -nocomplain d f msg
+} -result {1 1 1}
+
+test tepam-api-5.6 {application specific type Validate(<type>)} -setup {
+    proc ::tepam::Validate(tepamapi_two_char) {v} {expr {[string length $v]==2}}
+    tepam::procedure tepamapi_p {-args {{d -type tepamapi_two_char}}} {set d}
+} -body {
+    list [tepamapi_p ab] [catch {tepamapi_p abc} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {ab 1 {tepamapi_p: Argument 'd' requires type 'tepamapi_two_char'. Provided value: 'abc'}}
+
+test tepam-api-5.7 {type checks apply to every value of -multiple} -setup {
+    tepam::procedure tepamapi_p {-args {{n -type integer -multiple}}} {set n}
+} -body {
+    list [tepamapi_p 1 2 3] [catch {tepamapi_p 1 x 3} msg] $msg
+} -cleanup {
+    cleanupProcs
+    unset -nocomplain msg
+} -result {{1 2 3} 1 {tepamapi_p: Argument 'n' requires type 'integer'. Provided value: 'x'}}
+
+# =========================================================================
+# Help
+
+proc declareHelpProc {} {
+    tepam::procedure {tepamapi_display message} {
+        -short_description "Displays a simple message box"
+        -description "This procedure allows displaying a configurable message box. The default message type that is created is a warning, but also errors and info can be generated."
+        -example {tepamapi_display message -mtype Warning "Save first your job"}
+        -args {
+            {-mtype -choices {Info Warning Error} -default Warning -description "Message type"}
+            {text -type string -multiple -description "Multiple text lines to display"}
+        }
+    } {
+        return [list $mtype $text]
+    }
+}
+
+test tepam-api-6.0 {-help, help text printed, body not executed} -setup {
+    declareHelpProc
+} -body {
+    tepamapi_display message -help
+} -cleanup {
+    cleanupProcs
+} -result {} -output {NAME
+      tepamapi_display message - Displays a simple message box
+SYNOPSIS
+      tepamapi_display message
+            [-mtype <mtype>]
+               Message type, default: "Warning", choices: {Info, Warning, Error}
+            <text>
+               Multiple text lines to display, type: string, multiple: yes
+DESCRIPTION
+      This procedure allows displaying a configurable message box. The default
+      message type that is created is a warning, but also errors and info can be
+      generated.
+EXAMPLE
+      tepamapi_display message -mtype Warning "Save first your job"
+
+}
+
+test tepam-api-6.1 {-help as last argument after other arguments} -setup {
+    declareHelpProc
+} -body {
+    tepamapi_display message -mtype Info "It is 7:00" -help
+} -cleanup {
+    cleanupProcs
+} -match glob -result {} -output {NAME*SYNOPSIS*}
+
+test tepam-api-6.2 {-help not as last argument} -setup {
+    declareHelpProc
+} -body {
+    tepamapi_display message -help -mtype Info "It is 7:00"
+} -cleanup {
+    cleanupProcs
+} -returnCodes error -result {tepamapi_display message: Argument '-help' not known}
+
+test tepam-api-6.3 {variable help_line_length} -setup {
+    declareHelpProc
+    saveVar help_line_length
+} -body {
+    set tepam::help_line_length 40
+    tepamapi_display message -help
+} -cleanup {
+    restoreVars
+    cleanupProcs
+} -match glob -result {} -output {*
+DESCRIPTION
+      This procedure allows displaying a
+      configurable message box. The
+*}
+
+test tepam-api-6.4 {help_line_length, default value} -body {
+    set tepam::help_line_length
+} -result 80
+
+# =========================================================================
+# Raw argument list
+
+test tepam-api-7.0 {args contains the unprocessed argument list} -setup {
+    tepam::procedure tepamapi_p {
+        -args {
+            {-mtype -choices {Warning Error} -default Warning}
+            {text -type string -multiple}
+        }
+    } {set args}
+} -body {
+    list [tepamapi_p -mtype Warning "It is 7:00"] [tepamapi_p -m Error a b]
+} -cleanup {
+    cleanupProcs
+} -result {{-mtype Warning {It is 7:00}} {-m Error a b}}
+
+# -------------------------------------------------------------------------
+
+rename cleanupProcs {}
+rename saveVar {}
+rename restoreVars {}
+rename declareHelpProc {}
+testsuiteCleanup
+return

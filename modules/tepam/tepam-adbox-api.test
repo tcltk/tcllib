@@ -1,0 +1,551 @@
+# -*- tcl -*-
+# tepam-adbox-api.test:  Tests for the documented API of
+# tepam::argument_dialogbox (tepam_argument_dialogbox.man) that are not
+# covered by adbox_all.test and adbox_widgets.test: argument errors,
+# context items, formatting items, global and per-entry validation,
+# choice attributes, contexts and application specific entry widgets.
+#
+# The dialog boxes are not shown to a user: the test mode of the
+# argument_dialogbox (tepam::argument_dialogbox(test,status) and
+# (test,script)) is used to acknowledge them.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        Tk 8.5-
+
+catch {namespace delete ::tepam}
+testing {
+    useLocal tepam.tcl tepam
+}
+
+# -------------------------------------------------------------------------
+
+proc adboxSetup {{status ok} {script {}}} {
+    set ::tepam::argument_dialogbox(test,status) $status
+    set ::tepam::argument_dialogbox(test,script) $script
+    unset -nocomplain ::adapi_v ::adapi_w ::adapi_info
+}
+proc adboxCleanup {} {
+    set ::tepam::argument_dialogbox(test,status) ""
+    set ::tepam::argument_dialogbox(test,script) {}
+    unset -nocomplain ::adapi_v ::adapi_w ::adapi_info ::adapi_choices
+    array unset ::tepam::last_parameters adapi_*
+    foreach w {.dialog .adapi_dlg .adapi_parent} {
+        if {[winfo exists $w]} {destroy $w}
+    }
+    catch {rename ::tepam::ad_form(adapi_rcl) {}}
+}
+
+# =========================================================================
+# Argument errors
+
+test tepam-adbox-api-1.0 {argument_dialogbox, no argument} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {argument_dialogbox: no argument is provided}
+
+test tepam-adbox-api-1.1 {argument_dialogbox, odd number of arguments} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {argument_dialogbox: arguments have to be provided in key/value pairs}
+
+test tepam-adbox-api-1.2 {argument_dialogbox, item name without dash} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox entry {-variable adapi_v}
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {Argument entry not known}
+
+test tepam-adbox-api-1.3 {argument_dialogbox, odd attribute list} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable}
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {argument_dialogbox, argument -entry: Attribute definition list has to contain an even number of elements}
+
+test tepam-adbox-api-1.4 {argument_dialogbox, unknown type} -constraints {
+    knownBug
+} -setup {
+    adboxSetup
+} -body {
+    # The message names the -default value ('x') instead of the type.
+    tepam::argument_dialogbox -entry {-variable adapi_v -default x -type adapi_nosuch}
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {Argument_dialogbox: Argument type 'adapi_nosuch' not known}
+
+test tepam-adbox-api-1.5 {argument_dialogbox, unknown type, no default} -constraints {
+    knownBug
+} -setup {
+    adboxSetup
+} -body {
+    # The message uses the -default value instead of the type, so it
+    # fails with: can't read "Option(-default)": no such element in array
+    tepam::argument_dialogbox -entry {-variable adapi_v -type adapi_nosuch}
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {Argument_dialogbox: Argument type 'adapi_nosuch' not known}
+
+test tepam-adbox-api-1.6 {argument_dialogbox -help} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -help
+} -cleanup {
+    adboxCleanup
+} -match glob -output {*argument_dialogbox  \[-title <DialogBoxTitle>\]*<StandardParameterWidgetType> = \{*} -result {}
+
+# =========================================================================
+# Basic use
+
+test tepam-adbox-api-2.0 {OK returns ok and sets the variable} -setup {
+    adboxSetup
+} -body {
+    list [tepam::argument_dialogbox -entry {-variable adapi_v -default hello}] $adapi_v
+} -cleanup {
+    adboxCleanup
+} -result {ok hello}
+
+test tepam-adbox-api-2.1 {Cancel returns cancel, variable not set} -setup {
+    adboxSetup cancel
+} -body {
+    list [tepam::argument_dialogbox -entry {-variable adapi_v -default hello}] \
+        [info exists adapi_v]
+} -cleanup {
+    adboxCleanup
+} -result {cancel 0}
+
+test tepam-adbox-api-2.2 {all items as a single list} -setup {
+    adboxSetup
+} -body {
+    list [tepam::argument_dialogbox {
+        -entry {-variable adapi_v -default hello}
+        -entry {-variable adapi_w -default world}
+    }] $adapi_v $adapi_w
+} -cleanup {
+    adboxCleanup
+} -result {ok hello world}
+
+test tepam-adbox-api-2.3 {variables are set in the caller's context} -setup {
+    adboxSetup
+    proc adapi_caller {} {
+        tepam::argument_dialogbox -entry {-variable local -default L}
+        list [info exists ::local] $local
+    }
+} -body {
+    adapi_caller
+} -cleanup {
+    adboxCleanup
+    rename adapi_caller {}
+} -result {0 L}
+
+test tepam-adbox-api-2.4 {an existing variable value is used as default} -setup {
+    adboxSetup
+    set adapi_v existing
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -default hello}
+    set adapi_v
+} -cleanup {
+    adboxCleanup
+} -result existing
+
+test tepam-adbox-api-2.5 {-optional 1, empty entry: variable not defined} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -optional 1}
+    info exists adapi_v
+} -cleanup {
+    adboxCleanup
+} -result 0
+
+test tepam-adbox-api-2.6 {-optional 0, empty entry: variable defined} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -optional 0}
+    list [info exists adapi_v] $adapi_v
+} -cleanup {
+    adboxCleanup
+} -result {1 {}}
+
+# =========================================================================
+# Context definition items: -title, -window, -parent, -context
+
+test tepam-adbox-api-3.0 {default title is Dialog, default window .dialog} -setup {
+    adboxSetup ok {set ::adapi_info [list [winfo exists .dialog] [wm title .dialog]]}
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -default 1}
+    list $adapi_info [winfo exists .dialog]
+} -cleanup {
+    adboxCleanup
+} -result {{1 Dialog} 0}
+
+test tepam-adbox-api-3.1 {-title} -constraints {
+    knownBug
+} -setup {
+    adboxSetup ok {set ::adapi_info [wm title .dialog]}
+} -body {
+    # The title is appended to the default one: "Dialog {Itinerary selection}".
+    tepam::argument_dialogbox -title "Itinerary selection" \
+        -entry {-variable adapi_v -default 1}
+    set adapi_info
+} -cleanup {
+    adboxCleanup
+} -result {Itinerary selection}
+
+test tepam-adbox-api-3.2 {-window} -setup {
+    adboxSetup ok {set ::adapi_info [list [winfo exists .adapi_dlg] [winfo exists .dialog]]}
+} -body {
+    tepam::argument_dialogbox -window .adapi_dlg -entry {-variable adapi_v -default 1}
+    list $adapi_info [winfo exists .adapi_dlg]
+} -cleanup {
+    adboxCleanup
+} -result {{1 0} 0}
+
+test tepam-adbox-api-3.3 {-parent} -constraints {
+    knownBug
+} -setup {
+    adboxSetup ok {set ::adapi_info [wm transient .dialog]}
+    toplevel .adapi_parent
+} -body {
+    # Fails with: bad window path name ". .adapi_parent"
+    tepam::argument_dialogbox -parent .adapi_parent -entry {-variable adapi_v -default 1}
+    set adapi_info
+} -cleanup {
+    adboxCleanup
+} -result .adapi_parent
+
+test tepam-adbox-api-3.4 {-context restores the acknowledged data} -setup {
+    adboxSetup
+} -body {
+    set r {}
+    tepam::argument_dialogbox -context adapi_ctx -entry {-variable adapi_v -default first}
+    lappend r $adapi_v
+    unset adapi_v
+    set tepam::argument_dialogbox(test,script) {
+        .dialog.sf.f.child_1.f.entry delete 0 end
+        .dialog.sf.f.child_1.f.entry insert 0 second
+    }
+    tepam::argument_dialogbox -context adapi_ctx -entry {-variable adapi_v -default first}
+    lappend r $adapi_v
+    unset adapi_v
+    set tepam::argument_dialogbox(test,script) {}
+    tepam::argument_dialogbox -context adapi_ctx -entry {-variable adapi_v -default first}
+    lappend r $adapi_v [info exists tepam::last_parameters(adapi_ctx,-geometry)] \
+        $tepam::last_parameters(adapi_ctx,adapi_v)
+} -cleanup {
+    adboxCleanup
+    unset -nocomplain r
+} -result {first second second 1 second}
+
+test tepam-adbox-api-3.5 {without -context, the data is not restored} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -default first}
+    unset adapi_v
+    tepam::argument_dialogbox -entry {-variable adapi_v -default other}
+    set adapi_v
+} -cleanup {
+    adboxCleanup
+} -result other
+
+# =========================================================================
+# Formatting and display items: -frame, -sep, -comment, -yscroll, -text, -label
+
+test tepam-adbox-api-4.0 {-frame, -comment, -sep, -label, -text} -setup {
+    adboxSetup ok {
+        set ::adapi_info [list \
+            [.dialog.sf.f.child_0.label cget -text] \
+            [.dialog.sf.f.child_0.f.child_1 cget -text] \
+            [.dialog.sf.f.child_0.f.child_2_txt cget -text] \
+            [.dialog.sf.f.child_0.f.child_2.label cget -text] \
+            [winfo class .dialog.sf.f.child_4] \
+            [.dialog.sf.f.child_5.label cget -text]]
+    }
+} -body {
+    tepam::argument_dialogbox \
+        -frame {-label "Itinerary start"} \
+        -comment {-text "Specify your itinerary start location"} \
+        -entry {-label City -text "The city" -variable adapi_v -default Bern} \
+        -frame {} \
+        -sep {} \
+        -checkbutton {-label "No highways" -variable adapi_w}
+    list $adapi_v $adapi_w $adapi_info
+} -cleanup {
+    adboxCleanup
+} -result {Bern 0 {{Itinerary start} {Specify your itinerary start location} {The city} City Frame {No highways}}}
+
+test tepam-adbox-api-4.1 {-yscroll 1 adds a scrollbar} -constraints {
+    knownBug
+} -setup {
+    adboxSetup ok {set ::adapi_info [winfo exists .dialog.scale]}
+} -body {
+    # Like -title and -parent, the value is appended to the default
+    # ("auto 1") and the scrollbar is not created.
+    tepam::argument_dialogbox -yscroll 1 -entry {-variable adapi_v -default 1}
+    set adapi_info
+} -cleanup {
+    adboxCleanup
+} -result 1
+
+test tepam-adbox-api-4.2 {-yscroll 0, no scrollbar} -setup {
+    adboxSetup ok {set ::adapi_info [winfo exists .dialog.scale]}
+} -body {
+    tepam::argument_dialogbox -yscroll 0 -entry {-variable adapi_v -default 1}
+    set adapi_info
+} -cleanup {
+    adboxCleanup
+} -result 0
+
+test tepam-adbox-api-4.3 {-yscroll auto, small form: no scrollbar} -setup {
+    adboxSetup ok {set ::adapi_info [winfo exists .dialog.scale]}
+} -body {
+    tepam::argument_dialogbox -yscroll auto -entry {-variable adapi_v -default 1}
+    set adapi_info
+} -cleanup {
+    adboxCleanup
+} -result 0
+
+# =========================================================================
+# Data validation
+
+test tepam-adbox-api-5.0 {-type check} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -type integer -default abc}
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {The entries could not be successfully validated:
+
+adapi_v: Required type is integer
+
+Please correct the related entries.}
+
+test tepam-adbox-api-5.1 {-range} -setup {
+    adboxSetup
+} -body {
+    list [tepam::argument_dialogbox -entry {-variable adapi_v -type integer -range {1 12} -default 12}] \
+        $adapi_v [catch {
+            unset adapi_v
+            tepam::argument_dialogbox -entry {-variable adapi_v -type integer -range {1 12} -default 13}
+        } msg] $msg
+} -cleanup {
+    adboxCleanup
+    unset -nocomplain msg
+} -result {ok 12 1 {The entries could not be successfully validated:
+
+adapi_v: The value has to be between 1 and 12
+
+Please correct the related entries.}}
+
+test tepam-adbox-api-5.2 {entry -validatecommand with %P} -setup {
+    adboxSetup
+} -body {
+    list [tepam::argument_dialogbox -entry {-variable adapi_v -default 5 -validatecommand {expr {%P > 3}}}] \
+        $adapi_v [catch {
+            unset adapi_v
+            tepam::argument_dialogbox -entry {-variable adapi_v -default 2 -validatecommand {expr {%P > 3}}}
+        } msg] $msg
+} -cleanup {
+    adboxCleanup
+    unset -nocomplain msg
+} -result {ok 5 1 {The entries could not be successfully validated:
+
+adapi_v: The value '2' is not valid
+
+Please correct the related entries.}}
+
+test tepam-adbox-api-5.3 {entry -validatecommand_error_text} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -default 2
+        -validatecommand {expr {%P > 3}} -validatecommand_error_text "Too small"}
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {The entries could not be successfully validated:
+
+Too small
+
+Please correct the related entries.}
+
+test tepam-adbox-api-5.4 {global -validatecommand, accepted} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -default y} \
+        -validatecommand {expr {$adapi_v eq "y"}}
+} -cleanup {
+    adboxCleanup
+} -result ok
+
+test tepam-adbox-api-5.5 {global -validatecommand, rejected, default message} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox -entry {-variable adapi_v -default x} \
+        -validatecommand {expr {$adapi_v eq "y"}}
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -match glob -result {The entries could not be successfully validated:
+
+Validation constraint *
+
+Please correct the related entries.}
+
+test tepam-adbox-api-5.6 {global -validatecommand, repeated, with error texts} -setup {
+    adboxSetup
+} -body {
+    tepam::argument_dialogbox \
+        -entry {-variable adapi_v -default 1} \
+        -entry {-variable adapi_w -default 2} \
+        -validatecommand {expr {$adapi_v > 1}} \
+        -validatecommand_error_text "v too small" \
+        -validatecommand {expr {$adapi_w > 1}} \
+        -validatecommand_error_text "w too small"
+} -cleanup {
+    adboxCleanup
+} -returnCodes error -result {The entries could not be successfully validated:
+
+v too small
+
+Please correct the related entries.}
+
+test tepam-adbox-api-5.7 {global -validatecommand in the caller's context} -setup {
+    adboxSetup
+    proc adapi_caller {} {
+        set limit 3
+        tepam::argument_dialogbox -entry {-variable n -default 5} \
+            -validatecommand {expr {$n > $limit}}
+    }
+} -body {
+    adapi_caller
+} -cleanup {
+    adboxCleanup
+    rename adapi_caller {}
+} -result ok
+
+test tepam-adbox-api-5.8 {-existingfile and -existingdirectory types} -setup {
+    adboxSetup
+    set f [tcltest::makeFile {} adapi.txt]
+} -body {
+    list [tepam::argument_dialogbox -existingfile [list -variable adapi_v -default $f]] \
+        [tepam::argument_dialogbox -existingdirectory [list -variable adapi_w -default [file dirname $f]]] \
+        [catch {
+            unset adapi_v
+            tepam::argument_dialogbox -existingfile [list -variable adapi_v -default $f.nosuch]
+        } msg] $msg
+} -cleanup {
+    adboxCleanup
+    tcltest::removeFile adapi.txt
+    unset -nocomplain f msg
+} -result {ok ok 1 {The entries could not be successfully validated:
+
+adapi_v: Required type is existingfile
+
+Please correct the related entries.}}
+
+# =========================================================================
+# Choice attributes
+
+test tepam-adbox-api-6.0 {-choicevariable} -setup {
+    adboxSetup
+    set adapi_choices {8 9 10 12 15 18}
+} -body {
+    tepam::argument_dialogbox -combobox {-variable adapi_v -choicevariable adapi_choices -default 12}
+    set adapi_v
+} -cleanup {
+    adboxCleanup
+} -result 12
+
+test tepam-adbox-api-6.1 {-choicelabels on a radiobox} -setup {
+    adboxSetup ok {
+        set ::adapi_info {}
+        foreach w [winfo children .dialog.sf.f.child_0.f] {
+            if {[winfo class $w] eq "Radiobutton"} {lappend ::adapi_info [$w cget -text]}
+        }
+    }
+} -body {
+    tepam::argument_dialogbox -radiobox {-variable adapi_v
+        -choices {left center right} -choicelabels {Left Center Right} -default center}
+    list $adapi_v $adapi_info
+} -cleanup {
+    adboxCleanup
+} -result {center {Left Center Right}}
+
+test tepam-adbox-api-6.2 {-choicelabels on a checkbox, result is a list} -setup {
+    adboxSetup ok {
+        set ::adapi_info {}
+        foreach w [winfo children .dialog.sf.f.child_0.f] {
+            if {[winfo class $w] eq "Checkbutton"} {lappend ::adapi_info [$w cget -text]}
+        }
+    }
+} -body {
+    tepam::argument_dialogbox -checkbox {-variable adapi_v
+        -choices {bold italic underline} -choicelabels {Bold Italic Underline}
+        -default {bold underline}}
+    list $adapi_v $adapi_info
+} -cleanup {
+    adboxCleanup
+} -result {{bold underline} {Bold Italic Underline}}
+
+test tepam-adbox-api-6.3 {-text widget, multi-line value, -height} -setup {
+    adboxSetup ok {set ::adapi_info [.dialog.sf.f.child_0.f.text cget -height]}
+} -body {
+    tepam::argument_dialogbox -text {-variable adapi_v -default "line1\nline2" -height 3}
+    list $adapi_v $adapi_info
+} -cleanup {
+    adboxCleanup
+} -result {{line1
+line2} 3}
+
+# =========================================================================
+# Application specific entry widgets
+
+test tepam-adbox-api-7.0 {ad_form derived from radiobox, example from the man page} -setup {
+    adboxSetup
+    proc ::tepam::ad_form(adapi_rcl) {W Command {Par ""}} {
+        set Res [ad_form(radiobox) $W $Command $Par]
+        if {$Command=="create"} {
+            ad_form(radiobox) $W set_choice {left center right}
+        }
+        return $Res
+    }
+} -body {
+    tepam::argument_dialogbox -adapi_rcl {-variable adapi_v -default right}
+    set adapi_v
+} -cleanup {
+    adboxCleanup
+} -result right
+
+test tepam-adbox-api-7.1 {ad_form commands create, set_choice, set, get} -setup {
+    adboxSetup
+    set ::adapi_info {}
+    proc ::tepam::ad_form(adapi_rcl) {W Command {Par ""}} {
+        lappend ::adapi_info $Command $Par
+        switch $Command {
+            create {pack [entry $W.entry]}
+            set {$W.entry insert 0 $Par}
+            get {return [$W.entry get]}
+        }
+    }
+} -body {
+    tepam::argument_dialogbox -adapi_rcl {-variable adapi_v -choices {a b} -default b}
+    list $adapi_v [lrange $::adapi_info 0 7]
+} -cleanup {
+    adboxCleanup
+} -result {b {create {} set_choice {a b} set b get {}}}
+
+# -------------------------------------------------------------------------
+
+rename adboxSetup {}
+rename adboxCleanup {}
+testsuiteCleanup
+return
