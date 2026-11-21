@@ -1,0 +1,715 @@
+# -*- tcl -*-
+# cfront-api.test: Tests for the documented API of the magic(5) compiler,
+# the packages fileutil::magic::cfront and fileutil::magic::cgen.
+#
+# Sourcing this file into Tcl runs the tests and generates output for errors.
+# No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use      cmdline/cmdline.tcl   cmdline
+    use      fileutil/fileutil.tcl fileutil
+    use      struct/list.tcl       struct::list
+    use      struct/tree.tcl       struct::tree
+    useLocal rtcore.tcl            fileutil::magic::rt
+    useLocal filetypes.tcl         fileutil::magic::filetype
+}
+testing {
+    useLocal cgen.tcl   fileutil::magic::cgen
+    useLocal cfront.tcl fileutil::magic::cfront
+}
+
+# -------------------------------------------------------------------------
+## Helpers.
+
+# Write a magic(5) file (TEXT, lines separated by \n, fields by tabs).
+proc magicfile {name text} {
+    makeFile [string trimright $text \n] $name
+}
+
+# Evaluate SCRIPT in the caller and collect what it writes to stderr (the
+# compiler reports warnings, rejected lines and debugging output there) in
+# the variable ERRVAR of the caller.  Returns the result of SCRIPT.
+proc capture {script {errvar {}}} {
+    if {$errvar ne {}} {
+	upvar 1 $errvar err
+    }
+    set ::fumagic_err {}
+    rename ::puts ::fumagic_puts
+    proc ::puts args {
+	if {[llength $args] >= 2 && [lindex $args end-1] eq "stderr"} {
+	    append ::fumagic_err [lindex $args end]
+	    if {[lindex $args 0] ne "-nonewline"} {
+		append ::fumagic_err \n
+	    }
+	    return
+	}
+	::fumagic_puts {*}$args
+    }
+    try {
+	uplevel 1 $script
+    } finally {
+	rename ::puts {}
+	rename ::fumagic_puts ::puts
+	set err $::fumagic_err
+	unset ::fumagic_err
+    }
+}
+
+# The conditions of the if commands in a generated SCRIPT.
+proc conds {script} {
+    lmap {-> c} [regexp -all -inline -line {^\s*if \{(.*)\} \{$} $script] {set c}
+}
+
+# Save and restore the recognizer of fileutil::magic::filetype, which
+# cfront::install replaces.
+proc saveRecognizer {} {
+    set ::fumagic_saved [list $::fileutil::magic::filetype::named \
+	[info body ::fileutil::magic::filetype::analyze]]
+}
+proc restoreRecognizer {} {
+    lassign $::fumagic_saved named body
+    set ::fileutil::magic::filetype::named $named
+    proc ::fileutil::magic::filetype::analyze {} $body
+    unset ::fumagic_saved
+}
+
+# A small magic file used by several tests.
+set foomagic [join {
+    "# A test magic file"
+    ""
+    "0\tstring\tFOO\tFoo file"
+    ">3\tstring\t1\t\\b, version 1"
+    "!:mime\tapplication/x-foo"
+    "!:ext\tfoo/fo"
+    ">3\tstring\t2\t\\b, version 2"
+} \n]
+
+# -------------------------------------------------------------------------
+## cfront::compile
+
+test fumagic.cfront-1.0 {compile, no paths} -body {
+    capture {fileutil::magic::cfront::compile}
+} -returnCodes error -result {invalid key "level" for node "root"}
+
+test fumagic.cfront-1.1 {compile, nonexistent path} -body {
+    fileutil::magic::cfront::compile [tempPath nosuch.magic]
+} -returnCodes error -match glob -result {could not read "*nosuch.magic": no such file or directory}
+
+test fumagic.cfront-1.2 {compile, result is a list of named tests and tests} -setup {
+    set f [magicfile foo.magic $foomagic]
+} -body {
+    set r [capture {fileutil::magic::cfront::compile $f}]
+    list [llength $r] [lindex $r 0] [llength [lindex $r 1]]
+} -cleanup {
+    removeFile foo.magic
+    unset -nocomplain f r
+} -result {2 {} 1}
+
+test fumagic.cfront-1.3 {compile, generated test script} -setup {
+    set f [magicfile foo.magic $foomagic]
+} -body {
+    lindex [capture {fileutil::magic::cfront::compile $f}] 1 0
+} -cleanup {
+    removeFile foo.magic
+    unset -nocomplain f
+} -result {if {[S string 0 0 {} {} eq FOO]} {
+	>
+		emit {Foo file}
+		if {[S string 3 0 {} {} eq 1]} {
+			>
+				emit {\b, version 1}
+				mime application/x-foo
+				ext foo/fo
+			<
+		}
+
+		if {[S string 3 0 {} {} eq 2]} {
+			>
+				emit {\b, version 2}
+			<
+		}
+
+	<
+}
+}
+
+test fumagic.cfront-1.4 {compile, comments and blank lines only} -setup {
+    set f [magicfile empty.magic "# nothing\n\n   # indented comment\n"]
+} -body {
+    capture {fileutil::magic::cfront::compile $f}
+} -cleanup {
+    removeFile empty.magic
+    unset -nocomplain f
+} -result {{} {}}
+
+test fumagic.cfront-1.5 {compile, several files} -setup {
+    set f1 [magicfile a.magic "0\tstring\tAAA\tA file"]
+    set f2 [magicfile b.magic "0\tstring\tBBB\tB file"]
+} -body {
+    set r [capture {fileutil::magic::cfront::compile $f1 $f2}]
+    lmap t [lindex $r 1] {regexp -inline {emit [^\n]*} $t}
+} -cleanup {
+    removeFile a.magic
+    removeFile b.magic
+    unset -nocomplain f1 f2 r t
+} -result {{{emit {A file}}} {{emit {B file}}}}
+
+test fumagic.cfront-1.6 {compile, directory} -setup {
+    set d [makeDirectory magicdir]
+    makeFile "0\tstring\tAAA\tA file" a [file join $d]
+    makeFile "0\tstring\tBBB\tB file" b [file join $d]
+} -body {
+    set r [capture {fileutil::magic::cfront::compile $d}]
+    lsort [lmap t [lindex $r 1] {regexp -inline {emit [^\n]*} $t}]
+} -cleanup {
+    removeDirectory magicdir
+    unset -nocomplain d r t
+} -result {{{emit {A file}}} {{emit {B file}}}}
+
+test fumagic.cfront-1.7 {compile, the same file twice} -setup {
+    set f [magicfile foo.magic $foomagic]
+} -body {
+    capture {fileutil::magic::cfront::compile $f $f}
+} -cleanup {
+    removeFile foo.magic
+    unset -nocomplain f
+} -returnCodes error -match glob -result {{already processed file} *foo.magic}
+
+test fumagic.cfront-1.8 {compile, numeric types and operators} -setup {
+    set f [magicfile num.magic [join {
+	"0\tbelong\t0xCAFED00D\tCafe"
+	">4\tbyte&0x0f\t3\tlow three"
+	">4\tubyte\t>100\tbig"
+	">4\tleshort\t!0\tnot zero"
+	">4\tbyte\tx\tany %d"
+	">6\tlelong\t&0x80\tflag"
+    } \n]]
+} -body {
+    set t [lindex [capture {fileutil::magic::cfront::compile $f}] 1 0]
+    regexp -all -inline {\[N [^\]]*\]} $t
+} -cleanup {
+    removeFile num.magic
+    unset -nocomplain f t
+} -result {{[N belong 0 0 0 {} {} == -889270259]} {[N byte 4 0 0 & 15 == 3]} {[N ubyte 4 0 0 {} {} > 100]} {[N leshort 4 0 0 {} {} != 0]} {[N byte 4 0 0 {} {} x {}]} {[N lelong 6 0 0 {} {} & 128]}}
+
+test fumagic.cfront-1.9 {compile, numeric tests on the same field become a switch} -setup {
+    set f [magicfile sw.magic [join {
+	"0\tstring\tSW\tswitch"
+	">2\tbyte\t2\ttwo"
+	">2\tbyte\t1\tone"
+    } \n]]
+} -body {
+    set t [lindex [capture {fileutil::magic::cfront::compile $f}] 1 0]
+    list [regexp -inline {switch \[[^\]]*\]} $t] \
+	[regexp -all -inline {\n\t*[0-9]+ \{} $t]
+} -cleanup {
+    removeFile sw.magic
+    unset -nocomplain f t
+} -result [list {{switch [Nv byte 2 0 {} {}]}} [list "\n\t\t\t1 \{" "\n\t\t\t2 \{"]]
+
+test fumagic.cfront-1.10 {compile, string tests} -setup {
+    set f [magicfile str.magic [join {
+	"0\tstring\tSTR\tstrings"
+	">3\tstring\t!abc\tnot abc"
+	">3\tstring\t>\\0\tname %s"
+	">3\tstring/c\tabc\tcase"
+	">3\tsearch/20\tNEEDLE\tfound"
+	">3\tregex\t\[0-9\]+\tdigits"
+	">3\tpstring/H\tabc\tpascal"
+    } \n]]
+} -body {
+    set t [lindex [capture {fileutil::magic::cfront::compile $f}] 1 0]
+    lrange [conds $t] 1 end
+} -cleanup {
+    removeFile str.magic
+    unset -nocomplain f t
+} -result {{[S string 3 0 {} {} ne abc]} {[S string 3 0 {} {} > \0]} {[S string 3 0 c {} eq abc]} {[S search 3 0 {} 20 eq NEEDLE]} {[S regex 3 0 {} {} eq \[0-9\]+]} {[S pstring 3 0 H {} eq abc]}}
+
+test fumagic.cfront-1.11 {compile, search without a range defaults to 100} -setup {
+    set f [magicfile search.magic "0\tsearch\tNEEDLE\tfound"]
+} -body {
+    set t [lindex [capture {fileutil::magic::cfront::compile $f} err] 1 0]
+    list [conds $t] [string match {*search has no number*} $err]
+} -cleanup {
+    removeFile search.magic
+    unset -nocomplain f t err
+} -result {{{[S search 0 0 {} 100 eq NEEDLE]}} 1}
+
+test fumagic.cfront-1.12 {compile, offsets} -setup {
+    set f [magicfile off.magic [join {
+	"0\tstring\tOFF\toffsets"
+	">&2\tbyte\t1\trelative"
+	">(4.l)\tbyte\t2\tindirect long"
+	">(4.L+2)\tbyte\t3\tindirect belong plus"
+	">(4.s*3)\tbyte\t4\tindirect short times"
+	">(4,b)\tbyte\t5\tindirect signed byte"
+	">&(4.l)\tbyte\t6\trelative indirect"
+    } \n]]
+} -body {
+    set t [lindex [capture {fileutil::magic::cfront::compile $f}] 1 0]
+    lrange [conds $t] 1 end
+} -cleanup {
+    removeFile off.magic
+    unset -nocomplain f t
+} -result {{[N byte [R 2] 0 0 {} {} == 1]} {[N byte [I 4 ulelong 0 + 0 0] 0 0 {} {} == 2]} {[N byte [I 4 ubelong 0 + 0 2] 0 0 {} {} == 3]} {[N byte [I 4 uleshort 0 * 0 3] 0 0 {} {} == 4]} {[N byte [I 4 byte 0 + 0 0] 0 0 {} {} == 5]} {[N byte [R [I 4 ulelong 0 + 0 0]] 0 0 {} {} == 6]}}
+
+test fumagic.cfront-1.13 {compile, name and use} -setup {
+    set f [magicfile named.magic [join {
+	"0\tname\tsub"
+	">0\tstring\tY\tnamed Y"
+	"0\tstring\tX\tX file"
+	">1\tuse\tsub"
+    } \n]]
+} -body {
+    lassign [capture {fileutil::magic::cfront::compile $f}] named tests
+    list [dict keys $named] [dict keys [dict get $named 0]] \
+	[conds [dict get $named 0 sub]] \
+	[regexp -inline {U [^\n]*} [lindex $tests 0]] [llength $tests]
+} -cleanup {
+    removeFile named.magic
+    unset -nocomplain f named tests
+} -result {0 sub {{[S string [O 0] 0 {} {} eq Y]}} {{U 0 sub 1}} 1}
+
+test fumagic.cfront-1.14 {compile, mime, ext and strength} -setup {
+    set f [magicfile ext.magic [join {
+	"0\tstring\tEXT\text file"
+	"!:mime\ttext/x-ext"
+	"!:ext\text/ex"
+	"!:strength\t+20"
+    } \n]]
+} -body {
+    set t [lindex [capture {fileutil::magic::cfront::compile $f}] 1 0]
+    regexp -all -inline -line {^\s*(?:mime|ext|strength) .*$} $t
+} -cleanup {
+    removeFile ext.magic
+    unset -nocomplain f t
+} -result [list "\t\tmime text/x-ext" "\t\text ext/ex" "\t\tstrength +20"]
+
+test fumagic.cfront-1.15 {compile, a bad line is rejected and reported} -setup {
+    set f [magicfile bad.magic [join {
+	"0\tbogustype\tA\tbad"
+	">1\tstring\tB\tchild of bad"
+	"0\tstring\tGOOD\tgood"
+    } \n]]
+} -body {
+    lassign [capture {fileutil::magic::cfront::compile $f} err] named tests
+    list [llength $tests] [regexp -inline {emit [^\n]*} [lindex $tests 0]] \
+	[string match {*Rejected*unknown type*} $err]
+} -cleanup {
+    removeFile bad.magic
+    unset -nocomplain f err named tests
+} -result {1 {{emit good}} 1}
+
+test fumagic.cfront-1.16 {compile, type not implemented} -setup {
+    set f [magicfile der.magic "0\tder\tA\tder"]
+} -body {
+    set r [capture {fileutil::magic::cfront::compile $f} err]
+    list $r [string match {*type not implemented*} $err]
+} -cleanup {
+    removeFile der.magic
+    unset -nocomplain f r err
+} -result {{{} {}} 1}
+
+test fumagic.cfront-1.17 {compile, continuation level skipped} -setup {
+    set f [magicfile level.magic "0\tstring\tA\ta\n>>3\tstring\tB\tb"]
+} -body {
+    capture {fileutil::magic::cfront::compile $f}
+} -cleanup {
+    removeFile level.magic
+    unset -nocomplain f
+} -returnCodes error -match glob -result {{level more than one greater than parent level} file *level.magic linenum 2 line {3	string	B	b}}
+
+test fumagic.cfront-1.18 {compile, extension line before any test} -setup {
+    set f [magicfile ext.magic "!:mime\ttext/plain"]
+} -body {
+    capture {fileutil::magic::cfront::compile $f}
+} -cleanup {
+    removeFile ext.magic
+    unset -nocomplain f
+} -returnCodes error -result {{malformed magic file}}
+
+test fumagic.cfront-1.19 {compile, no debugging output for a valid file} -constraints {
+    knownBug
+} -setup {
+    set f [magicfile foo.magic $foomagic]
+} -body {
+    capture {fileutil::magic::cfront::compile $f} err
+    string match *frlaalm* $err
+} -cleanup {
+    removeFile foo.magic
+    unset -nocomplain f err
+} -result 0
+
+test fumagic.cfront-1.20 {compile, the generated tests work with the runtime} -setup {
+    set f [magicfile foo.magic $foomagic]
+    set d [makeBinaryFile FOO1 foo.dat]
+} -body {
+    lassign [capture {fileutil::magic::cfront::compile $f}] named tests
+    namespace eval ::cftest {
+	namespace import ::fileutil::magic::rt::*
+    }
+    proc ::cftest::analyze {} [join $tests \n]
+    set chan [open $d rb]
+    set coro [fileutil::magic::rt::new {} $chan $named ::cftest::analyze]
+    set r [list [$coro]]
+    while 1 {
+	lappend r [lrange [$coro] 1 end]
+    }
+    set r
+} -cleanup {
+    close $chan
+    namespace delete ::cftest
+    removeFile foo.magic
+    removeFile foo.dat
+    unset -nocomplain f d named tests chan coro r
+} -result {text {{{Foo file} {version 1}} {application x-foo} {foo fo}}}
+
+# -------------------------------------------------------------------------
+## cfront::generate
+
+test fumagic.cfront-2.0 {generate, no arguments} -body {
+    capture {fileutil::magic::cfront::generate}
+} -returnCodes error -result {invalid key "level" for node "root"}
+
+test fumagic.cfront-2.1 {generate, -- is required} -setup {
+    set f [magicfile foo.magic $foomagic]
+} -body {
+    fileutil::magic::cfront::generate $f
+} -cleanup {
+    removeFile foo.magic
+    unset -nocomplain f
+} -returnCodes error -result {{unknown argument}}
+
+test fumagic.cfront-2.2 {generate, unknown option} -body {
+    fileutil::magic::cfront::generate bogus -- x
+} -returnCodes error -result {{unknown argument}}
+
+test fumagic.cfront-2.3 {generate, compressed without value} -body {
+    fileutil::magic::cfront::generate compressed
+} -returnCodes error -result {expected boolean value but got ""}
+
+test fumagic.cfront-2.4 {generate, compressed with a bad value} -body {
+    fileutil::magic::cfront::generate compressed foo -- x
+} -returnCodes error -result {expected boolean value but got "foo"}
+
+test fumagic.cfront-2.5 {generate, default is compressed} -setup {
+    set f [magicfile a.magic "0\tstring\tAAA\tA file"]
+} -body {
+    capture {fileutil::magic::cfront::generate -- $f}
+} -cleanup {
+    removeFile a.magic
+    unset -nocomplain f
+} -result {variable named {
+}
+proc analyze {} {
+if {[S string 0 0 {} {} eq AAA]} {
+	>
+		emit {A file}
+	<
+}
+
+}
+}
+
+test fumagic.cfront-2.6 {generate, compressed 1 is the default} -setup {
+    set f [magicfile a.magic "0\tstring\tAAA\tA file"]
+} -body {
+    expr {[capture {fileutil::magic::cfront::generate compressed 1 -- $f}] eq
+	  [capture {fileutil::magic::cfront::generate -- $f}]}
+} -cleanup {
+    removeFile a.magic
+    unset -nocomplain f
+} -result 1
+
+test fumagic.cfront-2.7 {generate, not compressed} -setup {
+    set f [magicfile a.magic "0\tstring\tAAA\tA file"]
+} -body {
+    capture {fileutil::magic::cfront::generate compressed 0 -- $f}
+} -cleanup {
+    removeFile a.magic
+    unset -nocomplain f
+} -result "variable named \{\n\n\}\nproc analyze \{\} \{\n\tif \{\[S string 0 0 \{\} \{\} eq AAA\]\} \{\n\t\t>\n\t\t\temit \{A file\}\n\t\t<\n\t\}\n\t\n\n\}\n"
+
+test fumagic.cfront-2.8 {generate, not compressed, the script defines named and analyze} -setup {
+    set f [magicfile named.magic [join {
+	"0\tname\tsub"
+	">0\tstring\tY\tnamed Y"
+	"0\tstring\tX\tX file"
+	">1\tuse\tsub"
+    } \n]]
+} -body {
+    set script [capture {fileutil::magic::cfront::generate compressed 0 -- $f}]
+    namespace eval ::cftest $script
+    list [dict keys [dict get $::cftest::named 0]] \
+	[info args ::cftest::analyze] \
+	[string match {*U 0 sub 1*} [info body ::cftest::analyze]]
+} -cleanup {
+    namespace delete ::cftest
+    removeFile named.magic
+    unset -nocomplain f script
+} -result {sub {} 1}
+
+test fumagic.cfront-2.8.1 {generate, compressed, the script defines named and analyze} -constraints {
+    knownBug
+} -setup {
+    set f [magicfile named.magic [join {
+	"0\tname\tsub"
+	">0\tstring\tY\tnamed Y"
+	"0\tstring\tX\tX file"
+	">1\tuse\tsub"
+    } \n]]
+} -body {
+    # The compressed script lacks the space between the keys and the values
+    # of the variable named, so it is not a valid dictionary.
+    set script [capture {fileutil::magic::cfront::generate -- $f}]
+    namespace eval ::cftest $script
+    list [dict keys [dict get $::cftest::named 0]] \
+	[info args ::cftest::analyze] \
+	[string match {*U 0 sub 1*} [info body ::cftest::analyze]]
+} -cleanup {
+    namespace delete ::cftest
+    removeFile named.magic
+    unset -nocomplain f script
+} -result {sub {} 1}
+
+test fumagic.cfront-2.9 {generate, several paths} -setup {
+    set f1 [magicfile a.magic "0\tstring\tAAA\tA file"]
+    set f2 [magicfile b.magic "0\tstring\tBBB\tB file"]
+} -body {
+    set script [capture {fileutil::magic::cfront::generate -- $f1 $f2}]
+    regexp -all -inline {emit [^\n]*} $script
+} -cleanup {
+    removeFile a.magic
+    removeFile b.magic
+    unset -nocomplain f1 f2 script
+} -result {{emit {A file}} {emit {B file}}}
+
+# -------------------------------------------------------------------------
+## cfront::install
+
+test fumagic.cfront-3.0 {install, no paths} -body {
+    capture {fileutil::magic::cfront::install}
+} -returnCodes error -result {invalid key "level" for node "root"}
+
+test fumagic.cfront-3.1 {install replaces the recognizer of filetype} -setup {
+    saveRecognizer
+    set f [magicfile foo.magic $foomagic]
+    set d1 [makeBinaryFile FOO1 foo1.dat]
+    set d2 [makeBinaryFile FOO2 foo2.dat]
+    set d3 [makeBinaryFile FOO3 foo3.dat]
+    set d4 [makeBinaryFile BAR bar.dat]
+    set d5 [makeBinaryFile "GIF89a\x2b\x00\x40\x00\xf7\xff\x00" gif.dat]
+} -body {
+    set r [list [capture {fileutil::magic::cfront::install $f}]]
+    foreach d [list $d1 $d2 $d3 $d4 $d5] {
+	lappend r [fileutil::magic::filetype $d]
+    }
+    set r
+} -cleanup {
+    restoreRecognizer
+    foreach n {foo.magic foo1.dat foo2.dat foo3.dat bar.dat gif.dat} {
+	removeFile $n
+    }
+    unset -nocomplain f d d1 d2 d3 d4 d5 r n
+} -result {{} {{{Foo file} {version 1}} {application x-foo} {foo fo}} {{{Foo file} {version 2}} {} {}} {{{Foo file}} {} {}} {text {} {}} {binary {} {}}}
+
+test fumagic.cfront-3.2 {install, the original recognizer is back after restoring} -setup {
+    set d [makeBinaryFile "GIF89a\x2b\x00\x40\x00\xf7\xff\x00" gif.dat]
+} -body {
+    lindex [fileutil::magic::filetype $d] 1
+} -cleanup {
+    removeFile gif.dat
+    unset -nocomplain d
+} -result {image gif}
+
+test fumagic.cfront-3.3 {install, test without continuation lines} -constraints {
+    knownBug
+} -setup {
+    saveRecognizer
+    set f [magicfile single.magic "0\tstring\tFOO\tFoo file"]
+    set d [makeBinaryFile FOO1 foo1.dat]
+} -body {
+    capture {fileutil::magic::cfront::install $f}
+    # Fails with 'can't read "typematch(1)"', see rtcore-api.test.
+    fileutil::magic::filetype $d
+} -cleanup {
+    restoreRecognizer
+    removeFile single.magic
+    removeFile foo1.dat
+    unset -nocomplain f d
+} -result {{{Foo file}} {} {}}
+
+test fumagic.cfront-3.4 {install, filetype with a match without description} -constraints {
+    knownBug
+} -setup {
+    saveRecognizer
+    set f [magicfile nodesc.magic [join {
+	"0\tstring\tFOO\t\\b"
+	">3\tstring\t1\t\\b"
+	"!:mime\tapplication/x-foo"
+    } \n]]
+    set d [makeBinaryFile FOO1 foo1.dat]
+} -body {
+    capture {fileutil::magic::cfront::install $f}
+    # Fails with 'can't read "mimtetype"'.
+    fileutil::magic::filetype $d
+} -cleanup {
+    restoreRecognizer
+    removeFile nodesc.magic
+    removeFile foo1.dat
+    unset -nocomplain f d
+} -result {{} {application x-foo} {}}
+
+# -------------------------------------------------------------------------
+## cgen::2tree, cgen::treegen, cgen::treedump
+#
+# These commands work on the tree that the internal command
+# cfront::process builds from a magic file.
+
+proc parsetree {file} {
+    set tree [::fileutil::magic::cfront::tree]
+    capture {::fileutil::magic::cfront::process $tree $file}
+    return $tree
+}
+
+test fumagic.cgen-1.0 {2tree, wrong # args} -body {
+    fileutil::magic::cgen::2tree
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::cgen::2tree tree"}
+
+test fumagic.cgen-1.1 {2tree returns the tree and annotates its nodes} -setup {
+    set f [magicfile foo.magic $foomagic]
+    set tree [parsetree $f]
+} -body {
+    set r [list [expr {[capture {fileutil::magic::cgen::2tree $tree}] eq $tree}]]
+    set top [lindex [$tree children root] 0]
+    lappend r [$tree get $top otype] [$tree get $top path]
+    foreach child [$tree children $top] {
+	lappend r [$tree get $child otype] [$tree get $child path]
+    }
+    set r
+} -cleanup {
+    $tree destroy
+    removeFile foo.magic
+    unset -nocomplain f tree r top child
+} -result {1 S 0 S {0 0} S {0 1}}
+
+test fumagic.cgen-1.2 {2tree, numeric tests on the same field become a Switch node} -setup {
+    set f [magicfile sw.magic [join {
+	"0\tbyte\t1\tone"
+	"0\tbyte\t2\ttwo"
+	"0\tbelong\t7\tseven"
+    } \n]]
+    set tree [parsetree $f]
+} -body {
+    capture {fileutil::magic::cgen::2tree $tree}
+    set r {}
+    foreach n [$tree children root] {
+	set item [$tree get $n otype]
+	foreach c [$tree children $n] {
+	    lappend item [$tree get $c otype] [$tree get $c val]
+	}
+	lappend r $item
+    }
+    lsort $r
+} -cleanup {
+    $tree destroy
+    removeFile sw.magic
+    unset -nocomplain f tree r n c item
+} -result {N {Switch N 1 N 2}}
+
+test fumagic.cgen-2.0 {treegen, wrong # args} -body {
+    fileutil::magic::cgen::treegen x
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::cgen::treegen tree node"}
+
+test fumagic.cgen-2.1 {treegen, whole tree} -setup {
+    set f [magicfile ab.magic "0\tstring\tAAA\tA file\n0\tstring\tBBB\tB file"]
+    set tree [parsetree $f]
+    capture {fileutil::magic::cgen::2tree $tree}
+} -body {
+    fileutil::magic::cgen::treegen $tree root
+} -cleanup {
+    $tree destroy
+    removeFile ab.magic
+    unset -nocomplain f tree
+} -result {{if {[S string 0 0 {} {} eq AAA]} {
+	>
+		emit {A file}
+	<
+}
+} {if {[S string 0 0 {} {} eq BBB]} {
+	>
+		emit {B file}
+	<
+}
+}}
+
+test fumagic.cgen-2.2 {treegen, sub-tree} -setup {
+    set f [magicfile foo.magic $foomagic]
+    set tree [parsetree $f]
+    capture {fileutil::magic::cgen::2tree $tree}
+} -body {
+    set node [lindex [$tree children [lindex [$tree children root] 0]] 1]
+    fileutil::magic::cgen::treegen $tree $node
+} -cleanup {
+    $tree destroy
+    removeFile foo.magic
+    unset -nocomplain f tree node
+} -result {if {[S string 3 0 {} {} eq 2]} {
+	>
+		emit {\b, version 2}
+	<
+}
+}
+
+test fumagic.cgen-2.3 {treegen, named tests are stored in the tree} -setup {
+    set f [magicfile named.magic "0\tname\tsub\n>0\tstring\tY\tnamed Y"]
+    set tree [parsetree $f]
+    capture {fileutil::magic::cgen::2tree $tree}
+} -body {
+    list [fileutil::magic::cgen::treegen $tree root] \
+	[dict keys [dict get [$tree get root named] 0]]
+} -cleanup {
+    $tree destroy
+    removeFile named.magic
+    unset -nocomplain f tree
+} -result {{} sub}
+
+test fumagic.cgen-3.0 {treedump, wrong # args} -body {
+    fileutil::magic::cgen::treedump
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::cgen::treedump tree"}
+
+test fumagic.cgen-3.1 {treedump returns a description of the tree} -constraints {
+    knownBug
+} -setup {
+    set f [magicfile foo.magic $foomagic]
+    set tree [parsetree $f]
+    capture {fileutil::magic::cgen::2tree $tree}
+} -body {
+    # Fails with 'invalid key "base"': it reads node keys that the parser
+    # no longer sets.
+    string match {*Foo file*} [fileutil::magic::cgen::treedump $tree]
+} -cleanup {
+    $tree destroy
+    removeFile foo.magic
+    unset -nocomplain f tree
+} -result 1
+
+# -------------------------------------------------------------------------
+rename magicfile {}
+rename capture {}
+rename saveRecognizer {}
+rename restoreRecognizer {}
+rename parsetree {}
+rename conds {}
+unset foomagic
+testsuiteCleanup
+return

@@ -1,0 +1,1322 @@
+# -*- tcl -*-
+# rtcore-api.test: Tests for the documented API of fileutil::magic::rt,
+# the runtime core of the generated file type recognizers.
+#
+# Sourcing this file into Tcl runs the tests and generates output for errors.
+# No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal rtcore.tcl fileutil::magic::rt
+}
+
+# -------------------------------------------------------------------------
+## Helpers.
+#
+# The recognizer commands (N, S, emit, >, <, ...) only work inside the
+# coroutine created by rt::new: they access its variables via [upvar #1].
+# [rtrun] writes DATA into a temporary file, defines BODY as the recognizer
+# procedure (in a namespace importing the runtime), runs it through rt::new
+# and returns the class followed by all reported matches, each match as
+# {weight description mimetype extensions}.
+#
+# By default the recognizer first calls [prime], which performs throw-away
+# tests at levels 0..2.  This works around a runtime bug: [<] reads the
+# array element typematch(<level>), which only the test commands set, so a
+# fresh recognizer that emits at level 1 without first running a test at
+# that level fails with 'can't read "typematch(1)"' (see the knownBug test
+# fumagic.rt-1.6).  With PRIME 0 the body runs unchanged.
+
+proc prime {} {
+    namespace eval ::fileutil::magic::rt {
+	N byte 0 0 0 {} {} == 0
+	>
+	    N byte 0 0 0 {} {} == 0
+	    >
+		N byte 0 0 0 {} {} == 0
+	    <
+	<
+    }
+}
+
+proc rtrun {data body args} {
+    array set opt {-named {} -perm {} -prime 1}
+    array set opt $args
+    set path [makeBinaryFile $data rtdata]
+    if {$opt(-perm) ne {}} {
+	file attributes $path -permissions $opt(-perm)
+    }
+    namespace eval ::rttest {
+	namespace import ::fileutil::magic::rt::*
+    }
+    if {$opt(-prime)} {
+	set body "[list ::prime]\n$body"
+    }
+    proc ::rttest::analyze {} $body
+    file stat $path st
+    set finfo [array get st]
+    dict set finfo name $path
+    set chan [open $path rb]
+    set res {}
+    try {
+	set coro [::fileutil::magic::rt::new $finfo $chan $opt(-named) \
+		      [list ::rttest::analyze]]
+	lappend res [$coro]
+	while 1 {
+	    lappend res [$coro]
+	}
+    } finally {
+	close $chan
+	removeFile rtdata
+	namespace delete ::rttest
+    }
+    return $res
+}
+
+# Like rtrun, but drops the weights: returns the class followed by
+# {description mimetype extensions} per match.
+proc rtdesc {data body args} {
+    set res [rtrun $data $body {*}$args]
+    set out [list [lindex $res 0]]
+    foreach m [lrange $res 1 end] {
+	lappend out [lrange $m 1 end]
+    }
+    return $out
+}
+
+# Only the descriptions of the matches.
+proc rtemit {data body args} {
+    set out {}
+    foreach m [lrange [rtrun $data $body {*}$args] 1 end] {
+	lappend out [lindex $m 1]
+    }
+    return $out
+}
+
+# -------------------------------------------------------------------------
+## new
+
+test fumagic.rt-1.0 {new, wrong # args} -body {
+    fileutil::magic::rt::new a b c
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::rt::new finfo chan named tests"}
+
+test fumagic.rt-1.1 {new returns a command, the first call returns the class} -setup {
+    set path [makeBinaryFile "plain text" rtdata]
+    set chan [open $path rb]
+    proc ::rttest_analyze {} {}
+} -body {
+    set coro [fileutil::magic::rt::new {} $chan {} ::rttest_analyze]
+    set r [list [expr {[info commands $coro] ne {}}] [$coro]]
+    # No descriptions: the next call returns with code break and the
+    # command is gone.
+    lappend r [catch {$coro} msg] $msg [info commands $coro]
+} -cleanup {
+    close $chan
+    removeFile rtdata
+    rename ::rttest_analyze {}
+    unset -nocomplain path chan coro r msg
+} -result {1 text 3 {} {}}
+
+test fumagic.rt-1.2 {new, binary class} -body {
+    rtrun "\x00\x01\x02" {}
+} -result binary
+
+test fumagic.rt-1.3 {new, text class} -body {
+    rtrun "hello\tworld\r\n\x0c" {}
+} -result text
+
+test fumagic.rt-1.4 {new, non-ASCII bytes do not make a file binary} -body {
+    rtrun "\xd0\xbf\xd1\x80\xd0\xb8\xd0\xb2\xd1\x96\xd1\x82" {}
+} -result text
+
+test fumagic.rt-1.5 {new, empty file yields "empty" without running the tests} -body {
+    rtrun {} {error "must not be called"}
+} -result {text {0 empty {} {}}}
+
+test fumagic.rt-1.6 {new, emit at level 1 without a test at level 1} -constraints {
+    knownBug
+} -body {
+    rtemit ABCD {
+	if {[N byte 0 0 0 {} {} == 65]} {
+	    >
+		emit {letter A}
+	    <
+	}
+    } -prime 0
+} -result {{{letter A}}}
+
+test fumagic.rt-1.7 {new, the channel is switched to binary translation} -setup {
+    set path [makeBinaryFile "a\r\nb" rtdata]
+    set chan [open $path r]
+    proc ::rttest_analyze {} {}
+} -body {
+    set coro [fileutil::magic::rt::new {} $chan {} ::rttest_analyze]
+    $coro
+    list [fconfigure $chan -translation] \
+	[expr {[fconfigure $chan -encoding] in {binary iso8859-1}}]
+} -cleanup {
+    catch {$coro}
+    close $chan
+    removeFile rtdata
+    rename ::rttest_analyze {}
+    unset -nocomplain path chan coro
+} -result {lf 1}
+
+test fumagic.rt-1.8 {new, several matches are reported in order} -body {
+    rtemit "MAGIC" {
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit first
+	    <
+	}
+	if {[S string 0 0 {} {} eq MAG]} {
+	    >
+		emit second
+	    <
+	}
+	if {[S string 0 0 {} {} eq NOPE]} {
+	    >
+		emit third
+	    <
+	}
+    }
+} -result {first second}
+
+test fumagic.rt-1.9 {new, a longer match has a higher weight} -body {
+    set r [rtrun "MAGIC" {
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit long
+	    <
+	}
+	if {[S string 0 0 {} {} eq MAG]} {
+	    >
+		emit short
+	    <
+	}
+    }]
+    expr {[lindex $r 1 0] > [lindex $r 2 0]}
+} -cleanup {
+    unset -nocomplain r
+} -result 1
+
+# -------------------------------------------------------------------------
+## file_start
+
+test fumagic.rt-2.0 {file_start, wrong # args} -body {
+    fileutil::magic::rt::file_start
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::rt::file_start name"}
+
+test fumagic.rt-2.1 {file_start, wrong # args} -body {
+    fileutil::magic::rt::file_start a b
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::rt::file_start name"}
+
+test fumagic.rt-2.2 {file_start returns the empty string} -body {
+    fileutil::magic::rt::file_start /some/magic/file
+} -result {}
+
+# -------------------------------------------------------------------------
+## emit
+
+test fumagic.rt-3.0 {emit, wrong # args} -body {
+    fileutil::magic::rt::emit
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::rt::emit msg"}
+
+test fumagic.rt-3.1 {emit returns the empty string} -body {
+    rtemit X {
+	if {[S string 0 0 {} {} eq X]} {
+	    >
+		lappend ::rtresult [emit x]
+	    <
+	}
+    }
+    set ::rtresult
+} -cleanup {
+    unset -nocomplain ::rtresult
+} -result {{}}
+
+test fumagic.rt-3.2 {emit, several messages} -body {
+    rtemit X {
+	if {[S string 0 0 {} {} eq X]} {
+	    >
+		emit one
+		emit two
+	    <
+	}
+    }
+} -result {{one two}}
+
+test fumagic.rt-3.3 {emit, \b appends to the previous message} -body {
+    rtemit X {
+	if {[S string 0 0 {} {} eq X]} {
+	    >
+		emit {X file}
+		emit {\b, version 2}
+		emit {\bxyz}
+	    <
+	}
+    }
+} -result {{{X file} {version 2xyz}}}
+
+test fumagic.rt-3.4 {emit, %d and %ld are replaced with the numeric value} -body {
+    rtemit "\x2a" {
+	if {[N byte 0 0 0 {} {} == 42]} {
+	    >
+		emit {value %d}
+		emit {\b, again %ld}
+	    <
+	}
+    }
+} -result {{{value 42} {again 42}}}
+
+test fumagic.rt-3.5 {emit, %d shows signed and unsigned values} -body {
+    rtemit "\xff\xfe" {
+	if {[N byte 0 0 0 {} {} x {}]} {
+	    >
+		emit {signed %d}
+	    <
+	}
+	if {[N ubyte 0 0 0 {} {} x {}]} {
+	    >
+		emit {unsigned %d}
+	    <
+	}
+	if {[N ubeshort 0 0 0 {} {} x {}]} {
+	    >
+		emit {short %d}
+	    <
+	}
+    }
+} -result {{{signed -1}} {{unsigned 255}} {{short 65534}}}
+
+test fumagic.rt-3.6 {emit, %s is replaced with the string value} -body {
+    rtemit "Name: Joe\n" {
+	if {[S string 0 0 {} {} eq Name:]} {
+	    >
+		if {[S string 6 0 {} {} > \0]} {
+		    >
+			emit {name %s}
+		    <
+		}
+	    <
+	}
+    }
+} -result {{{name Joe}}}
+
+test fumagic.rt-3.7 {emit, %s stops at a NUL byte} -constraints {
+    knownBug
+} -body {
+    # The C file(1) stops a string value at the first NUL byte; the
+    # runtime puts the NUL and the following bytes into the message.
+    rtemit "Name: Joe\0rest" {
+	if {[S string 0 0 {} {} eq Name:]} {
+	    >
+		if {[S string 6 0 {} {} > \0]} {
+		    >
+			emit {name %s}
+		    <
+		}
+	    <
+	}
+    }
+} -result {{{name Joe}}}
+
+test fumagic.rt-3.8 {emit, ${x?...:...} for a non-executable file} -constraints {
+    unix
+} -body {
+    rtemit MAGIC {
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit {${x?exec:noexec}}
+	    <
+	}
+    } -perm 0644
+} -result noexec
+
+test fumagic.rt-3.9 {emit, ${x?...:...} for an executable file} -constraints {
+    unix
+} -body {
+    rtemit MAGIC {
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit {${x?exec:noexec}}
+	    <
+	}
+    } -perm 0755
+} -result exec
+
+test fumagic.rt-3.10 {emit, ${x?...:...} within a longer message} -constraints {
+    unix
+} -body {
+    rtemit MAGIC {
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit {MAGIC ${x?executable:data} file}
+	    <
+	}
+    } -perm 0700
+} -result {{{MAGIC executable file}}}
+
+test fumagic.rt-3.11 {emit, ${x?...:...} without file mode information} -setup {
+    set path [makeBinaryFile MAGIC rtdata]
+    set chan [open $path rb]
+    proc ::rttest_analyze {} {
+	::prime
+	namespace eval ::fileutil::magic::rt {
+	    if {[S string 0 0 {} {} eq MAGIC]} {
+		>
+		    emit {${x?exec:noexec}}
+		<
+	    }
+	}
+    }
+} -body {
+    set coro [fileutil::magic::rt::new {} $chan {} ::rttest_analyze]
+    $coro
+    lindex [$coro] 1
+} -cleanup {
+    catch {$coro}
+    close $chan
+    removeFile rtdata
+    rename ::rttest_analyze {}
+    unset -nocomplain path chan coro
+} -result noexec
+
+# -------------------------------------------------------------------------
+## N - numeric tests
+
+test fumagic.rt-4.1 {N, byte equal} -body {
+    rtemit ABCD {
+	if {[N byte 0 0 0 {} {} == 65]} {
+	    >
+		emit A
+	    <
+	}
+	if {[N byte 1 0 0 {} {} == 65]} {
+	    >
+		emit notA
+	    <
+	}
+    }
+} -result A
+
+test fumagic.rt-4.2 {N, comparison operators} -body {
+    set r {}
+    foreach {op val} {== 5 == 6 != 5 != 6 < 6 < 5 > 4 > 5} {
+	lappend r $op$val [rtemit "\x05" [string map [list @op $op @val $val] {
+	    if {[N byte 0 0 0 {} {} @op @val]} {
+		>
+		    emit yes
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r op val
+} -result {==5 yes ==6 {} !=5 {} !=6 yes <6 yes <5 {} >4 yes >5 {}}
+
+test fumagic.rt-4.3 {N, operator & (all bits set)} -body {
+    list [rtemit "\x07" {
+	if {[N byte 0 0 0 {} {} & 5]} {
+	    >
+		emit yes
+	    <
+	}
+    }] [rtemit "\x06" {
+	if {[N byte 0 0 0 {} {} & 5]} {
+	    >
+		emit yes
+	    <
+	}
+    }]
+} -result {yes {}}
+
+test fumagic.rt-4.4 {N, operator ^ (bits clear)} -body {
+    list [rtemit "\x07" {
+	if {[N byte 0 0 0 {} {} ^ 8]} {
+	    >
+		emit yes
+	    <
+	}
+    }] [rtemit "\x0f" {
+	if {[N byte 0 0 0 {} {} ^ 8]} {
+	    >
+		emit yes
+	    <
+	}
+    }]
+} -result {yes {}}
+
+test fumagic.rt-4.5 {N, operator x matches anything} -body {
+    rtemit "\x05" {
+	if {[N byte 0 0 0 {} {} x {}]} {
+	    >
+		emit {any %d}
+	    <
+	}
+    }
+} -result {{{any 5}}}
+
+test fumagic.rt-4.6 {N, testinvert} -body {
+    rtemit "\x05" {
+	if {[N byte 0 1 0 {} {} == 5]} {
+	    >
+		emit inv5
+	    <
+	}
+	if {[N byte 0 1 0 {} {} == 6]} {
+	    >
+		emit inv6
+	    <
+	}
+	if {[N byte 0 1 0 {} {} x {}]} {
+	    >
+		emit invx
+	    <
+	}
+    }
+} -result inv6
+
+test fumagic.rt-4.7 {N, mask applied before the comparison} -body {
+    rtemit "\x1f" {
+	if {[N byte 0 0 0 & 3 == 3]} {
+	    >
+		emit and
+	    <
+	}
+	if {[N byte 0 0 0 + 1 == 32]} {
+	    >
+		emit plus
+	    <
+	}
+	if {[N byte 0 0 0 & 3 == 31]} {
+	    >
+		emit nomatch
+	    <
+	}
+    }
+} -result {and plus}
+
+test fumagic.rt-4.8 {N, compinvert inverts the value bitwise, like Nv} -constraints {
+    knownBug
+} -body {
+    # cfront sets compinvert for the "~" operator of magic(5); Nv applies
+    # the bitwise NOT, N negates the value instead.
+    rtemit "\x05" {
+	if {[N byte 0 0 1 {} {} == -6]} {
+	    >
+		emit inverted
+	    <
+	}
+    }
+} -result inverted
+
+test fumagic.rt-4.9 {N, unknown comparison operator} -body {
+    rtrun "\x05" {N byte 0 0 0 {} {} ?? 5}
+} -returnCodes error -result {{unknown comparison operator} ??}
+
+test fumagic.rt-4.10 {N, offset beyond the end of the file reads 0} -body {
+    rtemit "\x01" {
+	if {[N byte 0 0 0 {} {} == 1]} {
+	    >
+		if {[N byte 100 0 0 {} {} == 0]} {
+		    >
+			emit zero
+		    <
+		}
+	    <
+	}
+    }
+} -result zero
+
+test fumagic.rt-4.11 {N, documented signed numeric types} -body {
+    set r {}
+    foreach {type data val} {
+	byte    "\x7f"             127
+	byte    "\x80"             -128
+	beshort "\x01\x02"         258
+	leshort "\x01\x02"         513
+	beshort "\xff\xfe"         -2
+	belong  "\x01\x02\x03\x04" 16909060
+	lelong  "\x01\x02\x03\x04" 67305985
+	belong  "\xff\xff\xff\xfe" -2
+    } {
+	lappend r [rtemit $data [string map [list @type $type @val $val] {
+	    if {[N @type 0 0 0 {} {} == @val]} {
+		>
+		    emit @type
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r type data val
+} -result {byte byte beshort leshort beshort belong lelong belong}
+
+test fumagic.rt-4.12 {N, documented unsigned numeric types} -body {
+    set r {}
+    foreach {type data val} {
+	ubyte    "\xff"             255
+	ubeshort "\xff\xfe"         65534
+	uleshort "\xfe\xff"         65534
+	ubelong  "\xff\xff\xff\xfe" 4294967294
+	ulelong  "\xfe\xff\xff\xff" 4294967294
+    } {
+	lappend r [rtemit $data [string map [list @type $type @val $val] {
+	    if {[N @type 0 0 0 {} {} == @val]} {
+		>
+		    emit @type
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r type data val
+} -result {ubyte ubeshort uleshort ubelong ulelong}
+
+test fumagic.rt-4.13 {N, native endian types} -body {
+    if {$tcl_platform(byteOrder) eq "littleEndian"} {
+	set s "\x02\x01"
+	set l "\x04\x03\x02\x01"
+    } else {
+	set s "\x01\x02"
+	set l "\x01\x02\x03\x04"
+    }
+    list [rtemit $s {
+	if {[N short 0 0 0 {} {} == 258]} {
+	    >
+		emit short
+	    <
+	}
+	if {[N ushort 0 0 0 {} {} == 258]} {
+	    >
+		emit ushort
+	    <
+	}
+    }] [rtemit $l {
+	if {[N long 0 0 0 {} {} == 16909060]} {
+	    >
+		emit long
+	    <
+	}
+	if {[N ulong 0 0 0 {} {} == 16909060]} {
+	    >
+		emit ulong
+	    <
+	}
+    }]
+} -cleanup {
+    unset -nocomplain s l
+} -result {{short ushort} {long ulong}}
+
+test fumagic.rt-4.14 {N, little endian date types} -body {
+    set r {}
+    foreach type {ledate leldate} {
+	lappend r [rtemit "\x01\x02\x03\x04" [string map [list @type $type] {
+	    if {[N @type 0 0 0 {} {} == 67305985]} {
+		>
+		    emit @type
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r type
+} -result {ledate leldate}
+
+test fumagic.rt-4.15 {N, big endian date types} -constraints {
+    knownBug
+} -body {
+    # bedate is fetched as a 16-bit value instead of a 32-bit one.
+    set r {}
+    foreach type {bedate beldate} {
+	lappend r [rtemit "\x01\x02\x03\x04" [string map [list @type $type] {
+	    if {[N @type 0 0 0 {} {} == 16909060]} {
+		>
+		    emit @type
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r type
+} -result {bedate beldate}
+
+test fumagic.rt-4.16 {N, native endian date types} -body {
+    if {$tcl_platform(byteOrder) eq "littleEndian"} {
+	set l "\x04\x03\x02\x01"
+    } else {
+	set l "\x01\x02\x03\x04"
+    }
+    set r {}
+    foreach type {date ldate} {
+	lappend r [rtemit $l [string map [list @type $type] {
+	    if {[N @type 0 0 0 {} {} == 16909060]} {
+		>
+		    emit @type
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r type l
+} -result {date ldate}
+
+# -------------------------------------------------------------------------
+## Nv - fetch a numeric value (used for switch)
+
+test fumagic.rt-5.1 {Nv returns the fetched value} -body {
+    rtemit "\x00\x02" {
+	switch [Nv beshort 0 0 {} {}] {
+	    1 {
+		>
+		    emit one
+		<
+	    }
+	    2 {
+		>
+		    emit two
+		<
+	    }
+	}
+    }
+} -result two
+
+test fumagic.rt-5.2 {Nv, mask} -body {
+    rtemit "\x13" {
+	switch [Nv byte 0 0 & 3] {
+	    3 {
+		>
+		    emit three
+		<
+	    }
+	    19 {
+		>
+		    emit nineteen
+		<
+	    }
+	}
+    }
+} -result three
+
+test fumagic.rt-5.3 {Nv, compinvert} -body {
+    rtemit "\x05" {
+	switch [Nv byte 0 1 {} {}] {
+	    -6 {
+		>
+		    emit inverted
+		<
+	    }
+	}
+    }
+} -result inverted
+
+test fumagic.rt-5.4 {Nv, beyond the end of the file} -body {
+    rtemit "\x05" {
+	if {[N byte 0 0 0 {} {} == 5]} {
+	    >
+		emit {five}
+		if {[Nv byte 10 0 {} {}] eq {}} {
+		    >
+			emit {\b, nothing}
+		    <
+		}
+	    <
+	}
+    }
+} -result {{five nothing}}
+
+# -------------------------------------------------------------------------
+## S - string tests
+
+test fumagic.rt-6.1 {S, string equal and not equal} -body {
+    rtemit "hello world" {
+	if {[S string 0 0 {} {} eq hello]} {
+	    >
+		emit hello
+	    <
+	}
+	if {[S string 6 0 {} {} eq world]} {
+	    >
+		emit world
+	    <
+	}
+	if {[S string 0 0 {} {} ne bye]} {
+	    >
+		emit notbye
+	    <
+	}
+	if {[S string 0 0 {} {} eq bye]} {
+	    >
+		emit bye
+	    <
+	}
+    }
+} -result {hello world notbye}
+
+test fumagic.rt-6.2 {S, testinvert} -body {
+    rtemit "hello" {
+	if {[S string 0 1 {} {} eq hello]} {
+	    >
+		emit a
+	    <
+	}
+	if {[S string 0 1 {} {} eq bye]} {
+	    >
+		emit b
+	    <
+	}
+    }
+} -result b
+
+test fumagic.rt-6.3 {S, string < and >} -body {
+    rtemit "abd" {
+	if {[S string 0 0 {} {} > abc]} {
+	    >
+		emit gt
+	    <
+	}
+	if {[S string 0 0 {} {} < abc]} {
+	    >
+		emit lt
+	    <
+	}
+	if {[S string 0 0 {} {} < abe]} {
+	    >
+		emit lt2
+	    <
+	}
+    }
+} -result {gt lt2}
+
+test fumagic.rt-6.4 {S, string beyond the end of the file never matches} -body {
+    rtemit "abc" {
+	if {[S string 0 0 {} {} eq abc]} {
+	    >
+		emit abc
+		if {[S string 10 0 {} {} eq abc]} {
+		    >
+			emit far
+		    <
+		}
+	    <
+	}
+	if {[S string 2 0 {} {} eq cd]} {
+	    >
+		emit partial
+	    <
+	}
+    }
+} -result abc
+
+test fumagic.rt-6.5 {S, string with modifier w (optional blanks)} -body {
+    rtemit "ab" {
+	if {[S string 0 0 w {} eq {a b}]} {
+	    >
+		emit w
+	    <
+	}
+    }
+} -result w
+
+test fumagic.rt-6.6 {S, string with modifier W (compact blanks)} -constraints {
+    knownBug
+} -body {
+    # magic(5): W requires at least as many blanks in the target as in the
+    # pattern, but only as many bytes as the pattern has are read.
+    rtemit "a  b" {
+	if {[S string 0 0 W {} eq {a b}]} {
+	    >
+		emit W
+	    <
+	}
+    }
+} -result W
+
+test fumagic.rt-6.7 {S, string with modifier c, exact case} -body {
+    rtemit "hello" {
+	if {[S string 0 0 c {} eq hello]} {
+	    >
+		emit c
+	    <
+	}
+    }
+} -result c
+
+test fumagic.rt-6.8 {S, string with modifier c, other case} -constraints {
+    knownBug
+} -body {
+    # magic(5): c makes lower case characters in the pattern match both
+    # cases.
+    rtemit "Hello" {
+	if {[S string 0 0 c {} eq hello]} {
+	    >
+		emit c
+	    <
+	}
+    }
+} -result c
+
+test fumagic.rt-6.9 {S, string with modifier C} -constraints {
+    knownBug
+} -body {
+    # Fails with 'can't read "mode"'.
+    rtemit "hello" {
+	if {[S string 0 0 C {} eq HELLO]} {
+	    >
+		emit C
+	    <
+	}
+    }
+} -result C
+
+test fumagic.rt-6.10 {S, string with modifiers c and C} -body {
+    rtemit "HeLLo" {
+	if {[S string 0 0 {c C} {} eq hello]} {
+	    >
+		emit cC
+	    <
+	}
+    }
+} -result cC
+
+test fumagic.rt-6.11 {S, search within a range} -body {
+    list [rtemit "xxxxMAGICyy" {
+	if {[S search 0 0 {} 20 eq MAGIC]} {
+	    >
+		emit found
+	    <
+	}
+    }] [rtemit "xxxxxxxxxxMAGIC" {
+	if {[S search 0 0 {} 5 eq MAGIC]} {
+	    >
+		emit found
+	    <
+	}
+    }]
+} -result {found {}}
+
+test fumagic.rt-6.12 {S, search sets the cursor after the match} -body {
+    rtemit "xxxxMAGIC\x07" {
+	if {[S search 0 0 {} 20 eq MAGIC]} {
+	    >
+		emit found
+		if {[N byte [R 0] 0 0 {} {} == 7]} {
+		    >
+			emit {\b, seven}
+		    <
+		}
+	    <
+	}
+    }
+} -result {{found seven}}
+
+test fumagic.rt-6.13 {S, regex} -body {
+    list [rtemit "abc123def" {
+	if {[S regex 0 0 {} {} eq {[0-9]+}]} {
+	    >
+		emit digits
+	    <
+	}
+    }] [rtemit "abcdef" {
+	if {[S regex 0 0 {} {} eq {[0-9]+}]} {
+	    >
+		emit digits
+	    <
+	}
+    }]
+} -result {digits {}}
+
+test fumagic.rt-6.14 {S, regex limited to a length} -body {
+    rtemit "abcdef123" {
+	if {[S regex 0 0 {} 4 eq {[0-9]+}]} {
+	    >
+		emit digits
+	    <
+	}
+    }
+} -result {}
+
+test fumagic.rt-6.15 {S, pstring with explicit length types} -body {
+    set r {}
+    foreach {mod data} {
+	H    "\x00\x05hello"
+	h    "\x05\x00hello"
+	L    "\x00\x00\x00\x05hello"
+	l    "\x05\x00\x00\x00hello"
+	{L J} "\x00\x00\x00\x09hello"
+    } {
+	lappend r [rtemit $data [string map [list @mod [list $mod]] {
+	    if {[S pstring 0 0 @mod {} eq hello]} {
+		>
+		    emit {pascal %s}
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r mod data
+} -result [lrepeat 5 {{{pascal hello}}}]
+
+test fumagic.rt-6.16 {S, pstring with the default one byte length} -constraints {
+    knownBug
+} -body {
+    rtemit "\x05hello" {
+	if {[S pstring 0 0 {} {} eq hello]} {
+	    >
+		emit {pascal %s}
+	    <
+	}
+    }
+} -result {{{pascal hello}}}
+
+test fumagic.rt-6.17 {S, operator x} -body {
+    rtemit "anything" {
+	if {[S string 0 0 {} {} x {}]} {
+	    >
+		emit any
+	    <
+	}
+    }
+} -result any
+
+test fumagic.rt-6.18 {D (type default) matches when nothing else did} -body {
+    rtemit "XYZ" {
+	if {[S string 0 0 {} {} eq XYZ]} {
+	    >
+		if {[N byte 0 0 0 {} {} == 99]} {
+		    >
+			emit no
+		    <
+		}
+		if {[D 0]} {
+		    >
+			emit default
+		    <
+		}
+	    <
+	}
+    }
+} -result default
+
+test fumagic.rt-6.19 {D (type default) does not match after a match} -body {
+    rtemit "XYZ" {
+	if {[S string 0 0 {} {} eq XYZ]} {
+	    >
+		if {[N byte 0 0 0 {} {} == 88]} {
+		    >
+			emit X
+		    <
+		}
+		if {[D 0]} {
+		    >
+			emit default
+		    <
+		}
+	    <
+	}
+    }
+} -result X
+
+test fumagic.rt-6.20 {D (type default) after a description of the parent} -constraints {
+    knownBug
+} -body {
+    # magic(5): default matches if no other test at its continuation level
+    # matched; the description of the parent test does not count.
+    rtemit "XYZ" {
+	if {[S string 0 0 {} {} eq XYZ]} {
+	    >
+		emit xyz
+		if {[N byte 0 0 0 {} {} == 99]} {
+		    >
+			emit {\b, no}
+		    <
+		}
+		if {[D 0]} {
+		    >
+			emit {\b, default}
+		    <
+		}
+	    <
+	}
+    }
+} -result {{xyz default}}
+
+# -------------------------------------------------------------------------
+## Offsets: O, R, I
+
+test fumagic.rt-7.1 {R, offset relative to the cursor one level up} -body {
+    rtemit "AB\x01\x02" {
+	if {[S string 0 0 {} {} eq AB]} {
+	    >
+		if {[N byte [R 0] 0 0 {} {} == 1]} {
+		    >
+			emit R0
+		    <
+		}
+		if {[N byte [R 1] 0 0 {} {} == 2]} {
+		    >
+			emit R1
+		    <
+		}
+	    <
+	}
+    }
+} -result {{R0 R1}}
+
+test fumagic.rt-7.2 {O, offset relative to the offset one level up} -body {
+    rtemit "xxAB\x07" {
+	if {[S string 2 0 {} {} eq AB]} {
+	    >
+		if {[S string [O 0] 0 {} {} eq AB]} {
+		    >
+			emit O0
+		    <
+		}
+		if {[N byte [O 2] 0 0 {} {} == 7]} {
+		    >
+			emit O2
+		    <
+		}
+	    <
+	}
+    }
+} -result {{O0 O2}}
+
+test fumagic.rt-7.3 {I, indirect offset} -body {
+    rtemit "\x00\x00\x00\x06xxABCD" {
+	if {[N belong 0 0 0 {} {} == 6]} {
+	    >
+		if {[S string [I 0 belong 0 + 0 0] 0 {} {} eq AB]} {
+		    >
+			emit indirect
+		    <
+		}
+	    <
+	}
+    }
+} -result indirect
+
+test fumagic.rt-7.4 {I, indirect offset plus a constant} -body {
+    rtemit "\x00\x00\x00\x06xxABCD" {
+	if {[N belong 0 0 0 {} {} == 6]} {
+	    >
+		if {[S string [I 0 belong 0 + 0 2] 0 {} {} eq CD]} {
+		    >
+			emit plus
+		    <
+		}
+	    <
+	}
+    }
+} -result plus
+
+test fumagic.rt-7.5 {I, indirect offset with other operators and types} -body {
+    set r {}
+    foreach {data it op io} {
+	"\x00\x03xxxxAB" ubeshort * 2
+	"\x03\x00xxxxAB" uleshort * 2
+	"\x0cxxxxxAB"    ubyte    - 6
+	"\x0dxxxxxAB"    ubyte    / 2
+	"\x0exxxxxAB"    ubyte    & 6
+	"\x02xxxxxAB"    ubyte    | 4
+    } {
+	lappend r [rtemit $data [string map [list @it $it @op $op @io $io] {
+	    if {[S string [I 0 @it 0 @op 0 @io] 0 {} {} eq AB]} {
+		>
+		    emit ok
+		<
+	    }
+	}]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r data it op io
+} -result {ok ok ok ok ok ok}
+
+test fumagic.rt-7.7 {I, inverted indirect offset} -constraints {
+    knownBug
+} -body {
+    # ~(-7) == 6
+    rtemit "\xff\xff\xff\xf9xxAB" {
+	if {[S string [I 0 belong 1 + 0 0] 0 {} {} eq AB]} {
+	    >
+		emit ok
+	    <
+	}
+    }
+} -result ok
+
+test fumagic.rt-7.8 {I, indirect offset outside the file} -body {
+    rtemit "\x01" {
+	if {[N byte 0 0 0 {} {} == 1]} {
+	    >
+		emit one
+		if {[S string [I 100 belong 0 + 0 0] 0 {} {} eq AB]} {
+		    >
+			emit {\b, never}
+		    <
+		}
+	    <
+	}
+    }
+} -result one
+
+# -------------------------------------------------------------------------
+## Levels: >, <, L
+
+test fumagic.rt-8.1 {> and <, nested levels add to the description} -body {
+    rtemit "ABC" {
+	if {[S string 0 0 {} {} eq A]} {
+	    >
+		emit {level one}
+		if {[S string 1 0 {} {} eq B]} {
+		    >
+			emit {\b, level two}
+			if {[S string 2 0 {} {} eq C]} {
+			    >
+				emit {\b, level three}
+			    <
+			}
+		    <
+		}
+	    <
+	}
+    }
+} -result {{{level one} {level two} {level three}}}
+
+test fumagic.rt-8.2 {> and <, the match is reported when leaving level 1} -body {
+    rtemit "AB" {
+	if {[S string 0 0 {} {} eq A]} {
+	    >
+		emit first
+	    <
+	}
+	if {[S string 1 0 {} {} eq B]} {
+	    >
+		emit second
+	    <
+	}
+    }
+} -result {first second}
+
+test fumagic.rt-8.3 {L sets the current level} -body {
+    rtemit "XYZ" {
+	if {[S string 0 0 {} {} eq XYZ]} {
+	    >
+		>
+		    emit deep
+		    L 1
+		<
+	}
+    }
+} -result deep
+
+test fumagic.rt-8.4 {L, wrong # args} -body {
+    fileutil::magic::rt::L
+} -returnCodes error -result {wrong # args: should be "fileutil::magic::rt::L newlevel"}
+
+# -------------------------------------------------------------------------
+## U - named tests
+
+test fumagic.rt-9.1 {U, use a named test} -body {
+    rtemit "XYZ" {
+	if {[S string 0 0 {} {} eq XYZ]} {
+	    >
+		emit xyz
+		U 0 sub 1
+	    <
+	}
+    } -named {0 {sub {
+	if {[S string [O 0] 0 {} {} eq Y]} {
+	    >
+		emit {\b, named Y}
+	    <
+	}
+    }}}
+} -result {{xyz {named Y}}}
+
+test fumagic.rt-9.2 {U, named test from another file index} -body {
+    rtemit "XYZ" {
+	if {[S string 0 0 {} {} eq XYZ]} {
+	    >
+		emit xyz
+		U 0 sub 2
+	    <
+	}
+    } -named {1 {sub {
+	if {[S string [O 0] 0 {} {} eq Z]} {
+	    >
+		emit {\b, named Z}
+	    <
+	}
+    }}}
+} -result {{xyz {named Z}}}
+
+test fumagic.rt-9.3 {U, unknown name} -body {
+    rtrun "XYZ" {
+	if {[S string 0 0 {} {} eq XYZ]} {
+	    >
+		U 0 nosuch 1
+	    <
+	}
+    } -named {0 {sub {}}}
+} -returnCodes error -result {{name not found} 0 nosuch}
+
+# -------------------------------------------------------------------------
+## mime, ext, strength (used by the generated recognizers)
+
+test fumagic.rt-10.1 {mime and ext} -body {
+    rtdesc "MAGIC" {
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit M
+		mime text/x-magic
+		ext mag/mg
+	    <
+	}
+    }
+} -result {text {M {text x-magic} {mag mg}}}
+
+test fumagic.rt-10.2 {strength changes the weight} -body {
+    set r [rtrun "MAGIC" {
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit plain
+	    <
+	}
+	if {[S string 0 0 {} {} eq MAGIC]} {
+	    >
+		emit strong
+		strength +10
+	    <
+	}
+    }]
+    set w [lmap m [lrange $r 1 end] {lindex $m 0}]
+    expr {[lindex $w 1] - [lindex $w 0]}
+} -cleanup {
+    unset -nocomplain r w
+} -result 10.0
+
+# -------------------------------------------------------------------------
+rename prime {}
+rename rtrun {}
+rename rtdesc {}
+rename rtemit {}
+testsuiteCleanup
+return
