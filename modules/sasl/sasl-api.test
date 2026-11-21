@@ -140,7 +140,8 @@ test sasl-api-2.4 {register, update an existing mechanism} -setup saveMechs -bod
 } -cleanup restoreMechs -result {{X-TEST OTP DIGEST-MD5 CRAM-MD5 LOGIN PLAIN ANONYMOUS} X-TEST}
 
 # The mechanism name is used as a regular expression to look up
-# existing mechanisms, so "MD5" replaces "CRAM-MD5".
+# existing mechanisms, so "MD5" replaces the first one that matches,
+# "DIGEST-MD5".
 test sasl-api-2.5 {register, name that is a substring of another} -constraints knownBug -setup saveMechs -body {
     SASL::register MD5 1 ::xclient
     lsort [SASL::mechanisms]
