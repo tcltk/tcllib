@@ -174,7 +174,7 @@
     # Provide a fallback
     set obj [my add_tool tcl {
       tag release class subproject.core
-      fossil_url http://core.tcl.tk/tcl
+      fossil_url https://core.tcl-lang.org/tcl
     }]
     my graft tclcore $obj
     return $obj
@@ -195,7 +195,7 @@
     # Provide a fallback
     set obj [my add_tool tk {
       tag release class tool.core
-      fossil_url http://core.tcl.tk/tk
+      fossil_url https://core.tcl-lang.org/tk
     }]
     my graft tkcore $obj
     return $obj

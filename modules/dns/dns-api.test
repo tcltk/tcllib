@@ -1,0 +1,1048 @@
+# dns-api.test                                                -*- tcl -*-
+#
+# API tests for the Tcllib dns package (dns::configure, dns::resolve and
+# the token accessors). All queries go to a fake DNS server running inside
+# this process on 127.0.0.1 (TCP, random port); no real resolver is used.
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      log/logger.tcl     logger
+    use      uri/uri.tcl        uri
+    use      uri/urn-scheme.tcl uri::urn
+    useLocal ip.tcl             ip
+}
+testing {
+    useLocal dns.tcl dns
+}
+
+# -------------------------------------------------------------------------
+# Constraints
+
+testConstraint noUdp [expr {
+    [catch {package require udp 1.0.4}] && [catch {package require ceptcl}]
+}]
+
+# -------------------------------------------------------------------------
+# Fake DNS server (TCP only, in-process, event driven).
+#
+# fakedns::mode controls the reply:
+#   answer   - reply with rcode $fakedns::rcode and the records in
+#              $fakedns::records, each {name type class ttl rdata}
+#              (type and class numeric, rdata binary)
+#   split    - like answer, but the reply is written in two pieces
+#   close    - close the connection without replying
+#   silent   - never reply
+# fakedns::queries collects {id flags qdcount nscount name type class}
+# for each received request.
+
+namespace eval fakedns {
+    variable server {}
+    variable port 0
+    variable clients {}
+    variable mode answer
+    variable rcode 0
+    variable records {}
+    variable queries {}
+    variable buf
+    variable aflags 0x8180
+}
+
+proc fakedns::start {} {
+    variable server
+    variable port
+    variable mode answer
+    variable rcode 0
+    variable records {}
+    variable queries {}
+    variable aflags 0x8180
+    set server [socket -server [namespace code Accept] -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $server -sockname] 2]
+    return $port
+}
+
+proc fakedns::stop {} {
+    variable server
+    variable clients
+    variable buf
+    catch {close $server}
+    foreach c $clients {catch {close $c}}
+    set clients {}
+    set server {}
+    array unset buf
+    return
+}
+
+proc fakedns::Accept {chan addr port} {
+    variable clients
+    variable buf
+    lappend clients $chan
+    set buf($chan) ""
+    fconfigure $chan -translation binary -blocking 0 -buffering none
+    fileevent $chan readable [namespace code [list Read $chan]]
+}
+
+proc fakedns::Read {chan} {
+    variable buf
+    variable mode
+    append buf($chan) [read $chan]
+    if {[eof $chan]} {
+        Drop $chan
+        return
+    }
+    if {[string length $buf($chan)] < 2} return
+    binary scan $buf($chan) S len
+    set len [expr {$len & 0xFFFF}]
+    if {[string length $buf($chan)] < $len + 2} return
+    set msg [string range $buf($chan) 2 [expr {$len + 1}]]
+    set buf($chan) ""
+    switch -- $mode {
+        close  { Drop $chan; return }
+        silent { return }
+    }
+    set reply [Reply $msg]
+    set data [binary format S [string length $reply]]$reply
+    if {$mode eq "split"} {
+        puts -nonewline $chan [string range $data 0 15]
+        flush $chan
+        after 20 [namespace code [list Rest $chan [string range $data 16 end]]]
+    } else {
+        puts -nonewline $chan $data
+        flush $chan
+    }
+}
+
+proc fakedns::Rest {chan data} {
+    catch {puts -nonewline $chan $data; flush $chan}
+}
+
+proc fakedns::Drop {chan} {
+    variable clients
+    variable buf
+    catch {close $chan}
+    set i [lsearch -exact $clients $chan]
+    if {$i >= 0} {set clients [lreplace $clients $i $i]}
+    unset -nocomplain buf($chan)
+}
+
+# Parse the request, remember it and build a reply.
+proc fakedns::Reply {msg} {
+    variable queries
+    variable records
+    variable rcode
+    variable aflags
+    binary scan $msg SSSSSS id flags qd an ns ar
+    set id [expr {$id & 0xFFFF}]
+    set flags [expr {$flags & 0xFFFF}]
+    set i 12
+    set labels {}
+    while 1 {
+        binary scan $msg @${i}cu len
+        incr i
+        if {$len == 0} break
+        lappend labels [string range $msg $i [expr {$i + $len - 1}]]
+        incr i $len
+    }
+    binary scan $msg @${i}SuSu qtype qclass
+    set question [string range $msg 12 [expr {$i + 3}]]
+    lappend queries [list $id $flags $qd $ns [join $labels .] $qtype $qclass]
+
+    set hdr [binary format SSSSSS $id [expr {$aflags | $rcode}] \
+                 1 [llength $records] 0 0]
+    set body $question
+    foreach rr $records {
+        lassign $rr name type class ttl rdata
+        if {$name eq "@"} {
+            # compression pointer to the name in the question
+            set n [binary format S 0xC00C]
+        } else {
+            set n [Name $name]
+        }
+        append body $n [binary format SSIS $type $class $ttl \
+                            [string length $rdata]] $rdata
+    }
+    return $hdr$body
+}
+
+proc fakedns::Name {name} {
+    set data ""
+    foreach part [split [string trim $name .] .] {
+        append data [binary format ca* [string length $part] $part]
+    }
+    return $data\x00
+}
+
+proc fakedns::Str {text} {
+    return [binary format ca* [string length $text] $text]
+}
+
+# Resolve against the fake server, synchronously.
+proc fakedns::resolve {query args} {
+    variable port
+    ::dns::resolve $query -nameserver 127.0.0.1 -port $port \
+        -protocol tcp -timeout 5000 {*}$args
+}
+
+proc fakedns::lastquery {} {
+    variable queries
+    lindex $queries end
+}
+
+proc fakedns::waitfor {varname} {
+    # bounded wait for an asynchronous request
+    set id [after 5000 [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+}
+
+# Save and restore the package configuration around tests.
+proc saveconf {} {
+    set ::savedconf [array get ::dns::options]
+}
+proc restoreconf {} {
+    array set ::dns::options $::savedconf
+    ${::dns::log}::setlevel $::dns::options(loglevel)
+    unset ::savedconf
+}
+
+# -------------------------------------------------------------------------
+# dns::configure
+# -------------------------------------------------------------------------
+
+test dns-api-1.1 {configure: no arguments returns all settings} -setup {
+    saveconf
+    dns::configure -nameserver ns.example.org -port 5353 -timeout 1000 \
+        -protocol tcp -search {example.org} -loglevel error \
+        -cafile /ca.crt -cadir /certs
+} -body {
+    dns::configure
+} -cleanup {
+    restoreconf
+} -result {-cadir /certs -cafile /ca.crt -loglevel error\
+    -nameserver ns.example.org -port 5353 -protocol tcp\
+    -search example.org -timeout 1000 -usetls 0}
+
+test dns-api-1.2 {configure: setting returns empty string} -setup {
+    saveconf
+} -body {
+    dns::configure -nameserver 127.0.0.1 -port 5353
+} -cleanup {
+    restoreconf
+} -result {}
+
+foreach {n opt value} {
+    1 -nameserver ns.example.org
+    2 -port       5353
+    3 -timeout    1234
+    4 -protocol   tcp
+    5 -search     {a.example.org b.example.org}
+    6 -loglevel   error
+    7 -cafile     /tmp/ca.crt
+    8 -cadir      /tmp/certs
+} {
+    test dns-api-1.3.$n "configure: set and query $opt" -setup {
+        saveconf
+    } -body {
+        dns::configure $opt $value
+        dns::configure $opt
+    } -cleanup {
+        restoreconf
+    } -result $value
+}
+
+test dns-api-1.4 {configure: -server is an alias of -nameserver} -setup {
+    saveconf
+} -body {
+    dns::configure -server ns.example.org
+    list [dns::configure -server] [dns::configure -nameserver]
+} -cleanup {
+    restoreconf
+} -result {ns.example.org ns.example.org}
+
+test dns-api-1.5 {configure: options may be abbreviated} -setup {
+    saveconf
+} -body {
+    dns::configure -nam ns.example.org -po 5353 -ti 99
+    list [dns::configure -nameserver] [dns::configure -port] \
+        [dns::configure -timeout]
+} -cleanup {
+    restoreconf
+} -result {ns.example.org 5353 99}
+
+test dns-api-1.6 {configure: -protocol is lowercased} -setup {
+    saveconf
+} -body {
+    dns::configure -protocol TCP
+    dns::configure -protocol
+} -cleanup {
+    restoreconf
+} -result tcp
+
+test dns-api-1.7 {configure: -- ends option processing} -setup {
+    saveconf
+} -body {
+    dns::configure -port 5353 -- -timeout 1
+    list [dns::configure -port] [dns::configure -timeout]
+} -cleanup {
+    restoreconf
+} -result [list 5353 $::dns::options(timeout)]
+
+test dns-api-1.8 {configure: unknown option} -body {
+    dns::configure -bogus 1
+} -returnCodes error -result {bad option -bogus: must be one of -cadir,\
+    -cafile, -loglevel, -nameserver, -port, -protocol, -search, -timeout,\
+    -usetls}
+
+test dns-api-1.9 {configure: unknown option queried} -body {
+    dns::configure -bogus
+} -returnCodes error -result {bad option -bogus: must be one of -cadir,\
+    -cafile, -loglevel, -nameserver, -port, -protocol, -search, -timeout,\
+    -usetls}
+
+# The protocol check can never be true (&& instead of ||).
+test dns-api-1.10 {configure: invalid protocol is rejected} -constraints {
+    knownBug
+} -setup {
+    saveconf
+} -body {
+    dns::configure -protocol bogus
+} -cleanup {
+    restoreconf
+} -returnCodes error -result {invalid protocol "bogus": protocol must be\
+    either "udp" or "tcp"}
+
+test dns-api-1.11 {configure: documented defaults} -constraints {
+    noUdp
+} -body {
+    # A fresh interpreter, so earlier changes do not matter. The
+    # nameserver is autodetected at load time, so it is not checked.
+    set i [interp create]
+    foreach f {log/logger.tcl uri/uri.tcl uri/urn-scheme.tcl
+        dns/ip.tcl dns/dns.tcl} {
+        $i eval [list source [tcllibPath $f]]
+    }
+    $i eval {
+        list [dns::configure -port] [dns::configure -timeout] \
+            [dns::configure -loglevel] [dns::configure -search] \
+            [dns::configure -protocol] [dns::configure -cadir]
+    }
+} -cleanup {
+    interp delete $i
+    unset i f
+} -result {53 30000 warn {} tcp {}}
+
+# -------------------------------------------------------------------------
+# dns::resolve - errors detected before sending
+# -------------------------------------------------------------------------
+
+test dns-api-2.1 {resolve: wrong # args} -body {
+    dns::resolve
+} -returnCodes error -result {wrong # args: should be "dns::resolve query ?arg ...?"}
+
+test dns-api-2.2 {resolve: unknown option} -body {
+    dns::resolve www.example.org -bogus 1
+} -returnCodes error -match glob -result {bad option -bogus: *must be *-nameserver*}
+
+test dns-api-2.3 {resolve: no nameserver} -body {
+    dns::resolve www.example.org -nameserver {}
+} -returnCodes error -result {no nameserver specified}
+
+test dns-api-2.4 {resolve: invalid -type} -body {
+    dns::resolve www.example.org -nameserver 127.0.0.1 -protocol tcp \
+        -type BOGUS
+} -returnCodes error -result {invalid DNS query type}
+
+test dns-api-2.5 {resolve: invalid -class} -body {
+    dns::resolve www.example.org -nameserver 127.0.0.1 -protocol tcp \
+        -class BOGUS
+} -returnCodes error -result {invalid DNS query class}
+
+test dns-api-2.6 {resolve: udp without udp support} -constraints {
+    noUdp
+} -body {
+    dns::resolve www.example.org -nameserver 127.0.0.1 -protocol udp
+} -returnCodes error -result {udp support is not available,\
+    get ceptcl or tcludp}
+
+# -------------------------------------------------------------------------
+# dns::resolve - queries sent to the fake server
+# -------------------------------------------------------------------------
+
+test dns-api-3.1 {resolve: A query, status ok} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list www.example.org 1 1 3600 [binary format c4 {192 0 2 1}]]]
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [dns::status $tok] [dns::error $tok] [dns::errorcode $tok] \
+        [dns::address $tok] [dns::name $tok] [dns::cname $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {ok {} 0 192.0.2.1 www.example.org {}}
+
+test dns-api-3.2 {resolve: request contents for default A query} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    lassign [fakedns::lastquery] id flags qd ns name type class
+    list [expr {$id == ([string range $tok [string length ::dns::] end] & 0xFFFF)}] \
+        [format 0x%04x $flags] $qd $ns $name $type $class
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok id flags qd ns name type class
+} -result {1 0x0100 1 0 www.example.org 1 1}
+
+test dns-api-3.3 {resolve: returns token in ::dns namespace} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [string match ::dns::* $tok] [info exists $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {1 1}
+
+test dns-api-3.4 {resolve: several A records} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list @ 1 1 60 [binary format c4 {192 0 2 1}]] \
+        [list @ 1 1 60 [binary format c4 {192 0 2 2}]]]
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [dns::address $tok] [dns::name $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {{192.0.2.1 192.0.2.2} {www.example.org www.example.org}}
+
+test dns-api-3.5 {resolve: CNAME and A records} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list www.example.org 5 1 60 [fakedns::Name web.example.org]] \
+        [list web.example.org 1 1 60 [binary format c4 {192 0 2 7}]]]
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [dns::cname $tok] [dns::address $tok] [dns::name $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {web.example.org 192.0.2.7 {www.example.org web.example.org}}
+
+test dns-api-3.6 {resolve: -type MX, name returns exchanges} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list example.org 15 1 60 \
+             [binary format S 10][fakedns::Name mail.example.org]] \
+        [list example.org 15 1 60 \
+             [binary format S 20][fakedns::Name mx2.example.org]]]
+} -body {
+    set tok [fakedns::resolve example.org -type MX]
+    list [lindex [fakedns::lastquery] 5] [dns::name $tok] \
+        [dns::address $tok] [dict get [lindex [dns::result $tok] 0] rdata]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {15 {{10 mail.example.org} {20 mx2.example.org}} {} {10 mail.example.org}}
+
+test dns-api-3.7 {resolve: -type NS} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list example.org 2 1 60 [fakedns::Name ns1.example.org]] \
+        [list example.org 2 1 60 [fakedns::Name ns2.example.org]]]
+} -body {
+    set tok [fakedns::resolve example.org -type NS]
+    list [lindex [fakedns::lastquery] 5] [dns::name $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {2 {ns1.example.org ns2.example.org}}
+
+test dns-api-3.8 {resolve: -type AAAA} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list www.example.org 28 1 60 \
+             [binary format S8 {0x2001 0x0db8 0 0 0 0 0 1}]]]
+} -body {
+    set tok [fakedns::resolve www.example.org -type AAAA]
+    list [lindex [fakedns::lastquery] 5] [dns::address $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {28 2001:db8::1}
+
+test dns-api-3.9 {resolve: -type TXT} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list example.org 16 1 60 [fakedns::Str "v=spf1 -all"]] \
+        [list example.org 16 1 60 [fakedns::Str "hello "][fakedns::Str world]]]
+} -body {
+    set tok [fakedns::resolve example.org -type TXT]
+    set r {}
+    foreach rr [dns::result $tok] {
+        lappend r [dict get $rr type] [dict get $rr rdata]
+    }
+    list [lindex [fakedns::lastquery] 5] $r
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok r rr
+} -result {16 {TXT {v=spf1 -all} TXT {hello world}}}
+
+test dns-api-3.10 {resolve: -type SOA} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list example.org 6 1 60 \
+             [fakedns::Name ns.example.org][fakedns::Name admin.example.org][binary format IIIII 2026112101 7200 900 1209600 3600]]]
+} -body {
+    set tok [fakedns::resolve example.org -type SOA]
+    list [lindex [fakedns::lastquery] 5] \
+        [dict get [lindex [dns::result $tok] 0] rdata]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {6 {MNAME ns.example.org RNAME admin.example.org SERIAL 2026112101\
+    REFRESH 7200 RETRY 900 EXPIRE 1209600 MINIMUM 3600}}
+
+# ReadULong sign-extends the top byte.
+test dns-api-3.10.1 {resolve: SOA SERIAL and MINIMUM are unsigned} -constraints {
+    knownBug
+} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list example.org 6 1 60 \
+             [fakedns::Name ns.example.org][fakedns::Name admin.example.org][binary format IIIII 0xFFFFFFFE 7200 900 1209600 0x80000000]]]
+} -body {
+    set tok [fakedns::resolve example.org -type SOA]
+    set rdata [dict get [lindex [dns::result $tok] 0] rdata]
+    list [dict get $rdata SERIAL] [dict get $rdata MINIMUM]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok rdata
+} -result {4294967294 2147483648}
+
+test dns-api-3.11 {resolve: -type SRV} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list _ldap._tcp.example.org 33 1 60 \
+             [binary format SSS 10 5 65000][fakedns::Name ldap.example.org]]]
+} -body {
+    set tok [fakedns::resolve _ldap._tcp.example.org -type SRV]
+    list [lindex [fakedns::lastquery] 5] \
+        [dict get [lindex [dns::result $tok] 0] rdata]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {33 {priority 10 weight 5 port 65000 target ldap.example.org}}
+
+test dns-api-3.12 {resolve: result record format} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list @ 1 1 86400 [binary format c4 {192 0 2 1}]]]
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    dns::result $tok
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {{name www.example.org type A class IN ttl 86400 rdlength 4 rdata 192.0.2.1}}
+
+test dns-api-3.13 {resolve: no answer records} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [dns::status $tok] [dns::result $tok] [dns::address $tok] \
+        [dns::name $tok] [dns::cname $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {ok {} {} {} {}}
+
+foreach {n type code} {
+    1 A 1  2 NS 2  3 CNAME 5  4 SOA 6  5 PTR 12  6 HINFO 13  7 MX 15
+    8 TXT 16  9 SPF 16  10 AAAA 28  11 SRV 33  12 AXFR 252  13 * 255
+    14 MD 3  15 MF 4  16 MB 7  17 MG 8  18 MR 9  19 NULL 10  20 WKS 11
+    21 MINFO 14  22 MAILB 253  23 MAILA 254
+} {
+    test dns-api-3.14.$n "resolve: -type $type is sent as $code" -setup {
+        fakedns::start
+    } -body {
+        set tok [fakedns::resolve example.org -type $type]
+        lindex [fakedns::lastquery] 5
+    } -cleanup {
+        dns::cleanup $tok
+        fakedns::stop
+        unset tok
+    } -result $code
+}
+
+foreach {n class code} {1 IN 1  2 CS 2  3 CH 3  4 HS 4  5 * 255} {
+    test dns-api-3.15.$n "resolve: -class $class is sent as $code" -setup {
+        fakedns::start
+    } -body {
+        set tok [fakedns::resolve example.org -class $class]
+        lindex [fakedns::lastquery] 6
+    } -cleanup {
+        dns::cleanup $tok
+        fakedns::stop
+        unset tok
+    } -result $code
+}
+
+test dns-api-3.16 {resolve: -recurse 0 clears the RD flag} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve www.example.org -recurse 0]
+    format 0x%04x [lindex [fakedns::lastquery] 1]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result 0x0000
+
+test dns-api-3.17 {resolve: -recurse 1 sets the RD flag} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve www.example.org -recurse 1]
+    format 0x%04x [lindex [fakedns::lastquery] 1]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result 0x0100
+
+test dns-api-3.18 {resolve: trailing dot in the query} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve www.example.org.]
+    lindex [fakedns::lastquery] 4
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result www.example.org
+
+test dns-api-3.19 {resolve: -server and -search are accepted} -setup {
+    fakedns::start
+} -body {
+    set tok [dns::resolve www.example.org -server 127.0.0.1 \
+                 -port $fakedns::port -protocol tcp -timeout 5000 \
+                 -search {example.org}]
+    list [dns::status $tok] [lindex [fakedns::lastquery] 4]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {ok www.example.org}
+
+test dns-api-3.20 {resolve: defaults from configure are used} -setup {
+    saveconf
+    fakedns::start
+    dns::configure -nameserver 127.0.0.1 -port $fakedns::port \
+        -protocol tcp -timeout 5000
+    set fakedns::records [list \
+        [list @ 1 1 60 [binary format c4 {192 0 2 3}]]]
+} -body {
+    set tok [dns::resolve www.example.org]
+    list [dns::status $tok] [dns::address $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    restoreconf
+    unset tok
+} -result {ok 192.0.2.3}
+
+test dns-api-3.21 {resolve: reply split over several reads} -setup {
+    fakedns::start
+    set fakedns::mode split
+    set fakedns::records [list \
+        [list www.example.org 1 1 60 [binary format c4 {192 0 2 9}]]]
+    # silence the spurious id error, see dns-api-3.22
+    proc logcapture {text} {}
+    ${::dns::log}::logproc error logcapture
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [dns::status $tok] [dns::address $tok]
+} -cleanup {
+    ${::dns::log}::logproc error ${::dns::log}::errorcmd
+    rename logcapture {}
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {ok 192.0.2.9}
+
+# The id check after a partial read uses the wrong data, ticket [187a6fa7ae].
+test dns-api-3.22 {resolve: no spurious error for a reply split over reads} -constraints {
+    knownBug
+} -setup {
+    fakedns::start
+    set fakedns::mode split
+    set fakedns::records [list \
+        [list www.example.org 1 1 60 [binary format c4 {192 0 2 9}]]]
+    set logged {}
+    proc logcapture {text} {lappend ::logged $text}
+    ${::dns::log}::logproc error logcapture
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [dns::status $tok] $logged
+} -cleanup {
+    ${::dns::log}::logproc error ${::dns::log}::errorcmd
+    rename logcapture {}
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok logged
+} -result {ok {}}
+
+# -------------------------------------------------------------------------
+# Reverse lookups
+# -------------------------------------------------------------------------
+
+test dns-api-4.1 {resolve: IPv4 address does a PTR lookup} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list @ 12 1 60 [fakedns::Name host.example.org]]]
+} -body {
+    set tok [fakedns::resolve 192.0.2.1]
+    lassign [fakedns::lastquery] id flags qd ns name type class
+    list $name $type [dns::name $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok id flags qd ns name type class
+} -result {1.2.0.192.in-addr.arpa 12 host.example.org}
+
+test dns-api-4.2 {resolve: IPv6 address does a PTR lookup} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list @ 12 1 60 [fakedns::Name host6.example.org]]]
+} -body {
+    set tok [fakedns::resolve 2001:db8::1]
+    lassign [fakedns::lastquery] id flags qd ns name type class
+    list $name $type [dns::name $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok id flags qd ns name type class
+} -result [list [join [split [string reverse \
+    20010db8000000000000000000000001] ""] .].ip6.arpa 12 host6.example.org]
+
+# -------------------------------------------------------------------------
+# DNS URIs as queries
+# -------------------------------------------------------------------------
+
+test dns-api-5.1 {resolve: dns: URI with type and class} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve "dns:example.org?type=MX;class=CH"]
+    lrange [fakedns::lastquery] 4 6
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {example.org 15 3}
+
+test dns-api-5.2 {resolve: dns: URI with nameserver and port} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list @ 1 1 60 [binary format c4 {192 0 2 4}]]]
+} -body {
+    set tok [dns::resolve "dns://127.0.0.1:$fakedns::port/www.example.org" \
+                 -protocol tcp -timeout 5000]
+    list [dns::status $tok] [dns::address $tok] \
+        [lindex [fakedns::lastquery] 4]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {ok 192.0.2.4 www.example.org}
+
+test dns-api-5.3 {resolve: options override the URI} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve "dns:example.org?type=MX" -type NS]
+    lrange [fakedns::lastquery] 4 5
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {example.org 2}
+
+# -------------------------------------------------------------------------
+# Failures
+# -------------------------------------------------------------------------
+
+foreach {n rcode msg} {
+    1 1 {Format error - unable to interpret the query.}
+    2 2 {Server failure - internal server error.}
+    3 3 {Name Error - domain does not exist}
+    4 4 {Not implemented - the query type is not available.}
+    5 5 {Refused - your request has been refused by the server.}
+} {
+    test dns-api-6.1.$n "resolve: server returns rcode $rcode" -setup {
+        fakedns::start
+        set fakedns::rcode $rcode
+    } -body {
+        set tok [fakedns::resolve nx.example.org]
+        list [dns::status $tok] [dns::error $tok] [dns::errorcode $tok]
+    } -cleanup {
+        dns::cleanup $tok
+        fakedns::stop
+        unset tok
+    } -result [list error $msg $rcode]
+}
+
+# Receive refers to an undefined variable for unknown rcodes.
+test dns-api-6.2 {resolve: server returns an unknown rcode} -constraints {
+    knownBug
+} -setup {
+    fakedns::start
+    set fakedns::rcode 9
+} -body {
+    set tok [fakedns::resolve nx.example.org]
+    list [dns::status $tok] [dns::error $tok] [dns::errorcode $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {error {unrecognised error code: 9} 9}
+
+# Reading 0 bytes before eof fails on state(size), ticket [187a6fa7ae].
+test dns-api-6.3 {resolve: server closes the connection} -constraints {
+    knownBug
+} -setup {
+    fakedns::start
+    set fakedns::mode close
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    list [dns::status $tok] [dns::error $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {eof {}}
+
+test dns-api-6.4 {resolve: timeout} -setup {
+    fakedns::start
+    set fakedns::mode silent
+} -body {
+    set tok [fakedns::resolve www.example.org -timeout 100]
+    list [dns::status $tok] [dns::error $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {timeout {operation timed out}}
+
+test dns-api-6.5 {resolve: connection refused} -setup {
+    # get a free port and close it again
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+} -body {
+    set tok [dns::resolve www.example.org -nameserver 127.0.0.1 -port $p \
+                 -protocol tcp -timeout 5000]
+    list [dns::status $tok] [dns::error $tok]
+} -cleanup {
+    dns::cleanup $tok
+    unset tok s p
+} -result {error {can't connect to server}}
+
+# -------------------------------------------------------------------------
+# Asynchronous use: -command, wait, reset, cleanup
+# -------------------------------------------------------------------------
+
+test dns-api-7.1 {resolve: -command is called with the token} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list @ 1 1 60 [binary format c4 {192 0 2 5}]]]
+    set done {}
+} -body {
+    set tok [fakedns::resolve www.example.org -command {lappend ::done}]
+    set before $done
+    fakedns::waitfor ::done
+    list $before [expr {$done eq $tok}] [dns::status $tok] \
+        [dns::address $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok done before
+} -result {{} 1 ok 192.0.2.5}
+
+test dns-api-7.2 {wait: waits for an asynchronous request} -setup {
+    fakedns::start
+    set fakedns::records [list \
+        [list @ 1 1 60 [binary format c4 {192 0 2 6}]]]
+} -body {
+    set tok [fakedns::resolve www.example.org -command list]
+    list [dns::status $tok] [dns::wait $tok] [dns::address $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result {connect ok 192.0.2.6}
+
+test dns-api-7.3 {wait: completed request returns the status} -setup {
+    fakedns::start
+    set fakedns::rcode 3
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    dns::wait $tok
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok
+} -result error
+
+test dns-api-7.4 {resolve: -command error sets status error} -setup {
+    fakedns::start
+    proc failcmd {tok} {set ::done $tok; error "callback failed"}
+    set done {}
+} -body {
+    set tok [fakedns::resolve www.example.org -command failcmd]
+    fakedns::waitfor ::done
+    list [dns::status $tok] [lindex [dns::error $tok] 0]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    rename failcmd {}
+    unset tok done
+} -result {error {callback failed}}
+
+test dns-api-7.5 {reset: cancels a pending request} -setup {
+    fakedns::start
+    set fakedns::mode silent
+    set done {}
+} -body {
+    set tok [fakedns::resolve www.example.org -command {lappend ::done}]
+    dns::reset $tok
+    list [expr {$done eq $tok}] [dns::status $tok] [dns::error $tok] \
+        [dns::wait $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok done
+} -result {1 reset {} reset}
+
+test dns-api-7.6 {resolve: -command with timeout} -setup {
+    fakedns::start
+    set fakedns::mode silent
+    set done {}
+} -body {
+    set tok [fakedns::resolve www.example.org -timeout 50 \
+                 -command {lappend ::done}]
+    fakedns::waitfor ::done
+    list [expr {$done eq $tok}] [dns::status $tok] [dns::error $tok]
+} -cleanup {
+    dns::cleanup $tok
+    fakedns::stop
+    unset tok done
+} -result {1 timeout {operation timed out}}
+
+test dns-api-7.7 {cleanup: removes the state} -setup {
+    fakedns::start
+} -body {
+    set tok [fakedns::resolve www.example.org]
+    dns::cleanup $tok
+    info exists $tok
+} -cleanup {
+    fakedns::stop
+    unset tok
+} -result 0
+
+test dns-api-7.8 {cleanup: unknown token is ignored} -body {
+    dns::cleanup ::dns::nosuchtoken
+} -result {}
+
+test dns-api-7.9 {cleanup: pending request is cancelled} -setup {
+    fakedns::start
+    set fakedns::mode silent
+    set done {}
+} -body {
+    set tok [fakedns::resolve www.example.org -timeout 50 \
+                 -command {lappend ::done}]
+    dns::cleanup $tok
+    # let the (cancelled) timeout pass
+    set id [after 100 {set ::done finished}]
+    vwait ::done
+    list $done [info exists $tok]
+} -cleanup {
+    after cancel $id
+    fakedns::stop
+    unset tok done id
+} -result {finished 0}
+
+test dns-api-7.10 {tokens are unique} -setup {
+    fakedns::start
+} -body {
+    set t1 [fakedns::resolve www.example.org]
+    set t2 [fakedns::resolve www.example.org]
+    expr {$t1 ne $t2}
+} -cleanup {
+    dns::cleanup $t1
+    dns::cleanup $t2
+    fakedns::stop
+    unset t1 t2
+} -result 1
+
+# -------------------------------------------------------------------------
+# Accessors: wrong # args
+# -------------------------------------------------------------------------
+
+foreach {n cmd} {1 name 2 address 3 cname 4 status 5 error 6 reset 7 wait
+    8 cleanup 9 errorcode} {
+    test dns-api-8.$n "$cmd: wrong # args" -body {
+        dns::$cmd
+    } -returnCodes error -match glob -result "wrong # args: should be \"dns::$cmd token*\""
+}
+
+test dns-api-8.10 {result: wrong # args} -body {
+    dns::result
+} -returnCodes error -result {wrong # args: should be "dns::result token ?arg ...?"}
+
+test dns-api-8.11 {nameservers: wrong # args} -body {
+    dns::nameservers x
+} -returnCodes error -result {wrong # args: should be "dns::nameservers"}
+
+# -------------------------------------------------------------------------
+# dns::nameservers
+# -------------------------------------------------------------------------
+
+test dns-api-9.1 {nameservers: returns a non-empty list} -constraints {
+    unix
+} -body {
+    expr {[llength [dns::nameservers]] > 0}
+} -result 1
+
+# -------------------------------------------------------------------------
+rename saveconf {}
+rename restoreconf {}
+namespace delete fakedns
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

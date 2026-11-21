@@ -9,7 +9,7 @@
 #   GPX 1.0 => http://www.topografix.com/gpx_manual.asp
 #
 # code reference:
-#   http://wiki.tcl.tk/26635
+#   https://wiki.tcl-lang.org/26635
 
 # API
 #  set token [::gpx::Create gpxFilename]

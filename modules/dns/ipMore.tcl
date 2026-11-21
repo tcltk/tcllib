@@ -64,7 +64,7 @@ namespace eval ::ip {
 
 if {![llength [info commands lassign]]} {
     # Either an older tcl version, or tclx not loaded; have to use our
-    # internal lassign from http://wiki.tcl.tk/1530 by Schelte Bron
+    # internal lassign from https://wiki.tcl-lang.org/1530 by Schelte Bron
 
     proc ::ip::lassign {values args} {
         uplevel 1 [list foreach $args $values break]
