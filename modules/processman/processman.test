@@ -1,0 +1,410 @@
+# -*- tcl -*-
+# processman.test:  Tests for the processman package.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+#
+# The tests start and kill child processes of their own only (sleep
+# and a uniquely named copy of it).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use coroutine/coroutine.tcl coroutine ::coroutine::util
+    use dicttool/dicttool.tcl   dicttool
+    use cron/cron.tcl           cron
+    use try/fhome.tcl           file::home ::file::home
+}
+testing {
+    useLocal processman.tcl processman
+}
+
+# -------------------------------------------------------------------------
+## Constraints and helpers
+
+set sleepexe [auto_execok sleep]
+tcltest::testConstraint sleep [expr {
+    $tcl_platform(platform) eq "unix" && [llength $sleepexe] == 1
+}]
+tcltest::testConstraint ps [expr {
+    $tcl_platform(platform) eq "unix" && [llength [auto_execok ps]]
+}]
+tcltest::testConstraint killall [llength [auto_execok killall]]
+tcltest::testConstraint renice [llength [auto_execok renice]]
+# Raising the nice value to 10 works only if it is not above 10 already.
+tcltest::testConstraint niceLE10 [expr {
+    ![catch {exec ps -o ni= -p [pid]} ni] && [string trim $ni] <= 10
+}]
+unset -nocomplain ni
+
+# Wait (bounded) until process PID is gone. Returns 1 if gone.
+proc waitgone {pid} {
+    for {set i 0} {$i < 100} {incr i} {
+	if {![::processman::subprocess_exists $pid]} { return 1 }
+	after 50
+    }
+    return 0
+}
+
+# Kill all processes started by a test and reset the tables.
+proc cleanupProcs {args} {
+    foreach pid $args {
+	catch {exec kill -9 $pid}
+	waitgone $pid
+    }
+    set ::processman::process_list {}
+    set ::processman::process_binding {}
+}
+
+# -------------------------------------------------------------------------
+## process_list, running
+
+test processman-1.0 {process_list, wrong # args} -body {
+    ::processman::process_list x
+} -returnCodes error -result {wrong # args: should be "::processman::process_list"}
+
+test processman-1.1 {process_list, nothing spawned} -setup {
+    cleanupProcs
+} -body {
+    ::processman::process_list
+} -result [list self [pid]]
+
+test processman-1.2 {running, self} -body {
+    ::processman::running self
+} -result [pid]
+
+test processman-1.3 {running, unknown id} -setup {
+    cleanupProcs
+} -body {
+    ::processman::running nosuchid
+} -result 0
+
+test processman-1.4 {running, wrong # args} -body {
+    ::processman::running
+} -returnCodes error -result {wrong # args: should be "::processman::running id"}
+
+# -------------------------------------------------------------------------
+## spawn
+
+test processman-2.0 {spawn, wrong # args} -body {
+    ::processman::spawn x
+} -returnCodes error -result {wrong # args: should be "::processman::spawn id command ?arg ...?"}
+
+test processman-2.1 {spawn, returns the pid of a running process} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    list [string is integer -strict $p] [::processman::subprocess_exists $p] \
+	[::processman::running sleeper] [::processman::running $p]
+} -cleanup {
+    cleanupProcs $p
+    unset p
+} -match glob -result {1 [1-9]* [1-9]* [1-9]*}
+
+test processman-2.2 {spawn, listed by process_list} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    set l [::processman::process_list]
+    list [expr {[lrange $l 0 3] eq [list self [pid] sleeper $p]}] \
+	[expr {!![lindex $l 4]}] [llength $l]
+} -cleanup {
+    cleanupProcs $p
+    unset p l
+} -result {1 1 5}
+
+test processman-2.3 {spawn, several processes with the same id} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p1 [::processman::spawn sleeper $sleepexe 30]
+    set p2 [::processman::spawn sleeper $sleepexe 30]
+    list [expr {[dict get $::processman::process_list sleeper] eq [list $p1 $p2]}] \
+	[llength [::processman::process_list]]
+} -cleanup {
+    cleanupProcs $p1 $p2
+    unset p1 p2
+} -result {1 8}
+
+test processman-2.4 {spawn, command given as a one-element list} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper [list $sleepexe] 30]
+    expr {[::processman::running sleeper] == $p}
+} -cleanup {
+    cleanupProcs $p
+    unset p
+} -result 1
+
+test processman-2.5 {spawn, nonexistent command} -setup {
+    cleanupProcs
+} -body {
+    ::processman::spawn bad /nonexistent/command/for/processman
+} -returnCodes error -match glob -result {couldn't execute "/nonexistent/command/for/processman"*}
+
+test processman-2.6 {running, after the process exited} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 0]
+    list [waitgone $p] [::processman::running sleeper] [::processman::running $p]
+} -cleanup {
+    cleanupProcs
+    unset p
+} -result {1 0 0}
+
+# -------------------------------------------------------------------------
+## kill, kill_all
+
+test processman-3.0 {kill, wrong # args} -body {
+    ::processman::kill
+} -returnCodes error -result {wrong # args: should be "::processman::kill id"}
+
+test processman-3.1 {kill, by id} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    ::processman::kill sleeper
+    list [waitgone $p] [::processman::running sleeper] \
+	[dict get $::processman::process_list sleeper]
+} -cleanup {
+    cleanupProcs $p
+    unset p
+} -result {1 0 {}}
+
+test processman-3.2 {kill, by pid} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    ::processman::kill $p
+    waitgone $p
+} -cleanup {
+    cleanupProcs $p
+    unset p
+} -result 1
+
+test processman-3.3 {kill, all processes of an id} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p1 [::processman::spawn sleeper $sleepexe 30]
+    set p2 [::processman::spawn sleeper $sleepexe 30]
+    ::processman::kill sleeper
+    list [waitgone $p1] [waitgone $p2]
+} -cleanup {
+    cleanupProcs $p1 $p2
+    unset p1 p2
+} -result {1 1}
+
+test processman-3.4 {kill, unknown id is harmless} -setup {
+    cleanupProcs
+} -body {
+    ::processman::kill nosuchid
+    ::processman::running nosuchid
+} -cleanup {
+    cleanupProcs
+} -result 0
+
+test processman-3.5 {kill, removes the onexit binding} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    ::processman::onexit sleeper {set ::fired 1}
+    ::processman::kill sleeper
+    dict exists $::processman::process_binding sleeper
+} -cleanup {
+    cleanupProcs $p
+    unset p
+} -result 0
+
+test processman-3.6 {kill_all} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p1 [::processman::spawn one $sleepexe 30]
+    set p2 [::processman::spawn two $sleepexe 30]
+    ::processman::kill_all
+    list [waitgone $p1] [waitgone $p2] \
+	[::processman::running one] [::processman::running two]
+} -cleanup {
+    cleanupProcs $p1 $p2
+    unset p1 p2
+} -result {1 1 0 0}
+
+test processman-3.7 {kill_all, wrong # args} -body {
+    ::processman::kill_all x
+} -returnCodes error -result {wrong # args: should be "::processman::kill_all"}
+
+test processman-3.8 {kill_all, nothing spawned} -setup {
+    cleanupProcs
+} -body {
+    ::processman::kill_all
+} -result {}
+
+# -------------------------------------------------------------------------
+## onexit
+
+test processman-4.0 {onexit, wrong # args} -body {
+    ::processman::onexit x
+} -returnCodes error -result {wrong # args: should be "::processman::onexit id cmd"}
+
+test processman-4.1 {onexit, process not running, script runs at once} -setup {
+    cleanupProcs
+    unset -nocomplain ::fired
+} -body {
+    ::processman::onexit nosuchid {set ::fired yes}
+    set ::fired
+} -cleanup {
+    unset -nocomplain ::fired
+} -result yes
+
+test processman-4.2 {onexit, script runs when the process is detected as gone} -constraints {sleep ps} -setup {
+    cleanupProcs
+    unset -nocomplain ::fired
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    ::processman::onexit sleeper {set ::fired yes}
+    set res [list [info exists ::fired]]
+    ::processman::events
+    lappend res [info exists ::fired]
+    exec kill $p
+    waitgone $p
+    ::processman::events
+    lappend res $::fired [dict exists $::processman::process_binding sleeper]
+} -cleanup {
+    cleanupProcs $p
+    unset -nocomplain ::fired p res
+} -result {0 0 yes 0}
+
+test processman-4.3 {onexit, errors in the script are ignored} -setup {
+    cleanupProcs
+} -body {
+    ::processman::onexit nosuchid {error boom}
+} -result {}
+
+test processman-4.4 {onexit, periodic check registered with cron} -body {
+    ::cron::task exists processman
+} -result 1
+
+# -------------------------------------------------------------------------
+## priority
+
+test processman-5.0 {priority, wrong # args} -body {
+    ::processman::priority x
+} -returnCodes error -result {wrong # args: should be "::processman::priority id level"}
+
+test processman-5.1 {priority, low} -constraints {sleep ps renice niceLE10} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    ::processman::priority sleeper low
+    string trim [exec ps -o ni= -p $p]
+} -cleanup {
+    cleanupProcs $p
+    unset p
+} -result 10
+
+test processman-5.2 {priority, by pid} -constraints {sleep ps renice niceLE10} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 30]
+    ::processman::priority $p low
+    string trim [exec ps -o ni= -p $p]
+} -cleanup {
+    cleanupProcs $p
+    unset p
+} -result 10
+
+test processman-5.3 {priority, unknown id is harmless} -setup {
+    cleanupProcs
+} -body {
+    ::processman::priority nosuchid low
+} -result {}
+
+# -------------------------------------------------------------------------
+## killexe
+
+test processman-6.0 {killexe, wrong # args} -body {
+    ::processman::killexe
+} -returnCodes error -result {wrong # args: should be "::processman::killexe name"}
+
+test processman-6.1 {killexe, kills processes by executable name} -constraints {unix ps killall} -setup {
+    cleanupProcs
+    # A uniquely named script, so that no other process is hit. The
+    # kernel names a process started from a script after the script.
+    set name pmt[pid]
+    set exe [tcltest::makeFile "#![info nameofexecutable]\nafter 30000" $name]
+    file attributes $exe -permissions 0755
+} -body {
+    set p [::processman::spawn victim $exe]
+    # Wait until the script runs under its own name.
+    for {set i 0} {$i < 100} {incr i} {
+	if {![catch {exec ps -o comm= -p $p} comm] && [string trim $comm] eq $name} break
+	after 50
+    }
+    ::processman::killexe $name
+    waitgone $p
+} -cleanup {
+    cleanupProcs $p
+    tcltest::removeFile $name
+    unset -nocomplain p name exe i comm
+} -result 1
+
+# -------------------------------------------------------------------------
+## find_exe
+
+test processman-7.0 {find_exe, wrong # args} -body {
+    ::processman::find_exe
+} -returnCodes error -result {wrong # args: should be "::processman::find_exe name"}
+
+test processman-7.1 {find_exe, not found} -body {
+    ::processman::find_exe nosuchexecutable[pid]
+} -returnCodes error -result "Cannot find the nosuchexecutable[pid] executable"
+
+test processman-7.2 {find_exe, executable in the current directory} -constraints unix -setup {
+    set dir [tcltest::makeDirectory pmfind]
+    set exe [tcltest::makeFile {} pmexe $dir]
+    file attributes $exe -permissions 0755
+    set cwd [pwd]
+    cd $dir
+} -body {
+    file tail [::processman::find_exe pmexe]
+} -cleanup {
+    cd $cwd
+    tcltest::removeDirectory pmfind
+    unset dir exe cwd
+} -result pmexe
+
+# The executable is not searched in the system path, as documented.
+test processman-7.3 {find_exe, executable in the system path} -constraints {unix knownBug} -body {
+    file tail [::processman::find_exe sh]
+} -result sh
+
+# -------------------------------------------------------------------------
+## subprocess_exists (fallback implementation)
+
+test processman-8.0 {subprocess_exists, own process} -constraints ps -body {
+    ::processman::subprocess_exists [pid]
+} -result [pid]
+
+test processman-8.1 {subprocess_exists, nonexistent process} -constraints {sleep ps} -setup {
+    cleanupProcs
+} -body {
+    set p [::processman::spawn sleeper $sleepexe 0]
+    waitgone $p
+    ::processman::subprocess_exists $p
+} -cleanup {
+    cleanupProcs
+    unset p
+} -result 0
+
+# -------------------------------------------------------------------------
+cleanupProcs
+rename waitgone {}
+rename cleanupProcs {}
+unset sleepexe
+testsuiteCleanup
+return
