@@ -1,0 +1,355 @@
+# defer-api.test - additional tests for the defer package
+# -*- tcl -*-
+#
+# defer.test covers the basic use of each command, LIFO order and the
+# argument checks. This file adds error/return exits, value capture,
+# arrays, identifiers and cancel details.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+testing {
+	useLocal defer.tcl defer
+}
+
+# -------------------------------------------------------------------------
+# defer::defer
+
+test defer-api-1.0 {defer::defer runs when the scope ends with an error} -setup {
+	set ::deferLog {}
+} -body {
+	set code [catch {
+		apply {{} {
+			defer::defer lappend ::deferLog cleanup
+			error oops
+		}}
+	} msg]
+	list $code $msg $::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog code msg
+} -result {1 oops cleanup}
+
+test defer-api-1.1 {defer::defer runs on explicit return} -setup {
+	set ::deferLog {}
+} -body {
+	set r [apply {{} {
+		defer::defer lappend ::deferLog cleanup
+		return value
+		lappend ::deferLog notreached
+	}}]
+	list $r $::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog r
+} -result {value cleanup}
+
+test defer-api-1.2 {defer::defer runs after the body, not immediately} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		defer::defer lappend ::deferLog deferred
+		lappend ::deferLog body
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {body deferred}
+
+test defer-api-1.3 {defer::defer in a proc} -setup {
+	set ::deferLog {}
+	proc deferTestProc {} {
+		defer::defer lappend ::deferLog proc
+		lappend ::deferLog body
+	}
+} -body {
+	deferTestProc
+	deferTestProc
+	set ::deferLog
+} -cleanup {
+	rename deferTestProc {}
+	unset -nocomplain ::deferLog
+} -result {body proc body proc}
+
+test defer-api-1.4 {defer::defer, inner scope runs before outer} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		defer::defer lappend ::deferLog outer
+		apply {{} {
+			defer::defer lappend ::deferLog inner
+		}}
+		lappend ::deferLog between
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {inner between outer}
+
+test defer-api-1.5 {defer::defer in a loop runs all at scope end, LIFO} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		foreach i {1 2 3} {
+			defer::defer lappend ::deferLog $i
+		}
+		lappend ::deferLog end
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {end 3 2 1}
+
+test defer-api-1.6 {defer::defer returns an identifier} -body {
+	apply {{} {
+		set a [defer::defer set x 1]
+		set b [defer::defer set x 2]
+		list [expr {$a ne ""}] [expr {$a ne $b}]
+	}}
+} -result {1 1}
+
+test defer-api-1.7 {defer::defer, argument values are taken at defer time} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set v first
+		defer::defer lappend ::deferLog $v
+		set v second
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {first}
+
+# -------------------------------------------------------------------------
+# defer::with
+
+test defer-api-2.0 {defer::with copies the value at defer time} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set v first
+		defer::with v {
+			lappend ::deferLog $v
+		}
+		set v second
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {first}
+
+test defer-api-2.1 {defer::with several variables} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set a 1
+		set b {two words}
+		defer::with {a b} {
+			lappend ::deferLog $a $b
+		}
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {1 {two words}}
+
+test defer-api-2.2 {defer::with copies arrays} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		array set arr {k1 v1 k2 v2}
+		defer::with arr {
+			lappend ::deferLog [array exists arr] $arr(k1) $arr(k2)
+		}
+		unset arr
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {1 v1 v2}
+
+test defer-api-2.3 {defer::with, nonexistent variable is skipped} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		defer::with nosuchvar {
+			lappend ::deferLog [info exists nosuchvar]
+		}
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {0}
+
+test defer-api-2.4 {defer::with, variables not listed are not visible} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set a 1
+		set b 2
+		defer::with a {
+			lappend ::deferLog [info exists a] [info exists b]
+		}
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {1 0}
+
+test defer-api-2.5 {defer::with, empty variable list} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		defer::with {} {
+			lappend ::deferLog ran
+		}
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {ran}
+
+test defer-api-2.6 {defer::with runs on error exit} -setup {
+	set ::deferLog {}
+} -body {
+	catch {
+		apply {{} {
+			set v x
+			defer::with v {lappend ::deferLog $v}
+			error oops
+		}}
+	}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {x}
+
+test defer-api-2.7 {defer::with from the global scope fails} -body {
+	defer::with {} {set x 1}
+} -returnCodes error -result {defer may not be used from the global scope}
+
+test defer-api-2.8 {defer::with returns an identifier usable by cancel} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set id [defer::with {} {lappend ::deferLog no}]
+		defer::cancel $id
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {}
+
+# -------------------------------------------------------------------------
+# defer::autowith
+
+test defer-api-3.0 {defer::autowith copies all local variables} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{p} {
+		set a 1
+		array set arr {k v}
+		defer::autowith {
+			lappend ::deferLog $p $a $arr(k)
+		}
+		set a 2
+	}} param
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {param 1 v}
+
+test defer-api-3.1 {defer::autowith from the global scope fails} -body {
+	defer::autowith {set x 1}
+} -returnCodes error -result {defer may not be used from the global scope}
+
+test defer-api-3.2 {defer::autowith returns an identifier usable by cancel} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set a 1
+		set id [defer::autowith {lappend ::deferLog no}]
+		defer::autowith {lappend ::deferLog yes}
+		defer::cancel $id
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {yes}
+
+# -------------------------------------------------------------------------
+# defer::cancel
+
+test defer-api-4.0 {defer::cancel several identifiers} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set a [defer::defer lappend ::deferLog a]
+		set b [defer::defer lappend ::deferLog b]
+		set c [defer::defer lappend ::deferLog c]
+		defer::cancel $a $c
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {b}
+
+test defer-api-4.1 {defer::cancel returns the empty string} -body {
+	apply {{} {
+		set a [defer::defer set x 1]
+		defer::cancel $a
+	}}
+} -result {}
+
+test defer-api-4.2 {defer::cancel, unknown identifier is ignored} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		defer::defer lappend ::deferLog kept
+		defer::cancel nosuchid
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {kept}
+
+test defer-api-4.3 {defer::cancel twice is harmless} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set a [defer::defer lappend ::deferLog a]
+		defer::defer lappend ::deferLog b
+		defer::cancel $a
+		defer::cancel $a
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {b}
+
+test defer-api-4.4 {defer::cancel affects only the current scope} -setup {
+	set ::deferLog {}
+} -body {
+	apply {{} {
+		set a [defer::defer lappend ::deferLog outer]
+		apply {{id} {
+			defer::defer lappend ::deferLog inner
+			defer::cancel $id
+		}} $a
+	}}
+	set ::deferLog
+} -cleanup {
+	unset -nocomplain ::deferLog
+} -result {inner outer}
+
+test defer-api-4.5 {defer::cancel from the global scope is a no-op} -body {
+	defer::cancel nosuchid
+} -result {}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
