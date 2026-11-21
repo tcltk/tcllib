@@ -1,0 +1,320 @@
+# ident-api.test --                                             -*- tcl -*-
+#
+#	Additional tests for the ident package: ident::query (blocking and
+#	callback modes) against a local fake ident server, and more
+#	response parsing cases. ident.test covers the basic parse cases.
+#
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal ident.tcl ident
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+# -------------------------------------------------------------------------
+
+# A fake ident server runs in a child process (the blocking query does not
+# enter the event loop). It answers each request line with
+# "<request> : <reply>", or with the request itself as the user-id (-echo). ident::query always connects to the "ident"
+# port (113), which cannot be bound by an ordinary user, so a proc
+# ident::socket redirects that connection to the fake server.
+
+set identServerScript {
+    fconfigure stdout -buffering line
+    set reply [lindex $argv 0]
+    proc accept {c a p} {
+	fconfigure $c -translation binary -buffering line
+	fileevent $c readable [list respond $c]
+    }
+    proc respond {c} {
+	if {[gets $c line] < 0} {
+	    close $c
+	    return
+	}
+	if {$::reply eq "-echo"} {
+	    puts $c "$line : USERID : UNIX :$line"
+	} elseif {$::reply ne "-noreply"} {
+	    puts $c "$line : $::reply"
+	}
+	close $c
+    }
+    set s [socket -server accept -myaddr 127.0.0.1 0]
+    puts [lindex [fconfigure $s -sockname] 2]
+    fileevent stdin readable {exit}
+    vwait forever
+}
+
+proc identStart {reply} {
+    set f [file join [::tcltest::temporaryDirectory] identserver.tcl]
+    set fd [open $f w]
+    puts $fd $::identServerScript
+    close $fd
+    set ::identChan [open |[list [info nameofexecutable] $f $reply] r+]
+    set ::identPort [gets $::identChan]
+    proc ::ident::socket {host port} {
+	lappend ::identConnects [list $host $port]
+	::socket $host $::identPort
+    }
+    set ::identConnects {}
+    return
+}
+
+proc identStop {} {
+    rename ::ident::socket {}
+    catch {puts $::identChan x; flush $::identChan}
+    catch {close $::identChan}
+    file delete [file join [::tcltest::temporaryDirectory] identserver.tcl]
+    unset -nocomplain ::identChan ::identPort ::identConnects
+}
+
+# A connected client/server socket pair on 127.0.0.1. The client socket is
+# the one queried.
+proc pairOpen {} {
+    set ::pairServer [socket -server pairAccept -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $::pairServer -sockname] 2]
+    set ::pairClient [socket 127.0.0.1 $port]
+    for {set i 0} {$i < 500 && ![info exists ::pairAccepted]} {incr i} {
+	after 10 {set ::pairTick 1}
+	vwait ::pairTick
+    }
+    return $::pairClient
+}
+proc pairAccept {c a p} {
+    set ::pairAccepted $c
+}
+proc pairClose {} {
+    catch {close $::pairClient}
+    catch {close $::pairAccepted}
+    catch {close $::pairServer}
+    unset -nocomplain ::pairClient ::pairAccepted ::pairServer ::pairTick
+}
+
+# Expected request line for a queried socket: "<peer port>,<local port>".
+proc pairRequest {} {
+    set local [lindex [fconfigure $::pairClient -sockname] 2]
+    set peer  [lindex [fconfigure $::pairClient -peername] 2]
+    return "$peer,$local"
+}
+
+proc waitFor {varname} {
+    for {set i 0} {$i < 500 && ![info exists $varname]} {incr i} {
+	after 10 {set ::identTick 1}
+	vwait ::identTick
+    }
+    unset -nocomplain ::identTick
+}
+
+proc collect {args} {
+    set ::identResult $args
+}
+
+# Whether nothing listens on the real ident port of 127.0.0.1.
+testConstraint noIdentd [expr {[catch {close [socket 127.0.0.1 113]}]}]
+
+# -------------------------------------------------------------------------
+# Tests: ident::query
+# -------------------------------------------------------------------------
+
+test ident-api-1.0 {query, wrong # args (none)} -body {
+    ident::query
+} -returnCodes error -result {wrong # args: should be "ident::query socket ?command?"}
+
+test ident-api-1.1 {query, wrong # args (too many)} -body {
+    ident::query a b c
+} -returnCodes error -result {wrong # args: should be "ident::query socket ?command?"}
+
+test ident-api-1.2 {query, not a channel} -body {
+    ident::query nosuchchannel
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test ident-api-2.0 {query, blocking, USERID response} -setup {
+    identStart {USERID : UNIX :max}
+    pairOpen
+} -body {
+    set r [ident::query $::pairClient]
+    list $r [expr {[lindex $::identConnects 0] eq [list 127.0.0.1 ident]}]
+} -cleanup {
+    pairClose
+    identStop
+    unset -nocomplain r
+} -result {{resp-type USERID opsys UNIX user-id max} 1}
+
+test ident-api-2.1 {query, blocking, request is "<peer port>,<local port>"} -setup {
+    identStart -echo
+    pairOpen
+} -body {
+    set r [ident::query $::pairClient]
+    expr {[dict get $r user-id] eq [pairRequest]}
+} -cleanup {
+    pairClose
+    identStop
+    unset -nocomplain r
+} -result 1
+
+test ident-api-2.2 {query, blocking, ERROR response} -setup {
+    identStart {ERROR : NO-USER}
+    pairOpen
+} -body {
+    ident::query $::pairClient
+} -cleanup {
+    pairClose
+    identStop
+} -result {resp-type ERROR error NO-USER}
+
+test ident-api-2.3 {query, blocking, ERROR response HIDDEN-USER} -setup {
+    identStart {ERROR : HIDDEN-USER}
+    pairOpen
+} -body {
+    ident::query $::pairClient
+} -cleanup {
+    pairClose
+    identStop
+} -result {resp-type ERROR error HIDDEN-USER}
+
+test ident-api-2.4 {query, blocking, malformed response is FATAL} -setup {
+    identStart {GARBAGE}
+    pairOpen
+} -body {
+    set r [ident::query $::pairClient]
+    list [dict keys $r] [dict get $r resp-type] \
+	[string match {Unexpected response:*GARBAGE*} [dict get $r error]]
+} -cleanup {
+    pairClose
+    identStop
+    unset -nocomplain r
+} -result {{resp-type error} FATAL 1}
+
+test ident-api-2.5 {query, blocking, no answer at all is FATAL} -setup {
+    identStart -noreply
+    pairOpen
+} -body {
+    ident::query $::pairClient
+} -cleanup {
+    pairClose
+    identStop
+} -result {resp-type FATAL error {Unexpected response:""}}
+
+test ident-api-2.6 {query, blocking, first key is resp-type} -setup {
+    identStart {USERID : OTHER :someone}
+    pairOpen
+} -body {
+    set r [ident::query $::pairClient]
+    list [lindex $r 0] [dict get $r opsys] [dict get $r user-id]
+} -cleanup {
+    pairClose
+    identStop
+    unset -nocomplain r
+} -result {resp-type OTHER someone}
+
+test ident-api-3.0 {query, callback, returns empty, calls back with result} -setup {
+    identStart {USERID : UNIX :max}
+    pairOpen
+} -body {
+    set r [ident::query $::pairClient collect]
+    waitFor ::identResult
+    list $r $::identResult
+} -cleanup {
+    pairClose
+    identStop
+    unset -nocomplain r ::identResult
+} -result {{} {{resp-type USERID opsys UNIX user-id max}}}
+
+test ident-api-3.1 {query, callback is a command prefix} -setup {
+    identStart {ERROR : UNKNOWN-ERROR}
+    pairOpen
+} -body {
+    ident::query $::pairClient [list collect a b]
+    waitFor ::identResult
+    set ::identResult
+} -cleanup {
+    pairClose
+    identStop
+    unset -nocomplain ::identResult
+} -result {a b {resp-type ERROR error UNKNOWN-ERROR}}
+
+test ident-api-3.2 {query, callback, malformed response is FATAL} -setup {
+    identStart {nonsense}
+    pairOpen
+} -body {
+    ident::query $::pairClient collect
+    waitFor ::identResult
+    set r [lindex $::identResult 0]
+    list [dict get $r resp-type] [string match {Unexpected response:*} [dict get $r error]]
+} -cleanup {
+    pairClose
+    identStop
+    unset -nocomplain ::identResult r
+} -result {FATAL 1}
+
+test ident-api-4.0 {query, blocking, no ident server is FATAL} -constraints {
+    noIdentd
+} -setup {
+    pairOpen
+} -body {
+    set r [ident::query $::pairClient]
+    list [dict keys $r] [dict get $r resp-type]
+} -cleanup {
+    pairClose
+    unset -nocomplain r
+} -result {{resp-type error} FATAL}
+
+test ident-api-4.1 {query, callback, no ident server is FATAL} -constraints {
+    noIdentd
+} -setup {
+    pairOpen
+} -body {
+    set r [ident::query $::pairClient collect]
+    waitFor ::identResult
+    set res [lindex $::identResult 0]
+    list $r [dict keys $res] [dict get $res resp-type]
+} -cleanup {
+    pairClose
+    unset -nocomplain r res ::identResult
+} -result {{} {resp-type error} FATAL}
+
+# -------------------------------------------------------------------------
+# Tests: response parsing (internal ident::parse)
+# -------------------------------------------------------------------------
+
+test ident-api-5.0 {unknown response type is FATAL} -body {
+    ident::parse "1,2 : WHATEVER : x"
+} -result {resp-type FATAL error {Unexpected response:"1,2 : WHATEVER : x"}}
+
+test ident-api-5.1 {USERID without user-id field is FATAL} -body {
+    ident::parse "1,2 : USERID : UNIX"
+} -result {resp-type FATAL error {Unexpected response:"1,2 : USERID : UNIX"}}
+
+test ident-api-5.2 {missing port pair is FATAL} -body {
+    ident::parse "USERID : UNIX : max"
+} -result {resp-type FATAL error {Unexpected response:"USERID : UNIX : max"}}
+
+test ident-api-5.3 {non-numeric ports are FATAL} -body {
+    ident::parse "a,b : USERID : UNIX : max"
+} -result {resp-type FATAL error {Unexpected response:"a,b : USERID : UNIX : max"}}
+
+test ident-api-5.4 {ERROR response, white space removed} -body {
+    ident::parse "1 , 2 : ERROR : INVALID-PORT "
+} -result {resp-type ERROR error INVALID-PORT}
+
+test ident-api-5.5 {USERID with charset, user-id is decoded} -constraints {
+    knownBug
+} -body {
+    # ident::parse stores the decoded user-id in a variable that is never
+    # used, so the raw bytes are returned.
+    ident::parse "1,2 : USERID : UNIX , iso8859-2 :\xb3\xf3d\xbc"
+} -result "resp-type USERID opsys UNIX user-id łódź"
+
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
