@@ -1,0 +1,314 @@
+# -*- tcl -*-
+# ripemd128-api.test: tests for the ripemd128 package, complementing
+# ripemd128.test (which covers the test vectors).
+#
+# Covers binary results, -file and -channel input, the token based
+# programming interface, and argument errors.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal ripemd128.tcl ripemd128 ::ripemd::ripemd128
+}
+
+# -------------------------------------------------------------------------
+
+# file tempfile needs Tcl 8.6.
+tcltest::testConstraint fileTempfile [package vsatisfies [package provide Tcl] 8.6-]
+
+proc hex {s} {
+    binary scan $s H* h
+    return $h
+}
+
+# Creates a temporary file with the given binary contents, returns its name.
+proc mkTemp {data} {
+    set f [file tempfile path]
+    fconfigure $f -translation binary
+    puts -nonewline $f $data
+    close $f
+    return $path
+}
+
+set abc     c14a12199c66e4ba84636b0f69144c77
+set jefe    875f828862b6b334b427c55f9f7ff09b
+set long    [string repeat "\x00\x01\x80\xff0123456789abcdef" 700]
+
+# -------------------------------------------------------------------------
+# ripemd128
+
+test ripemd128-api-1.1 {ripemd128, no arguments} -body {
+    ::ripemd::ripemd128
+} -returnCodes error -result {wrong # args: should be "ripemd128 ?-hex? -filename file | string"}
+
+test ripemd128-api-1.2 {ripemd128, too many strings} -body {
+    ::ripemd::ripemd128 -hex a b
+} -returnCodes error -result {wrong # args: should be "ripemd128 ?-hex? -filename file | string"}
+
+test ripemd128-api-1.3 {ripemd128, unknown option} -body {
+    ::ripemd::ripemd128 -bogus x abc
+} -returnCodes error -result {bad option -bogus: must be one of -channel, -chunksize, -filename, -hex}
+
+test ripemd128-api-1.4 {ripemd128, binary result by default} -body {
+    set r [::ripemd::ripemd128 abc]
+    list [string length $r] [hex $r]
+} -cleanup {
+    unset -nocomplain r
+} -result [list 16 $abc]
+
+test ripemd128-api-1.5 {ripemd128, -hex} -body {
+    ::ripemd::ripemd128 -hex abc
+} -result $abc
+
+test ripemd128-api-1.6 {ripemd128, -hex after other options} -body {
+    ::ripemd::ripemd128 -chunksize 10 -hex -- abc
+} -result $abc
+
+test ripemd128-api-1.8 {ripemd128, -file} -constraints fileTempfile -setup {
+    set path [mkTemp abc]
+} -body {
+    ::ripemd::ripemd128 -hex -file $path
+} -cleanup {
+    file delete $path
+    unset -nocomplain path
+} -result $abc
+
+test ripemd128-api-1.9 {ripemd128, -filename, binary file larger than chunk size} -constraints fileTempfile -setup {
+    set path [mkTemp $long]
+} -body {
+    list [string equal [::ripemd::ripemd128 -hex -filename $path] \
+	      [::ripemd::ripemd128 -hex $long]] \
+	[string equal [::ripemd::ripemd128 -filename $path] \
+	     [::ripemd::ripemd128 $long]] \
+	[string equal [::ripemd::ripemd128 -hex -chunksize 7 -filename $path] \
+	     [::ripemd::ripemd128 -hex $long]]
+} -cleanup {
+    file delete $path
+    unset -nocomplain path
+} -result {1 1 1}
+
+test ripemd128-api-1.10 {ripemd128, -file, empty file} -constraints fileTempfile -setup {
+    set path [mkTemp ""]
+} -body {
+    string equal [::ripemd::ripemd128 -hex -file $path] [::ripemd::ripemd128 -hex ""]
+} -cleanup {
+    file delete $path
+    unset -nocomplain path
+} -result 1
+
+test ripemd128-api-1.11 {ripemd128, -file, no such file} -body {
+    ::ripemd::ripemd128 -file [file join [tcltest::temporaryDirectory] no-such-ripemd-file]
+} -returnCodes error -match glob -result {couldn't open "*no-such-ripemd-file": no such file or directory}
+
+test ripemd128-api-1.12 {ripemd128, -channel, channel is not closed} -constraints fileTempfile -setup {
+    set path [mkTemp $long]
+    set chan [open $path rb]
+} -body {
+    set r [::ripemd::ripemd128 -hex -channel $chan]
+    list [string equal $r [::ripemd::ripemd128 -hex $long]] \
+	[expr {$chan in [file channels]}] [eof $chan]
+} -cleanup {
+    close $chan
+    file delete $path
+    unset -nocomplain path chan r
+} -result {1 1 1}
+
+test ripemd128-api-1.13 {ripemd128, -channel, reads from current position} -constraints fileTempfile -setup {
+    set path [mkTemp xyzabc]
+    set chan [open $path rb]
+    read $chan 3
+} -body {
+    ::ripemd::ripemd128 -hex -channel $chan
+} -cleanup {
+    close $chan
+    file delete $path
+    unset -nocomplain path chan
+} -result $abc
+
+# -------------------------------------------------------------------------
+# hmac128
+
+test ripemd128-api-2.1 {hmac128, no -key} -body {
+    ::ripemd::hmac128 abc
+} -returnCodes error -result {wrong # args: should be "hmac128 ?-hex? -key key -filename file | string"}
+
+test ripemd128-api-2.2 {hmac128, no data} -body {
+    ::ripemd::hmac128 -key k
+} -returnCodes error -result {wrong # args: should be "hmac128 ?-hex? -key key -filename file | string"}
+
+test ripemd128-api-2.3 {hmac128, too many strings} -body {
+    ::ripemd::hmac128 -key k a b
+} -returnCodes error -result {wrong # args: should be "hmac128 ?-hex? -key key -filename file | string"}
+
+test ripemd128-api-2.4 {hmac128, unknown option} -body {
+    ::ripemd::hmac128 -key k -bogus x abc
+} -returnCodes error -result {bad option -bogus: must be one of -channel, -chunksize, -filename, -hex, -key}
+
+test ripemd128-api-2.5 {hmac128, binary result by default} -body {
+    set r [::ripemd::hmac128 -key Jefe "what do ya want for nothing?"]
+    list [string length $r] [hex $r]
+} -cleanup {
+    unset -nocomplain r
+} -result [list 16 $jefe]
+
+test ripemd128-api-2.6 {hmac128, option order} -body {
+    ::ripemd::hmac128 -hex -key Jefe -- "what do ya want for nothing?"
+} -result $jefe
+
+test ripemd128-api-2.7 {hmac128, -file} -constraints fileTempfile -setup {
+    set path [mkTemp "what do ya want for nothing?"]
+} -body {
+    ::ripemd::hmac128 -hex -key Jefe -file $path
+} -cleanup {
+    file delete $path
+    unset -nocomplain path
+} -result $jefe
+
+test ripemd128-api-2.8 {hmac128, -channel, channel is not closed} -constraints fileTempfile -setup {
+    set path [mkTemp $long]
+    set chan [open $path rb]
+} -body {
+    set r [::ripemd::hmac128 -hex -key Jefe -channel $chan]
+    list [string equal $r [::ripemd::hmac128 -hex -key Jefe $long]] \
+	[expr {$chan in [file channels]}]
+} -cleanup {
+    close $chan
+    file delete $path
+    unset -nocomplain path chan r
+} -result {1 1}
+
+test ripemd128-api-2.9 {hmac128, short keys are padded with zero bytes} -body {
+    list [string equal [::ripemd::hmac128 -key "" abc] \
+	      [::ripemd::hmac128 -key [string repeat \0 64] abc]] \
+	[string equal [::ripemd::hmac128 -key k abc] \
+	     [::ripemd::hmac128 -key k\0\0 abc]] \
+	[string equal [::ripemd::hmac128 -key k abc] \
+	     [::ripemd::hmac128 -key K abc]]
+} -result {1 1 0}
+
+# -------------------------------------------------------------------------
+# Programming interface
+
+test ripemd128-api-3.1 {RIPEMD128Init, wrong # args} -body {
+    ::ripemd::RIPEMD128Init x
+} -returnCodes error -result {wrong # args: should be "::ripemd::RIPEMD128Init"}
+
+test ripemd128-api-3.2 {RIPEMD128Update, wrong # args} -body {
+    ::ripemd::RIPEMD128Update x
+} -returnCodes error -result {wrong # args: should be "::ripemd::RIPEMD128Update token data"}
+
+test ripemd128-api-3.3 {RIPEMD128Final, wrong # args} -body {
+    ::ripemd::RIPEMD128Final
+} -returnCodes error -result {wrong # args: should be "::ripemd::RIPEMD128Final token"}
+
+test ripemd128-api-3.4 {Init/Update/Final} -body {
+    set tok [::ripemd::RIPEMD128Init]
+    ::ripemd::RIPEMD128Update $tok abc
+    set r [::ripemd::RIPEMD128Final $tok]
+    list [string length $r] [hex $r]
+} -cleanup {
+    unset -nocomplain tok r
+} -result [list 16 $abc]
+
+test ripemd128-api-3.5 {Update in pieces is equivalent to a single update} -body {
+    set tok [::ripemd::RIPEMD128Init]
+    foreach piece {a b {} c} {
+	::ripemd::RIPEMD128Update $tok $piece
+    }
+    hex [::ripemd::RIPEMD128Final $tok]
+} -cleanup {
+    unset -nocomplain tok piece
+} -result $abc
+
+test ripemd128-api-3.6 {Update in pieces of various sizes, across blocks} -body {
+    set r {}
+    foreach size {1 55 56 63 64 65 1000} {
+	set tok [::ripemd::RIPEMD128Init]
+	for {set i 0} {$i < [string length $long]} {incr i $size} {
+	    ::ripemd::RIPEMD128Update $tok [string range $long $i [expr {$i+$size-1}]]
+	}
+	lappend r [string equal [::ripemd::RIPEMD128Final $tok] [::ripemd::ripemd128 $long]]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r size tok i
+} -result {1 1 1 1 1 1 1}
+
+test ripemd128-api-3.7 {Final with no data} -body {
+    set tok [::ripemd::RIPEMD128Init]
+    string equal [::ripemd::RIPEMD128Final $tok] [::ripemd::ripemd128 ""]
+} -cleanup {
+    unset -nocomplain tok
+} -result 1
+
+test ripemd128-api-3.8 {Final releases the token} -body {
+    set tok [::ripemd::RIPEMD128Init]
+    set before [info exists $tok]
+    ::ripemd::RIPEMD128Final $tok
+    list $before [info exists $tok]
+} -cleanup {
+    unset -nocomplain tok before
+} -result {1 0}
+
+test ripemd128-api-3.9 {Independent tokens} -body {
+    set t1 [::ripemd::RIPEMD128Init]
+    set t2 [::ripemd::RIPEMD128Init]
+    ::ripemd::RIPEMD128Update $t1 ab
+    ::ripemd::RIPEMD128Update $t2 xyz
+    ::ripemd::RIPEMD128Update $t1 c
+    list [expr {$t1 ne $t2}] [hex [::ripemd::RIPEMD128Final $t1]] \
+	[string equal [::ripemd::RIPEMD128Final $t2] [::ripemd::ripemd128 xyz]]
+} -cleanup {
+    unset -nocomplain t1 t2
+} -result [list 1 $abc 1]
+
+test ripemd128-api-3.10 {RIPEHMAC128Init, wrong # args} -body {
+    ::ripemd::RIPEHMAC128Init
+} -returnCodes error -result {wrong # args: should be "::ripemd::RIPEHMAC128Init K"}
+
+test ripemd128-api-3.11 {RIPEHMAC128Update, wrong # args} -body {
+    ::ripemd::RIPEHMAC128Update x
+} -returnCodes error -result {wrong # args: should be "::ripemd::RIPEHMAC128Update token data"}
+
+test ripemd128-api-3.12 {RIPEHMAC128Final, wrong # args} -body {
+    ::ripemd::RIPEHMAC128Final
+} -returnCodes error -result {wrong # args: should be "::ripemd::RIPEHMAC128Final token"}
+
+test ripemd128-api-3.13 {HMAC Init/Update/Final in pieces} -body {
+    set tok [::ripemd::RIPEHMAC128Init Jefe]
+    foreach piece {"what do " "ya want" "" " for nothing?"} {
+	::ripemd::RIPEHMAC128Update $tok $piece
+    }
+    set r [::ripemd::RIPEHMAC128Final $tok]
+    list [string length $r] [hex $r] [info exists $tok]
+} -cleanup {
+    unset -nocomplain tok piece r
+} -result [list 16 $jefe 0]
+
+test ripemd128-api-3.14 {HMAC with key longer than a block} -body {
+    set key [string repeat k 100]
+    set tok [::ripemd::RIPEHMAC128Init $key]
+    ::ripemd::RIPEHMAC128Update $tok $long
+    string equal [::ripemd::RIPEHMAC128Final $tok] [::ripemd::hmac128 -key $key $long]
+} -cleanup {
+    unset -nocomplain key tok
+} -result 1
+
+test ripemd128-api-3.15 {Commands are exported from ::ripemd} -body {
+    lsort [namespace eval ::ripemd {namespace export}]
+} -match glob -result {*RIPEHMAC128Final RIPEHMAC128Init RIPEHMAC128Update RIPEMD128Final RIPEMD128Init RIPEMD128Update*hmac128*ripemd128*}
+
+# -------------------------------------------------------------------------
+
+rename hex {}
+rename mkTemp {}
+unset abc jefe long
+testsuiteCleanup
+return
