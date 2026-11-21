@@ -1,0 +1,1432 @@
+# -*- tcl -*-
+# ftpd-api.test:  tests for the documented API of the ftpd package.
+#
+# The configuration commands and the default file system callback are
+# tested in this process.  The server itself runs in a child process,
+# controlled through its standard input (the tests send it Tcl scripts
+# and read back the results), so that the tests can use simple blocking
+# client sockets for the control and data connections.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+}
+testing {
+    # On Tcl 9 the package does not load, ticket 34a589f660 (see the
+    # test ftpd-0.1).  Make tcl_platform visible in the namespace, so
+    # that the rest of the API can be tested.
+    namespace eval ::ftpd {upvar #0 ::tcl_platform tcl_platform}
+    useLocalKeep ftpd.tcl ftpd
+}
+
+# Never print the log to stderr.
+::ftpd::config -logCmd {apply {args {}}}
+
+testConstraint unix [string equal $tcl_platform(platform) unix]
+
+# -------------------------------------------------------------------------
+# A small tree of files used as the document root.
+
+proc mktree {root} {
+    file delete -force $root
+    file mkdir $root [file join $root sub] [file join $root empty]
+    foreach {name data perm} {
+	a.txt      "hello\n"        0644
+	secret.txt "secret\n"       0600
+	sub/b.txt  "line1\nline2\n" 0644
+	.hidden    "h\n"            0644
+    } {
+	set f [open [file join $root $name] wb]
+	puts -nonewline $f $data
+	close $f
+	catch {file attributes [file join $root $name] -permissions $perm}
+    }
+    return $root
+}
+
+proc readfile {path} {
+    set f [open $path rb]
+    set data [read $f]
+    close $f
+    return $data
+}
+
+set root [file join [temporaryDirectory] ftpdroot]
+
+# Calls the default file system callback with a channel for the
+# messages; returns the result and the messages.
+proc fs {args} {
+    set f [open [file join [temporaryDirectory] ftpdmsg] w+]
+    set code [catch {uplevel 1 [linsert $args 0 ::ftpd::fsFile::fs] $f} res]
+    seek $f 0
+    set msg [read $f]
+    close $f
+    file delete [file join [temporaryDirectory] ftpdmsg]
+    return -code $code [list $res $msg]
+}
+
+# -------------------------------------------------------------------------
+# Loading, variables
+
+test ftpd-0.1 {package loads on Tcl 9, ticket 34a589f660} -constraints {
+    knownBug
+} -setup {
+    set ip [interp create]
+} -body {
+    $ip eval [list source [localPath ftpd.tcl]]
+    $ip eval {package present ftpd}
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -match glob -result {1.*}
+
+test ftpd-0.2 {variables, defaults} -setup {
+    set ip [interp create]
+    $ip eval {namespace eval ::ftpd {upvar #0 ::tcl_platform tcl_platform}}
+    $ip eval [list source [localPath ftpd.tcl]]
+} -body {
+    $ip eval {list $::ftpd::port $::ftpd::cwd $::ftpd::contact $::ftpd::welcome}
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result [list 21 {} "$tcl_platform(user)@[info hostname]" "[info hostname] FTP server ready."]
+
+test ftpd-0.3 {variables are not overwritten when the package is loaded} -setup {
+    set ip [interp create]
+} -body {
+    $ip eval {
+	namespace eval ::ftpd {
+	    upvar #0 ::tcl_platform tcl_platform
+	    variable contact me@example.com
+	    variable welcome Hello
+	    variable cwd sub
+	}
+    }
+    $ip eval [list source [localPath ftpd.tcl]]
+    $ip eval {list $::ftpd::contact $::ftpd::welcome $::ftpd::cwd}
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result {me@example.com Hello sub}
+
+test ftpd-0.4 {namespace exports} -body {
+    lsort [namespace eval ::ftpd {namespace export}]
+} -result {accept anonAuth config fileAuth hasCallback logStderr read server unixAuth}
+
+# -------------------------------------------------------------------------
+# ::ftpd::config / ::ftpd::hasCallback
+
+test ftpd-1.0 {config, no options} -body {
+    ::ftpd::config
+} -result {}
+
+test ftpd-1.1 {config, defaults} -setup {
+    set ip [interp create]
+    $ip eval {namespace eval ::ftpd {upvar #0 ::tcl_platform tcl_platform}}
+    $ip eval [list source [localPath ftpd.tcl]]
+} -body {
+    $ip eval {
+	set res {}
+	foreach o {closeCmd authIpCmd authUsrCmd authFileCmd logCmd fsCmd xferDoneCmd} {
+	    lappend res $o [::ftpd::hasCallback $o]
+	}
+	set res
+    }
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result {closeCmd 0 authIpCmd 0 authUsrCmd 1 authFileCmd 1 logCmd 1 fsCmd 1 xferDoneCmd 0}
+
+test ftpd-1.2 {config, set all callbacks} -setup {
+    set ip [interp create]
+    $ip eval {namespace eval ::ftpd {upvar #0 ::tcl_platform tcl_platform}}
+    $ip eval [list source [tcllibPath cmdline/cmdline.tcl]]
+    $ip eval [list source [localPath ftpd.tcl]]
+} -body {
+    $ip eval {
+	::ftpd::config -closeCmd c1 -authIpCmd c2 -authUsrCmd c3 \
+	    -authFileCmd c4 -logCmd c5 -fsCmd c6 -xferDoneCmd c7
+	set res {}
+	foreach o {closeCmd authIpCmd authUsrCmd authFileCmd logCmd fsCmd xferDoneCmd} {
+	    lappend res [set ::ftpd::cfg($o)] [::ftpd::hasCallback $o]
+	}
+	set res
+    }
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result {c1 1 c2 1 c3 1 c4 1 c5 1 c6 1 c7 1}
+
+test ftpd-1.3 {config, keeps the other callbacks} -setup {
+    set ip [interp create]
+    $ip eval {namespace eval ::ftpd {upvar #0 ::tcl_platform tcl_platform}}
+    $ip eval [list source [tcllibPath cmdline/cmdline.tcl]]
+    $ip eval [list source [localPath ftpd.tcl]]
+} -body {
+    $ip eval {
+	::ftpd::config -closeCmd c1
+	::ftpd::config -logCmd c5
+	::ftpd::config -authIpCmd {}
+	list $::ftpd::cfg(closeCmd) $::ftpd::cfg(logCmd) $::ftpd::cfg(authUsrCmd) \
+	    [::ftpd::hasCallback authIpCmd]
+    }
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result {c1 c5 ::ftpd::anonAuth 0}
+
+test ftpd-1.4 {config, unknown option} -body {
+    ::ftpd::config -foo bar
+} -returnCodes error -match glob -result "* options:\n -closeCmd value *"
+
+test ftpd-1.5 {config, missing value} -body {
+    ::ftpd::config -closeCmd
+} -returnCodes error -match glob -result "* options:\n -closeCmd value *"
+
+test ftpd-1.6 {hasCallback, unknown callback} -body {
+    ::ftpd::hasCallback fooCmd
+} -result 0
+
+# -------------------------------------------------------------------------
+# Authentication callbacks shipped with the package
+
+test ftpd-2.0 {anonAuth} -body {
+    list [::ftpd::anonAuth anonymous joe@example.com] [::ftpd::anonAuth ftp a@b.c] \
+	[::ftpd::anonAuth joe joe@example.com] [::ftpd::anonAuth anonymous joe] \
+	[::ftpd::anonAuth anonymous joe@localhost] [::ftpd::anonAuth anonymous a@b@c.d] \
+	[::ftpd::anonAuth Anonymous joe@example.com]
+} -result {1 1 0 0 0 0 0}
+
+test ftpd-2.1 {fileAuth, read} -constraints unix -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [::ftpd::fileAuth joe a.txt read] [::ftpd::fileAuth joe secret.txt read] \
+	[::ftpd::fileAuth joe missing.txt read]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {1 0 0}
+
+test ftpd-2.2 {fileAuth, write} -constraints unix -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+    file attributes [file join $root sub b.txt] -permissions 0666
+    file attributes [file join $root empty] -permissions 0777
+} -body {
+    list [::ftpd::fileAuth joe a.txt write] [::ftpd::fileAuth joe sub/b.txt write] \
+	[::ftpd::fileAuth joe sub/new.txt write]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {0 1 0}
+
+test ftpd-2.3 {fileAuth, new file in a directory writable by others} -constraints {
+    unix knownBug
+} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+    file attributes [file join $root empty] -permissions 0777
+} -body {
+    ::ftpd::fileAuth joe empty/new.txt write
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::ftpd::fsFile::docRoot and the default file system callback
+
+test ftpd-3.0 {docRoot, set and get} -setup {
+    set old [::ftpd::fsFile::docRoot]
+} -body {
+    list [::ftpd::fsFile::docRoot $root] [::ftpd::fsFile::docRoot]
+} -cleanup {
+    ::ftpd::fsFile::docRoot $old
+    unset old
+} -result [list {} $root]
+
+test ftpd-3.1 {fs exists} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [::ftpd::fsFile::fs exists a.txt] [::ftpd::fsFile::fs exists sub] \
+	[::ftpd::fsFile::fs exists missing] [::ftpd::fsFile::fs exists sub/b.txt]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {1 0 0 1}
+
+test ftpd-3.2 {fs permissions} -constraints unix -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [format %o [expr {[::ftpd::fsFile::fs permissions a.txt] & 0o777}]] \
+	[format %o [expr {[::ftpd::fsFile::fs permissions secret.txt] & 0o777}]]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {644 600}
+
+test ftpd-3.3 {fs retr} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    set f [::ftpd::fsFile::fs retr sub/b.txt binary]
+    set data [read $f]
+    close $f
+    set data
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+    unset f data
+} -result "line1\nline2\n"
+
+test ftpd-3.4 {fs store and append} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    set f [::ftpd::fsFile::fs store new.txt binary]
+    puts -nonewline $f "one\n"
+    close $f
+    set f [::ftpd::fsFile::fs append new.txt binary]
+    puts -nonewline $f "two\n"
+    close $f
+    readfile [file join $root new.txt]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+    unset f
+} -result "one\ntwo\n"
+
+test ftpd-3.5 {fs store, text mode} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    set f [::ftpd::fsFile::fs store new.txt auto]
+    fconfigure $f -translation crlf
+    puts -nonewline $f "one\n"
+    close $f
+    readfile [file join $root new.txt]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+    unset f
+} -result "one\r\n"
+
+test ftpd-3.6 {fs retr, missing file} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    ::ftpd::fsFile::fs retr missing.txt binary
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -returnCodes error -match glob -result {couldn't open *}
+
+test ftpd-3.7 {fs dlist nlst} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    lindex [fs dlist "" nlst] 1
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result ".hidden\na.txt\nempty\nsecret.txt\nsub\n"
+
+test ftpd-3.8 {fs dlist nlst, subdirectory and empty directory} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [fs dlist sub nlst] [fs dlist empty nlst]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result [list [list {} "b.txt\n"] {{} {}}]
+
+test ftpd-3.9 {fs dlist nlst, pattern and file} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [lindex [fs dlist *.txt nlst] 1] [lindex [fs dlist sub/b.txt nlst] 1]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result [list "a.txt\nsecret.txt\n" "b.txt\n"]
+
+test ftpd-3.10 {fs dlist list} -constraints unix -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+    file mtime [file join $root sub b.txt] [clock scan "2020-02-03 12:00:00"]
+} -body {
+    set lines [split [string trimright [lindex [fs dlist sub list] 1] \n] \n]
+    list [llength $lines] [lindex $lines 0 0] [lindex $lines 0 4] \
+	[lrange [lindex $lines 0] 5 end]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+    unset lines
+} -result {1 -rw-r--r-- 12 {Feb 3 2020 b.txt}}
+
+test ftpd-3.11 {fs dlist list, recent file and directory} -constraints unix -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    set lines [split [string trimright [lindex [fs dlist "" list] 1] \n] \n]
+    set res {}
+    foreach l $lines {
+	lappend res [lindex $l end] [string index [lindex $l 0] 0] \
+	    [regexp {^\d\d:\d\d$} [lindex $l 7]]
+    }
+    set res
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+    unset lines res l
+} -result {.hidden - 1 a.txt - 1 empty d 1 secret.txt - 1 sub d 1}
+
+test ftpd-3.12 {fs dlist, unknown style} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    fs dlist "" foo
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -returnCodes error -result {{Unknown list style <foo>} {}}
+
+test ftpd-3.13 {fs delete} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [fs delete a.txt] [file exists [file join $root a.txt]]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result [list [list {} "250 DELE command successful.\n"] 0]
+
+test ftpd-3.14 {fs delete, errors} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [string range [lindex [fs delete missing.txt] 1] 0 3] \
+	[string range [lindex [fs delete sub] 1] 0 3] [file exists [file join $root sub]]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {{550 } {550 } 1}
+
+test ftpd-3.15 {fs mkdir} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [string range [lindex [fs mkdir new] 1] 0 3] [file isdirectory [file join $root new]] \
+	[string range [lindex [fs mkdir sub/new/] 1] 0 3] [file isdirectory [file join $root sub new]]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {{257 } 1 {257 } 1}
+
+test ftpd-3.16 {fs mkdir, errors} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [string range [lindex [fs mkdir sub] 1] 0 3] \
+	[string range [lindex [fs mkdir a.txt] 1] 0 3] \
+	[string range [lindex [fs mkdir missing/new] 1] 0 3]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {{521 } {521 } {550 }}
+
+test ftpd-3.17 {fs mtime} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+    set t [clock scan "2021-04-05 06:07:08"]
+    file mtime [file join $root a.txt] $t
+} -body {
+    list [fs mtime a.txt] [string range [lindex [fs mtime missing] 1] 0 3] \
+	[string range [lindex [fs mtime sub] 1] 0 3]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+    unset t
+} -result [list [list {} "213 [clock format [clock scan "2021-04-05 06:07:08"] -format %Y%m%d%H%M%S]\n"] {550 } {550 }]
+
+test ftpd-3.18 {fs size} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [fs size sub/b.txt] [string range [lindex [fs size missing] 1] 0 3] \
+	[string range [lindex [fs size sub] 1] 0 3]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result [list [list {} "213 12\n"] {550 } {550 }]
+
+test ftpd-3.19 {fs rmdir} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [fs rmdir empty] [file exists [file join $root empty]]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result [list [list {} "250 RMD command successful.\n"] 0]
+
+test ftpd-3.20 {fs rmdir, errors} -setup {
+    ::ftpd::fsFile::docRoot [mktree $root]
+} -body {
+    list [string range [lindex [fs rmdir sub] 1] 0 3] \
+	[string range [lindex [fs rmdir a.txt] 1] 0 3] \
+	[string range [lindex [fs rmdir missing] 1] 0 3] [file exists [file join $root sub]]
+} -cleanup {
+    ::ftpd::fsFile::docRoot /
+    file delete -force $root
+} -result {{550 } {550 } {550 } 1}
+
+test ftpd-3.21 {fs, unknown subcommand} -body {
+    ::ftpd::fsFile::fs foo a.txt
+} -returnCodes error -result {Unknown command "foo"}
+
+# -------------------------------------------------------------------------
+# Child process running the server.
+
+set childScript {
+    fconfigure stdin  -translation lf -encoding utf-8
+    fconfigure stdout -translation lf -encoding utf-8
+    proc ctl {} {
+	if {[gets stdin n] < 0} {exit}
+	set script [read stdin $n]
+	set code [catch {uplevel #0 $script} res]
+	set reply [list $code $res]
+	puts stdout [string length $reply]
+	puts -nonewline stdout $reply
+	flush stdout
+    }
+    fileevent stdin readable ctl
+    vwait forever
+}
+
+proc srvstart {} {
+    set f [makeFile $::childScript ftpdchild.tcl]
+    set ::srvpipe [open |[list [info nameofexecutable] $f] r+]
+    fconfigure $::srvpipe -translation lf -encoding utf-8 -buffering full
+}
+
+proc srv {script} {
+    puts $::srvpipe [string length $script]
+    puts -nonewline $::srvpipe $script
+    flush $::srvpipe
+    set n [gets $::srvpipe]
+    if {![string is integer -strict $n]} {
+	error "server child died"
+    }
+    set reply [read $::srvpipe $n]
+    lassign $reply code res
+    return -code $code $res
+}
+
+proc srvstop {} {
+    catch {close $::srvpipe}
+    unset ::srvpipe
+    removeFile ftpdchild.tcl
+}
+
+srvstart
+srv [list source [tcllibPath cmdline/cmdline.tcl]]
+srv {namespace eval ::ftpd {upvar #0 ::tcl_platform tcl_platform}}
+srv [list source [localPath ftpd.tcl]]
+srv [list set root $root]
+set port [srv {
+    proc reset {} {
+	global log closed xfers authusr authfile
+	set log {}
+	set closed 0
+	set xfers {}
+	set authusr {}
+	set authfile {}
+	set ::ftpd::welcome "fake FTP server ready."
+	set ::ftpd::contact ftpadmin@example.com
+	::ftpd::config -closeCmd closed -authIpCmd {} \
+	    -authUsrCmd ::ftpd::anonAuth -authFileCmd allowall \
+	    -logCmd logger -fsCmd ::ftpd::fsFile::fs -xferDoneCmd xferdone
+	::ftpd::fsFile::docRoot $::root
+    }
+    proc logger {severity text} {lappend ::log $severity}
+    proc closed {} {incr ::closed}
+    proc xferdone {sock sock2 file bytes filename err} {
+	lappend ::xfers [list [expr {$sock eq $::ftpd::CurrentSocket}] \
+	    [expr {$sock2 in [file channels]}] $bytes $filename $err]
+    }
+    proc allowall {user path op} {
+	lappend ::authfile [list $user $path $op]
+	return 1
+    }
+    proc authusr {user pass} {
+	lappend ::authusr [list $user $pass]
+	expr {$user eq "joe" && $pass eq "secret"}
+    }
+    reset
+    set ::ftpd::port 0
+    list [::ftpd::server 127.0.0.1] $::ftpd::port
+}]
+if {[lindex $port 0] ne ""} {error "unexpected result of ::ftpd::server"}
+set port [lindex $port 1]
+
+# -------------------------------------------------------------------------
+# Client helpers.  Every read waits at most 5 seconds.
+
+proc waitreadable {sock} {
+    set ::ftpwait 0
+    fileevent $sock readable {set ::ftpwait 1}
+    set id [after 5000 {set ::ftpwait timeout}]
+    vwait ::ftpwait
+    after cancel $id
+    fileevent $sock readable {}
+    return $::ftpwait
+}
+
+# Reads a complete (possibly multi-line) reply.
+proc reply {sock} {
+    set lines {}
+    while 1 {
+	if {[gets $sock line] < 0} {
+	    if {[eof $sock]} {
+		lappend lines EOF
+		break
+	    }
+	    if {[waitreadable $sock] eq "timeout"} {
+		lappend lines TIMEOUT
+		break
+	    }
+	    continue
+	}
+	lappend lines $line
+	if {[llength $lines] == 1 && [string index $line 3] ne "-"} break
+	if {[llength $lines] > 1 && [regexp {^\d\d\d } $line]} break
+    }
+    join $lines \n
+}
+
+proc cmd {sock line} {
+    puts $sock $line
+    reply $sock
+}
+
+proc ftpopen {} {
+    set sock [socket 127.0.0.1 $::port]
+    fconfigure $sock -translation crlf -buffering line -blocking 0
+    set ::greeting [reply $sock]
+    return $sock
+}
+
+proc ftplogin {} {
+    srv reset
+    mktree $::root
+    set sock [ftpopen]
+    cmd $sock "USER anonymous"
+    cmd $sock "PASS joe@example.com"
+    return $sock
+}
+
+proc ftpclose {sock} {
+    catch {close $sock}
+    file delete -force $::root
+}
+
+# Opens a passive data connection.
+proc pasv {sock} {
+    set r [cmd $sock PASV]
+    if {![regexp {\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)} $r -> a b c d p1 p2]} {
+	error "bad PASV reply: $r"
+    }
+    set data [socket $a.$b.$c.$d [expr {$p1 * 256 + $p2}]]
+    fconfigure $data -translation binary
+    return $data
+}
+
+# Reads all data from a data connection, with a timeout.
+proc readdata {data} {
+    fconfigure $data -blocking 0
+    set res {}
+    while 1 {
+	append res [read $data]
+	if {[eof $data]} break
+	if {[waitreadable $data] eq "timeout"} {
+	    append res TIMEOUT
+	    break
+	}
+    }
+    close $data
+    return $res
+}
+
+# Transfers with a passive data connection.
+proc download {sock command} {
+    set data [pasv $sock]
+    set r1 [cmd $sock $command]
+    if {![string match 150* $r1]} {
+	close $data
+	return [list $r1]
+    }
+    set d [readdata $data]
+    list $r1 $d [reply $sock]
+}
+proc upload {sock command bytes} {
+    set data [pasv $sock]
+    set r1 [cmd $sock $command]
+    if {![string match 150* $r1]} {
+	close $data
+	return [list $r1]
+    }
+    puts -nonewline $data $bytes
+    close $data
+    list $r1 [reply $sock]
+}
+
+# -------------------------------------------------------------------------
+# ::ftpd::server, greeting and login
+
+test ftpd-4.0 {server, port 0 is replaced by the allocated port} -body {
+    list [string is integer -strict $port] [expr {$port > 0}] \
+	[srv {expr {$::ftpd::serviceSock in [file channels]}}]
+} -result {1 1 1}
+
+test ftpd-4.1 {greeting uses ::ftpd::welcome} -setup {
+    srv reset
+    srv {set ::ftpd::welcome "Welcome to the test server."}
+} -body {
+    set sock [ftpopen]
+    set greeting
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {220 Welcome to the test server.}
+
+test ftpd-4.2 {login, anonymous} -setup {
+    srv reset
+    set sock [ftpopen]
+} -body {
+    list [cmd $sock "USER anonymous"] [cmd $sock "PASS joe@example.com"] \
+	[cmd $sock NOOP]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{331 Password Required} {230 OK} {200 NOOP command successful.}}
+
+test ftpd-4.3 {login, rejected} -setup {
+    srv reset
+    set sock [ftpopen]
+} -body {
+    list [cmd $sock "USER joe"] [cmd $sock "PASS joe@example.com"] \
+	[cmd $sock NOOP] [cmd $sock "PASS joe@example.com"]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{331 Password Required} {551 Access Denied} {530 Please login with USER and PASS.} {503 Login with USER first.}}
+
+test ftpd-4.4 {login, commands before login} -setup {
+    srv reset
+    set sock [ftpopen]
+} -body {
+    list [cmd $sock NOOP] [cmd $sock "PASS x"] [cmd $sock "USER anonymous"] \
+	[cmd $sock PWD] [cmd $sock "USER"] [cmd $sock "PASS"]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{530 Please login with USER and PASS.} {503 Login with USER first.} {331 Password Required} {530 Please login with USER and PASS.} {530 Please login with USER and PASS.} {530 Please login with USER and PASS.}}
+
+test ftpd-4.5 {login, QUIT before login} -setup {
+    srv reset
+    set sock [ftpopen]
+    cmd $sock "USER anonymous"
+} -body {
+    list [cmd $sock QUIT] [reply $sock]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{221 Goodbye.} EOF}
+
+test ftpd-4.6 {-authUsrCmd} -setup {
+    srv reset
+    srv {::ftpd::config -authUsrCmd authusr}
+    set sock [ftpopen]
+} -body {
+    list [cmd $sock "USER joe"] [cmd $sock "PASS wrong"] \
+	[cmd $sock "USER joe"] [cmd $sock "PASS secret"] [srv {set authusr}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{331 Password Required} {551 Access Denied} {331 Password Required} {230 OK} {{joe wrong} {joe secret}}}
+
+test ftpd-4.7 {-authUsrCmd raises an error} -setup {
+    srv reset
+    srv {::ftpd::config -authUsrCmd {error oops}}
+    set sock [ftpopen]
+    cmd $sock "USER joe"
+} -body {
+    list [cmd $sock "PASS secret"] [expr {"error" in [srv {set log}]}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{551 Access Denied} 1}
+
+test ftpd-4.8 {-authIpCmd, accepted} -setup {
+    srv reset
+    srv {proc authip {ip} {lappend ::authip $ip; return 1}; set ::authip {}}
+    srv {::ftpd::config -authIpCmd authip}
+} -body {
+    set sock [ftpopen]
+    list $greeting [srv {set authip}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{220 fake FTP server ready.} 127.0.0.1}
+
+test ftpd-4.9 {-authIpCmd, rejected} -setup {
+    srv reset
+    srv {proc authip {ip} {return 0}}
+    srv {::ftpd::config -authIpCmd authip}
+} -body {
+    set sock [ftpopen]
+    set greeting
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result EOF
+
+test ftpd-4.10 {-authIpCmd raises an error} -setup {
+    srv reset
+    srv {::ftpd::config -authIpCmd {error oops}}
+} -body {
+    set sock [ftpopen]
+    list $greeting [expr {"error" in [srv {set log}]}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {EOF 1}
+
+test ftpd-4.11 {-logCmd} -setup {
+    set sock [ftplogin]
+} -body {
+    cmd $sock NOOP
+    cmd $sock QUIT
+    reply $sock
+    set log [srv {set log}]
+    list [expr {"debug" in $log}] [expr {"note" in $log}]
+} -cleanup {
+    ftpclose $sock
+    unset sock log
+} -result {1 1}
+
+test ftpd-4.12 {-closeCmd, QUIT} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock QUIT] [reply $sock] [srv {set closed}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{221 Goodbye.} EOF 1}
+
+test ftpd-4.13 {-closeCmd, client closes the connection} -setup {
+    set sock [ftplogin]
+} -body {
+    close $sock
+    for {set i 0} {$i < 500 && [srv {set closed}] == 0} {incr i} {after 10}
+    srv {set closed}
+} -cleanup {
+    ftpclose $sock
+    unset sock i
+} -result 1
+
+test ftpd-4.14 {CurrentSocket in callbacks} -setup {
+    srv reset
+    srv {proc authusr2 {user pass} {set ::cur $::ftpd::CurrentSocket; return 1}}
+    srv {::ftpd::config -authUsrCmd authusr2}
+    set sock [ftpopen]
+} -body {
+    cmd $sock "USER x"
+    cmd $sock "PASS y"
+    srv {expr {[info exists ::ftpd::$::cur] && $::cur in [file channels]}}
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result 1
+
+# -------------------------------------------------------------------------
+# Simple commands
+
+test ftpd-5.0 {NOOP, SYST} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock NOOP] [cmd $sock SYST]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list {200 NOOP command successful.} "215 [string map {unix UNIX windows WIN32} $tcl_platform(platform)] Type: L8 Version: [string toupper $tcl_platform(os)]"]
+
+test ftpd-5.1 {unknown and malformed commands} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock FOO] [cmd $sock "foo bar"] [cmd $sock ""]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{500 Unknown command FOO} {500 Unknown command FOO} {500 Command not understood.}}
+
+test ftpd-5.2 {commands are case-insensitive} -setup {
+    set sock [ftplogin]
+} -body {
+    cmd $sock noop
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {200 NOOP command successful.}
+
+test ftpd-5.3 {HELP} -setup {
+    set sock [ftplogin]
+} -body {
+    set lines [split [cmd $sock HELP] \n]
+    list [lindex $lines 0] [lindex $lines end] [llength $lines] \
+	[lrange [lindex $lines 1] 0 2] [expr {"MAIL*" in [join [lrange $lines 1 end-1]]}]
+} -cleanup {
+    ftpclose $sock
+    unset sock lines
+} -result {{214-The following commands are recognized (* =>'s unimplemented).} {214 Direct comments to ftpadmin@example.com.} 8 {ABOR ACCT* ALLO*} 1}
+
+test ftpd-5.4 {HELP command} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "HELP retr"] [cmd $sock "HELP MAIL"] [cmd $sock "HELP FOO"]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list {214 Syntax: RETR <sp> file-name} "214 MAIL\t(mail to user); unimplemented." {502 Unknown command 'FOO'.}]
+
+test ftpd-5.5 {TYPE} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "TYPE I"] [cmd $sock "TYPE A"] [cmd $sock "TYPE i"]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{200 Type set to I.} {200 Type set to A.} {200 Type set to i.}}
+
+test ftpd-5.6 {ABOR} -setup {
+    set sock [ftplogin]
+} -body {
+    cmd $sock ABOR
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {225 ABOR command successful.}
+
+test ftpd-5.7 {REIN, login is required again} -setup {
+    set sock [ftplogin]
+} -body {
+    puts $sock REIN
+    cmd $sock NOOP
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {530 Please login with USER and PASS.}
+
+test ftpd-5.8 {REIN, reply} -constraints {
+    knownBug
+} -setup {
+    set sock [ftplogin]
+} -body {
+    string range [cmd $sock REIN] 0 2
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result 220
+
+test ftpd-5.9 {QUIT} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock QUIT] [reply $sock]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{221 Goodbye.} EOF}
+
+# -------------------------------------------------------------------------
+# Directories
+
+test ftpd-6.0 {PWD, initial directory is ::ftpd::cwd} -setup {
+    set sock [ftplogin]
+} -body {
+    cmd $sock PWD
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {257 "" is current directory.}
+
+test ftpd-6.1 {CWD, PWD, XPWD} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "CWD sub"] [cmd $sock PWD] [cmd $sock "CWD ."] [cmd $sock PWD]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{250 CWD command successful.} {257 "sub" is current directory.} {250 CWD command successful.} {257 "sub" is current directory.}}
+
+test ftpd-6.2 {CWD, a file} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "CWD a.txt"] [cmd $sock PWD]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{550 not a directory} {257 "" is current directory.}}
+
+test ftpd-6.3 {CWD, missing directory} -constraints {
+    knownBug
+} -setup {
+    set sock [ftplogin]
+} -body {
+    list [string range [cmd $sock "CWD missing"] 0 2] [cmd $sock PWD]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {550 {257 "" is current directory.}}
+
+test ftpd-6.4 {CWD, directory name with spaces} -setup {
+    set sock [ftplogin]
+    file mkdir [file join $root "my dir"]
+} -body {
+    list [cmd $sock "CWD my dir"] [cmd $sock PWD]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{250 CWD command successful.} {257 "my dir" is current directory.}}
+
+test ftpd-6.5 {CDUP and CWD ..} -setup {
+    set sock [ftplogin]
+    file mkdir [file join $root sub deeper]
+} -body {
+    list [cmd $sock "CWD sub"] [cmd $sock "CWD deeper"] [cmd $sock PWD] \
+	[cmd $sock CDUP] [cmd $sock PWD] [cmd $sock "CWD deeper"] \
+	[cmd $sock "CWD .."] [cmd $sock PWD]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{250 CWD command successful.} {250 CWD command successful.} {257 "sub/deeper" is current directory.} {200 CDUP command successful.} {257 "sub" is current directory.} {250 CWD command successful.} {250 CWD command successful.} {257 "sub" is current directory.}}
+
+test ftpd-6.6 {MKD and RMD} -setup {
+    set sock [ftplogin]
+} -body {
+    list [string range [cmd $sock "MKD new"] 0 3] [file isdirectory [file join $root new]] \
+	[cmd $sock "RMD new"] [file exists [file join $root new]]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{257 } 1 {250 RMD command successful.} 0}
+
+test ftpd-6.7 {MKD and RMD, relative to the current directory} -setup {
+    set sock [ftplogin]
+} -body {
+    cmd $sock "CWD sub"
+    list [string range [cmd $sock "MKD new"] 0 3] [file isdirectory [file join $root sub new]] \
+	[cmd $sock "RMD new"] [file exists [file join $root sub new]] [srv {set authfile}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{257 } 1 {250 RMD command successful.} 0 {{anonymous sub/new write} {anonymous sub/new write}}}
+
+test ftpd-6.8 {MKD and RMD, errors} -setup {
+    set sock [ftplogin]
+} -body {
+    list [string range [cmd $sock "MKD sub"] 0 3] [string range [cmd $sock "RMD sub"] 0 3] \
+	[string range [cmd $sock "RMD missing"] 0 3] [file exists [file join $root sub]]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{521 } {550 } {550 } 1}
+
+# -------------------------------------------------------------------------
+# File information and manipulation
+
+test ftpd-7.0 {SIZE} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "SIZE a.txt"] [cmd $sock "SIZE sub/b.txt"] \
+	[string range [cmd $sock "SIZE missing"] 0 3] [string range [cmd $sock "SIZE sub"] 0 3]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{213 6} {213 12} {550 } {550 }}
+
+test ftpd-7.1 {MDTM} -setup {
+    set sock [ftplogin]
+    set t [clock scan "2021-04-05 06:07:08"]
+    file mtime [file join $root a.txt] $t
+} -body {
+    list [cmd $sock "MDTM a.txt"] [string range [cmd $sock "MDTM missing"] 0 3] \
+	[string range [cmd $sock "MDTM sub"] 0 3]
+} -cleanup {
+    ftpclose $sock
+    unset sock t
+} -result [list "213 [clock format [clock scan "2021-04-05 06:07:08"] -format %Y%m%d%H%M%S]" {550 } {550 }]
+
+test ftpd-7.2 {MDTM, time in UTC (RFC 3659)} -constraints {
+    knownBug
+} -setup {
+    set sock [ftplogin]
+    srv {set ::oldtz [array get ::env TZ]; set ::env(TZ) :Asia/Tokyo}
+    file mtime [file join $root a.txt] 1600000000
+} -body {
+    cmd $sock "MDTM a.txt"
+} -cleanup {
+    srv {unset ::env(TZ); array set ::env $::oldtz}
+    ftpclose $sock
+    unset sock
+} -result "213 [clock format 1600000000 -format %Y%m%d%H%M%S -gmt 1]"
+
+test ftpd-7.3 {DELE} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "DELE a.txt"] [file exists [file join $root a.txt]] [srv {set authfile}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{250 DELE command successful.} 0 {{anonymous a.txt write}}}
+
+test ftpd-7.4 {DELE, errors} -setup {
+    set sock [ftplogin]
+} -body {
+    list [string range [cmd $sock "DELE missing"] 0 3] [string range [cmd $sock "DELE sub"] 0 3]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{550 } {550 }}
+
+test ftpd-7.5 {RNFR, existing file} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "RNFR a.txt"] [srv {set authfile}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{350 File exists, ready for destination name} {{anonymous a.txt write}}}
+
+test ftpd-7.6 {RNFR, missing file} -setup {
+    set sock [ftplogin]
+} -body {
+    string range [cmd $sock "RNFR missing"] 0 3
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {550 }
+
+test ftpd-7.7 {RNTO, errors} -setup {
+    set sock [ftplogin]
+} -body {
+    list [cmd $sock "RNTO b.txt"] [cmd $sock "RNFR a.txt"] [cmd $sock "RNTO"]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{503 Bad sequence of commands.} {350 File exists, ready for destination name} {500 'RNTO': command not understood.}}
+
+# -------------------------------------------------------------------------
+# -authFileCmd and the default fileAuth
+
+test ftpd-8.0 {-authFileCmd denies access} -setup {
+    set sock [ftplogin]
+    srv {proc denyall {user path op} {lappend ::authfile [list $user $path $op]; return 0}}
+    srv {::ftpd::config -authFileCmd denyall}
+} -body {
+    list [cmd $sock "RETR a.txt"] [cmd $sock "STOR new.txt"] [cmd $sock "APPE a.txt"] \
+	[cmd $sock "STOU a.txt"] [cmd $sock "DELE a.txt"] [cmd $sock "MKD new"] \
+	[cmd $sock "RMD sub"] [cmd $sock "RNFR a.txt"] [srv {set authfile}] \
+	[file exists [file join $root a.txt]]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{550 a.txt: Permission denied} {550 new.txt: Permission denied} {550 a.txt: Permission denied} {550 a.txt: Permission denied} {550 a.txt: Permission denied} {550 new: Permission denied} {550 sub: Permission denied} {550 a.txt: Permission denied} {{anonymous a.txt read} {anonymous new.txt write} {anonymous a.txt write} {anonymous a.txt write} {anonymous a.txt write} {anonymous new write} {anonymous sub write} {anonymous a.txt write}} 1}
+
+test ftpd-8.1 {default fileAuth, file not readable by others} -constraints unix -setup {
+    set sock [ftplogin]
+    srv {::ftpd::config -authFileCmd ::ftpd::fileAuth}
+} -body {
+    cmd $sock "RETR secret.txt"
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {550 secret.txt: Permission denied}
+
+test ftpd-8.2 {default fileAuth, readable file} -setup {
+    set sock [ftplogin]
+    srv {::ftpd::config -authFileCmd ::ftpd::fileAuth}
+} -body {
+    download $sock "RETR a.txt"
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list {150 Copy Started (binary)} "hello\n" {226 Transfer complete (6 bytes)}]
+
+test ftpd-8.3 {default fileAuth, directory not writable by others} -constraints unix -setup {
+    set sock [ftplogin]
+    srv {::ftpd::config -authFileCmd ::ftpd::fileAuth}
+} -body {
+    cmd $sock "STOR sub/new.txt"
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {550 sub/new.txt: Permission denied}
+
+# -------------------------------------------------------------------------
+# Data transfers
+
+test ftpd-9.0 {PASV} -setup {
+    set sock [ftplogin]
+} -body {
+    cmd $sock PASV
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -match regexp -result {^227 Entering Passive Mode \(127,0,0,1,\d+,\d+\)\.$}
+
+test ftpd-9.1 {RETR} -setup {
+    set sock [ftplogin]
+} -body {
+    list [download $sock "RETR sub/b.txt"] [srv {set authfile}] [srv {set xfers}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list [list {150 Copy Started (binary)} "line1\nline2\n" {226 Transfer complete (12 bytes)}] {{anonymous sub/b.txt read}} {{1 0 12 {} {}}}]
+
+test ftpd-9.2 {RETR, relative to the current directory} -setup {
+    set sock [ftplogin]
+    cmd $sock "CWD sub"
+} -body {
+    lindex [download $sock "RETR b.txt"] 1
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result "line1\nline2\n"
+
+test ftpd-9.3 {RETR, ASCII type} -setup {
+    set sock [ftplogin]
+    cmd $sock "TYPE A"
+} -body {
+    download $sock "RETR sub/b.txt"
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list {150 Copy Started (auto)} "line1\r\nline2\r\n" {226 Transfer complete (12 bytes)}]
+
+test ftpd-9.4 {RETR, missing file} -setup {
+    set sock [ftplogin]
+} -body {
+    string range [lindex [download $sock "RETR missing.txt"] 0] 0 3
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {500 }
+
+test ftpd-9.5 {RETR, xferDoneCmd gets the path (documented)} -constraints {
+    knownBug
+} -setup {
+    set sock [ftplogin]
+} -body {
+    download $sock "RETR sub/b.txt"
+    lindex [srv {set xfers}] 0 3
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result sub/b.txt
+
+test ftpd-9.6 {STOR} -setup {
+    set sock [ftplogin]
+} -body {
+    list [upload $sock "STOR new.bin" "\x00\x01\r\n\xff"] \
+	[readfile [file join $root new.bin]] [srv {set xfers}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list {{150 Copy Started (binary)} {226 Transfer complete (5 bytes)}} "\x00\x01\r\n\xff" {{1 0 5 {} {}}}]
+
+test ftpd-9.7 {STOR, replaces an existing file} -setup {
+    set sock [ftplogin]
+} -body {
+    upload $sock "STOR a.txt" "new\n"
+    readfile [file join $root a.txt]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result "new\n"
+
+test ftpd-9.8 {STOR, ASCII type} -setup {
+    set sock [ftplogin]
+    cmd $sock "TYPE A"
+} -body {
+    upload $sock "STOR new.txt" "a\r\nb\r\n"
+    readfile [file join $root new.txt]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result "a\nb\n"
+
+test ftpd-9.9 {STOR, into a missing directory} -setup {
+    set sock [ftplogin]
+} -body {
+    string range [lindex [upload $sock "STOR missing/new.txt" x] 0] 0 3
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {500 }
+
+test ftpd-9.10 {APPE} -setup {
+    set sock [ftplogin]
+} -body {
+    list [upload $sock "APPE a.txt" "more\n"] [readfile [file join $root a.txt]]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list {{150 Copy Started (binary)} {226 Transfer complete (5 bytes)}} "hello\nmore\n"]
+
+test ftpd-9.11 {APPE, new file} -setup {
+    set sock [ftplogin]
+} -body {
+    upload $sock "APPE new.txt" "x\n"
+    readfile [file join $root new.txt]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result "x\n"
+
+test ftpd-9.12 {STOU} -setup {
+    set sock [ftplogin]
+} -body {
+    set r1 [upload $sock "STOU new.txt" "1\n"]
+    set r2 [upload $sock "STOU new.txt" "2\n"]
+    set r3 [upload $sock "STOU new.txt" "3\n"]
+    list $r1 $r2 $r3 [readfile [file join $root new.txt]] \
+	[readfile [file join $root new.txt.0]] [readfile [file join $root new.txt.1]] \
+	[lindex [srv {set xfers}] 1 3]
+} -cleanup {
+    ftpclose $sock
+    unset sock r1 r2 r3
+} -result [list \
+	{{150 Copy Started (binary)} {226 Transfer complete (unique file name: new.txt).}} \
+	{{150 Copy Started (binary)} {226 Transfer complete (unique file name: new.txt.0).}} \
+	{{150 Copy Started (binary)} {226 Transfer complete (unique file name: new.txt.1).}} \
+	"1\n" "2\n" "3\n" new.txt.0]
+
+test ftpd-9.13 {NLST} -setup {
+    set sock [ftplogin]
+} -body {
+    list [download $sock NLST] [srv {set authfile}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list [list {150 Opening data channel} ".hidden\na.txt\nempty\nsecret.txt\nsub\n" {226 Listing complete}] {}]
+
+test ftpd-9.14 {NLST, directory, pattern, current directory} -setup {
+    set sock [ftplogin]
+} -body {
+    lappend res [lindex [download $sock "NLST sub"] 1]
+    lappend res [lindex [download $sock "NLST *.txt"] 1]
+    cmd $sock "CWD sub"
+    lappend res [lindex [download $sock "NLST"] 1]
+} -cleanup {
+    ftpclose $sock
+    unset sock res
+} -result [list "b.txt\n" "a.txt\nsecret.txt\n" "b.txt\n"]
+
+test ftpd-9.14.1 {NLST, ASCII type} -setup {
+    set sock [ftplogin]
+    cmd $sock "TYPE A"
+} -body {
+    lindex [download $sock "NLST sub"] 1
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result "b.txt\r\n"
+
+test ftpd-9.15 {LIST} -constraints unix -setup {
+    set sock [ftplogin]
+} -body {
+    set r [download $sock "LIST sub"]
+    list [lindex $r 0] [lindex $r 2] [lindex [lindex $r 1] 0] [lindex [lindex $r 1] 4] \
+	[lindex [lindex $r 1] end] [string index [lindex $r 1] end]
+} -cleanup {
+    ftpclose $sock
+    unset sock r
+} -result [list {150 Opening data channel} {226 Listing complete} -rw-r--r-- 12 b.txt "\n"]
+
+test ftpd-9.16 {PORT} -setup {
+    set sock [ftplogin]
+    set listener [socket -server {apply {{s h p} {set ::portsock $s}}} -myaddr 127.0.0.1 0]
+    set lport [lindex [fconfigure $listener -sockname] 2]
+} -body {
+    set r1 [cmd $sock "PORT 127,0,0,1,[expr {$lport >> 8}],[expr {$lport & 255}]"]
+    set r2 [cmd $sock "RETR a.txt"]
+    if {![info exists ::portsock]} {vwait ::portsock}
+    fconfigure $::portsock -translation binary
+    list $r1 $r2 [readdata $::portsock] [reply $sock]
+} -cleanup {
+    close $listener
+    ftpclose $sock
+    unset -nocomplain sock listener lport r1 r2 ::portsock
+} -result [list {200 PORT OK} {150 Copy Started (binary)} "hello\n" {226 Transfer complete (6 bytes)}]
+
+test ftpd-9.17 {PORT, STOR} -setup {
+    set sock [ftplogin]
+    set listener [socket -server {apply {{s h p} {set ::portsock $s}}} -myaddr 127.0.0.1 0]
+    set lport [lindex [fconfigure $listener -sockname] 2]
+} -body {
+    cmd $sock "PORT 127,0,0,1,[expr {$lport >> 8}],[expr {$lport & 255}]"
+    set r [cmd $sock "STOR new.txt"]
+    if {![info exists ::portsock]} {vwait ::portsock}
+    fconfigure $::portsock -translation binary
+    puts -nonewline $::portsock "port data\n"
+    close $::portsock
+    list $r [reply $sock] [readfile [file join $root new.txt]]
+} -cleanup {
+    close $listener
+    ftpclose $sock
+    unset -nocomplain sock listener lport r ::portsock
+} -result [list {150 Copy Started (binary)} {226 Transfer complete (10 bytes)} "port data\n"]
+
+test ftpd-9.18 {xferDoneCmd not configured} -setup {
+    set sock [ftplogin]
+    srv {::ftpd::config -xferDoneCmd {}}
+} -body {
+    list [lindex [download $sock "RETR a.txt"] 2] [srv {set xfers}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result {{226 Transfer complete (6 bytes)} {}}
+
+# -------------------------------------------------------------------------
+# -fsCmd
+
+test ftpd-10.0 {-fsCmd, custom file system} -setup {
+    set sock [ftplogin]
+    srv {
+	proc myfs {command path args} {
+	    lappend ::fscalls [list $command $path]
+	    switch -- $command {
+		exists {return 0}
+		size {
+		    puts [lindex $args 0] "213 42"
+		}
+		dlist {
+		    puts [lindex $args 1] "virtual.txt"
+		}
+	    }
+	}
+	set ::fscalls {}
+	::ftpd::config -fsCmd myfs
+    }
+} -body {
+    list [cmd $sock "SIZE x/y"] [lindex [download $sock "NLST dir"] 1] \
+	[cmd $sock "CWD dir"] [srv {set fscalls}]
+} -cleanup {
+    ftpclose $sock
+    unset sock
+} -result [list {213 42} "virtual.txt\n" {250 CWD command successful.} {{size x/y} {dlist dir} {exists dir}}]
+
+# -------------------------------------------------------------------------
+
+srvstop
+foreach p {mktree readfile fs srvstart srv srvstop waitreadable reply cmd
+    ftpopen ftplogin ftpclose pasv readdata download upload} {
+    rename $p {}
+}
+unset -nocomplain p childScript root port greeting ftpwait
+testsuiteCleanup
+return
