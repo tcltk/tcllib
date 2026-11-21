@@ -1,0 +1,588 @@
+# -*- tcl -*-
+# md5-api.test:  tests for the documented API of md5 2.x not covered
+# by md5x.test: binary result, -file/-filename/-channel/-chunksize,
+# the token-based programming interface and the documented examples.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal md5x.tcl md5
+}
+
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing (as in md5x.test)
+
+array set preserve [array get ::md5::accel]
+
+proc implementations {} {
+    variable ::md5::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::md5::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::md5::accel
+    array set accel [array get ::preserve]
+}
+
+# Deterministic binary test data of length n.
+proc testdata {n} {
+    set r {}
+    for {set i 0} {$i < $n} {incr i} {
+        append r [binary format c [expr {($i * 7 + 3) % 256}]]
+    }
+    return $r
+}
+
+proc writefile {name data} {
+    set f [open $name wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+# Known digests of [testdata n].
+set lengths {
+    55    52C0E574E1198DE5FE3F8F11440DCB1B
+    56    46C9907FC908EE68B1E7B8E71286A518
+    57    1C805DD236C35CAB25FCB1BC73802C51
+    63    A62F6D59E837867693F042F5B8F5A236
+    64    7160B8FB5E9E4023D549C3971FBAEEAD
+    65    70BD662E7AEFBDA85A0F7244167B7897
+    119   E84905D4214F4D1CA56C2CDCC152B143
+    120   E3EB5A6C8669EA01A8C185B8ABC8A5DC
+    128   10B2DA1A82F16D99A81A7203FE9F02CB
+    4095  53DE317667CA40D9642E2D859BFBFD16
+    4096  D105289F5617C241F52A191C6B2FC809
+    4097  C7CFB8A6D3D4929F9035E0918250B62D
+    10000 941546D1C333E2F0D9EFD902E5CB94B7
+}
+
+# -------------------------------------------------------------------------
+# md5::md5 - argument errors
+
+test md5-api-1.1 {md5: only -hex, no data} -body {
+    ::md5::md5 -hex
+} -returnCodes error -result {wrong # args: should be "md5 ?-hex? -filename file | string"}
+
+test md5-api-1.2 {md5: too many data arguments} -body {
+    ::md5::md5 a b
+} -returnCodes error -result {wrong # args: should be "md5 ?-hex? -filename file | string"}
+
+test md5-api-1.3 {md5: -hex with too many data arguments} -body {
+    ::md5::md5 -hex -- a b
+} -returnCodes error -result {wrong # args: should be "md5 ?-hex? -filename file | string"}
+
+test md5-api-1.4 {md5: unknown option} -body {
+    ::md5::md5 -bogus abc
+} -returnCodes error -result "bad option -bogus: must be one of -channel, -chunksize, -filename, -hex\nlen: 2"
+
+test md5-api-1.5 {md5: -file of a missing file} -setup {
+    set name [makeFile {} md5-api-missing.dat]
+    removeFile md5-api-missing.dat
+} -body {
+    ::md5::md5 -file $name
+} -cleanup {
+    unset name
+} -returnCodes error -match glob -result {couldn't open "*md5-api-missing.dat": no such file or directory}
+
+test md5-api-1.6 {md5: a single argument starting with - is data} -body {
+    ::md5::md5 -hex -bogus
+} -result [string toupper [::md5::Hex [::md5::md5 -- -bogus]]]
+
+# -------------------------------------------------------------------------
+# md5::md5 - result format
+
+test md5-api-2.1 {md5: result is a 16-byte binary string by default} -body {
+    set r [::md5::md5 abc]
+    list [string length $r] [::md5::Hex $r]
+} -cleanup {
+    unset r
+} -result {16 900150983CD24FB0D6963F7D28E17F72}
+
+test md5-api-2.2 {md5: -hex result is upper case hexadecimal} -body {
+    ::md5::md5 -hex abc
+} -result 900150983CD24FB0D6963F7D28E17F72
+
+test md5-api-2.3 {md5: binary and hex results agree} -body {
+    binary scan [::md5::md5 "message digest"] H* h
+    string equal [string toupper $h] [::md5::md5 -hex "message digest"]
+} -cleanup {
+    unset h
+} -result 1
+
+test md5-api-2.4 {md5: documented example} -body {
+    ::md5::md5 -hex "Tcl does MD5"
+} -result 8AAC1EE01E20BB347104FABB90310433
+
+test md5-api-2.5 {md5: all byte values} -body {
+    set d {}
+    for {set i 0} {$i < 256} {incr i} {append d [binary format c $i]}
+    ::md5::md5 -hex $d
+} -cleanup {
+    unset d i
+} -result E2C865DB4162BED963BFAA9EF6AC18F0
+
+test md5-api-2.6 {md5: -hex may follow --} -body {
+    ::md5::md5 -hex -- abc
+} -result 900150983CD24FB0D6963F7D28E17F72
+
+# -------------------------------------------------------------------------
+# md5::md5 - string data around block boundaries
+
+foreach impl [implementations] {
+    select_implementation $impl
+    foreach {n hash} $lengths {
+        test md5-api-3.$impl.$n "md5 of $n bytes ($impl)" -body {
+            ::md5::md5 -hex [testdata $n]
+        } -result $hash
+    }
+    reset_implementation
+}
+
+# -------------------------------------------------------------------------
+# md5::md5 -file / -filename
+
+test md5-api-4.1 {md5 -file} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name [testdata 10000]
+} -body {
+    ::md5::md5 -hex -file $name
+} -cleanup {
+    removeFile md5-api.dat
+    unset name
+} -result 941546D1C333E2F0D9EFD902E5CB94B7
+
+test md5-api-4.2 {md5 -filename} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name [testdata 4096]
+} -body {
+    ::md5::md5 -hex -filename $name
+} -cleanup {
+    removeFile md5-api.dat
+    unset name
+} -result D105289F5617C241F52A191C6B2FC809
+
+test md5-api-4.3 {md5 -file: binary result by default} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name abc
+} -body {
+    ::md5::Hex [::md5::md5 -file $name]
+} -cleanup {
+    removeFile md5-api.dat
+    unset name
+} -result 900150983CD24FB0D6963F7D28E17F72
+
+test md5-api-4.4 {md5 -file: data is read in binary mode} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name "a\r\nb\nc\rd\x00\x1a\xff"
+} -body {
+    string equal [::md5::md5 -hex -file $name] \
+	[::md5::md5 -hex "a\r\nb\nc\rd\x00\x1a\xff"]
+} -cleanup {
+    removeFile md5-api.dat
+    unset name
+} -result 1
+
+test md5-api-4.5 {md5 -file: empty file} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name {}
+} -body {
+    ::md5::md5 -hex -file $name
+} -cleanup {
+    removeFile md5-api.dat
+    unset name
+} -result D41D8CD98F00B204E9800998ECF8427E
+
+test md5-api-4.6 {md5 -file: the file is closed afterwards} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name abc
+    set before [lsort [file channels]]
+} -body {
+    ::md5::md5 -file $name
+    string equal $before [lsort [file channels]]
+} -cleanup {
+    removeFile md5-api.dat
+    unset name before
+} -result 1
+
+# -------------------------------------------------------------------------
+# md5::md5 -channel / -chunksize
+
+test md5-api-5.1 {md5 -channel: reads up to end of file} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name [testdata 10000]
+    set f [open $name rb]
+} -body {
+    list [::md5::md5 -hex -channel $f] [eof $f]
+} -cleanup {
+    close $f
+    removeFile md5-api.dat
+    unset name f
+} -result {941546D1C333E2F0D9EFD902E5CB94B7 1}
+
+test md5-api-5.2 {md5 -channel: the channel is not closed} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name abc
+    set f [open $name rb]
+} -body {
+    ::md5::md5 -channel $f
+    expr {$f in [file channels]}
+} -cleanup {
+    close $f
+    removeFile md5-api.dat
+    unset name f
+} -result 1
+
+test md5-api-5.3 {md5 -channel: from the current position} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name xyzabc
+    set f [open $name rb]
+    read $f 3
+} -body {
+    ::md5::md5 -hex -channel $f
+} -cleanup {
+    close $f
+    removeFile md5-api.dat
+    unset name f
+} -result 900150983CD24FB0D6963F7D28E17F72
+
+test md5-api-5.4 {md5 -channel: binary result by default} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name abc
+    set f [open $name rb]
+} -body {
+    set r [::md5::md5 -channel $f]
+    list [string length $r] [::md5::Hex $r]
+} -cleanup {
+    close $f
+    removeFile md5-api.dat
+    unset name f r
+} -result {16 900150983CD24FB0D6963F7D28E17F72}
+
+foreach {n size} {1 1 2 7 3 64 4 65 5 100000} {
+    test md5-api-5.5.$n "md5 -channel -chunksize $size" -setup {
+	set name [makeFile {} md5-api.dat]
+	writefile $name [testdata 4097]
+	set f [open $name rb]
+    } -body {
+	::md5::md5 -hex -chunksize $size -channel $f
+    } -cleanup {
+	close $f
+	removeFile md5-api.dat
+	unset name f
+    } -result C7CFB8A6D3D4929F9035E0918250B62D
+}
+
+test md5-api-5.6 {md5 -file -chunksize} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name [testdata 10000]
+} -body {
+    ::md5::md5 -hex -chunksize 333 -file $name
+} -cleanup {
+    removeFile md5-api.dat
+    unset name
+} -result 941546D1C333E2F0D9EFD902E5CB94B7
+
+test md5-api-5.7 {md5 -channel: empty channel} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name {}
+    set f [open $name rb]
+} -body {
+    ::md5::md5 -hex -channel $f
+} -cleanup {
+    close $f
+    removeFile md5-api.dat
+    unset name f
+} -result D41D8CD98F00B204E9800998ECF8427E
+
+# -------------------------------------------------------------------------
+# md5::hmac - errors, result format, sources
+
+test md5-api-6.1 {hmac: -key without data} -body {
+    ::md5::hmac -key k
+} -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+test md5-api-6.2 {hmac: data without -key} -body {
+    ::md5::hmac -hex -- data
+} -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+test md5-api-6.3 {hmac: too many data arguments} -body {
+    ::md5::hmac -key k -- a b
+} -returnCodes error -result {wrong # args: should be "hmac ?-hex? -key key -filename file | string"}
+
+test md5-api-6.4 {hmac: unknown option} -body {
+    ::md5::hmac -key k -bogus abc
+} -returnCodes error -result {bad option -bogus: must be one of -channel, -chunksize, -filename, -hex, -key}
+
+test md5-api-6.5 {hmac: binary result by default} -body {
+    set r [::md5::hmac -key Sekret "Tcl does MD5"]
+    list [string length $r] [::md5::Hex $r]
+} -cleanup {
+    unset r
+} -result {16 35BBA244FD56D3EDF5F3C47474DACB5D}
+
+test md5-api-6.6 {hmac: documented example} -body {
+    ::md5::hmac -hex -key Sekret "Tcl does MD5"
+} -result 35BBA244FD56D3EDF5F3C47474DACB5D
+
+test md5-api-6.7 {hmac: key of exactly 64 bytes} -body {
+    ::md5::hmac -hex -key [string repeat k 64] data
+} -result E0525F930DF7E5415F8BEED9DA4E1F3C
+
+test md5-api-6.8 {hmac: key longer than 64 bytes is hashed first} -body {
+    ::md5::hmac -hex -key [string repeat k 65] data
+} -result B7D1158AE12147F7FAA37BC828CC7321
+
+test md5-api-6.9 {hmac -file} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name "Tcl does MD5"
+} -body {
+    ::md5::hmac -hex -key Sekret -file $name
+} -cleanup {
+    removeFile md5-api.dat
+    unset name
+} -result 35BBA244FD56D3EDF5F3C47474DACB5D
+
+test md5-api-6.10 {hmac -filename, binary data across chunks} -setup {
+    set name [makeFile {} md5-api.dat]
+    set d {}
+    for {set i 0} {$i < 256} {incr i} {append d [binary format c $i]}
+    writefile $name [string repeat $d 20]
+} -body {
+    ::md5::hmac -hex -key key -chunksize 1000 -filename $name
+} -cleanup {
+    removeFile md5-api.dat
+    unset name d i
+} -result 962F6FE7E876D748F0C1D2DE36B2B66C
+
+test md5-api-6.11 {hmac -channel: channel stays open} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name "Tcl does MD5"
+    set f [open $name rb]
+} -body {
+    list [::md5::hmac -hex -key Sekret -channel $f] \
+	[expr {$f in [file channels]}]
+} -cleanup {
+    close $f
+    removeFile md5-api.dat
+    unset name f
+} -result {35BBA244FD56D3EDF5F3C47474DACB5D 1}
+
+test md5-api-6.12 {hmac -file: the file is closed afterwards} -setup {
+    set name [makeFile {} md5-api.dat]
+    writefile $name abc
+    set before [lsort [file channels]]
+} -body {
+    ::md5::hmac -key k -file $name
+    string equal $before [lsort [file channels]]
+} -cleanup {
+    removeFile md5-api.dat
+    unset name before
+} -result 1
+
+# -------------------------------------------------------------------------
+# Programming interface: MD5Init / MD5Update / MD5Final
+
+test md5-api-7.1 {MD5Init: wrong # args} -body {
+    ::md5::MD5Init x
+} -returnCodes error -result [tcltest::wrongNumArgs ::md5::MD5Init {} 0]
+
+test md5-api-7.2 {MD5Update: wrong # args} -body {
+    ::md5::MD5Update tok
+} -returnCodes error -result [tcltest::wrongNumArgs ::md5::MD5Update {token data} 1]
+
+test md5-api-7.3 {MD5Final: wrong # args} -body {
+    ::md5::MD5Final
+} -returnCodes error -result [tcltest::wrongNumArgs ::md5::MD5Final {token} 0]
+
+test md5-api-7.4 {MD5Init returns distinct tokens} -body {
+    set t1 [::md5::MD5Init]
+    set t2 [::md5::MD5Init]
+    list [string match ::md5::* $t1] [string equal $t1 $t2]
+} -cleanup {
+    ::md5::MD5Final $t1
+    ::md5::MD5Final $t2
+    unset t1 t2
+} -result {1 0}
+
+test md5-api-7.5 {documented example: chunked hashing} -body {
+    set tok [::md5::MD5Init]
+    ::md5::MD5Update $tok "Tcl "
+    ::md5::MD5Update $tok "does "
+    ::md5::MD5Update $tok "MD5"
+    ::md5::Hex [::md5::MD5Final $tok]
+} -cleanup {
+    unset tok
+} -result 8AAC1EE01E20BB347104FABB90310433
+
+test md5-api-7.6 {MD5Update returns an empty string} -body {
+    set tok [::md5::MD5Init]
+    ::md5::MD5Update $tok abc
+} -cleanup {
+    ::md5::MD5Final $tok
+    unset tok
+} -result {}
+
+test md5-api-7.7 {MD5Final: 16-byte binary result} -body {
+    set tok [::md5::MD5Init]
+    ::md5::MD5Update $tok abc
+    set r [::md5::MD5Final $tok]
+    list [string length $r] [::md5::Hex $r]
+} -cleanup {
+    unset tok r
+} -result {16 900150983CD24FB0D6963F7D28E17F72}
+
+test md5-api-7.8 {MD5Final without any update} -body {
+    ::md5::Hex [::md5::MD5Final [::md5::MD5Init]]
+} -result D41D8CD98F00B204E9800998ECF8427E
+
+test md5-api-7.9 {MD5Final releases the token} -body {
+    set tok [::md5::MD5Init]
+    ::md5::MD5Update $tok abc
+    ::md5::MD5Final $tok
+    info exists $tok
+} -cleanup {
+    unset tok
+} -result 0
+
+test md5-api-7.10 {independent tokens do not interfere} -body {
+    set t1 [::md5::MD5Init]
+    set t2 [::md5::MD5Init]
+    ::md5::MD5Update $t1 "message "
+    ::md5::MD5Update $t2 "a"
+    ::md5::MD5Update $t1 "digest"
+    list [::md5::Hex [::md5::MD5Final $t1]] [::md5::Hex [::md5::MD5Final $t2]]
+} -cleanup {
+    unset t1 t2
+} -result {F96B697D7CB7938D525A2F31AAF161D0 0CC175B9C0F1B6A831C399E269772661}
+
+foreach impl [implementations] {
+    select_implementation $impl
+    foreach {n hash} $lengths {
+	foreach step {1 13 64 100} {
+	    if {$n > 4097 && $step < 64} continue
+	    test md5-api-7.11.$impl.$n.$step \
+		"MD5Update of $n bytes in pieces of $step ($impl)" -body {
+		set d [testdata $n]
+		set tok [::md5::MD5Init]
+		for {set i 0} {$i < $n} {incr i $step} {
+		    ::md5::MD5Update $tok \
+			[string range $d $i [expr {$i + $step - 1}]]
+		}
+		::md5::Hex [::md5::MD5Final $tok]
+	    } -cleanup {
+		unset d tok i
+	    } -result $hash
+	}
+    }
+    reset_implementation
+}
+
+test md5-api-7.12 {MD5Update with empty data} -body {
+    set tok [::md5::MD5Init]
+    ::md5::MD5Update $tok ""
+    ::md5::MD5Update $tok abc
+    ::md5::MD5Update $tok ""
+    ::md5::Hex [::md5::MD5Final $tok]
+} -cleanup {
+    unset tok
+} -result 900150983CD24FB0D6963F7D28E17F72
+
+# -------------------------------------------------------------------------
+# Programming interface: HMACInit / HMACUpdate / HMACFinal
+
+test md5-api-8.1 {HMACInit: wrong # args} -body {
+    ::md5::HMACInit
+} -returnCodes error -result [tcltest::wrongNumArgs ::md5::HMACInit {K} 0]
+
+test md5-api-8.2 {HMACUpdate: wrong # args} -body {
+    ::md5::HMACUpdate tok
+} -returnCodes error -result [tcltest::wrongNumArgs ::md5::HMACUpdate {token data} 1]
+
+test md5-api-8.3 {HMACFinal: wrong # args} -body {
+    ::md5::HMACFinal
+} -returnCodes error -result [tcltest::wrongNumArgs ::md5::HMACFinal {token} 0]
+
+test md5-api-8.4 {HMAC chunked equals hmac command} -body {
+    set tok [::md5::HMACInit Sekret]
+    ::md5::HMACUpdate $tok "Tcl "
+    ::md5::HMACUpdate $tok "does "
+    ::md5::HMACUpdate $tok "MD5"
+    set r [::md5::HMACFinal $tok]
+    list [string length $r] [::md5::Hex $r]
+} -cleanup {
+    unset tok r
+} -result {16 35BBA244FD56D3EDF5F3C47474DACB5D}
+
+test md5-api-8.5 {HMACUpdate returns an empty string} -body {
+    set tok [::md5::HMACInit k]
+    ::md5::HMACUpdate $tok abc
+} -cleanup {
+    ::md5::HMACFinal $tok
+    unset tok
+} -result {}
+
+test md5-api-8.6 {HMACFinal without any update} -body {
+    ::md5::Hex [::md5::HMACFinal [::md5::HMACInit ""]]
+} -result 74E6F7298A9C2D168935F58C001BAD88
+
+test md5-api-8.7 {HMACFinal releases the token} -body {
+    set tok [::md5::HMACInit k]
+    ::md5::HMACUpdate $tok abc
+    ::md5::HMACFinal $tok
+    info exists $tok
+} -cleanup {
+    unset tok
+} -result 0
+
+test md5-api-8.8 {HMACInit with a long key} -body {
+    set tok [::md5::HMACInit [string repeat k 65]]
+    ::md5::HMACUpdate $tok da
+    ::md5::HMACUpdate $tok ta
+    ::md5::Hex [::md5::HMACFinal $tok]
+} -cleanup {
+    unset tok
+} -result B7D1158AE12147F7FAA37BC828CC7321
+
+# -------------------------------------------------------------------------
+# md5::Hex (used in the documented examples)
+
+test md5-api-9.1 {Hex} -body {
+    ::md5::Hex "\x00\x01\xab\xff"
+} -result 0001ABFF
+
+test md5-api-9.2 {Hex of empty string} -body {
+    ::md5::Hex ""
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename implementations {}
+rename select_implementation {}
+rename reset_implementation {}
+rename testdata {}
+rename writefile {}
+unset preserve lengths impl n hash size step
+
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
