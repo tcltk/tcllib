@@ -1,0 +1,685 @@
+# -*- tcl -*-
+# tool-api.test:  Tests for the documented API of the tool package
+# (tool.man, tool_dict_ensemble.man) that are not covered by tool.test.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use oodialect/oodialect.tcl oo::dialect
+    use dicttool/dicttool.tcl   dicttool
+    use coroutine/coroutine.tcl coroutine
+    use cron/cron.tcl           cron
+    use oometa/oometa.tcl       oo::meta
+    use sha1/sha1.tcl           sha1
+}
+testing {
+    useLocal tool.tcl tool
+}
+
+# -------------------------------------------------------------------------
+
+set toolapi_modules [file dirname [file dirname [file normalize [info script]]]]
+
+# Call an unexported (private) method of an object.
+proc private {obj args} {
+    [info object namespace $obj]::my {*}$args
+}
+
+# A class using most of the documented keywords.
+proc makeKeywordClass {} {
+    tool::class create ::ToolApiC {
+        array arr {a 1 b 2}
+        variable v1 hello
+        property color green
+        property shapes shape round
+        option size {default: 10}
+        option computed {default-command: {format computed-%field%}}
+        option limited {
+            default: 5
+            validate-command: {expr {min(%value%, 100)}}
+        }
+        option watched {post-command: {lappend ::toolapi_post %field% %value%}}
+        class_method hello {x} {return "hello $x from [self]"}
+        method vars {} {
+            my variable arr v1
+            list [lsort -stride 2 [array get arr]] $v1
+        }
+        method node {name info} {
+            my variable node
+            dict set node $name $info
+        }
+        method getnode {args} {
+            my variable node
+            dict get $node {*}$args
+        }
+    }
+}
+
+proc cleanupKeywordClass {} {
+    foreach c {::ToolApiD ::ToolApiOO ::ToolApiC} {
+        if {[info object isa object $c]} {$c destroy}
+    }
+    unset -nocomplain ::toolapi_post
+}
+
+# =========================================================================
+# Keywords: array, variable, property, option, class_method
+
+test tool-api-1.0 {array and variable keywords initialize object state} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj vars
+} -cleanup {
+    cleanupKeywordClass
+} -result {{a 1 b 2} hello}
+
+test tool-api-1.1 {array and variable keywords are inherited} -setup {
+    makeKeywordClass
+    tool::class create ::ToolApiD {superclass ::ToolApiC}
+} -body {
+    ToolApiD create obj
+    obj vars
+} -cleanup {
+    cleanupKeywordClass
+} -result {{a 1 b 2} hello}
+
+test tool-api-1.2 {variable keyword, descendant overrides the value} -setup {
+    makeKeywordClass
+    tool::class create ::ToolApiD {
+        superclass ::ToolApiC
+        variable v1 child
+    }
+} -body {
+    ToolApiD create obj
+    lindex [obj vars] 1
+} -cleanup {
+    cleanupKeywordClass
+} -result child
+
+test tool-api-1.3 {property without branch goes to the const section} -setup {
+    makeKeywordClass
+} -body {
+    list [oo::meta::info ::ToolApiC get const color:] \
+        [ToolApiC meta get const color:]
+} -cleanup {
+    cleanupKeywordClass
+} -result {green green}
+
+test tool-api-1.4 {property with a branch} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    list [ToolApiC meta get shapes] [obj meta get shapes shape:]
+} -cleanup {
+    cleanupKeywordClass
+} -result {{shape: round} round}
+
+test tool-api-1.5 {property, redefinition is seen by existing objects} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    set r [obj meta cget color]
+    tool::define ::ToolApiC property color red
+    lappend r [obj meta cget color]
+} -cleanup {
+    cleanupKeywordClass
+    unset -nocomplain r
+} -result {green red}
+
+test tool-api-1.6 {property, accessible by the object's property method} -constraints {
+    knownBug
+} -setup {
+    makeKeywordClass
+} -body {
+    # tool.man documents an object "property" method; there is none.
+    ToolApiC create obj
+    obj property color
+} -cleanup {
+    cleanupKeywordClass
+} -result green
+
+test tool-api-1.7 {property, wrong # args} -setup {
+    makeKeywordClass
+} -body {
+    tool::define ::ToolApiC property a b c d
+} -cleanup {
+    cleanupKeywordClass
+} -returnCodes error -result {Usage:
+property name type valuedict
+OR property name value}
+
+test tool-api-1.8 {property, no args} -setup {
+    makeKeywordClass
+} -body {
+    tool::define ::ToolApiC property
+} -cleanup {
+    cleanupKeywordClass
+} -returnCodes error -result {Usage:
+property name type valuedict
+OR property name value}
+
+test tool-api-1.9 {class_method defines a method of the class object} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC hello world
+} -cleanup {
+    cleanupKeywordClass
+} -result {hello world from ::ToolApiC}
+
+test tool-api-1.10 {class_method is passed on to descendants} -setup {
+    makeKeywordClass
+    tool::class create ::ToolApiD {superclass ::ToolApiC}
+} -body {
+    ToolApiD hello world
+} -cleanup {
+    cleanupKeywordClass
+} -result {hello world from ::ToolApiD}
+
+test tool-api-1.11 {class_method is not a method of the objects} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj hello world
+} -cleanup {
+    cleanupKeywordClass
+} -returnCodes error -match glob -result {unknown method "hello": must be *}
+
+foreach {n kw msg} {
+    0 array          {wrong # args: should be "array name ?values?"}
+    1 variable       {wrong # args: should be "variable name ?default?"}
+    2 option         {wrong # args: should be "option name ?arg ...?"}
+    3 class_method   {wrong # args: should be "class_method name arglist body"}
+    4 dict_ensemble  {wrong # args: should be "dict_ensemble methodname varname ?cases?"}
+    5 array_ensemble {wrong # args: should be "array_ensemble methodname varname ?cases?"}
+    6 method         {wrong # args: should be "method rawmethod ?arg ...?"}
+} {
+    test tool-api-2.$n "$kw keyword, wrong # args" -setup {
+        makeKeywordClass
+    } -body {
+        tool::define ::ToolApiC $kw
+    } -cleanup {
+        cleanupKeywordClass
+    } -returnCodes error -result $msg
+}
+unset n kw msg
+
+test tool-api-2.7 {method keyword, ensemble method without body} -setup {
+    makeKeywordClass
+} -body {
+    tool::define ::ToolApiC method ens::sub
+} -cleanup {
+    cleanupKeywordClass
+} -returnCodes error -result {Usage: method NAME ARGLIST BODY}
+
+test tool-api-2.8 {method keyword, plain method behaves like oo::define method} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    tool::define ::ToolApiC method plain {a {b 2}} {list $a $b}
+    list [obj plain 1] [obj plain 1 3]
+} -cleanup {
+    cleanupKeywordClass
+} -result {{1 2} {1 3}}
+
+test tool-api-2.9 {tool classes interoperate with oo::define} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    oo::define ::ToolApiC method something {} {return something}
+    obj something
+} -cleanup {
+    cleanupKeywordClass
+} -result something
+
+test tool-api-2.10 {TclOO class derived from a tool class} -constraints {
+    knownBug
+} -setup {
+    makeKeywordClass
+    oo::class create ::ToolApiOO {superclass ::ToolApiC}
+} -body {
+    # Example from tool.man; creating an object fails with:
+    # unknown method "info": must be create, destroy, meta or new
+    ToolApiOO create obj
+    obj cget size
+} -cleanup {
+    cleanupKeywordClass
+} -result 10
+
+# =========================================================================
+# Options: defaults, cget, configure
+
+test tool-api-3.0 {option default:} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj cget size
+} -cleanup {
+    cleanupKeywordClass
+} -result 10
+
+test tool-api-3.1 {option default-command:} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj cget computed
+} -cleanup {
+    cleanupKeywordClass
+} -result computed-computed
+
+test tool-api-3.2 {option, descendant overrides the default} -setup {
+    makeKeywordClass
+    tool::class create ::ToolApiD {
+        superclass ::ToolApiC
+        option size {default: 99}
+    }
+} -body {
+    ToolApiD create obj
+    obj cget size
+} -cleanup {
+    cleanupKeywordClass
+} -result 99
+
+test tool-api-3.3 {options given to the constructor, leading dash stripped} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj size 5 -limited 7
+    list [obj cget size] [obj cget limited]
+} -cleanup {
+    cleanupKeywordClass
+} -result {5 7}
+
+test tool-api-3.4 {options given to the constructor as one dict} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj {size 6 limited 8}
+    list [obj cget size] [obj cget limited]
+} -cleanup {
+    cleanupKeywordClass
+} -result {6 8}
+
+test tool-api-3.5 {cget, leading dash stripped} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj cget -size
+} -cleanup {
+    cleanupKeywordClass
+} -result 10
+
+test tool-api-3.6 {cget, falls back to a property of the same name} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj cget color
+} -cleanup {
+    cleanupKeywordClass
+} -result green
+
+test tool-api-3.7 {cget, option value takes precedence over the property} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj configure color blue
+    list [obj cget color] [obj meta cget color]
+} -cleanup {
+    cleanupKeywordClass
+} -result {blue green}
+
+test tool-api-3.8 {cget, unknown option, not strict} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj cget nosuch
+} -cleanup {
+    cleanupKeywordClass
+} -result {}
+
+test tool-api-3.9 {cget, wrong # args} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj cget
+} -cleanup {
+    cleanupKeywordClass
+} -returnCodes error -result {wrong # args: should be "my Config_get field ?arg ...?"}
+
+test tool-api-3.10 {cget, options_strict: undeclared option is an error} -constraints {
+    knownBug
+} -setup {
+    tool::class create ::ToolApiC {
+        property options_strict 1
+        option known {default: k}
+    }
+} -body {
+    # options_strict is documented but not implemented.
+    ToolApiC create obj
+    list [obj cget known] [catch {obj cget unknown}]
+} -cleanup {
+    cleanupKeywordClass
+} -result {k 1}
+
+test tool-api-3.11 {configure field value ?field value ...?} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj configure size 20 limited 30
+    list [obj cget size] [obj cget limited]
+} -cleanup {
+    cleanupKeywordClass
+} -result {20 30}
+
+test tool-api-3.12 {configure, leading dashes stripped} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj configure -size 21 --limited 31
+    list [obj cget size] [obj cget limited]
+} -cleanup {
+    cleanupKeywordClass
+} -result {21 31}
+
+test tool-api-3.13 {configure keyvaluelist} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj configure {size 22 limited 32}
+    list [obj cget size] [obj cget limited]
+} -cleanup {
+    cleanupKeywordClass
+} -result {22 32}
+
+test tool-api-3.14 {configure, validate-command: rewrites the value} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj configure limited 500
+    obj cget limited
+} -cleanup {
+    cleanupKeywordClass
+} -result 100
+
+test tool-api-3.15 {configure, post-command: is run} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    set ::toolapi_post {}
+    obj configure watched w1
+    obj configure size 1
+    obj configure watched w2
+    set ::toolapi_post
+} -cleanup {
+    cleanupKeywordClass
+} -result {watched w1 watched w2}
+
+test tool-api-3.16 {configure, %self% in post-command: is the object} -constraints {
+    knownBug
+} -setup {
+    proc toolapi_record args {set ::toolapi_post $args}
+    tool::class create ::ToolApiC {
+        option color {post-command: {toolapi_record %self% %field% %value%}}
+    }
+} -body {
+    # Example from tool.man: "foo's color is now purple".  %self% is
+    # replaced by the object's "my" command instead.
+    ToolApiC create ::foo
+    foo configure color purple
+    set ::toolapi_post
+} -cleanup {
+    cleanupKeywordClass
+    rename toolapi_record {}
+} -result {::foo color purple}
+
+test tool-api-3.17 {configure, post-command: is a script} -constraints {
+    knownBug
+} -setup {
+    tool::class create ::ToolApiC {
+        option color {post-command: {set ::toolapi_post [list %field% is now %value%]}}
+    }
+} -body {
+    # As in the tool.man example.  The script is expanded as a list of
+    # words and called as a command, so the command substitution is
+    # not done and set gets too many arguments.
+    ToolApiC create obj
+    obj configure color purple
+    set ::toolapi_post
+} -cleanup {
+    cleanupKeywordClass
+} -result {color is now purple}
+
+test tool-api-3.18 {configurelist sets values without triggers} -constraints {
+    knownBug
+} -setup {
+    makeKeywordClass
+} -body {
+    # configurelist is documented, but there is no such method.
+    ToolApiC create obj
+    set ::toolapi_post {}
+    obj configurelist {watched w1 limited 500}
+    list [obj cget watched] [obj cget limited] $::toolapi_post
+} -cleanup {
+    cleanupKeywordClass
+} -result {w1 100 {}}
+
+# =========================================================================
+# forward, graft, organ
+
+test tool-api-4.0 {forward} -setup {
+    tool::object create ::ToolApiA
+} -body {
+    ToolApiA forward fwd ::list a
+    ToolApiA fwd b c
+} -cleanup {
+    ToolApiA destroy
+} -result {a b c}
+
+test tool-api-4.1 {forward, wrong # args} -setup {
+    tool::object create ::ToolApiA
+} -body {
+    ToolApiA forward
+} -cleanup {
+    ToolApiA destroy
+} -returnCodes error -result {wrong # args: should be "ToolApiA forward method ?arg ...?"}
+
+test tool-api-4.2 {graft, example from tool.man} -setup {
+    tool::object create ::ToolApiA
+    tool::object create ::ToolApiB
+} -body {
+    ToolApiA graft buddy ToolApiB
+    ToolApiA configure color red
+    ToolApiB configure color blue
+    list [ToolApiA cget color] [ToolApiA <buddy> cget color]
+} -cleanup {
+    ToolApiA destroy
+    ToolApiB destroy
+} -result {red blue}
+
+test tool-api-4.3 {graft returns the target, organ lists it} -setup {
+    tool::object create ::ToolApiA
+} -body {
+    list [ToolApiA graft buddy ::list] [ToolApiA organ buddy] \
+        [dict get [ToolApiA organ] buddy] [ToolApiA organ nosuch]
+} -cleanup {
+    ToolApiA destroy
+} -result {::list ::list ::list {}}
+
+test tool-api-4.4 {graft several stubs at once} -setup {
+    tool::object create ::ToolApiA
+} -body {
+    ToolApiA graft p ::list q ::concat
+    list [ToolApiA <p> 1 2] [ToolApiA <q> {1 2} 3]
+} -cleanup {
+    ToolApiA destroy
+} -result {{1 2} {1 2 3}}
+
+test tool-api-4.5 {graft, odd number of arguments} -setup {
+    tool::object create ::ToolApiA
+} -body {
+    ToolApiA graft stub
+} -cleanup {
+    ToolApiA destroy
+} -returnCodes error -result {Need two arguments}
+
+# =========================================================================
+# Private methods: InitializePublic, Eval_Script, Option_Default
+
+test tool-api-5.0 {Option_Default, default:} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    private obj Option_Default size
+} -cleanup {
+    cleanupKeywordClass
+} -result 10
+
+test tool-api-5.1 {Option_Default, default-command:} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    private obj Option_Default computed
+} -cleanup {
+    cleanupKeywordClass
+} -result computed-computed
+
+test tool-api-5.2 {Option_Default, not affected by the current value} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj size 3
+    list [obj cget size] [private obj Option_Default size]
+} -cleanup {
+    cleanupKeywordClass
+} -result {3 10}
+
+test tool-api-5.3 {Option_Default, undeclared option} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    private obj Option_Default nosuch
+} -cleanup {
+    cleanupKeywordClass
+} -result {}
+
+test tool-api-5.4 {Option_Default is not exported} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    obj Option_Default size
+} -cleanup {
+    cleanupKeywordClass
+} -returnCodes error -match glob -result {unknown method "Option_Default": must be *}
+
+test tool-api-5.5 {InitializePublic restores missing values only} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj size 3
+    set ns [info object namespace obj]
+    unset ${ns}::v1
+    private obj InitializePublic
+    private obj InitializePublic
+    list [obj cget size] [obj vars]
+} -cleanup {
+    cleanupKeywordClass
+    unset -nocomplain ns
+} -result {3 {{a 1 b 2} hello}}
+
+test tool-api-5.6 {Eval_Script, example from tool.man} -constraints {
+    knownBug
+} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    private obj Eval_Script {
+        # This block of code is executed by the object
+        node {The Day the Earth Stood Still} {
+            date: 1952
+            characters: {GORT Klatoo}
+        }
+    }
+    obj getnode {The Day the Earth Stood Still} date:
+} -cleanup {
+    cleanupKeywordClass
+} -result 1952
+
+test tool-api-5.7 {Eval_Script, lines with my and :: prefixes} -constraints {
+    knownBug
+} -setup {
+    makeKeywordClass
+} -body {
+    ToolApiC create obj
+    private obj Eval_Script {
+        my node a {x 1}
+        ::set ::toolapi_post 2
+    }
+    list [obj getnode a x] $::toolapi_post
+} -cleanup {
+    cleanupKeywordClass
+} -result {1 2}
+
+# =========================================================================
+# dict_ensemble (tool_dict_ensemble.man)
+
+test tool-api-6.0 {dict_ensemble add, several values, no duplicates} -setup {
+    tool::class create ::ToolApiC {
+        dict_ensemble paths paths {}
+    }
+} -body {
+    ToolApiC create obj
+    obj paths add bin /bin /usr/bin /bin
+    obj paths add bin: /usr/bin /usr/local/bin
+    obj paths get bin
+} -cleanup {
+    cleanupKeywordClass
+} -result {/bin /usr/bin /usr/local/bin}
+
+test tool-api-6.1 {dict_ensemble, unknown submethod is passed to dict} -setup {
+    tool::class create ::ToolApiC {
+        dict_ensemble paths paths {}
+    }
+} -body {
+    ToolApiC create obj
+    obj paths nosuch
+} -cleanup {
+    cleanupKeywordClass
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "nosuch": must be *}
+
+# =========================================================================
+# Package dependencies
+
+test tool-api-7.0 {object destruction without the cron package loaded} -constraints {
+    knownBug
+} -setup {
+    set i [interp create]
+    foreach f {
+        oodialect/oodialect.tcl dicttool/dicttool.tcl
+        oometa/oometa.tcl sha1/sha1.tcl tool/tool.tcl
+    } {
+        $i eval [list source [file join $toolapi_modules $f]]
+    }
+    unset f
+} -body {
+    # tool.tcl does not require cron, but the destructor of every
+    # tool::object calls ::cron::object_destroy.
+    $i eval {
+        tool::object create obj
+        obj destroy
+        info commands obj
+    }
+} -cleanup {
+    interp delete $i
+    unset i
+} -result {}
+
+# -------------------------------------------------------------------------
+
+unset toolapi_modules
+rename private {}
+rename makeKeywordClass {}
+rename cleanupKeywordClass {}
+testsuiteCleanup
+return

@@ -13,7 +13,7 @@
 #####
 #
 # "mime type discriminator"
-# http://wiki.tcl.tk/12537
+# https://wiki.tcl-lang.org/12537
 #
 # Wiki page last updated: 25 Mar 2008, 15:56 GMT
 # Tcl code harvested on:  21 Aug 2018, 22:48 GMT,

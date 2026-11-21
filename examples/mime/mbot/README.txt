@@ -619,9 +619,9 @@ README                  The personal.tcl Mailbot           February 2002
 
 References
 
-   [1]  <http://core.tcl.tk/tcl/>
+   [1]  <https://core.tcl-lang.org/tcl/>
 
-   [2]  <http://core.tcl.tk/tcllib/>
+   [2]  <https://core.tcl-lang.org/tcllib/>
 
    [3]  <http://sourceforge.net/projects/tclx/>
 

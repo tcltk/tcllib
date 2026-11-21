@@ -3,7 +3,7 @@
 #####
 #
 # "BibTeX parser" -- Example Application.
-# http://wiki.tcl.tk/13719
+# https://wiki.tcl-lang.org/13719
 #
 # Tcl code harvested on:   7 Mar 2005, 23:55 GMT
 # Wiki page last updated: ???

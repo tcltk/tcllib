@@ -9,7 +9,7 @@
 # Copyright/License
 #
 #   This code was originally harvested from the Tcler's
-#   wiki at http://wiki.tcl.tk/1823 and as such is free
+#   wiki at https://wiki.tcl-lang.org/1823 and as such is free
 #   for any use for any purpose.
 #-------------------------------------------------------------------------
 # Modification history
