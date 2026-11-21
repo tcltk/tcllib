@@ -1,0 +1,565 @@
+# time-api.test - tests for the parts of the time package API not covered
+# by time.test. All network tests use an in-process TCP server on
+# 127.0.0.1; UDP is not tested (needs tcludp or ceptcl and a UDP server).
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use log/log.tcl log
+}
+testing {
+    useLocal time.tcl time
+}
+
+# -------------------------------------------------------------------------
+# Constraints
+
+tcltest::testConstraint udp [llength [concat \
+	[package provide udp] [package provide ceptcl]]]
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# The tests below assume tcp as default protocol unless udp is available.
+set defaultProtocol [time::cget -protocol]
+set savedOptions [time::configure]
+
+proc restoreOptions {} {
+    foreach {k v} $::savedOptions {
+	set ::time::options($k) $v
+    }
+}
+
+# In-process TCP server. Mode:
+#   send DATA - send DATA and close
+#   hold      - accept and keep the connection open
+#   close     - close immediately without sending
+proc startServer {mode {data {}}} {
+    set ::srvConns {}
+    set ::srvSock [socket -server [list srvAccept $mode $data] -myaddr 127.0.0.1 0]
+    return [lindex [fconfigure $::srvSock -sockname] 2]
+}
+
+proc srvAccept {mode data chan addr port} {
+    fconfigure $chan -translation binary -buffering none
+    switch -- $mode {
+	send {
+	    puts -nonewline $chan $data
+	    close $chan
+	}
+	hold {
+	    lappend ::srvConns $chan
+	}
+	close {
+	    close $chan
+	}
+    }
+}
+
+proc stopServer {} {
+    catch {close $::srvSock}
+    foreach c $::srvConns {catch {close $c}}
+    set ::srvConns {}
+}
+
+# A port on which nothing listens.
+proc freePort {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $port
+}
+
+proc timeData {unixtime} {
+    binary format I [expr {($unixtime + 2208988800) & 0xffffffff}]
+}
+
+proc sntpData {unixtime} {
+    return [string repeat \0 40][timeData $unixtime][binary format I 0x80000000]
+}
+
+# Waits (bounded) for a variable to be set.
+proc waitFor {varname {ms 5000}} {
+    set id [after $ms [list set $varname timeout]]
+    vwait $varname
+    after cancel $id
+}
+
+# -------------------------------------------------------------------------
+# configure, cget
+
+test time-api-1.0 {configure, no arguments, all options sorted} -body {
+    set res {}
+    foreach {k v} [time::configure] {lappend res $k}
+    set res
+} -cleanup {
+    unset res k v
+} -result {-command -loglevel -port -protocol -timeout -timeserver}
+
+test time-api-1.1 {configure, defaults} -body {
+    array set o [time::configure]
+    list $o(-port) $o(-timeout) $o(-command) $o(-loglevel)
+} -cleanup {
+    unset o
+} -result {37 10000 {} warning}
+
+test time-api-1.2 {configure, default protocol without udp support} -constraints {!udp} -body {
+    time::cget -protocol
+} -result tcp
+
+test time-api-1.3 {configure, default protocol with udp support} -constraints {udp} -body {
+    time::cget -protocol
+} -result udp
+
+test time-api-1.4 {configure, set several options} -body {
+    time::configure -port 1037 -timeout 2000 -command foo
+    list [time::cget -port] [time::cget -timeout] [time::cget -command]
+} -cleanup {
+    restoreOptions
+} -result {1037 2000 foo}
+
+test time-api-1.5 {configure, set returns empty} -body {
+    time::configure -port 1037
+} -cleanup {
+    restoreOptions
+} -result {}
+
+test time-api-1.6 {configure, single option returns its value} -body {
+    list [time::configure -port] [time::configure -timeout] [time::configure -loglevel]
+} -result {37 10000 warning}
+
+test time-api-1.7 {configure, -loglevel} -body {
+    time::configure -loglevel error
+    time::cget -loglevel
+} -cleanup {
+    time::configure -loglevel warning
+    restoreOptions
+} -result error
+
+test time-api-1.8 {configure, bad option} -body {
+    time::configure -foo 1
+} -returnCodes error -result {bad option "-foo": must be -command, -loglevel, -port, -protocol, -timeout, -timeserver}
+
+test time-api-1.9 {cget, bad option} -body {
+    time::cget -foo
+} -returnCodes error -result {bad option "-foo": must be -command, -loglevel, -port, -protocol, -timeout, -timeserver}
+
+test time-api-1.10 {cget, wrong # args} -body {
+    time::cget
+} -returnCodes error -result {wrong # args: should be "time::cget optionname"}
+
+test time-api-1.11 {cget, all documented options} -body {
+    list [time::cget -port] [time::cget -timeout] [time::cget -command] \
+	[time::cget -loglevel] [expr {[time::cget -protocol] in {tcp udp}}]
+} -result {37 10000 {} warning 1}
+
+# -------------------------------------------------------------------------
+# gettime, getsntp argument handling
+
+test time-api-2.0 {gettime, wrong # args, no server} -body {
+    time::gettime
+} -returnCodes error -match glob -result {wrong # args: should be "*gettime ?options? timeserver ?port?"}
+
+test time-api-2.1 {gettime, wrong # args, too many} -body {
+    time::gettime a b c
+} -returnCodes error -match glob -result {wrong # args: should be "*gettime ?options? timeserver ?port?"}
+
+test time-api-2.2 {getsntp, wrong # args} -body {
+    time::getsntp
+} -returnCodes error -match glob -result {wrong # args: should be "*getsntp ?options? timeserver ?port?"}
+
+test time-api-2.3 {gettime, bad option} -body {
+    time::gettime -foo 1 localhost
+} -returnCodes error -result {bad option "-foo": must be -command, -loglevel, -port, -protocol, -timeout, -timeserver.}
+
+test time-api-2.4 {gettime, default port 37} -constraints {!udp} -body {
+    set tok [time::gettime -protocol udp 127.0.0.1]
+    list [time::status $tok] [set ${tok}(-port)]
+} -cleanup {
+    time::cleanup $tok
+    unset tok
+} -result {error 37}
+
+test time-api-2.5 {getsntp, default port 123} -constraints {!udp} -body {
+    set tok [time::getsntp -protocol udp 127.0.0.1]
+    list [time::status $tok] [set ${tok}(-port)]
+} -cleanup {
+    time::cleanup $tok
+    unset tok
+} -result {error 123}
+
+test time-api-2.6 {gettime, udp without udp support} -constraints {!udp} -body {
+    set tok [time::gettime -protocol udp 127.0.0.1]
+    list [time::status $tok] [time::error $tok]
+} -cleanup {
+    time::cleanup $tok
+    unset tok
+} -match glob -result {error {udp support is not available, *either ceptcl or tcludp required}}
+
+test time-api-2.7 {gettime, explicit port argument} -constraints {!udp} -body {
+    set tok [time::gettime -protocol udp 127.0.0.1 1234]
+    set ${tok}(-port)
+} -cleanup {
+    time::cleanup $tok
+    unset tok
+} -result 1234
+
+test time-api-2.8 {gettime, -port option} -constraints {!udp} -body {
+    set tok [time::gettime -protocol udp -port 4321 127.0.0.1]
+    set ${tok}(-port)
+} -cleanup {
+    time::cleanup $tok
+    unset tok
+} -result 4321
+
+test time-api-2.9 {gettime, -- ends options} -constraints {!udp} -body {
+    set tok [time::gettime -protocol udp -- -host]
+    set ${tok}(-timeserver)
+} -cleanup {
+    time::cleanup $tok
+    unset tok
+} -result -host
+
+test time-api-2.10 {gettime, each request gets its own token} -constraints {!udp} -body {
+    set t1 [time::gettime -protocol udp 127.0.0.1]
+    set t2 [time::gettime -protocol udp 127.0.0.1]
+    expr {$t1 ne $t2}
+} -cleanup {
+    time::cleanup $t1
+    time::cleanup $t2
+    unset t1 t2
+} -result 1
+
+# -------------------------------------------------------------------------
+# gettime over tcp
+
+test time-api-3.0 {gettime, tcp, synchronous} -setup {
+    set port [startServer send [timeData 1700000000]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    list [time::status $tok] [time::error $tok] [time::unixtime $tok]
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {ok {} 1700000000}
+
+test time-api-3.1 {gettime, tcp, time after the 2036 wrap of RFC 868} -setup {
+    set port [startServer send [timeData 2200000000]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    time::unixtime $tok
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result 2200000000
+
+test time-api-3.2 {gettime, tcp, -port option} -setup {
+    set port [startServer send [timeData 1000000000]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 -port $port 127.0.0.1]
+    list [time::status $tok] [time::unixtime $tok]
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {ok 1000000000}
+
+test time-api-3.3 {gettime, tcp, -command callback} -setup {
+    set port [startServer send [timeData 1234567890]]
+    set ::cbResult {}
+    proc cb {tag token} {
+	set ::cbResult [list $tag [time::status $token] [time::unixtime $token]]
+    }
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 -command {cb mytag} 127.0.0.1 $port]
+    set before [time::status $tok]
+    waitFor ::cbResult
+    list $before $::cbResult [time::status $tok]
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    rename cb {}
+    unset tok port before ::cbResult
+} -result {connect {mytag ok 1234567890} ok}
+
+test time-api-3.4 {wait, returns the final status} -setup {
+    set port [startServer send [timeData 1234567890]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 -command list 127.0.0.1 $port]
+    list [time::wait $tok] [time::unixtime $tok]
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {ok 1234567890}
+
+test time-api-3.5 {wait, completed request} -setup {
+    set port [startServer send [timeData 1234567890]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    time::wait $tok
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result ok
+
+test time-api-3.6 {gettime, connection refused} -setup {
+    set port [freePort]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    list [time::status $tok] [expr {[time::error $tok] ne ""}]
+} -cleanup {
+    time::cleanup $tok
+    unset tok port
+} -result {error 1}
+
+test time-api-3.7 {unixtime, failed request raises the error} -setup {
+    set port [freePort]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    list [catch {time::unixtime $tok} msg] [expr {$msg eq [time::error $tok]}]
+} -cleanup {
+    time::cleanup $tok
+    unset tok port msg
+} -result {1 1}
+
+test time-api-3.8 {gettime, -command error recorded} -setup {
+    set port [startServer send [timeData 1234567890]]
+    set ::cbDone 0
+    proc cb {token} {
+	set ::cbDone 1
+	error "callback failed"
+    }
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 -command cb 127.0.0.1 $port]
+    time::wait $tok
+    list $::cbDone [time::status $tok] [lindex [time::error $tok] 0]
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    rename cb {}
+    unset tok port ::cbDone
+} -result {1 error {callback failed}}
+
+test time-api-3.9 {gettime, global -command option used} -setup {
+    set port [startServer send [timeData 1234567890]]
+    set ::cbResult {}
+    proc cb {token} {set ::cbResult [time::unixtime $token]}
+    time::configure -command cb
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    waitFor ::cbResult
+    set ::cbResult
+} -cleanup {
+    restoreOptions
+    time::cleanup $tok
+    stopServer
+    rename cb {}
+    unset tok port ::cbResult
+} -result 1234567890
+
+# -------------------------------------------------------------------------
+# getsntp over tcp (the server sends a 48 byte SNTP reply)
+
+test time-api-4.0 {getsntp, tcp} -setup {
+    set port [startServer send [sntpData 1700000000]]
+} -body {
+    set tok [time::getsntp -protocol tcp -timeout 5000 127.0.0.1 $port]
+    list [time::status $tok] [time::unixtime $tok]
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {ok 1700000000}
+
+test time-api-4.1 {getsntp, tcp, -command callback} -setup {
+    set port [startServer send [sntpData 1500000000]]
+    set ::cbResult {}
+    proc cb {token} {set ::cbResult [list [time::status $token] [time::unixtime $token]]}
+} -body {
+    set tok [time::getsntp -protocol tcp -timeout 5000 -command cb 127.0.0.1 $port]
+    waitFor ::cbResult
+    set ::cbResult
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    rename cb {}
+    unset tok port ::cbResult
+} -result {ok 1500000000}
+
+# -------------------------------------------------------------------------
+# reset, timeout, eof
+
+test time-api-5.0 {reset, default reason} -setup {
+    set port [startServer hold]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 -command list 127.0.0.1 $port]
+    time::reset $tok
+    list [time::status $tok] [time::error $tok]
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {reset {}}
+
+test time-api-5.1 {reset, callback called} -setup {
+    set port [startServer hold]
+    set ::cbResult {}
+    proc cb {token} {set ::cbResult [time::status $token]}
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 -command cb 127.0.0.1 $port]
+    time::reset $tok
+    set ::cbResult
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    rename cb {}
+    unset tok port ::cbResult
+} -result reset
+
+# Bug: the reason is stored as status, the error message stays empty.
+test time-api-5.2 {reset, reason recorded for error} -constraints knownBug -setup {
+    set port [startServer hold]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 -command list 127.0.0.1 $port]
+    time::reset $tok {cancelled by user}
+    time::error $tok
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {cancelled by user}
+
+test time-api-5.3 {timeout, error message} -setup {
+    set port [startServer hold]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 100 127.0.0.1 $port]
+    time::error $tok
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {timeout ocurred}
+
+# Bug: after a timeout the status is "error", not "timeout".
+test time-api-5.4 {timeout, status} -constraints knownBug -setup {
+    set port [startServer hold]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 100 127.0.0.1 $port]
+    time::status $tok
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result timeout
+
+# Bug: end of file is not detected; the request runs until the timeout.
+test time-api-5.5 {server closes without data, status eof} -constraints knownBug -setup {
+    set port [startServer close]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 500 127.0.0.1 $port]
+    time::status $tok
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result eof
+
+test time-api-5.6 {server sends short data, request not ok} -setup {
+    set port [startServer send xy]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 300 127.0.0.1 $port]
+    expr {[time::status $tok] ne "ok"}
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result 1
+
+# -------------------------------------------------------------------------
+# status, error, cleanup
+
+test time-api-6.0 {error, empty for successful request} -setup {
+    set port [startServer send [timeData 1]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    time::error $tok
+} -cleanup {
+    time::cleanup $tok
+    stopServer
+    unset tok port
+} -result {}
+
+test time-api-6.1 {cleanup, removes the state, returns empty} -setup {
+    set port [startServer send [timeData 1]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    list [time::cleanup $tok] [info exists $tok]
+} -cleanup {
+    stopServer
+    unset tok port
+} -result {{} 0}
+
+test time-api-6.2 {cleanup, twice} -setup {
+    set port [startServer send [timeData 1]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    time::cleanup $tok
+    time::cleanup $tok
+} -cleanup {
+    stopServer
+    unset tok port
+} -result {}
+
+test time-api-6.3 {status, wrong # args} -body {
+    time::status
+} -returnCodes error -result {wrong # args: should be "time::status token"}
+
+test time-api-6.4 {reset, wrong # args} -body {
+    time::reset
+} -returnCodes error -result {wrong # args: should be "time::reset token ?why?"}
+
+test time-api-6.5 {no channels left after requests} -setup {
+    set before [lsort [chan names]]
+    set port [startServer send [timeData 1]]
+} -body {
+    set tok [time::gettime -protocol tcp -timeout 5000 127.0.0.1 $port]
+    time::cleanup $tok
+    stopServer
+    expr {[lsort [chan names]] eq $before}
+} -cleanup {
+    unset tok port before
+} -result 1
+
+# -------------------------------------------------------------------------
+
+restoreOptions
+rename restoreOptions {}
+rename startServer {}
+rename srvAccept {}
+rename stopServer {}
+rename freePort {}
+rename timeData {}
+rename sntpData {}
+rename waitFor {}
+unset defaultProtocol savedOptions
+catch {unset srvSock srvConns}
+testsuiteCleanup
+
+# Local variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
