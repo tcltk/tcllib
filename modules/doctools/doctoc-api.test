@@ -1,0 +1,505 @@
+# -*- tcl -*-
+# doctoc-api.test:  additional tests for the API of the doctools::toc package.
+#
+# Complements doctoc.test: object methods map, parameters, setparam,
+# warnings and destroy, format mapping, include handling and the
+# engine API (dt_* commands) as seen by a formatting engine.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use textutil/expander.tcl textutil::expander
+}
+testing {
+    useLocal doctoc.tcl doctools::toc
+}
+
+# The formatting engines load helper packages (textutil, ...) from
+# auto_path, make sure they are found when run outside of sak.
+set saved_auto_path $auto_path
+set auto_path [linsert $auto_path 0 \
+    [file dirname [file dirname [file normalize [info script]]]]]
+
+# -------------------------------------------------------------------------
+
+array_unset env LANG*
+array_unset env LC_*
+set env(LANG) C
+
+set minimal {[toc_begin TOC Test][item f1 Foo Desc][toc_end]}
+
+# A minimal formatting engine which reports what the doctoc object
+# makes available to it through the engine API.
+
+set probeEngine {
+    global var
+    set var(alpha) {}
+    proc toc_initialize  {}  {return}
+    proc toc_shutdown    {}  {return}
+    proc toc_numpasses   {}  {return 1}
+    proc toc_setup       {n} {return}
+    proc toc_listvariables {} {return alpha}
+    proc toc_varset {v t} {
+	global var
+	if {$v ne "alpha"} {
+	    return -code error "Unknown engine variable \"$v\""
+	}
+	set var($v) $t
+	return
+    }
+    proc toc_postprocess {text} {
+	global var
+	list format [dt_format] fmap [dt_fmap sym] nomap [dt_fmap other] \
+	    alpha $var(alpha) text [string trim $text]
+    }
+    foreach p {toc_begin toc_end item division_start division_end comment} {
+	proc fmt_$p {args} {return ""}
+    }
+    proc fmt_plain_text {text} {return $text}
+    proc fmt_item {args} {return [lindex $args 0]}
+}
+
+set engdir  [tcltest::makeDirectory doctoc-api-engines]
+set probe   [tcltest::makeFile $probeEngine toc.probe $engdir]
+set partial [tcltest::makeFile {
+    proc toc_numpasses {} {return 1}
+} toc.partial $engdir]
+set badpass [tcltest::makeFile [string map {
+    {proc toc_numpasses   {}  {return 1}} {proc toc_numpasses {} {return 0}}
+} $probeEngine] toc.badpass $engdir]
+
+# -------------------------------------------------------------------------
+# Package level commands
+
+test doctoc-api-1.0 {help, wrong # args} -body {
+    ::doctools::toc::help x
+} -returnCodes error -result {wrong # args: should be "::doctools::toc::help"}
+
+test doctoc-api-1.1 {help lists the formatting commands} -body {
+    string match *toc_begin* [::doctools::toc::help]
+} -result 1
+
+test doctoc-api-1.2 {search, wrong # args} -body {
+    ::doctools::toc::search
+} -returnCodes error -result {wrong # args: should be "::doctools::toc::search path"}
+
+test doctoc-api-1.3 {search, too many args} -body {
+    ::doctools::toc::search a b
+} -returnCodes error -result {wrong # args: should be "::doctools::toc::search path"}
+
+test doctoc-api-1.4 {search, package paths are used for format mapping} -setup {
+    set saved $::doctools::toc::paths
+    ::doctools::toc::new myobj
+} -body {
+    ::doctools::toc::search $engdir
+    myobj configure -format probe
+    myobj cget -format
+} -cleanup {
+    myobj destroy
+    set ::doctools::toc::paths $saved
+    unset saved
+} -result probe
+
+test doctoc-api-1.5 {search, the last path entered is searched first} -setup {
+    set saved $::doctools::toc::paths
+    set d2 [tcltest::makeDirectory doctoc-api-engines2]
+    tcltest::makeFile {proc toc_numpasses {} {return 1}} toc.probe $d2
+    ::doctools::toc::new myobj
+} -body {
+    ::doctools::toc::search $engdir
+    ::doctools::toc::search $d2
+    # The incomplete engine in d2 is found first.
+    list [catch {myobj configure -format probe} msg] \
+	[string match {*error: API incomplete, cannot use this engine} $msg]
+} -cleanup {
+    myobj destroy
+    set ::doctools::toc::paths $saved
+    tcltest::removeDirectory doctoc-api-engines2
+    unset saved d2 msg
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# Object creation and configuration
+
+test doctoc-api-2.0 {new returns the object name} -body {
+    ::doctools::toc::new myobj
+} -cleanup {
+    myobj destroy
+} -result myobj
+
+test doctoc-api-2.1 {new with options} -body {
+    ::doctools::toc::new myobj -file /x/y.toc -format null
+    myobj configure
+} -cleanup {
+    myobj destroy
+} -result {-file /x/y.toc -format null}
+
+test doctoc-api-2.2 {new with an unknown option} -body {
+    ::doctools::toc::new myobj -foo bar
+} -returnCodes error -cleanup {
+    catch {myobj destroy}
+} -result {doctools::toc::_configure: Unknown option "-foo", expected -file, or -format}
+
+test doctoc-api-2.3 {new with a bad format} -body {
+    ::doctools::toc::new myobj -format bogus
+} -returnCodes error -cleanup {
+    catch {myobj destroy}
+} -result {doctools::toc::_configure: -format: Unknown format "bogus"}
+
+test doctoc-api-2.4 {configure several options at once} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj configure -file f -format null
+    list [myobj cget -file] [myobj cget -format]
+} -cleanup {
+    myobj destroy
+} -result {f null}
+
+# -------------------------------------------------------------------------
+# -format, format mapping
+
+test doctoc-api-3.0 {-format accepts the path of an engine file} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj configure -format $probe
+    expr {[myobj cget -format] eq $probe}
+} -cleanup {
+    myobj destroy
+} -result 1
+
+test doctoc-api-3.1 {-format uses the object search paths} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj search $engdir
+    myobj configure -format probe
+    myobj cget -format
+} -cleanup {
+    myobj destroy
+} -result probe
+
+test doctoc-api-3.2 {object search paths are not shared between objects} -setup {
+    ::doctools::toc::new myobj
+    ::doctools::toc::new myobj2
+} -body {
+    myobj search $engdir
+    myobj2 configure -format probe
+} -returnCodes error -cleanup {
+    myobj destroy
+    myobj2 destroy
+} -result {doctools::toc::_configure: -format: Unknown format "probe"}
+
+test doctoc-api-3.3 {failed -format leaves the previous format untouched} -setup {
+    ::doctools::toc::new myobj -format null
+} -body {
+    catch {myobj configure -format bogus}
+    list [myobj cget -format] [myobj format $minimal]
+} -cleanup {
+    myobj destroy
+} -result {null {}}
+
+test doctoc-api-3.4 {engine with incomplete API is rejected} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    list [catch {myobj configure -format $partial} msg] \
+	[expr {$msg eq "doctools::toc::_configure: -format: $partial error: API incomplete, cannot use this engine"}] \
+	[myobj cget -format]
+} -cleanup {
+    myobj destroy
+    unset msg
+} -result {1 1 {}}
+
+test doctoc-api-3.5 {engine with illegal number of passes is rejected} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    list [catch {myobj configure -format $badpass} msg] \
+	[expr {$msg eq "doctools::toc::_configure: -format: $badpass error: illegal number of passes \"0\""}]
+} -cleanup {
+    myobj destroy
+    unset msg
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# Engine API, include
+
+test doctoc-api-4.0 {engine sees the format and the formatted text} -setup {
+    ::doctools::toc::new myobj -format $probe
+} -body {
+    set res [myobj format $minimal]
+    list [expr {[dict get $res format] eq $probe}] [dict get $res text]
+} -cleanup {
+    myobj destroy
+    unset res
+} -result {1 f1}
+
+test doctoc-api-4.1 {include is resolved relative to -file} -setup {
+    set dir [tcltest::makeDirectory doctoc-api-inc]
+    tcltest::makeFile $minimal sub.inc $dir
+    ::doctools::toc::new myobj -format $probe -file [file join $dir main.toc]
+} -body {
+    dict get [myobj format {[include sub.inc]}] text
+} -cleanup {
+    myobj destroy
+    tcltest::removeDirectory doctoc-api-inc
+    unset dir
+} -result f1
+
+# The message reads "Unable to fine include file".
+test doctoc-api-4.2 {include of a missing file} -setup {
+    set dir [tcltest::makeDirectory doctoc-api-inc]
+    ::doctools::toc::new myobj -format null -file [file join $dir main.toc]
+} -body {
+    myobj format {[include no-such-file.inc]}
+} -returnCodes error -cleanup {
+    myobj destroy
+    tcltest::removeDirectory doctoc-api-inc
+    unset dir
+} -match glob -result {*include file "no-such-file.inc"*}
+
+# -------------------------------------------------------------------------
+# map
+
+test doctoc-api-5.0 {map, wrong # args} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj map a
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {wrong # args: should be "::doctools::toc::_map name sfname afname"}
+
+test doctoc-api-5.1 {map, too many args} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj map a b c
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {wrong # args: should be "::doctools::toc::_map name sfname afname"}
+
+test doctoc-api-5.2 {map returns empty, mapping is seen through dt_fmap} -setup {
+    ::doctools::toc::new myobj -format $probe
+} -body {
+    set r [myobj map sym actual.html]
+    set res [myobj format $minimal]
+    lappend r [dict get $res fmap] [dict get $res nomap]
+} -cleanup {
+    myobj destroy
+    unset r res
+} -result {actual.html other}
+
+test doctoc-api-5.3 {map, later mapping replaces earlier one} -setup {
+    ::doctools::toc::new myobj -format $probe
+} -body {
+    myobj map sym first.html
+    myobj map sym second.html
+    dict get [myobj format $minimal] fmap
+} -cleanup {
+    myobj destroy
+} -result second.html
+
+test doctoc-api-5.4 {map is used by the html engine} -setup {
+    ::doctools::toc::new myobj -format html
+} -body {
+    myobj map f1 actual.html
+    regexp {href="actual.html"} [myobj format $minimal]
+} -cleanup {
+    myobj destroy
+} -result 1
+
+# -------------------------------------------------------------------------
+# parameters
+
+test doctoc-api-6.0 {parameters, too many args} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj parameters x
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {wrong # args: should be "::doctools::toc::_parameters name"}
+
+test doctoc-api-6.1 {parameters, no format configured} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj parameters
+} -cleanup {
+    myobj destroy
+} -result {}
+
+test doctoc-api-6.2 {parameters, html engine has the documented parameters} -setup {
+    ::doctools::toc::new myobj -format html
+} -body {
+    set p [myobj parameters]
+    list [expr {"footer" in $p}] [expr {"header" in $p}] [expr {"meta" in $p}]
+} -cleanup {
+    myobj destroy
+    unset p
+} -result {1 1 1}
+
+test doctoc-api-6.3 {parameters, engines without parameters} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    set res {}
+    foreach f {markdown nroff text wiki tmml} {
+	myobj configure -format $f
+	lappend res $f [myobj parameters]
+    }
+    set res
+} -cleanup {
+    myobj destroy
+    unset res f
+} -result {markdown {} nroff {} text {} wiki {} tmml {}}
+
+# The stubs in api_toc.tcl return the error script as a string instead
+# of throwing it, so the null engine, which does not define
+# toc_listvariables itself, reports a bogus parameter list.
+test doctoc-api-6.4 {parameters, engine without toc_listvariables} -constraints knownBug -setup {
+    ::doctools::toc::new myobj -format null
+} -body {
+    myobj parameters
+} -cleanup {
+    myobj destroy
+} -result {}
+
+test doctoc-api-6.5 {parameters, custom engine} -setup {
+    ::doctools::toc::new myobj -format $probe
+} -body {
+    myobj parameters
+} -cleanup {
+    myobj destroy
+} -result alpha
+
+# -------------------------------------------------------------------------
+# setparam
+
+test doctoc-api-7.0 {setparam, wrong # args} -setup {
+    ::doctools::toc::new myobj -format html
+} -body {
+    myobj setparam x
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {wrong # args: should be "::doctools::toc::_setparam name param value"}
+
+test doctoc-api-7.1 {setparam, too many args} -setup {
+    ::doctools::toc::new myobj -format html
+} -body {
+    myobj setparam x y z
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {wrong # args: should be "::doctools::toc::_setparam name param value"}
+
+test doctoc-api-7.2 {setparam, no format configured} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj setparam header x
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {Unable to set parameters without a valid format}
+
+test doctoc-api-7.3 {setparam, unknown parameter} -setup {
+    ::doctools::toc::new myobj -format html
+} -body {
+    myobj setparam nosuch x
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {Unknown engine variable "nosuch"}
+
+# Engines without parameters silently accept any parameter name.
+test doctoc-api-7.4 {setparam, unknown parameter, engine without parameters} -constraints knownBug -setup {
+    ::doctools::toc::new myobj -format text
+} -body {
+    myobj setparam nosuch x
+} -returnCodes error -cleanup {
+    myobj destroy
+} -match glob -result *nosuch*
+
+test doctoc-api-7.5 {setparam returns empty, value reaches the engine} -setup {
+    ::doctools::toc::new myobj -format $probe
+} -body {
+    list [myobj setparam alpha 42] [dict get [myobj format $minimal] alpha]
+} -cleanup {
+    myobj destroy
+} -result {{} 42}
+
+test doctoc-api-7.6 {setparam html header, footer and meta} -setup {
+    ::doctools::toc::new myobj -format html
+} -body {
+    myobj setparam header <p>HEADERMARK</p>
+    myobj setparam footer <p>FOOTERMARK</p>
+    myobj setparam meta {<meta name="x" content="METAMARK">}
+    set out [myobj format $minimal]
+    list [regexp {<head>.*METAMARK.*</head>} $out] \
+	[regexp {<body>.*HEADERMARK.*FOOTERMARK.*</body>} $out]
+} -cleanup {
+    myobj destroy
+    unset out
+} -result {1 1}
+
+test doctoc-api-7.7 {setparam, new format resets parameters} -setup {
+    ::doctools::toc::new myobj -format $probe
+} -body {
+    myobj setparam alpha 42
+    myobj configure -format $probe
+    dict get [myobj format $minimal] alpha
+} -cleanup {
+    myobj destroy
+} -result {}
+
+# -------------------------------------------------------------------------
+# warnings, destroy
+
+test doctoc-api-8.0 {warnings, too many args} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj warnings x
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {wrong # args: should be "::doctools::toc::_warnings name"}
+
+test doctoc-api-8.1 {warnings, before and after a format} -setup {
+    ::doctools::toc::new myobj -format null
+} -body {
+    set res [myobj warnings]
+    myobj format $minimal
+    lappend res [myobj warnings]
+} -cleanup {
+    myobj destroy
+    unset res
+} -result {{}}
+
+test doctoc-api-9.0 {destroy, too many args} -setup {
+    ::doctools::toc::new myobj
+} -body {
+    myobj destroy x
+} -returnCodes error -cleanup {
+    myobj destroy
+} -result {wrong # args: should be "::doctools::toc::_destroy name"}
+
+test doctoc-api-9.1 {destroy removes command and state} -setup {
+    ::doctools::toc::new myobj -format html
+} -body {
+    list [myobj destroy] [info commands myobj] \
+	[namespace exists ::doctools::toc::doctocmyobj]
+} -result {{} {} 0}
+
+test doctoc-api-9.2 {name can be reused after destroy} -setup {
+    ::doctools::toc::new myobj -file a
+    myobj destroy
+} -body {
+    ::doctools::toc::new myobj
+    myobj cget -file
+} -cleanup {
+    myobj destroy
+} -result {}
+
+# -------------------------------------------------------------------------
+
+tcltest::removeDirectory doctoc-api-engines
+unset -nocomplain minimal probeEngine engdir probe partial badpass
+set auto_path $saved_auto_path
+unset saved_auto_path
+testsuiteCleanup
+return

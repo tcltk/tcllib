@@ -1,0 +1,231 @@
+# -*- tcl -*-
+# changelog-api.test:  tests for the doctools::changelog package.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use textutil/repeat.tcl   textutil::repeat
+    use textutil/string.tcl   textutil::string
+    use textutil/adjust.tcl   textutil::adjust
+    use textutil/split.tcl    textutil::split
+    use textutil/tabify.tcl   textutil::tabify
+    use textutil/trim.tcl     textutil::trim
+    use textutil/wcswidth.tcl textutil::wcswidth
+    useKeep textutil/textutil.tcl textutil
+    use textutil/expander.tcl textutil::expander
+    useLocal doctools.tcl doctools
+}
+testing {
+    useLocal changelog.tcl doctools::changelog
+}
+
+# -------------------------------------------------------------------------
+
+set log {2003-04-14  Andreas Kupries  <andreas@example.com>
+
+	* foo.tcl: Fixed a bug in [bar].
+	* foo.man: Documented it.
+
+	* bar.tcl (proc baz): New command.
+
+2003-04-10  Jeff Hobbs  <jeff@example.com>
+
+	* README: Updated.
+	Second line of text.
+
+	General comment without file.
+}
+
+set entries {{2003-04-14 {Andreas Kupries <andreas@example.com>} {{{foo.tcl foo.man} {Fixed a bug in [bar].
+Documented it.}} {bar.tcl {(proc baz) New command.}}}} {2003-04-10 {Jeff Hobbs <jeff@example.com>} {{README {Updated.
+Second line of text.}} {{} {General comment without file.}}}}}
+
+# -------------------------------------------------------------------------
+# scan
+
+test changelog-api-1.0 {scan, wrong # args} -body {
+    ::doctools::changelog::scan
+} -returnCodes error -result {wrong # args: should be "::doctools::changelog::scan text"}
+
+test changelog-api-1.1 {scan, too many args} -body {
+    ::doctools::changelog::scan a b
+} -returnCodes error -result {wrong # args: should be "::doctools::changelog::scan text"}
+
+test changelog-api-1.2 {scan, empty text} -body {
+    ::doctools::changelog::scan {}
+} -result {}
+
+test changelog-api-1.3 {scan, entries, sections, files and comments} -body {
+    ::doctools::changelog::scan $log
+} -result $entries
+
+test changelog-api-1.4 {scan, structure of the result} -body {
+    set res {}
+    foreach e [::doctools::changelog::scan $log] {
+	lassign $e date author sections
+	lappend res $date $author [llength $sections]
+	foreach s $sections {
+	    lappend res [lindex $s 0]
+	}
+    }
+    set res
+} -cleanup {
+    unset res e date author sections s
+} -result {2003-04-14 {Andreas Kupries <andreas@example.com>} 2 {foo.tcl foo.man} bar.tcl 2003-04-10 {Jeff Hobbs <jeff@example.com>} 2 README {}}
+
+test changelog-api-1.5 {scan, file entry ending with a colon} -body {
+    ::doctools::changelog::scan "2001-01-01  A  <a@b>\n\n\t* x.tcl:\n\tText on next line.\n"
+} -result {{2001-01-01 {A <a@b>} {{x.tcl {Text on next line.}}}}}
+
+test changelog-api-1.6 {scan, entry without comments} -body {
+    ::doctools::changelog::scan "2001-01-01  A  <a@b>\n"
+} -result {{2001-01-01 {A <a@b>} {}}}
+
+test changelog-api-1.7 {scan, the order of entries is kept} -body {
+    set res {}
+    foreach e [::doctools::changelog::scan \
+	    "2001-01-01  A  <a@b>\n\n\t* a: x\n2002-02-02  B  <b@c>\n\n\t* b: y\n"] {
+	lappend res [lindex $e 0]
+    }
+    set res
+} -cleanup {
+    unset res e
+} -result {2001-01-01 2002-02-02}
+
+# -------------------------------------------------------------------------
+# flatten
+
+test changelog-api-2.0 {flatten, wrong # args} -body {
+    ::doctools::changelog::flatten
+} -returnCodes error -result {wrong # args: should be "::doctools::changelog::flatten entries"}
+
+test changelog-api-2.1 {flatten, too many args} -body {
+    ::doctools::changelog::flatten a b
+} -returnCodes error -result {wrong # args: should be "::doctools::changelog::flatten entries"}
+
+test changelog-api-2.2 {flatten, no entries} -body {
+    ::doctools::changelog::flatten {}
+} -result {}
+
+test changelog-api-2.3 {flatten, one text block per entry} -body {
+    ::doctools::changelog::flatten $entries
+} -result {{2003-04-14 Andreas Kupries <andreas@example.com>
+    foo.tcl, foo.man, bar.tcl:
+        Fixed a bug in [bar]. Documented it. (proc baz) New command.} {2003-04-10 Jeff Hobbs <jeff@example.com>
+    README:
+        Updated. Second line of text. General comment without file.}}
+
+# -------------------------------------------------------------------------
+# toDoctools
+
+test changelog-api-3.0 {toDoctools, wrong # args} -body {
+    ::doctools::changelog::toDoctools a b c
+} -returnCodes error -result {wrong # args: should be "::doctools::changelog::toDoctools title module version entries"}
+
+test changelog-api-3.1 {toDoctools, too many args} -body {
+    ::doctools::changelog::toDoctools a b c d e
+} -returnCodes error -result {wrong # args: should be "::doctools::changelog::toDoctools title module version entries"}
+
+test changelog-api-3.2 {toDoctools, no entries} -body {
+    ::doctools::changelog::toDoctools Title Mod 1.0 {}
+} -result {[manpage_begin Title-changelog n 1.0]
+[titledesc {Title ChangeLog}]
+[moddesc Mod]
+[description]
+[list_begin definitions compact]
+[list_end]
+[manpage_end]}
+
+test changelog-api-3.3 {toDoctools, entries} -body {
+    ::doctools::changelog::toDoctools Title Mod 1.0 $entries
+} -result {[manpage_begin Title-changelog n 1.0]
+[titledesc {Title ChangeLog}]
+[moddesc Mod]
+[description]
+[list_begin definitions compact]
+[lst_item "[emph 2003-04-14] -- Andreas Kupries <andreas@example.com>"]
+[nl]
+[list_begin definitions]
+[lst_item [file foo.tcl]]
+[lst_item [file foo.man]]
+
+Fixed a bug in [lb]bar[rb]. Documented it.
+
+[list_end]
+[list_begin definitions]
+[lst_item [file bar.tcl]]
+
+(proc baz) New command.
+
+[list_end]
+[nl]
+[lst_item "[emph 2003-04-10] -- Jeff Hobbs <jeff@example.com>"]
+[nl]
+[list_begin definitions]
+[lst_item [file README]]
+
+Updated. Second line of text.
+
+[list_end]
+[list_begin bullet]
+[bullet]
+
+General comment without file.
+
+[list_end]
+[nl]
+[list_end]
+[manpage_end]}
+
+test changelog-api-3.4 {toDoctools, result is a valid doctools document} -setup {
+    ::doctools::new mydt -format list
+} -body {
+    set res [mydt format [::doctools::changelog::toDoctools Title Mod 1.0 $entries]]
+    list [lindex $res 0] [dict get [lindex $res 1] title] \
+	[dict get [lindex $res 1] version] [dict get [lindex $res 1] shortdesc]
+} -cleanup {
+    mydt destroy
+    unset res
+} -result {manpage Title-changelog 1.0 Mod}
+
+test changelog-api-3.5 {toDoctools, quotes in the author are escaped} -body {
+    lindex [split [::doctools::changelog::toDoctools T M 1 \
+	{{2001-01-01 {A "nick" B} {}}}] \n] 5
+} -result {[lst_item "[emph 2001-01-01] -- A \"nick\" B"]}
+
+# -------------------------------------------------------------------------
+# merge
+
+test changelog-api-4.0 {merge, no arguments} -body {
+    ::doctools::changelog::merge
+} -result {}
+
+test changelog-api-4.1 {merge, single changelog is returned unchanged} -body {
+    ::doctools::changelog::merge $entries
+} -result $entries
+
+test changelog-api-4.2 {merge, entries for same date and author are collapsed} -body {
+    ::doctools::changelog::merge \
+	{{2001-01-01 A {{a.tcl x}}} {2001-01-03 B {{b.tcl y}}}} \
+	{{2001-01-02 C {{c.tcl z}}} {2001-01-01 A {{d.tcl w}}}}
+} -result {{2001-01-03 B {{b.tcl y}}} {2001-01-02 C {{c.tcl z}}} {2001-01-01 A {{a.tcl x} {d.tcl w}}}}
+
+test changelog-api-4.3 {merge, same date, different authors} -body {
+    ::doctools::changelog::merge {{2001-01-01 A {{a x}}}} {{2001-01-01 B {{b y}}}}
+} -result {{2001-01-01 B {{b y}}} {2001-01-01 A {{a x}}}}
+
+test changelog-api-4.4 {merge, three changelogs} -body {
+    llength [::doctools::changelog::merge $entries $entries $entries]
+} -result 2
+
+# -------------------------------------------------------------------------
+
+unset -nocomplain log entries
+testsuiteCleanup
+return

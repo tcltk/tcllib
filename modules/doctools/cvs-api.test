@@ -1,0 +1,203 @@
+# -*- tcl -*-
+# cvs-api.test:  tests for the doctools::cvs package.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use textutil/repeat.tcl   textutil::repeat
+    use textutil/string.tcl   textutil::string
+    use textutil/adjust.tcl   textutil::adjust
+    use textutil/split.tcl    textutil::split
+    use textutil/tabify.tcl   textutil::tabify
+    use textutil/trim.tcl     textutil::trim
+    use textutil/wcswidth.tcl textutil::wcswidth
+    useKeep textutil/textutil.tcl textutil
+    useLocal changelog.tcl doctools::changelog
+}
+testing {
+    useLocal cvs.tcl doctools::cvs
+}
+
+# -------------------------------------------------------------------------
+
+set log1 {
+RCS file: /cvs/proj/foo.tcl,v
+Working file: foo.tcl
+head: 1.2
+description:
+----------------------------
+revision 1.2
+date: 2003/04/14 21:44:02;  author: andreas;  state: Exp;  lines: +2 -1
+Fixed a bug.
+----------------------------
+revision 1.1
+date: 2003/04/10 10:00:00;  author: jeff;  state: Exp;
+Initial import.
+=============================================================================
+
+RCS file: /cvs/proj/bar.tcl,v
+Working file: bar.tcl
+head: 1.1
+description:
+----------------------------
+revision 1.1
+date: 2003/04/14 22:00:00;  author: andreas;  state: Exp;
+Fixed a bug.
+=============================================================================
+}
+
+set log2 {
+RCS file: /cvs/proj/baz.tcl,v
+Working file: baz.tcl
+head: 1.1
+description:
+----------------------------
+revision 1.1
+date: 2003/05/01 08:00:00;  author: jeff;  state: Exp;
+New file.
+Second line.
+=============================================================================
+}
+
+# -------------------------------------------------------------------------
+# scanLog
+
+test cvs-api-1.0 {scanLog, wrong # args} -body {
+    ::doctools::cvs::scanLog a b c
+} -returnCodes error -result {wrong # args: should be "::doctools::cvs::scanLog text evar cvar fvar"}
+
+test cvs-api-1.1 {scanLog, too many args} -body {
+    ::doctools::cvs::scanLog a b c d e
+} -returnCodes error -result {wrong # args: should be "::doctools::cvs::scanLog text evar cvar fvar"}
+
+test cvs-api-1.2 {scanLog, empty text} -body {
+    ::doctools::cvs::scanLog {} e c f
+    list [info exists e] [array exists c] [array exists f]
+} -cleanup {
+    unset -nocomplain e c f
+} -result {0 0 0}
+
+test cvs-api-1.3 {scanLog, entries in log order, one per file} -body {
+    list [::doctools::cvs::scanLog $log1 e c f] $e
+} -cleanup {
+    unset -nocomplain e c f
+} -result {{} {{2003/04/14 andreas} {2003/04/10 jeff} {2003/04/14 andreas}}}
+
+test cvs-api-1.4 {scanLog, comments per date and author} -body {
+    ::doctools::cvs::scanLog $log1 e c f
+    set res {}
+    foreach k [lsort [array names c]] {
+	lappend res $k $c($k)
+    }
+    set res
+} -cleanup {
+    unset -nocomplain e c f res k
+} -result {2003/04/10,jeff {{Initial import.
+}} 2003/04/14,andreas {{Fixed a bug.
+} {Fixed a bug.
+}}}
+
+test cvs-api-1.5 {scanLog, files per date, author and comment} -body {
+    ::doctools::cvs::scanLog $log1 e c f
+    set res {}
+    foreach k [lsort [array names f]] {
+	lappend res $k $f($k)
+    }
+    set res
+} -cleanup {
+    unset -nocomplain e c f res k
+} -result {{2003/04/10,jeff,Initial import.
+} foo.tcl {2003/04/14,andreas,Fixed a bug.
+} {foo.tcl bar.tcl}}
+
+test cvs-api-1.6 {scanLog, multi-line comment} -body {
+    ::doctools::cvs::scanLog $log2 e c f
+    list $e $c(2003/05/01,jeff)
+} -cleanup {
+    unset -nocomplain e c f
+} -result {{{2003/05/01 jeff}} {{New file.
+Second line.
+}}}
+
+test cvs-api-1.7 {scanLog, existing information is preserved} -body {
+    ::doctools::cvs::scanLog $log1 e c f
+    ::doctools::cvs::scanLog $log2 e c f
+    list $e [lsort [array names c]] [llength [array names f]]
+} -cleanup {
+    unset -nocomplain e c f
+} -result {{{2003/04/14 andreas} {2003/04/10 jeff} {2003/04/14 andreas} {2003/05/01 jeff}} {2003/04/10,jeff 2003/04/14,andreas 2003/05/01,jeff} 3}
+
+test cvs-api-1.8 {scanLog, variables are relative to the caller} -setup {
+    proc scanner {log} {
+	::doctools::cvs::scanLog $log e c f
+	list $e [array names c]
+    }
+} -body {
+    list [scanner $log2] [info exists e]
+} -cleanup {
+    rename scanner {}
+} -result {{{{2003/05/01 jeff}} 2003/05/01,jeff} 0}
+
+# -------------------------------------------------------------------------
+# toChangeLog
+
+test cvs-api-2.0 {toChangeLog, wrong # args} -body {
+    ::doctools::cvs::toChangeLog a b
+} -returnCodes error -result {wrong # args: should be "::doctools::cvs::toChangeLog evar cvar fvar"}
+
+test cvs-api-2.1 {toChangeLog, too many args} -body {
+    ::doctools::cvs::toChangeLog a b c d
+} -returnCodes error -result {wrong # args: should be "::doctools::cvs::toChangeLog evar cvar fvar"}
+
+test cvs-api-2.2 {toChangeLog, entries sorted by date, decreasing} -body {
+    ::doctools::cvs::scanLog $log1 e c f
+    ::doctools::cvs::toChangeLog e c f
+} -cleanup {
+    unset -nocomplain e c f
+} -result "2003/04/14 andreas
+
+\t* bar.tcl:
+\t* foo.tcl:
+\t  Fixed a bug.
+
+2003/04/10 jeff
+
+\t* foo.tcl:
+\t  Initial import.
+"
+
+test cvs-api-2.3 {toChangeLog, merged logs} -body {
+    ::doctools::cvs::scanLog $log1 e c f
+    ::doctools::cvs::scanLog $log2 e c f
+    lrange [split [::doctools::cvs::toChangeLog e c f] \n] 0 5
+} -cleanup {
+    unset -nocomplain e c f
+} -result [list {2003/05/01 jeff} {} "\t* baz.tcl:" "\t  New file." "\t  Second line." {}]
+
+test cvs-api-2.4 {toChangeLog, result can be read by doctools::changelog} -body {
+    ::doctools::cvs::scanLog $log1 e c f
+    ::doctools::changelog::scan [::doctools::cvs::toChangeLog e c f]
+} -cleanup {
+    unset -nocomplain e c f
+} -result {{2003/04/14 andreas {{{bar.tcl foo.tcl} {Fixed a bug.}}}} {2003/04/10 jeff {{foo.tcl {Initial import.}}}}}
+
+test cvs-api-2.5 {toChangeLog, nothing scanned} -body {
+    set e {}
+    array set c {}
+    array set f {}
+    ::doctools::cvs::toChangeLog e c f
+} -cleanup {
+    unset -nocomplain e c f
+} -result {}
+
+# -------------------------------------------------------------------------
+
+unset -nocomplain log1 log2
+testsuiteCleanup
+return
