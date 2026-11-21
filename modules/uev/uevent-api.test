@@ -1,0 +1,481 @@
+# -*- tcl -*-
+# uevent-api.test:  tests for the parts of the uevent API not covered by
+# uevent.test: list in all forms with errors, unbind of unknown tokens,
+# generate details and timing, watcher tokens, removal and counting, and
+# the ensemble forms.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use log/logger.tcl logger
+}
+testing {
+    useLocal uevent.tcl uevent
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc REC {args} {
+    lappend ::res $args
+    return
+}
+
+# Waits (bounded) for the queued events to fire.
+proc settle {} {
+    set ::flushed 0
+    after 50 {set ::flushed 1}
+    vwait ::flushed
+    unset ::flushed
+}
+
+# -------------------------------------------------------------------------
+# list
+
+test uevent-api-1.0 {list, no bindings} -body {
+    uevent::list
+} -result {}
+
+test uevent-api-1.1 {list, tags} -setup {
+    set t1 [uevent::bind b e1 c]
+    set t2 [uevent::bind a e2 c]
+    set t3 [uevent::bind a e3 c]
+} -body {
+    lsort [uevent::list]
+} -cleanup {
+    foreach t [list $t1 $t2 $t3] {uevent::unbind $t}
+    unset t1 t2 t3 t
+} -result {a b}
+
+test uevent-api-1.2 {list, events of a tag} -setup {
+    set t1 [uevent::bind a e1 c]
+    set t2 [uevent::bind a e2 c]
+    set t3 [uevent::bind b e3 c]
+} -body {
+    lsort [uevent::list a]
+} -cleanup {
+    foreach t [list $t1 $t2 $t3] {uevent::unbind $t}
+    unset t1 t2 t3 t
+} -result {e1 e2}
+
+test uevent-api-1.3 {list, commands of a tag/event} -setup {
+    set t1 [uevent::bind a e1 {c1 x}]
+    set t2 [uevent::bind a e1 c2]
+} -body {
+    uevent::list a e1
+} -cleanup {
+    foreach t [list $t1 $t2] {uevent::unbind $t}
+    unset t1 t2 t
+} -result {{c1 x} c2}
+
+test uevent-api-1.4 {list, unknown tag} -body {
+    uevent::list nosuch
+} -returnCodes error -result {Tag "nosuch" is not known}
+
+test uevent-api-1.5 {list, unknown event} -setup {
+    set t1 [uevent::bind a e1 c]
+} -body {
+    uevent::list a nosuch
+} -cleanup {
+    uevent::unbind $t1
+    unset t1
+} -returnCodes error -result {Tag/Event "a"/"nosuch" is not known}
+
+test uevent-api-1.6 {list, unknown tag and event} -body {
+    uevent::list nosuch nosuch
+} -returnCodes error -result {Tag/Event "nosuch"/"nosuch" is not known}
+
+test uevent-api-1.7 {list, too many arguments} -body {
+    uevent::list a b c
+} -returnCodes error -result {wrong#args: expected ?tag? ?event?}
+
+test uevent-api-1.8 {list, tag no longer known after last unbind} -setup {
+    set t1 [uevent::bind a e1 c]
+    uevent::unbind $t1
+} -body {
+    list [uevent::list] [catch {uevent::list a} msg] $msg
+} -cleanup {
+    unset t1 msg
+} -result {{} 1 {Tag "a" is not known}}
+
+test uevent-api-1.9 {list, tags and events with spaces} -setup {
+    set t1 [uevent::bind {my tag} {my event} c]
+} -body {
+    list [uevent::list] [uevent::list {my tag}] [uevent::list {my tag} {my event}]
+} -cleanup {
+    uevent::unbind $t1
+    unset t1
+} -result {{{my tag}} {{my event}} c}
+
+# Bug: the tag is used as glob pattern, the events of other matching tags
+# are listed too.
+test uevent-api-1.10 {list, tag with glob characters} -constraints knownBug -setup {
+    set t1 [uevent::bind a* e1 c]
+    set t2 [uevent::bind ab e2 c]
+} -body {
+    uevent::list a*
+} -cleanup {
+    uevent::unbind $t1
+    uevent::unbind $t2
+    unset t1 t2
+} -result e1
+
+# -------------------------------------------------------------------------
+# bind, unbind
+
+test uevent-api-2.0 {bind, tokens differ per combination} -body {
+    set t1 [uevent::bind a e c]
+    set t2 [uevent::bind a e {c x}]
+    set t3 [uevent::bind a e2 c]
+    llength [lsort -unique [list $t1 $t2 $t3]]
+} -cleanup {
+    foreach t [list $t1 $t2 $t3] {uevent::unbind $t}
+    unset t1 t2 t3 t
+} -result 3
+
+test uevent-api-2.1 {unbind, returns the empty string} -setup {
+    set t1 [uevent::bind a e c]
+} -body {
+    uevent::unbind $t1
+} -cleanup {
+    unset t1
+} -result {}
+
+test uevent-api-2.2 {unbind, unknown token ignored} -body {
+    uevent::unbind nosuch
+} -result {}
+
+test uevent-api-2.3 {unbind, token released twice} -setup {
+    set t1 [uevent::bind a e c]
+    set t2 [uevent::bind a e c2]
+} -body {
+    uevent::unbind $t1
+    uevent::unbind $t1
+    uevent::list a e
+} -cleanup {
+    uevent::unbind $t2
+    unset t1 t2
+} -result c2
+
+test uevent-api-2.4 {bind after unbind gives a working binding} -setup {
+    set res {}
+} -body {
+    set t1 [uevent::bind a e REC]
+    uevent::unbind $t1
+    set t1 [uevent::bind a e REC]
+    uevent::generate a e d
+    settle
+    set res
+} -cleanup {
+    uevent::unbind $t1
+    unset t1 res
+} -result {{a e d}}
+
+# -------------------------------------------------------------------------
+# generate
+
+test uevent-api-3.0 {generate, returns the empty string, handlers not called synchronously} -setup {
+    set res {}
+    set t1 [uevent::bind a e REC]
+} -body {
+    set r [uevent::generate a e d]
+    set before $res
+    settle
+    list $r $before $res
+} -cleanup {
+    uevent::unbind $t1
+    unset t1 r before res
+} -result {{} {} {{a e d}}}
+
+test uevent-api-3.1 {generate, default details are empty} -setup {
+    set res {}
+    set t1 [uevent::bind a e REC]
+} -body {
+    uevent::generate a e
+    settle
+    set res
+} -cleanup {
+    uevent::unbind $t1
+    unset t1 res
+} -result {{a e {}}}
+
+test uevent-api-3.2 {generate, details passed unchanged as one argument} -setup {
+    set res {}
+    set t1 [uevent::bind a e REC]
+} -body {
+    uevent::generate a e {x {y z} [w] $v}
+    settle
+    set res
+} -cleanup {
+    uevent::unbind $t1
+    unset t1 res
+} -result {{a e {x {y z} [w] $v}}}
+
+test uevent-api-3.3 {generate, command prefix with arguments} -setup {
+    set res {}
+    set t1 [uevent::bind a e {REC p1 {p 2}}]
+} -body {
+    uevent::generate a e d
+    settle
+    set res
+} -cleanup {
+    uevent::unbind $t1
+    unset t1 res
+} -result {{p1 {p 2} a e d}}
+
+test uevent-api-3.4 {generate, unknown tag ignored} -body {
+    uevent::generate nosuch e d
+} -result {}
+
+test uevent-api-3.5 {generate, unknown event ignored} -setup {
+    set res {}
+    set t1 [uevent::bind a e REC]
+} -body {
+    uevent::generate a nosuch d
+    settle
+    set res
+} -cleanup {
+    uevent::unbind $t1
+    unset t1 res
+} -result {}
+
+test uevent-api-3.6 {generate, only matching tag/event triggered} -setup {
+    set res {}
+    set t1 [uevent::bind a e1 {REC 1}]
+    set t2 [uevent::bind a e2 {REC 2}]
+    set t3 [uevent::bind b e1 {REC 3}]
+} -body {
+    uevent::generate a e1 d
+    settle
+    set res
+} -cleanup {
+    foreach t [list $t1 $t2 $t3] {uevent::unbind $t}
+    unset t1 t2 t3 t res
+} -result {{1 a e1 d}}
+
+test uevent-api-3.7 {generate, handler called in global scope} -setup {
+    set res {}
+    proc H {args} {lappend ::res [uplevel 1 {namespace current}] [info level]}
+    set t1 [uevent::bind a e H]
+    namespace eval ::uevapi {
+	proc gen {} {
+	    set local 1
+	    uevent::generate a e d
+	}
+    }
+} -body {
+    ::uevapi::gen
+    settle
+    set res
+} -cleanup {
+    uevent::unbind $t1
+    rename H {}
+    namespace delete ::uevapi
+    unset t1 res
+} -result {:: 1}
+
+test uevent-api-3.8 {generate, handler errors do not stop other handlers} -setup {
+    set res {}
+    set ::bgerrors {}
+    proc BGERR {msg opts} {lappend ::bgerrors $msg}
+    set oldbg [interp bgerror {}]
+    interp bgerror {} BGERR
+    proc FAIL {args} {error fail}
+    set t1 [uevent::bind a e FAIL]
+    set t2 [uevent::bind a e REC]
+} -body {
+    uevent::generate a e d
+    settle
+    list $res $::bgerrors
+} -cleanup {
+    uevent::unbind $t1
+    uevent::unbind $t2
+    interp bgerror {} $oldbg
+    rename FAIL {}
+    rename BGERR {}
+    unset t1 t2 res oldbg ::bgerrors
+} -result {{{a e d}} fail}
+
+# -------------------------------------------------------------------------
+# watch tag
+
+test uevent-api-4.0 {watch tag add, returns token, same pattern/command same token} -body {
+    set w1 [uevent::watch::tag::add P REC]
+    set w2 [uevent::watch::tag::add P REC]
+    set w3 [uevent::watch::tag::add P {REC x}]
+    list [expr {$w1 eq $w2}] [expr {$w1 eq $w3}]
+} -cleanup {
+    uevent::watch::tag::remove $w1
+    uevent::watch::tag::remove $w3
+    unset w1 w2 w3
+} -result {1 0}
+
+test uevent-api-4.1 {watch tag, invoked only for first bind and last unbind of the tag} -setup {
+    set res {}
+} -body {
+    set w [uevent::watch::tag::add T REC]
+    set t1 [uevent::bind T e1 c]
+    set t2 [uevent::bind T e2 c]
+    set t3 [uevent::bind T e1 c2]
+    lappend res -
+    uevent::unbind $t1
+    uevent::unbind $t3
+    lappend res -
+    uevent::unbind $t2
+    set res
+} -cleanup {
+    uevent::watch::tag::remove $w
+    unset w t1 t2 t3 res
+} -result {{bound T} - - {unbound T}}
+
+test uevent-api-4.2 {watch tag remove, returns empty, watcher no longer called} -setup {
+    set res {}
+} -body {
+    set w [uevent::watch::tag::add T REC]
+    set r [uevent::watch::tag::remove $w]
+    set t1 [uevent::bind T e c]
+    uevent::unbind $t1
+    list $r $res
+} -cleanup {
+    unset w r t1 res
+} -result {{} {}}
+
+test uevent-api-4.3 {watch tag remove, unknown token ignored} -body {
+    uevent::watch::tag::remove nosuch
+} -result {}
+
+test uevent-api-4.4 {watch tag, command prefix with arguments, called synchronously} -setup {
+    set res {}
+} -body {
+    set w [uevent::watch::tag::add T {REC p1 {p 2}}]
+    set t1 [uevent::bind T e c]
+    set before $res
+    uevent::unbind $t1
+    list $before $res
+} -cleanup {
+    uevent::watch::tag::remove $w
+    unset w t1 res before
+} -result {{{p1 {p 2} bound T}} {{p1 {p 2} bound T} {p1 {p 2} unbound T}}}
+
+test uevent-api-4.5 {watch tag, several watchers} -setup {
+    set res {}
+} -body {
+    set w1 [uevent::watch::tag::add T {REC 1}]
+    set w2 [uevent::watch::tag::add T* {REC 2}]
+    set t1 [uevent::bind T e c]
+    lsort $res
+} -cleanup {
+    uevent::unbind $t1
+    uevent::watch::tag::remove $w1
+    uevent::watch::tag::remove $w2
+    unset w1 w2 t1 res
+} -result {{1 bound T} {2 bound T}}
+
+# -------------------------------------------------------------------------
+# watch event
+
+test uevent-api-5.0 {watch event add, returns token, same patterns/command same token} -body {
+    set w1 [uevent::watch::event::add T E REC]
+    set w2 [uevent::watch::event::add T E REC]
+    set w3 [uevent::watch::event::add T E2 REC]
+    list [expr {$w1 eq $w2}] [expr {$w1 eq $w3}]
+} -cleanup {
+    uevent::watch::event::remove $w1
+    uevent::watch::event::remove $w3
+    unset w1 w2 w3
+} -result {1 0}
+
+test uevent-api-5.1 {watch event, invoked only for first bind and last unbind of the combination} -setup {
+    set res {}
+} -body {
+    set w [uevent::watch::event::add T E REC]
+    set t1 [uevent::bind T E c1]
+    set t2 [uevent::bind T E c2]
+    lappend res -
+    uevent::unbind $t1
+    lappend res -
+    uevent::unbind $t2
+    set res
+} -cleanup {
+    uevent::watch::event::remove $w
+    unset w t1 t2 res
+} -result {{bound T E} - - {unbound T E}}
+
+test uevent-api-5.2 {watch event remove, returns empty, watcher no longer called} -setup {
+    set res {}
+} -body {
+    set w [uevent::watch::event::add T E REC]
+    set r [uevent::watch::event::remove $w]
+    set t1 [uevent::bind T E c]
+    uevent::unbind $t1
+    list $r $res
+} -cleanup {
+    unset w r t1 res
+} -result {{} {}}
+
+test uevent-api-5.3 {watch event remove, unknown token ignored} -body {
+    uevent::watch::event::remove nosuch
+} -result {}
+
+test uevent-api-5.4 {watch event, command prefix with arguments} -setup {
+    set res {}
+} -body {
+    set w [uevent::watch::event::add T* E* {REC p}]
+    set t1 [uevent::bind T1 E1 c]
+    uevent::unbind $t1
+    set res
+} -cleanup {
+    uevent::watch::event::remove $w
+    unset w t1 res
+} -result {{p bound T1 E1} {p unbound T1 E1}}
+
+test uevent-api-5.5 {watch event, event pattern only matches the event} -setup {
+    set res {}
+} -body {
+    set w [uevent::watch::event::add * E1 REC]
+    set t1 [uevent::bind A E1 c]
+    set t2 [uevent::bind B E2 c]
+    uevent::unbind $t1
+    uevent::unbind $t2
+    set res
+} -cleanup {
+    uevent::watch::event::remove $w
+    unset w t1 t2 res
+} -result {{bound A E1} {unbound A E1}}
+
+# -------------------------------------------------------------------------
+# Ensembles
+
+test uevent-api-6.0 {ensemble forms} -setup {
+    set res {}
+} -body {
+    set w [uevent watch tag add T REC]
+    set we [uevent watch event add T E REC]
+    set t1 [uevent bind T E REC]
+    lappend res [uevent list] [uevent list T] [uevent list T E]
+    uevent generate T E d
+    settle
+    uevent unbind $t1
+    uevent watch tag remove $w
+    uevent watch event remove $we
+    set res
+} -cleanup {
+    unset w we t1 res
+} -result {{bound T} {bound T E} T E REC {T E d} {unbound T E} {unbound T}}
+
+test uevent-api-6.1 {ensemble, unknown subcommand} -body {
+    uevent foo
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "foo": must be *}
+
+# -------------------------------------------------------------------------
+
+rename REC {}
+rename settle {}
+testsuiteCleanup

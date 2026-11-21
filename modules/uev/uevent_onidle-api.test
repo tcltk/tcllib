@@ -1,0 +1,217 @@
+# -*- tcl -*-
+# uevent_onidle-api.test:  tests for the uevent::onidle package (no tests
+# existed before).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal uevent_onidle.tcl uevent::onidle
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc ACTION {args} {
+    lappend ::res $args
+    return
+}
+
+# Runs the event loop until idle callbacks have been processed (bounded).
+proc settle {} {
+    set ::settled 0
+    after 50 {set ::settled 1}
+    vwait ::settled
+    unset ::settled
+}
+
+# -------------------------------------------------------------------------
+
+test uevent-onidle-api-1.0 {constructor, wrong # args} -body {
+    uevent::onidle oi
+} -returnCodes error -match glob -result {*wrong # args*}
+
+test uevent-onidle-api-1.1 {constructor, returns the object name, creates the command} -body {
+    set o [uevent::onidle ::oi ACTION]
+    list $o [llength [info commands ::oi]]
+} -cleanup {
+    ::oi destroy
+    unset o
+} -result {::oi 1}
+
+test uevent-onidle-api-1.2 {constructor, %AUTO% name} -body {
+    set o [uevent::onidle %AUTO% ACTION]
+    llength [info commands $o]
+} -cleanup {
+    $o destroy
+    unset o
+} -result 1
+
+test uevent-onidle-api-1.3 {destroy removes the command} -body {
+    uevent::onidle ::oi ACTION
+    ::oi destroy
+    llength [info commands ::oi]
+} -result 0
+
+test uevent-onidle-api-2.0 {request, returns empty, action not run synchronously} -setup {
+    set res {}
+    uevent::onidle ::oi {ACTION x}
+} -body {
+    set r [::oi request]
+    set before $res
+    settle
+    list $r $before $res
+} -cleanup {
+    ::oi destroy
+    unset r before res
+} -result {{} {} x}
+
+test uevent-onidle-api-2.1 {request, multiple requests merged} -setup {
+    set res {}
+    uevent::onidle ::oi {ACTION x}
+} -body {
+    ::oi request
+    ::oi request
+    ::oi request
+    settle
+    set res
+} -cleanup {
+    ::oi destroy
+    unset res
+} -result x
+
+test uevent-onidle-api-2.2 {request, new request after the action ran} -setup {
+    set res {}
+    uevent::onidle ::oi {ACTION x}
+} -body {
+    ::oi request
+    settle
+    ::oi request
+    ::oi request
+    settle
+    set res
+} -cleanup {
+    ::oi destroy
+    unset res
+} -result {x x}
+
+test uevent-onidle-api-2.3 {request, no request, no action} -setup {
+    set res {}
+    uevent::onidle ::oi {ACTION x}
+} -body {
+    settle
+    set res
+} -cleanup {
+    ::oi destroy
+    unset res
+} -result {}
+
+test uevent-onidle-api-2.4 {action runs in the global scope} -setup {
+    set res {}
+    proc WHERE {} {lappend ::res [uplevel 1 {namespace current}] [info level]}
+    uevent::onidle ::oi WHERE
+    namespace eval ::oiapi {
+	proc req {} {
+	    set local 1
+	    ::oi request
+	}
+    }
+} -body {
+    ::oiapi::req
+    settle
+    set res
+} -cleanup {
+    ::oi destroy
+    rename WHERE {}
+    namespace delete ::oiapi
+    unset res
+} -result {:: 1}
+
+test uevent-onidle-api-2.5 {two objects are independent} -setup {
+    set res {}
+    uevent::onidle ::oi1 {ACTION 1}
+    uevent::onidle ::oi2 {ACTION 2}
+} -body {
+    ::oi1 request
+    ::oi2 request
+    ::oi1 request
+    settle
+    lsort $res
+} -cleanup {
+    ::oi1 destroy
+    ::oi2 destroy
+    unset res
+} -result {1 2}
+
+test uevent-onidle-api-2.6 {request from within the action schedules a new run} -setup {
+    set res {}
+    set ::count 0
+    proc AGAIN {} {
+	lappend ::res run
+	if {[incr ::count] < 3} {::oi request}
+    }
+    uevent::onidle ::oi AGAIN
+} -body {
+    ::oi request
+    settle
+    set res
+} -cleanup {
+    ::oi destroy
+    rename AGAIN {}
+    unset res ::count
+} -result {run run run}
+
+test uevent-onidle-api-2.7 {action is a command prefix, words kept} -setup {
+    set res {}
+    uevent::onidle ::oi [list ACTION {a b} {[c]}]
+} -body {
+    ::oi request
+    settle
+    set res
+} -cleanup {
+    ::oi destroy
+    unset res
+} -result {{{a b} {[c]}}}
+
+# Bug: the pending idle callback is not cancelled when the object is
+# destroyed, it fails later with a background error.
+test uevent-onidle-api-2.9 {destroy with a pending request} -constraints knownBug -setup {
+    set res {}
+    set ::bgerrors {}
+    proc BGERR {msg opts} {lappend ::bgerrors $msg}
+    set oldbg [interp bgerror {}]
+    interp bgerror {} BGERR
+    uevent::onidle ::oi {ACTION x}
+} -body {
+    ::oi request
+    ::oi destroy
+    settle
+    list $res $::bgerrors
+} -cleanup {
+    interp bgerror {} $oldbg
+    rename BGERR {}
+    unset res oldbg ::bgerrors
+} -result {{} {}}
+
+test uevent-onidle-api-2.8 {unknown method} -setup {
+    uevent::onidle ::oi ACTION
+} -body {
+    ::oi foo
+} -cleanup {
+    ::oi destroy
+} -returnCodes error -match glob -result {*foo*}
+
+# -------------------------------------------------------------------------
+
+rename ACTION {}
+rename settle {}
+testsuiteCleanup
