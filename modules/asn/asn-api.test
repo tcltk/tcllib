@@ -1,0 +1,861 @@
+# -*- tcl -*-
+# asn-api.test:  tests for the asn module, complementing asn.test.
+#
+# Covers the decoders, length handling, constructed values, tags and
+# asnGetResponse, which asn.test does not test.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal asn.tcl asn
+}
+
+# -------------------------------------------------------------------------
+
+proc hex {bytes} {
+    binary scan $bytes H* h
+    string toupper $h
+}
+
+proc unhex {h} {
+    binary format H* $h
+}
+
+# -------------------------------------------------------------------------
+# asnGetInteger
+
+test asn-api-1.1 {asnGetInteger, wrong # args} -body {
+    asn::asnGetInteger data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetInteger data_var int_var"}
+
+test asn-api-1.2 {asnGetInteger, wrong tag} -body {
+    set data [asn::asnEnumeration 1]
+    asn::asnGetInteger data int
+} -cleanup {
+    unset -nocomplain data int
+} -returnCodes error -result {Expected Integer (0x02), but got 0a}
+
+test asn-api-1.3 {asnGetInteger, value too long} -body {
+    set data [unhex 0209010000000000000000]
+    asn::asnGetInteger data int
+} -cleanup {
+    unset -nocomplain data int
+} -returnCodes error -result {length information too long}
+
+test asn-api-1.4 {asnGetInteger, remaining data is kept} -body {
+    set data [asn::asnInteger 300][asn::asnNull]
+    asn::asnGetInteger data int
+    list $int [hex $data]
+} -cleanup {
+    unset -nocomplain data int
+} -result {300 0500}
+
+test asn-api-1.5 {asnGetInteger, same variable for data and value} -body {
+    set data [asn::asnInteger 42][asn::asnNull]
+    asn::asnGetInteger data data
+    set data
+} -cleanup {
+    unset -nocomplain data
+} -result 42
+
+set n 0
+foreach i {
+    0 1 -1 127 128 -128 -129 255 256 32767 32768 -32768 -32769 65535 65536
+    8388607 8388608 -8388608 -8388609 -65536 2147483647 2147483648
+    -2147483648 -2147483649 549755813887 -549755813888 140737488355327
+    -140737488355328 36028797018963967 -36028797018963968
+    36028797018963968 9223372036854775807 -9223372036854775808
+} {
+    incr n
+    test asn-api-1.6.$n "asnGetInteger round trip $i" -body {
+	set data [asn::asnInteger $i]
+	asn::asnGetInteger data int
+	list $int [string length $data]
+    } -cleanup {
+	unset -nocomplain data int
+    } -result [list $i 0]
+}
+unset n i
+
+# -------------------------------------------------------------------------
+# asnGetEnumeration
+
+test asn-api-2.1 {asnGetEnumeration, wrong # args} -body {
+    asn::asnGetEnumeration data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetEnumeration data_var enum_var"}
+
+test asn-api-2.2 {asnGetEnumeration, wrong tag} -body {
+    set data [asn::asnInteger 1]
+    asn::asnGetEnumeration data e
+} -cleanup {
+    unset -nocomplain data e
+} -returnCodes error -result {Expected Enumeration (0x0a), but got 02}
+
+test asn-api-2.3 {asnGetEnumeration, value too long} -body {
+    set data [asn::asnEnumeration 549755813887]
+    asn::asnGetEnumeration data e
+} -cleanup {
+    unset -nocomplain data e
+} -returnCodes error -result {length information too long}
+
+test asn-api-2.4 {asnGetEnumeration, remaining data is kept} -body {
+    set data [asn::asnEnumeration 2][asn::asnBoolean 1]
+    asn::asnGetEnumeration data e
+    list $e [hex $data]
+} -cleanup {
+    unset -nocomplain data e
+} -result {2 0101FF}
+
+set n 0
+foreach i {
+    0 1 -1 127 128 -128 -129 32767 32768 -32768 65536 8388607
+    2147483647 -2147483648 -8388609
+} {
+    incr n
+    test asn-api-2.5.$n "asnGetEnumeration round trip $i" -body {
+	set data [asn::asnEnumeration $i]
+	asn::asnGetEnumeration data e
+	list $e [string length $data]
+    } -cleanup {
+	unset -nocomplain data e
+    } -result [list $i 0]
+}
+unset n i
+
+# 3-byte values are decoded without sign extension.
+test asn-api-2.6 {asnGetEnumeration round trip, negative 3-byte value} -constraints knownBug -body {
+    set data [asn::asnEnumeration -32769]
+    asn::asnGetEnumeration data e
+    set e
+} -cleanup {
+    unset -nocomplain data e
+} -result -32769
+
+# -------------------------------------------------------------------------
+# Length encoding: asnLength via asnOctetString, asnGetLength
+
+set n 0
+foreach {len header} {
+    0       0400
+    127     047F
+    128     048180
+    255     0481FF
+    256     04820100
+    32768   04828000
+    65535   0482FFFF
+    65536   0483010000
+} {
+    incr n
+    test asn-api-3.1.$n "asnOctetString length $len" -body {
+	set enc [asn::asnOctetString [string repeat x $len]]
+	list [hex [string range $enc 0 [expr {[string length $enc]-$len-1}]]] \
+	    [expr {[string length $enc] - $len}]
+    } -cleanup {
+	unset -nocomplain enc
+    } -result [list $header [expr {[string length $header]/2}]]
+
+    test asn-api-3.2.$n "asnGetLength $len" -body {
+	set data [unhex [string range $header 2 end]]rest
+	asn::asnGetLength data l
+	list $l $data
+    } -cleanup {
+	unset -nocomplain data l
+    } -result [list $len rest]
+}
+unset n len header
+
+test asn-api-3.3 {asnGetLength, 4 and 5 length octets} -body {
+    set a [unhex 8401020304]
+    set b [unhex 850102030405]
+    asn::asnGetLength a la
+    asn::asnGetLength b lb
+    list $la $lb [string length $a] [string length $b]
+} -cleanup {
+    unset -nocomplain a b la lb
+} -result {16909060 4328719365 0 0}
+
+test asn-api-3.4 {asnGetLength, wrong # args} -body {
+    asn::asnGetLength data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetLength data_var length_var"}
+
+test asn-api-3.5 {asnGetLength, indefinite length} -body {
+    set data [unhex 80]
+    asn::asnGetLength data l
+} -cleanup {
+    unset -nocomplain data l
+} -returnCodes error -result {Indefinite length BER encoding not yet supported}
+
+test asn-api-3.6 {asnGetLength, truncated length octets} -body {
+    set data [unhex 8301]
+    asn::asnGetLength data l
+} -cleanup {
+    unset -nocomplain data l
+} -returnCodes error -result {length information invalid, not enough octets left}
+
+test asn-api-3.7 {asnPeekByte, wrong # args} -body {
+    asn::asnPeekByte data
+} -returnCodes error -result {wrong # args: should be "asn::asnPeekByte data_var byte_var ?offset?"}
+
+test asn-api-3.8 {asnPeekByte, byte above 127 is unsigned} -body {
+    set data [unhex FF01]
+    asn::asnPeekByte data b
+    list $b [hex $data]
+} -cleanup {
+    unset -nocomplain data b
+} -result {255 FF01}
+
+# -------------------------------------------------------------------------
+# asnGetOctetString
+
+test asn-api-4.1 {asnGetOctetString, wrong # args} -body {
+    asn::asnGetOctetString data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetOctetString data_var string_var"}
+
+test asn-api-4.2 {asnGetOctetString, wrong tag} -body {
+    set data [asn::asnNull]
+    asn::asnGetOctetString data s
+} -cleanup {
+    unset -nocomplain data s
+} -returnCodes error -result {Expected Octet String (0x04), but got 05}
+
+test asn-api-4.3 {asnOctetString/asnGetOctetString round trip, binary data} -body {
+    set in [unhex 00FF7F8001]
+    set data [asn::asnOctetString $in][asn::asnNull]
+    asn::asnGetOctetString data s
+    list [hex $s] [hex $data]
+} -cleanup {
+    unset -nocomplain in data s
+} -result {00FF7F8001 0500}
+
+test asn-api-4.4 {asnOctetString/asnGetOctetString round trip, long string} -body {
+    set in [string repeat abcdefghij 30]
+    set data [asn::asnOctetString $in]
+    asn::asnGetOctetString data s
+    list [string equal $s $in] [string length $data]
+} -cleanup {
+    unset -nocomplain in data s
+} -result {1 0}
+
+test asn-api-4.5 {asnOctetString, empty string} -body {
+    hex [asn::asnOctetString ""]
+} -result 0400
+
+test asn-api-4.6 {asnOctetString, wrong # args} -body {
+    asn::asnOctetString
+} -returnCodes error -result {wrong # args: should be "asn::asnOctetString string"}
+
+# -------------------------------------------------------------------------
+# Sequences and sets
+
+test asn-api-5.1 {asnSequence, no values} -body {
+    hex [asn::asnSequence]
+} -result 3000
+
+test asn-api-5.2 {asnSequence, several values} -body {
+    hex [asn::asnSequence [asn::asnInteger 1] [asn::asnBoolean 0] [asn::asnNull]]
+} -result 30080201010101000500
+
+test asn-api-5.3 {asnSequenceFromList} -body {
+    hex [asn::asnSequenceFromList [list [asn::asnInteger 1] [asn::asnBoolean 0] [asn::asnNull]]]
+} -result 30080201010101000500
+
+test asn-api-5.4 {asnSequenceFromList, empty list} -body {
+    hex [asn::asnSequenceFromList {}]
+} -result 3000
+
+test asn-api-5.5 {asnSequenceFromList, wrong # args} -body {
+    asn::asnSequenceFromList
+} -returnCodes error -result {wrong # args: should be "asn::asnSequenceFromList lst"}
+
+test asn-api-5.6 {asnSet, no values} -body {
+    hex [asn::asnSet]
+} -result 3100
+
+test asn-api-5.7 {asnSet, several values} -body {
+    hex [asn::asnSet [asn::asnInteger 2] [asn::asnNull]]
+} -result 31050201020500
+
+test asn-api-5.8 {asnSetFromList} -body {
+    hex [asn::asnSetFromList [list [asn::asnInteger 2] [asn::asnNull]]]
+} -result 31050201020500
+
+test asn-api-5.9 {asnSetFromList, wrong # args} -body {
+    asn::asnSetFromList
+} -returnCodes error -result {wrong # args: should be "asn::asnSetFromList lst"}
+
+test asn-api-5.10 {asnGetSequence, wrong # args} -body {
+    asn::asnGetSequence data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetSequence data_var sequence_var"}
+
+test asn-api-5.11 {asnGetSequence, wrong tag} -body {
+    set data [asn::asnSet]
+    asn::asnGetSequence data seq
+} -cleanup {
+    unset -nocomplain data seq
+} -returnCodes error -result {Expected Sequence (0x30), but got 31}
+
+test asn-api-5.12 {asnGetSequence, decode elements} -body {
+    set data [asn::asnSequence [asn::asnInteger 7] [asn::asnIA5String hello]][asn::asnNull]
+    asn::asnGetSequence data seq
+    asn::asnGetInteger seq i
+    asn::asnGetIA5String seq s
+    list $i $s [string length $seq] [hex $data]
+} -cleanup {
+    unset -nocomplain data seq i s
+} -result {7 hello 0 0500}
+
+test asn-api-5.13 {asnGetSequence, long content} -body {
+    set items {}
+    for {set k 0} {$k < 100} {incr k} {
+	lappend items [asn::asnInteger $k]
+    }
+    set data [asn::asnSequenceFromList $items]
+    asn::asnGetSequence data seq
+    set out {}
+    while {[string length $seq]} {
+	asn::asnGetInteger seq i
+	lappend out $i
+    }
+    list [llength $out] [lindex $out 0] [lindex $out end] [string length $data]
+} -cleanup {
+    unset -nocomplain items k data seq out i
+} -result {100 0 99 0}
+
+test asn-api-5.14 {asnGetSet, wrong # args} -body {
+    asn::asnGetSet data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetSet data_var set_var"}
+
+test asn-api-5.15 {asnGetSet, wrong tag} -body {
+    set data [asn::asnSequence]
+    asn::asnGetSet data s
+} -cleanup {
+    unset -nocomplain data s
+} -returnCodes error -result {Expected Set (0x31), but got 30}
+
+test asn-api-5.16 {asnGetSet, decode elements} -body {
+    set data [asn::asnSet [asn::asnBoolean 1] [asn::asnInteger -5]]
+    asn::asnGetSet data s
+    asn::asnGetBoolean s b
+    asn::asnGetInteger s i
+    list $b $i [string length $s] [string length $data]
+} -cleanup {
+    unset -nocomplain data s b i
+} -result {1 -5 0 0}
+
+# -------------------------------------------------------------------------
+# Application, context and choice constructs
+
+test asn-api-6.1 {asnApplicationConstr, no values} -body {
+    hex [asn::asnApplicationConstr 3]
+} -result 6300
+
+test asn-api-6.2 {asnApplicationConstr, several values} -body {
+    hex [asn::asnApplicationConstr 0 [asn::asnInteger 1] [asn::asnNull]]
+} -result 60050201010500
+
+test asn-api-6.3 {asnApplicationConstr, wrong # args} -body {
+    asn::asnApplicationConstr
+} -returnCodes error -result {wrong # args: should be "asn::asnApplicationConstr appNumber ?arg ...?"}
+
+test asn-api-6.4 {asnApplication, wrong # args} -body {
+    asn::asnApplication 1
+} -returnCodes error -result {wrong # args: should be "asn::asnApplication appNumber data"}
+
+test asn-api-6.5 {asnApplication, raw data} -body {
+    hex [asn::asnApplication 2 abc]
+} -result 4203616263
+
+test asn-api-6.6 {asnGetApplication, wrong # args} -body {
+    asn::asnGetApplication data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetApplication data_var appNumber_var ?content_var? ?encodingType_var?"}
+
+test asn-api-6.7 {asnGetApplication, number only} -body {
+    set data [asn::asnApplicationConstr 5 [asn::asnInteger 9]]
+    asn::asnGetApplication data app
+    asn::asnGetInteger data i
+    list $app $i [string length $data]
+} -cleanup {
+    unset -nocomplain data app i
+} -result {5 9 0}
+
+test asn-api-6.8 {asnGetApplication, content and constructed encoding} -body {
+    set data [asn::asnApplicationConstr 7 [asn::asnInteger 9]][asn::asnNull]
+    asn::asnGetApplication data app content enc
+    list $app [hex $content] $enc [hex $data]
+} -cleanup {
+    unset -nocomplain data app content enc
+} -result {7 020109 1 0500}
+
+test asn-api-6.9 {asnGetApplication, primitive encoding} -body {
+    set data [asn::asnApplication 4 xyz]
+    asn::asnGetApplication data app content enc
+    list $app $content $enc [string length $data]
+} -cleanup {
+    unset -nocomplain data app content enc
+} -result {4 xyz 0 0}
+
+test asn-api-6.10 {asnGetApplication, not an application tag} -body {
+    set data [asn::asnContext 1 x]
+    asn::asnGetApplication data app
+} -cleanup {
+    unset -nocomplain data app
+} -returnCodes error -result {Expected Application, but got 81}
+
+test asn-api-6.11 {asnContext, wrong # args} -body {
+    asn::asnContext 1
+} -returnCodes error -result {wrong # args: should be "asn::asnContext contextNumber data"}
+
+test asn-api-6.12 {asnContextConstr, no values} -body {
+    hex [asn::asnContextConstr 0]
+} -result A000
+
+test asn-api-6.13 {asnContextConstr, several values} -body {
+    hex [asn::asnContextConstr 2 [asn::asnNull] [asn::asnNull]]
+} -result A20405000500
+
+test asn-api-6.14 {asnGetContext, wrong # args} -body {
+    asn::asnGetContext data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetContext data_var contextNumber_var ?content_var? ?encodingType_var?"}
+
+test asn-api-6.15 {asnGetContext, number only} -body {
+    set data [asn::asnContextConstr 3 [asn::asnBoolean 1]]
+    asn::asnGetContext data ctx
+    asn::asnGetBoolean data b
+    list $ctx $b [string length $data]
+} -cleanup {
+    unset -nocomplain data ctx b
+} -result {3 1 0}
+
+test asn-api-6.16 {asnGetContext, content and constructed encoding} -body {
+    set data [asn::asnContextConstr 1 [asn::asnInteger 300]][asn::asnNull]
+    asn::asnGetContext data ctx content enc
+    list $ctx [hex $content] $enc [hex $data]
+} -cleanup {
+    unset -nocomplain data ctx content enc
+} -result {1 0202012C 1 0500}
+
+test asn-api-6.17 {asnGetContext, primitive encoding} -body {
+    set data [asn::asnContext 0 secret]
+    asn::asnGetContext data ctx content enc
+    list $ctx $content $enc
+} -cleanup {
+    unset -nocomplain data ctx content enc
+} -result {0 secret 0}
+
+test asn-api-6.18 {asnGetContext, not a context tag} -body {
+    set data [asn::asnApplication 1 x]
+    asn::asnGetContext data ctx
+} -cleanup {
+    unset -nocomplain data ctx
+} -returnCodes error -result {Expected Context, but got 41}
+
+test asn-api-6.19 {asnChoice, no values} -body {
+    hex [asn::asnChoice 2]
+} -result 8200
+
+test asn-api-6.20 {asnChoiceConstr, several values} -body {
+    hex [asn::asnChoiceConstr 0 [asn::asnNull] [asn::asnInteger 1]]
+} -result A0050500020101
+
+test asn-api-6.21 {asnChoice, wrong # args} -body {
+    asn::asnChoice
+} -returnCodes error -result {wrong # args: should be "asn::asnChoice appNumber ?arg ...?"}
+
+test asn-api-6.22 {asnChoiceConstr decodes with asnGetContext} -body {
+    set data [asn::asnChoiceConstr 4 [asn::asnNull]]
+    asn::asnGetContext data ctx content enc
+    list $ctx [hex $content] $enc
+} -cleanup {
+    unset -nocomplain data ctx content enc
+} -result {4 0500 1}
+
+# -------------------------------------------------------------------------
+# UTC time
+
+test asn-api-7.1 {asnUTCTime, wrong # args} -body {
+    asn::asnUTCTime
+} -returnCodes error -result {wrong # args: should be "asn::asnUTCTime UTCtimestring"}
+
+test asn-api-7.2 {asnUTCTime} -body {
+    hex [asn::asnUTCTime 261121123456Z]
+} -result 170D3236313132313132333435365A
+
+test asn-api-7.3 {asnGetUTCTime, round trip} -body {
+    set data [asn::asnUTCTime 261121123456Z][asn::asnNull]
+    asn::asnGetUTCTime data t
+    list $t [hex $data]
+} -cleanup {
+    unset -nocomplain data t
+} -result {261121123456Z 0500}
+
+test asn-api-7.4 {asnGetUTCTime, value usable with clock scan} -body {
+    set data [asn::asnUTCTime 261121123456Z]
+    asn::asnGetUTCTime data t
+    clock format [clock scan $t -format %y%m%d%H%M%SZ -gmt 1] \
+	-format {%Y-%m-%d %H:%M:%S} -gmt 1
+} -cleanup {
+    unset -nocomplain data t
+} -result {2026-11-21 12:34:56}
+
+test asn-api-7.5 {asnGetUTCTime, wrong tag} -body {
+    set data [asn::asnOctetString 261121123456Z]
+    asn::asnGetUTCTime data t
+} -cleanup {
+    unset -nocomplain data t
+} -returnCodes error -result {Expected UTCTime (0x17), but got 04}
+
+test asn-api-7.6 {asnGetUTCTime, wrong # args} -body {
+    asn::asnGetUTCTime data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetUTCTime data_var utc_var"}
+
+# -------------------------------------------------------------------------
+# Bit strings
+
+test asn-api-8.1 {asnBitString, empty} -body {
+    hex [asn::asnBitString ""]
+} -result 030100
+
+test asn-api-8.2 {asnGetBitString, empty} -body {
+    set data [asn::asnBitString ""]
+    asn::asnGetBitString data bits
+    list $bits [string length $data]
+} -cleanup {
+    unset -nocomplain data bits
+} -result {{} 0}
+
+test asn-api-8.3 {asnGetBitString, round trip of various lengths, remaining data} -body {
+    set out {}
+    foreach b {0 1 0110 1010101 10101010 101010101 1111000011110000111} {
+	set data [asn::asnBitString $b][asn::asnNull]
+	asn::asnGetBitString data bits
+	lappend out [expr {$bits eq $b}] [hex $data]
+    }
+    set out
+} -cleanup {
+    unset -nocomplain out b data bits
+} -result {1 0500 1 0500 1 0500 1 0500 1 0500 1 0500 1 0500}
+
+test asn-api-8.4 {asnGetBitString, wrong tag} -body {
+    set data [asn::asnOctetString 1]
+    asn::asnGetBitString data bits
+} -cleanup {
+    unset -nocomplain data bits
+} -returnCodes error -result {Expected Bit String (0x03), but got 04}
+
+test asn-api-8.5 {asnGetBitString, wrong # args} -body {
+    asn::asnGetBitString data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetBitString data_var bitstring_var"}
+
+test asn-api-8.6 {asnBitString, wrong # args} -body {
+    asn::asnBitString
+} -returnCodes error -result {wrong # args: should be "asn::asnBitString bitstring"}
+
+# -------------------------------------------------------------------------
+# Object identifiers
+
+test asn-api-9.1 {asnObjectIdentifier, wrong # args} -body {
+    asn::asnObjectIdentifier
+} -returnCodes error -result {wrong # args: should be "asn::asnObjectIdentifier oid"}
+
+test asn-api-9.2 {asnObjectIdentifier, one subidentifier} -body {
+    asn::asnObjectIdentifier 1
+} -returnCodes error -result {OID must have at least two subidentifiers.}
+
+test asn-api-9.3 {asnObjectIdentifier, negative subidentifier} -body {
+    asn::asnObjectIdentifier {1 2 -3}
+} -returnCodes error -result {Malformed OID. Identifiers must be positive Integers.}
+
+test asn-api-9.4 {asnObjectIdentifier, first subidentifier too large} -body {
+    asn::asnObjectIdentifier {3 1}
+} -returnCodes error -result {First subidentifier must be 0,1 or 2}
+
+test asn-api-9.5 {asnObjectIdentifier, second subidentifier too large} -body {
+    asn::asnObjectIdentifier {1 40}
+} -returnCodes error -result {Second subidentifier must be between 0 and 39}
+
+test asn-api-9.6 {asnObjectIdentifier, two subidentifiers} -body {
+    hex [asn::asnObjectIdentifier {1 3}]
+} -result 06012B
+
+test asn-api-9.7 {asnGetObjectIdentifier, round trip, remaining data} -body {
+    set out {}
+    foreach oid {
+	{1 3} {2 5 4 3} {1 2 840 113549 1 1 11} {1 3 6 1 4 1 311 21 20}
+	{0 9 2342 19200300 100 1 1} {1 3 127 128 16383 16384 2097151 2097152}
+    } {
+	set data [asn::asnObjectIdentifier $oid][asn::asnNull]
+	asn::asnGetObjectIdentifier data got
+	lappend out [expr {$got eq $oid}] [hex $data]
+    }
+    set out
+} -cleanup {
+    unset -nocomplain out oid data got
+} -result {1 0500 1 0500 1 0500 1 0500 1 0500 1 0500}
+
+test asn-api-9.8 {asnGetObjectIdentifier, wrong tag} -body {
+    set data [asn::asnInteger 1]
+    asn::asnGetObjectIdentifier data oid
+} -cleanup {
+    unset -nocomplain data oid
+} -returnCodes error -result {Expected Object Identifier (0x06), but got 02}
+
+test asn-api-9.9 {asnGetObjectIdentifier, incomplete data} -body {
+    set data [unhex 06022A86]
+    asn::asnGetObjectIdentifier data oid
+} -cleanup {
+    unset -nocomplain data oid
+} -returnCodes error -result {OID Data is incomplete, not enough octets.}
+
+test asn-api-9.10 {asnGetObjectIdentifier, wrong # args} -body {
+    asn::asnGetObjectIdentifier data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetObjectIdentifier data_var oid_var"}
+
+# -------------------------------------------------------------------------
+# Boolean, NULL with remaining data
+
+test asn-api-10.1 {asnGetBoolean, remaining data is kept} -body {
+    set data [asn::asnBoolean 1][asn::asnBoolean 0][asn::asnInteger 5]
+    asn::asnGetBoolean data a
+    asn::asnGetBoolean data b
+    list $a $b [hex $data]
+} -cleanup {
+    unset -nocomplain data a b
+} -result {1 0 020105}
+
+test asn-api-10.2 {asnBoolean, any true value} -body {
+    list [hex [asn::asnBoolean yes]] [hex [asn::asnBoolean 5]] [hex [asn::asnBoolean off]]
+} -result {0101FF 0101FF 010100}
+
+test asn-api-10.3 {asnGetNull, remaining data is kept} -body {
+    set data [asn::asnNull][asn::asnInteger 5]
+    asn::asnGetNull data
+    hex $data
+} -cleanup {
+    unset -nocomplain data
+} -result 020105
+
+test asn-api-10.4 {asnNull, wrong # args} -body {
+    asn::asnNull x
+} -returnCodes error -result {wrong # args: should be "asn::asnNull"}
+
+# -------------------------------------------------------------------------
+# asnGetString
+
+test asn-api-11.1 {asnGetString, wrong # args} -body {
+    asn::asnGetString data
+} -returnCodes error -result {wrong # args: should be "asn::asnGetString data_var print_var ?type_var?"}
+
+test asn-api-11.2 {asnGetString, all supported types, typeVar} -body {
+    set data [asn::asnNumericString "12 34"][asn::asnPrintableString Hello]
+    append data [asn::asnIA5String a@b] [asn::asnBMPString "ćй"]
+    append data [asn::asnUTF8String "łї"] [asn::asnNull]
+    set out {}
+    foreach k {1 2 3 4 5} {
+	asn::asnGetString data s t
+	lappend out $s $t
+    }
+    lappend out [hex $data]
+} -cleanup {
+    unset -nocomplain data out k s t
+} -result [list "12 34" NumericString Hello PrintableString a@b IA5String \
+	       "ćй" BMPString "łї" UTF8String 0500]
+
+test asn-api-11.3 {asnGetString, without typeVar} -body {
+    set data [asn::asnString abc]
+    asn::asnGetString data s
+    list $s [info exists t]
+} -cleanup {
+    unset -nocomplain data s
+} -result {abc 0}
+
+test asn-api-11.4 {asnGetString, not a string} -body {
+    set data [asn::asnInteger 1]
+    asn::asnGetString data s
+} -cleanup {
+    unset -nocomplain data s
+} -returnCodes error -result {Expected one of string types, but got 02}
+
+test asn-api-11.5 {asnGetString, unsupported string type} -body {
+    set data [unhex 1A0161]
+    asn::asnGetString data s
+} -cleanup {
+    unset -nocomplain data s
+} -returnCodes error -match glob -result {invalid command name*asnGetVisibleString*}
+
+test asn-api-11.6 {asnGetString, application-defined decoder for unsupported type} -setup {
+    proc ::asn::asnGetVisibleString {data_var print_var} {
+	upvar 1 $data_var data $print_var print
+	asnGetByte data tag
+	asnGetLength data len
+	asnGetBytes data $len print
+    }
+} -body {
+    set data [unhex 1A026869]
+    asn::asnGetString data s t
+    list $s $t
+} -cleanup {
+    rename ::asn::asnGetVisibleString {}
+    unset -nocomplain data s t
+} -result {hi VisibleString}
+
+test asn-api-11.7 {defaultStringType, wrong # args} -body {
+    asn::defaultStringType a b
+} -returnCodes error -result {wrong # args: should be "asn::defaultStringType ?type?"}
+
+# -------------------------------------------------------------------------
+# asnGetResponse
+
+# file tempfile needs Tcl 8.6.
+tcltest::testConstraint fileTempfile [package vsatisfies [package provide Tcl] 8.6-]
+
+# Returns a channel positioned at the start of a temporary file
+# containing the bytes; the file name is stored in ::tmpFile.
+proc writeTmp {bytes} {
+    set chan [file tempfile ::tmpFile]
+    fconfigure $chan -translation binary
+    puts -nonewline $chan $bytes
+    flush $chan
+    seek $chan 0
+    return $chan
+}
+
+test asn-api-12.1 {asnGetResponse, wrong # args} -body {
+    asn::asnGetResponse chan
+} -returnCodes error -result {wrong # args: should be "asn::asnGetResponse sock data_var"}
+
+test asn-api-12.2 {asnGetResponse, short sequence} -constraints fileTempfile -setup {
+    set seq [asn::asnSequence [asn::asnInteger 1] [asn::asnNull]]
+    set chan [writeTmp $seq[asn::asnNull]]
+} -body {
+    asn::asnGetResponse $chan data
+    list [string equal $data $seq] [hex [read $chan]]
+} -cleanup {
+    close $chan
+    file delete $::tmpFile
+    unset -nocomplain ::tmpFile seq chan data
+} -result {1 0500}
+
+test asn-api-12.3 {asnGetResponse, long form length} -constraints fileTempfile -setup {
+    set seq [asn::asnSequence [asn::asnOctetString [string repeat z 300]]]
+    set chan [writeTmp $seq]
+} -body {
+    asn::asnGetResponse $chan data
+    asn::asnGetSequence data inner
+    asn::asnGetOctetString inner s
+    list [string length $s] [string length $data] [eof $chan]
+} -cleanup {
+    close $chan
+    file delete $::tmpFile
+    unset -nocomplain ::tmpFile seq chan data inner s
+} -result {300 0 0}
+
+test asn-api-12.4 {asnGetResponse, not a sequence} -constraints fileTempfile -setup {
+    set chan [writeTmp [asn::asnInteger 1]]
+} -body {
+    asn::asnGetResponse $chan data
+} -cleanup {
+    close $chan
+    file delete $::tmpFile
+    unset -nocomplain ::tmpFile chan data
+} -returnCodes error -result {unknown start tag 1 02}
+
+# -------------------------------------------------------------------------
+# asnPeekTag, asnTag, asnRetag
+
+test asn-api-13.1 {asnPeekTag, wrong # args} -body {
+    asn::asnPeekTag data tag type
+} -returnCodes error -result {wrong # args: should be "asn::asnPeekTag data_var tag_var tagtype_var constr_var"}
+
+test asn-api-13.2 {asnPeekTag, returns the tag length, data unchanged} -body {
+    set out {}
+    foreach h {05 1F1F 5F8100 1F818000} {
+	set data [unhex ${h}00]
+	lappend out [asn::asnPeekTag data tag type constr] [hex $data]
+    }
+    set out
+} -cleanup {
+    unset -nocomplain out h data tag type constr
+} -result {1 0500 2 1F1F00 3 5F810000 4 1F81800000}
+
+test asn-api-13.3 {asnTag, default class and style} -body {
+    hex [asn::asnTag 4]
+} -result 04
+
+test asn-api-13.4 {asnTag, class abbreviations} -body {
+    list [hex [asn::asnTag 1 U]] [hex [asn::asnTag 1 A]] \
+	[hex [asn::asnTag 1 C]] [hex [asn::asnTag 1 P]]
+} -result {01 41 81 C1}
+
+test asn-api-13.5 {asnTag, numeric tag styles} -body {
+    list [hex [asn::asnTag 1 C 0]] [hex [asn::asnTag 1 C 1]]
+} -result {81 A1}
+
+test asn-api-13.6 {asnTag, unknown class} -body {
+    asn::asnTag 1 X
+} -returnCodes error -result {Unknown tag class "X"}
+
+test asn-api-13.7 {asnTag, wrong # args} -body {
+    asn::asnTag
+} -returnCodes error -result {wrong # args: should be "asn::asnTag tagnumber ?class? ?tagstyle?"}
+
+test asn-api-13.8 {asnTag and asnPeekTag agree} -body {
+    set out {}
+    foreach {n class style} {
+	0 UNIVERSAL 0 30 CONTEXT 1 31 APPLICATION 0 200 PRIVATE 1 70000 CONTEXT 0
+    } {
+	set data [asn::asnTag $n $class $style]\x00
+	asn::asnPeekTag data tag type constr
+	lappend out [list $tag $type $constr]
+    }
+    set out
+} -cleanup {
+    unset -nocomplain out n class style data tag type constr
+} -result {{0 UNIVERSAL 0} {30 CONTEXT 1} {31 APPLICATION 0} {200 PRIVATE 1} {70000 CONTEXT 0}}
+
+test asn-api-13.9 {asnRetag, wrong # args} -body {
+    asn::asnRetag data
+} -returnCodes error -result {wrong # args: should be "asn::asnRetag data_var newTag"}
+
+test asn-api-13.10 {asnRetag, implicit tag to universal, numeric tag} -body {
+    set data [asn::asnContext 2 hello]
+    asn::asnRetag data 0x04
+    asn::asnGetOctetString data s
+    list $s [string length $data]
+} -cleanup {
+    unset -nocomplain data s
+} -result {hello 0}
+
+test asn-api-13.11 {asnRetag, long tag replaced} -body {
+    set data [asn::asnTag 300 CONTEXT P]\x01\x07
+    asn::asnRetag data 0x02
+    asn::asnGetInteger data i
+    set i
+} -cleanup {
+    unset -nocomplain data i
+} -result 7
+
+# The documentation says the new tag can be created with asn::asnTag,
+# but asnRetag expects a list of byte values.
+test asn-api-13.12 {asnRetag, tag created with asnTag} -constraints knownBug -body {
+    set data [asn::asnContext 2 hello]
+    asn::asnRetag data [asn::asnTag 4]
+    asn::asnGetOctetString data s
+    set s
+} -cleanup {
+    unset -nocomplain data s
+} -result hello
+
+# -------------------------------------------------------------------------
+
+rename hex {}
+rename unhex {}
+rename writeTmp {}
+testsuiteCleanup
+return
