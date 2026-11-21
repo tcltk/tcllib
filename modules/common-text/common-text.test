@@ -1,0 +1,221 @@
+# -*- tcl -*-
+# common-text.test:  Tests for the shared documentation fragments.
+#
+# The module common-text holds doctools fragments included by the
+# manpages of many other modules. The tests check that the fragments
+# process without errors when included the way the manpages include
+# them, in all standard output formats, and that the manpages use them
+# correctly.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+# The doctools formatting engines load their helper packages through
+# the package management, from the local tcllib.
+set savedAutoPath $auto_path
+set auto_path [linsert $auto_path 0 [tcllibPath {}]]
+
+support {
+    use cmdline/cmdline.tcl   cmdline
+    use fileutil/fileutil.tcl fileutil
+    use textutil/expander.tcl textutil::expander
+    use doctools/doctools.tcl doctools
+}
+
+array_unset env LANG*
+array_unset env LC_*
+set env(LANG) C
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# Format a manpage with the given body. The manpage pretends to live in
+# the directory of a module, so that the includes are resolved as in the
+# real manpages ("../common-text/...").
+proc fmt {format body} {
+    set path [file join [tcllibPath {}] some-module x.man]
+    doctools::new dtct -format $format -file $path
+    set code [catch {
+	dtct format "\[manpage_begin x n 1.0\]\n\[titledesc T\]\n\[description\]\n$body\n\[manpage_end\]\n"
+    } res]
+    dtct destroy
+    return -code $code $res
+}
+
+# All manpages of tcllib (modules and applications).
+proc manpages {} {
+    set root [file dirname [tcllibPath {}]]
+    set r {}
+    foreach f [lsort [glob -nocomplain -directory [file join $root modules] */*.man]] {
+	lappend r $f
+    }
+    foreach f [lsort [glob -nocomplain -directory [file join $root apps] *.man]] {
+	lappend r $f
+    }
+    return $r
+}
+
+proc relname {f} {
+    set root [file dirname [tcllibPath {}]]
+    string range $f [string length $root/] end
+}
+
+# -------------------------------------------------------------------------
+## The fragments exist.
+
+test common-text-1.0 {fragments present} -body {
+    lsort [glob -tails -directory [localDirectory] *.inc]
+} -result {feedback.inc hash-compatibility-warning.inc tls-security-notes.inc tls-security-text.inc}
+
+# -------------------------------------------------------------------------
+## feedback.inc
+
+test common-text-2.0 {feedback.inc, text format} -body {
+    set out [fmt text "\[vset CATEGORY mycategory\]\n\[include ../common-text/feedback.inc\]"]
+    list [regexp {Bugs, Ideas, Feedback\n=+} $out] \
+	[regexp {_Tcllib Trackers_\s+<URL:https://core.tcl-lang.org/tcllib/reportlist>} $out] \
+	[regexp {specify _mycategory_\s+as\s+the\s+category} $out] \
+	[regexp {_unified diffs_} $out] \
+	[regexp {\*diff -u\*} $out]
+} -cleanup {
+    unset -nocomplain out
+} -result {1 1 1 1 1}
+
+test common-text-2.1 {feedback.inc, html format} -body {
+    set out [fmt html "\[vset CATEGORY mycategory\]\n\[include ../common-text/feedback.inc\]"]
+    list [regexp {<a href="https://core.tcl-lang.org/tcllib/reportlist">Tcllib Trackers</a>} $out] \
+	[regexp {<em>mycategory</em>} $out]
+} -cleanup {
+    unset -nocomplain out
+} -result {1 1}
+
+test common-text-2.2 {feedback.inc, CATEGORY is required} -body {
+    fmt text {[include ../common-text/feedback.inc]}
+} -returnCodes error -match glob -result {*can't read doc variable "CATEGORY": not set}
+
+test common-text-2.3 {feedback.inc, sets TRACKER and LABEL} -body {
+    set out [fmt text "\[vset CATEGORY c\]\n\[include ../common-text/feedback.inc\]\n\[para\]\[vset LABEL\]=\[vset TRACKER\]"]
+    regexp {Tcllib Trackers=https://core.tcl-lang.org/tcllib/reportlist} $out
+} -cleanup {
+    unset -nocomplain out
+} -result 1
+
+# -------------------------------------------------------------------------
+## hash-compatibility-warning.inc
+
+test common-text-3.0 {hash-compatibility-warning.inc, text format} -body {
+    set out [fmt text {[include ../common-text/hash-compatibility-warning.inc]}]
+    list [regexp {_BEWARE_} $out] \
+	[regexp {(^|\s)-file is provided} $out] \
+	[regexp {a\s+-channel\s+are} $out] \
+	[regexp {encoding convertto utf-8 \$string} $out] \
+	[regexp {_Tcl 9 COMPATIBILITY ISSUE_} $out] \
+	[regexp {expected byte sequence but character <location> was \.\.\.} $out]
+} -cleanup {
+    unset -nocomplain out
+} -result {1 1 1 1 1 1}
+
+# -------------------------------------------------------------------------
+## tls-security-notes.inc, tls-security-text.inc
+
+test common-text-4.0 {tls-security-notes.inc, nested include resolved} -body {
+    set out [fmt text {[include ../common-text/tls-security-notes.inc]}]
+    list [regexp {TLS Security Considerations\n=+} $out] \
+	[regexp {This package uses the \*TLS\* package} $out] \
+	[regexp {_POODLE attack_} $out] \
+	[regexp {tls::init -tls1 1} $out]
+} -cleanup {
+    unset -nocomplain out
+} -result {1 1 1 1}
+
+test common-text-4.1 {tls-security-text.inc, own section} -body {
+    set out [fmt text "\[section Security\]\n\[include ../common-text/tls-security-text.inc\]"]
+    list [regexp {Security\n=+} $out] [regexp {TLS Security Considerations} $out] \
+	[regexp {tls::init -tls1 1} $out]
+} -cleanup {
+    unset -nocomplain out
+} -result {1 0 1}
+
+# -------------------------------------------------------------------------
+## All fragments, all standard formats.
+
+set n 0
+foreach format {html nroff text tmml latex wiki markdown list null} {
+    test common-text-5.$n "all fragments, format $format" -body {
+	fmt $format [join {
+	    {[vset CATEGORY mycategory]}
+	    {[include ../common-text/hash-compatibility-warning.inc]}
+	    {[include ../common-text/tls-security-notes.inc]}
+	    {[include ../common-text/feedback.inc]}
+	} \n]
+	return ok
+    } -result ok
+    incr n
+}
+unset n format
+
+# -------------------------------------------------------------------------
+## Use of the fragments by the manpages of tcllib.
+
+test common-text-6.0 {manpages include only existing fragments} -body {
+    set bad {}
+    foreach f [manpages] {
+	set d [fileutil::cat $f]
+	foreach {-> inc} [regexp -all -inline {\[include\s+([^\]]*common-text/[^\]]*)\]} $d] {
+	    set path [file normalize [file join [file dirname $f] $inc]]
+	    if {![file exists $path]} {lappend bad [relname $f] $inc}
+	}
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad f d inc path ->
+} -result {}
+
+test common-text-6.1 {manpages define CATEGORY before including feedback.inc} -constraints knownBug -body {
+    # Without it, the manpage cannot be processed (see common-text-2.2).
+    # Currently missing in fileutil/paths.man and struct/struct_map.man.
+    set bad {}
+    foreach f [manpages] {
+	set d [fileutil::cat $f]
+	set pos [string first common-text/feedback.inc $d]
+	if {$pos < 0} continue
+	if {![regexp {\[vset\s+CATEGORY\s} [string range $d 0 $pos]]} {
+	    lappend bad [relname $f]
+	}
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad f d pos
+} -result {}
+
+test common-text-6.2 {manpages include tls-security-text.inc only via tls-security-notes.inc or in a section} -body {
+    set bad {}
+    foreach f [manpages] {
+	set d [fileutil::cat $f]
+	foreach {-> before} [regexp -all -inline {(\[section[^\]]*\]\s*)?\[include\s+[^\]]*common-text/tls-security-text.inc\]} $d] {
+	    if {$before eq ""} {lappend bad [relname $f]}
+	}
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad f d before ->
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename fmt {}
+rename manpages {}
+rename relname {}
+set auto_path $savedAutoPath
+unset savedAutoPath
+testsuiteCleanup
+return
