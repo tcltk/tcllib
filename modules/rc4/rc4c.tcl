@@ -4,7 +4,7 @@
 #
 # INSTALLATION
 # ------------
-# This package uses critcl (http://wiki.tcl.tk/critcl). To build do:
+# This package uses critcl (https://wiki.tcl-lang.org/critcl). To build do:
 #  critcl -libdir <your-tcl-lib-dir> -pkg rc4c rc4c
 #
 # To build this for tcllib use sak.tcl:
