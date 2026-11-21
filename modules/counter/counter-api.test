@@ -1,0 +1,639 @@
+# -*- tcl -*-
+# counter-api.test: tests for the documented API of the counter
+# package, complementing counter.test.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl   cmdline
+    use fileutil/fileutil.tcl fileutil
+    use uri/uri.tcl           uri
+    use ncgi/ncgi.tcl ncgi
+    use html/html.tcl html
+}
+testing {
+    useLocal counter.tcl counter
+}
+
+# -------------------------------------------------------------------------
+
+proc cleanCounters {} {
+    foreach tag [counter::names] {
+	foreach v {T H V Hour Day Time} {
+	    unset -nocomplain ::counter::$v-$tag
+	}
+    }
+}
+
+proc countImages {html gif} {
+    regexp -all "<img src=\[^ \]*/$gif height=\[0-9\]+ width" $html
+}
+
+# -------------------------------------------------------------------------
+# ::counter::init
+
+test counter-api-1.0 {init, wrong # args} -body {
+    counter::init
+} -returnCodes error -result {wrong # args: should be "counter::init tag ?arg ...?"}
+
+test counter-api-1.1 {init, unsupported option} -body {
+    counter::init c -foo 1
+} -cleanup {
+    cleanCounters
+} -returnCodes error -result {Unsupported option -foo. Must be -timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog, or -simple.}
+
+test counter-api-1.2 {init, more than one type} -body {
+    counter::init c -hist 10 -lastn 4
+} -cleanup {
+    cleanCounters
+} -returnCodes error -result {Multiple type attributes not supported.  Use only one of -timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog, -disabled.}
+
+test counter-api-1.3 {init, result} -body {
+    counter::init c
+} -cleanup {
+    cleanCounters
+} -result {}
+
+test counter-api-1.4 {init, redefining a counter clears it} -body {
+    counter::init c
+    counter::count c 5
+    counter::init c -hist 10
+    list [counter::get c] [counter::get c -N] [counter::get c -hist]
+} -cleanup {
+    cleanCounters
+} -result {0 0 {}}
+
+# -------------------------------------------------------------------------
+# ::counter::count
+
+test counter-api-2.0 {count, wrong # args} -body {
+    counter::count
+} -returnCodes error -result {wrong # args: should be "counter::count tag ?delta? ?arg ...?"}
+
+test counter-api-2.1 {count, undefined counter} -body {
+    counter::count nosuchcounter
+} -cleanup {
+    cleanCounters
+} -returnCodes error -result {can't read "counter(total)": no such variable}
+
+test counter-api-2.2 {count, real delta} -setup {
+    counter::init c
+} -body {
+    counter::count c 1.5
+    counter::count c 2
+    list [counter::get c] [counter::get c -N]
+} -cleanup {
+    cleanCounters
+} -result {3.5 2}
+
+test counter-api-2.3 {count, negative delta} -setup {
+    counter::init c
+} -body {
+    counter::count c 10
+    counter::count c -3
+    list [counter::get c] [counter::get c -N]
+} -cleanup {
+    cleanCounters
+} -result {7 2}
+
+test counter-api-2.4 {count, result is empty} -setup {
+    counter::init c -hist 10
+} -body {
+    counter::count c 5
+} -cleanup {
+    cleanCounters
+} -result {}
+
+test counter-api-2.5 {count, -group instance} -setup {
+    counter::init g -group grp
+} -body {
+    counter::count g 2 b
+    counter::count g 1 a10
+    counter::count g 1 a9
+    counter::count g 3 b
+    list [counter::get g] [counter::get g -N] [counter::get g -hist]
+} -cleanup {
+    cleanCounters
+} -result {7 4 {a9 1 a10 1 b 5}}
+
+test counter-api-2.6 {count, -group instance bucket} -setup {
+    counter::init g -group grp
+} -body {
+    counter::count g 2 b
+    counter::count g 1.5 b
+    list [counter::get g -hist b] [counter::get g -hist nosuch]
+} -cleanup {
+    cleanCounters
+} -result {3.5 0}
+
+test counter-api-2.7 {count, -hist2x buckets} -setup {
+    counter::init c -hist2x 10
+} -body {
+    # Buckets: <=10, <=20, <=40, <=80, ...
+    foreach v {10 11 20 21 40 41 80 81} {counter::count c $v}
+    counter::get c -hist
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v
+} -result {0 1 1 2 2 2 3 2 4 1}
+
+test counter-api-2.8 {count, -hist10x buckets} -setup {
+    counter::init c -hist10x 10
+} -body {
+    # Buckets: <=10, <=100, <=1000, ...
+    foreach v {10 11 100 101 1000 1001} {counter::count c $v}
+    counter::get c -hist
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v
+} -result {0 1 1 2 2 2 3 1}
+
+# -------------------------------------------------------------------------
+# ::counter::get
+
+test counter-api-3.0 {get, wrong # args} -body {
+    counter::get
+} -returnCodes error -result {wrong # args: should be "counter::get tag ?option? ?arg ...?"}
+
+test counter-api-3.1 {get, invalid option} -setup {
+    counter::init c
+} -body {
+    counter::get c -foo
+} -cleanup {
+    cleanCounters
+} -returnCodes error -result {Invalid option -foo. Should be -all, -total, -N, -avg, -avgn, -hist, -histHour, -histDay, -totalVar, -histVar, -histHourVar, -histDayVar -resetDate.}
+
+test counter-api-3.2 {get, -total is the default} -setup {
+    counter::init c
+} -body {
+    counter::count c 4
+    list [counter::get c] [counter::get c -total]
+} -cleanup {
+    cleanCounters
+} -result {4 4}
+
+test counter-api-3.3 {get, -N} -setup {
+    counter::init c
+} -body {
+    set res [counter::get c -N]
+    counter::count c 4
+    counter::count c 4
+    lappend res [counter::get c -N]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain res
+} -result {0 2}
+
+test counter-api-3.4 {get, -totalVar} -setup {
+    counter::init c
+} -body {
+    counter::count c 4
+    set var [counter::get c -totalVar]
+    list $var [set $var]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain var
+} -result {::counter::T-c(total) 4}
+
+test counter-api-3.5 {get, -totalVar follows the counter} -setup {
+    counter::init c
+} -body {
+    set var [counter::get c -totalVar]
+    counter::count c 4
+    counter::count c 3
+    set $var
+} -cleanup {
+    cleanCounters
+    unset -nocomplain var
+} -result 7
+
+test counter-api-3.6 {get, -avgn on a counter which is not -lastn} -setup {
+    counter::init c
+} -body {
+    counter::get c -avgn
+} -cleanup {
+    cleanCounters
+} -returnCodes error -result {The -avgn option is only supported for -lastn counters.}
+
+test counter-api-3.7 {get, -avgn without samples} -setup {
+    counter::init c -lastn 3
+} -body {
+    counter::get c -avgn
+} -cleanup {
+    cleanCounters
+} -result 0
+
+test counter-api-3.8 {get, -hist bucket} -setup {
+    counter::init c -hist 10
+} -body {
+    foreach v {1 12 15 33} {counter::count c $v}
+    list [counter::get c -hist 0] [counter::get c -hist 1] \
+	[counter::get c -hist 2] [counter::get c -hist 3]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v
+} -result {1 2 0 1}
+
+test counter-api-3.9 {get, -histVar} -setup {
+    counter::init c -hist 10
+} -body {
+    foreach v {1 12 15 33} {counter::count c $v}
+    set var [counter::get c -histVar]
+    list $var [lsort -stride 2 -integer [array get $var]]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v var
+} -result {::counter::H-c {0 1 1 2 3 1}}
+
+test counter-api-3.10 {get, -histHourVar and -histDayVar} -setup {
+    counter::init c
+} -body {
+    list [counter::get c -histHourVar] [counter::get c -histDayVar]
+} -cleanup {
+    cleanCounters
+} -result {::counter::Hour-c ::counter::Day-c}
+
+test counter-api-3.11 {get, -resetDate before a reset} -setup {
+    counter::init c
+} -body {
+    counter::get c -resetDate
+} -cleanup {
+    cleanCounters
+} -result {}
+
+test counter-api-3.12 {get, -resetDate after a reset} -setup {
+    counter::init c
+} -body {
+    set before [clock seconds]
+    counter::reset c
+    set date [counter::get c -resetDate]
+    expr {$date >= $before && $date <= [clock seconds]}
+} -cleanup {
+    cleanCounters
+    unset -nocomplain before date
+} -result 1
+
+test counter-api-3.13 {get, -all} -setup {
+    counter::init c -hist 10
+} -body {
+    counter::count c 12
+    counter::count c 3
+    array set a [counter::get c -all]
+    list $a(total) $a(N) $a(type) $a(bucketsize)
+} -cleanup {
+    cleanCounters
+    unset -nocomplain a
+} -result {15 2 -hist 10}
+
+test counter-api-3.14 {get, -all does not include the histogram} -setup {
+    counter::init c -hist 10
+} -body {
+    counter::count c 12
+    lsort [dict keys [counter::get c -all]]
+} -cleanup {
+    cleanCounters
+} -result {N bucketsize mult total type}
+
+test counter-api-3.15 {get, -avg} -setup {
+    counter::init c
+} -body {
+    counter::count c 1
+    counter::count c 2
+    counter::get c -avg
+} -cleanup {
+    cleanCounters
+} -result 1.5
+
+# -------------------------------------------------------------------------
+# ::counter::exists, ::counter::names
+
+test counter-api-4.0 {exists, wrong # args} -body {
+    counter::exists
+} -returnCodes error -result {wrong # args: should be "counter::exists tag"}
+
+test counter-api-4.1 {exists, undefined counter} -body {
+    counter::exists nosuchcounter
+} -result 0
+
+test counter-api-4.2 {exists, defined counter} -setup {
+    counter::init c
+} -body {
+    counter::exists c
+} -cleanup {
+    cleanCounters
+} -result 1
+
+test counter-api-4.3 {names, wrong # args} -body {
+    counter::names x
+} -returnCodes error -result {wrong # args: should be "counter::names"}
+
+test counter-api-4.4 {names, no counters} -setup {
+    cleanCounters
+} -body {
+    counter::names
+} -result {}
+
+test counter-api-4.5 {names, several counters} -setup {
+    cleanCounters
+    counter::init c1
+    counter::init c2 -hist 10
+    counter::init c3 -group x
+} -body {
+    lsort [counter::names]
+} -cleanup {
+    cleanCounters
+} -result {c1 c2 c3}
+
+# -------------------------------------------------------------------------
+# ::counter::reset
+
+test counter-api-5.0 {reset, wrong # args} -body {
+    counter::reset
+} -returnCodes error -result {wrong # args: should be "counter::reset tag ?arg ...?"}
+
+test counter-api-5.1 {reset, keeps the -hist type} -setup {
+    counter::init c -hist 10
+} -body {
+    foreach v {1 12 15} {counter::count c $v}
+    counter::reset c
+    counter::count c 25
+    list [counter::get c] [counter::get c -N] [counter::get c -hist]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v
+} -result {25 1 {2 1}}
+
+test counter-api-5.2 {reset, keeps the -lastn type} -setup {
+    counter::init c -lastn 2
+} -body {
+    foreach v {1 2 3} {counter::count c $v}
+    counter::reset c
+    counter::count c 4
+    list [counter::get c] [counter::get c -avgn]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v
+} -result {4 4.0}
+
+test counter-api-5.3 {reset, keeps the -group type} -setup {
+    counter::init g -group grp
+} -body {
+    counter::count g 1 a
+    counter::reset g
+    counter::count g 2 b
+    list [counter::get g] [counter::get g -hist]
+} -cleanup {
+    cleanCounters
+} -result {2 {b 2}}
+
+test counter-api-5.4 {reset, result} -setup {
+    counter::init c
+} -body {
+    counter::reset c
+} -cleanup {
+    cleanCounters
+} -result {}
+
+# The documentation says that the arguments of reset have the same
+# meaning as for init, but they are ignored: the previous type is kept.
+test counter-api-5.5 {reset, new characteristics} -constraints {
+    knownBug
+} -setup {
+    counter::init c -hist 10
+} -body {
+    counter::reset c -lastn 3
+    dict get [counter::get c -all] type
+} -cleanup {
+    cleanCounters
+} -result -lastn
+
+# -------------------------------------------------------------------------
+# ::counter::start, ::counter::stop
+
+test counter-api-6.0 {start, wrong # args} -body {
+    counter::start c
+} -returnCodes error -result {wrong # args: should be "counter::start tag instance"}
+
+test counter-api-6.1 {stop, wrong # args} -body {
+    counter::stop c
+} -returnCodes error -result {wrong # args: should be "counter::stop tag instance ?func?"}
+
+test counter-api-6.2 {start and stop record an interval} -setup {
+    counter::init c -hist 1000
+} -body {
+    counter::start c i1
+    counter::stop c i1
+    set total [counter::get c]
+    list [counter::get c -N] [expr {$total >= 0}] [string is double -strict $total]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain total
+} -result {1 1 1}
+
+test counter-api-6.3 {stop without start is ignored} -setup {
+    counter::init c -hist 1000
+} -body {
+    list [counter::stop c nosuch] [counter::get c -N]
+} -cleanup {
+    cleanCounters
+} -result {{} 0}
+
+test counter-api-6.4 {overlapping intervals} -setup {
+    counter::init c -hist 1000
+} -body {
+    counter::start c i1
+    counter::start c i2
+    counter::stop c i1
+    counter::stop c i2
+    counter::stop c i1
+    counter::get c -N
+} -cleanup {
+    cleanCounters
+} -result 2
+
+# -------------------------------------------------------------------------
+# -timehist counters
+
+test counter-api-7.0 {-timehist, initial histograms} -setup {
+    counter::init t -timehist 60
+} -body {
+    set hist [counter::get t -hist]
+    list [llength $hist] [lsort -unique [dict values $hist]] \
+	[counter::get t -histHour] [counter::get t -histDay]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain hist
+} -result {120 0 {0 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10 0 11 0 12 0 13 0 14 0 15 0 16 0 17 0 18 0 19 0 20 0 21 0 22 0 23 0} {0 0}}
+
+test counter-api-7.1 {-timehist, count goes into a minute bucket} -setup {
+    counter::init t -timehist 60
+} -body {
+    counter::count t 3
+    counter::count t 4
+    set sum 0
+    foreach {k v} [counter::get t -hist] {set sum [expr {$sum + $v}]}
+    list [counter::get t] $sum
+} -cleanup {
+    cleanCounters
+    unset -nocomplain sum k v
+} -result {7 7}
+
+test counter-api-7.2 {-timehist, reset keeps the type} -setup {
+    counter::init t -timehist 60
+} -body {
+    counter::count t 3
+    counter::reset t
+    list [counter::get t] [dict get [counter::get t -all] type] \
+	[llength [counter::get t -histHour]]
+} -cleanup {
+    cleanCounters
+} -result {0 -timehist 48}
+
+# -------------------------------------------------------------------------
+# ::counter::histHtmlDisplay
+
+test counter-api-8.0 {histHtmlDisplay, wrong # args} -body {
+    counter::histHtmlDisplay
+} -returnCodes error -result {wrong # args: should be "counter::histHtmlDisplay tag ?arg ...?"}
+
+test counter-api-8.1 {histHtmlDisplay, value histogram, defaults} -setup {
+    counter::init h -hist 10
+    foreach v {1 12 15 33} {counter::count h $v}
+} -body {
+    set html [counter::histHtmlDisplay h]
+    list [string match "<p>\n<table*</table>" $html] \
+	[string match "*<b>h</b>*" $html] \
+	[string match "*<b>Total</b></font></td><td>61.00</font>*" $html] \
+	[string match "*<b>Average</b></font></td><td>15.25</font>*" $html] \
+	[string match "*<b>Mode</b></font></td><td>10</font>*" $html] \
+	[string match "*<b>Minimum</b></font></td><td>0</font>*" $html] \
+	[string match "*<b>Maximum</b></font></td><td>30</font>*" $html] \
+	[string match "*resetCounter=h*" $html] \
+	[string match "*<img src=/images/Blue.gif height=100 width=4 title=2 alt=2>*" $html] \
+	[string match "*<img src=/images/Blue.gif height=50 width=4 title=1 alt=1>*" $html]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v html
+} -result {1 1 1 1 1 1 1 1 1 1}
+
+test counter-api-8.2 {histHtmlDisplay, options} -setup {
+    counter::init h -hist 10
+    foreach v {1 12 15 33} {counter::count h $v}
+} -body {
+    set html [counter::histHtmlDisplay h -title Hello -unit msec \
+	    -images /img -gif bar.png -height 40 -width 7 -format %.1f]
+    list [string match "*<b>Hello</b>*" $html] \
+	[string match "*<b>Unit</b></font></td><td>msec</font>*" $html] \
+	[string match "*<b>Total</b></font></td><td>61.0</font>*" $html] \
+	[string match "*<img src=/img/bar.png height=40 width=7 title=2 alt=2>*" $html] \
+	[string match "*<img src=/img/bar.png height=20 width=7 title=1 alt=1>*" $html] \
+	[string match "*Blue.gif*" $html]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v html
+} -result {1 1 1 1 1 0}
+
+test counter-api-8.3 {histHtmlDisplay, -text 1 omits the bar chart} -setup {
+    counter::init h -hist 10
+    foreach v {1 12 15 33} {counter::count h $v}
+} -body {
+    set html [counter::histHtmlDisplay h -text 1]
+    list [string match "*<b>Total</b>*" $html] [string match "*<img*" $html]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v html
+} -result {1 0}
+
+test counter-api-8.4 {histHtmlDisplay, -max} -setup {
+    counter::init h -hist 10
+    foreach v {1 12 15 33 55} {counter::count h $v}
+} -body {
+    set html [counter::histHtmlDisplay h -max 2]
+    list [countImages $html Blue.gif] [string match "*Skipped 2 samples > 20*" $html]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v html
+} -result {2 1}
+
+# The bar for the last bucket of the histogram is not displayed (the
+# bars go up to, but not including, the highest bucket).
+test counter-api-8.5 {histHtmlDisplay, all buckets are displayed} -constraints {
+    knownBug
+} -setup {
+    counter::init h -hist 10
+    foreach v {1 12 15 33} {counter::count h $v}
+} -body {
+    countImages [counter::histHtmlDisplay h] Blue.gif
+} -cleanup {
+    cleanCounters
+    unset -nocomplain v
+} -result 4
+
+test counter-api-8.6 {histHtmlDisplay, missing histogram} -setup {
+    counter::init c
+} -body {
+    counter::histHtmlDisplay c
+} -cleanup {
+    cleanCounters
+} -result "<p>\n<table border=0 cellpadding=0 cellspacing=0>\n<!-- counter::H-c doesn't exist -->\n</table>"
+
+test counter-api-8.7 {histHtmlDisplay, -unit minutes} -setup {
+    counter::init t -timehist 60
+    counter::count t 5
+} -body {
+    set html [counter::histHtmlDisplay t -unit minutes]
+    list [string match "*<b>Bucket Size</b></font></td><td>1 Minute </font>*" $html] \
+	[string match "*<b>Starting Time</b>*" $html] \
+	[expr {[countImages $html Blue.gif] + [countImages $html Red.gif]}]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain html
+} -result {1 1 60}
+
+test counter-api-8.8 {histHtmlDisplay, -unit hours} -setup {
+    counter::init t -timehist 60
+} -body {
+    # hourBase is set by the first -timehist init, so a display is made.
+    set html [counter::histHtmlDisplay t -unit hours -text 1]
+    list [string match "*<b>Bucket Size</b></font></td><td>1 Hour </font>*" $html]
+} -cleanup {
+    cleanCounters
+    unset -nocomplain html
+} -result 1
+
+test counter-api-8.9 {histHtmlDisplay, reset through the resetCounter query} -setup {
+    counter::init h -hist 10
+    foreach v {1 12 15 33} {counter::count h $v}
+    ncgi::reset resetCounter=h
+    ncgi::parse
+} -body {
+    set html [counter::histHtmlDisplay h]
+    list [string match "*<!-- Reset h counter -->*" $html] [counter::get h] [counter::get h -N]
+} -cleanup {
+    ncgi::reset {}
+    ncgi::parse
+    cleanCounters
+    unset -nocomplain v html
+} -result {1 0 0}
+
+# -------------------------------------------------------------------------
+
+# Cancel the hour merge timer started by the -timehist counters.
+foreach id [after info] {
+    if {[string match counter::MergeHour* [lindex [after info $id] 0]]} {
+	after cancel $id
+    }
+}
+unset -nocomplain id
+rename cleanCounters {}
+rename countImages {}
+testsuiteCleanup
+return
