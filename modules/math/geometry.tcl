@@ -746,7 +746,7 @@ proc ::math::geometry::findLineSegmentIntersection {linesegment1 linesegment2} {
 proc ::math::geometry::findLineIntersection {line1 line2} {
 
     # References:
-    # http://wiki.tcl.tk/12070 (Kevin Kenny)
+    # https://wiki.tcl-lang.org/12070 (Kevin Kenny)
     # http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/
 
     set l1x1 [lindex $line1 0]

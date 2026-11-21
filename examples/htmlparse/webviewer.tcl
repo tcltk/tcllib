@@ -11,7 +11,7 @@
 # cope with http proxy servers (if present) and handles HTTP redirections and
 # so on.
 #
-# Usage: webviewer.tcl http://tip.tcl.tk/2
+# Usage: webviewer.tcl https://core.tcl-lang.org/tips/doc/trunk/tip/2.md
 #
 # $Id: webviewer.tcl,v 1.2 2009/01/30 04:18:14 andreas_kupries Exp $
 

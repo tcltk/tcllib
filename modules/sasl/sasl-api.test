@@ -1,0 +1,462 @@
+# -*- tcl -*-
+# sasl-api.test: tests for the SASL package, complementing sasl.test.
+#
+# Covers context management (new, configure, reset, cleanup, response),
+# mechanisms and register, argument errors, and client/server exchanges
+# for the built-in mechanisms.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use md5/md5x.tcl md5
+}
+testing {
+    useLocal sasl.tcl SASL
+}
+
+# -------------------------------------------------------------------------
+
+# Client callback: the password is given as the first argument.
+proc ClientCB {password context command args} {
+    switch -exact -- $command {
+	login    { return "" }
+	username { return "tester" }
+	password { return $password }
+	realm    { return "example.com" }
+	hostname { return "client.example.com" }
+	default  { return -code error "unexpected $command" }
+    }
+}
+
+# Server callback: knows the password of user "tester".
+proc ServerCB {context command args} {
+    switch -exact -- $command {
+	realm    { return "example.com" }
+	password {
+	    lassign $args user realm
+	    if {$user eq "tester" && $realm eq "example.com"} {
+		return "secret"
+	    }
+	    return ""
+	}
+	default  { return -code error "unexpected $command" }
+    }
+}
+
+# Runs a client/server exchange.  Returns the list of step results, or
+# the error message prefixed by "error:".
+proc Exchange {mech clientpass} {
+    set c [SASL::new -mechanism $mech -callback [list ClientCB $clientpass]]
+    set s [SASL::new -type server -mechanism $mech -callback ServerCB \
+	       -service smtp]
+    set result {}
+    set code [catch {
+	set sv ""
+	set cl ""
+	set serverDone 0
+	while {1} {
+	    set r [SASL::step $c $sv]
+	    lappend result c$r
+	    set cl [SASL::response $c]
+	    if {!$serverDone} {
+		set rs [SASL::step $s $cl]
+		lappend result s$rs
+		set sv [SASL::response $s]
+		if {!$rs} {set serverDone 1}
+	    }
+	    if {!$r && $serverDone} break
+	    if {[llength $result] > 20} {error "too many steps"}
+	}
+    } msg]
+    SASL::cleanup $c
+    SASL::cleanup $s
+    if {$code} {
+	return error:$msg
+    }
+    return $result
+}
+
+# Save and restore the list of registered mechanisms.
+proc saveMechs {} {
+    set ::savedMechs $::SASL::mechanisms
+}
+proc restoreMechs {} {
+    set ::SASL::mechanisms $::savedMechs
+    unset ::savedMechs
+}
+
+# -------------------------------------------------------------------------
+# mechanisms
+
+test sasl-api-1.1 {mechanisms, too many args} -body {
+    SASL::mechanisms client 0 x
+} -returnCodes error -result {wrong # args: should be "SASL::mechanisms ?type? ?minimum?"}
+
+test sasl-api-1.2 {mechanisms, invalid type} -body {
+    SASL::mechanisms foo
+} -returnCodes error -result {invalid type "foo": must be either client or server}
+
+test sasl-api-1.3 {mechanisms, built-in client mechanisms in preference order} -body {
+    SASL::mechanisms
+} -result {OTP DIGEST-MD5 CRAM-MD5 LOGIN PLAIN ANONYMOUS}
+
+test sasl-api-1.4 {mechanisms, built-in server mechanisms} -body {
+    SASL::mechanisms server
+} -result {DIGEST-MD5 CRAM-MD5 LOGIN PLAIN ANONYMOUS}
+
+test sasl-api-1.5 {mechanisms, minimum preference} -body {
+    list [SASL::mechanisms client 25] [SASL::mechanisms server 30] \
+	[SASL::mechanisms client 1000]
+} -result {{OTP DIGEST-MD5 CRAM-MD5} {DIGEST-MD5 CRAM-MD5} {}}
+
+# -------------------------------------------------------------------------
+# register
+
+test sasl-api-2.1 {register, wrong # args} -body {
+    SASL::register X 1
+} -returnCodes error -result {wrong # args: should be "SASL::register mechanism preference clientproc ?serverproc?"}
+
+test sasl-api-2.2 {register, new mechanism, client only} -setup saveMechs -body {
+    list [SASL::register X-TEST 35 ::xclient] [SASL::mechanisms] \
+	[expr {"X-TEST" in [SASL::mechanisms server]}]
+} -cleanup restoreMechs -result {{} {OTP DIGEST-MD5 X-TEST CRAM-MD5 LOGIN PLAIN ANONYMOUS} 0}
+
+test sasl-api-2.3 {register, new mechanism with server} -setup saveMechs -body {
+    SASL::register X-TEST 1 ::xclient ::xserver
+    list [lindex [SASL::mechanisms] end] [lindex [SASL::mechanisms server] end]
+} -cleanup restoreMechs -result {X-TEST X-TEST}
+
+test sasl-api-2.4 {register, update an existing mechanism} -setup saveMechs -body {
+    SASL::register X-TEST 1 ::xclient
+    SASL::register X-TEST 100 ::xclient2 ::xserver2
+    list [SASL::mechanisms] [lindex [SASL::mechanisms server] 0]
+} -cleanup restoreMechs -result {{X-TEST OTP DIGEST-MD5 CRAM-MD5 LOGIN PLAIN ANONYMOUS} X-TEST}
+
+# The mechanism name is used as a regular expression to look up
+# existing mechanisms, so "MD5" replaces "CRAM-MD5".
+test sasl-api-2.5 {register, name that is a substring of another} -constraints knownBug -setup saveMechs -body {
+    SASL::register MD5 1 ::xclient
+    lsort [SASL::mechanisms]
+} -cleanup restoreMechs -result {ANONYMOUS CRAM-MD5 DIGEST-MD5 LOGIN MD5 OTP PLAIN}
+
+test sasl-api-2.6 {register, registered mechanism is used by step} -setup {
+    saveMechs
+    proc ::xclient {context challenge args} {
+	upvar #0 $context ctx
+	set ctx(response) [list $challenge $args]
+	return 0
+    }
+} -body {
+    SASL::register X-TEST 1 ::xclient
+    set c [SASL::new -mechanism x-test]
+    list [SASL::step $c chal a b] [SASL::response $c]
+} -cleanup {
+    SASL::cleanup $c
+    rename ::xclient {}
+    restoreMechs
+    unset -nocomplain c
+} -result {0 {chal {a b}}}
+
+# -------------------------------------------------------------------------
+# new, configure
+
+test sasl-api-3.1 {new, returns a context} -body {
+    set c [SASL::new]
+    list [string match ::SASL::* $c] [array exists $c]
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -result {1 1}
+
+test sasl-api-3.2 {new, distinct contexts} -body {
+    set a [SASL::new]
+    set b [SASL::new]
+    expr {$a ne $b}
+} -cleanup {
+    SASL::cleanup $a
+    SASL::cleanup $b
+    unset -nocomplain a b
+} -result 1
+
+test sasl-api-3.3 {new, unknown mechanism} -body {
+    SASL::new -mechanism NO-SUCH
+} -returnCodes error -result {mechanism "NO-SUCH" not available: must be one of those given by [sasl::mechanisms]}
+
+test sasl-api-3.4 {new, bad option} -body {
+    SASL::new -bogus x
+} -returnCodes error -result {bad option "-bogus": must be one of -mechanism, -service, -server -type or -callbacks}
+
+test sasl-api-3.5 {new, bad type} -body {
+    SASL::new -type peer
+} -returnCodes error -result {bad value "peer": must be either client or server}
+
+test sasl-api-3.6 {configure, wrong # args} -body {
+    SASL::configure
+} -returnCodes error -result {wrong # args: should be "SASL::configure context ?arg ...?"}
+
+test sasl-api-3.7 {configure, mechanism name is case-insensitive} -setup {
+    set c [SASL::new]
+} -body {
+    SASL::configure $c -mechanism plain -callback {ClientCB pw}
+    list [SASL::step $c ""] [SASL::response $c]
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -result [list 0 "\x00tester\x00pw"]
+
+test sasl-api-3.8 {configure, -mech and -callbacks aliases} -setup {
+    set c [SASL::new]
+} -body {
+    SASL::configure $c -mech PLAIN -callbacks {ClientCB pw}
+    SASL::step $c ""
+    SASL::response $c
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -result "\x00tester\x00pw"
+
+test sasl-api-3.9 {configure, client-only mechanism in server mode} -setup {
+    set c [SASL::new -type server]
+} -body {
+    SASL::configure $c -mechanism OTP
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -returnCodes error -result {mechanism "OTP" not available: must be one of those given by [sasl::mechanisms]}
+
+test sasl-api-3.10 {configure, -type after -mechanism selects the server procedure} -setup {
+    set c [SASL::new -mechanism LOGIN -callback ServerCB]
+} -body {
+    SASL::configure $c -type server
+    list [SASL::step $c ""] [SASL::response $c]
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -result {1 Username:}
+
+test sasl-api-3.11 {configure, -service is used by DIGEST-MD5} -setup {
+    set c [SASL::new -mechanism DIGEST-MD5 -callback {ClientCB pw} -service imap]
+} -body {
+    SASL::step $c {realm="example.com",nonce="abc",qop="auth",charset=utf-8}
+    regexp {digest-uri="([^"]*)"} [SASL::response $c] -> uri
+    set uri
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c uri
+} -result imap/example.com
+
+# -------------------------------------------------------------------------
+# step, response, reset, cleanup
+
+test sasl-api-4.1 {step, wrong # args} -body {
+    SASL::step ctx
+} -returnCodes error -result {wrong # args: should be "SASL::step context challenge ?arg ...?"}
+
+test sasl-api-4.2 {response, wrong # args} -body {
+    SASL::response
+} -returnCodes error -result {wrong # args: should be "SASL::response context"}
+
+test sasl-api-4.3 {response before any step is empty} -setup {
+    set c [SASL::new -mechanism PLAIN -callback {ClientCB pw}]
+} -body {
+    SASL::response $c
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -result {}
+
+test sasl-api-4.4 {reset, wrong # args} -body {
+    SASL::reset
+} -returnCodes error -result {wrong # args: should be "SASL::reset context ?step?"}
+
+test sasl-api-4.5 {reset permits the context to be reused} -setup {
+    set c [SASL::new -mechanism LOGIN -callback {ClientCB pw}]
+} -body {
+    set r {}
+    lappend r [SASL::step $c "Username:"] [SASL::response $c]
+    lappend r [SASL::step $c "Password:"] [SASL::response $c]
+    lappend r [catch {SASL::step $c x} msg] $msg
+    lappend r [string equal [SASL::reset $c] $c] [SASL::response $c]
+    lappend r [SASL::step $c "Username:"] [SASL::response $c]
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c r msg
+} -result {1 tester 0 pw 1 {unexpected state "3": LOGIN has only 2 steps} 1 {} 1 tester}
+
+test sasl-api-4.6 {cleanup, wrong # args} -body {
+    SASL::cleanup
+} -returnCodes error -result {wrong # args: should be "SASL::cleanup context"}
+
+test sasl-api-4.7 {cleanup releases the context, may be repeated} -body {
+    set c [SASL::new -mechanism PLAIN]
+    SASL::cleanup $c
+    set a [info exists $c]
+    SASL::cleanup $c
+    list $a [info exists $c]
+} -cleanup {
+    unset -nocomplain c a
+} -result {0 0}
+
+# -------------------------------------------------------------------------
+# Mechanisms, client side
+
+test sasl-api-5.1 {ANONYMOUS client} -setup {
+    set c [SASL::new -mechanism ANONYMOUS -callback {ClientCB pw}]
+} -body {
+    list [SASL::step $c ""] [SASL::response $c]
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -result {0 tester@example.com}
+
+test sasl-api-5.2 {PLAIN client with authorization identity} -setup {
+    proc AuthzCB {context command args} {
+	switch -- $command {
+	    login {return admin}
+	    username {return tester}
+	    password {return pw}
+	}
+    }
+    set c [SASL::new -mechanism PLAIN -callback AuthzCB]
+} -body {
+    SASL::step $c ""
+    SASL::response $c
+} -cleanup {
+    SASL::cleanup $c
+    rename AuthzCB {}
+    unset -nocomplain c
+} -result "admin\x00tester\x00pw"
+
+test sasl-api-5.3 {CRAM-MD5 client, only one step} -setup {
+    set c [SASL::new -mechanism CRAM-MD5 -callback {ClientCB pw}]
+} -body {
+    SASL::step $c "<1896.697170952@postoffice.example.net>"
+    SASL::step $c "again"
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -returnCodes error -result {unexpected state: CRAM-MD5 has only 1 step}
+
+test sasl-api-5.4 {CRAM-MD5 client, RFC 2195 example} -setup {
+    proc TimCB {context command args} {
+	switch -- $command {
+	    username {return tim}
+	    password {return tanstaaftanstaaf}
+	}
+    }
+    set c [SASL::new -mechanism CRAM-MD5 -callback TimCB]
+} -body {
+    list [SASL::step $c "<1896.697170952@postoffice.reston.mci.net>"] \
+	[SASL::response $c]
+} -cleanup {
+    SASL::cleanup $c
+    rename TimCB {}
+    unset -nocomplain c
+} -result {0 {tim b913a602c7eda7a495b4e6e7334d3890}}
+
+test sasl-api-5.5 {DIGEST-MD5 client, charset and realm taken from challenge} -setup {
+    set c [SASL::new -mechanism DIGEST-MD5 -callback {ClientCB pw} -service xmpp]
+} -body {
+    set r [SASL::step $c {realm="other.example",nonce="N",qop="auth",charset=utf-8}]
+    set rsp [SASL::response $c]
+    list $r [regexp {username="tester"} $rsp] [regexp {realm="other.example"} $rsp] \
+	[regexp {digest-uri="xmpp/other.example"} $rsp] [regexp {,charset=utf-8$} $rsp] \
+	[regexp {nonce="N"} $rsp] [regexp {qop=auth} $rsp] \
+	[SASL::step $c rspauth=x] [SASL::response $c]
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c r rsp
+} -result {1 1 1 1 1 1 1 0 {}}
+
+test sasl-api-5.6 {DIGEST-MD5 client, too many steps} -setup {
+    set c [SASL::new -mechanism DIGEST-MD5 -callback {ClientCB pw}]
+} -body {
+    SASL::step $c {realm="r",nonce="N",qop="auth"}
+    SASL::step $c rspauth=x
+    SASL::step $c more
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -returnCodes error -result {invalid state}
+
+# -------------------------------------------------------------------------
+# Client/server exchanges
+
+test sasl-api-6.1 {PLAIN exchange} -body {
+    Exchange PLAIN secret
+} -result {c0 s0}
+
+test sasl-api-6.2 {PLAIN exchange, wrong password} -body {
+    Exchange PLAIN wrong
+} -result {error:authentication failed}
+
+test sasl-api-6.3 {LOGIN exchange} -body {
+    Exchange LOGIN secret
+} -result {c1 s1 c1 s1 c0 s0}
+
+test sasl-api-6.4 {LOGIN exchange, wrong password} -body {
+    Exchange LOGIN wrong
+} -result {error:authentication failed}
+
+test sasl-api-6.5 {CRAM-MD5 exchange} -body {
+    Exchange CRAM-MD5 secret
+} -result {c1 s1 c0 s0}
+
+test sasl-api-6.6 {CRAM-MD5 exchange, wrong password} -body {
+    Exchange CRAM-MD5 wrong
+} -result {error:authentication failed}
+
+test sasl-api-6.7 {DIGEST-MD5 exchange} -body {
+    Exchange DIGEST-MD5 secret
+} -result {c1 s1 c1 s1 c0 s0}
+
+test sasl-api-6.8 {DIGEST-MD5 exchange, wrong password} -body {
+    Exchange DIGEST-MD5 wrong
+} -result {error:authentication failed}
+
+test sasl-api-6.9 {ANONYMOUS exchange, server records the trace} -body {
+    set c [SASL::new -mechanism ANONYMOUS -callback {ClientCB x}]
+    set s [SASL::new -type server -mechanism ANONYMOUS -callback ServerCB]
+    set r [list [SASL::step $s ""] [SASL::step $c ""]]
+    lappend r [SASL::step $s [SASL::response $c]] [set ${s}(trace)]
+} -cleanup {
+    SASL::cleanup $c
+    SASL::cleanup $s
+    unset -nocomplain c s r
+} -result {1 0 0 tester@example.com}
+
+test sasl-api-6.10 {CRAM-MD5 server challenge uses the realm} -body {
+    set s [SASL::new -type server -mechanism CRAM-MD5 -callback ServerCB]
+    list [SASL::step $s ""] [string match <*.*@example.com> [SASL::response $s]]
+} -cleanup {
+    SASL::cleanup $s
+    unset -nocomplain s
+} -result {1 1}
+
+test sasl-api-6.11 {LOGIN server prompts} -body {
+    set s [SASL::new -type server -mechanism LOGIN -callback ServerCB]
+    set r {}
+    lappend r [SASL::step $s ""] [SASL::response $s]
+    lappend r [SASL::step $s tester] [SASL::response $s]
+    lappend r [SASL::step $s secret]
+} -cleanup {
+    SASL::cleanup $s
+    unset -nocomplain s r
+} -result {1 Username: 1 Password: 0}
+
+# -------------------------------------------------------------------------
+
+rename ClientCB {}
+rename ServerCB {}
+rename Exchange {}
+rename saveMechs {}
+rename restoreMechs {}
+testsuiteCleanup
+return
