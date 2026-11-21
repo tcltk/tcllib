@@ -1,0 +1,621 @@
+# cron-api.test - Additional API tests for the cron package.
+#
+# These tests run with the internal cron clock under control of the
+# test (::cron::time >= 0), so they do not depend on real time. They
+# cover the "task" subcommands, the fields set by at/in/every and
+# object_coroutine, replacing and cancelling processes, the clock_*
+# helpers, and the error cases.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+support {
+    use dicttool/dicttool.tcl   dicttool
+    use coroutine/coroutine.tcl coroutine
+}
+testing {
+    useLocal cron.tcl cron
+}
+
+# -------------------------------------------------------------------------
+# Control the cron clock from the test.
+
+set savedTime $::cron::time
+set ::cron::time [expr {[clock scan 2020-01-01 -gmt 1] * 1000}]
+
+# Advance the cron clock by the given number of milliseconds.
+proc advance {ms} {
+    ::cron::clock_set [expr {$::cron::time + $ms}]
+}
+
+# Remove all processes from the process table.
+proc clearTasks {} {
+    foreach p [array names ::cron::processTable] {
+        ::cron::cancel $p
+    }
+}
+
+proc fields {process args} {
+    set info [::cron::task info $process]
+    set r {}
+    foreach f $args {
+        lappend r [dict get $info $f]
+    }
+    return $r
+}
+
+clearTasks
+
+# -------------------------------------------------------------------------
+# ::cron::task
+
+test cron-api-1.1 {task set creates a process with all documented fields} -body {
+    ::cron::task set apiproc command {lappend ::log x}
+    set info [::cron::task info apiproc]
+    list [::cron::task exists apiproc] \
+        [lsort [dict keys $info]] \
+        [dict get $info command] [dict get $info coroutine] \
+        [dict get $info frequency] [dict get $info object] \
+        [dict get $info scheduled] [dict get $info running]
+} -cleanup {
+    ::cron::task delete apiproc
+    unset info
+} -result {1 {command coroutine err frequency lastevent lastrun object result running scheduled} {lappend ::log x} {} 0 {} 0 0}
+
+test cron-api-1.2 {task set with several field/value pairs} -body {
+    ::cron::task set apiproc frequency 5000 scheduled 42 object ::foo
+    fields apiproc frequency scheduled object
+} -cleanup {
+    ::cron::task delete apiproc
+} -result {5000 42 ::foo}
+
+test cron-api-1.3 {task set with fields given as a single dict} -body {
+    ::cron::task set apiproc {frequency 5 command foo}
+    fields apiproc frequency command
+} -cleanup {
+    ::cron::task delete apiproc
+} -result {5 foo}
+
+test cron-api-1.4 {task set on an existing process modifies only given fields} -setup {
+    ::cron::task set apiproc frequency 1000 command foo
+} -body {
+    ::cron::task set apiproc command bar
+    fields apiproc frequency command
+} -cleanup {
+    ::cron::task delete apiproc
+} -result {1000 bar}
+
+test cron-api-1.5 {task exists, unknown process} -body {
+    ::cron::task exists apinoproc
+} -result 0
+
+test cron-api-1.6 {task info, unknown process} -body {
+    ::cron::task info apinoproc
+} -returnCodes error -result {Process apinoproc does not exist}
+
+test cron-api-1.7 {task delete removes the process} -setup {
+    ::cron::task set apiproc command foo
+} -body {
+    ::cron::task delete apiproc
+    ::cron::task exists apiproc
+} -result 0
+
+test cron-api-1.8 {task delete, unknown process is not an error} -body {
+    ::cron::task delete apinoproc
+} -result {}
+
+test cron-api-1.9 {task, no subcommand} -body {
+    ::cron::task
+} -returnCodes error -result {wrong # args: should be "::cron::task command ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# ::cron::at
+
+test cron-api-2.1 {at, generated process name} -body {
+    set p [::cron::at [expr {$::cron::time / 1000 + 10}] {lappend ::log a}]
+    list [string match event#* $p] [::cron::task exists $p]
+} -cleanup {
+    ::cron::cancel $p
+    unset p
+} -result {1 1}
+
+test cron-api-2.2 {at, generated process names are distinct} -body {
+    set p1 [::cron::at [expr {$::cron::time / 1000 + 10}] {lappend ::log a}]
+    set p2 [::cron::at [expr {$::cron::time / 1000 + 10}] {lappend ::log a}]
+    expr {$p1 ne $p2}
+} -cleanup {
+    ::cron::cancel $p1
+    ::cron::cancel $p2
+    unset p1 p2
+} -result 1
+
+test cron-api-2.3 {at, named process, integer timecode is unix time} -body {
+    set t [expr {$::cron::time / 1000 + 10}]
+    list [::cron::at apiat $t {lappend ::log a}] \
+        [expr {[lindex [fields apiat scheduled] 0] == $t * 1000}] \
+        [fields apiat frequency command coroutine]
+} -cleanup {
+    ::cron::cancel apiat
+    unset t
+} -result {apiat 1 {-1 {lappend ::log a} {}}}
+
+test cron-api-2.4 {at, other timecodes are interpreted by clock scan} -body {
+    ::cron::at apiat {2020-01-01 00:00:30} {lappend ::log a}
+    expr {[lindex [fields apiat scheduled] 0] ==
+          [clock scan {2020-01-01 00:00:30}] * 1000}
+} -cleanup {
+    ::cron::cancel apiat
+} -result 1
+
+test cron-api-2.5 {at, invalid clock string} -body {
+    ::cron::at apiat {not a time at all} {lappend ::log a}
+} -returnCodes error -match glob -result {unable to convert date-time string*}
+
+test cron-api-2.6 {at, existing process is replaced} -body {
+    set t [expr {$::cron::time / 1000}]
+    ::cron::at apiat [expr {$t + 10}] {lappend ::log a}
+    ::cron::at apiat [expr {$t + 20}] {lappend ::log b}
+    list [expr {[lindex [fields apiat scheduled] 0] == ($t + 20) * 1000}] \
+        [fields apiat command]
+} -cleanup {
+    ::cron::cancel apiat
+    unset t
+} -result {1 {{lappend ::log b}}}
+
+test cron-api-2.7 {at, command runs once at the given time} -setup {
+    set ::log {}
+} -body {
+    ::cron::at apiat [expr {$::cron::time / 1000 + 2}] {lappend ::log fired}
+    advance 1000
+    set r [list $::log [::cron::task exists apiat]]
+    advance 1500
+    lappend r $::log [::cron::task exists apiat]
+    advance 2000
+    lappend r $::log
+} -cleanup {
+    ::cron::cancel apiat
+    unset ::log r
+} -result {{} 1 fired 0 fired}
+
+test cron-api-2.8 {at, time in the past runs on the next event} -setup {
+    set ::log {}
+} -body {
+    ::cron::at apiat [expr {$::cron::time / 1000 - 100}] {lappend ::log late}
+    advance 100
+    list $::log [::cron::task exists apiat]
+} -cleanup {
+    ::cron::cancel apiat
+    unset ::log
+} -result {late 0}
+
+test cron-api-2.9 {at, too few arguments} -body {
+    ::cron::at 100
+} -returnCodes error -result {Usage: ?process? timecode command}
+
+test cron-api-2.10 {at, too many arguments} -body {
+    ::cron::at a b c d
+} -returnCodes error -result {Usage: ?process? timecode command}
+
+# -------------------------------------------------------------------------
+# ::cron::in
+
+test cron-api-3.1 {in, generated process name} -body {
+    set p [::cron::in 10 {lappend ::log a}]
+    list [string match event#* $p] [::cron::task exists $p]
+} -cleanup {
+    ::cron::cancel $p
+    unset p
+} -result {1 1}
+
+test cron-api-3.2 {in, named process, delay in seconds} -body {
+    set now [::cron::clock_step $::cron::time]
+    list [::cron::in apiin 7 {lappend ::log a}] \
+        [expr {[lindex [fields apiin scheduled] 0] - $now}] \
+        [fields apiin frequency command]
+} -cleanup {
+    ::cron::cancel apiin
+    unset now
+} -result {apiin 7000 {-1 {lappend ::log a}}}
+
+test cron-api-3.3 {in, existing process is replaced} -body {
+    set now [::cron::clock_step $::cron::time]
+    ::cron::in apiin 7 {lappend ::log a}
+    ::cron::in apiin 3 {lappend ::log b}
+    list [expr {[lindex [fields apiin scheduled] 0] - $now}] [fields apiin command]
+} -cleanup {
+    ::cron::cancel apiin
+    unset now
+} -result {3000 {{lappend ::log b}}}
+
+test cron-api-3.4 {in, command runs once after the delay} -setup {
+    set ::log {}
+} -body {
+    ::cron::in apiin 2 {lappend ::log fired}
+    advance 1000
+    set r [list $::log]
+    advance 1500
+    lappend r $::log [::cron::task exists apiin]
+    advance 3000
+    lappend r $::log
+} -cleanup {
+    ::cron::cancel apiin
+    unset ::log r
+} -result {{} fired 0 fired}
+
+test cron-api-3.5 {in, too few arguments} -body {
+    ::cron::in 5
+} -returnCodes error -result {Usage: ?process? timecode command}
+
+test cron-api-3.6 {in, too many arguments} -body {
+    ::cron::in a 1 b c
+} -returnCodes error -result {Usage: ?process? timecode command}
+
+# -------------------------------------------------------------------------
+# ::cron::every and ::cron::cancel
+
+test cron-api-4.1 {every, frequency is stored in milliseconds} -body {
+    set now [::cron::clock_step $::cron::time]
+    ::cron::every apievery 3 {lappend ::log e}
+    list [fields apievery frequency command] \
+        [expr {[lindex [fields apievery scheduled] 0] - $now}]
+} -cleanup {
+    ::cron::cancel apievery
+    unset now
+} -result {{3000 {lappend ::log e}} 3000}
+
+test cron-api-4.2 {every, command runs periodically} -setup {
+    set ::log {}
+} -body {
+    ::cron::every apievery 1 {lappend ::log e}
+    advance 3000
+    list [llength $::log] [::cron::task exists apievery]
+} -cleanup {
+    ::cron::cancel apievery
+    unset ::log
+} -result {3 1}
+
+test cron-api-4.3 {every, frequency of several seconds} -setup {
+    set ::log {}
+} -body {
+    ::cron::every apievery 2 {lappend ::log e}
+    advance 6000
+    llength $::log
+} -cleanup {
+    ::cron::cancel apievery
+    unset ::log
+} -result 3
+
+test cron-api-4.4 {every, existing process is replaced} -setup {
+    set ::log {}
+} -body {
+    ::cron::every apievery 1 {lappend ::log a}
+    ::cron::every apievery 1 {lappend ::log b}
+    advance 2000
+    list $::log [fields apievery frequency]
+} -cleanup {
+    ::cron::cancel apievery
+    unset ::log
+} -result {{b b} 1000}
+
+test cron-api-4.5 {every replaces a process created by at} -setup {
+    set ::log {}
+} -body {
+    ::cron::at apiproc [expr {$::cron::time / 1000 + 100}] {lappend ::log at}
+    ::cron::every apiproc 1 {lappend ::log every}
+    advance 2000
+    list $::log [fields apiproc frequency]
+} -cleanup {
+    ::cron::cancel apiproc
+    unset ::log
+} -result {{every every} 1000}
+
+test cron-api-4.6 {cancel stops a periodic process} -setup {
+    set ::log {}
+} -body {
+    ::cron::every apievery 1 {lappend ::log e}
+    advance 2000
+    ::cron::cancel apievery
+    advance 3000
+    list [llength $::log] [::cron::task exists apievery]
+} -cleanup {
+    unset ::log
+} -result {2 0}
+
+test cron-api-4.7 {cancel a process created by at before it runs} -setup {
+    set ::log {}
+} -body {
+    ::cron::at apiat [expr {$::cron::time / 1000 + 1}] {lappend ::log at}
+    ::cron::cancel apiat
+    advance 2000
+    list $::log [::cron::task exists apiat]
+} -cleanup {
+    unset ::log
+} -result {{} 0}
+
+test cron-api-4.8 {cancel a process created by in before it runs} -setup {
+    set ::log {}
+} -body {
+    set p [::cron::in 1 {lappend ::log in}]
+    ::cron::cancel $p
+    advance 2000
+    set ::log
+} -cleanup {
+    unset ::log p
+} -result {}
+
+test cron-api-4.9 {cancel, unknown process is not an error} -body {
+    ::cron::cancel apinoproc
+} -result {}
+
+test cron-api-4.10 {every, wrong # args} -body {
+    ::cron::every apievery 1
+} -returnCodes error -result {wrong # args: should be "::cron::every process frequency command"}
+
+test cron-api-4.11 {cancel, wrong # args} -body {
+    ::cron::cancel
+} -returnCodes error -result {wrong # args: should be "::cron::cancel process"}
+
+test cron-api-4.12 {error in a command does not stop the process} -setup {
+    set ::log {}
+} -body {
+    ::cron::every apievery 1 {lappend ::log e; error boom}
+    advance 2000
+    list [llength $::log] [::cron::task exists apievery]
+} -cleanup {
+    ::cron::cancel apievery
+    unset ::log
+} -match glob -output {*CRON TASK FAILURE*boom*} -result {2 1}
+
+test cron-api-4.13 {commands are evaluated at global level} -setup {
+    set ::log {}
+} -body {
+    proc apiproc {} {
+        set log local
+        ::cron::in apiin 1 {lappend log global}
+        advance 2000
+        return $log
+    }
+    list [apiproc] $::log
+} -cleanup {
+    rename apiproc {}
+    ::cron::cancel apiin
+    unset ::log
+} -result {local global}
+
+# -------------------------------------------------------------------------
+# ::cron::object_coroutine
+
+test cron-api-5.1 {object_coroutine, default is an idle task} -body {
+    list [::cron::object_coroutine ::apiobj ::apiobj_coro] \
+        [fields ::apiobj_coro object coroutine frequency scheduled command]
+} -cleanup {
+    ::cron::cancel ::apiobj_coro
+} -result {::apiobj_coro {::apiobj ::apiobj_coro 0 0 {}}}
+
+test cron-api-5.2 {object_coroutine, with info} -body {
+    ::cron::object_coroutine ::apiobj ::apiobj_coro {frequency 2000 command foo}
+    fields ::apiobj_coro object coroutine frequency command
+} -cleanup {
+    ::cron::cancel ::apiobj_coro
+} -result {::apiobj ::apiobj_coro 2000 foo}
+
+test cron-api-5.3 {object_coroutine, task is dropped when the object is gone} -body {
+    ::cron::object_coroutine ::apinoobject ::apinoobject_coro {command foo}
+    advance 500
+    ::cron::task exists ::apinoobject_coro
+} -cleanup {
+    ::cron::cancel ::apinoobject_coro
+} -result 0
+
+test cron-api-5.4 {object_coroutine, wrong # args} -body {
+    ::cron::object_coroutine ::apiobj
+} -returnCodes error -result {wrong # args: should be "::cron::object_coroutine objname coroutine ?info?"}
+
+# -------------------------------------------------------------------------
+# Documented task fields
+
+# The manual says that a process with the "running" flag set is not
+# called again until it returns or yields. The flag is not checked:
+# the checks in runTasksCoro use [dict exists processTable($task) ...]
+# on a literal string instead of the variable.
+test cron-api-6.1 {task with running flag set is not called} -constraints knownBug -setup {
+    set ::log {}
+} -body {
+    ::cron::task set apiproc running 1 command {lappend ::log called} \
+        scheduled 1 frequency -1
+    advance 1000
+    set ::log
+} -cleanup {
+    ::cron::cancel apiproc
+    unset ::log
+} -result {}
+
+test cron-api-6.2 {frequency 0 and scheduled 0: called every idle event} -setup {
+    set ::log {}
+} -body {
+    ::cron::task set apiproc command {lappend ::log idle}
+    advance 1000
+    list [expr {[llength $::log] > 1}] [::cron::task exists apiproc]
+} -cleanup {
+    ::cron::cancel apiproc
+    unset ::log
+} -result {1 1}
+
+test cron-api-6.3 {frequency -1: terminated after the next event} -setup {
+    set ::log {}
+} -body {
+    ::cron::task set apiproc command {lappend ::log once} frequency -1 \
+        scheduled [expr {$::cron::time + 500}]
+    advance 2000
+    list $::log [::cron::task exists apiproc]
+} -cleanup {
+    ::cron::cancel apiproc
+    unset ::log
+} -result {once 0}
+
+test cron-api-6.4 {positive frequency in milliseconds via task set} -setup {
+    set ::log {}
+} -body {
+    ::cron::task set apiproc command {lappend ::log tick} frequency 1000 \
+        scheduled [expr {[::cron::clock_step $::cron::time] + 1000}]
+    advance 3000
+    list [llength $::log] [::cron::task exists apiproc]
+} -cleanup {
+    ::cron::cancel apiproc
+    unset ::log
+} -result {3 1}
+
+test cron-api-6.5 {coroutine field: the coroutine is resumed on each event} -setup {
+    set ::log {}
+    proc apicoro {} {
+        lappend ::log start
+        yield
+        lappend ::log resumed
+        yield
+        lappend ::log end
+    }
+} -body {
+    ::cron::task set ::apicoro_c coroutine ::apicoro_c command apicoro \
+        frequency 1000 scheduled [expr {[::cron::clock_step $::cron::time] + 1000}]
+    advance 5000
+    list $::log [info commands ::apicoro_c]
+} -cleanup {
+    ::cron::cancel ::apicoro_c
+    rename apicoro {}
+    unset ::log
+} -match glob -result {{start resumed end start*} *}
+
+# -------------------------------------------------------------------------
+# Clock helpers
+
+test cron-api-7.1 {clock_step, exact second} -body {
+    ::cron::clock_step 5000
+} -result 5000
+
+test cron-api-7.2 {clock_step, rounds down to the second} -body {
+    list [::cron::clock_step 5001] [::cron::clock_step 5999] [::cron::clock_step 0]
+} -result {5000 5000 0}
+
+test cron-api-7.3 {clock_step, wrong # args} -body {
+    ::cron::clock_step
+} -returnCodes error -result {wrong # args: should be "::cron::clock_step timecode"}
+
+test cron-api-7.4 {clock_delay, delay to the next second border} -setup {
+    set saved $::cron::time
+    set ::cron::time [expr {[::cron::clock_step $saved] + 300}]
+} -body {
+    list [::cron::clock_delay 1000] [::cron::clock_delay 1500] [::cron::clock_delay 2000]
+} -cleanup {
+    set ::cron::time $saved
+    unset saved
+} -result {700 700 1700}
+
+test cron-api-7.5 {clock_delay, wrong # args} -body {
+    ::cron::clock_delay
+} -returnCodes error -result {wrong # args: should be "::cron::clock_delay delay"}
+
+test cron-api-7.6 {clock_sleep, sleeps to the top of the next second} -setup {
+    advance 250
+} -body {
+    set start $::cron::time
+    ::cron::clock_sleep 1
+    list [expr {$::cron::time % 1000}] [expr {$::cron::time - $start <= 1000}]
+} -cleanup {
+    unset start
+} -result {0 1}
+
+test cron-api-7.7 {clock_sleep, several seconds} -setup {
+    ::cron::clock_sleep 1
+} -body {
+    set start $::cron::time
+    ::cron::clock_sleep 3
+    expr {$::cron::time - $start}
+} -cleanup {
+    unset start
+} -result 3000
+
+test cron-api-7.8 {clock_sleep, positive offset} -setup {
+    ::cron::clock_sleep 1
+} -body {
+    set start $::cron::time
+    ::cron::clock_sleep 2 300
+    expr {$::cron::time - $start}
+} -cleanup {
+    unset start
+} -result 2300
+
+test cron-api-7.9 {clock_sleep, negative offset} -setup {
+    ::cron::clock_sleep 1
+} -body {
+    set start $::cron::time
+    ::cron::clock_sleep 2 -100
+    expr {$::cron::time - $start}
+} -cleanup {
+    unset start
+} -result 1900
+
+test cron-api-7.10 {clock_set advances the internal time} -body {
+    set target [expr {$::cron::time + 12345}]
+    ::cron::clock_set $target
+    expr {$::cron::time == $target}
+} -cleanup {
+    unset target
+} -result 1
+
+test cron-api-7.11 {clock_set triggers events on the way} -setup {
+    set ::log {}
+} -body {
+    set start [::cron::clock_step $::cron::time]
+    ::cron::in apiin1 1 {lappend ::log one}
+    ::cron::in apiin2 3 {lappend ::log three}
+    ::cron::clock_set [expr {$start + 1500}]
+    set r [list $::log]
+    ::cron::clock_set [expr {$start + 3500}]
+    lappend r $::log
+} -cleanup {
+    ::cron::cancel apiin1
+    ::cron::cancel apiin2
+    unset ::log start r
+} -result {one {one three}}
+
+test cron-api-7.12 {clock_set, wrong # args} -body {
+    ::cron::clock_set
+} -returnCodes error -result {wrong # args: should be "::cron::clock_set newtime"}
+
+test cron-api-7.13 {sleep advances the controlled clock} -body {
+    set start $::cron::time
+    ::cron::sleep 250
+    expr {$::cron::time - $start}
+} -cleanup {
+    unset start
+} -result 250
+
+test cron-api-7.14 {sleep triggers events while sleeping} -setup {
+    set ::log {}
+} -body {
+    ::cron::in apiin 1 {lappend ::log fired}
+    ::cron::sleep 2500
+    set ::log
+} -cleanup {
+    ::cron::cancel apiin
+    unset ::log
+} -result fired
+
+test cron-api-7.15 {sleep, wrong # args} -body {
+    ::cron::sleep
+} -returnCodes error -result {wrong # args: should be "::cron::sleep ms"}
+
+# -------------------------------------------------------------------------
+
+clearTasks
+rename advance {}
+rename clearTasks {}
+rename fields {}
+set ::cron::time $savedTime
+unset savedTime
+testsuiteCleanup
+return
