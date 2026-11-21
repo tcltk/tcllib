@@ -1,0 +1,971 @@
+# -*- tcl -*-
+# inifile-api.test:  tests for the parts of the inifile API not covered by
+# inifile.test: access modes, commit, revert, filename, value defaults,
+# set, delete, comment, commentchar, encodings, invalid handles and
+# argument errors.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal ini.tcl inifile
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+set sample "; file comment\n\[sec1\]\nb=2\na=1\n; key comment\nc = with = signs\n\n\[sec2\]\nx=y\n"
+
+# Creates a temporary ini file with the given content (system encoding
+# unless an encoding is given), returns its path.
+proc mkini {content {enc {}}} {
+    set path [makeFile {} iniapi.ini]
+    set fh [open $path w]
+    if {$enc ne {}} {fconfigure $fh -encoding $enc}
+    puts -nonewline $fh $content
+    close $fh
+    return $path
+}
+
+proc rmini {} {
+    removeFile iniapi.ini
+}
+
+proc readfile {path {enc {}}} {
+    set fh [open $path r]
+    if {$enc ne {}} {fconfigure $fh -encoding $enc}
+    set data [read $fh]
+    close $fh
+    return $data
+}
+
+# -------------------------------------------------------------------------
+# Argument errors and invalid handles
+
+test inifile-api-1.0 {open, wrong # args} -setup {
+    set f [mkini $sample]
+} -body {
+    ini::open $f r w
+} -cleanup {
+    rmini
+    unset f
+} -returnCodes error -result {wrong#args: should be "ini::open ?-encoding E? ?mode?"}
+
+test inifile-api-1.1 {open, no file} -body {
+    ini::open
+} -returnCodes error -result {wrong # args: should be "ini::open ini ?arg ...?"}
+
+test inifile-api-1.2 {open, missing file} -body {
+    ini::open [file join [temporaryDirectory] no-such-iniapi.ini] r
+} -returnCodes error -match glob -result {couldn't open "*no-such-iniapi.ini": no such file or directory}
+
+test inifile-api-1.3 {open, mode a not supported} -setup {
+    set f [mkini $sample]
+} -body {
+    ini::open $f a
+} -cleanup {
+    rmini
+    unset f
+} -returnCodes error -result {a is not a valid access mode}
+
+test inifile-api-1.4 {open, POSIX access flags not supported} -setup {
+    set f [mkini $sample]
+} -body {
+    ini::open $f RDONLY
+} -cleanup {
+    rmini
+    unset f
+} -returnCodes error -result {RDONLY is not a valid access mode}
+
+test inifile-api-1.5 {open, invalid option error code} -setup {
+    set f [mkini $sample]
+} -body {
+    catch {ini::open $f -bogus x} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    rmini
+    unset f msg opts
+} -result {INIFILE OPTION INVALID}
+
+foreach {n cmd} {
+    0 {ini::close BAD}
+    1 {ini::commit BAD}
+    2 {ini::filename BAD}
+    3 {ini::sections BAD}
+    4 {ini::keys BAD sec}
+    5 {ini::get BAD sec}
+    6 {ini::exists BAD sec}
+    7 {ini::value BAD sec key}
+    8 {ini::set BAD sec key value}
+    9 {ini::delete BAD sec}
+    10 {ini::comment BAD sec key}
+} {
+    test inifile-api-2.$n "[lindex $cmd 0], invalid handle" -body $cmd \
+	-returnCodes error -result {BAD is not an open INI file}
+}
+
+test inifile-api-2.11 {invalid handle, error code} -body {
+    catch {ini::sections BAD} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    unset msg opts
+} -result {INIFILE HANDLE INVALID}
+
+test inifile-api-2.12 {closed handle is invalid} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::close $h
+    ini::sections $h
+} -cleanup {
+    rmini
+    unset f
+} -returnCodes error -match glob -result {ini* is not an open INI file}
+
+foreach {n cmd args} {
+    0 close     {}
+    1 commit    {}
+    2 filename  {}
+    3 sections  {}
+    4 keys      {fh sec}
+    5 get       {fh sec}
+    6 exists    {fh sec ?key?}
+    7 value     {fh sec key ?default?}
+    8 set       {fh sec key value}
+    9 delete    {fh sec ?key?}
+} {
+    if {$args eq {}} {set args fh}
+    test inifile-api-3.$n "$cmd, wrong # args" -body {
+	ini::$cmd
+    } -returnCodes error -result "wrong # args: should be \"ini::$cmd $args\""
+}
+
+test inifile-api-3.10 {commentchar, wrong # args} -body {
+    ini::commentchar a b
+} -returnCodes error -result {wrong # args: should be "ini::commentchar ?new?"}
+
+# -------------------------------------------------------------------------
+# open, close, filename
+
+test inifile-api-4.0 {open, handles are distinct} -setup {
+    set f [mkini $sample]
+} -body {
+    set h1 [ini::open $f r]
+    set h2 [ini::open $f r]
+    list [string match ini* $h1] [expr {$h1 ne $h2}]
+} -cleanup {
+    ini::close $h1
+    ini::close $h2
+    rmini
+    unset f h1 h2
+} -result {1 1}
+
+test inifile-api-4.1 {open, default mode r+ loads the file} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    lsort [ini::sections $h]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {sec1 sec2}
+
+test inifile-api-4.2 {open, mode w truncates and loads nothing} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f w]
+    list [ini::sections $h] [file size $f]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{} 0}
+
+test inifile-api-4.3 {open, mode w creates a new file} -setup {
+    set f [file join [temporaryDirectory] iniapi-new.ini]
+    file delete $f
+} -body {
+    set h [ini::open $f w]
+    list [file exists $f] [ini::sections $h]
+} -cleanup {
+    ini::close $h
+    file delete $f
+    unset f h
+} -result {1 {}}
+
+test inifile-api-4.4 {close, returns empty, releases the channel} -setup {
+    set f [mkini $sample]
+    set before [lsort [chan names]]
+} -body {
+    set h [ini::open $f r]
+    list [ini::close $h] [expr {[lsort [chan names]] eq $before}]
+} -cleanup {
+    rmini
+    unset f h before
+} -result {{} 1}
+
+test inifile-api-4.5 {filename, normalized path} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    expr {[ini::filename $h] eq [file normalize $f]}
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result 1
+
+test inifile-api-4.6 {filename, relative path is normalized} -setup {
+    set f [mkini $sample]
+    set dir [pwd]
+    cd [file dirname $f]
+} -body {
+    set h [ini::open [file tail $f] r]
+    expr {[ini::filename $h] eq [file normalize $f]}
+} -cleanup {
+    ini::close $h
+    cd $dir
+    rmini
+    unset f h dir
+} -result 1
+
+# -------------------------------------------------------------------------
+# Parsing
+
+test inifile-api-5.0 {parsing, value containing =} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::value $h sec1 c
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {with = signs}
+
+test inifile-api-5.1 {parsing, keys before any section and empty section names ignored} -setup {
+    set f [mkini "orphan=1\n\[\]\nk=v\n\[s\]\nk2=v2\n"]
+} -body {
+    set h [ini::open $f r]
+    list [ini::sections $h] [ini::get $h s]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {s {k2 v2}}
+
+test inifile-api-5.2 {parsing, lines without = ignored, empty key ignored} -setup {
+    set f [mkini "\[s\]\njunk line\n=nokey\nk=v\n"]
+} -body {
+    set h [ini::open $f r]
+    ini::get $h s
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {k v}
+
+test inifile-api-5.3 {parsing, empty value} -setup {
+    set f [mkini "\[s\]\nk=\n"]
+} -body {
+    set h [ini::open $f r]
+    list [ini::exists $h s k] [ini::value $h s k]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {1 {}}
+
+test inifile-api-5.4 {parsing, CRLF line endings} -setup {
+    set f [mkini "\[s\]\r\nk=v\r\n"]
+} -body {
+    set h [ini::open $f r]
+    list [ini::sections $h] [ini::get $h s]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {s {k v}}
+
+test inifile-api-5.5 {parsing, duplicate key, last wins} -setup {
+    set f [mkini "\[s\]\nk=1\nk=2\n"]
+} -body {
+    set h [ini::open $f r]
+    ini::get $h s
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {k 2}
+
+test inifile-api-5.6 {parsing, comments attached to sections and keys} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    list [ini::comment $h sec1 {}] [ini::comment $h sec1 c] [ini::comment $h sec1 a]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{{file comment}} {{key comment}} {}}
+
+test inifile-api-5.7 {parsing, keys are case sensitive} -setup {
+    set f [mkini "\[s\]\nKey=1\nkey=2\n"]
+} -body {
+    set h [ini::open $f r]
+    list [ini::value $h s Key] [ini::value $h s key] [ini::exists $h s KEY]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {1 2 0}
+
+# -------------------------------------------------------------------------
+# keys, get, exists, value
+
+test inifile-api-6.0 {keys, no such section} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::keys $h nosuch
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -returnCodes error -result {no such section "nosuch"}
+
+test inifile-api-6.1 {get, no such section} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::get $h nosuch
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -returnCodes error -result {no such section "nosuch"}
+
+test inifile-api-6.2 {keys, section with glob characters in name} -setup {
+    set f [mkini "\[a*\]\nk1=1\n\[ab\]\nk2=2\n"]
+} -body {
+    set h [ini::open $f r]
+    list [ini::keys $h a*] [ini::get $h a*]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {k1 {k1 1}}
+
+test inifile-api-6.3 {exists, key in missing section} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::exists $h nosuch a
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result 0
+
+test inifile-api-6.4 {value, missing key} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::value $h sec1 nosuch
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -returnCodes error -result {can't read key "nosuch"}
+
+test inifile-api-6.5 {value, missing section} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::value $h nosuch a
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -returnCodes error -result {no such section "nosuch"}
+
+test inifile-api-6.6 {value, missing key error code} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    catch {ini::value $h sec1 nosuch} msg opts
+    dict get $opts -errorcode
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h msg opts
+} -result {INIFILE KEY INVALID}
+
+test inifile-api-6.7 {value, default for missing key and section} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    list [ini::value $h sec1 nosuch dflt] [ini::value $h nosuch a dflt] \
+	[ini::value $h sec1 a dflt]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {dflt dflt 1}
+
+test inifile-api-6.8 {value, default 0} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::value $h sec1 nosuch 0
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result 0
+
+# -------------------------------------------------------------------------
+# set, delete
+
+test inifile-api-7.0 {set, returns the value, new key} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    list [ini::set $h sec1 d 4] [ini::value $h sec1 d]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {4 4}
+
+test inifile-api-7.1 {set, new section created} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::set $h newsec k v
+    list [lsort [ini::sections $h]] [ini::get $h newsec]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{newsec sec1 sec2} {k v}}
+
+test inifile-api-7.2 {set, existing key replaced} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::set $h sec1 a changed
+    ini::value $h sec1 a
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result changed
+
+test inifile-api-7.3 {set, section and key trimmed} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::set $h "  sec1 " " d  " { v }
+    list [ini::exists $h sec1 d] [ini::value $h sec1 d]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {1 { v }}
+
+test inifile-api-7.4 {set, empty section} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::set $h { } k v
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -returnCodes error -result {section or key may not be empty}
+
+test inifile-api-7.5 {set, empty key} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::set $h sec1 {} v
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -returnCodes error -result {section or key may not be empty}
+
+test inifile-api-7.6 {delete, key} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::delete $h sec1 a
+    list [ini::exists $h sec1 a] [lsort [ini::keys $h sec1]]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {0 {b c}}
+
+test inifile-api-7.7 {delete, last key keeps the section} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::delete $h sec2 x
+    list [ini::exists $h sec2] [ini::keys $h sec2]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {1 {}}
+
+test inifile-api-7.8 {delete, section with its keys} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::delete $h sec1
+    list [ini::sections $h] [ini::exists $h sec1 a]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {sec2 0}
+
+test inifile-api-7.9 {delete, missing section and key, no error} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::delete $h nosuch
+    ini::delete $h sec1 nosuch
+    ini::delete $h nosuch nosuch
+    lsort [ini::sections $h]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {sec1 sec2}
+
+test inifile-api-7.10 {delete, section with glob characters only deletes itself} -setup {
+    set f [mkini "\[a*\]\nk1=1\n\[ab\]\nk2=2\n"]
+} -body {
+    set h [ini::open $f r]
+    ini::delete $h a*
+    list [ini::sections $h] [ini::get $h ab]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {ab {k2 2}}
+
+# -------------------------------------------------------------------------
+# comment
+
+test inifile-api-8.0 {comment, missing section or key returns empty} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    list [ini::comment $h nosuch {}] [ini::comment $h sec1 nosuch]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{} {}}
+
+test inifile-api-8.1 {comment, write key comment, embedded newlines split} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::comment $h sec1 a "line1\nline2"
+    ini::comment $h sec1 a
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {line1 line2}
+
+test inifile-api-8.2 {comment, several text arguments} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::comment $h sec1 a one two
+    ini::comment $h sec1 a
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {one two}
+
+test inifile-api-8.3 {comment, section comment with empty key} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::comment $h sec2 {} {about sec2}
+    list [ini::comment $h sec2 {}] [ini::comment $h sec2 x]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{{about sec2}} {}}
+
+test inifile-api-8.4 {comment, empty text removes the comments} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::comment $h sec1 c {}
+    ini::comment $h sec1 {} {}
+    list [ini::comment $h sec1 c] [ini::comment $h sec1 {}]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{} {}}
+
+test inifile-api-8.5 {comment, nonexistent section and key, no error} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::comment $h nosuch nokey text
+    list [ini::comment $h nosuch nokey] [ini::exists $h nosuch]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {text 0}
+
+# Bug: the key argument is documented as optional, but required.
+test inifile-api-8.6 {comment, read section comment without key} -constraints knownBug -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::comment $h sec1
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{file comment}}
+
+# -------------------------------------------------------------------------
+# commentchar
+
+test inifile-api-9.0 {commentchar, default} -body {
+    ini::commentchar
+} -result {;}
+
+test inifile-api-9.1 {commentchar, set and get} -body {
+    concat [ini::commentchar #] [ini::commentchar]
+} -cleanup {
+    ini::commentchar \;
+} -result {# #}
+
+test inifile-api-9.2 {commentchar, more than one character} -body {
+    ini::commentchar ##
+} -returnCodes error -result {comment char must be a single character}
+
+test inifile-api-9.3 {commentchar, error keeps old value} -body {
+    catch {ini::commentchar ##}
+    ini::commentchar
+} -result {;}
+
+test inifile-api-9.4 {commentchar, used when reading} -setup {
+    set f [mkini "# hash comment\n\[s\]\n;k=v\nk2=v2\n"]
+    ini::commentchar #
+} -body {
+    set h [ini::open $f r]
+    list [ini::comment $h s {}] [dictsort [ini::get $h s]]
+} -cleanup {
+    ini::close $h
+    ini::commentchar \;
+    rmini
+    unset f h
+} -result [list {{hash comment}} [list {;k} v k2 v2]]
+
+test inifile-api-9.5 {commentchar, used when writing} -setup {
+    set f [mkini "\[s\]\nk=v\n"]
+} -body {
+    set h [ini::open $f r+]
+    ini::comment $h s k text
+    ini::commentchar #
+    ini::commit $h
+    readfile $f
+} -cleanup {
+    ini::close $h
+    ini::commentchar \;
+    rmini
+    unset f h
+} -result "\[s\]\n# text\nk=v\n\n"
+
+# -------------------------------------------------------------------------
+# commit
+
+test inifile-api-10.0 {commit, read-only handle} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::commit $h
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -returnCodes error -result {cannot write to read-only file}
+
+test inifile-api-10.1 {commit, read-only error code, file unchanged} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f r]
+    ini::set $h sec1 z 26
+    catch {ini::commit $h} msg opts
+    list [dict get $opts -errorcode] [expr {[readfile $f] eq $sample}]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h msg opts
+} -result {{INIFILE READ-ONLY} 1}
+
+test inifile-api-10.2 {commit, keys written in dictionary order with comments} -setup {
+    set f [mkini "\[s\]\nk10=x\nk9=y\nK1=z\n; c\nb=1\n"]
+} -body {
+    set h [ini::open $f r+]
+    list [ini::commit $h] [readfile $f]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result [list {} "\[s\]\n; c\nb=1\nK1=z\nk9=y\nk10=x\n\n"]
+
+test inifile-api-10.3 {commit, section comment written before section} -setup {
+    set f [mkini "\[s\]\nk=v\n"]
+} -body {
+    set h [ini::open $f]
+    ini::comment $h s {} "first\nsecond"
+    ini::commit $h
+    readfile $f
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result "; first\n; second\n\n\[s\]\nk=v\n\n"
+
+test inifile-api-10.4 {commit, round trip} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    ini::set $h sec1 a changed
+    ini::set $h new k v
+    ini::delete $h sec2
+    ini::commit $h
+    ini::close $h
+    set h [ini::open $f r]
+    list [lsort [ini::sections $h]] [dictsort [ini::get $h sec1]] \
+	[ini::get $h new] [ini::comment $h sec1 c]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{new sec1} {a changed b 2 c {with = signs}} {k v} {{key comment}}}
+
+test inifile-api-10.5 {commit, handle usable after commit} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    ini::commit $h
+    ini::set $h sec2 x2 y2
+    ini::commit $h
+    ini::close $h
+    set h [ini::open $f r]
+    dictsort [ini::get $h sec2]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {x y x2 y2}
+
+test inifile-api-10.6 {commit, mode w} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f w]
+    ini::set $h s k v
+    ini::commit $h
+    readfile $f
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result "\[s\]\nk=v\n\n"
+
+test inifile-api-10.7 {commit, mode w+} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f w+]
+    ini::set $h s k v
+    ini::commit $h
+    readfile $f
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result "\[s\]\nk=v\n\n"
+
+test inifile-api-10.8 {commit, empty section written} -setup {
+    set f [mkini "\[empty\]\n"]
+} -body {
+    set h [ini::open $f]
+    ini::commit $h
+    readfile $f
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result "\[empty\]\n\n"
+
+test inifile-api-10.9 {close, uncommitted changes lost} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    ini::set $h sec1 a changed
+    ini::close $h
+    readfile $f
+} -cleanup {
+    rmini
+    unset f h
+} -result $sample
+
+# -------------------------------------------------------------------------
+# revert
+
+test inifile-api-11.0 {revert, changed value restored} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    ini::set $h sec1 a changed
+    ini::revert $h
+    ini::value $h sec1 a
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result 1
+
+test inifile-api-11.1 {revert, deleted section restored} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    ini::delete $h sec2
+    ini::revert $h
+    list [lsort [ini::sections $h]] [ini::get $h sec2]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {{sec1 sec2} {x y}}
+
+test inifile-api-11.2 {revert, to last committed state} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    ini::set $h sec1 a committed
+    ini::commit $h
+    ini::set $h sec1 a uncommitted
+    ini::revert $h
+    ini::value $h sec1 a
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result committed
+
+# Bug: revert does not clear the state, keys, sections and comments
+# added since the last commit are kept.
+test inifile-api-11.3 {revert, added key and section removed} -constraints knownBug -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f]
+    ini::set $h sec1 new 1
+    ini::set $h newsec k v
+    ini::comment $h sec2 x added
+    ini::revert $h
+    list [ini::exists $h sec1 new] [ini::exists $h newsec] [ini::comment $h sec2 x]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {0 0 {}}
+
+# Bug: revert passes the handle instead of the channel to fconfigure
+# when the file was opened with -encoding.
+test inifile-api-11.4 {revert, file opened with -encoding} -constraints knownBug -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f -encoding utf-8]
+    ini::set $h sec1 a changed
+    ini::revert $h
+    ini::value $h sec1 a
+} -cleanup {
+    catch {ini::close $h}
+    rmini
+    unset f h
+} -result 1
+
+# -------------------------------------------------------------------------
+# Encodings
+
+test inifile-api-12.0 {open, -encoding utf-8 for reading} -setup {
+    set f [mkini "\[секція\]\nключ=значення\n" utf-8]
+} -body {
+    set h [ini::open $f -encoding utf-8 r]
+    list [ini::sections $h] [ini::get $h секція]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result [list секція [list ключ значення]]
+
+test inifile-api-12.1 {commit, -encoding used for writing} -setup {
+    set f [mkini "\[s\]\nk=v\n" iso8859-2]
+} -body {
+    set h [ini::open $f -encoding iso8859-2]
+    ini::set $h s k "zażółć"
+    ini::commit $h
+    ini::close $h
+    list [readfile $f iso8859-2] [file size $f]
+} -cleanup {
+    rmini
+    unset f h
+} -result [list "\[s\]\nk=zażółć\n\n" 14]
+
+test inifile-api-12.2 {open, -- ends options} -setup {
+    set f [mkini $sample]
+} -body {
+    set h [ini::open $f -- r]
+    lsort [ini::sections $h]
+} -cleanup {
+    ini::close $h
+    rmini
+    unset f h
+} -result {sec1 sec2}
+
+test inifile-api-12.3 {open, invalid encoding releases the channel} -setup {
+    set f [mkini $sample]
+    set before [lsort [chan names]]
+} -body {
+    catch {ini::open $f -encoding foo r}
+    expr {[lsort [chan names]] eq $before}
+} -cleanup {
+    rmini
+    unset f before
+} -result 1
+
+# -------------------------------------------------------------------------
+
+rename mkini {}
+rename rmini {}
+rename readfile {}
+unset sample
+testsuiteCleanup
