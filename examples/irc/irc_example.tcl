@@ -20,7 +20,7 @@ namespace eval ircclient {
     set cn [::irc::connection]
     # Connect to the server.
     $cn connect irc.freenode.net 6667
-    $cn user $nick localhost domain "www.tcl.tk"
+    $cn user $nick localhost domain "www.tcl-lang.org"
     $cn nick $nick
     while { 1 } {
 	source [file join $::scriptDir mainloop.tcl]
