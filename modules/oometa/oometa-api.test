@@ -1,0 +1,620 @@
+# oometa-api.test - Additional API tests for the oo::meta package.
+#
+# Covers oo::meta::ancestors, oo::meta::metadata, the oo::meta::info
+# subcommands, the "meta" keyword of oo::define, the "meta" methods of
+# oo::class and oo::object, and the manual's usage example.
+
+# -------------------------------------------------------------------------
+
+source [file join [
+    file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+testsNeed        TclOO
+
+support {
+    use dicttool/dicttool.tcl dicttool
+}
+testing {
+    useLocal oometa.tcl oo::meta
+}
+
+# -------------------------------------------------------------------------
+# Forget all metadata of the given classes and destroy them.
+
+proc forget {args} {
+    foreach c $args {
+        set c ::[string trimleft $c :]
+        catch {$c destroy}
+        unset -nocomplain ::oo::meta::local_property($c)
+        unset -nocomplain ::oo::meta::cached_property($c)
+        unset -nocomplain ::oo::meta::cached_hierarchy($c)
+    }
+}
+
+# The class hierarchy of the manual's usage example.
+proc mkAnimals {} {
+    oo::class create ::animal {
+        meta set biodata animal: 1
+    }
+    oo::class create ::mammal {
+        superclass ::animal
+        meta set biodata mammal: 1
+    }
+    oo::class create ::feline {
+        superclass ::mammal
+        meta set biodata diet: carnivore
+    }
+}
+
+# -------------------------------------------------------------------------
+# Manual usage example
+
+test oometa-api-1.1 {usage example: object meta get without local data} -constraints knownBug -setup {
+    mkAnimals
+    ::feline create ::felix
+} -body {
+    # The object "meta" method fails with 'can't read "meta": no such
+    # variable' until something has been stored in the object.
+    ::felix meta get biodata
+} -cleanup {
+    ::felix destroy
+    forget feline mammal animal
+} -result {animal: 1 mammal: 1 diet: carnivore}
+
+test oometa-api-1.2 {usage example: local object data and modified classes} -setup {
+    mkAnimals
+    ::feline create ::felix
+} -body {
+    ::felix meta set biodata likes: {birds mice}
+    set r [list [::felix meta get biodata]]
+    ::mammal meta set biodata metabolism: warm-blooded
+    lappend r [::felix meta get biodata]
+    ::felix meta set biodata mammal: yes
+    lappend r [::felix meta get biodata]
+} -cleanup {
+    ::felix destroy
+    forget feline mammal animal
+    unset r
+} -result {{animal: 1 mammal: 1 diet: carnivore likes: {birds mice}} {animal: 1 mammal: 1 metabolism: warm-blooded diet: carnivore likes: {birds mice}} {animal: 1 mammal: yes metabolism: warm-blooded diet: carnivore likes: {birds mice}}}
+
+# -------------------------------------------------------------------------
+# oo::meta::ancestors
+
+test oometa-api-2.1 {ancestors, top superclasses first} -setup {
+    mkAnimals
+} -body {
+    oo::meta::ancestors feline
+} -cleanup {
+    forget feline mammal animal
+} -result {::oo::object ::animal ::mammal ::feline}
+
+test oometa-api-2.2 {ancestors, class without superclass} -setup {
+    oo::class create ::solo
+} -body {
+    oo::meta::ancestors ::solo
+} -cleanup {
+    forget solo
+} -result {::oo::object ::solo}
+
+test oometa-api-2.3 {ancestors, multiple inheritance} -setup {
+    oo::class create ::ma
+    oo::class create ::mb
+    oo::class create ::mc {superclass ::ma ::mb}
+} -body {
+    oo::meta::ancestors mc
+} -cleanup {
+    forget mc mb ma
+} -result {::oo::object ::mb ::ma ::mc}
+
+test oometa-api-2.4 {ancestors, wrong # args} -body {
+    oo::meta::ancestors
+} -returnCodes error -result {wrong # args: should be "oo::meta::ancestors class"}
+
+# -------------------------------------------------------------------------
+# oo::meta::metadata
+
+test oometa-api-3.1 {metadata combines local data of all ancestors} -setup {
+    mkAnimals
+} -body {
+    oo::meta::metadata feline
+} -cleanup {
+    forget feline mammal animal
+} -result {biodata {animal: 1 mammal: 1 diet: carnivore} classinfo {type: {}}}
+
+test oometa-api-3.2 {metadata of a superclass does not include subclass data} -setup {
+    mkAnimals
+} -body {
+    oo::meta::metadata ::mammal
+} -cleanup {
+    forget feline mammal animal
+} -result {biodata {animal: 1 mammal: 1} classinfo {type: {}}}
+
+test oometa-api-3.3 {metadata, subclass overrides superclass values} -setup {
+    mkAnimals
+    oo::define ::feline {meta set biodata mammal: yes}
+} -body {
+    dict get [oo::meta::metadata feline] biodata
+} -cleanup {
+    forget feline mammal animal
+} -result {animal: 1 mammal: yes diet: carnivore}
+
+test oometa-api-3.4 {metadata, changes to a superclass are seen by subclasses} -setup {
+    mkAnimals
+} -body {
+    set r [list [dict get [oo::meta::metadata feline] biodata]]
+    ::animal meta set biodata legs: 4
+    lappend r [dict get [oo::meta::metadata feline] biodata]
+} -cleanup {
+    forget feline mammal animal
+    unset r
+} -result {{animal: 1 mammal: 1 diet: carnivore} {animal: 1 legs: 4 mammal: 1 diet: carnivore}}
+
+test oometa-api-3.5 {metadata, class without data} -setup {
+    oo::class create ::nodata
+} -body {
+    oo::meta::metadata nodata
+} -cleanup {
+    forget nodata
+} -result {classinfo {type: {}}}
+
+test oometa-api-3.6 {metadata, wrong # args} -body {
+    oo::meta::metadata
+} -returnCodes error -result {wrong # args: should be "oo::meta::metadata class ?force?"}
+
+# -------------------------------------------------------------------------
+# oo::meta::info
+
+test oometa-api-4.1 {info set and get, manual example} -setup {
+    oo::class create ::myclass
+} -body {
+    ::oo::meta::info myclass set option color {default: green widget: colorselect}
+    ::oo::meta::info myclass get option color
+} -cleanup {
+    forget myclass
+} -result {default: green widget: colorselect}
+
+test oometa-api-4.2 {info branchget removes trailing colons} -setup {
+    oo::class create ::myclass
+    ::oo::meta::info myclass set option color {default: green widget: colorselect}
+} -body {
+    ::oo::meta::info myclass branchget option color
+} -cleanup {
+    forget myclass
+} -result {default green widget colorselect}
+
+test oometa-api-4.3 {info branchget, missing branch} -setup {
+    oo::class create ::myclass
+} -body {
+    ::oo::meta::info myclass branchget option nothing
+} -cleanup {
+    forget myclass
+} -result {}
+
+test oometa-api-4.4 {info branchset adds trailing colons and merges} -setup {
+    oo::class create ::myclass
+    ::oo::meta::info myclass set option color {label: Color default: red}
+} -body {
+    ::oo::meta::info myclass branchset option color {default green widget: colorselect}
+    ::oo::meta::info myclass get option color
+} -cleanup {
+    forget myclass
+} -result {label: Color default: green widget: colorselect}
+
+test oometa-api-4.5 {info dump returns the metadata snapshot} -setup {
+    mkAnimals
+} -body {
+    expr {[oo::meta::info feline dump] eq [oo::meta::metadata feline]}
+} -cleanup {
+    forget feline mammal animal
+} -result 1
+
+test oometa-api-4.6 {info is, manual example} -setup {
+    oo::class create ::myclass
+    ::oo::meta::info myclass set constant mammal 1
+} -body {
+    list [::oo::meta::info myclass is true constant mammal] \
+        [::oo::meta::info myclass is false constant mammal] \
+        [::oo::meta::info myclass is integer constant mammal] \
+        [::oo::meta::info myclass is integer constant missing]
+} -cleanup {
+    forget myclass
+} -result {1 0 1 0}
+
+test oometa-api-4.7 {info merge combines dicts into the local data} -setup {
+    oo::class create ::myclass
+    ::oo::meta::info myclass set a {x: 0}
+} -body {
+    ::oo::meta::info myclass merge {a {b: 1}} {a {c: 2}}
+    ::oo::meta::info myclass get a
+} -cleanup {
+    forget myclass
+} -result {x: 0 b: 1 c: 2}
+
+test oometa-api-4.8 {info merge on a class without local data} -constraints knownBug -setup {
+    oo::class create ::myclass
+} -body {
+    ::oo::meta::info myclass merge {a {b: 1}}
+    ::oo::meta::info myclass get a
+} -cleanup {
+    forget myclass
+} -result {b: 1}
+
+test oometa-api-4.9 {info rebuild} -setup {
+    mkAnimals
+    oo::meta::metadata feline
+} -body {
+    # Modify the local data behind the back of the cache.
+    dict set ::oo::meta::local_property(::animal) biodata animal: 2
+    set r [list [dict get [oo::meta::metadata feline] biodata animal:]]
+    oo::meta::info animal rebuild
+    lappend r [dict get [oo::meta::metadata feline] biodata animal:]
+} -cleanup {
+    forget feline mammal animal
+    unset r
+} -result {1 2}
+
+test oometa-api-4.10 {info, dict commands on the aggregate} -setup {
+    mkAnimals
+} -body {
+    list [oo::meta::info feline exists biodata animal:] \
+        [oo::meta::info feline exists biodata bird:] \
+        [oo::meta::info feline keys] \
+        [oo::meta::info feline getnull biodata bird:] \
+        [oo::meta::info feline size]
+} -cleanup {
+    forget feline mammal animal
+} -result {1 0 {biodata classinfo} {} 2}
+
+test oometa-api-4.11 {info get, unknown key} -setup {
+    oo::class create ::myclass
+} -body {
+    oo::meta::info myclass get nothing
+} -cleanup {
+    forget myclass
+} -returnCodes error -result {key "nothing" not known in dictionary}
+
+test oometa-api-4.12 {info, modifying dict commands change local data} -setup {
+    oo::class create ::myclass
+} -body {
+    oo::meta::info myclass lappend list a b
+    oo::meta::info myclass incr counter
+    oo::meta::info myclass incr counter 5
+    oo::meta::info myclass append str ab cd
+    oo::meta::info myclass set gone 1
+    oo::meta::info myclass unset gone
+    oo::meta::localdata ::myclass
+} -cleanup {
+    forget myclass
+} -result {list {a b} counter 6 str abcd}
+
+test oometa-api-4.13 {info for and map} -setup {
+    oo::class create ::myclass
+    oo::meta::info myclass set opts {a: 1 b: 2}
+} -body {
+    set out {}
+    oo::meta::info myclass for {k v} opts {lappend out $k $v}
+    list $out [oo::meta::info myclass map {k v} opts {expr {$v * 10}}]
+} -cleanup {
+    forget myclass
+    unset out
+} -result {{a: 1 b: 2} {a: 10 b: 20}}
+
+test oometa-api-4.14 {info with} -setup {
+    oo::class create ::myclass
+    oo::meta::info myclass set opts {alpha 1 beta 2}
+} -body {
+    oo::meta::info myclass with opts {}
+    list $alpha $beta
+} -cleanup {
+    forget myclass
+    unset -nocomplain alpha beta
+} -result {1 2}
+
+test oometa-api-4.15 {info cget searches const first} -setup {
+    oo::class create ::myclass
+    oo::meta::info myclass set const color: blue
+    oo::meta::info myclass set color: red
+    oo::meta::info myclass set size 10
+} -body {
+    list [oo::meta::info myclass cget color] [oo::meta::info myclass cget color:] \
+        [oo::meta::info myclass cget size] [oo::meta::info myclass cget nothing]
+} -cleanup {
+    forget myclass
+} -result {blue blue 10 {}}
+
+test oometa-api-4.16 {info cget with a path, inherited} -setup {
+    mkAnimals
+} -body {
+    oo::meta::info feline cget biodata mammal
+} -cleanup {
+    forget feline mammal animal
+} -result 1
+
+test oometa-api-4.17 {info, class name is normalized} -setup {
+    oo::class create ::myclass
+    oo::meta::info ::myclass set k v
+} -body {
+    list [oo::meta::info myclass get k] [oo::meta::info ::::myclass get k]
+} -cleanup {
+    forget myclass
+} -result {v v}
+
+test oometa-api-4.18 {info, wrong # args} -body {
+    oo::meta::info myclass
+} -returnCodes error -result {wrong # args: should be "oo::meta::info class submethod ?arg ...?"}
+
+test oometa-api-4.19 {info, unknown subcommand} -setup {
+    oo::class create ::myclass
+} -body {
+    oo::meta::info myclass bogus
+} -cleanup {
+    forget myclass
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be *}
+
+# -------------------------------------------------------------------------
+# oo::define meta and oo::class method meta
+
+test oometa-api-5.1 {oo::define meta set} -setup {
+    oo::class create ::myclass
+} -body {
+    oo::define myclass {meta set foo bar: baz}
+    oo::meta::info myclass get foo
+} -cleanup {
+    forget myclass
+} -result {bar: baz}
+
+test oometa-api-5.2 {oo::define meta without subcommand means set} -setup {
+    oo::class create ::myclass
+} -body {
+    oo::define myclass {meta foo bar: baz}
+    oo::meta::info myclass get foo
+} -cleanup {
+    forget myclass
+} -result {bar: baz}
+
+test oometa-api-5.3 {oo::define meta branchset} -setup {
+    oo::class create ::myclass
+} -body {
+    oo::define myclass {meta branchset option color {default green}}
+    oo::meta::info myclass get option color
+} -cleanup {
+    forget myclass
+} -result {default: green}
+
+test oometa-api-5.4 {oo::define meta cget} -setup {
+    oo::class create ::myclass {meta set const color: blue}
+} -body {
+    oo::define myclass {meta cget color}
+} -cleanup {
+    forget myclass
+} -result blue
+
+test oometa-api-5.5 {class meta method gives access to oo::meta::info} -setup {
+    mkAnimals
+} -body {
+    list [feline meta get biodata] [feline meta exists biodata diet:] \
+        [feline meta branchget biodata] [expr {[feline meta dump] eq [oo::meta::metadata feline]}]
+} -cleanup {
+    forget feline mammal animal
+} -result {{animal: 1 mammal: 1 diet: carnivore} 1 {animal 1 mammal 1 diet carnivore} 1}
+
+test oometa-api-5.6 {class meta method, wrong # args} -setup {
+    oo::class create ::myclass
+} -body {
+    myclass meta
+} -cleanup {
+    forget myclass
+} -returnCodes error -result {wrong # args: should be "myclass meta submethod ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# oo::object method meta
+
+test oometa-api-6.1 {object meta set changes only the object} -setup {
+    mkAnimals
+    feline create ::tom
+    feline create ::kitty
+    ::kitty meta set local x: 1
+} -body {
+    ::tom meta set biodata name: Tom
+    list [::tom meta get biodata name:] [::kitty meta exists biodata name:] \
+        [feline meta exists biodata name:]
+} -cleanup {
+    ::tom destroy
+    ::kitty destroy
+    forget feline mammal animal
+} -result {Tom 0 0}
+
+test oometa-api-6.2 {object meta get, leaf from the class} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set local x: 1
+} -body {
+    ::tom meta get biodata diet:
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result carnivore
+
+test oometa-api-6.3 {object meta get, local leaf overrides the class} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set biodata diet: fish
+} -body {
+    list [::tom meta get biodata diet:] [::tom meta get biodata]
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result {fish {animal: 1 mammal: 1 diet: fish}}
+
+test oometa-api-6.4 {object meta get, unknown leaf} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set local x: 1
+} -body {
+    ::tom meta get biodata wings:
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -returnCodes error -result {key "biodata wings:" not known in metadata}
+
+test oometa-api-6.5 {object meta get, unknown branch} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set local x: 1
+} -body {
+    ::tom meta get nothing
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -returnCodes error -result {key "nothing" not known in metadata}
+
+test oometa-api-6.6 {object meta getnull, unknown leaf and branch} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set local x: 1
+} -body {
+    list [::tom meta getnull biodata wings:] [::tom meta getnull nothing] \
+        [::tom meta getnull biodata diet:]
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result {{} {} carnivore}
+
+test oometa-api-6.7 {object meta exists} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set local x: 1
+} -body {
+    list [::tom meta exists biodata animal:] [::tom meta exists local x:] \
+        [::tom meta exists biodata wings:]
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result {1 1 0}
+
+test oometa-api-6.8 {object meta unset} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set biodata diet: fish
+} -body {
+    ::tom meta unset biodata diet:
+    ::tom meta get biodata diet:
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result carnivore
+
+test oometa-api-6.9 {object meta dump combines class and local data} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set biodata name: Tom
+} -body {
+    ::tom meta dump
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result {biodata {animal: 1 mammal: 1 diet: carnivore name: Tom} classinfo {type: {}}}
+
+test oometa-api-6.10 {object meta branchget and branchset} -setup {
+    mkAnimals
+    feline create ::tom
+} -body {
+    ::tom meta branchset biodata {name Tom diet: fish}
+    list [::tom meta branchget biodata] [::tom meta get biodata name:]
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result {{animal 1 mammal 1 diet fish name Tom} Tom}
+
+test oometa-api-6.11 {object meta merge returns the local data} -setup {
+    mkAnimals
+    feline create ::tom
+    ::tom meta set biodata name: Tom
+} -body {
+    list [::tom meta merge {biodata {age: 3}}] [::tom meta get biodata age:]
+} -cleanup {
+    ::tom destroy
+    forget feline mammal animal
+} -result {{biodata {name: Tom age: 3}} 3}
+
+test oometa-api-6.12 {object meta cget, local data first, then class const} -setup {
+    oo::class create ::myclass {
+        meta set const color: blue
+        meta set const size: 10
+    }
+    myclass create ::obj
+    ::obj meta set color: red
+} -body {
+    list [::obj meta cget color] [::obj meta cget size:] [::obj meta cget nothing]
+} -cleanup {
+    ::obj destroy
+    forget myclass
+} -result {red 10 {}}
+
+test oometa-api-6.13 {object meta is} -setup {
+    oo::class create ::myclass {meta set const flag: yes}
+    myclass create ::obj
+    ::obj meta set num: 12
+} -body {
+    list [::obj meta is true flag] [::obj meta is integer num] [::obj meta is integer flag]
+} -cleanup {
+    ::obj destroy
+    forget myclass
+} -result {1 1 0}
+
+test oometa-api-6.14 {object meta for, map and with} -setup {
+    oo::class create ::myclass {meta set opts {a 1}}
+    myclass create ::obj
+    ::obj meta set opts b 2
+} -body {
+    set out {}
+    ::obj meta for {k v} opts {lappend out $k $v}
+    lappend out [::obj meta map {k v} opts {incr v}]
+    ::obj meta with opts {}
+    lappend out $a $b
+} -cleanup {
+    ::obj destroy
+    forget myclass
+    unset -nocomplain out a b
+} -result {a 1 b 2 {a 2 b 3} 1 2}
+
+test oometa-api-6.15 {object meta mixin and mixout} -setup {
+    oo::class create ::basecls {meta set const shape: oval}
+    oo::class create ::mixcls {meta set const color: blue}
+    basecls create ::obj
+    ::obj meta set local x: 1
+} -body {
+    set r [::obj meta exists const color:]
+    ::obj meta mixin mixcls
+    lappend r [::obj meta get const color:] [::obj meta get const shape:]
+    ::obj meta mixout ::mixcls
+    lappend r [::obj meta exists const color:]
+} -cleanup {
+    ::obj destroy
+    forget basecls mixcls
+    unset r
+} -result {0 blue oval 0}
+
+test oometa-api-6.16 {object meta, wrong # args} -setup {
+    oo::class create ::myclass
+    myclass create ::obj
+} -body {
+    ::obj meta
+} -cleanup {
+    ::obj destroy
+    forget myclass
+} -returnCodes error -result {wrong # args: should be "::obj meta submethod ?arg ...?"}
+
+# -------------------------------------------------------------------------
+
+rename forget {}
+rename mkAnimals {}
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
