@@ -1,0 +1,487 @@
+# -*- tcl -*-
+# markdown-api.test:  Additional tests for the documented API of the
+# Markdown package: argument errors of convert, the documented markdown
+# syntax elements one by one (emphasis, lists, headers, links, images,
+# code, inline HTML, escapes, rules, tables, fenced code blocks) and the
+# language converter and counter commands.
+# Complements markdown.test.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    use textutil/string.tcl   textutil::string
+    use textutil/repeat.tcl   textutil::repeat
+    use textutil/tabify.tcl   textutil::tabify
+}
+testing {
+    useLocal markdown.tcl Markdown
+}
+
+# -------------------------------------------------------------------------
+
+proc md {text} {
+    string trim [Markdown::convert $text]
+}
+
+# -------------------------------------------------------------------------
+# convert, arguments
+
+test markdown-api-1.0 {convert, wrong # args, not enough} -body {
+    Markdown::convert
+} -returnCodes error -result {wrong # args: should be "Markdown::convert markdown ?tabs?"}
+
+test markdown-api-1.1 {convert, wrong # args, too many} -body {
+    Markdown::convert a 0 b
+} -returnCodes error -result {wrong # args: should be "Markdown::convert markdown ?tabs?"}
+
+test markdown-api-1.2 {convert, empty text} -body {
+    Markdown::convert {}
+} -result {}
+
+test markdown-api-1.3 {convert, CRLF and CR line endings} -body {
+    md "a\r\nb\rc"
+} -result "<p>a\nb\nc</p>"
+
+test markdown-api-1.4 {convert, plain paragraph} -body {
+    md "Hello, world."
+} -result {<p>Hello, world.</p>}
+
+test markdown-api-1.5 {convert, special characters are escaped} -body {
+    md "AT&T < 5 > 3"
+} -result {<p>AT&amp;T &lt; 5 &gt; 3</p>}
+
+test markdown-api-1.6 {convert, entities are kept} -body {
+    md "&copy; &amp; 4 < 5"
+} -result {<p>&copy; &amp; 4 &lt; 5</p>}
+
+test markdown-api-1.7 {convert, two trailing spaces make a line break} -body {
+    md "line one  \nline two"
+} -result "<p>line one<br/>\nline two</p>"
+
+# -------------------------------------------------------------------------
+# Headers
+
+test markdown-api-2.0 {setext headers} -body {
+    md "Header\n======\n\nSub\n---"
+} -result "<h1>Header</h1>\n\n<h2>Sub</h2>"
+
+test markdown-api-2.1 {atx headers, levels 1 to 6, closing hashes} -body {
+    list [md "# H1 #"] [md "## H2 ##"] [md "### H3"] [md "#### H4"] \
+	[md "##### H5"] [md "###### H6 ######"]
+} -result {<h1>H1</h1> <h2>H2</h2> <h3>H3</h3> <h4>H4</h4> <h5>H5</h5> <h6>H6</h6>}
+
+test markdown-api-2.2 {atx header, inline markup} -body {
+    md "## A *b* `c`"
+} -result {<h2>A <em>b</em> <code>c</code></h2>}
+
+# Markdown has six header levels; seven hashes produce an invalid <h7>.
+test markdown-api-2.3 {atx header, no level 7} -constraints knownBug -body {
+    string match *<h7>* [md "####### H7"]
+} -result 0
+
+# -------------------------------------------------------------------------
+# Emphasis and inline code
+
+test markdown-api-3.0 {emphasis and strong emphasis} -body {
+    md "*em* and _em_ and **strong** and __strong__"
+} -result {<p><em>em</em> and <em>em</em> and <strong>strong</strong> and <strong>strong</strong></p>}
+
+test markdown-api-3.1 {strong and emphasis combined} -body {
+    md "***both***"
+} -result {<p><strong><em>both</em></strong></p>}
+
+test markdown-api-3.2 {asterisks surrounded by spaces are literal} -body {
+    md "a * b * c"
+} -result {<p>a * b * c</p>}
+
+test markdown-api-3.3 {emphasis containing links and code} -body {
+    md "*\[link\](/u)* and **`code`**"
+} -result {<p><em><a href="/u">link</a></em> and <strong><code>code</code></strong></p>}
+
+test markdown-api-3.4 {inline code} -body {
+    md "Use `code` here"
+} -result {<p>Use <code>code</code> here</p>}
+
+test markdown-api-3.5 {inline code with backticks inside} -body {
+    md "Use ``a `b` c`` here"
+} -result {<p>Use <code>a `b` c</code> here</p>}
+
+test markdown-api-3.6 {inline code is escaped} -body {
+    md "Use `<b>&` here"
+} -result {<p>Use <code>&lt;b&gt;&amp;</code> here</p>}
+
+# -------------------------------------------------------------------------
+# Backslash escapes
+
+test markdown-api-4.0 {backslash escapes} -body {
+    md {\*not em\* \_ \` \\ \# \. \! \{ \} \[ \] \( \) \+ \-}
+} -result {<p>*not em* _ ` \ # . ! { } [ ] ( ) + -</p>}
+
+test markdown-api-4.1 {escaped period prevents an ordered list} -body {
+    md {1986\. A great year}
+} -result {<p>1986. A great year</p>}
+
+# -------------------------------------------------------------------------
+# Lists
+
+test markdown-api-5.0 {unordered list, asterisks} -body {
+    md "* one\n* two\n* three"
+} -result "<ul>\n<li>one</li>\n<li>two</li>\n<li>three</li></ul>"
+
+test markdown-api-5.1 {unordered list, minus and plus markers} -body {
+    md "- one\n+ two"
+} -result "<ul>\n<li>one</li>\n<li>two</li></ul>"
+
+test markdown-api-5.2 {ordered list} -body {
+    md "1. one\n2. two\n3. three"
+} -result "<ol>\n<li>one</li>\n<li>two</li>\n<li>three</li></ol>"
+
+test markdown-api-5.3 {ordered list, numbers do not matter} -body {
+    md "3. one\n1. two"
+} -result "<ol>\n<li>one</li>\n<li>two</li></ol>"
+
+test markdown-api-5.4 {list items separated by blank lines get paragraphs} -body {
+    md "* one\n\n* two"
+} -result "<ul>\n<li><p>one</p>\n\n</li>\n<li><p>two</p></li></ul>"
+
+test markdown-api-5.5 {nested list} -body {
+    md "* one\n    * nested\n* two"
+} -result "<ul>\n<li>one\n<ul>\n<li>nested</li></ul>\n\n</li>\n<li>two</li></ul>"
+
+test markdown-api-5.6 {list item with inline markup} -body {
+    md "* *em* and `code`"
+} -result "<ul>\n<li><em>em</em> and <code>code</code></li></ul>"
+
+# -------------------------------------------------------------------------
+# Block quotes
+
+test markdown-api-6.0 {block quote, lazy continuation} -body {
+    md "> lazy\nquote"
+} -result "<blockquote>\n<p>lazy\nquote</p>\n</blockquote>"
+
+test markdown-api-6.1 {block quote containing a header and a list} -body {
+    regsub -all {\n+} [md "> ## Head\n>\n> * item"] \n
+} -result "<blockquote>\n<h2>Head</h2>\n<ul>\n<li>item</li></ul>\n</blockquote>"
+
+# -------------------------------------------------------------------------
+# Links
+
+test markdown-api-7.0 {inline links, with and without title} -body {
+    md {[link](http://example.com/ "Title") and [x](/rel)}
+} -result {<p><a href="http://example.com/" title="Title">link</a> and <a href="/rel">x</a></p>}
+
+test markdown-api-7.1 {automatic links, URL and email} -body {
+    md {<http://example.com/> and <user@example.com>}
+} -result {<p><a href="http://example.com/">http://example.com/</a> and <a href="mailto:user@example.com">user@example.com</a></p>}
+
+test markdown-api-7.2 {reference link with title} -body {
+    md "\[text\]\[id\]\n\n\[id\]: http://example.com/  \"T\""
+} -result {<p><a href="http://example.com/" title="T">text</a></p>}
+
+test markdown-api-7.3 {reference link, implicit name} -body {
+    md "\[text\]\[\]\n\n\[text\]: http://example.com/"
+} -result {<p><a href="http://example.com/">text</a></p>}
+
+test markdown-api-7.4 {reference link, shortcut without brackets} -body {
+    md "Visit \[Google\] now.\n\n\[Google\]: http://google.com/"
+} -result {<p>Visit <a href="http://google.com/">Google</a> now.</p>}
+
+test markdown-api-7.5 {reference link, names are case insensitive} -body {
+    md "\[Text\]\[ID\]\n\n\[id\]: http://example.com/"
+} -result {<p><a href="http://example.com/">Text</a></p>}
+
+test markdown-api-7.6 {reference definition, angle brackets and single quoted title} -body {
+    md "\[id\]: <http://example.com/> 'Single'\n\n\[a\]\[id\]"
+} -result {<p><a href="http://example.com/" title="Single">a</a></p>}
+
+test markdown-api-7.7 {reference definition, parenthesized title} -body {
+    md "\[id\]: http://example.com/ (Paren)\n\n\[a\]\[id\]"
+} -result {<p><a href="http://example.com/" title="Paren">a</a></p>}
+
+# The markdown syntax allows the title on the next line of the
+# reference definition.
+test markdown-api-7.8 {reference definition, title on the next line} -constraints {
+    knownBug
+} -body {
+    md "\[text\]\[id\]\n\n\[id\]: http://example.com/\n    \"Title\""
+} -result {<p><a href="http://example.com/" title="Title">text</a></p>}
+
+# -------------------------------------------------------------------------
+# Images
+
+test markdown-api-8.0 {inline image with title} -body {
+    md {![alt text](/img.png "T")}
+} -result {<p><img src="/img.png" alt="alt text" title="T"/></p>}
+
+test markdown-api-8.1 {reference image} -body {
+    md "!\[alt\]\[img\]\n\n\[img\]: /path/img.png \"Optional\""
+} -result {<p><img src="/path/img.png" alt="alt" title="Optional"/></p>}
+
+# -------------------------------------------------------------------------
+# Code blocks
+
+test markdown-api-9.0 {indented code block is escaped} -body {
+    md "    code <b> & \"x\"\n    line2"
+} -result "<pre><code>code &lt;b&gt; &amp; &quot;x&quot;\nline2</code></pre>"
+
+test markdown-api-9.1 {code block indented with a tab} -body {
+    md "\tcode with tab"
+} -result {<pre><code>code with tab</code></pre>}
+
+test markdown-api-9.2 {markup is not processed in code blocks} -body {
+    md "    *not em* \[x\](/y)"
+} -result {<pre><code>*not em* [x](/y)</code></pre>}
+
+# -------------------------------------------------------------------------
+# Inline HTML
+
+test markdown-api-10.0 {block level HTML is passed through} -body {
+    md "<div>\n*not em*\n</div>\n\npara"
+} -result "<div>\n*not em*\n</div>\n\n<p>para</p>"
+
+test markdown-api-10.1 {span level HTML is passed through} -body {
+    md "a <span>inline</span> b"
+} -result {<p>a <span>inline</span> b</p>}
+
+test markdown-api-10.2 {HTML comment is passed through} -body {
+    md "<!-- comment -->\n\npara"
+} -result "<!-- comment -->\n\n<p>para</p>"
+
+# -------------------------------------------------------------------------
+# Horizontal rules
+
+test markdown-api-11.0 {horizontal rules} -body {
+    md "* * *\n\n***\n\n- - -\n\n___"
+} -result "<hr />\n\n<hr />\n\n<hr />\n\n<hr />"
+
+# -------------------------------------------------------------------------
+# Pipe tables
+
+test markdown-api-12.0 {pipe table with alignment} -body {
+    md "| left | center | right | none |\n|:-----|:------:|------:|------|\n| l | c | r | n |"
+} -result {<table class="table">
+<thead>
+  <tr>
+    <th style="text-align: left">left</th>
+    <th style="text-align: center">center</th>
+    <th style="text-align: right">right</th>
+    <th>none</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td style="text-align: left">l</td>
+    <td style="text-align: center">c</td>
+    <td style="text-align: right">r</td>
+    <td>n</td>
+  </tr>
+</tbody>
+</table>}
+
+test markdown-api-12.1 {pipe table without outer pipes} -body {
+    md "a | b\n--|--\n1 | 2\n3 | 4"
+} -result {<table class="table">
+<thead>
+  <tr>
+    <th>a</th>
+    <th>b</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>1</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>4</td>
+  </tr>
+</tbody>
+</table>}
+
+test markdown-api-12.2 {pipe table, inline markup in cells} -body {
+    md "| *a* | `b` |\n|---|---|\n| **1** | \[x\](/y) |"
+} -result {<table class="table">
+<thead>
+  <tr>
+    <th><em>a</em></th>
+    <th><code>b</code></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td><strong>1</strong></td>
+    <td><a href="/y">x</a></td>
+  </tr>
+</tbody>
+</table>}
+
+# -------------------------------------------------------------------------
+# Fenced code blocks
+
+test markdown-api-13.0 {fenced code block, backticks, language class} -setup {
+    Markdown::reset_lang_counter
+} -body {
+    md "```tcl\nputs <x>\n```"
+} -cleanup {
+    Markdown::reset_lang_counter
+} -result {<pre class='code'><code class='tcl'>puts &lt;x&gt;</code></pre>}
+
+test markdown-api-13.1 {fenced code block, tildes, no language} -body {
+    md "~~~\nfenced *tilde*\n~~~"
+} -result {<pre class='code'><code>fenced *tilde*</code></pre>}
+
+test markdown-api-13.2 {fenced code block, language specifier lower cased} -setup {
+    Markdown::reset_lang_counter
+} -body {
+    list [md "```TCL\nx\n```"] [Markdown::get_lang_counter]
+} -cleanup {
+    Markdown::reset_lang_counter
+} -result {{<pre class='code'><code class='tcl'>x</code></pre>} {tcl 1}}
+
+# -------------------------------------------------------------------------
+# get_lang_counter, reset_lang_counter
+
+test markdown-api-14.0 {get_lang_counter, counts fenced code blocks per language} -setup {
+    Markdown::reset_lang_counter
+} -body {
+    Markdown::convert "```tcl\na\n```\n\n```tcl\nb\n```\n\n```c\nx\n```\n\n```\ny\n```"
+    dictsort [Markdown::get_lang_counter]
+} -cleanup {
+    Markdown::reset_lang_counter
+} -result {c 1 tcl 2}
+
+test markdown-api-14.1 {get_lang_counter, accumulates over conversions} -setup {
+    Markdown::reset_lang_counter
+} -body {
+    Markdown::convert "```tcl\na\n```"
+    Markdown::convert "```tcl\nb\n```"
+    Markdown::get_lang_counter
+} -cleanup {
+    Markdown::reset_lang_counter
+} -result {tcl 2}
+
+test markdown-api-14.2 {get_lang_counter, indented code blocks are not counted} -setup {
+    Markdown::reset_lang_counter
+} -body {
+    Markdown::convert "    code\n\n`inline`"
+    Markdown::get_lang_counter
+} -cleanup {
+    Markdown::reset_lang_counter
+} -result {}
+
+test markdown-api-14.3 {reset_lang_counter, after conversion} -setup {
+    Markdown::reset_lang_counter
+} -body {
+    Markdown::convert "```tcl\na\n```"
+    Markdown::reset_lang_counter
+    Markdown::get_lang_counter
+} -result {}
+
+# -------------------------------------------------------------------------
+# register
+
+test markdown-api-15.0 {register, converter is a command prefix} -setup {
+    Markdown::reset_lang_counter
+} -body {
+    Markdown::register upper [list string toupper]
+    list [md "```upper\nhello\n```"] [Markdown::get_lang_counter]
+} -cleanup {
+    unset ::Markdown::converter(upper)
+    Markdown::reset_lang_counter
+} -result {{<pre class='code'><code class='upper'>HELLO</code></pre>} {upper 1}}
+
+test markdown-api-15.1 {register, converter result is inserted as markup} -setup {
+    proc bold {text} { return <b>$text</b> }
+} -body {
+    Markdown::register bold bold
+    md "```bold\nhi\n```"
+} -cleanup {
+    unset ::Markdown::converter(bold)
+    rename bold {}
+    Markdown::reset_lang_counter
+} -result {<pre class='code'><code class='bold'><b>hi</b></code></pre>}
+
+# The documentation says the converter is called with the raw code block,
+# but it gets the HTML escaped text.
+test markdown-api-15.2 {register, converter receives the raw code block} -constraints {
+    knownBug
+} -setup {
+    proc raw {text} { return [list [string length $text] $text] }
+} -body {
+    Markdown::register raw raw
+    md "```raw\na<b&\n```"
+} -cleanup {
+    unset ::Markdown::converter(raw)
+    rename raw {}
+    Markdown::reset_lang_counter
+} -result {<pre class='code'><code class='raw'>5 a<b&</code></pre>}
+
+test markdown-api-15.3 {register, multi-line code block} -setup {
+    proc lines {text} { llength [split $text \n] }
+} -body {
+    Markdown::register lines lines
+    md "```lines\na\nb\nc\n```"
+} -cleanup {
+    unset ::Markdown::converter(lines)
+    rename lines {}
+    Markdown::reset_lang_counter
+} -result {<pre class='code'><code class='lines'>3</code></pre>}
+
+test markdown-api-15.4 {register, extended converter without extra words} -setup {
+    proc ext {config text} { return "\[$config|$text\]" }
+} -body {
+    Markdown::register ext ext 1
+    md "```ext\nbody\n```"
+} -cleanup {
+    unset ::Markdown::converter(ext)
+    rename ext {}
+    Markdown::reset_lang_counter
+} -result {<pre class='code'><code class='ext'>[|body]</code></pre>}
+
+test markdown-api-15.5 {register, re-registering replaces the converter} -setup {
+    proc c1 {text} { return one }
+    proc c2 {text} { return two }
+} -body {
+    Markdown::register lang c1
+    Markdown::register lang c2
+    md "```lang\nx\n```"
+} -cleanup {
+    unset ::Markdown::converter(lang)
+    rename c1 {}
+    rename c2 {}
+    Markdown::reset_lang_counter
+} -result {<pre class='code'><code class='lang'>two</code></pre>}
+
+test markdown-api-15.6 {register, converter error propagates} -setup {
+    proc fail {text} { error "conversion failed" }
+} -body {
+    Markdown::register fail fail
+    md "```fail\nx\n```"
+} -cleanup {
+    unset ::Markdown::converter(fail)
+    rename fail {}
+    Markdown::reset_lang_counter
+} -returnCodes error -result {conversion failed}
+
+test markdown-api-15.7 {register, converter runs at global level} -setup {
+    proc lvl {text} { return [info level] }
+} -body {
+    Markdown::register lvl lvl
+    md "```lvl\nx\n```"
+} -cleanup {
+    unset ::Markdown::converter(lvl)
+    rename lvl {}
+    Markdown::reset_lang_counter
+} -result {<pre class='code'><code class='lvl'>1</code></pre>}
+
+# -------------------------------------------------------------------------
+rename md {}
+testsuiteCleanup
