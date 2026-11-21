@@ -1,0 +1,178 @@
+# -*- tcl -*-
+# scram-api.test: tests for the SASL::SCRAM package, complementing
+# scram.test.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      sha1/sha1.tcl     sha1
+    use      base64/base64.tcl base64
+    useLocal sasl.tcl          SASL
+}
+testing {
+    useLocal scram.tcl SASL::SCRAM
+}
+
+# -------------------------------------------------------------------------
+
+proc ClientCB {user password context command args} {
+    switch -exact -- $command {
+	login    { return "" }
+	username { return $user }
+	password { return $password }
+	default  { return -code error "unexpected $command" }
+    }
+}
+
+proc ServerCB {context command args} {
+    switch -exact -- $command {
+	realm    { return "example.com" }
+	password {
+	    set ::serverUser [lindex $args 0]
+	    return "sécret"
+	}
+	default  { return -code error "unexpected $command" }
+    }
+}
+
+# Runs a client/server exchange.  Returns the list of step results, or
+# the error message prefixed by "error:".
+proc Exchange {user clientpass} {
+    set c [SASL::new -mechanism SCRAM-SHA-1 -callback [list ClientCB $user $clientpass]]
+    set s [SASL::new -type server -mechanism SCRAM-SHA-1 -callback ServerCB]
+    set result {}
+    set code [catch {
+	set sv ""
+	while {1} {
+	    set r [SASL::step $c $sv]
+	    lappend result c$r
+	    if {!$r} break
+	    set rs [SASL::step $s [SASL::response $c]]
+	    lappend result s$rs
+	    set sv [SASL::response $s]
+	}
+    } msg]
+    SASL::cleanup $c
+    SASL::cleanup $s
+    if {$code} {
+	return error:$msg
+    }
+    return $result
+}
+
+# -------------------------------------------------------------------------
+
+test scram-api-1.1 {SCRAM-SHA-1 is registered for client and server} -body {
+    list [expr {"SCRAM-SHA-1" in [SASL::mechanisms client]}] \
+	[expr {"SCRAM-SHA-1" in [SASL::mechanisms server]}]
+} -result {1 1}
+
+test scram-api-1.2 {exchange with non-ASCII password} -body {
+    list [Exchange tester "sécret"] $::serverUser
+} -cleanup {
+    unset -nocomplain ::serverUser
+} -result {{c1 s1 c1 s0 c0} tester}
+
+test scram-api-1.3 {exchange, wrong password} -body {
+    Exchange tester secret
+} -cleanup {
+    unset -nocomplain ::serverUser
+} -result {error:authentication failed}
+
+test scram-api-1.4 {exchange, user name with "," and "="} -body {
+    list [Exchange "a,b=c" "sécret"] $::serverUser
+} -cleanup {
+    unset -nocomplain ::serverUser
+} -result {{c1 s1 c1 s0 c0} a,b=c}
+
+test scram-api-1.5 {exchange, non-ASCII user name} -body {
+    list [Exchange "ćй" "sécret"] $::serverUser
+} -cleanup {
+    unset -nocomplain ::serverUser
+} -result [list {c1 s1 c1 s0 c0} "ćй"]
+
+test scram-api-1.6 {client first message} -setup {
+    set c [SASL::new -mechanism SCRAM-SHA-1 -callback {ClientCB "a,b=c" pw}]
+} -body {
+    list [SASL::step $c ""] [regexp {^n,,n=a=2Cb=3Dc,r=[^,]+$} [SASL::response $c]]
+} -cleanup {
+    SASL::cleanup $c
+    unset -nocomplain c
+} -result {1 1}
+
+test scram-api-1.7 {client rejects a wrong server signature} -setup {
+    set c [SASL::new -mechanism SCRAM-SHA-1 -callback {ClientCB tester pw}]
+    set s [SASL::new -type server -mechanism SCRAM-SHA-1 -callback ServerCB]
+} -body {
+    SASL::step $c ""
+    SASL::step $s [SASL::response $c]
+    SASL::step $c [SASL::response $s]
+    SASL::step $c v=AAAA
+} -cleanup {
+    SASL::cleanup $c
+    SASL::cleanup $s
+    unset -nocomplain c s
+} -returnCodes error -result {invalid server signature}
+
+test scram-api-1.8 {client reports a server error} -setup {
+    set c [SASL::new -mechanism SCRAM-SHA-1 -callback {ClientCB tester pw}]
+    set s [SASL::new -type server -mechanism SCRAM-SHA-1 -callback ServerCB]
+} -body {
+    SASL::step $c ""
+    SASL::step $s [SASL::response $c]
+    SASL::step $c [SASL::response $s]
+    SASL::step $c e=invalid-proof
+} -cleanup {
+    SASL::cleanup $c
+    SASL::cleanup $s
+    unset -nocomplain c s ::serverUser
+} -returnCodes error -result {invalid-proof}
+
+test scram-api-1.9 {server rejects channel binding} -setup {
+    set s [SASL::new -type server -mechanism SCRAM-SHA-1 -callback ServerCB]
+} -body {
+    SASL::step $s "p=tls-unique,,n=tester,r=abc"
+} -cleanup {
+    SASL::cleanup $s
+    unset -nocomplain s
+} -returnCodes error -result {channel binding is not supported}
+
+test scram-api-1.10 {server sends an empty challenge first} -setup {
+    set s [SASL::new -type server -mechanism SCRAM-SHA-1 -callback ServerCB]
+} -body {
+    list [SASL::step $s ""] [SASL::response $s]
+} -cleanup {
+    SASL::cleanup $s
+    unset -nocomplain s
+} -result {1 {}}
+
+test scram-api-1.11 {client, too many steps} -setup {
+    set c [SASL::new -mechanism SCRAM-SHA-1 -callback {ClientCB tester "s\u00e9cret"}]
+    set s [SASL::new -type server -mechanism SCRAM-SHA-1 -callback ServerCB]
+} -body {
+    SASL::step $c ""
+    SASL::step $s [SASL::response $c]
+    SASL::step $c [SASL::response $s]
+    SASL::step $s [SASL::response $c]
+    SASL::step $c [SASL::response $s]
+    SASL::step $c x
+} -cleanup {
+    SASL::cleanup $c
+    SASL::cleanup $s
+    unset -nocomplain c s ::serverUser
+} -returnCodes error -result {invalid state}
+
+# -------------------------------------------------------------------------
+
+rename ClientCB {}
+rename ServerCB {}
+rename Exchange {}
+testsuiteCleanup
+return
