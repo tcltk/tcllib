@@ -77,16 +77,16 @@ TestAccelDo json impl {
     } -result {}
 
     test json-api-${impl}-3.2 {json2dict, unicode escapes} -body {
-	json::json2dict {"Aéґ"}
-    } -result Aéґ
+	json::json2dict {"A\u00e9\u0491"}
+    } -result A\u00e9\u0491
 
     test json-api-${impl}-3.3 {json2dict, unicode escape, upper case hex digits} -body {
-	json::json2dict {"Éé"}
-    } -result Éé
+	json::json2dict {"\u00C9\u00e9"}
+    } -result \u00c9\u00e9
 
     test json-api-${impl}-3.4 {json2dict, non-ASCII characters} -body {
-	json::json2dict "\"łódź їж\""
-    } -result "łódź їж"
+	json::json2dict "\"\u0142\u00f3d\u017a \u0457\u0436\""
+    } -result "\u0142\u00f3d\u017a \u0457\u0436"
 
     test json-api-${impl}-3.5 {json2dict, escaped solidus and backslash} -body {
 	json::json2dict {"a\/b\\c"}

@@ -211,8 +211,8 @@ test json-write-api-5.1 {string, solidus and Tcl special characters unchanged} -
 } -result {"a/b [x] $y {z}"}
 
 test json-write-api-5.2 {string, non-ASCII characters unchanged} -body {
-    json::write string "łódź їж"
-} -result "\"łódź їж\""
+    json::write string "\u0142\u00f3d\u017a \u0457\u0436"
+} -result "\"\u0142\u00f3d\u017a \u0457\u0436\""
 
 test json-write-api-5.3 {string, all control characters escaped} -body {
     set res {}
@@ -232,7 +232,7 @@ test json-write-api-5.4 {string, C1 control characters escaped} -body {
 } -result "\"\\u0080\\u009f\xa0\""
 
 test json-write-api-5.5 {string, round trip through json2dict} -body {
-    set s "a\"b\\c\n\t\u0001ł"
+    set s "a\"b\\c\n\t\u0001\u0142"
     expr {[json::json2dict [json::write string $s]] eq $s}
 } -cleanup {
     unset s
