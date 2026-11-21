@@ -1,0 +1,251 @@
+# -------------------------------------------------------------------------
+# iso8601-api.test -*- tcl -*-
+# Tests for the parts of clock::iso8601 not covered by iso8601.test: the
+# remaining documented date formats, the defaults taken from -base, the
+# -gmt/-base/-timezone/-locale options, and more parse_time variants.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal iso8601.tcl clock::iso8601
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Base date for the formats with defaults: Thu 2023-06-15 12:00:00 UTC,
+# ISO week 2023-W24-4.
+set base [clock scan {2023-06-15 12:00:00} -format {%Y-%m-%d %H:%M:%S} -gmt 1]
+
+proc D {date args} {
+    clock format [clock::iso8601 parse_date $date -gmt 1 -base $::base {*}$args] \
+	-format {%Y-%m-%d %H:%M:%S} -gmt 1
+}
+
+proc T {time args} {
+    clock format [clock::iso8601 parse_time $time -gmt 1 -base $::base {*}$args] \
+	-format {%Y-%m-%d %H:%M:%S} -gmt 1
+}
+
+# -------------------------------------------------------------------------
+# parse_date, documented formats not covered by iso8601.test
+
+foreach {n date result} {
+    0  1997-07-16  {1997-07-16 00:00:00}
+    1  1997-197    {1997-07-16 00:00:00}
+    2  1997197     {1997-07-16 00:00:00}
+    3  97-07-16    {1997-07-16 00:00:00}
+    4  97-197      {1997-07-16 00:00:00}
+    5  97197       {1997-07-16 00:00:00}
+    6  1997-W29-3  {1997-07-16 00:00:00}
+    7  1997W293    {1997-07-16 00:00:00}
+    8  97-W29-3    {1997-07-16 00:00:00}
+    9  97W293      {1997-07-16 00:00:00}
+    10 1997-001    {1997-01-01 00:00:00}
+    11 1996-366    {1996-12-31 00:00:00}
+    12 05-07-16    {2005-07-16 00:00:00}
+    13 2000-02-29  {2000-02-29 00:00:00}
+    14 1997-W29-7  {1997-07-20 00:00:00}
+    15 1997-W29-1  {1997-07-14 00:00:00}
+} {
+    test clock-iso8601-api-1.$n "parse_date, $date" -body {
+	D $date
+    } -result $result
+}
+
+# -------------------------------------------------------------------------
+# parse_date, formats with defaults from the base time
+
+foreach {n date result} {
+    0 --07-16 {2023-07-16 00:00:00}
+    1 --0716  {2023-07-16 00:00:00}
+    2 --197   {2023-07-16 00:00:00}
+    3 ---16   {2023-06-16 00:00:00}
+    4 -W29-3  {2023-07-19 00:00:00}
+    5 -W293   {2023-07-19 00:00:00}
+} {
+    test clock-iso8601-api-2.$n "parse_date, $date, defaults from -base" -body {
+	D $date
+    } -result $result
+}
+
+test clock-iso8601-api-2.6 {parse_date, --mm-dd, other base year} -body {
+    set b [clock scan {2001-03-04} -format {%Y-%m-%d} -gmt 1]
+    clock format [clock::iso8601 parse_date --12-25 -gmt 1 -base $b] -format %Y-%m-%d -gmt 1
+} -cleanup {
+    unset b
+} -result 2001-12-25
+
+# Bug: the (wday) format "-W-d" is matched, but scanned with the format
+# "%u" which does not match the input.
+test clock-iso8601-api-2.7 {parse_date, -W-d, week day of the current week} -constraints knownBug -body {
+    D -W-3
+} -result {2023-06-14 00:00:00}
+
+test clock-iso8601-api-2.8 {parse_date, yyyy-mm defaults to the 1st} -body {
+    D 2023-02
+} -result {2023-02-01 00:00:00}
+
+test clock-iso8601-api-2.9 {parse_date, yyyy defaults to January 1st} -body {
+    D 2023
+} -result {2023-01-01 00:00:00}
+
+test clock-iso8601-api-2.10 {parse_date, yyyy-Www defaults to Monday} -body {
+    D 2023-W24
+} -result {2023-06-12 00:00:00}
+
+# -------------------------------------------------------------------------
+# parse_date, two digit years
+
+foreach {n date result} {
+    0 00-01-01 2000
+    1 37-01-01 2037
+    2 38-01-01 1938
+    3 99-01-01 1999
+} {
+    test clock-iso8601-api-3.$n "parse_date, two digit year, $date" -body {
+	clock format [clock::iso8601 parse_date $date -gmt 1] -format %Y -gmt 1
+    } -result $result
+}
+
+# -------------------------------------------------------------------------
+# parse_date, options
+
+test clock-iso8601-api-4.0 {parse_date, -gmt 1} -body {
+    clock::iso8601 parse_date 1997-07-16 -gmt 1
+} -result 869011200
+
+test clock-iso8601-api-4.1 {parse_date, -timezone} -body {
+    clock::iso8601 parse_date 1997-07-16 -timezone :America/New_York
+} -result 869025600
+
+test clock-iso8601-api-4.2 {parse_date, -timezone with offset} -body {
+    clock::iso8601 parse_date 1997-07-16 -timezone +0200
+} -result 869004000
+
+test clock-iso8601-api-4.3 {parse_date, default is local time} -body {
+    expr {[clock::iso8601 parse_date 1997-07-16] ==
+	  [clock scan 1997-07-16 -format %Y-%m-%d]}
+} -result 1
+
+test clock-iso8601-api-4.4 {parse_date, -locale accepted} -body {
+    clock::iso8601 parse_date 1997-07-16 -gmt 1 -locale C
+} -result 869011200
+
+test clock-iso8601-api-4.5 {parse_date, -base ignored for complete dates} -body {
+    expr {[clock::iso8601 parse_date 1997-07-16 -gmt 1 -base 0] ==
+	  [clock::iso8601 parse_date 1997-07-16 -gmt 1 -base $base]}
+} -result 1
+
+test clock-iso8601-api-4.6 {parse_date, option without value} -body {
+    clock::iso8601 parse_date 1997-07-16 -gmt
+} -returnCodes error -match glob -result {wrong # args: should be "clock scan string *"}
+
+test clock-iso8601-api-4.7 {parse_date, -format is rejected} -body {
+    clock::iso8601 parse_date 1997-07-16 -format %Y
+} -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------
+# parse_date, rejected input
+
+foreach {n date} {
+    0 {}
+    1 1997-07-1
+    2 1997-07-16x
+    3 { 1997-07-16}
+    4 1997/07/16
+    5 1997-7-16
+    6 1997-W1-1
+    7 1997-07-16T10:00:00
+    8 199
+    9 W29-3
+} {
+    test clock-iso8601-api-5.$n "parse_date, rejected \"$date\"" -body {
+	clock::iso8601 parse_date $date
+    } -returnCodes error -result {not an iso8601 date string}
+}
+
+test clock-iso8601-api-5.10 {unknown subcommand} -body {
+    clock::iso8601 foo
+} -returnCodes error -result {unknown or ambiguous subcommand "foo": must be parse_date, or parse_time}
+
+# -------------------------------------------------------------------------
+# parse_time
+
+foreach {n time result} {
+    0  1997-07-16T19:20:30Z      {1997-07-16 19:20:30}
+    1  {1997-07-16 19:20:30Z}    {1997-07-16 19:20:30}
+    2  1997-07-16T19:20:30-05:00 {1997-07-17 00:20:30}
+    3  1997-07-16T19:20:30-0530  {1997-07-17 00:50:30}
+    4  1997-07-16T19:20:30+00:00 {1997-07-16 19:20:30}
+    5  1997-197T12:00:00Z        {1997-07-16 12:00:00}
+    6  19970716T192030Z          {1997-07-16 19:20:30}
+    7  1997-W29-3T10:00Z         {1997-07-16 10:00:00}
+    8  97-07-16T10:00:00Z        {1997-07-16 10:00:00}
+    9  1997-07-16T1920Z          {1997-07-16 19:20:00}
+    10 1997-07-16T19Z            {1997-07-16 19:00:00}
+    11 1997-07-16T19:20:30       {1997-07-16 19:20:30}
+    12 1997-07-16t19:20:30z      {1997-07-16 19:20:30}
+    13 12:30Z                    {2023-06-15 12:30:00}
+    14 1230Z                     {2023-06-15 12:30:00}
+    15 123045Z                   {2023-06-15 12:30:45}
+    16 12Z                       {2023-06-15 12:00:00}
+    17 00:00:00                  {2023-06-15 00:00:00}
+    18 23:59:59                  {2023-06-15 23:59:59}
+} {
+    test clock-iso8601-api-6.$n "parse_time, $time" -body {
+	T $time
+    } -result $result
+}
+
+test clock-iso8601-api-6.19 {parse_time, time zone in string wins over -timezone} -body {
+    clock::iso8601 parse_time 1997-07-16T19:20:30Z -timezone :America/New_York
+} -result 869080830
+
+test clock-iso8601-api-6.20 {parse_time, -timezone for local time} -body {
+    clock::iso8601 parse_time 1997-07-16T19:20:30 -timezone +0100
+} -result 869077230
+
+test clock-iso8601-api-6.21 {parse_time, -base for time only} -body {
+    clock::iso8601 parse_time 01:00:00 -gmt 1 -base 0
+} -result 3600
+
+test clock-iso8601-api-6.22 {parse_time, default is local time} -body {
+    expr {[clock::iso8601 parse_time 1997-07-16T19:20:30] ==
+	  [clock scan {1997-07-16 19:20:30} -format {%Y-%m-%d %H:%M:%S}]}
+} -result 1
+
+test clock-iso8601-api-7.0 {parse_time, rejected empty string} -body {
+    clock::iso8601 parse_time {}
+} -returnCodes error -result {not an iso8601 time string}
+
+# The time pattern is not anchored: partially matching strings are passed
+# to [clock scan], which reports its own error.
+foreach {n time} {
+    1 1997-07-16T
+    2 T19:20:30
+    3 1997-07-16X19:20:30
+    4 19:2
+    5 1997-07-16T19:20:30+1
+} {
+    test clock-iso8601-api-7.$n "parse_time, rejected \"$time\"" -body {
+	clock::iso8601 parse_time $time
+    } -returnCodes error -match glob -result *
+}
+
+test clock-iso8601-api-7.6 {parse_time, bad option} -body {
+    clock::iso8601 parse_time 1997-07-16T19:20:30Z -foo x
+} -returnCodes error -match glob -result {bad option "-foo"*}
+
+# -------------------------------------------------------------------------
+
+rename D {}
+rename T {}
+unset base
+testsuiteCleanup

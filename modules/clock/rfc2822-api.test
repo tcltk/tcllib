@@ -1,0 +1,157 @@
+# -------------------------------------------------------------------------
+# rfc2822-api.test -*- tcl -*-
+# Tests for the parts of clock::rfc2822 not covered by rfc2822.test: the
+# variants of RFC 2822 dates, comments, time zones, obsolete forms and
+# errors.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal rfc2822.tcl clock::rfc2822
+}
+
+# -------------------------------------------------------------------------
+# Accepted variants. All denote Fri Sep 09 20:51:39 GMT 2005 = 1126299099,
+# unless noted otherwise.
+
+foreach {n date result} {
+    0  {Fri, 09 Sep 2005 13:51:39 -0700}                    1126299099
+    1  {09 Sep 2005 13:51:39 -0700}                         1126299099
+    2  {Fri 09 Sep 2005 13:51:39 -0700}                     1126299099
+    3  {Fri, 9 Sep 2005 13:51:39 -0700}                     1126299099
+    4  {Fri, 09 Sep 05 13:51:39 -0700}                      1126299099
+    5  {Fri, 09 Sep 2005 13:51 -0700}                       1126299060
+    6  {Fri, Sep 09 2005 13:51:39 -0700}                    1126299099
+    7  {fri, 09 sep 2005 13:51:39 -0700}                    1126299099
+    8  {FRI, 09 SEP 2005 13:51:39 -0700}                    1126299099
+    9  {  Fri, 09 Sep 2005 13:51:39 -0700  }                1126299099
+    10 "Fri, 09  Sep\t2005   13:51:39\t-0700"               1126299099
+    11 {Fri, 09 Sep 2005 13:51:39 +0000}                    1126273899
+    12 {Fri, 09 Sep 2005 13:51:39 +0530}                    1126254099
+    13 {Fri, 09 Sep 2005 13:51:39 GMT}                      1126273899
+    14 {Fri, 09 Sep 2005 13:51:39 UT}                       1126273899
+    15 {Fri, 09 Sep 2005 13:51:39 EST}                      1126291899
+    16 {Fri, 09 Sep 2005 13:51:39 PDT}                      1126299099
+    17 {Fri, 09 Sep 2005 13:51:39 GMT-07:00}                1126299099
+    18 {Fri, 09 Sep 2005 13:51:39 GMT-0700}                 1126299099
+    19 {Fri, 09 Sep 2005 13:51:39 "GMT"}                    1126273899
+    20 {Mon(day), 23 Aug(ust) 2004 01:23:45 UT}             1093224225
+    21 {Tue, Jul 21 2009 19:37:47 GMT-0400}                 1248219467
+    22 {Fri, 09 Sep 2005 13:51:39 -0700 (PDT)}              1126299099
+    23 {(comment) Fri, 09 Sep 2005 13:51:39 -0700}          1126299099
+    25 {Thu, 01 Jan 1970 00:00:00 +0000}                    0
+    26 {Wed, 31 Dec 1969 23:59:59 +0000}                    -1
+    27 {Sun, 07 Feb 2106 06:28:16 +0000}                    4294967296
+} {
+    test clock-rfc2822-api-1.$n "parse_date, variant \"$date\"" -body {
+	clock::rfc2822 parse_date $date
+    } -result $result
+}
+
+# Bug: backslash escapes in comments (quoted-pair, RFC 2822 3.2.3) are
+# not handled by the comment removal.
+test clock-rfc2822-api-1.24 {parse_date, comment with escaped parentheses} -constraints knownBug -body {
+    clock::rfc2822 parse_date {Fri, 09 Sep 2005 13:51:39 -0700 (a \(nested\) one)}
+} -result 1126299099
+
+test clock-rfc2822-api-1.28 {parse_date, no time zone is local time} -body {
+    expr {[clock::rfc2822 parse_date {Fri, 09 Sep 2005 13:51:39}] ==
+	  [clock scan {2005-09-09 13:51:39} -format {%Y-%m-%d %H:%M:%S}]}
+} -result 1
+
+test clock-rfc2822-api-1.29 {parse_date, all months} -body {
+    set res {}
+    foreach m {Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec} {
+	lappend res [clock format [clock::rfc2822 parse_date "01 $m 2001 00:00 +0000"] \
+			 -format %m -gmt 1]
+    }
+    set res
+} -cleanup {
+    unset res m
+} -result {01 02 03 04 05 06 07 08 09 10 11 12}
+
+test clock-rfc2822-api-1.30 {parse_date, all weekday names} -body {
+    set res {}
+    foreach {wd d} {Mon 03 Tue 04 Wed 05 Thu 06 Fri 07 Sat 08 Sun 09} {
+	lappend res [clock format [clock::rfc2822 parse_date "$wd, $d Sep 2001 00:00 +0000"] \
+			 -format %a -gmt 1]
+    }
+    set res
+} -cleanup {
+    unset res wd d
+} -result {Mon Tue Wed Thu Fri Sat Sun}
+
+test clock-rfc2822-api-1.31 {parse_date, two digit year 99} -body {
+    clock format [clock::rfc2822 parse_date {01 Jan 99 00:00 +0000}] -format %Y -gmt 1
+} -result 1999
+
+test clock-rfc2822-api-1.32 {parse_date, two digit year 00} -body {
+    clock format [clock::rfc2822 parse_date {01 Jan 00 00:00 +0000}] -format %Y -gmt 1
+} -result 2000
+
+# Bug: RFC 2822 section 4.3 maps two digit years 00-49 to 2000-2049, the
+# command uses the [clock scan] %y rule (00-37 to 2000-2037).
+test clock-rfc2822-api-1.33 {parse_date, two digit year 40} -constraints knownBug -body {
+    clock format [clock::rfc2822 parse_date {01 Jan 40 00:00 +0000}] -format %Y -gmt 1
+} -result 2040
+
+test clock-rfc2822-api-1.34 {parse_date, two digit year 50} -body {
+    clock format [clock::rfc2822 parse_date {01 Jan 50 00:00 +0000}] -format %Y -gmt 1
+} -result 1950
+
+# -------------------------------------------------------------------------
+# Errors
+
+test clock-rfc2822-api-2.0 {parse_date, error code} -body {
+    catch {clock::rfc2822 parse_date junk} msg opts
+    list $msg [dict get $opts -errorcode]
+} -cleanup {
+    unset msg opts
+} -result {{expected an RFC2822 date, got "junk"} {CLOCK RFC2822 BADDATE}}
+
+test clock-rfc2822-api-2.1 {parse_date, empty string} -body {
+    clock::rfc2822 parse_date {}
+} -returnCodes error -result {expected an RFC2822 date, got ""}
+
+test clock-rfc2822-api-2.2 {parse_date, date without time} -body {
+    clock::rfc2822 parse_date {Fri, 09 Sep 2005}
+} -returnCodes error -result {expected an RFC2822 date, got "Fri, 09 Sep 2005"}
+
+test clock-rfc2822-api-2.3 {parse_date, comments removed in error message} -body {
+    clock::rfc2822 parse_date {  junk (comment)  }
+} -returnCodes error -result {expected an RFC2822 date, got "junk"}
+
+test clock-rfc2822-api-2.4 {parse_date, ISO 8601 date rejected} -body {
+    clock::rfc2822 parse_date {2005-09-09T13:51:39Z}
+} -returnCodes error -result {expected an RFC2822 date, got "2005-09-09T13:51:39Z"}
+
+test clock-rfc2822-api-2.5 {parse_date, three digit year rejected} -body {
+    clock::rfc2822 parse_date {09 Sep 105 13:51:39 +0000}
+} -returnCodes error -result {expected an RFC2822 date, got "09 Sep 105 13:51:39 +0000"}
+
+test clock-rfc2822-api-2.6 {parse_date, unknown month} -body {
+    clock::rfc2822 parse_date {Fri, 09 Foo 2005 13:51:39 -0700}
+} -returnCodes error -result {input string does not match supplied format}
+
+test clock-rfc2822-api-2.7 {parse_date, bad weekday name} -body {
+    clock::rfc2822 parse_date {Fry, 09 Sep 2005 13:51:39 -0700}
+} -returnCodes error -result {expected an RFC2822 date, got "Fry, 09 Sep 2005 13:51:39 -0700"}
+
+test clock-rfc2822-api-2.8 {unknown subcommand} -body {
+    clock::rfc2822 foo
+} -returnCodes error -result {unknown or ambiguous subcommand "foo": must be parse_date}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
