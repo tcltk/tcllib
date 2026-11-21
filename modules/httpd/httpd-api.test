@@ -1,0 +1,910 @@
+# httpd-api.test - Additional API tests for the httpd package     -*- tcl -*-
+#
+#	Covers the helper methods of httpd::mime, the request/reply
+#	ensembles of httpd::reply, the utility methods of httpd::server,
+#	the dict_dispatch plugin (uri add, uri direct), the stock content
+#	classes (file, redirect, template, error pages), form data and
+#	the local_memchan plugin.  All servers listen on 127.0.0.1 only.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+testsNeed TclOO 1
+
+support {
+    use cmdline/cmdline.tcl             cmdline
+    use fileutil/fileutil.tcl           fileutil
+    use fumagic/rtcore.tcl              fileutil::magic::rt
+    use fumagic/filetypes.tcl           fileutil::magic::filetype
+    use textutil/string.tcl             textutil::string
+    use textutil/repeat.tcl             textutil::repeat
+    use textutil/tabify.tcl             textutil::tabify
+    use markdown/markdown.tcl           Markdown
+    use base64/base64.tcl               base64
+    use md5/md5x.tcl                    md5
+    use virtchannel_core/core.tcl       tcl::chan::core
+    use virtchannel_core/events.tcl     tcl::chan::events
+    use virtchannel_base/memchan.tcl    tcl::chan::memchan
+    use mime/mime.tcl                   mime
+    use uri/uri.tcl                     uri
+    use ncgi/ncgi.tcl                   ncgi
+    use log/logger.tcl                  logger
+    use uuid/uuid.tcl                   uuid
+    use sha1/sha1.tcl                   sha1
+    use dns/ip.tcl                      ip
+    use uri/urn-scheme.tcl              uri::urn
+    use dns/dns.tcl                     dns
+    use nettool/nettool.tcl             nettool
+    use coroutine/coroutine.tcl         coroutine
+    use dicttool/dicttool.tcl           dicttool
+    use cron/cron.tcl                   cron
+    use websocket/websocket.tcl         websocket
+    use clay/clay.tcl                   clay
+}
+testing {
+    useLocal httpd.tcl httpd
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Call a (possibly unexported) method of OBJ.
+proc priv {obj args} {
+    tailcall [info object namespace $obj]::my {*}$args
+}
+
+# A free TCP port on 127.0.0.1.
+proc freeport {} {
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set port [lindex [chan configure $s -sockname] 2]
+    close $s
+    return $port
+}
+
+# Send a raw HTTP request to 127.0.0.1:PORT and return the whole reply
+# (the server closes the connection after each reply).  Waits at most
+# 10 seconds.
+proc request {port lines {body {}}} {
+    set sock [socket 127.0.0.1 $port]
+    chan configure $sock -translation binary -blocking 0 -buffering full
+    set ::reply($sock) {}
+    set ::done($sock) 0
+    chan event $sock readable [list readreply $sock]
+    foreach line $lines {
+	puts -nonewline $sock "$line\r\n"
+    }
+    if {[string length $body]} {
+	puts -nonewline $sock "Content-Length: [string length $body]\r\n"
+    }
+    puts -nonewline $sock "\r\n$body"
+    flush $sock
+    set timer [after 10000 [list set ::done($sock) timeout]]
+    while {$::done($sock) == 0} {
+	vwait ::done($sock)
+    }
+    after cancel $timer
+    set result $::reply($sock)
+    if {$::done($sock) eq "timeout"} {
+	set result "TIMEOUT: $result"
+    }
+    catch {close $sock}
+    unset ::reply($sock) ::done($sock)
+    return $result
+}
+
+proc readreply {sock} {
+    append ::reply($sock) [read $sock]
+    if {[eof $sock]} {
+	chan event $sock readable {}
+	set ::done($sock) 1
+    }
+}
+
+# GET PATH from the server on PORT.
+proc get {port path {headers {}}} {
+    request $port [list "GET $path HTTP/1.0" "Host: localhost" {*}$headers]
+}
+
+# Split a reply into {status headers body}, headers as a dict.
+proc splitreply {reply} {
+    set reply [string map {\r\n \n} $reply]
+    set pos [string first \n\n $reply]
+    if {$pos < 0} {
+	set head $reply
+	set body {}
+    } else {
+	set head [string range $reply 0 [expr {$pos - 1}]]
+	set body [string range $reply [expr {$pos + 2}] end]
+    }
+    set lines [split $head \n]
+    set headers {}
+    foreach line [lrange $lines 1 end] {
+	regexp {^([^:]+): ?(.*)$} $line -> k v
+	dict set headers $k $v
+    }
+    list [lindex $lines 0] $headers $body
+}
+
+proc status {reply} {
+    lindex [splitreply $reply] 0
+}
+
+proc body {reply} {
+    lindex [splitreply $reply] 2
+}
+
+proc header {reply key} {
+    set h [lindex [splitreply $reply] 1]
+    if {[dict exists $h $key]} {
+	return [dict get $h $key]
+    }
+    return {}
+}
+
+# -------------------------------------------------------------------------
+# Content classes used by the tests
+
+clay::define ::test::content.hello {
+    method content {} {
+	my reply set Content-Type text/plain
+	my puts "Hello, [my request get REQUEST_PATH]"
+    }
+}
+
+clay::define ::test::content.form {
+    method content {} {
+	my reply set Content-Type text/plain
+	foreach {k v} [my FormData] {
+	    my puts "$k=$v"
+	}
+    }
+}
+
+clay::define ::test::content.request {
+    method content {} {
+	my reply set Content-Type text/plain
+	foreach f {REQUEST_METHOD REQUEST_URI REQUEST_PATH REQUEST_VERSION
+		   QUERY_STRING REMOTE_ADDR HTTP_HOST HTTP_X_TEST LOCALHOST} {
+	    my puts "$f=[my request get $f]"
+	}
+	my puts "config=[my clay get greeting]"
+    }
+}
+
+clay::define ::test::content.fail {
+    method content {} {
+	error "deliberate failure"
+    }
+}
+
+clay::define ::test::content.notfound {
+    method content {} {
+	my error 404 {Nothing here}
+    }
+}
+
+# A document root with a few files.
+set docroot [makeDirectory docroot]
+makeFile "plain text file" [file join docroot hello.txt]
+makeFile {[my html_header {TML page}]Value: [expr {6*7}][my html_footer]} \
+    [file join docroot page.tml]
+makeFile "<p>static</p>" [file join docroot static.html]
+makeDirectory [file join docroot sub]
+makeFile "a" [file join docroot sub a.txt]
+makeFile "bb" [file join docroot sub b.txt]
+makeDirectory [file join docroot sub2]
+makeFile "<p>index</p>" [file join docroot sub2 index.html]
+
+set port [freeport]
+::httpd::server create TESTSRV port $port myaddr 127.0.0.1 doc_root $docroot
+TESTSRV plugin dict_dispatch
+TESTSRV uri add * /hello*   {mixin {reply ::test::content.hello}}
+TESTSRV uri add * /form     {mixin {reply ::test::content.form}}
+TESTSRV uri add * /req*     {mixin {reply ::test::content.request} greeting hi}
+TESTSRV uri add * /fail     {mixin {reply ::test::content.fail}}
+TESTSRV uri add * /missing  {mixin {reply ::test::content.notfound}}
+TESTSRV uri add * /moved    {mixin {reply ::httpd::content.redirect} LOCATION /new}
+TESTSRV uri add * /moved302 {mixin {reply ::httpd::content.redirect} LOCATION /new REDIRECT_CODE 302}
+TESTSRV uri add * /files/*  [list mixin {reply ::httpd::content.file} path $docroot]
+TESTSRV uri add otherhost /vhost {mixin {reply ::test::content.hello}}
+TESTSRV uri direct * /direct {} {
+    my reply set Content-Type text/plain
+    my puts "direct body"
+}
+
+# -------------------------------------------------------------------------
+# httpd::mime helper methods (inherited by servers and replies)
+
+test httpd-api-1.1 {http_code_string: known codes} -body {
+    set res {}
+    foreach code {200 204 301 302 304 400 401 403 404 500 503 505} {
+	lappend res $code [TESTSRV http_code_string $code]
+    }
+    set res
+} -cleanup {
+    unset res code
+} -result {200 {Data follows} 204 {No Content} 301 {Moved Permanently} 302 Found 304 {Not Modified} 400 {Bad Request} 401 {Authorization Required} 403 {Permission denied} 404 {Not Found} 500 {Server Internal Error} 503 {Service Unavailable} 505 {HTTP Version Not Supported}}
+
+test httpd-api-1.2 {http_code_string: unknown code} -body {
+    TESTSRV http_code_string 299
+} -result {Unknown Http Code}
+
+test httpd-api-1.3 {HttpHeaders_Default} -body {
+    priv TESTSRV HttpHeaders_Default
+} -result {Status {200 OK}
+Content-Size 0
+Content-Type {text/html; charset=UTF-8}
+Cache-Control {no-cache}
+Connection close}
+
+test httpd-api-1.4 {HttpServerHeaders: CGI variables} -body {
+    set h [priv TESTSRV HttpServerHeaders]
+    list [expr {"CONTENT_LENGTH" in $h}] [expr {"REQUEST_URI" in $h}] \
+	[expr {"SERVER_SOFTWARE" in $h}]
+} -cleanup {
+    unset h
+} -result {1 1 1}
+
+test httpd-api-1.5 {MimeParse: simple headers, Content-Length first} -body {
+    priv TESTSRV MimeParse "Host: localhost\nX-Foo: bar\n"
+} -result {Content-Length 0 Host localhost X-Foo bar}
+
+test httpd-api-1.6 {MimeParse: canonical case of standard headers} -body {
+    priv TESTSRV MimeParse [join {
+	{content-type: text/plain}
+	{CONTENT-LENGTH: 12}
+	{last-modified: x}
+	{cookie: a=b}
+	{referrer: http://example.com/}
+    } \n]
+} -result {Content-Length 12 Content-Type text/plain Last-Modified x COOKIE a=b Referer http://example.com/}
+
+test httpd-api-1.7 {MimeParse: repeated headers are joined with commas} -body {
+    priv TESTSRV MimeParse "Accept: a\nAccept: b\n"
+} -result {Content-Length 0 Accept a,b}
+
+test httpd-api-1.8 {MimeParse: continuation lines} -body {
+    priv TESTSRV MimeParse "X-Long: first\n  second\n\tthird\n"
+} -result {Content-Length 0 X-Long {first second third}}
+
+test httpd-api-1.9 {MimeParse: stops at the empty line} -body {
+    priv TESTSRV MimeParse "X-A: 1\n\nX-B: 2\n"
+} -result {Content-Length 0 X-A 1}
+
+test httpd-api-1.10 {MimeParse: invalid line} -body {
+    priv TESTSRV MimeParse "no colon here\n"
+} -returnCodes error -result {INVALID HTTP HEADER FORMAT: no colon here}
+
+test httpd-api-1.11 {MimeParse: continuation without a header} -body {
+    priv TESTSRV MimeParse "  orphan\n"
+} -returnCodes error -result {INVALID HTTP HEADER FORMAT:   orphan}
+
+test httpd-api-1.12 {MimeParse: empty text} -body {
+    priv TESTSRV MimeParse ""
+} -result {Content-Length 0}
+
+test httpd-api-1.13 {Url_Decode} -body {
+    list [priv TESTSRV Url_Decode "a+b%20c%2Fd"] [priv TESTSRV Url_Decode "100%25"] \
+	[priv TESTSRV Url_Decode "%C5%BC"] [priv TESTSRV Url_Decode "plain"]
+} -result [list "a b c/d" "100%" "\u00C5\u00BC" plain]
+
+test httpd-api-1.14 {html_header and html_footer} -body {
+    list [TESTSRV html_header] [TESTSRV html_header Title] \
+	[TESTSRV html_header Title stylesheet /my.css] [TESTSRV html_footer]
+} -result [list \
+    "<!DOCTYPE html>\n<HTML><HEAD><link rel=\"stylesheet\" href=\"/style.css\"></HEAD><BODY>" \
+    "<!DOCTYPE html>\n<HTML><HEAD><TITLE>Title</TITLE><link rel=\"stylesheet\" href=\"/style.css\"></HEAD><BODY>" \
+    "<!DOCTYPE html>\n<HTML><HEAD><TITLE>Title</TITLE><link rel=\"stylesheet\" href=\"/my.css\"></HEAD><BODY>" \
+    "</BODY></HTML>"]
+
+# -------------------------------------------------------------------------
+# httpd::server utility methods
+
+test httpd-api-2.1 {port_listening} -body {
+    expr {[TESTSRV port_listening] == $port}
+} -result 1
+
+test httpd-api-2.2 {port_listening: port 0 gives the actual port} -constraints {
+    knownBug
+} -setup {
+    ::httpd::server create TMPSRV port 0 myaddr 127.0.0.1
+} -body {
+    expr {[TMPSRV port_listening] > 0}
+} -cleanup {
+    TMPSRV destroy
+} -result 1
+
+test httpd-api-2.3 {PrefixNormalize} -body {
+    list [priv TESTSRV PrefixNormalize /files/*] [priv TESTSRV PrefixNormalize /a/b/] \
+	[priv TESTSRV PrefixNormalize /hello*] [priv TESTSRV PrefixNormalize /x]
+} -result {/files /a/b /hello /x}
+
+test httpd-api-2.4 {HostName: no reverse DNS by default} -body {
+    priv TESTSRV HostName 127.0.0.1
+} -result 127.0.0.1
+
+test httpd-api-2.5 {counter} -body {
+    list [TESTSRV counter test_counter] [TESTSRV counter test_counter] \
+	[TESTSRV counter other_counter]
+} -result {1 2 1}
+
+test httpd-api-2.6 {Uuid_Generate: unique ids} -body {
+    set a [priv TESTSRV Uuid_Generate]
+    set b [priv TESTSRV Uuid_Generate]
+    list [expr {$a ne $b}] [expr {[string length $a] > 0}]
+} -cleanup {
+    unset a b
+} -result {1 1}
+
+test httpd-api-2.7 {Validate_Connection: stock implementation allows all} -body {
+    priv TESTSRV Validate_Connection sock 127.0.0.1
+} -result 0
+
+test httpd-api-2.8 {template: stock templates} -body {
+    set res {}
+    foreach page {redirect notfound internal_error} {
+	lappend res [string match {*html_header*} [TESTSRV template $page]]
+    }
+    lappend res [TESTSRV template no_such_template]
+} -cleanup {
+    unset res page
+} -result {1 1 1 {}}
+
+test httpd-api-2.9 {TemplateSearch: .tml and .html files in doc_root} -setup {
+    set dir [makeDirectory tmpldir]
+    makeFile {TML [my html_footer]} [file join tmpldir notfound.tml]
+    makeFile {<b>HTML</b>} [file join tmpldir redirect.html]
+    ::httpd::server create TMPSRV port [freeport] myaddr 127.0.0.1 doc_root $dir
+} -body {
+    list [priv TMPSRV TemplateSearch notfound] [priv TMPSRV TemplateSearch redirect] \
+	[string match {*does not exist*} [priv TMPSRV TemplateSearch internal_error]]
+} -cleanup {
+    TMPSRV destroy
+    removeDirectory tmpldir
+    unset dir
+} -result [list "TML \[my html_footer\]\n" "<b>HTML</b>\n" 0]
+
+test httpd-api-2.10 {template: results are cached} -setup {
+    set dir [makeDirectory tmpldir]
+    makeFile {first} [file join tmpldir notfound.tml]
+    ::httpd::server create TMPSRV port [freeport] myaddr 127.0.0.1 doc_root $dir
+} -body {
+    set a [TMPSRV template notfound]
+    makeFile {second} [file join tmpldir notfound.tml]
+    list $a [TMPSRV template notfound] [priv TMPSRV TemplateSearch notfound]
+} -cleanup {
+    TMPSRV destroy
+    removeDirectory tmpldir
+    unset dir a
+} -result [list "first\n" "first\n" "second\n"]
+
+test httpd-api-2.11 {plugin: unknown plugin} -body {
+    TESTSRV plugin no_such_plugin
+} -returnCodes error -result {Class ::httpd::plugin.no_such_plugin for plugin no_such_plugin does not exist}
+
+test httpd-api-2.12 {ServerHeaders: CGI style request variables} -body {
+    set h [priv TESTSRV ServerHeaders 127.0.0.1 {GET /a/b?x=1&y=2 HTTP/1.1} \
+	       "Host: localhost:80\nUser-Agent: test\nContent-Type: text/plain\n"]
+    set res {}
+    foreach f {REMOTE_ADDR REMOTE_HOST REQUEST_METHOD REQUEST_URI REQUEST_PATH
+	       REQUEST_VERSION QUERY_STRING HTTP_HOST HTTP_USER_AGENT
+	       CONTENT_TYPE CONTENT_LENGTH LOCALHOST SERVER_PROTOCOL} {
+	lappend res $f [dict get $h $f]
+    }
+    lappend res SERVER_PORT [expr {[dict get $h SERVER_PORT] == $port}]
+} -cleanup {
+    unset h res f
+} -result {REMOTE_ADDR 127.0.0.1 REMOTE_HOST 127.0.0.1 REQUEST_METHOD GET REQUEST_URI /a/b?x=1&y=2 REQUEST_PATH a/b REQUEST_VERSION 1.1 QUERY_STRING x=1&y=2 HTTP_HOST localhost:80 HTTP_USER_AGENT test CONTENT_TYPE text/plain CONTENT_LENGTH 0 LOCALHOST 1 SERVER_PROTOCOL HTTP/1.1 SERVER_PORT 1}
+
+test httpd-api-2.13 {constructor: server/ settings} -setup {
+    ::httpd::server create TMPSRV port [freeport] myaddr 127.0.0.1 \
+	name test.example string {TestServer/1.0} protocol HTTP/1.0
+} -body {
+    list [TMPSRV clay get server/ name] [TMPSRV clay get server/ string] \
+	[TMPSRV clay get server/ protocol] [TMPSRV clay get server/ myaddr] \
+	[TMPSRV clay get server/ reverse_dns]
+} -cleanup {
+    TMPSRV destroy
+} -result {test.example TestServer/1.0 HTTP/1.0 127.0.0.1 0}
+
+test httpd-api-2.14 {constructor: arguments as one dict} -setup {
+    ::httpd::server create TMPSRV [list port [freeport] myaddr 127.0.0.1 \
+				       name dict.example]
+} -body {
+    TMPSRV clay get server/ name
+} -cleanup {
+    TMPSRV destroy
+} -result dict.example
+
+test httpd-api-2.15 {stop closes the listener, start reopens it} -setup {
+    set p [freeport]
+    ::httpd::server create TMPSRV port $p myaddr 127.0.0.1
+    TMPSRV plugin dict_dispatch
+    TMPSRV uri add * /hello {mixin {reply ::test::content.hello}}
+} -body {
+    set res [list [body [get $p /hello]]]
+    TMPSRV stop
+    lappend res [catch {close [socket 127.0.0.1 $p]}]
+    TMPSRV start
+    lappend res [body [get $p /hello]]
+} -cleanup {
+    TMPSRV destroy
+    unset p res
+} -result [list "Hello, hello\n" 1 "Hello, hello\n"]
+
+test httpd-api-2.16 {destroy closes the listener} -setup {
+    set p [freeport]
+    ::httpd::server create TMPSRV port $p myaddr 127.0.0.1
+} -body {
+    TMPSRV destroy
+    catch {close [socket 127.0.0.1 $p]}
+} -cleanup {
+    unset p
+} -result 1
+
+test httpd-api-2.17 {Validate_Connection: true drops the connection} -setup {
+    set p [freeport]
+    ::httpd::server create TMPSRV port $p myaddr 127.0.0.1
+    TMPSRV plugin dict_dispatch
+    TMPSRV uri add * /hello {mixin {reply ::test::content.hello}}
+    oo::objdefine TMPSRV method Validate_Connection {sock ip} {return 1}
+} -body {
+    get $p /hello
+} -cleanup {
+    TMPSRV destroy
+    unset p
+} -result {}
+
+test httpd-api-2.18 {Dispatch_Local: overrides the plugins} -setup {
+    set p [freeport]
+    ::httpd::server create TMPSRV port $p myaddr 127.0.0.1
+    TMPSRV plugin dict_dispatch
+    TMPSRV uri add * /hello {mixin {reply ::test::content.request}}
+    oo::objdefine TMPSRV method Dispatch_Local data {
+	dict set data mixin reply ::test::content.hello
+	return $data
+    }
+} -body {
+    body [get $p /hello]
+} -cleanup {
+    TMPSRV destroy
+    unset p
+} -result "Hello, hello\n"
+
+# -------------------------------------------------------------------------
+# Requests through the dict_dispatch plugin
+
+test httpd-api-3.1 {uri add: pattern match} -body {
+    set r [get $port /hello/world]
+    list [status $r] [header $r Content-Type] [body $r]
+} -cleanup {
+    unset r
+} -result [list {HTTP/1.0 200 OK} text/plain "Hello, hello/world\n"]
+
+test httpd-api-3.2 {reply headers: Server, Date, Content-Length} -body {
+    set r [get $port /hello]
+    list [header $r Server] [header $r Content-Length] \
+	[regexp {^[A-Z][a-z][a-z], [0-9]{2} [A-Z][a-z][a-z] [0-9]{4} [0-9:]{8} } \
+	     [header $r Date]] [header $r Connection]
+} -cleanup {
+    unset r
+} -result [list [list TclHttpd $::httpd::version] 13 1 close]
+
+test httpd-api-3.3 {request: CGI variables and config from uri add} -body {
+    body [request $port [list "GET /req/x?a=1 HTTP/1.1" "Host: localhost" \
+			     "X-Test: yes"]]
+} -result {REQUEST_METHOD=GET
+REQUEST_URI=/req/x?a=1
+REQUEST_PATH=req/x
+REQUEST_VERSION=1.1
+QUERY_STRING=a=1
+REMOTE_ADDR=127.0.0.1
+HTTP_HOST=localhost
+HTTP_X_TEST=yes
+LOCALHOST=1
+config=hi
+}
+
+test httpd-api-3.4 {uri add: virtual host} -body {
+    list [status [get $port /vhost]] \
+	[body [request $port [list "GET /vhost HTTP/1.0" "Host: otherhost:80"]]]
+} -result [list {HTTP/1.0 404 Not Found} "Hello, vhost\n"]
+
+test httpd-api-3.5 {uri direct} -body {
+    set r [get $port /direct]
+    list [status $r] [body $r]
+} -cleanup {
+    unset r
+} -result [list {HTTP/1.0 200 OK} "direct body\n"]
+
+test httpd-api-3.6 {unknown URI without doc_root fallback gives 404} -setup {
+    set p [freeport]
+    ::httpd::server create TMPSRV port $p myaddr 127.0.0.1
+    TMPSRV plugin dict_dispatch
+} -body {
+    set r [get $p /nothing]
+    list [status $r] [string match {*does not exist*} [body $r]]
+} -cleanup {
+    TMPSRV destroy
+    unset p r
+} -result {{HTTP/1.0 404 Not Found} 1}
+
+test httpd-api-3.7 {error in content gives 500} -body {
+    status [get $port /fail]
+} -result {HTTP/1.0 500 Server Internal Error}
+
+test httpd-api-3.8 {error 404 from content} -body {
+    set r [get $port /missing]
+    list [status $r] [string match {*does not exist*} [body $r]]
+} -cleanup {
+    unset r
+} -result {{HTTP/1.0 404 Not Found} 1}
+
+test httpd-api-3.9 {content.redirect: body is the location} -body {
+    body [get $port /moved]
+} -result "/new\n"
+
+test httpd-api-3.10 {content.redirect: default 301 with Location} -constraints {
+    knownBug
+} -body {
+    # The Location header is set by reset before the LOCATION setting
+    # is applied, and the status code and text are joined as a list.
+    set r [get $port /moved]
+    list [status $r] [header $r Location]
+} -cleanup {
+    unset r
+} -result {{HTTP/1.0 301 Moved Permanently} /new}
+
+test httpd-api-3.14 {content.redirect: REDIRECT_CODE} -constraints {
+    knownBug
+} -body {
+    set r [get $port /moved302]
+    list [status $r] [header $r Location]
+} -cleanup {
+    unset r
+} -result {{HTTP/1.0 302 Found} /new}
+
+test httpd-api-3.11 {FormData: GET query string} -body {
+    body [get $port {/form?name=J%C3%B3n+Doe&x=1&empty=}]
+} -result "name=J\u00C3\u00B3n Doe\nx=1\nempty=\n"
+
+test httpd-api-3.12 {FormData: urlencoded POST} -body {
+    body [request $port [list "POST /form HTTP/1.0" "Host: localhost" \
+			     "Content-Type: application/x-www-form-urlencoded"] \
+	      "a=1&b=two+words&c=%25"]
+} -result "a=1\nb=two words\nc=%\n"
+
+test httpd-api-3.13 {bad request line} -body {
+    request $port [list "GARBAGE" "no header"]
+} -match glob -result {HTTP/1.0 400 Bad Request*}
+
+# -------------------------------------------------------------------------
+# content.file
+
+test httpd-api-4.1 {content.file: text file} -body {
+    set r [get $port /files/hello.txt]
+    list [status $r] [header $r Content-Type] [header $r Content-Length] \
+	[body $r]
+} -cleanup {
+    unset r
+} -result [list {HTTP/1.0 200 OK} text/plain 16 "plain text file\n"]
+
+test httpd-api-4.2 {content.file: .tml file is substituted} -body {
+    set r [get $port /files/page.tml]
+    list [header $r Content-Type] [string match {*<TITLE>TML page</TITLE>*Value: 42*} [body $r]]
+} -cleanup {
+    unset r
+} -result {{text/html; charset=UTF-8} 1}
+
+test httpd-api-4.3 {content.file: extension can be omitted} -body {
+    list [body [get $port /files/page]] [body [get $port /files/static]]
+} -match glob -result {*Value: 42* {<p>static</p>
+}}
+
+test httpd-api-4.4 {content.file: missing file gives 404} -body {
+    status [get $port /files/nonexistent.txt]
+} -result {HTTP/1.0 404 Not Found}
+
+test httpd-api-4.5 {content.file: directory listing} -body {
+    set b [body [get $port /files/sub]]
+    list [string match {*Listing contents of /sub/*} $b] \
+	[regexp {>a\.txt</a></TD><TD>2</TD>} $b] \
+	[regexp {>b\.txt</a></TD><TD>3</TD>} $b]
+} -cleanup {
+    unset b
+} -result {1 1 1}
+
+test httpd-api-4.6 {doc_root fallback serves files} -body {
+    set r [get $port /static.html]
+    list [status $r] [body $r]
+} -cleanup {
+    unset r
+} -result [list {HTTP/1.0 200 OK} "<p>static</p>\n"]
+
+test httpd-api-4.7 {content.file: index.html in a directory} -body {
+    list [body [get $port /files/sub2]] [body [get $port /files/sub2/]]
+} -result [list "<p>index</p>\n" "<p>index</p>\n"]
+
+test httpd-api-4.8 {content.file: explicit index.html} -constraints {
+    knownBug
+} -body {
+    # Ticket c0e70192dd
+    body [get $port /files/sub2/index.html]
+} -result "<p>index</p>\n"
+
+# -------------------------------------------------------------------------
+# httpd::reply request and reply ensembles (on a reply object without
+# a socket)
+
+proc newreply {} {
+    set obj [::httpd::reply new TESTSRV]
+    $obj reset
+    return $obj
+}
+
+test httpd-api-5.1 {reply: defaults after reset} -setup {
+    set obj [newreply]
+} -body {
+    list [$obj reply get Status] [$obj reply get Content-Type] \
+	[$obj reply get Server] [$obj reply exists Date] \
+	[$obj reply exists Nope]
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result [list {200 OK} {text/html; charset=UTF-8} [list TclHttpd $::httpd::version] 1 0]
+
+test httpd-api-5.2 {reply set, get, getnull} -setup {
+    set obj [newreply]
+} -body {
+    $obj reply set X-Test value
+    list [$obj reply get X-Test] [$obj reply getnull X-Test] \
+	[$obj reply getnull X-None]
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {value value {}}
+
+test httpd-api-5.3 {reply replace: defaults plus the given headers} -setup {
+    set obj [newreply]
+} -body {
+    $obj reply set X-Old 1
+    $obj reply replace {X-New 2 Status {404 Not Found}}
+    set a [$obj reply dump]
+    $obj reply replace X-Pair 3
+    list $a [$obj reply dump]
+} -cleanup {
+    $obj destroy
+    unset obj a
+} -result {{Status {404 Not Found} Content-Size 0 Content-Type {text/html; charset=UTF-8} Cache-Control no-cache Connection close X-New 2} {Status {200 OK} Content-Size 0 Content-Type {text/html; charset=UTF-8} Cache-Control no-cache Connection close X-Pair 3}}
+
+test httpd-api-5.4 {reply output: status line and headers} -setup {
+    set obj [newreply]
+} -body {
+    $obj reply replace {Status {201 Created} Content-Type text/plain}
+    $obj reply output
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {HTTP/1.0 201 Created
+Content-Size: 0
+Content-Type: text/plain
+Cache-Control: no-cache
+Connection: close
+}
+
+test httpd-api-5.5 {reply: unknown subcommand} -setup {
+    set obj [newreply]
+} -body {
+    $obj reply bogus
+} -cleanup {
+    $obj destroy
+    unset obj
+} -returnCodes error -result {Unknown command bogus. Valid: exists, get, getnull, output, replace, set}
+
+test httpd-api-5.6 {request set, get, exists, field are case insensitive} -setup {
+    set obj [newreply]
+} -body {
+    $obj request set X_Custom value
+    list [$obj request get X_CUSTOM] [$obj request getnull x_custom] \
+	[$obj request exists X_CUSTOM] [$obj request field x_custom] \
+	[$obj request get NOPE] [$obj request exists NOPE] \
+	[$obj request field NOPE]
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {value value 1 X_Custom {} 0 NOPE}
+
+test httpd-api-5.7 {request replace and dump} -setup {
+    set obj [newreply]
+} -body {
+    $obj request replace {A 1 B 2}
+    list [$obj request dump] [$obj request get A]
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {{A 1 B 2} 1}
+
+test httpd-api-5.8 {request parse: MIME headers} -setup {
+    set obj [newreply]
+} -body {
+    $obj request parse "Host: localhost\ncontent-type: text/plain\n"
+    $obj request dump
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {Content-Length 0 Host localhost Content-Type text/plain}
+
+test httpd-api-5.9 {request: unknown subcommand} -setup {
+    set obj [newreply]
+} -body {
+    $obj request bogus
+} -cleanup {
+    $obj destroy
+    unset obj
+} -returnCodes error -result {Unknown command bogus. Valid: field, get, getnull, exists, parse, replace, set}
+
+test httpd-api-5.10 {RequestFind} -setup {
+    set obj [newreply]
+} -body {
+    $obj request replace {Content-Type text/plain}
+    list [priv $obj RequestFind content-type] [priv $obj RequestFind Content-Type] \
+	[priv $obj RequestFind Other]
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {Content-Type Content-Type Other}
+
+test httpd-api-5.11 {EncodeStatus} -setup {
+    set obj [newreply]
+} -body {
+    priv $obj EncodeStatus {404 Not Found}
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {HTTP/1.0 404 Not Found}
+
+test httpd-api-5.12 {timestamp: documented format} -setup {
+    set obj [newreply]
+} -body {
+    regexp {^[A-Z][a-z][a-z], [0-9]{2} [A-Z][a-z][a-z] [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} \S+$} \
+	[$obj timestamp]
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result 1
+
+test httpd-api-5.13 {puts appends lines to the body, reset clears it} -setup {
+    set obj [newreply]
+} -body {
+    $obj puts "line 1"
+    $obj puts "line 2"
+    set ns [info object namespace $obj]
+    set a [set ${ns}::reply_body]
+    $obj reset
+    list $a [set ${ns}::reply_body]
+} -cleanup {
+    $obj destroy
+    unset obj ns a
+} -result [list "line 1\nline 2\n" {}]
+
+test httpd-api-5.14 {ChannelRegister and close} -setup {
+    set obj [newreply]
+    set f [makeFile {} chan.txt]
+    set c1 [open $f r]
+    set c2 [open $f r]
+} -body {
+    priv $obj ChannelRegister $c1 $c2 $c1
+    $obj close
+    list [expr {$c1 in [chan names]}] [expr {$c2 in [chan names]}]
+} -cleanup {
+    $obj destroy
+    removeFile chan.txt
+    unset obj f c1 c2
+} -result {0 0}
+
+test httpd-api-5.15 {reply html_header and html_footer} -setup {
+    set obj [newreply]
+} -body {
+    list [$obj html_header Title] \
+	[$obj html_header T banner /b.png sideimg /s.png] [$obj html_footer]
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result [list \
+    "<HTML><HEAD><TITLE>Title</TITLE></HEAD><BODY>\n<div id=\"top-menu\"><img src=\"/images/etoyoc-banner.jpg\"></div><div id=\"content\">" \
+    "<HTML><HEAD><TITLE>T</TITLE></HEAD><BODY>\n<div id=\"top-menu\"><img src=\"/b.png\"></div>\n<div name=\"sideimg\"><img align=right src=\"/s.png\"></div><div id=\"content\">" \
+    {</div><div id="footer"></div></BODY></HTML>}]
+
+test httpd-api-5.16 {PostData: empty for GET} -setup {
+    set obj [newreply]
+} -body {
+    $obj request set REQUEST_METHOD GET
+    priv $obj PostData 10
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {}
+
+test httpd-api-5.17 {FormData: GET query string, decoded} -setup {
+    set obj [newreply]
+} -body {
+    $obj request set REQUEST_METHOD GET
+    $obj request set QUERY_STRING {a=1&b=x+y&c=%2F}
+    priv $obj FormData
+} -cleanup {
+    $obj destroy
+    unset obj
+} -result {a 1 b {x y} c /}
+
+test httpd-api-5.18 {timeOutCheck: old request gets 408} -constraints {
+    knownBug
+} -setup {
+    set obj [newreply]
+    set ns [info object namespace $obj]
+    set f [makeFile {} timeout.txt]
+    set ${ns}::chan [open $f w]
+    # Dispatched three minutes ago.
+    set ${ns}::dispatched_time [expr {[clock milliseconds] - 180000}]
+} -body {
+    $obj timeOutCheck
+    close [set ${ns}::chan]
+    set ${ns}::chan {}
+    lindex [split [viewFile timeout.txt] \n] 0
+} -cleanup {
+    $obj destroy
+    removeFile timeout.txt
+    unset obj ns f
+} -result {HTTP/1.0 408 Request Timeout}
+
+test httpd-api-5.19 {timeOutCheck: recent request is left alone} -setup {
+    set obj [newreply]
+    set ns [info object namespace $obj]
+    set f [makeFile {} timeout.txt]
+    set ${ns}::chan [open $f w]
+} -body {
+    $obj timeOutCheck
+    close [set ${ns}::chan]
+    set ${ns}::chan {}
+    viewFile timeout.txt
+} -cleanup {
+    $obj destroy
+    removeFile timeout.txt
+    unset obj ns f
+} -result {}
+
+rename newreply {}
+
+# -------------------------------------------------------------------------
+# local_memchan plugin
+
+test httpd-api-6.1 {local_memchan geturl} -setup {
+    TESTSRV plugin local_memchan
+} -body {
+    list [TESTSRV local_memchan geturl /hello/local] \
+	[TESTSRV local_memchan geturl /direct]
+} -result [list "Hello, hello/local\n" "direct body\n"]
+
+test httpd-api-6.2 {local_memchan: bad subcommand} -body {
+    TESTSRV local_memchan bogus
+} -returnCodes error -result {Valid: connect geturl}
+
+# -------------------------------------------------------------------------
+
+TESTSRV destroy
+removeDirectory docroot
+unset docroot port
+foreach p {priv freeport request readreply get splitreply status body header} {
+    rename $p {}
+}
+unset p
+catch {::clay::cleanup}
+testsuiteCleanup
+return
