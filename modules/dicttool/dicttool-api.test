@@ -1,0 +1,395 @@
+# -*- tcl -*-
+# dicttool-api.test:  Tests for the dicttool package.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal dicttool.tcl dicttool
+}
+
+# dict getdef exists since Tcl 8.7.
+tcltest::testConstraint getdef [llength [info commands ::tcl::dict::getdef]]
+
+# -------------------------------------------------------------------------
+## Package setup
+
+test dicttool-1.0 {new dict subcommands are in the ensemble map} -body {
+    set map [namespace ensemble configure dict -map]
+    lmap c {getnull print is_dict rmerge isnull} {dict exists $map $c}
+} -cleanup {
+    unset map
+} -result {1 1 1 1 1}
+
+test dicttool-1.1 {list commands are defined} -body {
+    list [llength [info commands ::ladd]] [llength [info commands ::ldelete]]
+} -result {1 1}
+
+test dicttool-1.2 {existing commands are not replaced} -setup {
+    set ci [interp create]
+} -body {
+    $ci eval {
+	proc ::ladd args {return own-ladd}
+	proc ::ldelete args {return own-ldelete}
+	proc ::tcl::dict::print args {return own-print}
+	namespace ensemble configure dict -map [dict replace \
+	    [namespace ensemble configure dict -map] print ::tcl::dict::print]
+    }
+    $ci eval [list source [localPath dicttool.tcl]]
+    $ci eval {
+	list [ladd x] [ldelete x] [dict print {}] [dict getnull {a 1} a]
+    }
+} -cleanup {
+    interp delete $ci
+    unset ci
+} -result {own-ladd own-ldelete own-print 1}
+
+# -------------------------------------------------------------------------
+## ladd
+
+test dicttool-2.0 {ladd, wrong # args} -body {
+    ladd
+} -returnCodes error -result {wrong # args: should be "ladd varname ?arg ...?"}
+
+test dicttool-2.1 {ladd, adds missing elements} -setup {
+    set l {a b}
+} -body {
+    list [ladd l c d] $l
+} -cleanup {
+    unset l
+} -result {{a b c d} {a b c d}}
+
+test dicttool-2.2 {ladd, skips present elements} -setup {
+    set l {a b}
+} -body {
+    ladd l b a c
+} -cleanup {
+    unset l
+} -result {a b c}
+
+test dicttool-2.3 {ladd, duplicates in the arguments added once} -setup {
+    set l {}
+} -body {
+    ladd l x x y x
+} -cleanup {
+    unset l
+} -result {x y}
+
+test dicttool-2.4 {ladd, nonexistent variable is created} -setup {
+    unset -nocomplain l
+} -body {
+    list [ladd l a b] $l
+} -cleanup {
+    unset l
+} -result {{a b} {a b}}
+
+test dicttool-2.5 {ladd, no elements} -setup {
+    unset -nocomplain l
+} -body {
+    list [ladd l] [info exists l]
+} -cleanup {
+    unset l
+} -result {{} 1}
+
+test dicttool-2.6 {ladd, elements with spaces} -setup {
+    set l {{a b}}
+} -body {
+    ladd l {a b} {c d} a
+} -cleanup {
+    unset l
+} -result {{a b} {c d} a}
+
+test dicttool-2.7 {ladd, exact comparison} -setup {
+    set l {a* 1}
+} -body {
+    ladd l a ab 1.0 *
+} -cleanup {
+    unset l
+} -result {a* 1 a ab 1.0 *}
+
+test dicttool-2.8 {ladd, variable in the caller scope} -setup {
+    proc latest {} {
+	set l {a}
+	ladd l b
+	set l
+    }
+} -body {
+    latest
+} -cleanup {
+    rename latest {}
+} -result {a b}
+
+# -------------------------------------------------------------------------
+## ldelete
+
+test dicttool-3.0 {ldelete, wrong # args} -body {
+    ldelete
+} -returnCodes error -result {wrong # args: should be "ldelete varname ?arg ...?"}
+
+test dicttool-3.1 {ldelete, removes all instances} -setup {
+    set l {a b a c b}
+} -body {
+    list [ldelete l a b] $l
+} -cleanup {
+    unset l
+} -result {c c}
+
+test dicttool-3.2 {ldelete, missing elements are harmless} -setup {
+    set l {a b}
+} -body {
+    ldelete l z
+} -cleanup {
+    unset l
+} -result {a b}
+
+test dicttool-3.3 {ldelete, nonexistent variable} -setup {
+    unset -nocomplain l
+} -body {
+    list [ldelete l a] [info exists l]
+} -result {{} 0}
+
+test dicttool-3.4 {ldelete, no elements} -setup {
+    set l {a b}
+} -body {
+    ldelete l
+} -cleanup {
+    unset l
+} -result {a b}
+
+test dicttool-3.5 {ldelete, elements with spaces} -setup {
+    set l {{a b} a b}
+} -body {
+    ldelete l {a b}
+} -cleanup {
+    unset l
+} -result {a b}
+
+# The elements are used as glob patterns, so other elements matching
+# them are removed too.
+test dicttool-3.6 {ldelete, exact comparison} -constraints knownBug -setup {
+    set l {a* ab b}
+} -body {
+    ldelete l a*
+} -cleanup {
+    unset l
+} -result {ab b}
+
+test dicttool-3.7 {ldelete, remove everything} -setup {
+    set l {a a a}
+} -body {
+    list [ldelete l a] [info exists l]
+} -cleanup {
+    unset l
+} -result {{} 1}
+
+test dicttool-3.8 {ldelete, ladd round trip} -setup {
+    set l {k1 v1}
+} -body {
+    ladd l k2 v2
+    ldelete l k1 v1
+} -cleanup {
+    unset l
+} -result {k2 v2}
+
+# -------------------------------------------------------------------------
+## dict getnull
+
+test dicttool-4.0 {dict getnull, wrong # args} -body {
+    dict getnull
+} -returnCodes error -result {wrong # args: should be "dict getnull dictionary ?arg ...?"}
+
+test dicttool-4.1 {dict getnull, existing key} -body {
+    dict getnull {a 1 b 2} b
+} -result 2
+
+test dicttool-4.2 {dict getnull, missing key} -body {
+    dict getnull {a 1 b 2} c
+} -result {}
+
+test dicttool-4.3 {dict getnull, nested keys} -body {
+    list [dict getnull {a {b {c 3}}} a b c] [dict getnull {a {b {c 3}}} a b] \
+	[dict getnull {a {b {c 3}}} a x c]
+} -result {3 {c 3} {}}
+
+test dicttool-4.4 {dict getnull, empty dictionary} -body {
+    dict getnull {} a
+} -result {}
+
+test dicttool-4.5 {dict getnull, empty value} -body {
+    dict getnull {a {}} a
+} -result {}
+
+test dicttool-4.6 {dict getnull, same as dict getdef with empty default} -constraints getdef -body {
+    set d {a 1 b {c 2}}
+    lmap k {a b c} {expr {[dict getnull $d $k] eq [dict getdef $d $k {}]}}
+} -cleanup {
+    unset d
+} -result {1 1 1}
+
+# -------------------------------------------------------------------------
+## dict print
+
+test dicttool-5.0 {dict print, wrong # args} -body {
+    dict print
+} -returnCodes error -result {wrong # args: should be "dict print dict"}
+
+test dicttool-5.1 {dict print, flat dict} -body {
+    dict print {a 1 b {x y z}}
+} -result "\na 1\nb {x y z}"
+
+test dicttool-5.2 {dict print, nested dict indented by two spaces} -body {
+    dict print {a 1 b {c 2 d {e 3 f 4}}}
+} -result "\na 1\nb \{\n  c 2\n  d \{\n    e 3\n    f 4\n  \}\n\}"
+
+test dicttool-5.3 {dict print, empty dict} -body {
+    dict print {}
+} -result {}
+
+test dicttool-5.4 {dict print, key ending in : is a leaf} -body {
+    dict print {a: {c 2} b: {}}
+} -result "\na: {c 2}\nb: {}"
+
+test dicttool-5.5 {dict print, values needing quoting} -body {
+    set p [dict print [list {a b} "x \{ y"]]
+    list [string range $p 0 5] [dict get $p {a b}]
+} -cleanup {
+    unset p
+} -result [list "\n{a b}" "x \{ y"]
+
+test dicttool-5.6 {dict print, output can be parsed back} -body {
+    set d {a 1 b {c 2 d {e 3}} f: {g h}}
+    set p [dict print $d]
+    expr {[dict get $p b d e] eq "3" && [dict get $p f:] eq "g h"
+	  && [dict get $p a] eq "1"}
+} -cleanup {
+    unset d p
+} -result 1
+
+# -------------------------------------------------------------------------
+## dict is_dict
+
+test dicttool-6.0 {dict is_dict, wrong # args} -body {
+    dict is_dict
+} -returnCodes error -result {wrong # args: should be "dict is_dict d"}
+
+test dicttool-6.1 {dict is_dict, valid dicts} -body {
+    list [dict is_dict {a 1}] [dict is_dict {}] [dict is_dict {a {b c} d {}}] \
+	[dict is_dict [dict create x y]]
+} -result {1 1 1 1}
+
+test dicttool-6.2 {dict is_dict, invalid dicts} -body {
+    list [dict is_dict {a 1 b}] [dict is_dict "\{"] [dict is_dict x]
+} -result {0 0 0}
+
+test dicttool-6.3 {dict is_dict, does not change the representation of a dict} -body {
+    set d [dict create a 1 b 2]
+    dict is_dict $d
+    string match {*dict*} [::tcl::unsupported::representation $d]
+} -cleanup {
+    unset d
+} -result 1
+
+# -------------------------------------------------------------------------
+## dict rmerge
+
+test dicttool-7.0 {dict rmerge, wrong # args} -body {
+    dict rmerge
+} -returnCodes error -result {wrong # args: should be "dict rmerge a ?arg ...?"}
+
+test dicttool-7.1 {dict rmerge, merges nested dicts} -body {
+    dict rmerge {a {b 1}} {a {c 2}}
+} -result {a {b 1 c 2}}
+
+test dicttool-7.2 {dict rmerge, later values win} -body {
+    dict rmerge {a {b 1 c 1}} {a {b 2}} {a {b 3}}
+} -result {a {b 3 c 1}}
+
+test dicttool-7.3 {dict rmerge, new keys are added} -body {
+    dict rmerge {a 1} {b 2} {c {d 3}}
+} -result {a 1 b 2 c {d 3}}
+
+test dicttool-7.4 {dict rmerge, keys ending in : are leaves} -body {
+    dict rmerge {a: {b 1}} {a: {c 2}}
+} -result {a: {c 2}}
+
+test dicttool-7.5 {dict rmerge, non-dict value replaced by dict} -body {
+    dict rmerge {a x} {a {c 2}}
+} -result {a {c 2}}
+
+test dicttool-7.6 {dict rmerge, dict value replaced by non-dict} -body {
+    dict rmerge {a {c 2}} {a {x y z}}
+} -result {a {x y z}}
+
+test dicttool-7.7 {dict rmerge, single dict} -body {
+    dict rmerge {a {b 1}}
+} -result {a {b 1}}
+
+test dicttool-7.8 {dict rmerge, empty dicts} -body {
+    list [dict rmerge {} {}] [dict rmerge {a 1} {}] [dict rmerge {} {a 1}]
+} -result {{} {a 1} {a 1}}
+
+test dicttool-7.9 {dict rmerge, deep nesting} -body {
+    dict rmerge {a {b {c {d 1}}}} {a {b {c {e 2}}}}
+} -result {a {b {c {d 1 e 2}}}}
+
+test dicttool-7.10 {dict rmerge, invalid dict argument} -body {
+    dict rmerge {a 1} {a 1 b}
+} -returnCodes error -result {missing value to go with key}
+
+test dicttool-7.11 {dict rmerge, compared to dict merge} -body {
+    set a {fruit {default: mango}}
+    set b {fruit {widget: select}}
+    list [dict merge $a $b] [dict rmerge $a $b]
+} -cleanup {
+    unset a b
+} -result {{fruit {widget: select}} {fruit {default: mango widget: select}}}
+
+test dicttool-7.12 {dict rmerge and print, manpage example} -body {
+    set items [dict rmerge {
+	option {color {default: green}}
+    } {
+	option {fruit {default: mango}}
+    } {
+	option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
+    }]
+    # The manpage shows the output without the leading newline.
+    string trimleft [dict print $items] \n
+} -cleanup {
+    unset items
+} -result {option {
+  color {
+    default: blue
+  }
+  fruit {
+    default: mango
+    widget: select
+    values: {mango apple cherry grape}
+  }
+}}
+
+# -------------------------------------------------------------------------
+## dict isnull (undocumented)
+
+test dicttool-8.0 {dict isnull} -body {
+    set d {a {} b NULL c null d x}
+    lmap k {a b c d e} {dict isnull $d $k}
+} -cleanup {
+    unset d
+} -result {1 1 1 0 1}
+
+test dicttool-8.1 {dict isnull, nested keys} -body {
+    list [dict isnull {a {b {}}} a b] [dict isnull {a {b 1}} a b]
+} -result {1 0}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return
