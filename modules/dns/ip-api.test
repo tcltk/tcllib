@@ -1,0 +1,145 @@
+# ip-api.test                                                 -*- tcl -*-
+#
+# Additional API tests for the Tcllib ip package: parts of the documented
+# API not covered by ip.test and ipMore.test (ip::is classes, ip::type,
+# the examples of the manual page, argument errors).
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal ip.tcl ip
+}
+
+# -------------------------------------------------------------------------
+# ip::is
+# -------------------------------------------------------------------------
+
+set n 0
+foreach {class addr result} {
+    ipv4 192.0.2.1     1
+    IPv4 192.0.2.1     1
+    4    192.0.2.1     1
+    4    2001:db8::1   0
+    ipv6 2001:db8::1   1
+    IPv6 2001:db8::1   1
+    6    2001:db8::1   1
+    6    192.0.2.1     0
+    4    192.0.2.0/24  1
+    6    2001:db8::/32 1
+    4    2001:db8::/32 0
+    6    hello         0
+} {
+    test ip-api-1.[incr n] "ip::is $class $addr" -body {
+        expr {[ip::is $class $addr] ? 1 : 0}
+    } -result $result
+}
+
+test ip-api-1.20 {ip::is: bad class} -body {
+    ip::is ipv5 192.0.2.1
+} -returnCodes error -result {bad class "ipv5": must be ipv4 or ipv6}
+
+test ip-api-1.21 {ip::is: wrong # args} -body {
+    ip::is ipv4
+} -returnCodes error -result {wrong # args: should be "ip::is class ip"}
+
+# -------------------------------------------------------------------------
+# ip::type
+# -------------------------------------------------------------------------
+
+set n 0
+foreach {addr result} {
+    127.0.0.1      private
+    10.1.2.3       private
+    172.16.0.1     private
+    172.31.255.255 private
+    172.32.0.1     normal
+    192.168.1.1    private
+    192.168.1.0/24 private
+    192.0.2.1      normal
+    224.0.0.1      reserved
+    ::1            localhost
+    ::             unspecified
+    fe80::1        {link local}
+    fec0::1        {site local}
+    ff02::1        multicast
+    2002:c000:201::1 {6to4 unicast}
+    2001:db8::1    unicast
+} {
+    test ip-api-2.[incr n] "ip::type $addr" -body {
+        ip::type $addr
+    } -result $result
+}
+
+test ip-api-2.20 {ip::type: invalid address} -body {
+    ip::type hello
+} -returnCodes error -result {invalid address "hello": value must be a valid\
+    IPv4 or IPv6 address}
+
+test ip-api-2.21 {ip::type: wrong # args} -body {
+    ip::type
+} -returnCodes error -result {wrong # args: should be "ip::type ip"}
+
+# -------------------------------------------------------------------------
+# Examples from the manual page
+# -------------------------------------------------------------------------
+
+test ip-api-3.1 {ip::distance: manual example} -body {
+    ip::distance 1.1.1.1 1.1.1.5
+} -result 4
+
+test ip-api-3.2 {ip::nextIp: manual example} -body {
+    ip::nextIp 1.1.1.1 4
+} -result 1.1.1.5
+
+test ip-api-3.3 {ip::nextIp: default offset is 1} -body {
+    ip::nextIp 1.1.1.1
+} -result 1.1.1.2
+
+test ip-api-3.4 {ip::prefixToNative: manual example} -body {
+    ip::prefixToNative 1.1.1.0/24
+} -result {0x01010100 0xffffff00}
+
+test ip-api-3.5 {ip::nativeToPrefix: manual example} -body {
+    ip::nativeToPrefix {0x01010100 0xffffff00} -ipv4
+} -result 1.1.1.0/24
+
+test ip-api-3.6 {ip::prefixToNative and ip::nativeToPrefix round trip} -body {
+    ip::nativeToPrefix [ip::prefixToNative 10.20.0.0/16] -ipv4
+} -result 10.20.0.0/16
+
+# -------------------------------------------------------------------------
+# Wrong # args for the remaining commands
+# -------------------------------------------------------------------------
+
+set n 0
+foreach {cmd usage} {
+    version   {ip}
+    equal     {lhs rhs}
+    normalize {ip ?Ip4inIp6?}
+    contract  {ip}
+    prefix    {ip}
+    mask      {ip}
+} {
+    test ip-api-4.[incr n] "ip::$cmd: wrong # args" -body {
+        ip::$cmd
+    } -returnCodes error -result "wrong # args: should be \"ip::$cmd $usage\""
+}
+
+# -------------------------------------------------------------------------
+unset n class addr result cmd usage
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
