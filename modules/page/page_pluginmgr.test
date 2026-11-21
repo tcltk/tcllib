@@ -1,0 +1,575 @@
+# -*- tcl -*-
+# page_pluginmgr.test:  Tests for the package page::pluginmgr.
+#
+# The tests use small plugins written into a temporary directory and
+# loaded by path. The predefined plugins of page are not used here, as
+# loading them through the package management of the safe plugin
+# interpreters depends on the installation.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use try/fhome.tcl         file::home
+    use snit/snit.tcl         snit
+    use cmdline/cmdline.tcl   cmdline
+    use fileutil/fileutil.tcl fileutil
+    use pluginmgr/pluginmgr.tcl pluginmgr
+}
+testing {
+    useLocal pluginmgr.tcl page::pluginmgr
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+set pdir [makeDirectory page-pluginmgr-plugins]
+
+proc plugin {name content} {
+    set path [file join $::pdir $name]
+    set ch [open $path w]
+    puts -nonewline $ch $content
+    close $ch
+    return $path
+}
+
+# Capture what is written to stderr while running the script.
+namespace eval capture {
+    variable data {}
+    proc initialize {h mode} {return {initialize finalize write}}
+    proc finalize {h} {}
+    proc write {h buf} {variable data ; append data $buf ; return {}}
+    namespace export *
+    namespace ensemble create
+}
+proc stderrOf {script} {
+    set capture::data {}
+    chan push stderr capture
+    set code [catch {uplevel 1 $script} res]
+    chan pop stderr
+    if {$code} {return -code $code $res}
+    return $capture::data
+}
+
+proc collect {args} {
+    lappend ::reports $args
+    return
+}
+
+# Generic plugin source. KIND is r, w, or t.
+proc pluginsource {kind label {extra {}}} {
+    return [string map [list @K@ $kind @L@ $label @X@ $extra] {
+	set ::config {}
+	set ::timed 0
+	proc page_@K@help {} {return "Help for @L@"}
+	proc page_@K@label {} {return "@L@"}
+	proc page_@K@options {} {return {-alpha -beta}}
+	proc page_@K@configure {option value} {
+	    if {$option ni {-alpha -beta}} {
+		return -code error "Cannot set value of unknown option \"$option\""
+	    }
+	    lappend ::config $option $value
+	    return
+	}
+	proc page_@K@feature {key} {return [expr {$key eq "timeable"}]}
+	proc page_@K@time {} {set ::timed 1 ; return}
+	proc page_@K@gettime {} {return "timed=$::timed"}
+	@X@
+    }]
+}
+
+set readerExtra {
+    proc page_rrun {} {
+	set data {}
+	while {![page_eof]} {
+	    append data [page_read 3]
+	}
+	page_read_done
+	return [list $data $::config]
+    }
+}
+set writerExtra {
+    proc page_wrun {chan data} {
+	puts -nonewline $chan "<$data|$::config>"
+	return
+    }
+}
+set transformExtra {
+    proc page_trun {data} {
+	return [string toupper $data]$::config
+    }
+}
+
+set reader1 [plugin reader1.tcl [pluginsource r "Reader One" $readerExtra]]
+set reader2 [plugin reader2.tcl [pluginsource r "Reader Two" $readerExtra]]
+set writer1 [plugin writer1.tcl [pluginsource w "Writer One" $writerExtra]]
+set writer2 [plugin writer2.tcl [pluginsource w "Writer Two" $writerExtra]]
+set trans1  [plugin trans1.tcl  [pluginsource t "Transform One" $transformExtra]]
+set trans2  [plugin trans2.tcl  [pluginsource t "Transform Two" $transformExtra]]
+
+set reporter [plugin reporter.tcl [pluginsource r "Reporter" {
+    proc page_rrun {} {
+	page_info    "an info" {1 2} {3 4}
+	page_warning "a warning" {5 6}
+	page_error   "an error"
+	page_log_info    "log info"
+	page_log_warning "log warning"
+	page_log_error   "log error"
+	page_read_done
+	return done
+    }
+}]]
+
+# Input stream for the reader.
+proc input {text} {
+    set ::input $text
+    set ::ipos 0
+}
+proc rd {n} {
+    set r [string range $::input $::ipos [expr {$::ipos + $n - 1}]]
+    incr ::ipos $n
+    return $r
+}
+proc ineof {} {
+    expr {$::ipos >= [string length $::input]}
+}
+proc done {args} {
+    lappend ::donecalls $args
+}
+
+namespace eval ::tlog {
+    proc error   {text} {lappend ::logs error   $text}
+    proc warning {text} {lappend ::logs warning $text}
+    proc info    {text} {lappend ::logs info    $text}
+}
+
+# -------------------------------------------------------------------------
+## Wrong # args.
+
+foreach {n cmd args} {
+    0 reportvia     {cmd}
+    1 log           {cmd}
+    2 configuration {name}
+    3 reader        {name}
+    4 rconfigure    {dict}
+    5 writer        {name}
+    6 wconfigure    {dict}
+    7 write         {chan data}
+    8 transform     {name}
+    9 tconfigure    {id dict}
+    10 ttimeable    {id}
+    11 ttime        {id}
+    12 tgettime     {id}
+    13 thelp        {id}
+    14 tlabel       {id}
+    15 transform_do {id data}
+} {
+    test page-pluginmgr-1.0.$n "$cmd, wrong # args" -body {
+	page::pluginmgr::$cmd
+    } -returnCodes error -result [wrongNumArgs page::pluginmgr::$cmd $args 0]
+}
+
+foreach {n cmd} {
+    0 rtimeable 1 rtime 2 rgettime 3 rhelp 4 rlabel
+    5 wtimeable 6 wtime 7 wgettime 8 whelp 9 wlabel
+} {
+    test page-pluginmgr-1.1.$n "$cmd, wrong # args" -body {
+	page::pluginmgr::$cmd x
+    } -returnCodes error -result [tooManyArgs page::pluginmgr::$cmd {}]
+}
+
+test page-pluginmgr-1.2 {read, wrong # args} -body {
+    page::pluginmgr::read a
+} -returnCodes error -result [wrongNumArgs page::pluginmgr::read {read eof ?complete?} 1]
+
+test page-pluginmgr-1.3 {report, wrong # args} -body {
+    page::pluginmgr::report a
+} -returnCodes error -result [wrongNumArgs page::pluginmgr::report {level text ?from? ?to?} 1]
+
+# -------------------------------------------------------------------------
+## report, reportvia
+
+test page-pluginmgr-2.0 {reportvia, result, callback arguments} -setup {
+    set reports {}
+} -body {
+    set r [page::pluginmgr::reportvia collect]
+    page::pluginmgr::report info    "some info"
+    page::pluginmgr::report warning "a warning" {1 2}
+    page::pluginmgr::report error   "an error" {3 4} {5 6}
+    list $r $reports
+} -cleanup {
+    page::pluginmgr::reportvia ::page::pluginmgr::ReportStderr
+    unset -nocomplain reports r
+} -result {{} {{{info   } {some info} {} {}} {warning {a warning} {1 2} {}} {{error  } {an error} {3 4} {5 6}}}}
+
+test page-pluginmgr-2.1 {reportvia, command prefix, called at global level} -setup {
+    set reports {}
+    proc lev {tag args} {lappend ::reports $tag [info level]}
+} -body {
+    page::pluginmgr::reportvia {lev TAG}
+    proc caller {} {page::pluginmgr::report info x}
+    caller
+    set reports
+} -cleanup {
+    page::pluginmgr::reportvia ::page::pluginmgr::ReportStderr
+    rename lev {}
+    rename caller {}
+    unset -nocomplain reports
+} -result {TAG 1}
+
+test page-pluginmgr-2.2 {report, bad level} -body {
+    page::pluginmgr::report bogus text
+} -returnCodes error -result {can't read "replevel(bogus)": no such element in array}
+
+test page-pluginmgr-2.3 {report, default writes to stderr, no location} -body {
+    stderrOf {page::pluginmgr::report info "hello"}
+} -result "info                       hello\n"
+
+test page-pluginmgr-2.4 {report, default writes to stderr, from} -body {
+    stderrOf {page::pluginmgr::report error "hello" {12 3}}
+} -result "error  ___12@__3           hello\n"
+
+test page-pluginmgr-2.5 {report, default writes to stderr, range} -body {
+    stderrOf {page::pluginmgr::report warning "hello" {12 3} {1234 56}}
+} -result "warning___12@__3-_1234@_56 hello\n"
+
+test page-pluginmgr-2.6 {report, default writes to stderr, partial location} -body {
+    stderrOf {page::pluginmgr::report info "hello" {{} 7} {8 {}}}
+} -result "info   _____@__7-____8@___ hello\n"
+
+test page-pluginmgr-2.7 {report, default, empty message without location} -body {
+    stderrOf {page::pluginmgr::report info ""}
+} -result "\n"
+
+# -------------------------------------------------------------------------
+## configuration
+
+test page-pluginmgr-3.0 {configuration, options file} -setup {
+    set f [plugin opts.txt "-a b\n\t-c   'single word' \"double word\"\n  'it''s' \"say \"\"hi\"\"\" plain"]
+} -body {
+    page::pluginmgr::configuration $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result {-a b -c {single word} {double word} it's {say "hi"} plain}
+
+test page-pluginmgr-3.1 {configuration, empty options file} -setup {
+    set f [plugin empty.txt " \n\t\n"]
+} -body {
+    page::pluginmgr::configuration $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result {}
+
+test page-pluginmgr-3.2 {configuration, plugin file} -setup {
+    set f [plugin config.tcl {
+	proc page_cdefinition {} {return {-reader peg -writer me}}
+    }]
+} -body {
+    page::pluginmgr::configuration $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result {-reader peg -writer me}
+
+test page-pluginmgr-3.3 {configuration, plugin file without page_cdefinition is read as options} -setup {
+    set f [plugin config2.tcl {set x 1}]
+} -body {
+    page::pluginmgr::configuration $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result {set x 1}
+
+test page-pluginmgr-3.4 {configuration, plugin unloaded afterwards} -setup {
+    set f [plugin config3.tcl {
+	proc page_cdefinition {} {return {-x y}}
+    }]
+} -body {
+    page::pluginmgr::configuration $f
+    list [$::page::pluginmgr::config plugin] [$::page::pluginmgr::config interpreter]
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+## Reader plugins
+
+test page-pluginmgr-4.0 {reader, load returns options} -body {
+    page::pluginmgr::reader $reader1
+} -result {-alpha -beta}
+
+test page-pluginmgr-4.1 {reader, label, help, timing} -setup {
+    page::pluginmgr::reader $reader1
+} -body {
+    list [page::pluginmgr::rlabel] [page::pluginmgr::rhelp] \
+	[page::pluginmgr::rtimeable] [page::pluginmgr::rgettime] \
+	[page::pluginmgr::rtime] [page::pluginmgr::rgettime]
+} -result {{Reader One} {Help for Reader One} 1 timed=0 {} timed=1}
+
+test page-pluginmgr-4.2 {reader, configure and read} -setup {
+    page::pluginmgr::reader $reader2
+    page::pluginmgr::reader $reader1
+    input "abcdefgh"
+    set donecalls {}
+} -body {
+    list [page::pluginmgr::rconfigure {-alpha 1 -beta 2}] \
+	[page::pluginmgr::read rd ineof done] $donecalls
+} -cleanup {
+    unset -nocomplain donecalls ::input ::ipos
+} -result {{} {abcdefgh {-alpha 1 -beta 2}} {{}}}
+
+test page-pluginmgr-4.3 {reader, read without completion callback} -setup {
+    # Loading the same plugin again is a no-op, force a fresh instance.
+    page::pluginmgr::reader $reader2
+    page::pluginmgr::reader $reader1
+    input "xyz"
+} -body {
+    page::pluginmgr::read rd ineof
+} -cleanup {
+    unset -nocomplain ::input ::ipos
+} -result {xyz {}}
+
+test page-pluginmgr-4.4 {reader, read callbacks are command prefixes} -setup {
+    page::pluginmgr::reader $reader1
+    proc rdp {tag n} {lappend ::tags $tag ; rd $n}
+    proc eofp {tag} {ineof}
+    proc donep {tag} {lappend ::tags done-$tag}
+    input "1234"
+    set tags {}
+} -body {
+    list [lindex [page::pluginmgr::read {rdp R} {eofp E} {donep D}] 0] $tags
+} -cleanup {
+    rename rdp {} ; rename eofp {} ; rename donep {}
+    unset -nocomplain tags ::input ::ipos
+} -result {1234 {R R done-D}}
+
+test page-pluginmgr-4.5 {reader, configure unknown option} -setup {
+    page::pluginmgr::reader $reader1
+} -body {
+    page::pluginmgr::rconfigure {-gamma 1}
+} -returnCodes error -result {Cannot set value of unknown option "-gamma"}
+
+test page-pluginmgr-4.6 {reader, loading another reader replaces it} -setup {
+    page::pluginmgr::reader $reader1
+    page::pluginmgr::rconfigure {-alpha 1}
+    page::pluginmgr::rtime
+} -body {
+    page::pluginmgr::reader $reader2
+    input ""
+    list [page::pluginmgr::rlabel] [page::pluginmgr::rgettime] [page::pluginmgr::read rd ineof]
+} -cleanup {
+    unset -nocomplain ::input ::ipos
+} -result {{Reader Two} timed=0 {{} {}}}
+
+test page-pluginmgr-4.7 {reader, incomplete API} -setup {
+    set f [plugin badreader.tcl {proc page_rhelp {} {} ; proc page_rlabel {} {}}]
+} -body {
+    page::pluginmgr::reader $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -returnCodes error -result "Cannot use plugin \"[file join $pdir badreader.tcl]\", API incomplete: \"page_roptions\" missing"
+
+test page-pluginmgr-4.8 {reader, failed load keeps the previous reader} -setup {
+    page::pluginmgr::reader $reader1
+    set f [plugin badreader.tcl {proc page_rhelp {} {}}]
+} -body {
+    catch {page::pluginmgr::reader $f}
+    page::pluginmgr::rlabel
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result {Reader One}
+
+test page-pluginmgr-4.9 {reader, plugin reports go to the report callback} -setup {
+    set reports {}
+    page::pluginmgr::reportvia collect
+    page::pluginmgr::reader $reporter
+    page::pluginmgr::writer $writer1
+    page::pluginmgr::log {}
+    input ""
+} -body {
+    list [page::pluginmgr::read rd ineof] $reports
+} -cleanup {
+    page::pluginmgr::reportvia ::page::pluginmgr::ReportStderr
+    unset -nocomplain reports ::input ::ipos
+} -result {done {{{info   } {an info} {1 2} {3 4}} {warning {a warning} {5 6} {}} {{error  } {an error} {} {}}}}
+
+# -------------------------------------------------------------------------
+## Writer plugins
+
+test page-pluginmgr-5.0 {writer, load returns options} -body {
+    page::pluginmgr::writer $writer1
+} -result {-alpha -beta}
+
+test page-pluginmgr-5.1 {writer, label, help, timing} -setup {
+    page::pluginmgr::writer $writer1
+} -body {
+    list [page::pluginmgr::wlabel] [page::pluginmgr::whelp] \
+	[page::pluginmgr::wtimeable] [page::pluginmgr::wgettime] \
+	[page::pluginmgr::wtime] [page::pluginmgr::wgettime]
+} -result {{Writer One} {Help for Writer One} 1 timed=0 {} timed=1}
+
+test page-pluginmgr-5.2 {writer, configure and write to a channel} -setup {
+    page::pluginmgr::writer $writer1
+    set out [makeFile {} page-pluginmgr-out.txt]
+    set ch [open $out w]
+} -body {
+    set r [list [page::pluginmgr::wconfigure {-beta B}] [page::pluginmgr::write $ch DATA]]
+    close $ch
+    lappend r [viewFile page-pluginmgr-out.txt]
+} -cleanup {
+    removeFile page-pluginmgr-out.txt
+    unset -nocomplain out ch r
+} -result {{} {} {<DATA|-beta B>}}
+
+test page-pluginmgr-5.3 {writer, configure unknown option} -setup {
+    page::pluginmgr::writer $writer1
+} -body {
+    page::pluginmgr::wconfigure {-gamma 1}
+} -returnCodes error -result {Cannot set value of unknown option "-gamma"}
+
+test page-pluginmgr-5.4 {writer, loading another writer replaces it} -setup {
+    page::pluginmgr::writer $writer1
+} -body {
+    page::pluginmgr::writer $writer2
+    page::pluginmgr::wlabel
+} -result {Writer Two}
+
+test page-pluginmgr-5.5 {writer, incomplete API} -setup {
+    set f [plugin badwriter.tcl {
+	proc page_whelp {} {} ; proc page_wlabel {} {} ; proc page_woptions {} {}
+	proc page_wconfigure {o v} {} ; proc page_wfeature {k} {return 0}
+    }]
+} -body {
+    page::pluginmgr::writer $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -returnCodes error -result "Cannot use plugin \"[file join $pdir badwriter.tcl]\", API incomplete: \"page_wrun\" missing"
+
+# -------------------------------------------------------------------------
+## Transformation plugins
+
+test page-pluginmgr-6.0 {transform, load returns id and options} -body {
+    set a [page::pluginmgr::transform $trans1]
+    set b [page::pluginmgr::transform $trans2]
+    list [lindex $a 1] [lindex $b 1] [expr {[lindex $b 0] == [lindex $a 0] + 1}]
+} -cleanup {
+    unset -nocomplain a b
+} -result {{-alpha -beta} {-alpha -beta} 1}
+
+test page-pluginmgr-6.1 {transform, multiple instances, label, help, timing} -setup {
+    set a [lindex [page::pluginmgr::transform $trans1] 0]
+    set b [lindex [page::pluginmgr::transform $trans2] 0]
+} -body {
+    list [page::pluginmgr::tlabel $a] [page::pluginmgr::tlabel $b] \
+	[page::pluginmgr::thelp $a] [page::pluginmgr::ttimeable $b] \
+	[page::pluginmgr::ttime $a] [page::pluginmgr::tgettime $a] \
+	[page::pluginmgr::tgettime $b]
+} -cleanup {
+    unset -nocomplain a b
+} -result {{Transform One} {Transform Two} {Help for Transform One} 1 {} timed=1 timed=0}
+
+test page-pluginmgr-6.2 {transform, same plugin loaded twice, independent} -setup {
+    set a [lindex [page::pluginmgr::transform $trans1] 0]
+    set b [lindex [page::pluginmgr::transform $trans1] 0]
+} -body {
+    list [page::pluginmgr::tconfigure $a {-alpha 1}] \
+	[page::pluginmgr::transform_do $a data] \
+	[page::pluginmgr::transform_do $b data]
+} -cleanup {
+    unset -nocomplain a b
+} -result {{} {DATA-alpha 1} DATA}
+
+test page-pluginmgr-6.3 {transform, configure unknown option} -setup {
+    set a [lindex [page::pluginmgr::transform $trans1] 0]
+} -body {
+    page::pluginmgr::tconfigure $a {-gamma 1}
+} -cleanup {
+    unset -nocomplain a
+} -returnCodes error -result {Cannot set value of unknown option "-gamma"}
+
+test page-pluginmgr-6.4 {transform, incomplete API} -setup {
+    set f [plugin badtrans.tcl {proc page_thelp {} {}}]
+} -body {
+    page::pluginmgr::transform $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -returnCodes error -result "Cannot use plugin \"[file join $pdir badtrans.tcl]\", API incomplete: \"page_tlabel\" missing"
+
+# -------------------------------------------------------------------------
+## log
+
+test page-pluginmgr-7.0 {log, callback receives plugin log messages} -setup {
+    set logs {}
+    set reports {}
+    page::pluginmgr::reportvia collect
+    page::pluginmgr::reader $reporter
+    page::pluginmgr::writer $writer1
+    input ""
+} -body {
+    list [page::pluginmgr::log ::tlog] [page::pluginmgr::read rd ineof] $logs
+} -cleanup {
+    page::pluginmgr::log {}
+    page::pluginmgr::reportvia ::page::pluginmgr::ReportStderr
+    unset -nocomplain logs reports ::input ::ipos
+} -result {{} done {info {log info} warning {log warning} error {log error}}}
+
+test page-pluginmgr-7.1 {log, empty string disables logging} -setup {
+    set logs {}
+    set reports {}
+    page::pluginmgr::reportvia collect
+    page::pluginmgr::reader $reporter
+    page::pluginmgr::writer $writer1
+    page::pluginmgr::log ::tlog
+    input ""
+} -body {
+    list [page::pluginmgr::log {}] [page::pluginmgr::read rd ineof] $logs
+} -cleanup {
+    page::pluginmgr::reportvia ::page::pluginmgr::ReportStderr
+    unset -nocomplain logs reports ::input ::ipos
+} -result {{} done {}}
+
+test page-pluginmgr-7.2 {log, transforms receive the log commands} -setup {
+    set logs {}
+    page::pluginmgr::reader $reader1
+    page::pluginmgr::writer $writer1
+    set f [plugin logtrans.tcl [pluginsource t "Log Transform" {
+	proc page_trun {data} {page_log_info "trun $data" ; return $data}
+    }]]
+    set id [lindex [page::pluginmgr::transform $f] 0]
+} -body {
+    page::pluginmgr::log ::tlog
+    page::pluginmgr::transform_do $id X
+    set logs
+} -cleanup {
+    page::pluginmgr::log {}
+    file delete $f
+    unset -nocomplain logs f id
+} -result {info {trun X}}
+
+# -------------------------------------------------------------------------
+
+page::pluginmgr::reportvia ::page::pluginmgr::ReportStderr
+removeDirectory page-pluginmgr-plugins
+unset pdir reader1 reader2 writer1 writer2 trans1 trans2 reporter
+unset readerExtra writerExtra transformExtra
+foreach c {plugin stderrOf collect pluginsource input rd ineof done} {rename $c {}}
+unset c
+namespace delete capture ::tlog
+testsuiteCleanup
+return

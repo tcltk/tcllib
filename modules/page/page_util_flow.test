@@ -1,0 +1,238 @@
+# -*- tcl -*-
+# page_util_flow.test:  Tests for the package page::util::flow.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal util_flow.tcl page::util::flow
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# A small graph: node -> successors.
+set graph {
+    a {b c}
+    b {d}
+    c {d}
+    d {e}
+    e {}
+    x {y}
+    y {}
+}
+
+proc succ {n} {
+    dict get $::graph $n
+}
+
+proc iters {} {
+    ::page::util::flow::iter info instances
+}
+
+# -------------------------------------------------------------------------
+
+test page-util-flow-1.0 {flow, wrong # args} -body {
+    page::util::flow a b c
+} -returnCodes error -result [wrongNumArgs page::util::flow {start fvar nvar script} 3]
+
+test page-util-flow-1.1 {flow, wrong # args, too many} -body {
+    page::util::flow a b c d e
+} -returnCodes error -result [tooManyArgs page::util::flow {start fvar nvar script}]
+
+test page-util-flow-1.2 {flow, empty start set, body not run} -body {
+    set count 0
+    list [page::util::flow {} f n {incr count}] $count
+} -cleanup {
+    unset -nocomplain count
+} -result {{} 0}
+
+test page-util-flow-1.3 {flow, visits start set only without requests} -body {
+    set seen {}
+    page::util::flow {a x} f n {lappend seen $n}
+    lsort $seen
+} -cleanup {
+    unset -nocomplain seen f n
+} -result {a x}
+
+test page-util-flow-1.4 {flow, visit} -body {
+    set seen {}
+    page::util::flow {a} f n {
+	lappend seen $n
+	foreach s [succ $n] {$f visit $s}
+    }
+    lsort -unique $seen
+} -cleanup {
+    unset -nocomplain seen f n s
+} -result {a b c d e}
+
+test page-util-flow-1.5 {flow, visitl} -body {
+    set seen {}
+    page::util::flow {a} f n {
+	lappend seen $n
+	$f visitl [succ $n]
+    }
+    lsort -unique $seen
+} -cleanup {
+    unset -nocomplain seen f n
+} -result {a b c d e}
+
+test page-util-flow-1.6 {flow, visita} -body {
+    set seen {}
+    page::util::flow {a} f n {
+	lappend seen $n
+	$f visita {*}[succ $n]
+    }
+    lsort -unique $seen
+} -cleanup {
+    unset -nocomplain seen f n
+} -result {a b c d e}
+
+test page-util-flow-1.7 {flow, results of visit methods} -body {
+    set r {}
+    page::util::flow {a} f n {
+	if {$n eq "a"} {
+	    lappend r [$f visit b] [$f visitl {c}] [$f visita d]
+	}
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r f n
+} -result {{} {} {}}
+
+test page-util-flow-1.8 {flow, node requested twice in one iteration visited once} -body {
+    set seen {}
+    page::util::flow {a} f n {
+	lappend seen $n
+	if {$n eq "a"} {$f visit b ; $f visit b ; $f visitl {b b}}
+    }
+    lsort $seen
+} -cleanup {
+    unset -nocomplain seen f n
+} -result {a b}
+
+test page-util-flow-1.9 {flow, nodes can be visited more than once} -body {
+    set seen {}
+    page::util::flow {a} f n {
+	lappend seen $n
+	if {[llength $seen] < 4} {$f visit a}
+    }
+    set seen
+} -cleanup {
+    unset -nocomplain seen f n
+} -result {a a a a}
+
+test page-util-flow-1.10 {flow, requested nodes are visited after the current iteration} -body {
+    set order {}
+    page::util::flow {a x} f n {
+	lappend order $n
+	$f visitl [succ $n]
+    }
+    # b, c, y must all come after both a and x.
+    set ia [lsearch $order a] ; set ix [lsearch $order x]
+    set later [lrange $order 2 end]
+    list [lsort [lrange $order 0 1]] [expr {"b" in $later && "c" in $later && "y" in $later}]
+} -cleanup {
+    unset -nocomplain order f n ia ix later
+} -result {{a x} 1}
+
+test page-util-flow-1.11 {flow, body runs in the caller's context} -setup {
+    proc walker {} {
+	set local {}
+	page::util::flow {a} flow node {
+	    lappend local $node
+	    $flow visitl [succ $node]
+	}
+	list [lsort -unique $local] [info exists flow] [info exists node]
+    }
+} -body {
+    walker
+} -cleanup {
+    rename walker {}
+} -result {{a b c d e} 1 1}
+
+test page-util-flow-1.12 {flow, node strings handed back unmodified} -body {
+    set seen {}
+    page::util::flow [list {a b} {} {[x]} {$y}] f n {
+	lappend seen $n
+    }
+    lsort $seen
+} -cleanup {
+    unset -nocomplain seen f n
+} -result [lsort [list {a b} {} {[x]} {$y}]]
+
+test page-util-flow-1.13 {flow, continue skips rest of body} -body {
+    set seen {}
+    page::util::flow {a b c} f n {
+	if {$n eq "b"} continue
+	lappend seen $n
+    }
+    lsort $seen
+} -cleanup {
+    unset -nocomplain seen f n
+} -result {a c}
+
+test page-util-flow-1.14 {flow, flow object destroyed afterwards} -body {
+    set before [iters]
+    page::util::flow {a} f n {set obj $f}
+    list [expr {$obj in [iters]}] [llength [info commands $obj]] [expr {[iters] eq $before}]
+} -cleanup {
+    unset -nocomplain before obj f n
+} -result {0 0 1}
+
+test page-util-flow-1.15 {flow, error in body propagates} -body {
+    page::util::flow {a} f n {error boom}
+} -cleanup {
+    unset -nocomplain f n
+} -returnCodes error -match glob -result {*boom}
+
+test page-util-flow-1.16 {flow, error in body, message unchanged} -constraints knownBug -body {
+    # The error comes out of a snit constructor and is prefixed.
+    page::util::flow {a} f n {error boom}
+} -cleanup {
+    unset -nocomplain f n
+} -returnCodes error -result {boom}
+
+test page-util-flow-1.17 {flow, error in body, flow object destroyed} -body {
+    set before [iters]
+    catch {page::util::flow {a} f n {error boom}}
+    expr {[iters] eq $before}
+} -cleanup {
+    foreach o [iters] {if {$o ni $before} {catch {$o destroy}}}
+    unset -nocomplain before f n o
+} -result 1
+
+test page-util-flow-1.18 {flow, break stops the walk} -constraints knownBug -body {
+    # The loop handles break by "return -code break" from the snit
+    # constructor, which turns into an error.
+    set seen {}
+    page::util::flow {a} f n {
+	lappend seen $n
+	$f visit a
+	if {[llength $seen] == 3} break
+    }
+    set seen
+} -cleanup {
+    foreach o [iters] {catch {$o destroy}}
+    unset -nocomplain seen f n o
+} -result {a a a}
+
+# -------------------------------------------------------------------------
+
+unset graph
+rename succ {}
+rename iters {}
+testsuiteCleanup
+return

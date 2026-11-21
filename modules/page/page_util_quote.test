@@ -1,0 +1,260 @@
+# -*- tcl -*-
+# page_util_quote.test:  Tests for the package page::util::quote.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal util_quote.tcl page::util::quote
+}
+
+# -------------------------------------------------------------------------
+## unquote
+
+test page-util-quote-1.0 {unquote, wrong # args} -body {
+    page::util::quote::unquote
+} -returnCodes error -result [wrongNumArgs page::util::quote::unquote {ch} 0]
+
+test page-util-quote-1.1 {unquote, wrong # args, too many} -body {
+    page::util::quote::unquote a b
+} -returnCodes error -result [tooManyArgs page::util::quote::unquote {ch}]
+
+set n 0
+foreach {quoted expected} [list \
+	{\n}    \n \
+	{\t}    \t \
+	{\r}    \r \
+	{\[}    \[ \
+	{\]}    \] \
+	{\'}    ' \
+	{\"}    \" \
+	{\\}    \\ \
+	{\u0041} A \
+	{\u41}  A \
+	{\u439} \u0439 \
+	{\u0457} \u0457 \
+	{\uFFFF} \uFFFF \
+	a       a \
+	\u0439  \u0439 \
+	{ }     { } \
+	{\x}    {\x} \
+	{\u}    {\u} \
+	{\8}    {\8} \
+	{\3777} {\3777} \
+	{\u12345} {\u12345} \
+	{}      {} \
+    ] {
+    test page-util-quote-1.2.$n "unquote \"$quoted\"" -body {
+	page::util::quote::unquote $quoted
+    } -result $expected
+    incr n
+}
+unset n quoted expected
+
+test page-util-quote-1.3.0 {unquote, 3-digit octal} -constraints knownBug -body {
+    # The digits are passed to format %c as decimal number.
+    page::util::quote::unquote {\101}
+} -result A
+
+test page-util-quote-1.3.1 {unquote, 3-digit octal, max} -constraints knownBug -body {
+    scan [page::util::quote::unquote {\277}] %c
+} -result 191
+
+test page-util-quote-1.3.2 {unquote, 1-digit octal} -body {
+    scan [page::util::quote::unquote {\7}] %c
+} -result 7
+
+test page-util-quote-1.3.3 {unquote, 2-digit octal} -constraints knownBug -body {
+    # The leading 0 does not make the number octal on Tcl 9.
+    scan [page::util::quote::unquote {\12}] %c
+} -result 10
+
+test page-util-quote-1.3.4 {unquote, 2-digit octal, \0} -body {
+    scan [page::util::quote::unquote {\0}] %c
+} -result 0
+
+# -------------------------------------------------------------------------
+## quote'tcl
+
+test page-util-quote-2.0 {quote'tcl, wrong # args} -body {
+    page::util::quote::quote'tcl
+} -returnCodes error -result [wrongNumArgs page::util::quote::quote'tcl {ch} 0]
+
+set n 0
+foreach {ch expected} [list \
+	\n {\n} \
+	\r {\r} \
+	\t {\t} \
+	\\ {\134} \
+	\; {\73} \
+	{ } {\40} \
+	\" {\42} \
+	( {\50} \
+	) {\51} \
+	\{ {\173} \
+	\} {\175} \
+	\[ {\133} \
+	\] {\135} \
+	\x01 {\1} \
+	\x1f {\37} \
+	\x7f {\177} \
+	\x00 {\0} \
+	a a \
+	Z Z \
+	0 0 \
+	\$ \$ \
+	' ' \
+	\u00e9 {\u00e9} \
+	\u0439 {\u0439} \
+	\uFFFF {\uffff} \
+    ] {
+    test page-util-quote-2.1.$n "quote'tcl [scan $ch %c]" -body {
+	page::util::quote::quote'tcl $ch
+    } -result $expected
+    incr n
+}
+
+test page-util-quote-2.2 {quote'tcl, result regenerates the character, is 7bit} -body {
+    set bad {}
+    for {set i 0} {$i < 0x500} {incr i} {
+	set ch [format %c $i]
+	set q [page::util::quote::quote'tcl $ch]
+	if {[subst $q] ne $ch || ![regexp {^[\x20-\x7e]+$} $q]} {
+	    lappend bad $i
+	}
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad ch q i
+} -result {}
+
+test page-util-quote-2.3 {quote'tcl, usable in a list/script} -body {
+    set script "list [page::util::quote::quote'tcl \{][page::util::quote::quote'tcl { }][page::util::quote::quote'tcl \;]"
+    eval $script
+} -cleanup {
+    unset -nocomplain script
+} -result [list "\{ ;"]
+
+test page-util-quote-2.4 {quote'tcl, non-BMP character} -constraints {tcl9plus knownBug} -body {
+    # Formatted with %04x, but \u accepts at most 4 hex digits.
+    set ch \U1F600
+    expr {[subst [page::util::quote::quote'tcl $ch]] eq $ch}
+} -cleanup {
+    unset -nocomplain ch
+} -result 1
+
+# -------------------------------------------------------------------------
+## quote'tclstr
+
+test page-util-quote-3.0 {quote'tclstr, wrong # args} -body {
+    page::util::quote::quote'tclstr
+} -returnCodes error -result [wrongNumArgs page::util::quote::quote'tclstr {ch} 0]
+
+set n 0
+foreach {ch expected} [list \
+	{ } <blank> \
+	\n {\\n} \
+	\r {\\r} \
+	\t {\\t} \
+	\" {\"} \
+	\\ {\\} \
+	\; {\;} \
+	( {\(} \
+	) {\)} \
+	\{ {\{} \
+	\} {\}} \
+	\[ {\[} \
+	\] {\]} \
+	\x01 {\\1} \
+	\x7f {\\177} \
+	a a \
+	\$ \$ \
+	\u0439 {\\u0439} \
+    ] {
+    test page-util-quote-3.1.$n "quote'tclstr [scan $ch %c]" -body {
+	page::util::quote::quote'tclstr $ch
+    } -result $expected
+    incr n
+}
+
+test page-util-quote-3.2 {quote'tclstr, human readable inside double quotes} -body {
+    set s "[page::util::quote::quote'tclstr \n][page::util::quote::quote'tclstr \[][page::util::quote::quote'tclstr \u0439]"
+    subst $s
+} -cleanup {
+    unset -nocomplain s
+} -result {\n[\u0439}
+
+test page-util-quote-3.3 {quote'tclstr, no unprintable or non-ascii characters} -body {
+    set bad {}
+    for {set i 0} {$i < 0x500} {incr i} {
+	set q [page::util::quote::quote'tclstr [format %c $i]]
+	if {![regexp {^[\x20-\x7e]+$} $q]} {lappend bad $i}
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad q i
+} -result {}
+
+# -------------------------------------------------------------------------
+## quote'tclcom
+
+test page-util-quote-4.0 {quote'tclcom, wrong # args} -body {
+    page::util::quote::quote'tclcom
+} -returnCodes error -result [wrongNumArgs page::util::quote::quote'tclcom {ch} 0]
+
+set n 0
+foreach {ch expected} [list \
+	{ } <blank> \
+	\n {\n} \
+	\r {\r} \
+	\t {\t} \
+	\" {\"} \
+	\{ {\{} \
+	\} {\}} \
+	( {\(} \
+	) {\)} \
+	\[ \[ \
+	\] \] \
+	\\ \\ \
+	\; \; \
+	\x01 {\1} \
+	\x7f {\177} \
+	a a \
+	\u0439 {\u0439} \
+    ] {
+    test page-util-quote-4.1.$n "quote'tclcom [scan $ch %c]" -body {
+	page::util::quote::quote'tclcom $ch
+    } -result $expected
+    incr n
+}
+unset n ch expected
+
+test page-util-quote-4.2 {quote'tclcom, braces balanced in comments} -body {
+    set body "# [page::util::quote::quote'tclcom \{]\nset x 1"
+    proc qtest {} $body
+    qtest
+} -cleanup {
+    rename qtest {}
+    unset -nocomplain body
+} -result 1
+
+# -------------------------------------------------------------------------
+## Exports
+
+test page-util-quote-5.0 {exported commands} -body {
+    lsort [namespace eval ::page::util::quote {namespace export}]
+} -result {quote'tcl quote'tclcom quote'tclstr unquote}
+
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+return

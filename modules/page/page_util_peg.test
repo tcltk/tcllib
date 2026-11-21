@@ -1,0 +1,480 @@
+# -*- tcl -*-
+# page_util_peg.test:  Tests for the package page::util::peg.
+#
+# The commands operate on Normalized PE Grammar Trees. These are
+# generated here with page::parse::peg and page::util::norm::peg in an
+# emulated plugin environment (see page_util_norm.test), or built by
+# hand.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+# Plugin environment emulation.
+package provide page::plugin 1.0
+proc page_info    {args} {lappend ::reports info    $args}
+proc page_warning {args} {lappend ::reports warning $args}
+proc page_error   {args} {lappend ::reports error   $args}
+proc page_log_info    {args} {}
+proc page_log_warning {args} {}
+proc page_log_error   {args} {}
+
+support {
+    use snit/snit.tcl          snit
+    use cmdline/cmdline.tcl    cmdline
+    use struct/list.tcl        struct::list
+    use struct/sets.tcl        struct::set
+    use struct/tree.tcl        struct::tree
+    use treeql/treeql.tcl      treeql
+    use grammar_me/me_tcl.tcl  grammar::me::tcl
+    use grammar_me/me_util.tcl grammar::me::util
+    useLocal util_quote.tcl    page::util::quote
+    useLocal parse_peg.tcl     page::parse::peg
+    useLocal util_norm_peg.tcl page::util::norm::peg
+}
+testing {
+    useLocal util_peg.tcl page::util::peg
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+proc nextchar {} {
+    global input pos cline ccol
+    if {$pos >= [string length $input]} {return {}}
+    set ch [string index $input $pos]
+    incr pos
+    set tok [list $ch {} $cline $ccol]
+    if {$ch eq "\n"} {incr cline ; set ccol 0} else {incr ccol}
+    return $tok
+}
+
+# Parse and normalize a PEG grammar into the tree ::t.
+proc grammar {text} {
+    global input pos cline ccol
+    set input $text ; set pos 0 ; set cline 1 ; set ccol 0
+    if {![::page::parse::peg::parse ::nextchar err ast]} {
+	return -code error "parse failed: $err"
+    }
+    catch {::t destroy}
+    struct::tree ::t
+    ::grammar::me::util::ast2etree $ast ::grammar::me::tcl ::t
+    ::page::util::norm::peg ::t
+    return
+}
+
+proc cleanup {} {
+    catch {::t destroy}
+    catch {::q destroy}
+    unset -nocomplain ::input ::pos ::cline ::ccol ::reports
+}
+
+proc def {sym} {
+    dict get [::t get root definitions] $sym
+}
+
+proc rhs {sym} {
+    lindex [::t children [def $sym]] 0
+}
+
+# Canonical form of a parsing expression (list quoting differences
+# removed).
+proc canon {pe} {
+    set op [lindex $pe 0]
+    switch -exact -- $op {
+	t - .. - n {return [list $op {*}[lrange $pe 1 end]]}
+    }
+    set r [list $op]
+    foreach e [lrange $pe 1 end] {lappend r [canon $e]}
+    return $r
+}
+
+# Capture what is written to stderr while running the script.
+namespace eval capture {
+    variable data {}
+    proc initialize {h mode} {return {initialize finalize write}}
+    proc finalize {h} {}
+    proc write {h buf} {variable data ; append data $buf ; return {}}
+    namespace export *
+    namespace ensemble create
+}
+proc stderrOf {script} {
+    set capture::data {}
+    chan push stderr capture
+    set code [catch {uplevel 1 $script} res]
+    chan pop stderr
+    if {$code} {return -code $code $res}
+    return $capture::data
+}
+
+set calc {PEG calc (Expr)
+  Expr  <- Term ('+' Term)* ;
+  leaf: Term <- [0-9]+ / Unk ;
+  Unused <- 'x' "y" . ;
+END;
+}
+
+# -------------------------------------------------------------------------
+## Exports
+
+test page-util-peg-0.0 {exported commands} -body {
+    lsort [namespace eval ::page::util::peg {namespace export}]
+} -result {flatten getWarnings peOf printTclExpr printWarnings symbolNodeOf symbolOf updateUndefinedDueRemoval}
+
+# -------------------------------------------------------------------------
+## symbolNodeOf, symbolOf
+
+test page-util-peg-1.0 {symbolNodeOf, wrong # args} -body {
+    page::util::peg::symbolNodeOf t
+} -returnCodes error -result [wrongNumArgs page::util::peg::symbolNodeOf {t n} 1]
+
+test page-util-peg-1.1 {symbolOf, wrong # args} -body {
+    page::util::peg::symbolOf t
+} -returnCodes error -result [wrongNumArgs page::util::peg::symbolOf {t n} 1]
+
+test page-util-peg-1.2 {symbolNodeOf, nodes in definitions} -setup {
+    grammar $calc
+} -body {
+    set r {}
+    foreach sym {Expr Term Unused} {
+	set d [def $sym]
+	set ok 1
+	foreach n [::t children -all $d] {
+	    if {[page::util::peg::symbolNodeOf ::t $n] ne $d} {set ok 0}
+	}
+	lappend r $sym $ok [expr {[page::util::peg::symbolNodeOf ::t $d] eq $d}]
+    }
+    set r
+} -cleanup {
+    cleanup
+    unset -nocomplain r sym d ok n
+} -result {Expr 1 1 Term 1 1 Unused 1 1}
+
+test page-util-peg-1.3 {symbolNodeOf, start expression gives root} -setup {
+    grammar $calc
+} -body {
+    page::util::peg::symbolNodeOf ::t [::t get root start]
+} -cleanup {
+    cleanup
+} -result root
+
+test page-util-peg-1.4 {symbolOf, nodes in definitions and start expression} -setup {
+    grammar $calc
+} -body {
+    set r {}
+    foreach sym {Expr Term Unused} {
+	lappend r [page::util::peg::symbolOf ::t [lindex [::t children -all [def $sym]] end]]
+    }
+    lappend r [page::util::peg::symbolOf ::t [::t get root start]]
+} -cleanup {
+    cleanup
+    unset -nocomplain r sym
+} -result {Expr Term Unused <StartExpression>}
+
+# -------------------------------------------------------------------------
+## peOf
+
+test page-util-peg-2.0 {peOf, wrong # args} -body {
+    page::util::peg::peOf t
+} -returnCodes error -result [wrongNumArgs page::util::peg::peOf {t eroot} 1]
+
+test page-util-peg-2.1 {peOf, definitions and start expression} -setup {
+    grammar $calc
+} -body {
+    list [page::util::peg::peOf ::t [rhs Expr]] \
+	[page::util::peg::peOf ::t [rhs Term]] \
+	[page::util::peg::peOf ::t [rhs Unused]] \
+	[page::util::peg::peOf ::t [::t get root start]]
+} -cleanup {
+    cleanup
+} -result {{x {n Term} {* {x {t +} {n Term}}}} {/ {+ {.. 0 9}} {n Unk}} {x {t x} {t y} dot} {n Expr}}
+
+test page-util-peg-2.2 {peOf, all operators} -setup {
+    grammar {PEG g (A) A <- &'a' !'b' 'c'? 'd'* 'e'+ <alpha> <alnum> . [x-z] ; END;}
+} -body {
+    page::util::peg::peOf ::t [rhs A]
+} -cleanup {
+    cleanup
+} -result {x {& {t a}} {! {t b}} {? {t c}} {* {t d}} {+ {t e}} alpha alnum dot {.. x z}}
+
+test page-util-peg-2.3 {peOf, sub expression} -setup {
+    grammar $calc
+} -body {
+    page::util::peg::peOf ::t [lindex [::t children [rhs Expr]] 1]
+} -cleanup {
+    cleanup
+} -result {* {x {t +} {n Term}}}
+
+test page-util-peg-2.4 {peOf, quoted characters in the tree are unquoted} -setup {
+    struct::tree ::t
+    set x [::t insert root end]
+    ::t set $x op x
+    foreach c [list {\n} {\]} {\u0041}] {
+	set n [::t insert $x end]
+	::t set $n op t
+	::t set $n char $c
+    }
+    set r [::t insert $x end]
+    ::t set $r op ..
+    ::t set $r begin {\t}
+    ::t set $r end {\u0042}
+} -body {
+    expr {[canon [page::util::peg::peOf ::t $x]] eq [canon [list x [list t \n] [list t \]] {t A} [list .. \t B]]]}
+} -cleanup {
+    cleanup
+    unset -nocomplain x c n r
+} -result 1
+
+# -------------------------------------------------------------------------
+## printTclExpr
+
+test page-util-peg-3.0 {printTclExpr, wrong # args} -body {
+    page::util::peg::printTclExpr
+} -returnCodes error -result [wrongNumArgs page::util::peg::printTclExpr {pe} 0]
+
+foreach {n pe expected} {
+    0 {t a}                       {{t a}}
+    1 {n Foo}                     {{n Foo}}
+    2 epsilon                     epsilon
+    3 {x {t a} {t { }} {.. a z}}  {{x {t a} {t \40} {.. a z}}}
+    4 {/ {* {t \\}} dot alpha}    {{/ {* {t \134}} dot alpha}}
+    5 {.. {[} {]}}                {{.. \133 \135}}
+    6 {! {& {? {+ {t ;}}}}}       {{! {& {? {+ {t \73}}}}}}
+} {
+    test page-util-peg-3.1.$n "printTclExpr $pe" -body {
+	page::util::peg::printTclExpr $pe
+    } -result $expected
+}
+
+test page-util-peg-3.2 {printTclExpr, script regenerates the expression} -body {
+    set r {}
+    foreach pe [list \
+		    {x {t a} {t { }} {.. a z} {n A} epsilon} \
+		    [list t "\{"] [list t "\}"] [list t "\["] [list t \$] \
+		    [list x [list t [format %c 0x439]] [list t \n] [list t \t]] \
+		    {/ {* {t \\}} dot alpha alnum} \
+		    [list .. \" \;]] {
+	set script "set pe2 [page::util::peg::printTclExpr $pe]"
+	eval $script
+	lappend r [expr {[canon $pe2] eq [canon $pe]}]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r pe script pe2
+} -result {1 1 1 1 1 1 1 1}
+
+test page-util-peg-3.3 {printTclExpr, result is 7bit} -body {
+    regexp {^[\x20-\x7e]*$} [page::util::peg::printTclExpr [list t [format %c 0x439]]]
+} -result 1
+
+# -------------------------------------------------------------------------
+## getWarnings, printWarnings
+
+test page-util-peg-4.0 {getWarnings, wrong # args} -body {
+    page::util::peg::getWarnings
+} -returnCodes error -result [wrongNumArgs page::util::peg::getWarnings {t} 0]
+
+test page-util-peg-4.1 {getWarnings, undefined and unused symbols} -setup {
+    grammar $calc
+} -body {
+    dictsort [page::util::peg::getWarnings ::t]
+} -cleanup {
+    cleanup
+} -result {Unk {{Undefined symbol used by the definition of 'Term'.}} Unused {{This symbol has been defined, but is not used.}}}
+
+test page-util-peg-4.2 {getWarnings, clean grammar} -setup {
+    grammar {PEG g (A) A <- B 'a' ; B <- 'b' ; END;}
+} -body {
+    page::util::peg::getWarnings ::t
+} -cleanup {
+    cleanup
+} -result {}
+
+test page-util-peg-4.3 {getWarnings, symbol undefined in several definitions} -setup {
+    grammar {PEG g (A) A <- X B ; B <- X X ; END;}
+} -body {
+    dictsort [page::util::peg::getWarnings ::t]
+} -cleanup {
+    cleanup
+} -result {X {{Undefined symbol used by the definition of 'A'.} {Undefined symbol used by the definition of 'B'.} {Undefined symbol used by the definition of 'B'.}}}
+
+test page-util-peg-4.4 {getWarnings, undefined symbol in start expression} -setup {
+    grammar {PEG g (X) A <- 'a' ; END;}
+} -body {
+    dictsort [page::util::peg::getWarnings ::t]
+} -cleanup {
+    cleanup
+} -result {A {{This symbol has been defined, but is not used.}} X {{Undefined symbol used by the definition of '<StartExpression>'.}}}
+
+test page-util-peg-4.5 {printWarnings, wrong # args} -body {
+    page::util::peg::printWarnings
+} -returnCodes error -result [wrongNumArgs page::util::peg::printWarnings {msg} 0]
+
+test page-util-peg-4.6 {printWarnings, empty} -setup {
+    set reports {}
+} -body {
+    list [page::util::peg::printWarnings {}] $reports
+} -cleanup {
+    cleanup
+} -result {{} {}}
+
+test page-util-peg-4.7 {printWarnings, via page_info, sorted and aligned} -setup {
+    set reports {}
+} -body {
+    list [page::util::peg::printWarnings {Zz {{msg 1}} A {{msg 2}} {a b} {{msg 3}}}] $reports
+} -cleanup {
+    cleanup
+} -result {{} {info {{A     : msg 2}} info {{{a b} : msg 3}} info {{Zz    : msg 1}}}}
+
+test page-util-peg-4.8 {printWarnings, additional messages to stderr} -setup {
+    set reports {}
+} -body {
+    set err [stderrOf {page::util::peg::printWarnings {Long {{first} {second} {third}} B {{only}}}}]
+    list $reports $err
+} -cleanup {
+    cleanup
+    unset -nocomplain err
+} -result {{info {{B    : only}} info {{Long : first}}} {       : second
+       : third
+}}
+
+# -------------------------------------------------------------------------
+## updateUndefinedDueRemoval
+
+test page-util-peg-5.0 {updateUndefinedDueRemoval, wrong # args} -body {
+    page::util::peg::updateUndefinedDueRemoval
+} -returnCodes error -result [wrongNumArgs page::util::peg::updateUndefinedDueRemoval {t} 0]
+
+test page-util-peg-5.1 {updateUndefinedDueRemoval, nothing removed} -setup {
+    grammar $calc
+} -body {
+    set before [list [::t get root undefined] [::t get [def Term] users]]
+    list [page::util::peg::updateUndefinedDueRemoval ::t] \
+	[expr {$before eq [list [::t get root undefined] [::t get [def Term] users]]}]
+} -cleanup {
+    cleanup
+    unset -nocomplain before
+} -result {{} 1}
+
+test page-util-peg-5.2 {updateUndefinedDueRemoval, removed users} -setup {
+    grammar $calc
+} -body {
+    # Remove the sub expression ('+' Term)* of Expr, it uses Term.
+    ::t delete [lindex [::t children [rhs Expr]] 1]
+    page::util::peg::updateUndefinedDueRemoval ::t
+    set users [::t get [def Term] users]
+    list [llength $users] [::t get [lindex $users 0] sym]
+} -cleanup {
+    cleanup
+    unset -nocomplain users
+} -result {1 Term}
+
+test page-util-peg-5.3 {updateUndefinedDueRemoval, symbol no longer undefined} -setup {
+    grammar $calc
+} -body {
+    # Remove the reference to Unk.
+    ::t delete [lindex [::t children [rhs Term]] 1]
+    page::util::peg::updateUndefinedDueRemoval ::t
+    list [::t get root undefined] [dictsort [page::util::peg::getWarnings ::t]]
+} -cleanup {
+    cleanup
+} -result {{} {Unused {{This symbol has been defined, but is not used.}}}}
+
+test page-util-peg-5.4 {updateUndefinedDueRemoval, symbol loses some invokers} -setup {
+    grammar {PEG g (A) A <- X B ; B <- X ; END;}
+} -body {
+    ::t delete [rhs B]
+    page::util::peg::updateUndefinedDueRemoval ::t
+    set u [::t get root undefined]
+    list [dict keys $u] [llength [dict get $u X]] \
+	[page::util::peg::symbolOf ::t [lindex [dict get $u X] 0]]
+} -cleanup {
+    cleanup
+    unset -nocomplain u
+} -result {X 1 A}
+
+# -------------------------------------------------------------------------
+## flatten
+
+proc mknode {parent op args} {
+    set n [::t insert $parent end]
+    ::t set $n op $op
+    foreach {k v} $args {::t set $n $k $v}
+    return $n
+}
+
+proc tree2list {n} {
+    set r [list [::t get $n op]]
+    if {[::t keyexists $n char]} {lappend r [::t get $n char]}
+    foreach c [::t children $n] {lappend r [tree2list $c]}
+    return $r
+}
+
+test page-util-peg-6.0 {flatten, wrong # args} -body {
+    page::util::peg::flatten q
+} -returnCodes error -result [wrongNumArgs page::util::peg::flatten {q t} 1]
+
+test page-util-peg-6.1 {flatten, nested sequences and choices} -setup {
+    struct::tree ::t
+    treeql ::q -tree ::t
+    set top [mknode root x]
+    mknode $top t char a
+    set s [mknode $top x]
+    mknode $s t char b
+    set ss [mknode $s x]
+    mknode $ss t char c
+    mknode $ss t char d
+    mknode $top t char e
+    set c [mknode $top /]
+    set cc [mknode $c /]
+    mknode $cc t char f
+    mknode $cc t char g
+    set cs [mknode $c x]
+    mknode $cs t char h
+    mknode $cs t char i
+} -body {
+    list [page::util::peg::flatten ::q ::t] [tree2list $top]
+} -cleanup {
+    cleanup
+    unset -nocomplain top s ss c cc cs
+} -result {{} {x {t a} {t b} {t c} {t d} {t e} {/ {t f} {t g} {x {t h} {t i}}}}}
+
+test page-util-peg-6.2 {flatten, nothing to do} -setup {
+    struct::tree ::t
+    treeql ::q -tree ::t
+    set top [mknode root x]
+    mknode $top t char a
+    set c [mknode $top *]
+    set s [mknode $c x]
+    mknode $s t char b
+} -body {
+    page::util::peg::flatten ::q ::t
+    tree2list $top
+} -cleanup {
+    cleanup
+    unset -nocomplain top c s
+} -result {x {t a} {* {x {t b}}}}
+
+# -------------------------------------------------------------------------
+
+cleanup
+unset calc
+foreach c {
+    nextchar grammar cleanup def rhs canon stderrOf mknode tree2list
+    page_info page_warning page_error page_log_info page_log_warning page_log_error
+} {
+    rename $c {}
+}
+unset c
+namespace delete capture
+package forget page::plugin
+testsuiteCleanup
+return
