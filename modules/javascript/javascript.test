@@ -1,0 +1,385 @@
+# -*- tcl -*- Tests for the javascript module.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      cmdline/cmdline.tcl   cmdline
+    use      fileutil/fileutil.tcl fileutil
+    use      uri/uri.tcl           uri
+    use      ncgi/ncgi.tcl         ncgi
+}
+
+testing {
+    useLocal javascript.tcl javascript
+}
+
+# -------------------------------------------------------------------------
+
+# Expected HTML is written literally, with "@" marking a trailing space
+# (to not rely on trailing whitespace in this file).
+proc text {s} {
+    return [string map {@ " "} $s]
+}
+
+set beginJS "\n<SCRIPT LANGUAGE=\"JavaScript\">\n"
+set endJS   "\n</SCRIPT>\n"
+
+# -------------------------------------------------------------------------
+# makeSelectorWidget
+
+test javascript-1.0 {makeSelectorWidget, wrong # args} -body {
+    ::javascript::makeSelectorWidget 1 L {a} {A} R {b}
+} -returnCodes error -result {wrong # args: should be "::javascript::makeSelectorWidget id leftLabel leftValueList leftNameList rightLabel rightValueList rightNameList ?length? ?minWidth?"}
+
+test javascript-1.1 {makeSelectorWidget, wrong # args, too many} -body {
+    ::javascript::makeSelectorWidget 1 L {a} {A} R {b} {B} 8 32 extra
+} -returnCodes error -result {wrong # args: should be "::javascript::makeSelectorWidget id leftLabel leftValueList leftNameList rightLabel rightValueList rightNameList ?length? ?minWidth?"}
+
+test javascript-1.2 {makeSelectorWidget, JavaScript move function} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 7 L {a} {A} R {b} {B}]
+    list [string first $beginJS $html] \
+	[regexp {function moveSelected7\(fromObj,toObj\) \{} $html] \
+	[expr {[string first $endJS $html] > 0}]
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result {0 1 1}
+
+test javascript-1.3 {makeSelectorWidget, labels} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 1 Left {} {} Right {} {}]
+    regexp {<tr><th>Left</th><th></th><th>Right</th></tr>} $html
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result 1
+
+test javascript-1.4 {makeSelectorWidget, selection boxes} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 1 L {a b} {A B} R {c} {C} 2 1]
+    regexp -all -inline {<select .*?</select>} $html
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result [list \
+	{<select name=left1 multiple size=2><option value=a>A<option value=b>B<option value=""> <option value="">&nbsp;&nbsp;</select>} \
+	{<select name=right1 multiple size=2><option value=c>C<option value=""> <option value=""> <option value="">&nbsp;&nbsp;</select>}]
+
+test javascript-1.5 {makeSelectorWidget, default length 8 and minWidth 32} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 1 L {} {} R {} {}]
+    list [regexp -all {<select name=(?:left|right)1 multiple size=8>} $html] \
+	[regexp -all "<option value=\"\">[string repeat {&nbsp;&nbsp;} 32]</select>" $html]
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result {2 2}
+
+test javascript-1.6 {makeSelectorWidget, minWidth 0} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 1 L {} {} R {} {} 3 0]
+    regexp -all {<option value=""></select>} $html
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result 2
+
+test javascript-1.7 {makeSelectorWidget, values are URL-encoded} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 1 L {{a b} x/y} {First Second} R {} {} 8 1]
+    regexp -all -inline {<option value=[^>]*>[^<]*} $html
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result [list {<option value=a+b>First} {<option value=x%2Fy>Second} \
+	{<option value="">&nbsp;&nbsp;} \
+	{<option value=""> } {<option value=""> } {<option value="">&nbsp;&nbsp;}]
+
+test javascript-1.8 {makeSelectorWidget, arrow buttons} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget X L {a} {A} R {b} {B}]
+    regexp -all -inline {<input type=button name=.*? value=" .. ">} $html
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result [list \
+	"<input type=button name=leftXButton\n    onClick=\"moveSelectedX(this.form.leftX,this.form.rightX)\" value=\" >> \">" \
+	"<input type=button name=rightXButton\n\tonClick=\"moveSelectedX(this.form.rightX,this.form.leftX)\" value=\" << \">"]
+
+test javascript-1.9 {makeSelectorWidget, hidden value fields} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 2 L {a b} {A B} R {c} {C}]
+    regexp -all -inline {<input type=hidden [^>]*>} $html
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result {{<input type=hidden name=valleft2 value="a b">} {<input type=hidden name=valright2 value="c">}}
+
+test javascript-1.10 {makeSelectorWidget, registers selection boxes} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    ::javascript::makeSelectorWidget 1 L {} {} R {} {}
+    ::javascript::makeSelectorWidget 2 L {} {} R {} {}
+    set javascript::SelectionObjList
+} -cleanup {
+    set javascript::SelectionObjList {}
+} -result {left1 right1 left2 right2}
+
+test javascript-1.11 {makeSelectorWidget, complete output} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    set html [::javascript::makeSelectorWidget 1 L {a} {A} R {} {} 1 1]
+    # Only check the HTML after the script.
+    string range $html [expr {[string first $endJS $html] + [string length $endJS]}] end
+} -cleanup {
+    set javascript::SelectionObjList {}
+    unset -nocomplain html
+} -result [text {<table border=0 cellspacing=0 cellpadding=2>
+<tr><th>L</th><th></th><th>R</th></tr>
+<tr><td valign=top colspan=1><select name=left1 multiple size=1><option value=a>A<option value="">&nbsp;&nbsp;</select>&nbsp;&nbsp;</td>
+<td><table border=0 cellspacing=0 cellpadding=2>
+<tr><td><input type=button name=left1Button
+    onClick="moveSelected1(this.form.left1,this.form.right1)" value=" >> "></td></tr><tr><td><input type=button name=right1Button
+	onClick="moveSelected1(this.form.right1,this.form.left1)" value=" << "></td></tr></table>
+</td>
+<td valign=top colspan=1><select name=right1 multiple size=1><option value=""> <option value="">&nbsp;&nbsp;</select>&nbsp;&nbsp;</td>
+</tr>
+</table>
+<input type=hidden name=valleft1 value="a">
+<input type=hidden name=valright1 value="">
+}]
+
+# -------------------------------------------------------------------------
+# makeSubmitButton
+
+test javascript-2.0 {makeSubmitButton, wrong # args} -body {
+    ::javascript::makeSubmitButton name
+} -returnCodes error -result {wrong # args: should be "::javascript::makeSubmitButton name value"}
+
+test javascript-2.1 {makeSubmitButton, wrong # args, too many} -body {
+    ::javascript::makeSubmitButton name value extra
+} -returnCodes error -result {wrong # args: should be "::javascript::makeSubmitButton name value"}
+
+test javascript-2.2 {makeSubmitButton, no registered selection boxes} -setup {
+    set javascript::SelectionObjList {}
+} -body {
+    ::javascript::makeSubmitButton sub Go
+} -cleanup {
+    set javascript::SelectionObjList {}
+} -result [text {
+<SCRIPT LANGUAGE="JavaScript">
+
+function getSelections(form) {
+}
+
+</SCRIPT>
+<input type=submit name="sub" value="Go"@
+    onClick="getSelections(this.form)">}]
+
+test javascript-2.3 {makeSubmitButton, resets hidden field of each registered box} -setup {
+    set javascript::SelectionObjList {}
+    ::javascript::makeSelectorWidget 1 L {a} {A} R {b} {B}
+} -body {
+    ::javascript::makeSubmitButton sub Go
+} -cleanup {
+    set javascript::SelectionObjList {}
+} -result [text {
+<SCRIPT LANGUAGE="JavaScript">
+
+function getSelections(form) {
+    var tmpleft1 = ""
+    for (var ileft1 = 0; ileft1 < form.left1.length; ileft1++) {
+        if (form.left1.options[ileft1].value == "") {
+            break
+        }
+        tmpleft1 += " " + form.left1.options[ileft1].value
+    }
+    form.valleft1.value = tmpleft1@
+    var tmpright1 = ""
+    for (var iright1 = 0; iright1 < form.right1.length; iright1++) {
+        if (form.right1.options[iright1].value == "") {
+            break
+        }
+        tmpright1 += " " + form.right1.options[iright1].value
+    }
+    form.valright1.value = tmpright1@
+}
+
+</SCRIPT>
+<input type=submit name="sub" value="Go"@
+    onClick="getSelections(this.form)">}]
+
+test javascript-2.4 {makeSubmitButton, clears the registered boxes} -setup {
+    set javascript::SelectionObjList {}
+    ::javascript::makeSelectorWidget 1 L {a} {A} R {b} {B}
+} -body {
+    ::javascript::makeSubmitButton sub Go
+    list $javascript::SelectionObjList \
+	[regexp {left1} [::javascript::makeSubmitButton sub2 Go2]]
+} -cleanup {
+    set javascript::SelectionObjList {}
+} -result {{} 0}
+
+test javascript-2.5 {makeSubmitButton, several widgets} -setup {
+    set javascript::SelectionObjList {}
+    ::javascript::makeSelectorWidget a L {} {} R {} {}
+    ::javascript::makeSelectorWidget b L {} {} R {} {}
+} -body {
+    regexp -all -inline {form\.val\w+\.value} [::javascript::makeSubmitButton s v]
+} -cleanup {
+    set javascript::SelectionObjList {}
+} -result {form.vallefta.value form.valrighta.value form.valleftb.value form.valrightb.value}
+
+# -------------------------------------------------------------------------
+# makeProtectedSubmitButton
+
+test javascript-3.0 {makeProtectedSubmitButton, wrong # args} -body {
+    ::javascript::makeProtectedSubmitButton name value
+} -returnCodes error -result {wrong # args: should be "::javascript::makeProtectedSubmitButton name value msg"}
+
+test javascript-3.1 {makeProtectedSubmitButton, wrong # args, too many} -body {
+    ::javascript::makeProtectedSubmitButton name value msg extra
+} -returnCodes error -result {wrong # args: should be "::javascript::makeProtectedSubmitButton name value msg"}
+
+test javascript-3.2 {makeProtectedSubmitButton} -body {
+    ::javascript::makeProtectedSubmitButton del Delete {Are you sure?}
+} -result [text {
+<SCRIPT LANGUAGE="JavaScript">
+
+function areYouSuredel(form) {
+    if (confirm("Are you sure?")) {
+        return true
+    } else {
+        return false
+    }
+}
+
+</SCRIPT>
+<input type=submit name="del" value="Delete"@
+    onClick="return areYouSuredel(this.form)">}]
+
+test javascript-3.3 {makeProtectedSubmitButton, does not register boxes} -setup {
+    set javascript::SelectionObjList {x}
+} -body {
+    ::javascript::makeProtectedSubmitButton del Delete msg
+    set javascript::SelectionObjList
+} -cleanup {
+    set javascript::SelectionObjList {}
+} -result x
+
+# -------------------------------------------------------------------------
+# makeMasterButton
+
+test javascript-4.0 {makeMasterButton, wrong # args} -body {
+    ::javascript::makeMasterButton master value pattern
+} -returnCodes error -result {wrong # args: should be "::javascript::makeMasterButton master value slavePattern boolean"}
+
+test javascript-4.1 {makeMasterButton, wrong # args, too many} -body {
+    ::javascript::makeMasterButton master value pattern true extra
+} -returnCodes error -result {wrong # args: should be "::javascript::makeMasterButton master value slavePattern boolean"}
+
+test javascript-4.2 {makeMasterButton, true} -body {
+    ::javascript::makeMasterButton all {Check all} {^item} true
+} -result [text {
+<SCRIPT LANGUAGE="JavaScript">
+
+function checkMasterall(form) {
+    for (var i = 0; i < form.elements.length; i++) {
+        if (form.elements[i].name.match('^item')) {
+            form.elements[i].checked = true@
+        }
+    }
+}
+
+</SCRIPT>
+<input type=button name="all" value="Check all" onClick="checkMasterall(this.form)">
+}]
+
+test javascript-4.3 {makeMasterButton, false} -body {
+    set html [::javascript::makeMasterButton none {Clear} {^item} false]
+    list [regexp {form\.elements\[i\]\.checked = false} $html] \
+	[regexp {<input type=button name="none" value="Clear" onClick="checkMasternone\(this.form\)">} $html]
+} -cleanup {
+    unset -nocomplain html
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# makeParentCheckbox
+
+test javascript-5.0 {makeParentCheckbox, wrong # args} -body {
+    ::javascript::makeParentCheckbox parent
+} -returnCodes error -result {wrong # args: should be "::javascript::makeParentCheckbox parentName childName"}
+
+test javascript-5.1 {makeParentCheckbox, wrong # args, too many} -body {
+    ::javascript::makeParentCheckbox parent child extra
+} -returnCodes error -result {wrong # args: should be "::javascript::makeParentCheckbox parentName childName"}
+
+test javascript-5.2 {makeParentCheckbox} -body {
+    ::javascript::makeParentCheckbox par chi
+} -result [text {
+<SCRIPT LANGUAGE="JavaScript">
+
+function checkParentpar(form) {
+    if (!form.par.checked && form.chi.checked) {
+        form.chi.checked = false
+    }
+}
+
+</SCRIPT>
+<input type=checkbox name=par value=1 onClick="checkParentpar(this.form)">}]
+
+# -------------------------------------------------------------------------
+# makeChildCheckbox
+
+test javascript-6.0 {makeChildCheckbox, wrong # args} -body {
+    ::javascript::makeChildCheckbox parent
+} -returnCodes error -result {wrong # args: should be "::javascript::makeChildCheckbox parentName childName"}
+
+test javascript-6.1 {makeChildCheckbox, wrong # args, too many} -body {
+    ::javascript::makeChildCheckbox parent child extra
+} -returnCodes error -result {wrong # args: should be "::javascript::makeChildCheckbox parentName childName"}
+
+test javascript-6.2 {makeChildCheckbox} -body {
+    ::javascript::makeChildCheckbox par chi
+} -result [text {
+<SCRIPT LANGUAGE="JavaScript">
+
+function checkChildchi(form) {
+    if (form.chi.checked && !form.par.checked) {
+        form.par.checked = true
+    }
+}
+
+</SCRIPT>
+<input type=checkbox name=chi value=1 onClick="checkChildchi(this.form)">}]
+
+# -------------------------------------------------------------------------
+
+rename text {}
+unset beginJS endJS
+
+testsuiteCleanup
+return
