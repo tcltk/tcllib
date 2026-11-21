@@ -1,0 +1,112 @@
+# -*- tcl -*-
+# graph-api.test:  Additional tests for the documented API of struct::graph.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements graph.test / graph/tests/*, covering what those do not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+    useLocal list.tcl struct::list
+
+    useAccel [useTcllibC] struct/sets.tcl struct::set
+    TestAccelInit                         struct::set
+}
+testing {
+    useAccel [useTcllibC] struct/graph.tcl struct::graph
+    TestAccelInit                          struct::graph
+}
+
+# -------------------------------------------------------------------------
+
+TestAccelDo struct::set setimpl {
+    TestAccelDo struct::graph impl {
+
+	proc mksource {} {
+	    struct::graph src
+	    src node insert a b c
+	    src arc insert a b ab
+	    src arc insert b c bc
+	    src arc setweight ab 3
+	    src node set a k v
+	    src set gk gv
+	    return
+	}
+
+	# -----------------------------------------------------------------
+	## Constructor, copy operators := and as
+
+	foreach {n op} {1 := 2 as} {
+	    test graph-api-${impl}-${setimpl}-1.$n "constructor, $op copies the source graph" -setup {
+		mksource
+	    } -body {
+		struct::graph g $op src
+		list [lsort [g nodes]] [lsort [g arcs]] [g arc source bc] [g arc target bc] \
+		    [g arc getweight ab] [g node get a k] [g get gk]
+	    } -cleanup {
+		g destroy
+		src destroy
+	    } -result {{a b c} {ab bc} b c 3 v gv}
+
+	    test graph-api-${impl}-${setimpl}-2.$n "constructor, $op with unknown source creates no graph" -body {
+		# struct::tree removes the new object in this case. Here
+		# the graph command ::g is left behind.
+		list [catch {struct::graph g $op ::bogus} msg] $msg [info commands ::g]
+	    } -cleanup {
+		catch {g destroy}
+		unset -nocomplain msg
+	    } -constraints knownBug -result {1 {invalid command name "::bogus"} {}}
+	}
+
+	test graph-api-${impl}-${setimpl}-2.3 {constructor, = with unknown source creates no graph} -body {
+	    list [catch {struct::graph g = ::bogus} msg] $msg [info commands ::g]
+	} -cleanup {
+	    catch {g destroy}
+	    unset -nocomplain msg
+	} -constraints knownBug -result {1 {invalid command name "::bogus"} {}}
+
+	test graph-api-${impl}-${setimpl}-2.4 {constructor, deserialize of a bad value creates no graph} -body {
+	    list [catch {struct::graph g deserialize {a b c d}} msg] $msg [info commands ::g]
+	} -cleanup {
+	    catch {g destroy}
+	    unset -nocomplain msg
+	} -constraints knownBug -result {1 {error in serialization: malformed graph attribute dictionary.} {}}
+
+	test graph-api-${impl}-${setimpl}-1.3 {constructor, copy is independent of the source} -setup {
+	    mksource
+	} -body {
+	    struct::graph g := src
+	    g node delete c
+	    g node set a k w
+	    list [src node exists c] [src arc exists bc] [src node get a k] \
+		[g node exists c] [g arc exists bc] [g node get a k]
+	} -cleanup {
+	    g destroy
+	    src destroy
+	} -result {1 1 v 0 0 w}
+
+	test graph-api-${impl}-${setimpl}-1.4 {constructor, result is the qualified name} -body {
+	    struct::graph g
+	} -cleanup {
+	    g destroy
+	} -result ::g
+
+	rename mksource {}
+    }
+}
+
+#----------------------------------------------------------------------
+TestAccelExit struct::graph
+TestAccelExit struct::set
+testsuiteCleanup

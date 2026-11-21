@@ -1,0 +1,174 @@
+# -*- tcl -*-
+# queue-api.test:  Additional tests for the documented API of struct::queue.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements queue.test / queue.testsuite, covering what those do not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useAccel [useTcllibC] struct/queue.tcl struct::queue
+    TestAccelInit                          struct::queue
+}
+
+# -------------------------------------------------------------------------
+
+TestAccelDo struct::queue impl {
+    namespace import -force struct::queue
+
+    # Both the critcl and the TclOO based implementations report
+    # wrong # args relative to the instance command.
+    proc tmTooMany {m loarg} {
+	return [tcltest::tooManyArgs "myqueue $m" $loarg]
+    }
+
+    # ---------------------------------------------------------------------
+    ## Methods without arguments reject extra arguments.
+
+    foreach {n m} {1 clear 2 destroy 3 size} {
+	test queue-api-${impl}-1.$n "$m, wrong # args, too many" -setup {
+	    queue myqueue
+	} -body {
+	    myqueue $m X
+	} -cleanup {
+	    myqueue destroy
+	} -returnCodes error -result [tmTooMany $m {}]
+    }
+
+    # ---------------------------------------------------------------------
+    ## get / peek: count 1 returns the item as is, otherwise a list.
+
+    test queue-api-${impl}-2.1 {get 1, item with spaces is returned as is} -setup {
+	queue myqueue
+	myqueue put {a b} c
+    } -body {
+	list [myqueue get 1] [myqueue size]
+    } -cleanup {
+	myqueue destroy
+    } -result {{a b} 1}
+
+    test queue-api-${impl}-2.2 {peek 1, item with spaces is returned as is} -setup {
+	queue myqueue
+	myqueue put {a b} c
+    } -body {
+	list [myqueue peek 1] [myqueue size]
+    } -cleanup {
+	myqueue destroy
+    } -result {{a b} 2}
+
+    test queue-api-${impl}-2.3 {get 2, items with spaces are returned as list} -setup {
+	queue myqueue
+	myqueue put {a b} c d
+    } -body {
+	list [myqueue get 2] [myqueue size]
+    } -cleanup {
+	myqueue destroy
+    } -result {{{a b} c} 1}
+
+    test queue-api-${impl}-2.4 {get of the whole queue empties it} -setup {
+	queue myqueue
+	myqueue put a b c
+    } -body {
+	list [myqueue get [myqueue size]] [myqueue size]
+    } -cleanup {
+	myqueue destroy
+    } -result {{a b c} 0}
+
+    test queue-api-${impl}-2.5 {get after clear fails} -setup {
+	queue myqueue
+	myqueue put a b c
+	myqueue clear
+    } -body {
+	myqueue get
+    } -cleanup {
+	myqueue destroy
+    } -returnCodes error -result {insufficient items in queue to fill request}
+
+    test queue-api-${impl}-2.6 {peek does not consume, get does, FIFO order} -setup {
+	queue myqueue
+    } -body {
+	myqueue put 1
+	myqueue put 2 3
+	set r [list [myqueue peek 3]]
+	lappend r [myqueue get] [myqueue get] [myqueue get] [myqueue size]
+    } -cleanup {
+	myqueue destroy
+	unset -nocomplain r
+    } -result {{1 2 3} 1 2 3 0}
+
+    # ---------------------------------------------------------------------
+    ## put, unget, clear: results and interaction.
+
+    test queue-api-${impl}-3.1 {put returns the empty string} -setup {
+	queue myqueue
+    } -body {
+	myqueue put a b
+    } -cleanup {
+	myqueue destroy
+    } -result {}
+
+    test queue-api-${impl}-3.2 {unget returns the empty string} -setup {
+	queue myqueue
+    } -body {
+	myqueue unget a
+    } -cleanup {
+	myqueue destroy
+    } -result {}
+
+    test queue-api-${impl}-3.3 {unget item is returned first by get} -setup {
+	queue myqueue
+	myqueue put a b
+    } -body {
+	myqueue unget {x y}
+	list [myqueue size] [myqueue get] [myqueue get]
+    } -cleanup {
+	myqueue destroy
+    } -result {3 {x y} a}
+
+    test queue-api-${impl}-3.4 {clear of an empty queue} -setup {
+	queue myqueue
+    } -body {
+	list [myqueue clear] [myqueue size]
+    } -cleanup {
+	myqueue destroy
+    } -result {{} 0}
+
+    test queue-api-${impl}-3.5 {queue is usable after clear} -setup {
+	queue myqueue
+	myqueue put a b
+	myqueue clear
+    } -body {
+	myqueue put c
+	list [myqueue size] [myqueue peek]
+    } -cleanup {
+	myqueue destroy
+    } -result {1 c}
+
+    test queue-api-${impl}-3.6 {two queues are independent} -setup {
+	queue myqueue
+	queue otherqueue
+    } -body {
+	myqueue put a
+	otherqueue put b c
+	list [myqueue size] [otherqueue size] [myqueue get] [otherqueue get]
+    } -cleanup {
+	myqueue destroy
+	otherqueue destroy
+    } -result {1 2 a b}
+
+    rename tmTooMany {}
+}
+
+#----------------------------------------------------------------------
+TestAccelExit struct::queue
+testsuiteCleanup

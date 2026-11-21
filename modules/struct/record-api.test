@@ -1,0 +1,459 @@
+# -*- tcl -*-
+# record-api.test:  Additional tests for the documented API of struct::record.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements record.test, covering what that does not. Unlike
+# record.test every test here is independent: it defines the records
+# it needs and deletes them again.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal record.tcl struct::record
+}
+
+# -------------------------------------------------------------------------
+
+proc defrecs {} {
+    struct::record define ranest {n1 {n2 7}}
+    struct::record define rarec  {m1 {m2 5} {record ranest m3}}
+    return
+}
+proc delrecs {} {
+    foreach r {rarec ranest raplain} {
+	catch {struct::record delete record $r}
+    }
+    return
+}
+
+# -------------------------------------------------------------------------
+## record command
+
+test record-api-1.0 {record, no subcommand} -body {
+    struct::record
+} -returnCodes error -result {wrong # args: should be "struct::record cmd_ ?arg ...?"}
+
+test record-api-1.1 {record, unknown subcommand} -body {
+    struct::record bogus
+} -returnCodes error -result {Sub command "bogus" is not recognized. Must be define,delete,exists,show}
+
+# -------------------------------------------------------------------------
+## record define
+
+test record-api-2.0 {define, wrong # args} -body {
+    struct::record define raplain
+} -returnCodes error -result {wrong # args: should be "::struct::record::Define defn_ vars_ ?arg ...?"}
+
+test record-api-2.1 {define, duplicate definition} -setup {
+    struct::record define raplain {a}
+} -body {
+    struct::record define raplain {b}
+} -cleanup {
+    delrecs
+} -returnCodes error -result {Record definition ::raplain already exists}
+
+test record-api-2.2 {define, record name is qualified relative to the caller} -setup {
+    namespace eval ::rans {}
+} -body {
+    namespace eval ::rans {struct::record define raplain {a}}
+} -cleanup {
+    struct::record delete record ::rans::raplain
+    namespace delete ::rans
+} -result ::rans::raplain
+
+test record-api-2.3 {define, record command is created} -body {
+    struct::record define raplain {a}
+    list [info commands ::raplain] [struct::record exists record raplain]
+} -cleanup {
+    delrecs
+} -result {::raplain 1}
+
+test record-api-2.4 {define, members without default are empty} -setup {
+    struct::record define raplain {a {b x} c}
+} -body {
+    raplain ri
+    ri cget
+} -cleanup {
+    delrecs
+} -result {-a {} -b x -c {}}
+
+# -------------------------------------------------------------------------
+## Instance creation
+
+test record-api-3.0 {instance creation, missing instance name} -setup {
+    struct::record define raplain {a}
+} -body {
+    raplain
+} -cleanup {
+    delrecs
+} -returnCodes error -result {wrong # args: should be "raplain inst_ ?arg ...?"}
+
+test record-api-3.1 {instance creation, duplicate instance} -setup {
+    struct::record define raplain {a}
+    raplain ri
+} -body {
+    raplain ri
+} -cleanup {
+    delrecs
+} -returnCodes error -result {Instances ::ri already exists}
+
+test record-api-3.2 {instance creation, unknown member} -setup {
+    struct::record define raplain {a}
+} -body {
+    raplain ri -bogus 1
+} -cleanup {
+    delrecs
+} -returnCodes error -result {bogus does not exist in record ::raplain}
+
+test record-api-3.3 {instance creation, failure leaves no instance behind} -setup {
+    struct::record define raplain {a}
+} -body {
+    catch {raplain ri -bogus 1}
+    list [struct::record exists instance ri] [info commands ::ri] \
+	[struct::record show instances raplain]
+} -cleanup {
+    delrecs
+} -constraints knownBug -result {0 {} {}}
+
+test record-api-3.4 {instance creation, #auto numbers from 0} -setup {
+    struct::record define raplain {a}
+} -body {
+    list [raplain #auto] [raplain #auto] [raplain #auto]
+} -cleanup {
+    delrecs
+} -result {::raplain0 ::raplain1 ::raplain2}
+
+test record-api-3.5 {instance creation, #auto after a failed named creation} -setup {
+    struct::record define raplain {a}
+    raplain ri
+} -body {
+    # The failed creation of the duplicate "ri" must not affect the
+    # generator of automatic names. Currently it is decremented,
+    # producing ::raplain-1.
+    catch {raplain ri}
+    raplain #auto
+} -cleanup {
+    delrecs
+} -constraints knownBug -result ::raplain0
+
+test record-api-3.6 {instance creation, #auto names are not reused after delete} -setup {
+    struct::record define raplain {a}
+} -body {
+    set a [raplain #auto]
+    struct::record delete instance $a
+    list $a [raplain #auto]
+} -cleanup {
+    delrecs
+    unset -nocomplain a
+} -result {::raplain0 ::raplain1}
+
+test record-api-3.7 {instance creation, instance name in a namespace} -setup {
+    struct::record define raplain {a}
+    namespace eval ::rans {}
+} -body {
+    namespace eval ::rans {::raplain ri -a 1}
+    list [::rans::ri cget -a] [struct::record show instances raplain]
+} -cleanup {
+    delrecs
+    namespace delete ::rans
+} -result {1 ::rans::ri}
+
+test record-api-3.8 {instance creation, values for all members, nested as list} -setup {
+    defrecs
+} -body {
+    # The documentation requires that all values are given.
+    rarec ri -m1 a -m2 x -m3 {-n1 b -n2 c}
+    ri cget
+} -cleanup {
+    delrecs
+} -result {-m1 a -m2 x -m3 {-n1 b -n2 c}}
+
+# -------------------------------------------------------------------------
+## cget
+
+test record-api-4.0 {cget, unknown member} -setup {
+    defrecs
+    rarec ri
+} -body {
+    ri cget -bogus
+} -cleanup {
+    delrecs
+} -returnCodes error -result {Bad option "-bogus"}
+
+test record-api-4.1 {cget, unknown member among several} -setup {
+    defrecs
+    rarec ri
+} -body {
+    ri cget -m1 -bogus
+} -cleanup {
+    delrecs
+} -returnCodes error -result {Bad option "-bogus"}
+
+test record-api-4.2 {cget, several members in order of specification} -setup {
+    defrecs
+    rarec ri -m1 x
+} -body {
+    ri cget -m2 -m1 -m3.n2
+} -cleanup {
+    delrecs
+} -result {5 x 7}
+
+test record-api-4.3 {cget, nested record member returns a dictionary} -setup {
+    defrecs
+    rarec ri
+} -body {
+    ri cget -m3
+} -cleanup {
+    delrecs
+} -result {-n1 {} -n2 7}
+
+test record-api-4.4 {cget, configure, and instance command alone are equivalent} -setup {
+    defrecs
+    rarec ri -m1 x
+} -body {
+    list [string equal [ri cget] [ri configure]] [string equal [ri cget] [ri]]
+} -cleanup {
+    delrecs
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+## configure
+
+test record-api-5.0 {configure, several members, result} -setup {
+    defrecs
+    rarec ri
+} -body {
+    list [ri configure -m1 a -m2 b -m3.n1 c] [ri cget]
+} -cleanup {
+    delrecs
+} -result {{} {-m1 a -m2 b -m3 {-n1 c -n2 7}}}
+
+test record-api-5.1 {configure, unknown member is an error} -setup {
+    defrecs
+    rarec ri
+} -body {
+    ri configure -bogus 1
+} -cleanup {
+    delrecs
+} -returnCodes error -match glob -result {*bogus*}
+
+test record-api-5.2 {configure, values with spaces} -setup {
+    defrecs
+    rarec ri
+} -body {
+    ri configure -m1 {a b}
+    list [ri cget -m1] [ri.m1]
+} -cleanup {
+    delrecs
+} -result {{a b} {a b}}
+
+# -------------------------------------------------------------------------
+## Alias access
+
+test record-api-6.0 {alias, = is optional syntactic sugar} -setup {
+    defrecs
+    rarec ri
+} -body {
+    list [ri.m1 = 5] [ri.m1] [ri.m2 6] [ri.m2]
+} -cleanup {
+    delrecs
+} -result {5 5 6 6}
+
+test record-api-6.1 {alias, nested members} -setup {
+    defrecs
+    rarec ri
+} -body {
+    list [ri.m3.n1 10] [ri.m3.n1] [ri.m3.n2 = 11] [ri.m3]
+} -cleanup {
+    delrecs
+} -result {10 10 11 {-n1 10 -n2 11}}
+
+test record-api-6.2 {alias and cget see the same value} -setup {
+    defrecs
+    rarec ri
+} -body {
+    ri.m1 x
+    ri configure -m2 y
+    list [ri cget -m1] [ri.m2]
+} -cleanup {
+    delrecs
+} -result {x y}
+
+# -------------------------------------------------------------------------
+## record show
+
+test record-api-7.0 {show, wrong # args} -body {
+    struct::record show
+} -returnCodes error -result {wrong # args: should be "::struct::record::Show what_ ?record_?"}
+
+test record-api-7.1 {show records, sorted list of qualified names} -setup {
+    delrecs
+    set before [struct::record show records]
+    defrecs
+} -body {
+    set after [struct::record show records]
+    list [lsearch -all -inline -exact $after ::ranest] \
+	[lsearch -all -inline -exact $after ::rarec] \
+	[expr {[llength $after] - [llength $before]}] \
+	[string equal $after [lsort $after]]
+} -cleanup {
+    delrecs
+    unset -nocomplain before after
+} -result {::ranest ::rarec 2 1}
+
+test record-api-7.2 {show instances, includes nested instances of the nested record} -setup {
+    defrecs
+    rarec ri
+    rarec rj
+} -body {
+    list [struct::record show instances rarec] [struct::record show instances ranest]
+} -cleanup {
+    delrecs
+} -result {{::ri ::rj} {::ri.m3 ::rj.m3}}
+
+test record-api-7.3 {show instances, record without instances} -setup {
+    struct::record define raplain {a}
+} -body {
+    struct::record show instances raplain
+} -cleanup {
+    delrecs
+} -result {}
+
+test record-api-7.4 {show members, unknown record} -body {
+    struct::record show members rabogus
+} -returnCodes error -result {Bad arguments while accessing members. Bad record name}
+
+test record-api-7.5 {show members, same format as the definition} -setup {
+    defrecs
+} -body {
+    struct::record show members rarec
+} -cleanup {
+    delrecs
+} -result {m1 {m2 5} {record ranest m3}}
+
+test record-api-7.6 {show values, unknown instance is an error} -body {
+    struct::record show values rabogus
+} -returnCodes error -match glob -result *
+
+test record-api-7.7 {show values of a nested instance} -setup {
+    defrecs
+    rarec ri
+    ri.m3.n1 a
+} -body {
+    struct::record show values ri.m3
+} -cleanup {
+    delrecs
+} -result {-n1 a -n2 7}
+
+# -------------------------------------------------------------------------
+## record exists
+
+test record-api-8.0 {exists, wrong # args} -body {
+    struct::record exists record
+} -returnCodes error -result {wrong # args: should be "::struct::record::Exists sub_ item_"}
+
+test record-api-8.1 {exists, bad type} -body {
+    struct::record exists bogus x
+} -returnCodes error -result {Wrong arguments. Must be exists record|instance target}
+
+test record-api-8.2 {exists record} -setup {
+    struct::record define raplain {a}
+} -body {
+    list [struct::record exists record raplain] [struct::record exists record rabogus]
+} -cleanup {
+    delrecs
+} -result {1 0}
+
+test record-api-8.3 {exists instance, also for nested instances} -setup {
+    defrecs
+    rarec ri
+} -body {
+    list [struct::record exists instance ri] [struct::record exists instance ri.m3] \
+	[struct::record exists instance rabogus]
+} -cleanup {
+    delrecs
+} -result {1 1 0}
+
+test record-api-8.4 {exists instance, a record is not an instance} -setup {
+    struct::record define raplain {a}
+} -body {
+    list [struct::record exists instance raplain] [struct::record exists record raplain]
+} -cleanup {
+    delrecs
+} -result {0 1}
+
+# -------------------------------------------------------------------------
+## record delete
+
+test record-api-9.0 {delete, wrong # args} -body {
+    struct::record delete record
+} -returnCodes error -result {wrong # args: should be "::struct::record::Delete sub_ item_"}
+
+test record-api-9.1 {delete, bad type} -body {
+    struct::record delete bogus x
+} -returnCodes error -result {Wrong arguments to delete}
+
+test record-api-9.2 {delete instance, removes instance and alias commands} -setup {
+    defrecs
+    rarec ri
+} -body {
+    struct::record delete instance ri
+    list [info commands ::ri*] [struct::record exists instance ri] \
+	[struct::record exists instance ri.m3] [struct::record show instances rarec]
+} -cleanup {
+    delrecs
+} -result {{} 0 0 {}}
+
+test record-api-9.3 {delete instance, name can be reused} -setup {
+    defrecs
+    rarec ri -m1 old
+    struct::record delete instance ri
+} -body {
+    rarec ri
+    ri cget -m1
+} -cleanup {
+    delrecs
+} -result {}
+
+test record-api-9.4 {delete record, removes all its instances and the record command} -setup {
+    struct::record define raplain {a}
+    raplain ri
+    raplain rj
+} -body {
+    struct::record delete record raplain
+    list [info commands ::raplain] [info commands ::ri*] [info commands ::rj*] \
+	[struct::record exists record raplain] [struct::record exists instance ri]
+} -result {{} {} {} 0 0}
+
+test record-api-9.5 {delete record, name can be reused} -setup {
+    struct::record define raplain {a}
+    struct::record delete record raplain
+} -body {
+    struct::record define raplain {b}
+    struct::record show members raplain
+} -cleanup {
+    delrecs
+} -result b
+
+test record-api-9.6 {delete record, unknown record is an error} -body {
+    struct::record delete record rabogus
+} -constraints knownBug -returnCodes error -match glob -result *
+
+test record-api-9.7 {delete instance, unknown instance is an error} -body {
+    struct::record delete instance rabogus
+} -constraints knownBug -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------
+rename defrecs {}
+rename delrecs {}
+testsuiteCleanup

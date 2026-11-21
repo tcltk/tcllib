@@ -1,0 +1,204 @@
+# -*- tcl -*-
+# stack-api.test:  Additional tests for the documented API of struct::stack.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements stack.test / stack.testsuite, covering what those do not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useAccel [useTcllibC] struct/stack.tcl struct::stack
+    TestAccelInit                          struct::stack
+}
+
+# -------------------------------------------------------------------------
+
+TestAccelDo struct::stack impl {
+    namespace import -force struct::stack
+
+    # Both the critcl and the TclOO based implementations report
+    # wrong # args relative to the instance command.
+    proc tmTooMany {m loarg} {
+	return [tcltest::tooManyArgs "mystack $m" $loarg]
+    }
+
+    # ---------------------------------------------------------------------
+    ## Methods without arguments reject extra arguments.
+
+    foreach {n m} {1 clear 2 destroy 3 size} {
+	test stack-api-${impl}-1.$n "$m, wrong # args, too many" -setup {
+	    stack mystack
+	} -body {
+	    mystack $m X
+	} -cleanup {
+	    mystack destroy
+	} -returnCodes error -result [tmTooMany $m {}]
+    }
+
+    # ---------------------------------------------------------------------
+    ## peek / peekr / pop: count 1 returns the item as is.
+
+    test stack-api-${impl}-2.1 {peek 1, item with spaces is returned as is} -setup {
+	stack mystack
+	mystack push a {b c}
+    } -body {
+	list [mystack peek 1] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{b c} 2}
+
+    test stack-api-${impl}-2.2 {peekr 1, item with spaces is returned as is} -setup {
+	stack mystack
+	mystack push a {b c}
+    } -body {
+	list [mystack peekr 1] [mystack peekr] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{b c} {b c} 2}
+
+    test stack-api-${impl}-2.3 {pop 1, item with spaces is returned as is} -setup {
+	stack mystack
+	mystack push a {b c}
+    } -body {
+	list [mystack pop 1] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{b c} 1}
+
+    test stack-api-${impl}-2.4 {peek and peekr return the same items in reverse order} -setup {
+	stack mystack
+	mystack push a {b c} d
+    } -body {
+	list [mystack peek 2] [mystack peekr 2]
+    } -cleanup {
+	mystack destroy
+    } -result {{d {b c}} {{b c} d}}
+
+    test stack-api-${impl}-2.5 {pop of the whole stack empties it} -setup {
+	stack mystack
+	mystack push a b c
+    } -body {
+	list [mystack pop [mystack size]] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{c b a} 0}
+
+    test stack-api-${impl}-2.6 {pop after clear fails} -setup {
+	stack mystack
+	mystack push a b
+	mystack clear
+    } -body {
+	mystack pop
+    } -cleanup {
+	mystack destroy
+    } -returnCodes error -result {insufficient items on stack to fill request}
+
+    # ---------------------------------------------------------------------
+    ## get / getr: whole contents, top first resp. bottom first.
+
+    test stack-api-${impl}-3.1 {get and getr do not modify the stack} -setup {
+	stack mystack
+	mystack push a {b c} d
+    } -body {
+	list [mystack get] [mystack getr] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{d {b c} a} {a {b c} d} 3}
+
+    # ---------------------------------------------------------------------
+    ## trim / trim*
+
+    test stack-api-${impl}-4.1 {trim 0 removes everything, returns removed items top first} -setup {
+	stack mystack
+	mystack push a b c
+    } -body {
+	list [mystack trim 0] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{c b a} 0}
+
+    test stack-api-${impl}-4.2 {trim* 0 removes everything, returns nothing} -setup {
+	stack mystack
+	mystack push a b c
+    } -body {
+	list [mystack trim* 0] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{} 0}
+
+    test stack-api-${impl}-4.3 {trim keeps the bottom elements} -setup {
+	stack mystack
+	mystack push a b c d
+    } -body {
+	list [mystack trim 2] [mystack get]
+    } -cleanup {
+	mystack destroy
+    } -result {{d c} {b a}}
+
+    test stack-api-${impl}-4.4 {trim to the current size changes nothing} -setup {
+	stack mystack
+	mystack push a b
+    } -body {
+	list [mystack trim 2] [mystack get]
+    } -cleanup {
+	mystack destroy
+    } -result {{} {b a}}
+
+    # ---------------------------------------------------------------------
+    ## push, clear: results and interaction.
+
+    test stack-api-${impl}-5.1 {push returns the empty string} -setup {
+	stack mystack
+    } -body {
+	mystack push a b
+    } -cleanup {
+	mystack destroy
+    } -result {}
+
+    test stack-api-${impl}-5.2 {clear of an empty stack} -setup {
+	stack mystack
+    } -body {
+	list [mystack clear] [mystack size]
+    } -cleanup {
+	mystack destroy
+    } -result {{} 0}
+
+    test stack-api-${impl}-5.3 {stack is usable after clear} -setup {
+	stack mystack
+	mystack push a b
+	mystack clear
+    } -body {
+	mystack push c
+	list [mystack size] [mystack peek]
+    } -cleanup {
+	mystack destroy
+    } -result {1 c}
+
+    test stack-api-${impl}-5.4 {two stacks are independent} -setup {
+	stack mystack
+	stack otherstack
+    } -body {
+	mystack push a
+	otherstack push b c
+	list [mystack size] [otherstack size] [mystack pop] [otherstack pop]
+    } -cleanup {
+	mystack destroy
+	otherstack destroy
+    } -result {1 2 a c}
+
+    rename tmTooMany {}
+}
+
+#----------------------------------------------------------------------
+TestAccelExit struct::stack
+testsuiteCleanup

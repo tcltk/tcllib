@@ -1,0 +1,207 @@
+# -*- tcl -*-
+# graphops-api.test:  Additional tests for the documented API of
+# struct::graph::op.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements graphops.test / graph/tests/ops/*, covering documented
+# commands which have no tests there.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+    useLocal list.tcl struct::list
+    useLocal disjointset.tcl struct::disjointset
+    useLocal prioqueue.tcl struct::prioqueue
+
+    useAccel [useTcllibC] struct/tree.tcl  struct::tree
+    TestAccelInit                          struct::tree
+
+    useAccel [useTcllibC] struct/queue.tcl struct::queue
+    TestAccelInit                          struct::queue
+
+    useAccel [useTcllibC] struct/stack.tcl struct::stack
+    TestAccelInit                          struct::stack
+
+    useAccel [useTcllibC] struct/sets.tcl  struct::set
+    TestAccelInit                          struct::set
+
+    useAccel [useTcllibC] struct/graph.tcl struct::graph
+    TestAccelInit                          struct::graph
+}
+testing {
+    useLocal graphops.tcl struct::graph::op
+}
+
+# -------------------------------------------------------------------------
+
+TestAccelDo struct::tree treeimpl {
+TestAccelDo struct::stack stkimpl {
+TestAccelDo struct::queue queimpl {
+TestAccelDo struct::set setimpl {
+TestAccelDo struct::graph impl {
+
+    # ---------------------------------------------------------------------
+    ## GreedyMaxMatching
+
+    test graphop-api-${impl}-GreedyMaxMatching-1.0 {wrong # args, not enough} -body {
+	struct::graph::op::GreedyMaxMatching
+    } -returnCodes error -result {wrong # args: should be "struct::graph::op::GreedyMaxMatching G"}
+
+    test graphop-api-${impl}-GreedyMaxMatching-1.1 {wrong # args, too many} -body {
+	struct::graph::op::GreedyMaxMatching g x
+    } -returnCodes error -result {wrong # args: should be "struct::graph::op::GreedyMaxMatching G"}
+
+    test graphop-api-${impl}-GreedyMaxMatching-2.0 {empty graph} -setup {
+	struct::graph g
+    } -body {
+	struct::graph::op::GreedyMaxMatching g
+    } -cleanup {
+	g destroy
+    } -result {}
+
+    test graphop-api-${impl}-GreedyMaxMatching-2.1 {path, cheapest arcs first} -setup {
+	struct::graph g
+	g node insert a b c d
+	g arc insert a b ab ; g arc setweight ab 1
+	g arc insert b c bc ; g arc setweight bc 2
+	g arc insert c d cd ; g arc setweight cd 3
+    } -body {
+	lsort [struct::graph::op::GreedyMaxMatching g]
+    } -cleanup {
+	g destroy
+    } -result {ab cd}
+
+    test graphop-api-${impl}-GreedyMaxMatching-2.2 {path, cheap middle arc blocks both ends} -setup {
+	struct::graph g
+	g node insert a b c d
+	g arc insert a b ab ; g arc setweight ab 5
+	g arc insert b c bc ; g arc setweight bc 1
+	g arc insert c d cd ; g arc setweight cd 5
+    } -body {
+	struct::graph::op::GreedyMaxMatching g
+    } -cleanup {
+	g destroy
+    } -result bc
+
+    test graphop-api-${impl}-GreedyMaxMatching-2.3 {result is a maximal matching} -setup {
+	struct::graph g
+	g node insert a b c d e f
+	foreach {u v w} {a b 4 b c 1 c d 2 d e 3 e f 1 f a 2 a d 5} {
+	    g arc insert $u $v $u$v
+	    g arc setweight $u$v $w
+	}
+    } -body {
+	set m [struct::graph::op::GreedyMaxMatching g]
+	# No two arcs of the matching share a node ...
+	set nodes {}
+	foreach a $m {lappend nodes {*}[g arc nodes $a]}
+	set disjoint [expr {[llength $nodes] == [llength [lsort -unique $nodes]]}]
+	# ... and every other arc touches a matched node.
+	set maximal 1
+	foreach a [g arcs] {
+	    if {$a in $m} continue
+	    if {[g arc source $a] ni $nodes && [g arc target $a] ni $nodes} {
+		set maximal 0
+	    }
+	}
+	list [lsort $m] $disjoint $maximal
+    } -cleanup {
+	g destroy
+	unset -nocomplain m nodes disjoint maximal a
+    } -result {{ad bc ef} 1 1}
+
+    test graphop-api-${impl}-GreedyMaxMatching-2.4 {unweighted graph} -setup {
+	struct::graph g
+	g node insert a b
+	g arc insert a b ab
+    } -body {
+	# Arcs without weight are ignored, giving an empty matching
+	# although the graph has an arc.
+	struct::graph::op::GreedyMaxMatching g
+    } -cleanup {
+	g destroy
+    } -constraints knownBug -result ab
+
+    # ---------------------------------------------------------------------
+    ## createLevelGraph
+
+    test graphop-api-${impl}-createLevelGraph-1.0 {wrong # args, not enough} -body {
+	struct::graph::op::createLevelGraph g
+    } -returnCodes error -result {wrong # args: should be "struct::graph::op::createLevelGraph Gf s"}
+
+    test graphop-api-${impl}-createLevelGraph-1.1 {wrong # args, too many} -body {
+	struct::graph::op::createLevelGraph g s x
+    } -returnCodes error -result {wrong # args: should be "struct::graph::op::createLevelGraph Gf s"}
+
+    test graphop-api-${impl}-createLevelGraph-2.0 {level graph of a residual network} -setup {
+	struct::graph g
+	g node insert s x y t
+	foreach {n u v c} {sx s x 3 sy s y 2 xt x t 2 yt y t 0 xy x y 1} {
+	    g arc insert $u $v $n
+	    g arc set $n throughput $c
+	}
+    } -body {
+	set L [struct::graph::op::createLevelGraph g s]
+	set r [list [lsort [$L nodes]] [lsort [$L arcs]]]
+	lappend r [lmap n {s x y t} {$L node get $n distance}]
+	lappend r [lmap a {{s x} {s y} {x t}} {$L arc get $a throughput}]
+	lappend r [lmap a {{s x} {s y} {x t}} {$L arc getweight $a}]
+	set r
+    } -cleanup {
+	g destroy
+	$L destroy
+	unset -nocomplain L r
+    } -result {{s t x y} {{s x} {s y} {x t}} {0 1 1 2} {3 2 2} {1 1 1}}
+
+    test graphop-api-${impl}-createLevelGraph-2.1 {level graph is a new graph object} -setup {
+	struct::graph g
+	g node insert s t
+	g arc insert s t st
+	g arc set st throughput 1
+    } -body {
+	set L [struct::graph::op::createLevelGraph g s]
+	list [expr {$L ne "::g"}] [llength [info commands $L]] [$L arcs]
+    } -cleanup {
+	g destroy
+	$L destroy
+	unset -nocomplain L
+    } -result {1 1 {{s t}}}
+
+    # ---------------------------------------------------------------------
+    ## EdmondsKarp
+
+    test graphop-api-${impl}-EdmondsKarp-1.0 {documented command exists} -setup {
+	struct::graph g
+	g node insert s a t
+	g arc insert s a sa ; g arc setweight sa 2
+	g arc insert a t at ; g arc setweight at 1
+    } -body {
+	# The command is implemented under the name FordFulkerson.
+	dict get [struct::graph::op::EdmondsKarp g s t] {s a}
+    } -cleanup {
+	g destroy
+    } -constraints knownBug -result 1
+}
+}
+}
+}
+}
+
+#----------------------------------------------------------------------
+TestAccelExit struct::graph
+TestAccelExit struct::set
+TestAccelExit struct::stack
+TestAccelExit struct::queue
+TestAccelExit struct::tree
+testsuiteCleanup
