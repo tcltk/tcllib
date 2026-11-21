@@ -1,0 +1,190 @@
+# -*- tcl -*-
+# tabify-api.test:  API tests for the textutil::tabify package.
+#
+# Complements tabify.test, which covers the basic behaviour of tabify,
+# untabify, tabify2 and untabify2.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal repeat.tcl textutil::repeat
+}
+testing {
+    useLocal tabify.tcl textutil::tabify
+}
+
+# -------------------------------------------------------------------------
+## Wrong # args
+
+set n 0
+foreach cmd {tabify untabify tabify2 untabify2} {
+    test textutil-tabify-1.$n "$cmd, wrong # args, not enough" -body {
+	::textutil::tabify::$cmd
+    } -returnCodes error \
+	-result "wrong # args: should be \"::textutil::tabify::$cmd string ?num?\""
+
+    test textutil-tabify-2.$n "$cmd, wrong # args, too many" -body {
+	::textutil::tabify::$cmd a 8 x
+    } -returnCodes error \
+	-result "wrong # args: should be \"::textutil::tabify::$cmd string ?num?\""
+    incr n
+}
+unset n cmd
+
+# -------------------------------------------------------------------------
+## tabify
+
+test textutil-tabify-3.0 {tabify, fewer spaces than count are kept} -body {
+    ::textutil::tabify::tabify "a       b"
+} -result "a       b"
+
+test textutil-tabify-3.1 {tabify, more spaces than count} -body {
+    ::textutil::tabify::tabify "a          b"
+} -result "a\t  b"
+
+test textutil-tabify-3.2 {tabify, independent of column} -body {
+    ::textutil::tabify::tabify "abc    d" 4
+} -result "abc\td"
+
+test textutil-tabify-3.3 {tabify, count 1} -body {
+    ::textutil::tabify::tabify "a b  c" 1
+} -result "a\tb\t\tc"
+
+test textutil-tabify-3.4 {tabify, existing tabs kept} -body {
+    ::textutil::tabify::tabify "\ta    b" 4
+} -result "\ta\tb"
+
+test textutil-tabify-3.5 {tabify, counts can change between calls} -body {
+    list [::textutil::tabify::tabify "      " 2] \
+	[::textutil::tabify::tabify "      " 3] \
+	[::textutil::tabify::tabify "      "]
+} -result [list "\t\t\t" "\t\t" "      "]
+
+test textutil-tabify-3.6 {tabify, multiple lines} -body {
+    ::textutil::tabify::tabify "    a\n    b\n" 4
+} -result "\ta\n\tb\n"
+
+# -------------------------------------------------------------------------
+## untabify
+
+test textutil-untabify-4.0 {untabify, independent of column} -body {
+    ::textutil::tabify::untabify "abc\td" 4
+} -result "abc    d"
+
+test textutil-untabify-4.1 {untabify, count 1} -body {
+    ::textutil::tabify::untabify "a\t\tb" 1
+} -result "a  b"
+
+test textutil-untabify-4.2 {untabify, no tabs} -body {
+    ::textutil::tabify::untabify "a   b"
+} -result "a   b"
+
+test textutil-untabify-4.3 {untabify, multiple lines} -body {
+    ::textutil::tabify::untabify "\ta\n\tb\n" 2
+} -result "  a\n  b\n"
+
+test textutil-untabify-4.4 {untabify, roundtrip with tabify} -body {
+    set s "\tx\t\ty"
+    string equal [::textutil::tabify::tabify [::textutil::tabify::untabify $s 3] 3] $s
+} -cleanup {
+    unset s
+} -result 1
+
+# -------------------------------------------------------------------------
+## tabify2
+
+test textutil-tabify2-5.0 {tabify2, spaces reaching a tabstop} -body {
+    ::textutil::tabify::tabify2 "abc d   e" 4
+} -result "abc d\te"
+
+test textutil-tabify2-5.1 {tabify2, single space before a tabstop is kept} -body {
+    ::textutil::tabify::tabify2 "abc d" 4
+} -result "abc d"
+
+test textutil-tabify2-5.2 {tabify2, spaces not ending at a tabstop are kept} -body {
+    ::textutil::tabify::tabify2 "a  b" 8
+} -result "a  b"
+
+test textutil-tabify2-5.3 {tabify2, leading spaces} -body {
+    ::textutil::tabify::tabify2 "            x" 4
+} -result "\t\t\tx"
+
+test textutil-tabify2-5.4 {tabify2, trailing spaces up to tabstop} -body {
+    ::textutil::tabify::tabify2 "ab      " 4
+} -result "ab\t\t"
+
+test textutil-tabify2-5.5 {tabify2, each line has its own tabstops} -body {
+    ::textutil::tabify::tabify2 "a   b\n    c" 4
+} -result "a\tb\n\tc"
+
+test textutil-tabify2-5.6 {tabify2, existing tabs are accounted for} -body {
+    ::textutil::tabify::tabify2 "\ta   b" 4
+} -result "\ta\tb"
+
+test textutil-tabify2-5.7 {tabify2, no spaces} -body {
+    ::textutil::tabify::tabify2 "abc\ndef"
+} -result "abc\ndef"
+
+# -------------------------------------------------------------------------
+## untabify2
+
+test textutil-untabify2-6.0 {untabify2, tab at a tabstop} -body {
+    ::textutil::tabify::untabify2 "\tx" 4
+} -result "    x"
+
+test textutil-untabify2-6.1 {untabify2, tab before a tabstop} -body {
+    ::textutil::tabify::untabify2 "ab\tx" 4
+} -result "ab  x"
+
+test textutil-untabify2-6.2 {untabify2, tab replaced by a single space} -body {
+    ::textutil::tabify::untabify2 "abc\tx" 4
+} -result "abc x"
+
+test textutil-untabify2-6.3 {untabify2, consecutive tabs} -body {
+    ::textutil::tabify::untabify2 "a\t\tb" 4
+} -result "a       b"
+
+test textutil-untabify2-6.4 {untabify2, each line has its own tabstops} -body {
+    ::textutil::tabify::untabify2 "abc\tx\n\ty" 4
+} -result "abc x\n    y"
+
+test textutil-untabify2-6.5 {untabify2, larger tab size after smaller} -body {
+    list [::textutil::tabify::untabify2 "\tx" 2] \
+	[::textutil::tabify::untabify2 "\tx" 12]
+} -result [list "  x" "            x"]
+
+test textutil-untabify2-6.6 {untabify2, no tabs} -body {
+    ::textutil::tabify::untabify2 "a  b"
+} -result "a  b"
+
+test textutil-untabify2-6.7 {asymmetry: a single space is not turned back into a tab} -body {
+    set u [::textutil::tabify::untabify2 "abc\tx" 4]
+    list $u [::textutil::tabify::tabify2 $u 4]
+} -cleanup {
+    unset u
+} -result {{abc x} {abc x}}
+
+test textutil-untabify2-6.8 {tabify2 reverses untabify2 for wider gaps} -body {
+    set s "a\tbc\td"
+    string equal [::textutil::tabify::tabify2 [::textutil::tabify::untabify2 $s 4] 4] $s
+} -cleanup {
+    unset s
+} -result 1
+
+# -------------------------------------------------------------------------
+## Exports
+
+test textutil-tabify-7.0 {exported commands} -body {
+    lsort [namespace eval ::textutil::tabify {namespace export}]
+} -result {tabify tabify2 untabify untabify2}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return

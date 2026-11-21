@@ -1,0 +1,189 @@
+# -*- tcl -*-
+# trim-api.test:  API tests for the textutil::trim package.
+#
+# Complements trim.test, which covers trim, trimleft and trimright with
+# the default and custom regular expressions.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal trim.tcl textutil::trim
+}
+
+# -------------------------------------------------------------------------
+## Wrong # args
+
+foreach {n cmd sig} {
+    0 trim             {text ?trim?}
+    1 trimleft         {text ?trim?}
+    2 trimright        {text ?trim?}
+    3 trimPrefix       {text prefix}
+    4 trimEmptyHeading {text}
+} {
+    test textutil-trim-1.$n "$cmd, wrong # args, not enough" -body {
+	::textutil::trim::$cmd
+    } -returnCodes error \
+	-result "wrong # args: should be \"::textutil::trim::$cmd $sig\""
+
+    test textutil-trim-2.$n "$cmd, wrong # args, too many" -body {
+	::textutil::trim::$cmd a b c
+    } -returnCodes error \
+	-result "wrong # args: should be \"::textutil::trim::$cmd $sig\""
+}
+unset n cmd sig
+
+# -------------------------------------------------------------------------
+## trim, trimleft, trimright
+
+test textutil-trim-3.0 {trim, empty string} -body {
+    list [::textutil::trim::trim ""] \
+	[::textutil::trim::trimleft ""] \
+	[::textutil::trim::trimright ""]
+} -result {{} {} {}}
+
+test textutil-trim-3.1 {trim, only spaces and tabs} -body {
+    list [::textutil::trim::trim " \t "] \
+	[::textutil::trim::trimleft " \t "] \
+	[::textutil::trim::trimright " \t "]
+} -result {{} {} {}}
+
+test textutil-trim-3.2 {trim, other whitespace is not trimmed by default} -body {
+    ::textutil::trim::trim "\v\f x \v\f"
+} -result "\v\f x \v\f"
+
+test textutil-trim-3.3 {trim, nothing to trim} -body {
+    ::textutil::trim::trim "a b"
+} -result "a b"
+
+test textutil-trim-3.4 {trim, newlines are kept, every line is trimmed} -body {
+    ::textutil::trim::trim " a \n\n b \n"
+} -result "a\n\nb\n"
+
+test textutil-trim-3.5 {trimleft, every line} -body {
+    ::textutil::trim::trimleft " a \n b "
+} -result "a \nb "
+
+test textutil-trim-3.6 {trimright, every line} -body {
+    ::textutil::trim::trimright " a \n b "
+} -result " a\n b"
+
+test textutil-trim-3.7 {trim, regexp with alternation} -body {
+    ::textutil::trim::trim "xyabcyx" {x|y}
+} -result "yabcy"
+
+test textutil-trim-3.8 {trim, regexp matches only at the ends} -body {
+    ::textutil::trim::trim "--a--b--" {-+}
+} -result "a--b"
+
+test textutil-trim-3.9 {trimleft, custom regexp} -body {
+    ::textutil::trim::trimleft "0042" {0+}
+} -result "42"
+
+test textutil-trim-3.10 {trimright, custom regexp} -body {
+    ::textutil::trim::trimright "1.2500" {0+}
+} -result "1.25"
+
+test textutil-trim-3.11 {trim, invalid regexp} -body {
+    ::textutil::trim::trim abc {[}
+} -returnCodes error -match glob -result {*compile regular expression pattern: *}
+
+# -------------------------------------------------------------------------
+## trimPrefix
+
+test textutil-trim-4.0 {trimPrefix, prefix present} -body {
+    ::textutil::trim::trimPrefix "prefix.rest" "prefix."
+} -result "rest"
+
+test textutil-trim-4.1 {trimPrefix, prefix absent} -body {
+    ::textutil::trim::trimPrefix "abc" "x"
+} -result "abc"
+
+test textutil-trim-4.2 {trimPrefix, prefix elsewhere in the string} -body {
+    ::textutil::trim::trimPrefix "abcabc" "bc"
+} -result "abcabc"
+
+test textutil-trim-4.3 {trimPrefix, prefix removed only once} -body {
+    ::textutil::trim::trimPrefix "ababx" "ab"
+} -result "abx"
+
+test textutil-trim-4.4 {trimPrefix, prefix equal to the string} -body {
+    ::textutil::trim::trimPrefix "abc" "abc"
+} -result ""
+
+test textutil-trim-4.5 {trimPrefix, prefix longer than the string} -body {
+    ::textutil::trim::trimPrefix "ab" "abc"
+} -result "ab"
+
+test textutil-trim-4.6 {trimPrefix, empty prefix} -body {
+    ::textutil::trim::trimPrefix "abc" ""
+} -result "abc"
+
+test textutil-trim-4.7 {trimPrefix, empty string} -body {
+    ::textutil::trim::trimPrefix "" "abc"
+} -result ""
+
+test textutil-trim-4.8 {trimPrefix, prefix is not a character set} -body {
+    ::textutil::trim::trimPrefix "aab" "ab"
+} -result "aab"
+
+test textutil-trim-4.9 {trimPrefix, prefix is not a pattern} -body {
+    list [::textutil::trim::trimPrefix "abc" "a*"] \
+	[::textutil::trim::trimPrefix "a*bc" "a*"]
+} -result {abc bc}
+
+test textutil-trim-4.10 {trimPrefix, case sensitive} -body {
+    ::textutil::trim::trimPrefix "Abc" "a"
+} -result "Abc"
+
+test textutil-trim-4.11 {trimPrefix, non-ASCII} -body {
+    ::textutil::trim::trimPrefix "пере-клад" "пере-"
+} -result "клад"
+
+# -------------------------------------------------------------------------
+## trimEmptyHeading
+
+test textutil-trim-5.0 {trimEmptyHeading, empty string} -body {
+    ::textutil::trim::trimEmptyHeading ""
+} -result ""
+
+test textutil-trim-5.1 {trimEmptyHeading, no leading empty lines} -body {
+    ::textutil::trim::trimEmptyHeading "a\n\nb\n"
+} -result "a\n\nb\n"
+
+test textutil-trim-5.2 {trimEmptyHeading, leading empty lines} -body {
+    ::textutil::trim::trimEmptyHeading "\n\n\na\nb"
+} -result "a\nb"
+
+test textutil-trim-5.3 {trimEmptyHeading, leading whitespace-only lines} -body {
+    ::textutil::trim::trimEmptyHeading " \n\t\n  \t \na\n"
+} -result "a\n"
+
+test textutil-trim-5.4 {trimEmptyHeading, indentation of first line kept} -body {
+    ::textutil::trim::trimEmptyHeading "\n  \n    a\n"
+} -result "    a\n"
+
+test textutil-trim-5.5 {trimEmptyHeading, inner and trailing empty lines kept} -body {
+    ::textutil::trim::trimEmptyHeading "\na\n\n \nb\n\n"
+} -result "a\n\n \nb\n\n"
+
+test textutil-trim-5.6 {trimEmptyHeading, single line} -body {
+    ::textutil::trim::trimEmptyHeading "  a  "
+} -result "  a  "
+
+# -------------------------------------------------------------------------
+## Exports
+
+test textutil-trim-6.0 {exported commands} -body {
+    lsort [namespace eval ::textutil::trim {namespace export}]
+} -result {trim trimEmptyHeading trimPrefix trimleft trimright}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return

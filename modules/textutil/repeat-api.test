@@ -1,0 +1,108 @@
+# -*- tcl -*-
+# repeat-api.test:  API tests for the textutil::repeat package.
+#
+# Complements repeat.test (strRepeat with "." and various counts) and
+# textutil.test (blank through the textutil bundle).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal repeat.tcl textutil::repeat
+}
+
+# -------------------------------------------------------------------------
+## strRepeat
+
+test textutil-repeat-1.0 {strRepeat, wrong # args, not enough} -body {
+    ::textutil::repeat::strRepeat a
+} -returnCodes error \
+    -result {wrong # args: should be "::textutil::repeat::strRepeat char num"}
+
+test textutil-repeat-1.1 {strRepeat, wrong # args, too many} -body {
+    ::textutil::repeat::strRepeat a 1 2
+} -returnCodes error \
+    -result {wrong # args: should be "::textutil::repeat::strRepeat char num"}
+
+test textutil-repeat-1.2 {strRepeat, count not an integer} -body {
+    ::textutil::repeat::strRepeat a x
+} -returnCodes error -result {expected integer but got "x"}
+
+test textutil-repeat-2.0 {strRepeat, multi-character text} -body {
+    ::textutil::repeat::strRepeat ab 3
+} -result ababab
+
+test textutil-repeat-2.1 {strRepeat, no separators between repetitions} -body {
+    ::textutil::repeat::strRepeat "a b" 2
+} -result "a ba b"
+
+test textutil-repeat-2.2 {strRepeat, empty text} -body {
+    ::textutil::repeat::strRepeat "" 5
+} -result ""
+
+test textutil-repeat-2.3 {strRepeat, large negative count} -body {
+    ::textutil::repeat::strRepeat ab -100
+} -result ""
+
+test textutil-repeat-2.4 {strRepeat, non-ASCII text} -body {
+    ::textutil::repeat::strRepeat "ґ" 3
+} -result "ґґґ"
+
+test textutil-repeat-2.5 {strRepeat, odd count} -body {
+    string length [::textutil::repeat::strRepeat xyz 7]
+} -result 21
+
+test textutil-repeat-2.6 {strRepeat, newline text} -body {
+    ::textutil::repeat::strRepeat "\n" 2
+} -result "\n\n"
+
+# -------------------------------------------------------------------------
+## blank
+
+test textutil-repeat-3.0 {blank, wrong # args, not enough} -body {
+    ::textutil::repeat::blank
+} -returnCodes error \
+    -result {wrong # args: should be "::textutil::repeat::blank n"}
+
+test textutil-repeat-3.1 {blank, wrong # args, too many} -body {
+    ::textutil::repeat::blank 1 2
+} -returnCodes error \
+    -result {wrong # args: should be "::textutil::repeat::blank n"}
+
+test textutil-repeat-3.2 {blank, count not an integer} -body {
+    ::textutil::repeat::blank x
+} -returnCodes error -result {expected integer but got "x"}
+
+test textutil-repeat-4.0 {blank, zero} -body {
+    ::textutil::repeat::blank 0
+} -result ""
+
+test textutil-repeat-4.1 {blank, negative} -body {
+    ::textutil::repeat::blank -3
+} -result ""
+
+test textutil-repeat-4.2 {blank, several spaces} -body {
+    ::textutil::repeat::blank 5
+} -result "     "
+
+test textutil-repeat-4.3 {blank, same as strRepeat with a space} -body {
+    string equal [::textutil::repeat::blank 17] \
+	[::textutil::repeat::strRepeat " " 17]
+} -result 1
+
+# -------------------------------------------------------------------------
+## Exports
+
+test textutil-repeat-5.0 {exported commands} -body {
+    lsort [namespace eval ::textutil::repeat {namespace export}]
+} -result {blank strRepeat}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return

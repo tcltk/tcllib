@@ -1,0 +1,669 @@
+# -*- tcl -*-
+# expander-api.test:  API tests for the textutil::expander package.
+#
+# Complements expander.test (accessors, context stack basics, expansion,
+# error modes, evalcmd, textcmd).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal expander.tcl textutil::expander
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# Delete an expander object together with its state.
+proc delexp {name} {
+    rename $name {}
+    array unset ::textutil::expander::Info $name-*
+    return
+}
+
+proc howdy {} {return Howdy}
+
+# -------------------------------------------------------------------------
+## Creation
+
+test textutil-expander-1.0 {expander, wrong # args, not enough} -body {
+    ::textutil::expander
+} -returnCodes error \
+    -result {wrong # args: should be "::textutil::expander name"}
+
+test textutil-expander-1.1 {expander, wrong # args, too many} -body {
+    ::textutil::expander a b
+} -returnCodes error \
+    -result {wrong # args: should be "::textutil::expander name"}
+
+test textutil-expander-1.2 {expander, returns the fully qualified name} -body {
+    ::textutil::expander tx
+} -cleanup {
+    delexp ::tx
+} -result ::tx
+
+test textutil-expander-1.3 {expander, fully qualified name} -setup {
+    namespace eval ::txns {}
+} -body {
+    list [::textutil::expander ::txns::e] [info commands ::txns::e]
+} -cleanup {
+    delexp ::txns::e
+    namespace delete ::txns
+} -result {::txns::e ::txns::e}
+
+test textutil-expander-1.4 {expander, name relative to the current namespace} -setup {
+    namespace eval ::txns {}
+} -body {
+    namespace eval ::txns {::textutil::expander e}
+} -cleanup {
+    delexp ::txns::e
+    namespace delete ::txns
+} -result ::txns::e
+
+test textutil-expander-1.5 {expander, existing command} -setup {
+    ::textutil::expander tx
+} -body {
+    ::textutil::expander tx
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {command name "::tx" already exists}
+
+test textutil-expander-1.6 {expander, name of an existing non-expander command} -body {
+    ::textutil::expander ::set
+} -returnCodes error -result {command name "::set" already exists}
+
+test textutil-expander-1.7 {expander, independent objects} -setup {
+    ::textutil::expander tx1
+    ::textutil::expander tx2
+} -body {
+    tx1 setbrackets << >>
+    list [tx1 lb] [tx2 lb] [tx1 expand {<<howdy>>}] [tx2 expand {[howdy]}]
+} -cleanup {
+    delexp ::tx1
+    delexp ::tx2
+} -result {<< {[} Howdy Howdy}
+
+# -------------------------------------------------------------------------
+## Method dispatch
+
+test textutil-expander-2.0 {object, no method} -setup {
+    ::textutil::expander tx
+} -body {
+    tx
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {wrong # args: should be "tx method ?arg ...?"}
+
+test textutil-expander-2.1 {object, unknown method} -setup {
+    ::textutil::expander tx
+} -body {
+    tx bogus
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {"::tx bogus" is not defined}
+
+foreach {n method sig} {
+    0  cappend     {text}
+    1  cget        {varname}
+    2  cis         {cname}
+    3  cpop        {cname}
+    4  cpush       {cname}
+    5  cset        {varname value}
+    6  cvar        {varname}
+    7  expand      {inputString ?brackets?}
+    8  setbrackets {lbrack rbrack}
+} {
+    test textutil-expander-2.1.$n "$method, wrong # args, not enough" -setup {
+	::textutil::expander tx
+    } -body {
+	tx $method
+    } -cleanup {
+	delexp ::tx
+    } -returnCodes error -result "wrong # args: should be \"::tx $method name $sig\""
+}
+unset n method sig
+
+foreach {n method nargs sig} {
+    0  cname        1 {}
+    1  ctopandclear 1 {}
+    2  where        1 {}
+    3  reset        1 {}
+    4  lb           2 { ?newbracket?}
+    5  rb           2 { ?newbracket?}
+    6  errmode      2 { ?newErrmode?}
+    7  evalcmd      2 { ?newEvalCmd?}
+    8  cappend      2 { text}
+    9  cpush        2 { cname}
+    10 setbrackets  3 { lbrack rbrack}
+    11 expand       3 { inputString ?brackets?}
+} {
+    test textutil-expander-2.2.$n "$method, wrong # args, too many" -setup {
+	::textutil::expander tx
+    } -body {
+	tx $method {*}[lrepeat $nargs x]
+    } -cleanup {
+	delexp ::tx
+    } -returnCodes error -result "wrong # args: should be \"::tx $method name$sig\""
+}
+unset n method nargs sig
+
+test textutil-expander-2.3 {textcmd, wrong # args} -setup {
+    ::textutil::expander tx
+} -body {
+    tx textcmd a b
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {wrong#args for textcmd: name ?newTextcmd?}
+
+# -------------------------------------------------------------------------
+## lb, rb, setbrackets
+
+test textutil-expander-3.0 {lb, empty argument only queries} -setup {
+    ::textutil::expander tx
+} -body {
+    list [tx lb ""] [tx rb ""]
+} -cleanup {
+    delexp ::tx
+} -result [list \[ \]]
+
+test textutil-expander-3.1 {setbrackets, returns empty and sets both} -setup {
+    ::textutil::expander tx
+} -body {
+    list [tx setbrackets (* *)] [tx lb] [tx rb] [tx expand {a (*howdy*) b}]
+} -cleanup {
+    delexp ::tx
+} -result {{} (* *) {a Howdy b}}
+
+test textutil-expander-3.2 {setbrackets, arbitrary strings} -setup {
+    ::textutil::expander tx
+} -body {
+    tx setbrackets Hello, World!
+    tx expand {Hello,howdyWorld! [howdy]}
+} -cleanup {
+    delexp ::tx
+} -result {Howdy [howdy]}
+
+test textutil-expander-3.3 {setbrackets, persists across expansions} -setup {
+    ::textutil::expander tx
+} -body {
+    tx setbrackets < >
+    list [tx expand {<howdy>}] [tx expand {<howdy>}] [tx lb] [tx rb]
+} -cleanup {
+    delexp ::tx
+} -result {Howdy Howdy < >}
+
+test textutil-expander-3.4 {lb and rb within a macro produce the brackets} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[tx lb]howdy[tx rb] = [howdy]}
+} -cleanup {
+    delexp ::tx
+} -result {[howdy] = Howdy}
+
+test textutil-expander-3.5 {expand, temporary brackets do not change settings} -setup {
+    ::textutil::expander tx
+} -body {
+    list [tx expand {<<howdy>> [x]} {<< >>}] [tx lb] [tx rb]
+} -cleanup {
+    delexp ::tx
+} -result [list {Howdy [x]} \[ \]]
+
+test textutil-expander-3.6 {expand, brackets argument not a pair is ignored} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {<howdy> [howdy]} {< > x}
+} -cleanup {
+    delexp ::tx
+} -result {<howdy> Howdy}
+
+test textutil-expander-3.7 {expand, a bracketed macro must be complete} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[string length {a]b}]}
+} -cleanup {
+    delexp ::tx
+} -result 3
+
+# -------------------------------------------------------------------------
+## errmode, evalcmd, textcmd, reset
+
+test textutil-expander-4.0 {errmode, empty argument only queries} -setup {
+    ::textutil::expander tx
+} -body {
+    tx errmode macro
+    tx errmode ""
+} -cleanup {
+    delexp ::tx
+} -result macro
+
+test textutil-expander-4.1 {evalcmd, empty argument only queries} -setup {
+    ::textutil::expander tx
+} -body {
+    tx evalcmd ""
+} -cleanup {
+    delexp ::tx
+} -result {uplevel #0}
+
+test textutil-expander-4.2 {evalcmd, command prefix gets the macro} -setup {
+    ::textutil::expander tx
+    proc tagged {tag macro} {return <$tag:$macro>}
+} -body {
+    tx evalcmd {tagged T}
+    tx expand {a[b c]d}
+} -cleanup {
+    delexp ::tx
+    rename tagged {}
+} -result {a<T:b c>d}
+
+test textutil-expander-4.3 {evalcmd, macros run in the global context by default} -setup {
+    ::textutil::expander tx
+    proc runit {} {
+	set localvar local
+	tx expand {[info level]}
+    }
+} -body {
+    runit
+} -cleanup {
+    delexp ::tx
+    rename runit {}
+} -result 0
+
+test textutil-expander-4.4 {textcmd, applied to plain text only} -setup {
+    ::textutil::expander tx
+} -body {
+    tx textcmd {string toupper}
+    tx expand {abc[howdy]def}
+} -cleanup {
+    delexp ::tx
+} -result {ABCHowdyDEF}
+
+test textutil-expander-4.5 {textcmd, run through evalcmd} -setup {
+    ::textutil::expander tx
+    proc tagged {macro} {return <$macro>}
+} -body {
+    tx textcmd T
+    tx evalcmd tagged
+    tx expand {ab[c]}
+} -cleanup {
+    delexp ::tx
+    rename tagged {}
+} -result {<T ab><c>}
+
+test textutil-expander-4.6 {textcmd, reset to identity with empty argument} -setup {
+    ::textutil::expander tx
+} -body {
+    tx textcmd {string toupper}
+    list [tx textcmd {}] [tx expand {abc}]
+} -cleanup {
+    delexp ::tx
+} -result {{} abc}
+
+test textutil-expander-4.7 {textcmd, error in error mode fail} -setup {
+    ::textutil::expander tx
+} -body {
+    tx textcmd nosuchcommand
+    tx expand {abc}
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {Error in plain text at line 1, column 0:
+[nosuchcommand abc]
+--> invalid command name "nosuchcommand"}
+
+test textutil-expander-4.8 {textcmd, error in error mode nothing} -setup {
+    ::textutil::expander tx
+} -body {
+    tx textcmd nosuchcommand
+    tx errmode nothing
+    tx expand {abc[howdy]}
+} -cleanup {
+    delexp ::tx
+} -result {abcHowdy}
+
+test textutil-expander-4.9 {reset restores evalcmd, textcmd and brackets} -setup {
+    ::textutil::expander tx
+} -body {
+    tx evalcmd identity
+    tx textcmd {string toupper}
+    tx setbrackets < >
+    tx errmode nothing
+    tx reset
+    list [tx evalcmd] [tx textcmd] [tx lb] [tx rb] [tx errmode] [tx cname]
+} -cleanup {
+    delexp ::tx
+} -result [list {uplevel #0} {} \[ \] fail :0]
+
+test textutil-expander-4.10 {reset empties the context stack} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    tx cset v 1
+    tx cpush B
+    tx reset
+    list [tx cname] [catch {tx cpop A} msg] $msg
+} -cleanup {
+    delexp ::tx
+    unset msg
+} -result {:0 1 {::tx cpop underflow on 'A'}}
+
+# -------------------------------------------------------------------------
+## Context stack
+
+test textutil-expander-5.0 {cis, false} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    list [tx cis A] [tx cis B] [tx cis :0]
+} -cleanup {
+    delexp ::tx
+} -result {1 0 0}
+
+test textutil-expander-5.1 {cset returns the value} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    tx cset v 42
+} -cleanup {
+    delexp ::tx
+} -result 42
+
+test textutil-expander-5.2 {cvar, usable with lappend} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    tx cset items {}
+    lappend [tx cvar items] x y
+    tx cget items
+} -cleanup {
+    delexp ::tx
+} -result {x y}
+
+test textutil-expander-5.3 {context variables are local to the context} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    tx cset v 1
+    tx cpush B
+    list [catch {tx cget v} msg] $msg
+} -cleanup {
+    delexp ::tx
+    unset msg
+} -result {1 {::tx cget: v doesn't exist in this context (2)}}
+
+# Op_cpop calls [array names] with a wrong argument, so the variables of a
+# popped context remain visible in the next context pushed at that level.
+test textutil-expander-5.4 {context variables are gone after cpop} -constraints knownBug -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    tx cset v 1
+    tx cpop A
+    tx cpush A
+    list [catch {tx cget v} msg] $msg
+} -cleanup {
+    delexp ::tx
+    unset msg
+} -result {1 {::tx cget: v doesn't exist in this context (1)}}
+
+test textutil-expander-5.5 {cpop, returns only the output of its context} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cappend base
+    tx cpush A
+    tx cappend inner
+    list [tx cpop A] [tx cname]
+} -cleanup {
+    delexp ::tx
+} -result {inner :0}
+
+test textutil-expander-5.6 {ctopandclear, returns and clears the output} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    tx cappend one
+    set r [tx ctopandclear]
+    tx cappend two
+    list $r [tx cname] [tx cpop A]
+} -cleanup {
+    delexp ::tx
+    unset r
+} -result {one A two}
+
+test textutil-expander-5.7 {ctopandclear, keeps context variables} -setup {
+    ::textutil::expander tx
+} -body {
+    tx cpush A
+    tx cset v 1
+    tx cappend one
+    tx ctopandclear
+    tx cget v
+} -cleanup {
+    delexp ::tx
+} -result 1
+
+test textutil-expander-5.8 {ctopandclear, nothing pushed} -setup {
+    ::textutil::expander tx
+} -body {
+    tx ctopandclear
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {::tx cpop underflow on ':0'}
+
+test textutil-expander-5.9 {ctopandclear, within a macro keeps brackets} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {abc[tx ctopandclear; tx setbrackets < >; list]def<howdy>}
+} -cleanup {
+    delexp ::tx
+} -result {defHowdy}
+
+test textutil-expander-5.10 {cname inside expand} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[tx cname]}
+} -cleanup {
+    delexp ::tx
+} -result expand
+
+# Footnote example from the manual page, using the context stack.
+test textutil-expander-5.11 {macro pair using the context stack} -setup {
+    ::textutil::expander tx
+    proc footnote {num} {
+	tx cpush footnote
+	tx cset num $num
+	return
+    }
+    proc /footnote {} {
+	set num [tx cget num]
+	set text [tx cpop footnote]
+	lappend ::notes $num $text
+	return <$num>
+    }
+    set ::notes {}
+} -body {
+    list [tx expand {See this[footnote 1]a [howdy] note[/footnote].}] $::notes
+} -cleanup {
+    delexp ::tx
+    rename footnote {}
+    rename /footnote {}
+    unset ::notes
+} -result {{See this<1>.} {1 {a Howdy note}}}
+
+test textutil-expander-5.12 {expand, context pushed by a macro not popped} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[tx cpush FOO]x}
+} -cleanup {
+    delexp ::tx
+} -returnCodes error \
+    -result {The following context pushed by the macros was not popped: FOO.}
+
+test textutil-expander-5.13 {expand, contexts pushed by macros not popped} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[tx cpush FOO][tx cpush BAR]x}
+} -cleanup {
+    delexp ::tx
+} -returnCodes error \
+    -result {The following contexts pushed by the macros were not popped: FOO,BAR.}
+
+# The check for too many pops in Op_expand is never reached: updating the
+# location after the macro already fails with an internal cget error.
+test textutil-expander-5.14 {expand, macro pops more than it pushed} -constraints knownBug -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[tx cpop expand]x}
+} -cleanup {
+    delexp ::tx
+} -returnCodes error \
+    -result {The macros popped 1 more context than they had pushed.}
+
+# -------------------------------------------------------------------------
+## where
+
+test textutil-expander-6.0 {where, at the start} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[tx where]}
+} -cleanup {
+    delexp ::tx
+} -result {0 1 0}
+
+test textutil-expander-6.1 {where, after plain text on one line} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {abc[tx where]}
+} -cleanup {
+    delexp ::tx
+} -result {abc3 1 3}
+
+test textutil-expander-6.2 {where, after plain text on several lines} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand "ab\ncd\[tx where\]"
+} -cleanup {
+    delexp ::tx
+} -result "ab\ncd5 2 2"
+
+test textutil-expander-6.3 {where, after another macro} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[howdy]x[tx where]}
+} -cleanup {
+    delexp ::tx
+} -result {Howdyx8 1 8}
+
+# -------------------------------------------------------------------------
+## Expansion errors
+
+test textutil-expander-7.0 {expand, unterminated macro, error mode fail} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {ab[howdy}
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -match glob \
+    -result {Error in reading macro at line 1, column 2:*Unexpected EOF in macro:?\[howdy}
+
+test textutil-expander-7.1 {expand, unterminated macro, error mode nothing} -setup {
+    ::textutil::expander tx
+} -body {
+    tx errmode nothing
+    tx expand {ab[howdy}
+} -cleanup {
+    delexp ::tx
+} -result {ab}
+
+test textutil-expander-7.2 {expand, error mode error, expansion continues} -setup {
+    ::textutil::expander tx
+} -body {
+    tx errmode error
+    tx expand {[nosuchcommand][howdy]}
+} -cleanup {
+    delexp ::tx
+} -match glob -result {
+=================================
+*** Error in macro at line 1, column 0:
+*** \[nosuchcommand\]
+--> invalid command name "nosuchcommand"
+=================================
+Howdy}
+
+test textutil-expander-7.3 {expand, error mode macro uses current brackets} -setup {
+    ::textutil::expander tx
+} -body {
+    tx errmode macro
+    tx expand {a<<nosuchcommand>>b<<howdy>>} {<< >>}
+} -cleanup {
+    delexp ::tx
+} -result {a<<nosuchcommand>>bHowdy}
+
+test textutil-expander-7.4 {expand, error mode fail, long macro is abbreviated} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[nosuchcommand with a rather long list of arguments]}
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {Error in macro at line 1, column 0:
+[nosuchcommand with a rather lo...]
+--> invalid command name "nosuchcommand"}
+
+test textutil-expander-7.5 {expand, error raised by a macro} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {x[error boom]}
+} -cleanup {
+    delexp ::tx
+} -returnCodes error -result {Error in macro at line 1, column 1:
+[error boom]
+--> boom}
+
+# After a failed expansion (error mode fail) the brackets given to expand
+# and the context pushed by expand are not restored.
+test textutil-expander-7.6 {expand, brackets restored after an error} -constraints knownBug -setup {
+    ::textutil::expander tx
+} -body {
+    catch {tx expand {a<<nosuchcommand>>b} {<< >>}}
+    list [tx lb] [tx rb]
+} -cleanup {
+    delexp ::tx
+} -result [list \[ \]]
+
+test textutil-expander-7.7 {expand, context stack restored after an error} -constraints knownBug -setup {
+    ::textutil::expander tx
+} -body {
+    catch {tx expand {a[nosuchcommand]b}}
+    tx cname
+} -cleanup {
+    delexp ::tx
+} -result :0
+
+# -------------------------------------------------------------------------
+## Nesting
+
+test textutil-expander-8.0 {nested expand with other brackets} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[tx expand {<howdy>[x]} {< >}] [howdy]}
+} -cleanup {
+    delexp ::tx
+} -result {Howdy[x] Howdy}
+
+test textutil-expander-8.1 {expand, result of expansion not re-expanded} -setup {
+    ::textutil::expander tx
+} -body {
+    tx expand {[list {[howdy]}]}
+} -cleanup {
+    delexp ::tx
+} -result {{[howdy]}}
+
+# -------------------------------------------------------------------------
+rename delexp {}
+rename howdy  {}
+testsuiteCleanup
+return

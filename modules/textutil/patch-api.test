@@ -1,0 +1,307 @@
+# -*- tcl -*-
+# patch-api.test:  API tests for the textutil::patch package.
+#
+# Complements patch.test (wrong # args, successful application of diff
+# -ruN, git and fossil patches to a single file).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal patch.tcl textutil::patch
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+variable scratch [file join [tcltest::temporaryDirectory] patch-api-scratch]
+
+# Create the scratch directory with the given files (name content ...).
+proc mkscratch {args} {
+    variable scratch
+    file delete -force $scratch
+    file mkdir $scratch
+    foreach {name content} $args {
+	set path [file join $scratch {*}[file split $name]]
+	file mkdir [file dirname $path]
+	set fd [open $path w]
+	puts -nonewline $fd $content
+	close $fd
+    }
+    set ::trace {}
+    return
+}
+
+proc rmscratch {} {
+    variable scratch
+    file delete -force $scratch
+    unset -nocomplain ::trace
+    return
+}
+
+proc content {name} {
+    variable scratch
+    set fd [open [file join $scratch {*}[file split $name]]]
+    set data [read $fd]
+    close $fd
+    return $data
+}
+
+proc path {name} {
+    variable scratch
+    file join $scratch {*}[file split $name]
+}
+
+proc record {args} {lappend ::trace $args}
+
+# Patch text, lines joined with newlines.
+proc ptext {args} {
+    return [join $args \n]\n
+}
+
+# -------------------------------------------------------------------------
+## Successful application
+
+test textutil-patch-api-1.0 {apply, returns empty, reports the file} -setup {
+    mkscratch f.txt "a\nb\nc\n"
+} -body {
+    set r [textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,3 +1,3 @@" " a" "-b" "+B" " c"] record]
+    list $r $::trace [content f.txt]
+} -cleanup {
+    rmscratch
+    unset r
+} -result [list {} [list [list apply [path f.txt]]] "a\nB\nc\n"]
+
+test textutil-patch-api-1.1 {apply, strip level 0} -setup {
+    mkscratch f.txt "a\nb\nc\n"
+} -body {
+    textutil::patch apply $scratch 0 [ptext \
+	"--- f.txt" "+++ f.txt" "@@ -1,3 +1,3 @@" " a" "-b" "+B" " c"] record
+    content f.txt
+} -cleanup {
+    rmscratch
+} -result "a\nB\nc\n"
+
+test textutil-patch-api-1.2 {apply, strip level 2, file in a subdirectory} -setup {
+    mkscratch sub/f.txt "a\nb\nc\n"
+} -body {
+    textutil::patch apply $scratch 2 [ptext \
+	"--- x/y/sub/f.txt" "+++ x/y/sub/f.txt" "@@ -1,3 +1,3 @@" " a" "-b" "+B" " c"] record
+    list $::trace [content sub/f.txt]
+} -cleanup {
+    rmscratch
+} -result [list [list [list apply [path sub/f.txt]]] "a\nB\nc\n"]
+
+test textutil-patch-api-1.3 {apply, lines added and removed} -setup {
+    mkscratch f.txt "1\n2\n3\n4\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,4 +1,5 @@" \
+	" 1" "-2" "+2a" "+2b" "+2c" " 3" "-4"] record
+    content f.txt
+} -cleanup {
+    rmscratch
+} -result "1\n2a\n2b\n2c\n3\n"
+
+test textutil-patch-api-1.4 {apply, several hunks in one file} -setup {
+    mkscratch f.txt "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" \
+	"@@ -1,3 +1,4 @@" " 1" "+1.5" " 2" " 3" \
+	"@@ -8,3 +9,2 @@" " 8" "-9" " 10"] record
+    list $::trace [content f.txt]
+} -cleanup {
+    rmscratch
+} -result [list [list [list apply [path f.txt]]] "1\n1.5\n2\n3\n4\n5\n6\n7\n8\n10\n"]
+
+test textutil-patch-api-1.5 {apply, several files} -setup {
+    mkscratch f.txt "a\nb\n" g.txt "x\ny\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,2 +1,2 @@" "-a" "+A" " b" \
+	"--- a/g.txt" "+++ b/g.txt" "@@ -1,2 +1,2 @@" " x" "-y" "+Y"] record
+    list $::trace [content f.txt] [content g.txt]
+} -cleanup {
+    rmscratch
+} -result [list [list [list apply [path f.txt]] [list apply [path g.txt]]] "A\nb\n" "x\nY\n"]
+
+test textutil-patch-api-1.6 {apply, junk lines between diffs are ignored} -setup {
+    mkscratch f.txt "a\nb\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"Index: f.txt" "=====" "diff -u a/f.txt b/f.txt" \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,2 +1,2 @@" "-a" "+A" " b"] record
+    content f.txt
+} -cleanup {
+    rmscratch
+} -result "A\nb\n"
+
+test textutil-patch-api-1.7 {apply, report command prefix with arguments} -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,1 +1,1 @@" "-a" "+A"] {record extra}
+    set ::trace
+} -cleanup {
+    rmscratch
+} -result [list [list extra apply [path f.txt]]]
+
+test textutil-patch-api-1.8 {apply, report command runs at the global level} -setup {
+    mkscratch f.txt "a\n"
+    namespace eval ::tpns {
+	proc rec {args} {
+	    lappend ::trace [uplevel 1 {namespace current}] [info level]
+	}
+    }
+    set p [ptext "--- a/f.txt" "+++ b/f.txt" "@@ -1,1 +1,1 @@" "-a" "+A"]
+} -body {
+    namespace eval ::tpns [list textutil::patch apply $scratch 1 $p ::tpns::rec]
+    set ::trace
+} -cleanup {
+    rmscratch
+    namespace delete ::tpns
+    unset p
+} -result {:: 1}
+
+# -------------------------------------------------------------------------
+## Failures reported through the report command
+
+test textutil-patch-api-2.0 {apply, hunk does not match} -setup {
+    mkscratch f.txt "a\nb\nc\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,3 +1,3 @@" " a" "-x" "+B" " c"] record
+    list $::trace [content f.txt]
+} -cleanup {
+    rmscratch
+} -result [list [list [list apply [path f.txt]] [list fail [path f.txt] 1 {a x c} {a b c}]] "a\nb\nc\n"]
+
+test textutil-patch-api-2.1 {apply, hunk already applied} -setup {
+    mkscratch f.txt "a\nB\nc\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,3 +1,3 @@" " a" "-b" "+B" " c"] record
+    list $::trace [content f.txt]
+} -cleanup {
+    rmscratch
+} -result [list [list [list apply [path f.txt]] [list fail-already [path f.txt] 1]] "a\nB\nc\n"]
+
+test textutil-patch-api-2.2 {apply, second hunk fails, file unchanged} -setup {
+    mkscratch f.txt "1\n2\n3\n4\n5\n6\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" \
+	"@@ -1,2 +1,2 @@" "-1" "+one" " 2" \
+	"@@ -5,2 +5,2 @@" " 5" "-X" "+six"] record
+    list $::trace [content f.txt]
+} -cleanup {
+    rmscratch
+} -result [list [list [list apply [path f.txt]] [list fail [path f.txt] 2 {5 X} {5 6}]] "1\n2\n3\n4\n5\n6\n"]
+
+test textutil-patch-api-2.3 {apply, other files are patched despite a failure} -setup {
+    mkscratch f.txt "a\n" g.txt "x\n" h.txt "p\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,1 +1,1 @@" "-a" "+A" \
+	"--- a/g.txt" "+++ b/g.txt" "@@ -1,1 +1,1 @@" "-nomatch" "+X" \
+	"--- a/h.txt" "+++ b/h.txt" "@@ -1,1 +1,1 @@" "-p" "+P"] record
+    list [lindex $::trace 2] [content f.txt] [content g.txt] [content h.txt]
+} -cleanup {
+    rmscratch
+} -result [list [list fail [path g.txt] 1 nomatch x] "A\n" "x\n" "P\n"]
+
+# -------------------------------------------------------------------------
+## Errors
+
+test textutil-patch-api-3.0 {apply, "---" line not followed by "+++"} -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "*** b/f.txt" "@@ -1,1 +1,1 @@" "-a" "+A"] record
+} -cleanup {
+    rmscratch
+} -returnCodes error -match glob -result {Patch not in unified diff format, line 1 *}
+
+test textutil-patch-api-3.1 {apply, parse error, nothing is changed or reported} -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    catch {textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1,1 +1,1 @@" "-a" "+A" \
+	"--- a/g.txt" "*** b/g.txt"] record}
+    list $::trace [content f.txt]
+} -cleanup {
+    rmscratch
+} -result [list {} "a\n"]
+
+test textutil-patch-api-3.2 {apply, malformed hunk header is an error} -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    list [catch {textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ bogus @@" "-a" "+A"] record}] \
+	$::trace [content f.txt]
+} -cleanup {
+    rmscratch
+} -result [list 1 {} "a\n"]
+
+# The error branch for a malformed hunk header uses "return code -error"
+# and an undefined variable; it fails with "can't read lindeidx".
+test textutil-patch-api-3.3 {apply, malformed hunk header, message} -constraints knownBug -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ bogus @@" "-a" "+A"] record
+} -cleanup {
+    rmscratch
+} -returnCodes error -match glob -result {Erroneous hunk*}
+
+# Unified diff omits the line count when it is 1 ("@@ -1 +1 @@", as
+# produced by diff and git); the parser requires the count.
+test textutil-patch-api-3.4 {apply, hunk header without line counts} -constraints knownBug -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/f.txt" "+++ b/f.txt" "@@ -1 +1 @@" "-a" "+A"] record
+    content f.txt
+} -cleanup {
+    rmscratch
+} -result "A\n"
+
+# diff -N writes new files as a diff against an empty file. Opening the
+# missing file fails and the error message is then passed to [close].
+test textutil-patch-api-3.5 {apply, new file (diff -N)} -constraints knownBug -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    textutil::patch apply $scratch 1 [ptext \
+	"--- a/new.txt" "+++ b/new.txt" "@@ -0,0 +1,2 @@" "+x" "+y"] record
+    content new.txt
+} -cleanup {
+    rmscratch
+} -result "x\ny\n"
+
+# The manual says an error is thrown if nothing is done to the files.
+test textutil-patch-api-3.6 {apply, empty patch} -constraints knownBug -setup {
+    mkscratch f.txt "a\n"
+} -body {
+    textutil::patch apply $scratch 1 "" record
+} -cleanup {
+    rmscratch
+} -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------
+rename mkscratch {}
+rename rmscratch {}
+rename content {}
+rename path {}
+rename record {}
+rename ptext {}
+unset scratch
+testsuiteCleanup
+return

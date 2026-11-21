@@ -1,0 +1,103 @@
+# -*- tcl -*-
+# textutil-api.test:  API tests for the textutil bundle package.
+#
+# Complements textutil.test. Checks that the bundle provides all the
+# commands of its subpackages documented in textutil(n).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal     string.tcl   textutil::string
+    useLocal     repeat.tcl   textutil::repeat
+    useLocal     adjust.tcl   textutil::adjust
+    useLocal     split.tcl    textutil::split
+    useLocal     tabify.tcl   textutil::tabify
+    useLocal     trim.tcl     textutil::trim
+    useLocal     wcswidth.tcl textutil::wcswidth
+}
+testing {
+    useLocalKeep textutil.tcl textutil
+}
+
+# -------------------------------------------------------------------------
+
+set bundled {
+    adjust     {adjust indent undent}
+    repeat     {blank strRepeat}
+    split      {splitn splitx}
+    string     {cap capEachWord chop longestCommonPrefix longestCommonPrefixList tail uncap}
+    tabify     {tabify tabify2 untabify untabify2}
+    trim       {trim trimEmptyHeading trimPrefix trimleft trimright}
+}
+
+test textutil-api-1.0 {bundle exports all documented commands} -body {
+    set all {}
+    foreach {pkg cmds} $bundled {lappend all {*}$cmds}
+    set missing {}
+    set exported [namespace eval ::textutil {namespace export}]
+    foreach cmd $all {
+	if {$cmd ni $exported} {lappend missing $cmd}
+    }
+    set missing
+} -cleanup {
+    unset all missing exported cmd pkg cmds
+} -result {}
+
+test textutil-api-1.1 {bundle commands are the subpackage commands} -body {
+    set bad {}
+    foreach {pkg cmds} $bundled {
+	foreach cmd $cmds {
+	    if {[namespace origin ::textutil::$cmd] ne "::textutil::${pkg}::$cmd"} {
+		lappend bad $cmd
+	    }
+	}
+    }
+    set bad
+} -cleanup {
+    unset bad pkg cmds cmd
+} -result {}
+
+test textutil-api-1.2 {bundle commands can be imported} -setup {
+    namespace eval ::tuapi {namespace import ::textutil::*}
+} -body {
+    namespace eval ::tuapi {
+	list [trimPrefix foobar foo] [splitn abcd 2] [longestCommonPrefix ab ac] \
+	    [strRepeat x 3] [untabify2 "a\tb" 4] [undent "  a\n  b"]
+    }
+} -cleanup {
+    namespace delete ::tuapi
+} -result {bar {ab cd} a xxx {a   b} {a
+b}}
+
+test textutil-api-2.0 {bundle, trimPrefix} -body {
+    textutil::trimPrefix foobar foo
+} -result bar
+
+test textutil-api-2.1 {bundle, trimEmptyHeading} -body {
+    textutil::trimEmptyHeading "\n \na"
+} -result a
+
+test textutil-api-2.2 {bundle, longestCommonPrefix} -body {
+    textutil::longestCommonPrefix interp interval
+} -result inter
+
+test textutil-api-2.3 {bundle, splitn} -body {
+    textutil::splitn abcde 2
+} -result {ab cd e}
+
+test textutil-api-2.4 {bundle, tabify2 and untabify2} -body {
+    list [textutil::tabify2 "a   b" 4] [textutil::untabify2 "a\tb" 4]
+} -result [list "a\tb" "a   b"]
+
+unset bundled
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return

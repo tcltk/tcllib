@@ -1,0 +1,211 @@
+# -*- tcl -*-
+# string-api.test:  API tests for the textutil::string package.
+#
+# Complements textutil.test, which exercises chop, tail, cap, uncap,
+# capEachWord and longestCommonPrefixList through the textutil bundle.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal string.tcl textutil::string
+}
+
+# -------------------------------------------------------------------------
+## Wrong # args
+
+foreach {n cmd sig} {
+    0 chop                    {string}
+    1 tail                    {string}
+    2 cap                     {string}
+    3 uncap                   {string}
+    4 capEachWord             {sentence}
+    5 longestCommonPrefixList {list}
+} {
+    test textutil-string-1.$n "$cmd, wrong # args, not enough" -body {
+	::textutil::string::$cmd
+    } -returnCodes error \
+	-result "wrong # args: should be \"::textutil::string::$cmd $sig\""
+
+    test textutil-string-2.$n "$cmd, wrong # args, too many" -body {
+	::textutil::string::$cmd a b
+    } -returnCodes error \
+	-result "wrong # args: should be \"::textutil::string::$cmd $sig\""
+}
+unset n cmd sig
+
+# -------------------------------------------------------------------------
+## chop, tail
+
+test textutil-string-3.0 {chop, two characters} -body {
+    ::textutil::string::chop ab
+} -result a
+
+test textutil-string-3.1 {chop, non-ASCII} -body {
+    ::textutil::string::chop "жовтий"
+} -result "жовти"
+
+test textutil-string-3.2 {chop, trailing newline} -body {
+    ::textutil::string::chop "line\n"
+} -result line
+
+test textutil-string-3.3 {chop, numeric string} -body {
+    ::textutil::string::chop 12345
+} -result 1234
+
+test textutil-string-4.0 {tail, two characters} -body {
+    ::textutil::string::tail ab
+} -result b
+
+test textutil-string-4.1 {tail, non-ASCII} -body {
+    ::textutil::string::tail "їжак"
+} -result "жак"
+
+test textutil-string-4.2 {tail, leading newline} -body {
+    ::textutil::string::tail "\nline"
+} -result line
+
+# -------------------------------------------------------------------------
+## cap, uncap
+
+test textutil-string-5.0 {cap, non-ASCII} -body {
+    ::textutil::string::cap "їжак"
+} -result "Їжак"
+
+test textutil-string-5.1 {cap, only the first character changes} -body {
+    ::textutil::string::cap "hELLO wORLD"
+} -result "HELLO wORLD"
+
+test textutil-string-5.2 {cap, first character not a letter} -body {
+    ::textutil::string::cap "1abc"
+} -result "1abc"
+
+test textutil-string-5.3 {cap, leading space is the first character} -body {
+    ::textutil::string::cap " abc"
+} -result " abc"
+
+test textutil-string-6.0 {uncap, non-ASCII} -body {
+    ::textutil::string::uncap "ŁÓDŹ"
+} -result "łÓDŹ"
+
+test textutil-string-6.1 {uncap, only the first character changes} -body {
+    ::textutil::string::uncap "Hello World"
+} -result "hello World"
+
+test textutil-string-6.2 {uncap, empty} -body {
+    ::textutil::string::uncap ""
+} -result ""
+
+# -------------------------------------------------------------------------
+## capEachWord
+
+test textutil-string-7.0 {capEachWord, whitespace is preserved} -body {
+    ::textutil::string::capEachWord "  one\ttwo\nthree  "
+} -result "  One\tTwo\nThree  "
+
+test textutil-string-7.1 {capEachWord, non-ASCII} -body {
+    ::textutil::string::capEachWord "zażółć gęślą jaźń"
+} -result "Zażółć Gęślą Jaźń"
+
+test textutil-string-7.2 {capEachWord, rest of each word unchanged} -body {
+    ::textutil::string::capEachWord "hELLO wORLD"
+} -result "HELLO WORLD"
+
+test textutil-string-7.3 {capEachWord, words starting with digits} -body {
+    ::textutil::string::capEachWord "1st 2nd item"
+} -result "1st 2nd Item"
+
+# -------------------------------------------------------------------------
+## longestCommonPrefixList
+
+test textutil-string-8.0 {longestCommonPrefixList, one string is a prefix of another} -body {
+    ::textutil::string::longestCommonPrefixList {foo foobar}
+} -result foo
+
+test textutil-string-8.1 {longestCommonPrefixList, order does not matter} -body {
+    list \
+	[::textutil::string::longestCommonPrefixList {foobar foo fox}] \
+	[::textutil::string::longestCommonPrefixList {fox foobar foo}]
+} -result {fo fo}
+
+test textutil-string-8.2 {longestCommonPrefixList, an empty string} -body {
+    ::textutil::string::longestCommonPrefixList {foo {} fob}
+} -result {}
+
+test textutil-string-8.3 {longestCommonPrefixList, elements with spaces} -body {
+    ::textutil::string::longestCommonPrefixList {{a b c} {a b d}}
+} -result {a b }
+
+test textutil-string-8.4 {longestCommonPrefixList, common path prefix} -body {
+    ::textutil::string::longestCommonPrefixList {
+	/usr/local/lib/tcl /usr/local/lib/tk /usr/local/libexec
+    }
+} -result /usr/local/lib
+
+test textutil-string-8.5 {longestCommonPrefixList, non-ASCII} -body {
+    ::textutil::string::longestCommonPrefixList {Łomża Łowicz Łosice}
+} -result "Ło"
+
+test textutil-string-8.6 {longestCommonPrefixList, case sensitive} -body {
+    ::textutil::string::longestCommonPrefixList {Abc abc}
+} -result {}
+
+test textutil-string-8.7 {longestCommonPrefixList, identical strings} -body {
+    ::textutil::string::longestCommonPrefixList {same same same}
+} -result same
+
+# -------------------------------------------------------------------------
+## longestCommonPrefix
+
+test textutil-string-9.0 {longestCommonPrefix, no arguments} -body {
+    ::textutil::string::longestCommonPrefix
+} -result {}
+
+test textutil-string-9.1 {longestCommonPrefix, one argument is returned} -body {
+    ::textutil::string::longestCommonPrefix foo
+} -result foo
+
+test textutil-string-9.2 {longestCommonPrefix, one argument with spaces} -body {
+    ::textutil::string::longestCommonPrefix {a b c}
+} -result {a b c}
+
+test textutil-string-9.3 {longestCommonPrefix, two arguments, no prefix} -body {
+    ::textutil::string::longestCommonPrefix foo bar
+} -result {}
+
+test textutil-string-9.4 {longestCommonPrefix, several arguments} -body {
+    ::textutil::string::longestCommonPrefix foo foobar fox
+} -result fo
+
+test textutil-string-9.5 {longestCommonPrefix, arguments with spaces} -body {
+    ::textutil::string::longestCommonPrefix {a b c} {a b d}
+} -result {a b }
+
+test textutil-string-9.6 {longestCommonPrefix, an empty argument} -body {
+    ::textutil::string::longestCommonPrefix foo {}
+} -result {}
+
+test textutil-string-9.7 {longestCommonPrefix, equals longestCommonPrefixList} -body {
+    set l {interp interval internal}
+    list [::textutil::string::longestCommonPrefix {*}$l] \
+	[::textutil::string::longestCommonPrefixList $l]
+} -cleanup {
+    unset l
+} -result {inter inter}
+
+# -------------------------------------------------------------------------
+## Exports
+
+test textutil-string-10.0 {exported commands} -body {
+    lsort [namespace eval ::textutil::string {namespace export}]
+} -result {cap capEachWord chop longestCommonPrefix longestCommonPrefixList tail uncap}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return
