@@ -1,0 +1,289 @@
+# -------------------------------------------------------------------------
+# valtype-api.test -*- tcl -*-
+# Tests for the documented API of valtype::common, the error codes of
+# all validation types, and their use as snit validation types,
+# complementing the per-type test files.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      snit/snit2.tcl snit            ;# snit v2 fixed, due Tcl 8.5
+}
+testing {
+    useLocal valtype.tcl valtype::common
+}
+support {
+    useLocalKeep luhn.tcl          valtype::luhn
+    useLocalKeep luhn5.tcl         valtype::luhn5
+    useLocalKeep verhoeff.tcl      valtype::verhoeff
+    useLocalKeep imei.tcl          valtype::imei
+    useLocalKeep usnpi.tcl         valtype::usnpi
+    useLocalKeep ean13.tcl         valtype::gs1::ean13
+    useLocalKeep isbn.tcl          valtype::isbn
+    useLocalKeep iban.tcl          valtype::iban
+    useLocalKeep cc_visa.tcl       valtype::creditcard::visa
+    useLocalKeep cc_amex.tcl       valtype::creditcard::amex
+    useLocalKeep cc_mastercard.tcl valtype::creditcard::mastercard
+    useLocalKeep cc_discover.tcl   valtype::creditcard::discover
+}
+
+# -------------------------------------------------------------------------
+
+proc errorOf {script} {
+    if {![catch {uplevel 1 $script} msg opts]} {
+	return [list ok $msg]
+    }
+    list [dict get $opts -errorcode] $msg
+}
+
+# -------------------------------------------------------------------------
+# valtype::common
+
+test valtype-api-1.0 {reject, wrong # args} -body {
+    valtype::common::reject X
+} -returnCodes error -result {wrong # args: should be "valtype::common::reject code text"}
+
+test valtype-api-1.1 {reject, error code and message} -body {
+    errorOf {valtype::common::reject {FOO BAR} {FOO thing}}
+} -result {{INVALID FOO BAR} {Not a FOO thing}}
+
+test valtype-api-1.2 {reject, article for a vowel} -body {
+    list [errorOf {valtype::common::reject X {EAN thing}}] \
+	[errorOf {valtype::common::reject X {item}}]
+} -result {{{INVALID X} {Not an EAN thing}} {{INVALID X} {Not an item}}}
+
+test valtype-api-1.3 {badchar} -body {
+    errorOf {valtype::common::badchar FOO {FOO number, expected only digits}}
+} -result {{INVALID FOO CHAR} {Not a FOO number, expected only digits}}
+
+test valtype-api-1.4 {badchar, list of codes} -body {
+    lindex [errorOf {valtype::common::badchar {CREDITCARD FOO}}] 0
+} -result {INVALID CREDITCARD FOO CHAR}
+
+test valtype-api-1.5 {badchar, wrong # args} -body {
+    valtype::common::badchar
+} -returnCodes error -result {wrong # args: should be "valtype::common::badchar code ?text?"}
+
+test valtype-api-1.6 {badcheck, with text} -body {
+    errorOf {valtype::common::badcheck FOO {FOO number}}
+} -result {{INVALID FOO CHECK-DIGIT} {Not a FOO number, the check digit is incorrect}}
+
+test valtype-api-1.7 {badcheck, without text} -body {
+    errorOf {valtype::common::badcheck FOO}
+} -match glob -result {{INVALID FOO CHECK-DIGIT} {*the check digit is incorrect}}
+
+test valtype-api-1.8 {badlength, one length} -body {
+    errorOf {valtype::common::badlength FOO 10 {FOO number}}
+} -result {{INVALID FOO LENGTH} {Not a FOO number, incorrect length, expected 10 characters}}
+
+test valtype-api-1.9 {badlength, several lengths} -body {
+    errorOf {valtype::common::badlength FOO {10 13 16} {FOO number}}
+} -result {{INVALID FOO LENGTH} {Not a FOO number, incorrect length, expected one of 10, 13, or 16 characters}}
+
+test valtype-api-1.10 {badlength, no lengths} -body {
+    errorOf {valtype::common::badlength FOO {} {FOO number}}
+} -result {{INVALID FOO LENGTH} {Not a FOO number, incorrect length}}
+
+test valtype-api-1.11 {badlength, wrong # args} -body {
+    valtype::common::badlength FOO
+} -returnCodes error -result {wrong # args: should be "valtype::common::badlength code lengths ?text?"}
+
+test valtype-api-1.12 {badprefix, one prefix} -body {
+    errorOf {valtype::common::badprefix FOO 4 {FOO number}}
+} -result {{INVALID FOO PREFIX} {Not a FOO number, incorrect prefix, expected 4}}
+
+test valtype-api-1.13 {badprefix, several prefixes} -body {
+    errorOf {valtype::common::badprefix FOO {34 37} {FOO number}}
+} -result {{INVALID FOO PREFIX} {Not a FOO number, incorrect prefix, expected one of 34, or 37}}
+
+test valtype-api-1.14 {badprefix, no prefixes} -body {
+    errorOf {valtype::common::badprefix FOO {} {FOO number}}
+} -result {{INVALID FOO PREFIX} {Not a FOO number, incorrect prefix}}
+
+test valtype-api-1.15 {badprefix, wrong # args} -body {
+    valtype::common::badprefix FOO
+} -returnCodes error -result {wrong # args: should be "valtype::common::badprefix code prefixes ?text?"}
+
+test valtype-api-1.16 {exported commands} -body {
+    lsort [namespace eval ::valtype::common {namespace export}]
+} -result {badchar badcheck badlength badprefix reject}
+
+# -------------------------------------------------------------------------
+# Error codes of the validation types.
+#
+# The documentation names the error code for bad characters
+# "INVALID <code> CHARACTER", the code uses "INVALID <code> CHAR". The
+# tests accept both.
+
+foreach {n type input code} {
+    0  luhn                   4999999x          {LUHN CHAR*}
+    1  luhn5                  4999999x          {LUHN5 CHAR*}
+    2  verhoeff               4999999x          {VERHOEFF CHAR*}
+    3  imei                   0000000000000x0   {IMEI CHAR*}
+    4  gs1::ean13             97803064x6157     {EAN13 CHAR*}
+    5  isbn                   03064x6152        {ISBN CHAR*}
+    6  iban                   {DE89 3704 0044}  {IBAN CHAR*}
+    7  creditcard::visa       40123456789x9     {CREDITCARD VISA CHAR*}
+    8  creditcard::amex       34012345678901x   {CREDITCARD AMEX CHAR*}
+    9  creditcard::mastercard 510000000000000x  {CREDITCARD MASTERCARD CHAR*}
+    10 creditcard::discover   601100000000000x  {CREDITCARD DISCOVER CHAR*}
+} {
+    test valtype-api-2.$n "$type, error code for a bad character" -body {
+	lindex [errorOf [list valtype::$type validate $input]] 0
+    } -match glob -result "INVALID $code"
+}
+
+foreach {n type input code} {
+    0  luhn                   49999999          {LUHN CHECK-DIGIT}
+    1  luhn5                  49999999          {LUHN5 CHECK-DIGIT}
+    2  verhoeff               49999999          {VERHOEFF CHECK-DIGIT}
+    3  imei                   000000000000001   {IMEI CHECK-DIGIT}
+    4  gs1::ean13             9780306406150     {EAN13 CHECK-DIGIT}
+    5  isbn                   0306406150        {ISBN CHECK-DIGIT}
+    6  iban                   DE89370400440532013001 {IBAN CHECK-DIGIT}
+    7  creditcard::visa       4012345678902     {CREDITCARD VISA CHECK-DIGIT}
+    8  creditcard::amex       340123456789013   {CREDITCARD AMEX CHECK-DIGIT}
+    9  creditcard::mastercard 5100000000000001  {CREDITCARD MASTERCARD CHECK-DIGIT}
+    10 creditcard::discover   6011000000000001  {CREDITCARD DISCOVER CHECK-DIGIT}
+} {
+    test valtype-api-3.$n "$type, error code for a bad check digit" -body {
+	lindex [errorOf [list valtype::$type validate $input]] 0
+    } -result "INVALID $code"
+}
+
+foreach {n type input code} {
+    0  imei                   1234              {IMEI LENGTH}
+    1  gs1::ean13             978030640615      {EAN13 LENGTH}
+    2  isbn                   030640615         {ISBN LENGTH}
+    3  iban                   DE893704004405320130 {IBAN LENGTH}
+    4  creditcard::visa       401234567890      {CREDITCARD VISA LENGTH}
+    5  creditcard::amex       34012345678901    {CREDITCARD AMEX LENGTH}
+    6  creditcard::mastercard 510000000000000   {CREDITCARD MASTERCARD LENGTH}
+    7  creditcard::discover   601100000000000   {CREDITCARD DISCOVER LENGTH}
+} {
+    test valtype-api-4.$n "$type, error code for a bad length" -body {
+	lindex [errorOf [list valtype::$type validate $input]] 0
+    } -result "INVALID $code"
+}
+
+foreach {n type input code} {
+    0  isbn                   1230306406157     {ISBN PREFIX}
+    1  iban                   XX89370400440532013000 {IBAN PREFIX}
+    2  creditcard::visa       5012345678901     {CREDITCARD VISA PREFIX}
+    3  creditcard::amex       350123456789012   {CREDITCARD AMEX PREFIX}
+    4  creditcard::mastercard 4100000000000008  {CREDITCARD MASTERCARD PREFIX}
+    5  creditcard::discover   4011000000000004  {CREDITCARD DISCOVER PREFIX}
+} {
+    test valtype-api-5.$n "$type, error code for a bad prefix" -body {
+	lindex [errorOf [list valtype::$type validate $input]] 0
+    } -result "INVALID $code"
+}
+
+# The documented type code is USNPI, the code uses US-NPI.
+test valtype-api-6.0 {usnpi, error code for a bad character} -constraints {
+    knownBug
+} -body {
+    lindex [errorOf {valtype::usnpi validate 499999993x}] 0
+} -match glob -result {INVALID USNPI CHAR*}
+
+test valtype-api-6.1 {usnpi, error code for a bad check digit} -constraints {
+    knownBug
+} -body {
+    lindex [errorOf {valtype::usnpi validate 4999999932}] 0
+} -result {INVALID USNPI CHECK-DIGIT}
+
+test valtype-api-6.2 {usnpi, error code for a bad length} -constraints {
+    knownBug
+} -body {
+    lindex [errorOf {valtype::usnpi validate 123}] 0
+} -result {INVALID USNPI LENGTH}
+
+test valtype-api-6.3 {usnpi, error codes start with INVALID} -body {
+    list [lindex [errorOf {valtype::usnpi validate 499999993x}] 0 0] \
+	[lindex [errorOf {valtype::usnpi validate 4999999932}] 0 0] \
+	[lindex [errorOf {valtype::usnpi validate 123}] 0 0]
+} -result {INVALID INVALID INVALID}
+
+# -------------------------------------------------------------------------
+# checkdigit and validate agree
+
+foreach {n type input} {
+    0  luhn                   4999999
+    1  verhoeff               4999999
+    2  imei                   00000000000001
+    3  usnpi                  499999993
+    4  gs1::ean13             978030640615
+    5  isbn                   978030640615
+    6  creditcard::visa       401234567890
+    7  creditcard::amex       34012345678901
+    8  creditcard::mastercard 510000000000000
+    9  creditcard::discover   601100000000000
+} {
+    test valtype-api-7.$n "$type, value with computed check digit validates" -body {
+	set v $input[valtype::$type checkdigit $input]
+	string equal $v [valtype::$type validate $v]
+    } -cleanup {
+	unset v
+    } -result 1
+}
+
+test valtype-api-7.10 {isbn, validate returns the canonical 13-digit form} -body {
+    valtype::isbn validate 0306406152
+} -result 9780306406157
+
+test valtype-api-7.11 {iban, validate returns the upper case form} -body {
+    valtype::iban validate de89370400440532013000
+} -result DE89370400440532013000
+
+# -------------------------------------------------------------------------
+# Use as snit validation types
+
+foreach {n type good bad} {
+    0  luhn                   49999998          49999999
+    1  luhn5                  49999993          49999999
+    2  verhoeff               49999996          49999999
+    3  imei                   000000000000000   000000000000001
+    4  usnpi                  4999999934        4999999932
+    5  gs1::ean13             9780306406157     9780306406150
+    6  isbn                   9780306406157     0306406150
+    7  iban                   GB82WEST12345698765432 DE89370400440532013001
+    8  creditcard::visa       4012345678909     4012345678902
+    9  creditcard::amex       340123456789014   340123456789013
+    10 creditcard::mastercard 5100000000000008  5100000000000001
+    11 creditcard::discover   6011000000000004  6011000000000001
+} {
+    test valtype-api-8.$n "$type, instance validate method" -setup {
+	set obj [valtype::$type %AUTO%]
+    } -body {
+	list [$obj validate $good] [catch {$obj validate $bad}]
+    } -cleanup {
+	$obj destroy
+	unset obj
+    } -result [list [valtype::$type validate $good] 1]
+
+    test valtype-api-9.$n "$type, as -type of a snit option" -setup {
+	snit::type ::valtypeapi::holder [list option -value -type valtype::$type -default $good]
+	set obj [::valtypeapi::holder %AUTO%]
+    } -body {
+	$obj configure -value [valtype::$type validate $good]
+	list [catch {$obj configure -value $bad}] [$obj cget -value]
+    } -cleanup {
+	$obj destroy
+	namespace delete ::valtypeapi
+	unset obj
+    } -result [list 1 $good]
+}
+
+# -------------------------------------------------------------------------
+
+rename errorOf {}
+testsuiteCleanup
+return
