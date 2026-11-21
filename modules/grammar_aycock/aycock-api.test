@@ -1,0 +1,529 @@
+# -*- tcl -*-
+# aycock-api.test --
+#
+#       Tests for the documented API of grammar::aycock not covered by
+#       aycock.test: argument errors, -verbose, the terminals,
+#       nonterminals and save methods, clientData, empty actions,
+#       nullable rules, syntax errors and the documented example.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal     aycock-runtime.tcl grammar::aycock::runtime grammar::aycock
+    useLocalKeep aycock-debug.tcl   grammar::aycock::debug   grammar::aycock
+}
+testing {
+    useLocalKeep aycock-build.tcl   grammar::aycock          grammar::aycock
+}
+
+# -------------------------------------------------------------------------
+
+proc calculator {} {
+    grammar::aycock::parser {
+	start ::= E {}
+	E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
+	E ::= T {}
+	T ::= T * F {expr {[lindex $_ 0] * [lindex $_ 2]}}
+	T ::= F {}
+	F ::= NUMBER {}
+	F ::= ( E ) {lindex $_ 1}
+    }
+}
+
+# -------------------------------------------------------------------------
+# grammar::aycock::parser
+
+test aycock-api-1.1 {parser: wrong # args, none} -body {
+    grammar::aycock::parser
+} -returnCodes error -result {wrong # args: should be "grammar::aycock::parser rules ?dump?"}
+
+test aycock-api-1.2 {parser: wrong # args, too many} -body {
+    grammar::aycock::parser {S ::= x {}} -verbose extra
+} -returnCodes error -result {wrong # args: should be "grammar::aycock::parser rules ?dump?"}
+
+test aycock-api-1.3 {parser: returns the name of an ensemble command} -body {
+    set p [grammar::aycock::parser {S ::= x {}}]
+    list [string match ::grammar::aycock::parser* $p] \
+	[namespace ensemble exists $p]
+} -cleanup {
+    $p destroy
+    unset p
+} -result {1 1}
+
+test aycock-api-1.4 {parser: each call creates a new parser} -body {
+    set p1 [grammar::aycock::parser {S ::= x {}}]
+    set p2 [grammar::aycock::parser {S ::= x {}}]
+    string equal $p1 $p2
+} -cleanup {
+    $p1 destroy
+    $p2 destroy
+    unset p1 p2
+} -result 0
+
+test aycock-api-1.5 {parser: rule that is never reduced} -body {
+    grammar::aycock::parser {S ::= a {} X ::= b {}}
+} -returnCodes error -result {Rules never reduced: X}
+
+test aycock-api-1.6 {parser: several rules never reduced} -body {
+    grammar::aycock::parser {S ::= a {} Y ::= c {} X ::= b {}}
+} -returnCodes error -result {Rules never reduced: X Y}
+
+test aycock-api-1.7 {parser -verbose dumps the rules and automaton} -body {
+    set p [grammar::aycock::parser {S ::= x {}} -verbose]
+    $p destroy
+    unset p
+} -match glob -output "parser: ::grammar::aycock::parser*\nRules:\nS ::= x {lindex \$_ 0}\n*\n------------------------------------------------------------\nstate 0:\n*" -result {}
+
+test aycock-api-1.8 {parser without -verbose prints nothing} -body {
+    set p [grammar::aycock::parser {S ::= x {}}]
+    $p destroy
+    unset p
+} -output {} -result {}
+
+test aycock-api-1.9 {parser: the first rule defines the start symbol} -body {
+    set p [grammar::aycock::parser {
+	A ::= x B {list A $_}
+	B ::= y {list B $_}
+    }]
+    list [$p parse {x y} {1 2}] [catch {$p parse {y} {2}} msg] $msg
+} -cleanup {
+    $p destroy
+    unset p msg
+} -result {{A {1 {B 2}}} 1 {syntax error before symbol 0 (y: 2)}}
+
+# -------------------------------------------------------------------------
+# parse method
+
+test aycock-api-2.1 {documented example} -body {
+    set p [calculator]
+    $p parse {(  NUMBER +  NUMBER )  *  ( NUMBER +  NUMBER ) } \
+	     {{} 2      {} 3      {} {} {} 7     {} 1      {}}
+} -cleanup {
+    $p destroy
+    unset p
+} -result 40
+
+test aycock-api-2.2 {parse: wrong # args, too few} -setup {
+    set p [calculator]
+} -body {
+    $p parse {NUMBER}
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -match glob -result {wrong # args: should be "::grammar::aycock::parser* parse symList vallist ?clientData?"}
+
+test aycock-api-2.3 {parse: wrong # args, too many} -setup {
+    set p [calculator]
+} -body {
+    $p parse {NUMBER} {1} cd extra
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -match glob -result {wrong # args: should be "::grammar::aycock::parser* parse symList vallist ?clientData?"}
+
+test aycock-api-2.4 {parse: unknown method} -setup {
+    set p [calculator]
+} -body {
+    $p bogus
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be destroy, nonterminals, parse, save, or terminals}
+
+test aycock-api-2.5 {parse: unexpected symbol} -setup {
+    set p [calculator]
+} -body {
+    $p parse {NUMBER + +} {1 + +}
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -result {syntax error before symbol 2 (+: +)}
+
+test aycock-api-2.6 {parse: unknown terminal symbol} -setup {
+    set p [calculator]
+} -body {
+    $p parse {BOGUS} {x}
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -result {syntax error before symbol 0 (BOGUS: x)}
+
+test aycock-api-2.7 {parse: premature end of input} -setup {
+    set p [calculator]
+} -body {
+    $p parse {NUMBER +} {1 +}
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -result {syntax error: incomplete parse}
+
+test aycock-api-2.8 {parse: empty input for non-nullable grammar} -setup {
+    set p [calculator]
+} -body {
+    $p parse {} {}
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -result {syntax error: incomplete parse}
+
+test aycock-api-2.9 {parse: parser can be used repeatedly} -setup {
+    set p [calculator]
+} -body {
+    list [$p parse {NUMBER} {5}] \
+	[catch {$p parse {+} {+}}] \
+	[$p parse {NUMBER * NUMBER} {6 * 7}]
+} -cleanup {
+    $p destroy
+    unset p
+} -result {5 1 42}
+
+test aycock-api-2.10 {parse: error raised by an action propagates} -setup {
+    set p [grammar::aycock::parser {S ::= x {error boom}}]
+} -body {
+    $p parse {x} {1}
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -result boom
+
+test aycock-api-2.11 {parse: semantic values of terminals in $_} -setup {
+    set p [grammar::aycock::parser {S ::= a b c {set _}}]
+} -body {
+    $p parse {a b c} {{v 1} {} v3}
+} -cleanup {
+    $p destroy
+    unset p
+} -result {{v 1} {} v3}
+
+# -------------------------------------------------------------------------
+# Actions and clientData
+
+test aycock-api-3.1 {clientData is available in actions} -setup {
+    set p [grammar::aycock::parser {
+	S ::= A x {list $clientData $_}
+	A ::= y {list A $clientData}
+    }]
+} -body {
+    $p parse {y x} {1 2} {my data}
+} -cleanup {
+    $p destroy
+    unset p
+} -result {{my data} {{A {my data}} 2}}
+
+test aycock-api-3.2 {clientData defaults to the empty string} -setup {
+    set p [grammar::aycock::parser {S ::= x {list cd $clientData}}]
+} -body {
+    $p parse {x} {1}
+} -cleanup {
+    $p destroy
+    unset p
+} -result {cd {}}
+
+test aycock-api-3.3 {clientData is passed to actions of empty rules} -setup {
+    set p [grammar::aycock::parser {
+	S ::= x O {list $_ $clientData}
+	O ::= {list empty $clientData}
+	O ::= y {}
+    }]
+} -body {
+    list [$p parse {x} {vx} CD] [$p parse {x y} {vx vy} CD]
+} -cleanup {
+    $p destroy
+    unset p
+} -result {{{vx {empty CD}} CD} {{vx vy} CD}}
+
+test aycock-api-3.4 {empty action: value of the first RHS symbol} -setup {
+    set p [grammar::aycock::parser {
+	S ::= a b {}
+    }]
+} -body {
+    $p parse {a b} {first second}
+} -cleanup {
+    $p destroy
+    unset p
+} -result first
+
+test aycock-api-3.5 {empty action with empty RHS: empty value} -setup {
+    set p [grammar::aycock::parser {
+	S ::= x O {list $_}
+	O ::= {}
+	O ::= y {}
+    }]
+} -body {
+    list [$p parse {x} {vx}] [$p parse {x y} {vx vy}]
+} -cleanup {
+    $p destroy
+    unset p
+} -result {{{vx {}}} {{vx vy}}}
+
+test aycock-api-3.6 {empty action of a chain of rules} -setup {
+    set p [grammar::aycock::parser {
+	S ::= A {}
+	A ::= B {}
+	B ::= x {}
+    }]
+} -body {
+    $p parse {x} {value}
+} -cleanup {
+    $p destroy
+    unset p
+} -result value
+
+test aycock-api-3.7 {action result is the semantic value of the LHS} -setup {
+    set p [grammar::aycock::parser {
+	S ::= L {llength [lindex $_ 0]}
+	L ::= L x {linsert [lindex $_ 0] end [lindex $_ 1]}
+	L ::= x {list [lindex $_ 0]}
+    }]
+} -body {
+    list [$p parse {x} {a}] [$p parse {x x x x} {a b c d}]
+} -cleanup {
+    $p destroy
+    unset p
+} -result {1 4}
+
+test aycock-api-3.8 {right recursion} -setup {
+    set p [grammar::aycock::parser {
+	L ::= x L {linsert [lindex $_ 1] 0 [lindex $_ 0]}
+	L ::= x {list [lindex $_ 0]}
+    }]
+} -body {
+    $p parse {x x x} {a b c}
+} -cleanup {
+    $p destroy
+    unset p
+} -result {a b c}
+
+test aycock-api-3.9 {nullable start symbol, non-empty input} -setup {
+    set p [grammar::aycock::parser {
+	S ::= A B {list $_ $clientData}
+	A ::= {}
+	A ::= a {}
+	B ::= {set clientData}
+	B ::= b {}
+    }]
+} -body {
+    list [$p parse {a} {va} CD] [$p parse {a b} {va vb}] \
+	[$p parse {b} {vb} CD]
+} -cleanup {
+    $p destroy
+    unset p
+} -result {{{va CD} CD} {{va vb} {}} {{{} vb} CD}}
+
+# A grammar whose language contains the empty string should accept
+# empty input.
+test aycock-api-3.10 {nullable start symbol, empty input} -constraints {
+    knownBug
+} -setup {
+    set p [grammar::aycock::parser {
+	S ::= A {list S $_}
+	A ::= {list E}
+	A ::= a {}
+    }]
+} -body {
+    $p parse {} {}
+} -cleanup {
+    $p destroy
+    unset p
+} -result {S E}
+
+test aycock-api-3.11 {start rule with empty RHS, empty input} -constraints {
+    knownBug
+} -setup {
+    set p [grammar::aycock::parser {S ::= {list E}}]
+} -body {
+    $p parse {} {}
+} -cleanup {
+    $p destroy
+    unset p
+} -result E
+
+# -------------------------------------------------------------------------
+# terminals and nonterminals methods
+
+test aycock-api-4.1 {terminals} -setup {
+    set p [calculator]
+} -body {
+    $p terminals
+} -cleanup {
+    $p destroy
+    unset p
+} -result {( ) * + NUMBER}
+
+test aycock-api-4.2 {nonterminals} -setup {
+    set p [calculator]
+} -body {
+    $p nonterminals
+} -cleanup {
+    $p destroy
+    unset p
+} -result {E F start T}
+
+test aycock-api-4.3 {terminals: wrong # args} -setup {
+    set p [calculator]
+} -body {
+    $p terminals x
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -match glob -result {wrong # args: should be "::grammar::aycock::parser* terminals"}
+
+test aycock-api-4.4 {nonterminals: wrong # args} -setup {
+    set p [calculator]
+} -body {
+    $p nonterminals x
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -match glob -result {wrong # args: should be "::grammar::aycock::parser* nonterminals"}
+
+test aycock-api-4.5 {terminals of a grammar with nullable rules} -setup {
+    set p [grammar::aycock::parser {
+	S ::= A b {}
+	A ::= {}
+	A ::= a {}
+    }]
+} -body {
+    $p terminals
+} -cleanup {
+    $p destroy
+    unset p
+} -result {a b}
+
+# The internal names of the rewritten nullable symbols (with suffix
+# "{Ø}") are listed, although they are not defined in the grammar.
+test aycock-api-4.6 {nonterminals of a grammar with nullable rules} -constraints {
+    knownBug
+} -setup {
+    set p [grammar::aycock::parser {
+	S ::= A b {}
+	A ::= {}
+	A ::= a {}
+    }]
+} -body {
+    $p nonterminals
+} -cleanup {
+    $p destroy
+    unset p
+} -result {A S}
+
+# -------------------------------------------------------------------------
+# save and destroy methods
+
+test aycock-api-5.1 {save: wrong # args} -setup {
+    set p [calculator]
+} -body {
+    $p save x
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -match glob -result {wrong # args: should be "::grammar::aycock::parser* save"}
+
+test aycock-api-5.2 {save: restored parser has the same terminals} -setup {
+    set p1 [calculator]
+} -body {
+    set p2 [eval [$p1 save]]
+    list [string equal $p1 $p2] \
+	[string equal [$p1 terminals] [$p2 terminals]] \
+	[string equal [$p1 nonterminals] [$p2 nonterminals]]
+} -cleanup {
+    $p1 destroy
+    $p2 destroy
+    unset p1 p2
+} -result {0 1 1}
+
+test aycock-api-5.3 {save: restored parser parses like the original} -setup {
+    set p1 [calculator]
+    set p2 [eval [$p1 save]]
+    $p1 destroy
+} -body {
+    list [$p2 parse {( NUMBER + NUMBER ) * NUMBER} {{} 1 {} 2 {} {} 5}] \
+	[catch {$p2 parse {NUMBER +} {1 +}} msg] $msg
+} -cleanup {
+    $p2 destroy
+    unset p1 p2 msg
+} -result {15 1 {syntax error: incomplete parse}}
+
+test aycock-api-5.4 {save: restored parser with nullable rules and clientData} -setup {
+    set p1 [grammar::aycock::parser {
+	S ::= x O {list $_ $clientData}
+	O ::= {list empty $clientData}
+	O ::= y {}
+    }]
+    set p2 [eval [$p1 save]]
+    $p1 destroy
+} -body {
+    list [$p2 parse {x} {vx} CD] [$p2 parse {x y} {vx vy} CD]
+} -cleanup {
+    $p2 destroy
+    unset p1 p2
+} -result {{{vx {empty CD}} CD} {{vx vy} CD}}
+
+test aycock-api-5.5 {save: restored parser can be saved again} -setup {
+    set p1 [calculator]
+    set p2 [eval [$p1 save]]
+} -body {
+    string equal [$p1 save] [$p2 save]
+} -cleanup {
+    $p1 destroy
+    $p2 destroy
+    unset p1 p2
+} -result 1
+
+test aycock-api-5.6 {save: script needs only grammar::aycock::runtime} -setup {
+    set p [calculator]
+    set i [interp create]
+    $i eval [list source [localPath aycock-runtime.tcl]]
+} -body {
+    $i eval [list set script [$p save]]
+    $i eval {
+	set q [eval $script]
+	list [package present grammar::aycock::runtime] \
+	    [catch {package present grammar::aycock}] \
+	    [$q parse {NUMBER * NUMBER + NUMBER} {2 * 3 + 4}]
+    }
+} -cleanup {
+    interp delete $i
+    $p destroy
+    unset p i
+} -result {1.1 1 10}
+
+test aycock-api-5.7 {destroy removes the parser command} -body {
+    set p [calculator]
+    $p destroy
+    list [namespace exists $p] [llength [info commands $p]]
+} -cleanup {
+    unset p
+} -result {0 0}
+
+test aycock-api-5.8 {destroy: wrong # args} -setup {
+    set p [calculator]
+} -body {
+    $p destroy x
+} -cleanup {
+    $p destroy
+    unset p
+} -returnCodes error -match glob -result {wrong # args: should be "::grammar::aycock::parser* destroy"}
+
+test aycock-api-5.9 {destroy one parser does not affect another} -body {
+    set p1 [calculator]
+    set p2 [calculator]
+    $p1 destroy
+    $p2 parse {NUMBER} {3}
+} -cleanup {
+    $p2 destroy
+    unset p1 p2
+} -result 3
+
+# -------------------------------------------------------------------------
+
+rename calculator {}
+testsuiteCleanup
+return
