@@ -1,0 +1,1166 @@
+# ldap-api.test                                               -*- tcl -*-
+#
+# API tests for the Tcllib ldap package: the LDAP operations, run against
+# a fake LDAP server inside this process on 127.0.0.1 (random port, see
+# test-assets/fakeldap.tcl). No external server and no TLS is used.
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use asn/asn.tcl asn
+}
+testing {
+    useLocal ldap.tcl ldap
+}
+
+source [asset fakeldap.tcl]
+
+testConstraint noTls [catch {package require tls}]
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc connect {} {
+    ldap::connect 127.0.0.1 $fakeldap::port
+}
+
+# Save and restore the global TLS settings around tlsoptions tests.
+proc savetls {} {
+    set ::savedtls [list [array get ::ldap::curTLSOptions] $::ldap::TLSMode]
+}
+proc restoretls {} {
+    array unset ::ldap::curTLSOptions
+    array set ::ldap::curTLSOptions [lindex $::savedtls 0]
+    set ::ldap::TLSMode [lindex $::savedtls 1]
+    unset ::savedtls
+}
+
+set rootdse {
+    supportedSASLMechanisms {PLAIN EXTERNAL}
+    supportedControl        {1.2.840.113556.1.4.319 2.16.840.1.113730.3.4.2}
+    supportedExtension      {1.3.6.1.4.1.1466.20037 1.3.6.1.4.1.4203.1.11.3}
+}
+
+# -------------------------------------------------------------------------
+# connect, disconnect, info for a plain connection
+# -------------------------------------------------------------------------
+
+test ldap-api-1.1 {connect: returns a handle} -setup {
+    fakeldap::start
+} -body {
+    set h [connect]
+    list [string match ::ldap::ldap* $h] [array exists $h]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {1 1}
+
+test ldap-api-1.2 {connect: initial state of the connection} -setup {
+    fakeldap::start
+} -body {
+    set h [connect]
+    list [ldap::info ip $h] [ldap::info bound $h] \
+        [ldap::info bounduser $h] [ldap::info tls $h] \
+        [expr {$h in [ldap::info connections]}]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {127.0.0.1 0 {} 0 1}
+
+test ldap-api-1.3 {connect: connection refused} -setup {
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+} -body {
+    ldap::connect 127.0.0.1 $p
+} -cleanup {
+    unset s p
+} -returnCodes error -match glob -result {couldn't open socket: *}
+
+test ldap-api-1.4 {connect: too many arguments} -body {
+    ldap::connect 127.0.0.1 389 x
+} -returnCodes error -result {wrong # args: should be "ldap::connect host ?port?"}
+
+test ldap-api-1.5 {connect: several connections} -setup {
+    fakeldap::start
+} -body {
+    set h1 [connect]
+    set h2 [connect]
+    list [expr {$h1 ne $h2}] [expr {$h1 in [ldap::info connections]}] \
+        [expr {$h2 in [ldap::info connections]}]
+} -cleanup {
+    ldap::disconnect $h1
+    ldap::disconnect $h2
+    fakeldap::stop
+    unset h1 h2
+} -result {1 1 1}
+
+test ldap-api-1.6 {disconnect: returns empty, handle becomes invalid} -setup {
+    fakeldap::start
+} -body {
+    set h [connect]
+    set r [ldap::disconnect $h]
+    list $r [expr {$h in [ldap::info connections]}] \
+        [catch {ldap::info bound $h} msg] $msg
+} -cleanup {
+    fakeldap::stop
+    unset h r msg
+} -result [list {} 0 1 "Not a valid LDAP connection handle: ::ldap::ldap*"] \
+    -match glob
+
+test ldap-api-1.7 {disconnect: invalid handle} -body {
+    ldap::disconnect ::ldap::nosuchhandle
+} -returnCodes error -result {Not a valid LDAP connection handle: ::ldap::nosuchhandle}
+
+# tlsstatus is missing from the subcommand list of ldap::info.
+test ldap-api-1.8 {info tlsstatus: empty for a plain connection} -constraints {
+    knownBug
+} -setup {
+    fakeldap::start
+} -body {
+    # documented, but missing from the list of subcommands of ldap::info
+    set h [connect]
+    ldap::info tlsstatus $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {}
+
+test ldap-api-1.9 {info: no subcommand} -body {
+    ldap::info
+} -returnCodes error -result {Usage: "info subcommand ?handle?"}
+
+test ldap-api-1.10 {info: invalid subcommand} -body {
+    ldap::info bogus
+} -returnCodes error -result {Invalid subcommand "bogus", valid commands are\
+    connections,bound,bounduser,control,extensions,features,ip,saslmechanisms,tls\
+    and whoami}
+
+test ldap-api-1.11 {info: wrong # args} -body {
+    ldap::info tlsstatus
+} -constraints knownBug -returnCodes error \
+    -result {Wrong # of arguments. Usage: ldap::info tlsstatus handle}
+
+# -------------------------------------------------------------------------
+# bind, unbind
+# -------------------------------------------------------------------------
+
+test ldap-api-2.1 {bind: anonymous} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    list [ldap::bind $h] [fakeldap::requests] \
+        [ldap::info bound $h] [ldap::info bounduser $h]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{} {{bind 3 {} {} 0}} 1 {}}
+
+test ldap-api-2.2 {bind: with name and password} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::bind $h cn=admin,dc=example,dc=org secret
+    list [fakeldap::requests] [ldap::info bound $h] [ldap::info bounduser $h]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{{bind 3 cn=admin,dc=example,dc=org secret 0}} 1\
+    cn=admin,dc=example,dc=org}
+
+test ldap-api-2.3 {bind: name without password} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::bind $h cn=admin,dc=example,dc=org
+    fakeldap::requests
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{bind 3 cn=admin,dc=example,dc=org {} 0}}
+
+test ldap-api-2.4 {bind: bind again with other credentials} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::bind $h cn=one,dc=example,dc=org pw1
+    ldap::bind $h cn=two,dc=example,dc=org pw2
+    list [llength [fakeldap::requests bind]] [ldap::info bounduser $h]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {2 cn=two,dc=example,dc=org}
+
+test ldap-api-2.5 {bind: invalid credentials} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {1 {49 {} {Invalid credentials}}}
+} -body {
+    list [catch {ldap::bind $h cn=admin,dc=example,dc=org bad} msg opts] \
+        $msg [dict get $opts -errorcode] \
+        [ldap::info bound $h] [ldap::info bounduser $h]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h msg opts
+} -result {1 {LDAP error invalidCredentials '': Invalid credentials}\
+    {LDAP invalidCredentials {} {Invalid credentials}} 0 {}}
+
+test ldap-api-2.6 {bind: unknown result code} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {1 {99 {} {strange}}}
+} -body {
+    ldap::bind $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {LDAP error unknownError '': strange}
+
+test ldap-api-2.7 {bind: invalid handle} -body {
+    ldap::bind ::ldap::nosuchhandle
+} -returnCodes error -result {Not a valid LDAP connection handle: ::ldap::nosuchhandle}
+
+test ldap-api-2.8 {bind: server closes the connection} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::mode close
+} -body {
+    ldap::bind $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {Protocol error: Server closed connection}
+
+test ldap-api-2.9 {bind: response received in pieces} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::mode split
+} -body {
+    ldap::bind $h cn=admin,dc=example,dc=org secret
+    ldap::info bound $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result 1
+
+test ldap-api-2.10 {unbind: sends unbind and resets the bind state} -setup {
+    fakeldap::start
+    set h [connect]
+    ldap::bind $h cn=admin,dc=example,dc=org secret
+} -body {
+    set r [ldap::unbind $h]
+    fakeldap::waitrequests 2
+    list $r [lindex [fakeldap::requests] end] [ldap::info bound $h] \
+        [ldap::info bounduser $h]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h r
+} -result {{} unbind 0 {}}
+
+test ldap-api-2.11 {unbind: invalid handle} -body {
+    ldap::unbind ::ldap::nosuchhandle
+} -returnCodes error -result {Not a valid LDAP connection handle: ::ldap::nosuchhandle}
+
+# -------------------------------------------------------------------------
+# search
+# -------------------------------------------------------------------------
+
+test ldap-api-3.1 {search: result format} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries {
+        {uid=a,ou=people,dc=example,dc=org {uid a cn {{User A}} mail {a@example.org a2@example.org}}}
+        {uid=b,ou=people,dc=example,dc=org {uid b cn {{User B}}}}
+    }
+} -body {
+    ldap::search $h ou=people,dc=example,dc=org (uid=*) {}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{uid=a,ou=people,dc=example,dc=org {uid a cn {{User A}} mail {a@example.org a2@example.org}}} {uid=b,ou=people,dc=example,dc=org {uid b cn {{User B}}}}}
+
+test ldap-api-3.2 {search: request with default options} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::search $h ou=people,dc=example,dc=org (uid=joe) {cn mail}
+    lassign [lindex [fakeldap::requests search] 0] \
+        op base scope deref size time attrsonly filter attrs
+    binary scan [ldap::filter::encode (uid=joe)] H* expfilter
+    list $base $scope $deref $size $time $attrsonly \
+        [expr {$filter eq $expfilter}] $attrs
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h op base scope deref size time attrsonly filter attrs expfilter
+} -result {ou=people,dc=example,dc=org 2 0 0 0 0 1 {cn mail}}
+
+test ldap-api-3.3 {search: no entries} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::search $h dc=example,dc=org (uid=nobody) {}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {}
+
+test ldap-api-3.4 {search: empty attribute list requests all attributes} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::search $h dc=example,dc=org (objectClass=*) {}
+    lindex [fakeldap::requests search] 0 8
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {}
+
+foreach {n opt value field expected} {
+    1  -scope        base   2 0
+    2  -scope        one    2 1
+    3  -scope        sub    2 2
+    4  -derefaliases never  3 0
+    5  -derefaliases search 3 1
+    6  -derefaliases find   3 2
+    7  -derefaliases always 3 3
+    8  -sizelimit    5      4 5
+    9  -timelimit    7      5 7
+    10 -attrsonly    1      6 1
+    11 -attrsonly    0      6 0
+} {
+    test ldap-api-3.5.$n "search: option $opt $value" -setup {
+        fakeldap::start
+        set h [connect]
+    } -body {
+        ldap::search $h dc=example,dc=org (cn=x) {} $opt $value
+        lindex [fakeldap::requests search] 0 $field
+    } -cleanup {
+        ldap::disconnect $h
+        fakeldap::stop
+        unset h
+    } -result $expected
+}
+
+test ldap-api-3.6 {search: several options} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::search $h dc=example,dc=org (cn=x) {} -scope one \
+        -derefaliases always -sizelimit 10 -timelimit 20 -attrsonly 1
+    lrange [lindex [fakeldap::requests search] 0] 2 6
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {1 3 10 20 1}
+
+test ldap-api-3.7 {search: invalid option} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::search $h dc=example,dc=org (cn=x) {} -bogus 1
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {Invalid search option '-bogus'}
+
+test ldap-api-3.8 {search: server error} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {5 {32 dc=example,dc=org {No such object}}}
+} -body {
+    list [catch {ldap::search $h ou=nowhere,dc=example,dc=org (cn=x) {}} \
+              msg opts] $msg [dict get $opts -errorcode]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h msg opts
+} -result {1 {LDAP error noSuchObject : No such object}\
+    {LDAP noSuchObject dc=example,dc=org {No such object}}}
+
+test ldap-api-3.9 {search: new search possible after a server error} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {5 {32 {} {No such object}}}
+    catch {ldap::search $h ou=nowhere,dc=example,dc=org (cn=x) {}}
+    set fakeldap::results {}
+    set fakeldap::entries {{cn=x,dc=example,dc=org {cn x}}}
+} -body {
+    ldap::search $h dc=example,dc=org (cn=x) {}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{cn=x,dc=example,dc=org {cn x}}}
+
+test ldap-api-3.10 {search: invalid filter, nothing is sent} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    list [catch {ldap::search $h dc=example,dc=org (cn=x {}} msg] \
+        [fakeldap::requests] [ldap::search $h dc=example,dc=org (cn=x) {}]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h msg
+} -result {1 {} {}}
+
+test ldap-api-3.11 {search: filter without parentheses} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::search $h dc=example,dc=org |(cn=Linus*)(sn=Torvalds*) {}
+    lassign [lindex [fakeldap::requests search] 0] \
+        op base scope deref size time attrsonly filter attrs
+    binary scan [ldap::filter::encode (|(cn=Linus*)(sn=Torvalds*))] H* exp
+    expr {$filter eq $exp}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h op base scope deref size time attrsonly filter attrs exp
+} -result 1
+
+# searchNext overwrites conn(referenceVar) with the first URLs, so only the
+# first reference reaches the variable.
+test ldap-api-3.12 {search: references are returned in -referencevar} -constraints {
+    knownBug
+} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries {{cn=x,dc=example,dc=org {cn x}}}
+    set fakeldap::refs {
+        {ldap://ldap1.example.org/dc=example,dc=org}
+        {ldap://ldap2.example.org/dc=example,dc=org}
+    }
+} -body {
+    set r [ldap::search $h dc=example,dc=org (cn=x) {} -referencevar ::refs]
+    list $r $::refs
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset -nocomplain h r ::refs
+} -result {{{cn=x,dc=example,dc=org {cn x}}}\
+    {ldap://ldap1.example.org/dc=example,dc=org ldap://ldap2.example.org/dc=example,dc=org}}
+
+test ldap-api-3.12.1 {search: one reference returned in -referencevar} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::refs {{ldap://ldap1.example.org/dc=example,dc=org}}
+} -body {
+    set r [ldap::search $h dc=example,dc=org (cn=x) {} -referencevar ::refs]
+    list $r $::refs
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset -nocomplain h r ::refs
+} -result {{} ldap://ldap1.example.org/dc=example,dc=org}
+
+test ldap-api-3.13 {search: references are skipped in the result} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries {{cn=x,dc=example,dc=org {cn x}}}
+    set fakeldap::refs {{ldap://ldap1.example.org/dc=example,dc=org}}
+} -body {
+    ldap::search $h dc=example,dc=org (cn=x) {}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{cn=x,dc=example,dc=org {cn x}}}
+
+test ldap-api-3.14 {search: invalid handle} -body {
+    ldap::search ::ldap::nosuchhandle dc=example,dc=org (cn=x) {}
+} -returnCodes error -result {Not a valid LDAP connection handle: ::ldap::nosuchhandle}
+
+test ldap-api-3.15 {search: attribute values with binary data} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries [list [list cn=x,dc=example,dc=org \
+        [list jpegPhoto [list "\x00\xff\x80\n"]]]]
+} -body {
+    binary scan [lindex [ldap::search $h dc=example,dc=org (cn=x) {}] 0 1 1 0] H* hex
+    set hex
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h hex
+} -result 00ff800a
+
+test ldap-api-3.16 {search: long response (long form BER length)} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries [list [list cn=x,dc=example,dc=org \
+        [list description [list [string repeat abcdefgh 5000]]]]]
+} -body {
+    string length [lindex [ldap::search $h dc=example,dc=org (cn=x) {}] 0 1 1 0]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result 40000
+
+# -------------------------------------------------------------------------
+# searchInit, searchNext, searchEnd
+# -------------------------------------------------------------------------
+
+test ldap-api-4.1 {searchInit/searchNext: entries one by one} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries {
+        {cn=a,dc=example,dc=org {cn a}}
+        {cn=b,dc=example,dc=org {cn b}}
+    }
+} -body {
+    set mid [ldap::searchInit $h dc=example,dc=org (cn=*) {} {}]
+    set r [list [string is integer -strict $mid]]
+    lappend r [ldap::searchNext $h] [ldap::searchNext $h] [ldap::searchNext $h]
+    ldap::searchEnd $h
+    set r
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h r mid
+} -result {1 {cn=a,dc=example,dc=org {cn a}} {cn=b,dc=example,dc=org {cn b}} {}}
+
+test ldap-api-4.2 {searchInit: options as a list} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::searchInit $h dc=example,dc=org (cn=*) {cn} {-scope base -sizelimit 3}
+    ldap::searchNext $h
+    ldap::searchEnd $h
+    lrange [lindex [fakeldap::requests search] 0] 1 4
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {dc=example,dc=org 0 0 3}
+
+test ldap-api-4.3 {searchInit: only one search at a time} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::searchInit $h dc=example,dc=org (cn=*) {} {}
+    ldap::searchInit $h dc=example,dc=org (cn=*) {} {}
+} -cleanup {
+    ldap::searchEnd $h
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {Cannot start search. Already a search in progress for this handle.}
+
+test ldap-api-4.4 {searchInit: invalid option} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::searchInit $h dc=example,dc=org (cn=*) {} {-bogus 1}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {Invalid search option '-bogus'}
+
+test ldap-api-4.5 {searchNext: no search in progress} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::searchNext $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {No search in progress}
+
+test ldap-api-4.6 {searchNext: after the end of the search} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::searchInit $h dc=example,dc=org (cn=*) {} {}
+    ldap::searchNext $h
+    ldap::searchNext $h
+} -cleanup {
+    ldap::searchEnd $h
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {No search in progress}
+
+test ldap-api-4.7 {searchNext: server error} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {5 {50 {} {Access denied}}}
+} -body {
+    ldap::searchInit $h dc=example,dc=org (cn=*) {} {}
+    ldap::searchNext $h
+} -cleanup {
+    ldap::searchEnd $h
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {LDAP error insufficientAccessRights : Access denied}
+
+test ldap-api-4.8 {searchEnd: ends an unfinished search} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries {
+        {cn=a,dc=example,dc=org {cn a}}
+        {cn=b,dc=example,dc=org {cn b}}
+    }
+} -body {
+    ldap::searchInit $h dc=example,dc=org (cn=*) {} {}
+    ldap::searchNext $h
+    set r [ldap::searchEnd $h]
+    list $r [ldap::search $h dc=example,dc=org (cn=a) {}]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h r
+} -result {{} {{cn=a,dc=example,dc=org {cn a}} {cn=b,dc=example,dc=org {cn b}}}}
+
+# The AbandonRequest is [APPLICATION 16] MessageID (implicit tagging), but
+# ldap::abandon wraps a complete INTEGER (tag 0x02) into it.
+test ldap-api-4.8.1 {searchEnd: sends an abandon request for the search} -constraints {
+    knownBug
+} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::entries {
+        {cn=a,dc=example,dc=org {cn a}}
+        {cn=b,dc=example,dc=org {cn b}}
+    }
+} -body {
+    set mid [ldap::searchInit $h dc=example,dc=org (cn=*) {} {}]
+    ldap::searchNext $h
+    ldap::searchEnd $h
+    fakeldap::waitrequests 2
+    expr {[lindex [fakeldap::requests] end] eq [list abandon $mid]}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h mid
+} -result 1
+
+test ldap-api-4.9 {searchEnd: no search in progress} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::searchEnd $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {}
+
+# -------------------------------------------------------------------------
+# modify, modifyMulti
+# -------------------------------------------------------------------------
+
+set dn "cn=Test User,ou=People,dc=example,dc=org"
+
+test ldap-api-5.1 {modify: replace attributes} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    list [ldap::modify $h $dn {drink icetea uid JOLO}] [fakeldap::requests]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list {} [list [list modify $dn \
+    {{replace drink icetea} {replace uid JOLO}}]]]
+
+test ldap-api-5.2 {modify: add attributes} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modify $h $dn {} {} {drink water pager {+1 313 555 7671}}
+    fakeldap::requests
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list [list modify $dn \
+    {{add drink water} {add pager {{+1 313 555 7671}}}}]]
+
+test ldap-api-5.3 {modify: delete with and without value} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modify $h $dn {} {drink water pager {}}
+    fakeldap::requests
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list [list modify $dn {{delete drink water} {delete pager {}}}]]
+
+test ldap-api-5.4 {modify: replace, delete and add at once} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modify $h $dn {sn User} {pager {}} {mail u@example.org}
+    lsort [lindex [fakeldap::requests] 0 2]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{add mail u@example.org} {delete pager {}} {replace sn User}}
+
+test ldap-api-5.5 {modify: nothing to change} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modify $h $dn {}
+    fakeldap::requests
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list [list modify $dn {}]]
+
+test ldap-api-5.6 {modify: server error} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {7 {32 ou=People,dc=example,dc=org {No such object}}}
+} -body {
+    list [catch {ldap::modify $h $dn {sn User}} msg opts] $msg \
+        [dict get $opts -errorcode]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h msg opts
+} -result {1 {LDAP error noSuchObject 'ou=People,dc=example,dc=org': No such object}\
+    {LDAP noSuchObject ou=People,dc=example,dc=org {No such object}}}
+
+test ldap-api-5.7 {modifyMulti: multiple values} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modifyMulti $h $dn {telephoneNumber {+1 +2}} {mail {a@x b@x}} \
+        {drink {water juice}}
+    lsort [lindex [fakeldap::requests] 0 2]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{add drink {water juice}} {delete mail {a@x b@x}}\
+    {replace telephoneNumber {+1 +2}}}
+
+test ldap-api-5.8 {modifyMulti: empty value lists} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modifyMulti $h $dn {description {}} {mail {}}
+    lsort [lindex [fakeldap::requests] 0 2]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{delete mail {}} {replace description {}}}
+
+test ldap-api-5.9 {modifyMulti: returns empty string} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modifyMulti $h $dn {sn {User}}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {}
+
+test ldap-api-5.10 {modifyMulti: server error} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {7 {65 {} {Object class violation}}}
+} -body {
+    ldap::modifyMulti $h $dn {objectClass {}}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {LDAP error objectClassViolation '': Object class violation}
+
+# -------------------------------------------------------------------------
+# add, addMulti
+# -------------------------------------------------------------------------
+
+test ldap-api-6.1 {add: attribute value tuples} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    set r [ldap::add $h $dn {
+        objectClass     OpenLDAPperson
+        cn              {Test User}
+        sn              User
+        telephoneNumber +31415926535
+        telephoneNumber +27182818285
+    }]
+    lassign [lindex [fakeldap::requests] 0] op rdn attrs
+    list $r $op [expr {$rdn eq $dn}] [dict get $attrs objectClass] \
+        [dict get $attrs cn] [dict get $attrs sn] \
+        [dict get $attrs telephoneNumber] [dict size $attrs]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h r op rdn attrs
+} -result {{} add 1 OpenLDAPperson {{Test User}} User {+31415926535 +27182818285} 4}
+
+test ldap-api-6.2 {addMulti: attribute value lists} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    set r [ldap::addMulti $h $dn {
+        objectClass     {OpenLDAPperson}
+        cn              {{Test User}}
+        telephoneNumber {+31415926535 +27182818285}
+    }]
+    list $r [fakeldap::requests]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h r
+} -result [list {} [list [list add $dn {objectClass OpenLDAPperson\
+    cn {{Test User}} telephoneNumber {+31415926535 +27182818285}}]]]
+
+test ldap-api-6.3 {add: entry already exists} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {9 {68 {} {Already exists}}}
+} -body {
+    list [catch {ldap::add $h $dn {cn x}} msg opts] $msg \
+        [dict get $opts -errorcode]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h msg opts
+} -result {1 {LDAP error entryAlreadyExists '': Already exists}\
+    {LDAP entryAlreadyExists {} {Already exists}}}
+
+test ldap-api-6.4 {addMulti: server error} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {9 {50 {} {No access}}}
+} -body {
+    ldap::addMulti $h $dn {cn x}
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {LDAP error insufficientAccessRights '': No access}
+
+# -------------------------------------------------------------------------
+# delete
+# -------------------------------------------------------------------------
+
+test ldap-api-7.1 {delete: request and result} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    list [ldap::delete $h $dn] [fakeldap::requests]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list {} [list [list delete $dn]]]
+
+test ldap-api-7.2 {delete: not allowed on non-leaf} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {11 {66 {} {Subordinate objects}}}
+} -body {
+    ldap::delete $h ou=People,dc=example,dc=org
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {LDAP error notAllowedOnNonLeaf '': Subordinate objects}
+
+# -------------------------------------------------------------------------
+# modifyDN
+# -------------------------------------------------------------------------
+
+test ldap-api-8.1 {modifyDN: deleteOld defaults to true} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    list [ldap::modifyDN $h $dn cn=Tester] [fakeldap::requests]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list {} [list [list modifyDN $dn cn=Tester 1]]]
+
+test ldap-api-8.2 {modifyDN: keep the old RDN} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modifyDN $h $dn cn=Tester 0
+    fakeldap::requests
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list [list modifyDN $dn cn=Tester 0]]
+
+test ldap-api-8.3 {modifyDN: new superior} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modifyDN $h $dn cn=Tester 1 ou=Admins,dc=example,dc=org
+    fakeldap::requests
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result [list [list modifyDN $dn cn=Tester 1 ou=Admins,dc=example,dc=org]]
+
+test ldap-api-8.4 {modifyDN: server error} -setup {
+    fakeldap::start
+    set h [connect]
+    set fakeldap::results {13 {68 {} {Already exists}}}
+} -body {
+    ldap::modifyDN $h $dn cn=Tester
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {LDAP error entryAlreadyExists '': Already exists}
+
+test ldap-api-8.5 {modifyDN: following operations still work} -setup {
+    fakeldap::start
+    set h [connect]
+} -body {
+    ldap::modifyDN $h $dn cn=Tester
+    ldap::modifyDN $h cn=Tester,ou=People,dc=example,dc=org cn=Other
+    ldap::delete $h cn=Other,ou=People,dc=example,dc=org
+    llength [fakeldap::requests]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result 3
+
+# -------------------------------------------------------------------------
+# Server introspection: info saslmechanisms, control, extensions, whoami
+# -------------------------------------------------------------------------
+
+test ldap-api-9.1 {info saslmechanisms} -setup {
+    fakeldap::start
+    set fakeldap::rootdse $rootdse
+    set h [connect]
+    ldap::bind $h
+} -body {
+    list [ldap::info saslmechanisms $h] \
+        [lrange [lindex [fakeldap::requests search] 0] 1 2] \
+        [lindex [fakeldap::requests search] 0 8]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{PLAIN EXTERNAL} {{} 0} supportedSASLMechanisms}
+
+test ldap-api-9.2 {info control} -setup {
+    fakeldap::start
+    set fakeldap::rootdse $rootdse
+    set h [connect]
+    ldap::bind $h
+} -body {
+    list [ldap::info control $h] [lindex [fakeldap::requests search] 0 8]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{1.2.840.113556.1.4.319 2.16.840.1.113730.3.4.2} supportedControl}
+
+test ldap-api-9.3 {info extensions} -setup {
+    fakeldap::start
+    set fakeldap::rootdse $rootdse
+    set h [connect]
+    ldap::bind $h
+} -body {
+    list [ldap::info extensions $h] [lindex [fakeldap::requests search] 0 8]
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {{1.3.6.1.4.1.1466.20037 1.3.6.1.4.1.4203.1.11.3} supportedExtension}
+
+test ldap-api-9.5 {info whoami: anonymous, empty authzId} -setup {
+    fakeldap::start
+    set fakeldap::rootdse $rootdse
+    set h [connect]
+    ldap::bind $h
+} -body {
+    ldap::info whoami $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {}
+
+test ldap-api-9.6 {info whoami: extension not supported} -setup {
+    fakeldap::start
+    set fakeldap::rootdse {supportedExtension {1.3.6.1.4.1.1466.20037}}
+    set h [connect]
+    ldap::bind $h
+} -body {
+    ldap::info whoami $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {Server does not support the "Who am I?" extension}
+
+test ldap-api-9.7 {info whoami: server error} -setup {
+    fakeldap::start
+    set fakeldap::rootdse $rootdse
+    set fakeldap::results {24 {53 {} {Unwilling}}}
+    set h [connect]
+    ldap::bind $h
+} -body {
+    ldap::info whoami $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -returnCodes error -result {LDAP error unwillingToPerform '': Unwilling}
+
+test ldap-api-9.8 {info saslmechanisms: none advertised} -setup {
+    fakeldap::start
+    set h [connect]
+    ldap::bind $h
+} -body {
+    ldap::info saslmechanisms $h
+} -cleanup {
+    ldap::disconnect $h
+    fakeldap::stop
+    unset h
+} -result {}
+
+test ldap-api-9.9 {info saslmechanisms: invalid handle} -body {
+    ldap::info saslmechanisms ::ldap::nosuchhandle
+} -returnCodes error -result {Not a valid LDAP connection handle: ::ldap::nosuchhandle}
+
+# -------------------------------------------------------------------------
+# tlsoptions, secure_connect (without TLS)
+# -------------------------------------------------------------------------
+
+test ldap-api-10.1 {tlsoptions reset: documented defaults} -setup {
+    savetls
+} -body {
+    set r [ldap::tlsoptions reset]
+    set l {}
+    foreach o {-request -ssl2 -ssl3 -tls1 -tls1.1 -tls1.2} {
+        lappend l $o [string is true [dict get $r $o]]
+    }
+    set l
+} -cleanup {
+    restoretls
+    unset r l o
+} -result {-request 1 -ssl2 0 -ssl3 0 -tls1 1 -tls1.1 1 -tls1.2 1}
+
+# The code defaults -require to 1, the manual says false.
+test ldap-api-10.2 {tlsoptions reset: -require defaults to false} -constraints {
+    knownBug
+} -setup {
+    savetls
+} -body {
+    string is true [dict get [ldap::tlsoptions reset] -require]
+} -cleanup {
+    restoretls
+} -result 0
+
+test ldap-api-10.3 {tlsoptions: set options, returns all options} -setup {
+    savetls
+    ldap::tlsoptions reset
+} -body {
+    set r [ldap::tlsoptions -cafile /tmp/ca.pem -cipher HIGH]
+    list [dict get $r -cafile] [dict get $r -cipher] [dict get $r -tls1.2]
+} -cleanup {
+    restoretls
+    unset r
+} -result {/tmp/ca.pem HIGH yes}
+
+test ldap-api-10.4 {tlsoptions: options accumulate over calls} -setup {
+    savetls
+    ldap::tlsoptions reset
+} -body {
+    ldap::tlsoptions -cafile /tmp/ca.pem
+    ldap::tlsoptions -cadir /tmp/certs
+    set r [ldap::tlsoptions]
+    list [dict get $r -cafile] [dict get $r -cadir]
+} -cleanup {
+    restoretls
+    unset r
+} -result {/tmp/ca.pem /tmp/certs}
+
+# reset merges the defaults into the current options (array set).
+test ldap-api-10.5 {tlsoptions: reset removes added options} -constraints {
+    knownBug
+} -setup {
+    savetls
+    ldap::tlsoptions reset
+} -body {
+    ldap::tlsoptions -cafile /tmp/ca.pem
+    dict exists [ldap::tlsoptions reset] -cafile
+} -cleanup {
+    restoretls
+} -result 0
+
+test ldap-api-10.6 {tlsoptions: all documented options are accepted} -setup {
+    savetls
+} -body {
+    ldap::tlsoptions -cadir /d -cafile /f -cipher c -dhparams /p \
+        -request 1 -require 0 -servername example.org -ssl2 0 -ssl3 0 \
+        -tls1 1 -tls1.1 1 -tls1.2 1
+    llength [ldap::tlsoptions]
+} -cleanup {
+    restoretls
+} -result 24
+
+test ldap-api-10.7 {secure_connect: requires the tls package} -constraints {
+    noTls
+} -body {
+    ldap::secure_connect 127.0.0.1 636
+} -returnCodes error -match glob -result {can't find package tls*}
+
+# -------------------------------------------------------------------------
+rename connect {}
+rename savetls {}
+rename restoretls {}
+unset rootdse dn n opt value field expected
+namespace delete ::fakeldap
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
