@@ -1,0 +1,561 @@
+# aes-api.test - Additional API tests for the aes package.
+#
+# Covers the programming interface (Init, Encrypt, Decrypt, Reset,
+# Final), the options of ::aes::aes not exercised by aes.test, and the
+# error cases.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal aes.tcl aes
+}
+
+# -------------------------------------------------------------------------
+# Helpers and vectors
+
+proc H {hex} {binary format H* $hex}
+proc X {bin} {binary scan $bin H* r; return $r}
+
+# FIPS-197 Appendix C.1 (AES-128 ECB)
+set k128  000102030405060708090a0b0c0d0e0f
+set p128  00112233445566778899aabbccddeeff
+set c128  69c4e0d86a7b0430d8cdb78070b4c55a
+# FIPS-197 Appendix C.2 (AES-192 ECB)
+set k192  000102030405060708090a0b0c0d0e0f1011121314151617
+set c192  dda97ca4864cdfe06eaf70a0ec0d7191
+# FIPS-197 Appendix C.3 (AES-256 ECB)
+set k256  000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+set c256  8ea2b7ca516745bfeafc49904b496089
+# RFC 3602 case 2 (AES-128 CBC, two blocks)
+set kcbc  c286696d887c9aa0611bbb3e2025a45a
+set ivcbc 562e17996d093d28ddb3ba695a2e6f58
+set pcbc  000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+set ccbc  d296cd94c2cccf8a3a863028b5e1dc0a7586602d253cfff91b8266bea6d61ab1
+
+set zero16 [string repeat \0 16]
+
+# -------------------------------------------------------------------------
+# ::aes::Init
+
+test aes-api-1.0 {Init, wrong # args} -body {
+    aes::Init ecb
+} -returnCodes error -result {wrong # args: should be "aes::Init mode key iv"}
+
+test aes-api-1.1 {Init returns a token naming the key state} -body {
+    set tok [aes::Init ecb [H $k128] $zero16]
+    list [string match ::aes::* $tok] [array exists $tok]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result {1 1}
+
+test aes-api-1.2 {Init returns distinct tokens} -body {
+    set t1 [aes::Init ecb [H $k128] $zero16]
+    set t2 [aes::Init ecb [H $k128] $zero16]
+    expr {$t1 ne $t2}
+} -cleanup {
+    aes::Final $t1
+    aes::Final $t2
+    unset t1 t2
+} -result 1
+
+test aes-api-1.3 {Init, invalid mode} -body {
+    aes::Init xyz [H $k128] $zero16
+} -returnCodes error -result {invalid mode "xyz": must be one of ecb or cbc.}
+
+test aes-api-1.4 {Init, cfb mode not implemented} -body {
+    aes::Init cfb [H $k128] $zero16
+} -returnCodes error -result {cfb mode not implemented}
+
+test aes-api-1.5 {Init, ofb mode not implemented} -body {
+    aes::Init ofb [H $k128] $zero16
+} -returnCodes error -result {ofb mode not implemented}
+
+test aes-api-1.6 {Init, key too short} -body {
+    aes::Init ecb [string repeat k 15] $zero16
+} -returnCodes error -result {invalid key size "120": must be one of 128, 192 or 256.}
+
+test aes-api-1.7 {Init, key of 20 bytes} -body {
+    aes::Init ecb [string repeat k 20] $zero16
+} -returnCodes error -result {invalid key size "160": must be one of 128, 192 or 256.}
+
+test aes-api-1.8 {Init, empty key} -body {
+    aes::Init ecb {} $zero16
+} -returnCodes error -result {invalid key size "0": must be one of 128, 192 or 256.}
+
+test aes-api-1.9 {Init, short initialization vector} -body {
+    aes::Init cbc [H $k128] [string repeat \0 15]
+} -returnCodes error -result {invalid initialization vector: must be 16 bytes}
+
+test aes-api-1.10 {Init, empty initialization vector} -body {
+    aes::Init ecb [H $k128] {}
+} -returnCodes error -result {invalid initialization vector: must be 16 bytes}
+
+# -------------------------------------------------------------------------
+# ::aes::Encrypt / ::aes::Decrypt
+
+test aes-api-2.0 {Encrypt, wrong # args} -body {
+    aes::Encrypt key
+} -returnCodes error -result {wrong # args: should be "aes::Encrypt Key data"}
+
+test aes-api-2.1 {Decrypt, wrong # args} -body {
+    aes::Decrypt key
+} -returnCodes error -result {wrong # args: should be "aes::Decrypt Key data"}
+
+foreach {n key ct} [list 128 $k128 $c128 192 $k192 $c192 256 $k256 $c256] {
+    test aes-api-2.2.$n "Encrypt, ECB, $n bit key (FIPS-197)" -setup {
+        set tok [aes::Init ecb [H $key] $zero16]
+    } -body {
+        X [aes::Encrypt $tok [H $p128]]
+    } -cleanup {
+        aes::Final $tok
+        unset tok
+    } -result $ct
+
+    test aes-api-2.3.$n "Decrypt, ECB, $n bit key (FIPS-197)" -setup {
+        set tok [aes::Init ecb [H $key] $zero16]
+    } -body {
+        X [aes::Decrypt $tok [H $ct]]
+    } -cleanup {
+        aes::Final $tok
+        unset tok
+    } -result $p128
+}
+
+test aes-api-2.4 {Encrypt, ECB, identical blocks give identical output} -setup {
+    set tok [aes::Init ecb [H $k128] $zero16]
+} -body {
+    X [aes::Encrypt $tok [H $p128$p128]]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result $c128$c128
+
+test aes-api-2.5 {Encrypt, ECB, key is reusable without Reset} -setup {
+    set tok [aes::Init ecb [H $k128] $zero16]
+} -body {
+    list [X [aes::Encrypt $tok [H $p128]]] [X [aes::Encrypt $tok [H $p128]]] \
+        [X [aes::Decrypt $tok [H $c128]]]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result [list $c128 $c128 $p128]
+
+test aes-api-2.6 {Encrypt, CBC, RFC 3602 vector} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    X [aes::Encrypt $tok [H $pcbc]]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result $ccbc
+
+test aes-api-2.7 {Decrypt, CBC, RFC 3602 vector} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    X [aes::Decrypt $tok [H $ccbc]]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result $pcbc
+
+test aes-api-2.8 {Encrypt, CBC, chaining continues across calls} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    set r [aes::Encrypt $tok [string range [H $pcbc] 0 15]]
+    append r [aes::Encrypt $tok [string range [H $pcbc] 16 end]]
+    X $r
+} -cleanup {
+    aes::Final $tok
+    unset tok r
+} -result $ccbc
+
+test aes-api-2.9 {Decrypt, CBC, chaining continues across calls} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    set r [aes::Decrypt $tok [string range [H $ccbc] 0 15]]
+    append r [aes::Decrypt $tok [string range [H $ccbc] 16 end]]
+    X $r
+} -cleanup {
+    aes::Final $tok
+    unset tok r
+} -result $pcbc
+
+test aes-api-2.10 {Encrypt, CBC, identical blocks give different output} -setup {
+    set tok [aes::Init cbc [H $k128] $zero16]
+} -body {
+    set r [aes::Encrypt $tok [H $p128$p128]]
+    expr {[string range $r 0 15] ne [string range $r 16 end]}
+} -cleanup {
+    aes::Final $tok
+    unset tok r
+} -result 1
+
+test aes-api-2.11 {Encrypt, empty data} -setup {
+    set tok [aes::Init ecb [H $k128] $zero16]
+} -body {
+    aes::Encrypt $tok {}
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result {}
+
+test aes-api-2.12 {Decrypt, empty data} -setup {
+    set tok [aes::Init ecb [H $k128] $zero16]
+} -body {
+    aes::Decrypt $tok {}
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result {}
+
+test aes-api-2.13 {Encrypt, data not a multiple of the block size} -setup {
+    set tok [aes::Init ecb [H $k128] $zero16]
+} -body {
+    aes::Encrypt $tok [string repeat a 17]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -returnCodes error -result {invalid block size: AES requires 16 byte blocks}
+
+test aes-api-2.14 {Decrypt, data not a multiple of the block size} -setup {
+    set tok [aes::Init cbc [H $k128] $zero16]
+} -body {
+    aes::Decrypt $tok [string repeat a 15]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -returnCodes error -result {invalid block size: AES requires 16 byte blocks}
+
+test aes-api-2.15 {Encrypt, result has the size of the input} -setup {
+    set tok [aes::Init cbc [H $k256] $zero16]
+} -body {
+    string length [aes::Encrypt $tok [string repeat x 80]]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result 80
+
+test aes-api-2.16 {Encrypt/Decrypt round trip with the same key} -setup {
+    set tok [aes::Init cbc [H $k192] [H $ivcbc]]
+    set pt [string repeat "0123456789abcdef" 5]
+} -body {
+    set ct [aes::Encrypt $tok $pt]
+    aes::Reset $tok [H $ivcbc]
+    string equal [aes::Decrypt $tok $ct] $pt
+} -cleanup {
+    aes::Final $tok
+    unset tok pt ct
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::aes::Reset
+
+test aes-api-3.0 {Reset, wrong # args} -body {
+    aes::Reset key
+} -returnCodes error -result {wrong # args: should be "aes::Reset Key iv"}
+
+test aes-api-3.1 {Reset returns empty string} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    aes::Reset $tok [H $ivcbc]
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result {}
+
+test aes-api-3.2 {Reset, restarting the chain repeats the output} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    set r1 [X [aes::Encrypt $tok [H $pcbc]]]
+    set r2 [X [aes::Encrypt $tok [H $pcbc]]]
+    aes::Reset $tok [H $ivcbc]
+    set r3 [X [aes::Encrypt $tok [H $pcbc]]]
+    list [expr {$r1 eq $r2}] [expr {$r1 eq $r3}] $r3
+} -cleanup {
+    aes::Final $tok
+    unset tok r1 r2 r3
+} -result [list 0 1 $ccbc]
+
+test aes-api-3.3 {Reset, a different vector changes the output} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    aes::Reset $tok $zero16
+    expr {[X [aes::Encrypt $tok [H $pcbc]]] ne $ccbc}
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -result 1
+
+test aes-api-3.4 {Reset, invalid initialization vector} -setup {
+    set tok [aes::Init cbc [H $kcbc] [H $ivcbc]]
+} -body {
+    aes::Reset $tok abc
+} -cleanup {
+    aes::Final $tok
+    unset tok
+} -returnCodes error -result {invalid initialization vector: must be 16 bytes}
+
+# -------------------------------------------------------------------------
+# ::aes::Final
+
+test aes-api-4.0 {Final, wrong # args} -body {
+    aes::Final
+} -returnCodes error -result {wrong # args: should be "aes::Final Key"}
+
+test aes-api-4.1 {Final releases the key state} -body {
+    set tok [aes::Init ecb [H $k128] $zero16]
+    aes::Final $tok
+    info exists $tok
+} -cleanup {
+    unset tok
+} -result 0
+
+test aes-api-4.2 {Final, key cannot be used afterwards} -body {
+    set tok [aes::Init ecb [H $k128] $zero16]
+    aes::Final $tok
+    aes::Encrypt $tok [H $p128]
+} -cleanup {
+    unset tok
+} -returnCodes error -match glob -result {can't read "*": no such variable}
+
+# -------------------------------------------------------------------------
+# ::aes::aes options and errors
+
+test aes-api-5.0 {aes, no arguments} -body {
+    aes::aes
+} -returnCodes error -result {no key provided: the -key option is required}
+
+test aes-api-5.1 {aes, no key} -body {
+    aes::aes -mode ecb [H $p128]
+} -returnCodes error -result {no key provided: the -key option is required}
+
+test aes-api-5.2 {aes, no data} -body {
+    aes::aes -key [H $k128]
+} -returnCodes error -result {wrong # args: should be "aes ?options...? -key keydata plaintext"}
+
+test aes-api-5.3 {aes, too many data arguments} -body {
+    aes::aes -key [H $k128] -- a b
+} -returnCodes error -result {wrong # args: should be "aes ?options...? -key keydata plaintext"}
+
+test aes-api-5.4 {aes, data given together with -in} -setup {
+    set f [makeFile {} aes-api.in]
+    set ch [open $f r]
+} -body {
+    aes::aes -key [H $k128] -in $ch data
+} -cleanup {
+    close $ch
+    removeFile aes-api.in
+    unset f ch
+} -returnCodes error -result {wrong # args: should be "aes ?options...? -key keydata -in channel"}
+
+test aes-api-5.5 {aes, bad option} -body {
+    aes::aes -bogus 1 -key [H $k128] data
+} -returnCodes error -result {bad option "-bogus": must be one of -chunksize, -dir, -hex, -in, -iv, -key, -mode, -out}
+
+test aes-api-5.6 {aes, invalid -mode} -body {
+    aes::aes -mode cfb -key [H $k128] [H $p128]
+} -returnCodes error -result {invalid mode "cfb": must be one of ecb, cbc}
+
+test aes-api-5.7 {aes, invalid -dir} -body {
+    aes::aes -dir sideways -key [H $k128] [H $p128]
+} -returnCodes error -result {invalid mode "sideways": must be one of encrypt, decrypt}
+
+test aes-api-5.8 {aes, -iv of the wrong size} -body {
+    aes::aes -iv [string repeat \0 8] -key [H $k128] [H $p128]
+} -returnCodes error -result {invalid value for -iv: must be 16 bytes long}
+
+test aes-api-5.9 {aes, -key of the wrong size} -body {
+    aes::aes -key [string repeat k 10] [H $p128]
+} -returnCodes error -result {invalid key size "80": must be one of 128, 192 or 256.}
+
+test aes-api-5.10 {aes, abbreviated -mode and -dir values} -body {
+    X [aes::aes -mode e -dir e -key [H $k128] [H $p128]]
+} -result $c128
+
+test aes-api-5.11 {aes, full -mode and -dir values} -body {
+    X [aes::aes -mode ecb -dir decrypt -key [H $k128] [H $c128]]
+} -result $p128
+
+test aes-api-5.12 {aes, default mode is CBC with a zero vector} -body {
+    expr {[aes::aes -key [H $k128] [H $p128$p128]] eq
+          [aes::aes -mode cbc -iv $zero16 -dir encrypt -key [H $k128] [H $p128$p128]]}
+} -result 1
+
+test aes-api-5.13 {aes, default mode is not ECB} -body {
+    expr {[X [aes::aes -key [H $k128] [H $p128$p128]]] ne "$c128$c128"}
+} -result 1
+
+test aes-api-5.14 {aes, default direction is encrypt} -body {
+    X [aes::aes -mode ecb -key [H $k128] [H $p128]]
+} -result $c128
+
+test aes-api-5.15 {aes, -iv used in CBC mode} -body {
+    X [aes::aes -mode cbc -iv [H $ivcbc] -key [H $kcbc] [H $pcbc]]
+} -result $ccbc
+
+test aes-api-5.16 {aes, -iv ignored in ECB mode} -body {
+    X [aes::aes -mode ecb -iv [H $ivcbc] -key [H $k128] [H $p128]]
+} -result $c128
+
+test aes-api-5.17 {aes, -hex} -body {
+    aes::aes -hex -mode ecb -key [H $k256] [H $p128]
+} -result $c256
+
+test aes-api-5.18 {aes, data shorter than a block is padded with NULs} -body {
+    expr {[aes::aes -mode ecb -key [H $k128] abc] eq
+          [aes::aes -mode ecb -key [H $k128] abc[string repeat \0 13]]}
+} -result 1
+
+test aes-api-5.19 {aes, padded data decrypts with trailing NULs} -body {
+    set ct [aes::aes -key [H $k128] "Hello, World!!!!!"]
+    aes::aes -dir decrypt -key [H $k128] $ct
+} -cleanup {
+    unset ct
+} -result "Hello, World!!!!![string repeat \0 15]"
+
+test aes-api-5.20 {aes, -out channel, immediate data} -setup {
+    set f [makeFile {} aes-api.out]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+} -body {
+    set r [aes::aes -mode ecb -key [H $k128] -out $ch [H $p128]]
+    close $ch
+    set ch [open $f r]
+    fconfigure $ch -translation binary
+    list $r [X [read $ch]]
+} -cleanup {
+    close $ch
+    removeFile aes-api.out
+    unset f ch r
+} -result [list {} $c128]
+
+test aes-api-5.21 {aes, -out together with -hex returns empty} -setup {
+    set f [makeFile {} aes-api.out]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+} -body {
+    aes::aes -hex -mode ecb -key [H $k128] -out $ch [H $p128]
+} -cleanup {
+    close $ch
+    removeFile aes-api.out
+    unset f ch
+} -result {}
+
+test aes-api-5.22 {aes, -in channel with -hex} -setup {
+    set f [makeFile {} aes-api.in]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch [H $pcbc]
+    close $ch
+    set ch [open $f r]
+    fconfigure $ch -translation binary
+} -body {
+    aes::aes -hex -mode cbc -iv [H $ivcbc] -key [H $kcbc] -in $ch
+} -cleanup {
+    close $ch
+    removeFile aes-api.in
+    unset f ch
+} -result $ccbc
+
+test aes-api-5.23 {aes, -in channel with -chunksize, chained over chunks} -setup {
+    set f [makeFile {} aes-api.in]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch [H $pcbc]
+    close $ch
+    set ch [open $f r]
+    fconfigure $ch -translation binary
+} -body {
+    aes::aes -hex -mode cbc -iv [H $ivcbc] -key [H $kcbc] -chunksize 16 -in $ch
+} -cleanup {
+    close $ch
+    removeFile aes-api.in
+    unset f ch
+} -result $ccbc
+
+test aes-api-5.24 {aes, -in channel, decryption} -setup {
+    set f [makeFile {} aes-api.in]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch [H $ccbc]
+    close $ch
+    set ch [open $f r]
+    fconfigure $ch -translation binary
+} -body {
+    aes::aes -hex -dir decrypt -iv [H $ivcbc] -key [H $kcbc] -chunksize 32 -in $ch
+} -cleanup {
+    close $ch
+    removeFile aes-api.in
+    unset f ch
+} -result $pcbc
+
+test aes-api-5.25 {aes, -in channel, short final chunk is padded} -setup {
+    set f [makeFile {} aes-api.in]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch abc
+    close $ch
+    set ch [open $f r]
+    fconfigure $ch -translation binary
+} -body {
+    expr {[aes::aes -mode ecb -key [H $k128] -in $ch] eq
+          [aes::aes -mode ecb -key [H $k128] abc]}
+} -cleanup {
+    close $ch
+    removeFile aes-api.in
+    unset f ch
+} -result 1
+
+test aes-api-5.26 {aes, -in and -out channels} -setup {
+    set fi [makeFile {} aes-api.in]
+    set fo [makeFile {} aes-api.out]
+    set ch [open $fi w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch [H $p128$p128]
+    close $ch
+    set in [open $fi r]
+    fconfigure $in -translation binary
+    set out [open $fo w]
+    fconfigure $out -translation binary
+} -body {
+    set r [aes::aes -mode ecb -key [H $k128] -in $in -out $out]
+    close $out
+    set ch [open $fo r]
+    fconfigure $ch -translation binary
+    set data [read $ch]
+    close $ch
+    list $r [X $data]
+} -cleanup {
+    close $in
+    removeFile aes-api.in
+    removeFile aes-api.out
+    unset fi fo ch in out r data
+} -result [list {} $c128$c128]
+
+test aes-api-5.27 {aes, no key state left behind} -body {
+    set before [info vars ::aes::\[0-9\]*]
+    aes::aes -key [H $k128] [H $p128]
+    expr {[info vars ::aes::\[0-9\]*] eq $before}
+} -cleanup {
+    unset before
+} -result 1
+
+# -------------------------------------------------------------------------
+
+rename H {}
+rename X {}
+unset k128 p128 c128 k192 c192 k256 c256 kcbc ivcbc pcbc ccbc zero16
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
