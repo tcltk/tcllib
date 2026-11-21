@@ -94,7 +94,7 @@ test tcl-chan-fifo-api-2.4 {binary data} -setup {
     unset c data
 } -result 1
 
-test tcl-chan-fifo-api-2.5 {no misindexing after refill (cf. fifo2 ticket 3f48fd6ea2)} -constraints knownBug -setup {
+test tcl-chan-fifo-api-2.5 {no misindexing after refill (cf. fifo2 ticket 387862f771)} -constraints knownBug -setup {
     set c [tcl::chan::fifo]
     fconfigure $c -buffersize 1 -blocking 0 -buffering none
     puts -nonewline $c foobar
