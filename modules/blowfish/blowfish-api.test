@@ -1,0 +1,513 @@
+# blowfish-api.test - Additional API tests for the blowfish package.
+#
+# Covers the programming interface (Init, Encrypt, Decrypt, Reset,
+# Final), the options of ::blowfish::blowfish not exercised by
+# blowfish.test, and the error cases. Only the pure Tcl implementation
+# is tested here.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal blowfish.tcl blowfish
+}
+
+# -------------------------------------------------------------------------
+# Use the Tcl implementation only.
+
+array set preserve [array get ::blowfish::accel]
+foreach a [array names ::blowfish::accel] {set ::blowfish::accel($a) 0}
+unset -nocomplain a
+
+proc H {hex} {binary format H* $hex}
+proc X {bin} {string toupper [blowfish::Hex $bin]}
+
+# Eric Young's ECB test vectors
+set k0 0000000000000000
+set p0 0000000000000000
+set c0 4EF997456198DD78
+set k1 FFFFFFFFFFFFFFFF
+set p1 FFFFFFFFFFFFFFFF
+set c1 51866FD5B85ECB8A
+# CBC test vector
+set kc 0123456789ABCDEFF0E1D2C3B4A59687
+set ivc FEDCBA9876543210
+set pc 37363534333231204E6F77206973207468652074696D6520666F722000000000
+set cc 6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC
+
+set zero8 [string repeat \0 8]
+
+proc mkin {data} {
+    set f [makeFile {} blowfish-api.in]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch $data
+    close $ch
+    set ch [open $f r]
+    fconfigure $ch -translation binary
+    return $ch
+}
+
+# -------------------------------------------------------------------------
+# ::blowfish::Init
+
+test blowfish-api-1.0 {Init, wrong # args} -body {
+    blowfish::Init ecb key
+} -returnCodes error -result {wrong # args: should be "blowfish::Init mode key iv"}
+
+test blowfish-api-1.1 {Init returns a token naming the key state} -body {
+    set tok [blowfish::Init ecb [H $k0] $zero8]
+    list [string match ::blowfish::* $tok] [array exists $tok]
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result {1 1}
+
+test blowfish-api-1.2 {Init returns distinct tokens} -body {
+    set t1 [blowfish::Init ecb secret $zero8]
+    set t2 [blowfish::Init ecb secret $zero8]
+    expr {$t1 ne $t2}
+} -cleanup {
+    blowfish::Final $t1
+    blowfish::Final $t2
+    unset t1 t2
+} -result 1
+
+test blowfish-api-1.3 {Init, variable length keys give different schedules} -body {
+    set t1 [blowfish::Init ecb a $zero8]
+    set t2 [blowfish::Init ecb [string repeat a 56] $zero8]
+    set t3 [blowfish::Init ecb ab $zero8]
+    list [expr {[blowfish::Encrypt $t1 $zero8] eq [blowfish::Encrypt $t2 $zero8]}] \
+        [expr {[blowfish::Encrypt $t1 $zero8] eq [blowfish::Encrypt $t3 $zero8]}]
+} -cleanup {
+    blowfish::Final $t1
+    blowfish::Final $t2
+    blowfish::Final $t3
+    unset t1 t2 t3
+} -result {1 0}
+
+# -------------------------------------------------------------------------
+# ::blowfish::Encrypt / ::blowfish::Decrypt
+
+test blowfish-api-2.0 {Encrypt, wrong # args} -body {
+    blowfish::Encrypt key
+} -returnCodes error -result {wrong # args: should be "blowfish::Encrypt Key data"}
+
+test blowfish-api-2.1 {Decrypt, wrong # args} -body {
+    blowfish::Decrypt key
+} -returnCodes error -result {wrong # args: should be "blowfish::Decrypt token data"}
+
+foreach {n key pt ct} [list 0 $k0 $p0 $c0 1 $k1 $p1 $c1] {
+    test blowfish-api-2.2.$n "Encrypt, ECB, vector $n" -setup {
+        set tok [blowfish::Init ecb [H $key] $zero8]
+    } -body {
+        X [blowfish::Encrypt $tok [H $pt]]
+    } -cleanup {
+        blowfish::Final $tok
+        unset tok
+    } -result $ct
+
+    test blowfish-api-2.3.$n "Decrypt, ECB, vector $n" -setup {
+        set tok [blowfish::Init ecb [H $key] $zero8]
+    } -body {
+        X [blowfish::Decrypt $tok [H $ct]]
+    } -cleanup {
+        blowfish::Final $tok
+        unset tok
+    } -result $pt
+}
+
+test blowfish-api-2.4 {Encrypt, ECB, identical blocks give identical output} -setup {
+    set tok [blowfish::Init ecb [H $k0] $zero8]
+} -body {
+    X [blowfish::Encrypt $tok [H $p0$p0$p0]]
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result $c0$c0$c0
+
+test blowfish-api-2.5 {Encrypt, CBC vector} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    X [blowfish::Encrypt $tok [H $pc]]
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result $cc
+
+test blowfish-api-2.6 {Decrypt, CBC vector} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    X [blowfish::Decrypt $tok [H $cc]]
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result $pc
+
+test blowfish-api-2.7 {Encrypt, CBC, chaining continues across calls} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    set r [blowfish::Encrypt $tok [string range [H $pc] 0 7]]
+    append r [blowfish::Encrypt $tok [string range [H $pc] 8 23]]
+    append r [blowfish::Encrypt $tok [string range [H $pc] 24 end]]
+    X $r
+} -cleanup {
+    blowfish::Final $tok
+    unset tok r
+} -result $cc
+
+test blowfish-api-2.8 {Decrypt, CBC, chaining continues across calls} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    set r [blowfish::Decrypt $tok [string range [H $cc] 0 15]]
+    append r [blowfish::Decrypt $tok [string range [H $cc] 16 end]]
+    X $r
+} -cleanup {
+    blowfish::Final $tok
+    unset tok r
+} -result $pc
+
+test blowfish-api-2.9 {Encrypt, empty data} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    blowfish::Encrypt $tok {}
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result {}
+
+test blowfish-api-2.10 {Decrypt, empty data} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    blowfish::Decrypt $tok {}
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result {}
+
+test blowfish-api-2.11 {Encrypt, no padding: data must be a multiple of 8} -setup {
+    set tok [blowfish::Init ecb secret $zero8]
+} -body {
+    blowfish::Encrypt $tok 0123456789
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -returnCodes error -result {invalid block size: blocks must be 8 bytes}
+
+test blowfish-api-2.12 {Decrypt, no padding: data must be a multiple of 8} -setup {
+    set tok [blowfish::Init ecb secret $zero8]
+} -body {
+    blowfish::Decrypt $tok 0123
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -returnCodes error -result {block size invalid}
+
+test blowfish-api-2.13 {Encrypt, invalid initialization vector} -setup {
+    set tok [blowfish::Init cbc secret abc]
+} -body {
+    blowfish::Encrypt $tok $zero8
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -returnCodes error -result {invalid initialization vector: must be 8 bytes}
+
+test blowfish-api-2.14 {Decrypt, invalid initialization vector} -setup {
+    set tok [blowfish::Init cbc secret abc]
+} -body {
+    blowfish::Decrypt $tok $zero8
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -returnCodes error -result {initialization vector must be 8 bytes}
+
+test blowfish-api-2.15 {Encrypt, result has the size of the input} -setup {
+    set tok [blowfish::Init cbc secret $zero8]
+} -body {
+    string length [blowfish::Encrypt $tok [string repeat x 40]]
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result 40
+
+test blowfish-api-2.16 {Encrypt/Decrypt round trip with the same key} -setup {
+    set tok [blowfish::Init cbc secret [H $ivc]]
+    set pt "Ukraine:Kyiv,Lviv,Odesa;"
+} -body {
+    set ct [blowfish::Encrypt $tok $pt]
+    blowfish::Reset $tok [H $ivc]
+    list [expr {$ct ne $pt}] [string equal [blowfish::Decrypt $tok $ct] $pt]
+} -cleanup {
+    blowfish::Final $tok
+    unset tok pt ct
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# ::blowfish::Reset / ::blowfish::Final
+
+test blowfish-api-3.0 {Reset, wrong # args} -body {
+    blowfish::Reset key
+} -returnCodes error -result {wrong # args: should be "blowfish::Reset token iv"}
+
+test blowfish-api-3.1 {Reset returns empty string} -setup {
+    set tok [blowfish::Init cbc secret $zero8]
+} -body {
+    blowfish::Reset $tok $zero8
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result {}
+
+test blowfish-api-3.2 {Reset, restarting the chain repeats the output} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    set r1 [X [blowfish::Encrypt $tok [H $pc]]]
+    set r2 [X [blowfish::Encrypt $tok [H $pc]]]
+    blowfish::Reset $tok [H $ivc]
+    set r3 [X [blowfish::Encrypt $tok [H $pc]]]
+    list [expr {$r1 eq $r2}] [expr {$r1 eq $r3}] $r3
+} -cleanup {
+    blowfish::Final $tok
+    unset tok r1 r2 r3
+} -result [list 0 1 $cc]
+
+test blowfish-api-3.3 {Reset, decryption after encryption} -setup {
+    set tok [blowfish::Init cbc [H $kc] [H $ivc]]
+} -body {
+    blowfish::Encrypt $tok [H $pc]
+    blowfish::Reset $tok [H $ivc]
+    X [blowfish::Decrypt $tok [H $cc]]
+} -cleanup {
+    blowfish::Final $tok
+    unset tok
+} -result $pc
+
+test blowfish-api-4.0 {Final, wrong # args} -body {
+    blowfish::Final
+} -returnCodes error -result {wrong # args: should be "blowfish::Final token"}
+
+test blowfish-api-4.1 {Final releases the key state} -body {
+    set tok [blowfish::Init ecb secret $zero8]
+    blowfish::Final $tok
+    info exists $tok
+} -cleanup {
+    unset tok
+} -result 0
+
+test blowfish-api-4.2 {Final, key cannot be used afterwards} -body {
+    set tok [blowfish::Init ecb secret $zero8]
+    blowfish::Final $tok
+    blowfish::Encrypt $tok $zero8
+} -cleanup {
+    unset tok
+} -returnCodes error -match glob -result {can't read "state(P)": no such *}
+
+# -------------------------------------------------------------------------
+# ::blowfish::blowfish options and errors
+
+test blowfish-api-5.0 {blowfish, no arguments} -body {
+    blowfish::blowfish
+} -returnCodes error -result {no key provided: the -key option is required}
+
+test blowfish-api-5.1 {blowfish, no key} -body {
+    blowfish::blowfish -mode ecb data
+} -returnCodes error -result {no key provided: the -key option is required}
+
+test blowfish-api-5.2 {blowfish, no data} -body {
+    blowfish::blowfish -key secret
+} -returnCodes error -result {wrong # args: should be "blowfish ?options...? -key keydata plaintext"}
+
+test blowfish-api-5.3 {blowfish, too many data arguments} -body {
+    blowfish::blowfish -key secret -- a b
+} -returnCodes error -result {wrong # args: should be "blowfish ?options...? -key keydata plaintext"}
+
+test blowfish-api-5.4 {blowfish, data given together with -in} -setup {
+    set ch [mkin {}]
+} -body {
+    blowfish::blowfish -key secret -in $ch data
+} -cleanup {
+    close $ch
+    removeFile blowfish-api.in
+    unset ch
+} -returnCodes error -result {wrong # args: should be "blowfish ?options...? -key keydata -in channel"}
+
+test blowfish-api-5.5 {blowfish, bad option} -body {
+    blowfish::blowfish -bogus 1 -key secret data
+} -returnCodes error -result {bad option "-bogus": must be one of -chunksize, -dir, -hex, -in, -iv, -key, -mode, -out, -pad}
+
+test blowfish-api-5.6 {blowfish, invalid -mode} -body {
+    blowfish::blowfish -mode ofb -key secret $zero8
+} -returnCodes error -result {invalid mode "ofb": must be one of ecb, cbc}
+
+test blowfish-api-5.7 {blowfish, invalid -dir} -body {
+    blowfish::blowfish -dir up -key secret $zero8
+} -returnCodes error -result {invalid mode "up": must be one of encrypt, decrypt}
+
+test blowfish-api-5.8 {blowfish, -iv of the wrong size} -body {
+    blowfish::blowfish -iv [string repeat \0 16] -key secret $zero8
+} -returnCodes error -result {invalid value for -iv: must be 8 bytes long}
+
+test blowfish-api-5.9 {blowfish, -pad of more than one character} -body {
+    blowfish::blowfish -pad ab -key secret $zero8
+} -returnCodes error -result {invalid value: should be a char or empty string}
+
+test blowfish-api-5.10 {blowfish, abbreviated -mode and -dir values} -body {
+    X [blowfish::blowfish -mode e -dir d -key [H $k1] [H $c1]]
+} -result $p1
+
+test blowfish-api-5.11 {blowfish, default mode is CBC with a zero vector} -body {
+    expr {[blowfish::blowfish -key secret [string repeat x 16]] eq
+          [blowfish::blowfish -mode cbc -iv $zero8 -dir encrypt -key secret [string repeat x 16]]}
+} -result 1
+
+test blowfish-api-5.12 {blowfish, default mode is not ECB} -body {
+    expr {[X [blowfish::blowfish -key [H $k0] [H $p0$p0]]] ne "$c0$c0"}
+} -result 1
+
+test blowfish-api-5.13 {blowfish, -iv used in CBC mode} -body {
+    X [blowfish::blowfish -iv [H $ivc] -key [H $kc] [H $pc]]
+} -result $cc
+
+test blowfish-api-5.14 {blowfish, -iv ignored in ECB mode} -body {
+    X [blowfish::blowfish -mode ecb -iv [H $ivc] -key [H $k0] [H $p0]]
+} -result $c0
+
+test blowfish-api-5.15 {blowfish, CBC decryption} -body {
+    X [blowfish::blowfish -dir decrypt -iv [H $ivc] -key [H $kc] [H $cc]]
+} -result $pc
+
+test blowfish-api-5.16 {blowfish, -hex} -body {
+    blowfish::blowfish -hex -mode ecb -key [H $k1] [H $p1]
+} -result [string tolower $c1]
+
+test blowfish-api-5.17 {blowfish, default padding is NUL} -body {
+    expr {[blowfish::blowfish -key secret abc] eq
+          [blowfish::blowfish -key secret -pad "" abc[string repeat \0 5]]}
+} -result 1
+
+test blowfish-api-5.18 {blowfish, padded data decrypts with trailing pad} -body {
+    set ct [blowfish::blowfish -key secret -pad * "Hello, World"]
+    blowfish::blowfish -dir decrypt -pad "" -key secret $ct
+} -cleanup {
+    unset ct
+} -result {Hello, World****}
+
+test blowfish-api-5.19 {blowfish, empty data is not padded} -body {
+    blowfish::blowfish -key secret {}
+} -result {}
+
+test blowfish-api-5.20 {blowfish, data starting with a dash without --} -body {
+    blowfish::blowfish -mode ecb -dir decrypt -pad "" -key secret \
+        [blowfish::blowfish -mode ecb -key secret -abcdefg]
+} -result -abcdefg
+
+test blowfish-api-5.21 {blowfish, -out channel, immediate data} -setup {
+    set f [makeFile {} blowfish-api.out]
+    set ch [open $f w]
+    fconfigure $ch -translation binary
+} -body {
+    set r [blowfish::blowfish -mode ecb -key [H $k0] -out $ch [H $p0$p0]]
+    close $ch
+    set ch [open $f r]
+    fconfigure $ch -translation binary
+    list $r [X [read $ch]]
+} -cleanup {
+    close $ch
+    removeFile blowfish-api.out
+    unset f ch r
+} -result [list {} $c0$c0]
+
+test blowfish-api-5.22 {blowfish, -in channel with small -chunksize} -setup {
+    set ch [mkin [H $pc]]
+} -body {
+    X [blowfish::blowfish -iv [H $ivc] -key [H $kc] -chunksize 3 -in $ch]
+} -cleanup {
+    close $ch
+    removeFile blowfish-api.in
+    unset ch
+} -result $cc
+
+test blowfish-api-5.23 {blowfish, -in channel, decryption} -setup {
+    set ch [mkin [H $cc]]
+} -body {
+    X [blowfish::blowfish -dir decrypt -iv [H $ivc] -key [H $kc] -chunksize 8 -in $ch]
+} -cleanup {
+    close $ch
+    removeFile blowfish-api.in
+    unset ch
+} -result $pc
+
+test blowfish-api-5.24 {blowfish, -in channel, short input is padded} -setup {
+    set ch [mkin abc]
+} -body {
+    expr {[blowfish::blowfish -key secret -in $ch] eq
+          [blowfish::blowfish -key secret abc]}
+} -cleanup {
+    close $ch
+    removeFile blowfish-api.in
+    unset ch
+} -result 1
+
+test blowfish-api-5.25 {blowfish, -in and -out channels} -setup {
+    set in [mkin [H $p1$p1]]
+    set fo [makeFile {} blowfish-api.out]
+    set out [open $fo w]
+    fconfigure $out -translation binary
+} -body {
+    set r [blowfish::blowfish -mode ecb -key [H $k1] -in $in -out $out]
+    close $out
+    set ch [open $fo r]
+    fconfigure $ch -translation binary
+    set data [read $ch]
+    close $ch
+    list $r [X $data]
+} -cleanup {
+    close $in
+    removeFile blowfish-api.in
+    removeFile blowfish-api.out
+    unset in fo out ch r data
+} -result [list {} $c1$c1]
+
+test blowfish-api-5.26 {blowfish, no key state left behind} -body {
+    set before [info vars ::blowfish::\[0-9\]*]
+    blowfish::blowfish -key secret $zero8
+    expr {[info vars ::blowfish::\[0-9\]*] eq $before}
+} -cleanup {
+    unset before
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::blowfish::Hex, ::blowfish::LoadAccelerator
+
+test blowfish-api-6.0 {Hex} -body {
+    blowfish::Hex [H 00ff7F80]
+} -result 00ff7f80
+
+test blowfish-api-6.1 {Hex, empty} -body {
+    blowfish::Hex {}
+} -result {}
+
+test blowfish-api-6.2 {LoadAccelerator, unknown accelerator} -body {
+    blowfish::LoadAccelerator bogus
+} -returnCodes error -result {invalid accelerator package: must be one of trf}
+
+# -------------------------------------------------------------------------
+
+array set ::blowfish::accel [array get preserve]
+unset preserve
+rename H {}
+rename X {}
+rename mkin {}
+unset k0 p0 c0 k1 p1 c1 kc ivc pc cc zero8
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
