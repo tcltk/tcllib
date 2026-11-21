@@ -1,0 +1,1186 @@
+# -*- tcl -*-
+# rest-api.test:  Tests for the rest package.
+#
+# HTTP calls go to a small server started inside this file on 127.0.0.1
+# with a port chosen by the system.  No external host is contacted.
+#
+# The package requires tdom, which is used only for the XML result
+# formats.  If tdom is not available a placeholder package is provided so
+# that the package can be loaded; the XML tests then need the constraint
+# tdom.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use json/json.tcl       json
+    use json/json_write.tcl json::write
+    use base64/base64.tcl   base64
+    package require http
+    if {[catch {package require tdom}]} {
+	tcltest::testConstraint tdom 0
+	package provide tdom 0
+    } else {
+	tcltest::testConstraint tdom 1
+    }
+}
+testing {
+    useLocal rest.tcl rest
+}
+
+# -------------------------------------------------------------------------
+## Local HTTP server.
+#
+# Routes are kept in ::srv::route, indexed by path, each value a list
+# {code headers body}.  The last request is recorded in ::srv::req as a
+# dict with the keys method, path, query, headers (lower-case names) and
+# body.
+
+namespace eval ::srv {
+    variable route
+    variable req {}
+}
+
+proc ::srv::start {} {
+    variable sock [socket -server ::srv::accept -myaddr 127.0.0.1 0]
+    variable port [lindex [fconfigure $sock -sockname] 2]
+}
+proc ::srv::stop {} {
+    variable sock
+    close $sock
+}
+proc ::srv::url {path} {
+    variable port
+    return http://127.0.0.1:$port$path
+}
+proc ::srv::reset {} {
+    variable route
+    variable req {}
+    array unset route
+}
+proc ::srv::accept {chan addr p} {
+    fconfigure $chan -blocking 0 -translation {auto crlf}
+    fileevent $chan readable [list ::srv::head $chan {}]
+}
+proc ::srv::head {chan lines} {
+    if {[catch {gets $chan line} n] || $n < 0} {
+	if {[eof $chan]} {close $chan}
+	return
+    }
+    if {$line ne ""} {
+	lappend lines $line
+	fileevent $chan readable [list ::srv::head $chan $lines]
+	return
+    }
+    set hdrs {}
+    foreach l [lrange $lines 1 end] {
+	regexp {^([^:]+):\s*(.*)$} $l -> k v
+	dict set hdrs [string tolower $k] $v
+    }
+    set len 0
+    if {[dict exists $hdrs content-length]} {
+	set len [dict get $hdrs content-length]
+    }
+    fconfigure $chan -translation binary
+    ::srv::body $chan [lindex $lines 0] $hdrs $len {}
+}
+proc ::srv::body {chan request hdrs len data} {
+    if {[string length $data] < $len} {
+	append data [read $chan [expr {$len - [string length $data]}]]
+	if {[string length $data] < $len} {
+	    if {[eof $chan]} {close $chan; return}
+	    fileevent $chan readable [list ::srv::body $chan $request $hdrs $len $data]
+	    return
+	}
+    }
+    fileevent $chan readable {}
+    variable req
+    variable route
+    lassign $request method uri
+    set query {}
+    regexp {^([^?]*)\??(.*)$} $uri -> path query
+    set req [dict create method $method path $path query $query headers $hdrs body $data]
+    if {[info exists route($path)]} {
+	lassign $route($path) code rh rb
+    } else {
+	lassign {404 {} {not found}} code rh rb
+    }
+    if {$code eq "hang"} {
+	# Never answer, the connection is closed by the client.
+	return
+    }
+    set rb [encoding convertto utf-8 $rb]
+    set out "HTTP/1.0 $code Status\r\n"
+    set ctype text/plain
+    foreach {k v} $rh {
+	if {[string tolower $k] eq "content-type"} {set ctype $v; continue}
+	append out "$k: $v\r\n"
+    }
+    append out "Content-Type: $ctype\r\n"
+    append out "Content-Length: [string length $rb]\r\nConnection: close\r\n\r\n"
+    if {$method ne "HEAD"} {append out $rb}
+    puts -nonewline $chan $out
+    close $chan
+}
+
+# Route shortcuts.
+proc ::srv::ok {path body {ctype text/plain}} {
+    variable route
+    set route($path) [list 200 [list Content-Type $ctype] $body]
+}
+proc ::srv::req {key} {
+    variable req
+    dict get $req $key
+}
+proc ::srv::header {name} {
+    variable req
+    set h [dict get $req headers]
+    if {[dict exists $h $name]} {return [dict get $h $name]}
+    return <none>
+}
+
+::srv::start
+
+set http210KB [expr {[package vsatisfies [package present http] 2.10-] ? "knownBug" : ""}]
+
+# -------------------------------------------------------------------------
+## rest::parameters
+
+test rest-parameters-1.0 {parameters, wrong # args} -body {
+    rest::parameters
+} -returnCodes error -result {wrong # args: should be "rest::parameters url ?arg ...?"}
+
+test rest-parameters-1.1 {parameters, query to dict} -body {
+    rest::parameters http://h/p?a=1&b=two&c=
+} -result {a 1 b two c {}}
+
+test rest-parameters-1.2 {parameters, single key} -body {
+    rest::parameters http://h/p?a=1&b=two b
+} -result two
+
+test rest-parameters-1.3 {parameters, no query} -body {
+    rest::parameters http://h/p
+} -result {}
+
+test rest-parameters-1.4 {parameters, parameter without value} -body {
+    rest::parameters http://h/p?flag&x=1
+} -result {flag {} x 1}
+
+test rest-parameters-1.5 {parameters, unknown key} -body {
+    rest::parameters http://h/p?a=1 b
+} -returnCodes error -result {key "b" not known in dictionary}
+
+# -------------------------------------------------------------------------
+## rest::parse_opts
+
+test rest-parse_opts-1.0 {parse_opts, wrong # args} -body {
+    rest::parse_opts a b c
+} -returnCodes error -result {wrong # args: should be "rest::parse_opts static required optional options"}
+
+test rest-parse_opts-1.1 {parse_opts, nothing} -body {
+    rest::parse_opts {} {} {} {}
+} -result {{} {}}
+
+test rest-parse_opts-1.2 {parse_opts, static always present, dash removed} -body {
+    rest::parse_opts {-a 1 b 2} {} {} {}
+} -result {{a 1 b 2} {}}
+
+test rest-parse_opts-1.3 {parse_opts, required with value} -body {
+    rest::parse_opts {} {x: y:} {} {-y 2 -x 1}
+} -result {{x 1 y 2} {}}
+
+test rest-parse_opts-1.4 {parse_opts, required missing} -body {
+    rest::parse_opts {} {x:} {} {}
+} -returnCodes error -result {the -x argument is required}
+
+test rest-parse_opts-1.5 {parse_opts, required without value} -body {
+    rest::parse_opts {} {x:} {} {-x}
+} -returnCodes error -result {the -x argument requires a value}
+
+test rest-parse_opts-1.6 {parse_opts, required taken from static} -body {
+    rest::parse_opts {-x 5} {x:} {} {}
+} -result {{x 5 x 5} {}}
+
+test rest-parse_opts-1.7 {parse_opts, optional with argument} -body {
+    rest::parse_opts {} {} {u:} {-u c}
+} -result {{u c} {}}
+
+test rest-parse_opts-1.8 {parse_opts, optional with argument, absent} -body {
+    rest::parse_opts {} {} {u:} {}
+} -result {{} {}}
+
+test rest-parse_opts-1.9 {parse_opts, optional default value} -body {
+    list [rest::parse_opts {} {} {u:f} {}] [rest::parse_opts {} {} {u:f} {-u c}]
+} -result {{{u f} {}} {{u c} {}}}
+
+test rest-parse_opts-1.10 {parse_opts, optional flag} -body {
+    list [rest::parse_opts {} {} {v} {-v}] [rest::parse_opts {} {} {v} {}]
+} -result {{{v {}} {}} {{} {}}}
+
+test rest-parse_opts-1.11 {parse_opts, unknown option} -body {
+    rest::parse_opts {} {x:} {u: v} {-x 1 -z 2}
+} -returnCodes error -result {bad option "z": Must be -x, -u, -v}
+
+test rest-parse_opts-1.12 {parse_opts, unknown option, nothing allowed} -body {
+    rest::parse_opts {} {} {} {-z 2}
+} -returnCodes error -result {bad option "z"}
+
+test rest-parse_opts-1.13 {parse_opts, remaining words} -body {
+    rest::parse_opts {} {} {u:} {-u 1 rest of words}
+} -result {{u 1} {rest of words}}
+
+test rest-parse_opts-1.14 {parse_opts, -- ends options} -body {
+    rest::parse_opts {} {} {u:} {-- -u 1}
+} -result {{} {-u 1}}
+
+# The default of an optional argument is added after the static value of
+# the same name, and so overrides it.
+test rest-parse_opts-1.15 {parse_opts, static value wins over optional default} -constraints {
+    knownBug
+} -body {
+    dict get [lindex [rest::parse_opts {-u s} {} {u:f} {}] 0] u
+} -result s
+
+test rest-parse_opts-1.16 {parse_opts, option given twice} -body {
+    rest::parse_opts {} {} {u:} {-u 1 -u 2}
+} -returnCodes error -result {bad option "u"}
+
+# The documentation says the second element is a list of the remaining
+# words; the code joins the words into a string.
+test rest-parse_opts-1.17 {parse_opts, remaining words are a list} -constraints {
+    knownBug
+} -body {
+    rest::parse_opts {} {} {} {{a b} c}
+} -result {{} {{a b} c}}
+
+# -------------------------------------------------------------------------
+## rest::substitute
+
+test rest-substitute-1.0 {substitute, wrong # args} -body {
+    rest::substitute a
+} -returnCodes error -result {wrong # args: should be "rest::substitute input q"}
+
+test rest-substitute-1.1 {substitute, values replaced and removed} -setup {
+    set q {id 42 user bob other x}
+} -body {
+    list [rest::substitute http://h/%user%/item/%id% q] $q
+} -cleanup {
+    unset q
+} -result {http://h/bob/item/42 {other x}}
+
+test rest-substitute-1.2 {substitute, missing value replaced by empty string} -setup {
+    set q {}
+} -body {
+    rest::substitute http://h/%user%/x q
+} -cleanup {
+    unset q
+} -result http://h//x
+
+test rest-substitute-1.3 {substitute, identifier with default part} -setup {
+    set q {fmt json}
+} -body {
+    list [rest::substitute /a.%fmt:xml% q] [rest::substitute /a.%fmt:xml% q]
+} -cleanup {
+    unset q
+} -result {/a.json /a.}
+
+test rest-substitute-1.4 {substitute, allowed identifier characters} -setup {
+    set q {a_b-c 1}
+} -body {
+    rest::substitute <%a_b-c%> q
+} -cleanup {
+    unset q
+} -result <1>
+
+test rest-substitute-1.5 {substitute, no identifiers} -setup {
+    set q {a 1}
+} -body {
+    list [rest::substitute {100% sure} q] $q
+} -cleanup {
+    unset q
+} -result {{100% sure} {a 1}}
+
+test rest-substitute-1.6 {substitute, same identifier twice} -setup {
+    set q {a X}
+} -body {
+    rest::substitute %a%-%a% q
+} -cleanup {
+    unset q
+} -result X-X
+
+# -------------------------------------------------------------------------
+## Simple calls
+
+test rest-simple-1.0 {simple, wrong # args} -body {
+    rest::simple x
+} -returnCodes error -result {wrong # args: should be "rest::simple url query ?arg ...?"}
+
+test rest-simple-1.1 {get} -setup {
+    ::srv::reset
+    ::srv::ok /p "Hello World"
+} -body {
+    list [rest::get [::srv::url /p] {}] [::srv::req method] [::srv::req path]
+} -cleanup {
+    ::srv::reset
+} -result {{Hello World} GET /p}
+
+test rest-simple-1.2 {simple defaults to GET} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::simple [::srv::url /p] {}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+} -result GET
+
+test rest-simple-1.3 {post uses POST} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::post [::srv::url /p] {}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+} -result POST
+
+test rest-simple-1.4 {put uses PUT} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::put [::srv::url /p] {}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+} -result PUT
+
+test rest-simple-1.5 {delete uses DELETE} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::delete [::srv::url /p] {}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+} -result DELETE
+
+test rest-simple-1.6 {patch uses PATCH} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::patch [::srv::url /p] {}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+} -result PATCH
+
+test rest-simple-1.7 {head uses HEAD} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::head [::srv::url /p] {}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+} -result HEAD
+
+# The method is derived from the text of the calling command ([info
+# frame]), so a call through a substituted command name fails.
+test rest-simple-1.7.1 {post called through a variable} -constraints {
+    knownBug
+} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+    set cmd rest::post
+} -body {
+    $cmd [::srv::url /p] {}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+    unset cmd
+} -result POST
+
+test rest-simple-1.8 {simple, method from config} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::simple [::srv::url /p] {} {method put}
+    ::srv::req method
+} -cleanup {
+    ::srv::reset
+} -result PUT
+
+test rest-simple-1.9 {get, query list is url-encoded} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::get [::srv::url /p] {a 1 b {x y}}
+    ::srv::req query
+} -cleanup {
+    ::srv::reset
+} -result {a=1&b=x%20y}
+
+test rest-simple-1.10 {get, query string used as is} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::get [::srv::url /p] a=1&b=2
+    ::srv::req query
+} -cleanup {
+    ::srv::reset
+} -result {a=1&b=2}
+
+test rest-simple-1.11 {get, query in the url} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::get [::srv::url /p?a=1&b=2] {}
+    list [::srv::req path] [::srv::req query]
+} -cleanup {
+    ::srv::reset
+} -result {/p a=1&b=2}
+
+test rest-simple-1.12 {post, query sent as body} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::post [::srv::url /p] {a 1 b {x y}}
+    list [::srv::req query] [::srv::req body]
+} -cleanup {
+    ::srv::reset
+} -result {{} a=1&b=x%20y}
+
+test rest-simple-1.13 {post, explicit body, empty config} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::post [::srv::url /p] {a 1 b 2} {} "the body"
+    list [::srv::req query] [::srv::req body]
+} -cleanup {
+    ::srv::reset
+} -result {a=1&b=2 {the body}}
+
+test rest-simple-1.14 {basic authentication} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::get [::srv::url /p] {} {auth {basic user secret}}
+    ::srv::header authorization
+} -cleanup {
+    ::srv::reset
+} -result "Basic [base64::encode user:secret]"
+
+test rest-simple-1.15 {bearer authentication} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::get [::srv::url /p] {} {auth {bearer TOKEN123}}
+    ::srv::header authorization
+} -cleanup {
+    ::srv::reset
+} -result {Bearer TOKEN123}
+
+test rest-simple-1.16 {headers} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::get [::srv::url /p] {} {headers {X-One 1 X-Two {two words}}}
+    list [::srv::header x-one] [::srv::header x-two]
+} -cleanup {
+    ::srv::reset
+} -result {1 {two words}}
+
+test rest-simple-1.17 {cookie} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::get [::srv::url /p] {} {cookie {a=1 b=2}}
+    ::srv::header cookie
+} -cleanup {
+    ::srv::reset
+} -result {a=1;b=2}
+
+test rest-simple-1.18 {content-type} -setup {
+    ::srv::reset
+    ::srv::ok /p "x"
+} -body {
+    rest::post [::srv::url /p] {} {content-type application/json} {{"a":1}}
+    list [::srv::header content-type] [::srv::req body]
+} -cleanup {
+    ::srv::reset
+} -result {application/json {{"a":1}}}
+
+test rest-simple-1.19 {HTTP error} -setup {
+    ::srv::reset
+    set ::srv::route(/e) {404 {} {not here}}
+} -body {
+    rest::get [::srv::url /e] {}
+} -cleanup {
+    ::srv::reset
+} -returnCodes error -result {HTTP 404}
+
+test rest-simple-1.20 {HTTP error, error-body} -setup {
+    ::srv::reset
+    set ::srv::route(/e) {500 {} {broken}}
+} -body {
+    rest::get [::srv::url /e] {} {error-body true}
+} -cleanup {
+    ::srv::reset
+} -returnCodes error -result {HTTP 500 broken}
+
+# With http 2.10 (Tcl 9) the meta data keys are lower case and the
+# Location header is not found.
+test rest-simple-1.21 {redirect is reported as error with location} -constraints $http210KB -setup {
+    ::srv::reset
+    set ::srv::route(/r) [list 302 [list Location [::srv::url /other]] {}]
+} -body {
+    rest::get [::srv::url /r] {}
+} -cleanup {
+    ::srv::reset
+} -returnCodes error -result [list HTTP 302 [::srv::url /other]]
+
+test rest-simple-1.22 {result is raw without format} -setup {
+    ::srv::reset
+    ::srv::ok /p {{"a": 1}} application/json
+} -body {
+    rest::get [::srv::url /p] {}
+} -cleanup {
+    ::srv::reset
+} -result {{"a": 1}}
+
+# The documented config key is "format"; the code only looks at "result".
+test rest-simple-1.23 {format json} -constraints {
+    knownBug
+} -setup {
+    ::srv::reset
+    ::srv::ok /p {{"a": 1, "b": [1, 2]}} application/json
+} -body {
+    rest::get [::srv::url /p] {} {format json}
+} -cleanup {
+    ::srv::reset
+} -result {a 1 b {1 2}}
+
+test rest-simple-1.24 {timeout} -setup {
+    ::srv::reset
+    set ::srv::route(/slow) {hang {} {}}
+} -body {
+    rest::get [::srv::url /slow] {} {timeout 200}
+} -cleanup {
+    ::srv::reset
+} -returnCodes error -match glob -result {HTTP *}
+
+test rest-simple-1.25 {connection refused} -setup {
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+} -body {
+    rest::get http://127.0.0.1:$p/x {}
+} -cleanup {
+    unset s p
+} -returnCodes error -match glob -result {*}
+
+test rest-simple-1.26 {response body decoded} -setup {
+    ::srv::reset
+    set ::srv::route(/u) [list 200 {Content-Type {text/plain; charset=utf-8}} "ąćę"]
+} -body {
+    rest::get [::srv::url /u] {}
+} -cleanup {
+    ::srv::reset
+} -result "ąćę"
+
+# -------------------------------------------------------------------------
+## Result formats
+
+test rest-format-1.0 {format_raw} -body {
+    rest::format_raw {<a>1</a>}
+} -result {<a>1</a>}
+
+test rest-format-1.1 {format_discard} -body {
+    rest::format_discard {anything}
+} -result {}
+
+test rest-format-1.2 {format_json} -body {
+    rest::format_json {{"a": [1, 2], "b": {"c": "d"}}}
+} -result {a {1 2} b {c d}}
+
+test rest-format-1.3 {format_json, bad json} -body {
+    rest::format_json {{"a": }}
+} -returnCodes error -match glob -result *
+
+test rest-format-1.4 {format_auto, json object} -body {
+    rest::format_auto {{"a": 1}}
+} -result {a 1}
+
+test rest-format-1.5 {format_auto, plain text} -body {
+    rest::format_auto {just text}
+} -result {just text}
+
+test rest-format-1.6 {format_auto, xml} -constraints tdom -body {
+    rest::format_auto {<a x="1"><b>t</b></a>}
+} -result {a {x 1} {{b {} {{#text t}}}}}
+
+test rest-format-1.7 {format_xml} -constraints tdom -body {
+    rest::format_xml {<a x="1"><b>t</b></a>}
+} -result {a {x 1} {{b {} {{#text t}}}}}
+
+test rest-format-1.8 {format_xml, rss} -constraints tdom -body {
+    rest::format_xml {<rss><channel><title>T</title><item><title>I</title></item></channel></rss>}
+} -result {channel {title {content T}} item {title {content I}}}
+
+# -------------------------------------------------------------------------
+## Interfaces
+
+# Define the interface array (global) and create the interface.
+proc ::srv::iface {name defs} {
+    upvar #0 $name $name
+    array unset $name
+    array set $name $defs
+    return [rest::create_interface $name]
+}
+proc ::srv::idel {name} {
+    upvar #0 $name $name
+    unset -nocomplain $name
+    namespace delete ::$name
+}
+
+test rest-iface-1.0 {create_interface, wrong # args} -body {
+    rest::create_interface
+} -returnCodes error -result {wrong # args: should be "rest::create_interface name"}
+
+test rest-iface-1.1 {create_interface, returns name, creates commands} -setup {
+    ::srv::reset
+} -body {
+    set r [::srv::iface tst [list one [list url [::srv::url /one]] two [list url [::srv::url /two]]]]
+    list $r [lsort [info commands ::tst::*]]
+} -cleanup {
+    ::srv::idel tst
+    unset r
+} -result {tst {::tst::one ::tst::set_static_args ::tst::two}}
+
+test rest-iface-1.2 {call, GET, raw result} -setup {
+    ::srv::reset
+    ::srv::ok /one "Hello"
+    ::srv::iface tst [list one [list url [::srv::url /one]]]
+} -body {
+    list [tst::one] [::srv::req method]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {Hello GET}
+
+test rest-iface-1.3 {call, required and optional args} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] req_args {p:} opt_args {u: v:dflt}]]
+} -body {
+    tst::one -p 1 -u 2
+    ::srv::req query
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {p=1&u=2&v=dflt}
+
+test rest-iface-1.4 {call, required arg missing} -setup {
+    ::srv::reset
+    ::srv::iface tst [list one [list url [::srv::url /one] req_args {p:}]]
+} -body {
+    tst::one
+} -cleanup {
+    ::srv::idel tst
+} -returnCodes error -result {the -p argument is required}
+
+test rest-iface-1.5 {call, bad option} -setup {
+    ::srv::reset
+    ::srv::iface tst [list one [list url [::srv::url /one] opt_args {u:}]]
+} -body {
+    tst::one -z 1
+} -cleanup {
+    ::srv::idel tst
+} -returnCodes error -result {bad option "z": Must be -u}
+
+test rest-iface-1.6 {call, static args} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] static_args {-key K fmt json}]]
+} -body {
+    tst::one
+    ::srv::req query
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {key=K&fmt=json}
+
+test rest-iface-1.7 {set_static_args} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] static_args {a 1}]]
+} -body {
+    tst::set_static_args b 2 a 3
+    tst::one
+    ::srv::req query
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {a=3&b=2}
+
+test rest-iface-1.8 {url tokens become required arguments} -setup {
+    ::srv::reset
+    ::srv::ok /item/42 "x"
+    ::srv::iface tst [list one [list url [::srv::url /item/%id%]]]
+} -body {
+    tst::one
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -returnCodes error -result {the -id argument is required}
+
+test rest-iface-1.9 {url tokens substituted, not in query} -setup {
+    ::srv::reset
+    ::srv::ok /item/42 "x"
+    ::srv::iface tst [list one [list url [::srv::url /item/%id%] opt_args {q:}]]
+} -body {
+    tst::one -id 42 -q z
+    list [::srv::req path] [::srv::req query]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {/item/42 q=z}
+
+test rest-iface-1.10 {url token with default value} -setup {
+    ::srv::reset
+    ::srv::ok /a.xml "x"
+    ::srv::ok /a.json "y"
+    ::srv::iface tst [list one [list url [::srv::url /a.%fmt:xml%]]]
+} -body {
+    list [tst::one] [tst::one -fmt json]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {x y}
+
+test rest-iface-1.11 {method post, query as body} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method post opt_args {a:}]]
+} -body {
+    tst::one -a 1
+    list [::srv::req method] [::srv::req query] [::srv::req body]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {POST {} a=1}
+
+test rest-iface-1.12 {method, letter case ignored} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method Put]]
+} -body {
+    tst::one
+    ::srv::req method
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result PUT
+
+test rest-iface-1.13 {body required} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method post body required]]
+} -body {
+    set r [list [catch {tst::one} msg] $msg]
+    tst::one "the body"
+    lappend r [::srv::req body]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    unset r msg
+} -result {1 {wrong # args: should be "tst::one ?options? string"} {the body}}
+
+test rest-iface-1.14 {body none} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] body none]]
+} -body {
+    tst::one "the body"
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -returnCodes error -result {extra arguments after options}
+
+test rest-iface-1.15 {body argument} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] body {argument doc}]]
+} -body {
+    tst::one "some text"
+    list [::srv::req query] [::srv::req body]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {doc=some%20text {}}
+
+test rest-iface-1.16 {body optional is the default} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method put]]
+} -body {
+    tst::one
+    set r [list [::srv::req body]]
+    tst::one "data"
+    lappend r [::srv::req body]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    unset r
+} -result {{} data}
+
+test rest-iface-1.17 {body mime_multipart} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method post body mime_multipart]]
+} -body {
+    tst::one {{Content-Type text/plain} hello} {{Content-Type text/html} <b/>}
+    ::srv::req body
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result "\n--_000-MIME_SEPERATOR\nContent-Type: text/plain\n\nhello\n\n--_000-MIME_SEPERATOR\nContent-Type: text/html\n\n<b/>\n\n--_000-MIME_SEPERATOR--\n"
+
+# The content type is put into the config at call time, after the request
+# headers were already built from it, so it is never sent.
+test rest-iface-1.17.1 {body mime_multipart, content type} -constraints {
+    knownBug
+} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method post body mime_multipart]]
+} -body {
+    tst::one {{} part}
+    ::srv::header content-type
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {multipart/related; boundary=_000-MIME_SEPERATOR}
+
+test rest-iface-1.18 {body mime_multipart/value, content type} -constraints {
+    knownBug
+} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method post body mime_multipart/mixed]]
+} -body {
+    tst::one {{} part}
+    ::srv::header content-type
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {multipart/mixed; boundary=_000-MIME_SEPERATOR}
+
+test rest-iface-1.19 {headers with substitution} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] headers {X-Key %key% X-Fixed f}]]
+} -body {
+    tst::one -key secret
+    list [::srv::header x-key] [::srv::header x-fixed] [::srv::req query]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {secret f {}}
+
+test rest-iface-1.20 {cookie} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] cookie {a=1 b=2}]]
+} -body {
+    tst::one
+    ::srv::header cookie
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {a=1;b=2}
+
+test rest-iface-1.21 {content-type json, query encoded as json} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] method post \
+				   content-type application/json opt_args {a: b:}]]
+} -body {
+    tst::one -a 1 -b two
+    list [::srv::header content-type] [::json::json2dict [::srv::req body]]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {application/json {a 1 b two}}
+
+test rest-iface-1.22 {auth basic, basic_auth procedure} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] auth basic]]
+} -body {
+    tst::basic_auth user secret
+    tst::one
+    ::srv::header authorization
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result "Basic [base64::encode user:secret]"
+
+test rest-iface-1.23 {auth sign} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] opt_args {a:} auth {sign dosign}]]
+    proc ::tst::dosign {query} {
+	lappend query sig [string length $query]
+    }
+} -body {
+    tst::one -a 1
+    ::srv::req query
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {a=1&sig=3}
+
+test rest-iface-1.24 {copy and unset} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list \
+	base [list url [::srv::url /one] method post static_args {a 1} opt_args {b:}] \
+	derived {copy base method get unset static_args}]
+} -body {
+    tst::derived -b 2
+    list [::srv::req method] [::srv::req query]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {GET b=2}
+
+test rest-iface-1.25 {input_transform, script} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    ::srv::iface tst [list one [list url [::srv::url /one] opt_args {a:} \
+				   input_transform {dict set query added yes; return $query}]]
+} -body {
+    tst::one -a 1
+    ::srv::req query
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {a=1&added=yes}
+
+test rest-iface-1.26 {input_transform, command} -setup {
+    ::srv::reset
+    ::srv::ok /one "x"
+    proc ::srv::itrans {q} {dict set q cmd 1}
+    ::srv::iface tst [list one [list url [::srv::url /one] input_transform ::srv::itrans]]
+} -body {
+    tst::one
+    ::srv::req query
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    rename ::srv::itrans {}
+} -result {cmd=1}
+
+test rest-iface-1.27 {pre_transform and post_transform} -setup {
+    ::srv::reset
+    ::srv::ok /one {{"a": 1}} application/json
+    ::srv::iface tst [list one [list url [::srv::url /one] format json \
+				   pre_transform {return "\[$result\]"} \
+				   post_transform {return [list post $result]}]]
+} -body {
+    tst::one
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {post {{a 1}}}
+
+test rest-iface-1.28 {format raw, json, discard} -setup {
+    ::srv::reset
+    ::srv::ok /one {{"a": 1}} application/json
+    ::srv::iface tst [list \
+	raw  [list url [::srv::url /one] format raw] \
+	json [list url [::srv::url /one] format json] \
+	disc [list url [::srv::url /one] format discard] \
+	auto [list url [::srv::url /one]] \
+	res  [list url [::srv::url /one] result json]]
+} -body {
+    list [tst::raw] [tst::json] [tst::disc] [tst::auto] [tst::res]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -result {{{"a": 1}} {a 1} {} {a 1} {a 1}}
+
+test rest-iface-1.29 {check_result} -setup {
+    ::srv::reset
+    ::srv::ok /one {{"status": "ok"}} application/json
+    ::srv::ok /two {{"status": "fail"}} application/json
+    ::srv::iface tst [list \
+	one [list url [::srv::url /one] format json check_result {{[dict get $result status] eq "ok"} {}}] \
+	two [list url [::srv::url /two] format json check_result {{[dict get $result status] eq "ok"} {}}]]
+} -body {
+    list [tst::one] [catch {tst::two} msg] [lrange $msg 0 2]
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    unset msg
+} -result {{status ok} 1 {ERR {status fail} {ok expression failed or returned false}}}
+
+test rest-iface-1.30 {check_result, error condition} -setup {
+    ::srv::reset
+    ::srv::ok /one {{"status": "fail"}} application/json
+    ::srv::iface tst [list \
+	one [list url [::srv::url /one] format json check_result {{} {[dict get $result status] eq "fail"}}]]
+} -body {
+    catch {tst::one} msg
+    lrange $msg 0 2
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    unset msg
+} -result {ERR {status fail} {triggered error condition}}
+
+test rest-iface-1.31 {HTTP error, error-body} -setup {
+    ::srv::reset
+    set ::srv::route(/e) {403 {} denied}
+    ::srv::iface tst [list \
+	one [list url [::srv::url /e]] \
+	two [list url [::srv::url /e] error-body true]]
+} -body {
+    list [catch {tst::one} m1] $m1 [catch {tst::two} m2] $m2
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    unset m1 m2
+} -result {1 {HTTP 403} 1 {HTTP 403 denied}}
+
+test rest-iface-1.32 {callback, asynchronous call} -setup {
+    ::srv::reset
+    ::srv::ok /one {{"a": 1}} application/json
+    proc ::srv::cb {args} {set ::srv::cbargs $args}
+    ::srv::iface tst [list one [list url [::srv::url /one] format json callback ::srv::cb]]
+} -body {
+    set t [tst::one]
+    set id [after 5000 {set ::srv::cbargs timeout}]
+    vwait ::srv::cbargs
+    after cancel $id
+    list [string match ::http::* $t] $::srv::cbargs
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    rename ::srv::cb {}
+    unset -nocomplain t id ::srv::cbargs
+} -result {1 {one OK {a 1}}}
+
+test rest-iface-1.33 {callback, error} -setup {
+    ::srv::reset
+    set ::srv::route(/e) {500 {} broken}
+    proc ::srv::cb {args} {set ::srv::cbargs $args}
+    ::srv::iface tst [list one [list url [::srv::url /e] callback ::srv::cb]]
+} -body {
+    tst::one
+    set id [after 5000 {set ::srv::cbargs timeout}]
+    vwait ::srv::cbargs
+    after cancel $id
+    set ::srv::cbargs
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+    rename ::srv::cb {}
+    unset -nocomplain id ::srv::cbargs
+} -result {ERROR {HTTP 500}}
+
+test rest-iface-1.34 {timeout} -setup {
+    ::srv::reset
+    set ::srv::route(/slow) {hang {} {}}
+    ::srv::iface tst [list one [list url [::srv::url /slow] timeout 200]]
+} -body {
+    tst::one
+} -cleanup {
+    ::srv::idel tst
+    ::srv::reset
+} -returnCodes error -match glob -result {HTTP *}
+
+# -------------------------------------------------------------------------
+## rest::save, rest::describe
+
+test rest-save-1.0 {save, wrong # args} -body {
+    rest::save a
+} -returnCodes error -result {wrong # args: should be "rest::save name file"}
+
+test rest-save-1.1 {save writes the interface procedures} -setup {
+    ::srv::iface tst [list one [list url http://127.0.0.1:1/one]]
+    set f [tcltest::makeFile {} rest-saved.tcl]
+} -body {
+    set r [rest::save tst $f]
+    set c [open $f]
+    set data [read $c]
+    close $c
+    list $r [string match "*proc ::tst::one \{args\}*" $data] \
+	[string match "*proc ::tst::parse_opts *" $data] \
+	[string match "*proc ::tst::set_static_args *" $data] \
+	[string match "*namespace eval ::tst*" $data]
+} -cleanup {
+    ::srv::idel tst
+    tcltest::removeFile rest-saved.tcl
+    unset f r c data
+} -result {{} 1 1 1 1}
+
+test rest-describe-1.0 {describe, wrong # args} -body {
+    rest::describe
+} -returnCodes error -result {wrong # args: should be "rest::describe name"}
+
+test rest-describe-1.1 {describe prints the calls} -setup {
+    ::srv::iface tst [list one [list url http://127.0.0.1:1/one description {The first call} \
+				   req_args {p:} opt_args {u: v:dflt}]]
+} -body {
+    rest::describe tst
+} -cleanup {
+    ::srv::idel tst
+} -output {::tst::one  <options>
+The first call
+  Required arguments:
+    -p             <value>
+  Optional arguments:
+    -u             <value>
+    -v             <value>  default "dflt"
+
+} -result {}
+
+test rest-describe-1.2 {describe, no arguments} -setup {
+    ::srv::iface tst [list one [list url http://127.0.0.1:1/one body required]]
+} -body {
+    rest::describe tst
+} -cleanup {
+    ::srv::idel tst
+} -output {::tst::one  <body>
+  Required arguments:
+     none
+  Optional arguments:
+     none
+
+} -result {}
+
+test rest-describe-1.3 {describe leaves the set command intact} -setup {
+    ::srv::iface tst [list one [list url http://127.0.0.1:1/one]]
+} -body {
+    rest::describe tst
+    list [info commands ::_set] [set x 1]
+} -cleanup {
+    ::srv::idel tst
+    unset x
+} -match glob -output * -result {{} 1}
+
+# -------------------------------------------------------------------------
+
+::srv::stop
+namespace delete ::srv
+unset -nocomplain http210KB
+testsuiteCleanup
+return
