@@ -67,6 +67,16 @@ If [arg max] is specified it must be a positive integer [const {> 0}] or
 the command will throw an error. An error is also thrown if
 [arg json_txt] contains fewer than [arg max] entities.
 
+[call [cmd ::json::validate] [arg json_txt]]
+
+Returns [const 1] if [arg json_txt] consists only of JSON tokens
+(strings, numbers, [const true], [const false], [const null] and the
+punctuation characters) and white space, and [const 0] otherwise. It
+does not check the structure; [cmd ::json::json2dict] does, but it skips
+characters that are not tokens. A text is valid JSON if
+[cmd ::json::validate] returns [const 1] and [cmd ::json::json2dict]
+does not throw an error.
+
 [list_end]
 [para] If the JSON formatted text contains nested lists and dicts then
 so will the returned dict. In such cases accessing a data value may
