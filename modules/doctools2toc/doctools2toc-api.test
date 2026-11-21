@@ -1,0 +1,696 @@
+# -*- tcl -*-
+# doctools2toc-api.test:  API tests for the doctools2toc packages,
+# completing the existing test files: structure canonicalize/merge/print,
+# container cache and merge, parser variables and include paths, the
+# import/export managers (object methods, configuration handed to the
+# plugins), and the plugin configuration variables not covered elsewhere.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use struct/list.tcl          struct::list
+    use struct/tree.tcl          struct::tree
+    use struct/stack.tcl         struct::stack
+    use struct/sets.tcl          struct::set
+    use snit/snit.tcl            snit
+    use fileutil/fileutil.tcl    fileutil
+    use fileutil/paths.tcl       fileutil::paths
+    use log/logger.tcl           logger
+    use treeql/treeql.tcl        treeql
+    use pluginmgr/pluginmgr.tcl  pluginmgr
+    use struct/map.tcl           struct::map
+
+    use      doctools2base/tcl_parse.tcl  doctools::tcl::parse
+    use      doctools2base/msgcat.tcl     doctools::msgcat
+    useLocal msgcat_c.tcl                 doctools::msgcat::toc::c
+    useLocal structure.tcl                doctools::toc::structure
+    useLocal parse.tcl                    doctools::toc::parse
+    useLocal export.tcl                   doctools::toc::export
+    useLocal import.tcl                   doctools::toc::import
+
+    source [tcllibPath doctools2base/tests/common]
+
+    msgcat::mclocale C
+}
+testing {
+    useLocalKeep container.tcl doctools::toc
+}
+
+# -------------------------------------------------------------------------
+
+setup_plugins
+
+# -------------------------------------------------------------------------
+# Data
+
+# Canonical serialization: one reference, one division with a reference.
+set canon {doctools::toc {items {{reference {desc {First doc} id a.man label A}} {division {id d.man items {{reference {desc {Second doc} id b.man label B}}} label D}}} label L title T}}
+
+# The same table of contents, with keys in non-canonical order.
+set noncanon {doctools::toc {title T label L items {{reference {label A id a.man desc {First doc}}} {division {label D items {{reference {id b.man label B desc {Second doc}}}} id d.man}}}}}
+
+# A second table to merge with the first.
+set second {doctools::toc {items {{reference {desc {First doc, new} id a2.man label A}} {division {items {{reference {desc {Third doc} id c.man label C}}} label D}} {reference {desc {Fourth doc} id e.man label E}}} label L2 title T2}}
+
+# -------------------------------------------------------------------------
+# doctools::toc::structure
+# -------------------------------------------------------------------------
+
+test doctools-toc-api-1.1 {structure canonicalize: canonical input unchanged} -body {
+    doctools::toc::structure canonicalize $canon
+} -result $canon
+
+test doctools-toc-api-1.2 {structure canonicalize: non-canonical input} -body {
+    doctools::toc::structure canonicalize $noncanon
+} -result $canon
+
+test doctools-toc-api-1.3 {structure canonicalize: invalid input} -body {
+    doctools::toc::structure canonicalize {doctools::toc {}}
+} -returnCodes error -match glob -result {error in serialization:*}
+
+test doctools-toc-api-1.4 {structure canonicalize: wrong # args} -body {
+    doctools::toc::structure canonicalize
+} -returnCodes error -result {wrong # args: should be "::doctools::toc::structure::Snit_typemethodcanonicalize type serial"}
+
+test doctools-toc-api-1.5 {structure verify: canonvar set for canonical input} -body {
+    doctools::toc::structure verify $canon c1
+    doctools::toc::structure verify $noncanon c2
+    list $c1 $c2
+} -cleanup {
+    unset c1 c2
+} -result {1 0}
+
+test doctools-toc-api-1.6 {structure verify: canonvar not written on error} -body {
+    set cv untouched
+    catch {doctools::toc::structure verify {doctools::toc {}} cv}
+    set cv
+} -cleanup {
+    unset cv
+} -result untouched
+
+test doctools-toc-api-1.7 {structure verify-as-canonical: canonical input} -body {
+    doctools::toc::structure verify-as-canonical $canon
+} -result {}
+
+test doctools-toc-api-1.8 {structure print: same for regular and canonical} -body {
+    expr {[doctools::toc::structure print $canon] eq
+          [doctools::toc::structure print $noncanon]}
+} -result 1
+
+test doctools-toc-api-1.9 {structure merge: union of two tables} -constraints {
+    knownBug
+} -body {
+    # merge unpacks serialb into the wrong array (can't read "b(items)").
+    doctools::toc::structure merge $canon $second
+} -result {doctools::toc {items {{reference {desc {First doc, new} id a2.man label A}} {division {id d.man items {{reference {desc {Second doc} id b.man label B}} {reference {desc {Third doc} id c.man label C}}} label D}} {reference {desc {Fourth doc} id e.man label E}}} label L2 title T2}}
+
+test doctools-toc-api-1.10 {structure merge: type conflict} -constraints {
+    knownBug
+} -body {
+    doctools::toc::structure merge $canon \
+        {doctools::toc {items {{division {items {} label A}}} label L title T}}
+} -returnCodes error -result {Merge error}
+
+test doctools-toc-api-1.11 {structure merge: invalid input} -body {
+    doctools::toc::structure merge $canon {doctools::toc {}}
+} -returnCodes error -match glob -result {error in serialization:*}
+
+# -------------------------------------------------------------------------
+# doctools::toc container
+# -------------------------------------------------------------------------
+
+test doctools-toc-api-2.1 {container serialize: canonical serialization} -setup {
+    doctools::toc I
+} -body {
+    I deserialize = $noncanon
+    I serialize
+} -cleanup {
+    I destroy
+} -result $canon
+
+test doctools-toc-api-2.2 {container serialize: explicit serial format} -setup {
+    doctools::toc I
+} -body {
+    I deserialize = $canon serial
+    I serialize serial
+} -cleanup {
+    I destroy
+} -result $canon
+
+test doctools-toc-api-2.3 {container serialize: no exporter} -setup {
+    doctools::toc I
+} -body {
+    I serialize doctoc
+} -cleanup {
+    I destroy
+} -returnCodes error -result {Unable to export from "doctoc", no exporter configured}
+
+test doctools-toc-api-2.4 {container deserialize: no importer} -setup {
+    doctools::toc I
+} -body {
+    I deserialize = {[toc_begin L T][toc_end]} doctoc
+} -cleanup {
+    I destroy
+} -returnCodes error -result {Unable to import from "doctoc", no importer configured}
+
+test doctools-toc-api-2.5 {container deserialize =: replaces the content} -setup {
+    doctools::toc I
+    I + reference [I element] X x.man {Old doc}
+} -body {
+    I deserialize = $canon
+    list [I title] [I label] [llength [I children [I element]]]
+} -cleanup {
+    I destroy
+} -result {T L 2}
+
+test doctools-toc-api-2.6 {container deserialize +=: merges} -constraints {
+    knownBug
+} -setup {
+    doctools::toc I
+    I deserialize = $canon
+} -body {
+    I deserialize += $second
+    I serialize
+} -cleanup {
+    I destroy
+} -result {doctools::toc {items {{reference {desc {First doc, new} id a2.man label A}} {division {id d.man items {{reference {desc {Second doc} id b.man label B}} {reference {desc {Third doc} id c.man label C}}} label D}} {reference {desc {Fourth doc} id e.man label E}}} label L2 title T2}}
+
+test doctools-toc-api-2.7 {container deserialize: invalid serialization} -setup {
+    doctools::toc I
+} -body {
+    I deserialize = {doctools::toc {}}
+} -cleanup {
+    I destroy
+} -returnCodes error -match glob -result {error in serialization:*}
+
+# The setters of title, label, elabel, description and document do not
+# invalidate the cached serialization.
+
+foreach {n what script field expected} {
+    1 title       {I title NewTitle}                           title NewTitle
+    2 label       {I label NewLabel}                           label NewLabel
+    3 elabel      {I elabel [I child [I element] A] A2}        label A2
+    4 description {I description [I child [I element] A] New}  desc  New
+    5 document    {I document [I child [I element] A] new.man} id    new.man
+} {
+    test doctools-toc-api-2.8.$n "container serialize: reflects $what changes" -constraints {
+        knownBug
+    } -setup {
+        doctools::toc I
+        I deserialize = $canon
+        I serialize
+    } -body {
+        eval $script
+        set s [lindex [I serialize] 1]
+        if {$field in {title label}} {
+            dict get $s $field
+        } else {
+            dict get [lindex [dict get $s items] 0 1] $field
+        }
+    } -cleanup {
+        I destroy
+        unset s
+    } -result $expected
+}
+
+test doctools-toc-api-2.9 {container serialize: reflects added references} -setup {
+    doctools::toc I
+    I deserialize = $canon
+    I serialize
+} -body {
+    I + reference [I element] Z z.man {Last doc}
+    llength [dict get [lindex [I serialize] 1] items]
+} -cleanup {
+    I destroy
+} -result 3
+
+test doctools-toc-api-2.10 {container serialize doctoc via exporter} -setup {
+    doctools::toc I
+    doctools::toc::export E
+    I exporter E
+    I deserialize = $canon
+} -body {
+    stripcomments [I serialize doctoc]
+} -cleanup {
+    I destroy
+    E destroy
+} -result "\[toc_begin L T\]\[item a.man A {First doc}\]\[division_start D d.man\]\[item b.man B {Second doc}\]\[division_end\]\[toc_end\]"
+
+# -------------------------------------------------------------------------
+# doctools::toc::parse: variables and include paths
+# -------------------------------------------------------------------------
+
+# Successful includes fail: the command lifting step of doctools::tcl::parse
+# queries all Command nodes of the whole tree, including the already
+# processed ones outside the included text ('node "" does not exist').
+# The AST tree is then left behind, so the cleanups below destroy it.
+
+test doctools-toc-api-3.1 {parse var set/vars} -setup {
+    doctools::toc::parse var unset
+} -body {
+    list [doctools::toc::parse var set X 1] [doctools::toc::parse vars]
+} -cleanup {
+    doctools::toc::parse var unset
+} -result {{} {X 1}}
+
+test doctools-toc-api-3.2 {parse var set: used by vset} -setup {
+    doctools::toc::parse var unset
+    doctools::toc::parse var set TITLE Contents
+} -body {
+    doctools::toc::parse text {[toc_begin L [vset TITLE]][toc_end]}
+} -cleanup {
+    doctools::toc::parse var unset
+} -result {doctools::toc {items {} label L title Contents}}
+
+test doctools-toc-api-3.3 {parse var unset: one variable} -setup {
+    doctools::toc::parse var unset
+    doctools::toc::parse var set X 1
+    doctools::toc::parse var set Y 2
+} -body {
+    list [doctools::toc::parse var unset X] [doctools::toc::parse vars]
+} -cleanup {
+    doctools::toc::parse var unset
+} -result {{} {Y 2}}
+
+test doctools-toc-api-3.4 {parse var clear: by pattern} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::parse var unset
+    doctools::toc::parse var set X1 1
+    doctools::toc::parse var set X2 2
+    doctools::toc::parse var set Y 3
+} -body {
+    # documented, but not implemented ("var unset" takes patterns)
+    list [doctools::toc::parse var clear X*] [doctools::toc::parse vars]
+} -cleanup {
+    doctools::toc::parse var unset
+} -result {{} {Y 3}}
+
+test doctools-toc-api-3.5 {parse var clear: all} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::parse var unset
+    doctools::toc::parse var set X 1
+} -body {
+    list [doctools::toc::parse var clear] [doctools::toc::parse vars]
+} -cleanup {
+    doctools::toc::parse var unset
+} -result {{} {}}
+
+test doctools-toc-api-3.6 {parse var set: does not leak into vset defined in text} -setup {
+    doctools::toc::parse var unset
+    doctools::toc::parse var set X outer
+} -body {
+    doctools::toc::parse text {[vset X inner][toc_begin [vset X] T][toc_end]}
+    doctools::toc::parse vars
+} -cleanup {
+    doctools::toc::parse var unset
+} -result {X outer}
+
+test doctools-toc-api-3.7 {parse include add/remove/clear, includes} -setup {
+    doctools::toc::parse include clear
+} -body {
+    set r [list [doctools::toc::parse include add /b]]
+    doctools::toc::parse include add /a
+    doctools::toc::parse include add /a
+    lappend r [doctools::toc::parse includes]
+    doctools::toc::parse include remove /a
+    doctools::toc::parse include remove /nosuch
+    lappend r [doctools::toc::parse includes]
+    lappend r [doctools::toc::parse include clear] [doctools::toc::parse includes]
+} -cleanup {
+    doctools::toc::parse include clear
+    unset r
+} -result {{} {/a /b} /b {} {}}
+
+test doctools-toc-api-3.8 {parse text: include found via include paths} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::parse include clear
+    set d [makeDirectory doctools2toc-api]
+    makeFile {[item a.man A {First doc}]} items.inc $d
+    doctools::toc::parse include add $d
+} -body {
+    doctools::toc::parse text {[toc_begin L T][include items.inc][toc_end]}
+} -cleanup {
+    doctools::toc::parse include clear
+    catch {::doctools::toc::parse::AST destroy}
+    removeDirectory doctools2toc-api
+    unset d
+} -result {doctools::toc {items {{reference {desc {First doc} id a.man label A}}} label L title T}}
+
+test doctools-toc-api-3.9 {parse file: include relative to the file} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::parse include clear
+    set d [makeDirectory doctools2toc-api]
+    makeFile {[item a.man A {First doc}]} items.inc $d
+    set f [makeFile {[toc_begin L T][include items.inc][toc_end]} main.toc $d]
+} -body {
+    doctools::toc::parse file $f
+} -cleanup {
+    catch {::doctools::toc::parse::AST destroy}
+    removeDirectory doctools2toc-api
+    unset d f
+} -result {doctools::toc {items {{reference {desc {First doc} id a.man label A}}} label L title T}}
+
+test doctools-toc-api-3.10 {parse text: include not found} -setup {
+    doctools::toc::parse include clear
+} -body {
+    doctools::toc::parse text {[toc_begin L T][include nosuch.inc][toc_end]}
+} -returnCodes error -match glob -result {*nosuch.inc*}
+
+# -------------------------------------------------------------------------
+# doctools::toc::import manager
+# -------------------------------------------------------------------------
+
+# A minimal object with a deserialize method, as documented.
+proc RecObject {args} {
+    lappend ::recorded $args
+    return
+}
+
+test doctools-toc-api-4.1 {import text: default format is doctoc} -setup {
+    doctools::toc::import I
+} -body {
+    I import text {[toc_begin L T][item a.man A {First doc}][toc_end]}
+} -cleanup {
+    I destroy
+} -result {doctools::toc {items {{reference {desc {First doc} id a.man label A}}} label L title T}}
+
+test doctools-toc-api-4.2 {import text: json format} -setup {
+    doctools::toc::import I
+} -body {
+    I import text {{"doctools::toc":{"items":[],"label":"L","title":"T"}}} json
+} -cleanup {
+    I destroy
+} -result {doctools::toc {items {} label L title T}}
+
+test doctools-toc-api-4.3 {import text: configuration variables reach vset} -setup {
+    doctools::toc::import I
+    I config set TITLE Contents
+} -body {
+    I import text {[toc_begin L [vset TITLE]][toc_end]}
+} -cleanup {
+    I destroy
+} -result {doctools::toc {items {} label L title Contents}}
+
+test doctools-toc-api-4.4 {import text: format variable is set} -setup {
+    doctools::toc::import I
+} -body {
+    I import text {[toc_begin L [vset format]][toc_end]}
+} -cleanup {
+    I destroy
+} -result {doctools::toc {items {} label L title doctoc}}
+
+test doctools-toc-api-4.5 {import text: include via include paths} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::import I
+    set d [makeDirectory doctools2toc-api]
+    makeFile {[item a.man A {First doc}]} items.inc $d
+    I include add $d
+} -body {
+    I import text {[toc_begin L T][include items.inc][toc_end]}
+} -cleanup {
+    I destroy
+    removeDirectory doctools2toc-api
+    unset d
+} -result {doctools::toc {items {{reference {desc {First doc} id a.man label A}}} label L title T}}
+
+test doctools-toc-api-4.6 {import file} -setup {
+    doctools::toc::import I
+    set f [makeFile {[toc_begin L T][toc_end]} doctools2toc-api.toc]
+} -body {
+    I import file $f
+} -cleanup {
+    I destroy
+    removeFile doctools2toc-api.toc
+    unset f
+} -result {doctools::toc {items {} label L title T}}
+
+test doctools-toc-api-4.7 {import text: unknown format} -setup {
+    doctools::toc::import I
+} -body {
+    I import text {} nosuchformat
+} -cleanup {
+    I destroy
+} -returnCodes error -match glob -result *
+
+test doctools-toc-api-4.8 {import object text: feeds deserialize} -setup {
+    doctools::toc::import I
+    set recorded {}
+} -body {
+    list [I import object text RecObject {[toc_begin L T][toc_end]}] $recorded
+} -cleanup {
+    I destroy
+    unset recorded
+} -result {{} {{deserialize {doctools::toc {items {} label L title T}}}}}
+
+test doctools-toc-api-4.9 {import object file: feeds deserialize} -setup {
+    doctools::toc::import I
+    set recorded {}
+    set f [makeFile {[toc_begin L T][toc_end]} doctools2toc-api.toc]
+} -body {
+    list [I import object file RecObject $f] $recorded
+} -cleanup {
+    I destroy
+    removeFile doctools2toc-api.toc
+    unset recorded f
+} -result {{} {{deserialize {doctools::toc {items {} label L title T}}}}}
+
+test doctools-toc-api-4.10 {import: container with importer} -setup {
+    doctools::toc::import I
+    doctools::toc C
+    C importer I
+} -body {
+    C deserialize = {[toc_begin L T][item a.man A {First doc}][toc_end]} doctoc
+    C serialize
+} -cleanup {
+    C destroy
+    I destroy
+} -result {doctools::toc {items {{reference {desc {First doc} id a.man label A}}} label L title T}}
+
+# -------------------------------------------------------------------------
+# doctools::toc::export manager and plugin configuration
+# -------------------------------------------------------------------------
+
+proc SerObject {method} {
+    return $::canon
+}
+
+test doctools-toc-api-5.1 {export serial: default format is doctoc} -setup {
+    doctools::toc::export E
+} -body {
+    stripcomments [E export serial $canon]
+} -cleanup {
+    E destroy
+} -result "\[toc_begin L T\]\[item a.man A {First doc}\]\[division_start D d.man\]\[item b.man B {Second doc}\]\[division_end\]\[toc_end\]"
+
+test doctools-toc-api-5.2 {export serial: non-canonical input} -setup {
+    doctools::toc::export E
+} -body {
+    expr {[E export serial $noncanon json] eq [E export serial $canon json]}
+} -cleanup {
+    E destroy
+} -result 1
+
+test doctools-toc-api-5.3 {export serial: invalid input} -setup {
+    doctools::toc::export E
+} -body {
+    E export serial {doctools::toc {}}
+} -cleanup {
+    E destroy
+} -returnCodes error -match glob -result {error in serialization:*}
+
+test doctools-toc-api-5.4 {export object: uses serialize} -setup {
+    doctools::toc::export E
+} -body {
+    expr {[E export object SerObject json] eq [E export serial $canon json]}
+} -cleanup {
+    E destroy
+} -result 1
+
+# The text and html plugins look up map (and rid) in the wrong stack frame.
+test doctools-toc-api-5.5 {export: text plugin, map} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::export E
+    E config set map {a.man http://example.org/a.html}
+} -body {
+    E export serial $canon text
+} -cleanup {
+    E destroy
+} -result "L -- T\n======\n\nhttp://example.org/a.html : A\n    First doc\n\nd.man : D\n---------\n\n    b.man : B\n        Second doc"
+
+test doctools-toc-api-5.6 {export: wiki plugin, map} -setup {
+    doctools::toc::export E
+    E config set map {b.man http://example.org/b.html}
+} -body {
+    E export serial $canon wiki
+} -cleanup {
+    E destroy
+} -result "**L -- T**\n\n   * \[a.man%|%A\] : First doc\n   * \[d.man%|%D\]\n   ** \[http://example.org/b.html%|%B\] : Second doc"
+
+test doctools-toc-api-5.7 {export: html plugin, map} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::export E
+    E config set map {a.man http://example.org/a.html}
+} -body {
+    set html [E export serial $canon html]
+    list [string match {*href="http://example.org/a.html"*} $html] \
+        [string match {*href="b.man"*} $html]
+} -cleanup {
+    E destroy
+    unset html
+} -result {1 1}
+
+test doctools-toc-api-5.8 {export: html plugin, meta, header, footer} -setup {
+    doctools::toc::export E
+    E config set meta   {<meta name="x-test" content="1">}
+    E config set header {<p>HEADER-TEXT</p>}
+    E config set footer {<p>FOOTER-TEXT</p>}
+} -body {
+    set html [E export serial $canon html]
+    set h [string first {<meta name="x-test"} $html]
+    set t [string first </title> $html]
+    set b [string first HEADER-TEXT $html]
+    set f [string first FOOTER-TEXT $html]
+    set e [string first </body> $html]
+    list [expr {$t >= 0 && $h > $t}] [expr {$b > $h}] [expr {$f > $b && $f < $e}]
+} -cleanup {
+    E destroy
+    unset html h t b f e
+} -result {1 1 1}
+
+test doctools-toc-api-5.9 {export: html plugin, class names} -setup {
+    doctools::toc::export E
+    foreach {k v} {
+        class.main x-main class.header x-header class.title x-title
+        class.navsep x-navsep class.contents x-contents class.ref x-ref
+        class.div x-div class.footer x-footer
+    } {
+        E config set $k $v
+    }
+} -body {
+    set html [E export serial $canon html]
+    set r {}
+    foreach c {main header title navsep contents ref div footer} {
+        lappend r $c [string match "*class=\"x-$c\"*" $html]
+    }
+    set r
+} -cleanup {
+    E destroy
+    unset html r c k v
+} -result {main 1 header 1 title 1 navsep 1 contents 1 ref 1 div 1 footer 1}
+
+test doctools-toc-api-5.10 {export: html plugin, default class names} -setup {
+    doctools::toc::export E
+} -body {
+    set html [E export serial $canon html]
+    set r {}
+    foreach c {doctools toc-header toc-title toc-navsep toc-contents
+        toc-ref toc-div toc-footer} {
+        lappend r $c [string match "*class=\"$c\"*" $html]
+    }
+    set r
+} -cleanup {
+    E destroy
+    unset html r c
+} -result {doctools 1 toc-header 1 toc-title 1 toc-navsep 1 toc-contents 1\
+    toc-ref 1 toc-div 1 toc-footer 1}
+
+test doctools-toc-api-5.11 {export: html plugin, rid anchors} -constraints {
+    knownBug
+} -setup {
+    doctools::toc::export E
+    E config set rid {A first}
+} -body {
+    # doctools::html::tag/ (doctools2base) uses an undefined variable
+    # "tag", so any rid entry makes the export fail. The code keys rid
+    # by the label path of the element; the manual promises
+    # REF-<reference> anchors for references not in rid, the code has no
+    # such default.
+    set html [E export serial $canon html]
+    list [string match {*name="first"*} $html] \
+        [string match {*name="REF-*"*} $html]
+} -cleanup {
+    E destroy
+    unset html
+} -result {1 1}
+
+test doctools-toc-api-5.12 {export: html plugin, sepline} -setup {
+    doctools::toc::export E
+    E config set newlines 1
+    E config set sepline [string repeat x 40]
+} -body {
+    # the separator comments put their text into the sepline
+    string match {*<!-- x Start Table Of Contents xxx*} [E export serial $canon html]
+} -cleanup {
+    E destroy
+} -result 1
+
+test doctools-toc-api-5.13 {export: file variable in the provenance comment} -setup {
+    doctools::toc::export E
+    E config set file /some/where/contents.toc
+    # html writes comments only when the output is broken across lines
+    E config set newlines 1
+} -body {
+    list [string match *contents.toc* [E export serial $canon doctoc]] \
+        [string match *contents.toc* [E export serial $canon html]] \
+        [string match *contents.toc* [E export serial $canon nroff]]
+} -cleanup {
+    E destroy
+} -result {1 1 1}
+
+test doctools-toc-api-5.14 {export: user variable in the provenance comment} -setup {
+    doctools::toc::export E
+} -body {
+    string match "*$::tcl_platform(user)*" [E export serial $canon doctoc]
+} -cleanup {
+    E destroy
+} -result 1
+
+test doctools-toc-api-5.15 {export: unknown format} -setup {
+    doctools::toc::export E
+} -body {
+    E export serial $canon nosuchformat
+} -cleanup {
+    E destroy
+} -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------
+# Message catalogs
+# -------------------------------------------------------------------------
+
+foreach {n lang} {1 c 2 de 3 en 4 fr} {
+    test doctools-toc-api-6.$n "msgcat: doctools::msgcat::toc::$lang" -body {
+        set i [interp create]
+        $i eval [list set auto_path $::auto_path]
+        $i eval {package require msgcat}
+        $i eval [list source [file join [tcllibPath doctools2base] msgcat.tcl]]
+        $i eval [list source [localPath msgcat_$lang.tcl]]
+        $i eval [list msgcat::mclocale $lang]
+        set v [$i eval [list package present doctools::msgcat::toc::$lang]]
+        set m [$i eval {msgcat::mc doctoc/char/syntax}]
+        list $v [expr {$m ne "doctoc/char/syntax"}]
+    } -cleanup {
+        interp delete $i
+        unset i v m
+    } -result {0.2 1}
+}
+
+# -------------------------------------------------------------------------
+rename RecObject {}
+rename SerObject {}
+unset canon noncanon second n what script field expected lang
+testsuiteCleanup
+return
