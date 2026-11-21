@@ -1038,7 +1038,7 @@ snit::type ::ldapx::ldap {
 	    #
 	    # Execute body with the entry
 	    #
-	    # http://wiki.tcl.tk/685
+	    # https://wiki.tcl-lang.org/685
 	    #
 
 	    set code [catch {uplevel 1 $body} msg]

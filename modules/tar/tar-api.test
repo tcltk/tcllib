@@ -1,0 +1,689 @@
+# -*- tcl -*-
+# tar-api.test - Additional API tests for the tar package.
+#
+# Covers create, add, remove, contents, stat, get and untar with their
+# documented options (-chan, -gzip, -prefix, -quick, -dir, -file, -glob,
+# -nooverwrite, -nomtime, -noperms) and the error cases. Only regular
+# files and directories with plain relative names are used.
+#
+# These tests are in the public domain
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file normalize [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal tar.tcl tar
+}
+
+tcltest::testConstraint zlib [llength [info commands ::zlib]]
+tcltest::testConstraint systemtar [llength [auto_execok tar]]
+
+# -------------------------------------------------------------------------
+# Work in a private directory with a small tree of files:
+#   a.txt  sub/b.txt  sub/deep/c.dat  emptydir/
+
+proc writeFile {name data} {
+    set f [open $name wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+proc readFile {name} {
+    set f [open $name rb]
+    set data [read $f]
+    close $f
+    return $data
+}
+
+proc setupTree {} {
+    variable savedPwd [pwd]
+    variable workDir [tcltest::makeDirectory tarapi]
+    cd $workDir
+    file mkdir sub/deep emptydir
+    writeFile a.txt "alpha\n"
+    writeFile sub/b.txt beta
+    writeFile sub/deep/c.dat [binary format c* {0 1 2 -1 -2 13 10}]
+    file mtime a.txt 1000000000
+}
+
+proc cleanupTree {} {
+    variable savedPwd
+    variable workDir
+    cd $savedPwd
+    file delete -force $workDir
+    unset savedPwd workDir
+}
+
+# -------------------------------------------------------------------------
+# create / contents
+
+test tar-api-1.1 {create returns the tarball name} -setup setupTree -body {
+    tar::create t.tar {a.txt sub}
+} -cleanup cleanupTree -result t.tar
+
+test tar-api-1.2 {create recurses into directories, contents in stored order} -setup {
+    setupTree
+} -body {
+    tar::create t.tar {a.txt sub}
+    tar::contents t.tar
+} -cleanup cleanupTree -result {a.txt sub sub/deep sub/b.txt sub/deep/c.dat}
+
+test tar-api-1.3 {create, empty directory is stored} -setup setupTree -body {
+    tar::create t.tar {emptydir a.txt}
+    expr {"emptydir" in [tar::contents t.tar]}
+} -cleanup cleanupTree -result 1
+
+# recurseDirs appends an empty directory a second time.
+test tar-api-1.4 {create, empty directory is stored once} -constraints knownBug -setup {
+    setupTree
+} -body {
+    tar::create t.tar {emptydir a.txt}
+    tar::contents t.tar
+} -cleanup cleanupTree -result {emptydir a.txt}
+
+test tar-api-1.5 {create, empty file list} -setup setupTree -body {
+    tar::create t.tar {}
+    list [tar::contents t.tar] [file size t.tar]
+} -cleanup cleanupTree -result {{} 1024}
+
+test tar-api-1.6 {create overwrites an existing tarball} -setup setupTree -body {
+    tar::create t.tar {a.txt sub}
+    tar::create t.tar {sub/b.txt}
+    tar::contents t.tar
+} -cleanup cleanupTree -result sub/b.txt
+
+test tar-api-1.7 {create -chan writes to an open channel and does not close it} -setup {
+    setupTree
+} -body {
+    set ch [open t.tar wb]
+    set r [tar::create $ch {a.txt sub/b.txt} -chan]
+    puts -nonewline $ch ""
+    close $ch
+    list [expr {$r eq $ch}] [tar::contents t.tar]
+} -cleanup {
+    cleanupTree
+    unset ch r
+} -result {1 {a.txt sub/b.txt}}
+
+test tar-api-1.8 {create -gzip writes a gzip compressed tarball} -constraints zlib -setup {
+    setupTree
+} -body {
+    tar::create tz.tar {a.txt sub/b.txt} -gzip
+    set f [open tz.tar rb]
+    set magic [read $f 2]
+    close $f
+    list [expr {$magic eq "\x1f\x8b"}] [tar::contents tz.tar]
+} -cleanup {
+    cleanupTree
+    unset f magic
+} -result {1 {a.txt sub/b.txt}}
+
+test tar-api-1.9 {create, unknown option} -setup setupTree -body {
+    tar::create t.tar {a.txt} -bogus
+} -cleanup cleanupTree -returnCodes error -result {unknown option "bogus"}
+
+test tar-api-1.10 {create, missing input file} -setup setupTree -body {
+    tar::create t.tar {nothing.txt}
+} -cleanup cleanupTree -returnCodes error -match glob -result {could not read "nothing.txt": no such file or directory}
+
+test tar-api-1.11 {create, wrong # args} -body {
+    tar::create t.tar
+} -returnCodes error -result {wrong # args: should be "tar::create tar files ?arg ...?"}
+
+test tar-api-1.12 {created tarball is readable by the system tar} -constraints systemtar -setup {
+    setupTree
+} -body {
+    tar::create t.tar {a.txt sub}
+    lsort [split [string trim [exec tar tf t.tar]] \n]
+} -cleanup cleanupTree -match regexp -result {^a\.txt sub/? sub/b\.txt sub/deep/? sub/deep/c\.dat$}
+
+test tar-api-2.1 {contents -chan does not close the channel} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+    set ch [open t.tar rb]
+} -body {
+    list [tar::contents $ch -chan] [expr {$ch in [chan names]}]
+} -cleanup {
+    close $ch
+    cleanupTree
+    unset ch
+} -result {{a.txt sub/b.txt} 1}
+
+test tar-api-2.2 {contents, gzip tarball is detected automatically} -constraints zlib -setup {
+    setupTree
+    tar::create tz.tar {a.txt sub/b.txt} -gzip
+} -body {
+    list [tar::contents tz.tar] [tar::contents tz.tar -gzip]
+} -cleanup cleanupTree -result {{a.txt sub/b.txt} {a.txt sub/b.txt}}
+
+test tar-api-2.3 {contents -gzip on an uncompressed tarball} -constraints zlib -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::contents t.tar -gzip
+} -cleanup cleanupTree -returnCodes error -result {input mismatch, zlib requested, not present}
+
+test tar-api-2.4 {contents -chan -gzip} -constraints zlib -setup {
+    setupTree
+    tar::create tz.tar {a.txt sub/b.txt} -gzip
+    set ch [open tz.tar rb]
+} -body {
+    tar::contents $ch -chan -gzip
+} -cleanup {
+    close $ch
+    cleanupTree
+    unset ch
+} -result {a.txt sub/b.txt}
+
+test tar-api-2.5 {contents, missing tarball} -setup setupTree -body {
+    tar::contents nothing.tar
+} -cleanup cleanupTree -returnCodes error -result {couldn't open "nothing.tar": no such file or directory}
+
+test tar-api-2.6 {contents, unknown option} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    list [catch {tar::contents t.tar -bogus} msg] $msg $::errorCode
+} -cleanup {
+    cleanupTree
+    unset msg
+} -result {1 {unknown option "bogus"} {TAR INVALID OPTION}}
+
+test tar-api-2.7 {contents, wrong # args} -body {
+    tar::contents
+} -returnCodes error -result {wrong # args: should be "tar::contents file ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# stat
+
+test tar-api-3.1 {stat, documented keys} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    dict keys [dict get [tar::stat t.tar] a.txt]
+} -cleanup cleanupTree -result {mode uid gid size mtime type linkname uname gname devmajor devminor}
+
+test tar-api-3.2 {stat, values of a regular file} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    set info [dict get [tar::stat t.tar a.txt] a.txt]
+    list [dict get $info size] [dict get $info mtime] [dict get $info type] \
+        [dict get $info linkname] [dict get $info devmajor] [dict get $info devminor]
+} -cleanup {
+    cleanupTree
+    unset info
+} -result {6 1000000000 file {} 0 0}
+
+test tar-api-3.3 {stat, permissions of a regular file} -constraints unix -setup {
+    setupTree
+    file attributes a.txt -permissions 0640
+    tar::create t.tar {a.txt}
+} -body {
+    dict get [tar::stat t.tar a.txt] a.txt mode
+} -cleanup cleanupTree -result 0640
+
+test tar-api-3.4 {stat, directory} -setup {
+    setupTree
+    tar::create t.tar {sub/b.txt emptydir}
+} -body {
+    set info [dict get [tar::stat t.tar emptydir] emptydir]
+    list [dict get $info type] [dict get $info size]
+} -cleanup {
+    cleanupTree
+    unset info
+} -result {directory 0}
+
+test tar-api-3.5 {stat without file returns all entries} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    set r {}
+    foreach {name info} [tar::stat t.tar] {
+        lappend r $name [dict get $info type]
+    }
+    set r
+} -cleanup {
+    cleanupTree
+    unset r name info
+} -result {a.txt file sub directory sub/deep directory sub/b.txt file sub/deep/c.dat file}
+
+test tar-api-3.6 {stat, file not in the tarball} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::stat t.tar nothing
+} -cleanup cleanupTree -result {}
+
+test tar-api-3.7 {stat -chan} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+    set ch [open t.tar rb]
+} -body {
+    list [dict get [tar::stat $ch sub/b.txt -chan] sub/b.txt size] \
+        [expr {$ch in [chan names]}]
+} -cleanup {
+    close $ch
+    cleanupTree
+    unset ch
+} -result {4 1}
+
+test tar-api-3.8 {stat -gzip} -constraints zlib -setup {
+    setupTree
+    tar::create tz.tar {a.txt sub/b.txt} -gzip
+} -body {
+    dict get [tar::stat tz.tar sub/b.txt -gzip] sub/b.txt size
+} -cleanup cleanupTree -result 4
+
+test tar-api-3.9 {stat, unknown option} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::stat t.tar a.txt -bogus
+} -cleanup cleanupTree -returnCodes error -result {unknown option "bogus"}
+
+# -------------------------------------------------------------------------
+# get
+
+test tar-api-4.1 {get, text file} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    tar::get t.tar a.txt
+} -cleanup cleanupTree -result "alpha\n"
+
+test tar-api-4.2 {get, binary file in a subdirectory} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    binary scan [tar::get t.tar sub/deep/c.dat] H* r
+    set r
+} -cleanup {
+    cleanupTree
+    unset r
+} -result 000102fffe0d0a
+
+test tar-api-4.3 {get, empty file} -setup {
+    setupTree
+    writeFile empty.txt ""
+    tar::create t.tar {a.txt empty.txt sub/b.txt}
+} -body {
+    list [tar::get t.tar empty.txt] [tar::get t.tar sub/b.txt]
+} -cleanup cleanupTree -result {{} beta}
+
+test tar-api-4.4 {get, large file spanning several blocks} -setup {
+    setupTree
+    writeFile big.dat [string repeat 0123456789 1000]
+    tar::create t.tar {big.dat a.txt}
+} -body {
+    list [string length [tar::get t.tar big.dat]] [tar::get t.tar a.txt]
+} -cleanup cleanupTree -result [list 10000 "alpha\n"]
+
+test tar-api-4.5 {get, file not in the tarball} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    list [catch {tar::get t.tar nothing} msg] $msg $::errorCode
+} -cleanup {
+    cleanupTree
+    unset msg
+} -result {1 {Tar "t.tar": File "nothing" not found} {TAR MISSING FILE}}
+
+test tar-api-4.6 {get, name must match the complete path} -setup {
+    setupTree
+    tar::create t.tar {sub/b.txt}
+} -body {
+    tar::get t.tar b.txt
+} -cleanup cleanupTree -returnCodes error -result {Tar "t.tar": File "b.txt" not found}
+
+test tar-api-4.7 {get -chan} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+    set ch [open t.tar rb]
+} -body {
+    list [tar::get $ch sub/b.txt -chan] [expr {$ch in [chan names]}]
+} -cleanup {
+    close $ch
+    cleanupTree
+    unset ch
+} -result {beta 1}
+
+test tar-api-4.8 {get, gzip tarball with and without -gzip} -constraints zlib -setup {
+    setupTree
+    tar::create tz.tar {a.txt sub/b.txt} -gzip
+} -body {
+    list [tar::get tz.tar sub/b.txt] [tar::get tz.tar sub/b.txt -gzip]
+} -cleanup cleanupTree -result {beta beta}
+
+test tar-api-4.9 {get, wrong # args} -body {
+    tar::get t.tar
+} -returnCodes error -result {wrong # args: should be "tar::get tar file ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# untar
+
+test tar-api-5.1 {untar -dir, returns names and sizes} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    tar::untar t.tar -dir out
+} -cleanup cleanupTree -result {out {} out/a.txt 6 out/sub {} out/sub/deep {} out/sub/b.txt 4 out/sub/deep/c.dat 7}
+
+test tar-api-5.2 {untar, extracted contents} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    tar::untar t.tar -dir out
+    binary scan [readFile out/sub/deep/c.dat] H* c
+    list [readFile out/a.txt] [readFile out/sub/b.txt] $c [file isdirectory out/sub/deep]
+} -cleanup {
+    cleanupTree
+    unset c
+} -result [list "alpha\n" beta 000102fffe0d0a 1]
+
+test tar-api-5.3 {untar, empty directory} -setup {
+    setupTree
+    tar::create t.tar {sub/b.txt emptydir}
+} -body {
+    tar::untar t.tar -dir out
+    list [file isdirectory out/emptydir] [glob -nocomplain -dir out/emptydir *]
+} -cleanup cleanupTree -result {1 {}}
+
+test tar-api-5.4 {untar without -dir extracts to the current directory} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+    file mkdir here
+    cd here
+} -body {
+    set r [tar::untar ../t.tar]
+    list [llength $r] [readFile a.txt] [readFile sub/b.txt]
+} -cleanup {
+    cd ..
+    cleanupTree
+    unset r
+} -result [list 6 "alpha\n" beta]
+
+test tar-api-5.5 {untar -file extracts only the named file} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    tar::untar t.tar -dir out -file sub/b.txt
+} -cleanup cleanupTree -result {out/sub {} out/sub/b.txt 4}
+
+test tar-api-5.6 {untar -file matches the name literally} -setup {
+    setupTree
+    writeFile {[ab].txt} brackets
+    tar::create t.tar [list a.txt {[ab].txt}]
+} -body {
+    set r [tar::untar t.tar -dir out -file {[ab].txt}]
+    list $r [readFile {out/[ab].txt}] [file exists out/a.txt]
+} -cleanup {
+    cleanupTree
+    unset r
+} -result {{out {} {out/[ab].txt} 8} brackets 0}
+
+test tar-api-5.7 {untar -glob extracts matching files} -setup {
+    setupTree
+    writeFile {[ab].txt} brackets
+    tar::create t.tar [list a.txt {[ab].txt} sub]
+} -body {
+    tar::untar t.tar -dir out -glob {[ab].txt}
+} -cleanup cleanupTree -result {out {} out/a.txt 6}
+
+test tar-api-5.8 {untar -glob matches the complete path} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    tar::untar t.tar -dir out -glob *.dat
+} -cleanup cleanupTree -result {out/sub/deep {} out/sub/deep/c.dat 7}
+
+test tar-api-5.9 {untar, no matching file is not an error} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    list [tar::untar t.tar -dir out -glob *.none] [tar::untar t.tar -dir out -file none] \
+        [file exists out]
+} -cleanup cleanupTree -result {{} {} 0}
+
+test tar-api-5.10 {untar sets the modification time} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::untar t.tar -dir out
+    file mtime out/a.txt
+} -cleanup cleanupTree -result 1000000000
+
+test tar-api-5.11 {untar -nomtime leaves the current time} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::untar t.tar -dir out -nomtime
+    expr {[file mtime out/a.txt] > 1000000000}
+} -cleanup cleanupTree -result 1
+
+test tar-api-5.12 {untar sets the permissions} -constraints unix -setup {
+    setupTree
+    file attributes a.txt -permissions 0600
+    tar::create t.tar {a.txt}
+} -body {
+    tar::untar t.tar -dir out
+    format %o [expr {[file attributes out/a.txt -permissions] & 511}]
+} -cleanup cleanupTree -result 600
+
+test tar-api-5.13 {untar -noperms leaves the default permissions} -constraints unix -setup {
+    setupTree
+    file attributes a.txt -permissions 0600
+    tar::create t.tar {a.txt}
+    writeFile ref.txt ""
+} -body {
+    tar::untar t.tar -dir out -noperms
+    expr {[file attributes out/a.txt -permissions] == [file attributes ref.txt -permissions]}
+} -cleanup cleanupTree -result 1
+
+test tar-api-5.14 {untar overwrites existing files by default} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+    file mkdir out
+    writeFile out/a.txt changed
+} -body {
+    tar::untar t.tar -dir out
+    readFile out/a.txt
+} -cleanup cleanupTree -result "alpha\n"
+
+test tar-api-5.15 {untar -nooverwrite keeps existing files} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+    file mkdir out
+    writeFile out/a.txt changed
+    cd out
+} -body {
+    tar::untar ../t.tar -nooverwrite
+    list [readFile a.txt] [readFile sub/b.txt]
+} -cleanup {
+    cd ..
+    cleanupTree
+} -result {changed beta}
+
+# The existence check of -nooverwrite uses the path relative to the
+# current directory instead of the -dir directory.
+test tar-api-5.16 {untar -nooverwrite -dir extracts files missing in -dir} -constraints knownBug -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::untar t.tar -dir out -nooverwrite
+    file exists out/a.txt
+} -cleanup cleanupTree -result 1
+
+test tar-api-5.17 {untar -nooverwrite -dir keeps existing files in -dir} -constraints knownBug -setup {
+    setupTree
+    tar::create t.tar {sub/b.txt}
+    file mkdir out/sub
+    writeFile out/sub/b.txt changed
+    file mkdir elsewhere
+    cd elsewhere
+} -body {
+    tar::untar ../t.tar -dir ../out -nooverwrite
+    readFile ../out/sub/b.txt
+} -cleanup {
+    cd ..
+    cleanupTree
+} -result changed
+
+test tar-api-5.18 {untar -chan does not close the channel} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+    set ch [open t.tar rb]
+} -body {
+    tar::untar $ch -dir out -chan
+    list [readFile out/a.txt] [expr {$ch in [chan names]}]
+} -cleanup {
+    close $ch
+    cleanupTree
+    unset ch
+} -result [list "alpha\n" 1]
+
+test tar-api-5.19 {untar, gzip tarball} -constraints zlib -setup {
+    setupTree
+    tar::create tz.tar {a.txt sub/b.txt} -gzip
+} -body {
+    tar::untar tz.tar -dir out -gzip
+    list [readFile out/a.txt] [readFile out/sub/b.txt]
+} -cleanup cleanupTree -result [list "alpha\n" beta]
+
+test tar-api-5.20 {untar, unknown option} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::untar t.tar -bogus 1
+} -cleanup cleanupTree -returnCodes error -result {unknown option "bogus"}
+
+test tar-api-5.21 {untar, wrong # args} -body {
+    tar::untar
+} -returnCodes error -result {wrong # args: should be "tar::untar tar ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# add
+
+test tar-api-6.1 {add appends files and returns the tarball name} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    list [tar::add t.tar {sub/b.txt}] [tar::contents t.tar] [tar::get t.tar sub/b.txt]
+} -cleanup cleanupTree -result {t.tar {a.txt sub/b.txt} beta}
+
+test tar-api-6.2 {add recurses into directories} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::add t.tar {sub}
+    tar::contents t.tar
+} -cleanup cleanupTree -result {a.txt sub sub/deep sub/b.txt sub/deep/c.dat}
+
+test tar-api-6.3 {add -prefix} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::add t.tar {a.txt sub/b.txt} -prefix pre/
+    list [tar::contents t.tar] [tar::get t.tar pre/sub/b.txt]
+} -cleanup cleanupTree -result {{a.txt pre/a.txt pre/sub/b.txt} beta}
+
+test tar-api-6.4 {add -quick} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::add t.tar {sub/b.txt} -quick
+    tar::add t.tar {sub/deep/c.dat} -quick
+    list [tar::contents t.tar] [tar::get t.tar sub/b.txt]
+} -cleanup cleanupTree -result {{a.txt sub/b.txt sub/deep/c.dat} beta}
+
+test tar-api-6.5 {add to an empty tarball} -setup {
+    setupTree
+    tar::create t.tar {}
+} -body {
+    tar::add t.tar {a.txt}
+    tar::contents t.tar
+} -cleanup cleanupTree -result a.txt
+
+test tar-api-6.6 {add to a gzip tarball is not supported} -constraints zlib -setup {
+    setupTree
+    tar::create tz.tar {a.txt} -gzip
+} -body {
+    list [catch {tar::add tz.tar {sub/b.txt}} msg] $msg $::errorCode
+} -cleanup {
+    cleanupTree
+    unset msg
+} -result {1 {cannot add to gzip compressed tar} {TAR ZLIB UNSUPPORTED WRITE}}
+
+test tar-api-6.7 {add, missing tarball} -setup setupTree -body {
+    tar::add nothing.tar {a.txt}
+} -cleanup cleanupTree -returnCodes error -result {couldn't open "nothing.tar": no such file or directory}
+
+test tar-api-6.8 {add, unknown option} -setup {
+    setupTree
+    tar::create t.tar {a.txt}
+} -body {
+    tar::add t.tar {sub/b.txt} -bogus
+} -cleanup cleanupTree -returnCodes error -result {unknown option "bogus"}
+
+test tar-api-6.9 {add, wrong # args} -body {
+    tar::add t.tar
+} -returnCodes error -result {wrong # args: should be "tar::add tar files ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# remove
+
+test tar-api-7.1 {remove several files} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub}
+} -body {
+    tar::remove t.tar {a.txt sub/deep/c.dat}
+    list [tar::contents t.tar] [tar::get t.tar sub/b.txt]
+} -cleanup cleanupTree -result {{sub sub/deep sub/b.txt} beta}
+
+test tar-api-7.2 {remove, file not in the tarball is not an error} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+} -body {
+    tar::remove t.tar {nothing}
+    tar::contents t.tar
+} -cleanup cleanupTree -result {a.txt sub/b.txt}
+
+test tar-api-7.3 {remove all files} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+} -body {
+    tar::remove t.tar {a.txt sub/b.txt}
+    tar::contents t.tar
+} -cleanup cleanupTree -result {}
+
+test tar-api-7.4 {remove leaves no temporary file} -setup {
+    setupTree
+    tar::create t.tar {a.txt sub/b.txt}
+} -body {
+    tar::remove t.tar {a.txt}
+    lsort [glob -nocomplain t.tar*]
+} -cleanup cleanupTree -result t.tar
+
+test tar-api-7.5 {remove from a gzip tarball is not supported} -constraints zlib -setup {
+    setupTree
+    tar::create tz.tar {a.txt} -gzip
+} -body {
+    tar::remove tz.tar {a.txt}
+} -cleanup cleanupTree -returnCodes error -result {cannot remove from gzip compressed tar}
+
+test tar-api-7.6 {remove, wrong # args} -body {
+    tar::remove t.tar
+} -returnCodes error -result {wrong # args: should be "tar::remove tar files"}
+
+# -------------------------------------------------------------------------
+
+rename writeFile {}
+rename readFile {}
+rename setupTree {}
+rename cleanupTree {}
+testsuiteCleanup

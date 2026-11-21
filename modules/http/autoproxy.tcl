@@ -13,7 +13,7 @@
 # Example:
 #   package require autoproxy
 #   autoproxy::init
-#   set tok [http::geturl http://wiki.tcl.tk/]
+#   set tok [http::geturl https://wiki.tcl-lang.org/]
 #   http::data $tok
 #
 # To support https add:

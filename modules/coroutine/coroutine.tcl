@@ -13,7 +13,7 @@
 # Meta as::author      {Kevin Kenny}
 # Meta as::author      {Neil Madden}
 # Meta as::author      {Peter Spjuth}
-# Meta as::origin      http://wiki.tcl.tk/21555
+# Meta as::origin      https://wiki.tcl-lang.org/21555
 # Meta summary         Coroutine Event and Channel Support
 # Meta description     This package provides coroutine-aware
 # Meta description     implementations of various event- and

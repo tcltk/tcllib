@@ -2,7 +2,7 @@
 # Metakit backend for tie
 #
 # (C) 2005 Colin McCormack.
-# Taken from http://wiki.tcl.tk/13716, with permission.
+# Taken from https://wiki.tcl-lang.org/13716, with permission.
 #
 # CMcC 20050303 - a backend for the tie tcllib package. Persists an
 #                 array in a metakit database. In conjunction with the

@@ -800,7 +800,7 @@ proc ::struct::list::Lfilterfor {var sequence expr} {
 #
 #	Apply command to each element of a list and return elements passing
 #	and failing the test. Basic idea by Salvatore Sanfilippo
-#	(http://wiki.tcl.tk/lsplit). The implementation here is mine (AK),
+#	(https://wiki.tcl-lang.org/lsplit). The implementation here is mine (AK),
 #	and the interface is slightly different (Command prefix with the
 #	list element given to it as argument vs. variable + script).
 #

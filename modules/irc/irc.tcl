@@ -261,7 +261,7 @@ proc ::irc::connection { args } {
 	    }
 	}
 
-	proc cmd-quit { {msg {tcllib irc module - http://core.tcl.tk/tcllib/}} } {
+	proc cmd-quit { {msg {tcllib irc module - https://core.tcl-lang.org/tcllib/}} } {
 	    ircsend "QUIT :$msg"
 	}
 
@@ -525,7 +525,7 @@ proc ::irc::connection { args } {
 
 # -------------------------------------------------------------------------
 
-package provide irc 0.8.0
+package provide irc 0.8.1
 
 # -------------------------------------------------------------------------
 return
