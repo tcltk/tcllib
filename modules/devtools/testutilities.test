@@ -1,0 +1,977 @@
+# -*- tcl -*-
+# testutilities.test:  Tests for devtools/testutilities.tcl.
+#
+# testutilities.tcl is the boilerplate used by all tcllib testsuites,
+# including this one. Helpers whose use has global side effects
+# (environment save/restore, testsuiteCleanup, generated tests, package
+# loading) are tested in child interpreters which source a fresh copy of
+# the utilities.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+# -------------------------------------------------------------------------
+## Helpers
+
+set utilities [localPath testutilities.tcl]
+
+# Capture what is written to a standard channel while running a script.
+namespace eval capture {
+    variable data {}
+    proc initialize {h mode} {return {initialize finalize write}}
+    proc finalize {h} {}
+    proc write {h buf} {variable data ; append data $buf ; return {}}
+    namespace export *
+    namespace ensemble create
+}
+proc outputOf {chan script} {
+    set capture::data {}
+    chan push $chan capture
+    set code [catch {uplevel 1 $script} res]
+    chan pop $chan
+    if {$code} {return -code $code $res}
+    return $capture::data
+}
+
+# Child interpreter with tcltest and a fresh copy of the utilities.
+# All output of "puts" in the child is collected in ::childout.
+proc childputs {args} {
+    if {[lindex $args 0] eq "-nonewline"} {
+	set args [lrange $args 1 end]
+	set nl {}
+    } else {
+	set nl \n
+    }
+    if {[llength $args] == 2} {set args [lrange $args 1 end]}
+    append ::childout [lindex $args 0]$nl
+    return
+}
+proc child {} {
+    set ::childout {}
+    set ip [interp create]
+    interp alias $ip puts {} childputs
+    $ip eval [list set auto_path $::auto_path]
+    $ip eval {package require tcltest}
+    $ip eval [list source $::utilities]
+    $ip eval {testsNeedTcltest 2.0}
+    return $ip
+}
+
+# Temporary module-like directory with a script calling the helpers,
+# for the location dependent helpers.
+set tmod [makeDirectory devtools-tmod]
+proc tfile {name content} {
+    set path [file join $::tmod $name]
+    file mkdir [file dirname $path]
+    set ch [open $path w]
+    puts -nonewline $ch $content
+    close $ch
+    return $path
+}
+
+# -------------------------------------------------------------------------
+## Basics
+
+test devtools-tu-1.0 {package and namespace} -body {
+    list [package present tcllib::testutils] \
+	[namespace exists ::tcllib::testutils] \
+	[file tail $::tcllib::testutils::self] \
+	[file tail $::tcllib::testutils::tcllib] \
+	[expr {$::tcllib::testutils::tcllib eq [file dirname $::tcllib::testutils::self]}]
+} -result {1.2 1 devtools modules 1}
+
+test devtools-tu-1.1 {loading prints banner} -body {
+    set ip [child]
+    set ::childout
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result "- tcllib::testutils 1.2\n"
+
+# -------------------------------------------------------------------------
+## testsNeedTcl, testsNeedTcltest, testsNeed
+
+test devtools-tu-2.0 {testsNeedTcl, satisfied} -setup {
+    proc t {} {testsNeedTcl 8.5 ; return continued}
+} -body {
+    list [t] [outputOf stdout t]
+} -cleanup {
+    rename t {}
+} -result {continued {}}
+
+test devtools-tu-2.1 {testsNeedTcl, not satisfied, returns from caller} -constraints tcl8.6only -setup {
+    proc t {} {testsNeedTcl 8.99 ; return continued}
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r $out
+} -cleanup {
+    rename t {}
+    unset -nocomplain r out
+} -match glob -result [list {} "    Aborting the tests found in \"*\"\n    Requiring at least Tcl 8.99, have [info patchlevel].\n"]
+
+test devtools-tu-2.1.1 {testsNeedTcl, unsatisfied 9.x requirement} -constraints knownBug -setup {
+    # The check is [package vsatisfies $tcl $version 9], so any 9.x
+    # satisfies every requirement on Tcl 9.
+    proc t {} {testsNeedTcl 9.99 ; return continued}
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r [string match "*Requiring at least Tcl 9.99*" $out]
+} -cleanup {
+    rename t {}
+    unset -nocomplain r out
+} -result {{} 1}
+
+test devtools-tu-2.2 {testsNeedTcl, 9 accepted for 8.x requirement} -setup {
+    proc t {} {testsNeedTcl 8.4 ; return continued}
+} -body {
+    t
+} -cleanup {
+    rename t {}
+} -result continued
+
+test devtools-tu-2.3 {testsNeedTcltest, satisfied} -setup {
+    proc t {} {testsNeedTcltest 2.0 ; return continued}
+} -body {
+    list [t] [outputOf stdout t]
+} -cleanup {
+    rename t {}
+} -result {continued {}}
+
+test devtools-tu-2.4 {testsNeedTcltest, not satisfied} -setup {
+    proc t {} {testsNeedTcltest 99.0 ; return continued}
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r $out
+} -cleanup {
+    rename t {}
+    unset -nocomplain r out
+} -match glob -result [list {} "    Aborting the tests found in *\n    Requiring at least tcltest 99.0, have [package present tcltest]\n"]
+
+test devtools-tu-2.5 {testsNeedTcltest, loads tcltest in fresh interp} -body {
+    set ip [interp create]
+    interp alias $ip puts {} childputs
+    $ip eval [list set auto_path $::auto_path]
+    $ip eval [list source $::utilities]
+    $ip eval {
+	proc t {} {testsNeedTcltest 2.0 ; return continued}
+	list [t] [expr {[package present tcltest] ne ""}] \
+	    [llength [info commands ::test]] [info exists ::tcltestinit]
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result {continued 1 1 1}
+
+test devtools-tu-2.6 {testsNeed, package present, no version} -setup {
+    proc t {} {testsNeed tcltest ; return continued}
+} -body {
+    t
+} -cleanup {
+    rename t {}
+} -result continued
+
+test devtools-tu-2.7 {testsNeed, package version satisfied} -setup {
+    proc t {} {testsNeed tcltest 2 ; return continued}
+} -body {
+    t
+} -cleanup {
+    rename t {}
+} -result continued
+
+test devtools-tu-2.8 {testsNeed, package missing} -setup {
+    proc t {} {testsNeed no::such::package::here ; return continued}
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r $out
+} -cleanup {
+    rename t {}
+    unset -nocomplain r out
+} -match glob -result {{} {    Aborting the tests found in "*"
+    Requiring "no::such::package::here", package not found.
+}}
+
+test devtools-tu-2.9 {testsNeed, package missing, with version} -setup {
+    proc t {} {testsNeed no::such::package::here 1.0 ; return continued}
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r $out
+} -cleanup {
+    rename t {}
+    unset -nocomplain r out
+} -match glob -result {{} {    Aborting the tests found in "*"
+    Requiring at least "no::such::package::here 1.0", package not found.
+}}
+
+test devtools-tu-2.10 {testsNeed, version too high} -setup {
+    proc t {} {testsNeed tcltest 99 ; return continued}
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r $out
+} -cleanup {
+    rename t {}
+    unset -nocomplain r out
+} -match glob -result {{} {    Aborting the tests found in "*"
+    Requiring at least "tcltest 99", package not found.
+}}
+
+# -------------------------------------------------------------------------
+## InitializeTclTest: constraints and helpers
+
+test devtools-tu-3.0 {InitializeTclTest, idempotent} -body {
+    list $::tcltestinit [InitializeTclTest] $::tcltestinit
+} -result {1 {} 1}
+
+test devtools-tu-3.1 {standard constraints} -body {
+    set r {}
+    foreach c {tcl8.5only tcl8.6only tcl8.6plus tcl8.6not8.7 tcl8.6not10 tcl8.6.10plus tcl8.7plus tcl9plus tcl8} {
+	lappend r $c [testConstraint $c]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r c
+} -result [list \
+	       tcl8.5only 0 \
+	       tcl8.6only [expr {[package vsatisfies [info patchlevel] 8.6-8.999]}] \
+	       tcl8.6plus 1 \
+	       tcl8.6not8.7 [expr {[package vsatisfies [info patchlevel] 8.6-8.7]}] \
+	       tcl8.6not10 [expr {[package vsatisfies [info patchlevel] 8.6-8.6.10] || [package vsatisfies [info patchlevel] 9-]}] \
+	       tcl8.6.10plus 1 \
+	       tcl8.7plus [expr {[package vsatisfies [info patchlevel] 8.7-]}] \
+	       tcl9plus [expr {[package vsatisfies [info patchlevel] 9-]}] \
+	       tcl8 [expr {[package vsatisfies [info patchlevel] 8.5-9]}]]
+
+test devtools-tu-3.1.1 {constraint tcl8.6not10 is false on Tcl 9} -constraints {tcl9plus knownBug} -body {
+    # Defined as 8.6+ (including 9) and not 8.6.10+, which is true
+    # on Tcl 9.
+    testConstraint tcl8.6not10
+} -result 0
+
+test devtools-tu-3.2 {constraint tcl8.7not9} -body {
+    testConstraint tcl8.7not9
+} -result [expr {[package vsatisfies [info patchlevel] 8.8-9]}]
+
+test devtools-tu-3.3 {byConstraint, first true constraint wins} -setup {
+    testConstraint dtA 0
+    testConstraint dtB 1
+    testConstraint dtC 1
+} -body {
+    tcltest::byConstraint {dtA a dtB b dtC c}
+} -result b
+
+test devtools-tu-3.4 {byConstraint, no match} -setup {
+    testConstraint dtA 0
+    testConstraint dtB 0
+} -body {
+    tcltest::byConstraint {dtB b dtA a}
+} -returnCodes error -result {No result available. Failed to match any of the constraints (dtA,dtB).}
+
+foreach {n args} {
+    0 {}
+    1 {a}
+    2 {a b}
+    3 {args}
+    4 {a args}
+    5 {a {b 1}}
+    6 {{a 1} args}
+} {
+    test devtools-tu-3.5.$n "wrongNumArgs matches Tcl, args: $args" -setup {
+	proc dtproc $args {}
+    } -body {
+	set required 0
+	foreach a $args {if {[llength $a] == 1 && $a ne "args"} {incr required}}
+	set expected [wrongNumArgs dtproc [lmap a $args {
+	    if {[llength $a] == 2} {set a ?[lindex $a 0]?} else {set a}
+	}] 0]
+	if {$required == 0} {
+	    # Tcl cannot be called with too few arguments.
+	    set ok 1
+	} else {
+	    catch {dtproc} msg
+	    set ok [expr {$msg eq $expected}]
+	}
+	set ok
+    } -cleanup {
+	rename dtproc {}
+	unset -nocomplain required a expected msg ok
+    } -result 1
+
+    test devtools-tu-3.6.$n "tooManyArgs matches Tcl, args: $args" -setup {
+	proc dtproc $args {}
+    } -body {
+	if {"args" in $args} {
+	    # Cannot be called with too many arguments.
+	    return 1
+	}
+	set expected [tooManyArgs dtproc [lmap a $args {
+	    if {[llength $a] == 2} {set a ?[lindex $a 0]?} else {set a}
+	}]]
+	catch {dtproc {*}[lrepeat [expr {[llength $args] + 1}] x]} msg
+	expr {$msg eq $expected}
+    } -cleanup {
+	rename dtproc {}
+	unset -nocomplain a expected msg
+    } -result 1
+}
+unset n args
+
+test devtools-tu-3.7 {wrongNumArgs, format} -body {
+    list [wrongNumArgs foo {} 0] [wrongNumArgs foo {a b} 0] [wrongNumArgs foo {a args} 0]
+} -result {{wrong # args: should be "foo"} {wrong # args: should be "foo a b"} {wrong # args: should be "foo a ?arg ...?"}}
+
+test devtools-tu-3.8 {tooManyArgs, format} -body {
+    list [tooManyArgs foo {}] [tooManyArgs foo {a b}] [tooManyArgs foo {a args}]
+} -result {{wrong # args: should be "foo"} {wrong # args: should be "foo a b"} {wrong # args: should be "foo a ?arg ...?"}}
+
+test devtools-tu-3.9 {tempPath} -body {
+    tempPath foo/bar
+} -result [file join [temporaryDirectory] foo/bar]
+
+test devtools-tu-3.10 {makeBinaryFile} -body {
+    set data [binary format c* {0 1 2 13 10 255 26}]
+    set path [makeBinaryFile $data devtools-bin.dat]
+    set ch [open $path rb]
+    set back [read $ch]
+    close $ch
+    list [expr {$path eq [tempPath devtools-bin.dat]}] [expr {$back eq $data}]
+} -cleanup {
+    removeFile devtools-bin.dat
+    unset -nocomplain data path ch back
+} -result {1 1}
+
+test devtools-tu-3.11 {exported helpers are imported} -body {
+    set r {}
+    foreach c {wrongNumArgs tooManyArgs makeBinaryFile tempPath} {
+	lappend r [namespace origin $c]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r c
+} -result {::tcltest::wrongNumArgs ::tcltest::tooManyArgs ::tcltest::makeBinaryFile ::tcltest::tempPath}
+
+# -------------------------------------------------------------------------
+## snitErrors
+
+test devtools-tu-4.0 {snitErrors, snit 1} -body {
+    set ip [child]
+    $ip eval [list source [tcllibPath snit/snit.tcl]]
+    $ip eval {
+	package require snit
+	snitErrors
+	snit::type dttype {method m {a b} {}}
+	dttype o
+	catch {o m} msg
+	list [package present snit] \
+	    [expr {$msg eq [snitWrongNumArgs o ::dttype::Snit_methodm {a b} 0]}] \
+	    [snitTooManyArgs o ::dttype::Snit_methodm {a b}]
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -match glob -result {1.* 1 {wrong # args: should be "::dttype::Snit_methodm type selfns win self a b"}}
+
+test devtools-tu-4.1 {snitErrors, snit 2} -body {
+    set ip [child]
+    $ip eval [list source [tcllibPath snit/snit2.tcl]]
+    $ip eval {
+	package require snit
+	snitErrors
+	snit::type dttype {method m {a b} {}}
+	dttype o
+	catch {o m} msg
+	list [package present snit] \
+	    [expr {$msg eq [snitWrongNumArgs o m {a b} 0]}] \
+	    [snitTooManyArgs o m {a b}]
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -match glob -result {2.* 1 {wrong # args: should be "o m a b"}}
+
+# -------------------------------------------------------------------------
+## Locations and files
+
+test devtools-tu-5.0 {localDirectory, localPath, from a script} -setup {
+    set s [tfile sub/loc.tcl {list [localDirectory] [localPath a b] [localPath]}]
+} -body {
+    set r [source $s]
+    list [expr {[lindex $r 0] eq [file normalize [file join $tmod sub]]}] \
+	[expr {[lindex $r 1] eq [file join [lindex $r 0] a b]}] \
+	[expr {[lindex $r 2] eq [lindex $r 0]}]
+} -cleanup {
+    file delete -force [file join $tmod sub]
+    unset -nocomplain s r
+} -result {1 1 1}
+
+test devtools-tu-5.1 {localDirectory, in this test file} -body {
+    expr {[localDirectory] eq [file normalize $::tcllib::testutils::self]}
+} -result 1
+
+test devtools-tu-5.2 {tcllibPath} -body {
+    list [expr {[tcllibPath x/y.tcl] eq [file join $::tcllib::testutils::tcllib x/y.tcl]}] \
+	[file exists [tcllibPath devtools/testutilities.tcl]]
+} -result {1 1}
+
+test devtools-tu-5.3 {useLocalFile, useTcllibFile} -setup {
+    tfile sub/a.tcl {set ::dtloaded [list a [info script]]}
+    set s [tfile sub/use.tcl {useLocalFile a.tcl}]
+} -body {
+    source $s
+    set r [list [lindex $::dtloaded 0] [file tail [lindex $::dtloaded 1]]]
+    useTcllibFile devtools/README.notexisting.tcl
+} -cleanup {
+    file delete -force [file join $tmod sub]
+    unset -nocomplain s r ::dtloaded
+} -returnCodes error -match glob -result {couldn't read file "*README.notexisting.tcl": no such file or directory}
+
+test devtools-tu-5.4 {useLocalFile, result} -setup {
+    tfile sub/a.tcl {set ::dtloaded a ; return value}
+    set s [tfile sub/use.tcl {useLocalFile a.tcl}]
+} -body {
+    list [source $s] $::dtloaded
+} -cleanup {
+    file delete -force [file join $tmod sub]
+    unset -nocomplain s ::dtloaded
+} -result {value a}
+
+test devtools-tu-5.5 {file-get} -setup {
+    set f [tfile data.txt "line1\nline2\n"]
+} -body {
+    file-get $f
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result "line1\nline2\n"
+
+test devtools-tu-5.6 {asset, in local test-assets} -setup {
+    tfile mod/test-assets/x/a.txt "local asset"
+    set s [tfile mod/s.tcl {list [asset x a.txt] [asset-get x a.txt]}]
+} -body {
+    set r [source $s]
+    list [expr {[lindex $r 0] eq [file join [file normalize [file join $tmod mod]] test-assets x a.txt]}] \
+	[lindex $r 1]
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    unset -nocomplain s r
+} -result {1 {local asset}}
+
+test devtools-tu-5.7 {asset, in parent test-assets} -setup {
+    tfile test-assets/b.txt "parent asset"
+    set s [tfile mod/s.tcl {asset-get b.txt}]
+} -body {
+    source $s
+} -cleanup {
+    file delete -force [file join $tmod mod] [file join $tmod test-assets]
+    unset -nocomplain s
+} -result {parent asset}
+
+test devtools-tu-5.8 {asset, local wins over parent} -setup {
+    tfile test-assets/c.txt "parent"
+    tfile mod/test-assets/c.txt "local"
+    set s [tfile mod/s.tcl {asset-get c.txt}]
+} -body {
+    source $s
+} -cleanup {
+    file delete -force [file join $tmod mod] [file join $tmod test-assets]
+    unset -nocomplain s
+} -result local
+
+test devtools-tu-5.9 {asset, missing} -setup {
+    set s [tfile mod/s.tcl {asset nosuch.txt}]
+} -body {
+    source $s
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    unset -nocomplain s
+} -returnCodes error -result {{can not find asset path}}
+
+test devtools-tu-5.10 {TestFiles, TestFilesGlob} -setup {
+    tfile mod/b.part {lappend ::dtorder b}
+    tfile mod/a10.part {lappend ::dtorder a10}
+    tfile mod/a9.part {lappend ::dtorder a9}
+    tfile mod/other.txt {lappend ::dtorder other}
+    set s [tfile mod/s.tcl {
+	set g [lmap f [TestFilesGlob *.part] {file tail $f}]
+	TestFiles *.part
+	set g
+    }]
+    set ::dtorder {}
+} -body {
+    list [source $s] $::dtorder
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    unset -nocomplain s ::dtorder
+} -result {{a9.part a10.part b.part} {a9 a10 b}}
+
+test devtools-tu-5.11 {TestFiles, no match} -setup {
+    set s [tfile mod/s.tcl {list [TestFiles *.none] [TestFilesGlob *.none]}]
+} -body {
+    source $s
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    unset -nocomplain s
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+## use, useKeep, useLocal, useLocalKeep, useAccel, support, testing
+
+test devtools-tu-6.0 {useLocal, loads and reports, namespace deleted first} -setup {
+    tfile mod/pkg.tcl {
+	namespace eval ::dtpkg {variable loads ; incr loads}
+	package provide dtpkg 1.5
+    }
+    set s [tfile mod/s.tcl {useLocal pkg.tcl dtpkg}]
+} -body {
+    set out [outputOf stdout {
+	source $s
+	source $s
+    }]
+    list $out $::dtpkg::loads [package present dtpkg]
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    namespace delete ::dtpkg
+    package forget dtpkg
+    unset -nocomplain s out
+} -result [list "$::tcllib::testutils::tag dtpkg 1.5\n$::tcllib::testutils::tag dtpkg 1.5\n" 1 1.5]
+
+test devtools-tu-6.1 {useLocalKeep, namespace kept} -setup {
+    tfile mod/pkg.tcl {
+	namespace eval ::dtpkg {variable loads ; incr loads}
+	package provide dtpkg 1.5
+    }
+    set s [tfile mod/s.tcl {useLocalKeep pkg.tcl dtpkg}]
+} -body {
+    outputOf stdout {
+	source $s
+	source $s
+    }
+    set ::dtpkg::loads
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    namespace delete ::dtpkg
+    package forget dtpkg
+    unset -nocomplain s
+} -result 2
+
+test devtools-tu-6.2 {useLocal, explicit namespace} -setup {
+    tfile mod/pkg.tcl {
+	namespace eval ::dtother {variable loads ; incr loads}
+	package provide dtpkg 1.5
+    }
+    set s [tfile mod/s.tcl {useLocal pkg.tcl dtpkg ::dtother}]
+} -body {
+    outputOf stdout {
+	source $s
+	source $s
+    }
+    set ::dtother::loads
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    namespace delete ::dtother
+    package forget dtpkg
+    unset -nocomplain s
+} -result 1
+
+test devtools-tu-6.3 {useLocal, error in file} -setup {
+    tfile mod/pkg.tcl {error "broken package"}
+    set s [tfile mod/s.tcl {useLocal pkg.tcl dtpkg}]
+} -body {
+    set out [outputOf stdout {set code [catch {source $s} msg]}]
+    list $code $msg $out
+} -cleanup {
+    file delete -force [file join $tmod mod]
+    unset -nocomplain s out code msg
+} -match glob -result {1 {} {    Aborting the tests found in "*"
+    Error in pkg.tcl: broken package
+}}
+
+test devtools-tu-6.4 {use, useKeep, path relative to tcllib (absolute allowed)} -setup {
+    set f [tfile pkg.tcl {
+	namespace eval ::dtpkg {variable loads ; incr loads}
+	package provide dtpkg 2.0
+    }]
+} -body {
+    set out [outputOf stdout {
+	use $f dtpkg
+	use $f dtpkg
+	set a $::dtpkg::loads
+	useKeep $f dtpkg
+	set b $::dtpkg::loads
+    }]
+    list $a $b $out
+} -cleanup {
+    file delete $f
+    namespace delete ::dtpkg
+    package forget dtpkg
+    unset -nocomplain f out a b
+} -result [list 1 2 [string repeat "$::tcllib::testutils::tag dtpkg 2.0\n" 3]]
+
+test devtools-tu-6.5 {use, error} -setup {
+    set f [tfile pkg.tcl {error oops}]
+} -body {
+    set out [outputOf stdout {set code [catch {use $f dtpkg} msg]}]
+    list $code $msg $out
+} -cleanup {
+    file delete $f
+    unset -nocomplain f out code msg
+} -match glob -result {1 {} {    Aborting the tests found in "*"
+    Error in pkg.tcl: oops
+}}
+
+test devtools-tu-6.6 {useAccel, selects use or useKeep} -setup {
+    set f [tfile pkg.tcl {
+	namespace eval ::dtpkg {variable loads ; incr loads}
+	package provide dtpkg 2.0
+    }]
+} -body {
+    outputOf stdout {
+	useAccel 0 $f dtpkg
+	useAccel 0 $f dtpkg
+	set a $::dtpkg::loads
+	useAccel 1 $f dtpkg
+	set b $::dtpkg::loads
+    }
+    list $a $b
+} -cleanup {
+    file delete $f
+    namespace delete ::dtpkg
+    package forget dtpkg
+    unset -nocomplain f a b
+} -result {1 2}
+
+test devtools-tu-6.7 {support and testing, tags} -setup {
+    set f [tfile pkg.tcl {package provide dtpkg 3.0}]
+    set savedtag $::tcllib::testutils::tag
+} -body {
+    set out [outputOf stdout {
+	support {use $f dtpkg}
+	testing {use $f dtpkg}
+    }]
+} -cleanup {
+    set ::tcllib::testutils::tag $savedtag
+    file delete $f
+    package forget dtpkg
+    unset -nocomplain f out savedtag
+} -result "- dtpkg 3.0\n* dtpkg 3.0\n"
+
+test devtools-tu-6.8 {support, error returns from caller} -setup {
+    set savedtag $::tcllib::testutils::tag
+    proc t {} {
+	support {error "setup failed"}
+	return continued
+    }
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r [string match "SETUP Error (Support): setup failed\nSETUP Error (Support):     while executing*" $out]
+} -cleanup {
+    set ::tcllib::testutils::tag $savedtag
+    rename t {}
+    unset -nocomplain out r savedtag
+} -result {{} 1}
+
+test devtools-tu-6.9 {testing, error returns from caller} -setup {
+    set savedtag $::tcllib::testutils::tag
+    proc t {} {
+	testing {error "load failed"}
+	return continued
+    }
+} -body {
+    set out [outputOf stdout {set r [t]}]
+    list $r [string match "SETUP Error (Testing): load failed\n*" $out]
+} -cleanup {
+    set ::tcllib::testutils::tag $savedtag
+    rename t {}
+    unset -nocomplain out r savedtag
+} -result {{} 1}
+
+test devtools-tu-6.10 {useTcllibC, boolean result} -body {
+    set ip [child]
+    set r [$ip eval {useTcllibC}]
+    list [string is boolean -strict $r] [expr {!$r || [$ip eval {package present tcllibc}] ne ""}]
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip r
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+## Environment save/restore, testsuiteCleanup
+
+test devtools-tu-7.0 {Save/RestoreEnvironment} -body {
+    set ip [child]
+    $ip eval {
+	set ::env(DEVTOOLS_TEST_A) 1
+	::tcllib::testutils::SaveEnvironment
+	set ::env(DEVTOOLS_TEST_B) 2
+	set ::env(DEVTOOLS_TEST_A) changed
+	::tcllib::testutils::RestoreEnvironment
+	list [info exists ::env(DEVTOOLS_TEST_A)] $::env(DEVTOOLS_TEST_A) \
+	    [info exists ::env(DEVTOOLS_TEST_B)]
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip ::env(DEVTOOLS_TEST_A) ::env(DEVTOOLS_TEST_B)
+} -result {1 1 0}
+
+test devtools-tu-7.1 {testsuiteCleanup restores the environment saved at load time} -body {
+    set ip [child]
+    $ip eval {
+	tcltest::configure -verbose {}
+	set ::env(DEVTOOLS_TEST_C) 3
+	testsuiteCleanup
+	info exists ::env(DEVTOOLS_TEST_C)
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip ::env(DEVTOOLS_TEST_C)
+} -result 0
+
+test devtools-tu-7.2 {testsuiteCleanup reports via cleanupTests} -body {
+    set ip [child]
+    $ip eval {
+	tcltest::configure -verbose {}
+	test x-1 x {expr 1} 1
+	test x-2 x {expr 2} 3
+	testsuiteCleanup
+    }
+    regexp {Total\s+2\s+Passed\s+1\s+Skipped\s+0\s+Failed\s+1} $::childout
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result 1
+
+# -------------------------------------------------------------------------
+## array_unset, dictsort, cat, res*
+
+test devtools-tu-8.0 {array_unset, all} -setup {
+    array set dta {a 1 b 2 c 3}
+} -body {
+    list [array_unset dta] [array exists dta] [array size dta]
+} -cleanup {
+    unset -nocomplain dta
+} -result {{} 1 0}
+
+test devtools-tu-8.1 {array_unset, pattern} -setup {
+    array set dta {ab 1 ac 2 bc 3}
+} -body {
+    array_unset dta a*
+    array get dta
+} -cleanup {
+    unset -nocomplain dta
+} -result {bc 3}
+
+test devtools-tu-8.2 {array_unset, in caller scope} -setup {
+    proc t {} {
+	array set x {k 1 l 2}
+	array_unset x k
+	array get x
+    }
+} -body {
+    t
+} -cleanup {
+    rename t {}
+} -result {l 2}
+
+test devtools-tu-8.3 {dictsort} -body {
+    list [dictsort {b 2 a 1 c 3}] [dictsort {}] [dictsort {a 1 a 2}]
+} -result {{a 1 b 2 c 3} {} {a 2}}
+
+test devtools-tu-8.4 {dictsort, odd length} -body {
+    dictsort {a 1 b}
+} -returnCodes error -result {list must have an even number of elements}
+
+test devtools-tu-8.5 {cat} -body {
+    list [cat] [cat a] [cat a {b c} d] [cat \{ \}]
+} -result [list {} a {ab cd} "\{\}"]
+
+test devtools-tu-8.6 {res!, res+, res?, res?lines} -body {
+    set r {}
+    lappend r [res!] [res?]
+    res+ a b
+    res+ {c d}
+    res+
+    lappend r [res?] [res?lines]
+    res!
+    lappend r [res?]
+} -cleanup {
+    res!
+    unset -nocomplain r
+} -result [list {} {} {{a b} {{c d}} {}} "a b\n{c d}\n" {}]
+
+test devtools-tu-8.7 {res+, accumulator is the global variable "result"} -body {
+    namespace eval ::dtns {
+	res!
+	res+ x
+	set r [list [res?] [info exists ::dtns::result] $::result]
+    }
+} -cleanup {
+    namespace delete ::dtns
+    res!
+} -result {x 0 x}
+
+# -------------------------------------------------------------------------
+## arg-counts, syntax
+
+foreach {n sig expected} {
+    0 {}               {0 0 {}}
+    1 {a b}            {2 2 {a b}}
+    2 {a ?b?}          {1 2 {a ?b?}}
+    3 {?a? ?b?}        {0 2 {?a? ?b?}}
+    4 {a args}         {1 {} {a ?args...?}}
+    5 {args}           {0 {} ?args...?}
+    6 {a ?args...?}    {1 {} {a ?args...?}}
+    7 {a ?b? c}        {3 3 {a ?b? c}}
+} {
+    test devtools-tu-9.0.$n "arg-counts $sig" -body {
+	arg-counts $sig
+    } -result $expected
+}
+unset n sig expected
+
+test devtools-tu-9.1 {syntax, generated tests pass for a correct command} -body {
+    set ip [child]
+    $ip eval {
+	tcltest::configure -verbose {}
+	namespace eval ::dt {
+	    namespace export *
+	    namespace ensemble create
+	    proc one {a} {}
+	    proc two {a b} {}
+	    proc opt {a {b {}}} {}
+	    proc none {args} {}
+	}
+	syntax {
+	    one {a}
+	    two {a b}
+	    opt {a ?b?}
+	    none {args}
+	    - {ignored}
+	} dt
+	list $::tcltest::numTests(Total) $::tcltest::numTests(Passed) $::tcltest::numTests(Failed)
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result {7 7 0}
+
+test devtools-tu-9.1.1 {syntax, required arguments followed by args} -constraints knownBug -body {
+    # arg-counts turns "args" into "?args...?", while Tcl reports
+    # "?arg ...?" for procedures.
+    set ip [child]
+    $ip eval {
+	tcltest::configure -verbose {}
+	namespace eval ::dt {
+	    namespace export *
+	    namespace ensemble create
+	    proc var {a args} {}
+	}
+	syntax {var {a args}} dt
+	list $::tcltest::numTests(Total) $::tcltest::numTests(Passed) $::tcltest::numTests(Failed)
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result {1 1 0}
+
+test devtools-tu-9.2 {syntax, generated test names} -body {
+    set ip [child]
+    $ip eval {
+	tcltest::configure -verbose {}
+	set ::names {}
+	rename test _test
+	proc test {name args} {lappend ::names $name}
+	syntax {two {a b} opt {a ?b?}} {my cmd}
+	syntax {{} {x}} ::ns::cmd {} {} lbl
+	set ::names
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result {my-cmd-two--1.0 my-cmd-two-a-1.1 my-cmd-two-a/b/X-1.2 my-cmd-opt--1.0 my-cmd-opt-a/?b?/X-1.1 -ns-cmd-lbl---1.0 -ns-cmd-lbl--x/X-1.1}
+
+test devtools-tu-9.3 {syntax, setup, cleanup and message map} -body {
+    set ip [child]
+    $ip eval {
+	tcltest::configure -verbose {}
+	proc ::realcmd {a b} {}
+	interp alias {} ::shown {} ::realcmd
+	set ::log {}
+	syntax {{} {a b}} shown {lappend ::log setup} {lappend ::log cleanup} {} {realcmd shown}
+	list $::log $::tcltest::numTests(Passed) $::tcltest::numTests(Failed)
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -match glob -result {{setup cleanup setup cleanup setup cleanup} * *}
+
+test devtools-tu-9.4 {syntax, failing generated test detected} -body {
+    set ip [child]
+    $ip eval {
+	tcltest::configure -verbose {}
+	proc ::badcmd {a} {}
+	# Declared signature is wrong on purpose.
+	syntax {{} {a b}} badcmd
+	list $::tcltest::numTests(Total) [expr {$::tcltest::numTests(Failed) > 0}]
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result {3 1}
+
+# -------------------------------------------------------------------------
+## TestAccelInit, TestAccelDo, TestAccelExit
+
+namespace eval ::dtaccel {
+    variable active {}
+    variable log {}
+    proc KnownImplementations {} {return {critcl tcl}}
+    proc Implementations {} {return {critcl tcl}}
+    proc Names {} {return {critcl {C implementation} tcl {Tcl implementation}}}
+    proc LoadAccelerator {e} {variable log ; lappend log load-$e ; expr {$e eq "tcl"}}
+    proc SwitchTo {e} {variable active $e ; variable log ; lappend log switch-$e}
+}
+
+test devtools-tu-10.0 {TestAccelInit} -setup {
+    set ::dtaccel::log {}
+} -body {
+    set out [outputOf stdout {TestAccelInit ::dtaccel}]
+    list $out $::dtaccel::log
+} -cleanup {
+    unset -nocomplain out
+} -result {{> Tcl implementation
+} {switch- load-critcl load-tcl}}
+
+test devtools-tu-10.1 {TestAccelDo, constraints and variable} -setup {
+    set ::dtaccel::log {}
+} -body {
+    set seen {}
+    TestAccelDo ::dtaccel impl {
+	lappend seen $impl $::dtaccel::active [testConstraint critcl] [testConstraint tcl]
+    }
+    list $seen [testConstraint critcl] [testConstraint tcl]
+} -cleanup {
+    unset -nocomplain seen impl
+} -result {{critcl critcl 1 0 tcl tcl 0 1} 0 0}
+
+test devtools-tu-10.2 {TestAccelExit} -setup {
+    set ::dtaccel::active tcl
+} -body {
+    list [TestAccelExit ::dtaccel] $::dtaccel::active
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::dtaccel capture
+removeDirectory devtools-tmod
+unset utilities tmod
+foreach c {outputOf childputs child tfile} {rename $c {}}
+unset -nocomplain c childout
+testsuiteCleanup
+return

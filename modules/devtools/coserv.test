@@ -1,0 +1,255 @@
+# -*- tcl -*-
+# coserv.test:  Tests for devtools/coserv.tcl and devtools/dialog.tcl.
+#
+# coserv starts sub processes controlled through comm (local sockets).
+# dialog builds scripted line-based servers and clients on top of it,
+# used by the pop3 and pop3d testsuites. All sockets are on localhost.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use           log/log.tcl   log
+    useTcllibFile devtools/coserv.tcl ; # loads comm, snit too
+    useTcllibFile devtools/dialog.tcl
+}
+
+::log::lvSuppress debug 1
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# Bounded wait for a variable to become non-empty.
+proc waitfor {varname {ms 20000}} {
+    upvar #0 $varname v
+    set aid [after $ms [list set ::waitfor_timeout 1]]
+    set ::waitfor_timeout 0
+    while {(![info exists v] || $v eq "") && !$::waitfor_timeout} {
+	vwait $varname
+	if {$::waitfor_timeout} break
+    }
+    after cancel $aid
+    return [expr {!$::waitfor_timeout}]
+}
+
+# coserv::start blocks in vwait until the sub process reports back.
+# Guard it with a timeout.
+proc startserver {cookie} {
+    set aid [after 20000 {set ::coserv::go TIMEOUT}]
+    set id [coserv::start $cookie]
+    after cancel $aid
+    if {$id eq "TIMEOUT"} {return -code error "sub process did not start"}
+    return $id
+}
+
+# -------------------------------------------------------------------------
+## coserv
+
+test devtools-coserv-1.0 {coserv, procedures} -body {
+    lsort [info commands ::coserv::*]
+} -result {::coserv::ready ::coserv::run ::coserv::setup ::coserv::shutdown ::coserv::start ::coserv::task}
+
+test devtools-coserv-1.1 {coserv, comm loaded, sources known} -body {
+    list [expr {[package present comm] ne ""}] \
+	[file exists $::coserv::snitsrc] [file exists $::coserv::commsrc]
+} -result {1 1 1}
+
+test devtools-coserv-1.2 {coserv, start, run, task, shutdown} -body {
+    set id [startserver "test one"]
+    set r [list [string is integer -strict $id] \
+	       [coserv::run $id {expr {6*7}}] \
+	       [coserv::run $id {set ::cookie_seen [lindex $argv 3]}]]
+    lappend r [coserv::task $id {set ::x 5}]
+    lappend r [coserv::run $id {set ::x}]
+    lappend r [file exists $::coserv::subcode]
+    set sub $::coserv::subcode
+    lappend r [coserv::shutdown $id] [file exists $sub] $::coserv::subcode
+} -cleanup {
+    unset -nocomplain id r sub
+} -result {1 42 {test one} {} 5 1 {} 0 {}}
+
+test devtools-coserv-1.3 {coserv, run propagates errors} -setup {
+    set id [startserver "test two"]
+    # comm also reports the error as background error in the sub process.
+    coserv::run $id {proc bgerror {args} {}}
+} -body {
+    coserv::run $id {error "remote failure"}
+} -cleanup {
+    coserv::shutdown $id
+    unset -nocomplain id
+} -returnCodes error -result {remote failure}
+
+test devtools-coserv-1.4 {coserv, sub process can talk back to main} -setup {
+    set id [startserver "test three"]
+    set ::fromsub {}
+} -body {
+    coserv::run $id [list comm::comm send [comm::comm self] {set ::fromsub hello}]
+    set ::fromsub
+} -cleanup {
+    coserv::shutdown $id
+    unset -nocomplain id ::fromsub
+} -result hello
+
+test devtools-coserv-1.5 {coserv, two sub processes} -setup {
+    set a [startserver A]
+    set b [startserver B]
+} -body {
+    list [expr {$a != $b}] [coserv::run $a {lindex $argv 3}] [coserv::run $b {lindex $argv 3}] \
+	[expr {[coserv::run $a pid] != [coserv::run $b pid]}]
+} -cleanup {
+    coserv::shutdown $a
+    coserv::shutdown $b
+    unset -nocomplain a b
+} -result {1 A B 1}
+
+# -------------------------------------------------------------------------
+## dialog
+
+test devtools-dialog-1.0 {dialog, setup, bad type} -body {
+    dialog::setup bogus cookie
+} -returnCodes error -result {Bad dialog type "bogus", expected server, or client}
+
+test devtools-dialog-1.1 {dialog, server, scripted conversation} -setup {
+    dialog::setup server {Test Server}
+} -body {
+    set port [dialog::listener]
+    dialog::dialog_set {
+	dialog::crlf.
+	dialog::send. {+OK ready}
+	dialog::respond. {+OK got it}
+	dialog::receive.
+	dialog::send. {bye}
+    }
+    set sock [socket localhost $port]
+    fconfigure $sock -translation crlf -buffering line
+    set r {}
+    lappend r [gets $sock]
+    puts $sock "HELLO"
+    lappend r [gets $sock]
+    puts $sock "QUIT"
+    lappend r [gets $sock]
+    lappend r [dialog::waitdone]
+    lappend r [dialog::received]
+    lappend r [dialog::received]
+    close $sock
+    list [string is integer -strict $port] $r
+} -cleanup {
+    dialog::shutdown
+    unset -nocomplain port sock r
+} -result {1 {{+OK ready} {+OK got it} bye {crlf {>> {+OK ready}} {<< HELLO} {>> {+OK got it}} {<< QUIT} {>> bye} empty} {HELLO QUIT} {}}}
+
+test devtools-dialog-1.2 {dialog, server, client closes connection} -setup {
+    dialog::setup server {Test Server}
+} -body {
+    dialog::dialog_set {
+	dialog::send. {hello}
+	dialog::receive.
+    }
+    set sock [socket localhost [dialog::listener]]
+    gets $sock
+    close $sock
+    dialog::waitdone
+} -cleanup {
+    dialog::shutdown
+    unset -nocomplain sock
+} -result {{>> hello} close}
+
+test devtools-dialog-1.3 {dialog, server, halt.keep. keeps connection} -setup {
+    dialog::setup server {Test Server}
+} -body {
+    dialog::dialog_set {
+	dialog::send. {one}
+	dialog::halt.keep.
+	dialog::send. {never}
+    }
+    set sock [socket localhost [dialog::listener]]
+    fconfigure $sock -blocking 1
+    set r [list [gets $sock] [dialog::waitdone]]
+    close $sock
+    set r
+} -cleanup {
+    dialog::shutdown
+    unset -nocomplain sock r
+} -result {one {{>> one}}}
+
+test devtools-dialog-1.4 {dialog, server, geval., eval., sendgvar., reqgvar., binary.} -setup {
+    dialog::setup server {Test Server}
+} -body {
+    dialog::dialog_set {
+	dialog::binary.
+	dialog::geval. {set ::gline {from global}}
+	dialog::sendgvar. ::gline
+	dialog::eval. {set ::gline2 second}
+	dialog::reqgvar. ::gline2
+    }
+    set sock [socket localhost [dialog::listener]]
+    fconfigure $sock -translation lf
+    set r [list [gets $sock] [gets $sock]]
+    puts $sock "answer" ; flush $sock
+    lappend r [dialog::waitdone] [dialog::received]
+    close $sock
+    set r
+} -cleanup {
+    dialog::shutdown
+    unset -nocomplain sock r
+} -result {{from global} second {bin {>> {from global}} {>> second} {<< answer} empty} answer}
+
+test devtools-dialog-1.5 {dialog, client mode against a local server} -setup {
+    dialog::setup client {Test Client}
+    set ::srvlines {}
+    proc accept {sock host port} {
+	set ::srvsock $sock
+	fconfigure $sock -translation crlf -buffering line
+	fileevent $sock readable [list srvread $sock]
+	puts $sock "welcome"
+    }
+    proc srvread {sock} {
+	if {[gets $sock line] < 0} {
+	    if {[eof $sock]} {close $sock}
+	    return
+	}
+	lappend ::srvlines $line
+	puts $sock "ack $line"
+    }
+    set listener [socket -server accept -myaddr localhost 0]
+    set port [lindex [fconfigure $listener -sockname] 2]
+} -body {
+    dialog::dialog_set {
+	dialog::crlf.
+	dialog::receive.
+	dialog::request. {first}
+	dialog::request. {second}
+    }
+    dialog::runclient $port
+    set trace [dialog::waitdone]
+    list $trace [dialog::received] $::srvlines
+} -cleanup {
+    dialog::shutdown
+    close $listener
+    catch {close $::srvsock}
+    rename accept {} ; rename srvread {}
+    unset -nocomplain listener port trace ::srvlines ::srvsock
+} -result {{crlf {<< welcome} {>> first} {<< {ack first}} {>> second} {<< {ack second}} empty} {welcome {ack first} {ack second}} {first second}}
+
+test devtools-dialog-1.6 {dialog, shutdown resets state} -setup {
+    dialog::setup server {Test Server}
+} -body {
+    dialog::shutdown
+    list $::dialog::id $::dialog::port $::dialog::dtrace
+} -result {{} {} {}}
+
+# -------------------------------------------------------------------------
+
+rename waitfor {}
+rename startserver {}
+testsuiteCleanup
+return
