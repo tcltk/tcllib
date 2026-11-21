@@ -52,16 +52,24 @@ ciphers in the library.
         [arg "data"] [rb]]
 
 Perform the [package DES] algorithm on either the data provided
-by the argument or on the data read from the [arg "-in"] channel. If
+by the argument or on the data read from the [arg "-in"] channel
+until end of file. The channel is read in chunks of
+[arg "-chunksize"] bytes (default 4096), using the event loop. If
 an [arg "-out"] channel is given then the result will be written to
-this channel.
+this channel, otherwise it is returned. With [arg -hex] the result is
+returned as a hexadecimal string instead of binary data.
 
 [para]
 
 The [arg -key] option must be given. This parameter takes a binary
 string of 8 bytes in length and is used to generate the key schedule.
 In DES only 56 bits of key data are used. The highest bit from each
-byte is discarded.
+byte is discarded. A key of 24 bytes selects triple DES, using three
+8-byte DES keys.
+
+[para]
+
+A weak key is rejected with an error, unless [arg -weak] is given.
 
 [para]
 
@@ -73,8 +81,9 @@ of the initialization vector.
 
 [para]
 
-DES is a 64-bit block cipher. This means that the data must be
-provided in units that are a multiple of 8 bytes.
+DES is a 64-bit block cipher. This means that the data is processed
+in units of 8 bytes. Input data whose length is not a multiple of 8
+bytes is padded with NUL bytes.
 
 [list_end]
 
@@ -91,8 +100,12 @@ initialization vector value.
 [call [cmd "::DES::Init"] [arg "mode"] [arg "keydata"] [arg "iv"] [opt [arg "weak"]]]
 
 Construct a new DES key schedule using the specified key data and the
-given initialization vector. The initialization vector is not used
+given initialization vector. [arg mode] is one of [const ecb],
+[const cbc], [const cfb] or [const ofb]. [arg keydata] is 8 bytes
+long for DES and 24 bytes for triple DES, [arg iv] 8 bytes. The
+initialization vector is not used
 with ECB mode but is important for other usage modes.
+The result is a key handle for the commands below.
 See [sectref "MODES OF OPERATION"].
 
 [para]
@@ -113,7 +126,7 @@ array the same size as the input of encrypted data.
 
 Decipher data using the key. Note that the same key may be used to
 encrypt and decrypt data provided that the initialization vector is
-reset appropriately for CBC mode.
+reset appropriately for modes other than ECB.
 
 [call [cmd "::DES::Reset"] [arg "Key"] [arg "iv"]]
 
@@ -172,8 +185,8 @@ attack.
 }]
 
 [example {
-set iv [string repeat \\0 8]
-set Key [DES::Init cbc \\0\\1\\2\\3\\4\\5\\6\\7 $iv]
+set iv [string repeat \0 8]
+set Key [DES::Init cbc \0\1\2\3\4\5\6\7 $iv]
 set ciphertext [DES::Encrypt $Key "somedata"]
 append ciphertext [DES::Encrypt $Key "moredata"]
 DES::Reset $Key $iv

@@ -42,9 +42,12 @@ ECB modes.
         [opt [option --]] [arg "data"] [rb]]
 
 Perform the [package aes] algorithm on either the data provided
-by the argument or on the data read from the [arg "-in"] channel. If
+by the argument or on the data read from the [arg "-in"] channel
+until end of file. The channel is read in chunks of
+[arg "-chunksize"] bytes (default 4096), using the event loop. If
 an [arg "-out"] channel is given then the result will be written to
-this channel.
+this channel, otherwise it is returned. With [arg -hex] the result is
+returned as a hexadecimal string instead of binary data.
 
 [para]
 
@@ -62,8 +65,9 @@ their uses.
 
 [para]
 
-Since AES is a 128-bit block cipher, the data must be
-provided in units that are a multiple of 16 bytes.
+Since AES is a 128-bit block cipher, the data is processed in units of
+16 bytes. Input data whose length is not a multiple of 16 bytes is
+padded with NUL bytes.
 
 [list_end]
 
@@ -80,8 +84,11 @@ by the input.
 [call [cmd "::aes::Init"] [arg "mode"] [arg "keydata"] [arg "iv"]]
 
 Construct a new AES key schedule using the specified key data and the
-given initialization vector. The initialization vector is important for
-CBC mode; it is not used with ECB mode.
+given initialization vector. [arg mode] is [const ecb] or [const cbc].
+[arg keydata] is 16, 24 or 32 bytes long, [arg iv] 16 bytes. The
+initialization vector is important for
+CBC mode; it is not used with ECB mode, but must be given.
+The result is a key handle for the commands below.
 See [sectref "MODES OF OPERATION"] for details about cipher modes.
 
 [call [cmd "::aes::Encrypt"] [arg "Key"] [arg "data"]]
@@ -93,7 +100,8 @@ array the same size as the input of encrypted data.
 
 [call [cmd "::aes::Decrypt"] [arg "Key"] [arg "data"]]
 
-Decipher data using the key. Note that the same key may be used to
+Decipher data using the key. The data must be a multiple of 16 bytes.
+Note that the same key may be used to
 encrypt and decrypt data provided that the initialization vector is
 reset appropriately for CBC mode.
 
@@ -137,7 +145,7 @@ plaintext attacks.}]
 [section "EXAMPLES"]
 
 [example {
-% set nil_block [string repeat \\0 16]
+% set nil_block [string repeat \0 16]
 % aes::aes -hex -mode cbc -dir encrypt -key $nil_block $nil_block
 66e94bd4ef8a2c3b884cfa59ca342b2e
 }]
