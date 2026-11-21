@@ -1,0 +1,332 @@
+# -*- tcl -*-
+# traverse-api.test:  API tests for fileutil::traverse not covered by
+#                     traverse.test: object naming, methods foreach and
+#                     next, option handling, error callback behaviour.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use      control/control.tcl control
+    use      snit/snit.tcl       snit
+    use      cmdline/cmdline.tcl cmdline
+    use      fileutil/fileutil.tcl fileutil
+}
+testing {
+    useLocal traverse.tcl        fileutil::traverse
+}
+
+snitErrors
+
+# -------------------------------------------------------------------------
+## Directory hierarchy: tapi/{a.txt, b.dat, d/{c.txt, e/f.tcl}}
+
+proc ta_setup {} {
+    set base [makeDirectory tapi]
+    file mkdir [file join $base d e]
+    foreach f {a.txt b.dat d/c.txt d/e/f.tcl} {
+	close [open [file join $base $f] w]
+    }
+    return [file normalize $base]
+}
+
+proc ta_cleanup {} {
+    removeDirectory tapi
+    return
+}
+
+proc ta_rel {base paths} {
+    set res {}
+    foreach p $paths {
+	lappend res [fileutil::stripPath [file dirname $base] $p]
+    }
+    return [lsort $res]
+}
+
+proc errs {args} {
+    lappend ::errs $args
+    return
+}
+
+set all {tapi tapi/a.txt tapi/b.dat tapi/d tapi/d/c.txt tapi/d/e tapi/d/e/f.tcl}
+
+# -------------------------------------------------------------------------
+
+test traverse-api-1.0 {constructor, explicit name} -setup {
+    set base [ta_setup]
+} -body {
+    fileutil::traverse T $base
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result ::T
+
+test traverse-api-1.1 {constructor, %AUTO%} -setup {
+    set base [ta_setup]
+} -body {
+    set t [fileutil::traverse %AUTO% $base]
+    expr {[info commands $t] ne ""}
+} -cleanup {
+    $t destroy
+    ta_cleanup
+    unset base t
+} -result 1
+
+test traverse-api-1.2 {constructor, objectName is optional as documented} -constraints {
+    knownBug
+} -setup {
+    set base [ta_setup]
+} -body {
+    set t [fileutil::traverse $base]
+    ta_rel $base [$t files]
+} -cleanup {
+    catch {$t destroy}
+    ta_cleanup
+    unset -nocomplain base t
+} -result $all
+
+test traverse-api-1.3 {constructor, unknown option} -setup {
+    set base [ta_setup]
+} -body {
+    fileutil::traverse T $base -bogus 1
+} -cleanup {
+    ta_cleanup
+    unset base
+} -returnCodes error -result {Error in constructor: unknown option "-bogus"}
+
+foreach {n opt} {0 -filter 1 -prefilter 2 -errorcmd} {
+    test traverse-api-1.4.$n "option $opt can be set only at creation" -setup {
+	set base [ta_setup]
+	fileutil::traverse T $base
+    } -body {
+	list [T cget $opt] [catch {T configure $opt x} msg] $msg
+    } -cleanup {
+	T destroy
+	ta_cleanup
+	unset base msg
+    } -result [list {} 1 "option $opt can only be set at instance creation"]
+}
+
+# -------------------------------------------------------------------------
+
+test traverse-api-2.0 {foreach, variable and script in caller context} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+} -body {
+    apply {{base} {
+	set r {}
+	T foreach f {lappend r $f}
+	ta_rel $base $r
+    }} $base
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result $all
+
+test traverse-api-2.1 {foreach, wrong # args} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+} -body {
+    T foreach f
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -returnCodes error -result [snitWrongNumArgs T ::fileutil::traverse::Snit_methodforeach {fvar body} 1]
+
+test traverse-api-2.2 {foreach, break stops the traversal} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+    set n 0
+} -body {
+    T foreach f {incr n; break}
+    set n
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base n f
+} -result 1
+
+test traverse-api-3.0 {next, incremental traversal until false} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+    set r {}
+} -body {
+    while {[T next f]} {
+	lappend r $f
+    }
+    ta_rel $base $r
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base r f
+} -result $all
+
+test traverse-api-3.1 {next, wrong # args} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+} -body {
+    T next
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -returnCodes error -result [snitWrongNumArgs T ::fileutil::traverse::Snit_methodnext {fvar} 0]
+
+test traverse-api-3.2 {files, wrong # args} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+} -body {
+    T files x
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -returnCodes error -result [snitTooManyArgs T ::fileutil::traverse::Snit_methodfiles {}]
+
+test traverse-api-3.3 {files, repeated calls give the same result} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+} -body {
+    string equal [lsort [T files]] [lsort [T files]]
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result 1
+
+test traverse-api-3.4 {files, absolute paths for an absolute base} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base
+} -body {
+    set r 1
+    foreach f [T files] {
+	if {[file pathtype $f] ne "absolute"} {set r 0}
+    }
+    set r
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base r f
+} -result 1
+
+# -------------------------------------------------------------------------
+
+test traverse-api-4.0 {-filter, selects the results} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base -filter {string match *.txt}
+} -body {
+    ta_rel $base [T files]
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result {tapi/a.txt tapi/d/c.txt}
+
+test traverse-api-4.1 {-filter, called with absolute paths} -setup {
+    set base [ta_setup]
+    set seen {}
+    fileutil::traverse T $base -filter {apply {p {lappend ::seen [file pathtype $p]; return 1}}}
+} -body {
+    T files
+    lsort -unique $seen
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base seen
+} -result absolute
+
+test traverse-api-4.2 {-prefilter, prunes directories, still reported} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base -prefilter {apply {d {expr {[file tail $d] ne "d"}}}}
+} -body {
+    ta_rel $base [T files]
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result {tapi tapi/a.txt tapi/b.dat tapi/d}
+
+test traverse-api-4.3 {-prefilter and -filter combined} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base \
+	-prefilter {apply {d {expr {[file tail $d] ne "e"}}}} \
+	-filter    {apply {p {file isfile $p}}}
+} -body {
+    ta_rel $base [T files]
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result {tapi/a.txt tapi/b.dat tapi/d/c.txt}
+
+test traverse-api-4.4 {errors in -filter go to -errorcmd with path and message} -setup {
+    set base [ta_setup]
+    set errs {}
+    fileutil::traverse T $base -filter {error boom} -errorcmd errs
+} -body {
+    set r [T files]
+    set msgs {}
+    set paths {}
+    foreach e $errs {
+	lassign $e p m
+	lappend paths $p
+	lappend msgs $m
+    }
+    list $r [lsort -unique $msgs] [ta_rel $base $paths]
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base errs r msgs paths e p m
+} -result [list {} boom $all]
+
+test traverse-api-4.5 {errors in -errorcmd are passed to the caller} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base -filter {error boom} -errorcmd {error inerr}
+} -body {
+    T files
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -returnCodes error -result inerr
+
+test traverse-api-4.6 {-filter returning false for everything} -setup {
+    set base [ta_setup]
+    fileutil::traverse T $base -filter {apply {p {return 0}}}
+} -body {
+    T files
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result {}
+
+test traverse-api-4.7 {base path that is a file} -setup {
+    set base [ta_setup]
+    fileutil::traverse T [file join $base a.txt]
+} -body {
+    ta_rel $base [T files]
+} -cleanup {
+    T destroy
+    ta_cleanup
+    unset base
+} -result tapi/a.txt
+
+# -------------------------------------------------------------------------
+
+rename ta_setup {}
+rename ta_cleanup {}
+rename ta_rel {}
+rename errs {}
+unset all
+testsuiteCleanup
+return

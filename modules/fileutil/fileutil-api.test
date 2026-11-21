@@ -1,0 +1,442 @@
+# -*- tcl -*-
+# fileutil-api.test:  API tests for fileutil commands with little coverage
+#                     in the other test files: foreachLine, grep,
+#                     findByPattern, lexnormalize, install, tempdirReset,
+#                     tempfile prefix, maketempdir options, cat options.
+
+# -------------------------------------------------------------------------
+
+source [file join [file dirname [file dirname [
+	file join [pwd] [info script]]]] devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+}
+testing {
+    useLocal fileutil.tcl fileutil
+}
+
+# -------------------------------------------------------------------------
+## A small directory hierarchy:
+##   api/a.txt     "x\ny\n"
+##   api/b.dat     ""
+##   api/-x        "x"
+##   api/d/c.txt   "q\nzz\nq"
+##   api/d/e/f.tcl ""
+
+proc api_setup {} {
+    set base [makeDirectory api]
+    file mkdir [file join $base d e]
+    foreach {f c} {a.txt "x\ny\n" b.dat "" -x "x" d/c.txt "q\nzz\nq" d/e/f.tcl ""} {
+	set ch [open [file join $base $f] w]
+	puts -nonewline $ch $c
+	close $ch
+    }
+    return $base
+}
+
+proc api_cleanup {} {
+    removeDirectory api
+    return
+}
+
+proc api_rel {base paths} {
+    set res {}
+    foreach p $paths {
+	lappend res [fileutil::stripPath $base $p]
+    }
+    return [lsort $res]
+}
+
+# -------------------------------------------------------------------------
+# foreachLine
+# -------------------------------------------------------------------------
+
+test fileutil-api-1.0 {foreachLine, wrong # args} -body {
+    fileutil::foreachLine l
+} -returnCodes error -result {wrong # args: should be "fileutil::foreachLine var filename cmd"}
+
+test fileutil-api-1.1 {foreachLine, empty file returns empty string} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::foreachLine l [file join $base b.dat] {set l X}
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {}
+
+test fileutil-api-1.2 {foreachLine, result of the last script invocation} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::foreachLine l [file join $base a.txt] {string toupper $l}
+} -cleanup {
+    api_cleanup
+    unset base
+} -result Y
+
+test fileutil-api-1.3 {foreachLine, last line without newline} -setup {
+    set base [api_setup]
+    set r {}
+} -body {
+    fileutil::foreachLine l [file join $base d c.txt] {lappend r $l}
+    set r
+} -cleanup {
+    api_cleanup
+    unset base r
+} -result {q zz q}
+
+test fileutil-api-1.4 {foreachLine, variable and script in caller context} -setup {
+    set base [api_setup]
+} -body {
+    apply {{f} {
+	set r {}
+	fileutil::foreachLine line $f {lappend r [incr n]:$line}
+	set r
+    }} [file join $base d c.txt]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {1:q 2:zz 3:q}
+
+test fileutil-api-1.5 {foreachLine, continue and break} -setup {
+    set base [api_setup]
+    set r {}
+} -body {
+    fileutil::foreachLine l [file join $base d c.txt] {
+	if {$l eq "q"} continue
+	lappend r $l
+	break
+    }
+    set r
+} -cleanup {
+    api_cleanup
+    unset base r
+} -result zz
+
+test fileutil-api-1.6 {foreachLine, missing file} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::foreachLine l [file join $base nope] {set l}
+} -cleanup {
+    api_cleanup
+    unset base
+} -returnCodes error -match glob -result {couldn't open "*nope": no such file or directory}
+
+# -------------------------------------------------------------------------
+# grep
+# -------------------------------------------------------------------------
+
+test fileutil-api-2.0 {grep, wrong # args} -body {
+    fileutil::grep
+} -returnCodes error -result {wrong # args: should be "fileutil::grep pattern ?files?"}
+
+test fileutil-api-2.1 {grep, several matches with line numbers} -setup {
+    set base [api_setup]
+} -body {
+    api_rel $base [fileutil::grep q [list [file join $base a.txt] [file join $base d c.txt]]]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {d/c.txt:1:q d/c.txt:3:q}
+
+test fileutil-api-2.2 {grep, pattern is a regular expression} -setup {
+    set base [api_setup]
+} -body {
+    api_rel $base [fileutil::grep {^z+$} [list [file join $base a.txt] [file join $base d c.txt]]]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {d/c.txt:2:zz}
+
+test fileutil-api-2.3 {grep, no match} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::grep nomatch [list [file join $base a.txt]]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {}
+
+test fileutil-api-2.4 {grep, missing file} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::grep x [list [file join $base nope]]
+} -cleanup {
+    api_cleanup
+    unset base
+} -returnCodes error -match glob -result {couldn't open "*nope": no such file or directory}
+
+# -------------------------------------------------------------------------
+# findByPattern
+# -------------------------------------------------------------------------
+
+test fileutil-api-3.0 {findByPattern, glob is the default} -setup {
+    set base [api_setup]
+} -body {
+    api_rel $base [fileutil::findByPattern $base *.txt]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {a.txt d/c.txt}
+
+test fileutil-api-3.1 {findByPattern, several patterns} -setup {
+    set base [api_setup]
+} -body {
+    api_rel $base [fileutil::findByPattern $base {*.txt *.tcl}]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {a.txt d/c.txt d/e/f.tcl}
+
+test fileutil-api-3.2 {findByPattern, -regexp} -setup {
+    set base [api_setup]
+} -body {
+    api_rel $base [fileutil::findByPattern $base -regexp {{\.t[a-z]+$}}]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {a.txt d/c.txt d/e/f.tcl}
+
+test fileutil-api-3.3 {findByPattern, -- before a pattern with leading dash} -setup {
+    set base [api_setup]
+} -body {
+    list [api_rel $base [fileutil::findByPattern $base -- -*]] \
+	[api_rel $base [fileutil::findByPattern $base -glob -- -*]]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {-x -x}
+
+test fileutil-api-3.4 {findByPattern, unknown option} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::findByPattern $base -x
+} -cleanup {
+    api_cleanup
+    unset base
+} -returnCodes error -result {Unknown option -x}
+
+test fileutil-api-3.5 {findByPattern, directories are matched too} -setup {
+    set base [api_setup]
+} -body {
+    api_rel $base [fileutil::findByPattern $base {d e}]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {d d/e}
+
+# -------------------------------------------------------------------------
+# lexnormalize (only "." and separator handling)
+# -------------------------------------------------------------------------
+
+test fileutil-api-4.0 {lexnormalize, wrong # args} -body {
+    fileutil::lexnormalize
+} -returnCodes error -result {wrong # args: should be "fileutil::lexnormalize sp"}
+
+foreach {n path result} {
+    0 /foo/./bar  /foo/bar
+    1 ./a/./b     a/b
+    2 foo//bar/.  foo/bar
+    3 /foo/bar    /foo/bar
+    4 a           a
+} {
+    test fileutil-api-4.1.$n "lexnormalize $path" -body {
+	fileutil::lexnormalize $path
+    } -result $result
+}
+
+# -------------------------------------------------------------------------
+# install
+# -------------------------------------------------------------------------
+
+test fileutil-api-5.0 {install, single file to a file name} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::install [file join $base a.txt] [file join $base copy.txt]
+    fileutil::cat [file join $base copy.txt]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result "x\ny\n"
+
+test fileutil-api-5.1 {install -m, octal mode} -constraints unix -setup {
+    set base [api_setup]
+} -body {
+    fileutil::install -m 0600 [file join $base a.txt] [file join $base copy.txt]
+    expr {[file attributes [file join $base copy.txt] -permissions] & 0o777}
+} -cleanup {
+    api_cleanup
+    unset base
+} -result [expr {0o600}]
+
+test fileutil-api-5.2 {install, missing arguments} -body {
+    fileutil::install a
+} -returnCodes error -match glob -result {*fileutil::install \[options\] source destination*}
+
+# -------------------------------------------------------------------------
+# tempdir, tempdirReset, tempfile, maketempdir
+# -------------------------------------------------------------------------
+
+test fileutil-api-6.0 {tempdirReset, wrong # args} -body {
+    fileutil::tempdirReset x
+} -returnCodes error -result {wrong # args: should be "fileutil::tempdirReset"}
+
+test fileutil-api-6.1 {tempdirReset, forgets the user-specified directory} -setup {
+    set base [api_setup]
+    set orig [fileutil::tempdir]
+} -body {
+    fileutil::tempdir $base
+    set r [string equal [fileutil::tempdir] [file normalize $base]]
+    fileutil::tempdirReset
+    lappend r [string equal [fileutil::tempdir] $orig]
+} -cleanup {
+    fileutil::tempdirReset
+    api_cleanup
+    unset base orig r
+} -result {1 1}
+
+test fileutil-api-6.2 {tempdir path, returns empty string} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::tempdir $base
+} -cleanup {
+    fileutil::tempdirReset
+    api_cleanup
+    unset base
+} -result {}
+
+test fileutil-api-6.3 {tempdir, TMPDIR environment variable} -constraints unix -setup {
+    set base [api_setup]
+    set saved [array get ::env TMPDIR]
+    fileutil::tempdirReset
+} -body {
+    set ::env(TMPDIR) [file normalize $base]
+    string equal [fileutil::tempdir] [file normalize $base]
+} -cleanup {
+    unset -nocomplain ::env(TMPDIR)
+    array set ::env $saved
+    api_cleanup
+    unset base saved
+} -result 1
+
+test fileutil-api-6.4 {tempfile, prefix} -setup {
+    set base [api_setup]
+    fileutil::tempdir $base
+} -body {
+    set f [fileutil::tempfile PFX]
+    list [string match PFX* [file tail $f]] [file exists $f] \
+	[string equal [file dirname $f] [file normalize $base]]
+} -cleanup {
+    fileutil::tempdirReset
+    api_cleanup
+    unset base f
+} -result {1 1 1}
+
+test fileutil-api-6.5 {tempfile, wrong # args} -body {
+    fileutil::tempfile a b
+} -returnCodes error -result {wrong # args: should be "fileutil::tempfile ?prefix?"}
+
+test fileutil-api-6.6 {maketempdir, -prefix, -suffix and -dir} -setup {
+    set base [api_setup]
+} -body {
+    set d [fileutil::maketempdir -prefix P -suffix S -dir $base]
+    list [file isdirectory $d] [string match P*S [file tail $d]] \
+	[string equal [file dirname $d] [file normalize $base]]
+} -cleanup {
+    api_cleanup
+    unset base d
+} -result {1 1 1}
+
+test fileutil-api-6.7 {maketempdir, default prefix tmp, no suffix} -setup {
+    set base [api_setup]
+} -body {
+    set d [fileutil::maketempdir -dir $base]
+    regexp {^tmp[a-zA-Z0-9]{10}$} [file tail $d]
+} -cleanup {
+    api_cleanup
+    unset base d
+} -result 1
+
+test fileutil-api-6.8 {maketempdir, default directory is tempdir} -setup {
+    set base [api_setup]
+    fileutil::tempdir $base
+} -body {
+    set d [fileutil::maketempdir]
+    string equal [file dirname $d] [file normalize $base]
+} -cleanup {
+    fileutil::tempdirReset
+    api_cleanup
+    unset base d
+} -result 1
+
+# -------------------------------------------------------------------------
+# cat options, fileType, relative
+# -------------------------------------------------------------------------
+
+test fileutil-api-7.0 {cat, options apply to the following files} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::cat [file join $base a.txt] -translation binary [file join $base d c.txt]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result "x\ny\nq\nzz\nq"
+
+test fileutil-api-7.1 {cat, bad option} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::cat -bogus 1 [file join $base a.txt]
+} -cleanup {
+    api_cleanup
+    unset base
+} -returnCodes error -result {Bad option "-bogus", expected one of -encoding, -eofchar, or -translation}
+
+test fileutil-api-7.2 {cat, -encoding} -setup {
+    set base [api_setup]
+    set ch [open [file join $base pl.txt] w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch [encoding convertto iso8859-2 "ąę"]
+    close $ch
+} -body {
+    fileutil::cat -encoding iso8859-2 [file join $base pl.txt]
+} -cleanup {
+    api_cleanup
+    unset base ch
+} -result "ąę"
+
+test fileutil-api-7.3 {fileType, empty file and directory} -setup {
+    set base [api_setup]
+} -body {
+    list [fileutil::fileType [file join $base b.dat]] [fileutil::fileType [file join $base d]]
+} -cleanup {
+    api_cleanup
+    unset base
+} -result {empty directory}
+
+test fileutil-api-7.4 {fileType, missing file} -setup {
+    set base [api_setup]
+} -body {
+    fileutil::fileType [file join $base nope]
+} -cleanup {
+    api_cleanup
+    unset base
+} -returnCodes error -match glob -result {file not found: '*nope'}
+
+test fileutil-api-7.5 {relative, mixed path types} -body {
+    fileutil::relative a/b /c
+} -returnCodes error -result {Unable to compute relation for paths of different pathtypes: relative vs. absolute, (a/b vs. /c)}
+
+test fileutil-api-7.6 {stripN, more elements than in the path} -body {
+    fileutil::stripN a/b/c 5
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename api_setup {}
+rename api_cleanup {}
+rename api_rel {}
+testsuiteCleanup
+return

@@ -1,0 +1,291 @@
+# -*- tcl -*-
+# multiop-api.test:  API tests for fileutil::multi::op not covered by
+#                    multiop.test: but/not, path type selection, as,
+#                    remove, !recursive, reset, for-windows/for-unix,
+#                    errors, object creation.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use       snit/snit.tcl   snit
+    use       cmdline/cmdline.tcl cmdline
+    use       struct/list.tcl struct::list
+    # See multiop.test for the order of these two.
+    useLocal  fileutil.tcl    fileutil
+    use       wip/wip.tcl     wip
+
+    useLocalFile multiop.setup
+}
+testing {
+    useLocal  multiop.tcl     fileutil::multi::op
+}
+
+# -------------------------------------------------------------------------
+# origin: anneliese bertram connie detlev egon/{bettina,suse}
+
+set origin {anneliese bertram connie detlev egon egon/bettina egon/suse}
+
+test multiop-api-1.0 {but: several not patterns} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do copy the * from $src to $dst but not *n* not *a*
+    mo_scan destination
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result detlev
+
+test multiop-api-1.1 {but: exclusions apply to the next the only} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do copy the * from $src to $dst but not *n* the *a*
+    mo_scan destination
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result {anneliese bertram detlev}
+
+test multiop-api-1.2 {exclude, alias of not} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do copy the * from $src to $dst exclude *e*
+    mo_scan destination
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result {}
+
+foreach {n type result} {
+    0 files       {anneliese bertram connie detlev}
+    1 dirs        {egon egon/bettina egon/suse}
+    2 directories {egon egon/bettina egon/suse}
+    3 all         {anneliese bertram connie detlev egon egon/bettina egon/suse}
+} {
+    test multiop-api-2.$n "path type selection: $type" -setup {
+	mo_setup
+	fileutil::multi::op X
+    } -body {
+	X do copy $type the * from $src to $dst
+	list [X do type?] [mo_scan destination]
+    } -cleanup {
+	mo_cleanup
+	X destroy
+    } -result [list [expr {$type eq "directories" ? "dirs" : $type eq "all" ? "" : $type}] $result]
+}
+
+test multiop-api-3.0 {as: rename on copy} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do copy the bertram as bob from $src to $dst
+    list [mo_scan origin] [mo_scan destination]
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result [list $origin bob]
+
+test multiop-api-3.1 {as: reset after the} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do copy the bertram as bob from $src to $dst
+    X do as?
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result {}
+
+test multiop-api-4.0 {remove: in the destination directory} -setup {
+    mo_setup
+    fileutil::multi::op X
+    X do copy the * from $src to $dst
+} -body {
+    X do remove the *e* in $dst but not *n*
+    list [mo_scan origin] [mo_scan destination]
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result [list $origin {anneliese connie egon egon/bettina egon/suse}]
+
+test multiop-api-5.0 {!recursive after recursive} -setup {
+    fileutil::multi::op X
+} -body {
+    list [X do recursive recursive?] [X do !recursive recursive?] [X do recursively recursive?]
+} -cleanup {
+    X destroy
+} -result {1 0 1}
+
+test multiop-api-5.1 {recursive: reset after the} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do recursive expand the *a* in $src
+    X do recursive?
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result 0
+
+test multiop-api-5.2 {recursive expansion} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do recursive expand the *e* in $src -> v
+    lsort $v
+} -cleanup {
+    mo_cleanup
+    X destroy
+    unset v
+} -result {anneliese bertram connie detlev egon egon/bettina egon/suse}
+
+test multiop-api-6.0 {reset: back to the ground state} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do from $src into $dst move strict recursive links not x* reset
+    dictsort [X do state?]
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result {as {} excluded {} from {} into {} op {} recursive 0 strict 0 type {}}
+
+test multiop-api-7.0 {for-windows: rest ignored on unix} -constraints unix -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do for-windows copy the * from $src to $dst
+    mo_scan destination
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result {}
+
+test multiop-api-7.1 {for-unix: rest executed on unix} -constraints unix -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do for-unix copy the anneliese from $src to $dst
+    mo_scan destination
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result anneliese
+
+test multiop-api-8.0 {unknown command} -setup {
+    fileutil::multi::op X
+} -body {
+    X do bogus
+} -cleanup {
+    X destroy
+} -returnCodes error -result {Unknown command "bogus"}
+
+test multiop-api-8.1 {missing argument} -setup {
+    fileutil::multi::op X
+} -body {
+    X do the
+} -cleanup {
+    X destroy
+} -returnCodes error -result {Not enough arguments for command "the"}
+
+test multiop-api-8.2 {expand and the-set} -setup {
+    mo_setup
+    fileutil::multi::op X
+    set v {}
+} -body {
+    X do expand the-set v in $src
+} -cleanup {
+    mo_cleanup
+    X destroy
+    unset v
+} -returnCodes error -result {Expansion does not make sense when we already have a set of files.}
+
+test multiop-api-8.3 {from: missing source directory} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do from [file join $src nope]
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -returnCodes error -result "Source directory \"[file join $src nope]\": Does not exist"
+
+test multiop-api-8.4 {strict into: missing destination directory} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    X do strict into [file join $dst nope]
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -returnCodes error -result "Destination directory \"[file join $dst nope]\": Does not exist"
+
+test multiop-api-8.5 {!strict into: missing destination directory accepted} -setup {
+    mo_setup
+    fileutil::multi::op X
+} -body {
+    string equal [X do !strict into [file join $dst nope] into?] [file join $dst nope]
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result 1
+
+test multiop-api-9.0 {constructor, %AUTO%} -body {
+    set x [fileutil::multi::op %AUTO%]
+    expr {[info commands $x] ne ""}
+} -cleanup {
+    $x destroy
+    unset x
+} -result 1
+
+test multiop-api-9.1 {constructor, initial words are executed} -setup {
+    mo_setup
+} -body {
+    fileutil::multi::op X from $src
+    string equal [X do from?] $src
+} -cleanup {
+    mo_cleanup
+    X destroy
+} -result 1
+
+# Note: works with snit 1 (used by this test suite), with snit 2 the
+# type command without arguments raises "wrong # args".
+test multiop-api-9.2 {constructor, opName is optional as documented} -body {
+    set x [fileutil::multi::op]
+    expr {[info commands $x] ne ""}
+} -cleanup {
+    catch {$x destroy}
+    unset -nocomplain x
+} -result 1
+
+test multiop-api-9.3 {do, result of the last command} -setup {
+    fileutil::multi::op X
+} -body {
+    X do strict strict? !strict strict?
+} -cleanup {
+    X destroy
+} -result 0
+
+test multiop-api-9.4 {do without words} -setup {
+    fileutil::multi::op X
+} -body {
+    X do
+} -cleanup {
+    X destroy
+} -result {}
+
+# -------------------------------------------------------------------------
+
+unset origin
+mo_cleanup_all
+testsuiteCleanup
+return
