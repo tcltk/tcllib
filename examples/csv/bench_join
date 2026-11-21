@@ -1,4 +1,4 @@
-
+#!/bin/sh
 ./csvcut '1-' Benchmark.833.csv  > tmp.csv ; ./csvjoin -outer 1 Benchmark.84a3.csv 0 tmp.csv tmp1.csv
 ./csvcut '1-' Benchmark.823.csv  > tmp.csv ; ./csvjoin -outer 1 tmp1.csv           0 tmp.csv tmp2.csv
 ./csvcut '1-' Benchmark.811.csv  > tmp.csv ; ./csvjoin -outer 1 tmp2.csv           0 tmp.csv tmp1.csv
