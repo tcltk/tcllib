@@ -1,0 +1,969 @@
+# -*- tcl -*-
+# map-api.test:  API tests for the map module packages not covered by
+#                map_slippy.test: map::geocode::nominatim,
+#                map::slippy::cache, map::slippy::fetcher, plus a few
+#                documented map::slippy behaviours.
+#
+# The network packages are tested against a local HTTP server on
+# 127.0.0.1 (random port) running in this interpreter.  The cache and
+# fetcher packages need Tk (photo images); their tests are skipped when
+# Tk is not available.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.1
+
+support {
+    # Note: The packages require "http" without a version.  With the
+    # Tcl 8.6 auto_path scan the obsolete http 1.0 may be found first.
+    package require http 2-
+    use snit/snit.tcl          snit
+    use json/json.tcl          json
+    use uri/uri.tcl            uri
+    use cmdline/cmdline.tcl    cmdline
+    use fileutil/fileutil.tcl  fileutil
+    use math/math.tcl          math
+    use math/constants.tcl     math::constants
+}
+snitErrors
+
+testing {
+    useLocal map_slippy.tcl            map::slippy
+    useLocal map_geocode_nominatim.tcl map::geocode::nominatim
+
+    # Tk, if possible (needed by map::slippy::cache and map::slippy::fetcher).
+    tcltest::testConstraint tk [expr {![catch {package require Tk 8.6-}]}]
+    if {[tcltest::testConstraint tk]} {
+	wm withdraw .
+    }
+    if {[tcltest::testConstraint tk]} {
+	useLocal map_slippy_fetcher.tcl map::slippy::fetcher
+	useLocal map_slippy_cache.tcl   map::slippy::cache
+    }
+}
+
+# -------------------------------------------------------------------------
+## Local HTTP server.
+#
+# srv::start installs a server on 127.0.0.1 with a random port and
+# returns the port.  Each request is answered from the list of responses
+# configured by srv::respond (path -> {code content-type body}); unknown
+# paths get a 404.  The request lines are recorded in srv::requests.
+
+namespace eval srv {
+    variable sock     {}
+    variable responses {}
+    variable requests  {}
+}
+
+proc srv::start {} {
+    variable sock
+    variable requests {}
+    variable responses {}
+    set sock [socket -server [namespace current]::Accept -myaddr 127.0.0.1 0]
+    return [lindex [fconfigure $sock -sockname] 2]
+}
+
+proc srv::stop {} {
+    variable sock
+    variable requests {}
+    variable responses {}
+    catch {close $sock}
+    set sock {}
+    return
+}
+
+proc srv::respond {path code ctype body} {
+    variable responses
+    dict set responses $path [list $code $ctype $body]
+    return
+}
+
+proc srv::Accept {chan host port} {
+    fconfigure $chan -translation {auto crlf} -blocking 0 -encoding iso8859-1
+    fileevent $chan readable [list [namespace current]::Read $chan {}]
+    return
+}
+
+proc srv::Read {chan request} {
+    variable requests
+    variable responses
+    while {[gets $chan line] >= 0} {
+	if {$request eq {}} {
+	    set request $line
+	    fileevent $chan readable [list [namespace current]::Read $chan $request]
+	    continue
+	}
+	if {$line ne {}} continue
+	# End of headers. Answer.
+	lappend requests $request
+	set path [lindex $request 1]
+	set path [lindex [split $path ?] 0]
+	if {[dict exists $responses $path]} {
+	    lassign [dict get $responses $path] code ctype body
+	} else {
+	    lassign {404 text/plain {not found}} code ctype body
+	}
+	set reason [dict get {200 OK 404 {Not Found} 500 {Internal Server Error}} $code]
+	fconfigure $chan -translation {crlf binary}
+	puts $chan "HTTP/1.1 $code $reason"
+	puts $chan "Content-Type: $ctype"
+	puts $chan "Content-Length: [string length $body]"
+	puts $chan "Connection: close"
+	puts $chan ""
+	fconfigure $chan -translation binary
+	puts -nonewline $chan $body
+	close $chan
+	return
+    }
+    if {[eof $chan]} {
+	close $chan
+    }
+    return
+}
+
+# Wait (bounded) until the global variable is set.
+proc waitfor {varname {ms 10000}} {
+    global $varname
+    set id [after $ms [list set ::$varname timeout]]
+    if {![info exists $varname]} {
+	vwait ::$varname
+    }
+    after cancel $id
+    return [set $varname]
+}
+
+# Callback recorders.
+proc record {args} {
+    lappend ::result $args
+    set ::done 1
+    return
+}
+proc recorderror {args} {
+    lappend ::result [list error {*}$args]
+    set ::done 1
+    return
+}
+proc failing {args} {
+    error "callback failed"
+}
+
+# -------------------------------------------------------------------------
+# map::geocode::nominatim
+# -------------------------------------------------------------------------
+
+set jsonok {[{"place_id":42,"licence":"Data (c) OpenStreetMap","osm_type":"node","osm_id":7,"boundingbox":["50.1","50.2","30.1","30.2"],"lat":"50.45","lon":"30.52","display_name":"Kyiv","class":"place","type":"city","icon":"x.png"}]}
+
+test map-api-nominatim-1.0 {constructor, result is the qualified name} -body {
+    map::geocode::nominatim nom
+} -cleanup {
+    nom destroy
+} -result ::nom
+
+test map-api-nominatim-1.1 {constructor, %AUTO%} -body {
+    set n [map::geocode::nominatim %AUTO%]
+    string match ::nominatim* $n
+} -cleanup {
+    $n destroy
+    unset n
+} -result 1
+
+test map-api-nominatim-1.2 {constructor, default options} -setup {
+    map::geocode::nominatim nom
+} -body {
+    list [nom cget -baseurl] [nom cget -callback] [nom cget -error]
+} -cleanup {
+    nom destroy
+} -result {http://nominatim.openstreetmap.org/search callbackdefault errordefault}
+
+test map-api-nominatim-1.3 {constructor, options} -body {
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:1/x \
+	-callback {record a} -error {recorderror b}
+    list [nom cget -baseurl] [nom cget -callback] [nom cget -error]
+} -cleanup {
+    nom destroy
+} -result {http://127.0.0.1:1/x {record a} {recorderror b}}
+
+test map-api-nominatim-1.4 {constructor, unknown option} -body {
+    map::geocode::nominatim nom -bogus 1
+} -returnCodes error -result {Error in constructor: unknown option "-bogus"}
+
+test map-api-nominatim-1.5 {configure, set options after creation} -setup {
+    map::geocode::nominatim nom
+} -body {
+    nom configure -baseurl http://127.0.0.1:2/y -callback record
+    list [nom cget -baseurl] [nom cget -callback]
+} -cleanup {
+    nom destroy
+} -result {http://127.0.0.1:2/y record}
+
+test map-api-nominatim-2.0 {search, wrong # args} -setup {
+    map::geocode::nominatim nom
+} -body {
+    nom search
+} -cleanup {
+    nom destroy
+} -returnCodes error -result [snitWrongNumArgs nom ::map::geocode::nominatim::Snit_methodsearch {query} 0]
+
+test map-api-nominatim-2.1 {search, wrong # args} -setup {
+    map::geocode::nominatim nom
+} -body {
+    nom search a b
+} -cleanup {
+    nom destroy
+} -returnCodes error -result [snitTooManyArgs nom ::map::geocode::nominatim::Snit_methodsearch {query}]
+
+test map-api-nominatim-2.2 {unknown method} -setup {
+    map::geocode::nominatim nom
+} -body {
+    nom foo
+} -cleanup {
+    nom destroy
+} -returnCodes error -match glob -result {*foo*}
+
+test map-api-nominatim-3.0 {search, request and result delivered to -callback} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json $jsonok
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search Kyiv
+    waitfor done
+    list $srv::requests $result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result [list {{GET /search?q=Kyiv&format=json HTTP/1.1}} \
+	       [list [list [list [dict create place_id 42 licence {Data (c) OpenStreetMap} osm_type node osm_id 7 boundingbox {50.1 50.2 30.1 30.2} lat 50.45 lon 30.52 display_name Kyiv class place type city icon x.png]]]]]
+
+test map-api-nominatim-3.1 {search, no hits} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json {[]}
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search nowhere
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{{}}}
+
+test map-api-nominatim-3.2 {search, callback prefix gets the result appended} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json {[]}
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback {record x y} -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search nowhere
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{x y {}}}
+
+test map-api-nominatim-3.3 {search, query is UTF-8 url-encoded} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json {[]}
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search "\u041a\u0438\u0457\u0432&co"
+    waitfor done
+    set srv::requests
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{GET /search?q=%D0%9A%D0%B8%D1%97%D0%B2%26co&format=json HTTP/1.1}}
+
+# The http package already decodes the body according to the charset,
+# then Done decodes it from UTF-8 a second time: garbled result on
+# Tcl 8.6, "expected code point values below 0xff" JSON error on Tcl 9.
+test map-api-nominatim-3.4 {search, non-ASCII UTF-8 result, charset=utf-8} -constraints {
+    knownBug
+} -setup {
+    set port [srv::start]
+    srv::respond /search 200 {application/json; charset=utf-8} \
+	[encoding convertto utf-8 "\[{\"display_name\":\"\u041a\u0438\u0457\u0432\"}\]"]
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result [list [list [list [list display_name \u041a\u0438\u0457\u0432]]]]
+
+test map-api-nominatim-3.5 {search, non-ASCII UTF-8 result, no charset} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json \
+	[encoding convertto utf-8 "\[{\"display_name\":\"\u041a\u0438\u0457\u0432\"}\]"]
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result [list [list [list [list display_name \u041a\u0438\u0457\u0432]]]]
+
+test map-api-nominatim-4.0 {search, HTTP error goes to -error} -setup {
+    set port [srv::start]
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{error {HTTP: HTTP/1.1 404 Not Found}}}
+
+test map-api-nominatim-4.1 {search, error prefix gets the message appended} -setup {
+    set port [srv::start]
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error {recorderror p q}
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{error p q {HTTP: HTTP/1.1 404 Not Found}}}
+
+# Done uses [catch {...} _ err], which stores the options dictionary,
+# not the error message, in err (also for the callback error, 4.4).
+test map-api-nominatim-4.2 {search, bad JSON reports the error message} -constraints {
+    knownBug
+} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json "\{bad"
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{error {JSON: unexpected token "END" at position 1; expecting OBJECT}}}
+
+test map-api-nominatim-4.3 {search, bad JSON goes to -error, not -callback} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json "\{bad"
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    list [llength $result] [lindex $result 0 0] [string match {JSON: *} [lindex $result 0 1]]
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {1 error 1}
+
+test map-api-nominatim-4.4 {search, error in -callback reported to -error with its message} -constraints {
+    knownBug
+} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json {[]}
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback failing -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{error {Callback: callback failed}}}
+
+test map-api-nominatim-4.5 {search, error in -callback goes to -error} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json {[]}
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback failing -error recorderror
+    set result {}
+    unset -nocomplain done
+} -body {
+    nom search x
+    waitfor done
+    list [llength $result] [lindex $result 0 0] [string match {Callback: *} [lindex $result 0 1]]
+} -cleanup {
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {1 error 1}
+
+# The default -callback/-error are procs of the type namespace, but the
+# option values are invoked with [uplevel #0], where they do not resolve.
+# Also, errordefault calls bgerror instead of printing to stderr.
+test map-api-nominatim-5.0 {default -callback prints the result to stdout} -constraints {
+    knownBug
+} -setup {
+    set port [srv::start]
+    srv::respond /search 200 application/json {[]}
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-error recorderror
+    set result {}
+    unset -nocomplain done
+    trace add execution ::map::geocode::nominatim::callbackdefault leave {set ::done 1 ;#}
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    trace remove execution ::map::geocode::nominatim::callbackdefault leave {set ::done 1 ;#}
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done
+} -output "callback: \n" -result {}
+
+test map-api-nominatim-5.1 {default -error prints the error to stderr} -constraints {
+    knownBug
+} -setup {
+    set port [srv::start]
+    map::geocode::nominatim nom -baseurl http://127.0.0.1:$port/search \
+	-callback record
+    set result {}
+    unset -nocomplain done
+    set bgh [interp bgerror {}]
+    interp bgerror {} {apply {{msg opts} {lappend ::result [list bgerror $msg]; set ::done 1}}}
+    trace add execution ::map::geocode::nominatim::errordefault leave {set ::done 1 ;#}
+} -body {
+    nom search x
+    waitfor done
+    set result
+} -cleanup {
+    trace remove execution ::map::geocode::nominatim::errordefault leave {set ::done 1 ;#}
+    interp bgerror {} $bgh
+    nom destroy
+    srv::stop
+    unset -nocomplain port result done bgh
+} -errorOutput "HTTP: HTTP/1.1 404 Not Found\n" -result {}
+
+# -------------------------------------------------------------------------
+# map::slippy, documented behaviour not covered by map_slippy.testsuite
+# -------------------------------------------------------------------------
+
+set box {49.292809 -123.1589 49.314037 -123.116543}
+
+test map-api-slippy-1.0 {geo box fit, zmin defaults to 0} -body {
+    map slippy geo box fit $box {380.0 267.0} 18
+} -result 13
+
+test map-api-slippy-1.1 {geo box fit, result limited to zmax} -body {
+    map slippy geo box fit $box {380.0 267.0} 10
+} -result 10
+
+test map-api-slippy-1.2 {geo box fit, result limited to zmin} -body {
+    map slippy geo box fit $box {380.0 267.0} 18 15
+} -result 15
+
+test map-api-slippy-1.3 {geo box fit, wrong # args} -body {
+    map slippy geo box fit $box {380.0 267.0}
+} -returnCodes error -result {wrong # args: should be "map slippy geo box fit gbox canvdim zmax ?zmin?"}
+
+test map-api-slippy-2.0 {ensemble, unknown subcommand} -body {
+    map slippy bogus
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be *}
+
+test map-api-slippy-3.0 {point simplify radial, documented signature: threshold point-list} -constraints {
+    knownBug
+} -body {
+    # The documentation describes two arguments, the implementation
+    # requires an additional 'closed' flag before the point list.
+    map slippy point simplify radial 10 {{0 0} {1 1} {50 50}}
+} -result {{0 0} {50 50}}
+
+test map-api-slippy-4.0 {tile valid, message variable untouched for valid tile} -setup {
+    set msg untouched
+} -body {
+    list [map slippy tile valid 2 1 1 5 msg] $msg
+} -cleanup {
+    unset msg
+} -result {1 untouched}
+
+test map-api-slippy-4.1 {tile valid, without message variable} -body {
+    map slippy tile valid 9 0 0 5
+} -result 0
+
+unset box
+
+# -------------------------------------------------------------------------
+# map::slippy::fetcher (needs Tk)
+# -------------------------------------------------------------------------
+
+# A 1x1 PNG, generated with Tk when available.
+if {[tcltest::testConstraint tk]} {
+    set img [image create photo -width 1 -height 1]
+    $img put red -to 0 0
+    set png [$img data -format png]
+    if {[string range $png 1 3] ne "PNG"} {
+	# Base64 encoded data.
+	set png [binary decode base64 $png]
+    }
+    image delete $img
+    unset img
+}
+
+test map-api-fetcher-1.0 {constructor, result} -constraints tk -body {
+    map::slippy::fetcher fet 5 http://127.0.0.1:1/tiles
+} -cleanup {
+    fet destroy
+} -result ::fet
+
+test map-api-fetcher-1.1 {constructor, wrong # args} -constraints tk -body {
+    map::slippy::fetcher fet 5
+} -returnCodes error -result {Error in constructor: wrong # args: should be "::map::slippy::fetcher::Snit_constructor type selfns win self levels baseurl"}
+
+test map-api-fetcher-2.0 {levels} -constraints tk -setup {
+    map::slippy::fetcher fet 5 http://127.0.0.1:1/tiles
+} -body {
+    fet levels
+} -cleanup {
+    fet destroy
+} -result 5
+
+test map-api-fetcher-2.1 {tileheight, tilewidth} -constraints tk -setup {
+    map::slippy::fetcher fet 5 http://127.0.0.1:1/tiles
+} -body {
+    list [fet tileheight] [fet tilewidth]
+} -cleanup {
+    fet destroy
+} -result {256 256}
+
+test map-api-fetcher-2.2 {levels, wrong # args} -constraints tk -setup {
+    map::slippy::fetcher fet 5 http://127.0.0.1:1/tiles
+} -body {
+    fet levels x
+} -cleanup {
+    fet destroy
+} -returnCodes error -result [snitTooManyArgs fet ::map::slippy::fetcher::Snit_methodlevels {}]
+
+test map-api-fetcher-3.0 {get, wrong # args} -constraints tk -setup {
+    map::slippy::fetcher fet 5 http://127.0.0.1:1/tiles
+} -body {
+    fet get {0 0 0}
+} -cleanup {
+    fet destroy
+} -returnCodes error -result [snitWrongNumArgs fet ::map::slippy::fetcher::Snit_methodget {tile donecmd} 1]
+
+test map-api-fetcher-3.1 {get, invalid tile} -constraints tk -setup {
+    map::slippy::fetcher fet 5 http://127.0.0.1:1/tiles
+} -body {
+    fet get {7 0 0} record
+} -cleanup {
+    fet destroy
+} -returnCodes error -result {Bad zoom level '7' (max: 5)}
+
+test map-api-fetcher-3.2 {get, invalid cell} -constraints tk -setup {
+    map::slippy::fetcher fet 5 http://127.0.0.1:1/tiles
+} -body {
+    fet get {1 0 2} record
+} -cleanup {
+    fet destroy
+} -returnCodes error -result {Bad cell '0 2' (max: 2)}
+
+test map-api-fetcher-4.0 {get, tile found: url zoom/column/row.png, set callback} -constraints tk -setup {
+    set port [srv::start]
+    srv::respond /tiles/3/5/2.png 200 image/png $png
+    map::slippy::fetcher fet 5 http://127.0.0.1:$port/tiles
+    set result {}
+    unset -nocomplain done
+} -body {
+    fet get {3 2 5} record
+    waitfor done
+    lassign [lindex $result 0] what tile image
+    list $srv::requests $what $tile [image width $image] [image height $image] \
+	[$image get 0 0]
+} -cleanup {
+    catch {image delete $image}
+    fet destroy
+    srv::stop
+    unset -nocomplain port result done what tile image
+} -result {{{GET /tiles/3/5/2.png HTTP/1.1}} set {3 2 5} 1 1 {255 0 0}}
+
+test map-api-fetcher-4.1 {get, tile not found: unset callback} -constraints tk -setup {
+    set port [srv::start]
+    map::slippy::fetcher fet 5 http://127.0.0.1:$port/tiles
+    set result {}
+    unset -nocomplain done
+} -body {
+    fet get {3 2 5} record
+    waitfor done
+    set result
+} -cleanup {
+    fet destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{unset {3 2 5}}}
+
+test map-api-fetcher-4.2 {get, data is not an image: unset callback} -constraints tk -setup {
+    set port [srv::start]
+    srv::respond /tiles/0/0/0.png 200 image/png "not an image"
+    map::slippy::fetcher fet 5 http://127.0.0.1:$port/tiles
+    set result {}
+    unset -nocomplain done
+} -body {
+    fet get {0 0 0} record
+    waitfor done
+    set result
+} -cleanup {
+    fet destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{unset {0 0 0}}}
+
+test map-api-fetcher-4.3 {get, callback prefix gets arguments appended} -constraints tk -setup {
+    set port [srv::start]
+    map::slippy::fetcher fet 5 http://127.0.0.1:$port/tiles
+    set result {}
+    unset -nocomplain done
+} -body {
+    fet get {0 0 0} {record a b}
+    waitfor done
+    set result
+} -cleanup {
+    fet destroy
+    srv::stop
+    unset -nocomplain port result done
+} -result {{a b unset {0 0 0}}}
+
+test map-api-fetcher-4.4 {get, concurrent requests for one tile share one download} -constraints tk -setup {
+    set port [srv::start]
+    srv::respond /tiles/1/1/0.png 200 image/png $png
+    map::slippy::fetcher fet 5 http://127.0.0.1:$port/tiles
+    set result {}
+    unset -nocomplain done
+    proc record2 {args} {lappend ::result $args; if {[llength $::result] == 2} {set ::done 1}}
+} -body {
+    fet get {1 0 1} {record2 A}
+    fet get {1 0 1} {record2 B}
+    waitfor done
+    lassign $result ra rb
+    list $srv::requests [lrange $ra 0 2] [lrange $rb 0 2] [expr {[lindex $ra 3] eq [lindex $rb 3]}]
+} -cleanup {
+    catch {image delete [lindex $ra 3]}
+    rename record2 {}
+    fet destroy
+    srv::stop
+    unset -nocomplain port result done ra rb
+} -result {{{GET /tiles/1/1/0.png HTTP/1.1}} {A set {1 0 1}} {B set {1 0 1}} 1}
+
+# -------------------------------------------------------------------------
+# map::slippy::cache (needs Tk)
+# -------------------------------------------------------------------------
+
+# A fake provider: answers 'levels' with 5, records 'get' requests and
+# keeps the done callbacks for the test to invoke.
+proc provider {cmd args} {
+    switch -exact -- $cmd {
+	levels { return 5 }
+	get {
+	    lappend ::pgets $args
+	    return
+	}
+	extra { return [list extra {*}$args] }
+	default { error "unknown provider method $cmd" }
+    }
+}
+
+proc mkcachedir {} {
+    set d [makeDirectory map-api-cache]
+    file delete -force $d
+    file mkdir $d
+    return $d
+}
+
+test map-api-cache-1.0 {constructor, result} -constraints tk -setup {
+    set dir [mkcachedir]
+} -body {
+    map::slippy::cache ca $dir provider
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir
+} -result ::ca
+
+test map-api-cache-1.1 {constructor, missing directory} -constraints tk -setup {
+    set dir [mkcachedir]
+    file delete -force $dir
+} -body {
+    map::slippy::cache ca $dir provider
+} -cleanup {
+    unset dir
+} -returnCodes error -match glob -result {Error in constructor: ::map::slippy::cache constructor: *": Does not exist}
+
+test map-api-cache-1.2 {constructor, path is a file} -constraints tk -setup {
+    set dir [makeFile {} map-api-cache-file]
+} -body {
+    map::slippy::cache ca $dir provider
+} -cleanup {
+    removeFile map-api-cache-file
+    unset dir
+} -returnCodes error -match glob -result {Error in constructor: ::map::slippy::cache constructor: *": Is not a directory}
+
+test map-api-cache-1.3 {constructor, wrong # args} -constraints tk -setup {
+    set dir [mkcachedir]
+} -body {
+    map::slippy::cache ca $dir
+} -cleanup {
+    file delete -force $dir
+    unset dir
+} -returnCodes error -result {Error in constructor: wrong # args: should be "::map::slippy::cache::Snit_constructor type selfns win self cachedir provider"}
+
+test map-api-cache-2.0 {valid} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+    set msg {}
+} -body {
+    list [ca valid {4 1 1}] [ca valid {6 0 0} msg] $msg [ca valid {2 0 4} msg] $msg
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir msg
+} -result {1 0 {Bad zoom level '6' (max: 5)} 0 {Bad cell '0 4' (max: 4)}}
+
+test map-api-cache-3.0 {exists, not cached} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+} -body {
+    ca exists {2 1 3}
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir
+} -result 0
+
+test map-api-cache-3.1 {exists, cached file zoom/column/row.png} -constraints tk -setup {
+    set dir [mkcachedir]
+    file mkdir [file join $dir 2 3]
+    close [open [file join $dir 2 3 1.png] w]
+    map::slippy::cache ca $dir provider
+} -body {
+    ca exists {2 1 3}
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir
+} -result 1
+
+test map-api-cache-3.2 {exists, invalid tile} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+} -body {
+    ca exists {9 0 0}
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir
+} -returnCodes error -result {Bad zoom level '9' (max: 5)}
+
+test map-api-cache-4.0 {get, wrong # args} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+} -body {
+    ca get {0 0 0}
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir
+} -returnCodes error -result [snitWrongNumArgs ca ::map::slippy::cache::Snit_methodget {tile donecmd} 1]
+
+test map-api-cache-4.1 {get, invalid tile} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+} -body {
+    ca get {1 2 0} record
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir
+} -returnCodes error -result {Bad cell '2 0' (max: 2)}
+
+test map-api-cache-4.2 {get, unknown tile asks the provider once, caches the image} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+    set pgets {}
+    set result {}
+    proc record2 {args} {lappend ::result $args}
+} -body {
+    ca get {2 1 3} {record2 A}
+    ca get {2 1 3} {record2 B}
+    set n [llength $pgets]
+    lassign [lindex $pgets 0] ptile pdone
+    set img [image create photo -data $png]
+    {*}$pdone set $ptile $img
+    list $n $ptile [expr {$result eq [list [list A set {2 1 3} $img] [list B set {2 1 3} $img]]}] \
+	[file exists [file join $dir 2 3 1.png]] [ca exists {2 1 3}]
+} -cleanup {
+    catch {image delete $img}
+    rename record2 {}
+    ca destroy
+    file delete -force $dir
+    unset -nocomplain dir pgets result n ptile pdone img
+} -result {1 {2 1 3} 1 1 1}
+
+test map-api-cache-4.6 {get, empty donecmd (prefetch): image cached, then deleted} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+    set pgets {}
+} -body {
+    ca get {2 1 3} {}
+    lassign [lindex $pgets 0] ptile pdone
+    set img [image create photo -data $png]
+    {*}$pdone set $ptile $img
+    list [file exists [file join $dir 2 3 1.png]] [expr {$img in [image names]}]
+} -cleanup {
+    catch {image delete $img}
+    ca destroy
+    file delete -force $dir
+    unset -nocomplain dir pgets ptile pdone img
+} -result {1 0}
+
+test map-api-cache-4.3 {get, provider has no image: unset to all requestors} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+    set pgets {}
+    set result {}
+    proc record2 {args} {lappend ::result $args}
+} -body {
+    ca get {2 1 3} {record2 A}
+    ca get {2 1 3} {record2 B}
+    lassign [lindex $pgets 0] ptile pdone
+    {*}$pdone unset $ptile
+    list $result [ca exists {2 1 3}]
+} -cleanup {
+    rename record2 {}
+    ca destroy
+    file delete -force $dir
+    unset -nocomplain dir pgets result ptile pdone
+} -result {{{A unset {2 1 3}} {B unset {2 1 3}}} 0}
+
+test map-api-cache-4.4 {get, cached tile is delivered from the filesystem} -constraints tk -setup {
+    set dir [mkcachedir]
+    file mkdir [file join $dir 1 0]
+    set c [open [file join $dir 1 0 1.png] wb]
+    puts -nonewline $c $png
+    close $c
+    map::slippy::cache ca $dir provider
+    set pgets {}
+    set result {}
+    unset -nocomplain done
+} -body {
+    ca get {1 1 0} record
+    waitfor done
+    lassign [lindex $result 0] what tile image
+    list $pgets $what $tile [image width $image] [$image get 0 0]
+} -cleanup {
+    catch {image delete $image}
+    ca destroy
+    file delete -force $dir
+    unset -nocomplain dir pgets result done what tile image c
+} -result {{} set {1 1 0} 1 {255 0 0}}
+
+test map-api-cache-4.5 {get, with fetcher as provider} -constraints tk -setup {
+    set dir [mkcachedir]
+    set port [srv::start]
+    srv::respond /t/2/3/1.png 200 image/png $png
+    map::slippy::fetcher fet 5 http://127.0.0.1:$port/t
+    map::slippy::cache ca $dir fet
+    set result {}
+    unset -nocomplain done
+} -body {
+    ca get {2 1 3} record
+    waitfor done
+    lassign [lindex $result 0] what tile image
+    list $what $tile [image width $image] [file exists [file join $dir 2 3 1.png]] \
+	[ca levels] [ca tilewidth] [ca tileheight]
+} -cleanup {
+    catch {image delete $image}
+    ca destroy
+    fet destroy
+    srv::stop
+    file delete -force $dir
+    unset -nocomplain dir port result done what tile image
+} -result {set {2 1 3} 1 1 5 256 256}
+
+test map-api-cache-5.0 {unknown methods are delegated to the provider} -constraints tk -setup {
+    set dir [mkcachedir]
+    map::slippy::cache ca $dir provider
+} -body {
+    ca extra 1 2
+} -cleanup {
+    ca destroy
+    file delete -force $dir
+    unset dir
+} -result {extra 1 2}
+
+rename provider {}
+rename mkcachedir {}
+catch {unset png}
+
+# -------------------------------------------------------------------------
+
+rename waitfor {}
+rename record {}
+rename recorderror {}
+rename failing {}
+namespace delete srv
+unset jsonok
+testsuiteCleanup
+# Leave no Tk main loop running after the tests.
+if {[info exists tk_version]} {
+    destroy .
+}
+return
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: t
+# End:
