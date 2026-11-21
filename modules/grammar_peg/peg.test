@@ -1,0 +1,963 @@
+# -*- tcl -*-
+# peg.test:  Tests for the grammar::peg container class.
+#
+# This file contains a collection of tests for the package
+# grammar::peg (parsing expression grammar container). Sourcing this
+# file into Tcl runs the tests and generates output for errors.  No
+# output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl   snit
+    # peg.tcl uses struct::list without requiring it. Load it so that
+    # (de)serialization can be tested at all. See peg-15.* for the bug.
+    use cmdline/cmdline.tcl cmdline
+    use struct/list.tcl struct::list
+}
+testing {
+    useLocal peg.tcl grammar::peg
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# Expected wrong # args message for a method (Snit 1.x error format).
+proc pegWNA {method arglist} {
+    if {[llength $method] > 1} {
+	set p ::grammar::peg::Snit_hmethod[join $method _]
+    } else {
+	set p ::grammar::peg::Snit_method$method
+    }
+    tcltest::wrongNumArgs $p [linsert $arglist 0 type selfns win self] 0
+}
+
+# Serialization with sorted dictionaries, for stable comparison.
+proc sser {g} {
+    lassign [$g serialize] type nt mo se
+    list $type [dictsort $nt] [dictsort $mo] $se
+}
+
+# -------------------------------------------------------------------------
+## Constructor
+
+test peg-1.0 {constructor, empty grammar} -body {
+    grammar::peg g
+} -cleanup {
+    g destroy
+} -result ::g
+
+test peg-1.1 {constructor, new grammar is empty} -setup {
+    grammar::peg g
+} -body {
+    list [g nonterminals] [g start] [g is valid] [g unknown nonterminals]
+} -cleanup {
+    g destroy
+} -result {{} epsilon 1 {}}
+
+test peg-1.2 {constructor, wrong # args (one)} -body {
+    grammar::peg g =
+} -returnCodes error \
+  -result {Error in constructor: wrong#args: ::g ?=|:=|<--|as|deserialize a'?}
+
+test peg-1.3 {constructor, wrong # args (three)} -body {
+    grammar::peg g = a b
+} -returnCodes error \
+  -result {Error in constructor: wrong#args: ::g ?=|:=|<--|as|deserialize a'?}
+
+test peg-1.4 {constructor, bad operator} -body {
+    grammar::peg g foo a
+} -returnCodes error \
+  -result {Error in constructor: wrong#args: ::g ?=|:=|<--|as|deserialize a'?}
+
+test peg-1.5 {constructor, failure does not leave command behind} -body {
+    catch {grammar::peg g foo a}
+    info commands ::g
+} -result {}
+
+foreach {n op} {6 = 7 := 8 <-- 9 as} {
+    test peg-1.$n "constructor, copy with $op" -setup {
+	grammar::peg src
+	src nonterminal add A {x {t a} {n B}}
+	src nonterminal add B {t b}
+	src nonterminal mode B leaf
+	src start {n A}
+    } -body {
+	grammar::peg g $op src
+	list [sser g] [g is valid]
+    } -cleanup {
+	g destroy
+	src destroy
+    } -result [list [list grammar::pegc \
+			 {A {x {t a} {n B}} B {t b}} \
+			 {A value B leaf} {n A}] 1]
+}
+
+test peg-1.10 {constructor, copy is independent of source} -setup {
+    grammar::peg src
+    src nonterminal add A {t a}
+} -body {
+    grammar::peg g = src
+    src nonterminal add B {t b}
+    g nonterminal delete A
+    g nonterminal add C {t c}
+    list [lsort [src nonterminals]] [g nonterminals]
+} -cleanup {
+    g destroy
+    src destroy
+} -result {{A B} C}
+
+test peg-1.11 {constructor, deserialize} -body {
+    grammar::peg g deserialize {grammar::pegc {A {t a}} {A leaf} {n A}}
+    list [g nonterminals] [g nonterminal rule A] [g nonterminal mode A] [g start]
+} -cleanup {
+    g destroy
+} -result {A {t a} leaf {n A}}
+
+test peg-1.12 {constructor, copy from non-object} -body {
+    grammar::peg g = nosuchobject
+} -returnCodes error -result {Error in constructor: invalid command name "nosuchobject"}
+
+test peg-1.13 {constructor, deserialize bad value} -body {
+    grammar::peg g deserialize {a b}
+} -returnCodes error -result {Error in constructor: error in serialization: list length not 4}
+
+# -------------------------------------------------------------------------
+## destroy, clear
+
+test peg-2.0 {destroy} -setup {
+    grammar::peg g
+} -body {
+    g destroy
+    info commands ::g
+} -result {}
+
+test peg-2.1 {clear} -setup {
+    grammar::peg g
+    g nonterminal add A {x {t a} {n B}}
+    g nonterminal mode A leaf
+    g start {n A}
+} -body {
+    list [g clear] [g nonterminals] [g start] [g is valid] [g unknown nonterminals] \
+	[sser g]
+} -cleanup {
+    g destroy
+} -result {{} {} epsilon 1 {} {grammar::pegc {} {} epsilon}}
+
+test peg-2.2 {clear, object survives and is usable} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+} -body {
+    g clear
+    g nonterminal add A {t b}
+    g nonterminal rule A
+} -cleanup {
+    g destroy
+} -result {t b}
+
+test peg-2.3 {clear, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g clear x
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA clear {}]
+
+# -------------------------------------------------------------------------
+## Assignment: = and -->
+
+test peg-3.0 {= copies a grammar} -constraints knownBug -setup {
+    # Method "=" calls the non-existing method "dserialize".
+    grammar::peg g
+    grammar::peg src
+    src nonterminal add A {t a}
+    src start {n A}
+} -body {
+    g = src
+    sser g
+} -cleanup {
+    g destroy
+    src destroy
+} -result {grammar::pegc {A {t a}} {A value} {n A}}
+
+test peg-3.1 {= wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g =
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA = {src}]
+
+test peg-3.2 {--> copies a grammar} -setup {
+    grammar::peg g
+    grammar::peg dst
+    dst nonterminal add X {t x}
+    g nonterminal add A {x {t a} {n B}}
+    g nonterminal add B {t b}
+    g nonterminal mode B discard
+    g start {n A}
+} -body {
+    list [g --> dst] [sser dst] [dst is valid]
+} -cleanup {
+    g destroy
+    dst destroy
+} -result {{} {grammar::pegc {A {x {t a} {n B}} B {t b}} {A value B discard} {n A}} 1}
+
+test peg-3.3 {--> keeps source unchanged} -setup {
+    grammar::peg g
+    grammar::peg dst
+    g nonterminal add A {t a}
+} -body {
+    g --> dst
+    dst nonterminal delete A
+    list [g nonterminals] [dst nonterminals]
+} -cleanup {
+    g destroy
+    dst destroy
+} -result {A {}}
+
+test peg-3.4 {--> invalid grammar keeps invalidity} -setup {
+    grammar::peg g
+    grammar::peg dst
+    g nonterminal add A {n B}
+} -body {
+    g --> dst
+    list [dst is valid] [dst unknown nonterminals]
+} -cleanup {
+    g destroy
+    dst destroy
+} -result {0 B}
+
+test peg-3.5 {--> wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g -->
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA --> {dst}]
+
+test peg-3.6 {--> to non-object} -setup {
+    grammar::peg g
+} -body {
+    g --> nosuchobject
+} -cleanup {
+    g destroy
+} -returnCodes error -result {invalid command name "nosuchobject"}
+
+# -------------------------------------------------------------------------
+## serialize, deserialize
+
+test peg-4.0 {serialize, empty grammar} -constraints knownBug -setup {
+    # Documented type tag is "grammar::peg", the code emits "grammar::pegc".
+    grammar::peg g
+} -body {
+    g serialize
+} -cleanup {
+    g destroy
+} -result {grammar::peg {} {} epsilon}
+
+test peg-4.1 {serialize, empty grammar (actual type tag)} -setup {
+    grammar::peg g
+} -body {
+    lrange [g serialize] 1 end
+} -cleanup {
+    g destroy
+} -result {{} {} epsilon}
+
+test peg-4.2 {serialize, structure} -setup {
+    grammar::peg g
+    g nonterminal add Sign {/ {t +} {t -}}
+    g nonterminal add Digit {/ {t 0} {t 1}}
+    g nonterminal add Number {x {? {n Sign}} {+ {n Digit}}}
+    g nonterminal mode Digit match
+    g start {n Number}
+} -body {
+    lassign [g serialize] type nt mo se
+    list [llength [g serialize]] [dictsort $nt] [dictsort $mo] $se
+} -cleanup {
+    g destroy
+    unset -nocomplain type nt mo se
+} -result {4 {Digit {/ {t 0} {t 1}} Number {x {? {n Sign}} {+ {n Digit}}} Sign {/ {t +} {t -}}} {Digit match Number value Sign value} {n Number}}
+
+test peg-4.3 {serialize, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g serialize x
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA serialize {}]
+
+test peg-4.4 {serialize/deserialize round trip} -setup {
+    grammar::peg g
+    grammar::peg h
+    g nonterminal add Expression {/ {x {t (} {n Expression} {t )}} {x {n Factor} {* {x {n MulOp} {n Factor}}}}}
+    g nonterminal add Factor {x {n Term} {* {x {n AddOp} {n Term}}}}
+    g nonterminal add Term {n Number}
+    g nonterminal add MulOp {/ {t *} {t /}}
+    g nonterminal add AddOp {/ {t +} {t -}}
+    g nonterminal add Number {x {? {n Sign}} {+ {n Digit}}}
+    g nonterminal add Sign {/ {t +} {t -}}
+    g nonterminal add Digit {/ {t 0} {t 1} {t 2} {t 3} {t 4} {t 5} {t 6} {t 7} {t 8} {t 9}}
+    g nonterminal mode Sign leaf
+    g start {n Expression}
+} -body {
+    h deserialize [g serialize]
+    list [string equal [sser g] [sser h]] [h is valid] [lsort [h nonterminals]] \
+	[h nonterminal mode Sign] [h start]
+} -cleanup {
+    g destroy
+    h destroy
+} -result {1 1 {AddOp Digit Expression Factor MulOp Number Sign Term} leaf {n Expression}}
+
+test peg-4.5 {deserialize replaces old contents} -setup {
+    grammar::peg g
+    g nonterminal add Old {t o}
+    g start {n Old}
+} -body {
+    g deserialize {grammar::pegc {New {t n}} {} epsilon}
+    list [g nonterminals] [g start] [g nonterminal mode New]
+} -cleanup {
+    g destroy
+} -result {New epsilon value}
+
+test peg-4.6 {deserialize, documented type tag} -constraints knownBug -setup {
+    # Code accepts only "grammar::pegc", not the documented "grammar::peg".
+    grammar::peg g
+} -body {
+    g deserialize {grammar::peg {A {t a}} {A value} {n A}}
+    sser g
+} -cleanup {
+    g destroy
+} -result {grammar::peg {A {t a}} {A value} {n A}}
+
+test peg-4.7 {deserialize, invalid grammar is accepted} -setup {
+    grammar::peg g
+} -body {
+    g deserialize {grammar::pegc {A {n B}} {} epsilon}
+    list [g is valid] [g unknown nonterminals]
+} -cleanup {
+    g destroy
+} -result {0 B}
+
+test peg-4.8 {deserialize, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g deserialize
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA deserialize {value}]
+
+foreach {n value message} {
+    0 {}
+    {error in serialization: list length not 4}
+    1 {a b c}
+    {error in serialization: list length not 4}
+    2 {a b c d e}
+    {error in serialization: list length not 4}
+    3 {foo {} {} epsilon}
+    {error in serialization: unknown type "foo"}
+    4 {grammar::pegc {} {} {}}
+    {error in serialization: invalid start expression, invalid empty expression list}
+    5 {grammar::pegc {} {} {bogus}}
+    {error in serialization: invalid start expression, invalid operator "bogus"}
+    6 {grammar::pegc {A} {} epsilon}
+    {error in serialization: nonterminal data is not a dictionary}
+    7 {grammar::pegc {A {t a} A {t b}} {} epsilon}
+    {error in serialization: nonterminal data contains duplicate names, or misses some}
+    8 {grammar::pegc {A {t a}} {A} epsilon}
+    {error in serialization: nonterminal modes is not a dictionary}
+    9 {grammar::pegc {A {t a}} {A value A leaf} epsilon}
+    {error in serialization: nonterminal modes contains duplicate names, or misses some}
+    10 {grammar::pegc {A {t a}} {B value} epsilon}
+    {error in serialization: nonterminal mode for unknown nonterminal "B"}
+} {
+    test peg-4.9.$n "deserialize, bad serialization: $message" -setup {
+	grammar::peg g
+	g nonterminal add Keep {t k}
+    } -body {
+	list [catch {g deserialize $value} msg] $msg [g nonterminals]
+    } -cleanup {
+	g destroy
+	unset -nocomplain msg
+    } -result [list 1 $message Keep]
+}
+
+test peg-4.10 {deserialize, bad nonterminal expression} -constraints knownBug -setup {
+    # CheckSerialization validates the start expression instead of the
+    # rule of each nonterminal.
+    grammar::peg g
+} -body {
+    g deserialize {grammar::pegc {A {bogus}} {} epsilon}
+} -cleanup {
+    g destroy
+} -returnCodes error \
+  -result {error in serialization: nonterminal "A", invalid parsing expression, invalid operator "bogus"}
+
+# -------------------------------------------------------------------------
+## is valid, unknown nonterminals
+
+test peg-5.0 {is valid, empty grammar} -setup {
+    grammar::peg g
+} -body {
+    g is valid
+} -cleanup {
+    g destroy
+} -result 1
+
+test peg-5.1 {is valid, references unknown} -setup {
+    grammar::peg g
+    g nonterminal add A {x {n B} {n C}}
+} -body {
+    list [g is valid] [lsort [g unknown nonterminals]]
+} -cleanup {
+    g destroy
+} -result {0 {B C}}
+
+test peg-5.2 {is valid, becomes valid when all are defined} -setup {
+    grammar::peg g
+    g nonterminal add A {x {n B} {n C}}
+} -body {
+    set r {}
+    g nonterminal add B {t b}
+    lappend r [g is valid] [g unknown nonterminals]
+    g nonterminal add C {n A}
+    lappend r [g is valid] [g unknown nonterminals]
+} -cleanup {
+    g destroy
+    unset -nocomplain r
+} -result {0 C 1 {}}
+
+test peg-5.3 {is valid, self reference} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal add A {/ {x {t a} {n A}} epsilon}
+    list [g is valid] [g unknown nonterminals]
+} -cleanup {
+    g destroy
+} -result {1 {}}
+
+test peg-5.4 {is valid, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g is valid x
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {is valid} {}]
+
+test peg-5.5 {unknown nonterminals, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g unknown nonterminals x
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {unknown nonterminals} {}]
+
+test peg-5.6 {unknown nonterminals, multiple references count once} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal add A {x {n B} {n B}}
+    g nonterminal add C {n B}
+    g unknown nonterminals
+} -cleanup {
+    g destroy
+} -result B
+
+# -------------------------------------------------------------------------
+## start
+
+test peg-6.0 {start, default} -setup {
+    grammar::peg g
+} -body {
+    g start
+} -cleanup {
+    g destroy
+} -result epsilon
+
+test peg-6.1 {start, set and get} -setup {
+    grammar::peg g
+} -body {
+    list [g start {x {n A} {* dot}}] [g start]
+} -cleanup {
+    g destroy
+} -result {{} {x {n A} {* dot}}}
+
+test peg-6.2 {start, invalid expression keeps old} -setup {
+    grammar::peg g
+    g start {t a}
+} -body {
+    list [catch {g start {bogus x}} msg] $msg [g start]
+} -cleanup {
+    g destroy
+    unset -nocomplain msg
+} -result {1 {invalid operator "bogus"} {t a}}
+
+test peg-6.3 {start, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g start a b
+} -cleanup {
+    g destroy
+} -returnCodes error -result {wrong#args: ::g start ?pe?}
+
+# -------------------------------------------------------------------------
+## Parsing expressions, validation (through start).
+
+set n 0
+foreach pe {
+    epsilon alnum alpha dot
+    {t x} {t {}} {t { }} {n A} {n {two words}}
+    {/ {t a}} {/ {t a} {t b} {t c}}
+    {x {t a}} {x {t a} {n B} epsilon}
+    {* {t a}} {+ {t a}} {& {t a}} {! {t a}} {? {t a}}
+    {x {? {n Sign}} {+ {/ {t 0} {t 1}}} {! dot} {& alpha} {* alnum}}
+    {.. a z}
+} {
+    test peg-7.0.$n "valid parsing expression: $pe" -setup {
+	grammar::peg g
+    } -body {
+	g start $pe
+	g start
+    } -cleanup {
+	g destroy
+    } -result $pe
+    incr n
+}
+
+set n 0
+foreach {pe message} {
+    {} {invalid empty expression list}
+    {bogus} {invalid operator "bogus"}
+    {T a} {invalid operator "T"}
+    {epsilon x} {wrong#args for "epsilon"}
+    {alnum x} {wrong#args for "alnum"}
+    {alpha x} {wrong#args for "alpha"}
+    {dot x} {wrong#args for "dot"}
+    {t} {wrong#args for "t"}
+    {t a b} {wrong#args for "t"}
+    {n} {wrong#args for "n"}
+    {n A B} {wrong#args for "n"}
+    {/} {wrong#args for "/"}
+    {x} {wrong#args for "x"}
+    {*} {wrong#args for "*"}
+    {+ {t a} {t b}} {wrong#args for "+"}
+    {&} {wrong#args for "&"}
+    {! {t a} {t b}} {wrong#args for "!"}
+    {?} {wrong#args for "?"}
+    {.. a} {wrong#args for ".."}
+    {* {}} {invalid empty expression list}
+    {x {t a} {bogus}} {invalid operator "bogus"}
+    {/ {t a} {x {t b} {t}}} {wrong#args for "t"}
+    {? {! {& {+ {* {t a b}}}}}} {wrong#args for "t"}
+} {
+    test peg-7.1.$n "invalid parsing expression: $pe" -setup {
+	grammar::peg g
+    } -body {
+	g start $pe
+    } -cleanup {
+	g destroy
+    } -returnCodes error -result $message
+    incr n
+}
+unset n pe message
+
+# -------------------------------------------------------------------------
+## nonterminals, nonterminal add/exists/rule
+
+test peg-8.0 {nonterminals, empty} -setup {
+    grammar::peg g
+} -body {
+    g nonterminals
+} -cleanup {
+    g destroy
+} -result {}
+
+test peg-8.1 {nonterminals, does not list unknown symbols} -setup {
+    grammar::peg g
+    g nonterminal add A {x {n B} {n C}}
+    g nonterminal add D epsilon
+} -body {
+    lsort [g nonterminals]
+} -cleanup {
+    g destroy
+} -result {A D}
+
+test peg-8.2 {nonterminals, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g nonterminals x
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA nonterminals {}]
+
+test peg-8.3 {nonterminal add} -setup {
+    grammar::peg g
+} -body {
+    list [g nonterminal add A {t a}] [g nonterminals] [g nonterminal rule A] \
+	[g nonterminal mode A] [g nonterminal exists A]
+} -cleanup {
+    g destroy
+} -result {{} A {t a} value 1}
+
+test peg-8.4 {nonterminal add, known symbol} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+} -body {
+    list [catch {g nonterminal add A {t b}} msg] $msg [g nonterminal rule A]
+} -cleanup {
+    g destroy
+    unset -nocomplain msg
+} -result {1 {Nonterminal "A" is already known} {t a}}
+
+test peg-8.5 {nonterminal add, invalid expression} -setup {
+    grammar::peg g
+} -body {
+    list [catch {g nonterminal add A {x}} msg] $msg [g nonterminals] \
+	[g nonterminal exists A]
+} -cleanup {
+    g destroy
+    unset -nocomplain msg
+} -result {1 {wrong#args for "x"} {} 0}
+
+test peg-8.6 {nonterminal add, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal add A
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {nonterminal add} {nts pae}]
+
+test peg-8.7 {nonterminal add, wrong # args, too many} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal add A {t a} x
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {nonterminal add} {nts pae}]
+
+test peg-8.8 {nonterminal add, unicode names and terminals} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal add й {t ї}
+    list [g nonterminals] [g nonterminal rule й]
+} -cleanup {
+    g destroy
+} -result [list й [list t ї]]
+
+test peg-8.9 {nonterminal exists, unknown and referenced} -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+} -body {
+    list [g nonterminal exists A] [g nonterminal exists B] [g nonterminal exists C]
+} -cleanup {
+    g destroy
+} -result {1 0 0}
+
+test peg-8.10 {nonterminal exists, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal exists
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {nonterminal exists} {nts}]
+
+test peg-8.11 {nonterminal rule, unknown} -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+} -body {
+    g nonterminal rule B
+} -cleanup {
+    g destroy
+} -returnCodes error -result {Invalid nonterminal "B"}
+
+test peg-8.12 {nonterminal rule, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal rule
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {nonterminal rule} {nts}]
+
+test peg-8.13 {nonterminal, bad submethod} -setup {
+    grammar::peg g
+} -body {
+    catch {g nonterminal bogus} msg
+    string match {*bogus*} $msg
+} -cleanup {
+    g destroy
+    unset -nocomplain msg
+} -result 1
+
+# -------------------------------------------------------------------------
+## nonterminal mode
+
+foreach {n mode} {0 value 1 match 2 leaf 3 discard} {
+    test peg-9.$n "nonterminal mode, set $mode" -setup {
+	grammar::peg g
+	g nonterminal add A {t a}
+    } -body {
+	list [g nonterminal mode A $mode] [g nonterminal mode A]
+    } -cleanup {
+	g destroy
+    } -result [list {} $mode]
+}
+
+test peg-9.4 {nonterminal mode, default is value} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal add A {t a}
+    g nonterminal mode A
+} -cleanup {
+    g destroy
+} -result value
+
+test peg-9.5 {nonterminal mode, unknown nonterminal} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal mode A
+} -cleanup {
+    g destroy
+} -returnCodes error -result {Invalid nonterminal "A"}
+
+test peg-9.6 {nonterminal mode, unknown nonterminal, set} -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+} -body {
+    g nonterminal mode B leaf
+} -cleanup {
+    g destroy
+} -returnCodes error -result {Invalid nonterminal "B"}
+
+test peg-9.7 {nonterminal mode, wrong # args} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+} -body {
+    g nonterminal mode A leaf x
+} -cleanup {
+    g destroy
+} -returnCodes error -result {wrong#args}
+
+test peg-9.8 {nonterminal mode, wrong # args, none} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal mode
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {nonterminal mode} {nts args}]
+
+test peg-9.9 {nonterminal mode, serialized} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+    g nonterminal add B {t b}
+} -body {
+    g nonterminal mode B discard
+    dictsort [lindex [g serialize] 2]
+} -cleanup {
+    g destroy
+} -result {A value B discard}
+
+# -------------------------------------------------------------------------
+## nonterminal delete
+
+test peg-10.0 {nonterminal delete, unused leaf rule} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+    g nonterminal add B {t b}
+} -body {
+    list [g nonterminal delete A] [g nonterminals] [g nonterminal exists A] \
+	[g is valid] [dictsort [lindex [g serialize] 2]]
+} -cleanup {
+    g destroy
+} -result {{} B 0 1 {B value}}
+
+test peg-10.1 {nonterminal delete, several} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+    g nonterminal add B {t b}
+    g nonterminal add C {t c}
+} -body {
+    g nonterminal delete A C
+    g nonterminals
+} -cleanup {
+    g destroy
+} -result B
+
+test peg-10.2 {nonterminal delete, unknown leaves set unchanged} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+    g nonterminal add B {t b}
+} -body {
+    list [catch {g nonterminal delete A X B} msg] $msg [lsort [g nonterminals]]
+} -cleanup {
+    g destroy
+    unset -nocomplain msg
+} -result {1 {Invalid nonterminal "X"} {A B}}
+
+test peg-10.3 {nonterminal delete, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal delete
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {nonterminal delete} {nts args}]
+
+test peg-10.4 {nonterminal delete, used rule makes grammar invalid} -constraints knownBug -setup {
+    # NtDelete has a typo, "ir($nts]", and never marks the deleted
+    # symbol as unknown.
+    grammar::peg g
+    g nonterminal add A {x {t a} {n B}}
+    g nonterminal add B {t b}
+} -body {
+    g nonterminal delete B
+    list [g nonterminals] [g is valid] [g unknown nonterminals]
+} -cleanup {
+    g destroy
+} -result {A 0 B}
+
+test peg-10.5 {nonterminal delete, rule referencing others} -constraints knownBug -setup {
+    # NtDelete searches the wrong symbol in the user list and
+    # throws "PANIC".
+    grammar::peg g
+    g nonterminal add A {x {t a} {n B}}
+    g nonterminal add B {t b}
+} -body {
+    g nonterminal delete A
+    list [g nonterminals] [g is valid] [g unknown nonterminals]
+} -cleanup {
+    g destroy
+} -result {B 1 {}}
+
+test peg-10.6 {nonterminal delete, rule referencing unknown makes grammar valid} -constraints knownBug -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+    g nonterminal add C {t c}
+} -body {
+    g nonterminal delete A
+    list [g nonterminals] [g is valid] [g unknown nonterminals]
+} -cleanup {
+    g destroy
+} -result {C 1 {}}
+
+test peg-10.7 {nonterminal delete, re-add after delete} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+} -body {
+    g nonterminal delete A
+    g nonterminal add A {t b}
+    list [g nonterminal rule A] [g nonterminal mode A]
+} -cleanup {
+    g destroy
+} -result {{t b} value}
+
+# -------------------------------------------------------------------------
+## nonterminal rename
+
+test peg-11.0 {nonterminal rename, referenced symbol, rules rewritten} -setup {
+    grammar::peg g
+    g nonterminal add A {x {t a} {* {n B}} {/ {n B} {! {n B}}}}
+    g nonterminal add B {t b}
+    g nonterminal mode B leaf
+} -body {
+    list [g nonterminal rename B C] [lsort [g nonterminals]] \
+	[g nonterminal rule A] [g nonterminal rule C] [g nonterminal mode C] \
+	[g nonterminal exists B] [g is valid]
+} -cleanup {
+    g destroy
+} -result {{} {A C} {x {t a} {* {n C}} {/ {n C} {! {n C}}}} {t b} leaf 0 1}
+
+test peg-11.1 {nonterminal rename, self reference} -constraints knownBug -setup {
+    # The rename rewrites the rules of all users after removing the old
+    # name, and the symbol is its own user.
+    grammar::peg g
+    g nonterminal add A {/ {x {t a} {n A}} epsilon}
+} -body {
+    g nonterminal rename A Z
+    list [g nonterminals] [g nonterminal rule Z] [g is valid]
+} -cleanup {
+    g destroy
+} -result {Z {/ {x {t a} {n Z}} epsilon} 1}
+
+test peg-11.2 {nonterminal rename, unreferenced symbol} -constraints knownBug -setup {
+    # The rename reads the user list of the old name, which does not
+    # exist for unreferenced symbols.
+    grammar::peg g
+    g nonterminal add A {t a}
+} -body {
+    g nonterminal rename A B
+    list [g nonterminals] [g nonterminal rule B]
+} -cleanup {
+    g destroy
+} -result {B {t a}}
+
+test peg-11.3 {nonterminal rename, unknown old name} -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+} -body {
+    g nonterminal rename B C
+} -cleanup {
+    g destroy
+} -returnCodes error -result {Invalid nonterminal "B"}
+
+test peg-11.4 {nonterminal rename, known new name} -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+    g nonterminal add B {n A}
+} -body {
+    list [catch {g nonterminal rename A B} msg] $msg [lsort [g nonterminals]] \
+	[g nonterminal rule A]
+} -cleanup {
+    g destroy
+    unset -nocomplain msg
+} -result {1 {Nonterminal "B" is already known} {A B} {n B}}
+
+test peg-11.5 {nonterminal rename, wrong # args} -setup {
+    grammar::peg g
+} -body {
+    g nonterminal rename A
+} -cleanup {
+    g destroy
+} -returnCodes error -result [pegWNA {nonterminal rename} {ntsold ntsnew}]
+
+test peg-11.6 {nonterminal rename, then delete users} -constraints knownBug -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+    g nonterminal add B {t b}
+} -body {
+    g nonterminal rename B C
+    g nonterminal delete A
+    list [g nonterminals] [g is valid]
+} -cleanup {
+    g destroy
+} -result {C 1}
+
+# -------------------------------------------------------------------------
+## Missing requirement.
+
+test peg-15.0 {deserialize without struct::list loaded beforehand} -constraints knownBug -setup {
+    # peg.tcl uses struct::list but does not "package require" it.
+    set ip [interp create]
+    $ip eval [list source [tcllibPath snit/snit.tcl]]
+    $ip eval [list source [localPath peg.tcl]]
+} -body {
+    $ip eval {
+	grammar::peg g
+	g deserialize [g serialize]
+	g nonterminals
+    }
+} -cleanup {
+    interp delete $ip
+    unset -nocomplain ip
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename sser {}
+rename pegWNA {}
+testsuiteCleanup
+return

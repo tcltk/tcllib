@@ -1,0 +1,407 @@
+# -*- tcl -*-
+# peg_interp.test:  Tests for the grammar::peg::interp package.
+#
+# This file contains a collection of tests for the package
+# grammar::peg::interp (interpreter for parsing expression grammars).
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl          snit
+    use cmdline/cmdline.tcl    cmdline
+    use struct/list.tcl        struct::list
+    use grammar_me/me_tcl.tcl  grammar::me::tcl
+    useLocal peg.tcl           grammar::peg
+}
+testing {
+    useLocal peg_interp.tcl grammar::peg::interp
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# Input stream: characters of the global variable "input".
+proc nextchar {} {
+    global input pos
+    if {$pos >= [string length $input]} {return {}}
+    set c [string index $input $pos]
+    set r [list $c $c 1 $pos]
+    incr pos
+    return $r
+}
+
+# Parse a string with grammar g, return {ok ast ?error?}.
+proc run {string} {
+    global input pos
+    set input $string
+    set pos 0
+    grammar::peg::interp::setup g
+    set ok [grammar::peg::interp::parse nextchar err ast]
+    set r [list $ok $ast]
+    if {[info exists err]} {lappend r $err}
+    return $r
+}
+
+proc cleanall {} {
+    global input pos
+    catch {g destroy}
+    unset -nocomplain input pos
+}
+
+# -------------------------------------------------------------------------
+## setup
+
+test peg-interp-1.0 {setup, wrong # args} -body {
+    grammar::peg::interp::setup
+} -returnCodes error -result [wrongNumArgs grammar::peg::interp::setup {peg} 0]
+
+test peg-interp-1.1 {setup, wrong # args, too many} -body {
+    grammar::peg::interp::setup a b
+} -returnCodes error -result [tooManyArgs grammar::peg::interp::setup {peg}]
+
+test peg-interp-1.2 {setup, returns empty string} -setup {
+    grammar::peg g
+    g nonterminal add A {t a}
+    g start {n A}
+} -body {
+    grammar::peg::interp::setup g
+} -cleanup {
+    cleanall
+} -result {}
+
+test peg-interp-1.3 {setup, invalid grammar} -setup {
+    grammar::peg g
+    g nonterminal add A {n B}
+    g start {n A}
+} -body {
+    grammar::peg::interp::setup g
+} -cleanup {
+    cleanall
+} -returnCodes error -result {Cannot initialize interpreter for invalid grammar}
+
+test peg-interp-1.4 {setup, not an object} -body {
+    grammar::peg::interp::setup nosuchobject
+} -returnCodes error -result {invalid command name "nosuchobject"}
+
+test peg-interp-1.5 {setup, grammar copied, later changes ignored} -setup {
+    grammar::peg g
+    g start {t a}
+} -body {
+    set input a ; set pos 0
+    grammar::peg::interp::setup g
+    g start {t b}
+    list [grammar::peg::interp::parse nextchar err ast] $ast
+} -cleanup {
+    cleanall
+    unset -nocomplain err ast
+} -result {1 {ALL 0 0 {{} 0 0}}}
+
+# -------------------------------------------------------------------------
+## parse
+
+test peg-interp-2.0 {parse, wrong # args} -body {
+    grammar::peg::interp::parse a b
+} -returnCodes error -result [wrongNumArgs grammar::peg::interp::parse {nxcmd emvar astvar} 2]
+
+test peg-interp-2.1 {parse, wrong # args, too many} -body {
+    grammar::peg::interp::parse a b c d
+} -returnCodes error -result [tooManyArgs grammar::peg::interp::parse {nxcmd emvar astvar}]
+
+# Atomic expressions and operators, matched against a set of inputs.
+# Result: ok flag, AST, error information (if failed).
+
+set n 0
+foreach {pe in expected} {
+    epsilon {}   {1 {ALL 0 -1}}
+    epsilon a    {1 {ALL 0 -1}}
+    dot     a    {1 {ALL 0 0 {{} 0 0}}}
+    dot     ab   {1 {ALL 0 0 {{} 0 0}}}
+    dot     {}   {0 {} {{0 {}} {{Expected any character (got EOF)}}}}
+    alpha   a    {1 {ALL 0 0 {{} 0 0}}}
+    alpha   1    {0 {} {{0 {1 0}} {{Expected <alpha>}}}}
+    alpha   {}   {0 {} {{0 {}} {{Expected <alpha> (got EOF)}}}}
+    alnum   a    {1 {ALL 0 0 {{} 0 0}}}
+    alnum   1    {1 {ALL 0 0 {{} 0 0}}}
+    alnum   -    {0 {} {{0 {1 0}} {{Expected <alnum>}}}}
+    alnum   {}   {0 {} {{0 {}} {{Expected <alnum> (got EOF)}}}}
+    {t a}   a    {1 {ALL 0 0 {{} 0 0}}}
+    {t a}   b    {0 {} {{0 {1 0}} {{Expected a}}}}
+    {t a}   {}   {0 {} {{0 {}} {{Expected a (got EOF)}}}}
+    {.. a c} b   {1 {ALL 0 0 {{} 0 0}}}
+    {.. a c} d   {0 {} {{0 {1 0}} {{Expected [a .. c]}}}}
+    {.. a c} {}  {0 {} {{0 {}} {{Expected [a .. c] (got EOF)}}}}
+    {* alpha} {}  {1 {ALL 0 -1}}
+    {* alpha} ab1 {1 {ALL 0 1 {{} 0 0} {{} 1 1}}}
+    {* alpha} 1   {1 {ALL 0 -1}}
+    {+ alpha} ab1 {1 {ALL 0 1 {{} 0 0} {{} 1 1}}}
+    {+ alpha} 1   {0 {} {{0 {1 0}} {{Expected <alpha>}}}}
+    {? {t a}} a   {1 {ALL 0 0 {{} 0 0}}}
+    {? {t a}} b   {1 {ALL 0 -1}}
+    {& {t a}} a   {1 {ALL 0 -1 {{} 0 0}}}
+    {& {t a}} b   {0 {} {{0 {1 0}} {{Expected a}}}}
+    {! {t a}} b   {1 {ALL 0 -1}}
+    {! dot}   {}  {1 {ALL 0 -1}}
+    {x {t a} {t b}} ab {1 {ALL 0 1 {{} 0 0} {{} 1 1}}}
+    {x {t a} {t b}} a  {0 {} {{1 {}} {{Expected b (got EOF)}}}}
+    {x {t a} {t b}} b  {0 {} {{0 {1 0}} {{Expected a}}}}
+    {/ {t a} {t b}} b  {1 {ALL 0 0 {{} 0 0}}}
+    {/ {t a} {t b}} a  {1 {ALL 0 0 {{} 0 0}}}
+    {/ {t a} {t b}} c  {0 {} {{0 {1 0}} {{Expected a} {Expected b}}}}
+} {
+    test peg-interp-2.2.$n "parse, expression $pe, input \"$in\"" -setup {
+	grammar::peg g
+	g start $pe
+    } -body {
+	run $in
+    } -cleanup {
+	cleanall
+    } -result $expected
+    incr n
+}
+unset n pe in expected
+
+test peg-interp-2.2.100 {parse, failing not-predicate at top level} -constraints knownBug -setup {
+    # parse throws 'can't read "l"' when the failure carries no error
+    # information, as produced by a failing "!" predicate.
+    grammar::peg g
+    g start {! {t a}}
+} -body {
+    lrange [run a] 0 1
+} -cleanup {
+    cleanall
+} -result {0 {}}
+
+test peg-interp-2.3 {parse, choice is ordered} -setup {
+    grammar::peg g
+    g start {/ {t a} {x {t a} {t b}}}
+} -body {
+    run ab
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 0 {{} 0 0}}}
+
+test peg-interp-2.4 {parse, does not need to consume all input} -setup {
+    grammar::peg g
+    g start {t a}
+} -body {
+    run abc
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 0 {{} 0 0}}}
+
+test peg-interp-2.5 {parse, full match enforced with not-dot} -constraints knownBug -setup {
+    # Same bug as peg-interp-2.2.100.
+    grammar::peg g
+    g start {x {t a} {! dot}}
+} -body {
+    lrange [run abc] 0 1
+} -cleanup {
+    cleanall
+} -result {0 {}}
+
+test peg-interp-2.5.1 {parse, full match with not-dot} -setup {
+    grammar::peg g
+    g start {x {t a} {! dot}}
+} -body {
+    run a
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 0 {{} 0 0}}}
+
+test peg-interp-2.6 {parse, astvar and errorvar in caller's scope} -setup {
+    grammar::peg g
+    g start {t a}
+    proc caller {} {
+	set ::input b
+	set ::pos 0
+	grammar::peg::interp::setup g
+	set ok [grammar::peg::interp::parse nextchar e a]
+	list $ok [info exists e] [info exists a] $a
+    }
+} -body {
+    caller
+} -cleanup {
+    cleanall
+    rename caller {}
+} -result {0 1 1 {}}
+
+test peg-interp-2.7 {parse, error variable untouched on success} -setup {
+    grammar::peg g
+    g start {t a}
+    set input a
+    set pos 0
+    set err untouched
+} -body {
+    grammar::peg::interp::setup g
+    list [grammar::peg::interp::parse nextchar err ast] $err
+} -cleanup {
+    cleanall
+    unset -nocomplain err ast
+} -result {1 untouched}
+
+test peg-interp-2.8 {parse, nextcmd is a command prefix} -setup {
+    grammar::peg g
+    g start {x {t a} {t b}}
+    set chars {a b}
+    proc nextfrom {var} {
+	upvar #0 $var l
+	if {![llength $l]} {return {}}
+	set c [lindex $l 0]
+	set l [lrange $l 1 end]
+	return [list $c $c 1 0]
+    }
+} -body {
+    grammar::peg::interp::setup g
+    list [grammar::peg::interp::parse {nextfrom chars} err ast] $ast $chars
+} -cleanup {
+    cleanall
+    rename nextfrom {}
+    unset -nocomplain chars err ast
+} -result {1 {ALL 0 1 {{} 0 0} {{} 1 1}} {}}
+
+test peg-interp-2.9 {parse, reusable after setup} -setup {
+    grammar::peg g
+    g start {+ {t a}}
+} -body {
+    list [run aa] [run b] [run a]
+} -cleanup {
+    cleanall
+} -result {{1 {ALL 0 1 {{} 0 0} {{} 1 1}}} {0 {} {{0 {1 0}} {{Expected a}}}} {1 {ALL 0 0 {{} 0 0}}}}
+
+test peg-interp-2.10 {parse, unicode terminals} -setup {
+    grammar::peg g
+    g start [list x [list t й] [list t ї]]
+} -body {
+    run йї
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 1 {{} 0 0} {{} 1 1}}}
+
+# -------------------------------------------------------------------------
+## Nonterminals and modes.
+
+proc digits {mode} {
+    grammar::peg g
+    g nonterminal add Digit {/ {t 0} {t 1} {t 2}}
+    g nonterminal add Num {+ {n Digit}}
+    g nonterminal mode Digit $mode
+    g start {n Num}
+}
+
+test peg-interp-3.0 {parse, mode value} -setup {
+    digits value
+} -body {
+    run 12
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 1 {Num 0 1 {Digit 0 0 {{} 0 0}} {Digit 1 1 {{} 1 1}}}}}
+
+test peg-interp-3.1 {parse, mode match} -setup {
+    digits value
+    g nonterminal mode Num match
+} -body {
+    run 120
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 2 {Num 0 2 {{} 0 2}}}}
+
+test peg-interp-3.2 {parse, mode leaf} -setup {
+    digits leaf
+} -body {
+    run 12
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 1 {Num 0 1 {Digit 0 0} {Digit 1 1}}}}
+
+test peg-interp-3.3 {parse, mode discard} -setup {
+    digits discard
+} -body {
+    run 12
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 1 {Num 0 1}}}
+
+test peg-interp-3.4 {parse, mode leaf for top nonterminal} -setup {
+    digits value
+    g nonterminal mode Num leaf
+} -body {
+    run 12
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 1 {Num 0 1}}}
+
+test peg-interp-3.5 {parse, mode discard for top nonterminal} -setup {
+    digits value
+    g nonterminal mode Num discard
+} -body {
+    run 12
+} -cleanup {
+    cleanall
+} -result {1 {ALL 0 1}}
+
+test peg-interp-3.6 {parse, nonterminal failure} -setup {
+    digits value
+} -body {
+    run x
+} -cleanup {
+    cleanall
+} -result {0 {} {{0 {1 0}} {{Expected Num}}}}
+
+test peg-interp-3.7 {parse, nonterminal failure after partial match} -setup {
+    digits value
+    g start {x {n Num} {t y}}
+} -body {
+    run 1x
+} -cleanup {
+    cleanall
+} -result {0 {} {{1 {1 1}} {{Expected Digit} {Expected y}}}}
+
+test peg-interp-3.8 {parse, recursion} -setup {
+    grammar::peg g
+    # P <- '(' P ')' / epsilon
+    g nonterminal add P {/ {x {t (} {n P} {t )}} epsilon}
+    g nonterminal mode P value
+    g start {x {n P} {! dot}}
+} -body {
+    list [lindex [run (())] 0] [lindex [run (()] 0] [lindex [run {}] 0]
+} -cleanup {
+    cleanall
+} -result {1 0 1}
+
+test peg-interp-3.9 {parse, expression grammar from the peg manpage} -setup {
+    grammar::peg g
+    g nonterminal add Expression {/ {x {t (} {n Expression} {t )}} {x {n Factor} {* {x {n MulOp} {n Factor}}}}}
+    g nonterminal add Factor {x {n Term} {* {x {n AddOp} {n Term}}}}
+    g nonterminal add Term {n Number}
+    g nonterminal add MulOp {/ {t *} {t /}}
+    g nonterminal add AddOp {/ {t +} {t -}}
+    g nonterminal add Number {x {? {n Sign}} {+ {n Digit}}}
+    g nonterminal add Sign {/ {t +} {t -}}
+    g nonterminal add Digit {/ {t 0} {t 1} {t 2} {t 3} {t 4} {t 5} {t 6} {t 7} {t 8} {t 9}}
+    foreach nt {Digit Sign MulOp AddOp} {g nonterminal mode $nt discard}
+    g nonterminal mode Number match
+    g start {x {n Expression} {! dot}}
+} -body {
+    run 12+3*4
+} -cleanup {
+    cleanall
+    unset -nocomplain nt
+} -result {1 {ALL 0 5 {Expression 0 5 {Factor 0 3 {Term 0 1 {Number 0 1 {{} 0 1}}} {Term 3 3 {Number 3 3 {{} 3 3}}}} {Factor 5 5 {Term 5 5 {Number 5 5 {{} 5 5}}}}}}}
+
+# -------------------------------------------------------------------------
+
+rename nextchar {}
+rename run {}
+rename cleanall {}
+rename digits {}
+testsuiteCleanup
+return
