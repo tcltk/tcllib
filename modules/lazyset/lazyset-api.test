@@ -1,0 +1,217 @@
+# lazyset-api.test - Additional tests for the documented API of lazyset.
+#
+# Complements lazyset.test (basic, append args, scope, once-only, arrays).
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+	useLocal lazyset.tcl lazyset
+}
+
+# -------------------------------------------------------------------------
+## Return value and options
+
+test lazyset-api-1.0 {variable returns the empty string} -body {
+	::lazyset::variable -appendArgs false lv {return -level 0 x}
+} -cleanup {
+	unset -nocomplain lv
+} -result {}
+
+test lazyset-api-1.1 {variable, invalid option} -body {
+	::lazyset::variable -bogus 1 lv {return -level 0 x}
+} -cleanup {
+	unset -nocomplain lv
+} -returnCodes error -result {Valid options -array, -appendArgs: Invalid option "-bogus"}
+
+test lazyset-api-1.2 {variable, -array with non-boolean value} -body {
+	::lazyset::variable -array maybe lv {return -level 0 x}
+} -cleanup {
+	unset -nocomplain lv
+} -returnCodes error -match glob -result {*non-numeric string*}
+
+test lazyset-api-1.3 {variable, -appendArgs with non-boolean value} -body {
+	::lazyset::variable -appendArgs maybe lv {return -level 0 x}
+} -cleanup {
+	unset -nocomplain lv
+} -returnCodes error -match glob -result {*non-numeric string*}
+
+test lazyset-api-1.4 {variable, -array false gives a scalar} -body {
+	::lazyset::variable -array false lv [list apply {{name} {
+		return $name
+	}}]
+	list $lv [array exists lv]
+} -cleanup {
+	unset -nocomplain lv
+} -result {lv 0}
+
+test lazyset-api-1.5 {variable, booleans in any Tcl form} -body {
+	::lazyset::variable -array yes -appendArgs off lv {return -level 0 v}
+	list $lv(a) [array exists lv]
+} -cleanup {
+	unset -nocomplain lv
+} -result {v 1}
+
+# -------------------------------------------------------------------------
+## Appended arguments
+
+test lazyset-api-2.0 {scalar: the variable name is appended} -body {
+	::lazyset::variable lv [list apply {{args} {
+		return $args
+	}}]
+	set lv
+} -cleanup {
+	unset -nocomplain lv
+} -result {lv}
+
+test lazyset-api-2.1 {array: variable name and index are appended} -body {
+	::lazyset::variable -array true lv [list apply {{args} {
+		return $args
+	}}]
+	set lv(idx)
+} -cleanup {
+	unset -nocomplain lv
+} -result {lv idx}
+
+test lazyset-api-2.2 {array: index with spaces is appended as one word} -body {
+	::lazyset::variable -array true lv [list apply {{name index} {
+		return [list $name $index]
+	}}]
+	set {lv(a b)}
+} -cleanup {
+	unset -nocomplain lv
+} -result {lv {a b}}
+
+test lazyset-api-2.3 {array: -appendArgs false appends nothing} -body {
+	::lazyset::variable -array true -appendArgs false lv {
+		return -level 0 [info level]
+	}
+	expr {$lv(a) == [info level]}
+} -cleanup {
+	unset -nocomplain lv
+} -result 1
+
+test lazyset-api-2.4 {appended args come after the prefix words} -body {
+	::lazyset::variable -array true lv [list apply {{p1 p2 name index} {
+		return [list $p1 $p2 $name $index]
+	}} A B]
+	set lv(i)
+} -cleanup {
+	unset -nocomplain lv
+} -result {A B lv i}
+
+test lazyset-api-2.5 {namespace-qualified variable name is appended as given} -setup {
+	namespace eval ::lazyset_test {variable nv}
+} -body {
+	::lazyset::variable ::lazyset_test::nv [list apply {{name} {
+		return $name
+	}}]
+	set ::lazyset_test::nv
+} -cleanup {
+	namespace delete ::lazyset_test
+} -result {::lazyset_test::nv}
+
+# -------------------------------------------------------------------------
+## Values, scope, errors
+
+test lazyset-api-3.0 {value is stored in the variable after first read} -body {
+	::lazyset::variable -appendArgs false lv {return -level 0 stored}
+	set dummy $lv
+	list [trace info variable lv] $lv
+} -cleanup {
+	unset -nocomplain lv dummy
+} -result {{} stored}
+
+test lazyset-api-3.1 {array: each index gets its own value} -body {
+	::lazyset::variable -array true lv [list apply {{name index} {
+		string toupper $index
+	}}]
+	list $lv(a) $lv(b) [lsort [array names lv]]
+} -cleanup {
+	unset -nocomplain lv
+} -result {A B {a b}}
+
+test lazyset-api-3.2 {array: elements set before reading are kept} -body {
+	::lazyset::variable -array true lv [list apply {{name index} {
+		return computed
+	}}]
+	set lv(a) preset
+	list $lv(a) $lv(b)
+} -cleanup {
+	unset -nocomplain lv
+} -result {preset computed}
+
+test lazyset-api-3.3 {code runs in the scope of the variable (proc)} -setup {
+	proc lazyset_test {} {
+		::lazyset::variable -appendArgs false loc {
+			set side 5
+			return -level 0 val
+		}
+		set r $loc
+		list $r [info exists side] [info exists ::side]
+	}
+} -body {
+	lazyset_test
+} -cleanup {
+	rename lazyset_test {}
+} -result {val 1 0}
+
+test lazyset-api-3.4 {array: code runs in the scope of the variable (proc)} -setup {
+	proc lazyset_test {} {
+		set local L
+		::lazyset::variable -array true loc [list apply {{name index} {
+			upvar 1 local l
+			return $l$index
+		}}]
+		set loc(x)
+	}
+} -body {
+	lazyset_test
+} -cleanup {
+	rename lazyset_test {}
+} -result {Lx}
+
+test lazyset-api-3.5 {errors from the command prefix are propagated} -body {
+	::lazyset::variable lv [list apply {{name} {
+		error boom
+	}}]
+	set lv
+} -cleanup {
+	unset -nocomplain lv
+} -returnCodes error -result {can't read "lv": boom}
+
+test lazyset-api-3.6 {variable is not evaluated if never read} -body {
+	set ::lazyset_count 0
+	::lazyset::variable -appendArgs false lv {incr ::lazyset_count}
+	unset lv
+	set ::lazyset_count
+} -cleanup {
+	unset -nocomplain lv ::lazyset_count
+} -result 0
+
+test lazyset-api-3.7 {redefining a lazy variable replaces the old code} -constraints {
+	knownBug
+} -body {
+	# The removal of the existing trace in lazyset::variable is broken.
+	::lazyset::variable -appendArgs false lv {return -level 0 first}
+	::lazyset::variable -appendArgs false lv {return -level 0 second}
+	set lv
+} -cleanup {
+	foreach t [trace info variable lv] {
+		trace remove variable lv {*}$t
+	}
+	unset -nocomplain lv
+} -result {second}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
