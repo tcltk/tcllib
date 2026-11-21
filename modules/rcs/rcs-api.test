@@ -1,0 +1,228 @@
+# -*- tcl -*-
+# rcs-api.test:  additional tests for the rcs package.
+#
+# rcs.test covers argument checks and the conversion of two standard
+# texts and one patch. This file adds non-canonical dictionaries,
+# no-ops, error cases, return values, additions at new lines and
+# decode/encode/apply round trips.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal rcs.tcl rcs
+}
+
+# -------------------------------------------------------------------------
+
+proc dictsortint {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort -integer [array names a]] {
+	lappend out $key $a($key)
+    }
+    return $out
+}
+
+set hello "Hello World,\nhow are you ?\nFine, and you ?"
+
+# -------------------------------------------------------------------------
+## text2dict, dict2text
+
+test rcs-api-1.0 {text2dict, documented example is canonical} -body {
+    dictsortint [::rcs::text2dict $hello]
+} -result {1 {Hello World,} 2 {how are you ?} 3 {Fine, and you ?}}
+
+test rcs-api-1.1 {text2dict, single line without newline} -body {
+    ::rcs::text2dict abc
+} -result {1 abc}
+
+test rcs-api-1.2 {text2dict, only a newline} -body {
+    dictsortint [::rcs::text2dict \n]
+} -result {1 {} 2 {}}
+
+test rcs-api-1.3 {dict2text, keys with gaps} -body {
+    ::rcs::dict2text {5 {Hello World,} 8 {how are you ?} 9 {Fine, and you ?}}
+} -result "Hello World,\nhow are you ?\nFine, and you ?"
+
+test rcs-api-1.4 {dict2text, negative keys and multi-line values} -body {
+    ::rcs::dict2text [list -1 "Hello World,\nhow are you ?" 4 {Fine, and you ?}]
+} -result "Hello World,\nhow are you ?\nFine, and you ?"
+
+test rcs-api-1.5 {dict2text, keys sorted numerically, not as strings} -body {
+    ::rcs::dict2text {10 ten 9 nine 2 two 0 zero}
+} -result "zero\ntwo\nnine\nten"
+
+test rcs-api-1.6 {dict2text, non-integer key} -body {
+    ::rcs::dict2text {a b}
+} -returnCodes error -result {expected integer but got "a"}
+
+test rcs-api-1.7 {text2dict and dict2text round trip} -body {
+    set t "  lead\n\ttab\n\nlast\n"
+    string equal $t [::rcs::dict2text [::rcs::text2dict $t]]
+} -cleanup {
+    unset -nocomplain t
+} -result 1
+
+test rcs-api-1.8 {text2dict, non-ASCII text} -body {
+    dictsortint [::rcs::text2dict "їжак\nйога"]
+} -result [list 1 їжак 2 йога]
+
+# -------------------------------------------------------------------------
+## file2dict, dict2file
+
+test rcs-api-2.0 {file2dict, missing file} -body {
+    ::rcs::file2dict [file join [temporaryDirectory] no-such-rcs-file]
+} -returnCodes error -match glob -result {couldn't open "*no-such-rcs-file": no such file or directory}
+
+test rcs-api-2.1 {dict2file returns the empty string, creates the file} -setup {
+    set f [file join [temporaryDirectory] rcs-api-new.txt]
+    file delete $f
+} -body {
+    set r [::rcs::dict2file $f {2 b 1 a}]
+    set c [open $f r]
+    set data [read $c]
+    close $c
+    list $r [file exists $f] $data
+} -cleanup {
+    file delete $f
+    unset -nocomplain f r c data
+} -result {{} 1 {a
+b}}
+
+test rcs-api-2.2 {dict2file, non-canonical dictionary} -setup {
+    set f [file join [temporaryDirectory] rcs-api-new.txt]
+} -body {
+    ::rcs::dict2file $f [list 7 "x\ny" -3 w]
+    ::rcs::dict2text [::rcs::file2dict $f]
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result "w\nx\ny"
+
+test rcs-api-2.3 {dict2file, file2dict round trip} -setup {
+    set f [file join [temporaryDirectory] rcs-api-new.txt]
+} -body {
+    ::rcs::dict2file $f [::rcs::text2dict $hello]
+    dictsortint [::rcs::file2dict $f]
+} -cleanup {
+    file delete $f
+    unset -nocomplain f
+} -result {1 {Hello World,} 2 {how are you ?} 3 {Fine, and you ?}}
+
+# -------------------------------------------------------------------------
+## decodeRcsPatch
+
+test rcs-api-3.0 {decodeRcsPatch, empty patch} -body {
+    ::rcs::decodeRcsPatch {}
+} -result {}
+
+test rcs-api-3.1 {decodeRcsPatch, no-ops are stripped} -body {
+    ::rcs::decodeRcsPatch "\n\nd1 1\n\nd3 2\n\n"
+} -result {{d 1 1} {d 3 2}}
+
+test rcs-api-3.2 {decodeRcsPatch, surrounding white space of commands} -body {
+    ::rcs::decodeRcsPatch "  d1 1  \n\ta2 1\nx"
+} -result {{d 1 1} {a 2 x}}
+
+test rcs-api-3.3 {decodeRcsPatch, data lines looking like commands} -body {
+    ::rcs::decodeRcsPatch "a1 2\nd1 1\n\nd2 1"
+} -result [list [list a 1 "d1 1\n"] {d 2 1}]
+
+test rcs-api-3.4 {decodeRcsPatch, unknown command} -body {
+    ::rcs::decodeRcsPatch "d1 1\nx1 2"
+} -returnCodes error -result {Unknown patch command: 'x1 2'}
+
+test rcs-api-3.5 {decodeRcsPatch, documented example} -body {
+    ::rcs::decodeRcsPatch "d1 2\nd4 1\na4 2\nThe named is the mother of all things.\n\na11 3\nThey both may be called deep and profound.\nDeeper and more profound,\nThe door of all subtleties!"
+} -result {{d 1 2} {d 4 1} {a 4 {The named is the mother of all things.
+}} {a 11 {They both may be called deep and profound.
+Deeper and more profound,
+The door of all subtleties!}}}
+
+# -------------------------------------------------------------------------
+## encodeRcsPatch
+
+test rcs-api-4.0 {encodeRcsPatch, empty command list} -body {
+    # Only a no-op line.
+    ::rcs::encodeRcsPatch {}
+} -result "\n"
+
+test rcs-api-4.1 {encodeRcsPatch, line count of additions} -body {
+    ::rcs::encodeRcsPatch [list {a 0 x} [list a 3 "y\nz\n"] {d 5 2}]
+} -result "a0 1\nx\na3 3\ny\nz\n\nd5 2\n"
+
+test rcs-api-4.2 {encodeRcsPatch, unknown command} -body {
+    ::rcs::encodeRcsPatch {{d 1 1} {x 1 2}}
+} -returnCodes error -result {Unknown patch command: 'x'}
+
+test rcs-api-4.3 {encode/decode round trip is identical at the PCL level} -body {
+    set pcl [list {d 1 2} [list a 0 "new\nlines"] {a 7 {}} {d 9 1}]
+    string equal $pcl [::rcs::decodeRcsPatch [::rcs::encodeRcsPatch $pcl]]
+} -cleanup {
+    unset -nocomplain pcl
+} -result 1
+
+# -------------------------------------------------------------------------
+## applyRcsPatch
+
+test rcs-api-5.0 {applyRcsPatch, empty patch keeps the text} -body {
+    ::rcs::dict2text [::rcs::applyRcsPatch [::rcs::text2dict $hello] {}]
+} -result "Hello World,\nhow are you ?\nFine, and you ?"
+
+test rcs-api-5.1 {applyRcsPatch, addition after an existing line} -body {
+    ::rcs::dict2text [::rcs::applyRcsPatch {1 a 2 b 3 c} {{a 2 X}}]
+} -result "a\nb\nX\nc"
+
+test rcs-api-5.2 {applyRcsPatch, addition at line 0 (before the text)} -body {
+    ::rcs::dict2text [::rcs::applyRcsPatch {1 a 2 b} {{a 0 X}}]
+} -result "X\na\nb"
+
+test rcs-api-5.3 {applyRcsPatch, addition creates a non-existing line} -body {
+    dictsortint [::rcs::applyRcsPatch {1 a} {{a 5 X}}]
+} -result {1 a 5 X}
+
+test rcs-api-5.4 {applyRcsPatch, deletion of several lines} -body {
+    ::rcs::dict2text [::rcs::applyRcsPatch {1 a 2 b 3 c 4 d} {{d 2 2}}]
+} -result "a\nd"
+
+test rcs-api-5.5 {applyRcsPatch, indices refer to the original text} -body {
+    # Deleting line 1 does not renumber: the addition after line 3 goes
+    # after the original third line.
+    ::rcs::dict2text [::rcs::applyRcsPatch {1 a 2 b 3 c 4 d} {{d 1 1} {a 3 X}}]
+} -result "b\nc\nX\nd"
+
+test rcs-api-5.6 {applyRcsPatch, replacement as deletion plus addition} -body {
+    ::rcs::dict2text [::rcs::applyRcsPatch {1 a 2 b 3 c} {{d 2 1} {a 2 B}}]
+} -result "a\nB\nc"
+
+test rcs-api-5.7 {applyRcsPatch, deleting a missing line} -body {
+    ::rcs::applyRcsPatch {1 a} {{d 5 1}}
+} -returnCodes error -result {can't unset "lines(5)": no such element in array}
+
+test rcs-api-5.8 {applyRcsPatch, unknown command} -body {
+    ::rcs::applyRcsPatch {1 a} {{x 1 2}}
+} -returnCodes error -result {Unknown patch command: 'x'}
+
+test rcs-api-5.9 {applyRcsPatch, input text as a non-canonical dictionary} -body {
+    ::rcs::dict2text [::rcs::applyRcsPatch {10 a 20 b} {{d 10 1} {a 20 c}}]
+} -result "b\nc"
+
+test rcs-api-5.10 {full chain text -> patch text -> result text} -body {
+    set patch "d2 1\na3 1\nfour"
+    ::rcs::dict2text [::rcs::applyRcsPatch [::rcs::text2dict "one\ntwo\nthree"] \
+			  [::rcs::decodeRcsPatch $patch]]
+} -cleanup {
+    unset -nocomplain patch
+} -result "one\nthree\nfour"
+
+# -------------------------------------------------------------------------
+unset -nocomplain hello
+rename dictsortint {}
+testsuiteCleanup
