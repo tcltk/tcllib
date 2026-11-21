@@ -1,0 +1,933 @@
+# -*- tcl -*-
+# report-api.test:  tests for the documented API of the report package
+# not covered by report.test: style ordering, defaults and nesting,
+# the safe style environment, the default configuration, destroy,
+# column index forms, template consistency checks on set, the less
+# common separators, justification and padding details, and empty
+# regions.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use textutil/wcswidth.tcl textutil::wcswidth
+    use struct/matrix.tcl     struct::matrix
+}
+testing {
+    useLocal report.tcl report
+}
+
+# -------------------------------------------------------------------------
+
+# A matrix with 3 columns and the given rows.
+proc mkmatrix {name rows} {
+    ::struct::matrix $name
+    $name add columns 3
+    foreach r $rows {
+	$name add row $r
+    }
+    return $name
+}
+
+# Box-drawing configuration for a 3 column report.
+proc boxed {r} {
+    $r data   set {| | | |}
+    $r top    set {+ - + - + - +}
+    $r bottom set {+ - + - + - +}
+    $r top    enable
+    $r bottom enable
+}
+
+# -------------------------------------------------------------------------
+# Styles
+
+test report-api-1.1 {styles: order of creation} -setup {
+    ::report::defstyle apiA {} {}
+    ::report::defstyle apiB {} {}
+    ::report::defstyle apiC {} {}
+} -body {
+    set s [::report::styles]
+    list [lindex $s 0] [lrange $s end-2 end]
+} -cleanup {
+    ::report::rmstyle apiA
+    ::report::rmstyle apiB
+    ::report::rmstyle apiC
+    unset s
+} -result {plain {apiA apiB apiC}}
+
+test report-api-1.2 {styles: deleting a style keeps the order of the rest} -setup {
+    ::report::defstyle apiA {} {}
+    ::report::defstyle apiB {} {}
+    ::report::defstyle apiC {} {}
+} -body {
+    ::report::rmstyle apiB
+    lrange [::report::styles] end-1 end
+} -cleanup {
+    ::report::rmstyle apiA
+    ::report::rmstyle apiC
+} -result {apiA apiC}
+
+test report-api-1.3 {rmstyle and defstyle return the empty string} -body {
+    list [::report::defstyle apiA {} {}] [::report::rmstyle apiA]
+} -result {{} {}}
+
+test report-api-1.4 {a deleted style can be defined again} -setup {
+    ::report::defstyle apiA {} {tcaption 1}
+    ::report::rmstyle apiA
+} -body {
+    ::report::defstyle apiA {} {tcaption 2}
+    report::report r 1 style apiA
+    list [::report::stylebody apiA] [r tcaption]
+} -cleanup {
+    r destroy
+    ::report::rmstyle apiA
+} -result {{tcaption 2} 2}
+
+test report-api-1.5 {stylearguments: arguments with defaults} -setup {
+    ::report::defstyle apiA {a {n 1}} {}
+    ::report::defstyle apiB {a args} {}
+} -body {
+    list [::report::stylearguments apiA] [::report::stylearguments apiB]
+} -cleanup {
+    ::report::rmstyle apiA
+    ::report::rmstyle apiB
+} -result {{a {n 1}} {a args}}
+
+test report-api-1.6 {style: default value of an argument} -setup {
+    ::report::defstyle apiA {{n 2}} {tcaption $n}
+} -body {
+    report::report r1 1 style apiA
+    report::report r2 1 style apiA 3
+    list [r1 tcaption] [r2 tcaption]
+} -cleanup {
+    r1 destroy
+    r2 destroy
+    ::report::rmstyle apiA
+} -result {2 3}
+
+test report-api-1.7 {style: too many arguments for a style with defaults} -setup {
+    ::report::defstyle apiA {{n 2}} {tcaption $n}
+} -body {
+    report::report r 1 style apiA 3 4
+} -cleanup {
+    ::report::rmstyle apiA
+} -returnCodes error -result {called style "apiA" with too many arguments}
+
+test report-api-1.8 {style: previously defined styles are commands} -setup {
+    ::report::defstyle apiA {x} {tcaption $x}
+    ::report::defstyle apiB {} {apiA 4; bcaption 2}
+} -body {
+    report::report r 1 style apiB
+    list [r tcaption] [r bcaption]
+} -cleanup {
+    r destroy
+    ::report::rmstyle apiB
+    ::report::rmstyle apiA
+} -result {4 2}
+
+test report-api-1.9 {style: styles defined later are not available} -setup {
+    ::report::defstyle apiA {} {apiB}
+    ::report::defstyle apiB {} {}
+} -body {
+    report::report r 1 style apiA
+} -cleanup {
+    catch {r destroy}
+    ::report::rmstyle apiA
+    ::report::rmstyle apiB
+} -returnCodes error -result {invalid command name "apiB"}
+
+test report-api-1.10 {style: applying a style using a deleted style} -setup {
+    ::report::defstyle apiA {} {}
+    ::report::defstyle apiB {} {apiA}
+    ::report::rmstyle apiA
+} -body {
+    report::report r 1 style apiB
+} -cleanup {
+    catch {r destroy}
+    ::report::rmstyle apiB
+} -returnCodes error -result {invalid command name "apiA"}
+
+test report-api-1.11 {style: safe interpreter commands are available} -setup {
+    ::report::defstyle apiA {} {
+	data set [list [string repeat < 2] [format %s |] [string toupper x] >>]
+    }
+} -body {
+    report::report r 3 style apiA
+    r data get
+} -cleanup {
+    r destroy
+    ::report::rmstyle apiA
+} -result {<< | X >>}
+
+test report-api-1.12 {style: unsafe commands are not available} -setup {
+    ::report::defstyle apiA {} {open nonexistent.file}
+} -body {
+    report::report r 1 style apiA
+} -cleanup {
+    catch {r destroy}
+    ::report::rmstyle apiA
+} -returnCodes error -result {invalid command name "open"}
+
+test report-api-1.13 {style: report methods operate on the new report} -setup {
+    ::report::defstyle apiA {} {
+	sizes [lrepeat [columns] 4]
+	justify end right
+	pad 0 both _
+    }
+} -body {
+    report::report r 3 style apiA
+    list [r sizes] [r justify 2] [r pad 0]
+} -cleanup {
+    r destroy
+    ::report::rmstyle apiA
+} -result {{4 4 4} right {_ _}}
+
+test report-api-1.14 {style: arguments are available as variables} -setup {
+    ::report::defstyle apiA {top bottom} {
+	tcaption $top
+	bcaption $bottom
+    }
+} -body {
+    report::report r 1 style apiA 2 3
+    list [r tcaption] [r bcaption]
+} -cleanup {
+    r destroy
+    ::report::rmstyle apiA
+} -result {2 3}
+
+# The builtin style "plain" is registered without the internal
+# argument information, so applying it explicitly fails.
+test report-api-1.15 {style plain: explicit use} -constraints {
+    knownBug
+} -body {
+    report::report r 2 style plain
+    list [r top enabled] [r data get]
+} -cleanup {
+    catch {r destroy}
+} -result {0 {{} {} {}}}
+
+test report-api-1.16 {style plain: called from another style} -constraints {
+    knownBug
+} -setup {
+    ::report::defstyle apiA {} {plain; tcaption 1}
+} -body {
+    report::report r 2 style apiA
+    r tcaption
+} -cleanup {
+    catch {r destroy}
+    ::report::rmstyle apiA
+} -result 1
+
+# -------------------------------------------------------------------------
+# Report creation, defaults and destroy
+
+test report-api-2.1 {report returns its name} -body {
+    report::report r 2
+} -cleanup {
+    r destroy
+} -result r
+
+test report-api-2.2 {report: default configuration} -body {
+    report::report r 2
+    set res {}
+    foreach t {top topdatasep topcapsep datasep botcapsep botdatasep bottom} {
+	lappend res [r $t enabled]
+    }
+    lappend res [r tcaption] [r bcaption] [r sizes] [r pad 0] [r pad 1] \
+	[r justify 0] [r justify 1] [r columns]
+} -cleanup {
+    r destroy
+    unset res t
+} -result {0 0 0 0 0 0 0 0 0 {dyn dyn} {{} {}} {{} {}} left left 2}
+
+test report-api-2.3 {destroy removes the command and returns empty} -body {
+    report::report r 2
+    list [r destroy] [llength [info commands ::r]]
+} -result {{} 0}
+
+test report-api-2.4 {destroy: the name can be reused} -body {
+    report::report r 2
+    r tcaption 1
+    r destroy
+    report::report r 4
+    list [r columns] [r tcaption]
+} -cleanup {
+    r destroy
+} -result {4 0}
+
+test report-api-2.5 {destroy does not affect other reports} -body {
+    report::report r1 2
+    report::report r2 3
+    r2 tcaption 1
+    r1 destroy
+    list [r2 columns] [r2 tcaption]
+} -cleanup {
+    r2 destroy
+} -result {3 1}
+
+test report-api-2.6 {columns: wrong # args} -setup {
+    report::report r 2
+} -body {
+    r columns x
+} -cleanup {
+    r destroy
+} -returnCodes error -result [tcltest::wrongNumArgs ::report::_columns name 1]
+
+test report-api-2.7 {destroy: wrong # args} -setup {
+    report::report r 2
+} -body {
+    r destroy x
+} -cleanup {
+    r destroy
+} -returnCodes error -result [tcltest::wrongNumArgs ::report::_destroy name 1]
+
+test report-api-2.8 {report: independent configuration of two reports} -body {
+    report::report r1 2
+    report::report r2 2
+    r1 size 0 5
+    r1 data set {< | >}
+    list [r1 sizes] [r2 sizes] [r1 data get] [r2 data get]
+} -cleanup {
+    r1 destroy
+    r2 destroy
+} -result {{5 dyn} {dyn dyn} {< | >} {{} {} {}}}
+
+# -------------------------------------------------------------------------
+# Column indices: forms accepted by lindex
+
+test report-api-3.1 {size: end and end-N indices} -setup {
+    report::report r 3
+} -body {
+    r size end 7
+    r size end-1 6
+    r size end-2 5
+    list [r sizes] [r size end] [r size end-0]
+} -cleanup {
+    r destroy
+} -result {{5 6 7} 7 7}
+
+test report-api-3.2 {pad and justify: end indices} -setup {
+    report::report r 3
+} -body {
+    r pad end left <
+    r justify end-1 center
+    list [r pad 2] [r justify 1]
+} -cleanup {
+    r destroy
+} -result {{< {}} center}
+
+test report-api-3.3 {size query of a set column} -setup {
+    report::report r 3
+} -body {
+    r size 1 8
+    list [r size 0] [r size 1] [r size 2]
+} -cleanup {
+    r destroy
+} -result {dyn 8 dyn}
+
+test report-api-3.4 {size: setting returns the empty string} -setup {
+    report::report r 3
+} -body {
+    list [r size 0 3] [r size 0 dyn] [r sizes {1 2 3}] [r pad 0 left] \
+	[r justify 0 right] [r tcaption 0] [r bcaption 0]
+} -cleanup {
+    r destroy
+} -result {{} {} {} {} {} {} {}}
+
+# The column index is not validated as a whole: index expressions are
+# treated as unknown columns.
+test report-api-3.5 {size: index arithmetic as accepted by lindex} -constraints {
+    knownBug
+} -setup {
+    report::report r 3
+} -body {
+    r size 1+1 4
+    r sizes
+} -cleanup {
+    r destroy
+} -result {dyn dyn 4}
+
+test report-api-3.6 {size: index with trailing garbage} -constraints {
+    knownBug
+} -setup {
+    report::report r 3
+} -body {
+    r size 1x 4
+} -cleanup {
+    r destroy
+} -returnCodes error -result {column: syntax error in index "1x"}
+
+test report-api-3.7 {sizes: a list with dyn and numbers} -setup {
+    report::report r 3
+} -body {
+    r sizes {dyn 3 dyn}
+    list [r size 0] [r size 1] [r size 2]
+} -cleanup {
+    r destroy
+} -result {dyn 3 dyn}
+
+test report-api-3.8 {pad: replacing one side keeps the other} -setup {
+    report::report r 3
+} -body {
+    r pad 0 both *
+    r pad 0 left
+    set res [list [r pad 0]]
+    r pad 0 right {}
+    lappend res [r pad 0]
+} -cleanup {
+    r destroy
+    unset res
+} -result {{{ } *} {{ } {}}}
+
+# -------------------------------------------------------------------------
+# Template consistency checks
+
+test report-api-4.1 {set: inconsistent enabled separator} -setup {
+    report::report r 3
+    r data set {| | | |}
+    r top set {+ - + - + - +}
+    r top enable
+} -body {
+    r top set {++ - + - + - +}
+} -cleanup {
+    r destroy
+} -returnCodes error -result {inconsistent verticals in report}
+
+test report-api-4.2 {set: data template inconsistent with enabled separator} -setup {
+    report::report r 3
+    boxed r
+} -body {
+    r data set {|| | | |}
+} -cleanup {
+    r destroy
+} -returnCodes error -result {inconsistent verticals in report}
+
+test report-api-4.3 {set: disabled separators are not checked} -setup {
+    report::report r 3
+    r data set {| | | |}
+} -body {
+    r datasep set {++ - + - + - +}
+    list [r datasep get] [r datasep enabled]
+} -cleanup {
+    r destroy
+} -result {{++ - + - + - +} 0}
+
+test report-api-4.4 {set: unused caption data templates are not checked} -setup {
+    report::report r 3
+    boxed r
+} -body {
+    r topdata set {|| | | |}
+    r botdata set {|| | | |}
+    list [r topdata get] [r botdata get]
+} -cleanup {
+    r destroy
+} -result {{|| | | |} {|| | | |}}
+
+foreach {n cap data sep} {
+    5 tcaption topdata topdatasep
+    6 bcaption botdata botdatasep
+} {
+    test report-api-4.$n.1 "$sep is not checked for $cap 1" -setup {
+	report::report r 3
+	r data set {| | | |}
+	r $data set {| | | |}
+	r $sep set {++ - + - + - +}
+	r $sep enable
+    } -body {
+	r $cap 1
+	r $cap
+    } -cleanup {
+	r destroy
+    } -result 1
+
+    test report-api-4.$n.2 "$sep is checked for $cap 2" -setup {
+	report::report r 3
+	r data set {| | | |}
+	r $data set {| | | |}
+	r $sep set {++ - + - + - +}
+	r $sep enable
+    } -body {
+	r $cap 2
+    } -cleanup {
+	r destroy
+    } -returnCodes error -result {inconsistent verticals in report}
+
+    # The check is only done when the caption grows from 0 rows.
+    test report-api-4.$n.3 "$sep is checked when $cap grows from 1 to 2" -constraints {
+	knownBug
+    } -setup {
+	report::report r 3
+	r data set {| | | |}
+	r $data set {| | | |}
+	r $sep set {++ - + - + - +}
+	r $sep enable
+	r $cap 1
+    } -body {
+	r $cap 2
+    } -cleanup {
+	r destroy
+    } -returnCodes error -result {inconsistent verticals in report}
+}
+
+test report-api-4.7 {disable: no consistency check} -setup {
+    report::report r 3
+    boxed r
+} -body {
+    r top disable
+    r bottom disable
+    r data set {|| || || ||}
+    list [r top disable] [r top enabled] [catch {r top enable} msg] $msg
+} -cleanup {
+    r destroy
+    unset msg
+} -result {{} 0 1 {inconsistent verticals in report}}
+
+test report-api-4.8 {enable twice, set and enable return empty} -setup {
+    report::report r 3
+    r data set {| | | |}
+} -body {
+    list [r top set {+ - + - + - +}] [r top enable] [r top enable] \
+	[r top enabled]
+} -cleanup {
+    r destroy
+} -result {{} {} {} 1}
+
+test report-api-4.9 {consistency uses the display width of verticals} -setup {
+    report::report r 1
+    r data set [list "\033\[1m|\033\[0m" |]
+} -body {
+    r top set {+ - +}
+    r top enable
+    r top enabled
+} -cleanup {
+    r destroy
+} -result 1
+
+# -------------------------------------------------------------------------
+# Formatting: separators and regions
+
+test report-api-5.1 {datasep between data rows} -setup {
+    mkmatrix m {{a bb ccc} {dddd e ff} {g h i}}
+    report::report r 3
+    r data    set {| | | |}
+    r datasep set {+ - + - + - +}
+    r datasep enable
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {|a   |bb|ccc|
++----+--+---+
+|dddd|e |ff |
++----+--+---+
+|g   |h |i  |
+}
+
+test report-api-5.2 {bottom caption with botcapsep} -setup {
+    mkmatrix m {{a bb ccc} {dddd e ff} {sum x y}}
+    report::report r 3
+    boxed r
+    r botdata   set {| | | |}
+    r botcapsep set {+ = + = + = +}
+    r botcapsep enable
+    r bcaption 1
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {+----+--+---+
+|a   |bb|ccc|
+|dddd|e |ff |
++====+==+===+
+|sum |x |y  |
++----+--+---+
+}
+
+test report-api-5.3 {top caption of two rows with topdatasep} -setup {
+    mkmatrix m {{h1 h2 h3} {u1 u2 u3} {a b c}}
+    report::report r 3
+    boxed r
+    r topdata    set {| | | |}
+    r topdatasep set {+ . + . + . +}
+    r topcapsep  set {+ = + = + = +}
+    r topdatasep enable
+    r topcapsep  enable
+    r tcaption 2
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {+--+--+--+
+|h1|h2|h3|
++..+..+..+
+|u1|u2|u3|
++==+==+==+
+|a |b |c |
++--+--+--+
+}
+
+test report-api-5.4 {caption templates are used for caption rows} -setup {
+    mkmatrix m {{h1 h2 h3} {a b c} {s1 s2 s3}}
+    report::report r 3
+    r data    set {| | | |}
+    r topdata set {< : : >}
+    r botdata set {( , , )}
+    r tcaption 1
+    r bcaption 1
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {<h1:h2:h3>
+|a |b |c |
+(s1,s2,s3)
+}
+
+test report-api-5.5 {empty data region} -setup {
+    mkmatrix m {{h1 h2 h3} {s1 s2 s3}}
+    report::report r 3
+    boxed r
+    r topdata   set {| | | |}
+    r botdata   set {| | | |}
+    r topcapsep set {+ = + = + = +}
+    r botcapsep set {+ = + = + = +}
+    r datasep   set {+ . + . + . +}
+    r topcapsep enable
+    r botcapsep enable
+    r datasep   enable
+    r tcaption 1
+    r bcaption 1
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {+--+--+--+
+|h1|h2|h3|
++==+==+==+
++==+==+==+
+|s1|s2|s3|
++--+--+--+
+}
+
+test report-api-5.6 {matrix without rows, plain style} -setup {
+    mkmatrix m {}
+    report::report r 3
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {}
+
+test report-api-5.7 {matrix without rows, fixed sizes, top and bottom} -setup {
+    mkmatrix m {}
+    report::report r 3
+    boxed r
+    r sizes {1 2 3}
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {+-+--+---+
++-+--+---+
+}
+
+test report-api-5.8 {captions taking all rows of the matrix} -setup {
+    mkmatrix m {{h1 h2 h3} {s1 s2 s3}}
+    report::report r 3
+    r tcaption 1
+    r bcaption 1
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {h1h2h3
+s1s2s3
+}
+
+test report-api-5.9 {multi-character horizontal fill is repeated and cut} -setup {
+    mkmatrix m {{abcde ab abc}}
+    report::report r 3
+    r data set {| | | |}
+    r top  set {+ -= + -=* + ab +}
+    r top  enable
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {+-=-=-+-=+aba+
+|abcde|ab|abc|
+}
+
+test report-api-5.10 {multi-character verticals} -setup {
+    mkmatrix m {{a b c}}
+    report::report r 3
+    r data set {{[ } { | } { | } { ]}}
+    r top  set {{+-} - {-+-} - {-+-} - {-+}}
+    r top  enable
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {+---+---+---+
+[ a | b | c ]
+}
+
+test report-api-5.11 {trailing white space of lines is removed} -setup {
+    mkmatrix m {{a bbb c} {aaa b {}}}
+    report::report r 3
+} -body {
+    split [r printmatrix m] \n
+} -cleanup {
+    r destroy
+    m destroy
+} -result {{a  bbbc} aaab {}}
+
+# -------------------------------------------------------------------------
+# Formatting: sizes, justification and padding
+
+test report-api-6.1 {fixed size wider than the values} -setup {
+    mkmatrix m {{a bb ccc}}
+    report::report r 3
+    r data set {| | | |}
+    r sizes {3 3 5}
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result "|a  |bb |ccc  |\n"
+
+test report-api-6.2 {left justification cuts at the left edge} -setup {
+    mkmatrix m {{abcdef x y}}
+    report::report r 3
+    r data set {| | | |}
+    r size 0 3
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result "|def|x|y|\n"
+
+test report-api-6.3 {right justification} -setup {
+    mkmatrix m {{abcdef ab y}}
+    report::report r 3
+    r data set {| | | |}
+    r sizes {3 5 1}
+    r justify 0 right
+    r justify 1 right
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result "|abc|   ab|y|\n"
+
+test report-api-6.4 {center justification, odd fill} -setup {
+    mkmatrix m {{ab abc y}}
+    report::report r 3
+    r data set {| | | |}
+    r sizes {5 5 1}
+    r justify 0 center
+    r justify 1 center
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result "|  ab | abc |y|\n"
+
+test report-api-6.5 {center justification, cutting} -setup {
+    mkmatrix m {{abcdef abcdefg y}}
+    report::report r 3
+    r data set {| | | |}
+    r sizes {3 3 1}
+    r justify 0 center
+    r justify 1 center
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result "|bcd|cde|y|\n"
+
+test report-api-6.6 {padding on the left only, with custom string} -setup {
+    mkmatrix m {{a bb c}}
+    report::report r 3
+    boxed r
+    r pad 0 left <
+    r pad 1 left {}
+    r pad 2 right >>
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {+--+--+---+
+|<a|bb|c>>|
++--+--+---+
+}
+
+test report-api-6.7 {default padding string is a space} -setup {
+    mkmatrix m {{a b c}}
+    report::report r 3
+    r data set {| | | |}
+    r pad 0 left
+    r pad 1 right
+    r pad 2 both
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result "| a|b | c |\n"
+
+test report-api-6.8 {multi-line cells with justification} -setup {
+    mkmatrix m [list [list a "one\ntwo\nthree" x]]
+    report::report r 3
+    r data set {| | | |}
+    r justify 1 right
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {|a|  one|x|
+| |  two| |
+| |three| |
+}
+
+test report-api-6.9 {multi-line cells with a fixed size} -setup {
+    mkmatrix m [list [list a "one\ntwo\nthree" x]]
+    report::report r 3
+    r data set {| | | |}
+    r size 1 4
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result {|a|one |x|
+| |two | |
+| |hree| |
+}
+
+test report-api-6.10 {double-width characters in a fixed size column} -setup {
+    mkmatrix m [list [list a 橡 x]]
+    report::report r 3
+    r data set {| | | |}
+    r size 1 4
+    r justify 1 right
+} -body {
+    r printmatrix m
+} -cleanup {
+    r destroy
+    m destroy
+} -result "|a|  橡|x|\n"
+
+# -------------------------------------------------------------------------
+# printmatrix / printmatrix2channel
+
+test report-api-7.1 {printmatrix2channel returns the empty string} -setup {
+    mkmatrix m {{a b c}}
+    report::report r 3
+    set f [open [makeFile {} report-api.out] w]
+} -body {
+    r printmatrix2channel m $f
+} -cleanup {
+    close $f
+    removeFile report-api.out
+    r destroy
+    m destroy
+    unset f
+} -result {}
+
+test report-api-7.2 {printmatrix2channel writes what printmatrix returns} -setup {
+    mkmatrix m {{a bb ccc} {dddd e ff}}
+    report::report r 3
+    boxed r
+    r datasep set {+ . + . + . +}
+    r datasep enable
+    set name [makeFile {} report-api.out]
+    set f [open $name w]
+} -body {
+    r printmatrix2channel m $f
+    close $f
+    set f [open $name r]
+    string equal [read $f] [r printmatrix m]
+} -cleanup {
+    close $f
+    removeFile report-api.out
+    r destroy
+    m destroy
+    unset f name
+} -result 1
+
+test report-api-7.3 {printmatrix2channel: unknown channel} -setup {
+    mkmatrix m {{a b c}}
+    report::report r 3
+} -body {
+    r printmatrix2channel m nosuchchannel
+} -cleanup {
+    r destroy
+    m destroy
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test report-api-7.4 {printmatrix: too many arguments} -setup {
+    mkmatrix m {{a b c}}
+    report::report r 3
+} -body {
+    r printmatrix m x
+} -cleanup {
+    r destroy
+    m destroy
+} -returnCodes error -result [tcltest::wrongNumArgs ::report::_printmatrix {name matrix} 2]
+
+test report-api-7.5 {alternative: matrix format 2string with a report} -setup {
+    mkmatrix m {{a bb ccc} {dddd e ff}}
+    report::report r 3
+    boxed r
+} -body {
+    string equal [m format 2string r] [r printmatrix m]
+} -cleanup {
+    r destroy
+    m destroy
+} -result 1
+
+test report-api-7.6 {the same report formats several matrices} -setup {
+    mkmatrix m1 {{a b c}}
+    mkmatrix m2 {{aaa bbb ccc}}
+    report::report r 3
+    boxed r
+} -body {
+    list [r printmatrix m1] [r printmatrix m2] [r printmatrix m1]
+} -cleanup {
+    r destroy
+    m1 destroy
+    m2 destroy
+} -result [list "+-+-+-+\n|a|b|c|\n+-+-+-+\n" \
+	       "+---+---+---+\n|aaa|bbb|ccc|\n+---+---+---+\n" \
+	       "+-+-+-+\n|a|b|c|\n+-+-+-+\n"]
+
+# -------------------------------------------------------------------------
+
+rename mkmatrix {}
+rename boxed {}
+unset n cap data sep
+testsuiteCleanup
