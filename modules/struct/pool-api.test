@@ -1,0 +1,426 @@
+# -*- tcl -*-
+# pool-api.test:  Additional tests for the documented API of struct::pool.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements pool.test (which tests the error conditions), covering
+# the normal behaviour of the documented commands.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+}
+testing {
+    useLocal pool.tcl struct::pool
+}
+
+# -------------------------------------------------------------------------
+## Creation and destruction
+
+test pool-api-1.0 {creation, result is the pool name} -body {
+    struct::pool mypool
+} -cleanup {
+    mypool destroy
+} -result mypool
+
+test pool-api-1.1 {creation, default maxsize is 10} -setup {
+    struct::pool mypool
+} -body {
+    list [mypool info maxsize] [mypool maxsize] [mypool info cursize]
+} -cleanup {
+    mypool destroy
+} -result {10 10 0}
+
+test pool-api-1.2 {creation, explicit maxsize} -setup {
+    struct::pool mypool 3
+} -body {
+    mypool info maxsize
+} -cleanup {
+    mypool destroy
+} -result 3
+
+test pool-api-1.3 {creation, automatic names} -body {
+    set a [struct::pool]
+    set b [struct::pool]
+    list [regexp {^pool[1-9][0-9]*$} $a] [regexp {^pool[1-9][0-9]*$} $b] \
+	[expr {$a ne $b}] [llength [info commands ::$a]]
+} -cleanup {
+    $a destroy
+    $b destroy
+    unset a b
+} -result {1 1 1 1}
+
+test pool-api-1.4 {creation, automatic name with explicit maxsize} -body {
+    set a [struct::pool "" 4]
+    list [regexp {^pool[1-9][0-9]*$} $a] [$a info maxsize]
+} -cleanup {
+    $a destroy
+    unset a
+} -result {1 4}
+
+test pool-api-1.5 {creation, maxsize 0 is not positive} -body {
+    struct::pool mypool 0
+} -returnCodes error -result {The second argument must be a positive integer value}
+
+test pool-api-1.6 {destroy, removes the command, name can be reused} -body {
+    struct::pool mypool
+    mypool destroy
+    set r [info commands ::mypool]
+    struct::pool mypool
+    lappend r [mypool info cursize]
+} -cleanup {
+    mypool destroy
+    unset -nocomplain r
+} -result {0}
+
+test pool-api-1.7 {destroy -force, with allocated items} -setup {
+    struct::pool mypool
+    mypool add a
+    mypool request it
+} -body {
+    list [mypool destroy -force] [info commands ::mypool]
+} -cleanup {
+    unset -nocomplain it
+} -result {{} {}}
+
+test pool-api-1.8 {two pools are independent} -setup {
+    struct::pool mypool
+    struct::pool otherpool
+} -body {
+    mypool add a b
+    otherpool add a
+    list [mypool info cursize] [otherpool info cursize]
+} -cleanup {
+    mypool destroy
+    otherpool destroy
+} -result {2 1}
+
+# -------------------------------------------------------------------------
+## add, info
+
+test pool-api-2.0 {add, result, state of new items} -setup {
+    struct::pool mypool
+} -body {
+    list [mypool add a b c] [mypool info cursize] [mypool info allitems] \
+	[mypool info freeitems] [mypool info allocstate] [mypool info allocID b]
+} -cleanup {
+    mypool destroy
+} -result {{} 3 {a b c} {a b c} {a -1 b -1 c -1} -1}
+
+test pool-api-2.1 {add, up to maxsize} -setup {
+    struct::pool mypool 2
+} -body {
+    mypool add a b
+    mypool info cursize
+} -cleanup {
+    mypool destroy
+} -result 2
+
+test pool-api-2.2 {add, a failing add registers nothing} -setup {
+    struct::pool mypool
+    mypool add a
+} -body {
+    catch {mypool add b a}
+    lsort [mypool info allitems]
+} -cleanup {
+    mypool destroy
+} -result a
+
+test pool-api-2.3 {add, item names with spaces} -setup {
+    struct::pool mypool
+} -body {
+    mypool add {a b} c
+    mypool request it -prefer {a b}
+    list $it [mypool info allocID {a b}] [mypool info freeitems]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {{a b} dummyID c}
+
+# -------------------------------------------------------------------------
+## request
+
+test pool-api-3.0 {request, first free item, default allocID} -setup {
+    struct::pool mypool
+    mypool add a b
+} -body {
+    list [mypool request it] $it [mypool info allocID a] [mypool info freeitems]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {1 a dummyID b}
+
+test pool-api-3.1 {request, -allocID} -setup {
+    struct::pool mypool
+    mypool add a b
+} -body {
+    list [mypool request it -allocID me] $it [mypool info allocID a]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {1 a me}
+
+test pool-api-3.2 {request, -prefer a free item} -setup {
+    struct::pool mypool
+    mypool add a b c
+} -body {
+    list [mypool request it -prefer c] $it [mypool info freeitems]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {1 c {a b}}
+
+test pool-api-3.3 {request, -prefer an allocated item is denied} -setup {
+    struct::pool mypool
+    mypool add a b
+    mypool request it -prefer a
+    unset it
+} -body {
+    list [mypool request it -prefer a] [info exists it] [mypool info freeitems]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {0 0 b}
+
+test pool-api-3.4 {request, both options} -setup {
+    struct::pool mypool
+    mypool add a b
+} -body {
+    list [mypool request it -allocID me -prefer b] $it [mypool info allocstate]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {1 b {a -1 b me}}
+
+test pool-api-3.5 {request, all items allocated} -setup {
+    struct::pool mypool
+    mypool add a
+    mypool request x
+} -body {
+    list [mypool request it] [info exists it]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it x
+} -result {0 0}
+
+test pool-api-3.6 {request, empty pool} -setup {
+    struct::pool mypool
+} -body {
+    list [mypool request it] [info exists it]
+} -cleanup {
+    mypool destroy
+    unset -nocomplain it
+} -result {0 0}
+
+test pool-api-3.7 {request, item variable in the caller's scope} -setup {
+    struct::pool mypool
+    mypool add a
+    proc req {} {
+	set ok [mypool request local]
+	list $ok $local [info exists ::local]
+    }
+} -body {
+    req
+} -cleanup {
+    mypool destroy -force
+    rename req {}
+} -result {1 a 0}
+
+test pool-api-3.8 {request, items are handed out until none is free} -setup {
+    struct::pool mypool
+    mypool add a b c
+} -body {
+    set r {}
+    while {[mypool request it]} {lappend r $it}
+    list $r [mypool info freeitems]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it r
+} -result {{a b c} {}}
+
+test pool-api-3.9 {request, -prefer an item whose name contains glob characters} -setup {
+    struct::pool mypool
+    mypool add ab {a*}
+} -body {
+    mypool request it -prefer {a*}
+    list $it [mypool info freeitems] [lsort -stride 2 [mypool info allocstate]]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -constraints knownBug -result {a* ab {a* dummyID ab -1}}
+
+# -------------------------------------------------------------------------
+## release
+
+test pool-api-4.0 {release, item becomes free again} -setup {
+    struct::pool mypool
+    mypool add a b
+    mypool request it
+} -body {
+    list [mypool release $it] [mypool info allocID a] [lsort [mypool info freeitems]]
+} -cleanup {
+    mypool destroy
+    unset -nocomplain it
+} -result {{} -1 {a b}}
+
+test pool-api-4.1 {release, item can be requested again} -setup {
+    struct::pool mypool
+    mypool add a
+    mypool request it -allocID first
+    mypool release a
+    unset it
+} -body {
+    list [mypool request it -allocID second] $it [mypool info allocID a]
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {1 a second}
+
+# -------------------------------------------------------------------------
+## remove
+
+test pool-api-5.0 {remove, free item} -setup {
+    struct::pool mypool
+    mypool add a b c
+} -body {
+    list [mypool remove b] [mypool info allitems] [mypool info freeitems] [mypool info cursize]
+} -cleanup {
+    mypool destroy
+} -result {{} {a c} {a c} 2}
+
+test pool-api-5.1 {remove -force, allocated item} -setup {
+    struct::pool mypool
+    mypool add a b
+    mypool request it -prefer a
+} -body {
+    list [mypool remove a -force] [mypool info allitems] [mypool info freeitems] [mypool info cursize]
+} -cleanup {
+    mypool destroy
+    unset -nocomplain it
+} -result {{} b b 1}
+
+test pool-api-5.2 {remove -force, free item} -setup {
+    struct::pool mypool
+    mypool add a b
+} -body {
+    mypool remove a -force
+    list [mypool info allitems] [mypool info freeitems]
+} -cleanup {
+    mypool destroy
+} -result {b b}
+
+test pool-api-5.3 {remove, item name can be added again} -setup {
+    struct::pool mypool 1
+    mypool add a
+    mypool remove a
+} -body {
+    mypool add a
+    list [mypool info allitems] [mypool info cursize]
+} -cleanup {
+    mypool destroy
+} -result {a 1}
+
+test pool-api-5.4 {remove, item whose name contains glob characters} -setup {
+    struct::pool mypool
+    mypool add ab {a*}
+} -body {
+    mypool remove {a*}
+    list [mypool info allitems] [mypool info freeitems] [mypool info cursize]
+} -cleanup {
+    mypool destroy -force
+} -constraints knownBug -result {ab ab 1}
+
+# -------------------------------------------------------------------------
+## clear
+
+test pool-api-6.0 {clear, all items free} -setup {
+    struct::pool mypool
+    mypool add a b
+} -body {
+    list [mypool clear] [mypool info allitems] [mypool info cursize] [mypool info maxsize]
+} -cleanup {
+    mypool destroy
+} -result {{} {} 0 10}
+
+test pool-api-6.1 {clear -force, with allocated items} -setup {
+    struct::pool mypool
+    mypool add a b
+    mypool request it
+} -body {
+    list [mypool clear -force] [mypool info allocstate] [mypool info freeitems] [mypool info cursize]
+} -cleanup {
+    mypool destroy
+    unset -nocomplain it
+} -result {{} {} {} 0}
+
+test pool-api-6.2 {clear, pool is usable afterwards} -setup {
+    struct::pool mypool
+    mypool add a
+    mypool clear
+} -body {
+    mypool add a b
+    list [mypool request it] $it
+} -cleanup {
+    mypool destroy -force
+    unset -nocomplain it
+} -result {1 a}
+
+# -------------------------------------------------------------------------
+## maxsize
+
+test pool-api-7.0 {maxsize, set and query} -setup {
+    struct::pool mypool
+} -body {
+    list [mypool maxsize 3] [mypool maxsize] [mypool info maxsize]
+} -cleanup {
+    mypool destroy
+} -result {3 3 3}
+
+test pool-api-7.1 {maxsize, limits further adds} -setup {
+    struct::pool mypool
+    mypool add a
+    mypool maxsize 2
+} -body {
+    mypool add b
+    list [catch {mypool add c}] [mypool info cursize]
+} -cleanup {
+    mypool destroy
+} -result {1 2}
+
+test pool-api-7.2 {maxsize, equal to the current size is allowed} -setup {
+    struct::pool mypool
+    mypool add a b
+} -body {
+    mypool maxsize 2
+} -cleanup {
+    mypool destroy
+} -result 2
+
+test pool-api-7.3 {maxsize, 0 is not positive} -setup {
+    struct::pool mypool
+} -body {
+    mypool maxsize 0
+} -cleanup {
+    mypool destroy
+} -returnCodes error -result {The second argument must be a positive integer value}
+
+test pool-api-7.4 {maxsize, negative value} -setup {
+    struct::pool mypool
+} -body {
+    mypool maxsize -1
+} -cleanup {
+    mypool destroy
+} -returnCodes error -result {The second argument must be a positive integer value}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup

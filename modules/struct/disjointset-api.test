@@ -1,0 +1,203 @@
+# -*- tcl -*-
+# disjointset-api.test:  Additional tests for the documented API of
+# struct::disjointset.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements disjointset.test / disjointset.testsuite, covering what
+# those do not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal disjointset.tcl struct::disjointset
+}
+
+# -------------------------------------------------------------------------
+
+proc canonset {partitions} {
+    set res {}
+    foreach x $partitions {
+	lappend res [lsort -dict $x]
+    }
+    return [lsort -dict $res]
+}
+
+# -------------------------------------------------------------------------
+## Creation and destruction
+
+test disjointset-api-1.0 {creation, result is the qualified name} -body {
+    ::struct::disjointset DS
+} -cleanup {
+    DS destroy
+} -result ::DS
+
+test disjointset-api-1.1 {creation, name in a namespace} -setup {
+    namespace eval ::djns {}
+} -body {
+    namespace eval ::djns {::struct::disjointset DS}
+} -cleanup {
+    ::djns::DS destroy
+    namespace delete ::djns
+} -result ::djns::DS
+
+test disjointset-api-1.2 {destroy, wrong # args} -setup {
+    ::struct::disjointset DS
+} -body {
+    DS destroy X
+} -cleanup {
+    DS destroy
+} -returnCodes error -result [tcltest::tooManyArgs "DS destroy" {}]
+
+test disjointset-api-1.3 {destroy removes the command} -body {
+    ::struct::disjointset DS
+    DS add-partition {1 2}
+    DS destroy
+    info commands ::DS
+} -result {}
+
+test disjointset-api-1.4 {two disjoint sets are independent} -setup {
+    ::struct::disjointset DS
+    ::struct::disjointset DT
+} -body {
+    DS add-partition {1 2}
+    DT add-element 1
+    list [DS num-partitions] [DT num-partitions] [DS find 1] [DT find 1]
+} -cleanup {
+    DS destroy
+    DT destroy
+} -result {1 1 {1 2} 1}
+
+test disjointset-api-1.5 {unknown method} -setup {
+    ::struct::disjointset DS
+} -body {
+    DS bogus
+} -cleanup {
+    DS destroy
+} -returnCodes error -result {unknown method "bogus": must be add-element, add-partition, destroy, equal, exemplars, find, find-exemplar, merge, num-partitions or partitions}
+
+# -------------------------------------------------------------------------
+## Elements with spaces are single elements
+
+test disjointset-api-2.0 {add-partition, elements with spaces} -setup {
+    ::struct::disjointset DS
+} -body {
+    DS add-partition {{x y} z}
+    list [DS find {x y}] [DS equal {x y} z] [DS find x]
+} -cleanup {
+    DS destroy
+} -result {{{x y} z} 1 {}}
+
+test disjointset-api-2.1 {add-element, element with spaces} -setup {
+    ::struct::disjointset DS
+} -body {
+    DS add-element {p q}
+    list [DS find-exemplar {p q}] [DS num-partitions] [DS partitions]
+} -cleanup {
+    DS destroy
+} -result {{p q} 1 {{{p q}}}}
+
+test disjointset-api-2.2 {add-element, empty string element} -setup {
+    ::struct::disjointset DS
+} -body {
+    DS add-element {}
+    DS add-element a
+    DS merge {} a
+    list [DS num-partitions] [DS equal {} a]
+} -cleanup {
+    DS destroy
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+## Interplay of the methods
+
+test disjointset-api-3.0 {merge, transitive} -setup {
+    ::struct::disjointset DS
+    foreach e {a b c d} {DS add-element $e}
+} -body {
+    DS merge a b
+    DS merge c d
+    DS merge b c
+    list [DS num-partitions] [DS equal a d] [lsort [DS find a]] \
+	[string equal [DS find-exemplar a] [DS find-exemplar d]]
+} -cleanup {
+    DS destroy
+} -result {1 1 {a b c d} 1}
+
+test disjointset-api-3.1 {exemplars, one member of each partition} -setup {
+    ::struct::disjointset DS
+    DS add-partition {1 2 3}
+    DS add-partition {4 5}
+    DS add-element 6
+} -body {
+    set ex [DS exemplars]
+    set r [llength $ex]
+    foreach e $ex {lappend r [DS find-exemplar $e]}
+    list [llength $ex] \
+	[canonset [lmap e $ex {DS find $e}]] \
+	[string equal [lrange $r 1 end] $ex]
+} -cleanup {
+    DS destroy
+    unset -nocomplain ex r e
+} -result {3 {{1 2 3} {4 5} 6} 1}
+
+test disjointset-api-3.2 {exemplars change only through merge} -setup {
+    ::struct::disjointset DS
+    DS add-partition {1 2 3}
+    DS add-partition {4 5}
+} -body {
+    set before [lsort [DS exemplars]]
+    DS add-element 6
+    DS find 2
+    DS equal 1 3
+    set after [lsort [DS exemplars]]
+    list [llength $after] [expr {[llength [lsearch -all -inline -exact $after 6]] == 1}] \
+	[string equal $before [lsort [lsearch -all -inline -not -exact $after 6]]]
+} -cleanup {
+    DS destroy
+    unset -nocomplain before after
+} -result {3 1 1}
+
+test disjointset-api-3.3 {add-element after merges} -setup {
+    ::struct::disjointset DS
+    DS add-partition {1 2}
+    DS add-partition {3}
+    DS merge 1 3
+} -body {
+    DS add-element 4
+    list [DS num-partitions] [canonset [DS partitions]]
+} -cleanup {
+    DS destroy
+} -result {2 {{1 2 3} 4}}
+
+test disjointset-api-3.4 {add-element, element known from add-partition} -setup {
+    ::struct::disjointset DS
+    DS add-partition {1 2}
+} -body {
+    DS add-element 2
+} -cleanup {
+    DS destroy
+} -returnCodes error -result {The element "2" is already known to the disjoint set ::DS}
+
+test disjointset-api-3.5 {add-partition, a failing add adds nothing} -setup {
+    ::struct::disjointset DS
+    DS add-partition {1 2}
+} -body {
+    catch {DS add-partition {3 1}}
+    list [DS num-partitions] [DS find 3]
+} -cleanup {
+    DS destroy
+} -result {1 {}}
+
+# -------------------------------------------------------------------------
+rename canonset {}
+testsuiteCleanup

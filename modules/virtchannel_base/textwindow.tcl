@@ -8,7 +8,7 @@
 # Meta as::copyright 2009
 # Meta as::license BSD
 # Meta as::credit  To Bryan Oakley for rotext, see
-# Meta as::credit  http://wiki.tcl.tk/22036. His code was
+# Meta as::credit  https://wiki.tcl-lang.org/22036. His code was
 # Meta as::credit  used here as template for the text
 # Meta as::credit  widget portions of the channel.
 # Meta description Implementation of a text window

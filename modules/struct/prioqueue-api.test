@@ -1,0 +1,259 @@
+# -*- tcl -*-
+# prioqueue-api.test:  Additional tests for the documented API of
+# struct::prioqueue.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Complements prioqueue.test, covering what that does not.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal prioqueue.tcl struct::prioqueue
+}
+
+# -------------------------------------------------------------------------
+## Wrong # args of the methods
+
+foreach {n m sig} {
+    1 clear   {name}
+    2 destroy {name}
+    3 size    {name}
+} {
+    test prioqueue-api-1.$n "$m, wrong # args, too many" -setup {
+	struct::prioqueue pq
+    } -body {
+	pq $m X
+    } -cleanup {
+	pq destroy
+    } -returnCodes error -result [tcltest::tooManyArgs ::struct::prioqueue::_$m $sig]
+}
+
+test prioqueue-api-1.4 {remove, wrong # args, not enough} -setup {
+    struct::prioqueue pq
+} -body {
+    pq remove
+} -cleanup {
+    pq destroy
+} -returnCodes error -result [tcltest::wrongNumArgs ::struct::prioqueue::_remove {name item} 1]
+
+test prioqueue-api-1.5 {remove, wrong # args, too many} -setup {
+    struct::prioqueue pq
+} -body {
+    pq remove a b
+} -cleanup {
+    pq destroy
+} -returnCodes error -result [tcltest::tooManyArgs ::struct::prioqueue::_remove {name item}]
+
+test prioqueue-api-1.6 {put, missing priority} -setup {
+    struct::prioqueue pq
+} -body {
+    pq put a 1 b
+} -cleanup {
+    pq destroy
+} -returnCodes error -result {wrong # args: should be "pq put item prio ?item prio ...?"}
+
+# -------------------------------------------------------------------------
+## remove
+
+test prioqueue-api-2.0 {remove, unknown item is ignored} -setup {
+    struct::prioqueue -integer pq
+    pq put a 1 b 2
+} -body {
+    list [pq remove c] [pq size] [pq peek 2]
+} -cleanup {
+    pq destroy
+} -result {{} 2 {b a}}
+
+test prioqueue-api-2.1 {remove, the remaining order is kept} -setup {
+    struct::prioqueue -integer pq
+    pq put a 1 b 2 c 3 d 4
+} -body {
+    pq remove c
+    list [pq size] [pq get 3]
+} -cleanup {
+    pq destroy
+} -result {3 {d b a}}
+
+test prioqueue-api-2.2 {remove, item with spaces and glob characters} -setup {
+    struct::prioqueue -integer pq
+    pq put xy 1 {x*} 1 {a b} 2
+} -body {
+    pq remove {x*}
+    pq remove {a b}
+    pq peek [pq size]
+} -cleanup {
+    pq destroy
+} -result xy
+
+test prioqueue-api-2.3 {remove, duplicate items, only one is removed} -setup {
+    struct::prioqueue -integer pq
+    pq put x 1 x 2
+} -body {
+    pq remove x
+    list [pq size] [pq peek]
+} -cleanup {
+    pq destroy
+} -result {1 x}
+
+test prioqueue-api-2.4 {remove, empty queue} -setup {
+    struct::prioqueue pq
+} -body {
+    list [pq remove x] [pq size]
+} -cleanup {
+    pq destroy
+} -result {{} 0}
+
+# -------------------------------------------------------------------------
+## put: invalid priorities add nothing
+
+test prioqueue-api-3.0 {put, bad priority in the second pair adds nothing} -setup {
+    struct::prioqueue -integer pq
+} -body {
+    list [catch {pq put a 1 b x} msg] $msg [pq size]
+} -cleanup {
+    pq destroy
+    unset -nocomplain msg
+} -result {1 {priority "x" is not an integer type value} 0}
+
+test prioqueue-api-3.1 {put, real queue accepts integers and exponents} -setup {
+    struct::prioqueue -real pq
+} -body {
+    pq put a 1 b 2.5 c 1e1
+    list [pq peekpriority 3] [pq get 3]
+} -cleanup {
+    pq destroy
+} -result {{1e1 2.5 1} {c b a}}
+
+test prioqueue-api-3.2 {put, integer queue rejects reals} -setup {
+    struct::prioqueue -integer pq
+} -body {
+    pq put a 1.5
+} -cleanup {
+    pq destroy
+} -returnCodes error -result {priority "1.5" is not an integer type value}
+
+test prioqueue-api-3.3 {put, negative integer priorities} -setup {
+    struct::prioqueue -integer pq
+} -body {
+    pq put a 10 b -3 c 9
+    list [pq peekpriority 3] [pq get 3]
+} -cleanup {
+    pq destroy
+} -result {{10 9 -3} {a c b}}
+
+test prioqueue-api-3.4 {put, returns the empty string} -setup {
+    struct::prioqueue pq
+} -body {
+    pq put a 1
+} -cleanup {
+    pq destroy
+} -result {}
+
+test prioqueue-api-3.5 {default priority type is integer} -setup {
+    struct::prioqueue pq
+} -body {
+    pq put a 1.5
+} -cleanup {
+    pq destroy
+} -returnCodes error -result {priority "1.5" is not an integer type value}
+
+# -------------------------------------------------------------------------
+## -ascii versus -dictionary ordering
+
+test prioqueue-api-4.0 {-ascii orders by character codes} -setup {
+    struct::prioqueue -ascii pq
+} -body {
+    pq put a a10 b a9 c a100 d B e b
+    list [pq peekpriority 5] [pq get 5]
+} -cleanup {
+    pq destroy
+} -result {{B a10 a100 a9 b} {d a c b e}}
+
+test prioqueue-api-4.1 {-dictionary orders embedded numbers numerically} -setup {
+    struct::prioqueue -dictionary pq
+} -body {
+    pq put a a10 b a9 c a100
+    list [pq peekpriority 3] [pq get 3]
+} -cleanup {
+    pq destroy
+} -result {{a9 a10 a100} {b a c}}
+
+# -------------------------------------------------------------------------
+## get / peek / peekpriority with count 1
+
+test prioqueue-api-5.0 {get 1, item with spaces is returned as is} -setup {
+    struct::prioqueue pq
+    pq put {a b} 2 c 1
+} -body {
+    list [pq get 1] [pq size]
+} -cleanup {
+    pq destroy
+} -result {{a b} 1}
+
+test prioqueue-api-5.1 {peek 1, item with spaces is returned as is} -setup {
+    struct::prioqueue pq
+    pq put {a b} 2 c 1
+} -body {
+    list [pq peek 1] [pq size]
+} -cleanup {
+    pq destroy
+} -result {{a b} 2}
+
+test prioqueue-api-5.2 {peekpriority, invalid count} -setup {
+    struct::prioqueue pq
+    pq put a 1
+} -body {
+    pq peekpriority 0
+} -cleanup {
+    pq destroy
+} -returnCodes error -result {invalid item count 0}
+
+test prioqueue-api-5.3 {peekpriority, too few items} -setup {
+    struct::prioqueue pq
+    pq put a 1
+} -body {
+    pq peekpriority 2
+} -cleanup {
+    pq destroy
+} -returnCodes error -result {insufficient items in prioqueue to fill request}
+
+test prioqueue-api-5.4 {peekpriority, empty queue} -setup {
+    struct::prioqueue pq
+} -body {
+    pq peekpriority
+} -cleanup {
+    pq destroy
+} -returnCodes error -result {insufficient items in prioqueue to fill request}
+
+test prioqueue-api-5.5 {peekpriority does not remove items} -setup {
+    struct::prioqueue pq
+    pq put a 1 b 2
+} -body {
+    list [pq peekpriority 2] [pq size]
+} -cleanup {
+    pq destroy
+} -result {{2 1} 2}
+
+test prioqueue-api-5.6 {clear, queue is usable afterwards} -setup {
+    struct::prioqueue pq
+    pq put a 1 b 2
+    pq clear
+} -body {
+    pq put c 3
+    list [pq size] [pq get]
+} -cleanup {
+    pq destroy
+} -result {1 c}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
