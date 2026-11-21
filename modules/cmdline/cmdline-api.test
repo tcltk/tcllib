@@ -1,0 +1,299 @@
+# -*- tcl -*-
+# cmdline-api.test:  Additional tests for the documented API of the
+# cmdline package: error codes, the implicit -- option of getoptions and
+# getKnownOptions, defaults of boolean options, unknown options in
+# getoptions, option=value forms, ::argv/::argc handling and argument
+# errors.  Complements cmdline.test.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal cmdline.tcl cmdline
+}
+
+# -------------------------------------------------------------------------
+
+set optlist {{a "flag a"} {foo.arg blat "foo value"} {s.secret "secret flag"}}
+
+# -------------------------------------------------------------------------
+# Argument errors
+
+foreach {n cmd sig} {
+    0 cmdline::getopt          {argvVar optstring optVar valVar}
+    1 cmdline::getKnownOpt     {argvVar optstring optVar valVar}
+    2 cmdline::getoptions      {argvVar optlist ?usage?}
+    3 cmdline::getKnownOptions {argvVar optlist ?usage?}
+    4 cmdline::usage           {optlist ?usage?}
+    5 cmdline::getfiles        {patterns quiet}
+} {
+    test cmdline-api-1.$n "$cmd, wrong # args" -body {
+	$cmd
+    } -returnCodes error -result [tcltest::wrongNumArgs $cmd $sig 0]
+}
+
+test cmdline-api-1.10 {getArgv0, too many args} -body {
+    cmdline::getArgv0 x
+} -returnCodes error -result {wrong # args: should be "cmdline::getArgv0"}
+
+# -------------------------------------------------------------------------
+# getopt
+
+test cmdline-api-2.0 {getopt, value of an .arg option may start with a dash} -body {
+    set argList {-foo -bar baz}
+    list [cmdline::getopt argList {foo.arg bar} opt val] $argList $opt $val
+} -cleanup {
+    unset argList opt val
+} -result {1 baz foo -bar}
+
+test cmdline-api-2.1 {getopt, -opt=value syntax with empty value} -body {
+    set argList {-foo= baz}
+    list [cmdline::getopt argList {foo.arg} opt val] $argList $opt $val
+} -cleanup {
+    unset argList opt val
+} -result {1 baz foo {}}
+
+test cmdline-api-2.2 {getopt, -opt=value syntax, value with =} -body {
+    set argList {-foo=a=b}
+    list [cmdline::getopt argList {foo.arg} opt val] $argList $opt $val
+} -cleanup {
+    unset argList opt val
+} -result {1 {} foo a=b}
+
+test cmdline-api-2.3 {getopt, --opt syntax for boolean option} -body {
+    set argList {--a x}
+    list [cmdline::getopt argList {a} opt val] $argList $opt $val
+} -cleanup {
+    unset argList opt val
+} -result {1 x a 1}
+
+test cmdline-api-2.4 {getopt, missing argument returns -1} -body {
+    set argList {-foo}
+    list [cmdline::getopt argList {foo.arg} opt val] $argList $opt $val
+} -cleanup {
+    unset argList opt val
+} -result {-1 {} foo {Option "foo" requires an argument}}
+
+test cmdline-api-2.5 {getopt, processing a whole argument list} -body {
+    set argList {-a -foo x --foo=y -- -a rest}
+    set res {}
+    while {[set err [cmdline::getopt argList {a foo.arg} opt val]] > 0} {
+	lappend res $opt $val
+    }
+    list $err $res $argList
+} -cleanup {
+    unset argList res err opt val
+} -result {0 {a 1 foo x foo y} {-a rest}}
+
+test cmdline-api-2.6 {getopt, ::argv is processed, ::argc is not modified} -setup {
+    set saved {}
+    foreach v {::argv ::argc} {
+	if {[info exists $v]} {lappend saved $v [set $v]}
+    }
+    set ::argv {-a file}
+    set ::argc 2
+} -body {
+    list [cmdline::getopt ::argv {a} opt val] $::argv $::argc
+} -cleanup {
+    unset ::argv ::argc
+    foreach {v value} $saved {set $v $value}
+    unset saved v opt val
+    catch {unset value}
+} -result {1 file 2}
+
+# -------------------------------------------------------------------------
+# getoptions
+
+test cmdline-api-3.0 {getoptions, defaults for all options} -body {
+    set argList {file}
+    list [dictsort [cmdline::getoptions argList $optlist]] $argList
+} -cleanup {
+    unset argList
+} -result {{a 0 foo blat s 0} file}
+
+test cmdline-api-3.1 {getoptions, all options given} -body {
+    set argList {-a -s -foo=x file}
+    list [dictsort [cmdline::getoptions argList $optlist]] $argList
+} -cleanup {
+    unset argList
+} -result {{a 1 foo x s 1} file}
+
+test cmdline-api-3.2 {getoptions, -- stops option processing} -body {
+    set argList {-a -- -foo x}
+    list [dictsort [cmdline::getoptions argList $optlist]] $argList
+} -cleanup {
+    unset argList
+} -result {{a 1 foo blat s 0} {-foo x}}
+
+test cmdline-api-3.3 {getoptions, unknown option raises the usage} -body {
+    set argList {-zzz}
+    list [catch {cmdline::getoptions argList $optlist} msg] $msg $::errorCode
+} -cleanup {
+    unset argList msg
+} -result [list 1 "[cmdline::getArgv0] options:
+ -a                   flag a
+ -foo value           foo value <blat>
+ --                   Forcibly stop option processing
+ -help                Print this message
+ -?                   Print this message
+" {CMDLINE USAGE}]
+
+test cmdline-api-3.4 {getoptions, -help error code} -body {
+    set argList {-help}
+    catch {cmdline::getoptions argList $optlist}
+    set ::errorCode
+} -cleanup {
+    unset argList
+} -result {CMDLINE USAGE}
+
+test cmdline-api-3.5 {getoptions, -? error code} -body {
+    set argList {-?}
+    catch {cmdline::getoptions argList $optlist}
+    set ::errorCode
+} -cleanup {
+    unset argList
+} -result {CMDLINE USAGE}
+
+test cmdline-api-3.6 {getoptions, missing argument error code} -body {
+    set argList {-foo}
+    catch {cmdline::getoptions argList $optlist}
+    set ::errorCode
+} -cleanup {
+    unset argList
+} -result {CMDLINE USAGE}
+
+test cmdline-api-3.7 {getoptions, usage with try} -body {
+    set argList {-help}
+    try {
+	cmdline::getoptions argList $optlist {usage text:}
+    } trap {CMDLINE USAGE} {msg} {
+	lindex [split $msg \n] 0
+    }
+} -cleanup {
+    unset argList msg
+} -result "[cmdline::getArgv0] usage text:"
+
+test cmdline-api-3.8 {getoptions, later occurrence wins} -body {
+    set argList {-foo x -foo y}
+    dict get [cmdline::getoptions argList $optlist] foo
+} -cleanup {
+    unset argList
+} -result y
+
+test cmdline-api-3.9 {getoptions, option without description} -body {
+    set argList {-help}
+    catch {cmdline::getoptions argList {b {c.arg 5}}} msg
+    set msg
+} -cleanup {
+    unset argList msg
+} -result "[cmdline::getArgv0] options:
+ -b
+ -c value              <5>
+ --                   Forcibly stop option processing
+ -help                Print this message
+ -?                   Print this message
+"
+
+# -------------------------------------------------------------------------
+# getKnownOptions
+
+test cmdline-api-4.0 {getKnownOptions, -- stops option processing} -body {
+    set argList {-x -a -- -foo y}
+    list [dictsort [cmdline::getKnownOptions argList $optlist]] $argList
+} -cleanup {
+    unset argList
+} -result {{a 1 foo blat s 0} {-x -foo y}}
+
+test cmdline-api-4.1 {getKnownOptions, -help error code} -body {
+    set argList {-x -help}
+    catch {cmdline::getKnownOptions argList $optlist}
+    set ::errorCode
+} -cleanup {
+    unset argList
+} -result {CMDLINE USAGE}
+
+test cmdline-api-4.2 {getKnownOptions, missing argument raises the usage} -body {
+    set argList {-x -foo}
+    list [catch {cmdline::getKnownOptions argList $optlist} msg] $::errorCode
+} -cleanup {
+    unset argList msg
+} -result {1 {CMDLINE USAGE}}
+
+test cmdline-api-4.3 {getKnownOptions, unknown options and their arguments kept in order} -body {
+    set argList {-x 1 -a -y 2 3 -foo z}
+    list [dictsort [cmdline::getKnownOptions argList $optlist]] $argList
+} -cleanup {
+    unset argList
+} -result {{a 1 foo z s 0} {-x 1 -y 2 3}}
+
+# -------------------------------------------------------------------------
+# usage
+
+test cmdline-api-5.0 {usage, default usage string, secret options hidden} -body {
+    cmdline::usage $optlist
+} -result "[cmdline::getArgv0] options:
+ -a                   flag a
+ -foo value           foo value <blat>
+ --                   Forcibly stop option processing
+ -help                Print this message
+ -?                   Print this message
+"
+
+test cmdline-api-5.1 {usage, empty option list} -body {
+    cmdline::usage {} {Usage: prog}
+} -result "[cmdline::getArgv0] Usage: prog
+ --                   Forcibly stop option processing
+ -help                Print this message
+ -?                   Print this message
+"
+
+# -------------------------------------------------------------------------
+# getfiles
+
+test cmdline-api-6.0 {getfiles, quiet false warns about directories} -constraints unix -setup {
+    set dir [makeDirectory cmdlineApiDir]
+    set oldpwd [pwd]
+    cd [temporaryDirectory]
+} -body {
+    cmdline::getfiles {cmdlineApiDir} 0
+} -cleanup {
+    cd $oldpwd
+    removeDirectory cmdlineApiDir
+    unset dir oldpwd
+} -result {} -output "warning: no files match \"cmdlineApiDir\"\n"
+
+test cmdline-api-6.1 {getfiles, no globbing on Unix} -constraints unix -setup {
+    makeFile {} cmdlineApi1.txt
+    set oldpwd [pwd]
+    cd [temporaryDirectory]
+} -body {
+    list [cmdline::getfiles {cmdlineApi*.txt} 1] \
+	[cmdline::getfiles {cmdlineApi1.txt} 1]
+} -cleanup {
+    cd $oldpwd
+    removeFile cmdlineApi1.txt
+    unset oldpwd
+} -result [list {} [list [file join [temporaryDirectory] cmdlineApi1.txt]]]
+
+# -------------------------------------------------------------------------
+# getArgv0
+
+test cmdline-api-7.0 {getArgv0, path and .bin extension removed} -setup {
+    set saved $::argv0
+    set ::argv0 [file join a b prog.bin]
+} -body {
+    cmdline::getArgv0
+} -cleanup {
+    set ::argv0 $saved
+    unset saved
+} -result prog
+
+# -------------------------------------------------------------------------
+unset optlist
+testsuiteCleanup
