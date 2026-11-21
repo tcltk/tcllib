@@ -1,0 +1,128 @@
+# -*- tcl -*-
+# fifo2-api.test:  Tests for the documented API of package tcl::chan::fifo2
+# (supplements the existing tests in fifo2.test).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal halfpipe.tcl tcl::chan::halfpipe
+    useLocal fifo2.tcl    tcl::chan::fifo2
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-fifo2-api-1.0 {constructor returns two distinct channels} -body {
+    set r [tcl::chan::fifo2]
+    lassign $r a b
+    list [llength $r] [expr {$a ne $b}] \
+	[expr {$a in [file channels]}] [expr {$b in [file channels]}]
+} -cleanup {
+    close $a
+    unset r a b
+} -result {2 1 1 1}
+
+test tcl-chan-fifo2-api-1.1 {closing the second half closes both} -body {
+    lassign [tcl::chan::fifo2] a b
+    close $b
+    list [expr {$a in [file channels]}] [expr {$b in [file channels]}] \
+	[info class instances ::tcl::chan::fifo2::implementation]
+} -cleanup {
+    unset a b
+} -result {0 0 {}}
+
+test tcl-chan-fifo2-api-2.0 {data flows from a to b} -setup {
+    lassign [tcl::chan::fifo2] a b
+    fconfigure $a -translation binary -buffering none
+    fconfigure $b -translation binary -blocking 0
+} -body {
+    puts -nonewline $a hello
+    list [read $b] [fconfigure $a -blocking 0] [read $a]
+} -cleanup {
+    close $a
+    unset a b
+} -result {hello {} {}}
+
+test tcl-chan-fifo2-api-2.1 {data flows from b to a} -setup {
+    lassign [tcl::chan::fifo2] a b
+    fconfigure $b -translation binary -buffering none
+    fconfigure $a -translation binary -blocking 0
+} -body {
+    puts -nonewline $b world
+    read $a
+} -cleanup {
+    close $a
+    unset a b
+} -result world
+
+test tcl-chan-fifo2-api-2.2 {order is preserved, both directions independent} -setup {
+    lassign [tcl::chan::fifo2] a b
+    fconfigure $a -buffering line -blocking 0
+    fconfigure $b -buffering line -blocking 0
+} -body {
+    puts $a one
+    puts $b uno
+    puts $a two
+    puts $b due
+    list [gets $b] [gets $b] [gets $a] [gets $a] [gets $a line]
+} -cleanup {
+    close $a
+    unset a b line
+} -result {one two uno due -1}
+
+test tcl-chan-fifo2-api-2.3 {no data: non-blocking read is empty} -setup {
+    lassign [tcl::chan::fifo2] a b
+    fconfigure $b -blocking 0
+} -body {
+    list [read $b] [eof $b] [fblocked $b]
+} -cleanup {
+    close $a
+    unset a b
+} -result {{} 0 1}
+
+test tcl-chan-fifo2-api-2.4 {not seekable} -setup {
+    lassign [tcl::chan::fifo2] a b
+} -body {
+    list [tell $a] [catch {seek $a 0} msg] $msg
+} -cleanup {
+    close $a
+    unset a b msg
+} -match glob -result {-1 1 {error during seek on "*": invalid argument}}
+
+test tcl-chan-fifo2-api-3.0 {readable event on the other side} -setup {
+    lassign [tcl::chan::fifo2] a b
+    fconfigure $a -translation binary -buffering none
+    fconfigure $b -translation binary -blocking 0
+    set ::result {}
+} -body {
+    fileevent $b readable {
+	fileevent $b readable {}
+	set ::result [read $b]
+    }
+    puts -nonewline $a ping
+    set id [after 5000 {set ::result timeout}]
+    vwait ::result
+    after cancel $id
+    set ::result
+} -cleanup {
+    close $a
+    unset a b id ::result
+} -result ping
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events   {}
+rename tcl::chan::core     {}
+rename tcl::chan::halfpipe {}
+rename tcl::chan::fifo2    {}
+testsuiteCleanup
+return

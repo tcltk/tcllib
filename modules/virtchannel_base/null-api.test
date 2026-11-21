@@ -1,0 +1,99 @@
+# -*- tcl -*-
+# null-api.test:  Tests for the documented API of package tcl::chan::null
+# (supplements the existing tests, if any).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal null.tcl tcl::chan::null
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+test tcl-chan-null-api-1.0 {constructor, wrong # args} -body {
+    tcl::chan::null X
+} -returnCodes error -result {wrong # args: should be "tcl::chan::null"}
+
+test tcl-chan-null-api-1.1 {constructor returns a new channel} -body {
+    set c [tcl::chan::null]
+    expr {$c in [file channels]}
+} -cleanup {
+    close $c
+    unset c
+} -result 1
+
+test tcl-chan-null-api-1.2 {close removes the channel and its handler} -setup {
+    set before [info class instances ::tcl::chan::null::implementation]
+} -body {
+    set c [tcl::chan::null]
+    set during [llength [info class instances ::tcl::chan::null::implementation]]
+    close $c
+    list $during [expr {$c in [file channels]}] \
+	[info class instances ::tcl::chan::null::implementation]
+} -cleanup {
+    unset c during before
+} -result {1 0 {}}
+
+test tcl-chan-null-api-2.0 {writing is accepted and forgotten} -setup {
+    set c [tcl::chan::null]
+} -body {
+    puts $c "hello world"
+    puts -nonewline $c [string repeat x 100000]
+    flush $c
+    list [tell $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c
+} -result {-1 0}
+
+test tcl-chan-null-api-2.1 {write-only: reading is an error} -setup {
+    set c [tcl::chan::null]
+} -body {
+    read $c
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -match glob -result {channel "*" wasn't opened for reading}
+
+test tcl-chan-null-api-2.2 {not seekable} -setup {
+    set c [tcl::chan::null]
+} -body {
+    seek $c 0
+} -cleanup {
+    close $c
+    unset c
+} -returnCodes error -match glob -result {error during seek on "*": invalid argument}
+
+test tcl-chan-null-api-3.0 {always writable} -setup {
+    set c [tcl::chan::null]
+    set ::result {}
+} -body {
+    fileevent $c writable {
+	lappend ::result w
+	if {[llength $::result] >= 3} {fileevent $c writable {}; set ::done 1}
+    }
+    set id [after 5000 {set ::done timeout}]
+    vwait ::done
+    after cancel $id
+    set ::result
+} -cleanup {
+    close $c
+    unset c id ::result ::done
+} -result {w w w}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return

@@ -1,0 +1,187 @@
+# -*- tcl -*-
+# halfpipe-api.test:  Tests for the documented API of package tcl::chan::halfpipe
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
+
+support {
+    use virtchannel_core/core.tcl   tcl::chan::core
+    use virtchannel_core/events.tcl tcl::chan::events
+}
+testing {
+    useLocal halfpipe.tcl tcl::chan::halfpipe
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+proc record {args} {
+    lappend ::log $args
+    return
+}
+
+test tcl-chan-halfpipe-api-1.0 {constructor result: channel and handler object} -body {
+    lassign [tcl::chan::halfpipe] c o
+    list [expr {$c in [file channels]}] [info object isa object $o] \
+	[info object class $o]
+} -cleanup {
+    close $c
+    unset c o
+} -result {1 1 ::tcl::chan::halfpipe::implementation}
+
+test tcl-chan-halfpipe-api-1.2 {close destroys the handler object} -body {
+    lassign [tcl::chan::halfpipe] c o
+    close $c
+    list [expr {$c in [file channels]}] [info object isa object $o]
+} -cleanup {
+    unset c o
+} -result {0 0}
+
+test tcl-chan-halfpipe-api-2.0 {put makes data readable} -setup {
+    lassign [tcl::chan::halfpipe] c o
+    fconfigure $c -translation binary -blocking 0
+} -body {
+    set n [$o put abc]
+    $o put def
+    list $n [read $c]
+} -cleanup {
+    close $c
+    unset c o n
+} -result {3 abcdef}
+
+test tcl-chan-halfpipe-api-2.1 {partial reads} -setup {
+    lassign [tcl::chan::halfpipe] c o
+    fconfigure $c -translation binary -blocking 0 -buffersize 2
+} -body {
+    $o put abcdef
+    list [read $c 1] [read $c 3] [read $c]
+} -cleanup {
+    close $c
+    unset c o
+} -result {a bcd ef}
+
+test tcl-chan-halfpipe-api-2.2 {no data: non-blocking read is empty, no eof} -setup {
+    lassign [tcl::chan::halfpipe] c o
+    fconfigure $c -blocking 0
+} -body {
+    list [read $c] [eof $c] [fblocked $c]
+} -cleanup {
+    close $c
+    unset c o
+} -result {{} 0 1}
+
+test tcl-chan-halfpipe-api-2.3 {putting an empty string signals eof (undocumented)} -setup {
+    lassign [tcl::chan::halfpipe] c o
+    fconfigure $c -translation binary -blocking 0
+} -body {
+    $o put abc
+    $o put {}
+    set r [read $c]
+    lappend r [read $c] [eof $c]
+} -cleanup {
+    close $c
+    unset c o r
+} -result {abc {} 1}
+
+test tcl-chan-halfpipe-api-2.4 {put, wrong # args} -setup {
+    lassign [tcl::chan::halfpipe] c o
+} -body {
+    $o put
+} -cleanup {
+    close $c
+    unset c o
+} -returnCodes error -match glob -result {wrong # args: should be "* put bytes"}
+
+test tcl-chan-halfpipe-api-3.0 {-write-command gets channel and data} -setup {
+    set ::log {}
+    lassign [tcl::chan::halfpipe -write-command {record W}] c o
+    fconfigure $c -translation binary -buffering none
+} -body {
+    puts -nonewline $c hello
+    expr {$::log eq [list [list W $c hello]]}
+} -cleanup {
+    close $c
+    unset c o ::log
+} -result 1
+
+test tcl-chan-halfpipe-api-3.1 {written data is not readable from the same channel} -setup {
+    lassign [tcl::chan::halfpipe] c o
+    fconfigure $c -translation binary -buffering none -blocking 0
+} -body {
+    puts -nonewline $c hello
+    read $c
+} -cleanup {
+    close $c
+    unset c o
+} -result {}
+
+test tcl-chan-halfpipe-api-3.2 {-close-command gets the channel} -setup {
+    set ::log {}
+    lassign [tcl::chan::halfpipe -close-command {record C}] c o
+} -body {
+    close $c
+    expr {$::log eq [list [list C $c]]}
+} -cleanup {
+    unset c o ::log
+} -result 1
+
+test tcl-chan-halfpipe-api-3.3 {-empty-command is invoked when the data runs out} -setup {
+    set ::log {}
+    lassign [tcl::chan::halfpipe -empty-command {record E}] c o
+    fconfigure $c -translation binary -blocking 0
+} -body {
+    $o put abc
+    set ::log {}
+    read $c
+    list [expr {[list E $c] in $::log}]
+} -cleanup {
+    close $c
+    unset c o ::log
+} -result 1
+
+test tcl-chan-halfpipe-api-3.4 {callbacks are run at the global level} -setup {
+    set ::log {}
+    lassign [tcl::chan::halfpipe -write-command {apply {args {
+	lappend ::log [info level]
+    }}}] c o
+    fconfigure $c -buffering none
+    proc halfpipewrite {c} {puts -nonewline $c x}
+} -body {
+    halfpipewrite $c
+    set ::log
+} -cleanup {
+    close $c
+    rename halfpipewrite {}
+    unset c o ::log
+} -result 1
+
+test tcl-chan-halfpipe-api-4.0 {readable event after put} -setup {
+    lassign [tcl::chan::halfpipe] c o
+    fconfigure $c -translation binary -blocking 0
+    set ::result {}
+} -body {
+    fileevent $c readable {
+	fileevent $c readable {}
+	set ::result [read $c]
+    }
+    $o put data
+    set id [after 5000 {set ::result timeout}]
+    vwait ::result
+    after cancel $id
+    set ::result
+} -cleanup {
+    close $c
+    unset c o id ::result
+} -result data
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename record {}
+rename tcl::chan::events {}
+rename tcl::chan::core   {}
+testsuiteCleanup
+return
