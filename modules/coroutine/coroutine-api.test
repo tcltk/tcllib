@@ -1,0 +1,1021 @@
+# -*- tcl -*-
+# coroutine-api.test:  Tests for the coroutine package (coroutine::util).
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal coroutine.tcl coroutine ::coroutine::util
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# Run BODY inside a fresh coroutine and service the event loop until
+# it completes (bounded by a safety timeout). Returns the result of the
+# body, or rethrows its error. The body runs at level #1 of the
+# coroutine. Locals of the wrapper have names starting with "__".
+
+proc corun {body {timeout 10000}} {
+    set ::corun_done 0
+    set ::corun_result {}
+    set tid [after $timeout {set ::corun_done timeout}]
+    coroutine ::corun_coro apply {{__body} {
+	set __code [catch $__body __r]
+	set ::corun_result [list $__code $__r]
+	set ::corun_done 1
+    }} $body
+    while {$::corun_done eq "0"} {
+	vwait ::corun_done
+    }
+    after cancel $tid
+    if {$::corun_done eq "timeout"} {
+	catch {rename ::corun_coro {}}
+	unset ::corun_done ::corun_result
+	return -code error "corun: timeout"
+    }
+    lassign $::corun_result code r
+    unset ::corun_done ::corun_result
+    return -code $code $r
+}
+
+# Create a pipe in ::r (read side) and ::w (write side, unbuffered).
+proc mkpipe {} {
+    lassign [chan pipe] ::r ::w
+    chan configure $::w -buffering none -translation lf
+    chan configure $::r -translation lf
+    return
+}
+
+proc rmpipe {} {
+    catch {close $::r}
+    catch {close $::w}
+    unset -nocomplain ::r ::w
+    return
+}
+
+# Write DATA to ::w from the event loop, optionally closing it after.
+proc later {data {close 0}} {
+    after 0 [list apply {{data close} {
+	puts -nonewline $::w $data
+	if {$close} {close $::w}
+    }} $data $close]
+}
+
+proc chanerrmsg {} {
+    # The channel argument name in the builtin's messages changed in 9.0.
+    if {[package vsatisfies [package provide Tcl] 9]} {
+	return channel
+    }
+    return channelId
+}
+
+# -------------------------------------------------------------------------
+## Ensemble
+
+test coroutine-1.0 {coroutine::util, wrong # args} -body {
+    coroutine::util
+} -returnCodes error -result {wrong # args: should be "coroutine::util subcommand ?arg ...?"}
+
+test coroutine-1.1 {coroutine::util, bad subcommand} -body {
+    coroutine::util bogus
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be *}
+
+test coroutine-1.2 {coroutine::util, exported subcommands} -body {
+    lsort [namespace eval ::coroutine::util {namespace export}]
+} -result {after await create exit gets global puts read socket update vwait}
+
+# gets_safety is documented as an ensemble subcommand, but it is not
+# exported. Ticket [d638a04e5c].
+test coroutine-1.3 {coroutine::util, gets_safety is a subcommand} -constraints knownBug -body {
+    lsort [namespace eval ::coroutine::util {namespace export}]
+} -result {after await create exit gets gets_safety global puts read socket update vwait}
+
+# -------------------------------------------------------------------------
+## create
+
+test coroutine-2.0 {create, wrong # args} -body {
+    coroutine::util create
+} -returnCodes error -match glob -result {wrong # args: should be "*coroutine name cmd ?arg ...?"}
+
+test coroutine-2.1 {create, runs the command with arguments} -body {
+    coroutine::util create apply {{a b} {return [list $a $b]}} x y
+} -result {x y}
+
+test coroutine-2.2 {create, automatic name} -body {
+    set c [coroutine::util create apply {{} {yield [info coroutine]}}]
+    list [string match ::coroutine::util::C* $c] [llength [info commands $c]]
+} -cleanup {
+    rename $c {}
+    unset c
+} -result {1 1}
+
+test coroutine-2.3 {create, names are unique} -body {
+    set c1 [coroutine::util create apply {{} {yield [info coroutine]}}]
+    set c2 [coroutine::util create apply {{} {yield [info coroutine]}}]
+    expr {$c1 ne $c2}
+} -cleanup {
+    rename $c1 {}
+    rename $c2 {}
+    unset c1 c2
+} -result 1
+
+test coroutine-2.4 {create, coroutine can be resumed} -body {
+    set c [coroutine::util create apply {{} {
+	set x [yield [info coroutine]]
+	return got-$x
+    }}]
+    list [$c value] [llength [info commands $c]]
+} -cleanup {
+    unset c
+} -result {got-value 0}
+
+test coroutine-2.5 {create, error in the command} -body {
+    coroutine::util create apply {{} {error boom}}
+} -returnCodes error -result boom
+
+# -------------------------------------------------------------------------
+## global
+
+test coroutine-3.0 {global, imports coroutine-global variables} -setup {
+    proc gtest {} {
+	coroutine::util global g
+	return $g
+    }
+} -body {
+    corun {
+	set g value
+	gtest
+    }
+} -cleanup {
+    rename gtest {}
+} -result value
+
+test coroutine-3.1 {global, writes are visible at level #1} -setup {
+    proc gtest {} {
+	coroutine::util global g
+	set g written
+	return
+    }
+} -body {
+    corun {
+	gtest
+	set g
+    }
+} -cleanup {
+    rename gtest {}
+} -result written
+
+test coroutine-3.2 {global, does not touch the real global variables} -setup {
+    unset -nocomplain ::g
+    proc gtest {} {
+	coroutine::util global g
+	set g written
+	return
+    }
+} -body {
+    corun {gtest}
+    info exists ::g
+} -cleanup {
+    rename gtest {}
+} -result 0
+
+test coroutine-3.3 {global, every coroutine has its own set} -setup {
+    proc gtest {} {
+	coroutine::util global g
+	incr g
+    }
+    proc gcoro {} {
+	set g 10
+	gtest
+	yield
+	gtest
+    }
+} -body {
+    coroutine gc1 gcoro
+    coroutine gc2 gcoro
+    list [gc1] [gc2]
+} -cleanup {
+    rename gtest {}
+    rename gcoro {}
+} -result {12 12}
+
+test coroutine-3.4 {global, several variables} -setup {
+    proc gtest {} {
+	coroutine::util global a b
+	list $a $b
+    }
+} -body {
+    corun {
+	set a 1
+	set b 2
+	gtest
+    }
+} -cleanup {
+    rename gtest {}
+} -result {1 2}
+
+# The level check in global is off by one: called from the main
+# procedure of the coroutine (level #1) it tries to upvar the variable
+# to itself. Compare ticket [bf8b80af3d].
+test coroutine-3.5 {global, no-op at level #1} -constraints knownBug -body {
+    corun {
+	set x 1
+	coroutine::util global x y
+	list $x [info exists y]
+    }
+} -result {1 0}
+
+test coroutine-3.7 {global, variable created on demand} -setup {
+    proc gtest {} {
+	coroutine::util global fresh
+	set fresh new
+	return
+    }
+    proc gtest2 {} {
+	coroutine::util global fresh
+	return $fresh
+    }
+} -body {
+    corun {
+	gtest
+	gtest2
+    }
+} -cleanup {
+    rename gtest {}
+    rename gtest2 {}
+} -result new
+
+# -------------------------------------------------------------------------
+## after
+
+test coroutine-4.0 {after, wrong # args} -body {
+    corun {coroutine::util after}
+} -returnCodes error -result {wrong # args: should be "coroutine::util after delay"}
+
+test coroutine-4.1 {after, wrong # args, too many} -body {
+    corun {coroutine::util after 1 2}
+} -returnCodes error -result {wrong # args: should be "coroutine::util after delay"}
+
+test coroutine-4.2 {after, bad delay} -body {
+    corun {coroutine::util after x}
+} -returnCodes error -result {bad argument "x": must be cancel, idle, info, or an integer}
+
+test coroutine-4.3 {after, returns empty, event loop keeps running} -setup {
+    set ::flag 0
+} -body {
+    corun {
+	after 0 {set ::flag 1}
+	set before $::flag
+	set res [coroutine::util after 20]
+	list $before $::flag $res
+    }
+} -cleanup {
+    unset ::flag
+} -result {0 1 {}}
+
+test coroutine-4.4 {after, waits at least the delay} -body {
+    corun {
+	set t [clock milliseconds]
+	coroutine::util after 50
+	expr {[clock milliseconds] - $t >= 50}
+    }
+} -result 1
+
+test coroutine-4.5 {after, zero delay} -body {
+    corun {coroutine::util after 0; return done}
+} -result done
+
+# -------------------------------------------------------------------------
+## exit
+
+test coroutine-5.0 {exit, wrong # args} -body {
+    coroutine exitc apply {{} {coroutine::util exit 1 2}}
+} -returnCodes error -result {wrong # args: should be "coroutine::util exit ?status?"}
+
+test coroutine-5.1 {exit, default status 0} -body {
+    coroutine exitc apply {{} {coroutine::util exit; return notreached}}
+} -result 0
+
+test coroutine-5.2 {exit, given status} -body {
+    coroutine exitc apply {{} {coroutine::util exit done; return notreached}}
+} -result done
+
+test coroutine-5.3 {exit, from a nested procedure} -setup {
+    proc etest {} {
+	coroutine::util exit nested
+	return notreached
+    }
+} -body {
+    coroutine exitc apply {{} {etest; return notreached}}
+} -cleanup {
+    rename etest {}
+} -result nested
+
+test coroutine-5.4 {exit, coroutine is gone afterwards} -body {
+    coroutine exitc apply {{} {yield 1; coroutine::util exit 2; return 3}}
+    list [exitc] [info commands exitc]
+} -result {2 {}}
+
+test coroutine-5.5 {exit, deeply nested} -setup {
+    proc etest {n} {
+	if {$n} {etest [incr n -1]}
+	coroutine::util exit deep
+    }
+} -body {
+    coroutine exitc etest 5
+} -cleanup {
+    rename etest {}
+} -result deep
+
+# -------------------------------------------------------------------------
+## update
+
+test coroutine-6.0 {update, wrong # args} -body {
+    corun {coroutine::util update a b}
+} -returnCodes error -result {wrong # args: should be "coroutine::util update ?what?"}
+
+# The bad call is forwarded to the nonexistent ::tcl::update instead of
+# the builtin update.
+test coroutine-6.1 {update, bad option} -constraints knownBug -body {
+    corun {coroutine::util update bogus}
+} -returnCodes error -result {bad option "bogus": must be idletasks}
+
+test coroutine-6.2 {update, runs pending events} -setup {
+    set ::flag 0
+} -body {
+    corun {
+	after 0 {set ::flag 1}
+	set before $::flag
+	set res [coroutine::util update]
+	list $before $::flag $res
+    }
+} -cleanup {
+    unset ::flag
+} -result {0 1 {}}
+
+test coroutine-6.3 {update idletasks, runs idle handlers} -setup {
+    set ::flag 0
+} -body {
+    corun {
+	after idle {set ::flag 1}
+	set before $::flag
+	set res [coroutine::util update idletasks]
+	list $before $::flag $res
+    }
+} -cleanup {
+    unset ::flag
+} -result {0 1 {}}
+
+# -------------------------------------------------------------------------
+## vwait
+
+test coroutine-7.0 {vwait, wrong # args} -body {
+    corun {coroutine::util vwait}
+} -returnCodes error -result {wrong # args: should be "coroutine::util vwait varname"}
+
+test coroutine-7.1 {vwait, waits for a write} -setup {
+    set ::v 0
+} -body {
+    corun {
+	after 0 {set ::v 1}
+	set before $::v
+	set res [coroutine::util vwait ::v]
+	list $before $::v $res
+    }
+} -cleanup {
+    unset ::v
+} -result {0 1 {}}
+
+test coroutine-7.2 {vwait, removes its trace and runs outside of it} -setup {
+    set ::v 0
+} -body {
+    corun {
+	after 0 {set ::v 1}
+	coroutine::util vwait ::v
+	list [trace info variable ::v] [info level]
+    }
+} -cleanup {
+    unset ::v
+} -result {{} 1}
+
+test coroutine-7.3 {vwait, variable does not need to exist} -setup {
+    unset -nocomplain ::v
+} -body {
+    corun {
+	after 0 {set ::v new}
+	coroutine::util vwait ::v
+	set ::v
+    }
+} -cleanup {
+    unset -nocomplain ::v
+} -result new
+
+test coroutine-7.5 {vwait, array element} -setup {
+    unset -nocomplain ::arr
+} -body {
+    corun {
+	after 0 {set ::arr(x) 1}
+	coroutine::util vwait ::arr(x)
+	set ::arr(x)
+    }
+} -cleanup {
+    unset -nocomplain ::arr
+} -result 1
+
+# -------------------------------------------------------------------------
+## await
+
+test coroutine-8.1 {await, returns the name of the variable written} -setup {
+    unset -nocomplain ::a ::b
+} -body {
+    corun {
+	after 0 {set ::b 1}
+	coroutine::util await ::a ::b
+    }
+} -cleanup {
+    unset -nocomplain ::a ::b
+} -result ::b
+
+test coroutine-8.2 {await, first of several writes} -setup {
+    unset -nocomplain ::a ::b
+} -body {
+    corun {
+	after 0 {set ::a 1}
+	after 0 {set ::b 1}
+	coroutine::util await ::a ::b
+    }
+} -cleanup {
+    unset -nocomplain ::a ::b
+} -result ::a
+
+test coroutine-8.3 {await, namespace variable} -setup {
+    namespace eval ::awtest {variable v}
+} -body {
+    corun {
+	after 0 {set ::awtest::v 1}
+	coroutine::util await ::a ::awtest::v
+    }
+} -cleanup {
+    namespace delete ::awtest
+} -result ::awtest::v
+
+test coroutine-8.4 {await, array element} -setup {
+    unset -nocomplain ::arr
+} -body {
+    corun {
+	after 0 {set ::arr(x) 1}
+	coroutine::util await ::other ::arr(x)
+    }
+} -cleanup {
+    unset -nocomplain ::arr
+} -result ::arr(x)
+
+test coroutine-8.5 {await, removes all traces, runs outside of them} -setup {
+    set ::a 0
+    set ::b 0
+} -body {
+    corun {
+	after 0 {set ::a 1}
+	coroutine::util await ::a ::b
+	list [trace info variable ::a] [trace info variable ::b] [info level]
+    }
+} -cleanup {
+    unset -nocomplain ::a ::b
+} -result {{} {} 1}
+
+test coroutine-8.6 {await, single variable} -setup {
+    unset -nocomplain ::a
+} -body {
+    corun {
+	after 0 {set ::a 1}
+	list [coroutine::util await ::a] $::a
+    }
+} -cleanup {
+    unset -nocomplain ::a
+} -result {::a 1}
+
+# -------------------------------------------------------------------------
+## gets
+
+test coroutine-9.0 {gets, wrong # args, none} -body {
+    corun {coroutine::util gets}
+} -returnCodes error -result "wrong # args: should be \"::chan gets [chanerrmsg] ?varName?\""
+
+test coroutine-9.1 {gets, wrong # args, too many} -body {
+    corun {coroutine::util gets a b c}
+} -returnCodes error -result "wrong # args: should be \"::chan gets [chanerrmsg] ?varName?\""
+
+test coroutine-9.2 {gets, bad channel} -body {
+    corun {coroutine::util gets nosuchchannel}
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test coroutine-9.3 {gets, complete line available} -setup {
+    mkpipe
+    puts $::w "line one"
+} -body {
+    corun {coroutine::util gets $::r}
+} -cleanup {
+    rmpipe
+} -result {line one}
+
+test coroutine-9.4 {gets, line arriving in pieces} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "def"
+	after 0 {set ::flag 1}
+	later "ghi\nnext"
+	list [coroutine::util gets $::r] $::flag
+    }
+} -cleanup {
+    rmpipe
+    unset -nocomplain ::flag
+} -result {abcdefghi 1}
+
+test coroutine-9.5 {gets, with variable, returns the count} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "def\n"
+	set n [coroutine::util gets $::r line]
+	list $n $line
+    }
+} -cleanup {
+    rmpipe
+} -result {6 abcdef}
+
+test coroutine-9.6 {gets, successive lines} -setup {
+    mkpipe
+    puts $::w "one\ntwo"
+} -body {
+    corun {
+	later "three\n"
+	list [coroutine::util gets $::r] [coroutine::util gets $::r] \
+	    [coroutine::util gets $::r]
+    }
+} -cleanup {
+    rmpipe
+} -result {one two three}
+
+test coroutine-9.7 {gets, eof} -setup {
+    mkpipe
+} -body {
+    corun {
+	later "" 1
+	list [coroutine::util gets $::r line] $line [eof $::r]
+    }
+} -cleanup {
+    rmpipe
+} -result {-1 {} 1}
+
+test coroutine-9.8 {gets, eof without variable} -setup {
+    mkpipe
+} -body {
+    corun {
+	later "" 1
+	list [coroutine::util gets $::r] [eof $::r]
+    }
+} -cleanup {
+    rmpipe
+} -result {{} 1}
+
+test coroutine-9.9 {gets, incomplete last line at eof} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "def" 1
+	list [coroutine::util gets $::r line] $line
+    }
+} -cleanup {
+    rmpipe
+} -result {6 abcdef}
+
+test coroutine-9.10 {gets, restores blocking mode and readable handler} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+    chan event $::r readable {set ::dummy 1}
+} -body {
+    corun {
+	later "\n"
+	coroutine::util gets $::r
+	list [chan configure $::r -blocking] [chan event $::r readable]
+    }
+} -cleanup {
+    rmpipe
+} -result {1 {set ::dummy 1}}
+
+test coroutine-9.11 {gets, keeps non-blocking mode} -setup {
+    mkpipe
+    chan configure $::r -blocking 0
+    puts $::w "abc"
+} -body {
+    corun {
+	coroutine::util gets $::r
+	chan configure $::r -blocking
+    }
+} -cleanup {
+    rmpipe
+} -result 0
+
+test coroutine-9.12 {gets, empty line} -setup {
+    mkpipe
+    puts $::w ""
+} -body {
+    corun {
+	list [coroutine::util gets $::r line] $line
+    }
+} -cleanup {
+    rmpipe
+} -result {0 {}}
+
+# -------------------------------------------------------------------------
+## gets_safety (called through its namespace, see coroutine-1.3)
+
+test coroutine-10.0 {gets_safety, wrong # args} -body {
+    corun {coroutine::util::gets_safety a b}
+} -returnCodes error -result {wrong # args: should be "coroutine::util::gets_safety chan limit varname ?timeout?"}
+
+test coroutine-10.1 {gets_safety, line within the limit} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "def\n"
+	set n [coroutine::util::gets_safety $::r 100 line]
+	list $n $line
+    }
+} -cleanup {
+    rmpipe
+} -result {6 abcdef}
+
+test coroutine-10.2 {gets_safety, eof} -setup {
+    mkpipe
+} -body {
+    corun {
+	later "" 1
+	list [coroutine::util::gets_safety $::r 100 line] $line
+    }
+} -cleanup {
+    rmpipe
+} -result {-1 {}}
+
+test coroutine-10.3 {gets_safety, limit reached before the newline} -setup {
+    mkpipe
+    puts -nonewline $::w [string repeat A 50]
+} -body {
+    corun {
+	later [string repeat B 50]
+	coroutine::util::gets_safety $::r 10 line
+    }
+} -cleanup {
+    rmpipe
+} -returnCodes error -result {Too many notes, Mozart. Too many notes}
+
+# A long line arriving at once is accepted. Ticket [d638a04e5c].
+test coroutine-10.4 {gets_safety, long complete line exceeds the limit} -constraints knownBug -setup {
+    mkpipe
+    puts $::w [string repeat A 100]
+} -body {
+    corun {
+	coroutine::util::gets_safety $::r 10 line
+    }
+} -cleanup {
+    rmpipe
+} -returnCodes error -result {Too many notes, Mozart. Too many notes}
+
+test coroutine-10.5 {gets_safety, timeout} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	coroutine::util::gets_safety $::r 100 line 10
+    }
+} -cleanup {
+    rmpipe
+} -returnCodes error -result {Connection Timed Out}
+
+test coroutine-10.6 {gets_safety, restores blocking mode and readable handler} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+    chan event $::r readable {set ::dummy 1}
+} -body {
+    corun {
+	later "\n"
+	coroutine::util::gets_safety $::r 100 line
+	list [chan configure $::r -blocking] [chan event $::r readable]
+    }
+} -cleanup {
+    rmpipe
+} -result {1 {set ::dummy 1}}
+
+# -------------------------------------------------------------------------
+## read
+
+# Without arguments the builtin is not used for the error message.
+test coroutine-11.0 {read, wrong # args, none} -constraints knownBug -body {
+    corun {coroutine::util read}
+} -returnCodes error -match glob -result {wrong # args: should be "*read *"*}
+
+test coroutine-11.1 {read, wrong # args, too many} -body {
+    corun {coroutine::util read a b c}
+} -returnCodes error -result "wrong # args: should be \"::chan read [chanerrmsg] ?numChars?\" or \"::chan read ?-nonewline? [chanerrmsg]\""
+
+test coroutine-11.2 {read, bad channel} -body {
+    corun {coroutine::util read nosuchchannel}
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test coroutine-11.3 {read, until eof} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "def\n"
+	later "ghi\n" 1
+	coroutine::util read $::r
+    }
+} -cleanup {
+    rmpipe
+} -result "abcdef\nghi\n"
+
+test coroutine-11.4 {read -nonewline, until eof} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "def\n" 1
+	coroutine::util read -nonewline $::r
+    }
+} -cleanup {
+    rmpipe
+} -result abcdef
+
+test coroutine-11.5 {read -nonewline, no trailing newline} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "" 1
+	coroutine::util read -nonewline $::r
+    }
+} -cleanup {
+    rmpipe
+} -result abc
+
+test coroutine-11.6 {read -nonewline, only the last newline is removed} -setup {
+    mkpipe
+    puts -nonewline $::w "abc\n\n"
+} -body {
+    corun {
+	later "" 1
+	coroutine::util read -nonewline $::r
+    }
+} -cleanup {
+    rmpipe
+} -result "abc\n"
+
+test coroutine-11.7 {read, n characters arriving in pieces} -setup {
+    mkpipe
+    puts -nonewline $::w "ab"
+} -body {
+    corun {
+	later "cd"
+	later "efgh"
+	list [coroutine::util read $::r 5] [coroutine::util read $::r 3]
+    }
+} -cleanup {
+    rmpipe
+} -result {abcde fgh}
+
+test coroutine-11.8 {read, n characters, eof first} -setup {
+    mkpipe
+    puts -nonewline $::w "ab"
+} -body {
+    corun {
+	later "cd" 1
+	coroutine::util read $::r 10
+    }
+} -cleanup {
+    rmpipe
+} -result abcd
+
+test coroutine-11.9 {read, zero characters} -setup {
+    mkpipe
+    puts -nonewline $::w "ab"
+} -body {
+    corun {
+	coroutine::util read $::r 0
+    }
+} -cleanup {
+    rmpipe
+} -result {}
+
+test coroutine-11.10 {read, channel is not closed at eof} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+} -body {
+    corun {
+	later "" 1
+	coroutine::util read $::r
+	list [expr {$::r in [chan names]}] [eof $::r]
+    }
+} -cleanup {
+    rmpipe
+} -result {1 1}
+
+test coroutine-11.11 {read, restores blocking mode and readable handler} -setup {
+    mkpipe
+    puts -nonewline $::w "abc"
+    chan event $::r readable {set ::dummy 1}
+} -body {
+    corun {
+	later "def"
+	coroutine::util read $::r 6
+	list [chan configure $::r -blocking] [chan event $::r readable]
+    }
+} -cleanup {
+    rmpipe
+} -result {1 {set ::dummy 1}}
+
+test coroutine-11.12 {read, event loop keeps running while waiting} -setup {
+    mkpipe
+    set ::flag 0
+} -body {
+    corun {
+	after 0 {set ::flag 1}
+	later "abc" 1
+	list [coroutine::util read $::r] $::flag
+    }
+} -cleanup {
+    rmpipe
+    unset ::flag
+} -result {abc 1}
+
+test coroutine-11.13 {read, mixed with gets} -setup {
+    mkpipe
+    puts -nonewline $::w "line\nrest"
+} -body {
+    corun {
+	later "" 1
+	list [coroutine::util gets $::r] [coroutine::util read $::r]
+    }
+} -cleanup {
+    rmpipe
+} -result {line rest}
+
+# -------------------------------------------------------------------------
+## puts
+
+test coroutine-12.0 {puts, wrong # args, none} -body {
+    corun {coroutine::util puts}
+} -returnCodes error -result "wrong # args: should be \"::chan puts ?-nonewline? ?[chanerrmsg]? string\""
+
+test coroutine-12.1 {puts, wrong # args, too many} -body {
+    corun {coroutine::util puts a b c d}
+} -returnCodes error -result "wrong # args: should be \"::chan puts ?-nonewline? ?[chanerrmsg]? string\""
+
+test coroutine-12.2 {puts, bad option} -body {
+    corun {coroutine::util puts -bad chan text}
+} -returnCodes error -result "wrong # args: should be \"::chan puts ?-nonewline? ?[chanerrmsg]? string\""
+
+test coroutine-12.3 {puts, bad channel} -body {
+    corun {coroutine::util puts nosuchchannel text}
+} -returnCodes error -result {can not find channel named "nosuchchannel"}
+
+test coroutine-12.4 {puts, writes a line} -setup {
+    mkpipe
+} -body {
+    corun {
+	set res [coroutine::util puts $::w "hello"]
+	list $res [gets $::r]
+    }
+} -cleanup {
+    rmpipe
+} -result {{} hello}
+
+test coroutine-12.5 {puts -nonewline} -setup {
+    mkpipe
+} -body {
+    corun {
+	coroutine::util puts -nonewline $::w "abc"
+	coroutine::util puts -nonewline $::w "def"
+	close $::w
+	read $::r
+    }
+} -cleanup {
+    rmpipe
+} -result abcdef
+
+test coroutine-12.6 {puts, keeps blocking mode} -setup {
+    mkpipe
+    chan configure $::w -blocking 0
+} -body {
+    corun {
+	coroutine::util puts $::w "abc"
+	list [chan configure $::w -blocking] [gets $::r]
+    }
+} -cleanup {
+    rmpipe
+} -result {0 abc}
+
+test coroutine-12.7 {puts, removes its writable handler} -setup {
+    mkpipe
+} -body {
+    corun {
+	coroutine::util puts $::w "abc"
+	chan event $::w writable
+    }
+} -cleanup {
+    rmpipe
+} -result {}
+
+test coroutine-12.8 {puts, write error is propagated} -setup {
+    mkpipe
+} -body {
+    corun {
+	coroutine::util puts $::r "abc"
+    }
+} -cleanup {
+    rmpipe
+} -returnCodes error -match glob -result {*writ*}
+
+# -------------------------------------------------------------------------
+## socket
+
+test coroutine-13.0 {socket, server sockets are rejected} -body {
+    corun {coroutine::util socket -server foo 0}
+} -returnCodes error -result {::coroutine::util::socket cannot be used for server sockets.}
+
+test coroutine-13.1 {socket, wrong # args} -body {
+    corun {coroutine::util socket}
+} -returnCodes error -match glob -result {wrong # args: should be "*"}
+
+test coroutine-13.2 {socket, connects to a local server} -setup {
+    set ::srv [socket -server {apply {{c a p} {
+	chan configure $c -buffering line
+	puts $c hello
+	close $c
+    }}} -myaddr 127.0.0.1 0]
+    set ::port [lindex [chan configure $::srv -sockname] 2]
+} -body {
+    corun {
+	set s [coroutine::util socket 127.0.0.1 $::port]
+	set line [coroutine::util gets $s]
+	set res [list [chan configure $s -connecting] [chan configure $s -error] $line]
+	close $s
+	set res
+    }
+} -cleanup {
+    close $::srv
+    unset ::srv ::port
+} -result {0 {} hello}
+
+test coroutine-13.3 {socket, with options} -setup {
+    set ::srv [socket -server {apply {{c a p} {close $c}}} -myaddr 127.0.0.1 0]
+    set ::port [lindex [chan configure $::srv -sockname] 2]
+} -body {
+    corun {
+	set s [coroutine::util socket -myaddr 127.0.0.1 127.0.0.1 $::port]
+	set res [lindex [chan configure $s -sockname] 0]
+	close $s
+	set res
+    }
+} -cleanup {
+    close $::srv
+    unset ::srv ::port
+} -result 127.0.0.1
+
+test coroutine-13.4 {socket, connection refused} -setup {
+    # Get a free port and close it again.
+    set srv [socket -server {apply {{c a p} {close $c}}} -myaddr 127.0.0.1 0]
+    set ::port [lindex [chan configure $srv -sockname] 2]
+    close $srv
+    unset srv
+    set ::before [chan names]
+} -body {
+    list [catch {corun {coroutine::util socket 127.0.0.1 $::port}} msg] \
+	[string match -nocase *refused* $msg] [expr {[chan names] eq $::before}]
+} -cleanup {
+    unset ::port ::before msg
+} -result {1 1 1}
+
+# -------------------------------------------------------------------------
+rename corun {}
+rename mkpipe {}
+rename rmpipe {}
+rename later {}
+rename chanerrmsg {}
+testsuiteCleanup
+return

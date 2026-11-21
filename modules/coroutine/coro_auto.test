@@ -1,0 +1,562 @@
+# -*- tcl -*-
+# coro_auto.test:  Tests for the coroutine::auto package.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+#
+# coroutine::auto replaces builtin commands of the interpreter it is
+# loaded into. To keep the test harness unaffected every test loads it
+# into a fresh child interpreter.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal coroutine.tcl coroutine ::coroutine::util
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+# Create the child interpreter ::ci with coroutine::auto loaded, and
+# helper commands defined in it.
+proc mkchild {} {
+    interp create ::ci
+    ::ci eval [list source [localPath coroutine.tcl]]
+    ::ci eval [list source [localPath coro_auto.tcl]]
+    ::ci eval {
+	# Run BODY inside a fresh coroutine and service the event loop
+	# until it completes (bounded by a safety timeout).
+	proc corun {body {timeout 10000}} {
+	    set ::corun_done 0
+	    set ::corun_result {}
+	    set tid [after $timeout {set ::corun_done timeout}]
+	    coroutine ::corun_coro ::apply {{__body} {
+		set __code [catch $__body __r]
+		set ::corun_result [list $__code $__r]
+		set ::corun_done 1
+	    }} $body
+	    while {$::corun_done eq "0"} {
+		vwait ::corun_done
+	    }
+	    after cancel $tid
+	    if {$::corun_done eq "timeout"} {
+		catch {rename ::corun_coro {}}
+		return -code error "corun: timeout"
+	    }
+	    lassign $::corun_result code r
+	    return -code $code $r
+	}
+	proc mkpipe {} {
+	    lassign [chan pipe] ::r ::w
+	    chan configure $::w -buffering none -translation lf
+	    chan configure $::r -translation lf
+	    return
+	}
+	proc later {data {close 0}} {
+	    after 0 [list ::apply {{data close} {
+		chan puts -nonewline $::w $data
+		if {$close} {chan close $::w}
+	    }} $data $close]
+	}
+    }
+    return
+}
+
+proc rmchild {} {
+    interp delete ::ci
+}
+
+# -------------------------------------------------------------------------
+## Package
+
+test coro_auto-1.0 {package version} -setup mkchild -body {
+    ci eval {package present coroutine::auto}
+} -cleanup rmchild -result 1.3
+
+test coro_auto-1.1 {builtins are saved} -setup mkchild -body {
+    lsort [ci eval {info commands ::coroutine::auto::core_*}]
+} -cleanup rmchild -result [lsort {
+    ::coroutine::auto::core_after ::coroutine::auto::core_exit
+    ::coroutine::auto::core_gets ::coroutine::auto::core_global
+    ::coroutine::auto::core_puts ::coroutine::auto::core_read
+    ::coroutine::auto::core_socket ::coroutine::auto::core_update
+    ::coroutine::auto::core_vwait
+}]
+
+test coro_auto-1.2 {builtins are replaced} -setup mkchild -body {
+    ci eval {
+	set res {}
+	foreach c {
+	    ::after ::exit ::global ::socket ::update ::vwait
+	    ::tcl::chan::gets ::tcl::chan::puts ::tcl::chan::read
+	} {
+	    lappend res [llength [info procs $c]]
+	}
+	set res
+    }
+} -cleanup rmchild -result {1 1 1 1 1 1 1 1 1}
+
+# The plain gets, read and puts commands are not intercepted, only the
+# chan subcommands are.
+test coro_auto-1.3 {gets, read, puts are replaced} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	set res {}
+	foreach c {::gets ::puts ::read} {
+	    lappend res [llength [info procs $c]]
+	}
+	set res
+    }
+} -cleanup rmchild -result {1 1 1}
+
+# -------------------------------------------------------------------------
+## Outside of a coroutine the builtins are used
+
+test coro_auto-2.0 {after, synchronous outside of coroutine} -setup mkchild -body {
+    ci eval {
+	set t [clock milliseconds]
+	list [after 20] [expr {[clock milliseconds] - $t >= 20}]
+    }
+} -cleanup rmchild -result {{} 1}
+
+test coro_auto-2.1 {after, asynchronous outside of coroutine} -setup mkchild -body {
+    ci eval {
+	set id [after 0 {set ::flag 1}]
+	set res [list [string match after#* $id] [info exists ::flag]]
+	vwait ::flag
+	lappend res $::flag
+    }
+} -cleanup rmchild -result {1 0 1}
+
+test coro_auto-2.2 {after, info and cancel outside of coroutine} -setup mkchild -body {
+    ci eval {
+	set id [after 100000 {set ::flag 1}]
+	set res [list [after info $id] [expr {$id in [after info]}]]
+	after cancel $id
+	lappend res [expr {$id in [after info]}]
+    }
+} -cleanup rmchild -result {{{set ::flag 1} timer} 1 0}
+
+test coro_auto-2.3 {after, wrong # args outside of coroutine} -setup mkchild -body {
+    ci eval {after}
+} -cleanup rmchild -returnCodes error -result {wrong # args: should be "after delay ?arg ...?"}
+
+test coro_auto-2.4 {global, outside of coroutine} -setup mkchild -body {
+    ci eval {
+	set ::gv global
+	proc p {} {global gv; return $gv}
+	p
+    }
+} -cleanup rmchild -result global
+
+test coro_auto-2.5 {vwait, outside of coroutine} -setup mkchild -body {
+    ci eval {
+	after 0 {set ::v 1}
+	list [vwait ::v] $::v
+    }
+} -cleanup rmchild -result {{} 1}
+
+test coro_auto-2.6 {update, outside of coroutine} -setup mkchild -body {
+    ci eval {
+	after 0 {set ::flag 1}
+	after idle {set ::idle 1}
+	update
+	list $::flag $::idle
+    }
+} -cleanup rmchild -result {1 1}
+
+test coro_auto-2.7 {update idletasks, outside of coroutine} -setup mkchild -body {
+    ci eval {
+	after idle {set ::idle 1}
+	update idletasks
+	set ::idle
+    }
+} -cleanup rmchild -result 1
+
+test coro_auto-2.8 {update, bad option outside of coroutine} -setup mkchild -body {
+    ci eval {update bogus}
+} -cleanup rmchild -returnCodes error -result {bad option "bogus": must be idletasks}
+
+test coro_auto-2.9 {chan gets/read/puts, outside of coroutine} -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts $::w "line"
+	chan puts -nonewline $::w "rest"
+	chan close $::w
+	list [chan gets $::r] [chan read $::r] [expr {$::r in [chan names]}]
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}}
+    rmchild
+} -result {line rest 1}
+
+test coro_auto-2.10 {socket, outside of coroutine} -setup mkchild -body {
+    ci eval {
+	set srv [socket -server {::apply {{c a p} {
+	    set ::got [chan gets $c]
+	    chan close $c
+	}}} -myaddr 127.0.0.1 0]
+	set port [lindex [chan configure $srv -sockname] 2]
+	set s [socket 127.0.0.1 $port]
+	set res [list [chan configure $s -connecting] \
+		     [expr {[lindex [chan configure $s -peername] 2] == $port}]]
+	chan puts $s hello
+	chan close $s
+	vwait ::got
+	chan close $srv
+	lappend res $::got
+    }
+} -cleanup rmchild -result {0 1 hello}
+
+# -------------------------------------------------------------------------
+## Inside of a coroutine the coroutine-aware implementations are used
+
+test coro_auto-3.0 {after, yields inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {
+	    set ::flag 0
+	    ::after 0 {set ::flag 1}
+	    set res [after 20]
+	    list $res $::flag
+	}
+    }
+} -cleanup rmchild -result {{} 1}
+
+test coro_auto-3.1 {after with script, asynchronous inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {
+	    set id [after 0 {set ::flag 1}]
+	    list [string match after#* $id] [info exists ::flag]
+	}
+    }
+} -cleanup rmchild -result {1 0}
+
+test coro_auto-3.2 {after cancel, inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {
+	    set id [after 100000 {set ::flag 1}]
+	    after cancel $id
+	    expr {$id in [::coroutine::auto::core_after info]}
+	}
+    }
+} -cleanup rmchild -result 0
+
+# [after info] without arguments is treated as a synchronous delay.
+test coro_auto-3.3 {after info, inside of coroutine} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	corun {
+	    set id [after 100000 {set ::flag 1}]
+	    set res [expr {$id in [after info]}]
+	    after cancel $id
+	    set res
+	}
+    }
+} -cleanup rmchild -result 1
+
+test coro_auto-3.4 {vwait, yields inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {
+	    after 0 {set ::v 1}
+	    list [vwait ::v] $::v [trace info variable ::v]
+	}
+    }
+} -cleanup rmchild -result {{} 1 {}}
+
+test coro_auto-3.5 {update, yields inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {
+	    set ::flag 0
+	    after 0 {set ::flag 1}
+	    list [update] $::flag
+	}
+    }
+} -cleanup rmchild -result {{} 1}
+
+test coro_auto-3.6 {update idletasks, yields inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {
+	    set ::idle 0
+	    after idle {set ::idle 1}
+	    list [update idletasks] $::idle
+	}
+    }
+} -cleanup rmchild -result {{} 1}
+
+test coro_auto-3.7 {update, bad option inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {update bogus}
+    }
+} -cleanup rmchild -returnCodes error -result {bad option "bogus": must be idletasks}
+
+test coro_auto-3.8 {global, coroutine-global variables} -setup mkchild -body {
+    ci eval {
+	set ::g realglobal
+	proc gtest {} {
+	    global g
+	    incr g
+	}
+	proc gcoro {} {
+	    set g 10
+	    gtest
+	    yield
+	    gtest
+	}
+	coroutine gc1 gcoro
+	coroutine gc2 gcoro
+	list [gc1] [gc2] $::g
+    }
+} -cleanup rmchild -result {12 12 realglobal}
+
+# Same off-by-one level check as in coroutine::util global, see
+# coroutine-3.5 in coroutine-api.test.
+test coro_auto-3.9 {global, at level #1 of the coroutine} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	corun {
+	    set x 1
+	    global x
+	    set x
+	}
+    }
+} -cleanup rmchild -result 1
+
+test coro_auto-3.10 {exit, inside of coroutine} -setup mkchild -body {
+    ci eval {
+	proc etest {} {exit 7; return notreached}
+	coroutine ec ::apply {{} {etest; return notreached}}
+    }
+} -cleanup rmchild -result 7
+
+test coro_auto-3.11 {exit, default status inside of coroutine} -setup mkchild -body {
+    ci eval {
+	coroutine ec ::apply {{} {exit; return notreached}}
+    }
+} -cleanup rmchild -result 0
+
+test coro_auto-3.12 {chan gets, waits for a complete line} -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts -nonewline $::w "abc"
+	corun {
+	    later "def\n"
+	    set n [chan gets $::r line]
+	    later "ghi\n"
+	    list $n $line [chan gets $::r]
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}; catch {chan close $::w}}
+    rmchild
+} -result {6 abcdef ghi}
+
+# The blocking mode is saved anew on every iteration of the wait loop,
+# after it was set to non-blocking, so it ends up non-blocking.
+test coro_auto-3.12.1 {chan gets, restores blocking mode after waiting} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts -nonewline $::w "abc"
+	corun {
+	    later "def\n"
+	    chan gets $::r
+	    chan configure $::r -blocking
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}; catch {chan close $::w}}
+    rmchild
+} -result 1
+
+test coro_auto-3.13 {chan gets, eof inside of coroutine} -setup mkchild -body {
+    ci eval {
+	mkpipe
+	corun {
+	    later "" 1
+	    list [chan gets $::r line] $line
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}}
+    rmchild
+} -result {-1 {}}
+
+test coro_auto-3.14 {chan gets, wrong # args inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {chan gets}
+    }
+} -cleanup rmchild -returnCodes error -match glob -result {wrong # args: should be "*gets channel* ?varName?"}
+
+test coro_auto-3.14.1 {chan read n, data available, inside of coroutine} -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts -nonewline $::w "abcdefg"
+	corun {
+	    list [chan read $::r 5] [chan read $::r 2] [chan configure $::r -blocking]
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}; catch {chan close $::w}}
+    rmchild
+} -result {abcde fg 1}
+
+# Even with all data and eof available the data is lost, see
+# coro_auto-3.15.
+test coro_auto-3.14.2 {chan read until eof, data available, inside of coroutine} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts $::w "abcd"
+	chan close $::w
+	corun {
+	    list [chan read $::r]
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}}
+    rmchild
+} -result [list "abcd\n"]
+
+# The reimplemented read loses the data read before the channel became
+# blocked (fixed in coroutine::util read, ticket [104809e450]), and
+# leaves the channel non-blocking.
+test coro_auto-3.15 {chan read n, inside of coroutine} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts -nonewline $::w "ab"
+	corun {
+	    later "cd"
+	    later "efg"
+	    list [chan read $::r 5] [chan configure $::r -blocking]
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}; catch {chan close $::w}}
+    rmchild
+} -result {abcde 1}
+
+test coro_auto-3.16 {chan read until eof, inside of coroutine} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts -nonewline $::w "ab"
+	corun {
+	    later "cd\n" 1
+	    list [chan read $::r]
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}}
+    rmchild
+} -result [list "abcd\n"]
+
+test coro_auto-3.17 {chan read -nonewline, inside of coroutine} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts -nonewline $::w "ab"
+	corun {
+	    later "cd\n" 1
+	    chan read -nonewline $::r
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}}
+    rmchild
+} -result abcd
+
+# The reimplemented read closes the channel at eof, contrary to the
+# builtin. The same was fixed in coroutine::util read, ticket
+# [d74e418e84].
+test coro_auto-3.18 {chan read, channel is not closed at eof} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	mkpipe
+	chan puts -nonewline $::w "ab"
+	corun {
+	    later "" 1
+	    chan read $::r
+	    expr {$::r in [chan names]}
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}}
+    rmchild
+} -result 1
+
+test coro_auto-3.19 {chan puts, inside of coroutine} -setup mkchild -body {
+    ci eval {
+	mkpipe
+	corun {
+	    set res [chan puts $::w "hello"]
+	    chan puts -nonewline $::w "abc"
+	    chan close $::w
+	    list $res [chan gets $::r] [chan read $::r]
+	}
+    }
+} -cleanup {
+    ci eval {catch {chan close $::r}}
+    rmchild
+} -result {{} hello abc}
+
+test coro_auto-3.20 {chan puts, wrong # args inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {chan puts}
+    }
+} -cleanup rmchild -returnCodes error -match glob -result {wrong # args: should be "*puts ?-nonewline? ?channel*? string"}
+
+test coro_auto-3.21 {socket, inside of coroutine} -setup mkchild -body {
+    ci eval {
+	set srv [socket -server {::apply {{c a p} {
+	    chan configure $c -buffering line
+	    chan puts $c hello
+	    chan close $c
+	}}} -myaddr 127.0.0.1 0]
+	set port [lindex [chan configure $srv -sockname] 2]
+	set res [corun {
+	    set s [socket 127.0.0.1 $::port]
+	    set line [chan gets $s]
+	    set res [list [chan configure $s -connecting] $line]
+	    chan close $s
+	    set res
+	}]
+	chan close $srv
+	set res
+    }
+} -cleanup rmchild -result {0 hello}
+
+test coro_auto-3.22 {socket -server, inside of coroutine} -setup mkchild -body {
+    ci eval {
+	corun {
+	    set srv [socket -server {::apply {{c a p} {chan close $c}}} -myaddr 127.0.0.1 0]
+	    set port [lindex [chan configure $srv -sockname] 2]
+	    chan close $srv
+	    string is integer -strict $port
+	}
+    }
+} -cleanup rmchild -result 1
+
+test coro_auto-3.23 {socket, connection refused inside of coroutine} -setup mkchild -body {
+    ci eval {
+	set srv [socket -server {::apply {{c a p} {chan close $c}}} -myaddr 127.0.0.1 0]
+	set port [lindex [chan configure $srv -sockname] 2]
+	chan close $srv
+	set before [chan names]
+	list [catch {corun {socket 127.0.0.1 $::port}} msg] \
+	    [string match -nocase *refused* $msg] [expr {[chan names] eq $before}]
+    }
+} -cleanup rmchild -result {1 1 1}
+
+# The replaced global breaks the auto_load mechanism inside of
+# coroutines. Ticket [cd4fe2d047].
+test coro_auto-3.24 {auto_load inside of coroutine} -constraints knownBug -setup mkchild -body {
+    ci eval {
+	set ::auto_index(autoloadtest) {proc ::autoloadtest {} {return loaded}}
+	corun {autoloadtest}
+    }
+} -cleanup rmchild -result loaded
+
+# -------------------------------------------------------------------------
+rename mkchild {}
+rename rmchild {}
+testsuiteCleanup
+return
