@@ -1,0 +1,261 @@
+# -*- tcl -*-
+# yaml-api.test:  additional tests for the documented API of yaml.
+#
+# Complements yaml.test and rb.test: yaml2huddle, the -types, -m:true,
+# -m:false, -m:null, -validate and -stream options, setOptions, errors,
+# and the indent/wordwrap arguments of dict2yaml, list2yaml and
+# huddle2yaml.
+
+# --------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    use      cmdline/cmdline.tcl cmdline
+    use      json/json.tcl       json
+    useLocal huddle.tcl          huddle
+}
+testing {
+    useLocal yaml.tcl yaml
+}
+
+# --------------------------------------------------------------------
+
+proc saveDefaults {} {
+    set ::yamldefaults [array get ::yaml::defaults]
+}
+proc restoreDefaults {} {
+    array set ::yaml::defaults $::yamldefaults
+    unset ::yamldefaults
+}
+
+# --------------------------------------------------------------------
+# yaml2huddle and scalar types
+
+test yaml-api-1.1 {yaml2huddle: tagged nodes} -body {
+    yaml::yaml2huddle {[aaa, {k: v}]}
+} -result {HUDDLE {!!seq {{!!str aaa} {!!map {k {!!str v}}}}}}
+
+test yaml-api-1.2 {yaml2huddle: default scalar types} -body {
+    yaml::yaml2huddle {[yes, no, ~, 12, 1.5, abc, "q"]}
+} -result {HUDDLE {!!seq {{!!true 1} {!!false 0} {!!null {}} {!!int 12} {!!float 1.5} {!!str abc} {!!str q}}}}
+
+test yaml-api-1.3 {yaml2dict: default scalar types} -body {
+    yaml::yaml2dict {[yes, no, ~, null, 12, 1.5, abc]}
+} -result {1 0 {} {} 12 1.5 abc}
+
+test yaml-api-1.4 {yaml2dict: block mapping} -body {
+    yaml::yaml2dict "a: 1\nb:\n  - p\n  - q\n"
+} -result {a 1 b {p q}}
+
+test yaml-api-1.5 {yaml2dict: document with a single scalar} -body {
+    yaml::yaml2dict "--- 42"
+} -result 42
+
+test yaml-api-1.6 {yaml2dict: empty stream} -body {
+    yaml::yaml2dict ""
+} -result {}
+
+# --------------------------------------------------------------------
+# Options
+
+test yaml-api-2.1 {-types: only int} -body {
+    yaml::yaml2huddle -types {int} {[12, yes, 1.5]}
+} -result {HUDDLE {!!seq {{!!int 12} {!!str yes} {!!str 1.5}}}}
+
+test yaml-api-2.2 {-types: only float} -body {
+    yaml::yaml2huddle -types {float} {[12, 1.5]}
+} -result {HUDDLE {!!seq {{!!float 12} {!!float 1.5}}}}
+
+test yaml-api-2.3 {-types: empty list, everything is a string} -body {
+    yaml::yaml2dict -types {} {[yes, ~, 2001-12-15T02:59:43.1Z]}
+} -result {yes ~ 2001-12-15T02:59:43.1Z}
+
+test yaml-api-2.4 {-types: timestamp} -body {
+    yaml::yaml2dict -types {timestamp} {[2001-12-15T02:59:43.1Z]}
+} -result 1008385183
+
+# knownBug: the documented example uses the type name "integer", but
+# only "int" is recognized; "integer" is silently ignored.
+test yaml-api-2.5 {-types: documented name integer} -constraints {
+    knownBug
+} -body {
+    yaml::yaml2huddle -types {integer} {[12]}
+} -result {HUDDLE {!!seq {{!!int 12}}}}
+
+test yaml-api-2.6 {-m:true: value and strings} -body {
+    list [yaml::yaml2dict -m:true {T {oui si}} {[oui, si, yes]}] \
+        [yaml::yaml2huddle -m:true {T {oui}} {[oui]}]
+} -result {{T T yes} {HUDDLE {!!seq {{!!true T}}}}}
+
+test yaml-api-2.7 {-m:false: value and strings} -body {
+    yaml::yaml2dict -m:false {F {non nein}} {[non, nein, no]}
+} -result {F F no}
+
+test yaml-api-2.8 {-m:null: value and strings} -body {
+    yaml::yaml2dict -m:null {NULL {nada}} {[nada, ~, null]}
+} -result {NULL ~ null}
+
+test yaml-api-2.9 {-m:null: empty disables null} -body {
+    yaml::yaml2huddle -m:null {} {[~, null]}
+} -result {HUDDLE {!!seq {{!!str ~} {!!str null}}}}
+
+test yaml-api-2.10 {-m:true: does not change the defaults} -body {
+    yaml::yaml2dict -m:true {T {oui}} {[oui]}
+    yaml::yaml2dict {[oui, yes]}
+} -result {oui 1}
+
+test yaml-api-2.11 {-stream: explicit} -body {
+    yaml::yaml2dict -stream {a: 1}
+} -result {a 1}
+
+test yaml-api-2.12 {-file: read the stream from a file} -setup {
+    set fn [makeFile "key: value\nlist: \[1, 2\]\n" yamlapi[pid].yaml]
+} -body {
+    yaml::yaml2dict -file $fn
+} -cleanup {
+    removeFile $fn
+    unset fn
+} -result {key value list {1 2}}
+
+test yaml-api-2.13 {-file: yaml2huddle} -setup {
+    set fn [makeFile "- a\n- 1\n" yamlapi[pid].yaml]
+} -body {
+    yaml::yaml2huddle -file $fn
+} -cleanup {
+    removeFile $fn
+    unset fn
+} -result {HUDDLE {!!seq {{!!str a} {!!int 1}}}}
+
+test yaml-api-2.14 {-file: missing file} -body {
+    yaml::yaml2dict -file [file join [temporaryDirectory] nosuchfile.yaml]
+} -returnCodes error -match glob -result {couldn't open "*nosuchfile.yaml": no such file or directory}
+
+# knownBug: the documented -validate output contains the YAML tags of
+# each node, but yaml2dict returns the plain values.
+test yaml-api-2.16 {-validate: documented example} -constraints {
+    knownBug
+} -body {
+    yaml::yaml2dict -validate {[aaa, bbb]}
+} -result {!!seq {{!!str aaa} {!!str bbb}}}
+
+# --------------------------------------------------------------------
+# setOptions
+
+test yaml-api-3.1 {setOptions: -types changes the default} -setup {
+    saveDefaults
+} -body {
+    yaml::setOptions {-types {int}}
+    list [yaml::yaml2dict {[yes, 12]}] [yaml::yaml2dict -types {true} {[yes, 12]}]
+} -cleanup {
+    restoreDefaults
+} -result {{yes 12} {1 12}}
+
+test yaml-api-3.2 {setOptions: -m:true changes the default} -setup {
+    saveDefaults
+} -body {
+    yaml::setOptions {-m:true {T {oui}}}
+    yaml::yaml2dict {[oui, yes]}
+} -cleanup {
+    restoreDefaults
+} -result {T yes}
+
+test yaml-api-3.3 {setOptions: -file and -stream} -setup {
+    saveDefaults
+    set fn [makeFile "a: b\n" yamlapi[pid].yaml]
+} -body {
+    yaml::setOptions -file
+    set r [yaml::yaml2dict $fn]
+    lappend r [yaml::yaml2dict -stream {c: d}]
+} -cleanup {
+    restoreDefaults
+    removeFile $fn
+    unset fn r
+} -result {a b {c d}}
+
+# knownBug: the command is documented as ::yaml::setOption, but it is
+# named ::yaml::setOptions.
+test yaml-api-3.4 {setOption: documented name} -constraints {
+    knownBug
+} -setup {
+    saveDefaults
+} -body {
+    yaml::setOption -stream
+} -cleanup {
+    restoreDefaults
+} -result {}
+
+# --------------------------------------------------------------------
+# Dumping
+
+test yaml-api-4.1 {huddle2yaml: nested collections} -body {
+    yaml::huddle2yaml [huddle create name [huddle string Sammy] \
+                           list [huddle list a b] map [huddle create k v]]
+} -result {---
+name: Sammy
+list:
+  - a
+  - b
+map:
+  k: v
+}
+
+test yaml-api-4.2 {huddle2yaml: indent} -body {
+    yaml::huddle2yaml [huddle create a [huddle list 1 2] b [huddle create c d]] 3
+} -result {---
+a:
+   - 1
+   - 2
+b:
+   c: d
+}
+
+test yaml-api-4.3 {huddle2yaml: result parses back to an equal huddle} -body {
+    set h [huddle create name Sammy list [huddle list a b] map [huddle create k v]]
+    huddle get_stripped [yaml::yaml2huddle [yaml::huddle2yaml $h]]
+} -cleanup {
+    unset h
+} -result {name Sammy list {a b} map {k v}}
+
+test yaml-api-4.4 {list2yaml: wordwrap} -body {
+    yaml::list2yaml [list "a long string that will be wrapped at ten" b] 2 10
+} -result "---\n- >\n  a long \n  string \n  that will \n  be wrapped \n  at ten\n- b\n"
+
+test yaml-api-4.5 {dict2yaml: indent and wordwrap} -body {
+    yaml::dict2yaml {k {a long string that will be wrapped at ten}} 4 10
+} -result "---\nk: >\n    a long \n    string \n    that will \n    be wrapped \n    at ten\n"
+
+test yaml-api-4.6 {dict2yaml: values are strings} -body {
+    yaml::dict2yaml {a 1 b {c d}}
+} -result {---
+a: 1
+b: c d
+}
+
+test yaml-api-4.7 {list2yaml and dict2yaml: empty} -body {
+    list [yaml::list2yaml {}] [yaml::dict2yaml {}]
+} -result [list "---\n\n" "---\n\n"]
+
+test yaml-api-4.8 {dict2yaml: wrong # args} -body {
+    yaml::dict2yaml
+} -returnCodes error -result {wrong # args: should be "yaml::dict2yaml dict ?indent? ?wordwrap?"}
+
+test yaml-api-4.9 {list2yaml: wrong # args} -body {
+    yaml::list2yaml
+} -returnCodes error -result {wrong # args: should be "yaml::list2yaml list ?indent? ?wordwrap?"}
+
+test yaml-api-4.10 {huddle2yaml: wrong # args} -body {
+    yaml::huddle2yaml
+} -returnCodes error -result {wrong # args: should be "yaml::huddle2yaml huddle ?indent? ?wordwrap?"}
+
+# --------------------------------------------------------------------
+
+rename saveDefaults {}
+rename restoreDefaults {}
+testsuiteCleanup
+return
