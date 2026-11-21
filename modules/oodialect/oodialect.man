@@ -1,0 +1,201 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin oo::dialect n 0.3.4]
+[keywords TclOO]
+[keywords {domain specific language}]
+[keywords dialect]
+[keywords metaclass]
+[copyright {2015-2018 Sean Woods <yoda@etoyoc.com>}]
+[copyright {2015 Donal K. Fellows}]
+[moddesc   {Domain specific languages for TclOO}]
+[titledesc {Build domain specific languages for TclOO classes}]
+[category TclOO]
+[require Tcl "8.6 9"]
+[require TclOO]
+[require oo::dialect [opt 0.3.4]]
+[description]
+[para]
+
+The [package oo::dialect] package creates [term dialects]: variants of
+[cmd oo::class] and [cmd oo::define] whose class definition scripts
+understand additional keywords. A dialect is a namespace containing
+
+[list_begin itemized]
+[item] a metaclass, [var name][cmd ::class], whose instances are the
+classes of the dialect,
+[item] a common base class, [var name][cmd ::object], from which every
+class of the dialect inherits,
+[item] a command [var name][cmd ::define], the counterpart of
+[cmd oo::define],
+[item] a namespace [var name][const ::define] holding the keywords of the
+dialect. Initially it contains the keywords of [cmd oo::define] and a few
+more, described in section [sectref Keywords]. New keywords are added by
+creating commands in this namespace.
+[list_end]
+
+A dialect can be derived from another dialect, inheriting its keywords and
+its base class.
+
+[section Commands]
+
+[list_begin definitions]
+
+[call [cmd ::oo::dialect::create] [arg name] [opt [arg parent]]]
+
+Creates the dialect [arg name]. A relative [arg name] is resolved in the
+namespace of the caller. Without [arg parent], the dialect starts with the
+keywords of [cmd oo::define] and its class [var name][cmd ::object]
+inherits from [cmd oo::object].
+
+[para]
+
+With [arg parent], the name of an existing dialect (resolved the same
+way), the new dialect starts with all keywords of [arg parent] and its
+[term {dynamic methods}] hook (see below), and [var name][cmd ::object]
+inherits from [arg parent][cmd ::object]. Keywords added to [arg parent]
+later are not seen by the new dialect, so a derived dialect should be
+created after its parent is complete.
+
+[call [var name][cmd ::class] [method create] [arg class] [opt [arg script]]]
+
+Creates the class [arg class] of the dialect and returns its fully
+qualified name. The class inherits from [var name][cmd ::object]. The
+definition [arg script] is evaluated like one given to
+[var name][cmd ::define].
+
+[call [var name][cmd ::define] [arg class] [arg script]]
+[call [var name][cmd ::define] [arg class] [arg keyword] [opt [arg "arg ..."]]]
+
+Like [cmd oo::define], evaluates the definition [arg script] for
+[arg class], or applies a single [arg keyword] with its arguments, using
+the keywords of the dialect. A relative [arg class] name is resolved in the
+namespace of the caller. If [arg class] does not exist yet, it is created
+as by [var name][cmd ::class] [method create], and its fully qualified name
+is returned. This allows the same command to be used for creating a class
+and extending it later, for example when a library is reloaded.
+
+[para]
+
+The script is evaluated in the namespace [var name][const ::define], so
+commands not found there are looked up in the global namespace.
+
+[call [var name][cmd ::dynamic_methods] [arg class]]
+
+A hook called with the fully qualified name of [arg class] each time
+[var name][cmd ::define] or [var name][cmd ::class] [method create] has
+applied a definition to the class (when a class is created, this happens
+more than once). By default it does nothing. A dialect can redefine it with
+[cmd proc] to generate methods from what the keywords have recorded.
+
+[list_end]
+
+[section Keywords]
+
+In addition to the keywords of [cmd oo::define] that exist when the
+dialect is created (each applied to the class being defined), definition
+scripts of a dialect understand:
+
+[list_begin definitions]
+
+[call [cmd current_class]]
+
+Returns the fully qualified name of the class being defined. This is
+what the procedures implementing new keywords use to find their class.
+
+[call [cmd superclass] [opt [arg "class ..."]]]
+
+Sets the superclasses of the class being defined, as [cmd oo::define]
+does, but always keeps [var name][cmd ::object] as the last superclass
+(unless the class being defined is [var name][cmd ::object] itself).
+Duplicate classes are removed. Each [arg class] may be an alias declared
+with [cmd aliases]. Other names are looked up first in the namespace of the
+class being defined, then in the global namespace.
+
+[call [cmd aliases] [opt [arg "name ..."]]]
+
+Declares additional names under which the class being defined can be
+given to [cmd superclass]. An alias is not a command. Within the dialect
+the alias can be used by its plain name; to other dialects it is known as
+a name in the namespace of the class. An alias belongs to the first class
+that declares it.
+
+[list_end]
+
+A new keyword is a command, usually a [cmd proc], created in the namespace
+[var name][const ::define]. It is called with the arguments given in the
+definition script and uses [cmd current_class] to find the class:
+
+[example {
+proc ::mydialect::define::option {name default} {
+    oo::define [current_class] method $name {} [list return $default]
+}
+}]
+
+Defining a keyword with the name of an existing one, for example
+[cmd constructor], replaces it for this dialect and for dialects derived
+from it later.
+
+[section {Class methods}]
+
+Classes of a dialect have one additional method:
+
+[list_begin definitions]
+
+[call [arg class] [method aliases]]
+
+Returns the fully qualified aliases declared for [arg class] with the
+keyword [cmd aliases] and not already taken by another class.
+
+[list_end]
+
+[section Example]
+
+[example {
+package require oo::dialect
+oo::dialect::create shape
+
+# A new keyword
+proc ::shape::define::sides {n} {
+    oo::define [current_class] method sides {} [list return $n]
+}
+
+# Behaviour shared by all classes of the dialect
+::shape::define ::shape::object {
+    method describe {} {
+        return "[info object class [self]] has [my sides] sides"
+    }
+}
+
+shape::class create polygon {
+    aliases Polygon
+    sides 0
+}
+shape::define square {
+    superclass Polygon
+    sides 4
+}
+
+puts [info class superclasses square]
+# -> ::polygon ::shape::object
+puts [[square new] describe]
+# -> ::square has 4 sides
+
+# A dialect derived from shape
+oo::dialect::create solid shape
+
+proc ::solid::define::faces {n} {
+    oo::define [current_class] method faces {} [list return $n]
+}
+
+solid::define cube {
+    sides 4
+    faces 6
+}
+puts [info class superclasses solid::object]
+# -> ::shape::object
+puts [[cube new] faces]
+# -> 6
+}]
+
+[vset CATEGORY oodialect]
+[include ../common-text/feedback.inc]
+[manpage_end]
