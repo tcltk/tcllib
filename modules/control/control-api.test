@@ -1,0 +1,286 @@
+# control-api.test --
+#
+#         Tests for [control::control], [control::assert] and additional
+#         tests for [control::do] and [control::no-op]. do.test and
+#         no-op.test cover do and no-op themselves.
+#
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal control.tcl control
+}
+
+# -------------------------------------------------------------------------
+# Restore the default assert configuration.
+
+proc assertReset {} {
+    control::control assert enabled 0
+    control::control assert callback [list return -code error]
+}
+
+# -------------------------------------------------------------------------
+## control::control
+
+test control-api-1.0 {control, wrong # args} -body {
+    control::control
+} -returnCodes error -result {wrong # args: should be "control::control command ?arg ...?"}
+
+test control-api-1.1 {control, unknown option of assert} -body {
+    control::control assert bogus
+} -returnCodes error -result {invalid command name "bogus"}
+
+# -------------------------------------------------------------------------
+## assert configuration
+
+test control-api-2.0 {assert is disabled by default} -body {
+    control::control assert enabled
+} -result 0
+
+test control-api-2.1 {default callback} -body {
+    control::control assert callback
+} -result {return -code error}
+
+test control-api-2.2 {enabled, set returns the empty string} -body {
+    list [control::control assert enabled 1] [control::control assert enabled]
+} -cleanup {
+    assertReset
+} -result {{} 1}
+
+test control-api-2.3 {enabled, any boolean form} -body {
+    control::control assert enabled yes
+    set a [control::control assert enabled]
+    control::control assert enabled off
+    list $a [control::control assert enabled]
+} -cleanup {
+    assertReset
+    unset -nocomplain a
+} -result {1 0}
+
+test control-api-2.4 {enabled, setting the same state twice} -body {
+    control::control assert enabled 1
+    control::control assert enabled 1
+    control::control assert enabled
+} -cleanup {
+    assertReset
+} -result 1
+
+test control-api-2.5 {enabled, invalid boolean} -body {
+    control::control assert enabled maybe
+} -returnCodes error -result {invalid boolean value: maybe}
+
+test control-api-2.6 {enabled, wrong # args} -body {
+    control::control assert enabled 1 2
+} -returnCodes error -result {wrong # args: should be "enabled ?boolean?"}
+
+test control-api-2.7 {callback, set and query} -body {
+    control::control assert callback [list lappend ::assertLog]
+    control::control assert callback
+} -cleanup {
+    assertReset
+} -result {lappend ::assertLog}
+
+test control-api-2.8 {callback, wrong # args} -body {
+    control::control assert callback a b
+} -returnCodes error -result {wrong # args: should be "callback ?command?"}
+
+test control-api-2.9 {callback is defined while assert is disabled} -body {
+    control::control assert callback [list lappend ::assertLog]
+    list [control::control assert enabled] [control::control assert callback]
+} -cleanup {
+    assertReset
+} -result {0 {lappend ::assertLog}}
+
+# -------------------------------------------------------------------------
+## assert, disabled
+
+test control-api-3.0 {disabled assert is a no-op} -body {
+    control::assert {1 == 0} message
+} -result {}
+
+test control-api-3.1 {disabled assert does not evaluate the expression} -setup {
+    set ::assertCount 0
+} -body {
+    control::assert {[incr ::assertCount] == 0}
+    set ::assertCount
+} -cleanup {
+    unset -nocomplain ::assertCount
+} -result 0
+
+test control-api-3.2 {disabled assert ignores invalid expressions} -body {
+    control::assert {1 +}
+} -result {}
+
+# -------------------------------------------------------------------------
+## assert, enabled
+
+test control-api-4.0 {enabled assert, true expression returns empty} -setup {
+    control::control assert enabled 1
+} -body {
+    control::assert {1 == 1}
+} -cleanup {
+    assertReset
+} -result {}
+
+test control-api-4.1 {enabled assert, false expression, default message} -setup {
+    control::control assert enabled 1
+} -body {
+    control::assert {1 == 0}
+} -cleanup {
+    assertReset
+} -returnCodes error -result {assertion failed: 1 == 0}
+
+test control-api-4.2 {enabled assert, message from the arguments} -setup {
+    control::control assert enabled 1
+} -body {
+    control::assert {1 == 0} custom {failure message}
+} -cleanup {
+    assertReset
+} -returnCodes error -result {custom failure message}
+
+test control-api-4.3 {enabled assert, non-boolean result} -setup {
+    control::control assert enabled 1
+} -body {
+    control::assert {2}
+} -cleanup {
+    assertReset
+} -returnCodes error -result {invalid boolean expression: 2}
+
+test control-api-4.4 {enabled assert, string result} -setup {
+    control::control assert enabled 1
+} -body {
+    control::assert {"abc"}
+} -cleanup {
+    assertReset
+} -returnCodes error -result {invalid boolean expression: "abc"}
+
+test control-api-4.5 {enabled assert, boolean words are accepted} -setup {
+    control::control assert enabled 1
+} -body {
+    list [control::assert {"yes"}] [catch {control::assert {"off"}} msg] $msg
+} -cleanup {
+    assertReset
+    unset -nocomplain msg
+} -result {{} 1 {assertion failed: "off"}}
+
+test control-api-4.6 {enabled assert, expression syntax error} -setup {
+    control::control assert enabled 1
+} -body {
+    control::assert {1 +}
+} -cleanup {
+    assertReset
+} -returnCodes error -match glob -result {*missing operand*}
+
+test control-api-4.7 {enabled assert, expression evaluated in the caller} -setup {
+    control::control assert enabled 1
+} -body {
+    apply {{} {
+	set local 5
+	control::assert {$local == 5}
+	catch {control::assert {$local == 6}} msg
+	set msg
+    }}
+} -cleanup {
+    assertReset
+} -result {assertion failed: $local == 6}
+
+test control-api-4.8 {enabled assert, callback gets the message appended} -setup {
+    set ::assertLog {}
+    control::control assert enabled 1
+    control::control assert callback [list lappend ::assertLog x]
+} -body {
+    set r [control::assert 0 two words]
+    control::assert {1 > 2}
+    list $r $::assertLog
+} -cleanup {
+    assertReset
+    unset -nocomplain ::assertLog r
+} -result {{x {two words}} {x {two words} x {assertion failed: 1 > 2}}}
+
+test control-api-4.9 {enabled assert, callback runs in the global namespace} -setup {
+    namespace eval ::assertNs {}
+    control::control assert enabled 1
+    control::control assert callback [list apply {{msg} {
+	set ::assertWhere [uplevel 1 {namespace current}]
+    }}]
+} -body {
+    namespace eval ::assertNs {
+	control::assert 0
+    }
+    set ::assertWhere
+} -cleanup {
+    assertReset
+    namespace delete ::assertNs
+    unset -nocomplain ::assertWhere
+} -result {::}
+
+test control-api-4.10 {enabled assert, true expression does not call callback} -setup {
+    set ::assertLog {}
+    control::control assert enabled 1
+    control::control assert callback [list lappend ::assertLog]
+} -body {
+    control::assert 1
+    control::assert {"true"}
+    set ::assertLog
+} -cleanup {
+    assertReset
+    unset -nocomplain ::assertLog
+} -result {}
+
+# -------------------------------------------------------------------------
+## assert and namespace import (documented example)
+
+test control-api-5.0 {imported assert keeps its enabled state} -body {
+    control::control assert enabled 1
+    namespace eval ::assertOne namespace import ::control::assert
+    control::control assert enabled 0
+    namespace eval ::assertTwo namespace import ::control::assert
+    list [catch {::assertOne::assert {1 == 0}} msg] $msg \
+	[catch {::assertTwo::assert {1 == 0}} msg2] $msg2
+} -cleanup {
+    namespace delete ::assertOne ::assertTwo
+    assertReset
+    unset -nocomplain msg msg2
+} -result {1 {assertion failed: 1 == 0} 0 {}}
+
+# -------------------------------------------------------------------------
+## do and no-op, additional cases
+
+test control-api-6.0 {do returns the empty string after normal completion} -body {
+    set x 0
+    list [control::do {incr x} while {$x < 3}] [control::do {incr x}] $x
+} -cleanup {
+    unset -nocomplain x
+} -result {{} {} 4}
+
+test control-api-6.1 {do, body and test evaluated in the caller} -body {
+    apply {{} {
+	set n 0
+	control::do {incr n} until {$n >= 5}
+	set n
+    }}
+} -result 5
+
+test control-api-6.2 {do, documented limitation of return -code} -setup {
+    proc controlApiB {} {control::do {return -code error b} while 1}
+} -body {
+    list [catch controlApiB msg] $msg
+} -cleanup {
+    rename controlApiB {}
+    unset -nocomplain msg
+} -result {0 b}
+
+test control-api-6.3 {no-op with many arguments returns empty} -body {
+    control::no-op a b c {d e} {*}{f g}
+} -result {}
+
+# -------------------------------------------------------------------------
+rename assertReset {}
+testsuiteCleanup
