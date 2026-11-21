@@ -1,0 +1,2084 @@
+# -*- tcl -*-
+# imap4-api.test:  tests for the documented API of the imap4 client.
+#
+# The client uses blocking sockets, so the fake IMAP server runs in a
+# child process.  The child is controlled through its standard input:
+# the tests send it Tcl scripts and read back the results.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal imap4.tcl imap4
+}
+
+testConstraint notls [expr {[info procs ::tls::socket] eq ""}]
+
+# -------------------------------------------------------------------------
+# Child process running scripts sent by the tests.
+
+set childScript {
+    fconfigure stdin  -translation lf -encoding utf-8
+    fconfigure stdout -translation lf -encoding utf-8
+    proc ctl {} {
+	if {[gets stdin n] < 0} {exit}
+	set script [read stdin $n]
+	set code [catch {uplevel #0 $script} res]
+	set reply [list $code $res]
+	puts stdout [string length $reply]
+	puts -nonewline stdout $reply
+	flush stdout
+    }
+    fileevent stdin readable ctl
+    vwait forever
+}
+
+proc srvstart {} {
+    set f [makeFile $::childScript imap4child.tcl]
+    set ::srvpipe [open |[list [info nameofexecutable] $f] r+]
+    fconfigure $::srvpipe -translation lf -encoding utf-8 -buffering full
+}
+
+proc srv {script} {
+    puts $::srvpipe [string length $script]
+    puts -nonewline $::srvpipe $script
+    flush $::srvpipe
+    set n [gets $::srvpipe]
+    if {![string is integer -strict $n]} {
+	error "server child died"
+    }
+    set reply [read $::srvpipe $n]
+    lassign $reply code res
+    return -code $code $res
+}
+
+proc srvstop {} {
+    catch {close $::srvpipe}
+    unset ::srvpipe
+    removeFile imap4child.tcl
+}
+
+# -------------------------------------------------------------------------
+# Fake IMAP4rev1 server (a small part of RFC 3501), evaluated in the child.
+#
+# ::log gets every line received (without the tag) and the contents of
+# every literal received.  ::reply(COMMAND) overrides the reply to a
+# command: a list of lines, where TAG is replaced by the request tag, or
+# CLOSE to drop the connection.
+
+set serverScript {
+    proc reset {} {
+	global log tags reply greeting users mailboxes subscribed messages \
+	    searchresult noopexists
+	set log {}
+	set tags {}
+	array unset reply
+	array set reply {}
+	set greeting "* OK fake IMAP4rev1 server ready"
+	set users {joe secret {j o} {my secret}}
+	set mailboxes {
+	    INBOX {\NoInferiors}
+	    Arc08 {\Noselect}
+	    Arc08/Private {\NoInferiors \UnMarked}
+	    Archive {}
+	}
+	set subscribed {}
+	set messages {}
+	foreach {i flags} [list 1 [list {\Seen}] 2 {} 3 [list {\Flagged} {\Seen}]] {
+	    lappend messages [dict create flags $flags uid [expr {100 + $i}] \
+		header "From: user$i@example.com\r\nSubject: Test $i\r\nTo: joe@example.com\r\n\r\n" \
+		text "Body $i\r\n" \
+		date "21-Nov-2026 10:0$i:00 +0000"]
+	}
+	set searchresult {1 3}
+	set noopexists {}
+    }
+
+    proc accept {sock host port} {
+	global greeting
+	fconfigure $sock -translation binary -buffering full -blocking 1
+	if {$greeting eq ""} {
+	    close $sock
+	    return
+	}
+	send $sock $greeting
+	fileevent $sock readable [list readcmd $sock]
+    }
+
+    proc send {sock args} {
+	foreach line $args {
+	    puts -nonewline $sock "$line\r\n"
+	}
+	flush $sock
+    }
+
+    proc quote {s} {
+	return "\"[string map {\\ \\\\ \" \\\"} $s]\""
+    }
+
+    proc readcmd {sock} {
+	global log tags reply
+	if {[catch {gets $sock line} n] || $n < 0} {
+	    catch {close $sock}
+	    return
+	}
+	set line [string trimright $line \r]
+	set idx [string first " " $line]
+	if {$idx < 0} {
+	    send $sock "* BAD missing tag"
+	    return
+	}
+	set tag [string range $line 0 [expr {$idx - 1}]]
+	set line [string range $line [expr {$idx + 1}] end]
+	lappend tags $tag
+	lappend log $line
+	set full $line
+	set literals {}
+	# Literals: {n} at the end of a line.
+	while {[regexp {\{(\d+)\}$} $line -> len]} {
+	    send $sock "+ Ready for literal data"
+	    set lit [read $sock $len]
+	    lappend log $lit
+	    lappend literals $lit
+	    gets $sock line
+	    set line [string trimright $line \r]
+	    lappend log $line
+	    append full \n $line
+	}
+	set cmd [string toupper [lindex [split $full] 0]]
+	set rest [string range $full [string length $cmd] end]
+	if {[info exists reply($cmd)]} {
+	    if {$reply($cmd) eq "CLOSE"} {
+		close $sock
+		return
+	    }
+	    foreach r $reply($cmd) {
+		send $sock [string map [list TAG $tag] $r]
+	    }
+	    return
+	}
+	if {[info commands cmd_$cmd] eq ""} {
+	    send $sock "$tag BAD command unknown"
+	    return
+	}
+	if {[catch {parseargs $rest $literals} args]} {
+	    send $sock "$tag BAD $args"
+	    return
+	}
+	cmd_$cmd $sock $tag $args
+    }
+
+    # Parses IMAP arguments: atoms, quoted strings, literals and
+    # parenthesized lists.  Literals are given as {n} markers followed
+    # by a newline in the string.
+    proc parseargs {str literals} {
+	set res {}
+	set stack {}
+	set i 0
+	set n [string length $str]
+	while {$i < $n} {
+	    set c [string index $str $i]
+	    if {[string is space $c]} {
+		incr i
+		continue
+	    }
+	    if {$c eq "("} {
+		lappend stack $res
+		set res {}
+		incr i
+		continue
+	    }
+	    if {$c eq ")"} {
+		set inner $res
+		set res [lindex $stack end]
+		set stack [lrange $stack 0 end-1]
+		lappend res $inner
+		incr i
+		continue
+	    }
+	    if {$c eq "\""} {
+		set tok {}
+		incr i
+		while {$i < $n && [string index $str $i] ne "\""} {
+		    if {[string index $str $i] eq "\\"} {incr i}
+		    append tok [string index $str $i]
+		    incr i
+		}
+		if {$i >= $n} {error "unterminated quoted string"}
+		incr i
+		lappend res $tok
+		continue
+	    }
+	    if {[regexp -start $i {\A\{(\d+)\}\n} $str m]} {
+		lappend res [lindex $literals 0]
+		set literals [lrange $literals 1 end]
+		incr i [string length $m]
+		continue
+	    }
+	    regexp -start $i {\A[^\s()"]+} $str tok
+	    lappend res $tok
+	    incr i [string length $tok]
+	}
+	if {[llength $stack]} {error "unbalanced parentheses"}
+	return $res
+    }
+
+    proc ok {sock tag cmd} {
+	send $sock "$tag OK $cmd completed"
+    }
+
+    proc cmd_CAPABILITY {sock tag args} {
+	send $sock "* CAPABILITY IMAP4rev1 STARTTLS Idle AUTH=PLAIN"
+	ok $sock $tag CAPABILITY
+    }
+    proc cmd_NOOP {sock tag args} {
+	global noopexists
+	if {$noopexists ne ""} {
+	    send $sock "* $noopexists EXISTS" "* 1 RECENT"
+	}
+	ok $sock $tag NOOP
+    }
+    proc cmd_CHECK {sock tag args} {ok $sock $tag CHECK}
+    proc cmd_CLOSE {sock tag args} {ok $sock $tag CLOSE}
+    proc cmd_EXPUNGE {sock tag args} {
+	send $sock "* 2 EXPUNGE"
+	ok $sock $tag EXPUNGE
+    }
+    proc cmd_STARTTLS {sock tag args} {
+	send $sock "$tag NO STARTTLS is not available"
+    }
+    proc cmd_LOGOUT {sock tag args} {
+	send $sock "* BYE fake server logging out"
+	ok $sock $tag LOGOUT
+	close $sock
+    }
+    proc cmd_LOGIN {sock tag args} {
+	global users
+	lassign [lindex $args 0] user pass
+	if {[llength [lindex $args 0]] == 2 && [dict exists $users $user] &&
+	    [dict get $users $user] eq $pass} {
+	    ok $sock $tag LOGIN
+	} else {
+	    send $sock "$tag NO LOGIN failed"
+	}
+    }
+    proc cmd_SELECT {sock tag args} {selectmbox $sock $tag SELECT [lindex $args 0]}
+    proc cmd_EXAMINE {sock tag args} {selectmbox $sock $tag EXAMINE [lindex $args 0]}
+    proc selectmbox {sock tag cmd args} {
+	global mailboxes messages
+	set mbox [lindex $args 0 0]
+	if {[llength [lindex $args 0]] != 1 || ![dict exists $mailboxes $mbox]} {
+	    send $sock "$tag NO Mailbox does not exist"
+	    return
+	}
+	if {[string first {\Noselect} [dict get $mailboxes $mbox]] >= 0} {
+	    send $sock "$tag NO Mailbox cannot be selected"
+	    return
+	}
+	set n [expr {$mbox eq "INBOX" ? [llength $messages] : 0}]
+	send $sock \
+	    {* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)} \
+	    "* $n EXISTS" "* 1 RECENT" \
+	    {* OK [UNSEEN 2] Message 2 is first unseen} \
+	    {* OK [UIDVALIDITY 3857529045] UIDs valid} \
+	    {* OK [UIDNEXT 104] Predicted next UID} \
+	    {* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited}
+	if {$cmd eq "SELECT"} {
+	    send $sock "$tag OK \[READ-WRITE\] SELECT completed"
+	} else {
+	    send $sock "$tag OK \[READ-ONLY\] EXAMINE completed"
+	}
+    }
+    proc seqset {spec} {
+	global messages
+	set res {}
+	foreach part [split $spec ,] {
+	    lassign [split $part :] a b
+	    if {$b eq ""} {set b $a}
+	    if {$a eq "*"} {set a [llength $messages]}
+	    if {$b eq "*"} {set b [llength $messages]}
+	    if {$a > $b} {lassign [list $a $b] b a}
+	    for {set i $a} {$i <= $b && $i <= [llength $messages]} {incr i} {
+		lappend res $i
+	    }
+	}
+	return $res
+    }
+    proc headerfields {header fields} {
+	set res {}
+	set keep 0
+	foreach line [split [string map {\r\n \n} $header] \n] {
+	    if {$line eq ""} continue
+	    if {![string is space [string index $line 0]]} {
+		set name [string toupper [lindex [split $line :] 0]]
+		set keep [expr {[lsearch -exact $fields $name] >= 0}]
+	    }
+	    if {$keep} {
+		append res $line\r\n
+	    }
+	}
+	append res \r\n
+    }
+    proc literal {s} {
+	return "{[string length $s]}\r\n$s"
+    }
+    proc cmd_FETCH {sock tag args} {
+	global messages
+	lassign [lindex $args 0] seq items
+	if {[llength $items] == 1 && [string match BODY*HEADER.FIELDS* [lindex $items 0]]} {
+	    # Single item, given without parentheses.
+	}
+	# Rebuild the item list from the raw request.
+	set raw [lindex $::log end]
+	regexp {^FETCH \S+ \((.*)\)$} $raw -> rawitems
+	foreach i [seqset $seq] {
+	    set m [lindex $messages [expr {$i - 1}]]
+	    set out {}
+	    set ritems $rawitems
+	    while {[string length [string trim $ritems]]} {
+		set ritems [string trim $ritems]
+		if {[regexp -nocase {\A(BODY(?:\.PEEK)?\[HEADER\.FIELDS \(([^)]*)\)\])} $ritems -> item fields]} {
+		    lappend out "BODY\[HEADER.FIELDS ($fields)\] [literal [headerfields [dict get $m header] [string toupper $fields]]]"
+		} else {
+		    regexp {\A\S+} $ritems item
+		    switch -- [string toupper $item] {
+			ALL {
+			    lappend out "FLAGS ([join [dict get $m flags]])" \
+				"INTERNALDATE \"[dict get $m date]\"" \
+				"RFC822.SIZE [string length [dict get $m header][dict get $m text]]" \
+				"ENVELOPE (\"21 Nov 2026 10:0$i:00 +0000\" \"Test $i\" ((\"User $i\" NIL \"user$i\" \"example.com\")) NIL NIL ((NIL NIL \"joe\" \"example.com\")) NIL NIL NIL \"<$i@test>\")"
+			}
+			FLAGS {lappend out "FLAGS ([join [dict get $m flags]])"}
+			UID {lappend out "UID [dict get $m uid]"}
+			INTERNALDATE {lappend out "INTERNALDATE \"[dict get $m date]\""}
+			RFC822.SIZE {
+			    lappend out "RFC822.SIZE [string length [dict get $m header][dict get $m text]]"
+			}
+			RFC822.HEADER {lappend out "RFC822.HEADER [literal [dict get $m header]]"}
+			RFC822.TEXT {lappend out "RFC822.TEXT [literal [dict get $m text]]"}
+			ENVELOPE {
+			    lappend out "ENVELOPE (\"21 Nov 2026 10:0$i:00 +0000\" \"Test $i\" ((\"User $i\" NIL \"user$i\" \"example.com\")) NIL NIL ((NIL NIL \"joe\" \"example.com\")) NIL NIL NIL \"<$i@test>\")"
+			}
+			BODYSTRUCTURE {
+			    lappend out "BODYSTRUCTURE (\"TEXT\" \"PLAIN\" (\"CHARSET\" \"US-ASCII\") NIL NIL \"7BIT\" [string length [dict get $m text]] 1)"
+			}
+			default {
+			    send $sock "$tag BAD unknown fetch item $item"
+			    return
+			}
+		    }
+		}
+		set ritems [string range $ritems [string length $item] end]
+	    }
+	    send $sock "* $i FETCH ([join $out])"
+	}
+	ok $sock $tag FETCH
+    }
+    proc cmd_STORE {sock tag args} {
+	global messages
+	lassign [lindex $args 0] seq key flags
+	foreach i [seqset $seq] {
+	    set m [lindex $messages [expr {$i - 1}]]
+	    set old [dict get $m flags]
+	    switch -glob -- [string toupper $key] {
+		FLAGS* {set new $flags}
+		+FLAGS* {
+		    set new $old
+		    foreach f $flags {
+			if {[lsearch -exact $new $f] < 0} {lappend new $f}
+		    }
+		}
+		-FLAGS* {
+		    set new {}
+		    foreach f $old {
+			if {[lsearch -exact $flags $f] < 0} {lappend new $f}
+		    }
+		}
+		default {
+		    send $sock "$tag BAD invalid data item"
+		    return
+		}
+	    }
+	    dict set m flags $new
+	    lset messages [expr {$i - 1}] $m
+	    if {![string match -nocase *.SILENT $key]} {
+		send $sock "* $i FETCH (FLAGS ([join $new]))"
+	    }
+	}
+	ok $sock $tag STORE
+    }
+    proc cmd_SEARCH {sock tag args} {
+	global searchresult
+	send $sock [string trimright "* SEARCH $searchresult"]
+	ok $sock $tag SEARCH
+    }
+    proc cmd_CREATE {sock tag args} {
+	global mailboxes
+	set mbox [lindex $args 0 0]
+	if {[llength [lindex $args 0]] != 1 || [dict exists $mailboxes $mbox]} {
+	    send $sock "$tag NO cannot create mailbox"
+	    return
+	}
+	dict set mailboxes $mbox {}
+	ok $sock $tag CREATE
+    }
+    proc cmd_DELETE {sock tag args} {
+	global mailboxes
+	set mbox [lindex $args 0 0]
+	if {[llength [lindex $args 0]] != 1 || ![dict exists $mailboxes $mbox]} {
+	    send $sock "$tag NO no such mailbox"
+	    return
+	}
+	dict unset mailboxes $mbox
+	ok $sock $tag DELETE
+    }
+    proc cmd_RENAME {sock tag args} {
+	global mailboxes
+	lassign [lindex $args 0] old new
+	if {[llength [lindex $args 0]] != 2 || ![dict exists $mailboxes $old] ||
+	    [dict exists $mailboxes $new]} {
+	    send $sock "$tag NO cannot rename mailbox"
+	    return
+	}
+	dict set mailboxes $new [dict get $mailboxes $old]
+	dict unset mailboxes $old
+	ok $sock $tag RENAME
+    }
+    proc cmd_SUBSCRIBE {sock tag args} {
+	global mailboxes subscribed
+	set mbox [lindex $args 0 0]
+	if {[llength [lindex $args 0]] != 1 || ![dict exists $mailboxes $mbox]} {
+	    send $sock "$tag NO no such mailbox"
+	    return
+	}
+	lappend subscribed $mbox
+	ok $sock $tag SUBSCRIBE
+    }
+    proc cmd_UNSUBSCRIBE {sock tag args} {
+	global subscribed
+	set mbox [lindex $args 0 0]
+	set i [lsearch -exact $subscribed $mbox]
+	if {[llength [lindex $args 0]] != 1 || $i < 0} {
+	    send $sock "$tag NO not subscribed"
+	    return
+	}
+	set subscribed [lreplace $subscribed $i $i]
+	ok $sock $tag UNSUBSCRIBE
+    }
+    proc cmd_COPY {sock tag args} {
+	global mailboxes
+	lassign [lindex $args 0] seq mbox
+	if {![dict exists $mailboxes $mbox]} {
+	    send $sock "$tag NO \[TRYCREATE\] no such mailbox"
+	    return
+	}
+	ok $sock $tag COPY
+    }
+    proc cmd_LIST {sock tag args} {
+	global mailboxes
+	lassign [lindex $args 0] ref pattern
+	if {$pattern eq ""} {
+	    send $sock {* LIST (\Noselect) "/" ""}
+	    ok $sock $tag LIST
+	    return
+	}
+	set pattern [string map {% *} $ref$pattern]
+	dict for {name flags} $mailboxes {
+	    if {[string match $pattern $name]} {
+		if {[regexp {[\s"]} $name]} {set name [quote $name]}
+		send $sock "* LIST ($flags) \"/\" $name"
+	    }
+	}
+	ok $sock $tag LIST
+    }
+
+    reset
+    set listener [socket -server accept -myaddr 127.0.0.1 0]
+    lindex [fconfigure $listener -sockname] 2
+}
+
+srvstart
+set port [srv $serverScript]
+
+# A free port with nothing listening on it.
+proc freeport {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $p
+}
+
+# Connection setup and cleanup used by most tests.
+proc connect {{state NOAUTH}} {
+    srv reset
+    set chan [::imap4::open 127.0.0.1 $::port]
+    if {$state ne "NOAUTH"} {
+	::imap4::login $chan joe secret
+    }
+    if {$state eq "SELECT"} {
+	::imap4::select $chan
+    }
+    srv {set log {}}
+    return $chan
+}
+proc disconnect {chan} {
+    if {[catch {::imap4::cleanup $chan}]} {
+	foreach a {info folderinfo mboxinfo msginfo} {
+	    array unset ::imap4::$a $chan,*
+	}
+    }
+}
+
+# -------------------------------------------------------------------------
+# ::imap4::open
+
+test imap4-1.0 {open, wrong # args} -body {
+    ::imap4::open
+} -returnCodes error -result {wrong # args: should be "::imap4::open hostname ?port?"}
+
+test imap4-1.1 {open, returns a channel} -setup {
+    srv reset
+} -body {
+    set c [::imap4::open 127.0.0.1 $port]
+    list [expr {$c in [file channels]}] [srv {set log}] [::imap4::lastline $c] \
+	[::imap4::state $c]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {1 {} {* OK fake IMAP4rev1 server ready} NOAUTH}
+
+test imap4-1.2 {open, two connections} -setup {
+    srv reset
+} -body {
+    set c1 [::imap4::open 127.0.0.1 $port]
+    set c2 [::imap4::open 127.0.0.1 $port]
+    ::imap4::login $c2 joe secret
+    list [expr {$c1 ne $c2}] [::imap4::state $c1] [::imap4::state $c2]
+} -cleanup {
+    disconnect $c1
+    disconnect $c2
+    unset c1 c2
+} -result {1 NOAUTH AUTH}
+
+test imap4-1.3 {open, connection refused} -setup {
+    set p [freeport]
+} -body {
+    ::imap4::open 127.0.0.1 $p
+} -cleanup {
+    unset p
+} -returnCodes error -match glob -result {couldn't open socket: *}
+
+test imap4-1.4 {open, connection closed instead of a greeting} -setup {
+    srv reset
+    srv {set greeting ""}
+    set before [file channels]
+} -body {
+    ::imap4::open 127.0.0.1 $port
+} -cleanup {
+    foreach c [file channels] {
+	if {$c ni $before} {disconnect $c}
+    }
+    unset before c
+} -returnCodes error -result {IMAP unexpected EOF from server.}
+
+test imap4-1.5 {open, malformed greeting} -setup {
+    srv reset
+    srv {set greeting "garbage"}
+    set before [file channels]
+} -body {
+    ::imap4::open 127.0.0.1 $port
+} -cleanup {
+    foreach c [file channels] {
+	if {$c ni $before} {disconnect $c}
+    }
+    unset before c
+} -returnCodes error -result {IMAP: malformed response 'garbage'}
+
+test imap4-1.6 {open, use_ssl without the tls package} -constraints {
+    notls
+} -setup {
+    set ::imap4::use_ssl 1
+} -body {
+    ::imap4::open 127.0.0.1 [freeport]
+} -cleanup {
+    set ::imap4::use_ssl 0
+} -returnCodes error -result {Package TLS must be loaded for secure connections.}
+
+test imap4-1.7 {use_ssl variable, default} -body {
+    set ::imap4::use_ssl
+} -result 0
+
+# -------------------------------------------------------------------------
+# ::imap4::starttls
+
+test imap4-2.0 {starttls, wrong # args} -body {
+    ::imap4::starttls
+} -returnCodes error -result {wrong # args: should be "::imap4::starttls chan"}
+
+test imap4-2.1 {starttls, refused by the server} -setup {
+    set c [connect]
+} -body {
+    list [catch {::imap4::starttls $c} msg] $msg [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {IMAP error: 1 NO STARTTLS is not available} STARTTLS}
+
+# -------------------------------------------------------------------------
+# ::imap4::login
+
+test imap4-3.0 {login, wrong # args} -body {
+    ::imap4::login a b
+} -returnCodes error -result {wrong # args: should be "::imap4::login chan user pass"}
+
+test imap4-3.1 {login, accepted} -setup {
+    set c [connect]
+} -body {
+    list [::imap4::login $c joe secret] [::imap4::state $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 AUTH {{LOGIN joe secret}}}
+
+test imap4-3.2 {login, rejected} -setup {
+    set c [connect]
+} -body {
+    list [catch {::imap4::login $c joe wrong} msg] $msg [::imap4::state $c]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {IMAP error: 1 NO LOGIN failed} NOAUTH}
+
+test imap4-3.3 {login, already logged in} -setup {
+    set c [connect AUTH]
+} -body {
+    list [catch {::imap4::login $c joe secret} msg] $msg [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {IMAP channel not in one of the following states: 'NOAUTH' (current state is 'AUTH')} {}}
+
+test imap4-3.4 {login, user name and password with spaces} -constraints {
+    knownBug
+} -setup {
+    set c [connect]
+} -body {
+    ::imap4::login $c {j o} {my secret}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result 0
+
+test imap4-3.5 {login, tags of requests} -setup {
+    srv reset
+} -body {
+    set c [::imap4::open 127.0.0.1 $port]
+    ::imap4::login $c joe secret
+    ::imap4::noop $c
+    ::imap4::noop $c
+    srv {set tags}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {1 2 3}
+
+# -------------------------------------------------------------------------
+# ::imap4::select / ::imap4::examine / ::imap4::mboxinfo
+
+test imap4-4.0 {select, wrong # args} -body {
+    ::imap4::select
+} -returnCodes error -result {wrong # args: should be "::imap4::select chan ?mailbox?"}
+
+test imap4-4.1 {select, default mailbox} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::select $c] [::imap4::state $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 SELECT {{SELECT INBOX}}}
+
+test imap4-4.2 {select, mailbox information} -setup {
+    set c [connect AUTH]
+    ::imap4::select $c INBOX
+} -body {
+    set res {}
+    foreach i [lsort [::imap4::mboxinfo $c]] {
+	lappend res $i [::imap4::mboxinfo $c $i]
+    }
+    set res
+} -cleanup {
+    disconnect $c
+    unset c res i
+} -result {current INBOX exists 3 flags {\Answered \Flagged \Deleted \Seen \Draft} perm READ-WRITE permflags {\Deleted \Seen \*} recent 1 uidnext 104 uidval 3857529045 unseen 2}
+
+test imap4-4.3 {mboxinfo, upper case names} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::mboxinfo $c EXISTS] [::imap4::mboxinfo $c RECENT] \
+	[::imap4::mboxinfo $c UIDNEXT] [::imap4::mboxinfo $c UIDVAL] \
+	[::imap4::mboxinfo $c UNSEEN] [::imap4::mboxinfo $c CURRENT] \
+	[::imap4::mboxinfo $c PERM]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {3 1 104 3857529045 2 INBOX READ-WRITE}
+
+test imap4-4.4 {mboxinfo, query availability} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::mboxinfo $c exists?] [::imap4::mboxinfo $c found?] \
+	[::imap4::mboxinfo $c FLAGS?]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {1 0 1}
+
+test imap4-4.5 {mboxinfo, unknown information} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::mboxinfo $c found
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {No such information 'found' available for the current mailbox}
+
+test imap4-4.6 {mboxinfo, nothing selected} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::mboxinfo $c] [::imap4::mboxinfo $c ""] [::imap4::mboxinfo $c exists?]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{} {} 0}
+
+test imap4-4.7 {mboxinfo, wrong # args} -body {
+    ::imap4::mboxinfo a b c
+} -returnCodes error -result {wrong # args: should be "::imap4::mboxinfo chan ?info?"}
+
+test imap4-4.8 {select, other mailbox} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::select $c Archive] [::imap4::mboxinfo $c exists] \
+	[::imap4::mboxinfo $c current] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 0 Archive {{SELECT Archive}}}
+
+test imap4-4.9 {select, no such mailbox} -setup {
+    set c [connect AUTH]
+} -body {
+    list [catch {::imap4::select $c Nothing} msg] $msg [::imap4::state $c]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {IMAP error: 2 NO Mailbox does not exist} AUTH}
+
+test imap4-4.10 {select, previous information kept on failure} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+    ::imap4::close $c
+} -body {
+    catch {::imap4::select $c Nothing}
+    list [::imap4::mboxinfo $c current] [::imap4::mboxinfo $c exists]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {INBOX 3}
+
+test imap4-4.11 {select, mailbox must be closed first} -setup {
+    set c [connect SELECT]
+} -body {
+    list [catch {::imap4::select $c Archive} msg] $msg [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {IMAP channel not in one of the following states: 'AUTH' (current state is 'SELECT')} {}}
+
+test imap4-4.12 {select, not logged in} -setup {
+    set c [connect]
+} -body {
+    ::imap4::select $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'AUTH' (current state is 'NOAUTH')}
+
+test imap4-4.13 {select, mailbox name with a space} -constraints {
+    knownBug
+} -setup {
+    set c [connect AUTH]
+    srv {dict set mailboxes {Sent Items} {}}
+} -body {
+    ::imap4::select $c {Sent Items}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result 0
+
+test imap4-4.14 {examine, default mailbox} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::examine $c] [::imap4::state $c] [::imap4::mboxinfo $c perm] \
+	[::imap4::mboxinfo $c current] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 SELECT READ-ONLY INBOX {{EXAMINE INBOX}}}
+
+test imap4-4.15 {examine, other mailbox} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::examine $c Archive] [::imap4::mboxinfo $c exists]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 0}
+
+test imap4-4.16 {examine, error} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::examine $c Arc08
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 2 NO Mailbox cannot be selected}
+
+test imap4-4.17 {examine, wrong # args} -body {
+    ::imap4::examine a b c
+} -returnCodes error -result {wrong # args: should be "::imap4::examine chan ?mailbox?"}
+
+# -------------------------------------------------------------------------
+# ::imap4::fetch / ::imap4::msginfo
+
+test imap4-5.0 {fetch, wrong # args} -body {
+    ::imap4::fetch a b
+} -returnCodes error -result {wrong # args: should be "::imap4::fetch chan range opt ?arg ...?"}
+
+test imap4-5.1 {fetch, not selected} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::fetch $c 1 flags
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'SELECT' (current state is 'AUTH')}
+
+test imap4-5.2 {fetch, attributes} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::fetch $c 1:2 flags size uid] [srv {set log}] \
+	[lsort [::imap4::msginfo $c 1]] [::imap4::msginfo $c 1 flags] \
+	[::imap4::msginfo $c 2 flags] [::imap4::msginfo $c 1 size] \
+	[::imap4::msginfo $c 2 uid] [::imap4::msginfo $c 3]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{FETCH 1:2 (FLAGS RFC822.SIZE UID)}} {flags size uid} {{\Seen}} {} 73 102 {}}
+
+test imap4-5.3 {fetch, header fields} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::fetch $c 2 from: Subject:] [srv {set log}] \
+	[lsort [::imap4::msginfo $c 2]] \
+	[string trimright [::imap4::msginfo $c 2 from:]] \
+	[string trimright [::imap4::msginfo $c 2 subject:]]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{FETCH 2:2 (BODY[HEADER.FIELDS (FROM SUBJECT)])}} {from: subject:} user2@example.com {Test 2}}
+
+test imap4-5.3.1 {fetch, header fields without trailing spaces} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::fetch $c 2 from: subject:
+    list [::imap4::msginfo $c 2 from:] [::imap4::msginfo $c 2 subject:]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {user2@example.com {Test 2}}
+
+test imap4-5.4 {fetch, header field without a colon} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::fetch $c 1 to
+    list [srv {set log}] [string trimright [::imap4::msginfo $c 1 to:]]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{{FETCH 1:1 (BODY[HEADER.FIELDS (TO)])}} joe@example.com}
+
+test imap4-5.5 {fetch, -inline} -setup {
+    set c [connect SELECT]
+} -body {
+    set res {}
+    foreach rec [::imap4::fetch $c :3 -inline from: subject: size] {
+	set r {}
+	foreach v $rec {lappend r [string trimright $v]}
+	lappend res $r
+    }
+    list $res [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c res rec r v
+} -result {{{user1@example.com {Test 1} 73} {user2@example.com {Test 2} 73} {user3@example.com {Test 3} 73}} {{FETCH 1:3 (RFC822.SIZE BODY[HEADER.FIELDS (FROM SUBJECT)])}}}
+
+test imap4-5.6 {fetch, range without the end} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::fetch $c 2: -inline uid] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{102 103} {{FETCH 2:3 (UID)}}}
+
+test imap4-5.7 {fetch, all messages} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::fetch $c : -inline uid] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{101 102 103} {{FETCH 1:3 (UID)}}}
+
+test imap4-5.8 {fetch, header, text, bodystructure} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::fetch $c 3 header text bodystructure
+    list [srv {set log}] \
+	[::imap4::msginfo $c 3 header] [::imap4::msginfo $c 3 text] \
+	[::imap4::msginfo $c 3 bodystructure]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result [list {{FETCH 3:3 (RFC822.HEADER RFC822.TEXT BODYSTRUCTURE)}} \
+	"From: user3@example.com\r\nSubject: Test 3\r\nTo: joe@example.com\r\n\r\n" \
+	"Body 3\r\n" {TEXT PLAIN {CHARSET US-ASCII} NIL NIL 7BIT 8 1}]
+
+test imap4-5.8.1 {fetch, internaldate} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::fetch $c 3 internaldate
+    list [srv {set log}] [::imap4::msginfo $c 3 internaldate]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{{FETCH 3:3 (INTERNALDATE)}} {21-Nov-2026 10:03:00 +0000}}
+
+test imap4-5.9 {fetch, envelope} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::fetch $c 1 envelope
+    ::imap4::msginfo $c 1 envelope
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{21 Nov 2026 10:01:00 +0000} {Test 1} {{{User 1} NIL user1 example.com}} NIL NIL {{NIL NIL joe example.com}} NIL NIL NIL <1@test>}
+
+test imap4-5.10 {fetch, all} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::fetch $c 2 all
+    list [srv {set log}] [lsort [::imap4::msginfo $c 2]]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{{FETCH 2:2 (ALL)}} {envelope flags internaldate size}}
+
+test imap4-5.11 {fetch, invalid range} -setup {
+    set c [connect SELECT]
+} -body {
+    list [catch {::imap4::fetch $c a:b flags} msg] $msg \
+	[catch {::imap4::fetch $c 1:2:3 flags} msg] $msg \
+	[catch {::imap4::fetch $c x flags} msg] $msg [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {Invalid range} 1 {Invalid range} 1 {Invalid range} {}}
+
+test imap4-5.12 {fetch, error from the server} -setup {
+    set c [connect SELECT]
+    srv {set reply(FETCH) {{TAG NO fetch failed}}}
+} -body {
+    ::imap4::fetch $c 1 flags
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 3 NO fetch failed}
+
+test imap4-5.13 {fetch, unknown item in the reply} -setup {
+    set c [connect SELECT]
+    srv {set reply(FETCH) {{* 1 FETCH (XFOO 1)} {TAG OK done}}}
+} -body {
+    ::imap4::fetch $c 1 flags
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP: Unknown FETCH item 'XFOO'. Upgrade the software}
+
+test imap4-5.14 {fetch, -inline, missing information} -setup {
+    set c [connect SELECT]
+    srv {set reply(FETCH) {{* 1 FETCH (UID 101)} {TAG OK done}}}
+} -body {
+    ::imap4::fetch $c 1:2 -inline uid
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {101 {{}}}
+
+test imap4-5.15 {fetch, multi-line header field} -setup {
+    set c [connect SELECT]
+    srv {lset messages 0 [dict replace [lindex $messages 0] header "Subject: first\r\n\tsecond\r\n\r\n"]}
+} -body {
+    ::imap4::fetch $c 1 subject:
+    # Extra spaces are a known bug, see imap4-5.3.1.
+    regsub -all { +} [string trimright [::imap4::msginfo $c 1 subject:]] { }
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {first second}
+
+test imap4-6.0 {msginfo, wrong # args} -body {
+    ::imap4::msginfo a
+} -returnCodes error -result {wrong # args: should be "::imap4::msginfo chan msgid ?arg ...?"}
+
+test imap4-6.1 {msginfo, too many args} -body {
+    ::imap4::msginfo a 1 b c d
+} -returnCodes error -result {msginfo called with bad number of arguments! Try msginfo channel messageid ?info? ?defaultvalue?}
+
+test imap4-6.2 {msginfo, query availability and default value} -setup {
+    set c [connect SELECT]
+    ::imap4::fetch $c 1 flags
+} -body {
+    list [::imap4::msginfo $c 1 flags?] [::imap4::msginfo $c 1 uid?] \
+	[::imap4::msginfo $c 1 FLAGS?] [::imap4::msginfo $c 1 uid nouid] \
+	[::imap4::msginfo $c 1 flags nouid] [::imap4::msginfo $c 1 ""] \
+	[::imap4::msginfo $c 2 ""]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {1 0 1 nouid {{\Seen}} flags {}}
+
+test imap4-6.3 {msginfo, unknown information} -setup {
+    set c [connect SELECT]
+    ::imap4::fetch $c 1 flags
+} -body {
+    ::imap4::msginfo $c 1 uid
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {No such information 'uid' available for message id '1'}
+
+# -------------------------------------------------------------------------
+# ::imap4::noop / ::imap4::check
+
+test imap4-7.0 {noop, wrong # args} -body {
+    ::imap4::noop
+} -returnCodes error -result {wrong # args: should be "::imap4::noop chan"}
+
+test imap4-7.1 {noop, in all states} -setup {
+    srv reset
+    set c [::imap4::open 127.0.0.1 $port]
+} -body {
+    lappend res [::imap4::noop $c]
+    ::imap4::login $c joe secret
+    lappend res [::imap4::noop $c]
+    ::imap4::select $c
+    lappend res [::imap4::noop $c]
+    list $res [lsearch -all -inline [srv {set log}] NOOP]
+} -cleanup {
+    disconnect $c
+    unset c res
+} -result {{0 0 0} {NOOP NOOP NOOP}}
+
+test imap4-7.2 {noop, untagged data updates the mailbox information} -setup {
+    set c [connect SELECT]
+    srv {set noopexists 5}
+} -body {
+    ::imap4::noop $c
+    ::imap4::mboxinfo $c exists
+} -cleanup {
+    disconnect $c
+    unset c
+} -result 5
+
+test imap4-7.3 {noop, error} -setup {
+    set c [connect]
+    srv {set reply(NOOP) {{TAG BAD what?}}}
+} -body {
+    ::imap4::noop $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 1 BAD what?}
+
+test imap4-7.4 {check} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::check $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 CHECK}
+
+test imap4-7.5 {check, not selected} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::check $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'SELECT' (current state is 'AUTH')}
+
+test imap4-7.6 {check, wrong # args} -body {
+    ::imap4::check
+} -returnCodes error -result {wrong # args: should be "::imap4::check chan"}
+
+# -------------------------------------------------------------------------
+# ::imap4::folders / ::imap4::folderinfo
+
+test imap4-8.0 {folders, wrong # args} -body {
+    ::imap4::folders
+} -returnCodes error -result {wrong # args: should be "::imap4::folders chan ?opt? ?ref? ?mbox?"}
+
+test imap4-8.1 {folders, -inline} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::folders $c -inline] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{{INBOX noinferiors} {Arc08 noselect} {Arc08/Private {noinferiors unmarked}} {Archive {}}} {{LIST "" "*"}}}
+
+test imap4-8.2 {folders, -inline with reference and pattern} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::folders $c -inline Arc08/ %] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{{Arc08/Private {noinferiors unmarked}}} {{LIST "Arc08/" "%"}}}
+
+test imap4-8.3 {folders, default pattern (documented)} -constraints {
+    knownBug
+} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::folders $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{LIST "" "*"}}}
+
+test imap4-8.4 {folders, reference and pattern} -constraints {
+    knownBug
+} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::folders $c "" Arc*] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{LIST "" "Arc*"}}}
+
+test imap4-8.5 {folders, empty pattern gives the delimiter} -constraints {
+    knownBug
+} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::folders $c -inline "" ""] [srv {set log}] \
+	[::imap4::folderinfo $c delim] [::imap4::folderinfo $c names?]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{} {{LIST "" ""}} / 0}
+
+test imap4-8.6 {folders, not logged in} -setup {
+    set c [connect]
+} -body {
+    ::imap4::folders $c -inline
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'SELECT AUTH' (current state is 'NOAUTH')}
+
+test imap4-8.7 {folders, in the selected state} -setup {
+    set c [connect SELECT]
+} -body {
+    llength [::imap4::folders $c -inline]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result 4
+
+test imap4-8.8 {folders, error} -setup {
+    set c [connect AUTH]
+    srv {set reply(LIST) {{TAG NO list failed}}}
+} -body {
+    ::imap4::folders $c -inline
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 2 NO list failed}
+
+test imap4-8.9 {folders, quoted name} -constraints {
+    knownBug
+} -setup {
+    set c [connect AUTH]
+    srv {dict set mailboxes {Sent Items} {}}
+} -body {
+    lindex [::imap4::folders $c -inline] end
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{Sent Items} {}}
+
+test imap4-9.0 {folderinfo, wrong # args} -body {
+    ::imap4::folderinfo
+} -returnCodes error -result {wrong # args: should be "::imap4::folderinfo chan ?info?"}
+
+test imap4-9.1 {folderinfo, all information} -setup {
+    set c [connect AUTH]
+    ::imap4::folders $c -inline "" *
+} -body {
+    list [lsort [::imap4::folderinfo $c]] [lsort [::imap4::folderinfo $c ""]]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{delim flags match names} {delim flags match names}}
+
+test imap4-9.2 {folderinfo, values} -setup {
+    set c [connect AUTH]
+    ::imap4::folders $c -inline "" *
+} -body {
+    list [::imap4::folderinfo $c delim] [::imap4::folderinfo $c match] \
+	[::imap4::folderinfo $c names] [::imap4::folderinfo $c flags]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {/ {{} *} {INBOX Arc08 Arc08/Private Archive} {{INBOX {{\NoInferiors}}} {Arc08 {{\Noselect}}} {Arc08/Private {{\NoInferiors} {\UnMarked}}} {Archive {}}}}
+
+test imap4-9.3 {folderinfo, query availability, upper case} -setup {
+    set c [connect AUTH]
+    ::imap4::folders $c -inline "" *
+} -body {
+    list [::imap4::folderinfo $c names?] [::imap4::folderinfo $c foo?] \
+	[::imap4::folderinfo $c NAMES]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {1 0 {INBOX Arc08 Arc08/Private Archive}}
+
+test imap4-9.4 {folderinfo, unknown information} -setup {
+    set c [connect AUTH]
+    ::imap4::folders $c -inline "" *
+} -body {
+    ::imap4::folderinfo $c foo
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {No such information 'foo' available for the current folders}
+
+test imap4-9.5 {folderinfo, reset by a new folders call} -setup {
+    set c [connect AUTH]
+    ::imap4::folders $c -inline "" *
+} -body {
+    ::imap4::folders $c -inline "" Arc08
+    list [::imap4::folderinfo $c names] [::imap4::folderinfo $c match]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {Arc08 {{} Arc08}}
+
+# -------------------------------------------------------------------------
+# ::imap4::isableto
+
+test imap4-10.0 {isableto, wrong # args} -body {
+    ::imap4::isableto
+} -returnCodes error -result {wrong # args: should be "::imap4::isableto chan ?capa?"}
+
+test imap4-10.1 {isableto, all capabilities} -setup {
+    set c [connect]
+} -body {
+    list [::imap4::isableto $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{IMAP4REV1 STARTTLS IDLE AUTH=PLAIN} CAPABILITY}
+
+test imap4-10.2 {isableto, single capability, asked only once} -setup {
+    set c [connect]
+} -body {
+    list [::imap4::isableto $c imap4rev1] [::imap4::isableto $c IDLE] \
+	[::imap4::isableto $c auth=plain] [::imap4::isableto $c foo] \
+	[srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {1 1 1 0 CAPABILITY}
+
+test imap4-10.3 {isableto, error from the server} -setup {
+    set c [connect]
+    srv {set reply(CAPABILITY) {{TAG NO not now}}}
+} -body {
+    ::imap4::isableto $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 1 NO not now}
+
+# -------------------------------------------------------------------------
+# ::imap4::create / delete / rename / subscribe / unsubscribe
+
+test imap4-11.0 {create} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::create $c New] [srv {set log}] [srv {dict exists $mailboxes New}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{CREATE New}} 1}
+
+test imap4-11.1 {create, error} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::create $c INBOX
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 2 NO cannot create mailbox}
+
+test imap4-11.2 {create, not logged in} -setup {
+    set c [connect]
+} -body {
+    ::imap4::create $c New
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'AUTH SELECT' (current state is 'NOAUTH')}
+
+test imap4-11.3 {create, in the selected state} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::create $c New
+} -cleanup {
+    disconnect $c
+    unset c
+} -result 0
+
+test imap4-11.4 {create, wrong # args} -body {
+    ::imap4::create a
+} -returnCodes error -result {wrong # args: should be "::imap4::create chan mailbox"}
+
+test imap4-11.5 {create, name with a space} -constraints {
+    knownBug
+} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::create $c {New Box}
+    srv {dict exists $mailboxes {New Box}}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result 1
+
+test imap4-11.6 {delete} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::delete $c Archive] [srv {set log}] [srv {dict exists $mailboxes Archive}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{DELETE Archive}} 0}
+
+test imap4-11.7 {delete, error} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::delete $c Nothing
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 2 NO no such mailbox}
+
+test imap4-11.8 {delete, not logged in} -setup {
+    set c [connect]
+} -body {
+    ::imap4::delete $c Archive
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'AUTH SELECT' (current state is 'NOAUTH')}
+
+test imap4-11.9 {delete, wrong # args} -body {
+    ::imap4::delete a
+} -returnCodes error -result {wrong # args: should be "::imap4::delete chan mailbox"}
+
+test imap4-11.10 {rename} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::rename $c Archive Old] [srv {set log}] \
+	[srv {list [dict exists $mailboxes Archive] [dict exists $mailboxes Old]}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{RENAME Archive Old}} {0 1}}
+
+test imap4-11.11 {rename, error} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::rename $c Nothing Old
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 2 NO cannot rename mailbox}
+
+test imap4-11.12 {rename, not logged in} -setup {
+    set c [connect]
+} -body {
+    ::imap4::rename $c Archive Old
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'AUTH SELECT' (current state is 'NOAUTH')}
+
+test imap4-11.13 {rename, wrong # args} -body {
+    ::imap4::rename a b
+} -returnCodes error -result {wrong # args: should be "::imap4::rename chan oldname newname"}
+
+test imap4-11.14 {subscribe} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::subscribe $c Archive] [srv {set log}] [srv {set subscribed}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{SUBSCRIBE Archive}} Archive}
+
+test imap4-11.15 {subscribe, error} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::subscribe $c Nothing
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 2 NO no such mailbox}
+
+test imap4-11.16 {subscribe, not logged in} -setup {
+    set c [connect]
+} -body {
+    ::imap4::subscribe $c Archive
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'AUTH SELECT' (current state is 'NOAUTH')}
+
+test imap4-11.17 {subscribe, wrong # args} -body {
+    ::imap4::subscribe a
+} -returnCodes error -result {wrong # args: should be "::imap4::subscribe chan mailbox"}
+
+test imap4-11.18 {unsubscribe} -setup {
+    set c [connect AUTH]
+    ::imap4::subscribe $c Archive
+    srv {set log {}}
+} -body {
+    list [::imap4::unsubscribe $c Archive] [srv {set log}] [srv {set subscribed}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{UNSUBSCRIBE Archive}} {}}
+
+test imap4-11.19 {unsubscribe, error} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::unsubscribe $c Archive
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 2 NO not subscribed}
+
+test imap4-11.20 {unsubscribe, not logged in} -setup {
+    set c [connect]
+} -body {
+    ::imap4::unsubscribe $c Archive
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'AUTH SELECT' (current state is 'NOAUTH')}
+
+test imap4-11.21 {unsubscribe, wrong # args} -body {
+    ::imap4::unsubscribe a
+} -returnCodes error -result {wrong # args: should be "::imap4::unsubscribe chan mailbox"}
+
+# -------------------------------------------------------------------------
+# ::imap4::search
+
+test imap4-12.0 {search, no expression} -body {
+    ::imap4::search a
+} -returnCodes error -result {missing arguments. Usage: search chan arg ?arg ...?}
+
+test imap4-12.1 {search, not selected} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::search $c all
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'SELECT' (current state is 'AUTH')}
+
+test imap4-12.2 {search, flags} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::search $c seen unanswered] [srv {set log}] \
+	[::imap4::mboxinfo $c found]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{SEARCH SEEN UNANSWERED}} {1 3}}
+
+test imap4-12.3 {search, all message search flags} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c answered deleted draft flagged recent seen new old \
+	unanswered undeleted undraft unflagged unseen all
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{SEARCH ANSWERED DELETED DRAFT FLAGGED RECENT SEEN NEW OLD UNANSWERED UNDELETED UNDRAFT UNFLAGGED UNSEEN ALL}}
+
+test imap4-12.4 {search, nothing found} -setup {
+    set c [connect SELECT]
+    srv {set searchresult {}}
+} -body {
+    list [::imap4::search $c deleted] [::imap4::mboxinfo $c found]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {}}
+
+test imap4-12.5 {search, header search with an atom} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c subject hello
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{SEARCH subject "hello"}}
+
+test imap4-12.6 {search, header search with a literal} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::search $c from joe@example.com] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{SEARCH from {15}} joe@example.com {}}}
+
+test imap4-12.7 {search, all header search flags} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c body a cc b from c subject d text e keyword f bcc g
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{SEARCH body "a" cc "b" from "c" subject "d" text "e" keyword "f" bcc "g"}}
+
+test imap4-12.8 {search, mail header field} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c X-Mailer: tcl Reply-To: {a b}
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{SEARCH HEADER X-Mailer "tcl" HEADER Reply-To {3}} {a b} {}}
+
+test imap4-12.9 {search, larger and smaller} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c larger 4000 seen smaller 10000
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{SEARCH larger 4000 SEEN smaller 10000}}
+
+test imap4-12.10 {search, larger without integer} -setup {
+    set c [connect SELECT]
+} -body {
+    list [catch {::imap4::search $c larger big} msg] $msg [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {Invalid integer follows 'larger' in IMAP search} {}}
+
+test imap4-12.11 {search, not} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c not seen
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{SEARCH NOT (SEEN)}}
+
+test imap4-12.12 {search, or} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c or {from joe} {subject {x y}}
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{SEARCH OR (from "joe") (subject {3}} {x y} )}
+
+test imap4-12.13 {search, missing argument} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c from
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {Bad syntax for search expression (missing argument)}
+
+test imap4-12.14 {search, unknown keyword} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c seen foo bar
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {Syntax error in search expression: '... foo bar'}
+
+test imap4-12.15 {search, before is not implemented} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c before 1-Jan-2026
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {TODO}
+
+test imap4-12.16 {search, uid is not implemented} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::search $c uid 1:3
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {TODO}
+
+test imap4-12.17 {search, documented date conditions} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::search $c on 1-Jan-2026] [::imap4::search $c since 1-Jan-2026] \
+	[::imap4::search $c sentbefore 1-Jan-2026] [::imap4::search $c senton 1-Jan-2026] \
+	[::imap4::search $c sentsince 1-Jan-2026]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 0 0 0 0}
+
+test imap4-12.18 {search, error from the server} -setup {
+    set c [connect SELECT]
+    srv {set reply(SEARCH) {{TAG NO [BADCHARSET] search failed}}}
+} -body {
+    ::imap4::search $c all
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 3 NO [BADCHARSET] search failed}
+
+# -------------------------------------------------------------------------
+# ::imap4::close / ::imap4::cleanup
+
+test imap4-13.0 {close} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::close $c] [::imap4::state $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 AUTH CLOSE}
+
+test imap4-13.1 {close, then select another mailbox} -setup {
+    set c [connect SELECT]
+    ::imap4::close $c
+} -body {
+    list [::imap4::select $c Archive] [::imap4::mboxinfo $c current]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 Archive}
+
+test imap4-13.2 {close, not selected} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::close $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'SELECT' (current state is 'AUTH')}
+
+test imap4-13.3 {close, error} -setup {
+    set c [connect SELECT]
+    srv {set reply(CLOSE) {{TAG NO cannot close}}}
+} -body {
+    list [catch {::imap4::close $c} msg] $msg [::imap4::state $c]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {IMAP error: 3 NO cannot close} SELECT}
+
+test imap4-13.4 {close, wrong # args} -body {
+    ::imap4::close
+} -returnCodes error -result {wrong # args: should be "::imap4::close chan"}
+
+test imap4-13.5 {cleanup} -setup {
+    set c [connect SELECT]
+    ::imap4::fetch $c 1 flags
+    ::imap4::folders $c -inline
+} -body {
+    list [::imap4::cleanup $c] [expr {$c in [file channels]}] \
+	[array names ::imap4::info $c,*] [array names ::imap4::mboxinfo $c,*] \
+	[array names ::imap4::msginfo $c,*] [array names ::imap4::folderinfo $c,*]
+} -cleanup {
+    unset c
+} -match glob -result {sock* 0 {} {} {} {}}
+
+test imap4-13.6 {cleanup closes the mailbox (documented)} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::cleanup $c
+    # Wait for the server to notice the end of the connection.
+    for {set i 0} {$i < 100 && [srv {set log}] eq ""} {incr i} {after 10}
+    srv {set log}
+} -cleanup {
+    unset c i
+} -result {CLOSE}
+
+test imap4-13.7 {cleanup, wrong # args} -body {
+    ::imap4::cleanup
+} -returnCodes error -result {wrong # args: should be "::imap4::cleanup chan"}
+
+# -------------------------------------------------------------------------
+# ::imap4::store / ::imap4::expunge / ::imap4::copy / ::imap4::logout
+
+test imap4-14.0 {store, add flags} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::store $c 2:3 +FLAGS Deleted] [srv {set log}] \
+	[join [::imap4::msginfo $c 2 flags]] [join [::imap4::msginfo $c 3 flags]]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{STORE 2:3 +FLAGS (\Deleted)}} {\Deleted} {\Flagged \Seen \Deleted}}
+
+test imap4-14.1 {store, replace flags} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::store $c 1 FLAGS {Answered Draft}] [srv {set log}] \
+	[join [::imap4::msginfo $c 1 flags]]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{STORE 1:1 FLAGS (\Answered \Draft)}} {\Answered \Draft}}
+
+test imap4-14.2 {store, remove flags, silent} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::store $c :3 -FLAGS.SILENT Seen] [srv {set log}] \
+	[srv {set f {}; foreach m $messages {lappend f [join [dict get $m flags]]}; set f}] \
+	[::imap4::msginfo $c 3 flags?]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{STORE 1:3 -FLAGS.SILENT (\Seen)}} {{} {} {\Flagged}} 0}
+
+test imap4-14.3 {store, all data items} -setup {
+    set c [connect SELECT]
+} -body {
+    foreach key {FLAGS FLAGS.SILENT +FLAGS +FLAGS.SILENT -FLAGS -FLAGS.SILENT} {
+	lappend res [::imap4::store $c 1 $key Seen]
+    }
+    set keys {}
+    foreach l [srv {set log}] {lappend keys [lindex $l 2]}
+    list $res $keys
+} -cleanup {
+    disconnect $c
+    unset c res key keys l
+} -result {{0 0 0 0 0 0} {FLAGS FLAGS.SILENT +FLAGS +FLAGS.SILENT -FLAGS -FLAGS.SILENT}}
+
+test imap4-14.4 {store, flag with a backslash} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::store $c 2 +FLAGS [list {\Seen}]
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{STORE 2:2 +FLAGS (\Seen)}}
+
+test imap4-14.5 {store, flags with and without a backslash} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::store $c 2 +FLAGS [list Seen {\Deleted}]
+    srv {set log}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {{STORE 2:2 +FLAGS (\Seen \Deleted)}}
+
+test imap4-14.6 {store, invalid data item} -setup {
+    set c [connect SELECT]
+} -body {
+    list [catch {::imap4::store $c 1 SEEN Seen} msg] $msg [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {Invalid data item: SEEN. Must be one of FLAGS,FLAGS.SILENT,+FLAGS,+FLAGS.SILENT,-FLAGS,-FLAGS.SILENT} {}}
+
+test imap4-14.7 {store, invalid range} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::store $c x +FLAGS Seen
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {Invalid range}
+
+test imap4-14.8 {store, error from the server} -setup {
+    set c [connect SELECT]
+    srv {set reply(STORE) {{TAG NO [READ-ONLY] mailbox is read-only}}}
+} -body {
+    ::imap4::store $c 1 +FLAGS Seen
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP error: 3 NO [READ-ONLY] mailbox is read-only}
+
+test imap4-14.9 {store, wrong # args} -body {
+    ::imap4::store a b c
+} -returnCodes error -result {wrong # args: should be "::imap4::store chan range key values"}
+
+test imap4-15.0 {expunge} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::expunge $c] [srv {set log}] [::imap4::state $c]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 EXPUNGE SELECT}
+
+test imap4-15.1 {expunge, not selected} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::expunge $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'SELECT' (current state is 'AUTH')}
+
+test imap4-15.2 {expunge, wrong # args} -body {
+    ::imap4::expunge
+} -returnCodes error -result {wrong # args: should be "::imap4::expunge chan"}
+
+test imap4-16.0 {copy} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::copy $c 2 Archive] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 {{COPY 2 Archive}}}
+
+test imap4-16.1 {copy, no such mailbox} -setup {
+    set c [connect SELECT]
+} -body {
+    list [catch {::imap4::copy $c 2 Nothing} msg] $msg [::imap4::mboxinfo $c perm]
+} -cleanup {
+    disconnect $c
+    unset c msg
+} -result {1 {IMAP error: 3 NO [TRYCREATE] no such mailbox} TRYCREATE}
+
+test imap4-16.2 {copy, not selected} -setup {
+    set c [connect AUTH]
+} -body {
+    ::imap4::copy $c 1 Archive
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP channel not in one of the following states: 'SELECT' (current state is 'AUTH')}
+
+test imap4-16.3 {copy, wrong # args} -body {
+    ::imap4::copy a b
+} -returnCodes error -result {wrong # args: should be "::imap4::copy chan msgid mailbox"}
+
+test imap4-17.0 {logout} -setup {
+    set c [connect SELECT]
+} -body {
+    list [::imap4::logout $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 LOGOUT}
+
+test imap4-17.1 {logout closes the connection} -constraints {
+    knownBug
+} -setup {
+    set c [connect SELECT]
+} -body {
+    ::imap4::logout $c
+    expr {$c in [file channels]}
+} -cleanup {
+    disconnect $c
+    unset c
+} -result 0
+
+test imap4-17.2 {logout, when no mailbox is selected} -constraints {
+    knownBug
+} -setup {
+    set c [connect AUTH]
+} -body {
+    list [::imap4::logout $c] [srv {set log}]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 LOGOUT}
+
+test imap4-17.3 {logout, wrong # args} -body {
+    ::imap4::logout
+} -returnCodes error -result {wrong # args: should be "::imap4::logout chan"}
+
+# -------------------------------------------------------------------------
+# Server responses
+
+test imap4-18.0 {connection closed by the server} -setup {
+    set c [connect AUTH]
+    srv {set reply(NOOP) CLOSE}
+} -body {
+    ::imap4::noop $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP unexpected EOF from server.}
+
+test imap4-18.1 {unknown response code} -setup {
+    set c [connect AUTH]
+    srv {set reply(NOOP) {{TAG MAYBE later}}}
+} -body {
+    ::imap4::noop $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -result {IMAP protocol error. Unknown response code 'MAYBE'}
+
+test imap4-18.2 {malformed tagged response} -setup {
+    set c [connect AUTH]
+    srv {set reply(NOOP) {TAG}}
+} -body {
+    ::imap4::noop $c
+} -cleanup {
+    disconnect $c
+    unset c
+} -returnCodes error -match glob -result {IMAP: malformed response '*'}
+
+test imap4-18.3 {untagged responses before the tagged one} -setup {
+    set c [connect AUTH]
+    srv {set reply(NOOP) {{* 7 EXISTS} {* OK still here} {TAG OK NOOP done}}}
+} -body {
+    list [::imap4::noop $c] [::imap4::mboxinfo $c exists]
+} -cleanup {
+    disconnect $c
+    unset c
+} -result {0 7}
+
+# -------------------------------------------------------------------------
+# ::imap4::debugmode
+
+set debugScript {
+    source [lindex $argv 0]
+    set c [::imap4::open 127.0.0.1 [lindex $argv 1]]
+    ::imap4::debugmode $c [lindex $argv 2]
+}
+
+test imap4-19.0 {debugmode} -setup {
+    srv reset
+    set f [makeFile $debugScript imap4debug.tcl]
+} -body {
+    set out [exec [info nameofexecutable] $f [localPath imap4.tcl] $port \
+	"test message" << "help\n/expr {6*7}\ninfo\nNOOP\n\n!\n"]
+    list [string match "*IMAP DEBUG MODE*" $out] \
+	[string match "*Last error: 'test message'*" $out] \
+	[string match "*imap debug> 42\n*" $out] \
+	[string match "*Last received line: '* OK fake IMAP4rev1 server ready'*" $out] \
+	[srv {set log}]
+} -cleanup {
+    removeFile imap4debug.tcl
+    unset f out
+} -result {1 1 1 1 NOOP}
+
+test imap4-19.1 {debugmode, error from the server} -setup {
+    srv reset
+    set f [makeFile $debugScript imap4debug.tcl]
+} -body {
+    set out [exec [info nameofexecutable] $f [localPath imap4.tcl] $port \
+	"" << "FOO\n!\n"]
+    list [string match "*--- ERROR ---\nIMAP error: 1 BAD command unknown\n*" $out] \
+	[srv {set log}]
+} -cleanup {
+    removeFile imap4debug.tcl
+    unset f out
+} -result {1 FOO}
+
+test imap4-19.2 {debugmode sets ::imap4::debug} -constraints {
+    knownBug
+} -setup {
+    srv reset
+    set f [makeFile $debugScript imap4debug.tcl]
+} -body {
+    set out [exec [info nameofexecutable] $f [localPath imap4.tcl] $port \
+	"" << "/set ::imap4::debug\n!\n"]
+    string match "*imap debug> 1\n*" $out
+} -cleanup {
+    removeFile imap4debug.tcl
+    unset f out
+} -result 1
+
+# -------------------------------------------------------------------------
+
+srvstop
+rename srvstart {}
+rename srv {}
+rename srvstop {}
+rename connect {}
+rename disconnect {}
+rename freeport {}
+unset childScript serverScript debugScript port
+testsuiteCleanup
+return
