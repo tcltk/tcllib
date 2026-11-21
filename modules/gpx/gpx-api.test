@@ -1,0 +1,253 @@
+# -*- tcl -*-
+# gpx-api.test:  additional tests for the gpx package.
+#
+# gpx.test covers a GPX 1.1 document. This file adds GPX 1.0 documents,
+# version errors, reading from a file, minimal documents, out of range
+# indices, independent tokens, Cleanup, argument checks and more
+# metadata structures.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testsNeed tdom 0.8
+
+testing {
+    useLocal gpx.tcl gpx
+}
+
+# -------------------------------------------------------------------------
+
+set gpx10 {<?xml version="1.0"?>
+<gpx version="1.0" creator="Test 1.0"
+     xmlns="http://www.topografix.com/GPX/1/0"
+     xmlns:topografix="http://www.topografix.com/GPX/Private/TopoGrafix/0/2">
+<name>Old file</name>
+<desc>Version 1.0 data</desc>
+<author>Jan</author>
+<email>jan@example.com</email>
+<url>http://example.com/</url>
+<time>2002-02-27T17:18:33Z</time>
+<bounds minlat="1.0" minlon="2.0" maxlat="3.0" maxlon="4.0"/>
+<topografix:active_point lat="1" lon="2"/>
+<wpt lat="1.5" lon="2.5"><ele>10</ele><name>W1</name></wpt>
+<wpt lat="1.6" lon="2.6"/>
+<rte><name>R1</name><rtept lat="1.1" lon="2.1"><ele>1</ele></rtept><rtept lat="1.2" lon="2.2"/></rte>
+<trk><name>T1</name><trkseg><trkpt lat="1.3" lon="2.3"><ele>3</ele><time>2002-02-27T17:18:33Z</time></trkpt></trkseg></trk>
+</gpx>}
+
+set gpxEmpty {<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1"/>}
+
+set gpxMeta {<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="c">
+<metadata>
+  <name>N</name>
+  <author><name>A</name><email id="me" domain="example.com"/></author>
+  <bounds minlat="1" minlon="2" maxlat="3" maxlon="4"/>
+</metadata>
+<wpt lat="1" lon="2"><link href="http://a/"><text>T</text></link></wpt>
+<rte><name>&#x416;</name><rtept lat="5" lon="6"/></rte>
+</gpx>}
+
+# -------------------------------------------------------------------------
+## Create, Cleanup
+
+test gpx-api-1.0 {Create returns distinct tokens} -body {
+    set a [gpx::Create {} $gpxEmpty]
+    set b [gpx::Create {} $gpxEmpty]
+    expr {$a ne $b}
+} -cleanup {
+    gpx::Cleanup $a
+    gpx::Cleanup $b
+    unset -nocomplain a b
+} -result 1
+
+test gpx-api-1.1 {Create from a file} -setup {
+    set f [makeFile {} gpx-api.gpx]
+    set c [open $f w]
+    puts $c $gpx10
+    close $c
+} -body {
+    set t [gpx::Create $f]
+    list [gpx::GetWaypointCount $t] [dict get [gpx::GetGPXMetadata $t] creator]
+} -cleanup {
+    gpx::Cleanup $t
+    removeFile gpx-api.gpx
+    unset -nocomplain f c t
+} -result {2 {Test 1.0}}
+
+test gpx-api-1.2 {Create, rawXML takes precedence over the file} -body {
+    set t [gpx::Create [file join [temporaryDirectory] no-such-file.gpx] $gpx10]
+    gpx::GetTrackCount $t
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result 1
+
+test gpx-api-1.3 {Create, missing file} -body {
+    gpx::Create [file join [temporaryDirectory] no-such-file.gpx]
+} -returnCodes error -match glob -result {couldn't open "*no-such-file.gpx": no such file or directory}
+
+test gpx-api-1.4 {Create, version older than 1.0} -body {
+    gpx::Create old.gpx {<gpx version="0.9"/>}
+} -returnCodes error -result {old.gpx is version 0.9, need 1.0 or better}
+
+test gpx-api-1.5 {Create, no version attribute} -body {
+    gpx::Create nover.gpx {<gpx/>}
+} -returnCodes error -result {nover.gpx is version 0.0, need 1.0 or better}
+
+test gpx-api-1.6 {Create, malformed XML} -body {
+    gpx::Create {} {<gpx version="1.1"}
+} -returnCodes error -match glob -result {*error*}
+
+test gpx-api-1.7 {Cleanup, token is unusable afterwards} -body {
+    set t [gpx::Create {} $gpxEmpty]
+    gpx::Cleanup $t
+    gpx::GetWaypointCount $t
+} -cleanup {
+    unset -nocomplain t
+} -returnCodes error -match glob -result {can't read "*gpx(dom,*": no such element in array}
+
+test gpx-api-1.8 {Cleanup, other tokens are unaffected} -body {
+    set a [gpx::Create {} $gpxEmpty]
+    set b [gpx::Create {} $gpx10]
+    gpx::Cleanup $a
+    gpx::GetWaypointCount $b
+} -cleanup {
+    gpx::Cleanup $b
+    unset -nocomplain a b
+} -result 2
+
+test gpx-api-1.9 {Cleanup returns the empty string} -body {
+    gpx::Cleanup [gpx::Create {} $gpxEmpty]
+} -result {}
+
+# -------------------------------------------------------------------------
+## Argument checks
+
+foreach {n cmd args} {
+    0 Cleanup          token
+    1 GetGPXMetadata   token
+    2 GetWaypointCount token
+    3 GetAllWaypoints  token
+    4 GetTrackCount    token
+    5 GetTrackMetadata {token whichTrack}
+    6 GetTrackPoints   {token whichTrack}
+    7 GetRouteCount    token
+    8 GetRouteMetadata {token whichRoute}
+    9 GetRoutePoints   {token whichRoute}
+} {
+    test gpx-api-2.$n "$cmd, wrong # args" -body {
+	gpx::$cmd
+    } -returnCodes error -result "wrong # args: should be \"gpx::$cmd $args\""
+}
+
+# -------------------------------------------------------------------------
+## GPX 1.0 documents
+
+test gpx-api-3.0 {1.0, document metadata at the top level} -setup {
+    set t [gpx::Create {} $gpx10]
+} -body {
+    gpx::GetGPXMetadata $t
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {version 1.0 creator {Test 1.0} name {Old file} desc {Version 1.0 data} author Jan email jan@example.com url http://example.com/ time 2002-02-27T17:18:33Z bounds {minlat 1.0 minlon 2.0 maxlat 3.0 maxlon 4.0}}
+
+test gpx-api-3.1 {1.0, waypoints} -setup {
+    set t [gpx::Create {} $gpx10]
+} -body {
+    list [gpx::GetWaypointCount $t] [gpx::GetAllWaypoints $t]
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {2 {{1.5 2.5 {ele 10 name W1}} {1.6 2.6 {}}}}
+
+test gpx-api-3.2 {1.0, routes} -setup {
+    set t [gpx::Create {} $gpx10]
+} -body {
+    list [gpx::GetRouteCount $t] [gpx::GetRouteMetadata $t 1] [gpx::GetRoutePoints $t 1]
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {1 {name R1} {{1.1 2.1 {ele 1}} {1.2 2.2 {}}}}
+
+test gpx-api-3.3 {1.0, tracks} -setup {
+    set t [gpx::Create {} $gpx10]
+} -body {
+    list [gpx::GetTrackCount $t] [gpx::GetTrackMetadata $t 1] [gpx::GetTrackPoints $t 1]
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {1 {name T1} {{1.3 2.3 {ele 3 time 2002-02-27T17:18:33Z}}}}
+
+# -------------------------------------------------------------------------
+## Minimal documents, missing items
+
+test gpx-api-4.0 {minimal document, version and creator always present} -setup {
+    set t [gpx::Create {} $gpxEmpty]
+} -body {
+    gpx::GetGPXMetadata $t
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {version 1.1 creator ?}
+
+test gpx-api-4.1 {minimal document, no points} -setup {
+    set t [gpx::Create {} $gpxEmpty]
+} -body {
+    list [gpx::GetWaypointCount $t] [gpx::GetAllWaypoints $t] \
+	[gpx::GetTrackCount $t] [gpx::GetRouteCount $t]
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {0 {} 0 0}
+
+test gpx-api-4.2 {track and route indices out of range} -setup {
+    set t [gpx::Create {} $gpx10]
+} -body {
+    list [gpx::GetTrackMetadata $t 2] [gpx::GetTrackPoints $t 2] \
+	[gpx::GetRouteMetadata $t 5] [gpx::GetRoutePoints $t 5]
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {{} {} {} {}}
+
+# -------------------------------------------------------------------------
+## Metadata structures
+
+test gpx-api-5.0 {1.1 metadata, author with email attributes, bounds} -setup {
+    set t [gpx::Create {} $gpxMeta]
+} -body {
+    gpx::GetGPXMetadata $t
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {version 1.1 creator c name N author {name A email {id me domain example.com}} bounds {minlat 1 minlon 2 maxlat 3 maxlon 4}}
+
+test gpx-api-5.1 {link is a sub-dictionary with href and text} -setup {
+    set t [gpx::Create {} $gpxMeta]
+} -body {
+    lindex [gpx::GetAllWaypoints $t] 0
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result {1 2 {link {href http://a/ text T}}}
+
+test gpx-api-5.2 {non-ASCII text in metadata} -setup {
+    set t [gpx::Create {} $gpxMeta]
+} -body {
+    list [gpx::GetRouteMetadata $t 1] [gpx::GetRoutePoints $t 1]
+} -cleanup {
+    gpx::Cleanup $t
+    unset -nocomplain t
+} -result [list [list name \u0416] {{5 6 {}}}]
+
+# -------------------------------------------------------------------------
+
+unset -nocomplain gpx10 gpxEmpty gpxMeta n cmd args
+testsuiteCleanup
