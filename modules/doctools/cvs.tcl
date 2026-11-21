@@ -29,8 +29,8 @@ namespace eval ::doctools::cvs {
 #	None.
 #
 # Notes:
-#	Original location of code:	http://wiki.tcl.tk/3638
-#				aka	http://wiki.tcl.tk/log2changelog
+#	Original location of code:	https://wiki.tcl-lang.org/3638
+#				aka	https://wiki.tcl-lang.org/log2changelog
 #	Original author unknown.
 #	Bugfix by TR / Torsten Reincke
 
@@ -91,8 +91,8 @@ proc ::doctools::cvs::scanLog {text evar cvar fvar} {
 #	None.
 #
 # Notes:
-#	Original location of code:	http://wiki.tcl.tk/3638
-#				aka	http://wiki.tcl.tk/log2changelog
+#	Original location of code:	https://wiki.tcl-lang.org/3638
+#				aka	https://wiki.tcl-lang.org/log2changelog
 #	Original author unknown.
 
 proc ::doctools::cvs::toChangeLog {evar cvar fvar} {
