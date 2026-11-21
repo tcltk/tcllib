@@ -1,0 +1,1763 @@
+# -*- tcl -*-
+# ftp-api.test:  tests for the documented API of the ftp and ftp::geturl
+# packages.
+#
+# The client is tested against a fake FTP server running in this
+# interpreter on the loopback interface, with a small file system kept
+# in memory.  The synchronous commands of the client wait in the event
+# loop, so the server runs while they wait.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use log/log.tcl log
+    use uri/uri.tcl uri
+}
+testing {
+    useLocal ftp.tcl ftp
+    useLocalKeep ftp_geturl.tcl ftp::geturl
+}
+
+set ftp::VERBOSE 0
+set ftp::DEBUG   0
+log::lvSuppressLE emergency
+
+# -------------------------------------------------------------------------
+# Fake FTP server.
+#
+# srv(files):  dict path -> contents of the regular files
+# srv(dirs):   list of directories
+# srv(mtime):  dict path -> modification time (seconds)
+# srv(log):    the commands received
+# srv(reply):  array, command -> reply overriding the normal one
+
+proc srvreset {} {
+    global srv srvreply
+    array unset srv
+    array unset srvreply
+    array set srvreply {}
+    set srv(files) [dict create \
+	/a.txt "hello\n" \
+	/data.bin [binary format c* {0 1 2 13 10 255 254 10}] \
+	/pub/b.txt "line1\nline2\n" \
+	/pub/c.tcl "puts hi\n" \
+	/big.txt [string repeat "0123456789" 10]]
+    set srv(dirs) {/ /pub /empty}
+    set srv(mtime) [dict create /a.txt 1600000000 /pub/b.txt 1700000000]
+    set srv(log) {}
+    set srv(greeting) "220 fake FTP server ready"
+    set srv(users) {joe secret}
+}
+srvreset
+
+proc srvaccept {sock addr port} {
+    global srvstate
+    fconfigure $sock -buffering line -translation crlf -blocking 0
+    set srvstate($sock,cwd) /
+    set srvstate($sock,user) {}
+    set srvstate($sock,data) {}
+    set srvstate($sock,listener) {}
+    set srvstate($sock,pending) {}
+    set srvstate($sock,rest) 0
+    set srvstate($sock,rnfr) {}
+    set srvstate($sock,type) A
+    if {$::srv(greeting) eq ""} {
+	# Never answer.
+	return
+    }
+    fileevent $sock readable [list srvread $sock]
+    puts $sock $::srv(greeting)
+}
+
+proc srvclose {sock} {
+    global srvstate
+    catch {close $srvstate($sock,data)}
+    catch {close $srvstate($sock,listener)}
+    catch {close $sock}
+    array unset srvstate $sock,*
+}
+
+proc srvpath {sock name} {
+    global srvstate
+    if {$name eq ""} {
+	return $srvstate($sock,cwd)
+    }
+    if {[string index $name 0] ne "/"} {
+	set name [file join $srvstate($sock,cwd) $name]
+    }
+    set res {}
+    foreach part [file split $name] {
+	switch -- $part {
+	    / - . {}
+	    .. {set res [lrange $res 0 end-1]}
+	    default {lappend res $part}
+	}
+    }
+    return /[join $res /]
+}
+
+proc srvread {sock} {
+    global srv srvstate srvreply
+    if {[catch {gets $sock line} n] || $n < 0} {
+	if {[catch {eof $sock} e] || $e} {srvclose $sock}
+	return
+    }
+    lappend srv(log) $line
+    set cmd [string toupper [lindex [split $line] 0]]
+    set arg [string range $line [expr {[string length $cmd] + 1}] end]
+    if {[info exists srvreply($cmd)]} {
+	foreach r $srvreply($cmd) {puts $sock $r}
+	return
+    }
+    if {$srvstate($sock,user) eq "" && $cmd ni {USER PASS QUIT}} {
+	puts $sock "530 Please login with USER and PASS."
+	return
+    }
+    if {[info commands srvcmd_$cmd] eq ""} {
+	puts $sock "502 Command not implemented."
+	return
+    }
+    srvcmd_$cmd $sock $arg
+}
+
+proc srvcmd_USER {sock arg} {
+    set ::srvstate($sock,login) $arg
+    puts $sock "331 Password required for $arg."
+}
+proc srvcmd_PASS {sock arg} {
+    global srv srvstate
+    set user [expr {[info exists srvstate($sock,login)] ? $srvstate($sock,login) : ""}]
+    if {[dict exists $srv(users) $user] && [dict get $srv(users) $user] eq $arg} {
+	set srvstate($sock,user) $user
+	puts $sock "230 User $user logged in."
+    } else {
+	puts $sock "530 Login incorrect."
+    }
+}
+proc srvcmd_QUIT {sock arg} {
+    puts $sock "221 Goodbye."
+    srvclose $sock
+}
+proc srvcmd_NOOP {sock arg} {puts $sock "200 NOOP ok."}
+proc srvcmd_SYST {sock arg} {puts $sock "215 UNIX Type: L8"}
+proc srvcmd_HELP {sock arg} {
+    puts $sock "214-The following commands are recognized."
+    puts $sock " USER PASS QUIT"
+    puts $sock "214 Help OK."
+}
+proc srvcmd_TYPE {sock arg} {
+    if {$arg ni {A I L {L 8}}} {
+	puts $sock "504 Type not implemented."
+	return
+    }
+    set ::srvstate($sock,type) $arg
+    puts $sock "200 Type set to $arg."
+}
+proc srvcmd_PWD {sock arg} {
+    puts $sock "257 \"$::srvstate($sock,cwd)\" is current directory."
+}
+proc srvcmd_CWD {sock arg} {
+    if {$arg eq ""} {
+	puts $sock "501 Syntax error in parameters."
+	return
+    }
+    set path [srvpath $sock $arg]
+    if {$path ni $::srv(dirs)} {
+	puts $sock "550 $arg: No such directory."
+	return
+    }
+    set ::srvstate($sock,cwd) $path
+    puts $sock "250 CWD command successful."
+}
+proc srvcmd_MKD {sock arg} {
+    global srv
+    set path [srvpath $sock $arg]
+    if {$path in $srv(dirs) || [dict exists $srv(files) $path] ||
+	[file dirname $path] ni $srv(dirs)} {
+	puts $sock "550 $arg: Cannot create directory."
+	return
+    }
+    lappend srv(dirs) $path
+    puts $sock "257 \"$path\" directory created."
+}
+proc srvcmd_RMD {sock arg} {
+    global srv
+    set path [srvpath $sock $arg]
+    set i [lsearch -exact $srv(dirs) $path]
+    if {$i < 0 || [llength [srvlist $path]]} {
+	puts $sock "550 $arg: Cannot remove directory."
+	return
+    }
+    set srv(dirs) [lreplace $srv(dirs) $i $i]
+    puts $sock "250 RMD command successful."
+}
+proc srvcmd_DELE {sock arg} {
+    global srv
+    set path [srvpath $sock $arg]
+    if {![dict exists $srv(files) $path]} {
+	puts $sock "550 $arg: No such file."
+	return
+    }
+    dict unset srv(files) $path
+    puts $sock "250 DELE command successful."
+}
+proc srvcmd_RNFR {sock arg} {
+    global srv
+    set path [srvpath $sock $arg]
+    if {![dict exists $srv(files) $path]} {
+	puts $sock "550 $arg: No such file."
+	return
+    }
+    set ::srvstate($sock,rnfr) $path
+    puts $sock "350 File exists, ready for destination name."
+}
+proc srvcmd_RNTO {sock arg} {
+    global srv srvstate
+    set from $srvstate($sock,rnfr)
+    set srvstate($sock,rnfr) {}
+    set path [srvpath $sock $arg]
+    if {$from eq ""} {
+	puts $sock "503 Bad sequence of commands."
+	return
+    }
+    if {[dict exists $srv(files) $path] || $path in $srv(dirs)} {
+	puts $sock "553 $arg: File exists."
+	return
+    }
+    dict set srv(files) $path [dict get $srv(files) $from]
+    dict unset srv(files) $from
+    puts $sock "250 RNTO command successful."
+}
+proc srvcmd_SIZE {sock arg} {
+    global srv
+    set path [srvpath $sock $arg]
+    if {![dict exists $srv(files) $path]} {
+	puts $sock "550 $arg: No such file."
+	return
+    }
+    puts $sock "213 [string length [dict get $srv(files) $path]]"
+}
+proc srvcmd_MDTM {sock arg} {
+    global srv
+    set path [srvpath $sock $arg]
+    if {![dict exists $srv(files) $path]} {
+	puts $sock "550 $arg: No such file."
+	return
+    }
+    set t 1500000000
+    if {[dict exists $srv(mtime) $path]} {set t [dict get $srv(mtime) $path]}
+    puts $sock "213 [clock format $t -format %Y%m%d%H%M%S -gmt 1]"
+}
+proc srvcmd_REST {sock arg} {
+    set ::srvstate($sock,rest) $arg
+    puts $sock "350 Restarting at $arg."
+}
+
+# Data connections
+proc srvcmd_PASV {sock arg} {
+    global srvstate
+    unset -nocomplain srvstate($sock,port)
+    catch {close $srvstate($sock,listener)}
+    catch {close $srvstate($sock,data)}
+    set srvstate($sock,data) {}
+    set l [socket -server [list srvdataaccept $sock] -myaddr 127.0.0.1 0]
+    set srvstate($sock,listener) $l
+    set p [lindex [fconfigure $l -sockname] 2]
+    puts $sock "227 Entering Passive Mode (127,0,0,1,[expr {$p >> 8}],[expr {$p & 255}])."
+}
+proc srvdataaccept {sock data addr port} {
+    global srvstate
+    catch {close $srvstate($sock,listener)}
+    set srvstate($sock,listener) {}
+    set srvstate($sock,data) $data
+    fconfigure $data -translation binary -blocking 0
+    if {[llength $srvstate($sock,pending)]} {
+	set p $srvstate($sock,pending)
+	set srvstate($sock,pending) {}
+	{*}$p
+    }
+}
+proc srvcmd_PORT {sock arg} {
+    global srvstate
+    set x [split $arg ,]
+    if {[llength $x] != 6} {
+	puts $sock "501 Syntax error in parameters."
+	return
+    }
+    catch {close $srvstate($sock,data)}
+    set srvstate($sock,data) {}
+    set srvstate($sock,port) [list [join [lrange $x 0 3] .] \
+	[expr {([lindex $x 4] << 8) | [lindex $x 5]}]]
+    puts $sock "200 PORT command successful."
+}
+# Runs a transfer when the data connection is available.  In active
+# mode the connection is opened now.
+proc srvtransfer {sock args} {
+    global srvstate
+    puts $sock "150 Opening data connection."
+    if {[info exists srvstate($sock,port)]} {
+	set srvstate($sock,data) [socket {*}$srvstate($sock,port)]
+	fconfigure $srvstate($sock,data) -translation binary -blocking 0
+	unset srvstate($sock,port)
+    }
+    if {$srvstate($sock,data) eq ""} {
+	set srvstate($sock,pending) $args
+    } else {
+	{*}$args
+    }
+}
+proc srvsend {sock bytes} {
+    global srvstate
+    set data $srvstate($sock,data)
+    set srvstate($sock,data) {}
+    if {$srvstate($sock,type) eq "A"} {
+	set bytes [string map [list \n \r\n] $bytes]
+    }
+    catch {puts -nonewline $data $bytes}
+    catch {close $data}
+    puts $sock "226 Transfer complete."
+}
+proc srvreceive {sock path append} {
+    global srvstate
+    set data $srvstate($sock,data)
+    set srvstate($sock,data) {}
+    set srvstate($sock,buffer) {}
+    fileevent $data readable [list srvreceivemore $sock $data $path $append]
+}
+proc srvreceivemore {sock data path append} {
+    global srv srvstate
+    append srvstate($sock,buffer) [read $data]
+    if {![eof $data]} return
+    close $data
+    set bytes $srvstate($sock,buffer)
+    if {$srvstate($sock,type) eq "A"} {
+	set bytes [string map [list \r\n \n] $bytes]
+    }
+    if {$append && [dict exists $srv(files) $path]} {
+	set bytes [dict get $srv(files) $path]$bytes
+    }
+    dict set srv(files) $path $bytes
+    puts $sock "226 Transfer complete."
+}
+proc srvlist {dir} {
+    global srv
+    set res {}
+    foreach f [concat [dict keys $srv(files)] $srv(dirs)] {
+	if {$f ne "/" && [file dirname $f] eq $dir} {
+	    lappend res [file tail $f]
+	}
+    }
+    lsort $res
+}
+proc srvcmd_RETR {sock arg} {
+    global srv srvstate
+    set path [srvpath $sock $arg]
+    if {![dict exists $srv(files) $path]} {
+	catch {close $srvstate($sock,data)}
+	set srvstate($sock,data) {}
+	puts $sock "550 $arg: No such file."
+	return
+    }
+    set bytes [string range [dict get $srv(files) $path] $srvstate($sock,rest) end]
+    set srvstate($sock,rest) 0
+    srvtransfer $sock srvsend $sock $bytes
+}
+proc srvcmd_STOR {sock arg} {
+    global srv srvstate
+    set path [srvpath $sock $arg]
+    if {[file dirname $path] ni $srv(dirs)} {
+	catch {close $srvstate($sock,data)}
+	set srvstate($sock,data) {}
+	puts $sock "553 $arg: Cannot create file."
+	return
+    }
+    srvtransfer $sock srvreceive $sock $path 0
+}
+proc srvcmd_APPE {sock arg} {
+    global srv srvstate
+    set path [srvpath $sock $arg]
+    if {[file dirname $path] ni $srv(dirs)} {
+	catch {close $srvstate($sock,data)}
+	set srvstate($sock,data) {}
+	puts $sock "553 $arg: Cannot create file."
+	return
+    }
+    srvtransfer $sock srvreceive $sock $path 1
+}
+proc srvlisting {sock arg long} {
+    global srv
+    set path [srvpath $sock $arg]
+    if {$path in $srv(dirs)} {
+	set names [srvlist $path]
+	set dir $path
+    } elseif {[dict exists $srv(files) $path]} {
+	set names [list [file tail $path]]
+	set dir [file dirname $path]
+    } else {
+	# A pattern in the current directory.
+	set names {}
+	set dir [file dirname $path]
+	foreach n [srvlist $dir] {
+	    if {[string match [file tail $path] $n]} {lappend names $n}
+	}
+    }
+    set lines {}
+    if {$long} {
+	lappend lines "total [llength $names]"
+	foreach n $names {
+	    set f [file join $dir $n]
+	    if {$f in $srv(dirs)} {
+		lappend lines "drwxr-xr-x   2 joe  users       0 Nov 21 10:00 $n"
+	    } else {
+		lappend lines [format "-rw-r--r--   1 joe  users %7d Jan 02  2020 %s" \
+		    [string length [dict get $srv(files) $f]] $n]
+	    }
+	}
+	if {[info exists srv(link)]} {lappend lines $srv(link)}
+    } else {
+	set lines $names
+    }
+    if {[llength $lines]} {
+	return "[join $lines \n]\n"
+    }
+    return ""
+}
+proc srvcmd_LIST {sock arg} {
+    srvtransfer $sock srvsend $sock [srvlisting $sock $arg 1]
+}
+proc srvcmd_NLST {sock arg} {
+    srvtransfer $sock srvsend $sock [srvlisting $sock $arg 0]
+}
+
+set srvsock [socket -server srvaccept -myaddr 127.0.0.1 0]
+set port [lindex [fconfigure $srvsock -sockname] 2]
+
+# A free port with nothing listening on it.
+proc freeport {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $p
+}
+
+# Opens a session; resets the server first.
+proc connect {args} {
+    srvreset
+    set s [ftp::Open 127.0.0.1 joe secret -port $::port -timeout 10 {*}$args]
+    set ::srv(log) {}
+    return $s
+}
+proc disconnect {s} {
+    catch {ftp::Close $s}
+    # Forget a session which failed in the middle.
+    catch {unset ::ftp::ftp$s}
+}
+
+# Collects messages given to the -output callback.
+proc output {s msg state} {
+    lappend ::output [list $state $msg]
+}
+
+proc readfile {path} {
+    set f [open $path rb]
+    set data [read $f]
+    close $f
+    return $data
+}
+proc writefile {path data} {
+    set f [open $path wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+set tmp [file join [temporaryDirectory] ftptest]
+file delete -force $tmp
+file mkdir $tmp
+
+# -------------------------------------------------------------------------
+# Variables
+
+test ftp-1.0 {VERBOSE and DEBUG are 0 by default} -setup {
+    set ip [interp create]
+} -body {
+    $ip eval [list source [tcllibPath log/log.tcl]]
+    $ip eval [list source [localPath ftp.tcl]]
+    $ip eval {list $::ftp::VERBOSE $::ftp::DEBUG}
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result {0 0}
+
+test ftp-1.1 {namespace exports} -body {
+    lsort [namespace eval ::ftp {namespace export}]
+} -result {Append Cd Close Delete DisplayMsg FileSize Get List MkDir ModTime NList Newer Open Put Pwd Quote Reget Rename RmDir Type geturl}
+
+# -------------------------------------------------------------------------
+# ::ftp::Open / ::ftp::Close
+
+test ftp-2.0 {Open, wrong # args} -body {
+    ftp::Open a b
+} -returnCodes error -result {wrong # args: should be "ftp::Open server user passwd ?arg ...?"}
+
+test ftp-2.1 {Open, login} -setup {
+    srvreset
+} -body {
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10]
+    list [string is integer -strict $s] [expr {$s >= 0}] $srv(log) [ftp::Type $s]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1 1 {{USER joe} {PASS secret} {TYPE I}} binary}
+
+test ftp-2.2 {Open, handles are different} -setup {
+    srvreset
+} -body {
+    set s1 [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10]
+    set s2 [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10]
+    list [expr {$s1 != $s2}] [ftp::Pwd $s1] [ftp::Pwd $s2]
+} -cleanup {
+    disconnect $s1
+    disconnect $s2
+    unset s1 s2
+} -result {1 / /}
+
+test ftp-2.3 {Open, login rejected} -setup {
+    srvreset
+} -body {
+    list [ftp::Open 127.0.0.1 joe wrong -port $port -timeout 10] $srv(log)
+} -result {-1 {{USER joe} {PASS wrong} QUIT}}
+
+test ftp-2.4 {Open, connection refused} -body {
+    ftp::Open 127.0.0.1 joe secret -port [freeport] -timeout 10
+} -result -1
+
+test ftp-2.5 {Open, server not ready} -setup {
+    srvreset
+    set srv(greeting) "421 Service not available."
+} -body {
+    list [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10] $srv(log)
+} -result {-1 QUIT}
+
+test ftp-2.6 {Open, login without password} -setup {
+    srvreset
+    set srvreply(USER) {{230 Logged in without password.}}
+} -body {
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10]
+    list [expr {$s >= 0}] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1 {{USER joe} {TYPE I}}}
+
+test ftp-2.7 {Open, -timeout} -constraints {
+    knownBug
+} -setup {
+    srvreset
+    set srv(greeting) ""
+} -body {
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 1]
+} -cleanup {
+    if {[info exists ::ftp::ftp$s]} {
+	catch {close [set ::ftp::ftp${s}(CtrlSock)]}
+	unset ::ftp::ftp$s
+    }
+    unset s
+} -result -1
+
+test ftp-2.8 {Open, unknown options are ignored} -setup {
+    srvreset
+} -body {
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -foo bar]
+    expr {$s >= 0}
+} -cleanup {
+    disconnect $s
+    unset s
+} -result 1
+
+test ftp-2.9 {Close} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Close $s] $srv(log) [info exists ::ftp::ftp$s]
+} -cleanup {
+    unset s
+} -result {1 QUIT 0}
+
+test ftp-2.10 {Close, not connected} -setup {
+    set output {}
+    set s [connect -output output]
+    ftp::Close $s
+} -body {
+    list [ftp::Close $s] $srv(log)
+} -cleanup {
+    unset s output
+} -result {0 QUIT}
+
+test ftp-2.11 {commands on a closed handle} -setup {
+    set s [connect]
+    ftp::Close $s
+} -body {
+    list [ftp::Cd $s pub] [ftp::Pwd $s] [ftp::Type $s] [ftp::List $s] \
+	[ftp::NList $s] [ftp::FileSize $s a.txt] [ftp::ModTime $s a.txt] \
+	[ftp::Delete $s a.txt] [ftp::Rename $s a.txt b.txt] \
+	[ftp::Put $s -data x a.txt] [ftp::Append $s -data x a.txt] \
+	[ftp::Get $s a.txt -variable v] [ftp::Reget $s a.txt] \
+	[ftp::Newer $s a.txt] [ftp::MkDir $s d] [ftp::RmDir $s d] \
+	[ftp::Quote $s NOOP] $srv(log)
+} -cleanup {
+    unset s
+} -result {0 {} {} {} {} {} {} 0 0 0 0 0 0 0 0 0 0 QUIT}
+
+test ftp-2.12 {Close, connection closed by the server} -setup {
+    set s [connect]
+    set srvreply(NOOP) {{421 Timeout, closing control connection.}}
+} -body {
+    ftp::Quote $s NOOP
+    ftp::Close $s
+} -cleanup {
+    disconnect $s
+    unset s
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::ftp::Cd / ::ftp::Pwd
+
+test ftp-3.0 {Pwd} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Pwd $s] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {/ PWD}
+
+test ftp-3.1 {Cd, subdirectory, parent, absolute} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Cd $s pub] [ftp::Pwd $s] [ftp::Cd $s ..] [ftp::Pwd $s] \
+	[ftp::Cd $s /pub] [ftp::Pwd $s] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1 /pub 1 / 1 /pub {{CWD pub} PWD {CWD ..} PWD {CWD /pub} PWD}}
+
+test ftp-3.2 {Cd, missing directory} -setup {
+    set output {}
+    set s [connect -output output]
+} -body {
+    list [ftp::Cd $s missing] [ftp::Pwd $s] [lindex $output 0 0]
+} -cleanup {
+    disconnect $s
+    unset s output
+} -result {0 / error}
+
+test ftp-3.3 {Cd, wrong # args} -body {
+    ftp::Cd 0 a b
+} -returnCodes error -result {wrong # args: should be "ftp::Cd s ?dir?"}
+
+test ftp-3.4 {Pwd, error} -setup {
+    set s [connect]
+    set srvreply(PWD) {{550 No current directory.}}
+} -body {
+    ftp::Pwd $s
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {}
+
+test ftp-3.5 {Pwd, wrong # args} -body {
+    ftp::Pwd
+} -returnCodes error -result {wrong # args: should be "ftp::Pwd s"}
+
+# -------------------------------------------------------------------------
+# ::ftp::Type
+
+test ftp-4.0 {Type, query} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Type $s] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {binary {}}
+
+test ftp-4.1 {Type, set} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Type $s ascii] [ftp::Type $s] [ftp::Type $s binary] \
+	[ftp::Type $s tenex] [ftp::Type $s] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {ascii ascii binary tenex tenex {{TYPE A} {TYPE I} {TYPE L}}}
+
+test ftp-4.2 {Type, rejected by the server} -setup {
+    set s [connect]
+    set srvreply(TYPE) {{504 Type not implemented.}}
+} -body {
+    list [ftp::Type $s ascii] [ftp::Type $s]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {{} binary}
+
+# -------------------------------------------------------------------------
+# ::ftp::List / ::ftp::NList
+
+test ftp-5.0 {List, current directory} -setup {
+    set s [connect]
+} -body {
+    list [ftp::List $s] $srv(log) [ftp::Type $s]
+} -cleanup {
+    disconnect $s
+    unset s
+} -match glob -result {{{-rw-r--r--   1 joe  users       6 Jan 02  2020 a.txt} {-rw-r--r--   1 joe  users     100 Jan 02  2020 big.txt} {-rw-r--r--   1 joe  users       8 Jan 02  2020 data.bin} {drwxr-xr-x   2 joe  users       0 Nov 21 10:00 empty} {drwxr-xr-x   2 joe  users       0 Nov 21 10:00 pub}} {{TYPE A} {PORT 127,0,0,1,*} LIST {TYPE I}} binary}
+
+test ftp-5.1 {List, directory and pattern} -setup {
+    set s [connect]
+} -body {
+    set r1 [ftp::List $s pub]
+    set r2 [ftp::List $s *.bin]
+    list [llength $r1] [lindex $r1 0 end] [lindex $r1 1 end] $r2
+} -cleanup {
+    disconnect $s
+    unset s r1 r2
+} -result {2 b.txt c.tcl {{-rw-r--r--   1 joe  users       8 Jan 02  2020 data.bin}}}
+
+test ftp-5.2 {List, empty directory} -setup {
+    set s [connect]
+} -body {
+    ftp::List $s empty
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {}
+
+test ftp-5.3 {List, relative to the current directory} -setup {
+    set s [connect]
+    ftp::Cd $s pub
+} -body {
+    lindex [ftp::List $s] end end
+} -cleanup {
+    disconnect $s
+    unset s
+} -result c.tcl
+
+test ftp-5.4 {List, passive mode} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [llength [ftp::List $s]] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {5 {{TYPE A} PASV LIST {TYPE I}}}
+
+test ftp-5.5 {List, error} -setup {
+    set s [connect]
+    set srvreply(LIST) {{550 No files found.}}
+} -body {
+    ftp::List $s
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {}
+
+test ftp-5.6 {List, ascii type is kept} -setup {
+    set s [connect]
+    ftp::Type $s ascii
+    set srv(log) {}
+} -body {
+    list [llength [ftp::List $s pub]] $srv(log) [ftp::Type $s]
+} -cleanup {
+    disconnect $s
+    unset s
+} -match glob -result {2 {{PORT *} {LIST pub}} ascii}
+
+test ftp-6.0 {NList} -setup {
+    set s [connect]
+} -body {
+    list [ftp::NList $s] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -match glob -result {{a.txt big.txt data.bin empty pub} {{TYPE A} {PORT 127,0,0,1,*} NLST {TYPE I}}}
+
+test ftp-6.1 {NList, directory} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [ftp::NList $s pub] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {{b.txt c.tcl} {{TYPE A} PASV {NLST pub} {TYPE I}}}
+
+test ftp-6.2 {NList, sorted} -setup {
+    set s [connect]
+    proc ::srvcmd_NLST {sock arg} {srvtransfer $sock srvsend $sock "z\na\nm\n"}
+} -body {
+    ftp::NList $s
+} -cleanup {
+    proc ::srvcmd_NLST {sock arg} {
+	srvtransfer $sock srvsend $sock [srvlisting $sock $arg 0]
+    }
+    disconnect $s
+    unset s
+} -result {a m z}
+
+test ftp-6.3 {NList, empty directory} -setup {
+    set s [connect]
+} -body {
+    ftp::NList $s empty
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {}
+
+test ftp-6.4 {NList, error} -setup {
+    set s [connect]
+    set srvreply(NLST) {{550 No files found.}}
+} -body {
+    ftp::NList $s
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::ftp::FileSize / ::ftp::ModTime
+
+test ftp-7.0 {FileSize} -setup {
+    set s [connect]
+} -body {
+    list [ftp::FileSize $s a.txt] [ftp::FileSize $s pub/b.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {6 12 {{SIZE a.txt} {SIZE pub/b.txt}}}
+
+test ftp-7.1 {FileSize, missing file and no file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::FileSize $s missing] [ftp::FileSize $s] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {{} {} {{SIZE missing}}}
+
+test ftp-7.2 {ModTime} -setup {
+    set s [connect]
+} -body {
+    list [ftp::ModTime $s a.txt] [ftp::ModTime $s pub/b.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1600000000 1700000000 {{MDTM a.txt} {MDTM pub/b.txt}}}
+
+test ftp-7.3 {ModTime, missing file and no file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::ModTime $s missing] [ftp::ModTime $s] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {{} {} {{MDTM missing}}}
+
+test ftp-7.4 {ModTime, non-standard Y2K time} -setup {
+    set s [connect]
+    set srvreply(MDTM) {{213 191120123235959}}
+} -body {
+    ftp::ModTime $s a.txt
+} -cleanup {
+    disconnect $s
+    unset s
+} -result [clock scan "2012-01-23 23:59:59" -format "%Y-%m-%d %H:%M:%S" -gmt 1]
+
+# -------------------------------------------------------------------------
+# ::ftp::Delete / ::ftp::Rename / ::ftp::MkDir / ::ftp::RmDir
+
+test ftp-8.0 {Delete} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Delete $s a.txt] [ftp::Delete $s a.txt] $srv(log) \
+	[dict exists $srv(files) /a.txt]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1 0 {{DELE a.txt} {DELE a.txt}} 0}
+
+test ftp-8.1 {Delete, wrong # args} -body {
+    ftp::Delete 0
+} -returnCodes error -result {wrong # args: should be "ftp::Delete s file"}
+
+test ftp-8.2 {Rename} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Rename $s a.txt new.txt] $srv(log) [dict exists $srv(files) /a.txt] \
+	[dict get $srv(files) /new.txt]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result [list 1 {{RNFR a.txt} {RNTO new.txt}} 0 "hello\n"]
+
+test ftp-8.3 {Rename, missing file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Rename $s missing new.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 {{RNFR missing}}}
+
+test ftp-8.4 {Rename, target exists} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Rename $s a.txt big.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 {{RNFR a.txt} {RNTO big.txt}}}
+
+test ftp-8.5 {Rename, wrong # args} -body {
+    ftp::Rename 0 a
+} -returnCodes error -result {wrong # args: should be "ftp::Rename s from to"}
+
+test ftp-8.6 {MkDir and RmDir} -setup {
+    set s [connect]
+} -body {
+    list [ftp::MkDir $s new] [expr {"/new" in $srv(dirs)}] [ftp::RmDir $s new] \
+	[expr {"/new" in $srv(dirs)}] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1 1 1 0 {{MKD new} {RMD new}}}
+
+test ftp-8.7 {MkDir and RmDir, relative and absolute} -setup {
+    set s [connect]
+    ftp::Cd $s pub
+} -body {
+    list [ftp::MkDir $s sub] [ftp::MkDir $s /top] [lrange $srv(dirs) end-1 end] \
+	[ftp::RmDir $s /pub/sub] [ftp::RmDir $s /top]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1 1 {/pub/sub /top} 1 1}
+
+test ftp-8.8 {MkDir and RmDir, errors} -setup {
+    set s [connect]
+} -body {
+    list [ftp::MkDir $s pub] [ftp::MkDir $s missing/new] [ftp::RmDir $s pub] \
+	[ftp::RmDir $s missing]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 0 0 0}
+
+test ftp-8.9 {MkDir and RmDir, wrong # args} -body {
+    list [catch {ftp::MkDir 0} msg] $msg [catch {ftp::RmDir 0} msg] $msg
+} -cleanup {
+    unset msg
+} -result {1 {wrong # args: should be "ftp::MkDir s dir"} 1 {wrong # args: should be "ftp::RmDir s dir"}}
+
+# -------------------------------------------------------------------------
+# ::ftp::Get
+
+test ftp-9.0 {Get, to a local file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Get $s data.bin [file join $tmp local.bin]] \
+	[readfile [file join $tmp local.bin]] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp local.bin]
+    unset s
+} -match glob -result [list 1 [binary format c* {0 1 2 13 10 255 254 10}] {{PORT 127,0,0,1,*} {RETR data.bin}}]
+
+test ftp-9.1 {Get, passive mode} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [ftp::Get $s pub/b.txt [file join $tmp b.txt]] \
+	[readfile [file join $tmp b.txt]] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp b.txt]
+    unset s
+} -result [list 1 "line1\nline2\n" {PASV {RETR pub/b.txt}}]
+
+test ftp-9.2 {Get, default local name} -setup {
+    set s [connect]
+    set old [pwd]
+    cd $tmp
+} -body {
+    list [ftp::Get $s a.txt] [readfile [file join $tmp a.txt]]
+} -cleanup {
+    cd $old
+    disconnect $s
+    file delete [file join $tmp a.txt]
+    unset s old
+} -result [list 1 "hello\n"]
+
+test ftp-9.3 {Get, into a local directory} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Get $s pub/b.txt $tmp] [readfile [file join $tmp b.txt]]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp b.txt]
+    unset s
+} -result [list 1 "line1\nline2\n"]
+
+test ftp-9.4 {Get, missing local directory} -setup {
+    set s [connect]
+} -body {
+    ftp::Get $s a.txt [file join $tmp nodir a.txt]
+} -cleanup {
+    disconnect $s
+    unset s
+} -returnCodes error -result "ftp::Get, directory \"[file join $tmp nodir]\" for destination \"[file join $tmp nodir a.txt]\" does not exist"
+
+test ftp-9.5 {Get, -variable} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Get $s pub/b.txt -variable v] $v
+} -cleanup {
+    disconnect $s
+    unset s v
+} -result [list 1 "line1\nline2\n"]
+
+test ftp-9.6 {Get, -variable, passive mode, binary data} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [ftp::Get $s data.bin -variable v] [expr {$v eq [dict get $srv(files) /data.bin]}]
+} -cleanup {
+    disconnect $s
+    unset s v
+} -result {1 1}
+
+test ftp-9.7 {Get, -channel} -setup {
+    set s [connect]
+    set f [open [file join $tmp chan.txt] w+]
+} -body {
+    set r [ftp::Get $s pub/b.txt -channel $f]
+    list $r [expr {$f in [file channels]}] [seek $f 0] [read $f]
+} -cleanup {
+    close $f
+    file delete [file join $tmp chan.txt]
+    disconnect $s
+    unset s f r
+} -result [list 1 1 {} "line1\nline2\n"]
+
+test ftp-9.8 {Get, ascii type} -setup {
+    set s [connect]
+    ftp::Type $s ascii
+} -body {
+    list [ftp::Get $s pub/b.txt -variable v] $v
+} -cleanup {
+    disconnect $s
+    unset s v
+} -result [list 1 "line1\nline2\n"]
+
+test ftp-9.9 {Get, missing remote file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Get $s missing [file join $tmp missing]] \
+	[file exists [file join $tmp missing]] [ftp::Pwd $s]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 0 /}
+
+test ftp-9.10 {Get, missing remote file, passive mode} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [ftp::Get $s missing [file join $tmp missing2]] [ftp::Pwd $s]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp missing2]
+    unset s
+} -result {0 /}
+
+test ftp-9.10.1 {Get, missing remote file, passive mode, no local file} -constraints {
+    knownBug
+} -setup {
+    set s [connect -mode passive]
+} -body {
+    ftp::Get $s missing [file join $tmp missing2]
+    file exists [file join $tmp missing2]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp missing2]
+    unset s
+} -result 0
+
+test ftp-9.11 {Get, -variable, missing remote file, ticket 1763707fff} -constraints {
+    knownBug
+} -setup {
+    set s [connect]
+} -body {
+    ftp::Get $s missing -variable v
+} -cleanup {
+    disconnect $s
+    unset -nocomplain s v
+} -result 0
+
+test ftp-9.12 {Get, bad arguments} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Get $s] [ftp::Get $s a b c d e] [ftp::Get $s a.txt -variable v local] \
+	$srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 0 0 {}}
+
+test ftp-9.13 {Get, -progress} -setup {
+    set progress {}
+    set s [connect -blocksize 30 -progress {lappend ::progress}]
+} -body {
+    list [ftp::Get $s big.txt [file join $tmp big.txt]] $progress
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp big.txt]
+    unset s progress
+} -result {1 {30 60 90 100}}
+
+test ftp-9.14 {Get, -blocksize} -setup {
+    set s [connect -blocksize 7]
+} -body {
+    list [ftp::Get $s big.txt [file join $tmp big.txt]] \
+	[readfile [file join $tmp big.txt]]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp big.txt]
+    unset s
+} -result [list 1 [string repeat 0123456789 10]]
+
+# -------------------------------------------------------------------------
+# ::ftp::Put / ::ftp::Append
+
+test ftp-10.0 {Put, local file} -setup {
+    set s [connect]
+    writefile [file join $tmp up.bin] "\x00\xff\r\n"
+} -body {
+    list [ftp::Put $s [file join $tmp up.bin] remote.bin] \
+	[dict get $srv(files) /remote.bin] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp up.bin]
+    unset s
+} -match glob -result [list 1 "\x00\xff\r\n" {{PORT 127,0,0,1,*} {STOR remote.bin}}]
+
+test ftp-10.1 {Put, default remote name, passive mode} -setup {
+    set s [connect -mode passive]
+    writefile [file join $tmp up.txt] "up\n"
+} -body {
+    list [ftp::Put $s [file join $tmp up.txt]] [dict get $srv(files) /up.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp up.txt]
+    unset s
+} -result [list 1 "up\n" {PASV {STOR up.txt}}]
+
+test ftp-10.2 {Put, -data} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Put $s -data "some data\n" pub/new.txt] [dict get $srv(files) /pub/new.txt]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result [list 1 "some data\n"]
+
+test ftp-10.3 {Put, -data, larger than the block size} -setup {
+    set s [connect -blocksize 16 -mode passive]
+} -body {
+    set data [string repeat abcdefghij 20]
+    list [ftp::Put $s -data $data new.txt] [expr {[dict get $srv(files) /new.txt] eq $data}]
+} -cleanup {
+    disconnect $s
+    unset s data
+} -result {1 1}
+
+test ftp-10.4 {Put, -data {}, ticket 2eb11228fb} -constraints {
+    knownBug
+} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Put $s -data {} empty.txt] [dict exists $srv(files) /empty.txt] \
+	[dict exists $srv(files) /ftp.tmp]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {1 1 0}
+
+test ftp-10.5 {Put, -channel, channel is closed} -setup {
+    set s [connect]
+    writefile [file join $tmp up.txt] "from channel\n"
+    set f [open [file join $tmp up.txt] r]
+} -body {
+    list [ftp::Put $s -channel $f new.txt] [dict get $srv(files) /new.txt] \
+	[expr {$f in [file channels]}]
+} -cleanup {
+    catch {close $f}
+    disconnect $s
+    file delete [file join $tmp up.txt]
+    unset s f
+} -result [list 1 "from channel\n" 0]
+
+test ftp-10.6 {Put, ascii type} -setup {
+    set s [connect]
+    ftp::Type $s ascii
+    writefile [file join $tmp up.txt] "a\nb\n"
+} -body {
+    list [ftp::Put $s [file join $tmp up.txt] new.txt] [dict get $srv(files) /new.txt]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp up.txt]
+    unset s
+} -result [list 1 "a\nb\n"]
+
+test ftp-10.7 {Put, missing local file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Put $s [file join $tmp missing.txt] new.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 {}}
+
+test ftp-10.8 {Put, refused by the server} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Put $s -data x missing/new.txt] [ftp::Pwd $s]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 /}
+
+test ftp-10.9 {Put, bad arguments} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Put $s] [ftp::Put $s a b c d e] [ftp::Put $s -data x a b] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 0 0 {}}
+
+test ftp-10.10 {Put, -progress} -setup {
+    set progress {}
+    set s [connect -blocksize 40 -progress {lappend ::progress}]
+    writefile [file join $tmp up.txt] [string repeat x 100]
+} -body {
+    list [ftp::Put $s [file join $tmp up.txt] new.txt] [lindex $progress end]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp up.txt]
+    unset s progress
+} -result {1 100}
+
+test ftp-11.0 {Append, -data} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Append $s -data "more\n" a.txt] [dict get $srv(files) /a.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -match glob -result [list 1 "hello\nmore\n" {{PORT *} {APPE a.txt}}]
+
+test ftp-11.1 {Append, local file, new remote file, passive mode} -setup {
+    set s [connect -mode passive]
+    writefile [file join $tmp up.txt] "up\n"
+} -body {
+    list [ftp::Append $s [file join $tmp up.txt]] [dict get $srv(files) /up.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp up.txt]
+    unset s
+} -result [list 1 "up\n" {PASV {APPE up.txt}}]
+
+test ftp-11.2 {Append, -channel} -setup {
+    set s [connect]
+    writefile [file join $tmp up.txt] "chan\n"
+    set f [open [file join $tmp up.txt] r]
+} -body {
+    list [ftp::Append $s -channel $f a.txt] [dict get $srv(files) /a.txt] \
+	[expr {$f in [file channels]}]
+} -cleanup {
+    catch {close $f}
+    disconnect $s
+    file delete [file join $tmp up.txt]
+    unset s f
+} -result [list 1 "hello\nchan\n" 0]
+
+test ftp-11.3 {Append, errors} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Append $s -data x missing/a.txt] [ftp::Append $s [file join $tmp missing]] \
+	[ftp::Append $s] [ftp::Pwd $s]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {0 0 0 /}
+
+test ftp-11.4 {Append, -data {}, ticket 2eb11228fb} -constraints {
+    knownBug
+} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Append $s -data {} a.txt] [dict get $srv(files) /a.txt] \
+	[dict exists $srv(files) /ftp.tmp]
+} -cleanup {
+    disconnect $s
+    unset s
+} -result [list 1 "hello\n" 0]
+
+# -------------------------------------------------------------------------
+# ::ftp::Reget / ::ftp::Newer
+
+test ftp-12.0 {Reget, continues a partial file} -setup {
+    set s [connect]
+    writefile [file join $tmp big.txt] 0123456789012
+} -body {
+    list [ftp::Reget $s big.txt [file join $tmp big.txt]] \
+	[readfile [file join $tmp big.txt]] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp big.txt]
+    unset s
+} -match glob -result [list 1 [string repeat 0123456789 10] {{PORT *} {REST 13} {RETR big.txt}}]
+
+test ftp-12.1 {Reget, no local file, passive mode} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [ftp::Reget $s pub/b.txt [file join $tmp b.txt]] \
+	[readfile [file join $tmp b.txt]] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp b.txt]
+    unset s
+} -result [list 1 "line1\nline2\n" {PASV {RETR pub/b.txt}}]
+
+test ftp-12.2 {Reget, slice} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [ftp::Reget $s big.txt [file join $tmp slice.txt] 12 25] \
+	[readfile [file join $tmp slice.txt]] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp slice.txt]
+    unset s
+} -result [list 1 2345678901234 {PASV {REST 12} {RETR big.txt}}]
+
+test ftp-12.3 {Reget, slice from the start} -setup {
+    set s [connect -mode passive]
+} -body {
+    list [ftp::Reget $s big.txt [file join $tmp slice.txt] 0 5] \
+	[readfile [file join $tmp slice.txt]]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp slice.txt]
+    unset s
+} -result {1 01234}
+
+test ftp-12.4 {Reget, local file already complete} -setup {
+    set s [connect -mode passive]
+    writefile [file join $tmp slice.txt] 01234
+} -body {
+    list [ftp::Reget $s big.txt [file join $tmp slice.txt] 0 5] $srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp slice.txt]
+    unset s
+} -result {0 {}}
+
+test ftp-12.5 {Reget, missing local directory} -setup {
+    set s [connect]
+} -body {
+    ftp::Reget $s a.txt [file join $tmp nodir a.txt]
+} -cleanup {
+    disconnect $s
+    unset s
+} -returnCodes error -result "ftp::Reget, directory \"[file join $tmp nodir]\" for destination \"[file join $tmp nodir a.txt]\" does not exist"
+
+test ftp-12.6 {Reget, missing remote file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Reget $s missing [file join $tmp missing.txt]] [ftp::Pwd $s]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp missing.txt]
+    unset s
+} -result {0 /}
+
+test ftp-12.7 {Reget, wrong # args} -body {
+    ftp::Reget 0
+} -returnCodes error -result {wrong # args: should be "ftp::Reget s source ?dest? ?from_bytes? ?till_bytes?"}
+
+test ftp-13.0 {Newer, no local file} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Newer $s a.txt [file join $tmp a.txt]] [readfile [file join $tmp a.txt]] \
+	[lrange $srv(log) 0 0] [lindex $srv(log) end]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp a.txt]
+    unset s
+} -result [list 1 "hello\n" {{MDTM a.txt}} {RETR a.txt}]
+
+test ftp-13.1 {Newer, local file is older} -setup {
+    set s [connect]
+    writefile [file join $tmp a.txt] old
+    file mtime [file join $tmp a.txt] 1500000000
+} -body {
+    list [ftp::Newer $s a.txt [file join $tmp a.txt]] [readfile [file join $tmp a.txt]]
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp a.txt]
+    unset s
+} -result [list 1 "hello\n"]
+
+test ftp-13.2 {Newer, local file is newer} -setup {
+    set s [connect]
+    writefile [file join $tmp a.txt] new
+    file mtime [file join $tmp a.txt] 1650000000
+} -body {
+    list [ftp::Newer $s a.txt [file join $tmp a.txt]] [readfile [file join $tmp a.txt]] \
+	$srv(log)
+} -cleanup {
+    disconnect $s
+    file delete [file join $tmp a.txt]
+    unset s
+} -result {0 new {{MDTM a.txt}}}
+
+test ftp-13.3 {Newer, missing local directory} -setup {
+    set s [connect]
+} -body {
+    ftp::Newer $s a.txt [file join $tmp nodir a.txt]
+} -cleanup {
+    disconnect $s
+    unset s
+} -returnCodes error -result "ftp::Newer, directory \"[file join $tmp nodir]\" for destination \"[file join $tmp nodir a.txt]\" does not exist"
+
+test ftp-13.4 {Newer, wrong # args} -body {
+    ftp::Newer 0
+} -returnCodes error -result {wrong # args: should be "ftp::Newer s source ?dest?"}
+
+# -------------------------------------------------------------------------
+# ::ftp::Quote
+
+test ftp-14.0 {Quote} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Quote $s SYST] [ftp::Quote $s NOOP] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {{215 UNIX Type: L8} {200 NOOP ok.} {SYST NOOP}}
+
+test ftp-14.1 {Quote, several arguments, error reply} -setup {
+    set s [connect]
+} -body {
+    list [ftp::Quote $s SITE CHMOD 644 a.txt] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {{502 Command not implemented.} {{SITE CHMOD 644 a.txt}}}
+
+test ftp-14.2 {Quote, multi-line reply} -setup {
+    set s [connect]
+} -body {
+    ftp::Quote $s HELP
+} -cleanup {
+    disconnect $s
+    unset s
+} -result "214-The following commands are recognized.\n USER PASS QUIT\n214 Help OK."
+
+test ftp-14.3 {Quote, arguments are sent verbatim, ticket 991452fff} -constraints {
+    knownBug
+} -setup {
+    set s [connect]
+} -body {
+    ftp::Quote $s SITE "a b" {c}
+    set srv(log)
+} -cleanup {
+    disconnect $s
+    unset s
+} -result {{SITE a b c}}
+
+# -------------------------------------------------------------------------
+# ::ftp::DisplayMsg, -output
+
+test ftp-15.0 {-output receives the messages} -setup {
+    set output {}
+    set s [connect -output output]
+} -body {
+    ftp::Delete $s missing
+    list [llength $output] [lindex $output 0 0] [string match *missing* [lindex $output 0 1]]
+} -cleanup {
+    disconnect $s
+    unset s output
+} -result {1 error 1}
+
+test ftp-15.1 {DisplayMsg, -output callback} -setup {
+    set output {}
+    set s [connect -output output]
+} -body {
+    ftp::DisplayMsg $s hello
+    ftp::DisplayMsg $s world control
+    set output
+} -cleanup {
+    disconnect $s
+    unset s output
+} -result {{{} hello} {control world}}
+
+test ftp-15.2 {DisplayMsg, default implementation uses the log package} -setup {
+    set s [connect]
+    set logged {}
+    proc ::logcmd {level text} {lappend ::logged $level $text}
+    log::lvSuppressLE emergency 0
+    log::lvCmdForall ::logcmd
+} -body {
+    list [ftp::DisplayMsg $s hello] [ftp::DisplayMsg $s oops error] $logged
+} -cleanup {
+    log::lvCmdForall log::Puts
+    log::lvSuppressLE emergency
+    rename ::logcmd {}
+    disconnect $s
+    unset s logged
+} -result {{} {} {debug { | hello} error {error | oops}}}
+
+test ftp-15.3 {VERBOSE shows server responses} -setup {
+    set output {}
+    set s [connect -output output]
+    set ftp::VERBOSE 1
+} -body {
+    ftp::Pwd $s
+    expr {[lsearch -exact $output {control {C: 257 "/" is current directory.}}] >= 0}
+} -cleanup {
+    set ftp::VERBOSE 0
+    disconnect $s
+    unset s output
+} -result 1
+
+test ftp-15.4 {DEBUG shows ftp commands} -setup {
+    set output {}
+    set s [connect -output output]
+    set ftp::DEBUG 1
+} -body {
+    ftp::Pwd $s
+    expr {[lsearch -exact $output {{} {---> PWD}}] >= 0}
+} -cleanup {
+    set ftp::DEBUG 0
+    disconnect $s
+    unset s output
+} -result 1
+
+# -------------------------------------------------------------------------
+# Asynchronous mode, -command
+
+proc async {args} {
+    lappend ::async $args
+}
+proc asyncwait {n} {
+    set id [after 5000 {lappend ::async TIMEOUT}]
+    while {[llength $::async] < $n && [lindex $::async end] ne "TIMEOUT"} {
+	vwait ::async
+    }
+    after cancel $id
+    set ::async
+}
+
+test ftp-16.0 {-command, Open} -setup {
+    srvreset
+    set async {}
+} -body {
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -command async]
+    list [expr {$s >= 0}] [asyncwait 4] $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s async
+} -match glob -result {1 {user password {type *} {connect *}} {{USER joe} {PASS secret} {TYPE *}}}
+
+test ftp-16.0.1 {-command, Open, default type is binary} -constraints {
+    knownBug
+} -setup {
+    srvreset
+    set async {}
+} -body {
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -command async]
+    asyncwait 4
+    list [lindex $async 2] [lindex $srv(log) 2] [ftp::Type $s]
+} -cleanup {
+    disconnect $s
+    unset s async
+} -result {{type binary} {TYPE I} binary}
+
+test ftp-16.1 {-command, operations} -setup {
+    srvreset
+    set async {}
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -command async]
+    asyncwait 4
+    set async {}
+} -body {
+    ftp::Cd $s pub
+    asyncwait 1
+    ftp::Pwd $s
+    asyncwait 2
+    ftp::FileSize $s b.txt
+    asyncwait 3
+    ftp::Delete $s b.txt
+    asyncwait 4
+    ftp::MkDir $s new
+    asyncwait 5
+    ftp::Cd $s missing
+    asyncwait 6
+} -cleanup {
+    disconnect $s
+    unset s async
+} -result {{cd { pub}} {pwd /pub} {size b.txt 12} {delete b.txt} {mkdir new} {error {Error changing directory to " missing"}}}
+
+test ftp-16.2 {-command, Get to a variable} -setup {
+    srvreset
+    set async {}
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -mode passive -command async]
+    asyncwait 4
+    set async {}
+} -body {
+    ftp::Get $s pub/b.txt -variable ::got
+    list [asyncwait 1] $::got
+} -cleanup {
+    disconnect $s
+    unset -nocomplain s async ::got
+} -result [list [list [list get "line1\nline2\n"]] "line1\nline2\n"]
+
+test ftp-16.3 {-command, Close} -setup {
+    srvreset
+    set async {}
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -command async]
+    asyncwait 4
+    set async {}
+} -body {
+    set srv(log) {}
+    set r [ftp::Close $s]
+    for {set i 0} {$i < 500 && ![llength $srv(log)]} {incr i} {
+	after 10
+	update
+    }
+    list $r $srv(log)
+} -cleanup {
+    disconnect $s
+    unset s async r i
+} -result {1 QUIT}
+
+test ftp-16.3.1 {-command, Close, callback} -constraints {
+    knownBug
+} -setup {
+    srvreset
+    set async {}
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -command async]
+    asyncwait 4
+    set async {}
+} -body {
+    ftp::Close $s
+    asyncwait 1
+} -cleanup {
+    disconnect $s
+    unset s async
+} -result quit
+
+test ftp-16.4 {-command, Newer is not supported} -setup {
+    srvreset
+    set async {}
+    set s [ftp::Open 127.0.0.1 joe secret -port $port -timeout 10 -command async]
+    asyncwait 4
+} -body {
+    ftp::Newer $s a.txt [file join $tmp a.txt]
+} -cleanup {
+    disconnect $s
+    unset s async
+} -returnCodes error -result {unable to retrieve file asynchronously (not implemented yet)}
+
+# -------------------------------------------------------------------------
+# ::ftp::geturl
+
+test ftp-17.0 {geturl, file} -setup {
+    srvreset
+} -body {
+    list [ftp::geturl ftp://joe:secret@127.0.0.1:$port/pub/b.txt] \
+	[lsearch -inline -all $srv(log) {CWD *}] [lsearch -inline -all $srv(log) {RETR *}]
+} -result [list "line1\nline2\n" {{CWD pub}} {{RETR b.txt}}]
+
+test ftp-17.1 {geturl, anonymous login} -setup {
+    srvreset
+    dict set srv(users) anonymous user@localhost.localdomain
+} -body {
+    list [ftp::geturl ftp://127.0.0.1:$port/a.txt] [lrange $srv(log) 0 1]
+} -result [list "hello\n" {{USER anonymous} {PASS user@localhost.localdomain}}]
+
+test ftp-17.2 {geturl, directory listing in key value notation (documented)} -constraints {
+    knownBug
+} -setup {
+    srvreset
+} -body {
+    dict keys [ftp::geturl ftp://joe:secret@127.0.0.1:$port/pub]
+} -result {b.txt c.tcl}
+
+test ftp-17.3 {geturl, link} -setup {
+    srvreset
+    set srv(link) "lrwxrwxrwx   1 joe  users       5 Jan 02  2020 lnk -> a.txt"
+    proc ::srvcmd_LIST {sock arg} {
+	srvtransfer $sock srvsend $sock "$::srv(link)\n"
+    }
+} -body {
+    ftp::geturl ftp://joe:secret@127.0.0.1:$port/lnk
+} -cleanup {
+    proc ::srvcmd_LIST {sock arg} {
+	srvtransfer $sock srvsend $sock [srvlisting $sock $arg 1]
+    }
+} -result {{lrwxrwxrwx   1 joe  users       5 Jan 02  2020 lnk -> a.txt}}
+
+test ftp-17.4 {geturl, missing file} -setup {
+    srvreset
+} -body {
+    ftp::geturl ftp://joe:secret@127.0.0.1:$port/missing.txt
+} -returnCodes error -result "Cannot reach item of url \"ftp://joe:secret@127.0.0.1:$port/missing.txt\""
+
+test ftp-17.5 {geturl, missing directory} -setup {
+    srvreset
+} -body {
+    ftp::geturl ftp://joe:secret@127.0.0.1:$port/missing/a.txt
+} -returnCodes error -result "Cannot reach directory of url \"ftp://joe:secret@127.0.0.1:$port/missing/a.txt\""
+
+test ftp-17.6 {geturl, login rejected} -setup {
+    srvreset
+} -body {
+    ftp::geturl ftp://joe:wrong@127.0.0.1:$port/a.txt
+} -returnCodes error -result "Cannot reach host for url \"ftp://joe:wrong@127.0.0.1:$port/a.txt\""
+
+test ftp-17.7 {geturl, wrong # args} -body {
+    ftp::geturl
+} -returnCodes error -result {wrong # args: should be "ftp::geturl url"}
+
+# -------------------------------------------------------------------------
+
+close $srvsock
+file delete -force $tmp
+foreach p {srvreset srvaccept srvclose srvpath srvread srvdataaccept srvtransfer
+    srvsend srvreceive srvreceivemore srvlist srvlisting freeport connect
+    disconnect output readfile writefile async asyncwait} {
+    rename $p {}
+}
+foreach p [info commands srvcmd_*] {
+    rename $p {}
+}
+unset -nocomplain p srv srvreply srvstate srvsock port tmp
+testsuiteCleanup
+return
