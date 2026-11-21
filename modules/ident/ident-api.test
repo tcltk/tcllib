@@ -311,7 +311,7 @@ test ident-api-5.5 {USERID with charset, user-id is decoded} -constraints {
     # ident::parse stores the decoded user-id in a variable that is never
     # used, so the raw bytes are returned.
     ident::parse "1,2 : USERID : UNIX , iso8859-2 :\xb3\xf3d\xbc"
-} -result "resp-type USERID opsys UNIX user-id łódź"
+} -result "resp-type USERID opsys UNIX user-id \u0142\u00f3d\u017a"
 
 # -------------------------------------------------------------------------
 
