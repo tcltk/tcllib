@@ -1,0 +1,742 @@
+# namespacex-api.test - tests for the parts of the namespacex API not
+# covered by namespacex.test: hook add/proc/on/next, more import cases,
+# info vars with pattern, normalize and strip edge cases, state results.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal namespacex.tcl namespacex
+}
+
+# -------------------------------------------------------------------------
+## hook, argument errors
+
+test namespacex-api-hook-1.0 {hook add, too many arguments} -body {
+    namespacex hook add a b c
+} -returnCodes error -result {wrong#args, should be "?namespace? cmdprefix"}
+
+# Bug: a missing cmdprefix is not reported, an empty handler is
+# installed instead.
+test namespacex-api-hook-1.1 {hook add, no arguments} -constraints knownBug -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespace eval ::nxt {
+	namespacex hook add
+    }
+} -cleanup {
+    namespace delete ::nxt
+} -returnCodes error -match glob -result {wrong*args*}
+
+test namespacex-api-hook-1.2 {hook proc, too few arguments} -body {
+    namespacex hook proc a
+} -returnCodes error -result {wrong#args, should be "?namespace? arguments body"}
+
+test namespacex-api-hook-1.3 {hook proc, too many arguments} -body {
+    namespacex hook proc a b c d
+} -returnCodes error -result {wrong#args, should be "?namespace? arguments body"}
+
+test namespacex-api-hook-1.4 {hook on, too few arguments} -body {
+    namespacex hook on a
+} -returnCodes error -result {wrong#args, should be "?namespace? guard action"}
+
+test namespacex-api-hook-1.5 {hook on, too many arguments} -body {
+    namespacex hook on a b c d
+} -returnCodes error -result {wrong#args, should be "?namespace? guard action"}
+
+test namespacex-api-hook-1.6 {hook, unknown subcommand} -body {
+    namespacex hook foo
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "foo": must be *}
+
+# -------------------------------------------------------------------------
+## hook add
+
+test namespacex-api-hook-2.0 {hook add, handler gets the command words, result returned} -setup {
+    namespace eval ::nxt {}
+    proc h {args} {return [list handled $args]}
+} -body {
+    namespacex hook add ::nxt ::h
+    namespace eval ::nxt {foo a {b c}}
+} -cleanup {
+    namespace delete ::nxt
+    rename h {}
+} -result {handled {foo a {b c}}}
+
+test namespacex-api-hook-2.1 {hook add, cmdprefix with arguments} -setup {
+    namespace eval ::nxt {}
+    proc h {x y args} {return [list $x $y $args]}
+} -body {
+    namespacex hook add ::nxt {::h 1 2}
+    namespace eval ::nxt {foo bar}
+} -cleanup {
+    namespace delete ::nxt
+    rename h {}
+} -result {1 2 {foo bar}}
+
+test namespacex-api-hook-2.2 {hook add, default namespace is the caller's} -setup {
+    namespace eval ::nxt {}
+    proc h {args} {return [list handled $args]}
+} -body {
+    namespace eval ::nxt {
+	namespacex hook add ::h
+    }
+    list [namespace eval ::nxt {namespace unknown}] [namespace eval ::nxt {foo}]
+} -cleanup {
+    namespace delete ::nxt
+    rename h {}
+} -match glob -result {?* {handled foo}}
+
+test namespacex-api-hook-2.3 {hook add, only the hooked namespace is affected} -setup {
+    namespace eval ::nxt {}
+    namespace eval ::nxt2 {}
+    proc h {args} {return handled}
+} -body {
+    namespacex hook add ::nxt ::h
+    list [namespace eval ::nxt {foo}] \
+	[catch {namespace eval ::nxt2 {nxt-api-no-such-command}} msg] $msg
+} -cleanup {
+    namespace delete ::nxt ::nxt2
+    rename h {}
+    unset msg
+} -result {handled 1 {invalid command name "nxt-api-no-such-command"}}
+
+test namespacex-api-hook-2.4 {hook add, most recent handler executed first} -setup {
+    namespace eval ::nxt {}
+    proc h1 {args} {return h1}
+    proc h2 {args} {return h2}
+} -body {
+    namespacex hook add ::nxt ::h1
+    namespacex hook add ::nxt ::h2
+    namespace eval ::nxt {foo}
+} -cleanup {
+    namespace delete ::nxt
+    rename h1 {}
+    rename h2 {}
+} -result h2
+
+test namespacex-api-hook-2.5 {hook add, error from handler propagates} -setup {
+    namespace eval ::nxt {}
+    proc h {args} {error "hook failed" {} {NXT FAIL}}
+} -body {
+    namespacex hook add ::nxt ::h
+    list [catch {namespace eval ::nxt {foo}} msg] $msg
+} -cleanup {
+    namespace delete ::nxt
+    rename h {}
+    unset msg
+} -result {1 {hook failed}}
+
+# Bug: the handler's error is rethrown with "return -code", the error
+# code of the handler is lost.
+test namespacex-api-hook-2.5.1 {hook add, error code from handler propagates} -constraints knownBug -setup {
+    namespace eval ::nxt {}
+    proc h {args} {error "hook failed" {} {NXT FAIL}}
+} -body {
+    namespacex hook add ::nxt ::h
+    list [catch {namespace eval ::nxt {foo}} msg opts] $msg [dict get $opts -errorcode]
+} -cleanup {
+    namespace delete ::nxt
+    rename h {}
+    unset msg opts
+} -result {1 {hook failed} {NXT FAIL}}
+
+test namespacex-api-hook-2.6 {hook add, existing commands not affected} -setup {
+    namespace eval ::nxt {proc foo {} {return real}}
+    proc h {args} {return handled}
+} -body {
+    namespacex hook add ::nxt ::h
+    namespace eval ::nxt {list [foo] [bar]}
+} -cleanup {
+    namespace delete ::nxt
+    rename h {}
+} -result {real handled}
+
+test namespacex-api-hook-2.7 {hook add, result is empty} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespacex hook add ::nxt ::list
+} -cleanup {
+    namespace delete ::nxt
+} -result {}
+
+# -------------------------------------------------------------------------
+## hook next
+
+test namespacex-api-hook-3.0 {hook next, chains to the previous handler} -setup {
+    namespace eval ::nxt {}
+    proc h1 {args} {return [list h1 $args]}
+    proc h2 {args} {namespacex hook next}
+} -body {
+    namespacex hook add ::nxt ::h1
+    namespacex hook add ::nxt ::h2
+    namespace eval ::nxt {foo a b}
+} -cleanup {
+    namespace delete ::nxt
+    rename h1 {}
+    rename h2 {}
+} -result {h1 {foo a b}}
+
+test namespacex-api-hook-3.1 {hook next, with rewritten command} -setup {
+    namespace eval ::nxt {}
+    proc h1 {args} {return [list h1 $args]}
+    proc h2 {args} {namespacex hook next bar {*}[lrange $args 1 end] extra}
+} -body {
+    namespacex hook add ::nxt ::h1
+    namespacex hook add ::nxt ::h2
+    namespace eval ::nxt {foo a b}
+} -cleanup {
+    namespace delete ::nxt
+    rename h1 {}
+    rename h2 {}
+} -result {h1 {bar a b extra}}
+
+test namespacex-api-hook-3.2 {hook next, through several handlers} -setup {
+    namespace eval ::nxt {}
+    set ::trace {}
+    proc h1 {args} {lappend ::trace h1; return done}
+    proc h2 {args} {lappend ::trace h2; namespacex hook next}
+    proc h3 {args} {lappend ::trace h3; namespacex hook next}
+} -body {
+    namespacex hook add ::nxt ::h1
+    namespacex hook add ::nxt ::h2
+    namespacex hook add ::nxt ::h3
+    list [namespace eval ::nxt {foo}] $::trace
+} -cleanup {
+    namespace delete ::nxt
+    rename h1 {}
+    rename h2 {}
+    rename h3 {}
+    unset ::trace
+} -result {done {h3 h2 h1}}
+
+test namespacex-api-hook-3.3 {hook next, no further handler} -setup {
+    namespace eval ::nxt {}
+    proc h {args} {namespacex hook next}
+} -body {
+    namespacex hook add ::nxt ::h
+    namespace eval ::nxt {foo a}
+} -cleanup {
+    namespace delete ::nxt
+    rename h {}
+} -returnCodes error -result {invalid command name "foo"}
+
+test namespacex-api-hook-3.4 {hook next, chains to a previously set namespace unknown handler} -setup {
+    namespace eval ::nxt {}
+    proc old {args} {return [list old $args]}
+    proc h {args} {namespacex hook next}
+} -body {
+    namespace eval ::nxt {namespace unknown ::old}
+    namespacex hook add ::nxt ::h
+    namespace eval ::nxt {foo a}
+} -cleanup {
+    namespace delete ::nxt
+    rename old {}
+    rename h {}
+} -result {old {foo a}}
+
+# -------------------------------------------------------------------------
+## hook proc
+
+test namespacex-api-hook-4.0 {hook proc, explicit namespace} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespacex hook proc ::nxt {cmd args} {list proc $cmd $args}
+    namespace eval ::nxt {foo a b}
+} -cleanup {
+    namespace delete ::nxt
+} -result {proc foo {a b}}
+
+test namespacex-api-hook-4.1 {hook proc, default namespace is the caller's} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespace eval ::nxt {
+	namespacex hook proc {args} {return [list proc $args]}
+    }
+    namespace eval ::nxt {foo}
+} -cleanup {
+    namespace delete ::nxt
+} -result {proc foo}
+
+test namespacex-api-hook-4.2 {hook proc, body runs in the namespace of the caller of hook proc} -setup {
+    namespace eval ::nxt {}
+    namespace eval ::nxdef {variable v defns}
+} -body {
+    namespace eval ::nxdef {
+	namespacex hook proc ::nxt {args} {variable v; return [list [namespace current] $v]}
+    }
+    namespace eval ::nxt {foo}
+} -cleanup {
+    namespace delete ::nxt ::nxdef
+} -result {::nxdef defns}
+
+test namespacex-api-hook-4.3 {hook proc, next chains} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespacex hook proc ::nxt {args} {return [list first $args]}
+    namespacex hook proc ::nxt {cmd args} {
+	if {$cmd eq "mine"} {return mine}
+	namespacex hook next
+    }
+    namespace eval ::nxt {list [mine] [other x]}
+} -cleanup {
+    namespace delete ::nxt
+} -result {mine {first {other x}}}
+
+test namespacex-api-hook-4.4 {hook proc, result is empty} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespacex hook proc ::nxt {args} {}
+} -cleanup {
+    namespace delete ::nxt
+} -result {}
+
+# -------------------------------------------------------------------------
+## hook on
+
+test namespacex-api-hook-5.0 {hook on, guard true runs action} -setup {
+    namespace eval ::nxt {}
+    proc guard {args} {string match num* [lindex $args 0]}
+    proc action {args} {return [list action $args]}
+} -body {
+    namespacex hook on ::nxt ::guard ::action
+    namespace eval ::nxt {num1 a}
+} -cleanup {
+    namespace delete ::nxt
+    rename guard {}
+    rename action {}
+} -result {action {num1 a}}
+
+test namespacex-api-hook-5.1 {hook on, guard false chains to next handler} -setup {
+    namespace eval ::nxt {}
+    proc guard {args} {string match num* [lindex $args 0]}
+    proc action {args} {return [list action $args]}
+    proc fallback {args} {return [list fallback $args]}
+} -body {
+    namespacex hook add ::nxt ::fallback
+    namespacex hook on ::nxt ::guard ::action
+    namespace eval ::nxt {list [num1 a] [other b]}
+} -cleanup {
+    namespace delete ::nxt
+    rename guard {}
+    rename action {}
+    rename fallback {}
+} -result {{action {num1 a}} {fallback {other b}}}
+
+test namespacex-api-hook-5.2 {hook on, guard false and no next handler} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespacex hook on ::nxt {::string equal yes} {::list action}
+    namespace eval ::nxt {no}
+} -cleanup {
+    namespace delete ::nxt
+} -returnCodes error -result {invalid command name "no"}
+
+test namespacex-api-hook-5.3 {hook on, command prefixes with arguments} -setup {
+    namespace eval ::nxt {}
+    proc guard {word args} {string equal $word [lindex $args 0]}
+} -body {
+    namespacex hook on ::nxt {::guard yes} {::list action}
+    namespace eval ::nxt {yes 1 2}
+} -cleanup {
+    namespace delete ::nxt
+    rename guard {}
+} -result {action yes 1 2}
+
+test namespacex-api-hook-5.4 {hook on, default namespace is the caller's} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespace eval ::nxt {
+	namespacex hook on {::string equal yes} {::list action}
+    }
+    namespace eval ::nxt {yes}
+} -cleanup {
+    namespace delete ::nxt
+} -result {action yes}
+
+test namespacex-api-hook-5.5 {hook on, guard result interpreted as boolean} -setup {
+    namespace eval ::nxt {}
+    proc guard {args} {lindex {no yes off on false true} [lindex $args 1]}
+    proc fallback {args} {return fallback}
+} -body {
+    namespacex hook add ::nxt ::fallback
+    namespacex hook on ::nxt ::guard {::list action}
+    set res {}
+    foreach i {0 1 2 3 4 5} {
+	lappend res [namespace eval ::nxt [list foo $i]]
+    }
+    set res
+} -cleanup {
+    namespace delete ::nxt
+    rename guard {}
+    rename fallback {}
+    unset res i
+} -result {fallback {action foo 1} fallback {action foo 3} fallback {action foo 5}}
+
+test namespacex-api-hook-5.6 {hook on, result is empty} -setup {
+    namespace eval ::nxt {}
+} -body {
+    namespacex hook on ::nxt ::list ::list
+} -cleanup {
+    namespace delete ::nxt
+} -result {}
+
+# -------------------------------------------------------------------------
+## import
+
+test namespacex-api-import-1.0 {import, command not exported} -setup {
+    namespace eval ::importTest {
+	namespace export other
+	proc t {} {return t}
+	proc other {} {}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest t
+	t
+    }
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -result t
+
+test namespacex-api-import-1.1 {import, export list of source namespace restored} -setup {
+    namespace eval ::importTest {
+	namespace export o*
+	proc t {} {return t}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest t
+    }
+    namespace eval ::importTest {namespace export}
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -result o*
+
+test namespacex-api-import-1.2 {import, into the caller's namespace, not global} -setup {
+    namespace eval ::importTest {
+	proc t {} {return t}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest t
+    }
+    list [llength [info commands ::importTo::t]] [llength [info commands ::t]]
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -result {1 0}
+
+test namespacex-api-import-1.3 {import, relative to the caller's namespace} -setup {
+    namespace eval ::importTo::src {
+	proc t {} {return [namespace current]}
+    }
+} -body {
+    namespace eval ::importTo {
+	namespacex import src t
+	t
+    }
+} -cleanup {
+    namespace delete ::importTo
+} -result ::importTo::src
+
+test namespacex-api-import-1.4 {import, single command with new name} -setup {
+    namespace eval ::importTest {
+	proc t {} {return t}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest t myT
+	list [myT] [llength [info commands ::importTo::t]]
+    }
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -result {t 0}
+
+test namespacex-api-import-1.5 {import, unknown command} -setup {
+    namespace eval ::importTest {
+	proc t {} {return t}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest nosuch
+    }
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -returnCodes error -match glob -result {can't rename "*nosuch": command doesn't exist}
+
+test namespacex-api-import-1.6 {import, odd number of names} -setup {
+    namespace eval ::importTest {
+	proc a {} {}
+	proc b {} {}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest a A b
+    }
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -returnCodes error -result {missing value to go with key}
+
+test namespacex-api-import-1.7 {import, export list restored after error} -setup {
+    namespace eval ::importTest {
+	namespace export t
+	proc t {} {}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	catch {namespacex import ::importTest nosuch}
+    }
+    namespace eval ::importTest {namespace export}
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -result t
+
+test namespacex-api-import-1.8 {import, imported command still runs in its namespace} -setup {
+    namespace eval ::importTest {
+	variable v src
+	proc t {} {variable v; return $v}
+    }
+    namespace eval ::importTo {variable v dst}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest t
+	t
+    }
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -result src
+
+test namespacex-api-import-1.9 {import, result is empty} -setup {
+    namespace eval ::importTest {
+	proc t {} {}
+    }
+    namespace eval ::importTo {}
+} -body {
+    namespace eval ::importTo {
+	namespacex import ::importTest t
+    }
+} -cleanup {
+    namespace delete ::importTest ::importTo
+} -result {}
+
+# -------------------------------------------------------------------------
+## info vars with pattern
+
+test namespacex-api-info-vars-1.0 {info vars, pattern} -setup {
+    namespace eval ::X {
+	variable abc 1
+	variable abd 2
+	variable xyz 3
+	namespace eval B {variable abe 4}
+    }
+} -body {
+    lsort -dict [namespacex info vars ::X ab*]
+} -cleanup {
+    namespace delete ::X
+} -result {abc abd}
+
+test namespacex-api-info-vars-1.1 {info vars, pattern without match} -setup {
+    namespace eval ::X {variable abc 1}
+} -body {
+    namespacex info vars ::X q*
+} -cleanup {
+    namespace delete ::X
+} -result {}
+
+test namespacex-api-info-vars-1.2 {info vars, exact pattern} -setup {
+    namespace eval ::X {variable abc 1; variable abcd 2}
+} -body {
+    namespacex info vars ::X abc
+} -cleanup {
+    namespace delete ::X
+} -result abc
+
+test namespacex-api-info-vars-1.3 {info vars, glob character class, relative namespace} -setup {
+    namespace eval ::Q::X {variable a1 1; variable a2 2; variable b1 3}
+} -body {
+    namespace eval ::Q {
+	lsort -dict [namespacex info vars X {[ab]1}]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {a1 b1}
+
+test namespacex-api-info-vars-1.4 {info vars, wrong # args, too many} -body {
+    namespacex info vars a b c
+} -returnCodes error -result {wrong # args: should be "namespacex info vars ns ?pattern?"}
+
+test namespacex-api-info-1.0 {info, unknown subcommand} -body {
+    namespacex info foo
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "foo": must be *}
+
+# -------------------------------------------------------------------------
+## normalize
+
+test namespacex-api-normalize-1.0 {normalize, existing namespace, trailing colons} -setup {
+    namespace eval ::X::Y {}
+} -body {
+    namespacex normalize ::X::Y::
+} -cleanup {
+    namespace delete ::X
+} -result ::X::Y
+
+test namespacex-api-normalize-1.1 {normalize, existing namespace, extra colons} -setup {
+    namespace eval ::X::Y {}
+} -body {
+    namespacex normalize ::X::::Y
+} -cleanup {
+    namespace delete ::X
+} -result ::X::Y
+
+test namespacex-api-normalize-1.2 {normalize, global namespace} -body {
+    namespacex normalize ::
+} -result ::
+
+# Bug: only the first sequence of colons is collapsed for namespaces which
+# do not exist.
+test namespacex-api-normalize-1.3 {normalize, missing namespace, extra colons} -constraints knownBug -body {
+    namespacex normalize ::nxt::::nosuch
+} -result ::nxt::nosuch
+
+test namespacex-api-normalize-1.4 {normalize, missing relative namespace, extra colons} -constraints knownBug -body {
+    namespace eval ::Q {
+	namespacex normalize nxt::::nosuch
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result ::Q::nxt::nosuch
+
+test namespacex-api-normalize-1.5 {normalize, missing namespace, trailing colons} -constraints knownBug -body {
+    namespacex normalize ::nxt::nosuch::
+} -result ::nxt::nosuch
+
+test namespacex-api-normalize-1.6 {normalize, missing namespace, nested relative} -body {
+    namespace eval ::Q {
+	namespacex normalize A::B
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result ::Q::A::B
+
+test namespacex-api-normalize-1.7 {normalize, does not create the namespace} -body {
+    namespacex normalize ::nxt::nosuch
+    namespace exists ::nxt::nosuch
+} -result 0
+
+# -------------------------------------------------------------------------
+## strip
+
+test namespacex-api-strip-1.0 {strip, empty list} -body {
+    namespacex strip ::X {}
+} -result {}
+
+test namespacex-api-strip-1.1 {strip, deep children} -body {
+    namespacex strip ::X {::X::A ::X::A::B ::X::C::D::E}
+} -result {A A::B C::D::E}
+
+test namespacex-api-strip-1.2 {strip, relative prefix resolved in caller's namespace} -body {
+    namespace eval ::Q {
+	namespacex strip X {::Q::X::A ::Q::X::B}
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {A B}
+
+test namespacex-api-strip-1.3 {strip, error for the first bad item} -body {
+    namespacex strip ::X {::X::A ::Y::B ::Z}
+} -returnCodes error -result {Expected ::X as prefix for ::Y::B, not found}
+
+# Bug: a namespace whose name only starts with the prefix name is accepted
+# as child.
+test namespacex-api-strip-1.4 {strip, sibling with common name prefix} -constraints knownBug -body {
+    namespacex strip ::X {::XY}
+} -returnCodes error -result {Expected ::X as prefix for ::XY, not found}
+
+# -------------------------------------------------------------------------
+## state
+
+test namespacex-api-state-1.0 {state drop, result is empty, variables gone} -setup {
+    namespace eval ::X {
+	variable a 1
+	namespace eval B {variable b 2}
+    }
+} -body {
+    list [namespacex state drop ::X] [namespacex info allvars ::X] \
+	[namespace exists ::X::B]
+} -cleanup {
+    namespace delete ::X
+} -result {{} {} 1}
+
+test namespacex-api-state-1.1 {state set, result is empty, replaces state} -setup {
+    namespace eval ::X {
+	variable a 1
+	variable old 2
+    }
+} -body {
+    list [namespacex state set ::X {{S a} 10 {S new} 20}] \
+	[dictsort [namespacex state get ::X]]
+} -cleanup {
+    namespace delete ::X
+} -result {{} {{S a} 10 {S new} 20}}
+
+test namespacex-api-state-1.2 {state get/set round trip} -setup {
+    namespace eval ::X {
+	variable s {a b}
+	variable arr
+	array set arr {k1 v1 k2 v2}
+	namespace eval C {variable c 3}
+    }
+} -body {
+    set st [namespacex state get ::X]
+    namespacex state drop ::X
+    namespacex state set ::X $st
+    list [set ::X::s] [lsort [array get ::X::arr]] [set ::X::C::c]
+} -cleanup {
+    namespace delete ::X
+    unset st
+} -result {{a b} {k1 k2 v1 v2} 3}
+
+test namespacex-api-state-1.3 {state get, empty namespace} -setup {
+    namespace eval ::X {}
+} -body {
+    namespacex state get ::X
+} -cleanup {
+    namespace delete ::X
+} -result {}
+
+test namespacex-api-state-1.4 {state set, empty state drops all variables} -setup {
+    namespace eval ::X {variable a 1}
+} -body {
+    namespacex state set ::X {}
+    namespacex info allvars ::X
+} -cleanup {
+    namespace delete ::X
+} -result {}
+
+test namespacex-api-state-1.5 {state, unknown subcommand} -body {
+    namespacex state foo
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "foo": must be *}
+
+test namespacex-api-1.0 {namespacex, unknown subcommand} -body {
+    namespacex foo
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "foo": must be *}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
