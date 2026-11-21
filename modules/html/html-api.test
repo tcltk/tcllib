@@ -1,0 +1,774 @@
+# -*- tcl -*- Tests for the html module: commands not covered by html.test.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      cmdline/cmdline.tcl   cmdline
+    use      fileutil/fileutil.tcl fileutil
+    use      uri/uri.tcl        uri
+    use      ncgi/ncgi.tcl      ncgi
+}
+
+testing {
+    useLocal html.tcl html
+}
+
+# -------------------------------------------------------------------------
+
+proc reset {} {
+    html::init
+    ncgi::reset
+    unset -nocomplain ::ncgi::urlStub
+}
+
+# -------------------------------------------------------------------------
+# openTag, closeTag, end
+
+test html-api-1.1 {html::openTag, wrong # args} -body {
+    html::openTag
+} -returnCodes error -result {wrong # args: should be "html::openTag tag ?param?"}
+
+test html-api-1.2 {html::openTag, too many args} -body {
+    html::openTag a b c
+} -returnCodes error -result {wrong # args: should be "html::openTag tag ?param?"}
+
+test html-api-1.3 {html::openTag, plain} -setup reset -body {
+    html::openTag p
+} -cleanup reset -result {<p>}
+
+test html-api-1.4 {html::openTag, with param} -setup reset -body {
+    html::openTag table {border="1"}
+} -cleanup reset -result {<table border="1">}
+
+test html-api-1.5 {html::openTag, defaults from init} -setup {
+    reset
+    html::init {table.border 2 table.width 100%}
+} -body {
+    html::openTag table
+} -cleanup reset -result {<table border="2" width="100%">}
+
+test html-api-1.6 {html::openTag, explicit param overrides default} -setup {
+    reset
+    html::init {table.border 2 table.width 100%}
+} -body {
+    html::openTag table {border="0"}
+} -cleanup reset -result {<table border="0" width="100%">}
+
+test html-api-1.7 {html::closeTag, wrong # args} -body {
+    html::closeTag x
+} -returnCodes error -result {wrong # args: should be "html::closeTag"}
+
+test html-api-1.8 {html::closeTag pops tags in reverse order} -setup reset -body {
+    list [html::openTag ul] [html::openTag li] [html::closeTag] [html::closeTag]
+} -cleanup reset -result {<ul> <li> </li> </ul>}
+
+test html-api-1.9 {html::closeTag, empty stack} -setup reset -body {
+    list [html::closeTag] [html::openTag b] [html::closeTag] [html::closeTag]
+} -cleanup reset -result {{} <b> </b> {}}
+
+test html-api-1.10 {html::end, wrong # args} -body {
+    html::end x
+} -returnCodes error -result {wrong # args: should be "html::end"}
+
+test html-api-1.11 {html::end closes all open tags} -setup reset -body {
+    html::openTag html
+    html::openTag body
+    html::openTag div
+    list [html::end] [html::closeTag]
+} -cleanup reset -result [list "</div>\n</body>\n</html>\n" {}]
+
+test html-api-1.12 {html::end after all tags closed} -setup reset -body {
+    html::openTag p
+    html::closeTag
+    html::end
+} -cleanup reset -result {}
+
+# html::end fails with "can't read page(stack)" if no tag was ever opened.
+test html-api-1.13 {html::end, nothing ever opened} -constraints knownBug -setup reset -body {
+    html::end
+} -cleanup reset -result {}
+
+test html-api-1.14 {html::head leaves html tag open} -setup reset -body {
+    html::head T
+    html::end
+} -cleanup reset -result "</html>\n"
+
+test html-api-1.15 {html::bodyTag pushes body tag} -setup reset -body {
+    html::head T
+    html::bodyTag
+    html::end
+} -cleanup reset -result "</body>\n</html>\n"
+
+# -------------------------------------------------------------------------
+# headTag, meta_*
+
+test html-api-2.1 {html::headTag, wrong # args} -body {
+    html::headTag
+} -returnCodes error -result {wrong # args: should be "html::headTag string"}
+
+test html-api-2.2 {html::headTag} -setup reset -body {
+    list [html::headTag {base href="http://www.example.com/"}] [html::head T]
+} -cleanup reset -result [list {} {<html><head>
+	<title>T</title>
+	<base href="http://www.example.com/">
+</head>
+}]
+
+test html-api-2.3 {html::headTag, multiple, in order} -setup reset -body {
+    html::headTag {link rel="icon" href="a.ico"}
+    html::meta_charset utf-8
+    html::headTag {base target="_top"}
+    html::head T
+} -cleanup reset -result {<html><head>
+	<title>T</title>
+	<link rel="icon" href="a.ico">
+	<meta charset="utf-8">
+	<base target="_top">
+</head>
+}
+
+test html-api-2.4 {html::meta_name, several pairs in one tag line} -setup reset -body {
+    list [html::meta_name a 1 b 2] [html::head T]
+} -cleanup reset -result [list {} {<html><head>
+	<title>T</title>
+	<meta name="a" content="1"><meta name="b" content="2">
+</head>
+}]
+
+test html-api-2.5 {html::meta_name, content is quoted} -setup reset -body {
+    html::meta_name x {a "b" <c> & 'd'}
+    html::head T
+} -cleanup reset -result {<html><head>
+	<title>T</title>
+	<meta name="x" content="a &#34;b&#34; &lt;c&gt; &amp; &#39;d&#39;">
+</head>
+}
+
+test html-api-2.6 {html::meta_charset, wrong # args} -body {
+    html::meta_charset
+} -returnCodes error -result {wrong # args: should be "html::meta_charset charset"}
+
+test html-api-2.7 {html::meta_charset, too many args} -body {
+    html::meta_charset a b
+} -returnCodes error -result {wrong # args: should be "html::meta_charset charset"}
+
+test html-api-2.8 {html::meta_charset} -setup reset -body {
+    list [html::meta_charset iso8859-2] [html::head T]
+} -cleanup reset -result [list {} {<html><head>
+	<title>T</title>
+	<meta charset="iso8859-2">
+</head>
+}]
+
+test html-api-2.9 {html::meta_equiv} -setup reset -body {
+    list [html::meta_equiv Content-Type {text/html; charset=utf-8} \
+	      X-UA-Compatible IE=edge] [html::head T]
+} -cleanup reset -result [list {} {<html><head>
+	<title>T</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+}]
+
+test html-api-2.10 {html::meta is the same as html::meta_name} -setup reset -body {
+    html::meta k v
+    ::set a [html::head T]
+    reset
+    html::meta_name k v
+    string equal $a [html::head T]
+} -cleanup {
+    reset
+    unset -nocomplain a
+} -result 1
+
+test html-api-2.11 {html::refresh, wrong # args} -body {
+    html::refresh
+} -returnCodes error -result {wrong # args: should be "html::refresh content ?url?"}
+
+# -------------------------------------------------------------------------
+# h, h1 .. h6
+
+test html-api-3.1 {html::h, wrong # args} -body {
+    html::h 1
+} -returnCodes error -result {wrong # args: should be "html::h level string ?param?"}
+
+test html-api-3.2 {html::h, too many args} -body {
+    html::h 1 a b c
+} -returnCodes error -result {wrong # args: should be "html::h level string ?param?"}
+
+test html-api-3.3 {html::h} -setup reset -body {
+    html::h 3 Title
+} -cleanup reset -result "<h3>Title</h3>\n"
+
+test html-api-3.4 {html::h, param} -setup reset -body {
+    html::h 2 Title {align="center"}
+} -cleanup reset -result "<h2 align=\"center\">Title</h2>\n"
+
+test html-api-3.5 {html::h, defaults from init} -setup {
+    reset
+    html::init {h2.align left}
+} -body {
+    list [html::h 2 A] [html::h 3 B]
+} -cleanup reset -result [list "<h2 align=\"left\">A</h2>\n" "<h3>B</h3>\n"]
+
+test html-api-3.6 {html::h1 .. html::h6} -setup reset -body {
+    list [html::h1 a] [html::h2 b] [html::h3 c] [html::h4 d] [html::h5 e] \
+	[html::h6 f {class="x"}]
+} -cleanup reset -result [list "<h1>a</h1>\n" "<h2>b</h2>\n" "<h3>c</h3>\n" \
+	"<h4>d</h4>\n" "<h5>e</h5>\n" "<h6 class=\"x\">f</h6>\n"]
+
+test html-api-3.7 {html::h1, wrong # args} -body {
+    html::h1
+} -returnCodes error -result {wrong # args: should be "html::h1 string ?param?"}
+
+test html-api-3.8 {html::h6, too many args} -body {
+    html::h6 a b c
+} -returnCodes error -result {wrong # args: should be "html::h6 string ?param?"}
+
+# -------------------------------------------------------------------------
+# cell, row, hdrRow, paramRow
+
+test html-api-4.1 {html::cell, wrong # args} -body {
+    html::cell x
+} -returnCodes error -result {wrong # args: should be "html::cell param value ?tag?"}
+
+test html-api-4.2 {html::cell, too many args} -body {
+    html::cell a b c d
+} -returnCodes error -result {wrong # args: should be "html::cell param value ?tag?"}
+
+test html-api-4.3 {html::cell, default tag td} -setup reset -body {
+    html::cell "" Value
+} -cleanup reset -result {<td>Value</td>}
+
+test html-api-4.4 {html::cell, param and th tag} -setup reset -body {
+    html::cell {colspan="2"} Value th
+} -cleanup reset -result {<th colspan="2">Value</th>}
+
+test html-api-4.5 {html::cell, font defaults} -setup {
+    reset
+    html::init {font.face Arial}
+} -body {
+    html::cell "" Value
+} -cleanup reset -result {<td><font face="Arial">Value</font></td>}
+
+# The documentation says html::cell uses TD.* defaults from html::init;
+# the code ignores them.
+test html-api-4.6 {html::cell, td defaults from init} -constraints knownBug -setup {
+    reset
+    html::init {td.bgcolor red}
+} -body {
+    html::cell "" Value
+} -cleanup reset -result {<td bgcolor="red">Value</td>}
+
+test html-api-4.7 {html::row, no cells} -setup reset -body {
+    html::row
+} -cleanup reset -result "<tr>\n</tr>\n"
+
+test html-api-4.8 {html::row} -setup reset -body {
+    html::row a {b c} <i>d</i>
+} -cleanup reset -result "<tr>\n\t<td>a</td>\n\t<td>b c</td>\n\t<td><i>d</i></td>\n</tr>\n"
+
+test html-api-4.9 {html::hdrRow} -setup reset -body {
+    html::hdrRow Name Value
+} -cleanup reset -result "<tr>\n\t<th>Name</th>\n\t<th>Value</th>\n</tr>\n"
+
+test html-api-4.10 {html::hdrRow, no cells} -setup reset -body {
+    html::hdrRow
+} -cleanup reset -result "<tr>\n</tr>\n"
+
+test html-api-4.11 {html::paramRow, wrong # args} -body {
+    html::paramRow
+} -returnCodes error -result {wrong # args: should be "html::paramRow list ?rparam? ?cparam?"}
+
+test html-api-4.12 {html::paramRow, too many args} -body {
+    html::paramRow a b c d
+} -returnCodes error -result {wrong # args: should be "html::paramRow list ?rparam? ?cparam?"}
+
+test html-api-4.13 {html::paramRow, list only} -setup reset -body {
+    html::paramRow {a b}
+} -cleanup reset -result "<tr >\n\t<td>a</td>\n\t<td>b</td>\n</tr>\n"
+
+test html-api-4.14 {html::paramRow, row and cell params} -setup reset -body {
+    html::paramRow {a {b c}} {class="r"} {align="right"}
+} -cleanup reset -result "<tr class=\"r\">\n\t<td align=\"right\">a</td>\n\t<td align=\"right\">b c</td>\n</tr>\n"
+
+# -------------------------------------------------------------------------
+# passwordInputRow
+
+test html-api-5.1 {html::passwordInputRow, wrong # args} -body {
+    html::passwordInputRow
+} -returnCodes error -result {wrong # args: should be "html::passwordInputRow label ?name?"}
+
+test html-api-5.2 {html::passwordInputRow, too many args} -body {
+    html::passwordInputRow a b c
+} -returnCodes error -result {wrong # args: should be "html::passwordInputRow label ?name?"}
+
+test html-api-5.3 {html::passwordInputRow, default name} -setup reset -body {
+    html::passwordInputRow Password:
+} -cleanup reset -result "<tr>\n\t<td>Password:</td>\n\t<td><input type=\"password\" name=\"password\">\n</td>\n</tr>\n"
+
+test html-api-5.4 {html::passwordInputRow, explicit name} -setup reset -body {
+    html::passwordInputRow PIN pin
+} -cleanup reset -result "<tr>\n\t<td>PIN</td>\n\t<td><input type=\"password\" name=\"pin\">\n</td>\n</tr>\n"
+
+test html-api-5.5 {html::textInputRow, extra attributes} -setup {
+    reset
+    ncgi::reset {}
+    ncgi::parse
+} -body {
+    html::textInputRow Name: name Joe {size="10"} {maxlength="20"}
+} -cleanup reset -result "<tr>\n\t<td>Name:</td>\n\t<td><input type=\"text\" name=\"name\" value=\"Joe\" size=\"10\" maxlength=\"20\">\n</td>\n</tr>\n"
+
+test html-api-5.6 {html::textInputRow, wrong # args} -body {
+    html::textInputRow a
+} -returnCodes error -result {wrong # args: should be "html::textInputRow label name ?value? ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# checkValue, radioValue
+
+test html-api-6.1 {html::checkValue, wrong # args} -body {
+    html::checkValue
+} -returnCodes error -result {wrong # args: should be "html::checkValue name ?value?"}
+
+test html-api-6.2 {html::checkValue, default value 1, checked} -setup {
+    reset
+    ncgi::reset item=1
+    ncgi::parse
+} -body {
+    html::checkValue item
+} -cleanup reset -result {name="item" value="1" checked}
+
+test html-api-6.3 {html::checkValue, not checked} -setup {
+    reset
+    ncgi::reset item=2
+    ncgi::parse
+} -body {
+    list [html::checkValue item] [html::checkValue other]
+} -cleanup reset -result {{name="item" value="1"} {name="other" value="1"}}
+
+test html-api-6.4 {html::checkValue, one of several values, quoting} -setup {
+    reset
+    ncgi::reset "item=a&item=%3Cb%3E&item=c"
+    ncgi::parse
+} -body {
+    html::checkValue item <b>
+} -cleanup reset -result {name="item" value="&lt;b&gt;" checked}
+
+test html-api-6.5 {html::radioValue, wrong # args} -body {
+    html::radioValue a
+} -returnCodes error -result {wrong # args: should be "html::radioValue name value ?defaultSelection?"}
+
+test html-api-6.6 {html::radioValue, not selected} -setup {
+    reset
+    ncgi::reset item=xyz
+    ncgi::parse
+} -body {
+    html::radioValue item abc
+} -cleanup reset -result {name="item" value="abc"}
+
+test html-api-6.7 {html::radioValue, no CGI value} -setup {
+    reset
+    ncgi::reset {}
+    ncgi::parse
+} -body {
+    html::radioValue item abc
+} -cleanup reset -result {name="item" value="abc"}
+
+test html-api-6.8 {html::radioSet, wrong # args} -body {
+    html::radioSet a b
+} -returnCodes error -result {wrong # args: should be "html::radioSet key sep list ?defaultSelection?"}
+
+test html-api-6.9 {html::checkSet, wrong # args} -body {
+    html::checkSet a b
+} -returnCodes error -result {wrong # args: should be "html::checkSet key sep list"}
+
+test html-api-6.10 {html::checkbox, wrong # args} -body {
+    html::checkbox a
+} -returnCodes error -result {wrong # args: should be "html::checkbox name value"}
+
+# -------------------------------------------------------------------------
+# getFormInfo
+
+test html-api-7.1 {html::getFormInfo, all values} -setup {
+    reset
+    ncgi::reset "a=1&b=x+y&c=%22q%22"
+    ncgi::parse
+} -body {
+    html::getFormInfo
+} -cleanup reset -result {<input type="hidden" name="a"  value="1">
+<input type="hidden" name="b"  value="x y">
+<input type="hidden" name="c"  value="&#34;q&#34;">
+}
+
+test html-api-7.2 {html::getFormInfo, patterns} -setup {
+    reset
+    ncgi::reset "ab=1&b=2&ac=3"
+    ncgi::parse
+} -body {
+    regsub -all {\s+} [html::getFormInfo a* x] { }
+} -cleanup reset -result {<input type="hidden" name="ab" value="1"> <input type="hidden" name="ac" value="3"> }
+
+test html-api-7.3 {html::getFormInfo, no match} -setup {
+    reset
+    ncgi::reset "a=1"
+    ncgi::parse
+} -body {
+    html::getFormInfo z*
+} -cleanup reset -result {}
+
+test html-api-7.4 {html::getFormInfo, no CGI data} -setup {
+    reset
+    ncgi::reset {}
+    ncgi::parse
+} -body {
+    html::getFormInfo
+} -cleanup reset -result {}
+
+# -------------------------------------------------------------------------
+# tableFromArray, tableFromList
+
+test html-api-8.1 {html::tableFromArray, wrong # args} -body {
+    html::tableFromArray
+} -returnCodes error -result {wrong # args: should be "html::tableFromArray arrname ?param? ?pat?"}
+
+test html-api-8.2 {html::tableFromArray, too many args} -body {
+    html::tableFromArray a b c d
+} -returnCodes error -result {wrong # args: should be "html::tableFromArray arrname ?param? ?pat?"}
+
+test html-api-8.3 {html::tableFromArray, sorted rows} -setup {
+    reset
+    array set arr {b 2 a 1 c 3}
+} -body {
+    html::tableFromArray arr
+} -cleanup {
+    reset
+    unset arr
+} -result "<table >\n<tr><th colspan=2>arr</th></tr>\n<tr>\n\t<td>a</td>\n\t<td>1</td>\n</tr>\n<tr>\n\t<td>b</td>\n\t<td>2</td>\n</tr>\n<tr>\n\t<td>c</td>\n\t<td>3</td>\n</tr>\n</table>\n"
+
+test html-api-8.4 {html::tableFromArray, param and pattern} -setup {
+    reset
+    array set arr {x1 a x2 b y1 c}
+} -body {
+    html::tableFromArray arr {border="1"} x*
+} -cleanup {
+    reset
+    unset arr
+} -result "<table border=\"1\">\n<tr><th colspan=2>arr</th></tr>\n<tr>\n\t<td>x1</td>\n\t<td>a</td>\n</tr>\n<tr>\n\t<td>x2</td>\n\t<td>b</td>\n</tr>\n</table>\n"
+
+test html-api-8.5 {html::tableFromArray, no such array} -setup reset -body {
+    html::tableFromArray noSuchArray
+} -cleanup reset -result {}
+
+test html-api-8.6 {html::tableFromArray, variable in caller's scope} -setup {
+    reset
+    proc tfa {} {
+	set local(k) v
+	html::tableFromArray local {} *
+    }
+} -body {
+    tfa
+} -cleanup {
+    reset
+    rename tfa {}
+} -result "<table >\n<tr><th colspan=2>local</th></tr>\n<tr>\n\t<td>k</td>\n\t<td>v</td>\n</tr>\n</table>\n"
+
+test html-api-8.7 {html::tableFromList, wrong # args} -body {
+    html::tableFromList
+} -returnCodes error -result {wrong # args: should be "html::tableFromList querylist ?param?"}
+
+test html-api-8.8 {html::tableFromList, keeps order} -setup reset -body {
+    html::tableFromList {b 2 a 1}
+} -cleanup reset -result "<table ><tr>\n\t<td>b</td>\n\t<td>2</td>\n</tr>\n<tr>\n\t<td>a</td>\n\t<td>1</td>\n</tr>\n</table>"
+
+test html-api-8.9 {html::tableFromList, param} -setup reset -body {
+    html::tableFromList {k v} {class="t"}
+} -cleanup reset -result "<table class=\"t\"><tr>\n\t<td>k</td>\n\t<td>v</td>\n</tr>\n</table>"
+
+test html-api-8.10 {html::tableFromList, empty list} -setup reset -body {
+    html::tableFromList {}
+} -cleanup reset -result {}
+
+# -------------------------------------------------------------------------
+# mailto
+
+test html-api-9.1 {html::mailto, wrong # args} -body {
+    html::mailto
+} -returnCodes error -result {wrong # args: should be "html::mailto email ?subject?"}
+
+test html-api-9.2 {html::mailto, too many args} -body {
+    html::mailto a b c
+} -returnCodes error -result {wrong # args: should be "html::mailto email ?subject?"}
+
+test html-api-9.3 {html::mailto} -body {
+    html::mailto user@example.com
+} -result {<a href="mailto:user@example.com">user@example.com</a>}
+
+test html-api-9.4 {html::mailto, subject} -body {
+    html::mailto user@example.com Hello
+} -result {<a href="mailto:user@example.com?subject=Hello">user@example.com</a>}
+
+# -------------------------------------------------------------------------
+# minorMenu, minorList
+
+test html-api-10.1 {html::minorMenu, wrong # args} -body {
+    html::minorMenu
+} -returnCodes error -result {wrong # args: should be "html::minorMenu list ?sep?"}
+
+test html-api-10.2 {html::minorMenu, default separator} -setup reset -body {
+    html::minorMenu {One /a.html Two /b.html}
+} -cleanup reset -result {<a href="/a.html">One</a> | <a href="/b.html">Two</a>}
+
+test html-api-10.3 {html::minorMenu, custom separator} -setup reset -body {
+    html::minorMenu {One /a.html Two /b.html Three /c.html} <br>
+} -cleanup reset -result {<a href="/a.html">One</a><br><a href="/b.html">Two</a><br><a href="/c.html">Three</a>}
+
+test html-api-10.4 {html::minorMenu, current page is not a link} -setup {
+    reset
+    ncgi::urlStub /b.html
+} -body {
+    html::minorMenu {One /a.html Two /b.html}
+} -cleanup reset -result {<a href="/a.html">One</a> | Two}
+
+test html-api-10.5 {html::minorMenu, index.html matches directory} -setup {
+    reset
+    ncgi::urlStub /dir/index.html
+} -body {
+    html::minorMenu {Home /dir/ Other /other/index.htm}
+} -cleanup reset -result {Home | <a href="/other/index.htm">Other</a>}
+
+test html-api-10.6 {html::minorMenu, empty list} -setup reset -body {
+    html::minorMenu {}
+} -cleanup reset -result {}
+
+test html-api-10.7 {html::minorList, wrong # args} -body {
+    html::minorList
+} -returnCodes error -result {wrong # args: should be "html::minorList list ?ordered?"}
+
+test html-api-10.8 {html::minorList, unordered by default} -setup reset -body {
+    html::minorList {One /a.html Two /b.html}
+} -cleanup reset -result "<ul><li><a href=\"/a.html\">One</a></li>\n<li><a href=\"/b.html\">Two</a></li>\n</ul>"
+
+test html-api-10.9 {html::minorList, ordered} -setup reset -body {
+    html::minorList {One /a.html Two /b.html} true
+} -cleanup reset -result "<ol><li><a href=\"/a.html\">One</a></li>\n<li><a href=\"/b.html\">Two</a></li>\n</ol>"
+
+test html-api-10.10 {html::minorList, explicitly unordered, current page} -setup {
+    reset
+    ncgi::urlStub /a.html
+} -body {
+    html::minorList {One /a.html Two /b.html} false
+} -cleanup reset -result "<ul><li>One</li>\n<li><a href=\"/b.html\">Two</a></li>\n</ul>"
+
+test html-api-10.11 {html::minorList leaves the tag stack balanced} -setup reset -body {
+    html::openTag div
+    html::minorList {One /a.html}
+    html::end
+} -cleanup reset -result "</div>\n"
+
+# -------------------------------------------------------------------------
+# extractParam
+
+test html-api-11.1 {html::extractParam, wrong # args} -body {
+    html::extractParam a
+} -returnCodes error -result {wrong # args: should be "html::extractParam param key ?varName?"}
+
+test html-api-11.2 {html::extractParam, double quoted value} -body {
+    list [html::extractParam {a="1" href="http://x/y z"} href] $href
+} -cleanup {
+    unset -nocomplain href
+} -result {1 {http://x/y z}}
+
+test html-api-11.3 {html::extractParam, single quoted value} -body {
+    list [html::extractParam {alt='a "b"'} alt] $alt
+} -cleanup {
+    unset -nocomplain alt
+} -result {1 {a "b"}}
+
+test html-api-11.4 {html::extractParam, unquoted value} -body {
+    list [html::extractParam {width=100 height=50} width] $width
+} -cleanup {
+    unset -nocomplain width
+} -result {1 100}
+
+test html-api-11.5 {html::extractParam, whitespace around =} -body {
+    list [html::extractParam "size =\t\"3\"" size] $size
+} -cleanup {
+    unset -nocomplain size
+} -result {1 3}
+
+test html-api-11.6 {html::extractParam, case-insensitive key} -body {
+    list [html::extractParam {HREF="u"} href] $href
+} -cleanup {
+    unset -nocomplain href
+} -result {1 u}
+
+test html-api-11.7 {html::extractParam, explicit varName} -body {
+    list [html::extractParam {name="n"} name result] $result [info exists name]
+} -cleanup {
+    unset -nocomplain result
+} -result {1 n 0}
+
+test html-api-11.8 {html::extractParam, key not present} -body {
+    list [html::extractParam {a="1"} b] [info exists b]
+} -result {0 0}
+
+test html-api-11.9 {html::extractParam, key present without value} -body {
+    list [html::extractParam {type="checkbox" checked} checked] [info exists checked]
+} -result {1 0}
+
+test html-api-11.10 {html::extractParam, sets variable in caller's scope} -setup {
+    proc ep {} {
+	list [html::extractParam {v="x"} v] $v
+    }
+} -body {
+    list [ep] [info exists v]
+} -cleanup {
+    rename ep {}
+} -result {{1 x} 0}
+
+# -------------------------------------------------------------------------
+# html_entities
+
+test html-api-12.1 {html::html_entities, wrong # args} -body {
+    html::html_entities
+} -returnCodes error -result {wrong # args: should be "html::html_entities s"}
+
+test html-api-12.2 {html::html_entities, ASCII special characters} -body {
+    html::html_entities {<a href="x">&</a>}
+} -result {&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;}
+
+test html-api-12.3 {html::html_entities, plain text unchanged} -body {
+    html::html_entities {plain text 123 'q'}
+} -result {plain text 123 'q'}
+
+test html-api-12.4 {html::html_entities, Latin-1 characters} -body {
+    html::html_entities "\xa0\xa9\xe9\xff"
+} -result {&nbsp;&copy;&eacute;&yuml;}
+
+test html-api-12.5 {html::html_entities, named entities above Latin-1} -body {
+    html::html_entities "αΩ—€≤"
+} -result {&alpha;&Omega;&mdash;&euro;&le;}
+
+test html-api-12.6 {html::html_entities, other characters as numeric references} -body {
+    html::html_entities "ćй Łx"
+} -result {&#263;&#1081; &#321;x}
+
+test html-api-12.7 {html::html_entities, empty string} -body {
+    html::html_entities {}
+} -result {}
+
+test html-api-12.8 {html::nl2br, wrong # args} -body {
+    html::nl2br
+} -returnCodes error -result {wrong # args: should be "html::nl2br s"}
+
+# -------------------------------------------------------------------------
+# Misc wrong # args
+
+test html-api-13.1 {html::select, wrong # args} -body {
+    html::select a b
+} -returnCodes error -result {wrong # args: should be "html::select name param choices ?current?"}
+
+test html-api-13.2 {html::selectPlain, wrong # args} -body {
+    html::selectPlain a b
+} -returnCodes error -result {wrong # args: should be "html::selectPlain name param choices ?current?"}
+
+test html-api-13.3 {html::textarea, wrong # args} -body {
+    html::textarea
+} -returnCodes error -result {wrong # args: should be "html::textarea name ?param? ?current?"}
+
+test html-api-13.4 {html::select, current value used without CGI data} -setup {
+    reset
+    ncgi::reset {}
+    ncgi::parse
+} -body {
+    html::select item {} {One 1 Two 2} 2
+} -cleanup reset -result {<select name="item">
+<option value="1">One
+<option value="2" selected>Two
+</select>
+}
+
+test html-api-13.5 {html::selectPlain, current value} -setup {
+    reset
+    ncgi::reset {}
+    ncgi::parse
+} -body {
+    html::selectPlain item {} {a b} a
+} -cleanup reset -result {<select name="item">
+<option value="a" selected>a
+<option value="b">b
+</select>
+}
+
+test html-api-13.6 {html::varEmpty, wrong # args} -body {
+    html::varEmpty
+} -returnCodes error -result {wrong # args: should be "html::varEmpty name"}
+
+test html-api-13.7 {html::formValue, wrong # args} -body {
+    html::formValue
+} -returnCodes error -result {wrong # args: should be "html::formValue name ?defvalue?"}
+
+test html-api-13.8 {html::author, wrong # args} -body {
+    html::author
+} -returnCodes error -result {wrong # args: should be "html::author author"}
+
+test html-api-13.9 {html::description, wrong # args} -body {
+    html::description
+} -returnCodes error -result {wrong # args: should be "html::description description"}
+
+test html-api-13.10 {html::default, wrong # args} -body {
+    html::default
+} -returnCodes error -result {wrong # args: should be "html::default key ?param?"}
+
+test html-api-13.11 {html::set, wrong # args} -body {
+    html::set x
+} -returnCodes error -result {wrong # args: should be "html::set var val"}
+
+test html-api-13.12 {html::while, wrong # args} -body {
+    html::while 1
+} -returnCodes error -result {wrong # args: should be "html::while test body"}
+
+test html-api-13.13 {html::for, wrong # args} -body {
+    html::for a b c
+} -returnCodes error -result {wrong # args: should be "html::for start test next body"}
+
+test html-api-13.14 {html::doctype, case-insensitive id} -body {
+    html::doctype xhtml11
+} -result {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">}
+
+test html-api-13.15 {html::doctype, all documented ids are known} -body {
+    ::set r {}
+    ::foreach id {HTML32 HTML40 HTML40T HTML40F HTML401 HTML401T HTML401F
+	XHTML10S XHTML10T XHTML10F XHTML11 XHTMLB} {
+	lappend r [string match {<!DOCTYPE *>} [html::doctype $id]]
+    }
+    ::set r
+} -cleanup {
+    unset -nocomplain r id
+} -result {1 1 1 1 1 1 1 1 1 1 1 1}
+
+test html-api-13.16 {html::doctype, error code} -body {
+    catch {html::doctype bogus} msg opts
+    list $msg [dict get $opts -errorcode]
+} -cleanup {
+    unset -nocomplain msg opts
+} -result {{Unknown doctype "bogus"} {HTML DOCTYPE BAD}}
+
+# -------------------------------------------------------------------------
+
+rename reset {}
+testsuiteCleanup
+return
