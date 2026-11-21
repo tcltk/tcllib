@@ -1,0 +1,1110 @@
+# -*- tcl -*-
+# pt-api.test:  Tests for documented parts of the pt API not covered by
+# the other test files of the module:
+#
+# - pt::pe constructors (epsilon ... notahead)
+# - pt::pe::op drop
+# - pt::ast new, new0
+# - pt::util (error2readable, error2position, error2text)
+# - pt::peg::container methods (clear, =, -->, start, nonterminals,
+#   modes, rules, add, remove, exists, rename, mode, rule, constructor)
+# - pt::peg::interp constructor, use and errors
+# - configure / reset of the pt::peg::to::* converters
+# - pt::pgen command API
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    # The accelerated packages are used with their default implementation.
+    use      struct/stack.tcl       struct::stack
+    use      struct/sets.tcl        struct::set
+
+    if {![package vsatisfies [package present Tcl] 8.6 9]} {
+	use try/try.tcl try
+    }
+    use      snit/snit.tcl          snit
+    use      fileutil/fileutil.tcl  fileutil
+    use      textutil/adjust.tcl    textutil::adjust
+
+    useLocal char.tcl                     char
+    useLocal text_write.tcl               text::write
+    useLocal pt_util.tcl                  pt::util
+    useLocal pt_astree.tcl                pt::ast
+    useLocal pt_pexpression.tcl           pt::pe
+    useLocal pt_pexpr_op.tcl              pt::pe::op
+    useLocal pt_pegrammar.tcl             pt::peg
+    useLocal pt_peg_container.tcl         pt::peg::container
+    useLocal pt_peg_container_peg.tcl     pt::peg::container::peg
+
+    useLocal pt_rdengine.tcl              pt::rde
+
+    useLocal pt_rdengine_oo.tcl           pt::rde::oo
+    useLocal pt_peg_interp.tcl            pt::peg::interp
+
+    useLocal pt_parse_peg.tcl             pt::parse::peg
+
+    useLocal pt_peg_from_json.tcl         pt::peg::from::json
+    useLocal pt_peg_from_peg.tcl          pt::peg::from::peg
+    useLocal pt_peg_to_container.tcl      pt::peg::to::container
+    useLocal pt_peg_to_json.tcl           pt::peg::to::json
+    useLocal pt_peg_to_peg.tcl            pt::peg::to::peg
+    useLocal pt_peg_to_param.tcl          pt::peg::to::param
+    useLocal pt_peg_to_tclparam.tcl       pt::peg::to::tclparam
+    useLocal pt_peg_to_cparam.tcl         pt::peg::to::cparam
+    useLocal pt_tclparam_config_snit.tcl  pt::tclparam::configuration::snit
+    useLocal pt_tclparam_config_tcloo.tcl pt::tclparam::configuration::tcloo
+    useLocal pt_tclparam_config_nx.tcl    pt::tclparam::configuration::nx
+    useLocal pt_cparam_config_critcl.tcl  pt::cparam::configuration::critcl
+    useLocal pt_cparam_config_tea.tcl     pt::cparam::configuration::tea
+}
+testing {
+    useLocal pt_pgen.tcl pt::pgen
+}
+
+# A minimal grammar, as serialization and in PEG text form.
+set ::ptG {pt::grammar::peg {rules {A {is {t a} mode value}} start {n A}}}
+set ::ptPeg "PEG G (A)\n A <- 'a';\nEND;\n"
+
+# A child interpreter with a fresh copy of the packages, for tests which
+# must not see state left behind by other tests.
+proc freshInterp {} {
+    set i [interp create]
+    $i eval [list set auto_path [linsert $::auto_path 0 [file dirname [localDirectory]]]]
+    return $i
+}
+
+# -------------------------------------------------------------------------
+# pt::pe constructors
+
+test pt-api-1.1 {pt::pe, atomic constructors without arguments} -body {
+    set r {}
+    foreach m {epsilon dot alnum alpha ascii control digit graph lower
+	       punct space upper wordchar xdigit ddigit} {
+	lappend r [pt::pe $m]
+    }
+    set r
+} -cleanup {
+    unset r m
+} -result {epsilon dot alnum alpha ascii control digit graph lower punct space upper wordchar xdigit ddigit}
+
+test pt-api-1.2 {pt::pe atomic constructors, wrong # args} -body {
+    set r {}
+    foreach m {epsilon dot alnum ddigit} {
+	catch {pt::pe $m x} msg
+	lappend r $msg
+    }
+    set r
+} -cleanup {
+    unset r m msg
+} -result {{wrong # args: should be "pt::pe epsilon"} {wrong # args: should be "pt::pe dot"} {wrong # args: should be "pt::pe alnum"} {wrong # args: should be "pt::pe ddigit"}}
+
+test pt-api-1.3 {pt::pe print constructs the print class} -constraints knownBug -body {
+    # The documentation lists "pt::pe print" twice: as the constructor of
+    # the print class and as the printer of serializations. The code
+    # implements only the latter, the constructor is "printable".
+    pt::pe print
+} -result print
+
+test pt-api-1.4 {pt::pe terminal, range, nonterminal} -body {
+    list [pt::pe terminal a] [pt::pe range a z] [pt::pe nonterminal X] \
+	[pt::pe terminal \{] [pt::pe nonterminal {two words}]
+} -result {{t a} {.. a z} {n X} {t \{} {n {two words}}}
+
+test pt-api-1.5 {pt::pe terminal, range, nonterminal, wrong # args} -body {
+    list [catch {pt::pe terminal} m1] $m1 [catch {pt::pe range a} m2] $m2 \
+	[catch {pt::pe nonterminal} m3] $m3 [catch {pt::pe terminal a b} m4] $m4
+} -cleanup {
+    unset m1 m2 m3 m4
+} -result {1 {wrong # args: should be "pt::pe terminal t"} 1 {wrong # args: should be "pt::pe range ta tb"} 1 {wrong # args: should be "pt::pe nonterminal nt"} 1 {wrong # args: should be "pt::pe terminal t"}}
+
+test pt-api-1.6 {pt::pe choice, sequence} -body {
+    list [pt::pe choice [pt::pe terminal a] [pt::pe terminal b] [pt::pe dot]] \
+	[pt::pe choice [pt::pe terminal a]] \
+	[pt::pe sequence [pt::pe terminal a] [pt::pe dot]] \
+	[pt::pe sequence [pt::pe epsilon]]
+} -result {{/ {t a} {t b} dot} {/ {t a}} {x {t a} dot} {x epsilon}}
+
+test pt-api-1.7 {pt::pe choice, sequence, wrong # args} -body {
+    list [catch {pt::pe choice} m1] $m1 [catch {pt::pe sequence} m2] $m2
+} -cleanup {
+    unset m1 m2
+} -result {1 {wrong # args: should be "pt::pe choice pe ?arg ...?"} 1 {wrong # args: should be "pt::pe sequence pe ?arg ...?"}}
+
+test pt-api-1.8 {pt::pe repeat0, repeat1, optional, ahead, notahead} -body {
+    set r {}
+    foreach m {repeat0 repeat1 optional ahead notahead} {
+	lappend r [pt::pe $m [pt::pe nonterminal X]]
+    }
+    set r
+} -cleanup {
+    unset r m
+} -result {{* {n X}} {+ {n X}} {? {n X}} {& {n X}} {! {n X}}}
+
+test pt-api-1.9 {pt::pe unary operators, wrong # args} -body {
+    set r {}
+    foreach m {repeat0 repeat1 optional ahead notahead} {
+	lappend r [catch {pt::pe $m} msg] $msg [catch {pt::pe $m a b} msg2] $msg2
+    }
+    set r
+} -cleanup {
+    unset r m msg msg2
+} -result {1 {wrong # args: should be "pt::pe repeat0 pe"} 1 {wrong # args: should be "pt::pe repeat0 pe"} 1 {wrong # args: should be "pt::pe repeat1 pe"} 1 {wrong # args: should be "pt::pe repeat1 pe"} 1 {wrong # args: should be "pt::pe optional pe"} 1 {wrong # args: should be "pt::pe optional pe"} 1 {wrong # args: should be "pt::pe ahead pe"} 1 {wrong # args: should be "pt::pe ahead pe"} 1 {wrong # args: should be "pt::pe notahead pe"} 1 {wrong # args: should be "pt::pe notahead pe"}}
+
+test pt-api-1.10 {pt::pe constructed expressions are canonical} -body {
+    set pe [pt::pe choice \
+		[pt::pe sequence [pt::pe terminal a] [pt::pe repeat0 [pt::pe range 0 9]]] \
+		[pt::pe notahead [pt::pe nonterminal X]] \
+		[pt::pe optional [pt::pe alpha]]]
+    list [pt::pe verify-as-canonical $pe] [pt::pe equal $pe [pt::pe canonicalize $pe]]
+} -cleanup {
+    unset pe
+} -result {{} 1}
+
+test pt-api-1.11 {pt::pe, bad subcommand} -body {
+    pt::pe bogus
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be ahead, alnum, *}
+
+# -------------------------------------------------------------------------
+# pt::pe::op drop
+
+test pt-api-2.1 {pt::pe::op drop, wrong # args} -body {
+    pt::pe::op drop {}
+} -returnCodes error -result {wrong # args: should be "pt::pe::op drop dropset serial"}
+
+test pt-api-2.2 {pt::pe::op drop, nothing to drop} -body {
+    pt::pe::op drop {C} {x {n A} {n B}}
+} -result {x {n A} {n B}}
+
+test pt-api-2.3 {pt::pe::op drop, a dropped nonterminal becomes epsilon} -body {
+    list [pt::pe::op drop {A} {n A}] [pt::pe::op drop {A} {* {n A}}] \
+	[pt::pe::op drop {A} {! {n A}}]
+} -result {epsilon epsilon epsilon}
+
+test pt-api-2.4 {pt::pe::op drop, choice keeps the remaining branches} -body {
+    list [pt::pe::op drop {A} {/ {n A} {t a}}] \
+	[pt::pe::op drop {A B} {/ {n A} {n B} {n C}}]
+} -result {{/ {t a}} {/ {n C}}}
+
+test pt-api-2.5 {pt::pe::op drop, empty dropset} -body {
+    pt::pe::op drop {} {x {n A} {t a}}
+} -result {x {n A} {t a}}
+
+# -------------------------------------------------------------------------
+# pt::ast new, new0
+
+test pt-api-3.1 {pt::ast new, leaf and children} -body {
+    list [pt::ast new S 0 4] [pt::ast new S 0 4 {A 0 1} {B 2 4}]
+} -result {{S 0 4} {S 0 4 {A 0 1} {B 2 4}}}
+
+test pt-api-3.2 {pt::ast new, result verifies} -body {
+    pt::ast verify [pt::ast new S 0 4 [pt::ast new A 0 1] [pt::ast new B 2 4]]
+} -result {}
+
+test pt-api-3.3 {pt::ast new0, end is one before the start} -body {
+    list [pt::ast new0 S 5] [pt::ast new0 S 5 {A 5 4}]
+} -result {{S 5 4} {S 5 4 {A 5 4}}}
+
+test pt-api-3.4 {pt::ast new, new0, wrong # args} -body {
+    list [catch {pt::ast new S 0} m1] $m1 [catch {pt::ast new0 S} m2] $m2
+} -cleanup {
+    unset m1 m2
+} -result {1 {wrong # args: should be "pt::ast new sym start end ?arg ...?"} 1 {wrong # args: should be "pt::ast new0 sym start ?arg ...?"}}
+
+# -------------------------------------------------------------------------
+# pt::util
+
+test pt-api-4.1 {pt::util, wrong # args} -body {
+    list [catch {pt::util error2text} m1] $m1 \
+	[catch {pt::util error2position {pt::rde 0 {}}} m2] $m2 \
+	[catch {pt::util error2readable {pt::rde 0 {}}} m3] $m3
+} -cleanup {
+    unset m1 m2 m3
+} -result {1 {wrong # args: should be "pt::util error2text error"} 1 {wrong # args: should be "pt::util error2position error text"} 1 {wrong # args: should be "pt::util error2readable error text"}}
+
+test pt-api-4.2 {pt::util, bad subcommand} -body {
+    pt::util bogus
+} -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be error2position, error2readable, or error2text}
+
+test pt-api-4.3 {error2text, single character} -body {
+    pt::util error2text {pt::rde 3 {{t a}}}
+} -result {{The character 'a'}}
+
+test pt-api-4.4 {error2text, characters are merged into a set} -body {
+    pt::util error2text {pt::rde 3 {{t b} {t a} {cl xy}}}
+} -result {{A character in set {abxy}}}
+
+test pt-api-4.5 {error2text, various expressions, sorted} -body {
+    pt::util error2text {pt::rde 3 {{n X} {.. a f} {str abc} alpha dot ddigit xdigit}}
+} -result {{A character in range 'a'-'f'} {A decimal digit} {A hexadecimal digit} {A string "abc"} {A unicode alphabetical character} {Any character} {The symbol X}}
+
+test pt-api-4.6 {error2text, all character classes} -body {
+    pt::util error2text {pt::rde 0 {alnum ascii control digit graph lower print punct space upper wordchar}}
+} -result {{A unicode alphanumerical character} {A unicode control character} {A unicode digit character} {A unicode lower-case alphabetical character} {A unicode printing character, but not space} {A unicode printing character, including space} {A unicode punctuation character} {A unicode space character} {A unicode upper-case alphabetical character} {A unicode word character (alphanumerics + connectors)} {An ascii character}}
+
+test pt-api-4.7 {error2text, special characters are quoted} -body {
+    pt::util error2text {pt::rde 0 {{t \n}}}
+} -result {{The character '<LF>'}}
+
+test pt-api-4.8 {error2position, line and column} -body {
+    set text "ab\ncdef\ngh"
+    list [pt::util error2position {pt::rde 1 {}} $text] \
+	[pt::util error2position {pt::rde 3 {}} $text] \
+	[pt::util error2position {pt::rde 7 {}} $text] \
+	[pt::util error2position {pt::rde 9 {}} $text]
+} -cleanup {
+    unset text
+} -result {{1 1} {2 0} {2 4} {3 1}}
+
+test pt-api-4.8.1 {error2position, error at the first character} -constraints knownBug -body {
+    # Line 0 is reported for position 0, line 1 for the following
+    # positions of the first line. (pt_pgen.tests expects "Line 0".)
+    pt::util error2position {pt::rde 0 {}} "ab\ncd"
+} -result {1 0}
+
+test pt-api-4.9 {error2readable, error at the start} -constraints knownBug -body {
+    # See pt-api-4.8.1.
+    pt::util error2readable {pt::rde 0 {{t a}}} "xyz"
+} -result "Parse error at position 0 (Line 1, column 0).\n... xyz ...\n    ^\nExpected one of\n* The character 'a'\n"
+
+test pt-api-4.10 {error2readable, excerpt around the position} -body {
+    pt::util error2readable {pt::rde 12 {{t a} {t b}}} "0123456789abcdefghijklmnop"
+} -result "Parse error at position 12 (Line 1, column 12).\n... 23456789abcdefghijklm ...\n    ----------^\nExpected one of\n* A character in set {ab}\n"
+
+test pt-api-4.11 {error2readable, line feeds are shown escaped} -body {
+    pt::util error2readable {pt::rde 3 {{n X}}} "ab\ncd"
+} -result "Parse error at position 3 (Line 2, column 0).\n... ab\\ncd ...\n    ----^\nExpected one of\n* The symbol X\n"
+
+test pt-api-4.12 {error2readable of a real parse error} -setup {
+    pt::peg::container::peg ::PTG
+    pt::peg::interp ::PTI
+    PTI use PTG
+} -body {
+    catch {PTI parset {PEG x (A) A <- 'a' END;}} e
+    pt::util error2readable $e {PEG x (A) A <- 'a' END;}
+} -cleanup {
+    PTI destroy
+    PTG destroy
+    unset e
+} -match glob -result "Parse error at position 23 (Line 1, column 23).\n*\nExpected one of\n* *"
+
+# -------------------------------------------------------------------------
+# pt::peg::container
+
+proc mkG {name} {
+    pt::peg::container $name
+    $name add A B
+    $name start {n A}
+    $name modes {A value B leaf}
+    $name rules {A {x {n B} {t a}} B {t b}}
+    return $name
+}
+
+test pt-api-5.1 {container, new container is empty} -setup {
+    pt::peg::container ::PC
+} -body {
+    list [PC start] [PC nonterminals] [PC modes] [PC rules] [PC serialize]
+} -cleanup {
+    PC destroy
+} -result {epsilon {} {} {} {pt::grammar::peg {rules {} start epsilon}}}
+
+test pt-api-5.2 {container, constructor copies another container} -setup {
+    mkG ::PC
+} -body {
+    set r {}
+    foreach op {= := <-- as} {
+	pt::peg::container ::PD $op PC
+	lappend r [pt::peg equal [PD serialize] [PC serialize]]
+	PD destroy
+    }
+    set r
+} -cleanup {
+    PC destroy
+    unset r op
+} -result {1 1 1 1}
+
+test pt-api-5.3 {container, constructor from a serialization} -setup {
+    pt::peg::container ::PC deserialize $::ptG
+} -body {
+    list [PC start] [PC nonterminals] [PC rule A] [PC mode A]
+} -cleanup {
+    PC destroy
+} -result {{n A} A {t a} value}
+
+test pt-api-5.4 {container, constructor, bad arguments} -body {
+    list [catch {pt::peg::container ::PC bogus X} m1] $m1 \
+	[catch {pt::peg::container ::PC = X extra} m2] $m2
+} -cleanup {
+    unset m1 m2
+} -result {1 {Error in constructor: wrong#args: ::PC ?=|:=|<--|as|deserialize a'?} 1 {Error in constructor: wrong#args: ::PC ?=|:=|<--|as|deserialize a'?}}
+
+test pt-api-5.5 {container, constructor, invalid serialization} -body {
+    pt::peg::container ::PC deserialize {bogus}
+} -returnCodes error -match glob -result {Error in constructor: error in serialization: *}
+
+test pt-api-5.6 {container clear} -setup {
+    mkG ::PC
+} -body {
+    PC clear
+    list [PC start] [PC nonterminals] [PC serialize]
+} -cleanup {
+    PC destroy
+} -result {epsilon {} {pt::grammar::peg {rules {} start epsilon}}}
+
+test pt-api-5.7 {container =, copy from a source object} -constraints knownBug -setup {
+    # The method calls "deserialize" without the "=".
+    mkG ::PC
+    pt::peg::container ::PD
+} -body {
+    PD = PC
+    pt::peg equal [PD serialize] [PC serialize]
+} -cleanup {
+    PC destroy
+    PD destroy
+} -result 1
+
+test pt-api-5.8 {container -->, copy to a destination object} -constraints knownBug -setup {
+    # The method calls "deserialize" without the "=".
+    mkG ::PC
+    pt::peg::container ::PD
+} -body {
+    PC --> PD
+    pt::peg equal [PD serialize] [PC serialize]
+} -cleanup {
+    PC destroy
+    PD destroy
+} -result 1
+
+test pt-api-5.9 {container start, query and set} -setup {
+    mkG ::PC
+} -body {
+    set r [list [PC start]]
+    PC start {/ {n A} {n B}}
+    lappend r [PC start]
+} -cleanup {
+    PC destroy
+    unset r
+} -result {{n A} {/ {n A} {n B}}}
+
+test pt-api-5.10 {container start, invalid expression} -setup {
+    pt::peg::container ::PC
+} -body {
+    PC start {bogus x}
+} -cleanup {
+    PC destroy
+} -returnCodes error -result {error in serialization: invalid operator "bogus"}
+
+test pt-api-5.11 {container add, defaults} -setup {
+    pt::peg::container ::PC
+} -body {
+    PC add A B
+    list [PC nonterminals] [PC mode A] [PC rule A] [PC modes] [PC rules]
+} -cleanup {
+    PC destroy
+} -result {{A B} value epsilon {A value B value} {A epsilon B epsilon}}
+
+test pt-api-5.12 {container add, already known} -setup {
+    mkG ::PC
+} -body {
+    PC add C A
+} -cleanup {
+    PC destroy
+} -returnCodes error -result {Nonterminal "A" is already known}
+
+test pt-api-5.13 {container add and remove without arguments} -setup {
+    mkG ::PC
+} -body {
+    list [PC add] [PC remove] [lsort [PC nonterminals]]
+} -cleanup {
+    PC destroy
+} -result {{} {} {A B}}
+
+test pt-api-5.14 {container remove} -setup {
+    mkG ::PC
+} -body {
+    PC remove B
+    list [PC nonterminals] [PC exists B] [PC modes]
+} -cleanup {
+    PC destroy
+} -result {A 0 {A value}}
+
+test pt-api-5.15 {container remove, unknown nonterminal} -setup {
+    mkG ::PC
+} -body {
+    PC remove Z
+} -cleanup {
+    PC destroy
+} -returnCodes error -result {Invalid nonterminal "Z"}
+
+test pt-api-5.16 {container exists} -setup {
+    mkG ::PC
+} -body {
+    list [PC exists A] [PC exists Z]
+} -cleanup {
+    PC destroy
+} -result {1 0}
+
+test pt-api-5.17 {container rename, rules are rewritten} -constraints knownBug -setup {
+    # The method calls "pt::pe rename" instead of "pt::pe::op rename".
+    mkG ::PC
+} -body {
+    PC rename B C
+    list [lsort [PC nonterminals]] [PC rule A] [PC mode C] [PC rule C]
+} -cleanup {
+    PC destroy
+} -result {{A C} {x {n C} {t a}} leaf {t b}}
+
+test pt-api-5.18 {container rename, errors} -setup {
+    mkG ::PC
+} -body {
+    list [catch {PC rename Z Y} m1] $m1 [catch {PC rename B A} m2] $m2
+} -cleanup {
+    PC destroy
+    unset m1 m2
+} -result {1 {Invalid nonterminal "Z"} 1 {Nonterminal "A" is already known}}
+
+test pt-api-5.19 {container mode, query and set} -setup {
+    mkG ::PC
+} -body {
+    set r [PC mode B]
+    foreach m {void value leaf} {
+	PC mode B $m
+	lappend r [PC mode B]
+    }
+    set r
+} -cleanup {
+    PC destroy
+    unset r m
+} -result {leaf void value leaf}
+
+test pt-api-5.20 {container mode, errors} -setup {
+    mkG ::PC
+} -body {
+    list [catch {PC mode A bogus} m1] $m1 [catch {PC mode Z} m2] $m2 \
+	[catch {PC mode} m3] $m3
+} -cleanup {
+    PC destroy
+    unset m1 m2 m3
+} -result {1 {Expected one of leaf, value, or void, got "bogus"} 1 {Invalid nonterminal "Z"} 1 {wrong # args: should be "::pt::peg::container::Snit_methodmode type selfns win self nt ?mode?"}}
+
+test pt-api-5.21 {container rule, query and set} -setup {
+    mkG ::PC
+} -body {
+    set r [list [PC rule B]]
+    PC rule B {+ {.. a z}}
+    lappend r [PC rule B]
+} -cleanup {
+    PC destroy
+    unset r
+} -result {{t b} {+ {.. a z}}}
+
+test pt-api-5.22 {container rule, errors} -setup {
+    mkG ::PC
+} -body {
+    list [catch {PC rule Z} m1] $m1 [catch {PC rule A {bogus}} m2] $m2 \
+	[catch {PC rule} m3] $m3
+} -cleanup {
+    PC destroy
+    unset m1 m2 m3
+} -result {1 {Invalid nonterminal "Z"} 1 {error in serialization: invalid operator "bogus"} 1 {wrong # args: should be "::pt::peg::container::Snit_methodrule type selfns win self nt ?pe?"}}
+
+test pt-api-5.23 {container modes and rules, set several} -setup {
+    mkG ::PC
+} -body {
+    PC modes {A void B value}
+    PC rules {A {t q} B {t r}}
+    list [PC modes] [PC rules]
+} -cleanup {
+    PC destroy
+} -result {{A void B value} {A {t q} B {t r}}}
+
+test pt-api-5.24 {container modes and rules, unknown nonterminal} -setup {
+    mkG ::PC
+} -body {
+    list [catch {PC modes {Q void}} m1] $m1 [catch {PC rules {Q {t q}}} m2] $m2 \
+	[PC modes] [PC rules]
+} -cleanup {
+    PC destroy
+    unset m1 m2
+} -result {1 {Invalid nonterminal "Q"} 1 {Invalid nonterminal "Q"} {A value B leaf} {A {x {n B} {t a}} B {t b}}}
+
+test pt-api-5.25 {container serialize, canonical} -setup {
+    mkG ::PC
+} -body {
+    set s [PC serialize]
+    list [pt::peg verify-as-canonical $s] $s
+} -cleanup {
+    PC destroy
+    unset s
+} -result {{} {pt::grammar::peg {rules {A {is {x {n B} {t a}} mode value} B {is {t b} mode leaf}} start {n A}}}}
+
+test pt-api-5.26 {container deserialize +=, merge} -setup {
+    mkG ::PC
+} -body {
+    PC deserialize += {pt::grammar::peg {rules {N {is {t n} mode value}} start {n N}}}
+    list [lsort [PC nonterminals]] [PC start] [PC rule N]
+} -cleanup {
+    PC destroy
+} -result {{A B N} {/ {n A} {n N}} {t n}}
+
+test pt-api-5.27 {container deserialize +=, mode conflict} -setup {
+    mkG ::PC
+} -body {
+    PC deserialize += {pt::grammar::peg {rules {B {is {t q} mode value}} start epsilon}}
+} -cleanup {
+    PC destroy
+} -returnCodes error -result {Merge error for nonterminal "B", semantic mode mismatch}
+
+test pt-api-5.28 {container serialize in a format without exporter} -setup {
+    mkG ::PC
+} -body {
+    PC serialize json
+} -cleanup {
+    PC destroy
+} -returnCodes error -result {Unable to export from "json", no exporter configured}
+
+test pt-api-5.29 {container deserialize = in a format without importer} -setup {
+    pt::peg::container ::PC
+} -body {
+    PC deserialize = {} json
+} -cleanup {
+    PC destroy
+} -returnCodes error -result {Unable to import from "json", no importer configured}
+
+test pt-api-5.30 {container, bad method} -setup {
+    pt::peg::container ::PC
+} -body {
+    PC bogus
+} -cleanup {
+    PC destroy
+} -returnCodes error -result {"::PC bogus" is not defined}
+
+test pt-api-5.31 {container::peg holds the PEG grammar} -setup {
+    pt::peg::container::peg ::PC
+} -body {
+    list [PC start] [PC exists Grammar] [PC mode Grammar] \
+	[expr {[llength [PC nonterminals]] > 40}]
+} -cleanup {
+    PC destroy
+} -result {{n Grammar} 1 value 1}
+
+# -------------------------------------------------------------------------
+# pt::peg::interp
+
+test pt-api-6.1 {interp, wrong # args} -setup {
+    pt::peg::interp ::PI
+} -body {
+    list [catch {PI use} m1] $m1 [catch {PI parset} m2] $m2 [catch {PI parse} m3] $m3
+} -cleanup {
+    PI destroy
+    unset m1 m2 m3
+} -result {1 {wrong # args: should be "::pt::peg::interp::Snit_methoduse type selfns win self grammar"} 1 {wrong # args: should be "::pt::peg::interp::Snit_methodparset type selfns win self text"} 1 {wrong # args: should be "::pt::peg::interp::Snit_methodparse type selfns win self channel"}}
+
+test pt-api-6.2 {interp, empty grammar accepts the empty input} -setup {
+    pt::peg::interp ::PI
+} -body {
+    PI parset {}
+} -cleanup {
+    PI destroy
+} -result {}
+
+test pt-api-6.3 {interp use and parset} -setup {
+    pt::peg::container ::PC deserialize {pt::grammar::peg {rules {
+	S {is {x {n A} {n B}} mode value}
+	A {is {+ {t a}} mode leaf}
+	B {is {+ {t b}} mode leaf}
+    } start {n S}}}
+    pt::peg::interp ::PI
+} -body {
+    set r [list [PI use PC]]
+    lappend r [PI parset aabbb]
+} -cleanup {
+    PI destroy
+    PC destroy
+    unset r
+} -result {{} {S 0 4 {A 0 1} {B 2 4}}}
+
+test pt-api-6.4 {interp parse reads from a channel} -setup {
+    pt::peg::container ::PC deserialize {pt::grammar::peg {rules {
+	A {is {+ {t a}} mode leaf}
+    } start {n A}}}
+    pt::peg::interp ::PI
+    PI use PC
+    set f [tcltest::makeFile aaa pt-api-input.txt]
+    set chan [open $f r]
+} -body {
+    PI parse $chan
+} -cleanup {
+    close $chan
+    tcltest::removeFile pt-api-input.txt
+    PI destroy
+    PC destroy
+    unset f chan
+} -result {A 0 2}
+
+test pt-api-6.5 {interp, syntax error} -setup {
+    pt::peg::container ::PC deserialize {pt::grammar::peg {rules {
+	A {is {+ {t a}} mode leaf}
+    } start {n A}}}
+    pt::peg::interp ::PI
+    PI use PC
+} -body {
+    list [catch {PI parset b} m] $m $::errorCode
+} -cleanup {
+    PI destroy
+    PC destroy
+    unset m
+} -result {1 {pt::rde 0 {{t a}}} {PT RDE SYNTAX}}
+
+test pt-api-6.6 {interp, syntax error contains the line and column} -constraints knownBug -setup {
+    # The documentation describes a 4-element error with the line and
+    # column as third element; the runtime throws 3 elements.
+    pt::peg::container ::PC deserialize {pt::grammar::peg {rules {
+	A {is {+ {t a}} mode leaf}
+    } start {n A}}}
+    pt::peg::interp ::PI
+    PI use PC
+} -body {
+    catch {PI parset b} m
+    set m
+} -cleanup {
+    PI destroy
+    PC destroy
+    unset m
+} -result {pt::rde 0 {1 0} {{t a}}}
+
+test pt-api-6.7 {interp, use copies the grammar} -setup {
+    pt::peg::container ::PC deserialize {pt::grammar::peg {rules {
+	A {is {+ {t a}} mode leaf}
+    } start {n A}}}
+    pt::peg::interp ::PI
+} -body {
+    PI use PC
+    PC destroy
+    PI parset aa
+} -cleanup {
+    PI destroy
+} -result {A 0 1}
+
+test pt-api-6.8 {interp, use replaces the previous grammar} -setup {
+    pt::peg::container ::PC deserialize {pt::grammar::peg {rules {
+	A {is {+ {t a}} mode leaf}
+    } start {n A}}}
+    pt::peg::container ::PD deserialize {pt::grammar::peg {rules {
+	B {is {+ {t b}} mode leaf}
+    } start {n B}}}
+    pt::peg::interp ::PI
+} -body {
+    PI use PC
+    set r [list [PI parset aa]]
+    PI use PD
+    lappend r [PI parset bbb] [catch {PI parset aa}]
+} -cleanup {
+    PI destroy
+    PC destroy
+    PD destroy
+    unset r
+} -result {{A 0 1} {B 0 2} 1}
+
+# -------------------------------------------------------------------------
+# Converters: configure and reset.
+# The default configurations as documented / implemented.
+
+set ::ptConvDefaults {
+    container {-file unknown -mode bulk -name a_pe_grammar -template @code@ -user unknown}
+    cparam    {-comments 1 -file unknown -fun-qualifier static -indent 0 -insert-command {} -main __main -name a_pe_grammar -namespace {} -self-command {} -state-decl {RDE_PARAM p} -state-ref p -string-varname p_string -template @code@ -user unknown}
+    json      {-file unknown -name a_pe_grammar -user unknown -indented 0 -aligned 0}
+    param     {-inline 1 -compact 1 -file unknown -name a_pe_grammar -template @code@ -user unknown}
+    peg       {-file unknown -fused 1 -name a_pe_grammar -template @code@ -user unknown}
+    tclparam  {-indent 0 -runtime-command {} -self-command {} -proc-command proc -namespace :: -main __main -file unknown -name a_pe_grammar -template @code@ -user unknown}
+}
+
+set n 0
+foreach {conv defaults} $::ptConvDefaults {
+    incr n
+    test pt-api-7.$n.1 "to::$conv configure returns the defaults after reset" -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	pt::peg::to::$conv configure
+    } -result $defaults
+
+    test pt-api-7.$n.2 "to::$conv configure, query single options" -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	set r {}
+	foreach {o v} $defaults {
+	    if {$o eq "-insert-command"} continue ;# see 7.6.3
+	    lappend r $o [pt::peg::to::$conv configure $o]
+	}
+	set r
+    } -cleanup {
+	unset r o v
+    } -result [dict remove $defaults -insert-command]
+
+    test pt-api-7.$n.3 "to::$conv configure, set name, user and file" -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	pt::peg::to::$conv configure -name G -user U -file F
+	list [pt::peg::to::$conv configure -name] [pt::peg::to::$conv configure -user] \
+	    [pt::peg::to::$conv configure -file]
+    } -cleanup {
+	pt::peg::to::$conv reset
+    } -result {G U F}
+
+    test pt-api-7.$n.4 "to::$conv reset restores the defaults" -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	pt::peg::to::$conv configure -name G -user U -file F
+	pt::peg::to::$conv reset
+	pt::peg::to::$conv configure
+    } -result $defaults
+
+    test pt-api-7.$n.5 "to::$conv configure, odd number of arguments" -body {
+	pt::peg::to::$conv configure -name a -user
+    } -returnCodes error -result {wrong#args, expected option value ...}
+
+    test pt-api-7.$n.6 "to::$conv configure, unknown option" -body {
+	list [catch {pt::peg::to::$conv configure -bogus} m1] $m1 \
+	    [catch {pt::peg::to::$conv configure -bogus 1} m2] $m2
+    } -cleanup {
+	unset m1 m2
+    } -match glob -result {1 {Expected one of *, got "-bogus"} 1 {Expected one of *, got "-bogus"}}
+
+    test pt-api-7.$n.7 "to::$conv reset and convert, wrong # args" -body {
+	list [catch {pt::peg::to::$conv reset X} m1] $m1 \
+	    [catch {pt::peg::to::$conv convert} m2] $m2
+    } -cleanup {
+	unset m1 m2
+    } -result [list 1 "wrong # args: should be \"pt::peg::to::$conv reset\"" \
+		   1 "wrong # args: should be \"pt::peg::to::$conv convert serial\""]
+
+    test pt-api-7.$n.8 "to::$conv convert, invalid serialization" -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	pt::peg::to::$conv convert bogus
+    } -returnCodes error -result {error in serialization: dictionary too short, expected exactly one key}
+
+    test pt-api-7.$n.9 "to::$conv, bad subcommand" -body {
+	pt::peg::to::$conv bogus
+    } -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be configure, convert, or reset}
+}
+unset n conv defaults
+
+set n 0
+foreach {conv fmt} {container CONTAINER cparam C/PARAM param PARAM peg PEG tclparam Tcl/PARAM} {
+    incr n
+    # to::param substitutes PEG for @format@.
+    test pt-api-8.$n.1 "to::$conv, template placeholders" -constraints [expr {$conv eq "param" ? "knownBug" : ""}] -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	pt::peg::to::$conv configure -name G -user U -file F \
+	    -template {@user@|@format@|@file@|@name@}
+	pt::peg::to::$conv convert $::ptG
+    } -cleanup {
+	pt::peg::to::$conv reset
+    } -result "U|$fmt|F|G"
+
+    test pt-api-8.$n.2 "to::$conv, empty template" -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	pt::peg::to::$conv configure -template {}
+    } -cleanup {
+	pt::peg::to::$conv reset
+    } -returnCodes error -result {Expected template, got the empty string}
+
+    test pt-api-8.$n.3 "to::$conv, @code@ in template" -setup {
+	pt::peg::to::$conv reset
+    } -body {
+	set plain [pt::peg::to::$conv convert $::ptG]
+	pt::peg::to::$conv configure -template {<<@code@>>}
+	expr {[pt::peg::to::$conv convert $::ptG] eq "<<$plain>>"}
+    } -cleanup {
+	pt::peg::to::$conv reset
+	unset plain
+    } -result 1
+}
+unset n conv fmt
+
+test pt-api-8.6.1 {to::json ignores name, user and file} -setup {
+    pt::peg::to::json reset
+} -body {
+    set a [pt::peg::to::json convert $::ptG]
+    pt::peg::to::json configure -name G -user U -file F
+    expr {[pt::peg::to::json convert $::ptG] eq $a}
+} -cleanup {
+    pt::peg::to::json reset
+    unset a
+} -result 1
+
+test pt-api-8.6.2 {to::json, boolean options} -setup {
+    pt::peg::to::json reset
+} -body {
+    list [catch {pt::peg::to::json configure -indented maybe} m1] $m1 \
+	[catch {pt::peg::to::json configure -aligned maybe} m2] $m2
+} -cleanup {
+    pt::peg::to::json reset
+    unset m1 m2
+} -result {1 {Expected boolean, got "maybe"} 1 {Expected boolean, got "maybe"}}
+
+test pt-api-8.6.3 {to::json, -indented spreads the output over lines} -setup {
+    pt::peg::to::json reset
+} -body {
+    set a [pt::peg::to::json convert $::ptG]
+    pt::peg::to::json configure -indented 1
+    set b [pt::peg::to::json convert $::ptG]
+    list [string first \n $a] [expr {[string first \n $b] > 0}]
+} -cleanup {
+    pt::peg::to::json reset
+    unset a b
+} -result {-1 1}
+
+test pt-api-8.6.4 {to::json configure in a fresh interpreter} -constraints knownBug -setup {
+    # -name, -file and -user are initialized only by reset.
+    set i [freshInterp]
+} -body {
+    $i eval {package require pt::peg::to::json}
+    $i eval {pt::peg::to::json configure}
+} -cleanup {
+    interp delete $i
+    unset i
+} -result {-file unknown -name a_pe_grammar -user unknown -indented 0 -aligned 0}
+
+test pt-api-8.7.1 {to::peg, -fused, boolean} -setup {
+    pt::peg::to::peg reset
+} -body {
+    pt::peg::to::peg configure -fused maybe
+} -cleanup {
+    pt::peg::to::peg reset
+} -returnCodes error -result {Expected boolean, got "maybe"}
+
+test pt-api-8.7.2 {to::peg, -name is the grammar name} -setup {
+    pt::peg::to::peg reset
+} -body {
+    pt::peg::to::peg configure -name MyGrammar
+    pt::peg::to::peg convert $::ptG
+} -cleanup {
+    pt::peg::to::peg reset
+} -result "PEG MyGrammar (A)\n\n A <- 'a' ;\n\nEND;"
+
+test pt-api-8.8.1 {to::param, -inline and -compact, boolean} -setup {
+    pt::peg::to::param reset
+} -body {
+    list [catch {pt::peg::to::param configure -inline maybe} m1] $m1 \
+	[catch {pt::peg::to::param configure -compact maybe} m2] $m2
+} -cleanup {
+    pt::peg::to::param reset
+    unset m1 m2
+} -result {1 {Expected boolean, got "maybe"} 1 {Expected boolean, got "maybe"}}
+
+test pt-api-8.9.1 {to::tclparam, -indent} -setup {
+    pt::peg::to::tclparam reset
+} -body {
+    list [catch {pt::peg::to::tclparam configure -indent -1} m1] $m1 \
+	[catch {pt::peg::to::tclparam configure -indent x} m2] $m2 \
+	[pt::peg::to::tclparam configure -indent 4] [pt::peg::to::tclparam configure -indent]
+} -cleanup {
+    pt::peg::to::tclparam reset
+    unset m1 m2
+} -result {1 {Expected int > 0, got "-1"} 1 {Expected int > 0, got "x"} {} 4}
+
+test pt-api-8.9.2 {to::tclparam, command options are placed in the code} -setup {
+    pt::peg::to::tclparam reset
+} -body {
+    pt::peg::to::tclparam configure -self-command {my} -proc-command {method} \
+	-namespace {::ns::} -main {MAIN} -runtime-command {my rt} -prelude {PRE}
+    set c [pt::peg::to::tclparam convert $::ptG]
+    list [string match {*method ::ns::MAIN*} $c] [string match {*my rt *} $c] \
+	[string match "*PRE*" $c] [pt::peg::to::tclparam configure -prelude]
+} -cleanup {
+    pt::peg::to::tclparam reset
+    unset c
+} -result {1 1 1 PRE}
+
+test pt-api-8.10.1 {to::cparam, options} -setup {
+    pt::peg::to::cparam reset
+} -body {
+    list [catch {pt::peg::to::cparam configure -indent x} m1] $m1 \
+	[catch {pt::peg::to::cparam configure -comments maybe} m2] $m2 \
+	[pt::peg::to::cparam configure -prelude PRE] [pt::peg::to::cparam configure -prelude]
+} -cleanup {
+    pt::peg::to::cparam reset
+    unset m1 m2
+} -result {1 {Expected int > 0, got "x"} 1 {Expected boolean, got "maybe"} {} PRE}
+
+test pt-api-8.10.2 {to::cparam, -insert-command as listed by configure} -constraints knownBug -setup {
+    # configure lists -insert-command, but only -insert-cmd is accepted.
+    pt::peg::to::cparam reset
+} -body {
+    pt::peg::to::cparam configure -insert-command X
+    pt::peg::to::cparam configure -insert-command
+} -cleanup {
+    pt::peg::to::cparam reset
+} -result X
+
+test pt-api-8.10.3 {to::cparam, -insert-cmd} -setup {
+    pt::peg::to::cparam reset
+} -body {
+    pt::peg::to::cparam configure -insert-cmd X
+    list [pt::peg::to::cparam configure -insert-cmd] [dict get [pt::peg::to::cparam configure] -insert-command]
+} -cleanup {
+    pt::peg::to::cparam reset
+} -result {X X}
+
+test pt-api-8.10.4 {to::cparam, state and function options are placed in the code} -setup {
+    pt::peg::to::cparam reset
+} -body {
+    pt::peg::to::cparam configure -state-decl {MYSTATE s} -state-ref s \
+	-fun-qualifier MYSTATIC -namespace my_ -main mymain -comments 0
+    set c [pt::peg::to::cparam convert $::ptG]
+    list [string match "*MYSTATIC void my_mymain (MYSTATE s)*" $c] \
+	[string match "*my_sym_A (s)*" $c]
+} -cleanup {
+    pt::peg::to::cparam reset
+    unset c
+} -result {1 1}
+
+test pt-api-8.11.1 {to::container, -mode} -setup {
+    pt::peg::to::container reset
+} -body {
+    set r [list [catch {pt::peg::to::container configure -mode bogus} m] $m]
+    pt::peg::to::container configure -mode incremental
+    set c [pt::peg::to::container convert $::ptG]
+    lappend r [string match "*\$myg mode  A value*\$myg rule  A {t a}*" $c]
+    pt::peg::to::container reset
+    set c [pt::peg::to::container convert $::ptG]
+    lappend r [string match "*\$myg modes \{*\$myg rules \{*" $c]
+} -cleanup {
+    pt::peg::to::container reset
+    unset r m c
+} -result {1 {Expected bulk, or incremental, got "bogus"} 1 1}
+
+test pt-api-8.11.2 {to::container, generated code builds the grammar} -setup {
+    pt::peg::to::container reset
+    pt::peg::to::container configure -name ::ptapi_grammar
+} -body {
+    eval [pt::peg::to::container convert $::ptG]
+    ::ptapi_grammar ::PTX
+    pt::peg equal [PTX serialize] $::ptG
+} -cleanup {
+    PTX destroy
+    ::ptapi_grammar destroy
+    pt::peg::to::container reset
+} -result 1
+
+# -------------------------------------------------------------------------
+# pt::pgen
+
+test pt-api-9.1 {pgen, wrong # args} -body {
+    list [catch {pt::pgen} m1] $m1 [catch {pt::pgen peg} m2] $m2
+} -cleanup {
+    unset m1 m2
+} -result {1 {wrong # args: should be "pt::pgen subcommand ?arg ...?"} 1 {wrong # args: should be "pt::pgen peg input ?arg ...?"}}
+
+test pt-api-9.2 {pgen, unknown input format} -body {
+    pt::pgen bogus $::ptPeg peg
+} -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be json, peg, or serial}
+
+test pt-api-9.3 {pgen, unknown result format} -body {
+    pt::pgen peg $::ptPeg bogus
+} -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be c, container, critcl, json, nx, oo, oo-sa, param, peg, snit, snit-sa, or tea}
+
+test pt-api-9.4 {pgen, peg to peg with options} -setup {
+    pt::peg::to::peg reset
+} -body {
+    list [pt::pgen peg $::ptPeg peg] \
+	[pt::pgen peg $::ptPeg peg -name X -user U -file F -template {@name@/@user@/@file@}]
+} -cleanup {
+    pt::peg::to::peg reset
+} -result [list "PEG a_pe_grammar (A)\n\n A <- 'a' ;\n\nEND;" X/U/F]
+
+test pt-api-9.5 {pgen, json input} -setup {
+    pt::peg::to::json reset
+    pt::peg::to::peg reset
+} -body {
+    set j [pt::pgen peg $::ptPeg json]
+    pt::pgen json $j peg -name G
+} -cleanup {
+    pt::peg::to::json reset
+    pt::peg::to::peg reset
+    unset j
+} -result "PEG G (A)\n\n A <- 'a' ;\n\nEND;"
+
+test pt-api-9.6 {pgen, json result in a fresh interpreter} -constraints knownBug -setup {
+    # pt::peg::to::json configure fails before the first reset.
+    set i [freshInterp]
+} -body {
+    $i eval {package require pt::pgen}
+    $i eval [list pt::pgen peg $::ptPeg json]
+} -cleanup {
+    interp delete $i
+    unset i
+} -result {{"pt::grammar::peg":{"rules":{"A":{"is":"t a","mode":"value"}},"start":"n A"}}}
+
+test pt-api-9.7 {pgen, container result defines a working grammar class} -setup {
+    pt::peg::to::container reset
+} -body {
+    eval [pt::pgen peg $::ptPeg container -name ::ptapi_pgen_grammar]
+    ::ptapi_pgen_grammar ::PTX
+    pt::peg equal [PTX serialize] $::ptG
+} -cleanup {
+    PTX destroy
+    ::ptapi_pgen_grammar destroy
+    pt::peg::to::container reset
+} -result 1
+
+test pt-api-9.8 {pgen, snit and oo parsers parse the input} -setup {
+    pt::peg::to::tclparam reset
+    set r {}
+} -body {
+    foreach {fmt cls} {snit ::ptapi_snit_parser oo ::ptapi_oo_parser} {
+	set code [pt::pgen peg $::ptPeg $fmt -class $cls -package ptapi_$fmt -version 1]
+	# The generated code ends with "return".
+	apply [list {} $code ::]
+	if {$fmt eq "snit"} {
+	    set p [$cls %AUTO%]
+	} else {
+	    set p [$cls new]
+	}
+	lappend r [package present ptapi_$fmt] [$p parset a] [catch {$p parset b}]
+	$p destroy
+	$cls destroy
+    }
+    set r
+} -cleanup {
+    pt::peg::to::tclparam reset
+    unset -nocomplain r fmt cls code p
+    package forget ptapi_snit
+    package forget ptapi_oo
+} -result {1 {A 0 0} 1 1 {A 0 0} 1}
+
+test pt-api-9.9 {pgen, syntax error in the input} -body {
+    list [catch {pt::pgen peg {PEG G (A) A <- ;} peg} m] [lindex $m 0] [lindex $m 1] $::errorCode
+} -cleanup {
+    unset m
+} -result {1 pt::rde 15 {PT RDE SYNTAX}}
+
+test pt-api-9.10 {pgen, serial input} -setup {
+    pt::peg::to::peg reset
+} -body {
+    pt::pgen serial $::ptG peg
+} -cleanup {
+    pt::peg::to::peg reset
+} -result "PEG a_pe_grammar (A)\n\n A <- 'a' ;\n\nEND;"
+
+test pt-api-9.11 {pgen, unknown converter option} -body {
+    pt::pgen peg $::ptPeg peg -bogus 1
+} -cleanup {
+    pt::peg::to::peg reset
+} -returnCodes error -result {Expected one of -file, -fused, -name, -template, or -user, got "-bogus"}
+
+# -------------------------------------------------------------------------
+
+rename mkG {}
+rename freshInterp {}
+unset ::ptG ::ptPeg ::ptConvDefaults
+testsuiteCleanup
+return
