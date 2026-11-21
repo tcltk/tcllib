@@ -1,0 +1,429 @@
+# -*- tcl -*-
+# ncgi-api.test: tests for the documented API of the ncgi package,
+# complementing ncgi.test.
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    use cmdline/cmdline.tcl   cmdline
+    use fileutil/fileutil.tcl fileutil
+    use uri/uri.tcl           uri
+}
+testing {
+    useLocal ncgi.tcl ncgi
+}
+
+# -------------------------------------------------------------------------
+
+# Save and clear the CGI environment variables used by the tests.
+set savedEnv {}
+foreach v {HTTP_COOKIE SCRIPT_NAME CONTENT_TYPE REQUEST_METHOD QUERY_STRING} {
+    if {[info exists env($v)]} {
+	lappend savedEnv $v $env($v)
+	unset env($v)
+    }
+}
+unset -nocomplain v
+
+proc setup {query {type {}}} {
+    ncgi::reset $query $type
+    ncgi::parse
+}
+
+# -------------------------------------------------------------------------
+# ::ncgi::cookie
+
+test ncgi-api-1.0 {cookie, wrong # args} -body {
+    ncgi::cookie
+} -returnCodes error -result {wrong # args: should be "ncgi::cookie cookie"}
+
+test ncgi-api-1.1 {cookie, no cookies} -body {
+    ncgi::cookie a
+} -result {}
+
+test ncgi-api-1.2 {cookie, single value} -setup {
+    set env(HTTP_COOKIE) "a=1; b=2"
+} -body {
+    list [ncgi::cookie a] [ncgi::cookie b]
+} -cleanup {
+    unset env(HTTP_COOKIE)
+} -result {1 2}
+
+test ncgi-api-1.3 {cookie, repeated cookie gives a list} -setup {
+    set env(HTTP_COOKIE) "a=1; b=2; a=3"
+} -body {
+    ncgi::cookie a
+} -cleanup {
+    unset env(HTTP_COOKIE)
+} -result {1 3}
+
+test ncgi-api-1.4 {cookie, missing cookie} -setup {
+    set env(HTTP_COOKIE) "a=1; b=2"
+} -body {
+    ncgi::cookie c
+} -cleanup {
+    unset env(HTTP_COOKIE)
+} -result {}
+
+# The value is cut at the second "=".
+test ncgi-api-1.5 {cookie, value containing =} -constraints {
+    knownBug
+} -setup {
+    set env(HTTP_COOKIE) "a=1; b=eA=="
+} -body {
+    ncgi::cookie b
+} -cleanup {
+    unset env(HTTP_COOKIE)
+} -result eA==
+
+# -------------------------------------------------------------------------
+# ::ncgi::empty, ::ncgi::exists
+
+test ncgi-api-2.0 {empty, wrong # args} -body {
+    ncgi::empty
+} -returnCodes error -result {wrong # args: should be "ncgi::empty name"}
+
+test ncgi-api-2.1 {exists, wrong # args} -body {
+    ncgi::exists
+} -returnCodes error -result {wrong # args: should be "ncgi::exists var"}
+
+test ncgi-api-2.2 {empty} -setup {
+    setup "a=&b=x&c"
+} -body {
+    list [ncgi::empty a] [ncgi::empty b] [ncgi::empty nosuch]
+} -result {1 0 1}
+
+test ncgi-api-2.3 {exists} -setup {
+    setup "a=&b=x"
+} -body {
+    list [ncgi::exists a] [ncgi::exists b] [ncgi::exists nosuch]
+} -result {1 1 0}
+
+test ncgi-api-2.4 {exists, after setValue} -setup {
+    setup "a=1"
+} -body {
+    ncgi::setValue new 2
+    ncgi::exists new
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::ncgi::value, ::ncgi::valueList
+
+test ncgi-api-3.0 {value, default} -setup {
+    setup "a=1"
+} -body {
+    list [ncgi::value nosuch] [ncgi::value nosuch dflt] [ncgi::value a dflt]
+} -result {{} dflt 1}
+
+test ncgi-api-3.1 {valueList, default} -setup {
+    setup "a=1"
+} -body {
+    list [ncgi::valueList nosuch] [ncgi::valueList nosuch {x y}] [ncgi::valueList a {x y}]
+} -result {{} {x y} 1}
+
+test ncgi-api-3.2 {value after parse, repeated value gives the first} -setup {
+    setup "a=1&a=2&a=3"
+} -body {
+    list [ncgi::value a] [ncgi::valueList a]
+} -result {1 {1 2 3}}
+
+test ncgi-api-3.3 {value after input, List suffix} -setup {
+    ncgi::input "skuList=1&skuList=2&b=x"
+} -body {
+    list [ncgi::value skuList] [ncgi::value b]
+} -result {{1 2} x}
+
+test ncgi-api-3.4 {input, repeated value without List suffix} -body {
+    ncgi::input "a=1&a=2"
+} -returnCodes error -result {Multiple definitions of a encountered in input. If you're trying to do this intentionally (such as with select), the variable must have a "List" suffix.}
+
+test ncgi-api-3.5 {input, result is the list of names} -body {
+    ncgi::input "a=1&skuList=1&skuList=2&b=x"
+} -result {a skuList b}
+
+test ncgi-api-3.6 {parse, result is the list of names} -body {
+    ncgi::reset "a=1&b=2&a=3"
+    ncgi::parse
+} -result {a b}
+
+# -------------------------------------------------------------------------
+# ::ncgi::setValue, ::ncgi::setValueList, ::ncgi::setDefaultValue,
+# ::ncgi::setDefaultValueList
+
+test ncgi-api-4.0 {setValue overrides, nvlist is unaffected} -setup {
+    setup "a=1&b=2"
+} -body {
+    ncgi::setValue a new
+    list [ncgi::value a] [ncgi::valueList a] [ncgi::nvlist]
+} -result {new new {a 1 b 2}}
+
+test ncgi-api-4.1 {setValue, value with spaces} -setup {
+    setup "a=1"
+} -body {
+    ncgi::setValue a "x y"
+    list [ncgi::value a] [ncgi::valueList a]
+} -result {{x y} {{x y}}}
+
+test ncgi-api-4.2 {setValueList} -setup {
+    setup "a=1"
+} -body {
+    list [ncgi::setValueList a {x y z}] [ncgi::value a] [ncgi::valueList a]
+} -result {{} x {x y z}}
+
+test ncgi-api-4.3 {setValueList, new name is added to importAll} -setup {
+    setup "a=1"
+} -body {
+    ncgi::setValueList b {x y}
+    apply {{} {
+	ncgi::importAll
+	list $a $b
+    }}
+} -result {1 x}
+
+test ncgi-api-4.4 {setDefaultValue, missing value} -setup {
+    setup "a=1"
+} -body {
+    list [ncgi::setDefaultValue b dflt] [ncgi::value b] [ncgi::valueList b]
+} -result {{} dflt dflt}
+
+test ncgi-api-4.5 {setDefaultValue, existing value is kept} -setup {
+    setup "a=1"
+} -body {
+    list [ncgi::setDefaultValue a dflt] [ncgi::value a]
+} -result {{} 1}
+
+test ncgi-api-4.6 {setDefaultValueList, missing value} -setup {
+    setup "a=1"
+} -body {
+    list [ncgi::setDefaultValueList b {x y}] [ncgi::value b] [ncgi::valueList b]
+} -result {{} x {x y}}
+
+test ncgi-api-4.7 {setDefaultValueList, existing value is kept} -setup {
+    setup "a=1&a=2"
+} -body {
+    ncgi::setDefaultValueList a {x y}
+    ncgi::valueList a
+} -result {1 2}
+
+test ncgi-api-4.8 {setDefaultValue, nvlist is unaffected} -setup {
+    setup "a=1"
+} -body {
+    ncgi::setDefaultValue b dflt
+    ncgi::nvlist
+} -result {a 1}
+
+test ncgi-api-4.9 {setValue after input} -setup {
+    ncgi::input "a=1"
+} -body {
+    ncgi::setValue a "x y"
+    ncgi::value a
+} -result {x y}
+
+# -------------------------------------------------------------------------
+# ::ncgi::type, ::ncgi::query
+
+test ncgi-api-5.0 {type, no content type} -setup {
+    ncgi::reset
+} -body {
+    ncgi::type
+} -result {}
+
+test ncgi-api-5.1 {type, from reset} -setup {
+    ncgi::reset a=1 application/x-www-form-urlencoded
+} -body {
+    ncgi::type
+} -result application/x-www-form-urlencoded
+
+test ncgi-api-5.2 {query, from reset} -setup {
+    ncgi::reset a=1&b=2
+} -body {
+    ncgi::query
+} -result a=1&b=2
+
+test ncgi-api-5.3 {query, no CGI environment} -setup {
+    ncgi::reset
+} -body {
+    ncgi::query
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::ncgi::urlStub
+
+test ncgi-api-6.0 {urlStub, no URL known} -setup {
+    unset -nocomplain ::ncgi::urlStub
+} -body {
+    ncgi::urlStub
+} -result {}
+
+test ncgi-api-6.1 {urlStub, from SCRIPT_NAME} -setup {
+    unset -nocomplain ::ncgi::urlStub
+    set env(SCRIPT_NAME) /cgi-bin/test.cgi
+} -body {
+    ncgi::urlStub
+} -cleanup {
+    unset env(SCRIPT_NAME)
+    unset -nocomplain ::ncgi::urlStub
+} -result /cgi-bin/test.cgi
+
+test ncgi-api-6.2 {urlStub, set the URL} -setup {
+    unset -nocomplain ::ncgi::urlStub
+    set env(SCRIPT_NAME) /cgi-bin/test.cgi
+} -body {
+    list [ncgi::urlStub /app/page] [ncgi::urlStub] [ncgi::urlStub]
+} -cleanup {
+    unset env(SCRIPT_NAME)
+    unset -nocomplain ::ncgi::urlStub
+} -result {{} /app/page /app/page}
+
+test ncgi-api-6.3 {urlStub, wrong # args} -body {
+    ncgi::urlStub a b
+} -returnCodes error -result {wrong # args: should be "ncgi::urlStub ?url?"}
+
+# -------------------------------------------------------------------------
+# ::ncgi::header, ::ncgi::setCookie
+
+test ncgi-api-7.0 {header, default type} -setup {
+    ncgi::reset
+} -body {
+    ncgi::header
+} -output "Content-Type: text/html\n\n" -result {}
+
+test ncgi-api-7.1 {header, type and extra headers} -setup {
+    ncgi::reset
+} -body {
+    ncgi::header text/plain X-One 1 X-Two {two words}
+} -output "Content-Type: text/plain\nX-One: 1\nX-Two: two words\n\n" -result {}
+
+test ncgi-api-7.2 {setCookie, -path and -domain} -setup {
+    ncgi::reset
+} -body {
+    ncgi::setCookie -name n -value v -path /app -domain example.com
+    ncgi::header
+} -output "Content-Type: text/html\nSet-Cookie: n=v ; path=/app ; domain=example.com ;\n\n" -result {}
+
+test ncgi-api-7.3 {setCookie, -expires in GMT format} -setup {
+    ncgi::reset
+} -body {
+    ncgi::setCookie -name n -value v -expires "Friday, 02-Jan-2026 03:04:05 GMT"
+    ncgi::header
+} -output "Content-Type: text/html\nSet-Cookie: n=v ; expires=Friday, 02-Jan-2026 03:04:05 GMT ;\n\n" -result {}
+
+test ncgi-api-7.4 {setCookie, -expires is converted to GMT format} -setup {
+    ncgi::reset
+} -body {
+    ncgi::setCookie -name n -value v -expires 20260102T030405Z
+    ncgi::header
+} -output "Content-Type: text/html\nSet-Cookie: n=v ; expires=Friday, 02-Jan-2026 03:04:05 GMT ;\n\n" -result {}
+
+test ncgi-api-7.5 {setCookie, several cookies} -setup {
+    ncgi::reset
+} -body {
+    ncgi::setCookie -name a -value 1
+    ncgi::setCookie -name b -value 2
+    ncgi::header text/plain
+} -output "Content-Type: text/plain\nSet-Cookie: a=1 ;\nSet-Cookie: b=2 ;\n\n" -result {}
+
+test ncgi-api-7.6 {reset forgets the cookies} -setup {
+    ncgi::reset
+} -body {
+    ncgi::setCookie -name a -value 1
+    ncgi::reset
+    ncgi::header
+} -output "Content-Type: text/html\n\n" -result {}
+
+# -------------------------------------------------------------------------
+# ::ncgi::import
+
+test ncgi-api-8.0 {import, empty tclname uses the cgi name} -setup {
+    setup "a=1&b=2"
+} -body {
+    apply {{} {
+	ncgi::import a {}
+	set a
+    }}
+} -result 1
+
+test ncgi-api-8.1 {import, missing value gives the empty string} -setup {
+    setup "a=1"
+} -body {
+    apply {{} {
+	ncgi::import nosuch v
+	set v
+    }}
+} -result {}
+
+# -------------------------------------------------------------------------
+# ::ncgi::encode, ::ncgi::decode
+
+test ncgi-api-9.0 {encode, reserved characters} -body {
+    ncgi::encode "a b&c=d/e?f%g+h#i"
+} -result a+b%26c%3Dd%2Fe%3Ff%25g%2Bh%23i
+
+test ncgi-api-9.1 {encode/decode round trip, ASCII} -body {
+    # Newline is encoded as CRLF (see ncgi-4.4), double quote see below.
+    set s {}
+    for {set i 1} {$i < 128} {incr i} {
+	if {$i == 10 || $i == 34} continue
+	append s [format %c $i]
+    }
+    string equal $s [ncgi::decode [ncgi::encode $s]]
+} -cleanup {
+    unset s i
+} -result 1
+
+test ncgi-api-9.1.1 {encode, double quote, Tcl 8} -constraints {
+    tcl8.6only
+} -body {
+    ncgi::encode {a"b}
+} -result a%22b
+
+# Fails with "invalid character in array index" (TIP 465, see also
+# ticket 1f29f7baf9).
+test ncgi-api-9.1.2 {encode, double quote, Tcl 9} -constraints {
+    tcl9plus knownBug
+} -body {
+    ncgi::encode {a"b}
+} -result a%22b
+
+test ncgi-api-9.2 {encode/decode round trip, Latin-1} -body {
+    ncgi::decode [ncgi::encode "café"]
+} -result "café"
+
+# Ticket 1f29f7baf9: characters above U+00FF cannot be encoded.
+test ncgi-api-9.3 {encode/decode round trip, characters above U+00FF} -constraints {
+    knownBug
+} -body {
+    ncgi::decode [ncgi::encode "ą†"]
+} -result "ą†"
+
+# Ticket 66063baec4: 4-byte UTF-8 sequences are not decoded.
+test ncgi-api-9.4 {decode, 4-byte UTF-8 sequence} -constraints {
+    knownBug
+} -body {
+    ncgi::decode %F0%A0%AE%B7
+} -result "\U20BB7"
+
+test ncgi-api-9.5 {decode, wrong # args} -body {
+    ncgi::decode
+} -returnCodes error -result {wrong # args: should be "ncgi::decode str"}
+
+test ncgi-api-9.6 {encode, wrong # args} -body {
+    ncgi::encode
+} -returnCodes error -result {wrong # args: should be "ncgi::encode string"}
+
+# -------------------------------------------------------------------------
+
+ncgi::reset
+foreach {v val} $savedEnv {set env($v) $val}
+unset -nocomplain savedEnv v val
+rename setup {}
+testsuiteCleanup
+return
