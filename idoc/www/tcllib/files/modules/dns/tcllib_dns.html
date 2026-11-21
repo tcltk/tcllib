@@ -290,20 +290,20 @@ be found then the loopback address (127.0.0.1) is used as a default.</p></dd>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
 <pre class="doctools_example">
-% set tok [dns::resolve www.tcl.tk]
+% set tok [dns::resolve www.tcl-lang.org]
 ::dns::1
 % dns::status $tok
 ok
 % dns::address $tok
 199.175.6.239
 % dns::name $tok
-www.tcl.tk
+www.tcl-lang.org
 % dns::cleanup $tok
 </pre>
 <p>Using DNS URIs as queries:</p>
 <pre class="doctools_example">
-% set tok [dns::resolve &quot;dns:tcl.tk;type=MX&quot;]
-% set tok [dns::resolve &quot;dns://l.root-servers.net/www.tcl.tk&quot;]
+% set tok [dns::resolve &quot;dns:tcl-lang.org;type=MX&quot;]
+% set tok [dns::resolve &quot;dns://l.root-servers.net/www.tcl-lang.org&quot;]
 </pre>
 <p>Reverse address lookup:</p>
 <pre class="doctools_example">
@@ -315,7 +315,7 @@ localhost
 </pre>
 <p>Using DNS over TLS (RFC 7858):</p>
 <pre class="doctools_example">
-% set tok [dns::resolve www.tcl.tk -nameserver dns-tls.bitwiseshift.net  -usetls 1 -cafile /etc/ssl/certs/ca-certificates.crt]
+% set tok [dns::resolve www.tcl-lang.org -nameserver dns-tls.bitwiseshift.net  -usetls 1 -cafile /etc/ssl/certs/ca-certificates.crt]
 ::dns::12
 % dns::wait $tok
 ok
@@ -357,7 +357,7 @@ ok
 <p>If you find errors in this document or bugs or problems with the
 package it describes, or if you want to suggest improvements for the
 documentation or the package, please use the
-<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a> and specify 
+<a href="https://core.tcl-lang.org/tcllib/reportlist">Tcllib Trackers</a> and specify 
 <em>dns</em> as the category.</p>
 <p>When proposing code changes, please provide <em>unified diffs</em>,
 i.e the output of <b class="const">diff -u</b>.</p>
