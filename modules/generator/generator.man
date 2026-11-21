@@ -232,8 +232,7 @@ The following commands are provided as a standard library of generator
 combinators and functions that perform convenience operations on generators. The
 functions in this section are loosely modelled on the equivalent functions from
 the Haskell Prelude. [emph Warning:] most of the functions in this prelude
-destroy any generator arguments they are passed as a side-effect. If you want to
-have persistent generators, see the streams library.
+destroy any generator arguments they are passed as a side-effect.
 
 [list_begin definitions]
 
@@ -307,7 +306,7 @@ is both very clear and also quite efficient (in both memory and running time):
 [para]
 [example {
     proc * {x y} { expr {$x * $y} }
-    proc prod gen { generator reduce * 0 $gen }
+    proc prod gen { generator reduce * 1 $gen }
     proc fac n { prod [range 1 $n] }
 }]
 
@@ -342,10 +341,10 @@ Returns true if all elements of the generator satisfy the given predicate.
 Returns true if all elements of the generator are true (i.e., takes the logical
 conjunction of the elements).
 
-[call [cmd generator] [method any] [arg generator]]
+[call [cmd generator] [method any] [arg predicate] [arg generator]]
 
-Returns true if any of the elements of the generator are true (i.e., logical
-disjunction).
+Returns true if any of the elements of the generator satisfy the given
+predicate.
 
 [call [cmd generator] [method concat] [arg generator] [opt [arg generator..]]]
 
@@ -465,8 +464,22 @@ using the string "|" as a delimiter:
 [para]
 [example {
     set xs [generator from list {a | b | c}]
-    generator split {string equal "|"} $xs ;# returns a then b then c
+    generator splitWhen {string equal "|"} $xs ;# yields a then b then c
 }]
+
+[call [cmd generator] [method zipWith] [arg function] [arg generator1] [arg generator2]]
+
+Returns a generator of the results of applying the function to the
+corresponding elements of the two generators, i.e. to the first element of
+each, then to the second element of each, and so on. Like [method foreach], it
+continues until both generators are exhausted, using the empty string for the
+missing elements of the shorter one.
+
+[call [cmd generator] [method zip] [arg generator1] [arg generator2]]
+
+Returns a generator of pairs (two-element lists) of corresponding elements of
+the two generators. Equivalent to [method zipWith] with the function
+[cmd list].
 
 [call [cmd generator] [method scanl] [arg function] [arg zero] [arg generator]]
 
