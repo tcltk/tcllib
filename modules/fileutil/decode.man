@@ -1,0 +1,221 @@
+[comment {-*- tcl -*- doctools manpage}]
+[vset VERSION 0.2.2]
+[manpage_begin fileutil::decode n [vset VERSION]]
+[keywords {binary data}]
+[keywords decoder]
+[keywords {file utilities}]
+[keywords parsing]
+[copyright {2008-2009 ActiveState Software Inc., Andreas Kupries}]
+[copyright {2016 Andreas Kupries}]
+[moddesc   {file utilities}]
+[titledesc {Building blocks for binary file decoders}]
+[category  {Programming tools}]
+[require Tcl "8.5 9"]
+[require fileutil::decode [opt [vset VERSION]]]
+[description]
+[para]
+
+This package provides low-level commands which help writing decoders
+for binary file formats. The package [package zipfile::decode] is built
+on it.
+
+[para]
+
+A decoder opens a file, reads its fields one by one, optionally
+converts them, and collects them in a result buffer. The package keeps
+a single state: one open file, the [term {current value}] (the last
+field read, or its converted form), one [term mark] (a remembered file
+position) and the [term {result buffer}]. Only one file can be decoded
+at a time.
+
+[para]
+
+All commands live in the namespace [namespace ::fileutil::decode].
+All of them except [cmd open] and [cmd close] are exported, so a
+decoder can import them with
+
+[example {namespace import ::fileutil::decode::*}]
+
+and has to call [cmd open] and [cmd close] by their qualified names.
+
+[section {File access}]
+
+[list_begin definitions]
+
+[call [cmd ::fileutil::decode::open] [arg fname]]
+
+Opens the file [arg fname] for reading in binary mode. All other
+commands operate on this file.
+
+[call [cmd ::fileutil::decode::close]]
+
+Closes the file opened by [cmd open].
+
+[call [cmd ::fileutil::decode::at]]
+
+Returns the current read position in the file, as an offset in bytes
+from its start.
+
+[call [cmd ::fileutil::decode::go] [arg offset]]
+
+Moves the read position to [arg offset] bytes from the start of the
+file.
+
+[call [cmd ::fileutil::decode::skip] [arg n]]
+
+Moves the read position [arg n] bytes forward without reading.
+
+[call [cmd ::fileutil::decode::mark]]
+
+Remembers the current read position as the mark, replacing a previous
+mark.
+
+[call [cmd ::fileutil::decode::rewind]]
+
+Moves the read position back to the mark and forgets the mark.
+
+Throws an error with the error code [const {FILE DECODE NO MARK}] if
+there is no mark.
+
+[list_end]
+
+[section {Reading values}]
+
+Each of these commands reads a field at the current read position,
+advances the position, and makes the field the current value.
+
+[list_begin definitions]
+
+[call [cmd ::fileutil::decode::byte]]
+
+Reads one byte as a signed 8-bit integer.
+
+[call [cmd ::fileutil::decode::short-le]]
+
+Reads two bytes as a signed 16-bit integer in little-endian byte
+order.
+
+[call [cmd ::fileutil::decode::long-le]]
+
+Reads four bytes as a signed 32-bit integer in little-endian byte
+order.
+
+[call [cmd ::fileutil::decode::nbytes] [arg n]]
+
+Reads [arg n] bytes as a binary string.
+
+[list_end]
+
+[section {Working with the current value}]
+
+[list_begin definitions]
+
+[call [cmd ::fileutil::decode::getval]]
+
+Returns the current value.
+
+[call [cmd ::fileutil::decode::unsigned]]
+
+Converts the current value, as read by [cmd byte], [cmd short-le] or
+[cmd long-le], to an unsigned integer of the same width. For example,
+the byte [const 0xff] is read by [cmd byte] as [const -1] and becomes
+[const 255].
+
+It is an error, with the error code
+[const {FILE DECODE ILLEGAL UNSIGNED}], to use this command after
+[cmd nbytes].
+
+[call [cmd ::fileutil::decode::match] [arg expected]]
+
+Compares the current value with [arg expected]. If they are equal, the
+result is [const 1]. Otherwise the read position is moved back to the
+mark as by [cmd rewind] and the result is [const 0]. This allows
+testing for a signature: set a [cmd mark], read the field, and
+[cmd match] it; a mismatch leaves the file where it was before the
+field.
+
+[para]
+
+Integers are compared numerically, so [arg expected] can be given in
+any integer notation, e.g. hexadecimal. Throws the error of
+[cmd rewind] if the values differ and there is no mark.
+
+[call [cmd ::fileutil::decode::recode] [arg cmdprefix]]
+
+Calls the command prefix [arg cmdprefix] with the current value as an
+additional argument, in the context of the caller, and makes its
+result the new current value.
+
+[list_end]
+
+[section {Result buffer}]
+
+The result buffer is a list of alternating names and values, suitable
+for [cmd {array set}] or as a dictionary.
+
+[list_begin definitions]
+
+[call [cmd ::fileutil::decode::clear]]
+
+Empties the result buffer.
+
+[call [cmd ::fileutil::decode::put] [arg name]]
+
+Appends [arg name] and the current value to the result buffer.
+
+[call [cmd ::fileutil::decode::putloc] [arg name]]
+
+Appends [arg name] and the current read position to the result buffer.
+
+[call [cmd ::fileutil::decode::get]]
+
+Returns the contents of the result buffer.
+
+[call [cmd ::fileutil::decode::setbuf] [arg list]]
+
+Replaces the contents of the result buffer with [arg list].
+
+[list_end]
+
+[section EXAMPLE]
+
+A decoder for the header of a BMP image file. It returns the empty
+list if the file does not start with the signature [const BM].
+
+[example {
+package require fileutil::decode
+namespace import ::fileutil::decode::*
+
+proc bmpheader {fname} {
+    fileutil::decode::open $fname
+    clear
+    mark
+    nbytes 2
+    if {![match BM]} {
+        fileutil::decode::close
+        return {}
+    }
+    long-le  ; unsigned ; put filesize
+    skip 4                                ; # reserved
+    long-le  ; unsigned ; put dataoffset
+    long-le  ; unsigned ; put headersize
+    long-le  ;            put width
+    long-le  ;            put height      ; # negative: top-down
+    short-le ; unsigned ; put planes
+    short-le ; unsigned ; put bitcount
+    fileutil::decode::close
+    return [get]
+}
+
+puts [bmpheader image.bmp]
+}]
+
+For a 2x2 image with 24 bits per pixel this prints
+
+[example {
+filesize 70 dataoffset 54 headersize 40 width 2 height 2 planes 1 bitcount 24
+}]
+
+[vset CATEGORY fileutil]
+[include ../common-text/feedback.inc]
+[manpage_end]
