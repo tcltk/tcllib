@@ -1,0 +1,1231 @@
+# ldapx-api.test                                              -*- tcl -*-
+#
+# API tests for the Tcllib ldapx package, completing ldapx.test: entry
+# methods not covered there, the ldif class (read/write) and the ldap
+# class, run against a fake LDAP server inside this process on 127.0.0.1
+# (random port, see test-assets/fakeldap.tcl). No external server and no
+# TLS is used.
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use asn/asn.tcl       asn
+    use snit/snit.tcl     snit
+    use uri/uri.tcl       uri
+    use base64/base64.tcl base64
+    useLocal ldap.tcl     ldap
+}
+testing {
+    useLocal ldapx.tcl ldapx
+}
+
+source [asset fakeldap.tcl]
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Write LDIF text to a file and open it for reading.
+proc ldiffile {text} {
+    set f [makeFile {} ldapx-api.ldif]
+    set c [open $f w]
+    fconfigure $c -encoding utf-8
+    puts -nonewline $c $text
+    close $c
+    set c [open $f r]
+    fconfigure $c -encoding utf-8
+    return $c
+}
+
+# Open the LDIF file for writing.
+proc ldifout {} {
+    set c [open [makeFile {} ldapx-api.ldif] w]
+    fconfigure $c -encoding utf-8
+    return $c
+}
+
+# Contents of the LDIF file.
+proc ldiftext {} {
+    set c [open [file join [temporaryDirectory] ldapx-api.ldif] r]
+    fconfigure $c -encoding utf-8
+    set t [read $c]
+    close $c
+    return $t
+}
+
+proc sorted {avpairs} {
+    set r {}
+    foreach {a v} $avpairs {lappend r [list $a $v]}
+    return [lsort $r]
+}
+
+proc url {} {
+    return ldap://127.0.0.1:$fakeldap::port
+}
+
+# -------------------------------------------------------------------------
+# entry class: methods and cases not covered by ldapx.test
+# -------------------------------------------------------------------------
+
+test ldapx-api-1.1 {entry print: standard entry} -setup {
+    ::ldapx::entry create e
+} -body {
+    e dn uid=joe,ou=people,o=org
+    e set1 uid joe
+    e set objectClass {person top}
+    e print
+} -cleanup {
+    e destroy
+} -result "dn: uid=joe,ou=people,o=org\nobjectclass: person top\nuid: joe"
+
+test ldapx-api-1.2 {entry print: change entry} -setup {
+    ::ldapx::entry create c
+} -body {
+    c dn uid=joe,ou=people,o=org
+    c change {{del}}
+    c print
+} -cleanup {
+    c destroy
+} -result "dn: uid=joe,ou=people,o=org\n{del}"
+
+test ldapx-api-1.3 {entry getall/setall} -setup {
+    ::ldapx::entry create e
+} -body {
+    e setall {UID joe CN {{Joe User}} objectClass {person top}}
+    list [sorted [e getall]] [lsort [e getattr]]
+} -cleanup {
+    e destroy
+} -result {{{cn {{Joe User}}} {objectclass {person top}} {uid joe}} {cn objectclass uid}}
+
+test ldapx-api-1.4 {entry setall: replaces all attributes} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set1 sn User
+    e setall {uid joe}
+    e getall
+} -cleanup {
+    e destroy
+} -result {uid joe}
+
+test ldapx-api-1.5 {entry get/get1: missing attribute} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set1 uid joe
+    list [e get mail] [e get1 mail]
+} -cleanup {
+    e destroy
+} -result {{} {}}
+
+test ldapx-api-1.6 {entry: attribute names are case insensitive} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set TelephoneNumber {+1 +2}
+    e add1 TELEPHONENUMBER +3
+    list [e get telephonenumber] [e getattr]
+} -cleanup {
+    e destroy
+} -result {{+1 +2 +3} telephonenumber}
+
+test ldapx-api-1.7 {entry set: empty list deletes the attribute} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set mail {a@example.org}
+    e set mail {}
+    list [e getattr] [e isempty]
+} -cleanup {
+    e destroy
+} -result {{} 1}
+
+test ldapx-api-1.8 {entry set1: empty value deletes the attribute} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set1 mail a@example.org
+    e set1 mail {}
+    e getattr
+} -cleanup {
+    e destroy
+} -result {}
+
+test ldapx-api-1.9 {entry set/set1/add return the values} -setup {
+    ::ldapx::entry create e
+} -body {
+    list [e set mail {a b}] [e set1 sn User] [e add mail {c}] [e add1 mail d]
+} -cleanup {
+    e destroy
+} -result {{a b} User {a b c} {a b c d}}
+
+test ldapx-api-1.10 {entry del: values not present} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set mail {a b}
+    e del mail {x y}
+    e get mail
+} -cleanup {
+    e destroy
+} -result {a b}
+
+test ldapx-api-1.11 {entry del: last value removes the attribute} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set mail {a b}
+    e del mail {a b}
+    e getattr
+} -cleanup {
+    e destroy
+} -result {}
+
+test ldapx-api-1.12 {entry del1: removes all occurrences of the value} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set mail {a b a}
+    e del1 mail a
+    e get mail
+} -cleanup {
+    e destroy
+} -result {b}
+
+test ldapx-api-1.13 {entry: standard method on a change entry} -setup {
+    ::ldapx::entry create c
+    c change {}
+} -body {
+    c get uid
+} -cleanup {
+    c destroy
+} -returnCodes error -result {Invalid operation on format change (should be standard)}
+
+test ldapx-api-1.14 {entry: change method on a standard entry} -setup {
+    ::ldapx::entry create e
+    e set1 uid joe
+} -body {
+    e change
+} -cleanup {
+    e destroy
+} -returnCodes error -result {Invalid operation on format standard (should be change)}
+
+test ldapx-api-1.15 {entry reset: allows a new format} -setup {
+    ::ldapx::entry create e
+} -body {
+    e set1 uid joe
+    e dn uid=joe,o=org
+    e reset
+    list [e dn] [e change {{del}}]
+} -cleanup {
+    e destroy
+} -result {{} {{del}}}
+
+test ldapx-api-1.16 {entry change: get and set the change list} -setup {
+    ::ldapx::entry create c
+} -body {
+    list [c change] [c change {{modrdn uid=jo 1}}] [c change]
+} -cleanup {
+    c destroy
+} -result {{} {{modrdn uid=jo 1}} {{modrdn uid=jo 1}}}
+
+test ldapx-api-1.17 {entry diff: returns the change list} -setup {
+    ::ldapx::entry create e
+    ::ldapx::entry create c
+} -body {
+    e dn uid=joe,o=org
+    e set1 uid joe
+    e backup
+    e set1 sn User
+    list [c diff e] [c dn]
+} -cleanup {
+    e destroy
+    c destroy
+} -result {{{mod {{modadd sn User}}}} uid=joe,o=org}
+
+test ldapx-api-1.18 {entry diff: no differences} -setup {
+    ::ldapx::entry create e
+    ::ldapx::entry create c
+} -body {
+    e dn uid=joe,o=org
+    e set1 uid joe
+    e backup
+    c diff e
+} -cleanup {
+    e destroy
+    c destroy
+} -result {}
+
+test ldapx-api-1.19 {entry restore: without backup} -setup {
+    ::ldapx::entry create e
+    e set1 uid joe
+} -body {
+    e restore
+} -cleanup {
+    e destroy
+} -returnCodes error -result {Cannot restore a non backuped object}
+
+test ldapx-api-1.20 {entry swap: without backup} -setup {
+    ::ldapx::entry create e
+    e set1 uid joe
+} -body {
+    e swap
+} -cleanup {
+    e destroy
+} -returnCodes error -result {Cannot swap a non backuped object}
+
+# rdn/superior split at the first comma; without one, rdn is empty.
+test ldapx-api-1.21 {entry rdn/superior: DN with a single RDN} -constraints {
+    knownBug
+} -setup {
+    ::ldapx::entry create e
+} -body {
+    e dn o=org
+    list [e rdn] [e superior]
+} -cleanup {
+    e destroy
+} -result {o=org {}}
+
+# rdn/superior split at the first comma, even an escaped one.
+test ldapx-api-1.22 {entry rdn/superior: escaped comma in the RDN} -constraints {
+    knownBug
+} -setup {
+    ::ldapx::entry create e
+} -body {
+    e dn {cn=Doe\, John,o=org}
+    list [e rdn] [e superior]
+} -cleanup {
+    e destroy
+} -result {{cn=Doe\, John} o=org}
+
+test ldapx-api-1.23 {entry dn: returns the new DN} -setup {
+    ::ldapx::entry create e
+} -body {
+    e dn uid=joe,o=org
+} -cleanup {
+    e destroy
+} -result uid=joe,o=org
+
+# -------------------------------------------------------------------------
+# ldif class: reading
+# -------------------------------------------------------------------------
+
+test ldapx-api-2.1 {ldif read: standard entries} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "version: 1\n\ndn: uid=joe,o=org\nuid: joe\nobjectClass: person\nobjectClass: top\n\ndn: uid=ann,o=org\nuid: ann\n"]
+    li channel $c
+} -body {
+    set r [li read e]
+    lappend r [e format] [e dn] [sorted [e getall]]
+    lappend r [li read e] [e dn] [e getall]
+    lappend r [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c r
+} -result {1 standard uid=joe,o=org {{objectclass {person top}} {uid joe}}\
+    1 uid=ann,o=org {uid ann} 0 {}}
+
+test ldapx-api-2.2 {ldif read: without version line} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\nuid: joe\n"]
+    li channel $c
+} -body {
+    list [li read e] [e dn] [e getall]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 uid=joe,o=org {uid joe}}
+
+test ldapx-api-2.3 {ldif read: base64 encoded UTF-8 value} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\ncn:: [base64::encode [encoding convertto utf-8 "йосип"]]\n"]
+    li channel $c
+} -body {
+    li read e
+    e get1 cn
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result "йосип"
+
+test ldapx-api-2.4 {ldif read: -utf8 excludes binary attributes} -setup {
+    ::ldapx::ldif create li -utf8 {{.*} {jpegphoto}}
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\njpegPhoto:: [base64::encode \xc3\xa9\xff]\n"]
+    li channel $c
+} -body {
+    li read e
+    binary scan [e get1 jpegphoto] H* hex
+    list [li cget -utf8] $hex
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c hex
+} -result {{{.*} {jpegphoto}} c3a9ff}
+
+test ldapx-api-2.5 {ldif read: -ignore attributes} -setup {
+    ::ldapx::ldif create li -ignore {replica time}
+    ::ldapx::entry create e
+    set c [ldiffile "replica: host:389\ntime: 1234\ndn: uid=joe,o=org\nchangetype: delete\n"]
+    li channel $c
+} -body {
+    list [li read e] [e format] [e dn] [e change] [li cget -ignore]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 change uid=joe,o=org del {replica time}}
+
+test ldapx-api-2.6 {ldif read: change entry modify} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\nchangetype: modify\nadd: mail\nmail: a@example.org\nmail: b@example.org\n-\ndelete: pager\n-\nreplace: sn\nsn: User\n-\n"]
+    li channel $c
+} -body {
+    list [li read e] [e change]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 {{mod {modadd mail {a@example.org b@example.org}} {moddel pager {}} {modrepl sn User}}}}
+
+test ldapx-api-2.7 {ldif read: change entry add} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\nchangetype: add\nuid: joe\n"]
+    li channel $c
+} -body {
+    list [li read e] [e change]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 {{add {uid joe}}}}
+
+test ldapx-api-2.8 {ldif read: change entry modrdn} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\nchangetype: modrdn\nnewrdn: uid=jo\ndeleteoldrdn: 0\n\ndn: uid=ann,o=org\nchangetype: modrdn\nnewrdn: uid=an\ndeleteoldrdn: 1\nnewsuperior: ou=x,o=org\n"]
+    li channel $c
+} -body {
+    list [li read e] [e change] [li read e] [e change]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 {{modrdn uid=jo 0}} 1 {{modrdn uid=an 1 ou=x,o=org}}}
+
+test ldapx-api-2.9 {ldif read: empty file} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile ""]
+    li channel $c
+} -body {
+    list [li read e] [li error] [e format]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {0 {} uninitialized}
+
+test ldapx-api-2.10 {ldif read: unsupported version} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "version: 2\n\ndn: uid=joe,o=org\nuid: joe\n"]
+    li channel $c
+} -body {
+    list [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {0 {unrecognized version '2'}}
+
+test ldapx-api-2.11 {ldif read: version not at the beginning} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "version: 1\n\ndn: uid=joe,o=org\nuid: joe\n\nversion: 1\n\ndn: uid=ann,o=org\nuid: ann\n"]
+    li channel $c
+} -body {
+    list [li read e] [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 0 {version attribute allowed only at the beginning of the LDIF file}}
+
+test ldapx-api-2.12 {ldif read: line without colon} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\nbogus line\n"]
+    li channel $c
+} -body {
+    list [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {0 {2: invalid syntax}}
+
+test ldapx-api-2.13 {ldif read: entry without dn} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "uid: joe\n"]
+    li channel $c
+} -body {
+    list [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {0 {Syntax error before line 1}}
+
+test ldapx-api-2.14 {ldif read: incomplete modrdn} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\nchangetype: modrdn\n"]
+    li channel $c
+} -body {
+    list [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {0 {Premature EOF}}
+
+test ldapx-api-2.15 {ldif read: channel not initialized} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+} -body {
+    li read e
+} -cleanup {
+    li destroy
+    e destroy
+} -returnCodes error -result {Channel not initialized}
+
+# read checks compatibility with "change" for standard entries too.
+test ldapx-api-2.16 {ldif read: standard entry in a change file} -constraints {
+    knownBug
+} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=joe,o=org\nchangetype: delete\n\ndn: uid=ann,o=org\nuid: ann\n"]
+    li channel $c
+} -body {
+    list [li read e] [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 0 {Standard entry not allowed in LDIF change file}}
+
+# read checks compatibility with "change" for standard entries too.
+test ldapx-api-2.17 {ldif read: change entry in a standard file} -constraints {
+    knownBug
+} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "dn: uid=ann,o=org\nuid: ann\n\ndn: uid=joe,o=org\nchangetype: delete\n"]
+    li channel $c
+} -body {
+    list [li read e] [li read e] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 0 {Change entry not allowed in LDIF standard file}}
+
+test ldapx-api-2.18 {ldif channel: resets the state} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldiffile "version: 1\n\ndn: uid=joe,o=org\nuid: joe\n"]
+} -body {
+    li channel $c
+    set r [li read e]
+    seek $c 0
+    # after channel, the version line is allowed again
+    li channel $c
+    lappend r [li read e] [e dn]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c r
+} -result {1 1 uid=joe,o=org}
+
+test ldapx-api-2.19 {ldif error: get and set} -setup {
+    ::ldapx::ldif create li
+} -body {
+    list [li error] [li error "my message"] [li error]
+} -cleanup {
+    li destroy
+} -result {{} {my message} {my message}}
+
+# -------------------------------------------------------------------------
+# ldif class: writing
+# -------------------------------------------------------------------------
+
+test ldapx-api-3.1 {ldif write: standard entry} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldifout]
+    li channel $c
+} -body {
+    e dn uid=joe,o=org
+    e set objectClass {person top}
+    set r [li write e]
+    close $c
+    list $r [ldiftext]
+} -cleanup {
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c r
+} -result [list 1 "version: 1\n\ndn: uid=joe,o=org\nobjectclass: person\nobjectclass: top\n\n"]
+
+test ldapx-api-3.2 {ldif write: non-ASCII value is base64 encoded UTF-8} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldifout]
+    li channel $c
+} -body {
+    e dn uid=joe,o=org
+    e set1 cn "йосип"
+    li write e
+    close $c
+    ldiftext
+} -cleanup {
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result "version: 1\n\ndn: uid=joe,o=org\ncn:: [base64::encode [encoding convertto utf-8 "йосип"]]\n\n"
+
+test ldapx-api-3.3 {ldif write: change entries} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create c1
+    set c [ldifout]
+    li channel $c
+} -body {
+    c1 dn uid=joe,o=org
+    c1 change {{mod {{modadd mail {a@x b@x}} {moddel pager {}} {modrepl sn User}}}}
+    li write c1
+    c1 change {{del}}
+    li write c1
+    c1 change {{modrdn uid=jo 1 ou=x,o=org}}
+    li write c1
+    c1 change {{add {uid jo}}}
+    li write c1
+    close $c
+    ldiftext
+} -cleanup {
+    li destroy
+    c1 destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result [join {
+    {version: 1}
+    {}
+    {dn: uid=joe,o=org}
+    {changetype: modify}
+    {add: mail}
+    {mail: a@x}
+    {mail: b@x}
+    {-}
+    {delete: pager}
+    {-}
+    {replace: sn}
+    {sn: User}
+    {-}
+    {}
+    {dn: uid=joe,o=org}
+    {changetype: delete}
+    {}
+    {dn: uid=joe,o=org}
+    {changetype: modrdn}
+    {newrdn: uid=jo}
+    {deleteOldRDN: 1}
+    {newSuperior: ou=x,o=org}
+    {}
+    {dn: uid=joe,o=org}
+    {changetype: add}
+    {uid: jo}
+    {}
+    {}
+} \n]
+
+test ldapx-api-3.4 {ldif write: written change entries can be read back} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create c1
+    set c [ldifout]
+    li channel $c
+} -body {
+    c1 dn uid=joe,o=org
+    c1 change {{modrdn uid=jo 0}}
+    li write c1
+    c1 change {{mod {{modrepl sn User}}}}
+    li write c1
+    close $c
+    set c [open [file join [temporaryDirectory] ldapx-api.ldif]]
+    li channel $c
+    list [li read c1] [c1 change] [li read c1] [c1 change] [li read c1]
+} -cleanup {
+    close $c
+    li destroy
+    c1 destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 {{modrdn uid=jo 0}} 1 {{mod {modrepl sn User}}} 0}
+
+# write does not count standard entries, so "version: 1" is repeated.
+test ldapx-api-3.5 {ldif write: written standard entries can be read back} -constraints {
+    knownBug
+} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldifout]
+    li channel $c
+} -body {
+    e dn uid=joe,o=org
+    e set1 uid joe
+    li write e
+    e dn uid=ann,o=org
+    e set1 uid ann
+    li write e
+    close $c
+    set c [open [file join [temporaryDirectory] ldapx-api.ldif]]
+    li channel $c
+    list [li read e] [e dn] [li read e] [e dn] [li error]
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result {1 uid=joe,o=org 1 uid=ann,o=org {}}
+
+# WriteLine does not base64 encode values starting with a space.
+test ldapx-api-3.6 {ldif write: value with a leading space round trip} -constraints {
+    knownBug
+} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldifout]
+    li channel $c
+} -body {
+    # RFC 2849: such values must be base64 encoded
+    e dn uid=joe,o=org
+    e set1 description " indented"
+    li write e
+    close $c
+    set c [open [file join [temporaryDirectory] ldapx-api.ldif]]
+    li channel $c
+    li read e
+    e get1 description
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -result { indented}
+
+test ldapx-api-3.7 {ldif write: uninitialized and empty entries write nothing} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    set c [ldifout]
+    li channel $c
+} -body {
+    set r [li write e]
+    e set1 uid {}
+    lappend r [li write e]
+    close $c
+    lappend r [ldiftext]
+} -cleanup {
+    li destroy
+    e destroy
+    removeFile ldapx-api.ldif
+    unset c r
+} -result {1 1 {}}
+
+test ldapx-api-3.8 {ldif write: standard entry after change entry} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+    ::ldapx::entry create c1
+    set c [ldifout]
+    li channel $c
+} -body {
+    c1 dn uid=joe,o=org
+    c1 change {{del}}
+    li write c1
+    e dn uid=ann,o=org
+    e set1 uid ann
+    li write e
+} -cleanup {
+    close $c
+    li destroy
+    e destroy
+    c1 destroy
+    removeFile ldapx-api.ldif
+    unset c
+} -returnCodes error -result {Invalid entry (standard) type for LDIF change file}
+
+test ldapx-api-3.9 {ldif write: channel not initialized} -setup {
+    ::ldapx::ldif create li
+    ::ldapx::entry create e
+} -body {
+    li write e
+} -cleanup {
+    li destroy
+    e destroy
+} -returnCodes error -result {Channel not initialized}
+
+# -------------------------------------------------------------------------
+# ldap class
+# -------------------------------------------------------------------------
+
+test ldapx-api-4.1 {ldap: default options} -setup {
+    ::ldapx::ldap create la
+} -body {
+    list [la cget -scope] [la cget -derefaliases] [la cget -sizelimit] \
+        [la cget -timelimit] [la cget -attrsonly] [la cget -utf8]
+} -cleanup {
+    la destroy
+} -result {sub never 0 0 0 {{.*} {}}}
+
+test ldapx-api-4.2 {ldap error: get and set} -setup {
+    ::ldapx::ldap create la
+} -body {
+    list [la error] [la error "my message"] [la error]
+} -cleanup {
+    la destroy
+} -result {{} {my message} {my message}}
+
+test ldapx-api-4.3 {ldap connect: anonymous, no bind} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la
+} -body {
+    list [la connect [url]] [fakeldap::requests] [la disconnect]
+} -cleanup {
+    la destroy
+    fakeldap::stop
+} -result {1 {} 1}
+
+test ldapx-api-4.4 {ldap connect: with bind DN and password} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la
+} -body {
+    set r [la connect [url] cn=admin,o=org secret]
+    lappend r [fakeldap::requests] [la disconnect]
+    fakeldap::waitrequests 2
+    lappend r [lindex [fakeldap::requests] end]
+} -cleanup {
+    la destroy
+    fakeldap::stop
+    unset r
+} -result {1 {{bind 3 cn=admin,o=org secret 0}} 1 unbind}
+
+test ldapx-api-4.5 {ldap connect: bind failure} -setup {
+    fakeldap::start
+    set fakeldap::results {1 {49 {} {Invalid credentials}}}
+    ::ldapx::ldap create la
+} -body {
+    list [la connect [url] cn=admin,o=org bad] [la error]
+} -cleanup {
+    la destroy
+    fakeldap::stop
+} -result {0 {LDAP error invalidCredentials '': Invalid credentials}}
+
+test ldapx-api-4.6 {ldap connect: connection refused} -setup {
+    set s [socket -server {apply {args {}}} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+    ::ldapx::ldap create la
+} -body {
+    list [la connect ldap://127.0.0.1:$p] [string match "couldn't open socket*" [la error]]
+} -cleanup {
+    la destroy
+    unset s p
+} -result {0 1}
+
+test ldapx-api-4.7 {ldap connect: unrecognized URL scheme} -setup {
+    ::ldapx::ldap create la
+} -body {
+    list [la connect http://127.0.0.1/] [la error]
+} -cleanup {
+    la destroy
+} -result {0 {Unrecognized URL 'http://127.0.0.1/'}}
+
+test ldapx-api-4.8 {ldap: methods need a connection} -setup {
+    ::ldapx::ldap create la
+    ::ldapx::entry create e
+} -body {
+    set r {}
+    foreach script {
+        {la disconnect}
+        {la search o=org (uid=*) {}}
+        {la traverse o=org (uid=*) {} e {}}
+        {la commit e}
+    } {
+        catch $script msg
+        lappend r $msg
+    }
+    set r
+} -cleanup {
+    la destroy
+    e destroy
+    unset r script msg
+} -result {{Object not connected} {Object not connected} {Object not connected}\
+    {Object not connected}}
+
+test ldapx-api-4.9 {ldap traverse: body runs for each entry} -setup {
+    fakeldap::start
+    set fakeldap::entries {
+        {uid=a,o=org {uid a sn {Alpha}}}
+        {uid=b,o=org {uid b sn {Beta}}}
+    }
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    set r {}
+    la traverse o=org (uid=*) {uid sn} e {
+        lappend r [e dn] [e get1 sn]
+    }
+    list $r [lrange [lindex [fakeldap::requests search] 0] 1 8]
+} -cleanup {
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset r
+} -result {{uid=a,o=org Alpha uid=b,o=org Beta} {o=org 2 0 0 0 0 87* {uid sn}}} \
+    -match glob
+
+test ldapx-api-4.10 {ldap traverse: search options} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la -scope one -derefaliases always \
+        -sizelimit 5 -timelimit 6 -attrsonly 1
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    la traverse o=org (uid=*) {} e {}
+    lrange [lindex [fakeldap::requests search] 0] 2 6
+} -cleanup {
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+} -result {1 3 5 6 1}
+
+test ldapx-api-4.11 {ldap traverse: break and continue} -setup {
+    fakeldap::start
+    set fakeldap::entries {
+        {uid=a,o=org {uid a}} {uid=b,o=org {uid b}} {uid=c,o=org {uid c}}
+    }
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    set r {}
+    la traverse o=org (uid=*) {} e {
+        if {[e get1 uid] eq "a"} continue
+        lappend r [e get1 uid]
+        break
+    }
+    # a new search is possible after break
+    lappend r [llength [la search o=org (uid=*) {}]]
+} -cleanup {
+    foreach o [::ldapx::entry info instances] {
+        if {$o ne "::e"} {$o destroy}
+    }
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset r o
+} -result {b 3}
+
+test ldapx-api-4.12 {ldap traverse: error in the body} -setup {
+    fakeldap::start
+    set fakeldap::entries {{uid=a,o=org {uid a}}}
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    list [catch {la traverse o=org (uid=*) {} e {error "body failed"}} msg] \
+        $msg [llength [la search o=org (uid=*) {}]]
+} -cleanup {
+    foreach o [::ldapx::entry info instances] {
+        if {$o ne "::e"} {$o destroy}
+    }
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset msg o
+} -result {1 {body failed} 1}
+
+test ldapx-api-4.13 {ldap traverse: server error} -setup {
+    fakeldap::start
+    set fakeldap::results {5 {32 {} {No such object}}}
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    la traverse o=nowhere (uid=*) {} e {}
+} -cleanup {
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+} -returnCodes error -result {LDAP error noSuchObject : No such object}
+
+test ldapx-api-4.14 {ldap traverse: UTF-8 values are decoded} -setup {
+    fakeldap::start
+    set fakeldap::entries [list [list uid=a,o=org [list \
+        cn [list [encoding convertto utf-8 "йосип"]] \
+        jpegPhoto [list \xc3\xa9]]]]
+    ::ldapx::ldap create la -utf8 {{.*} {jpegphoto}}
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    la traverse o=org (uid=*) {} e {
+        set r [list [e get1 cn] [string length [e get1 jpegphoto]]]
+    }
+    set r
+} -cleanup {
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset r
+} -result [list "йосип" 2]
+
+test ldapx-api-4.15 {ldap search: returns backed-up entries} -setup {
+    fakeldap::start
+    set fakeldap::entries {
+        {uid=a,o=org {uid a}}
+        {uid=b,o=org {uid b}}
+    }
+    ::ldapx::ldap create la
+    la connect [url]
+} -body {
+    set l [la search o=org (uid=*) {uid}]
+    set r {}
+    foreach o $l {
+        lappend r [$o format] [$o dn] [$o getall]
+    }
+    set r
+} -cleanup {
+    foreach o $l {$o destroy}
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset l r o
+} -result {standard uid=a,o=org {uid a} standard uid=b,o=org {uid b}}
+
+test ldapx-api-4.16 {ldap read: number of entries, fills given entries} -setup {
+    fakeldap::start
+    set fakeldap::entries {
+        {uid=a,o=org {uid a}}
+        {uid=b,o=org {uid b}}
+        {uid=c,o=org {uid c}}
+    }
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create e1
+    ::ldapx::entry create e2
+} -body {
+    list [la read o=org (uid=*) e1 e2] [e1 dn] [e2 getall] \
+        [la read o=org (uid=*)] [lindex [fakeldap::requests search] 0 8]
+} -cleanup {
+    e1 destroy
+    e2 destroy
+    foreach o [::ldapx::entry info instances] {$o destroy}
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset -nocomplain o
+} -result {3 uid=a,o=org {uid b} 3 {}}
+
+# read never destroys its temporary entry.
+test ldapx-api-4.17 {ldap read: does not leak entry objects} -constraints {
+    knownBug
+} -setup {
+    fakeldap::start
+    set fakeldap::entries {{uid=a,o=org {uid a}}}
+    ::ldapx::ldap create la
+    la connect [url]
+} -body {
+    set before [llength [::ldapx::entry info instances]]
+    la read o=org (uid=*)
+    expr {[llength [::ldapx::entry info instances]] - $before}
+} -cleanup {
+    foreach o [::ldapx::entry info instances] {$o destroy}
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset -nocomplain before o
+} -result 0
+
+test ldapx-api-4.18 {ldap commit: change entries} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create c1
+    ::ldapx::entry create c2
+    ::ldapx::entry create c3
+    ::ldapx::entry create c4
+} -body {
+    c1 dn uid=a,o=org
+    c1 change {{add {uid a objectclass {person top}}}}
+    c2 dn uid=b,o=org
+    c2 change {{mod {{modadd mail x@o} {moddel pager {}} {modrepl sn B}}}}
+    c3 dn uid=c,o=org
+    c3 change {{modrdn uid=cc 1} {modrdn uid=ccc 0 ou=x,o=org}}
+    c4 dn uid=d,o=org
+    c4 change {{del}}
+    list [la commit c1 c2 c3 c4] [fakeldap::requests]
+} -cleanup {
+    foreach o {c1 c2 c3 c4} {$o destroy}
+    la disconnect
+    la destroy
+    fakeldap::stop
+    unset o
+} -result {1 {{add uid=a,o=org {uid a objectclass {person top}}}\
+    {modify uid=b,o=org {{replace sn B} {add mail x@o} {delete pager {}}}}\
+    {modifyDN uid=c,o=org uid=cc 1} {modifyDN uid=c,o=org uid=ccc 0 ou=x,o=org}\
+    {delete uid=d,o=org}}}
+
+test ldapx-api-4.19 {ldap commit: standard entry with backup} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    e dn uid=a,o=org
+    e set1 uid a
+    e backup
+    e set1 sn Alpha
+    list [la commit e] [fakeldap::requests]
+} -cleanup {
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+} -result {1 {{modify uid=a,o=org {{add sn Alpha}}}}}
+
+test ldapx-api-4.20 {ldap commit: values are UTF-8 encoded} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create c1
+} -body {
+    c1 dn uid=a,o=org
+    c1 change [list [list mod [list [list modrepl cn "йосип"]]]]
+    la commit c1
+    lindex [fakeldap::requests] 0 2 0 2
+} -cleanup {
+    c1 destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+} -result [list [encoding convertto utf-8 "йосип"]]
+
+test ldapx-api-4.21 {ldap commit: server error} -setup {
+    fakeldap::start
+    set fakeldap::results {11 {32 {} {No such object}}}
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create c1
+} -body {
+    c1 dn uid=a,o=org
+    c1 change {{del}}
+    list [la commit c1] [la error]
+} -cleanup {
+    c1 destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+} -result {0 {LDAP error noSuchObject '': No such object}}
+
+test ldapx-api-4.22 {ldap commit: uninitialized entry} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la
+    la connect [url]
+    ::ldapx::entry create e
+} -body {
+    la commit e
+} -cleanup {
+    e destroy
+    la disconnect
+    la destroy
+    fakeldap::stop
+} -returnCodes error -result {Uninitialized entry}
+
+test ldapx-api-4.23 {ldap disconnect: methods fail afterwards} -setup {
+    fakeldap::start
+    ::ldapx::ldap create la
+    la connect [url]
+} -body {
+    list [la disconnect] [catch {la disconnect} msg] $msg
+} -cleanup {
+    la destroy
+    fakeldap::stop
+    unset msg
+} -result {1 1 {Object not connected}}
+
+# -------------------------------------------------------------------------
+rename ldiffile {}
+rename ldifout {}
+rename ldiftext {}
+rename sorted {}
+rename url {}
+namespace delete ::fakeldap
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
