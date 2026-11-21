@@ -31,6 +31,11 @@ proc ::json::LoadAccelerator {key} {
 	    if {[catch {package require tcllibc}]} {return 0}
 	    # Check for the jsonc 1.1.1 API we are fixing later.
 	    set r [llength [info commands ::json::many_json2dict_critcl]]
+	    # Wrap the C json2dict to add option processing (-strict).
+	    if {$r && ![llength [info commands ::json::json2dict_critcl_c]]} {
+		rename ::json::json2dict_critcl ::json::json2dict_critcl_c
+		interp alias {} ::json::json2dict_critcl {} ::json::Json2dictCritcl
+	    }
 	}
 	tcl {
 	    variable selfdir
@@ -163,6 +168,22 @@ proc ::json::many-json2dict_critcl {args} {
     eval [linsert $args 0 ::json::many_json2dict_critcl]
 }
 
+# The C parser already rejects invalid characters (except that \f and
+# \v before a number are skipped), but it stops after the first entity.
+# In strict mode all entities are parsed and an error is raised if
+# there is more than one.
+proc ::json::Json2dictCritcl {args} {
+    set jsonText [Json2dictArgs $args strict]
+    if {!$strict} {
+	return [json2dict_critcl_c $jsonText]
+    }
+    set result [many_json2dict_critcl $jsonText]
+    if {[llength $result] > 1} {
+	TrailingText
+    }
+    return [lindex $result 0]
+}
+
 # ### ### ### ######### ######### #########
 ## Initialization: Choose an implementation,
 ## most prefered first. Loads only one of the
@@ -246,6 +267,30 @@ proc ::json::validate {jsonText} {
 }
 
 # ### ### ### ######### ######### #########
+## Helpers for json2dict, shared between Tcl and Critcl implementations.
+
+# Parse the arguments of json2dict: ?-strict? jsonText
+# Returns the JSON text, sets the variable strictVar in the caller.
+proc ::json::Json2dictArgs {arguments strictVar} {
+    upvar 1 $strictVar strict
+    set strict 0
+    if {[llength $arguments] == 2 && [lindex $arguments 0] eq "-strict"} {
+	set strict 1
+	set arguments [lrange $arguments 1 end]
+    }
+    if {[llength $arguments] != 1} {
+	return -code error -level 2 \
+	    "wrong # args: should be \"json::json2dict ?-strict? jsonText\""
+    }
+    return [lindex $arguments 0]
+}
+
+proc ::json::TrailingText {} {
+    return -code error -level 2 -errorcode {JSON TRAILING} \
+	"unexpected trailing text after the JSON entity"
+}
+
+# ### ### ### ######### ######### #########
 ## These three procedures shared between Tcl and Critcl implementations.
 ## See also package "json::write".
 
@@ -280,4 +325,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.3.6
+package provide json 1.3.7

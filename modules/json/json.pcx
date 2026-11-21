@@ -22,6 +22,14 @@ pcx::check 1.0 std ::json::json2dict \
 	checkWord
     }}
 
+pcx::check 1.3.7 std ::json::json2dict \
+    {checkSimpleArgs 1 2 {
+	{checkSwitches 1 {
+	    -strict
+	} {checkSimpleArgs 1 1 {
+	    checkWord
+	}}}
+    }}
 pcx::check 1.2 std ::json::many-json2dict \
     {checkSimpleArgs 1 2 {
 	checkWord checkInt

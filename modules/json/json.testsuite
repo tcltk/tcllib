@@ -100,3 +100,81 @@ foreach first [lsort -dict [array names JSON]] {
 }
 
 # -------------------------------------------------------------------------
+# json2dict -strict
+# -------------------------------------------------------------------------
+
+set i 0
+foreach name [lsort -dict [array names JSON]] {
+    test json-${impl}-10.[incr i] "json2dict -strict, JSON $name" -body {
+	transform [json::json2dict -strict $JSON($name)] $name
+    } -result [resultfor $name]
+}
+
+test json-${impl}-11.0 {json2dict, wrong args, not enough} -body {
+    json::json2dict
+} -returnCodes error -result {wrong # args: should be "json::json2dict ?-strict? jsonText"}
+
+test json-${impl}-11.1 {json2dict, wrong args, too many} -body {
+    json::json2dict -strict {[]} X
+} -returnCodes error -result {wrong # args: should be "json::json2dict ?-strict? jsonText"}
+
+test json-${impl}-11.2 {json2dict, wrong args, bad option} -body {
+    json::json2dict -bogus {[]}
+} -returnCodes error -result {wrong # args: should be "json::json2dict ?-strict? jsonText"}
+
+test json-${impl}-11.3 {json2dict, trailing text ignored by default} -body {
+    json::json2dict {{"a":1} garbage}
+} -result {a 1}
+
+test json-${impl}-11.4 {json2dict, second entity ignored by default} -body {
+    json::json2dict {{"a":1} {"b":2}}
+} -result {a 1}
+
+test json-${impl}-11.5 {json2dict, invalid characters ignored by default} -constraints tcl -body {
+    json::json2dict {{"a": @@ 1}}
+} -result {a 1}
+
+test json-${impl}-11.6 {json2dict -strict, trailing white space} -body {
+    json::json2dict -strict "{\"a\":1} \n\t\r"
+} -result {a 1}
+
+test json-${impl}-11.7 {json2dict -strict, second entity} -body {
+    json::json2dict -strict {{"a":1} {"b":2}}
+} -returnCodes error -result {unexpected trailing text after the JSON entity}
+
+test json-${impl}-11.8 {json2dict -strict, second entity without white space} -body {
+    json::json2dict -strict {truefalse}
+} -returnCodes error -result {unexpected trailing text after the JSON entity}
+
+test json-${impl}-11.9 {json2dict -strict, error code for trailing text} -body {
+    catch {json::json2dict -strict {[1] [2]}}
+    set ::errorCode
+} -result {JSON TRAILING}
+
+test json-${impl}-11.10 {json2dict -strict, trailing garbage} -body {
+    json::json2dict -strict {{"a":1} garbage}
+} -returnCodes error -match glob -result *
+
+test json-${impl}-11.11 {json2dict -strict, invalid characters} -body {
+    json::json2dict -strict {{"a": @@ 1}}
+} -returnCodes error -match glob -result *
+
+test json-${impl}-11.12 {json2dict -strict, invalid characters} -constraints tcl -body {
+    json::json2dict -strict {{"a": @@ 1}}
+} -returnCodes error -result {unexpected character "@" at offset 6}
+
+test json-${impl}-11.13 {json2dict -strict, error code for invalid characters} -constraints tcl -body {
+    catch {json::json2dict -strict {[1] x}}
+    set ::errorCode
+} -result {JSON BAD-CHARACTER 4}
+
+# The C parser accepts \f and \v before numbers (strtod skips them).
+test json-${impl}-11.14 {json2dict -strict, non-JSON white space} -constraints tcl -body {
+    json::json2dict -strict "\[1,\f2\]"
+} -returnCodes error -match glob -result *
+
+test json-${impl}-11.15 {json2dict -strict, garbage after a word} -body {
+    json::json2dict -strict {nullx}
+} -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------

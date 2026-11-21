@@ -14,18 +14,57 @@ if {![package vsatisfies [package provide Tcl] 8.5 9]} {
 }
 
 # Parse JSON text into a dict
+# @param ?-strict? raise an error on invalid characters and trailing text
 # @param jsonText JSON text
 # @return dict (or list) containing the object represented by $jsonText
-proc ::json::json2dict_tcl {jsonText} {
+proc ::json::json2dict_tcl {args} {
     variable tokenRE
 
-    set tokens [regexp -all -inline -- $tokenRE $jsonText]
+    set jsonText [Json2dictArgs $args strict]
+    if {$strict} {
+        set tokens [strictTokens $jsonText]
+    } else {
+        set tokens [regexp -all -inline -- $tokenRE $jsonText]
+    }
     set nrTokens [llength $tokens]
     set tokenCursor 0
 
     #puts I:($jsonText)
     #puts T:\t[join $tokens \nT:\t]
-    return [parseValue $tokens $nrTokens tokenCursor]
+    set result [parseValue $tokens $nrTokens tokenCursor]
+    if {$strict && $tokenCursor < $nrTokens} {
+        TrailingText
+    }
+    return $result
+}
+
+# Split JSON text into tokens, raising an error if there is anything
+# but JSON white space between them.
+# @param jsonText JSON text
+# @return list of tokens
+proc ::json::strictTokens {jsonText} {
+    variable tokenRE
+
+    set tokens {}
+    set pos 0
+    foreach range [regexp -all -inline -indices -- $tokenRE $jsonText] {
+        lassign $range from to
+        checkWhiteSpace $jsonText $pos [expr {$from - 1}]
+        lappend tokens [string range $jsonText $from $to]
+        set pos [expr {$to + 1}]
+    }
+    checkWhiteSpace $jsonText $pos [string length $jsonText]
+    return $tokens
+}
+
+# Throw an exception if the text between two tokens is not JSON white space
+proc ::json::checkWhiteSpace {jsonText from to} {
+    set gap [string range $jsonText $from $to]
+    if {[regexp -indices -- {[^ \t\n\r]} $gap range]} {
+        set offset [expr {$from + [lindex $range 0]}]
+        return -code error -errorcode [list JSON BAD-CHARACTER $offset] \
+            "unexpected character \"[string index $jsonText $offset]\" at offset $offset"
+    }
 }
 
 # Parse multiple JSON entities in a string into a list of dictionaries
