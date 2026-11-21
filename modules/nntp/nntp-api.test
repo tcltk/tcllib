@@ -1,0 +1,1883 @@
+# -*- tcl -*-
+# nntp-api.test:  tests for the documented API of the nntp client.
+#
+# The client uses blocking sockets, so the fake NNTP server runs in a
+# child process.  The child is controlled through its standard input:
+# the tests send it Tcl scripts and read back the results.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal nntp.tcl nntp
+}
+
+# -------------------------------------------------------------------------
+# Child process running scripts sent by the tests.
+
+set childScript {
+    fconfigure stdin  -translation lf -encoding utf-8
+    fconfigure stdout -translation lf -encoding utf-8
+    proc ctl {} {
+	if {[gets stdin n] < 0} {exit}
+	set script [read stdin $n]
+	set code [catch {uplevel #0 $script} res]
+	set reply [list $code $res]
+	puts stdout [string length $reply]
+	puts -nonewline stdout $reply
+	flush stdout
+    }
+    fileevent stdin readable ctl
+    vwait forever
+}
+
+proc srvstart {} {
+    set f [makeFile $::childScript nntpchild.tcl]
+    set ::srvpipe [open |[list [info nameofexecutable] $f] r+]
+    fconfigure $::srvpipe -translation lf -encoding utf-8 -buffering full
+}
+
+proc srv {script} {
+    puts $::srvpipe [string length $script]
+    puts -nonewline $::srvpipe $script
+    flush $::srvpipe
+    set n [gets $::srvpipe]
+    if {![string is integer -strict $n]} {
+	error "server child died"
+    }
+    set reply [read $::srvpipe $n]
+    lassign $reply code res
+    return -code $code $res
+}
+
+proc srvstop {} {
+    catch {close $::srvpipe}
+    unset ::srvpipe
+    removeFile nntpchild.tcl
+}
+
+# -------------------------------------------------------------------------
+# Fake NNTP server (RFC 977 and common extensions), evaluated in the child.
+
+set serverScript {
+    proc reset {} {
+	global log bare posted reply greeting canpost users groups closeafter
+	set log {}
+	set bare {}
+	set posted {}
+	array unset reply
+	array set reply {}
+	set greeting "200 fake news server ready - posting allowed"
+	set canpost 1
+	set users {joe secret}
+	set groups {
+	    comp.lang.tcl  {1 2 3}
+	    alt.test       {}
+	    alt.test-group {1 2 3}
+	}
+	set closeafter 0
+    }
+
+    proc arthead {n} {
+	list "From: user$n@example.com" "Subject: Test $n" \
+	    "Message-ID: <$n@test>" "Newsgroups: comp.lang.tcl"
+    }
+    proc artbody {n} {
+	if {$n == 2} {
+	    return [list "Body of article 2" ".hidden line" "" "..two dots" end]
+	}
+	list "Body of article $n"
+    }
+
+    proc accept {sock host port} {
+	global state greeting
+	fconfigure $sock -translation {binary crlf} -encoding iso8859-1 \
+	    -buffering full -blocking 0
+	set state($sock,group) {}
+	set state($sock,cur) {}
+	set state($sock,user) {}
+	set state($sock,mode) cmd
+	set state($sock,post) {}
+	send $sock $greeting
+	fileevent $sock readable [list readline $sock]
+    }
+
+    proc send {sock args} {
+	foreach line $args {
+	    puts $sock $line
+	}
+	flush $sock
+    }
+
+    # Sends a multi-line block with dot-stuffing.
+    proc block {sock status lines} {
+	puts $sock $status
+	foreach line $lines {
+	    if {[string index $line 0] eq "."} {set line .$line}
+	    puts $sock $line
+	}
+	puts $sock .
+	flush $sock
+	global closeafter
+	if {$closeafter} {closeconn $sock}
+    }
+
+    proc closeconn {sock} {
+	global state
+	array unset state $sock,*
+	close $sock
+    }
+
+    proc readline {sock} {
+	global state log reply posted
+	if {[catch {gets $sock line} n] || $n < 0} {
+	    if {[catch {eof $sock}] || [eof $sock]} {closeconn $sock}
+	    return
+	}
+	# Lines must end with CR LF; remember those that do not.
+	if {[string index $line end] eq "\r"} {
+	    set line [string range $line 0 end-1]
+	} else {
+	    lappend ::bare $line
+	}
+	if {$state($sock,mode) eq "post"} {
+	    if {$line eq "."} {
+		set state($sock,mode) cmd
+		lappend posted $state($sock,post)
+		set state($sock,post) {}
+		send $sock "240 article posted ok"
+	    } else {
+		if {[string index $line 0] eq "."} {
+		    set line [string range $line 1 end]
+		}
+		lappend state($sock,post) $line
+	    }
+	    return
+	}
+	set line [string trimright $line]
+	lappend log $line
+	if {[info exists reply($line)]} {
+	    set r $reply($line)
+	    if {$r eq "CLOSE"} {
+		closeconn $sock
+	    } else {
+		eval [list send $sock] $r
+	    }
+	    return
+	}
+	set cmd [string toupper [lindex [split $line] 0]]
+	set arg [string trim [string range $line [string length $cmd] end]]
+	if {[info commands cmd_$cmd] eq ""} {
+	    send $sock "500 command not recognized"
+	    return
+	}
+	cmd_$cmd $sock $arg
+    }
+
+    proc grouparts {sock} {
+	global state groups
+	dict get $groups $state($sock,group)
+    }
+
+    # Selects an article; returns its number or "" after sending an error.
+    proc selectart {sock arg} {
+	global state
+	if {[string match <*> $arg]} {
+	    if {[regexp {^<(\d+)@test>$} $arg -> n] && $n >= 1 && $n <= 3} {
+		return $n
+	    }
+	    send $sock "430 no such article found"
+	    return
+	}
+	if {$state($sock,group) eq ""} {
+	    send $sock "412 no newsgroup has been selected"
+	    return
+	}
+	if {$arg eq ""} {
+	    if {$state($sock,cur) eq ""} {
+		send $sock "420 no current article has been selected"
+		return
+	    }
+	    return $state($sock,cur)
+	}
+	if {[lsearch -exact [grouparts $sock] $arg] < 0} {
+	    send $sock "423 no such article number in this group"
+	    return
+	}
+	set state($sock,cur) $arg
+	return $arg
+    }
+
+    proc cmd_ARTICLE {sock arg} {
+	set n [selectart $sock $arg]
+	if {$n eq ""} return
+	block $sock "220 $n <$n@test> article retrieved - head and body follow" \
+	    [concat [arthead $n] [list {}] [artbody $n]]
+    }
+    proc cmd_HEAD {sock arg} {
+	set n [selectart $sock $arg]
+	if {$n eq ""} return
+	block $sock "221 $n <$n@test> article retrieved - head follows" [arthead $n]
+    }
+    proc cmd_BODY {sock arg} {
+	set n [selectart $sock $arg]
+	if {$n eq ""} return
+	block $sock "222 $n <$n@test> article retrieved - body follows" [artbody $n]
+    }
+    proc cmd_STAT {sock arg} {
+	set n [selectart $sock $arg]
+	if {$n eq ""} return
+	send $sock "223 $n <$n@test> article retrieved - request text separately"
+    }
+    proc cmd_GROUP {sock arg} {
+	global state groups
+	if {![dict exists $groups $arg]} {
+	    send $sock "411 no such news group"
+	    return
+	}
+	set state($sock,group) $arg
+	set arts [dict get $groups $arg]
+	if {[llength $arts]} {
+	    set state($sock,cur) [lindex $arts 0]
+	    send $sock "211 [llength $arts] [lindex $arts 0] [lindex $arts end] $arg group selected"
+	} else {
+	    set state($sock,cur) {}
+	    send $sock "211 0 1 0 $arg group selected"
+	}
+    }
+    proc cmd_HELP {sock arg} {
+	block $sock "100 help text follows" {
+	    {  article [MessageID|Number]} {  body [MessageID|Number]}
+	    {  group newsgroup} {  quit}
+	}
+    }
+    proc move {sock dir} {
+	global state
+	if {$state($sock,group) eq ""} {
+	    send $sock "412 no newsgroup selected"
+	    return
+	}
+	if {$state($sock,cur) eq ""} {
+	    send $sock "420 no current article has been selected"
+	    return
+	}
+	set arts [grouparts $sock]
+	set i [expr {[lsearch -exact $arts $state($sock,cur)] + $dir}]
+	if {$i < 0} {
+	    send $sock "422 no previous article in this group"
+	    return
+	}
+	if {$i >= [llength $arts]} {
+	    send $sock "421 no next article in this group"
+	    return
+	}
+	set n [lindex $arts $i]
+	set state($sock,cur) $n
+	send $sock "223 $n <$n@test> article retrieved - request text separately"
+    }
+    proc cmd_LAST {sock arg} {move $sock -1}
+    proc cmd_NEXT {sock arg} {move $sock 1}
+    proc cmd_LIST {sock arg} {
+	if {$arg ne "" && $arg ne "ACTIVE"} {
+	    send $sock "501 syntax error"
+	    return
+	}
+	block $sock "215 list of newsgroups follows" {
+	    {comp.lang.tcl 0000000003 0000000001 y}
+	    {alt.test 0000000000 0000000001 n}
+	    {alt.test-group 0000000003 0000000001 m}
+	}
+    }
+    proc cmd_LISTGROUP {sock arg} {
+	global state groups
+	if {$arg ne ""} {
+	    if {![dict exists $groups $arg]} {
+		send $sock "411 no such news group"
+		return
+	    }
+	    set state($sock,group) $arg
+	}
+	if {$state($sock,group) eq ""} {
+	    send $sock "412 no newsgroup selected"
+	    return
+	}
+	block $sock "211 article numbers follow" [grouparts $sock]
+    }
+    proc cmd_MODE {sock arg} {
+	if {[string toupper $arg] eq "READER"} {
+	    send $sock "200 reader mode, posting permitted"
+	} else {
+	    send $sock "501 unknown mode"
+	}
+    }
+    proc cmd_NEWGROUPS {sock arg} {
+	block $sock "231 list of new newsgroups follows" {
+	    {alt.test-group 0000000003 0000000001 m}
+	}
+    }
+    proc cmd_NEWNEWS {sock arg} {
+	block $sock "230 list of new articles by message-id follows" {<1@test> <3@test>}
+    }
+    proc cmd_POST {sock arg} {
+	global state canpost
+	if {!$canpost} {
+	    send $sock "440 posting not allowed"
+	    return
+	}
+	set state($sock,mode) post
+	send $sock "340 send article to be posted. End with <CR-LF>.<CR-LF>"
+    }
+    proc cmd_SLAVE {sock arg} {
+	send $sock "202 slave status noted"
+    }
+    proc cmd_QUIT {sock arg} {
+	send $sock "205 closing connection - goodbye!"
+	closeconn $sock
+    }
+    proc cmd_AUTHINFO {sock arg} {
+	global state users
+	lassign $arg what value
+	switch -- [string toupper $what] {
+	    USER {
+		set state($sock,user) $value
+		send $sock "381 more authentication information required"
+	    }
+	    PASS {
+		set u $state($sock,user)
+		if {$u ne "" && [dict exists $users $u] &&
+		    [dict get $users $u] eq $value} {
+		    send $sock "281 authentication accepted"
+		} else {
+		    send $sock "481 authentication rejected"
+		}
+	    }
+	    default {
+		send $sock "501 syntax error"
+	    }
+	}
+    }
+    proc cmd_DATE {sock arg} {
+	send $sock "111 20261121103000"
+    }
+    proc cmd_XGTITLE {sock arg} {
+	set lines {}
+	foreach {g d} {comp.lang.tcl {The Tcl language} alt.test {Testing}} {
+	    if {$arg eq "" || [string match $arg $g]} {
+		lappend lines "$g\t$d"
+	    }
+	}
+	block $sock "282 list of groups and descriptions follows" $lines
+    }
+    # Parses an article range; returns a list of article numbers.
+    proc range {sock arg} {
+	global state
+	if {$arg eq ""} {
+	    if {$state($sock,cur) eq ""} {return {}}
+	    return [list $state($sock,cur)]
+	}
+	if {[regexp {^(\d+)-(\d*)$} $arg -> a b]} {
+	    if {$b eq ""} {set b 999999}
+	} elseif {[regexp {^\d+$} $arg]} {
+	    set a $arg
+	    set b $arg
+	} else {
+	    return {}
+	}
+	set res {}
+	foreach n [grouparts $sock] {
+	    if {$n >= $a && $n <= $b} {lappend res $n}
+	}
+	return $res
+    }
+    proc header {n field} {
+	foreach h [arthead $n] {
+	    if {[string equal -nocase -length [string length $field:] $field: $h]} {
+		return [string trim [string range $h [string length $field:] end]]
+	    }
+	}
+	return {}
+    }
+    proc cmd_XHDR {sock arg} {
+	global state
+	if {$state($sock,group) eq ""} {
+	    send $sock "412 no newsgroup selected"
+	    return
+	}
+	set field [lindex [split $arg] 0]
+	set r [string trim [string range $arg [string length $field] end]]
+	set lines {}
+	foreach n [range $sock $r] {
+	    lappend lines "$n [header $n $field]"
+	}
+	block $sock "221 $field fields follow" $lines
+    }
+    proc cmd_XOVER {sock arg} {
+	global state
+	if {$state($sock,group) eq ""} {
+	    send $sock "412 no newsgroup selected"
+	    return
+	}
+	set lines {}
+	foreach n [range $sock $arg] {
+	    lappend lines [join [list $n "Test $n" "user$n@example.com" \
+		"21 Nov 2026 10:0$n:00 GMT" <$n@test> {} [expr {100 + $n}] \
+		[expr {10 + $n}] "Xref: test comp.lang.tcl:$n"] \t]
+	}
+	block $sock "224 overview information follows" $lines
+    }
+    proc cmd_XPAT {sock arg} {
+	global state
+	if {$state($sock,group) eq ""} {
+	    send $sock "412 no newsgroup selected"
+	    return
+	}
+	set words [regexp -all -inline {\S+} $arg]
+	set pats [lrange $words 2 end]
+	set lines {}
+	foreach n [range $sock [lindex $words 1]] {
+	    set v [header $n [lindex $words 0]]
+	    foreach p $pats {
+		if {[string match $p $v]} {
+		    lappend lines "$n $v"
+		    break
+		}
+	    }
+	}
+	block $sock "221 header follows" $lines
+    }
+
+    reset
+    set listener [socket -server accept -myaddr 127.0.0.1 0]
+    lindex [fconfigure $listener -sockname] 2
+}
+
+srvstart
+set port [srv $serverScript]
+
+# A free port with nothing listening on it.
+proc freeport {} {
+    set s [socket -server {} -myaddr 127.0.0.1 0]
+    set p [lindex [fconfigure $s -sockname] 2]
+    close $s
+    return $p
+}
+
+# Connection setup and cleanup used by most tests.
+proc connect {} {
+    srv reset
+    ::nntp::nntp 127.0.0.1 $::port
+}
+proc disconnect {name} {
+    if {[llength [info commands ::$name]]} {
+	catch {$name quit}
+	if {[llength [info commands ::$name]]} {
+	    catch {close [set ::nntp::${name}data(sock)]}
+	    rename ::$name {}
+	}
+    }
+    unset -nocomplain ::nntp::${name}data ::nntp::socks($name)
+}
+
+set allmethods {article, authinfo, body, date, group, head, help, last, list, listgroup, mode_reader, newgroups, newnews, next, post, stat, quit, xgtitle, xhdr, xover, or xpat}
+
+# -------------------------------------------------------------------------
+# ::nntp::nntp
+
+test nntp-1.0 {nntp, too many args} -body {
+    ::nntp::nntp a b c d
+} -returnCodes error -result {wrong # args: should be "::nntp::nntp ?server? ?port? ?name?"}
+
+test nntp-1.1 {nntp, generated name} -setup {
+    srv reset
+} -body {
+    set n [::nntp::nntp 127.0.0.1 $port]
+    list $n [info commands ::$n] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {nntp0 ::nntp0 {}}
+
+test nntp-1.2 {nntp, generated names are unique} -setup {
+    srv reset
+    set n1 [::nntp::nntp 127.0.0.1 $port]
+} -body {
+    set n2 [::nntp::nntp 127.0.0.1 $port]
+    list $n1 $n2
+} -cleanup {
+    disconnect $n1
+    disconnect $n2
+    unset n1 n2
+} -result {nntp0 nntp1}
+
+test nntp-1.3 {nntp, explicit name} -setup {
+    srv reset
+} -body {
+    set n [::nntp::nntp 127.0.0.1 $port mynews]
+    list $n [info commands ::mynews]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {mynews ::mynews}
+
+test nntp-1.4 {nntp, name of an existing command} -setup {
+    proc ::mynews {} {}
+} -body {
+    ::nntp::nntp 127.0.0.1 $port mynews
+} -cleanup {
+    rename ::mynews {}
+    unset -nocomplain ::nntp::mynewsdata ::nntp::socks(mynews)
+} -returnCodes error -result {command "mynews" already exists, unable to create nntp connection}
+
+test nntp-1.5 {nntp, connection refused} -setup {
+    set p [freeport]
+} -body {
+    ::nntp::nntp 127.0.0.1 $p mynews
+} -cleanup {
+    unset -nocomplain p ::nntp::mynewsdata ::nntp::socks(mynews)
+} -returnCodes error -match glob -result {couldn't open socket: *}
+
+test nntp-1.6 {nntp, server error in the greeting} -setup {
+    srv reset
+    srv {set greeting "400 service discontinued"}
+} -body {
+    ::nntp::nntp 127.0.0.1 $port mynews
+} -cleanup {
+    disconnect mynews
+} -returnCodes error -result {NNTPERROR: 400 service discontinued}
+
+test nntp-1.7 {nntp, no command is left after an error in the greeting} -constraints {
+    knownBug
+} -setup {
+    srv reset
+    srv {set greeting "400 service discontinued"}
+} -body {
+    catch {::nntp::nntp 127.0.0.1 $port mynews}
+    info commands ::mynews
+} -cleanup {
+    disconnect mynews
+} -result {}
+
+test nntp-1.8 {nntp, greeting without posting} -setup {
+    srv reset
+    srv {set greeting "201 fake news server ready - no posting allowed"}
+} -body {
+    ::nntp::nntp 127.0.0.1 $port mynews
+} -cleanup {
+    disconnect mynews
+} -result mynews
+
+test nntp-1.9 {nntp, connection closed instead of a greeting} -setup {
+    srv reset
+    srv {set greeting ""}
+} -body {
+    ::nntp::nntp 127.0.0.1 $port mynews
+} -cleanup {
+    disconnect mynews
+} -returnCodes error -match glob -result "nntp: unexpected EOF on *"
+
+test nntp-1.10 {nntp, default port from NNTPPORT} -setup {
+    srv reset
+    set env(NNTPPORT) $port
+} -body {
+    set n [::nntp::nntp 127.0.0.1]
+    $n date
+} -cleanup {
+    disconnect $n
+    unset n env(NNTPPORT)
+} -result 20261121103000
+
+test nntp-1.11 {nntp, default port from NNTPPORT, empty port} -setup {
+    srv reset
+    set env(NNTPPORT) $port
+} -body {
+    set n [::nntp::nntp 127.0.0.1 ""]
+    $n date
+} -cleanup {
+    disconnect $n
+    unset n env(NNTPPORT)
+} -result 20261121103000
+
+test nntp-1.12 {nntp, default host from NNTPHOST (documented)} -constraints {
+    knownBug
+} -setup {
+    srv reset
+    unset -nocomplain env(NNTPSERVER)
+    set env(NNTPHOST) 127.0.0.1
+    # Never look up the default host "news".
+    rename ::socket ::nntptest_socket
+    proc ::socket {args} {
+	if {[lindex $args end-1] ne "127.0.0.1"} {
+	    error "test: connection to [lindex $args end-1] refused"
+	}
+	uplevel 1 [linsert $args 0 ::nntptest_socket]
+    }
+} -body {
+    set n [::nntp::nntp "" $port]
+    $n date
+} -cleanup {
+    rename ::socket {}
+    rename ::nntptest_socket ::socket
+    catch {disconnect $n}
+    unset -nocomplain n env(NNTPHOST)
+} -result 20261121103000
+
+test nntp-1.13 {nntp, default host from NNTPSERVER (implemented)} -setup {
+    srv reset
+    unset -nocomplain env(NNTPHOST)
+    set env(NNTPSERVER) 127.0.0.1
+} -body {
+    set n [::nntp::nntp "" $port]
+    $n date
+} -cleanup {
+    disconnect $n
+    unset n env(NNTPSERVER)
+} -result 20261121103000
+
+test nntp-1.14 {nntp, all defaults from the environment} -setup {
+    srv reset
+    set env(NNTPSERVER) 127.0.0.1
+    set env(NNTPPORT) $port
+} -body {
+    set n [::nntp::nntp]
+    $n date
+} -cleanup {
+    disconnect $n
+    unset n env(NNTPSERVER) env(NNTPPORT)
+} -result 20261121103000
+
+test nntp-1.15 {nntp, namespace export} -body {
+    namespace eval ::nntp {namespace export}
+} -result nntp
+
+# -------------------------------------------------------------------------
+# Access command dispatch
+
+test nntp-2.0 {access command, no method} -setup {
+    set n [connect]
+} -body {
+    $n
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "nntp0 option ?arg arg ...?"}
+
+test nntp-2.1 {access command, unknown method} -setup {
+    set n [connect]
+} -body {
+    $n foo
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result "bad option \"foo\": must be $allmethods"
+
+test nntp-2.2 {access command, empty method} -setup {
+    set n [connect]
+} -body {
+    $n ""
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result "bad option \"\": must be $allmethods"
+
+test nntp-2.3 {access command, glob characters in method} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+} -body {
+    $n *
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result "bad option \"*\": must be $allmethods"
+
+test nntp-2.4 {access command, wrong # args for a method} -setup {
+    set n [connect]
+} -body {
+    $n date extra
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_date name"}
+
+# -------------------------------------------------------------------------
+# configure / cget
+
+test nntp-3.0 {configure, no args} -setup {
+    set n [connect]
+} -body {
+    $n configure
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {-binary 0}
+
+test nntp-3.1 {configure, query option} -setup {
+    set n [connect]
+} -body {
+    $n configure -binary
+} -cleanup {
+    disconnect $n
+    unset n
+} -result 0
+
+test nntp-3.2 {configure, set option} -setup {
+    set n [connect]
+} -body {
+    list [$n configure -binary 1] [$n configure -binary] [$n cget -binary] \
+	[$n configure -binary off] [$n cget -binary] [$n configure]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{} 1 1 {} off {-binary off}}
+
+test nntp-3.3 {configure, set option twice} -setup {
+    set n [connect]
+} -body {
+    $n configure -binary 1 -binary 0
+    $n cget -binary
+} -cleanup {
+    disconnect $n
+    unset n
+} -result 0
+
+test nntp-3.4 {configure, bad option} -setup {
+    set n [connect]
+} -body {
+    $n configure -foo
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {Illegal option "-foo", expected "-binary"}
+
+test nntp-3.5 {configure, set bad option} -setup {
+    set n [connect]
+} -body {
+    $n configure -foo 1
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {Illegal option "-foo", expected "-binary"}
+
+test nntp-3.6 {configure, missing value} -setup {
+    set n [connect]
+} -body {
+    $n configure -binary 1 -binary
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong#args: expected even number of elements}
+
+test nntp-3.7 {configure, bad boolean} -setup {
+    set n [connect]
+} -body {
+    list [catch {$n configure -binary maybe} msg] $msg [$n cget -binary]
+} -cleanup {
+    disconnect $n
+    unset n msg
+} -result {1 {Expected boolean, got "maybe"} 0}
+
+test nntp-3.8 {cget, bad option} -setup {
+    set n [connect]
+} -body {
+    $n cget -foo
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {Illegal option "-foo", expected "-binary"}
+
+test nntp-3.9 {cget, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n cget
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_cget name option"}
+
+# -------------------------------------------------------------------------
+# group
+
+test nntp-4.0 {group, select a group} -setup {
+    set n [connect]
+} -body {
+    list [$n group comp.lang.tcl] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{3 1 3 comp.lang.tcl} {{GROUP comp.lang.tcl}}}
+
+test nntp-4.1 {group, empty group} -setup {
+    set n [connect]
+} -body {
+    $n group alt.test
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {0 1 0 alt.test}
+
+test nntp-4.2 {group, current group again} -setup {
+    set n [connect]
+    $n group alt.test
+} -body {
+    list [$n group] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{0 1 0 alt.test} {GROUP alt.test}}
+
+test nntp-4.3 {group, no such group} -setup {
+    set n [connect]
+} -body {
+    $n group no.such.group
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 411 no such news group}
+
+test nntp-4.4 {group, name with a dash} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+} -body {
+    list [$n group alt.test-group] [$n group]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{3 1 3 alt.test-group} {3 1 3 alt.test-group}}
+
+test nntp-4.5 {group, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n group a b
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_group name ?group?"}
+
+# -------------------------------------------------------------------------
+# article / head / body / stat
+
+test nntp-5.0 {article, by number} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n article 1] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{From: user1@example.com} {Subject: Test 1} {Message-ID: <1@test>} {Newsgroups: comp.lang.tcl} {} {Body of article 1}} {ARTICLE 1}}
+
+test nntp-5.1 {article, dot-stuffed lines} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    lrange [$n article 2] 5 end
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{Body of article 2} {.hidden line} {} {..two dots} end}
+
+test nntp-5.2 {article, current article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+    $n stat 3
+} -body {
+    list [lindex [$n article] 1] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{Subject: Test 3} ARTICLE}
+
+test nntp-5.3 {article, by message-id} -setup {
+    set n [connect]
+} -body {
+    lindex [$n article <2@test>] 2
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {Message-ID: <2@test>}
+
+test nntp-5.4 {article, no group selected} -setup {
+    set n [connect]
+} -body {
+    $n article 1
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 412 no newsgroup has been selected}
+
+test nntp-5.5 {article, no such article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n article 7
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 423 no such article number in this group}
+
+test nntp-5.6 {article, no such message-id} -setup {
+    set n [connect]
+} -body {
+    $n article <7@test>
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 430 no such article found}
+
+test nntp-5.7 {article, connection usable after an error} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+    catch {$n article 7}
+} -body {
+    lindex [$n article 1] 1
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {Subject: Test 1}
+
+test nntp-5.8 {article, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n article 1 2
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_article name ?msgid?"}
+
+test nntp-5.9 {head} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n head 2] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{From: user2@example.com} {Subject: Test 2} {Message-ID: <2@test>} {Newsgroups: comp.lang.tcl}} {HEAD 2}}
+
+test nntp-5.10 {head, current article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [lindex [$n head] 1] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{Subject: Test 1} HEAD}
+
+test nntp-5.11 {head, error} -setup {
+    set n [connect]
+    $n group alt.test
+} -body {
+    $n head
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 420 no current article has been selected}
+
+test nntp-5.12 {body} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n body 2] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{Body of article 2} {.hidden line} {} {..two dots} end} {BODY 2}}
+
+test nntp-5.13 {body, current article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n body] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{Body of article 1}} BODY}
+
+test nntp-5.14 {body, error} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n body 9
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 423 no such article number in this group}
+
+test nntp-5.15 {stat, by number} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n stat 2] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{2 <2@test>} {STAT 2}}
+
+test nntp-5.16 {stat, sets the current article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n stat 3
+    list [$n stat] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{3 <3@test>} STAT}
+
+test nntp-5.17 {stat, by message-id} -setup {
+    set n [connect]
+} -body {
+    $n stat <1@test>
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {1 <1@test>}
+
+test nntp-5.18 {stat, error} -setup {
+    set n [connect]
+} -body {
+    $n stat
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 412 no newsgroup has been selected}
+
+# -------------------------------------------------------------------------
+# -binary
+
+test nntp-6.0 {-binary, article retrieved as binary data} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+    $n configure -binary 1
+} -body {
+    # The server closes the connection after the article, so that the
+    # test does not hang if the end of the article is not recognized.
+    srv {set closeafter 1}
+    $n body 2
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{Body of article 2} {.hidden line} {} {..two dots} end}
+
+test nntp-6.1 {-binary, no translation of bytes} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+    $n configure -binary 1
+    srv {rename artbody artbody0; proc artbody {n} {list "\xe9\xff\x80" "x\ry"}}
+} -body {
+    srv {set closeafter 1}
+    $n body 1
+} -cleanup {
+    srv {rename artbody {}; rename artbody0 artbody}
+    disconnect $n
+    unset n
+} -result [list "\xe9\xff\x80" "x\ry"]
+
+# -------------------------------------------------------------------------
+# authinfo
+
+test nntp-7.0 {authinfo, accepted} -setup {
+    set n [connect]
+} -body {
+    list [$n authinfo joe secret] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {1 {{AUTHINFO USER joe} {AUTHINFO PASS secret}}}
+
+test nntp-7.1 {authinfo, rejected} -setup {
+    set n [connect]
+} -body {
+    $n authinfo joe wrong
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 481 authentication rejected}
+
+test nntp-7.2 {authinfo, user rejected} -setup {
+    set n [connect]
+    srv {set reply(AUTHINFO\ USER\ bob) {{482 no such user}}}
+} -body {
+    list [catch {$n authinfo bob secret} msg] $msg [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n msg
+} -result {1 {NNTPERROR: 482 no such user} {{AUTHINFO USER bob}}}
+
+test nntp-7.3 {authinfo, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n authinfo a b c
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_authinfo name ?user? ?pass?"}
+
+# -------------------------------------------------------------------------
+# date, help, mode_reader, slave
+
+test nntp-8.0 {date} -setup {
+    set n [connect]
+} -body {
+    list [$n date] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {20261121103000 DATE}
+
+test nntp-8.1 {date, not supported} -setup {
+    set n [connect]
+    srv {set reply(DATE) {{500 command not recognized}}}
+} -body {
+    $n date
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 500 command not recognized}
+
+test nntp-8.2 {help} -setup {
+    set n [connect]
+} -body {
+    list [$n help] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{  article [MessageID|Number]} {  body [MessageID|Number]} {  group newsgroup} {  quit}} HELP}
+
+test nntp-8.3 {help, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n help me
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_help name"}
+
+test nntp-8.4 {mode_reader} -setup {
+    set n [connect]
+} -body {
+    list [$n mode_reader] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{reader mode, posting permitted} {{MODE READER}}}
+
+test nntp-8.5 {mode_reader, error} -setup {
+    set n [connect]
+    srv {set reply(MODE\ READER) {{502 access restriction or permission denied}}}
+} -body {
+    $n mode_reader
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 502 access restriction or permission denied}
+
+test nntp-8.6 {slave} -setup {
+    set n [connect]
+} -body {
+    list [$n slave] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {1 SLAVE}
+
+# -------------------------------------------------------------------------
+# last / next
+
+test nntp-9.0 {next} -setup {
+    set n [connect]
+    srv {proc cmd_NEXT {sock arg} {
+	global state
+	set state($sock,cur) 2
+	send $sock "223 2 <2@test>"
+    }}
+    $n group comp.lang.tcl
+} -body {
+    list [$n next] [lindex [srv {set log}] end]
+} -cleanup {
+    srv {proc cmd_NEXT {sock arg} {move $sock 1}}
+    disconnect $n
+    unset n
+} -result {2 NEXT}
+
+test nntp-9.1 {next, returns the article number (RFC 977 reply text)} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n next
+} -cleanup {
+    disconnect $n
+    unset n
+} -result 2
+
+test nntp-9.2 {next, no next article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+    $n stat 3
+} -body {
+    $n next
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 421 no next article in this group}
+
+test nntp-9.3 {next, moves the current article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n next
+    $n next
+    $n stat
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {3 <3@test>}
+
+test nntp-9.4 {last} -setup {
+    set n [connect]
+    srv {proc cmd_LAST {sock arg} {
+	global state
+	set state($sock,cur) 1
+	send $sock "223 1 <1@test>"
+    }}
+    $n group comp.lang.tcl
+    $n stat 2
+} -body {
+    list [$n last] [lindex [srv {set log}] end]
+} -cleanup {
+    srv {proc cmd_LAST {sock arg} {move $sock -1}}
+    disconnect $n
+    unset n
+} -result {1 LAST}
+
+test nntp-9.5 {last, returns the article number (RFC 977 reply text)} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+    $n stat 2
+} -body {
+    $n last
+} -cleanup {
+    disconnect $n
+    unset n
+} -result 1
+
+test nntp-9.6 {last, no previous article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n last
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 422 no previous article in this group}
+
+test nntp-9.7 {last, no group} -setup {
+    set n [connect]
+} -body {
+    $n last
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 412 no newsgroup selected}
+
+# -------------------------------------------------------------------------
+# list / listgroup / newgroups / xgtitle
+
+test nntp-10.0 {list} -setup {
+    set n [connect]
+} -body {
+    list [$n list] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{comp.lang.tcl 0000000003 0000000001 y} {alt.test 0000000000 0000000001 n} {alt.test-group 0000000003 0000000001 m}} LIST}
+
+test nntp-10.1 {list, error} -setup {
+    set n [connect]
+    srv {set reply(LIST) {{503 program fault - command not performed}}}
+} -body {
+    $n list
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 503 program fault - command not performed}
+
+test nntp-10.2 {listgroup, given group} -setup {
+    set n [connect]
+} -body {
+    list [$n listgroup comp.lang.tcl] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{1 2 3} {{LISTGROUP comp.lang.tcl}}}
+
+test nntp-10.3 {listgroup, current group} -setup {
+    set n [connect]
+    $n group alt.test-group
+} -body {
+    list [$n listgroup] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{1 2 3} LISTGROUP}
+
+test nntp-10.4 {listgroup, empty group} -setup {
+    set n [connect]
+} -body {
+    $n listgroup alt.test
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {}
+
+test nntp-10.5 {listgroup, no such group} -setup {
+    set n [connect]
+} -body {
+    $n listgroup no.such.group
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 411 no such news group}
+
+test nntp-10.6 {newgroups} -setup {
+    set n [connect]
+} -body {
+    list [$n newgroups "2026-01-02 03:04:05"] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{alt.test-group 0000000003 0000000001 m}} {{NEWGROUPS 260102 030405}}}
+
+test nntp-10.7 {newgroups, any clock scan format} -setup {
+    set n [connect]
+} -body {
+    $n newgroups "12/31/2025 23:59:58"
+    $n newgroups "Dec 31, 2025"
+    srv {set log}
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{NEWGROUPS 251231 235958} {NEWGROUPS 251231 000000}}
+
+test nntp-10.8 {newgroups, bad time} -setup {
+    set n [connect]
+} -body {
+    list [catch {$n newgroups "not a time"}] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {1 {}}
+
+test nntp-10.9 {newgroups, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n newgroups
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_newgroups name since ?arg ...?"}
+
+test nntp-10.10 {xgtitle} -setup {
+    set n [connect]
+} -body {
+    list [$n xgtitle] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result [list [list "comp.lang.tcl\tThe Tcl language" "alt.test\tTesting"] XGTITLE]
+
+test nntp-10.11 {xgtitle, pattern} -setup {
+    set n [connect]
+} -body {
+    list [$n xgtitle comp.*] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result [list [list "comp.lang.tcl\tThe Tcl language"] {{XGTITLE comp.*}}]
+
+test nntp-10.12 {xgtitle, error} -setup {
+    set n [connect]
+    srv {set reply(XGTITLE) {{481 groups and descriptions unavailable}}}
+} -body {
+    $n xgtitle
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 481 groups and descriptions unavailable}
+
+# -------------------------------------------------------------------------
+# newnews
+
+test nntp-11.0 {newnews, group and time} -setup {
+    set n [connect]
+} -body {
+    list [$n newnews comp.lang.tcl "2026-01-02 03:04:05"] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{<1@test> <3@test>} {{NEWNEWS comp.lang.tcl 260102 030405}}}
+
+test nntp-11.1 {newnews, time only, current group} -setup {
+    set n [connect]
+    $n group alt.test
+} -body {
+    $n newnews "2026-01-02 03:04:05"
+    lindex [srv {set log}] end
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {NEWNEWS alt.test 260102 030405}
+
+test nntp-11.2 {newnews, time only, no current group} -setup {
+    set n [connect]
+} -body {
+    $n newnews "2026-01-02 03:04:05"
+    srv {set log}
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{NEWNEWS * 260102 030405}}
+
+test nntp-11.3 {newnews, no args: current group, last day} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n newnews
+    set cmd [lindex [srv {set log}] end]
+    set since [clock scan [lrange $cmd 2 3] -format {%y%m%d %H%M%S}]
+    list [lrange $cmd 0 1] [expr {[clock seconds] - $since <= 2*86400}] \
+	[expr {$since < [clock seconds]}]
+} -cleanup {
+    disconnect $n
+    unset -nocomplain n cmd since
+} -result {{NEWNEWS comp.lang.tcl} 1 1}
+
+test nntp-11.4 {newnews, group only, last day} -setup {
+    set n [connect]
+} -body {
+    $n newnews alt.test
+    lrange [lindex [srv {set log}] end] 0 1
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {NEWNEWS alt.test}
+
+test nntp-11.5 {newnews, default time in a time zone with unusual abbreviation, ticket 937e32f95e} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+    set oldtz [array get env TZ]
+    set env(TZ) :Australia/Sydney
+} -body {
+    $n newnews alt.test
+    lrange [lindex [srv {set log}] end] 0 1
+} -cleanup {
+    unset env(TZ)
+    array set env $oldtz
+    disconnect $n
+    unset n oldtz
+} -result {NEWNEWS alt.test}
+
+test nntp-11.6 {newnews, group of a previous connection is not used} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+    $n group alt.test
+    $n quit
+    set n [::nntp::nntp 127.0.0.1 $port]
+} -body {
+    $n newnews "2026-01-02 03:04:05"
+    lindex [srv {set log}] end
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {NEWNEWS * 260102 030405}
+
+test nntp-11.7 {newnews, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n newnews a b c
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_newnews name ?group? ?since?"}
+
+# -------------------------------------------------------------------------
+# post
+
+test nntp-12.0 {post} -setup {
+    set n [connect]
+} -body {
+    set article "From: joe@example.com\nNewsgroups: alt.test\nSubject: test\n\nbody line\n.dot line\nlast"
+    list [$n post $article] [srv {set log}] [srv {set posted}]
+} -cleanup {
+    disconnect $n
+    unset n article
+} -result {1 POST {{{From: joe@example.com} {Newsgroups: alt.test} {Subject: test} {} {body line} {.dot line} last}}}
+
+test nntp-12.1 {post, line with a single dot} -setup {
+    set n [connect]
+} -body {
+    $n post "Subject: x\n\n.\nafter"
+    list [srv {set posted}] [$n date]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{{Subject: x} {} . after}} 20261121103000}
+
+test nntp-12.2 {post, not allowed} -setup {
+    set n [connect]
+    srv {set canpost 0}
+} -body {
+    list [catch {$n post "Subject: x\n\nbody"} msg] $msg [srv {set posted}] [$n date]
+} -cleanup {
+    disconnect $n
+    unset n msg
+} -result {1 {NNTPERROR: 440 posting not allowed} {} 20261121103000}
+
+test nntp-12.3 {post, failed} -setup {
+    set n [connect]
+    srv {proc cmd_POST {sock arg} {
+	send $sock "340 send article"
+	fileevent $sock readable [list readbody $sock]
+    }
+    proc readbody {sock} {
+	if {[gets $sock line] < 0} return
+	if {$line eq ".\r"} {
+	    send $sock "441 posting failed"
+	    fileevent $sock readable [list readline $sock]
+	}
+    }}
+} -body {
+    $n post "Subject: x\n\nbody"
+} -cleanup {
+    srv {proc cmd_POST {sock arg} {
+	global state canpost
+	if {!$canpost} {
+	    send $sock "440 posting not allowed"
+	    return
+	}
+	set state($sock,mode) post
+	send $sock "340 send article to be posted. End with <CR-LF>.<CR-LF>"
+    }}
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 441 posting failed}
+
+test nntp-12.4 {post, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n post
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_post name article"}
+
+# -------------------------------------------------------------------------
+# xhdr / xover / xpat
+
+test nntp-13.0 {xhdr, current article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xhdr subject] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{1 Test 1}} {XHDR subject}}
+
+test nntp-13.1 {xhdr, empty range} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+    $n stat 2
+} -body {
+    list [$n xhdr from ""] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{2 user2@example.com}} {XHDR from}}
+
+test nntp-13.2 {xhdr, range m1-m2} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xhdr subject 2-3] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{2 Test 2} {3 Test 3}} {XHDR subject 2-3}}
+
+test nntp-13.3 {xhdr, range m1 m2} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xhdr subject 1 2] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{1 Test 1} {2 Test 2}} {XHDR subject 1-2}}
+
+test nntp-13.4 {xhdr, default field} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xhdr] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{1 <1@test>}} {XHDR message-id}}
+
+test nntp-13.5 {xhdr, error} -setup {
+    set n [connect]
+} -body {
+    $n xhdr subject
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 412 no newsgroup selected}
+
+test nntp-13.6 {xover, current article} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xover] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result [list [list "1\tTest 1\tuser1@example.com\t21 Nov 2026 10:01:00 GMT\t<1@test>\t\t101\t11\tXref: test comp.lang.tcl:1"] XOVER]
+
+test nntp-13.7 {xover, range m1-m2} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    set res [$n xover 1-2]
+    set ids {}
+    foreach line $res {
+	lappend ids [lindex [split $line \t] 0] [lindex [split $line \t] 4]
+    }
+    list $ids [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n res ids line
+} -result {{1 <1@test> 2 <2@test>} {XOVER 1-2}}
+
+test nntp-13.8 {xover, range m1 m2} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [llength [$n xover 2 3]] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {2 {XOVER 2-3}}
+
+test nntp-13.9 {xover, empty range} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [llength [$n xover ""]] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {1 XOVER}
+
+test nntp-13.10 {xover, error} -setup {
+    set n [connect]
+} -body {
+    $n xover 1-2
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 412 no newsgroup selected}
+
+test nntp-13.11 {xpat, range m1-m2 and pattern} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xpat subject 1-3 {*[13]}] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{1 Test 1} {3 Test 3}} {XPAT subject 1-3 *[13]}}
+
+test nntp-13.12 {xpat, range m1-m2, no pattern} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xpat from 2-3] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{2 user2@example.com} {3 user3@example.com}} {XPAT from 2-3 *}}
+
+test nntp-13.13 {xpat, range m1 m2 and patterns} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    set res [$n xpat subject 1 3 *1 *2]
+    list $res [regsub -all { +} [lindex [srv {set log}] end] { }]
+} -cleanup {
+    disconnect $n
+    unset n res
+} -result {{{1 Test 1} {2 Test 2}} {XPAT subject 1-3 *1 *2}}
+
+test nntp-13.14 {xpat, pattern list} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xpat subject 1-3 {*1 *3}] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{1 Test 1} {3 Test 3}} {XPAT subject 1-3 *1 *3}}
+
+test nntp-13.15 {xpat, single article, no pattern} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xpat subject 2] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{{2 Test 2}} {XPAT subject 2 *}}
+
+test nntp-13.16 {xpat, single article and pattern} -constraints {
+    knownBug
+} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    list [$n xpat subject 2 *3] [lindex [srv {set log}] end]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {{} {XPAT subject 2 *3}}
+
+test nntp-13.17 {xpat, error} -setup {
+    set n [connect]
+} -body {
+    $n xpat subject 1-3 *
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 412 no newsgroup selected}
+
+# -------------------------------------------------------------------------
+# quit
+
+test nntp-14.0 {quit} -setup {
+    set n [connect]
+} -body {
+    list [$n quit] [info commands ::$n] [srv {set log}]
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {1 {} QUIT}
+
+test nntp-14.1 {quit, name can be reused} -setup {
+    set n [connect]
+    $n quit
+} -body {
+    set n2 [::nntp::nntp 127.0.0.1 $port]
+    list $n2 [$n2 date]
+} -cleanup {
+    disconnect $n2
+    unset n n2
+} -result {nntp0 20261121103000}
+
+test nntp-14.2 {quit, wrong # args} -setup {
+    set n [connect]
+} -body {
+    $n quit now
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {wrong # args: should be "::nntp::_quit name"}
+
+# -------------------------------------------------------------------------
+# Server responses
+
+test nntp-15.0 {connection closed by the server} -setup {
+    set n [connect]
+    srv {set reply(HELP) CLOSE}
+} -body {
+    $n help
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -match glob -result "nntp: unexpected EOF on *"
+
+test nntp-15.1 {garbled response} -setup {
+    set n [connect]
+    srv {set reply(DATE) {{what?}}}
+} -body {
+    $n date
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {} -errorOutput "nntp garbled response: what?\n\n"
+
+test nntp-15.2 {response line with CR LF} -setup {
+    set n [connect]
+    srv {set reply(DATE) [list "111 20250101000000\r"]}
+} -body {
+    $n date
+} -cleanup {
+    disconnect $n
+    unset n
+} -result 20250101000000
+
+test nntp-15.3 {error reply to a multi-line request} -setup {
+    set n [connect]
+} -body {
+    $n xhdr
+} -cleanup {
+    disconnect $n
+    unset n
+} -returnCodes error -result {NNTPERROR: 412 no newsgroup selected}
+
+test nntp-15.4 {commands are sent with CR LF} -setup {
+    set n [connect]
+    $n group comp.lang.tcl
+} -body {
+    $n article 1
+    $n xover 1-2
+    $n post "Subject: x\n\nbody\nmore"
+    $n quit
+    srv {set bare}
+} -cleanup {
+    disconnect $n
+    unset n
+} -result {}
+
+# -------------------------------------------------------------------------
+
+srvstop
+rename srvstart {}
+rename srv {}
+rename srvstop {}
+rename connect {}
+rename disconnect {}
+rename freeport {}
+unset childScript serverScript port allmethods
+testsuiteCleanup
+return
