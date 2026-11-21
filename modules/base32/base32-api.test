@@ -1,0 +1,365 @@
+# -*- tcl -*- Tests for the documented API of "base32", "base32::hex"
+# and "base32::core", complementing base32.test and base32hex.test.
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal     base32core.tcl base32::core
+    useTcllibC
+    useLocalKeep base32.tcl     base32
+    useLocalKeep base32hex.tcl  base32::hex
+    TestAccelInit               base32
+    TestAccelInit               base32::hex
+}
+
+# -------------------------------------------------------------------------
+# base32 (standard alphabet)
+
+TestAccelDo base32 impl {
+
+    test base32-api-${impl}-1.0 {Decode, lower case input} -body {
+	::base32::decode mzxw6ytboi======
+    } -result foobar
+
+    test base32-api-${impl}-1.1 {Decode, mixed case input} -body {
+	::base32::decode MzXw6YtBoI======
+    } -result foobar
+
+    test base32-api-${impl}-1.2 {Decode, multiple blocks} -body {
+	::base32::decode MZXW6YTBOJRGC6TROV4A====
+    } -result foobarbazqux
+
+    test base32-api-${impl}-1.3 {Encode, multiple blocks} -body {
+	::base32::encode foobarbazqux
+    } -result MZXW6YTBOJRGC6TROV4A====
+
+    test base32-api-${impl}-1.4 {Encode, result length is a multiple of 8} -body {
+	set res {}
+	for {set n 0} {$n < 12} {incr n} {
+	    lappend res [expr {[string length [::base32::encode [string repeat x $n]]] % 8}]
+	}
+	set res
+    } -cleanup {
+	unset -nocomplain res n
+    } -result {0 0 0 0 0 0 0 0 0 0 0 0}
+
+    test base32-api-${impl}-1.5 {Encode, only upper case and digits 2-7} -body {
+	set data {}
+	for {set i 0} {$i < 256} {incr i} {append data [format %c $i]}
+	regexp {^[A-Z2-7=]+$} [::base32::encode $data]
+    } -cleanup {
+	unset -nocomplain data i
+    } -result 1
+
+    test base32-api-${impl}-1.6 {Round trip of all byte values} -body {
+	set data {}
+	for {set i 0} {$i < 256} {incr i} {append data [format %c $i]}
+	string equal $data [::base32::decode [::base32::encode $data]]
+    } -cleanup {
+	unset -nocomplain data i
+    } -result 1
+
+    test base32-api-${impl}-1.7 {Encode, error on non-binary string} -constraints {
+	tcl9plus
+    } -body {
+	::base32::encode Ā
+    } -returnCodes error -match glob -result {expected code point values below 0xff*}
+
+    # The documentation promises an error for strings which are neither
+    # binary nor 7-bit ASCII. On Tcl 8 [binary scan] silently truncates
+    # the characters to their low byte instead.
+    test base32-api-${impl}-1.8 {Encode, error on non-binary string, Tcl 8} -constraints {
+	tcl8.6only knownBug
+    } -body {
+	::base32::encode Ā
+    } -returnCodes error -match glob -result *
+
+    test base32-api-${impl}-1.9 {Decode, invalid character 1} -body {
+	::base32::decode ABCDEFG1
+    } -returnCodes error -result {Invalid character at index 7: "1"}
+
+    test base32-api-${impl}-1.10 {Decode, invalid character 8} -body {
+	::base32::decode 8BCDEFGH
+    } -returnCodes error -result {Invalid character at index 0: "8"}
+
+    test base32-api-${impl}-1.11 {Decode, padding of length 8} -body {
+	::base32::decode ========
+    } -returnCodes error -result {Invalid padding of length 8}
+
+    test base32-api-${impl}-1.12 {Decode, padding of length 2} -body {
+	::base32::decode ABCDEF==
+    } -returnCodes error -result {Invalid padding of length 2}
+
+    test base32-api-${impl}-1.13 {Decode, padding in the middle of a later block} -body {
+	::base32::decode MZXW6YTBMY======MZXW6YTB
+    } -returnCodes error -result {Invalid character at index 15: "=" (padding found in the middle of the input)}
+
+    test base32-api-${impl}-1.14 {Decode, length 9} -body {
+	::base32::decode MZXW6YTBO
+    } -returnCodes error -result {Length is not a multiple of 8}
+
+    test base32-api-${impl}-1.15 {Decode, invalid input that is accepted} -body {
+	string length [::base32::decode PLAINTXT]
+    } -result 5
+
+    test base32-api-${impl}-1.16 {Manpage example, UTF-8 text} -body {
+	set bytes [encoding convertto utf-8 "Δ÷ “Utf-8” ♞ℤ"]
+	set enc32 [::base32::encode $bytes]
+	list $enc32 [string equal $bytes [::base32::decode $enc32]]
+    } -cleanup {
+	unset -nocomplain bytes enc32
+    } -result {Z2KMHNZA4KAJYVLUMYWTRYUATUQOFGM64KCKI=== 1}
+
+    test base32-api-${impl}-1.17 {Manpage example, 7-bit ASCII text} -body {
+	set enc32 [::base32::encode "! 7-bit ASCII {~^}"]
+	list $enc32 [encoding convertfrom utf-8 [::base32::decode $enc32]]
+    } -cleanup {
+	unset -nocomplain enc32
+    } -result {EEQDOLLCNF2CAQKTINEUSID3PZPH2=== {! 7-bit ASCII {~^}}}
+}
+
+# -------------------------------------------------------------------------
+# base32::hex (extended hex alphabet)
+
+TestAccelDo base32::hex impl {
+
+    test base32-api-hex-${impl}-2.0 {Decode, lower case input} -body {
+	::base32::hex::decode cpnmuoj1e8======
+    } -result foobar
+
+    test base32-api-hex-${impl}-2.1 {Decode, mixed case input} -body {
+	::base32::hex::decode CpNmUoJ1e8======
+    } -result foobar
+
+    test base32-api-hex-${impl}-2.2 {Encode, multiple blocks} -body {
+	::base32::hex::encode foobarbazqux
+    } -result CPNMUOJ1E9H62UJHELS0====
+
+    test base32-api-hex-${impl}-2.3 {Decode, multiple blocks} -body {
+	::base32::hex::decode CPNMUOJ1E9H62UJHELS0====
+    } -result foobarbazqux
+
+    test base32-api-hex-${impl}-2.4 {Code map, first 16 codes are hex digits} -body {
+	# 0x00 0x44 0x32 0x14 0xc7 0x42 0x54 0xb6 0x35 0xcf 0x84 0x65 0x3a
+	# 0x56 0xd7 0xc6 0x75 0xbe 0x77 0xdf: all 32 codes in order.
+	::base32::hex::encode [binary format H* 00443214c74254b635cf84653a56d7c675be77df]
+    } -result 0123456789ABCDEFGHIJKLMNOPQRSTUV
+
+    test base32-api-hex-${impl}-2.5 {Round trip of all byte values} -body {
+	set data {}
+	for {set i 0} {$i < 256} {incr i} {append data [format %c $i]}
+	string equal $data [::base32::hex::decode [::base32::hex::encode $data]]
+    } -cleanup {
+	unset -nocomplain data i
+    } -result 1
+
+    test base32-api-hex-${impl}-2.6 {Encode, error on non-binary string} -constraints {
+	tcl9plus
+    } -body {
+	::base32::hex::encode Ā
+    } -returnCodes error -match glob -result {expected code point values below 0xff*}
+
+    test base32-api-hex-${impl}-2.7 {Encode, error on non-binary string, Tcl 8} -constraints {
+	tcl8.6only knownBug
+    } -body {
+	::base32::hex::encode Ā
+    } -returnCodes error -match glob -result *
+
+    test base32-api-hex-${impl}-2.8 {Decode, invalid character W} -body {
+	::base32::hex::decode ABCDEFGW
+    } -returnCodes error -result {Invalid character at index 7: "W"}
+
+    test base32-api-hex-${impl}-2.9 {Decode, invalid character z} -body {
+	::base32::hex::decode zBCDEFGH
+    } -returnCodes error -result {Invalid character at index 0: "z"}
+
+    test base32-api-hex-${impl}-2.10 {Decode, padding of length 8} -body {
+	::base32::hex::decode ========
+    } -returnCodes error -result {Invalid padding of length 8}
+
+    test base32-api-hex-${impl}-2.11 {Manpage example, UTF-8 text} -body {
+	set bytes [encoding convertto utf-8 "Δ÷ “Utf-8” ♞ℤ"]
+	set enc32 [::base32::hex::encode $bytes]
+	list $enc32 [string equal $bytes [::base32::hex::decode $enc32]]
+    } -cleanup {
+	unset -nocomplain bytes enc32
+    } -result {PQAC7DP0SA09OLBKCOMJHOK0JKGE56CUSA2A8=== 1}
+
+    test base32-api-hex-${impl}-2.12 {Manpage example, 7-bit ASCII text} -body {
+	set enc32 [::base32::hex::encode "! 7-bit ASCII {~^}"]
+	list $enc32 [encoding convertfrom utf-8 [::base32::hex::decode $enc32]]
+    } -cleanup {
+	unset -nocomplain enc32
+    } -result {44G3EBB2D5Q20GAJ8D4KI83RFPF7Q=== {! 7-bit ASCII {~^}}}
+}
+
+# -------------------------------------------------------------------------
+# base32::core
+
+test base32-api-core-3.0 {define, wrong # args} -body {
+    ::base32::core::define a b c
+} -returnCodes error -result {wrong # args: should be "::base32::core::define map fv bv iv"}
+
+test base32-api-core-3.1 {define, wrong # args} -body {
+    ::base32::core::define a b c d e
+} -returnCodes error -result {wrong # args: should be "::base32::core::define map fv bv iv"}
+
+test base32-api-core-3.2 {valid, wrong # args} -body {
+    ::base32::core::valid a b
+} -returnCodes error -result {wrong # args: should be "::base32::core::valid estring pattern mv"}
+
+test base32-api-core-3.3 {valid, wrong # args} -body {
+    ::base32::core::valid a b c d
+} -returnCodes error -result {wrong # args: should be "::base32::core::valid estring pattern mv"}
+
+# A custom map of the 32 codes to the letters a-z and the digits 0-5.
+set testmap {
+     0 a  1 b  2 c  3 d  4 e  5 f  6 g  7 h
+     8 i  9 j 10 k 11 l 12 m 13 n 14 o 15 p
+    16 q 17 r 18 s 19 t 20 u 21 v 22 w 23 x
+    24 y 25 z 26 0 27 1 28 2 29 3 30 4 31 5
+}
+
+test base32-api-core-3.4 {define, invalid character pattern} -body {
+    ::base32::core::define $testmap fw bw inv
+    set inv
+} -cleanup {
+    unset -nocomplain fw bw inv
+} -result {[^=aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ001122334455]}
+
+test base32-api-core-3.5 {define, forward and backward maps encode/decode} -body {
+    ::base32::core::define $testmap fw bw inv
+    binary scan foobar B* bits
+    append bits =/[expr {[string length $bits] % 5}]
+    set enc [string map $fw $bits]
+    set dec [binary format B* [string map $bw $enc]]
+    list $enc $dec
+} -cleanup {
+    unset -nocomplain fw bw inv bits enc dec
+} -result {mzxw4ytboi====== foobar}
+
+test base32-api-core-3.6 {define, forward map is a dictionary} -body {
+    ::base32::core::define $testmap fw bw inv
+    array set f $fw
+    list $f(00000) $f(11111) $f(0=/1) $f(00=/2) $f(000=/3) $f(0000=/4)
+} -cleanup {
+    unset -nocomplain fw bw inv f
+} -result {a 5 a==== a= a====== a===}
+
+test base32-api-core-3.7 {define, backward map is a dictionary} -body {
+    ::base32::core::define $testmap fw bw inv
+    array set b $bw
+    list $b(a) $b(5) $b(a====) $b(a=) $b(a======) $b(a===)
+} -cleanup {
+    unset -nocomplain fw bw inv b
+} -result {00000 11111 0 00 000 0000}
+
+test base32-api-core-3.8 {define, result is empty} -body {
+    ::base32::core::define $testmap fw bw inv
+} -cleanup {
+    unset -nocomplain fw bw inv
+} -result {}
+
+test base32-api-core-4.0 {valid, valid input, message variable untouched} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    list [::base32::core::valid mzxw4ytboi====== $inv msg] [info exists msg]
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result {1 0}
+
+test base32-api-core-4.1 {valid, valid input, upper case} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    ::base32::core::valid MZXW4YTB $inv msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result 1
+
+test base32-api-core-4.2 {valid, empty input} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    ::base32::core::valid {} $inv msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result 1
+
+test base32-api-core-4.3 {valid, existing message variable untouched} -setup {
+    ::base32::core::define $testmap fw bw inv
+    set msg untouched
+} -body {
+    list [::base32::core::valid abcdefgh $inv msg] $msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result {1 untouched}
+
+test base32-api-core-4.4 {valid, bad length} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    list [::base32::core::valid abc $inv msg] $msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result {0 {Length is not a multiple of 8}}
+
+test base32-api-core-4.5 {valid, bad character} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    list [::base32::core::valid abcdef7h $inv msg] $msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result {0 {Invalid character at index 6: "7"}}
+
+test base32-api-core-4.6 {valid, bad padding length} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    list [::base32::core::valid abc===== $inv msg] $msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result {0 {Invalid padding of length 5}}
+
+foreach {n input} {
+    0 abcdefg=
+    1 abcde===
+    2 abcd====
+    3 ab======
+} {
+    test base32-api-core-4.7.$n "valid, padding length accepted, $input" -setup {
+	::base32::core::define $testmap fw bw inv
+    } -body {
+	::base32::core::valid $input $inv msg
+    } -cleanup {
+	unset -nocomplain fw bw inv msg
+    } -result 1
+}
+
+test base32-api-core-4.8 {valid, padding in the middle} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    list [::base32::core::valid a=bcdefg $inv msg] $msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result {0 {Invalid character at index 1: "=" (padding found in the middle of the input)}}
+
+test base32-api-core-4.9 {valid, length checked before characters} -setup {
+    ::base32::core::define $testmap fw bw inv
+} -body {
+    list [::base32::core::valid 7 $inv msg] $msg
+} -cleanup {
+    unset -nocomplain fw bw inv msg
+} -result {0 {Length is not a multiple of 8}}
+
+unset testmap
+
+# -------------------------------------------------------------------------
+
+TestAccelExit base32
+TestAccelExit base32::hex
+testsuiteCleanup
+return
