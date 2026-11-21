@@ -1,7 +1,7 @@
 ## -*- tcl -*-
 # # ## ### ##### ######## ############# #####################
 ## Copyright (c) 2004 Kevin Kenny
-## Origin http://wiki.tcl.tk/24074
+## Origin https://wiki.tcl-lang.org/24074
 
 # # ## ### ##### ######## ############# #####################
 ## Requisites
