@@ -1,0 +1,1153 @@
+# -*- tcl -*-
+# generator-api.test:  Tests for the generator package.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+testing {
+    useLocal generator.tcl generator
+}
+
+# -------------------------------------------------------------------------
+## Helpers
+
+generator define range {n m} {
+    for {set i $n} {$i <= $m} {incr i} { generator yield $i }
+}
+
+proc gt {x} { expr {$x > 3} }
+proc lt3 {x} { expr {$x < 3} }
+proc odd {x} { expr {$x % 2} }
+proc double {x} { expr {$x * 2} }
+
+# Destroy all generators left over by a test.
+proc cleanupGens {} {
+    generator destroy {*}[generator names]
+}
+
+# -------------------------------------------------------------------------
+## Ensemble
+
+test generator-1.0 {generator, wrong # args} -body {
+    generator
+} -returnCodes error -result {wrong # args: should be "generator subcommand ?arg ...?"}
+
+test generator-1.1 {generator, unknown subcommand} -body {
+    generator bogus
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be *}
+
+test generator-1.2 {generator, documented subcommands exist} -body {
+    set missing {}
+    foreach cmd {
+	define yield foreach next exists names destroy finally from to
+	map filter reduce foldl foldr all and any concat concatMap drop
+	dropWhile contains foldl1 foldli foldri head tail init takeList
+	take iterate last length or product repeat sum takeWhile
+	splitWhen scanl
+    } {
+	if {[catch {generator $cmd} msg]
+	    && [string match {unknown or ambiguous subcommand*} $msg]} {
+	    lappend missing $cmd
+	}
+    }
+    set missing
+} -cleanup {
+    cleanupGens
+    unset -nocomplain missing cmd msg
+} -result {}
+
+# -------------------------------------------------------------------------
+## define
+
+test generator-2.0 {define, wrong # args} -body {
+    generator define
+} -returnCodes error -result {wrong # args: should be "generator define name params body"}
+
+test generator-2.1 {define, returns the qualified name} -body {
+    generator define gentest {} {generator yield 1}
+} -cleanup {
+    rename ::gentest {}
+} -result ::gentest
+
+test generator-2.2 {define, relative name in a namespace} -body {
+    namespace eval ::gtestns {
+	generator define gen {} {generator yield [namespace current]}
+    }
+} -cleanup {
+    namespace delete ::gtestns
+} -result ::gtestns::gen
+
+test generator-2.3 {define, body runs in the namespace of the definition} -body {
+    namespace eval ::gtestns {
+	variable v nsvar
+	generator define gen {} {
+	    variable v
+	    generator yield [namespace current] $v
+	}
+    }
+    generator to list [::gtestns::gen]
+} -cleanup {
+    namespace delete ::gtestns
+} -result {::gtestns nsvar}
+
+test generator-2.4 {define, absolute name} -body {
+    namespace eval ::gtestns {
+	generator define ::gentest {} {generator yield [namespace current]}
+    }
+    generator to list [::gentest]
+} -cleanup {
+    namespace delete ::gtestns
+    rename ::gentest {}
+} -result ::
+
+test generator-2.5 {define, calling the procedure returns a generator} -body {
+    set g [range 1 3]
+    list [string match ::generator::generator* $g] [generator exists $g]
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result {1 1}
+
+test generator-2.6 {define, default values and args} -body {
+    generator define gentest {a {b 2} args} {
+	generator yield $a $b $args
+    }
+    list [generator to list [gentest 1]] [generator to list [gentest 1 3 4 5]]
+} -cleanup {
+    rename ::gentest {}
+} -result {{1 2 {}} {1 3 {4 5}}}
+
+test generator-2.7 {define, wrong # args reported on the first call} -body {
+    set g [range 1]
+    list [generator exists $g] [catch {$g} msg] $msg [generator exists $g]
+} -cleanup {
+    unset g msg
+} -result {1 1 {wrong # args: should be "apply lambdaExpr n m"} 0}
+
+test generator-2.8 {define, each call creates a new generator} -body {
+    set g1 [range 1 3]
+    set g2 [range 1 3]
+    list [expr {$g1 ne $g2}] [$g1] [$g1] [$g2]
+} -cleanup {
+    generator destroy $g1 $g2
+    unset g1 g2
+} -result {1 1 2 1}
+
+test generator-2.9 {define, generator results are non-empty lists} -body {
+    set g [range 1 3]
+    list [$g] [$g] [$g]
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result {1 2 3}
+
+test generator-2.10 {define, exhausted generator returns empty and destroys itself} -body {
+    set g [range 1 2]
+    list [$g] [$g] [$g] [generator exists $g]
+} -cleanup {
+    unset g
+} -result {1 2 {} 0}
+
+test generator-2.11 {define, calling an exhausted generator is an error} -body {
+    set g [range 1 1]
+    $g
+    $g
+    $g
+} -cleanup {
+    unset g
+} -returnCodes error -match glob -result {invalid command name "::generator::generator*"}
+
+test generator-2.12 {define, values with spaces} -body {
+    generator define gentest {} {generator yield {a b} {} c}
+    set g [gentest]
+    list [$g] [$g] [$g]
+} -cleanup {
+    rename ::gentest {}
+    generator destroy $g
+    unset g
+} -result {{{a b}} {{}} c}
+
+test generator-2.13 {define, error in the body is propagated} -body {
+    generator define gentest {} {generator yield 1; error boom}
+    generator to list [gentest]
+} -cleanup {
+    rename ::gentest {}
+} -returnCodes error -result boom
+
+# The result of the last command of the body is returned as an extra
+# value instead of the empty list marking the end.
+test generator-2.14 {define, result of the body is not yielded} -constraints knownBug -body {
+    generator define gentest {} {generator yield 1; set x 5}
+    generator to list [gentest]
+} -cleanup {
+    rename ::gentest {}
+} -result 1
+
+test generator-2.15 {define, empty generator} -body {
+    generator define gentest {} {}
+    set g [gentest]
+    list [$g] [generator exists $g]
+} -cleanup {
+    rename ::gentest {}
+    unset g
+} -result {{} 0}
+
+# -------------------------------------------------------------------------
+## yield
+
+test generator-3.0 {yield, several values} -body {
+    generator define gentest {} {generator yield a b c}
+    set g [gentest]
+    list [$g] [$g] [$g] [$g]
+} -cleanup {
+    rename ::gentest {}
+    unset g
+} -result {a b c {}}
+
+test generator-3.2 {yield, outside of a generator} -body {
+    generator yield 1
+} -returnCodes error -result {yield can only be called in a coroutine}
+
+# -------------------------------------------------------------------------
+## foreach
+
+test generator-4.0 {foreach, wrong # args, none} -body {
+    generator foreach
+} -returnCodes error -result {wrong # args: should be "foreach varSpec generator ?varSpec generator ..? body"}
+
+test generator-4.1 {foreach, wrong # args, two} -body {
+    generator foreach x y
+} -returnCodes error -result {wrong # args: should be "foreach varSpec generator ?varSpec generator ..? body"}
+
+test generator-4.2 {foreach, wrong # args, even} -body {
+    generator foreach x y z w
+} -returnCodes error -result {wrong # args: should be "foreach varSpec generator ?varSpec generator ..? body"}
+
+test generator-4.3 {foreach, simple loop} -body {
+    set res {}
+    list [generator foreach x [range 1 5] { lappend res $x }] $res
+} -cleanup {
+    unset res x
+} -result {{} {1 2 3 4 5}}
+
+test generator-4.4 {foreach, several variables} -body {
+    set res {}
+    generator foreach {a b} [range 1 5] { lappend res [list $a $b] }
+    set res
+} -cleanup {
+    unset res a b
+} -result {{1 2} {3 4} {5 {}}}
+
+test generator-4.5 {foreach, several generators} -body {
+    set res {}
+    generator foreach x [range 1 3] y [generator from list {a b}] {
+	lappend res $x$y
+    }
+    set res
+} -cleanup {
+    unset res x y
+} -result {1a 2b 3}
+
+test generator-4.6 {foreach, several generators and variables} -body {
+    set res {}
+    generator foreach {a b} [range 1 4] c [generator from list {x y z}] {
+	lappend res [list $a $b $c]
+    }
+    set res
+} -cleanup {
+    unset res a b c
+} -result {{1 2 x} {3 4 y} {{} {} z}}
+
+test generator-4.7 {foreach, break destroys the generators} -body {
+    set g [range 1 10]
+    set res {}
+    generator foreach x $g {
+	if {$x > 3} break
+	lappend res $x
+    }
+    list $res [generator exists $g]
+} -cleanup {
+    unset res x g
+} -result {{1 2 3} 0}
+
+test generator-4.8 {foreach, continue} -body {
+    set res {}
+    generator foreach x [range 1 5] {
+	if {$x % 2} continue
+	lappend res $x
+    }
+    set res
+} -cleanup {
+    unset res x
+} -result {2 4}
+
+test generator-4.9 {foreach, return from the enclosing procedure} -setup {
+    proc ftest {} {
+	generator foreach x [range 1 10] {
+	    if {$x == 3} {return found-$x}
+	}
+	return notfound
+    }
+} -body {
+    list [ftest] [generator names]
+} -cleanup {
+    rename ftest {}
+} -result {found-3 {}}
+
+test generator-4.10 {foreach, error is propagated and generators are destroyed} -body {
+    set g [range 1 10]
+    list [catch {generator foreach x $g {error boom}} msg] $msg [generator exists $g]
+} -cleanup {
+    unset g x msg
+} -result {1 boom 0}
+
+test generator-4.11 {foreach, empty generator} -body {
+    set res {}
+    generator foreach x [generator from list {}] { lappend res $x }
+    set res
+} -cleanup {
+    unset res
+} -result {}
+
+test generator-4.12 {foreach, manual call inside the loop skips an element} -body {
+    set g [range 1 6]
+    set res {}
+    generator foreach x $g {
+	lappend res $x
+	$g
+    }
+    set res
+} -cleanup {
+    unset res x g
+} -result {1 3 5}
+
+test generator-4.13 {foreach, generator destroyed inside the loop} -body {
+    set g1 [range 1 5]
+    set g2 [generator from list {a b c d e}]
+    set res {}
+    generator foreach x $g1 y $g2 {
+	lappend res $x$y
+	if {$x == 2} {generator destroy $g1}
+    }
+    set res
+} -cleanup {
+    unset res x y g1 g2
+} -result {1a 2b c d e}
+
+test generator-4.14 {foreach, variables in the caller scope} -setup {
+    proc ftest {} {
+	set sum 0
+	generator foreach x [range 1 4] { incr sum $x }
+	list $sum $x [info level]
+    }
+} -body {
+    ftest
+} -cleanup {
+    rename ftest {}
+} -result {10 {} 1}
+
+test generator-4.15 {foreach, nested loops} -body {
+    set res {}
+    generator foreach x [range 1 2] {
+	generator foreach y [range 1 2] {
+	    lappend res $x$y
+	}
+    }
+    set res
+} -cleanup {
+    unset res x y
+} -result {11 12 21 22}
+
+test generator-4.16 {foreach, infinite generator with break} -body {
+    generator define nats {} {
+	while 1 { generator yield [incr nat] }
+    }
+    generator foreach n [nats] {
+	if {$n > 100} { break }
+    }
+    list $n [generator names]
+} -cleanup {
+    rename ::nats {}
+    unset n
+} -result {101 {}}
+
+# -------------------------------------------------------------------------
+## next
+
+test generator-5.0 {next, wrong # args} -body {
+    generator next
+} -returnCodes error -result {wrong # args: should be "generator next generator ?arg ...?"}
+
+test generator-5.1 {next, assigns the next values} -body {
+    set g [range 1 3]
+    generator next $g a b
+    list $a $b [generator exists $g]
+} -cleanup {
+    generator destroy $g
+    unset g a b
+} -result {1 2 1}
+
+test generator-5.2 {next, exhausted generator sets empty strings} -body {
+    set g [range 1 3]
+    generator next $g a b
+    generator next $g a b
+    list $a $b [generator exists $g]
+} -cleanup {
+    unset g a b
+} -result {3 {} 0}
+
+test generator-5.3 {next, nonexistent generator sets empty strings} -body {
+    set a x
+    generator next nosuchgenerator a
+    set a
+} -cleanup {
+    unset a
+} -result {}
+
+test generator-5.4 {next, no variables does not consume} -body {
+    set g [range 1 3]
+    generator next $g
+    $g
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result 1
+
+test generator-5.5 {next, variables in the caller scope} -setup {
+    proc ntest {g} {
+	generator next $g v
+	set v
+    }
+} -body {
+    set g [range 7 8]
+    ntest $g
+} -cleanup {
+    generator destroy $g
+    unset g
+    rename ntest {}
+} -result 7
+
+# -------------------------------------------------------------------------
+## exists, names, destroy
+
+test generator-6.0 {exists, wrong # args} -body {
+    generator exists
+} -returnCodes error -result {wrong # args: should be "generator exists generator"}
+
+test generator-6.1 {exists, existing and nonexistent} -body {
+    set g [range 1 3]
+    set res [list [generator exists $g]]
+    generator destroy $g
+    lappend res [generator exists $g] [generator exists nosuch]
+} -cleanup {
+    unset g res
+} -result {1 0 0}
+
+# The name is used as a glob pattern. Ticket [3578420fff].
+test generator-6.2 {exists, name with glob characters} -constraints knownBug -body {
+    set g [range 1 3]
+    generator exists ::generator::generator*
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result 0
+
+test generator-6.3 {names, lists existing generators} -body {
+    set g1 [range 1 3]
+    set g2 [range 1 3]
+    set res [list [lsort [generator names]] [lsort [list $g1 $g2]]]
+    generator destroy $g1
+    lappend res [generator names] $g2
+    expr {[lindex $res 0] eq [lindex $res 1] && [lindex $res 2] eq [lindex $res 3]}
+} -cleanup {
+    generator destroy $g2
+    unset g1 g2 res
+} -result 1
+
+test generator-6.4 {names, none} -body {
+    generator names
+} -result {}
+
+test generator-6.5 {names, wrong # args} -body {
+    generator names x
+} -returnCodes error -result {wrong # args: should be "generator names"}
+
+test generator-6.6 {destroy, several generators} -body {
+    set g1 [range 1 3]
+    set g2 [range 1 3]
+    generator destroy $g1 $g2
+    list [generator exists $g1] [generator exists $g2]
+} -cleanup {
+    unset g1 g2
+} -result {0 0}
+
+test generator-6.7 {destroy, nothing and nonexistent generators} -body {
+    list [generator destroy] [generator destroy nosuch]
+} -result {{} {}}
+
+# -------------------------------------------------------------------------
+## finally
+
+test generator-7.0 {finally, called when exhausted} -body {
+    set ::fin {}
+    generator define gentest {} {
+	generator finally lappend ::fin done
+	generator yield 1 2
+    }
+    list [generator to list [gentest]] $::fin
+} -cleanup {
+    rename ::gentest {}
+    unset ::fin
+} -result {{1 2} done}
+
+test generator-7.1 {finally, called when destroyed early} -body {
+    set ::fin {}
+    generator define gentest {} {
+	generator finally lappend ::fin done
+	generator yield 1 2 3
+    }
+    set g [gentest]
+    $g
+    set res [list $::fin]
+    generator destroy $g
+    lappend res $::fin
+} -cleanup {
+    rename ::gentest {}
+    unset ::fin g res
+} -result {{} done}
+
+test generator-7.2 {finally, called when a foreach loop breaks} -body {
+    set ::fin {}
+    generator define gentest {} {
+	generator finally lappend ::fin done
+	generator yield 1 2 3
+    }
+    generator foreach x [gentest] { break }
+    set ::fin
+} -cleanup {
+    rename ::gentest {}
+    unset ::fin x
+} -result done
+
+test generator-7.3 {finally, several commands} -body {
+    set ::fin {}
+    generator define gentest {} {
+	generator finally lappend ::fin a
+	generator finally lappend ::fin b
+	generator yield 1
+    }
+    generator to list [gentest]
+    lsort $::fin
+} -cleanup {
+    rename ::gentest {}
+    unset ::fin
+} -result {a b}
+
+test generator-7.4 {finally, closes a file (manpage example)} -setup {
+    set fn [makeFile "l1\nl2\nl3\nl4" gentest.txt]
+} -body {
+    generator define lines file {
+	set in [open $file]
+	set ::chan $in
+	generator finally close $in
+	while {[gets $in line] >= 0} {
+	    generator yield $line
+	}
+    }
+    set res {}
+    generator foreach line [lines $fn] {
+	lappend res $line
+	if {[incr count] >= 2} { break }
+    }
+    list $res [expr {$::chan in [chan names]}]
+} -cleanup {
+    rename ::lines {}
+    removeFile gentest.txt
+    unset -nocomplain fn res line count ::chan
+} -result {{l1 l2} 0}
+
+test generator-7.5 {finally, command resolved in the namespace of the generator} -body {
+    namespace eval ::gtestns {
+	variable fin {}
+	proc record {} {variable fin; lappend fin done}
+	generator define gen {} {
+	    generator finally record
+	    generator yield 1
+	}
+    }
+    generator to list [::gtestns::gen]
+    set ::gtestns::fin
+} -cleanup {
+    namespace delete ::gtestns
+} -result done
+
+# -------------------------------------------------------------------------
+## from, to
+
+test generator-8.0 {from, wrong # args} -body {
+    generator from
+} -returnCodes error -result {wrong # args: should be "generator from subcommand ?arg ...?"}
+
+test generator-8.1 {from, unknown format} -body {
+    generator from bogus x
+} -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be dict, list, or string}
+
+test generator-8.2 {from list} -body {
+    set g [generator from list {a {b c} {}}]
+    list [$g] [$g] [$g] [$g]
+} -cleanup {
+    unset g
+} -result {a {{b c}} {{}} {}}
+
+test generator-8.3 {from dict, keys and values separately} -body {
+    set g [generator from dict {a 1 b 2}]
+    list [$g] [$g] [$g] [$g] [$g]
+} -cleanup {
+    unset g
+} -result {a 1 b 2 {}}
+
+test generator-8.4 {from string, characters} -body {
+    generator to list [generator from string "a bй"]
+} -result [list a { } b й]
+
+test generator-8.5 {to, wrong # args} -body {
+    generator to
+} -returnCodes error -result {wrong # args: should be "generator to subcommand ?arg ...?"}
+
+test generator-8.6 {to, unknown format} -body {
+    generator to bogus x
+} -returnCodes error -result {unknown or ambiguous subcommand "bogus": must be dict, list, or string}
+
+test generator-8.7 {to list} -body {
+    generator to list [range 1 4]
+} -result {1 2 3 4}
+
+test generator-8.8 {to string} -body {
+    generator to string [generator from list {ab c d}]
+} -result abcd
+
+# [to dict] calls itself instead of the builtin dict.
+test generator-8.9 {to dict} -constraints knownBug -body {
+    generator to dict [generator from list {a 1 b 2}]
+} -cleanup {
+    cleanupGens
+} -result {a 1 b 2}
+
+test generator-8.10 {identity, list} -body {
+    generator to list [generator from list {a {b c} {} d}]
+} -result {a {b c} {} d}
+
+test generator-8.11 {identity, string} -body {
+    generator to string [generator from string "abc def"]
+} -result "abc def"
+
+test generator-8.12 {identity, dict} -constraints knownBug -body {
+    generator to dict [generator from dict {a 1 b 2}]
+} -cleanup {
+    cleanupGens
+} -result {a 1 b 2}
+
+test generator-8.13 {to list, empty} -body {
+    generator to list [generator from list {}]
+} -result {}
+
+test generator-8.14 {to list, destroys the generator} -body {
+    set g [range 1 2]
+    generator to list $g
+    generator exists $g
+} -cleanup {
+    unset g
+} -result 0
+
+# -------------------------------------------------------------------------
+## Prelude: map, filter, reduce, folds
+
+test generator-9.0 {map} -body {
+    generator to list [generator map double [range 1 4]]
+} -result {2 4 6 8}
+
+test generator-9.1 {map, command prefix} -body {
+    generator to list [generator map {::tcl::mathop::+ 10} [range 1 3]]
+} -result {11 12 13}
+
+test generator-9.2 {map, infinite generator (manpage example)} -body {
+    generator define nats {} {
+	while 1 { generator yield [incr nat] }
+    }
+    proc square x { expr {$x * $x} }
+    set res {}
+    generator foreach n [generator map square [nats]] {
+	lappend res $n
+	if {$n > 20} { break }
+    }
+    list $res [generator names]
+} -cleanup {
+    rename ::nats {}
+    rename square {}
+    unset res n
+} -result {{1 4 9 16 25} {}}
+
+test generator-9.3 {map, argument generator destroyed with it} -body {
+    set g [range 1 5]
+    set m [generator map double $g]
+    $m
+    generator destroy $m
+    generator exists $g
+} -cleanup {
+    unset g m
+} -result 0
+
+# The finally handler is set only when the map body starts running, so
+# destroying a map generator that was never called leaves its argument
+# alive.
+test generator-9.4 {map, argument destroyed when unused map is destroyed} -constraints knownBug -body {
+    set g [range 1 5]
+    set m [generator map double $g]
+    generator destroy $m
+    generator exists $g
+} -cleanup {
+    cleanupGens
+    unset g m
+} -result 0
+
+test generator-9.5 {filter} -body {
+    generator to list [generator filter odd [range 1 6]]
+} -result {1 3 5}
+
+test generator-9.6 {filter, nothing matches} -body {
+    generator to list [generator filter gt [range 1 3]]
+} -result {}
+
+test generator-9.7 {reduce} -body {
+    generator reduce ::tcl::mathop::+ 0 [range 1 10]
+} -result 55
+
+test generator-9.8 {reduce, left associative} -body {
+    generator reduce {apply {{a b} {return ($a$b)}}} z [generator from list {1 2 3}]
+} -result (((z1)2)3)
+
+test generator-9.9 {reduce, empty generator returns zero} -body {
+    generator reduce ::tcl::mathop::+ zero [generator from list {}]
+} -result zero
+
+test generator-9.10 {reduce, wrong # args} -body {
+    generator reduce f z
+} -returnCodes error -result {wrong # args: should be "generator reduce f z xs"}
+
+test generator-9.11 {foldl, alias of reduce} -body {
+    generator foldl {apply {{a b} {return ($a$b)}}} z [generator from list {1 2 3}]
+} -result (((z1)2)3)
+
+test generator-9.12 {foldr, right associative} -body {
+    generator foldr {apply {{a b} {return ($a$b)}}} z [generator from list {1 2 3}]
+} -result (1(2(3z)))
+
+test generator-9.13 {foldr, empty generator} -body {
+    generator foldr ::tcl::mathop::+ zero [generator from list {}]
+} -result zero
+
+# foldl1 uses take, which returns a generator, as the zero value.
+test generator-9.14 {foldl1} -constraints knownBug -body {
+    generator foldl1 {apply {{a b} {return ($a$b)}}} [generator from list {1 2 3}]
+} -cleanup {
+    cleanupGens
+} -result ((12)3)
+
+# The index passed by foldli starts at 1, the documentation says 0.
+test generator-9.15 {foldli, index starts at 0} -constraints knownBug -body {
+    generator foldli {apply {{i z x} {lappend z $i:$x}}} {} [generator from list {a b c}]
+} -result {0:a 1:b 2:c}
+
+test generator-9.16 {foldli, left associative} -body {
+    generator foldli {apply {{i a b} {return ($a$b)}}} z [generator from list {1 2 3}]
+} -result (((z1)2)3)
+
+test generator-9.17 {foldri, right associative} -body {
+    generator foldri {apply {{i a b} {return ($a$b)}}} z [generator from list {1 2 3}]
+} -result (1(2(3z)))
+
+test generator-9.18 {scanl} -body {
+    generator to list [generator scanl ::tcl::mathop::+ 0 [range 1 4]]
+} -result {0 1 3 6 10}
+
+test generator-9.19 {scanl, last element equals foldl} -body {
+    list [lindex [generator to list [generator scanl ::tcl::mathop::* 1 [range 1 5]]] end] \
+	[generator foldl ::tcl::mathop::* 1 [range 1 5]]
+} -result {120 120}
+
+test generator-9.20 {scanl, empty generator} -body {
+    generator to list [generator scanl ::tcl::mathop::+ 0 [generator from list {}]]
+} -result 0
+
+# -------------------------------------------------------------------------
+## Prelude: predicates
+
+test generator-10.0 {all, true} -body {
+    generator all {apply {x {expr {$x > 0}}}} [range 1 5]
+} -result 1
+
+test generator-10.1 {all, false} -body {
+    generator all gt [range 1 5]
+} -result 0
+
+test generator-10.2 {all, empty generator} -body {
+    generator all gt [generator from list {}]
+} -result 1
+
+test generator-10.3 {and} -body {
+    list [generator and [generator from list {1 1 1}]] \
+	[generator and [generator from list {1 0 1}]] \
+	[generator and [generator from list {}]]
+} -cleanup {
+    cleanupGens
+} -result {1 0 1}
+
+# Documented as [any generator], implemented as [any predicate
+# generator], and the implementation always returns 0.
+test generator-10.4 {any, documented form} -constraints knownBug -body {
+    list [generator any [generator from list {0 0 1}]] \
+	[generator any [generator from list {0 0 0}]]
+} -cleanup {
+    cleanupGens
+} -result {1 0}
+
+test generator-10.5 {any, with predicate} -constraints knownBug -body {
+    generator any gt [range 1 5]
+} -cleanup {
+    cleanupGens
+} -result 1
+
+test generator-10.6 {or, true} -body {
+    generator or gt [range 1 5]
+} -cleanup {
+    cleanupGens
+} -result 1
+
+test generator-10.7 {or, false} -body {
+    generator or gt [range 1 3]
+} -result 0
+
+test generator-10.8 {contains} -body {
+    list [generator contains 3 [range 1 5]] [generator contains 9 [range 1 5]]
+} -cleanup {
+    cleanupGens
+} -result {1 0}
+
+test generator-10.9 {contains, string comparison} -body {
+    list [generator contains {b c} [generator from list {a {b c}}]] \
+	[generator contains 1.0 [generator from list {1}]]
+} -cleanup {
+    cleanupGens
+} -result {1 0}
+
+test generator-10.10 {contains, destroys the generator} -body {
+    set g [range 1 5]
+    generator contains 2 $g
+    generator exists $g
+} -cleanup {
+    unset g
+} -result 0
+
+# -------------------------------------------------------------------------
+## Prelude: concat, concatMap
+
+test generator-11.0 {concat} -body {
+    generator to list [generator concat [range 1 2] [range 5 6] [generator from list {a}]]
+} -result {1 2 5 6 a}
+
+test generator-11.1 {concat, single and empty generators} -body {
+    list [generator to list [generator concat [range 1 2]]] \
+	[generator to list [generator concat [generator from list {}] [range 1 1]]]
+} -result {{1 2} 1}
+
+test generator-11.2 {concat, no generators} -body {
+    generator to list [generator concat]
+} -result {}
+
+# concatMap concatenates only the single generator returned by map, so
+# the generators returned by the function are yielded as values.
+test generator-11.3 {concatMap} -constraints knownBug -body {
+    generator to list [generator concatMap {apply {x {
+	generator from list [list $x $x]
+    }}} [range 1 3]]
+} -cleanup {
+    cleanupGens
+} -result {1 1 2 2 3 3}
+
+# -------------------------------------------------------------------------
+## Prelude: drop, dropWhile, take, takeWhile, takeList
+
+test generator-12.0 {drop} -body {
+    generator to list [generator drop 2 [range 1 5]]
+} -result {3 4 5}
+
+test generator-12.1 {drop, returns the same generator} -body {
+    set g [range 1 5]
+    expr {[generator drop 1 $g] eq $g}
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result 1
+
+test generator-12.2 {drop, more than available} -body {
+    generator to list [generator drop 10 [range 1 3]]
+} -result {}
+
+test generator-12.3 {drop, zero} -body {
+    generator to list [generator drop 0 [range 1 3]]
+} -result {1 2 3}
+
+# dropWhile breaks out of a foreach loop, which destroys the generator
+# it still has to yield the rest of.
+test generator-12.4 {dropWhile} -constraints knownBug -body {
+    generator to list [generator dropWhile lt3 [range 1 5]]
+} -result {3 4 5}
+
+test generator-12.5 {dropWhile, all dropped} -body {
+    generator to list [generator dropWhile gt [range 4 6]]
+} -result {}
+
+test generator-12.6 {dropWhile, first element not dropped} -constraints knownBug -body {
+    generator to list [generator dropWhile gt [range 1 3]]
+} -result {1 2 3}
+
+# take yields one element less than asked for.
+test generator-12.7 {take} -constraints knownBug -body {
+    generator to list [generator take 3 [range 1 10]]
+} -result {1 2 3}
+
+test generator-12.8 {take, more than available} -body {
+    generator to list [generator take 10 [range 1 3]]
+} -result {1 2 3}
+
+test generator-12.9 {take, zero} -body {
+    generator to list [generator take 0 [range 1 3]]
+} -result {}
+
+test generator-12.10 {take, old generator destroyed} -body {
+    set g [range 1 10]
+    generator to list [generator take 3 $g]
+    generator exists $g
+} -cleanup {
+    unset g
+} -result 0
+
+test generator-12.11 {takeWhile} -body {
+    generator to list [generator takeWhile lt3 [range 1 5]]
+} -result {1 2}
+
+test generator-12.12 {takeWhile, none} -body {
+    generator to list [generator takeWhile gt [range 1 5]]
+} -result {}
+
+test generator-12.13 {takeWhile, stops at the first failing element} -body {
+    generator to list [generator takeWhile lt3 [generator from list {1 2 5 1 2}]]
+} -result {1 2}
+
+test generator-12.14 {takeList} -body {
+    set g [range 1 5]
+    list [generator takeList 2 $g] [generator takeList 2 $g] [generator takeList 2 $g] \
+	[generator exists $g]
+} -cleanup {
+    unset g
+} -result {{1 2} {3 4} 5 0}
+
+test generator-12.15 {takeList, nonexistent generator} -body {
+    generator takeList 2 nosuch
+} -result {}
+
+test generator-12.16 {takeList, zero} -body {
+    set g [range 1 5]
+    list [generator takeList 0 $g] [$g]
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result {{} 1}
+
+# -------------------------------------------------------------------------
+## Prelude: head, tail, init, last
+
+# head returns a generator created by take (which also yields nothing
+# for n=1), not the first element.
+test generator-13.0 {head} -constraints knownBug -body {
+    generator head [range 7 9]
+} -cleanup {
+    cleanupGens
+} -result 7
+
+test generator-13.1 {tail} -body {
+    generator to list [generator tail [range 1 4]]
+} -result {2 3 4}
+
+test generator-13.2 {tail, single element} -body {
+    generator to list [generator tail [range 1 1]]
+} -result {}
+
+# init yields the generator returned by head as its first element.
+test generator-13.3 {init} -constraints knownBug -body {
+    generator to list [generator init [range 1 5]]
+} -cleanup {
+    cleanupGens
+} -result {1 2 3 4}
+
+# The generator foreach loop clears the variable after the last element.
+test generator-13.4 {last} -constraints knownBug -body {
+    generator last [range 1 5]
+} -result 5
+
+# -------------------------------------------------------------------------
+## Prelude: iterate, repeat, length, sum, product, splitWhen
+
+test generator-14.0 {iterate} -body {
+    set g [generator iterate double 1]
+    list [generator takeList 6 $g] [generator exists $g]
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result {{1 2 4 8 16 32} 1}
+
+test generator-14.1 {iterate, Fibonacci (manpage example)} -body {
+    proc fst pair { lindex $pair 0 }
+    proc snd pair { lindex $pair 1 }
+    proc nextFib ab { list [snd $ab] [expr {[fst $ab] + [snd $ab]}] }
+    proc fibs {} { generator map fst [generator iterate nextFib {0 1}] }
+    set g [fibs]
+    generator takeList 10 $g
+} -cleanup {
+    generator destroy $g
+    cleanupGens
+    rename fst {}
+    rename snd {}
+    rename nextFib {}
+    rename fibs {}
+    unset g
+} -result {0 1 1 2 3 5 8 13 21 34}
+
+test generator-14.2 {repeat} -body {
+    generator to list [generator repeat 3 x]
+} -result {x x x}
+
+test generator-14.3 {repeat, several values} -body {
+    generator to list [generator repeat 2 a b]
+} -result {a b a b}
+
+test generator-14.4 {repeat, zero} -body {
+    generator to list [generator repeat 0 x]
+} -result {}
+
+test generator-14.5 {repeat, Inf} -body {
+    set g [generator repeat Inf x]
+    list [generator takeList 5 $g] [generator exists $g]
+} -cleanup {
+    generator destroy $g
+    unset g
+} -result {{x x x x x} 1}
+
+test generator-14.6 {length} -body {
+    list [generator length [range 1 7]] [generator length [generator from list {}]]
+} -result {7 0}
+
+test generator-14.7 {length, destroys the generator} -body {
+    set g [range 1 3]
+    generator length $g
+    generator exists $g
+} -cleanup {
+    unset g
+} -result 0
+
+test generator-14.8 {sum} -body {
+    list [generator sum [range 1 10]] [generator sum [generator from list {}]] \
+	[generator sum [generator from list {1.5 2.5}]]
+} -result {55 0 4.0}
+
+test generator-14.9 {product} -body {
+    list [generator product [range 1 5]] [generator product [generator from list {}]]
+} -result {120 1}
+
+test generator-14.10 {sum, non-numeric element} -body {
+    generator sum [generator from list {1 x}]
+} -returnCodes error -match glob -result {*non-numeric*}
+
+test generator-14.11 {splitWhen} -body {
+    generator to list [generator splitWhen {string equal |} \
+			   [generator from list {a | b c | d}]]
+} -result {a {b c} d}
+
+test generator-14.12 {splitWhen, delimiters at the ends} -body {
+    generator to list [generator splitWhen {string equal |} \
+			   [generator from list {| a |}]]
+} -result {{} a}
+
+test generator-14.13 {splitWhen, no delimiters} -body {
+    generator to list [generator splitWhen {string equal |} \
+			   [generator from list {a b}]]
+} -result {{a b}}
+
+test generator-14.14 {splitWhen, empty generator} -body {
+    generator to list [generator splitWhen {string equal |} \
+			   [generator from list {}]]
+} -result {}
+
+# -------------------------------------------------------------------------
+## Manpage examples
+
+test generator-15.0 {range example} -body {
+    set res {}
+    generator foreach x [range 1 10] {
+	lappend res $x
+    }
+    set res
+} -cleanup {
+    unset res x
+} -result {1 2 3 4 5 6 7 8 9 10}
+
+test generator-15.1 {sum and factorial examples} -body {
+    proc + {a b} { expr {$a + $b} }
+    proc sum gen { generator reduce + 0 $gen }
+    proc * {x y} { expr {$x * $y} }
+    proc prod gen { generator reduce * 1 $gen }
+    proc fac n { prod [range 1 $n] }
+    list [sum [range 1 10]] [fac 5]
+} -cleanup {
+    rename + {}
+    rename sum {}
+    rename * {}
+    rename prod {}
+    rename fac {}
+} -result {55 120}
+
+test generator-15.2 {filter example} -body {
+    proc salary> {amount person} { expr {[dict get $person salary] > $amount} }
+    set employees [generator from list {
+	{name a salary 50000} {name b salary 150000} {name c salary 200000}
+    }]
+    set fat-cats [generator filter {salary> 100000} $employees]
+    generator to list ${fat-cats}
+} -cleanup {
+    rename salary> {}
+    unset employees fat-cats
+} -result {{name b salary 150000} {name c salary 200000}}
+
+# -------------------------------------------------------------------------
+test generator-99.0 {no generators left over} -body {
+    generator names
+} -result {}
+
+# -------------------------------------------------------------------------
+rename ::range {}
+rename gt {}
+rename lt3 {}
+rename odd {}
+rename double {}
+rename cleanupGens {}
+testsuiteCleanup
+return
