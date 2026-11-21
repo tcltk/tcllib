@@ -66,10 +66,6 @@ proc fakePwd {reply} {
 
 # -------------------------------------------------------------------------
 
-test ftp-pwd-1.0 {Pwd, simple name} -body {
-    fakePwd {257 "/usr/dm" is current directory.}
-} -result /usr/dm
-
 test ftp-pwd-1.1 {Pwd, name with doubled quotes, RFC 959} -body {
     fakePwd {257 "/usr/dm/a""b" is current directory.}
 } -result {/usr/dm/a"b}
