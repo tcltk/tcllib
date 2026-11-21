@@ -1,0 +1,241 @@
+# -*- tcl -*-
+# lambda.test:  Tests for the lambda package.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal lambda.tcl lambda
+}
+
+# regsub -command exists since Tcl 8.7.
+tcltest::testConstraint regsubCommand [expr {![catch {regsub -command x x list}]}]
+
+# -------------------------------------------------------------------------
+## lambda
+
+test lambda-1.0 {lambda, wrong # args, none} -body {
+    lambda
+} -returnCodes error -result {wrong # args: should be "lambda arguments body ?arg ...?"}
+
+test lambda-1.1 {lambda, wrong # args, body missing} -body {
+    lambda x
+} -returnCodes error -result {wrong # args: should be "lambda arguments body ?arg ...?"}
+
+test lambda-1.2 {lambda, result is an apply command prefix} -body {
+    lambda {x y} {expr {$x + $y}}
+} -result {::apply {{x y} {expr {$x + $y}}}}
+
+test lambda-1.3 {lambda, result with predefined arguments} -body {
+    lambda {x y} {expr {$x + $y}} 1
+} -result {::apply {{x y} {expr {$x + $y}}} 1}
+
+test lambda-1.4 {lambda, result with several predefined arguments} -body {
+    lambda {a b c} {list $a $b $c} {1 2} 3
+} -result {::apply {{a b c} {list $a $b $c}} {1 2} 3}
+
+test lambda-1.5 {lambda, invocation} -body {
+    {*}[lambda {x y} {expr {$x * $y}}] 6 7
+} -result 42
+
+test lambda-1.6 {lambda, partial application} -body {
+    set f [lambda {x y} {list $x $y} first]
+    list [{*}$f second] [{*}$f other]
+} -cleanup {
+    unset -nocomplain f
+} -result {{first second} {first other}}
+
+test lambda-1.7 {lambda, all arguments predefined} -body {
+    {*}[lambda {x y} {list $x $y} a b]
+} -result {a b}
+
+test lambda-1.8 {lambda, predefined arguments keep words intact} -body {
+    {*}[lambda {x y} {list $x $y} {a b} {c d}]
+} -result {{a b} {c d}}
+
+test lambda-1.9 {lambda, no arguments} -body {
+    {*}[lambda {} {return ok}]
+} -result ok
+
+test lambda-1.10 {lambda, default argument values} -body {
+    set f [lambda {x {y def}} {list $x $y}]
+    list [{*}$f 1] [{*}$f 1 2]
+} -cleanup {
+    unset -nocomplain f
+} -result {{1 def} {1 2}}
+
+test lambda-1.11 {lambda, args parameter} -body {
+    {*}[lambda {x args} {list $x $args} 1] 2 3 4
+} -result {1 {2 3 4}}
+
+test lambda-1.12 {lambda, wrong # args when invoked} -body {
+    {*}[lambda {x y} {list $x $y}] 1
+} -returnCodes error -result {wrong # args: should be "::apply lambdaExpr x y"}
+
+test lambda-1.13 {lambda, too many args when invoked} -body {
+    {*}[lambda {x} {list $x} 1] 2
+} -returnCodes error -result {wrong # args: should be "::apply lambdaExpr x"}
+
+test lambda-1.14 {lambda, body runs in a new local scope} -setup {
+    set ::lambdatest 0
+} -body {
+    {*}[lambda {} {
+	set local 1
+	list [info exists ::lambdatest] [info level] [info exists local]
+    }]
+} -cleanup {
+    unset -nocomplain ::lambdatest
+} -result {1 1 1}
+
+test lambda-1.15 {lambda, body runs just below global scope} -setup {
+    proc lambdatestcaller {f} {
+	set callerlocal 1
+	{*}$f
+    }
+} -body {
+    lambdatestcaller [lambda {} {
+	list [info level] [uplevel 1 {info exists callerlocal}] \
+	    [uplevel #0 {namespace current}]
+    }]
+} -cleanup {
+    rename lambdatestcaller {}
+} -result {2 1 ::}
+
+test lambda-1.16 {lambda, body runs in the global namespace} -setup {
+    namespace eval ::lambdatest {
+	proc call {f} {{*}$f}
+    }
+} -body {
+    ::lambdatest::call [lambda {} {namespace current}]
+} -cleanup {
+    namespace delete ::lambdatest
+} -result ::
+
+test lambda-1.17 {lambda, local variables do not persist} -body {
+    set f [lambda {} {incr counter}]
+    list [{*}$f] [{*}$f]
+} -cleanup {
+    unset -nocomplain f
+} -result {1 1}
+
+test lambda-1.18 {lambda, errors propagate} -body {
+    {*}[lambda {} {error boom}]
+} -returnCodes error -result boom
+
+test lambda-1.19 {lambda, return code is returned} -body {
+    {*}[lambda {x} {return -code ok "got $x"}] value
+} -result {got value}
+
+test lambda-1.20 {lambda, used as lsort -command} -body {
+    lsort -command [lambda {a b} {expr {$b - $a}}] {3 1 4 1 5}
+} -result {5 4 3 1 1}
+
+test lambda-1.21 {lambda, used as regsub -command} -constraints regsubCommand -body {
+    regsub -all -command {%([0-9A-Fa-f]{2})} {a%20b%2Fc} [lambda {_ hex} {
+	scan $hex %x code
+	format %c $code
+    }]
+} -result {a b/c}
+
+test lambda-1.22 {lambda, invalid parameter list detected on invocation} -body {
+    {*}[lambda {{}} {}]
+} -returnCodes error -result {argument with no name}
+
+test lambda-1.23 {lambda, make_adder example from the manpage} -setup {
+    proc make_adder addend { lambda {x y} { expr { $x + $y } } $addend }
+} -body {
+    set add5 [make_adder 5]
+    list [{*}$add5 92] [{*}$add5 17]
+} -cleanup {
+    rename make_adder {}
+    unset -nocomplain add5
+} -result {97 22}
+
+# -------------------------------------------------------------------------
+## lambda@
+
+test lambda-2.0 {lambda@, wrong # args, none} -body {
+    lambda@
+} -returnCodes error -result {wrong # args: should be "lambda@ ns arguments body ?arg ...?"}
+
+test lambda-2.1 {lambda@, wrong # args, body missing} -body {
+    lambda@ ::foo x
+} -returnCodes error -result {wrong # args: should be "lambda@ ns arguments body ?arg ...?"}
+
+test lambda-2.2 {lambda@, result is an apply command prefix} -body {
+    lambda@ ::foo {x y} {expr {$x + $y}}
+} -result {::apply {{x y} {expr {$x + $y}} ::foo}}
+
+test lambda-2.3 {lambda@, result with predefined arguments} -body {
+    lambda@ ::foo {x y} {expr {$x + $y}} 1 {2 3}
+} -result {::apply {{x y} {expr {$x + $y}} ::foo} 1 {2 3}}
+
+test lambda-2.4 {lambda@, body runs in the given namespace} -setup {
+    namespace eval ::lambdatest {
+	variable v nsvalue
+	proc helper {} {return helped}
+    }
+} -body {
+    {*}[lambda@ ::lambdatest {x} {
+	variable v
+	list [namespace current] $v [helper] $x
+    }] arg
+} -cleanup {
+    namespace delete ::lambdatest
+} -result {::lambdatest nsvalue helped arg}
+
+test lambda-2.5 {lambda@, partial application} -setup {
+    namespace eval ::lambdatest {}
+} -body {
+    set f [lambda@ ::lambdatest {x y} {list [namespace current] $x $y} pre]
+    {*}$f post
+} -cleanup {
+    unset -nocomplain f
+    namespace delete ::lambdatest
+} -result {::lambdatest pre post}
+
+test lambda-2.6 {lambda@, relative namespace is resolved globally} -setup {
+    namespace eval ::lambdatest {}
+} -body {
+    {*}[lambda@ lambdatest {} {namespace current}]
+} -cleanup {
+    namespace delete ::lambdatest
+} -result ::lambdatest
+
+test lambda-2.7 {lambda@, global namespace} -body {
+    {*}[lambda@ :: {} {namespace current}]
+} -result ::
+
+test lambda-2.8 {lambda@, nonexistent namespace, error on invocation} -body {
+    set f [lambda@ ::lambdatest {} {namespace current}]
+    {*}$f
+} -cleanup {
+    unset -nocomplain f
+} -returnCodes error -result {namespace "::lambdatest" not found}
+
+test lambda-2.9 {lambda@, body runs in a new local scope} -setup {
+    namespace eval ::lambdatest {}
+} -body {
+    set f [lambda@ ::lambdatest {} {incr counter}]
+    list [{*}$f] [{*}$f] [info exists ::lambdatest::counter]
+} -cleanup {
+    unset -nocomplain f
+    namespace delete ::lambdatest
+} -result {1 1 0}
+
+test lambda-2.10 {lambda@, wrong # args when invoked} -body {
+    {*}[lambda@ :: {x} {list $x}]
+} -returnCodes error -result {wrong # args: should be "::apply lambdaExpr x"}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return
