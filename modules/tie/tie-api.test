@@ -1,0 +1,446 @@
+# -*- tcl -*-
+# tie-api.test: end-to-end tests of ::tie::tie with the standard data
+# source types, complementing tie.test and tie_*.test (which test the
+# framework with a tracking data source, and the data source classes
+# directly).
+#
+# This testsuite is in the public domain.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      snit/snit2.tcl snit
+    use      cmdline/cmdline.tcl cmdline
+    use      log/log.tcl    log
+}
+testing {
+    useLocal tie.tcl tie
+}
+
+# The standard data source classes are loaded on demand below, in the
+# order used by the tests. This matters: some classes call commands
+# like [file] and [array] unqualified, and these resolve to the classes
+# ::tie::std::file and ::tie::std::array once those exist (see
+# tie-api-6.1 and tie-api-2.0).
+
+proc loadDS {file} {
+    uplevel #0 [list source [localPath $file]]
+}
+
+# -------------------------------------------------------------------------
+
+proc readfile {path} {
+    set fh [open $path r]
+    fconfigure $fh -encoding utf-8
+    set data [read $fh]
+    close $fh
+    return $data
+}
+
+proc tmpfile {} {
+    set path [file join [tcltest::temporaryDirectory] tie-api.data]
+    file delete $path
+    return $path
+}
+
+# -------------------------------------------------------------------------
+# tie::info type
+
+foreach {n type class} {
+    0 array       ::tie::std::array
+    1 remotearray ::tie::std::rarray
+    2 log         ::tie::std::log
+    3 file        ::tie::std::file
+    4 growfile    ::tie::std::growfile
+    5 dsource     ::tie::std::dsource
+} {
+    test tie-api-1.$n "info type $type" -body {
+	tie::info type $type
+    } -match glob -result *$class
+}
+unset n type class
+
+test tie-api-1.6 {tie, unknown type} -setup {
+    array set av {}
+} -body {
+    tie::tie av nosuchtype x
+} -cleanup {
+    unset av
+} -returnCodes error -result {invalid command name "nosuchtype"}
+
+loadDS tie_log.tcl
+
+test tie-api-1.7 {tie, result is a token listed by info ties} -setup {
+    array set av {}
+} -body {
+    set t [tie::tie av log]
+    list [string equal [tie::info ties av] $t] [tie::untie av $t] [tie::info ties av]
+} -cleanup {
+    unset -nocomplain av other t
+} -result {1 {} {}}
+
+# -------------------------------------------------------------------------
+# log data source
+
+test tie-api-4.0 {log, operations are logged} -setup {
+    array set av {}
+    set suppressed [log::lvIsSuppressed debug]
+    log::lvSuppress debug 0
+    set chan [log::lv2channel debug]
+    log::lvChannel debug stdout
+} -body {
+    tie::tie av log
+    set av(a) 1
+    unset av(a)
+    tie::untie av
+} -cleanup {
+    log::lvChannel debug $chan
+    log::lvSuppress debug $suppressed
+    unset -nocomplain av suppressed chan
+} -match glob -output {*set (a) = \[1\]*unset (a)*} -result {}
+
+test tie-api-4.1 {log, keeps no data} -setup {
+    array set av {a 1}
+} -body {
+    tie::tie av log
+    array get av
+} -cleanup {
+    tie::untie av
+    unset -nocomplain av
+} -result {}
+
+# -------------------------------------------------------------------------
+# dsource data source and registered types
+
+loadDS tie_dsource.tcl
+
+snit::type ::tieapi_store {
+    variable data -array {}
+    method get {}               {array get data}
+    method set {dict}           {array set data $dict}
+    method unset {{pattern *}}  {array unset data $pattern}
+    method names {}             {array names data}
+    method size {}              {array size data}
+    method getv {index}         {set data($index)}
+    method setv {index value}   {set data($index) $value}
+    method unsetv {index}       {unset data($index)}
+}
+
+test tie-api-7.0 {dsource, changes are delegated to the object} -setup {
+    set obj [::tieapi_store %AUTO%]
+    $obj set {x 1}
+    array set av {}
+} -body {
+    tie::tie av dsource $obj
+    set res [array get av]
+    set av(a) 1
+    unset av(x)
+    lappend res [$obj get]
+} -cleanup {
+    tie::untie av
+    catch {$obj destroy}
+    unset -nocomplain av obj res
+} -result {x 1 {a 1}}
+
+test tie-api-7.1 {register, new type usable by tie} -setup {
+    array set av {}
+} -body {
+    tie::register ::tieapi_store as tieapistore
+    tie::tie av tieapistore
+    set av(a) 1
+    set av(b) 2
+    unset av(a)
+    list [tie::info type tieapistore] [array get av] [llength [tie::info ties av]]
+} -cleanup {
+    tie::untie av
+    unset -nocomplain av
+} -result {::tieapi_store {b 2} 1}
+
+# -------------------------------------------------------------------------
+# remotearray data source
+
+loadDS tie_rarray.tcl
+
+test tie-api-3.0 {remotearray, changes are mirrored through the accessor} -setup {
+    interp create remote
+    remote eval {array set rav {}}
+    array set av {}
+} -body {
+    tie::tie av remotearray rav {interp eval} remote
+    set av(a) 1
+    set av(b) {two words}
+    unset av(a)
+    remote eval {array get rav}
+} -cleanup {
+    tie::untie av
+    unset -nocomplain av
+    interp delete remote
+} -result {b {two words}}
+
+test tie-api-3.1 {remotearray, -open loads from the remote array} -setup {
+    interp create remote
+    remote eval {array set rav {x 1 y 2}}
+    array set av {old 1}
+} -body {
+    tie::tie av remotearray rav {interp eval} remote
+    lsort -stride 2 [array get av]
+} -cleanup {
+    tie::untie av
+    unset -nocomplain av
+    interp delete remote
+} -result {x 1 y 2}
+
+test tie-api-3.2 {remotearray, the remote array is accessed in the global namespace} -setup {
+    interp create remote
+    remote eval {array set rav {}}
+    array set av {}
+} -body {
+    tie::tie av remotearray rav {interp eval} remote
+    set av(a) 1
+    remote eval {namespace eval ::foo {}; namespace eval ::foo {array get ::rav}}
+} -cleanup {
+    tie::untie av
+    unset -nocomplain av
+    interp delete remote
+} -result {a 1}
+
+# -------------------------------------------------------------------------
+# growfile data source, before the file data source is loaded
+
+loadDS tie_growfile.tcl
+
+test tie-api-6.0 {growfile, changes are appended and restored} -setup {
+    set path [tmpfile]
+    array set av {}
+} -body {
+    tie::tie av growfile $path
+    set av(a) 1
+    set av(b) {two words}
+    set av(a) 3
+    tie::untie av
+    unset av
+    array set av {}
+    tie::tie av growfile $path
+    lsort -stride 2 [array get av]
+} -cleanup {
+    catch {tie::untie av}
+    file delete $path
+    unset -nocomplain av path
+} -result {a 3 b {two words}}
+
+test tie-api-6.2 {growfile, file is a growing dictionary} -setup {
+    set path [tmpfile]
+    array set av {}
+} -body {
+    tie::tie av growfile $path
+    set av(a) 1
+    set av(b) 2
+    set av(a) 3
+    tie::untie av
+    string trim [readfile $path]
+} -cleanup {
+    file delete $path
+    unset -nocomplain av path
+} -result {a 1 b 2 a 3}
+
+test tie-api-6.3 {growfile, deleted entries are not deleted from the file} -setup {
+    set path [tmpfile]
+    array set av {}
+    tie::tie av growfile $path
+    set av(a) 1
+    set av(b) 2
+} -body {
+    # Errors from unset traces are ignored by Tcl, so the element is
+    # removed from the array, but not from the data source.
+    unset av(a)
+    tie::untie av
+    unset av
+    array set av {}
+    tie::tie av growfile $path
+    lsort -stride 2 [array get av]
+} -cleanup {
+    catch {tie::untie av}
+    file delete $path
+    unset -nocomplain av path
+} -result {a 1 b 2}
+
+# -------------------------------------------------------------------------
+# file data source
+
+loadDS tie_file.tcl
+
+test tie-api-5.0 {file, changes are saved as a Tcl script} -setup {
+    set path [tmpfile]
+    array set av {}
+} -body {
+    tie::tie av file $path
+    set av(a) 1
+    set av(b) {two words}
+    unset av(a)
+    tie::untie av
+    array set check {}
+    namespace eval ::tieapi {}
+    proc ::tieapi::set {k v} {::set ::check($k) $v}
+    proc ::tieapi::unset {k} {::unset ::check($k)}
+    namespace eval ::tieapi [readfile $path]
+    array get check
+} -cleanup {
+    file delete $path
+    namespace delete ::tieapi
+    unset -nocomplain av path check
+} -result {b {two words}}
+
+test tie-api-5.1 {file, data is restored by a new tie} -setup {
+    set path [tmpfile]
+    array set av {}
+    tie::tie av file $path
+    set av(a) 1
+    set av(b) "ą †"
+    array set av {c 3}
+    unset av(c)
+    tie::untie av
+    unset av
+} -body {
+    array set av {old 1}
+    tie::tie av file $path
+    lsort -stride 2 [array get av]
+} -cleanup {
+    tie::untie av
+    file delete $path
+    unset -nocomplain av path
+} -result [list a 1 b "ą †"]
+
+test tie-api-5.2 {file, -save replaces the file contents} -setup {
+    set path [tmpfile]
+    array set av {old 1}
+    tie::tie av file $path
+    tie::untie av
+    unset av
+} -body {
+    array set av {new 2}
+    tie::tie av -save file $path
+    tie::untie av
+    unset av
+    array set av {}
+    tie::tie av file $path
+    array get av
+} -cleanup {
+    tie::untie av
+    file delete $path
+    unset -nocomplain av path
+} -result {new 2}
+
+test tie-api-5.3 {file, created when missing} -setup {
+    set path [tmpfile]
+    array set av {}
+} -body {
+    tie::tie av file $path
+    file exists $path
+} -cleanup {
+    tie::untie av
+    file delete $path
+    unset -nocomplain av path
+} -result 1
+
+test tie-api-5.4 {file, array unset is saved} -setup {
+    set path [tmpfile]
+    array set av {}
+    tie::tie av file $path
+    array set av {a 1 b 2 c 3}
+    array unset av a*
+    tie::untie av
+    unset av
+} -body {
+    array set av {}
+    tie::tie av file $path
+    lsort -stride 2 [array get av]
+} -cleanup {
+    tie::untie av
+    file delete $path
+    unset -nocomplain av path
+} -result {b 2 c 3}
+
+# -------------------------------------------------------------------------
+# growfile data source, after the file data source was loaded
+
+# The growfile constructor calls [file] unqualified. When the "file"
+# data source class ::tie::std::file exists, the call resolves to that
+# class and the constructor fails with: expected boolean value but got
+# "::tie::std::growfile::exists". (Run in a fresh interpreter: in this
+# one the constructor was already compiled before ::tie::std::file was
+# created, which hides the problem.)
+test tie-api-6.1 {growfile, after the file data source was loaded} -constraints {
+    knownBug
+} -setup {
+    set path [tmpfile]
+    interp create fresh
+    foreach f [list [tcllibPath snit/snit2.tcl] [tcllibPath cmdline/cmdline.tcl] \
+		   [localPath tie.tcl] [localPath tie_file.tcl] [localPath tie_growfile.tcl]] {
+	fresh eval [list source $f]
+    }
+    # With the bug, [file normalize] creates a "file" data source,
+    # i.e. a file, named like the command. Keep it out of the sources.
+    set savedcwd [pwd]
+    cd [tcltest::temporaryDirectory]
+} -body {
+    fresh eval [list set path $path]
+    fresh eval {
+	array set av {}
+	tie::tie av growfile $path
+	set av(a) 1
+	tie::untie av
+	unset av
+	array set av {}
+	tie::tie av growfile $path
+	array get av
+    }
+} -cleanup {
+    interp delete fresh
+    cd $savedcwd
+    file delete $path [file join [tcltest::temporaryDirectory] ::tie::std::growfile::normalize]
+    unset -nocomplain path f savedcwd
+} -result {a 1}
+
+# -------------------------------------------------------------------------
+# array data source
+
+# The constructor of ::tie::std::array uses [upvar 3] to reach the
+# caller. Called through ::tie::tie this is the frame of ::tie::tie
+# itself, so the tie fails with: Illegal use of proc local array
+# variable "other". A failed construction also leaves the class in a
+# state where further constructions fail, so this is the only test of
+# the array data source here.
+
+loadDS tie_array.tcl
+
+test tie-api-2.0 {array, changes are mirrored} -constraints {
+    knownBug
+} -setup {
+    array set av {}
+    array set other {}
+} -body {
+    tie::tie av array other
+    set av(a) 1
+    set av(b) {two words}
+    array set av {c 3 d 4}
+    unset av(c)
+    lsort -stride 2 [array get other]
+} -cleanup {
+    catch {tie::untie av}
+    unset -nocomplain av other
+} -result {a 1 b {two words} d 4}
+
+# -------------------------------------------------------------------------
+
+rename ::tieapi_store {}
+rename readfile {}
+rename tmpfile {}
+rename loadDS {}
+testsuiteCleanup
+return
