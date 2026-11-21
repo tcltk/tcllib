@@ -1,0 +1,771 @@
+# -*- tcl -*-
+# png-api.test:  tests for the parts of the png API not covered by png.test.
+#
+# Covers: wrong # args, error cases for non-PNG files, all documented
+# return values of ::png::validate, imageInfo checksum errors,
+# setTimestamp, addComment (both forms), getComments of international
+# comments, getPixelDimension with unknown unit, ::png::image and
+# ::png::write.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use crc/crc32.tcl crc32 ::crc
+}
+testing {
+    useLocal png.tcl png
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Builds a PNG chunk: length, type, data, crc.
+proc chunk {type data {crc {}}} {
+    if {$crc eq {}} {
+	set crc [::crc::crc32 $type$data]
+    }
+    return [binary format Ia4 [string length $data] $type]$data[binary format I $crc]
+}
+
+proc ihdr {w h {depth 8} {color 2}} {
+    chunk IHDR [binary format IIccccc $w $h $depth $color 0 0 0]
+}
+
+# A minimal valid 1x1 RGB image (filter 0, pixel #ff0000).
+proc idat {} {
+    chunk IDAT [zlib compress \x00\xff\x00\x00]
+}
+
+proc iend {} {
+    chunk IEND {}
+}
+
+set sig "\x89PNG\r\n\x1a\n"
+
+# Writes binary content into a temporary file and returns its path.
+proc binfile {name content} {
+    set path [makeFile {} $name]
+    set fh [open $path wb]
+    puts -nonewline $fh $content
+    close $fh
+    return $path
+}
+
+proc readbin {path} {
+    set fh [open $path rb]
+    set data [read $fh]
+    close $fh
+    return $data
+}
+
+# Copies a test asset into a temporary file and returns its path.
+proc assetcopy {asset name} {
+    set path [makeFile {} $name]
+    file copy -force [asset $asset] $path
+    return $path
+}
+
+# Image (list of scanlines) as a string "p,p,...;p,p,...", for comparing
+# list values regardless of the quoting of leading "#".
+proc flat {img} {
+    set rows {}
+    foreach row $img {
+	lappend rows [join $row ,]
+    }
+    return [join $rows {;}]
+}
+
+# List of chunk types in a PNG file.
+proc chunktypes {path} {
+    set data [readbin $path]
+    set pos 8
+    set res {}
+    while {$pos < [string length $data]} {
+	binary scan $data @${pos}Ia4 len type
+	lappend res $type
+	incr pos [expr {$len + 12}]
+    }
+    return $res
+}
+
+# -------------------------------------------------------------------------
+# Wrong # args
+
+test png-api-1.0 {isPNG, wrong # args} -body {
+    ::png::isPNG
+} -returnCodes error -result {wrong # args: should be "::png::isPNG file"}
+
+test png-api-1.1 {validate, wrong # args} -body {
+    ::png::validate
+} -returnCodes error -result {wrong # args: should be "::png::validate file"}
+
+test png-api-1.2 {imageInfo, wrong # args} -body {
+    ::png::imageInfo a b
+} -returnCodes error -result {wrong # args: should be "::png::imageInfo file"}
+
+test png-api-1.3 {getTimestamp, wrong # args} -body {
+    ::png::getTimestamp
+} -returnCodes error -result {wrong # args: should be "::png::getTimestamp file"}
+
+test png-api-1.4 {setTimestamp, wrong # args} -body {
+    ::png::setTimestamp a
+} -returnCodes error -result {wrong # args: should be "::png::setTimestamp file time"}
+
+test png-api-1.5 {getComments, wrong # args} -body {
+    ::png::getComments
+} -returnCodes error -result {wrong # args: should be "::png::getComments file"}
+
+test png-api-1.6 {removeComments, wrong # args} -body {
+    ::png::removeComments
+} -returnCodes error -result {wrong # args: should be "::png::removeComments file"}
+
+test png-api-1.7 {addComment, wrong # args, too few} -body {
+    ::png::addComment a b
+} -returnCodes error -result {wrong # args: should be "::png::addComment file keyword arg1 ?arg ...?"}
+
+# Bug: addComment closes an unopened channel before reporting the error
+# (error "can't read \"fh\": no such variable").
+test png-api-1.8 {addComment, wrong # args, 4 arguments} -constraints knownBug -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f key lang key2
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -returnCodes error -result {wrong number of arguments}
+
+test png-api-1.9 {addComment, wrong # args, 6 arguments} -constraints knownBug -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f key lang key2 text extra
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -returnCodes error -result {wrong number of arguments}
+
+test png-api-1.10 {getPixelDimension, wrong # args} -body {
+    ::png::getPixelDimension
+} -returnCodes error -result {wrong # args: should be "::png::getPixelDimension file"}
+
+test png-api-1.11 {image, wrong # args} -body {
+    ::png::image
+} -returnCodes error -result {wrong # args: should be "::png::image file"}
+
+test png-api-1.12 {write, wrong # args} -body {
+    ::png::write a
+} -returnCodes error -result {wrong # args: should be "::png::write file in"}
+
+# -------------------------------------------------------------------------
+# Non-PNG input
+
+set notpng {GIF89a not a png file at all}
+
+test png-api-2.0 {isPNG, not a PNG file} -setup {
+    set f [binfile pngapi.bin $notpng]
+} -body {
+    ::png::isPNG $f
+} -cleanup {
+    removeFile pngapi.bin
+    unset f
+} -result 0
+
+test png-api-2.1 {isPNG, empty file} -setup {
+    set f [binfile pngapi.bin {}]
+} -body {
+    ::png::isPNG $f
+} -cleanup {
+    removeFile pngapi.bin
+    unset f
+} -result 0
+
+test png-api-2.2 {isPNG, signature only} -setup {
+    set f [binfile pngapi.bin $sig]
+} -body {
+    ::png::isPNG $f
+} -cleanup {
+    removeFile pngapi.bin
+    unset f
+} -result 1
+
+test png-api-2.3 {validate, not a PNG file} -setup {
+    set f [binfile pngapi.bin $notpng]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.bin
+    unset f
+} -result SIG
+
+foreach {n cmd} {
+    4 imageInfo
+    5 getTimestamp
+    6 getComments
+    7 removeComments
+    8 getPixelDimension
+    9 image
+} {
+    test png-api-2.$n "$cmd, not a PNG file" -setup {
+	set f [binfile pngapi.bin $notpng]
+    } -body {
+	::png::$cmd $f
+    } -cleanup {
+	removeFile pngapi.bin
+	unset f
+    } -returnCodes error -result {not a png file}
+}
+
+test png-api-2.10 {setTimestamp, not a PNG file} -setup {
+    set f [binfile pngapi.bin $notpng]
+} -body {
+    list [catch {::png::setTimestamp $f 0} msg] $msg [readbin $f]
+} -cleanup {
+    removeFile pngapi.bin
+    unset f msg
+} -result [list 1 {not a png file} $notpng]
+
+test png-api-2.11 {addComment, not a PNG file} -setup {
+    set f [binfile pngapi.bin $notpng]
+} -body {
+    list [catch {::png::addComment $f key text} msg] $msg [readbin $f]
+} -cleanup {
+    removeFile pngapi.bin
+    unset f msg
+} -result [list 1 {not a png file} $notpng]
+
+test png-api-2.12 {no channels leaked by the error cases} -setup {
+    set f [binfile pngapi.bin $notpng]
+    set before [lsort [chan names]]
+} -body {
+    foreach cmd {isPNG validate imageInfo getTimestamp getComments
+		 removeComments getPixelDimension image} {
+	catch {::png::$cmd $f}
+    }
+    catch {::png::setTimestamp $f 0}
+    catch {::png::addComment $f key text}
+    expr {[lsort [chan names]] eq $before}
+} -cleanup {
+    removeFile pngapi.bin
+    unset f before cmd
+} -result 1
+
+# -------------------------------------------------------------------------
+# validate, all documented results
+
+test png-api-3.0 {validate, minimal valid file} -setup {
+    set f [binfile pngapi.png $sig[ihdr 1 1][idat][iend]]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result OK
+
+test png-api-3.1 {validate, broken signature} -setup {
+    set f [binfile pngapi.png "\x89PNG\n\n\x1a\n[ihdr 1 1][idat][iend]"]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result SIG
+
+test png-api-3.2 {validate, corrupt chunk length} -setup {
+    set f [binfile pngapi.png $sig[ihdr 1 1][binary format Ia4 -1 IDAT]xxxx]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result BADLEN
+
+test png-api-3.3 {validate, premature end of file} -setup {
+    set data $sig[ihdr 1 1][idat][iend]
+    set f [binfile pngapi.png [string range $data 0 end-6]]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f data
+} -result EOF
+
+test png-api-3.4 {validate, missing header chunk} -setup {
+    set f [binfile pngapi.png $sig[idat][iend]]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result NOHDR
+
+test png-api-3.5 {validate, crc mismatch} -setup {
+    set f [binfile pngapi.png $sig[ihdr 1 1][chunk IDAT [zlib compress \x00\xff\x00\x00] 12345][iend]]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result CKSUM
+
+test png-api-3.6 {validate, missing data chunk} -setup {
+    set f [binfile pngapi.png $sig[ihdr 1 1][iend]]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result NODATA
+
+test png-api-3.7 {validate, missing end marker} -setup {
+    set f [binfile pngapi.png $sig[ihdr 1 1][idat]]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result NOEND
+
+test png-api-3.8 {validate, signature only} -setup {
+    set f [binfile pngapi.png $sig]
+} -body {
+    ::png::validate $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result NODATA
+
+# -------------------------------------------------------------------------
+# imageInfo
+
+test png-api-4.0 {imageInfo, generated file} -setup {
+    set f [binfile pngapi.png $sig[ihdr 3 2][idat][iend]]
+} -body {
+    dictsort [::png::imageInfo $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {color 2 compression 0 depth 8 filter 0 height 2 interlace 0 width 3}
+
+test png-api-4.1 {imageInfo, header checksum failed} -setup {
+    set f [binfile pngapi.png $sig[chunk IHDR [binary format IIccccc 1 1 8 2 0 0 0] 1][idat][iend]]
+} -body {
+    ::png::imageInfo $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -returnCodes error -result {header checksum failed}
+
+# Bug: imageInfo returns the checksum error without closing the file.
+test png-api-4.2 {imageInfo, header checksum failed, channel closed} -constraints knownBug -setup {
+    set f [binfile pngapi.png $sig[chunk IHDR [binary format IIccccc 1 1 8 2 0 0 0] 1][idat][iend]]
+    set before [lsort [chan names]]
+} -body {
+    catch {::png::imageInfo $f}
+    expr {[lsort [chan names]] eq $before}
+} -cleanup {
+    removeFile pngapi.png
+    unset f before
+} -result 1
+
+test png-api-4.3 {imageInfo, first chunk is not a header} -setup {
+    set f [binfile pngapi.png $sig[idat][iend]]
+} -body {
+    ::png::imageInfo $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {}
+
+# -------------------------------------------------------------------------
+# getTimestamp, setTimestamp
+
+test png-api-5.0 {getTimestamp, no timestamp chunk} -body {
+    ::png::getTimestamp [asset basn2c08.png]
+} -result {}
+
+test png-api-5.1 {setTimestamp, adds a timestamp chunk before the data} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    set t [clock scan {2023-04-05 06:07:08} -format {%Y-%m-%d %H:%M:%S} -gmt 1]
+    ::png::setTimestamp $f $t
+    list [expr {[::png::getTimestamp $f] == $t}] \
+	[::png::validate $f] [chunktypes $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f t
+} -result {1 OK {IHDR gAMA tIME IDAT IEND}}
+
+test png-api-5.2 {setTimestamp, returns empty string} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::setTimestamp $f 0
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {}
+
+test png-api-5.3 {setTimestamp, replaces an existing timestamp} -setup {
+    set f [assetcopy cm0n0g04.png pngapi.png]
+} -body {
+    set types [chunktypes $f]
+    set size [file size $f]
+    set t [clock scan {1999-12-31 23:59:59} -format {%Y-%m-%d %H:%M:%S} -gmt 1]
+    ::png::setTimestamp $f $t
+    list [expr {[::png::getTimestamp $f] == $t}] [::png::validate $f] \
+	[expr {[chunktypes $f] eq $types}] [expr {[file size $f] == $size}]
+} -cleanup {
+    removeFile pngapi.png
+    unset f t types size
+} -result {1 OK 1 1}
+
+test png-api-5.4 {setTimestamp, epoch} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::setTimestamp $f 0
+    ::png::getTimestamp $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result 0
+
+test png-api-5.5 {setTimestamp, time is GMT, fields with zeros} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    set t [clock scan {2010-10-10 10:00:00} -format {%Y-%m-%d %H:%M:%S} -gmt 1]
+    ::png::setTimestamp $f $t
+    clock format [::png::getTimestamp $f] -format {%Y-%m-%d %H:%M:%S} -gmt 1
+} -cleanup {
+    removeFile pngapi.png
+    unset f t
+} -result {2010-10-10 10:00:00}
+
+test png-api-5.6 {setTimestamp, no timestamp or data chunk} -setup {
+    set data $sig[ihdr 1 1][iend]
+    set f [binfile pngapi.png $data]
+} -body {
+    list [catch {::png::setTimestamp $f 0} msg] $msg \
+	[expr {[readbin $f] eq $data}]
+} -cleanup {
+    removeFile pngapi.png
+    unset f msg data
+} -result {1 {no timestamp or data chunk found} 1}
+
+test png-api-5.7 {setTimestamp, not an integer} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::setTimestamp $f foo
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -returnCodes error -match glob -result {*"foo"*}
+
+# -------------------------------------------------------------------------
+# addComment, getComments, removeComments
+
+test png-api-6.0 {addComment, plain text comment} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    set r [::png::addComment $f Title {Hello world}]
+    list $r [::png::validate $f] [::png::getComments $f] [chunktypes $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f r
+} -result {{} OK {{Title {Hello world}}} {IHDR gAMA tEXt IDAT IEND}}
+
+test png-api-6.1 {addComment, several comments, order kept} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f Title T
+    ::png::addComment $f Author A
+    ::png::addComment $f Comment "line 1\nline 2"
+    list [::png::validate $f] [::png::getComments $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result [list OK [list {Title T} {Author A} [list Comment "line 1\nline 2"]]]
+
+test png-api-6.2 {addComment, empty text} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f Title {}
+    list [::png::validate $f] [::png::getComments $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {OK {{Title {}}}}
+
+test png-api-6.3 {addComment, Latin-1 text} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f Title "café ½"
+    list [::png::validate $f] [::png::getComments $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result [list OK [list [list Title "café ½"]]]
+
+test png-api-6.4 {addComment, international comment} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    set r [::png::addComment $f Title en Title2 {Hello world}]
+    list $r [::png::validate $f] [::png::getComments $f] [chunktypes $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f r
+} -result {{} OK {{Title en Title2 {Hello world}}} {IHDR gAMA iTXt IDAT IEND}}
+
+# Bug: getComments returns the UTF-8 bytes of international comments
+# instead of decoding them.
+test png-api-6.5 {addComment, international comment, non-ASCII text} -constraints knownBug -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f Title uk Назва Привіт
+    list [::png::validate $f] [::png::getComments $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result [list OK [list [list Title uk Назва Привіт]]]
+
+test png-api-6.6 {addComment, international comment stored as UTF-8} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f Title uk Назва Привіт
+    set data [readbin $f]
+    set i [string first iTXt $data]
+    binary scan $data @[expr {$i - 4}]I len
+    string range $data [expr {$i + 4}] [expr {$i + 3 + $len}]
+} -cleanup {
+    removeFile pngapi.png
+    unset f data i len
+} -result [encoding convertto utf-8 "Title\x00\x00\x00uk\x00Назва\x00Привіт"]
+
+test png-api-6.7 {addComment, plain and international mixed} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+} -body {
+    ::png::addComment $f Title T
+    ::png::addComment $f Title pl Tytul Tekst
+    list [::png::validate $f] [::png::getComments $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {OK {{Title T} {Title pl Tytul Tekst}}}
+
+test png-api-6.8 {addComment, no data chunk} -setup {
+    set data $sig[ihdr 1 1][iend]
+    set f [binfile pngapi.png $data]
+} -body {
+    list [catch {::png::addComment $f key text} msg] $msg \
+	[expr {[readbin $f] eq $data}]
+} -cleanup {
+    removeFile pngapi.png
+    unset f msg data
+} -result {1 {no data chunk found} 1}
+
+test png-api-6.9 {getComments, compressed international comment is skipped} -setup {
+    set itxt [chunk iTXt "Title\x00\x01\x00en\x00Title\x00[zlib compress text]"]
+    set f [binfile pngapi.png $sig[ihdr 1 1]$itxt[idat][iend]]
+} -body {
+    ::png::getComments $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f itxt
+} -result {}
+
+test png-api-6.10 {removeComments, removes added plain and international comments} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+    set orig [readbin $f]
+} -body {
+    ::png::addComment $f Title T
+    ::png::addComment $f Title en Title2 Text
+    ::png::removeComments $f
+    list [::png::validate $f] [::png::getComments $f] \
+	[expr {[readbin $f] eq $orig}]
+} -cleanup {
+    removeFile pngapi.png
+    unset f orig
+} -result {OK {} 1}
+
+test png-api-6.11 {removeComments, file without comments is unchanged} -setup {
+    set f [assetcopy basn2c08.png pngapi.png]
+    set orig [readbin $f]
+} -body {
+    ::png::removeComments $f
+    expr {[readbin $f] eq $orig}
+} -cleanup {
+    removeFile pngapi.png
+    unset f orig
+} -result 1
+
+test png-api-6.12 {removeComments, compressed comments removed} -setup {
+    set f [assetcopy ctzn0g04.png pngapi.png]
+} -body {
+    ::png::removeComments $f
+    list [::png::validate $f] [lsearch -all -inline -regexp [chunktypes $f] {TXt$}]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {OK {}}
+
+# -------------------------------------------------------------------------
+# getPixelDimension
+
+test png-api-7.0 {getPixelDimension, unknown unit} -setup {
+    set phys [chunk pHYs [binary format IIc 2 3 0]]
+    set f [binfile pngapi.png $sig[ihdr 1 1]$phys[idat][iend]]
+} -body {
+    ::png::getPixelDimension $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f phys
+} -result {ppux 2 ppuy 3 unit unknown}
+
+test png-api-7.1 {getPixelDimension, large values are unsigned} -setup {
+    set phys [chunk pHYs [binary format IIc 0xfffffffe 0x80000000 1]]
+    set f [binfile pngapi.png $sig[ihdr 1 1]$phys[idat][iend]]
+} -body {
+    ::png::getPixelDimension $f
+} -cleanup {
+    removeFile pngapi.png
+    unset f phys
+} -result {ppux 4294967294 ppuy 2147483648 unit meter}
+
+# -------------------------------------------------------------------------
+# image, write
+
+test png-api-8.0 {image, filter type None} -body {
+    set img [::png::image [asset f00n2c08.png]]
+    list [llength $img] [llength [lindex $img 0]] \
+	[lindex $img 0 0] [lindex $img 0 31] [lindex $img 31 0] \
+	[lindex $img 31 31] [lindex $img 17 5] [flat [list [lrange [lindex $img 10] 0 3]]]
+} -cleanup {
+    unset img
+} -result {32 32 #ff0008 #ffffff #000000 #0020ff #015f0b #587502,#608003,#698c03,#739803}
+
+# Bug: image ignores the per-scanline filter type and decodes every
+# scanline as filter type None.
+test png-api-8.1 {image, other filter types decode to the same image} -constraints knownBug -body {
+    set ref [::png::image [asset f00n2c08.png]]
+    set res {}
+    foreach n {1 2 3 4} {
+	set img [::png::image [asset f0${n}n2c08.png]]
+	lappend res [list $n [lindex $img 10 1] [lindex $img 31 31]]
+    }
+    set res
+} -cleanup {
+    unset ref res n img
+} -result {{1 #608003 #0020ff} {2 #608003 #0020ff} {3 #608003 #0020ff} {4 #608003 #0020ff}}
+
+test png-api-8.2 {image, unsupported image format} -body {
+    ::png::image [asset basn0g08.png]
+} -returnCodes error -result {unsupported image format}
+
+# Bug: image returns the error without closing the file.
+test png-api-8.3 {image, unsupported image format, channel closed} -constraints knownBug -setup {
+    set before [lsort [chan names]]
+} -body {
+    catch {::png::image [asset basn0g08.png]}
+    expr {[lsort [chan names]] eq $before}
+} -cleanup {
+    unset before
+} -result 1
+
+test png-api-8.4 {image, 16 bit depth is unsupported} -body {
+    ::png::image [asset basn2c16.png]
+} -returnCodes error -result {unsupported image format}
+
+test png-api-9.0 {write, returns file name, valid PNG} -setup {
+    set f [makeFile {} pngapi.png]
+} -body {
+    set r [::png::write $f {{#ff0000 #00ff00 #0000ff} {#000000 #ffffff #123456}}]
+    list [expr {$r eq $f}] [::png::validate $f] [dictsort [::png::imageInfo $f]]
+} -cleanup {
+    removeFile pngapi.png
+    unset f r
+} -result {1 OK {color 2 compression 0 depth 8 filter 0 height 2 interlace 0 width 3}}
+
+test png-api-9.1 {write and image round trip} -setup {
+    set f [makeFile {} pngapi.png]
+} -body {
+    set data {{#ff0000 #00ff00 #0000ff} {#000000 #ffffff #123456}}
+    ::png::write $f $data
+    expr {[flat [::png::image $f]] eq [flat $data]}
+} -cleanup {
+    removeFile pngapi.png
+    unset f data
+} -result 1
+
+test png-api-9.2 {write, pixels without leading #} -setup {
+    set f [makeFile {} pngapi.png]
+} -body {
+    ::png::write $f {{ff0000 abcdef}}
+    flat [::png::image $f]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {#ff0000,#abcdef}
+
+test png-api-9.3 {write, single pixel} -setup {
+    set f [makeFile {} pngapi.png]
+} -body {
+    ::png::write $f {{#010203}}
+    list [::png::validate $f] [flat [::png::image $f]]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {OK #010203}
+
+test png-api-9.4 {write and image round trip, large image, several data chunks} -setup {
+    set f [makeFile {} pngapi.png]
+    # Pseudo-random pixels, so the compressed data exceeds one chunk.
+    set data {}
+    set x 12345
+    for {set y 0} {$y < 160} {incr y} {
+	set row {}
+	for {set i 0} {$i < 160} {incr i} {
+	    set x [expr {($x * 1103515245 + 12345) & 0x7fffffff}]
+	    lappend row [format #%06x [expr {$x >> 7 & 0xffffff}]]
+	}
+	lappend data $row
+    }
+} -body {
+    ::png::write $f $data
+    list [::png::validate $f] \
+	[expr {[llength [lsearch -all [chunktypes $f] IDAT]] > 1}] \
+	[expr {[flat [::png::image $f]] eq [flat $data]}]
+} -cleanup {
+    removeFile pngapi.png
+    unset f data x y i row
+} -result {OK 1 1}
+
+test png-api-9.5 {write, result readable by other commands} -setup {
+    set f [makeFile {} pngapi.png]
+} -body {
+    ::png::write $f {{#ff0000}}
+    ::png::addComment $f Title T
+    ::png::setTimestamp $f 86400
+    list [::png::validate $f] [::png::getComments $f] [::png::getTimestamp $f] \
+	[::png::getPixelDimension $f] [flat [::png::image $f]]
+} -cleanup {
+    removeFile pngapi.png
+    unset f
+} -result {OK {{Title T}} 86400 {} #ff0000}
+
+# -------------------------------------------------------------------------
+
+rename chunk {}
+rename ihdr {}
+rename idat {}
+rename iend {}
+rename binfile {}
+rename readbin {}
+rename assetcopy {}
+rename chunktypes {}
+rename flat {}
+unset sig notpng
+testsuiteCleanup
