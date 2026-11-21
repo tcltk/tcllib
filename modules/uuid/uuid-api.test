@@ -1,0 +1,160 @@
+# uuid-api.test:  additional tests for the uuid package         -*- tcl -*-
+#
+# uuid.test covers missing arguments, the length of generated uuids and
+# basic comparisons. This file adds the format, version and variant of
+# generated uuids, uniqueness, argument errors and more on equal.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use md5/md5x.tcl md5
+}
+testing {
+    useLocal uuid.tcl uuid
+}
+
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing
+#
+
+array set preserve [array get ::uuid::accel]
+
+proc implementations {} {
+    variable ::uuid::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::uuid::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::uuid::accel
+    array set accel [array get ::preserve]
+}
+
+set uuidRE {^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$}
+
+# -------------------------------------------------------------------------
+
+test uuid-api-1.0 {uuid, no subcommand} -body {
+    uuid::uuid
+} -returnCodes error -result {wrong # args: should be "uuid::uuid cmd ?arg ...?"}
+
+test uuid-api-1.1 {uuid, bad subcommand} -body {
+    uuid::uuid bogus
+} -returnCodes error -result {bad option "bogus": must be generate or equal}
+
+test uuid-api-1.2 {uuid generate, too many args} -body {
+    uuid::uuid generate x
+} -returnCodes error -result {wrong # args: should be "uuid generate"}
+
+test uuid-api-1.3 {uuid equal, too few args} -body {
+    uuid::uuid equal a
+} -returnCodes error -result {wrong # args: should be "uuid equal uuid1 uuid2"}
+
+test uuid-api-1.4 {uuid equal, too many args} -body {
+    uuid::uuid equal a b c
+} -returnCodes error -result {wrong # args: should be "uuid equal uuid1 uuid2"}
+
+test uuid-api-1.5 {uuid equal, no args} -body {
+    uuid::uuid equal
+} -returnCodes error -result {wrong # args: should be "uuid equal uuid1 uuid2"}
+
+# -------------------------------------------------------------------------
+
+foreach impl [implementations] {
+    select_implementation $impl
+
+    test uuid-api-2.0-$impl {generate, string representation} -body {
+        regexp $uuidRE [uuid::uuid generate]
+    } -result 1
+
+    test uuid-api-2.1-$impl {generate, version 4 (random)} -body {
+        string index [uuid::uuid generate] 14
+    } -result 4
+
+    test uuid-api-2.2-$impl {generate, variant bits are 10} -body {
+        set r {}
+        for {set i 0} {$i < 20} {incr i} {
+            set c [string index [uuid::uuid generate] 19]
+            lappend r [expr {[lsearch -exact {8 9 a b} $c] >= 0}]
+        }
+        lsort -unique $r
+    } -cleanup {
+        unset -nocomplain r i c
+    } -result 1
+
+    test uuid-api-2.3-$impl {generate, uuids are unique} -body {
+        set r {}
+        for {set i 0} {$i < 200} {incr i} {
+            lappend r [uuid::uuid generate]
+        }
+        llength [lsort -unique $r]
+    } -cleanup {
+        unset -nocomplain r i
+    } -result 200
+
+    test uuid-api-2.4-$impl {generate, result is an equal uuid of itself} -body {
+        set a [uuid::uuid generate]
+        uuid::uuid equal $a [string range $a 0 end]
+    } -cleanup {
+        unset -nocomplain a
+    } -result 1
+
+    reset_implementation
+}
+
+# -------------------------------------------------------------------------
+
+test uuid-api-3.0 {equal, identical strings} -body {
+    uuid::uuid equal b12dc22c-5c36-41d2-57da-e29d0ef5839c \
+        b12dc22c-5c36-41d2-57da-e29d0ef5839c
+} -result 1
+
+test uuid-api-3.1 {equal, different uuids} -body {
+    uuid::uuid equal b12dc22c-5c36-41d2-57da-e29d0ef5839c \
+        b12dc22c-5c36-41d2-57da-e29d0ef5839d
+} -result 0
+
+test uuid-api-3.2 {equal, letter case does not matter} -body {
+    uuid::uuid equal b12dc22c-5c36-41d2-57da-e29d0ef5839c \
+        B12DC22C-5C36-41D2-57DA-E29D0EF5839C
+} -result 1
+
+test uuid-api-3.3 {equal, nil uuid} -body {
+    list [uuid::uuid equal 00000000-0000-0000-0000-000000000000 \
+              00000000-0000-0000-0000-000000000000] \
+        [uuid::uuid equal 00000000-0000-0000-0000-000000000000 \
+             00000000-0000-0000-0000-000000000001]
+} -result {1 0}
+
+test uuid-api-3.4 {equal, generated uuid with upper case copy} -body {
+    set a [uuid::uuid generate]
+    uuid::uuid equal $a [string toupper $a]
+} -cleanup {
+    unset -nocomplain a
+} -result 1
+
+# -------------------------------------------------------------------------
+
+unset -nocomplain uuidRE preserve impl
+testsuiteCleanup
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
