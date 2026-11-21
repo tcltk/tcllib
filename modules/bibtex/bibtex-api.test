@@ -1,0 +1,446 @@
+# -*- tcl -*-
+# bibtex-api.test:  tests for the parts of the bibtex API not covered by
+# bibtex.test: record contents, all SAX callbacks with text input,
+# addStrings, wait, destroy from callbacks, channel handling.
+# (-casesensitivestrings is tested in bibtex.test.)
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl cmdline
+}
+testing {
+    useLocal bibtex.tcl bibtex
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+proc track {args} {lappend ::track $args; return}
+
+# Writes text into a temporary file and returns a channel open on it.
+proc bibchan {text} {
+    set path [makeFile {} bibapi.bib]
+    set fh [open $path w]
+    puts -nonewline $fh $text
+    close $fh
+    return [open $path r]
+}
+
+proc bibchanclose {chan} {
+    close $chan
+    removeFile bibapi.bib
+}
+
+set sample "@comment{This is a comment}
+@preamble{\"\\newcommand{\\foo}{bar}\"}
+@String{ jn = \"Journal Name\" }
+@ARTICLE{Key1,
+  Author = \"A. Author and B. Author\",
+  Title = {The {Title}},
+  journal = jn,
+  year = 1999
+}
+@book{key2, title={Second}, }
+"
+
+# -------------------------------------------------------------------------
+# parse, direct result
+
+test bibtex-api-1.0 {parse, records only, macros expanded} -body {
+    bibtex::parse $sample
+} -result {{article Key1 {author {A. Author and B. Author} title {The Title} journal {Journal Name} year 1999}} {book key2 {title Second}}}
+
+test bibtex-api-1.1 {parse, type and field names lowercased, key kept} -body {
+    bibtex::parse "@InProceedings{MiXeD:Key,\n  BookTitle = {B}\n}\n"
+} -result {{inproceedings MiXeD:Key {booktitle B}}}
+
+test bibtex-api-1.2 {parse, quoted value} -body {
+    bibtex::parse "@misc{k, note = \"quoted value\"}"
+} -result {{misc k {note {quoted value}}}}
+
+test bibtex-api-1.3 {parse, whitespace in values collapsed} -body {
+    bibtex::parse "@misc{k, title = {Line one\n\t   line   two}}"
+} -result {{misc k {title {Line one line two}}}}
+
+test bibtex-api-1.4 {parse, comma inside braces} -body {
+    bibtex::parse "@misc{k, author = {Doe, John}, year = 2000}"
+} -result {{misc k {author {Doe, John} year 2000}}}
+
+test bibtex-api-1.5 {parse, comma inside quotes} -body {
+    bibtex::parse "@misc{k, author = \"Doe, John\", year = 2000}"
+} -result {{misc k {author {Doe, John} year 2000}}}
+
+test bibtex-api-1.6 {parse, key with surrounding spaces} -body {
+    bibtex::parse "@misc{  k1 , year = 2000}"
+} -result {{misc k1 {year 2000}}}
+
+test bibtex-api-1.7 {parse, record without fields} -body {
+    bibtex::parse "@misc{k1,}"
+} -result {{misc k1 {}}}
+
+test bibtex-api-1.8 {parse, several records keep their order} -body {
+    set res {}
+    foreach r [bibtex::parse "@a{k1, x=1}\n@b{k2, x=2}\n@c{k3, x=3}\n"] {
+	lappend res [lindex $r 1]
+    }
+    set res
+} -cleanup {
+    unset res r
+} -result {k1 k2 k3}
+
+test bibtex-api-1.9 {parse, empty text} -body {
+    bibtex::parse {}
+} -result {}
+
+test bibtex-api-1.10 {parse, text without records} -body {
+    bibtex::parse "just some text, no entries"
+} -errorOutput "Skipping: just some text, no entries\n" -result {}
+
+test bibtex-api-1.11 {parse, only string definitions} -body {
+    bibtex::parse "@string{a = {b}}"
+} -result {}
+
+test bibtex-api-1.12 {parse, several string definitions} -body {
+    bibtex::parse "@string{aa = {First}}\n@string{bb = {Second}}\n@misc{k, x = aa, y = bb}\n"
+} -result {{misc k {x First y Second}}}
+
+test bibtex-api-1.13 {parse, string macros are case-insensitive by default} -body {
+    bibtex::parse "@string{jn = {Journal}}\n@misc{k, journal = JN}\n"
+} -result {{misc k {journal Journal}}}
+
+test bibtex-api-1.14 {parse, non-ASCII text} -body {
+    bibtex::parse "@book{k, title = {Книга про світ}}"
+} -result [list [list book k [list title "Книга про світ"]]]
+
+test bibtex-api-1.15 {parse, no parser state left behind} -body {
+    set before [array size ::bibtex::data]
+    bibtex::parse $sample
+    expr {[array size ::bibtex::data] == $before}
+} -cleanup {
+    unset before
+} -result 1
+
+# -------------------------------------------------------------------------
+# parse, SAX callbacks with text input
+
+test bibtex-api-2.0 {parse, sax, text, returns a token, callbacks before return} -setup {
+    set ::track {}
+} -body {
+    set t [bibtex::parse -recordcommand {track rec} $sample]
+    list [string match bibtex* $t] [llength $::track] [lindex $::track 0 0] \
+	[expr {[lindex $::track 0 1] eq $t}]
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track
+} -result {1 2 rec 1}
+
+test bibtex-api-2.1 {parse, sax, callback order and arguments} -setup {
+    set ::track {}
+} -body {
+    set t [bibtex::parse \
+	       -preamblecommand {track pre} \
+	       -stringcommand   {track str} \
+	       -recordcommand   {track rec} \
+	       $sample]
+    string map [list $t TOKEN] $::track
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track
+} -result [list \
+    {pre TOKEN {"\newcommand{\foo}{bar}"}} \
+    {str TOKEN {jn {Journal Name}}} \
+    {rec TOKEN article Key1 {author {A. Author and B. Author} title {The Title} journal jn year 1999}} \
+    {rec TOKEN book key2 {title Second}}]
+
+test bibtex-api-2.2 {parse, sax, macros expanded when -stringcommand is not given} -setup {
+    set ::track {}
+} -body {
+    set t [bibtex::parse -recordcommand {track rec} $sample]
+    lindex $::track 0 4
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track
+} -result {author {A. Author and B. Author} title {The Title} journal {Journal Name} year 1999}
+
+test bibtex-api-2.3 {parse, sax, -stringcommand calling addStrings} -setup {
+    set ::track {}
+    proc str {token strings} {
+	track str $strings
+	bibtex::addStrings $token $strings
+    }
+} -body {
+    set t [bibtex::parse -stringcommand str -recordcommand {track rec} \
+	       "@string{x = {Ex}}\n@misc{k, f = x}\n"]
+    string map [list $t TOKEN] $::track
+} -cleanup {
+    bibtex::destroy $t
+    rename str {}
+    unset t ::track
+} -result {{str {x Ex}} {rec TOKEN misc k {f Ex}}}
+
+test bibtex-api-2.4 {parse, sax, progress percentages} -setup {
+    set ::track {}
+} -body {
+    set text {}
+    for {set i 1} {$i <= 4} {incr i} {append text "@misc{k$i, x=$i}\n"}
+    set t [bibtex::parse -progresscommand {track} $text]
+    set res {}
+    foreach p $::track {lappend res [lindex $p 1]}
+    set res
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track text i res p
+} -result {25 50 75 100}
+
+test bibtex-api-2.5 {parse, sax, progress for many records is monotonic and ends at 100} -setup {
+    set ::track {}
+} -body {
+    set text {}
+    for {set i 1} {$i <= 250} {incr i} {append text "@misc{k$i, x=$i}\n"}
+    set t [bibtex::parse -progresscommand {track} $text]
+    set last -1
+    set ok 1
+    foreach p $::track {
+	set v [lindex $p 1]
+	if {$v < $last || $v < 0 || $v > 100} {set ok 0}
+	set last $v
+    }
+    list $ok $last
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track text i last ok p v
+} -result {1 100}
+
+# Bug: the comment callback gets only the last character of the comment
+# line, the regexp captures a single repeated character.
+test bibtex-api-2.6 {parse, sax, comment callback gets the comment text} -constraints knownBug -setup {
+    set ::track {}
+} -body {
+    set t [bibtex::parse -commentcommand {track com} "@comment{This is a comment}\n@misc{k, x=1}\n"]
+    lindex $::track 0 2
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track
+} -match glob -result {*This is a comment*}
+
+test bibtex-api-2.7 {parse, sax, comment callback is called} -setup {
+    set ::track {}
+} -body {
+    set t [bibtex::parse -commentcommand {track com} "@comment{This is a comment}\n@misc{k, x=1}\n"]
+    list [llength $::track] [lindex $::track 0 0]
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track
+} -result {1 com}
+
+test bibtex-api-2.8 {parse, sax, only the given callbacks are used, no records collected} -setup {
+    set ::track {}
+} -body {
+    set t [bibtex::parse -preamblecommand {track pre} $sample]
+    llength $::track
+} -cleanup {
+    bibtex::destroy $t
+    unset t ::track
+} -result 1
+
+# Bug: after destroy from a callback the parser continues and fails
+# reading its destroyed state.
+test bibtex-api-2.9 {parse, sax, destroy from a callback stops processing} -constraints knownBug -setup {
+    set ::track {}
+    proc rec {token args} {
+	track rec [lindex $args 1]
+	bibtex::destroy $token
+    }
+} -body {
+    set t [bibtex::parse -recordcommand rec "@a{k1, x=1}\n@b{k2, x=2}\n@c{k3, x=3}\n"]
+    list $::track [catch {bibtex::destroy $t} msg] $msg
+} -cleanup {
+    rename rec {}
+    unset -nocomplain t ::track msg
+} -match glob -result {{{rec k1}} 1 {Illegal bibtex parser "bibtex*"}}
+
+test bibtex-api-2.10 {parse, sax, error in callback propagates} -setup {
+    proc rec {args} {error boom}
+} -body {
+    bibtex::parse -recordcommand rec "@a{k1, x=1}"
+} -cleanup {
+    rename rec {}
+} -returnCodes error -result boom
+
+test bibtex-api-2.11 {parse, tokens are distinct} -body {
+    set t1 [bibtex::parse -recordcommand list "@a{k, x=1}"]
+    set t2 [bibtex::parse -recordcommand list "@a{k, x=1}"]
+    expr {$t1 ne $t2}
+} -cleanup {
+    bibtex::destroy $t1
+    bibtex::destroy $t2
+    unset t1 t2
+} -result 1
+
+# -------------------------------------------------------------------------
+# destroy, wait, addStrings
+
+test bibtex-api-3.0 {destroy, returns empty, token invalid afterwards} -body {
+    set t [bibtex::parse -recordcommand list "@a{k, x=1}"]
+    list [bibtex::destroy $t] [catch {bibtex::destroy $t} msg] [string equal $msg "Illegal bibtex parser \"$t\""]
+} -cleanup {
+    unset t msg
+} -result {{} 1 1}
+
+test bibtex-api-3.1 {wait, wrong # args} -body {
+    bibtex::wait
+} -returnCodes error -result {wrong # args: should be "bibtex::wait token"}
+
+test bibtex-api-3.2 {wait, invalid token} -body {
+    bibtex::wait foo
+} -returnCodes error -result {Illegal bibtex parser "foo"}
+
+test bibtex-api-3.3 {wait, returns empty after channel parse} -setup {
+    set ::track {}
+    set chan [bibchan $sample]
+} -body {
+    set t [bibtex::parse -recordcommand {track rec} -channel $chan]
+    list [bibtex::wait $t] [llength $::track]
+} -cleanup {
+    bibtex::destroy $t
+    bibchanclose $chan
+    unset t chan ::track
+} -result {{} 2}
+
+# Bug: wait for a parser which has already completed never returns (it
+# waits for a variable that is not set again). The timer keeps the test
+# from hanging.
+test bibtex-api-3.4 {wait, parser already completed} -constraints knownBug -setup {
+    set ::bibapiTimeout 0
+} -body {
+    set t [bibtex::parse -recordcommand list "@a{k, x=1}"]
+    set id [after 2000 [list apply {{t} {
+	set ::bibapiTimeout 1
+	set ::bibtex::data($t,done) 1
+    }} $t]]
+    bibtex::wait $t
+    after cancel $id
+    set ::bibapiTimeout
+} -cleanup {
+    bibtex::destroy $t
+    unset t id ::bibapiTimeout
+} -result 0
+
+test bibtex-api-3.5 {addStrings, wrong # args} -body {
+    bibtex::addStrings a
+} -returnCodes error -result {wrong # args: should be "bibtex::addStrings token strings"}
+
+test bibtex-api-3.6 {addStrings, returns empty, strings used for following records} -setup {
+    set ::track {}
+    set chan [bibchan "@misc{k, journal = jn, address = cty}\n"]
+} -body {
+    set t [bibtex::parse -recordcommand {track rec} -channel $chan]
+    set r [bibtex::addStrings $t {jn {Journal Name} cty City}]
+    bibtex::wait $t
+    list $r [lindex $::track 0 4]
+} -cleanup {
+    bibtex::destroy $t
+    bibchanclose $chan
+    unset t chan r ::track
+} -result {{} {journal {Journal Name} address City}}
+
+# Bug: string macros are replaced as substrings everywhere in the record
+# text, including field names, other words and braced values.
+test bibtex-api-3.7 {string macros replace only bare macro values} -constraints knownBug -body {
+    bibtex::parse "@string{pub = {Publisher}}\n@misc{k, publisher = pub, title = {A public pub}}\n"
+} -result {{misc k {publisher Publisher title {A public pub}}}}
+
+# -------------------------------------------------------------------------
+# Channels
+
+test bibtex-api-4.0 {parse, channel not closed by the parser} -setup {
+    set chan [bibchan $sample]
+} -body {
+    bibtex::parse -channel $chan
+    expr {$chan in [chan names]}
+} -cleanup {
+    bibchanclose $chan
+    unset chan
+} -result 1
+
+test bibtex-api-4.1 {parse, -command, channel not closed, result} -setup {
+    set chan [bibchan $sample]
+    set ::bibapiDone {}
+    proc done {token result} {set ::bibapiDone [list $token $result]}
+} -body {
+    set t [bibtex::parse -command done -channel $chan]
+    set id [after 5000 {set ::bibapiDone timeout}]
+    vwait ::bibapiDone
+    after cancel $id
+    list [expr {[lindex $::bibapiDone 0] eq $t}] [llength [lindex $::bibapiDone 1]] \
+	[expr {$chan in [chan names]}]
+} -cleanup {
+    bibtex::destroy $t
+    bibchanclose $chan
+    rename done {}
+    unset t chan id ::bibapiDone
+} -result {1 2 1}
+
+test bibtex-api-4.2 {parse, channel, direct result equals text result} -setup {
+    set chan [bibchan $sample]
+} -body {
+    expr {[bibtex::parse -channel $chan] eq [bibtex::parse $sample]}
+} -cleanup {
+    bibchanclose $chan
+    unset chan
+} -result 1
+
+test bibtex-api-4.3 {parse, channel, blocking mode restored} -setup {
+    set chan [bibchan $sample]
+    fconfigure $chan -blocking 0
+} -body {
+    bibtex::parse -channel $chan
+    fconfigure $chan -blocking
+} -cleanup {
+    bibchanclose $chan
+    unset chan
+} -result 0
+
+test bibtex-api-4.4 {parse, channel, sax, all callbacks} -setup {
+    set ::track {}
+    set chan [bibchan $sample]
+} -body {
+    set t [bibtex::parse \
+	       -preamblecommand {track pre} \
+	       -stringcommand   {track str} \
+	       -recordcommand   {track rec} \
+	       -channel $chan]
+    bibtex::wait $t
+    set res {}
+    foreach e $::track {lappend res [lindex $e 0]}
+    set res
+} -cleanup {
+    bibtex::destroy $t
+    bibchanclose $chan
+    unset t chan ::track res e
+} -result {pre str rec rec}
+
+test bibtex-api-4.5 {parse, closed channel} -setup {
+    set chan [bibchan $sample]
+    bibchanclose $chan
+} -body {
+    bibtex::parse -channel $chan
+} -cleanup {
+    unset chan
+} -returnCodes error -match glob -result {Illegal channel handle "*"}
+
+# -------------------------------------------------------------------------
+
+rename track {}
+rename bibchan {}
+rename bibchanclose {}
+unset sample
+testsuiteCleanup

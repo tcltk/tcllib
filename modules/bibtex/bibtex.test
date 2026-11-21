@@ -238,10 +238,6 @@ test bibtex-6.0 {Tkt 071dbedcc8, 2979481, word "string" inside a field} {
     bibtex::parse "@article{k2,\n  title = {A string {theory} test},\n  year = 2000\n}\n"
 } {{article k2 {title {A string theory test} year 2000}}}
 
-test bibtex-6.1 {Tkt 071dbedcc8, string macros are case-insensitive by default} {
-    bibtex::parse "@string{jfoo = {Journal of Foo}}\n@article{k1,\n  journal = JFoo\n}\n"
-} {{article k1 {journal {Journal of Foo}}}}
-
 test bibtex-6.2 {Tkt 071dbedcc8, -casesensitivestrings} {
     bibtex::parse -casesensitivestrings 1 "@string{jfoo = {Lower Foo}}\n@string{JFoo = {Upper Foo}}\n@article{k1,\n  journal = jfoo,\n  note = JFoo\n}\n"
 } {{article k1 {journal {Lower Foo} note {Upper Foo}}}}
