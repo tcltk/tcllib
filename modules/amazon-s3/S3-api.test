@@ -1,0 +1,1168 @@
+# -*- tcl -*-
+# S3-api.test:  tests for the S3 package against a local fake S3 server.
+#
+# Unlike S3.test, these tests never contact Amazon.  A minimal fake S3
+# service (in-memory buckets and objects, signature checking) runs in a
+# child process on 127.0.0.1 with a random port.  S3::REST always
+# connects to port 80 of the service access point, so the tests redirect
+# the [socket] calls of the S3 namespace to the fake server.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use uri/uri.tcl uri
+}
+
+testsNeed xml ; # aka TclXML, author Steve Ball, of Zveno (Australia)
+
+support {
+    use sha1/sha1.tcl     sha1
+    use md5/md5x.tcl      md5
+    use base64/base64.tcl base64
+    useLocal xsxp.tcl xsxp ;# Here we need (tcl)xml
+}
+testing {
+    useLocal S3.tcl S3
+}
+
+# -------------------------------------------------------------------------
+# The fake S3 server.
+
+set fakeServerScript {
+    lappend auto_path [lindex $argv 0]
+    package require sha1
+    package require md5
+    package require base64
+    set accessid [lindex $argv 1]
+    set secret   [lindex $argv 2]
+    set NS {xmlns="http://s3.amazonaws.com/doc/2006-03-01/"}
+    set OWNER {<Owner><ID>ownerid0123</ID><DisplayName>tester</DisplayName></Owner>}
+    array set buckets {}   ;# name -> creation date
+    array set objects {}   ;# bucket/key -> dict body ctype meta mtime acl
+    array set acls    {}   ;# bucket/key -> acl xml
+    set counter 0          ;# number of requests
+
+    proc isodate {t} {clock format $t -gmt 1 -format {%Y-%m-%dT%H:%M:%S.000Z}}
+    proc httpdate {t} {clock format $t -gmt 1 -format {%a, %d %b %Y %H:%M:%S GMT}}
+    proc xmlq {s} {string map {& &amp; < &lt; > &gt; \" &quot;} $s}
+    proc decode {s} {
+        set s [string map {+ { }} $s]
+        set r ""
+        while {[regexp -indices {%([0-9A-Fa-f][0-9A-Fa-f])} $s all hex]} {
+            append r [string range $s 0 [expr {[lindex $all 0]-1}]]
+            append r [binary format H2 [string range $s {*}$hex]]
+            set s [string range $s [expr {[lindex $all 1]+1}] end]
+        }
+        encoding convertfrom utf-8 $r$s
+    }
+    proc reply {ch code msg {headers {}} {body ""}} {
+        puts -nonewline $ch "HTTP/1.0 $code $msg\r\n"
+        foreach {k v} $headers {puts -nonewline $ch "$k: $v\r\n"}
+        puts -nonewline $ch "Content-Length: [string length $body]\r\n"
+        puts -nonewline $ch "x-amz-request-id: [incr ::counter]\r\n\r\n"
+        puts -nonewline $ch $body
+    }
+    proc err {ch code msg ecode {verb GET}} {
+        set body "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>$ecode</Code><Message>$msg</Message></Error>"
+        if {$verb eq "HEAD"} {set body ""}
+        reply $ch $code $msg {Content-Type application/xml} $body
+    }
+    proc aclxml {canned} {
+        set g "<Grant><Grantee xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"CanonicalUser\"><ID>ownerid0123</ID><DisplayName>tester</DisplayName></Grantee><Permission>FULL_CONTROL</Permission></Grant>"
+        if {$canned in {public-read public-read-write}} {
+            append g "<Grant><Grantee xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Group\"><URI>http://acs.amazonaws.com/groups/global/AllUsers</URI></Grantee><Permission>READ</Permission></Grant>"
+        }
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<AccessControlPolicy $::NS>$::OWNER<AccessControlList>$g</AccessControlList></AccessControlPolicy>"
+    }
+    proc accept {ch host port} {
+        # Read the request without blocking the server: clients may
+        # connect and never send anything.
+        fconfigure $ch -translation binary -blocking 0
+        set ::req($ch) ""
+        fileevent $ch readable [list collect $ch]
+    }
+    proc collect {ch} {
+        # S3::REST ends its header lines with \n only.
+        append ::req($ch) [read $ch]
+        set r $::req($ch)
+        set hend [string first "\n\n" $r]
+        if {$hend < 0} {
+            if {[eof $ch]} {unset ::req($ch); close $ch}
+            return
+        }
+        set head [string range $r 0 $hend-1]
+        set len 0
+        regexp -nocase -line {^content-length:\s*(\d+)} $head -> len
+        set body [string range $r $hend+2 end]
+        if {[string length $body] < $len && ![eof $ch]} return
+        fileevent $ch readable {}
+        unset ::req($ch)
+        fconfigure $ch -blocking 1
+        if {[catch {handle $ch $head [string range $body 0 $len-1]}]} {
+            catch {err $ch 500 "Internal Error" InternalError}
+        }
+        catch {close $ch}
+    }
+    proc handle {ch head body} {
+        set lines [split $head \n]
+        lassign [lindex $lines 0] verb url
+        set hdrs {}
+        foreach h [lrange $lines 1 end] {
+            set i [string first : $h]
+            dict set hdrs [string tolower [string range $h 0 $i-1]] \
+                [string trim [string range $h $i+1 end]]
+        }
+        # Split the URL.
+        set query ""
+        set path $url
+        if {[set q [string first ? $url]] >= 0} {
+            set path  [string range $url 0 $q-1]
+            set query [string range $url $q+1 end]
+        }
+        set params {}
+        set sub ""
+        foreach p [split $query &] {
+            if {$p eq ""} continue
+            if {$p in {acl torrent}} {set sub $p; continue}
+            set i [string first = $p]
+            if {$i < 0} {dict set params $p ""; continue}
+            dict set params [string range $p 0 $i-1] [decode [string range $p $i+1 end]]
+        }
+        # Check the signature.
+        set sres $path
+        if {$sub ne ""} {append sres ?$sub}
+        set xamz ""
+        foreach k [lsort [dict keys $hdrs x-amz-*]] {
+            append xamz $k:[dict get $hdrs $k]\n
+        }
+        set md5 ""; set ct ""; set date ""
+        if {[dict exists $hdrs content-md5]}  {set md5  [dict get $hdrs content-md5]}
+        if {[dict exists $hdrs content-type]} {set ct   [dict get $hdrs content-type]}
+        if {[dict exists $hdrs date]}         {set date [dict get $hdrs date]}
+        set sig [string trim [base64::encode [binary format H* \
+            [sha1::hmac $::secret "$verb\n$md5\n$ct\n$date\n$xamz$sres"]]]]
+        if {![dict exists $hdrs authorization] ||
+            [dict get $hdrs authorization] ne "AWS $::accessid:$sig"} {
+            return [err $ch 403 Forbidden SignatureDoesNotMatch $verb]
+        }
+        if {$md5 ne "" && $md5 ne [string trim [base64::encode [md5::md5 $body]]]} {
+            return [err $ch 400 "Bad Request" BadDigest $verb]
+        }
+        set path [decode $path]
+        set rest [string range $path 1 end]
+        set i [string first / $rest]
+        if {$i < 0} {
+            set bucket $rest; set key ""
+        } else {
+            set bucket [string range $rest 0 $i-1]
+            set key [string range $rest $i+1 end]
+        }
+        if {$bucket eq ""} {
+            # Service: list buckets.
+            set x "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ListAllMyBucketsResult $::NS>$::OWNER<Buckets>"
+            foreach b [lsort [array names ::buckets]] {
+                append x "<Bucket><Name>[xmlq $b]</Name><CreationDate>[isodate $::buckets($b)]</CreationDate></Bucket>"
+            }
+            append x "</Buckets></ListAllMyBucketsResult>"
+            return [reply $ch 200 OK {Content-Type application/xml} $x]
+        }
+        if {$bucket eq "fail500"} {
+            return [err $ch 500 "Internal Server Error" InternalError $verb]
+        }
+        if {$key eq "" && $sub eq ""} {
+            switch -- $verb {
+                PUT {
+                    set ::buckets($bucket) [clock seconds]
+                    return [reply $ch 200 OK]
+                }
+                DELETE {
+                    if {![info exists ::buckets($bucket)]} {
+                        return [err $ch 404 "Not Found" NoSuchBucket]
+                    }
+                    if {[llength [array names ::objects $bucket/*]]} {
+                        return [err $ch 409 Conflict BucketNotEmpty]
+                    }
+                    unset ::buckets($bucket)
+                    return [reply $ch 204 "No Content"]
+                }
+                GET {
+                    if {![info exists ::buckets($bucket)]} {
+                        return [err $ch 404 "Not Found" NoSuchBucket]
+                    }
+                    set prefix ""; set delim ""; set marker ""; set max 1000
+                    if {[dict exists $params prefix]}    {set prefix [dict get $params prefix]}
+                    if {[dict exists $params delimiter]} {set delim  [dict get $params delimiter]}
+                    if {[dict exists $params marker]}    {set marker [dict get $params marker]}
+                    if {[dict exists $params max-keys]}  {set max    [dict get $params max-keys]}
+                    set keys {}
+                    foreach ok [lsort [array names ::objects $bucket/*]] {
+                        lappend keys [string range $ok [string length $bucket/] end]
+                    }
+                    set contents ""; set prefixes {}; set n 0; set trunc false
+                    set last ""
+                    foreach k $keys {
+                        if {[string compare $k $marker] <= 0} continue
+                        if {![string match [string map {* \\* ? \\? [ \\[ \\ \\\\} $prefix]* $k]} continue
+                        if {$delim ne ""} {
+                            set j [string first $delim $k [string length $prefix]]
+                            if {$j >= 0} {
+                                set cp [string range $k 0 [expr {$j + [string length $delim] - 1}]]
+                                if {$cp ni $prefixes} {
+                                    if {$n >= $max} {set trunc true; break}
+                                    lappend prefixes $cp; incr n; set last $k
+                                }
+                                continue
+                            }
+                        }
+                        if {$n >= $max} {set trunc true; break}
+                        set o $::objects($bucket/$k)
+                        append contents "<Contents><Key>[xmlq $k]</Key><LastModified>[isodate [dict get $o mtime]]</LastModified><ETag>&quot;[md5::md5 -hex [dict get $o body]]&quot;</ETag><Size>[string length [dict get $o body]]</Size>$::OWNER<StorageClass>STANDARD</StorageClass></Contents>"
+                        incr n; set last $k
+                    }
+                    set x "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ListBucketResult $::NS><Name>[xmlq $bucket]</Name><Prefix>[xmlq $prefix]</Prefix><Marker>[xmlq $marker]</Marker><MaxKeys>$max</MaxKeys>"
+                    if {$delim ne ""} {append x "<Delimiter>[xmlq $delim]</Delimiter>"}
+                    append x "<IsTruncated>$trunc</IsTruncated>$contents"
+                    foreach cp $prefixes {
+                        append x "<CommonPrefixes><Prefix>[xmlq $cp]</Prefix></CommonPrefixes>"
+                    }
+                    append x "</ListBucketResult>"
+                    return [reply $ch 200 OK {Content-Type application/xml} $x]
+                }
+            }
+            return [err $ch 405 "Method Not Allowed" MethodNotAllowed $verb]
+        }
+        if {![info exists ::buckets($bucket)]} {
+            return [err $ch 404 "Not Found" NoSuchBucket $verb]
+        }
+        set ok $bucket/$key
+        if {$sub eq "acl"} {
+            if {$verb eq "PUT"} {
+                if {![info exists ::objects($ok)]} {
+                    return [err $ch 404 "Not Found" NoSuchKey]
+                }
+                set ::acls($ok) $body
+                return [reply $ch 200 OK]
+            }
+            if {![info exists ::objects($ok)]} {
+                return [err $ch 404 "Not Found" NoSuchKey $verb]
+            }
+            if {![info exists ::acls($ok)]} {
+                set ::acls($ok) [aclxml [dict get $::objects($ok) acl]]
+            }
+            return [reply $ch 200 OK {Content-Type application/xml} $::acls($ok)]
+        }
+        switch -- $verb {
+            PUT {
+                set meta {}
+                foreach k [dict keys $hdrs x-amz-meta-*] {
+                    dict set meta $k [dict get $hdrs $k]
+                }
+                set acl private
+                if {[dict exists $hdrs x-amz-acl]} {set acl [dict get $hdrs x-amz-acl]}
+                set ::objects($ok) [dict create body $body ctype $ct meta $meta \
+                                        mtime [clock seconds] acl $acl]
+                unset -nocomplain ::acls($ok)
+                return [reply $ch 200 OK [list ETag "\"[md5::md5 -hex $body]\""]]
+            }
+            GET - HEAD {
+                if {![info exists ::objects($ok)]} {
+                    return [err $ch 404 "Not Found" NoSuchKey $verb]
+                }
+                set o $::objects($ok)
+                set h [list Last-Modified [httpdate [dict get $o mtime]] \
+                           ETag "\"[md5::md5 -hex [dict get $o body]]\""]
+                if {[dict get $o ctype] ne ""} {
+                    lappend h Content-Type [dict get $o ctype]
+                }
+                lappend h {*}[dict get $o meta]
+                if {$verb eq "HEAD"} {
+                    puts -nonewline $ch "HTTP/1.0 200 OK\r\n"
+                    foreach {k v} $h {puts -nonewline $ch "$k: $v\r\n"}
+                    puts -nonewline $ch "Content-Length: [string length [dict get $o body]]\r\n\r\n"
+                    return
+                }
+                return [reply $ch 200 OK $h [dict get $o body]]
+            }
+            DELETE {
+                unset -nocomplain ::objects($ok) ::acls($ok)
+                return [reply $ch 204 "No Content"]
+            }
+        }
+        return [err $ch 405 "Method Not Allowed" MethodNotAllowed $verb]
+    }
+    set srv [socket -server accept -myaddr 127.0.0.1 0]
+    puts [lindex [fconfigure $srv -sockname] 2]
+    flush stdout
+    # Exit when the test suite closes our stdin.
+    fileevent stdin readable {if {[gets stdin] < 0 && [eof stdin]} {exit}}
+    vwait forever
+}
+
+set fakeServerFile [makeFile $fakeServerScript fakeS3[pid].tcl]
+set fakeServerChan [open |[list [info nameofexecutable] $fakeServerFile \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    TESTACCESSID testsecretkey] r+]
+fconfigure $fakeServerChan -buffering line
+set fakeServerPort [gets $fakeServerChan]
+
+# Redirect the connections S3::REST makes to port 80 of the service
+# access point to the fake server.
+proc ::S3::socket {args} {
+    set args [lreplace $args end-1 end 127.0.0.1 $::fakeServerPort]
+    return [::socket {*}$args]
+}
+
+proc s3config {} {
+    S3::Configure -reset true -retries 0 \
+        -accesskeyid TESTACCESSID -secretaccesskey testsecretkey \
+        -service-access-point fake.s3.invalid
+}
+s3config
+
+proc s3cleanup {} {
+    # Remove all buckets and objects of the fake server.
+    foreach b [S3::ListAllMyBuckets] {
+        foreach k [S3::GetBucket -bucket $b] {
+            S3::Delete -bucket $b -resource $k
+        }
+        S3::DeleteBucket -bucket $b
+    }
+    s3config
+}
+
+# -------------------------------------------------------------------------
+# S3::Configure
+
+test S3-api-1.1 {Configure: no arguments returns all settings} -body {
+    lsort [dict keys [S3::Configure]]
+} -result {-accesskeyid -bucket-prefix -default-acl -default-bucket -default-compare -default-separator -reset -retries -secretaccesskey -service-access-point -slop-seconds -use-tls}
+
+test S3-api-1.2 {Configure: one argument returns its value} -body {
+    list [S3::Configure -retries] [S3::Configure -bucket-prefix]
+} -result {0 TclS3}
+
+test S3-api-1.3 {Configure: set values, returns the new configuration} -body {
+    set c [S3::Configure -default-bucket mybucket -slop-seconds 10]
+    list [dict get $c -default-bucket] [S3::Configure -slop-seconds]
+} -cleanup {
+    s3config
+    unset c
+} -result {mybucket 10}
+
+test S3-api-1.4 {Configure: -reset true restores the defaults} -body {
+    S3::Configure -default-bucket mybucket
+    S3::Configure -reset true
+    list [S3::Configure -default-bucket] [S3::Configure -retries] \
+        [S3::Configure -service-access-point] [S3::Configure -default-compare]
+} -cleanup {
+    s3config
+} -result {{} 3 s3.amazonaws.com always}
+
+test S3-api-1.5 {Configure: bad option} -body {
+    S3::Configure -nosuchoption
+} -returnCodes error -match glob -result {Bad option "-nosuchoption": must be -reset, -retries, *}
+
+test S3-api-1.6 {Configure: bad option when setting} -body {
+    S3::Configure -retries 1 -nosuchoption 2
+} -returnCodes error -match glob -result {Bad option "-nosuchoption": must be *}
+
+test S3-api-1.7 {Configure: odd number of arguments} -body {
+    S3::Configure -retries 1 -slop-seconds
+} -returnCodes error -result {Config args must be -name val -name val}
+
+test S3-api-1.8 {Configure: errors leave the configuration unchanged} -body {
+    catch {S3::Configure -retries 7 -nosuchoption 2}
+    S3::Configure -retries
+} -result 0
+
+test S3-api-1.9 {Configure: errorCode of a bad option} -body {
+    catch {S3::Configure -nosuchoption}
+    lrange $::errorCode 0 2
+} -result {S3 usage -nosuchoption}
+
+# -------------------------------------------------------------------------
+# S3::SuggestBucket
+
+test S3-api-2.1 {SuggestBucket: name and access key id} -body {
+    S3::SuggestBucket myapp
+} -match glob -result {*myapp*}
+
+test S3-api-2.2 {SuggestBucket: default from -bucket-prefix} -body {
+    set a [S3::SuggestBucket]
+    S3::Configure -bucket-prefix OtherPrefix
+    set b [S3::SuggestBucket]
+    list [string match *TclS3* $a] [string match *OtherPrefix* $b] \
+        [string match -nocase *testaccessid* $a]
+} -cleanup {
+    s3config
+    unset a b
+} -result {1 1 1}
+
+test S3-api-2.3 {SuggestBucket: empty name and prefix is an error} -body {
+    S3::Configure -bucket-prefix ""
+    S3::SuggestBucket
+} -cleanup {
+    s3config
+} -returnCodes error -result {S3::SuggestBucket requires name or -bucket-prefix set}
+
+# -------------------------------------------------------------------------
+# S3::REST
+
+test S3-api-3.1 {REST: not configured} -setup {
+    S3::Configure -reset true
+} -body {
+    S3::REST {verb GET resource /}
+} -cleanup {
+    s3config
+} -returnCodes error -result {S3 must be initialized with -accesskeyid and -secretaccesskey before use}
+
+test S3-api-3.2 {REST: GET service, result keys} -body {
+    set r [S3::REST {verb GET resource /}]
+    list [dict get $r httpstatus] [dict get $r httpmessage] \
+        [dict get $r verb] [dict get $r resource] \
+        [string match *ListAllMyBucketsResult* [dict get $r outbody]] \
+        [dict get $r outheaders content-type]
+} -cleanup {
+    unset r
+} -result {200 OK GET / 1 application/xml}
+
+test S3-api-3.3 {REST: wrong secret key, non-2XX status is not an error} -body {
+    S3::Configure -secretaccesskey wrong
+    set r [S3::REST {verb GET resource /}]
+    list [dict get $r httpstatus] [dict exists $r error] \
+        [string match *SignatureDoesNotMatch* [dict get $r outbody]]
+} -cleanup {
+    s3config
+    unset r
+} -result {403 0 1}
+
+test S3-api-3.4 {REST: PUT inbody, GET it back, headers} -setup {
+    S3::REST {verb PUT resource /rb}
+} -body {
+    set r1 [S3::REST {verb PUT resource /rb/obj inbody "hello world"
+        headers {x-amz-meta-color blue} content-type text/plain}]
+    set r2 [S3::REST {verb GET resource /rb/obj}]
+    list [dict get $r1 httpstatus] [dict get $r2 httpstatus] \
+        [dict get $r2 outbody] [dict get $r2 outheaders x-amz-meta-color] \
+        [dict get $r2 outheaders content-type] \
+        [dict get $r2 outheaders etag]
+} -cleanup {
+    s3cleanup
+    unset r1 r2
+} -result [list 200 200 {hello world} blue text/plain "\"[md5::md5 -hex {hello world}]\""]
+
+test S3-api-3.5 {REST: infile and outchan} -setup {
+    S3::REST {verb PUT resource /rb}
+    set data [string repeat "binary\0\xff data " 1000]
+    set in [makeFile {} s3api[pid].in]
+    set f [open $in wb]; puts -nonewline $f $data; close $f
+    set out [makeFile {} s3api[pid].out]
+} -body {
+    set r1 [S3::REST [list verb PUT resource /rb/file infile $in]]
+    set ch [open $out wb]
+    set r2 [S3::REST [list verb GET resource /rb/file outchan $ch]]
+    close $ch
+    set f [open $out rb]; set got [read $f]; close $f
+    list [dict get $r1 httpstatus] [dict get $r2 httpstatus] \
+        [dict exists $r2 outbody] [string equal $got $data]
+} -cleanup {
+    s3cleanup
+    removeFile $in
+    removeFile $out
+    unset data in out r1 r2 ch f got
+} -result {200 200 0 1}
+
+test S3-api-3.6 {REST: resource is URL-encoded} -setup {
+    S3::REST {verb PUT resource /rb}
+} -body {
+    S3::REST [list verb PUT resource "/rb/a b/ü&x" inbody data]
+    set r [S3::REST [list verb GET resource "/rb/a b/ü&x"]]
+    list [dict get $r httpstatus] [dict get $r outbody]
+} -cleanup {
+    s3cleanup
+    unset r
+} -result {200 data}
+
+test S3-api-3.7 {REST: parameters} -setup {
+    S3::REST {verb PUT resource /rb}
+    foreach k {a1 a2 b1} {S3::REST [list verb PUT resource /rb/$k inbody x]}
+} -body {
+    set r [S3::REST {verb GET resource /rb parameters {prefix a max-keys 1}}]
+    set x [dict get $r outbody]
+    list [regexp -all {<Key>} $x] [regexp {<Key>a1</Key>} $x] \
+        [regexp {<IsTruncated>true</IsTruncated>} $x]
+} -cleanup {
+    s3cleanup
+    unset r x k
+} -result {1 1 1}
+
+test S3-api-3.8 {REST: rtype acl} -setup {
+    S3::REST {verb PUT resource /rb}
+    S3::REST {verb PUT resource /rb/obj inbody x}
+} -body {
+    set r [S3::REST {verb GET resource /rb/obj rtype acl}]
+    list [dict get $r httpstatus] \
+        [string match *AccessControlPolicy* [dict get $r outbody]]
+} -cleanup {
+    s3cleanup
+    unset r
+} -result {200 1}
+
+test S3-api-3.9 {REST: resultvar, non-blocking} -setup {
+    unset -nocomplain ::s3result
+} -body {
+    set r [S3::REST {verb GET resource / resultvar ::s3result}]
+    set n 0
+    while {![info exists ::s3result] && [incr n] < 1000} {
+        vwait ::s3result
+    }
+    list [dict get $::s3result httpstatus] \
+        [string match *ListAllMyBucketsResult* [dict get $::s3result outbody]]
+} -cleanup {
+    unset -nocomplain ::s3result r n
+} -result {200 1}
+
+test S3-api-3.10 {REST: S3chan, channel stays open} -body {
+    set ch [::socket 127.0.0.1 $::fakeServerPort]
+    set r [S3::REST [list verb GET resource / S3chan $ch]]
+    list [dict get $r httpstatus] [expr {$ch in [file channels]}]
+} -cleanup {
+    close $ch
+    unset ch r
+} -result {200 1}
+
+test S3-api-3.11 {REST: HEAD and DELETE} -setup {
+    S3::REST {verb PUT resource /rb}
+    S3::REST {verb PUT resource /rb/obj inbody abc}
+} -body {
+    set r1 [S3::REST {verb HEAD resource /rb/obj}]
+    set r2 [S3::REST {verb DELETE resource /rb/obj}]
+    set r3 [S3::REST {verb HEAD resource /rb/obj}]
+    list [dict get $r1 httpstatus] [dict get $r1 outheaders content-length] \
+        [dict get $r2 httpstatus] [dict get $r3 httpstatus]
+} -cleanup {
+    s3cleanup
+    unset r1 r2 r3
+} -result {200 3 204 404}
+
+# knownBug: S3::REST is documented to never throw an error directly, but
+# a missing infile makes it throw (and leaves its socket open).
+test S3-api-3.12 {REST: missing infile, error in the result} -constraints {
+    knownBug
+} -body {
+    set r [S3::REST [list verb PUT resource /rb/obj throwsocket return \
+                         infile [file join [temporaryDirectory] nosuchfile.s3]]]
+    dict exists $r error
+} -cleanup {
+    unset -nocomplain r
+} -result 1
+
+# knownBug: the documentation says a leading / is added to the resource if
+# not there already; the request is sent without it.
+test S3-api-3.13 {REST: resource without leading slash} -constraints {
+    knownBug
+} -setup {
+    S3::REST {verb PUT resource /rb}
+    S3::REST {verb PUT resource /rb/obj inbody abc}
+} -body {
+    set r [S3::REST {verb GET resource rb/obj}]
+    list [dict get $r httpstatus] [dict get $r outbody]
+} -cleanup {
+    s3cleanup
+    unset r
+} -result {200 abc}
+
+# -------------------------------------------------------------------------
+# Buckets
+
+test S3-api-4.1 {PutBucket, ListAllMyBuckets names} -body {
+    S3::PutBucket -bucket bucket-b
+    S3::PutBucket -bucket bucket-a
+    S3::ListAllMyBuckets
+} -cleanup {
+    s3cleanup
+} -result {bucket-a bucket-b}
+
+test S3-api-4.2 {PutBucket: bucket name is trimmed} -body {
+    S3::PutBucket -bucket " /bucket-c/ "
+    S3::ListAllMyBuckets -result-type names
+} -cleanup {
+    s3cleanup
+} -result {bucket-c}
+
+test S3-api-4.3 {PutBucket: -default-bucket} -body {
+    S3::Configure -default-bucket bucket-d
+    S3::PutBucket
+    S3::ListAllMyBuckets
+} -cleanup {
+    s3cleanup
+} -result {bucket-d}
+
+test S3-api-4.4 {ListAllMyBuckets: -result-type owner} -body {
+    S3::ListAllMyBuckets -result-type owner
+} -result {ownerid0123 tester}
+
+test S3-api-4.5 {ListAllMyBuckets: -result-type dict} -setup {
+    S3::PutBucket -bucket bucket-a
+} -body {
+    set d [S3::ListAllMyBuckets -result-type dict]
+    list [dict get $d Owner/ID] [dict get $d Owner/DisplayName] \
+        [dict get $d Bucket/Name]
+} -cleanup {
+    s3cleanup
+    unset d
+} -result {ownerid0123 tester bucket-a}
+
+# knownBug: the documented key is Bucket/CreationDate, the code returns
+# Bucket/Date.
+test S3-api-4.6 {ListAllMyBuckets: -result-type dict, Bucket/CreationDate} -constraints {
+    knownBug
+} -setup {
+    S3::PutBucket -bucket bucket-a
+} -body {
+    set d [S3::ListAllMyBuckets -result-type dict]
+    regexp {^\d{4}-\d\d-\d\dT} [lindex [dict get $d Bucket/CreationDate] 0]
+} -cleanup {
+    s3cleanup
+    unset d
+} -result 1
+
+test S3-api-4.7 {ListAllMyBuckets: -result-type xml, pxml, REST} -body {
+    set x [S3::ListAllMyBuckets -result-type xml]
+    set p [S3::ListAllMyBuckets -result-type pxml]
+    set r [S3::ListAllMyBuckets -result-type REST]
+    list [string match {<?xml*ListAllMyBucketsResult*} $x] [lindex $p 0] \
+        [dict get $r httpstatus]
+} -cleanup {
+    unset x p r
+} -result {1 ListAllMyBucketsResult 200}
+
+test S3-api-4.8 {ListAllMyBuckets: -parse-xml} -body {
+    S3::ListAllMyBuckets -result-type owner -parse-xml {<?xml version="1.0" encoding="UTF-8"?>
+<ListAllMyBucketsResult><Owner><ID>xyz</ID><DisplayName>me</DisplayName></Owner><Buckets><Bucket><Name>b1</Name><CreationDate>2006-01-01T00:00:00.000Z</CreationDate></Bucket></Buckets></ListAllMyBucketsResult>}
+} -result {xyz me}
+
+test S3-api-4.9 {ListAllMyBuckets: REST with -parse-xml is an error} -body {
+    S3::ListAllMyBuckets -result-type REST -parse-xml <x/>
+} -returnCodes error -result {Do not use REST with -parse-xml}
+
+test S3-api-4.10 {ListAllMyBuckets: bad -result-type} -body {
+    S3::ListAllMyBuckets -result-type bogus
+} -returnCodes error -result {ListAllMyBuckets requires -result-type to be REST, xml, pxml, dict, owner, or names}
+
+test S3-api-4.11 {ListAllMyBuckets: -blocking false} -setup {
+    S3::PutBucket -bucket bucket-a
+} -body {
+    S3::ListAllMyBuckets -blocking false
+} -cleanup {
+    s3cleanup
+} -result bucket-a
+
+test S3-api-4.12 {ListAllMyBuckets: bad secret key throws} -body {
+    S3::Configure -secretaccesskey wrong
+    list [catch {S3::ListAllMyBuckets} msg] [lrange $::errorCode 0 2]
+} -cleanup {
+    s3config
+    unset msg
+} -result {1 {S3 remote 403}}
+
+test S3-api-4.13 {DeleteBucket} -setup {
+    S3::PutBucket -bucket bucket-a
+    S3::PutBucket -bucket bucket-b
+} -body {
+    S3::DeleteBucket -bucket bucket-a
+    S3::ListAllMyBuckets
+} -cleanup {
+    s3cleanup
+} -result bucket-b
+
+test S3-api-4.14 {DeleteBucket: not empty} -setup {
+    S3::PutBucket -bucket bucket-a
+    S3::Put -bucket bucket-a -resource x -content data
+} -body {
+    list [catch {S3::DeleteBucket -bucket bucket-a}] [lrange $::errorCode 0 2]
+} -cleanup {
+    s3cleanup
+} -result {1 {S3 remote 409}}
+
+test S3-api-4.15 {DeleteBucket: no such bucket} -body {
+    list [catch {S3::DeleteBucket -bucket nosuchbucket}] [lrange $::errorCode 0 2]
+} -result {1 {S3 remote 404}}
+
+# knownBug: the check for a missing bucket in PutBucket never triggers
+# (it compares "" with the result of [dict exists]), so a PUT on the
+# service root is sent instead of raising "PutBucket requires -bucket".
+test S3-api-4.16 {PutBucket: no bucket given} -constraints {
+    knownBug
+} -body {
+    S3::PutBucket
+} -returnCodes error -result {PutBucket requires -bucket}
+
+test S3-api-4.17 {GetBucket: no bucket given} -body {
+    S3::GetBucket
+} -returnCodes error -result {GetBucket requires -bucket}
+
+test S3-api-4.18 {DeleteBucket: no bucket given} -body {
+    S3::DeleteBucket
+} -returnCodes error -match glob -result {*requires -bucket*}
+
+test S3-api-4.19 {ListAllMyBuckets: invalid option} -body {
+    S3::ListAllMyBuckets -bogus 1
+} -returnCodes error -result {Option list has invalid -key}
+
+test S3-api-4.20 {ListAllMyBuckets: odd number of arguments} -body {
+    S3::ListAllMyBuckets -blocking
+} -returnCodes error -result {Option list must be even -name val pairs}
+
+# -------------------------------------------------------------------------
+# GetBucket
+
+proc fillBucket {} {
+    S3::PutBucket -bucket lb
+    foreach k {a/1 a/2 a/b/3 b/4 c} {
+        S3::Put -bucket lb -resource $k -content "data of $k"
+    }
+}
+
+test S3-api-5.1 {GetBucket: names} -setup fillBucket -body {
+    S3::GetBucket -bucket lb
+} -cleanup {
+    s3cleanup
+} -result {a/1 a/2 a/b/3 b/4 c}
+
+test S3-api-5.2 {GetBucket: -prefix, leading slash stripped} -setup fillBucket -body {
+    list [S3::GetBucket -bucket lb -prefix a/] [S3::GetBucket -bucket lb -prefix /b]
+} -cleanup {
+    s3cleanup
+} -result {{a/1 a/2 a/b/3} b/4}
+
+test S3-api-5.3 {GetBucket: -delimiter} -setup fillBucket -body {
+    list [S3::GetBucket -bucket lb -delimiter /] \
+        [S3::GetBucket -bucket lb -prefix a/ -delimiter /]
+} -cleanup {
+    s3cleanup
+} -result {{a/ b/ c} {a/1 a/2 a/b/}}
+
+# knownBug: the option is documented as -max-count, but the code only
+# accepts -max-keys.
+test S3-api-5.4 {GetBucket: -max-count} -constraints {
+    knownBug
+} -setup fillBucket -body {
+    S3::GetBucket -bucket lb -max-count 2
+} -cleanup {
+    s3cleanup
+} -result {a/1 a/2}
+
+test S3-api-5.4.1 {GetBucket: -max-keys (as implemented)} -setup fillBucket -body {
+    S3::GetBucket -bucket lb -max-keys 2
+} -cleanup {
+    s3cleanup
+} -result {a/1 a/2}
+
+test S3-api-5.5 {GetBucket: iterates over truncated listings} -setup {
+    fillBucket
+    rename ::S3::REST ::S3::REST-orig
+    proc ::S3::REST {dict} {
+        # Force small pages from the server.
+        if {[dict exists $dict parameters] || [dict get $dict verb] eq "GET"} {
+            dict set dict parameters max-keys 2
+        }
+        set ::s3calls [expr {[info exists ::s3calls] ? $::s3calls + 1 : 1}]
+        ::S3::REST-orig $dict
+    }
+    set ::s3calls 0
+} -body {
+    list [S3::GetBucket -bucket lb] [expr {$::s3calls >= 3}]
+} -cleanup {
+    rename ::S3::REST {}
+    rename ::S3::REST-orig ::S3::REST
+    unset ::s3calls
+    s3cleanup
+} -result {{a/1 a/2 a/b/3 b/4 c} 1}
+
+test S3-api-5.6 {GetBucket: -result-type dict} -setup fillBucket -body {
+    set d [S3::GetBucket -bucket lb -prefix a/ -result-type dict]
+    list [dict get $d Name] [dict get $d Prefix] [dict get $d IsTruncated] \
+        [dict get $d Key] [dict get $d Size] \
+        [string equal [lindex [dict get $d ETag] 0] "\"[md5::md5 -hex {data of a/1}]\""] \
+        [lsort -unique [dict get $d Owner/ID]]
+} -cleanup {
+    s3cleanup
+    unset d
+} -result {lb a/ false {a/1 a/2 a/b/3} {11 11 13} 1 ownerid0123}
+
+test S3-api-5.7 {GetBucket: -result-type dict with -delimiter} -setup fillBucket -body {
+    set d [S3::GetBucket -bucket lb -delimiter / -result-type dict]
+    list [dict get $d Key] [dict get $d CommonPrefixes/Prefix]
+} -cleanup {
+    s3cleanup
+    unset d
+} -result {c {a/ b/}}
+
+test S3-api-5.8 {GetBucket: -result-type xml/pxml/REST with -max-keys} -setup fillBucket -body {
+    set x [S3::GetBucket -bucket lb -max-keys 1 -result-type xml]
+    set p [S3::GetBucket -bucket lb -max-keys 1 -result-type pxml]
+    set r [S3::GetBucket -bucket lb -max-keys 1 -result-type REST]
+    list [string match {<?xml*<Key>a/1</Key>*} $x] [lindex $p 0] \
+        [dict get $r httpstatus]
+} -cleanup {
+    s3cleanup
+    unset x p r
+} -result {1 ListBucketResult 200}
+
+test S3-api-5.9 {GetBucket: -result-type xml without -max-keys is a list} -setup fillBucket -body {
+    set x [S3::GetBucket -bucket lb -result-type xml]
+    list [llength $x] [string match *ListBucketResult* [lindex $x 0]]
+} -cleanup {
+    s3cleanup
+    unset x
+} -result {1 1}
+
+test S3-api-5.10 {GetBucket: no such bucket} -body {
+    list [catch {S3::GetBucket -bucket nosuchbucket}] [lrange $::errorCode 0 2]
+} -result {1 {S3 remote 404}}
+
+test S3-api-5.11 {GetBucket: -parse-xml} -body {
+    S3::GetBucket -bucket x -parse-xml {<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult><Name>x</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>k1</Key><LastModified>2006-01-01T00:00:00.000Z</LastModified><ETag>"e"</ETag><Size>1</Size><Owner><ID>o</ID><DisplayName>d</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>} -result-type names
+} -result k1
+
+# -------------------------------------------------------------------------
+# Put / Get / Head / Delete
+
+test S3-api-6.1 {Put -content, Get -content} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    set r [S3::Put -bucket ob -resource /dir/obj -content "some data"]
+    lappend r [S3::Get -bucket ob -resource dir/obj -content var] $var
+} -cleanup {
+    s3cleanup
+    unset r var
+} -result {1 1 {some data}}
+
+test S3-api-6.2 {Put -file, Get -file} -setup {
+    S3::PutBucket -bucket ob
+    set data [string repeat "\0\1\2\xff" 5000]
+    set in [makeFile {} s3api[pid].in]
+    set f [open $in wb]; puts -nonewline $f $data; close $f
+    set out [file join [temporaryDirectory] s3api[pid].got]
+} -body {
+    list [S3::Put -bucket ob -resource f.bin -file $in] \
+        [S3::Get -bucket ob -resource f.bin -file $out] \
+        [string equal [viewFile $out] [viewFile $in]] \
+        [file size $out]
+} -cleanup {
+    s3cleanup
+    removeFile $in
+    file delete $out
+    unset data in out f
+} -result {1 1 1 20000}
+
+test S3-api-6.3 {Put: -content-type and -x-amz-meta-*, Get -headers} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    S3::Put -bucket ob -resource obj -content x -content-type text/x-test \
+        -x-amz-meta-color red
+    S3::Get -bucket ob -resource obj -content var -headers hdrs
+    list [dict get $hdrs content-type] [dict get $hdrs x-amz-meta-color]
+} -cleanup {
+    s3cleanup
+    unset var hdrs
+} -result {text/x-test red}
+
+test S3-api-6.4 {Put: -acl sets the x-amz-acl header} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    S3::Put -bucket ob -resource obj -content x -acl public-read
+    dict get [S3::GetAcl -bucket ob -resource obj -result-type dict] acl READ
+} -cleanup {
+    s3cleanup
+} -result {http://acs.amazonaws.com/groups/global/AllUsers}
+
+test S3-api-6.5 {Put: -default-acl} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    S3::Configure -default-acl public-read
+    S3::Put -bucket ob -resource obj -content x
+    dict exists [S3::GetAcl -bucket ob -resource obj -result-type dict] acl READ
+} -cleanup {
+    s3cleanup
+} -result 1
+
+test S3-api-6.6 {Put/Get: -default-bucket} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    S3::Configure -default-bucket ob
+    S3::Put -resource obj -content x
+    S3::Get -resource obj -content var
+    list $var [S3::GetBucket]
+} -cleanup {
+    s3cleanup
+    unset var
+} -result {x obj}
+
+test S3-api-6.7 {Put: -compare never, missing, exists} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    list [S3::Put -bucket ob -resource obj -content x -compare never] \
+        [S3::Put -bucket ob -resource obj -content x -compare exists] \
+        [S3::Put -bucket ob -resource obj -content x -compare missing] \
+        [S3::Put -bucket ob -resource obj -content y -compare missing] \
+        [S3::Put -bucket ob -resource obj -content z -compare exists] \
+        [S3::Get -bucket ob -resource obj -content var] $var
+} -cleanup {
+    s3cleanup
+    unset var
+} -result {0 0 1 0 1 1 z}
+
+test S3-api-6.8 {Put: -compare checksum} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content same
+} -body {
+    list [S3::Put -bucket ob -resource obj -content same -compare checksum] \
+        [S3::Put -bucket ob -resource obj -content other -compare checksum] \
+        [S3::Put -bucket ob -resource new -content x -compare checksum]
+} -cleanup {
+    s3cleanup
+} -result {0 1 1}
+
+test S3-api-6.9 {Put: -compare always is the default} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content same
+} -body {
+    S3::Put -bucket ob -resource obj -content same
+} -cleanup {
+    s3cleanup
+} -result 1
+
+test S3-api-6.10 {Put: -default-compare} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content same
+} -body {
+    S3::Configure -default-compare never
+    S3::Put -bucket ob -resource obj -content other
+} -cleanup {
+    s3cleanup
+} -result 0
+
+test S3-api-6.11 {Put: both -file and -content} -body {
+    S3::Put -bucket ob -resource obj -content x -file y
+} -returnCodes error -result {Put says -file, -content mutually exclusive}
+
+test S3-api-6.12 {Put: neither -file nor -content} -body {
+    S3::Put -bucket ob -resource obj
+} -returnCodes error -result {Put requires -file or -content}
+
+test S3-api-6.13 {Put: server error, no retries} -body {
+    list [catch {S3::Put -bucket fail500 -resource obj -content x}] \
+        [lrange $::errorCode 0 2]
+} -result {1 {S3 remote 500}}
+
+test S3-api-6.14 {Put: -blocking false} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    list [S3::Put -bucket ob -resource obj -content nb -blocking false] \
+        [S3::Get -bucket ob -resource obj -content var -blocking false] $var
+} -cleanup {
+    s3cleanup
+    unset var
+} -result {1 1 nb}
+
+test S3-api-6.15 {Get: no such resource} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    list [catch {S3::Get -bucket ob -resource nosuch -content var}] \
+        [lrange $::errorCode 0 2] [info exists var]
+} -cleanup {
+    s3cleanup
+} -result {1 {S3 remote 404} 0}
+
+test S3-api-6.16 {Get: -compare never does not assign} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content x
+} -body {
+    list [S3::Get -bucket ob -resource obj -content var -compare never] \
+        [info exists var]
+} -cleanup {
+    s3cleanup
+} -result {0 0}
+
+test S3-api-6.17 {Get: -file -compare missing/exists} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content remote
+    set out [file join [temporaryDirectory] s3api[pid].got]
+    file delete $out
+} -body {
+    set r [S3::Get -bucket ob -resource obj -file $out -compare exists]
+    lappend r [file exists $out]
+    lappend r [S3::Get -bucket ob -resource obj -file $out -compare missing]
+    lappend r [S3::Get -bucket ob -resource obj -file $out -compare missing]
+    lappend r [viewFile $out]
+} -cleanup {
+    s3cleanup
+    file delete $out
+    unset out r
+} -result {0 0 1 0 remote}
+
+test S3-api-6.18 {Get: -timestamp aws} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content remote
+    set out [file join [temporaryDirectory] s3api[pid].got]
+} -body {
+    S3::Get -bucket ob -resource obj -file $out -timestamp aws -headers h
+    expr {[file mtime $out] == [clock scan [dict get $h last-modified]]}
+} -cleanup {
+    s3cleanup
+    file delete $out
+    unset out h
+} -result 1
+
+test S3-api-6.19 {Get: both -file and -content} -body {
+    S3::Get -bucket ob -resource obj -content x -file y
+} -returnCodes error -result {Get says -file, -content mutually exclusive}
+
+test S3-api-6.19.1 {Get: neither -file nor -content} -body {
+    S3::Get -bucket ob -resource obj
+} -returnCodes error -result {Get requires -file or -content}
+
+test S3-api-6.20 {Head: existing resource, -dict -headers -status} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content abcd -x-amz-meta-k v
+} -body {
+    list [S3::Head -bucket ob -resource obj -dict d -headers h -status s] \
+        [dict get $d httpstatus] [dict get $h content-length] \
+        [dict get $h x-amz-meta-k] $s
+} -cleanup {
+    s3cleanup
+    unset d h s
+} -result {1 200 4 v {200 OK}}
+
+test S3-api-6.21 {Head: missing resource returns 0, no error} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    list [S3::Head -bucket ob -resource nosuch -status s] [lindex $s 0]
+} -cleanup {
+    s3cleanup
+    unset s
+} -result {0 404}
+
+test S3-api-6.22 {Delete: -status} -setup {
+    S3::PutBucket -bucket ob
+    S3::Put -bucket ob -resource obj -content x
+} -body {
+    list [S3::Delete -bucket ob -resource obj -status s] $s \
+        [S3::Head -bucket ob -resource obj]
+} -cleanup {
+    s3cleanup
+    unset s
+} -result {1 {204 {No Content}} 0}
+
+test S3-api-6.23 {Delete: error returns 0} -body {
+    list [S3::Delete -bucket nosuchbucket -resource obj -status s] [lindex $s 0]
+} -cleanup {
+    unset s
+} -result {0 404}
+
+test S3-api-6.24 {Put/Get: resource with special characters} -setup {
+    S3::PutBucket -bucket ob
+} -body {
+    S3::Put -bucket ob -resource "dir/a b+c&d.txt" -content special
+    S3::Get -bucket ob -resource "dir/a b+c&d.txt" -content var
+    list $var [S3::GetBucket -bucket ob]
+} -cleanup {
+    s3cleanup
+    unset var
+} -result {special {{dir/a b+c&d.txt}}}
+
+# -------------------------------------------------------------------------
+# GetAcl / PutAcl
+
+test S3-api-7.1 {GetAcl: -result-type dict} -setup {
+    S3::PutBucket -bucket ab
+    S3::Put -bucket ab -resource obj -content x
+} -body {
+    S3::GetAcl -bucket ab -resource obj -result-type dict
+} -cleanup {
+    s3cleanup
+} -result {owner ownerid0123 acl {FULL_CONTROL ownerid0123}}
+
+test S3-api-7.2 {GetAcl: -result-type xml, pxml, REST} -setup {
+    S3::PutBucket -bucket ab
+    S3::Put -bucket ab -resource obj -content x
+} -body {
+    set x [S3::GetAcl -bucket ab -resource obj -result-type xml]
+    set p [S3::GetAcl -bucket ab -resource obj -result-type pxml]
+    set r [S3::GetAcl -bucket ab -resource obj -result-type REST]
+    list [string match *AccessControlPolicy* $x] [lindex $p 0] \
+        [dict get $r httpstatus]
+} -cleanup {
+    s3cleanup
+    unset x p r
+} -result {1 AccessControlPolicy 200}
+
+test S3-api-7.3 {GetAcl: missing resource} -setup {
+    S3::PutBucket -bucket ab
+} -body {
+    list [catch {S3::GetAcl -bucket ab -resource nosuch}] [lrange $::errorCode 0 2]
+} -cleanup {
+    s3cleanup
+} -result {1 {S3 remote 404}}
+
+test S3-api-7.4 {PutAcl: canned public-read} -setup {
+    S3::PutBucket -bucket ab
+    S3::Put -bucket ab -resource obj -content x
+} -body {
+    set x [S3::PutAcl -bucket ab -resource obj -acl public-read]
+    list [string match *AllUsers* $x] \
+        [dict get [S3::GetAcl -bucket ab -resource obj -result-type dict] acl READ]
+} -cleanup {
+    s3cleanup
+    unset x
+} -result {1 http://acs.amazonaws.com/groups/global/AllUsers}
+
+test S3-api-7.5 {PutAcl: dict form, round trip} -setup {
+    S3::PutBucket -bucket ab
+    S3::Put -bucket ab -resource obj -content x
+} -body {
+    S3::PutAcl -bucket ab -resource obj -owner ownerid0123 \
+        -acl {FULL_CONTROL ownerid0123 READ http://acs.amazonaws.com/groups/global/AuthenticatedUsers}
+    set d [S3::GetAcl -bucket ab -resource obj -result-type dict]
+    list [dict get $d acl FULL_CONTROL] [dict get $d acl READ]
+} -cleanup {
+    s3cleanup
+    unset d
+} -result {ownerid0123 http://acs.amazonaws.com/groups/global/AuthenticatedUsers}
+
+test S3-api-7.6 {PutAcl: raw XML body} -setup {
+    S3::PutBucket -bucket ab
+    S3::Put -bucket ab -resource obj -content x
+    set xml [S3::GetAcl -bucket ab -resource obj -result-type xml]
+} -body {
+    string equal [S3::PutAcl -bucket ab -resource obj -acl $xml] $xml
+} -cleanup {
+    s3cleanup
+    unset xml
+} -result 1
+
+# -------------------------------------------------------------------------
+
+close $fakeServerChan
+removeFile $fakeServerFile
+rename ::S3::socket {}
+rename s3config {}
+rename s3cleanup {}
+rename fillBucket {}
+unset fakeServerScript fakeServerFile fakeServerChan fakeServerPort
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
