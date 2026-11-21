@@ -1,0 +1,599 @@
+# -*- tcl -*- Tests for the bench package.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+#
+# The benchmarks are executed by child processes running the current
+# interpreter.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      cmdline/cmdline.tcl       cmdline
+    use      log/logger.tcl            logger
+    use      csv/csv.tcl               csv
+    use      textutil/wcswidth.tcl     textutil::wcswidth
+    use      struct/matrix.tcl         struct::matrix
+    use      report/report.tcl         report
+}
+
+testing {
+    useLocal bench.tcl bench
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Silence the logging of the package during the tests.
+set savedLogLevel [::bench::log::currentloglevel]
+::bench::log::setlevel warn
+
+set tclsh [file normalize [info nameofexecutable]]
+set tclver [info patchlevel]
+set interps [list $tclsh $tclver]
+
+tcltest::testConstraint unixexec [expr {$tcl_platform(platform) eq "unix"}]
+
+# Write a file into the temporary directory, return its path.
+proc mkfile {name contents} {
+    set path [file join [tcltest::temporaryDirectory] $name]
+    set c [open $path w]
+    puts -nonewline $c $contents
+    close $c
+    return $path
+}
+
+# Make a shell script which execs the given interpreter.
+proc mkwrapper {name ip} {
+    set path [mkfile $name "#!/bin/sh\nexec [list $ip] \"\$@\"\n"]
+    file attributes $path -permissions 0755
+    return $path
+}
+
+# Sort a benchmark result for comparison, replacing the timing values
+# by "T" (numbers) and the interpreter paths by "IP".
+proc canon {data} {
+    set r {}
+    foreach {k v} $data {
+        if {[lindex $k 0] eq "usec" && [string is double -strict $v]} {set v T}
+        set k [string map [list $::tclsh IP] $k]
+        lappend r [list [join $k \x01] $k $v]
+    }
+    return [lmap e [lsort -index 0 $r] {lrange $e 1 2}]
+}
+
+set bfile1 [mkfile bench1.bench {
+    bench -desc "add" -body {expr {1+2}}
+    bench -desc "concat" -body {concat a b} -res {a b}
+}]
+set bfile2 [mkfile bench2.bench {
+    bench -desc "bad result" -body {concat a b} -res {x}
+    bench -desc "error" -body {error boom}
+}]
+
+# -------------------------------------------------------------------------
+# bench::run, options
+
+test bench-1.0 {run, wrong # args} -body {
+    ::bench::run
+} -returnCodes error -result {wrong#args, should be: ?options? interp files}
+
+test bench-1.1 {run, wrong # args, too many} -body {
+    ::bench::run $interps [list $bfile1] extra
+} -returnCodes error -result {wrong#args, should be: ?options? interp files}
+
+test bench-1.2 {run, unknown option} -body {
+    ::bench::run -foo 1 $interps [list $bfile1]
+} -returnCodes error -result {Unknown option "-foo", should -errors, -threads, -match, -rmatch, or -iters}
+
+test bench-1.3 {run, -errors not a boolean} -body {
+    ::bench::run -errors maybe $interps [list $bfile1]
+} -returnCodes error -result {Expected boolean, got "maybe"}
+
+test bench-1.4 {run, -threads negative} -body {
+    ::bench::run -threads -1 $interps [list $bfile1]
+} -returnCodes error -result {Expected int >= 0, got "-1"}
+
+test bench-1.5 {run, -threads not an integer} -body {
+    ::bench::run -threads x $interps [list $bfile1]
+} -returnCodes error -result {Expected int >= 0, got "x"}
+
+test bench-1.6 {run, -iters zero} -body {
+    ::bench::run -iters 0 $interps [list $bfile1]
+} -returnCodes error -result {Expected int > 0, got "0"}
+
+test bench-1.7 {run, -iters not an integer} -body {
+    ::bench::run -iters 1.5 $interps [list $bfile1]
+} -returnCodes error -result {Expected int > 0, got "1.5"}
+
+test bench-1.8 {run, -pkgdir not a directory} -body {
+    ::bench::run -pkgdir [file join [tcltest::temporaryDirectory] nosuchdir] \
+        $interps [list $bfile1]
+} -returnCodes error -match glob -result {The path "*nosuchdir" is not a directory.}
+
+# -------------------------------------------------------------------------
+# bench::run, execution
+
+test bench-2.1 {run, result format} -body {
+    canon [::bench::run -iters 5 $interps [list $bfile1]]
+} -result [list {{desc add} {}} {{desc concat} {}} [list {interp IP} $tclver] \
+               {{usec add IP} T} {{usec concat IP} T}]
+
+test bench-2.2 {run, version of the interpreter} -body {
+    array set r [::bench::run -iters 5 $interps [list $bfile1]]
+    set r([list interp $tclsh])
+} -cleanup {
+    unset -nocomplain r
+} -result $tclver
+
+test bench-2.3 {run, -errors 0: special result codes} -body {
+    canon [::bench::run -errors 0 -iters 5 $interps [list $bfile2]]
+} -result [list \
+    {{desc {bad result}} {}} {{desc error} {}} \
+    [list {interp IP} $tclver] \
+    {{usec {bad result} IP} BAD_RES} {{usec error IP} ERR}]
+
+test bench-2.4 {run, errors are propagated by default} -body {
+    ::bench::run -iters 5 $interps [list $bfile2]
+} -returnCodes error -match glob -result {*should have been*}
+
+test bench-2.5 {run, -errors 1, error in the body} -setup {
+    set f [mkfile bench-2.5.bench {bench -desc "error" -body {error boom}}]
+} -body {
+    ::bench::run -errors 1 -iters 5 $interps [list $f]
+} -cleanup {
+    file delete $f
+    unset f
+} -returnCodes error -match glob -result {boom*}
+
+test bench-2.6 {run, several files} -body {
+    canon [::bench::run -errors 0 -iters 5 $interps [list $bfile1 $bfile2]]
+} -result [list \
+    {{desc add} {}} {{desc {bad result}} {}} {{desc concat} {}} {{desc error} {}} \
+    [list {interp IP} $tclver] \
+    {{usec add IP} T} {{usec {bad result} IP} BAD_RES} {{usec concat IP} T} \
+    {{usec error IP} ERR}]
+
+# The manpage documents the files as separate arguments.
+test bench-2.7 {run, files as separate arguments} -constraints knownBug -body {
+    canon [::bench::run -errors 0 -iters 5 $interps $bfile1 $bfile2]
+} -result [list \
+    {{desc add} {}} {{desc {bad result}} {}} {{desc concat} {}} {{desc error} {}} \
+    [list {interp IP} $tclver] \
+    {{usec add IP} T} {{usec {bad result} IP} BAD_RES} {{usec concat IP} T} \
+    {{usec error IP} ERR}]
+
+test bench-2.8 {run, -match} -body {
+    canon [::bench::run -errors 0 -iters 5 -match a* $interps [list $bfile1 $bfile2]]
+} -result [list {{desc add} {}} [list {interp IP} $tclver] {{usec add IP} T}]
+
+test bench-2.9 {run, -rmatch} -body {
+    canon [::bench::run -errors 0 -iters 5 -rmatch {^(concat|error)$} $interps [list $bfile1 $bfile2]]
+} -result [list {{desc concat} {}} {{desc error} {}} [list {interp IP} $tclver] \
+               {{usec concat IP} T} {{usec error IP} ERR}]
+
+test bench-2.10 {run, -match and -rmatch} -body {
+    canon [::bench::run -errors 0 -iters 5 -match *a* -rmatch ^c $interps [list $bfile1 $bfile2]]
+} -result [list {{desc concat} {}} [list {interp IP} $tclver] {{usec concat IP} T}]
+
+test bench-2.11 {run, no matching benchmark} -body {
+    canon [::bench::run -iters 5 -match nothing $interps [list $bfile1]]
+} -result [list [list {interp IP} $tclver]]
+
+test bench-2.12 {run, -iters is the maximal number of iterations} -setup {
+    set out [file join [tcltest::temporaryDirectory] bench-2.12.out]
+    set f [mkfile bench-2.12.bench [string map [list @OUT@ [list $out]] {
+        set ::n 0
+        bench -desc "count" -body {incr ::n} -post {
+            set c [open @OUT@ a] ; puts $c $::n ; close $c ; set ::n 0
+        }
+        bench -desc "count2" -body {incr ::n} -iterations 3 -post {
+            set c [open @OUT@ a] ; puts $c $::n ; close $c ; set ::n 0
+        }
+        bench -desc "count3" -body {incr ::n} -iterations 100 -post {
+            set c [open @OUT@ a] ; puts $c $::n ; close $c ; set ::n 0
+        }
+    }]]
+} -body {
+    ::bench::run -iters 7 $interps [list $f]
+    # The body is run once more, before the timed iterations
+    set c [open $out]
+    set r [read -nonewline $c]
+    close $c
+    split $r \n
+} -cleanup {
+    file delete $f $out
+    unset -nocomplain f out c r
+} -result {8 4 8}
+
+test bench-2.13 {run, default number of iterations is 1000} -setup {
+    set out [file join [tcltest::temporaryDirectory] bench-2.13.out]
+    set f [mkfile bench-2.13.bench [string map [list @OUT@ [list $out]] {
+        set ::n 0
+        bench -desc "count" -body {incr ::n} -post {
+            set c [open @OUT@ w] ; puts -nonewline $c $::n ; close $c
+        }
+    }]]
+} -body {
+    ::bench::run $interps [list $f]
+    set c [open $out]
+    set r [read $c]
+    close $c
+    set r
+} -cleanup {
+    file delete $f $out
+    unset -nocomplain f out c r
+} -result 1001
+
+test bench-2.14 {run, -pkgdir runs once per directory} -setup {
+    set d1 [file join [tcltest::temporaryDirectory] bench-pkg1]
+    file mkdir $d1
+} -body {
+    canon [::bench::run -iters 5 -pkgdir {} -pkgdir $d1 $interps [list $bfile1]]
+} -cleanup {
+    file delete -force $d1
+    unset d1
+} -match glob -result [list {{desc add} {}} {{desc concat} {}} \
+    [list {interp IP} $tclver] [list "interp {IP (*bench-pkg1)}" $tclver] \
+    {{usec add IP} T} {{usec add {IP (*bench-pkg1)}} T} \
+    {{usec concat IP} T} {{usec concat {IP (*bench-pkg1)}} T}]
+
+test bench-2.15 {run, -pkgdir is put into auto_path} -setup {
+    set d1 [file normalize [file join [tcltest::temporaryDirectory] bench-pkg2]]
+    file mkdir $d1
+    set f [mkfile bench-2.15.bench [string map [list @DIR@ [list $d1]] {
+        bench -desc "autopath" -body {lindex $::auto_path 0} -res @DIR@
+    }]]
+} -body {
+    canon [::bench::run -errors 0 -iters 1 -pkgdir $d1 $interps [list $f]]
+} -cleanup {
+    file delete -force $d1
+    file delete $f
+    unset d1 f
+} -match glob -result [list {{desc autopath} {}} [list "interp {IP (*bench-pkg2)}" $tclver] \
+    {{usec autopath {IP (*bench-pkg2)}} T}]
+
+test bench-2.16 {run, -threads} -body {
+    # Without the Thread package in the child, it falls back to no threads
+    canon [::bench::run -errors 0 -iters 5 -threads 2 $interps [list $bfile1 $bfile2]]
+} -result [list \
+    {{desc add} {}} {{desc {bad result}} {}} {{desc concat} {}} {{desc error} {}} \
+    [list {interp IP} $tclver] \
+    {{usec add IP} T} {{usec {bad result} IP} BAD_RES} {{usec concat IP} T} \
+    {{usec error IP} ERR}]
+
+test bench-2.17 {run, no interpreters} -body {
+    ::bench::run {} [list $bfile1]
+} -result {}
+
+test bench-2.18 {run, several interpreters} -constraints unixexec -setup {
+    set w [mkwrapper tclsh-wrapper $tclsh]
+} -body {
+    set r [::bench::run -iters 5 [list $tclsh $tclver $w W] [list $bfile1]]
+    lsort [lmap {k v} $r {if {[lindex $k 0] ne "interp"} continue; list $k $v}]
+} -cleanup {
+    file delete $w
+    unset -nocomplain w r k v
+} -result [lsort [list [list [list interp $tclsh] $tclver] \
+                      [list [list interp [file join [tcltest::temporaryDirectory] tclsh-wrapper]] W]]]
+
+# -------------------------------------------------------------------------
+# The bench language
+
+test bench-3.1 {bench, -pre, -post, -ipre, -ipost order} -setup {
+    set out [file join [tcltest::temporaryDirectory] bench-3.1.out]
+    set f [mkfile bench-3.1.bench [string map [list @OUT@ [list $out]] {
+        proc log {s} {set c [open @OUT@ a] ; puts $c $s ; close $c}
+        bench -desc "order" -pre {log pre} -ipre {log ipre} \
+            -body {log body} -ipost {log ipost} -post {log post} \
+            -iterations 2
+    }]]
+} -body {
+    ::bench::run -iters 5 $interps [list $f]
+    set c [open $out]
+    set r [read -nonewline $c]
+    close $c
+    split $r \n
+} -cleanup {
+    file delete $f $out
+    unset -nocomplain f out c r
+} -result {pre ipre body ipost ipre body ipost ipre body ipost post}
+
+test bench-3.2 {bench, -desc and -body only} -setup {
+    set f [mkfile bench-3.2.bench {
+        bench -body {set x 1} -desc "minimal"
+    }]
+} -body {
+    canon [::bench::run -iters 5 $interps [list $f]]
+} -cleanup {
+    file delete $f
+    unset f
+} -result [list {{desc minimal} {}} [list {interp IP} $tclver] {{usec minimal IP} T}]
+
+test bench-3.3 {bench, unknown option} -setup {
+    set f [mkfile bench-3.3.bench {
+        bench -desc "x" -body {set x 1} -foo bar
+    }]
+} -body {
+    ::bench::run -iters 5 $interps [list $f]
+} -cleanup {
+    file delete $f
+    unset f
+} -returnCodes error -match glob -result {unknown option -foo*}
+
+test bench-3.4 {bench, error in -post} -setup {
+    set f [mkfile bench-3.4.bench {
+        bench -desc "x" -body {set x 1} -post {error postfail}
+    }]
+} -body {
+    ::bench::run -iters 5 $interps [list $f]
+} -cleanup {
+    file delete $f
+    unset f
+} -returnCodes error -match glob -result {post code threw error:*postfail*}
+
+test bench-3.5 {bench, exit is not allowed in benchmarks} -setup {
+    set f [mkfile bench-3.5.bench {
+        bench -desc "x" -body {exit 1}
+    }]
+} -body {
+    ::bench::run -iters 5 $interps [list $f]
+} -cleanup {
+    file delete $f
+    unset f
+} -returnCodes error -match glob -result {called "exit 1" in benchmark test*}
+
+test bench-3.6 {bench_tmpfile, unique paths, not created} -setup {
+    set f [mkfile bench-3.6.bench {
+        bench -desc "tmp" -iterations 1 -body {
+            set a [bench_tmpfile]
+            set b [bench_tmpfile]
+            list [expr {$a ne $b}] [file exists $a]
+        } -res {1 0}
+    }]
+} -body {
+    canon [::bench::run -iters 1 $interps [list $f]]
+} -cleanup {
+    file delete $f
+    unset f
+} -result [list {{desc tmp} {}} [list {interp IP} $tclver] {{usec tmp IP} T}]
+
+test bench-3.7 {bench_tmpfile, location on unix} -constraints unixexec -setup {
+    set f [mkfile bench-3.7.bench {
+        bench -desc "tmp" -iterations 1 -body {
+            file dirname [bench_tmpfile]
+        } -res /tmp
+    }]
+} -body {
+    canon [::bench::run -iters 1 $interps [list $f]]
+} -cleanup {
+    file delete $f
+    unset f
+} -result [list {{desc tmp} {}} [list {interp IP} $tclver] {{usec tmp IP} T}]
+
+test bench-3.8 {bench_rm, removes files silently} -setup {
+    set a [mkfile bench-3.8a.tmp x]
+    set b [mkfile bench-3.8b.tmp x]
+    set f [mkfile bench-3.8.bench [string map [list @A@ [list $a] @B@ [list $b]] {
+        bench -desc "rm" -iterations 1 -body {
+            bench_rm @A@ @B@ /nonexistent/file
+        } -res {}
+    }]]
+} -body {
+    list [canon [::bench::run -iters 1 $interps [list $f]]] \
+        [file exists $a] [file exists $b]
+} -cleanup {
+    file delete $f $a $b
+    unset f a b
+} -result [list [list {{desc rm} {}} [list {interp IP} $tclver] {{usec rm IP} T}] 0 0]
+
+# -------------------------------------------------------------------------
+# bench::locate, bench::versions
+
+test bench-4.0 {locate, wrong # args} -body {
+    ::bench::locate x
+} -returnCodes error -result {wrong # args: should be "::bench::locate pattern paths"}
+
+test bench-4.1 {locate, nothing found} -body {
+    ::bench::locate nosuchinterp* [list [tcltest::temporaryDirectory]]
+} -result {}
+
+test bench-4.2 {locate, finds executables, resolves links} -constraints unixexec -setup {
+    set d [file join [tcltest::temporaryDirectory] bench-locate]
+    file mkdir $d
+    file link -symbolic [file join $d tclsh-a] $tclsh
+    # A relative link to the link
+    set here [pwd]
+    cd $d
+    file link -symbolic tclsh-b tclsh-a
+    cd $here
+    # Not executable
+    set c [open [file join $d tclsh-c] w] ; close $c
+    # Executable, but fails
+    set c [open [file join $d tclsh-d] w] ; puts $c "#!/bin/sh\nexit 1" ; close $c
+    file attributes [file join $d tclsh-d] -permissions 0755
+} -body {
+    ::bench::locate tclsh-* [list $d]
+} -cleanup {
+    file delete -force $d
+    unset -nocomplain d here c
+} -result [list $tclsh]
+
+test bench-4.3 {locate, several paths} -constraints unixexec -setup {
+    set d [file join [tcltest::temporaryDirectory] bench-locate]
+    file mkdir $d
+    set w [mkwrapper tclsh-w $tclsh]
+    file rename $w [file join $d tclsh-w]
+} -body {
+    ::bench::locate tclsh* [list $d [file dirname $tclsh]]
+} -cleanup {
+    file delete -force $d
+    unset -nocomplain d w
+} -match glob -result "[file join [file normalize [tcltest::temporaryDirectory]] bench-locate tclsh-w] $tclsh*"
+
+test bench-4.4 {versions, wrong # args} -body {
+    ::bench::versions
+} -returnCodes error -result {wrong # args: should be "::bench::versions interps"}
+
+test bench-4.5 {versions} -body {
+    ::bench::versions [list $tclsh]
+} -result [list $tclsh $tclver]
+
+test bench-4.6 {versions, failing interpreters are left out} -body {
+    ::bench::versions [list [file join [tcltest::temporaryDirectory] nosuchinterp] $tclsh]
+} -result [list $tclsh $tclver]
+
+test bench-4.7 {versions, empty list} -body {
+    ::bench::versions {}
+} -result {}
+
+# The result is documented as a dictionary mapping the interpreters to
+# their versions, without interpreters of the same version being left out.
+test bench-4.8 {versions, interpreters with the same version} -constraints {unixexec knownBug} -setup {
+    set w [mkwrapper tclsh-wrapper $tclsh]
+} -body {
+    lsort -stride 2 [::bench::versions [list $tclsh $w]]
+} -cleanup {
+    file delete $w
+    unset w
+} -result [lsort -stride 2 [list $tclsh $tclver [file join [tcltest::temporaryDirectory] tclsh-wrapper] $tclver]]
+
+# -------------------------------------------------------------------------
+# Result manipulation
+
+set data {
+    {interp /b/tclsh} 8.6.18
+    {interp /a/tclsh} 8.5.19
+    {interp /c/tclsh} 9.0.3
+    {desc d1} {}
+    {desc d2} {}
+    {desc d3} {}
+    {usec d1 /a/tclsh} 10
+    {usec d1 /b/tclsh} 20
+    {usec d1 /c/tclsh} 5
+    {usec d2 /a/tclsh} ERR
+    {usec d2 /b/tclsh} 8
+    {usec d3 /b/tclsh} 4
+    {usec d3 /c/tclsh} BAD_RES
+}
+
+proc sorted {d} {
+    lsort -index 0 [lmap {k v} $d {list $k $v}]
+}
+
+test bench-5.0 {del, wrong # args} -body {
+    ::bench::del $data
+} -returnCodes error -result {wrong # args: should be "::bench::del data col"}
+
+test bench-5.1 {del, columns are counted from 1, in the order of the paths} -body {
+    sorted [::bench::del $data 2]
+} -result {{{desc d1} {}} {{desc d2} {}} {{desc d3} {}} {{interp /a/tclsh} 8.5.19} {{interp /c/tclsh} 9.0.3} {{usec d1 /a/tclsh} 10} {{usec d1 /c/tclsh} 5} {{usec d2 /a/tclsh} ERR} {{usec d3 /c/tclsh} BAD_RES}}
+
+test bench-5.2 {del, first and last column} -body {
+    list [lsort [lmap {k v} [::bench::del $data 1] {if {[lindex $k 0] ne "interp"} continue; lindex $k 1}]] \
+        [lsort [lmap {k v} [::bench::del $data 3] {if {[lindex $k 0] ne "interp"} continue; lindex $k 1}]]
+} -result {{/b/tclsh /c/tclsh} {/a/tclsh /b/tclsh}}
+
+test bench-5.3 {del, bad column} -body {
+    list [catch {::bench::del $data x} m1] $m1 \
+        [catch {::bench::del $data 0} m2] $m2 \
+        [catch {::bench::del $data 4} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Ref.column: Expected integer, but got "x"} 1 {Ref.column out of bounds} 1 {Ref.column out of bounds}}
+
+test bench-6.0 {edit, wrong # args} -body {
+    ::bench::edit $data 1
+} -returnCodes error -result {wrong # args: should be "::bench::edit data col new"}
+
+test bench-6.1 {edit, renames a column} -body {
+    sorted [::bench::edit $data 1 NEW]
+} -result {{{desc d1} {}} {{desc d2} {}} {{desc d3} {}} {{interp /b/tclsh} 8.6.18} {{interp /c/tclsh} 9.0.3} {{interp NEW} 8.5.19} {{usec d1 /b/tclsh} 20} {{usec d1 /c/tclsh} 5} {{usec d1 NEW} 10} {{usec d2 /b/tclsh} 8} {{usec d2 NEW} ERR} {{usec d3 /b/tclsh} 4} {{usec d3 /c/tclsh} BAD_RES}}
+
+test bench-6.2 {edit, same name} -body {
+    ::bench::edit $data 2 /b/tclsh
+} -result $data
+
+test bench-6.3 {edit, bad column} -body {
+    list [catch {::bench::edit $data 1.5 x} m1] $m1 \
+        [catch {::bench::edit $data -1 x} m2] $m2 \
+        [catch {::bench::edit $data 9 x} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Ref.column: Expected integer, but got "1.5"} 1 {Ref.column out of bounds} 1 {Ref.column out of bounds}}
+
+test bench-7.0 {merge, no results} -body {
+    ::bench::merge
+} -result {}
+
+test bench-7.1 {merge, single result is returned unchanged} -body {
+    ::bench::merge $data
+} -result $data
+
+test bench-7.2 {merge, several results} -body {
+    sorted [::bench::merge {{interp /a} 1 {desc x} {} {usec x /a} 3} \
+                {{interp /b} 2 {desc y} {} {usec y /b} 4} \
+                {{interp /b} 2 {desc x} {} {usec x /b} 5}]
+} -result {{{desc x} {}} {{desc y} {}} {{interp /a} 1} {{interp /b} 2} {{usec x /a} 3} {{usec x /b} 5} {{usec y /b} 4}}
+
+test bench-7.3 {merge, later results override earlier ones} -body {
+    ::bench::merge {{usec x /a} 3} {{usec x /a} 4}
+} -result {{usec x /a} 4}
+
+test bench-8.0 {norm, wrong # args} -body {
+    ::bench::norm $data
+} -returnCodes error -result {wrong # args: should be "::bench::norm data col"}
+
+test bench-8.1 {norm, relative to a column} -body {
+    sorted [::bench::norm $data 2]
+} -result {{{desc d1} {}} {{desc d2} {}} {{desc d3} {}} {{interp /a/tclsh} 8.5.19} {{interp /b/tclsh} 8.6.18} {{interp /c/tclsh} 9.0.3} {{usec d1 /a/tclsh} 0.5} {{usec d1 /b/tclsh} 1} {{usec d1 /c/tclsh} 0.25} {{usec d2 /a/tclsh} ERR} {{usec d2 /b/tclsh} 1} {{usec d3 /b/tclsh} 1} {{usec d3 /c/tclsh} BAD_RES}}
+
+test bench-8.2 {norm, baseline without a numeric value} -body {
+    sorted [::bench::norm $data 1]
+} -result {{{desc d1} {}} {{desc d2} {}} {{desc d3} {}} {{interp /a/tclsh} 8.5.19} {{interp /b/tclsh} 8.6.18} {{interp /c/tclsh} 9.0.3} {{usec d1 /a/tclsh} 1} {{usec d1 /b/tclsh} 2.0} {{usec d1 /c/tclsh} 0.5} {{usec d2 /a/tclsh} ERR} {{usec d2 /b/tclsh} 8} {{usec d3 /b/tclsh} {}} {{usec d3 /c/tclsh} BAD_RES}}
+
+# The version of the reference interpreter is replaced by 1 when it is a
+# floating point number.
+test bench-8.4 {norm, version of the reference interpreter} -constraints knownBug -body {
+    sorted [::bench::norm {{interp /a} 8.6 {interp /b} 9.0 {desc x} {} {usec x /a} 2 {usec x /b} 4} 1]
+} -result {{{desc x} {}} {{interp /a} 8.6} {{interp /b} 9.0} {{usec x /a} 1} {{usec x /b} 2.0}}
+
+test bench-8.3 {norm, bad column} -body {
+    list [catch {::bench::norm $data x} m1] $m1 \
+        [catch {::bench::norm $data 0} m2] $m2 \
+        [catch {::bench::norm $data 4} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Ref.column: Expected integer, but got "x"} 1 {Ref.column out of bounds} 1 {Ref.column out of bounds}}
+
+test bench-9.0 {out::raw, wrong # args} -body {
+    ::bench::out::raw
+} -returnCodes error -result {wrong # args: should be "::bench::out::raw data"}
+
+test bench-9.1 {out::raw, passes the data through} -body {
+    ::bench::out::raw $data
+} -result $data
+
+# -------------------------------------------------------------------------
+
+::bench::log::setlevel $savedLogLevel
+file delete $bfile1 $bfile2
+rename mkfile {}
+rename mkwrapper {}
+rename canon {}
+rename sorted {}
+unset savedLogLevel tclsh tclver interps bfile1 bfile2 data
+
+testsuiteCleanup
+return

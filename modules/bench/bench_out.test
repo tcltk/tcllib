@@ -1,0 +1,299 @@
+# -*- tcl -*- Tests for the bench::out::text, bench::out::csv and bench::in
+# packages.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use      csv/csv.tcl               csv
+    use      textutil/wcswidth.tcl     textutil::wcswidth
+    use      struct/matrix.tcl         struct::matrix
+    use      report/report.tcl         report
+}
+
+testing {
+    useLocal bench_wtext.tcl bench::out::text
+    useLocal bench_wcsv.tcl  bench::out::csv
+    useLocal bench_read.tcl  bench::in
+}
+
+# -------------------------------------------------------------------------
+# Helpers
+
+set data {
+    {interp /b/tclsh} 8.6.18
+    {interp /a/tclsh} 9.1.10
+    {desc d1} {}
+    {desc {d 2}} {}
+    {desc d,3} {}
+    {usec d1 /a/tclsh} 10
+    {usec d1 /b/tclsh} 20.5
+    {usec {d 2} /a/tclsh} ERR
+    {usec d,3 /b/tclsh} BAD_RES
+}
+
+proc sorted {d} {
+    lsort -index 0 [lmap {k v} $d {list $k $v}]
+}
+
+# bench::out::text defines report styles, and fails when they exist
+# already (see bench-out-text-1.6).  Remove them after each use.
+proc rmstyles {} {
+    foreach s {captionedtable simpletable} {
+        if {$s in [::report::styles]} {::report::rmstyle $s}
+    }
+}
+
+# Write a file with the given header line and contents.
+proc mkfile {name header contents} {
+    set path [file join [tcltest::temporaryDirectory] $name]
+    set c [open $path w]
+    if {$header ne ""} {puts $c $header}
+    puts $c $contents
+    close $c
+    return $path
+}
+
+# -------------------------------------------------------------------------
+# bench::out::text
+
+test bench-out-text-1.0 {text, wrong # args} -body {
+    ::bench::out::text
+} -returnCodes error -result {wrong # args: should be "::bench::out::text data"}
+
+test bench-out-text-1.1 {text, format} -body {
+    ::bench::out::text $data
+} -cleanup {
+    rmstyles
+} -result {
+ 1: 9.1.10 /a/tclsh
+ 2: 8.6.18 /b/tclsh
+
++---+--------+-------+---------+
+|   | INTERP |     1 |       2 |
++---+--------+-------+---------+
+| 1 | d 2    |   ERR |         |
+| 2 | d,3    |       | BAD_RES |
+| 3 | d1     | 10.00 |   20.50 |
++---+--------+-------+---------+
+}
+
+test bench-out-text-1.2 {text, versions of different length are padded} -body {
+    ::bench::out::text {{interp /x} 8.6.1 {interp /y} 9.0.10 {desc a} {} {usec a /x} 1}
+} -cleanup {
+    rmstyles
+} -result {
+ 1: 8.6.1  /x
+ 2: 9.0.10 /y
+
++---+--------+------+---+
+|   | INTERP |    1 | 2 |
++---+--------+------+---+
+| 1 | a      | 1.00 |   |
++---+--------+------+---+
+}
+
+test bench-out-text-1.3 {text, no benchmarks} -body {
+    ::bench::out::text {{interp /x} 8.6.1}
+} -cleanup {
+    rmstyles
+} -result {
+ 1: 8.6.1 /x
+
++--+--------+---+
+|  | INTERP | 1 |
++--+--------+---+
++--+--------+---+
+}
+
+test bench-out-text-1.4 {text, normalized values} -body {
+    ::bench::out::text {{interp /x} 1 {interp /y} 2 {desc a} {} {usec a /x} 1 {usec a /y} 0.3333333}
+} -cleanup {
+    rmstyles
+} -result {
+ 1: 1 /x
+ 2: 2 /y
+
++---+--------+------+------+
+|   | INTERP |    1 |    2 |
++---+--------+------+------+
+| 1 | a      | 1.00 | 0.33 |
++---+--------+------+------+
+}
+
+test bench-out-text-1.5 {text, many columns use wider ids} -body {
+    set d {}
+    for {set i 1} {$i <= 10} {incr i} {
+        lappend d [list interp /ip[format %02d $i]] 9.$i
+    }
+    lindex [split [::bench::out::text $d] \n] 1
+} -cleanup {
+    rmstyles
+    unset -nocomplain d i
+} -result {  1: 9.1  /ip01}
+
+test bench-out-text-1.6 {text, can be called more than once} -constraints knownBug -body {
+    ::bench::out::text $data
+    ::bench::out::text $data
+    return
+} -cleanup {
+    rmstyles
+    # The failing call leaves its matrix behind
+    catch {::bench::out::m destroy}
+} -result {}
+
+# -------------------------------------------------------------------------
+# bench::out::csv
+
+test bench-out-csv-1.0 {csv, wrong # args} -body {
+    ::bench::out::csv
+} -returnCodes error -result {wrong # args: should be "::bench::out::csv data"}
+
+test bench-out-csv-1.1 {csv, format} -body {
+    ::bench::out::csv $data
+} -result {2
+1,9.1.10,/a/tclsh
+2,8.6.18,/b/tclsh
+1,d 2,ERR,
+2,"d,3",,BAD_RES
+3,d1,10,20.5}
+
+test bench-out-csv-1.2 {csv, no benchmarks} -body {
+    ::bench::out::csv {{interp /x} 8.6.1}
+} -result {1
+1,8.6.1,/x}
+
+test bench-out-csv-1.3 {csv, empty result} -body {
+    ::bench::out::csv {}
+} -result 0
+
+test bench-out-csv-1.4 {csv, quoting} -body {
+    ::bench::out::csv {{interp {/x "y"}} 1 {desc {a "b"}} {} {usec {a "b"} {/x "y"}} 5}
+} -result {1
+1,1,"/x ""y"""
+1,"a ""b""",5}
+
+# -------------------------------------------------------------------------
+# bench::in::read
+
+test bench-in-1.0 {read, wrong # args} -body {
+    ::bench::in::read
+} -returnCodes error -result {wrong # args: should be "::bench::in::read file"}
+
+test bench-in-1.1 {read, raw format} -setup {
+    set f [mkfile bench-in-1.1 "# -*- tcl -*- bench/raw" $data]
+} -body {
+    sorted [::bench::in::read $f]
+} -cleanup {
+    file delete $f
+    unset f
+} -result [sorted $data]
+
+test bench-in-1.2 {read, csv format} -setup {
+    set f [mkfile bench-in-1.2 "# -*- tcl -*- bench/csv" [::bench::out::csv $data]]
+} -body {
+    sorted [::bench::in::read $f]
+} -cleanup {
+    file delete $f
+    unset f
+} -result [sorted $data]
+
+test bench-in-1.3 {read, text format} -setup {
+    set d {
+        {interp /b/tclsh} 8.6.18
+        {interp /a/tclsh} 9.1.11
+        {desc d1} {}
+        {desc {d 2}} {}
+        {usec d1 /a/tclsh} 10
+        {usec d1 /b/tclsh} 20.5
+        {usec {d 2} /a/tclsh} ERR
+    }
+    set f [mkfile bench-in-1.3 "# -*- tcl -*- bench/text" [::bench::out::text $d]]
+    rmstyles
+} -body {
+    sorted [::bench::in::read $f]
+} -cleanup {
+    file delete $f
+    unset f d
+} -result {{{desc d1} {}} {{desc {d 2}} {}} {{interp /a/tclsh} 9.1.11} {{interp /b/tclsh} 8.6.18} {{usec d1 /a/tclsh} 10.00} {{usec d1 /b/tclsh} 20.50} {{usec {d 2} /a/tclsh} ERR}}
+
+# With versions of different length the text format pads the shorter
+# ones, and the reader keeps the padding as part of the interpreter path.
+test bench-in-1.4 {read, text format, versions of different length} -constraints knownBug -setup {
+    set f [mkfile bench-in-1.4 "# -*- tcl -*- bench/text" \
+               [::bench::out::text {{interp /x} 8.6.1 {interp /y} 9.0.10 {desc a} {} {usec a /x} 1}]]
+    rmstyles
+} -body {
+    lsort [lmap {k v} [::bench::in::read $f] {if {[lindex $k 0] ne "interp"} continue; lindex $k 1}]
+} -cleanup {
+    file delete $f
+    unset f
+} -result {/x /y}
+
+test bench-in-1.5 {read, not a benchmark file} -setup {
+    set f [mkfile bench-in-1.5 "" "something else"]
+} -body {
+    ::bench::in::read $f
+} -cleanup {
+    file delete $f
+    unset f
+} -returnCodes error -result {Bad file format, not a benchmark file}
+
+test bench-in-1.6 {read, unknown format} -constraints knownBug -setup {
+    set f [mkfile bench-in-1.6 "# -*- tcl -*- bench/xml" ""]
+} -body {
+    ::bench::in::read $f
+} -cleanup {
+    file delete $f
+    unset f
+} -returnCodes error -result {Bad format "xml", expected text, csv, or raw}
+
+test bench-in-1.7 {read, the file is closed after an error} -constraints knownBug -setup {
+    set f [mkfile bench-in-1.7 "" "something else"]
+    set n [llength [chan names]]
+} -body {
+    catch {::bench::in::read $f}
+    expr {[llength [chan names]] - $n}
+} -cleanup {
+    file delete $f
+    unset f n
+} -result 0
+
+test bench-in-1.8 {read, non-existing file} -body {
+    ::bench::in::read [file join [tcltest::temporaryDirectory] nosuchfile]
+} -returnCodes error -match glob -result {couldn't open "*nosuchfile": no such file or directory}
+
+# The manpage says that the reader understands the output of the
+# bench::out commands; but it requires a header line which they do not
+# generate.
+test bench-in-1.9 {read, output of bench::out::csv} -constraints knownBug -setup {
+    set f [mkfile bench-in-1.9 "" [::bench::out::csv $data]]
+} -body {
+    sorted [::bench::in::read $f]
+} -cleanup {
+    file delete $f
+    unset f
+} -result [sorted $data]
+
+# -------------------------------------------------------------------------
+
+rename sorted {}
+rename rmstyles {}
+rename mkfile {}
+unset data
+
+testsuiteCleanup
+return
