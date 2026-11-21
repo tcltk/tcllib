@@ -1,0 +1,186 @@
+# -*- tcl -*-
+# pop3d_udb-api.test:  Tests for the documented API of package pop3d::udb
+# (supplements pop3d_udb.test: save/read details, argument errors).
+#- - -- --- ----- -------- ------------- ---------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal pop3d_udb.tcl pop3d::udb
+}
+
+#- - -- --- ----- -------- ------------- ---------------------
+
+proc readudb {path} {
+    set f [open $path r]
+    set d [read $f]
+    close $f
+    return $d
+}
+
+test pop3d-udb-api-1.0 {new, wrong # args} -body {
+    ::pop3d::udb::new a b
+} -returnCodes error -result {wrong # args: should be "::pop3d::udb::new ?name?"}
+
+foreach {n method args sig} {
+    0 add    {a b}  {name usrName password storage}
+    1 remove {}     {name usrName}
+    2 rename {a}    {name usrName newName}
+    3 lookup {}     {name usrName}
+    4 exists {}     {name usrName}
+} {
+    test pop3d-udb-api-1.1.$n "$method, wrong # args" -setup {
+	set udb [::pop3d::udb::new]
+    } -body {
+	$udb $method {*}$args
+    } -cleanup {
+	$udb destroy
+	unset udb
+    } -returnCodes error -result "wrong # args: should be \"::pop3d::udb::_$method $sig\""
+}
+unset n method args sig
+
+test pop3d-udb-api-1.2 {who, wrong # args} -setup {
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb who X
+} -cleanup {
+    $udb destroy
+    unset udb
+} -returnCodes error -result {wrong # args: should be "::pop3d::udb::_who name"}
+
+test pop3d-udb-api-2.0 {who lists all users} -setup {
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb add u1 p1 s1
+    $udb add u2 p2 s2
+    $udb add u3 p3 s3
+    $udb remove u2
+    lsort [$udb who]
+} -cleanup {
+    $udb destroy
+    unset udb
+} -result {u1 u3}
+
+test pop3d-udb-api-3.0 {save without file and without prior read} -setup {
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb save
+} -cleanup {
+    $udb destroy
+    unset udb
+} -returnCodes error -result {No file known to save data into}
+
+test pop3d-udb-api-3.1 {save without file uses the path of the last read} -setup {
+    set path [makeFile {add u1 p1 s1} __udb_api__]
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb read $path
+    $udb add u2 p2 s2
+    $udb save
+    set new [::pop3d::udb::new]
+    $new read $path
+    list [lsort [$new who]] [$new lookup u1] [$new lookup u2]
+} -cleanup {
+    $udb destroy
+    $new destroy
+    removeFile __udb_api__
+    removeFile __udb_api__.old
+    unset udb new path
+} -result {{u1 u2} {p1 s1} {p2 s2}}
+
+test pop3d-udb-api-3.2 {save keeps the previous file as .old} -setup {
+    set path [makeFile {add old p s} __udb_api__]
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb add new p s
+    $udb save $path
+    list [string trim [readudb $path.old]] [string match "*add new p s*" [readudb $path]]
+} -cleanup {
+    $udb destroy
+    removeFile __udb_api__
+    removeFile __udb_api__.old
+    unset udb path
+} -result {{add old p s} 1}
+
+test pop3d-udb-api-3.3 {save/read round trip of special characters} -setup {
+    set path [file join [temporaryDirectory] __udb_api__]
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb add {user name} {pass word {x}} {dir/with space}
+    $udb add {a;b} {$x[y]} {\\}
+    $udb save $path
+    set new [::pop3d::udb::new]
+    $new read $path
+    list [lsort [$new who]] [$new lookup {user name}] [$new lookup {a;b}]
+} -cleanup {
+    $udb destroy
+    $new destroy
+    removeFile __udb_api__
+    unset udb new path
+} -result {{{a;b} {user name}} {{pass word {x}} {dir/with space}} {{$x[y]} {\\}}}
+
+test pop3d-udb-api-4.0 {read, empty path} -setup {
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb read {}
+} -cleanup {
+    $udb destroy
+    unset udb
+} -returnCodes error -result {No file known to read from}
+
+test pop3d-udb-api-4.1 {read, missing file} -setup {
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb read [file join [temporaryDirectory] __no_such_udb__]
+} -cleanup {
+    $udb destroy
+    unset udb
+} -returnCodes error -match glob -result {couldn't read file "*__no_such_udb__": no such file or directory}
+
+test pop3d-udb-api-4.2 {read adds to the existing users} -constraints knownBug -setup {
+    # The documentation says read "adds the contained user definitions
+    # to the database", the implementation first removes all users.
+    set path [makeFile {add u2 p2 s2} __udb_api__]
+    set udb [::pop3d::udb::new]
+    $udb add u1 p1 s1
+} -body {
+    $udb read $path
+    lsort [$udb who]
+} -cleanup {
+    $udb destroy
+    removeFile __udb_api__
+    unset udb path
+} -result {u1 u2}
+
+test pop3d-udb-api-4.3 {read uses a safe interpreter} -setup {
+    set path [makeFile {add u1 p1 s1; exec true} __udb_api__]
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb read $path
+} -cleanup {
+    $udb destroy
+    removeFile __udb_api__
+    unset udb path
+} -returnCodes error -result {invalid command name "exec"}
+
+test pop3d-udb-api-4.4 {read, file with argument errors} -setup {
+    set path [makeFile {add u1 p1} __udb_api__]
+    set udb [::pop3d::udb::new]
+} -body {
+    $udb read $path
+} -cleanup {
+    $udb destroy
+    removeFile __udb_api__
+    unset udb path
+} -returnCodes error -match glob -result {wrong # args: should be "*add*"}
+
+#- - -- --- ----- -------- ------------- ---------------------
+rename readudb {}
+testsuiteCleanup
+return
