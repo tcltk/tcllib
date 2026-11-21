@@ -1,0 +1,349 @@
+# -*- tcl -*-
+# huddle-api.test:  additional tests for the documented API of huddle.
+#
+# Complements huddle.test: string, true, false, boolean, combine, append,
+# keys, llength, type of all node types, isHuddle, gets, strip,
+# checkHuddle, to_node, wrap, get with list indices, jsondump
+# arguments, compile, and error cases.
+
+# --------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    use json/json.tcl json
+}
+testing {
+    useLocal huddle.tcl huddle
+}
+
+# --------------------------------------------------------------------
+# Constructors
+
+test huddle-api-1.1 {huddle string} -body {
+    huddle string "a b"
+} -result {HUDDLE {s {a b}}}
+
+test huddle-api-1.2 {huddle true, huddle false} -body {
+    list [huddle true] [huddle false]
+} -result {{HUDDLE {b true}} {HUDDLE {b false}}}
+
+test huddle-api-1.3 {huddle boolean: boolean values} -body {
+    list [huddle boolean 1] [huddle boolean no] [huddle boolean true]
+} -result {{HUDDLE {b true}} {HUDDLE {b false}} {HUDDLE {b true}}}
+
+# knownBug: the documentation says the argument is an expression to
+# evaluate, but it is only accepted as a boolean value.
+test huddle-api-1.4 {huddle boolean: expression} -constraints {
+    knownBug
+} -body {
+    list [huddle boolean {1 > 2}] [huddle boolean {2 > 1}]
+} -result {{HUDDLE {b false}} {HUDDLE {b true}}}
+
+test huddle-api-1.5 {huddle number: not a number} -body {
+    huddle number abc
+} -returnCodes error -result {Argument 'abc' is not a number}
+
+test huddle-api-1.6 {huddle create: odd number of arguments} -body {
+    huddle create a
+} -returnCodes error -result {wrong # args: should be "huddle create ?key value ...?"}
+
+test huddle-api-1.7 {huddle list: empty} -body {
+    huddle list
+} -result {HUDDLE {L {}}}
+
+test huddle-api-1.8 {huddle: unknown subcommand} -body {
+    huddle nosuchsubcommand
+} -returnCodes error -match glob -result {unknown or ambiguous subcommand "nosuchsubcommand": must be *}
+
+# --------------------------------------------------------------------
+# Access
+
+test huddle-api-2.1 {huddle get: list index and nested keys} -body {
+    set h [huddle create a [huddle list x [huddle create k v]]]
+    list [huddle get $h a 0] [huddle get $h a 1 k]
+} -cleanup {
+    unset h
+} -result {{HUDDLE {s x}} {HUDDLE {s v}}}
+
+test huddle-api-2.2 {huddle get: unknown key} -body {
+    huddle get [huddle create a b] nosuch
+} -returnCodes error -result {key "nosuch" not known in dictionary}
+
+test huddle-api-2.3 {huddle get_stripped: nested} -body {
+    huddle get_stripped [huddle create a [huddle list 1 [huddle number 2] [huddle true]]] a
+} -result {1 2 true}
+
+# knownBug: "huddle gets" is documented, but is not a subcommand
+# (get_stripped is).
+test huddle-api-2.4 {huddle gets} -constraints {
+    knownBug
+} -body {
+    huddle gets [huddle create a [huddle list 1 2]] a
+} -result {1 2}
+
+# knownBug: "huddle strip" is documented, but is not a subcommand.
+test huddle-api-2.5 {huddle strip} -constraints {
+    knownBug
+} -body {
+    huddle strip [huddle create a [huddle list 1 [huddle number 2]]]
+} -result {a {1 2}}
+
+test huddle-api-2.6 {huddle keys} -body {
+    huddle keys [huddle create a 1 b 2 c 3]
+} -result {a b c}
+
+test huddle-api-2.7 {huddle llength} -body {
+    list [huddle llength [huddle list]] [huddle llength [huddle list a b c]]
+} -result {0 3}
+
+test huddle-api-2.8 {huddle type: documented examples} -body {
+    list [huddle type {HUDDLE {s str}}] \
+        [huddle type {HUDDLE {L {{s a} {s b} {s c}}}}] \
+        [huddle type {HUDDLE {D {aa {s b} cc {s d}}}} cc]
+} -result {string list string}
+
+test huddle-api-2.9 {huddle type: all types} -body {
+    set h [huddle create d [huddle create] l [huddle list] s str \
+               n [huddle number 1] b [huddle true] z [huddle null]]
+    set r [list [huddle type $h]]
+    foreach k {d l s n b z} {lappend r [huddle type $h $k]}
+    set r
+} -cleanup {
+    unset h r k
+} -result {dict dict list string number boolean null}
+
+test huddle-api-2.10 {huddle type: nested keys} -body {
+    huddle type [huddle create a [huddle list x [huddle number 3]]] a 1
+} -result number
+
+test huddle-api-2.11 {huddle exists: list index out of range, nested} -body {
+    set h [huddle create a [huddle list x y]]
+    list [huddle exists $h a] [huddle exists $h a 1] [huddle exists $h a 2] \
+        [huddle exists $h b]
+} -cleanup {
+    unset h
+} -result {1 1 0 0}
+
+# --------------------------------------------------------------------
+# Modification
+
+test huddle-api-3.1 {huddle set: list element by index} -body {
+    set h [huddle create a [huddle list 1 2]]
+    huddle set h a 0 x
+    set h
+} -cleanup {
+    unset h
+} -result {HUDDLE {D {a {L {{s x} {s 2}}}}}}
+
+test huddle-api-3.2 {huddle set: returns the new object} -body {
+    set h [huddle create a b]
+    string equal [huddle set h c d] $h
+} -cleanup {
+    unset h
+} -result 1
+
+test huddle-api-3.3 {huddle remove: list element} -body {
+    huddle remove [huddle list a b c] 1
+} -result {HUDDLE {L {{s a} {s c}}}}
+
+test huddle-api-3.4 {huddle remove: nested key} -body {
+    huddle remove [huddle create a [huddle create x 1 y 2]] a x
+} -result {HUDDLE {D {a {D {y {s 2}}}}}}
+
+test huddle-api-3.6 {huddle combine: documented example (dicts)} -body {
+    huddle combine [huddle create a b c d] [huddle create a k l m]
+} -result {HUDDLE {D {a {s k} c {s d} l {s m}}}}
+
+test huddle-api-3.7 {huddle combine: lists, three objects} -body {
+    huddle combine [huddle list a b] [huddle list c] [huddle list d]
+} -result {HUDDLE {L {{s a} {s b} {s c} {s d}}}}
+
+test huddle-api-3.8 {huddle combine: unmatched types} -body {
+    huddle combine [huddle create a b] [huddle list c]
+} -returnCodes error -result {unmatched types are given or one type is not a superclass of the other.}
+
+test huddle-api-3.9 {huddle combine: not a huddle} -body {
+    huddle combine [huddle list a] plain
+} -returnCodes error -result {{plain} is not a huddle.}
+
+test huddle-api-3.10 {huddle append: huddle values to a dict} -body {
+    set aa [huddle create a b c d]
+    huddle append aa a [huddle string k] l [huddle string m]
+} -cleanup {
+    unset aa
+} -result {HUDDLE {D {a {s k} c {s d} l {s m}}}}
+
+test huddle-api-3.11 {huddle append: huddle values to a list} -body {
+    set bb [huddle list i j]
+    huddle append bb [huddle string g] [huddle number 1]
+    set bb
+} -cleanup {
+    unset bb
+} -result {HUDDLE {L {{s i} {s j} {s g} {num 1}}}}
+
+# knownBug: plain values appended get the tag of the container instead of
+# being strings (documented example).
+test huddle-api-3.12 {huddle append: documented example, dict} -constraints {
+    knownBug
+} -body {
+    set aa [huddle create a b c d]
+    huddle append aa a k l m
+} -cleanup {
+    unset aa
+} -result {HUDDLE {D {a {s k} c {s d} l {s m}}}}
+
+# knownBug: plain values appended get the tag of the container instead of
+# being strings (documented example).
+test huddle-api-3.13 {huddle append: documented example, list} -constraints {
+    knownBug
+} -body {
+    set bb [huddle list i j k l]
+    huddle append bb g h i
+} -cleanup {
+    unset bb
+} -result {HUDDLE {L {{s i} {s j} {s k} {s l} {s g} {s h} {s i}}}}
+
+test huddle-api-3.14 {huddle append: odd number of arguments for a dict} -body {
+    set aa [huddle create a b]
+    huddle append aa k
+} -cleanup {
+    unset aa
+} -returnCodes error -result {wrong # args: should be "huddle append objvar ?key value ...?"}
+
+test huddle-api-3.15 {huddle clone: independent copy} -body {
+    set a [huddle create k v]
+    set b [huddle clone $a]
+    huddle set b k w
+    list [huddle get_stripped $a k] [huddle get_stripped $b k]
+} -cleanup {
+    unset a b
+} -result {v w}
+
+# --------------------------------------------------------------------
+# Comparison and type checks
+
+test huddle-api-4.1 {huddle equal: documented example} -body {
+    huddle equal [huddle create a b c d] [huddle create c d a b]
+} -result 1
+
+test huddle-api-4.2 {huddle equal: different types} -body {
+    list [huddle equal [huddle list a] [huddle create a b]] \
+        [huddle equal [huddle string 1] [huddle number 1]] \
+        [huddle equal [huddle true] [huddle false]]
+} -result {0 0 0}
+
+test huddle-api-4.3 {huddle equal: list order matters} -body {
+    huddle equal [huddle list a b] [huddle list b a]
+} -result 0
+
+test huddle-api-4.4 {huddle isHuddle} -body {
+    list [huddle isHuddle [huddle list]] [huddle isHuddle abc] \
+        [huddle isHuddle {HUDDLE}] [huddle isHuddle {HUDDLE {s x}}]
+} -result {1 0 0 1}
+
+# knownBug: "huddle checkHuddle" is documented, but is not a subcommand.
+test huddle-api-4.5 {huddle checkHuddle} -constraints {
+    knownBug
+} -body {
+    list [huddle checkHuddle [huddle list]] [catch {huddle checkHuddle abc}]
+} -result {{} 1}
+
+test huddle-api-4.6 {::huddle::checkHuddle} -body {
+    list [::huddle::checkHuddle [huddle list]] \
+        [catch {::huddle::checkHuddle abc} msg] $msg
+} -cleanup {
+    unset msg
+} -result {{} 1 {{abc} is not a huddle.}}
+
+# knownBug: "huddle to_node" is documented, but is not a subcommand.
+test huddle-api-4.7 {huddle to_node: documented examples} -constraints {
+    knownBug
+} -body {
+    list [huddle to_node str] [huddle to_node str !!str] \
+        [huddle to_node {HUDDLE {s str}}]
+} -result {{s str} {!!str str} {s str}}
+
+# knownBug: "huddle wrap" takes one argument (a node), the documented
+# form is "huddle wrap tag src".  Ticket 333ccac763.
+test huddle-api-4.8 {huddle wrap: documented examples} -constraints {
+    knownBug
+} -body {
+    list [huddle wrap "" str] [huddle wrap s str]
+} -result {{HUDDLE str} {HUDDLE {s str}}}
+
+test huddle-api-4.9 {huddle wrap/unwrap with a node} -body {
+    set h [huddle wrap {s str}]
+    list $h [huddle unwrap $h]
+} -cleanup {
+    unset h
+} -result {{HUDDLE {s str}} {s str}}
+
+# --------------------------------------------------------------------
+# jsondump
+
+test huddle-api-5.1 {huddle jsondump: typed scalars} -body {
+    huddle jsondump [huddle create a [huddle number 1] b [huddle false] \
+                         c [huddle null] d [huddle string "x\"y"]]
+} -result {{
+  "a": 1,
+  "b": false,
+  "c": null,
+  "d": "x\"y"
+}}
+
+test huddle-api-5.2 {huddle jsondump: offset, newline, begin_offset} -body {
+    huddle jsondump [huddle list a [huddle list b]] "    " "\n" "  "
+} -result {[
+      "a",
+      ["b"]
+  ]}
+
+test huddle-api-5.3 {huddle jsondump: compact output} -body {
+    huddle jsondump [huddle create a [huddle list 1 2] b c] "" ""
+} -result {{"a":["1","2"],"b":"c"}}
+
+test huddle-api-5.4 {huddle jsondump: escapes} -body {
+    huddle jsondump [huddle list "a\nb" "c\\d" "e/f" "\t"] "" ""
+} -result {["a\nb","c\\d","e\/f","\t"]}
+
+test huddle-api-5.5 {huddle jsondump: not a huddle} -body {
+    huddle jsondump plain
+} -returnCodes error -result {{plain} is not a huddle.}
+
+# --------------------------------------------------------------------
+# compile
+
+test huddle-api-6.1 {huddle compile: documented example 1} -body {
+    huddle compile {dict * list} {a {1 2 3} b {4 5}}
+} -result {HUDDLE {D {a {L {{s 1} {s 2} {s 3}}} b {L {{s 4} {s 5}}}}}}
+
+# knownBug: keys not mentioned in a nested dict spec are dropped, contrary
+# to the documented example.
+test huddle-api-6.2 {huddle compile: documented example 2} -constraints {
+    knownBug
+} -body {
+    huddle compile {dict * {list {dict d list}}} {a {{c 1} {d {2 2 2} e 3}} b {{f 4 g 5}}}
+} -result {HUDDLE {D {a {L {{D {c {s 1}}} {D {d {L {{s 2} {s 2} {s 2}}} e {s 3}}}}} b {L {{D {f {s 4} g {s 5}}}}}}}}
+
+test huddle-api-6.3 {huddle compile: string, list, dict, list list, list dict} -body {
+    list [huddle compile string {a b}] \
+        [huddle compile list {a b}] \
+        [huddle compile dict {k v}] \
+        [huddle compile {list list} {{a b} c}] \
+        [huddle compile {list dict} {{k v}}]
+} -result {{HUDDLE {s {a b}}} {HUDDLE {L {{s a} {s b}}}} {HUDDLE {D {k {s v}}}} {HUDDLE {L {{L {{s a} {s b}}} {L {{s c}}}}}} {HUDDLE {L {{D {k {s v}}}}}}}
+
+test huddle-api-6.4 {huddle compile: dict with a specific key spec} -body {
+    huddle compile {dict xx list} {xx {1 2}}
+} -result {HUDDLE {D {xx {L {{s 1} {s 2}}}}}}
+
+# --------------------------------------------------------------------
+
+testsuiteCleanup
+return
