@@ -142,13 +142,13 @@ test tcl-chan-memchan-api-2.6 {encoded text round trip} -setup {
     set c [tcl::chan::memchan]
     fconfigure $c -encoding utf-8
 } -body {
-    puts -nonewline $c "aąйb"
+    puts -nonewline $c "a\u0105\u0439b"
     seek $c 0
     list [read $c] [tell $c]
 } -cleanup {
     close $c
     unset c
-} -result [list "aąйb" 6]
+} -result [list "a\u0105\u0439b" 6]
 
 test tcl-chan-memchan-api-2.7 {writing an empty string changes nothing} -setup {
     set c [tcl::chan::memchan]

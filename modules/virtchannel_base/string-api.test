@@ -90,14 +90,14 @@ test tcl-chan-string-api-2.4 {binary content} -setup {
 
 test tcl-chan-string-api-2.5 {content with non-Latin-1 characters} -constraints knownBug -setup {
     # The read method returns characters instead of bytes.
-    set c [tcl::chan::string "aąйb"]
+    set c [tcl::chan::string "a\u0105\u0439b"]
     fconfigure $c -encoding utf-8
 } -body {
     read $c
 } -cleanup {
     close $c
     unset c
-} -result "aąйb"
+} -result "a\u0105\u0439b"
 
 test tcl-chan-string-api-2.6 {read-only: writing is an error} -setup {
     set c [tcl::chan::string abc]

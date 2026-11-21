@@ -69,12 +69,12 @@ test tcl-chan-textwindow-api-2.1 {non-ASCII text arrives unchanged} -setup {
     set ::calls {}
     set c [tcl::chan::textwindow fakewidget]
 } -body {
-    puts -nonewline $c "aąй"
+    puts -nonewline $c "a\u0105\u0439"
     lindex $::calls 0
 } -cleanup {
     close $c
     unset c ::calls
-} -result [list insert end "aąй"]
+} -result [list insert end "a\u0105\u0439"]
 
 test tcl-chan-textwindow-api-2.2 {each write goes to the widget immediately} -setup {
     set ::calls {}
