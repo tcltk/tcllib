@@ -1,0 +1,597 @@
+# autoproxy-api.test - Additional API tests for the autoproxy package.
+#
+# Covers init from the environment, cget/configure (all options, the
+# -basic scheme, -authProc, error cases), the http proxy filter and
+# tunnel_connect. All network traffic goes to in-process servers on
+# 127.0.0.1; the target host names use the reserved .invalid domain and
+# are never resolved. tls_connect and tls_socket need the tls or twapi
+# package and are not tested here.
+
+source [file join \
+            [file dirname [file dirname [file join [pwd] [info script]]]] \
+            devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
+
+support {
+    use base64/base64.tcl base64
+    use uri/uri.tcl       uri
+}
+testing {
+    useLocal autoproxy.tcl autoproxy
+}
+
+package require http
+
+# -------------------------------------------------------------------------
+# Helpers
+
+# Clear the autoproxy package state.
+proc packageReset {} {
+    array set ::autoproxy::options {
+        authProc "" basic "" no_proxy "" proxy_host "" proxy_port ""
+        tls_package tls
+    }
+}
+
+# Save and restore the environment variables and the http proxy filter
+# that autoproxy::init reads and changes.
+proc saveState {} {
+    variable savedEnv {}
+    foreach v {http_proxy no_proxy http_proxy_user http_proxy_pass} {
+        if {[info exists ::env($v)]} {
+            lappend savedEnv $v $::env($v)
+            unset ::env($v)
+        }
+    }
+    variable savedFilter [http::config -proxyfilter]
+    packageReset
+}
+
+proc restoreState {} {
+    variable savedEnv
+    variable savedFilter
+    foreach v {http_proxy no_proxy http_proxy_user http_proxy_pass} {
+        unset -nocomplain ::env($v)
+    }
+    array set ::env $savedEnv
+    http::config -proxyfilter $savedFilter
+    packageReset
+    unset savedEnv savedFilter
+}
+
+# A minimal in-process proxy server on 127.0.0.1. It records the request
+# head in ::request, then, depending on the mode:
+#   connect - answers a CONNECT with 200 and then echoes data back
+#   deny    - answers with 407
+#   eof     - closes the connection without an answer
+#   http    - answers a plain proxied HTTP request with a small body
+proc startProxy {mode} {
+    variable server [socket -server [list proxyAccept $mode] -myaddr 127.0.0.1 0]
+    variable clients {}
+    set ::request {}
+    return [lindex [fconfigure $server -sockname] 2]
+}
+
+proc stopProxy {} {
+    variable server
+    variable clients
+    close $server
+    foreach ch $clients {catch {close $ch}}
+    unset server clients
+    unset -nocomplain ::request
+}
+
+proc proxyAccept {mode ch host port} {
+    variable clients
+    lappend clients $ch
+    fconfigure $ch -translation crlf -blocking 0 -buffering full
+    fileevent $ch readable [list proxyRead $mode $ch]
+}
+
+proc proxyRead {mode ch} {
+    if {[gets $ch line] < 0} {
+        if {[eof $ch]} {close $ch}
+        return
+    }
+    lappend ::request $line
+    if {$line ne ""} return
+    switch -- $mode {
+        connect {
+            puts $ch "HTTP/1.1 200 Connection established"
+            puts $ch ""
+            flush $ch
+            fconfigure $ch -translation binary -buffering none
+            fileevent $ch readable [list proxyEcho $ch]
+        }
+        deny {
+            puts $ch "HTTP/1.1 407 Proxy Authentication Required"
+            puts $ch ""
+            flush $ch
+        }
+        eof {
+            close $ch
+        }
+        http {
+            puts $ch "HTTP/1.1 200 OK"
+            puts $ch "Content-Type: text/plain"
+            puts $ch "Content-Length: 7"
+            puts $ch "Connection: close"
+            puts $ch ""
+            puts -nonewline $ch proxied
+            close $ch
+        }
+    }
+}
+
+proc proxyEcho {ch} {
+    set data [read $ch]
+    if {[eof $ch]} {
+        close $ch
+        return
+    }
+    puts -nonewline $ch $data
+}
+
+# Wait (bounded) until the proxy received a complete request head.
+proc waitRequest {} {
+    set deadline [expr {[clock milliseconds] + 5000}]
+    while {[lindex $::request end] ne "" || [llength $::request] == 0} {
+        if {[clock milliseconds] > $deadline} break
+        after 10 {set ::tick 1}
+        vwait ::tick
+    }
+    unset -nocomplain ::tick
+}
+
+# Send data over a channel and wait (bounded) for the echo.
+proc echoThrough {ch data} {
+    fconfigure $ch -blocking 0 -translation binary -buffering none
+    set ::echoed {}
+    fileevent $ch readable [list apply {{ch n} {
+        append ::echoed [read $ch]
+        if {[string length $::echoed] >= $n || [eof $ch]} {set ::echoDone 1}
+    }} $ch [string length $data]]
+    puts -nonewline $ch $data
+    set id [after 5000 {set ::echoDone timeout}]
+    vwait ::echoDone
+    after cancel $id
+    fileevent $ch readable {}
+    set r $::echoed
+    unset ::echoed ::echoDone
+    return $r
+}
+
+# -------------------------------------------------------------------------
+# init
+
+test autoproxy-api-1.1 {init from env http_proxy and no_proxy} -setup {
+    saveState
+    set ::env(http_proxy) http://proxy.invalid:3128
+    set ::env(no_proxy) "a.invalid,b.invalid"
+} -body {
+    list [autoproxy::init] [autoproxy::cget -host] [autoproxy::cget -port] \
+        [autoproxy::cget -no_proxy] [autoproxy::cget -basic]
+} -cleanup restoreState -result {http://proxy.invalid:3128 proxy.invalid 3128 {a.invalid b.invalid} {}}
+
+test autoproxy-api-1.2 {init from env http_proxy as plain host:port} -setup {
+    saveState
+    set ::env(http_proxy) proxy.invalid:8080
+} -body {
+    list [autoproxy::init] [autoproxy::cget -host] [autoproxy::cget -port] \
+        [autoproxy::cget -no_proxy]
+} -cleanup restoreState -result {http://proxy.invalid:8080 proxy.invalid 8080 {}}
+
+test autoproxy-api-1.3 {init from env http_proxy with credentials} -setup {
+    saveState
+    set ::env(http_proxy) http://user:secret@proxy.invalid:3128
+} -body {
+    autoproxy::init
+    list [autoproxy::cget -host] [base64::decode [lindex [autoproxy::cget -basic] 1 1]]
+} -cleanup restoreState -result {proxy.invalid user:secret}
+
+test autoproxy-api-1.4 {init, credentials from http_proxy_user and http_proxy_pass} -setup {
+    saveState
+    set ::env(http_proxy) http://proxy.invalid:3128
+    set ::env(http_proxy_user) envuser
+    set ::env(http_proxy_pass) envpass
+} -body {
+    autoproxy::init
+    base64::decode [lindex [autoproxy::cget -basic] 1 1]
+} -cleanup restoreState -result envuser:envpass
+
+test autoproxy-api-1.5 {init, credentials in the URL take precedence} -setup {
+    saveState
+    set ::env(http_proxy) http://urluser:urlpass@proxy.invalid:3128
+    set ::env(http_proxy_user) envuser
+    set ::env(http_proxy_pass) envpass
+} -body {
+    autoproxy::init
+    base64::decode [lindex [autoproxy::cget -basic] 1 1]
+} -cleanup restoreState -result urluser:urlpass
+
+test autoproxy-api-1.6 {init, http_proxy_user without http_proxy_pass is ignored} -setup {
+    saveState
+    set ::env(http_proxy) http://proxy.invalid:3128
+    set ::env(http_proxy_user) envuser
+} -body {
+    autoproxy::init
+    autoproxy::cget -basic
+} -cleanup restoreState -result {}
+
+test autoproxy-api-1.7 {init installs the http proxy filter} -setup {
+    saveState
+    http::config -proxyfilter {}
+    set ::env(http_proxy) http://proxy.invalid:3128
+} -body {
+    autoproxy::init
+    http::config -proxyfilter
+} -cleanup restoreState -result ::autoproxy::filter
+
+test autoproxy-api-1.8 {init, argument overrides the environment} -setup {
+    saveState
+    set ::env(http_proxy) http://proxy.invalid:3128
+} -body {
+    autoproxy::init http://other.invalid:3129
+    list [autoproxy::cget -host] [autoproxy::cget -port]
+} -cleanup restoreState -result {other.invalid 3129}
+
+test autoproxy-api-1.9 {init without any proxy configuration} -constraints unix -setup {
+    saveState
+    http::config -proxyfilter {}
+    autoproxy::configure -proxy_host keep.invalid
+} -body {
+    list [autoproxy::init] [autoproxy::cget -host] [http::config -proxyfilter]
+} -cleanup restoreState -result {{} keep.invalid {}}
+
+test autoproxy-api-1.10 {init, wrong # args} -body {
+    autoproxy::init a b c
+} -returnCodes error -result {wrong # args: should be "autoproxy::init ?httpproxy? ?no_proxy?"}
+
+# -------------------------------------------------------------------------
+# cget / configure
+
+test autoproxy-api-2.1 {configure without options returns all options} -setup {
+    packageReset
+    autoproxy::configure -host proxy.invalid -port 3128 -no_proxy {a b} -authProc ap
+} -body {
+    lsort -stride 2 [autoproxy::configure]
+} -cleanup packageReset -result {-authProc ap -basic {} -no_proxy {a b} -proxy_host proxy.invalid -proxy_port 3128 -tls_package tls}
+
+test autoproxy-api-2.2 {configure returns empty string when setting} -setup packageReset -body {
+    autoproxy::configure -host proxy.invalid
+} -cleanup packageReset -result {}
+
+test autoproxy-api-2.3 {configure several options at once} -setup packageReset -body {
+    autoproxy::configure -proxy_host h.invalid -proxy_port 81 -no_proxy x.invalid
+    list [autoproxy::cget -host] [autoproxy::cget -port] [autoproxy::cget -no_proxy]
+} -cleanup packageReset -result {h.invalid 81 x.invalid}
+
+test autoproxy-api-2.4 {-host and -proxy_host are synonyms} -setup packageReset -body {
+    autoproxy::configure -host h.invalid
+    set r [autoproxy::cget -proxy_host]
+    autoproxy::configure -proxy_host g.invalid
+    lappend r [autoproxy::cget -host]
+} -cleanup {
+    packageReset
+    unset r
+} -result {h.invalid g.invalid}
+
+test autoproxy-api-2.5 {-port and -proxy_port are synonyms} -setup packageReset -body {
+    autoproxy::configure -port 1234
+    set r [autoproxy::cget -proxy_port]
+    autoproxy::configure -proxy_port 4321
+    lappend r [autoproxy::cget -port]
+} -cleanup {
+    packageReset
+    unset r
+} -result {1234 4321}
+
+test autoproxy-api-2.6 {configure, -- ends the options} -setup packageReset -body {
+    autoproxy::configure -host h.invalid -- -port 99
+    list [autoproxy::cget -host] [autoproxy::cget -port]
+} -cleanup packageReset -result {h.invalid {}}
+
+test autoproxy-api-2.7 {configure, -basic with option abbreviations} -setup packageReset -body {
+    autoproxy::configure -basic -u test -p secret -r tcllib
+    autoproxy::cget -basic
+} -cleanup packageReset -result {Proxy-Authorization {Basic dGVzdDpzZWNyZXQ=}}
+
+test autoproxy-api-2.8 {configure, -basic consumes the remaining arguments} -setup packageReset -body {
+    autoproxy::configure -host h.invalid -basic -username u -password p
+    list [autoproxy::cget -host] [base64::decode [lindex [autoproxy::cget -basic] 1 1]]
+} -cleanup packageReset -result {h.invalid u:p}
+
+test autoproxy-api-2.9 {configure, -basic without username unsets it} -setup {
+    packageReset
+    autoproxy::configure -basic -username u -password p
+} -body {
+    autoproxy::configure -basic -password p
+    autoproxy::cget -basic
+} -cleanup packageReset -result {}
+
+test autoproxy-api-2.10 {configure, -basic with empty password} -setup packageReset -body {
+    autoproxy::configure -basic -username u
+    base64::decode [lindex [autoproxy::cget -basic] 1 1]
+} -cleanup packageReset -result u:
+
+test autoproxy-api-2.11 {configure, -basic calls -authProc for missing details} -setup {
+    packageReset
+    proc ::apiAuth {user passwd realm} {
+        set ::authArgs [list $user $passwd $realm]
+        return [list dialoguser dialogpass]
+    }
+    autoproxy::configure -authProc ::apiAuth
+} -body {
+    autoproxy::configure -basic -username given -realm tcllib
+    list $::authArgs [base64::decode [lindex [autoproxy::cget -basic] 1 1]]
+} -cleanup {
+    packageReset
+    rename ::apiAuth {}
+    unset ::authArgs
+} -result {{given {} tcllib} dialoguser:dialogpass}
+
+test autoproxy-api-2.12 {configure, -authProc not called with full details} -setup {
+    packageReset
+    set ::authCalled 0
+    proc ::apiAuth {args} {
+        incr ::authCalled
+        return {x y}
+    }
+    autoproxy::configure -authProc ::apiAuth
+} -body {
+    autoproxy::configure -basic -username u -password p
+    list $::authCalled [base64::decode [lindex [autoproxy::cget -basic] 1 1]]
+} -cleanup {
+    packageReset
+    rename ::apiAuth {}
+    unset ::authCalled
+} -result {0 u:p}
+
+test autoproxy-api-2.13 {configure, -basic with an invalid option} -setup packageReset -body {
+    autoproxy::configure -basic -bogus 1
+} -cleanup packageReset -returnCodes error -result {invalid option "-bogus": must be one of -username or -password or -realm}
+
+test autoproxy-api-2.15 {configure, bad option} -setup packageReset -body {
+    autoproxy::configure -bogus 1
+} -cleanup packageReset -returnCodes error -result {bad option "-bogus": must be one of -authProc, -basic, -no_proxy, -proxy_host, -proxy_port, -tls_package}
+
+test autoproxy-api-2.16 {cget, bad option} -body {
+    autoproxy::cget -bogus
+} -returnCodes error -result {bad option "-bogus": must be one of -authProc, -basic, -no_proxy, -proxy_host, -proxy_port, -tls_package}
+
+test autoproxy-api-2.17 {cget, wrong # args} -body {
+    autoproxy::cget
+} -returnCodes error -result {wrong # args: should be "autoproxy::cget option"}
+
+# -------------------------------------------------------------------------
+# filter
+
+test autoproxy-api-3.1 {filter, no proxy configured} -setup packageReset -body {
+    autoproxy::filter www.example.invalid
+} -result {}
+
+test autoproxy-api-3.2 {filter returns the proxy host and port} -setup {
+    packageReset
+    autoproxy::configure -host proxy.invalid -port 3128
+} -body {
+    autoproxy::filter www.example.invalid
+} -cleanup packageReset -result {proxy.invalid 3128}
+
+test autoproxy-api-3.3 {filter, no_proxy glob patterns} -setup {
+    packageReset
+    autoproxy::configure -host proxy.invalid -port 3128 -no_proxy {*.local 10.* exact.invalid}
+} -body {
+    list [autoproxy::filter x.local] [autoproxy::filter 10.1.2.3] \
+        [autoproxy::filter exact.invalid] [autoproxy::filter other.invalid]
+} -cleanup packageReset -result {{} {} {} {proxy.invalid 3128}}
+
+test autoproxy-api-3.4 {filter adds the authorization header to the http request} -setup {
+    packageReset
+    autoproxy::configure -host proxy.invalid -port 3128 -basic -username u -password p
+    proc apiCaller {} {
+        array set state {-headers {X-Test 1}}
+        autoproxy::filter www.example.invalid
+        return $state(-headers)
+    }
+} -body {
+    apiCaller
+} -cleanup {
+    packageReset
+    rename apiCaller {}
+} -result {Proxy-Authorization {Basic dTpw} X-Test 1}
+
+test autoproxy-api-3.5 {http request through the proxy} -setup {
+    saveState
+    set port [startProxy http]
+    autoproxy::init http://127.0.0.1:$port
+    autoproxy::configure -basic -username u -password p
+} -body {
+    set tok [http::geturl http://www.example.invalid/path?q=1 -timeout 5000]
+    list [http::status $tok] [http::data $tok] [lindex $::request 0] \
+        [expr {"Proxy-Authorization: Basic dTpw" in $::request}]
+} -cleanup {
+    http::cleanup $tok
+    stopProxy
+    restoreState
+    unset tok port
+} -result {ok proxied {GET http://www.example.invalid/path?q=1 HTTP/1.1} 1}
+
+test autoproxy-api-3.6 {http request to a no_proxy host is direct} -setup {
+    saveState
+    set port [startProxy http]
+    autoproxy::init http://proxy.invalid:9 "127.0.0.1"
+} -body {
+    set tok [http::geturl http://127.0.0.1:$port/direct -timeout 5000]
+    list [http::status $tok] [http::data $tok] [lindex $::request 0]
+} -cleanup {
+    http::cleanup $tok
+    stopProxy
+    restoreState
+    unset tok port
+} -result {ok proxied {GET /direct HTTP/1.1}}
+
+# -------------------------------------------------------------------------
+# tunnel_connect
+
+test autoproxy-api-4.1 {tunnel_connect sends a CONNECT request} -setup {
+    packageReset
+    set port [startProxy connect]
+    autoproxy::configure -host 127.0.0.1 -port $port
+} -body {
+    set s [autoproxy::tunnel_connect target.invalid 443]
+    set r [lrange $::request 0 1]
+    lappend r [expr {"Proxy-Connection: keep-alive" in $::request}] \
+        [lindex $::request end]
+} -cleanup {
+    close $s
+    stopProxy
+    packageReset
+    unset s r port
+} -result {{CONNECT target.invalid:443 HTTP/1.1} {Host: target.invalid} 1 {}}
+
+test autoproxy-api-4.2 {tunnel_connect returns a connected channel} -setup {
+    packageReset
+    set port [startProxy connect]
+    autoproxy::configure -host 127.0.0.1 -port $port
+} -body {
+    set s [autoproxy::tunnel_connect target.invalid 443]
+    echoThrough $s "hello through the tunnel"
+} -cleanup {
+    close $s
+    stopProxy
+    packageReset
+    unset s port
+} -result {hello through the tunnel}
+
+test autoproxy-api-4.3 {tunnel_connect sends the authorization header} -setup {
+    packageReset
+    set port [startProxy connect]
+    autoproxy::configure -host 127.0.0.1 -port $port -basic -username u -password p
+} -body {
+    set s [autoproxy::tunnel_connect target.invalid 443]
+    expr {"Proxy-Authorization: Basic dTpw" in $::request}
+} -cleanup {
+    close $s
+    stopProxy
+    packageReset
+    unset s port
+} -result 1
+
+test autoproxy-api-4.4 {tunnel_connect sends the http user agent} -setup {
+    packageReset
+    set port [startProxy connect]
+    autoproxy::configure -host 127.0.0.1 -port $port
+    set ua [http::config -useragent]
+    http::config -useragent "autoproxy-api-test/1.0"
+} -body {
+    set s [autoproxy::tunnel_connect target.invalid 443]
+    expr {"User-Agent: autoproxy-api-test/1.0" in $::request}
+} -cleanup {
+    close $s
+    http::config -useragent $ua
+    stopProxy
+    packageReset
+    unset s port ua
+} -result 1
+
+test autoproxy-api-4.5 {tunnel_connect, proxy refuses the request} -setup {
+    packageReset
+    set port [startProxy deny]
+    autoproxy::configure -host 127.0.0.1 -port $port
+    set before [lsort [chan names]]
+} -body {
+    set r [list [catch {autoproxy::tunnel_connect target.invalid 443} msg] $msg]
+    # Close the server side of the connection.
+    foreach ch $::clients {catch {close $ch}}
+    set ::clients {}
+    lappend r [expr {[lsort [chan names]] eq $before}] [info vars ::autoproxy::\[0-9\]*]
+} -cleanup {
+    stopProxy
+    packageReset
+    unset port before msg r ch
+} -result {1 {Proxy Authentication Required} 1 {}}
+
+test autoproxy-api-4.6 {tunnel_connect, proxy closes without an answer} -constraints knownBug -setup {
+    packageReset
+    set port [startProxy eof]
+    autoproxy::configure -host 127.0.0.1 -port $port
+} -body {
+    # The closed connection is returned as if the tunnel was established.
+    set code [catch {autoproxy::tunnel_connect target.invalid 443} s]
+    if {!$code} {close $s}
+    set code
+} -cleanup {
+    stopProxy
+    packageReset
+    unset port code s
+} -result 1
+
+test autoproxy-api-4.7 {tunnel_connect, no proxy configured connects directly} -setup {
+    packageReset
+    set port [startProxy connect]
+} -body {
+    set s [autoproxy::tunnel_connect 127.0.0.1 $port]
+    fconfigure $s -translation binary
+    puts -nonewline $s "GET / HTTP/1.0\r\n\r\n"
+    flush $s
+    waitRequest
+    lindex $::request 0
+} -cleanup {
+    close $s
+    stopProxy
+    packageReset
+    unset s port
+} -result {GET / HTTP/1.0}
+
+test autoproxy-api-4.8 {tunnel_connect, no_proxy host connects directly} -setup {
+    packageReset
+    set port [startProxy connect]
+    autoproxy::configure -host proxy.invalid -port 9 -no_proxy 127.0.0.1
+} -body {
+    set s [autoproxy::tunnel_connect 127.0.0.1 $port]
+    fconfigure $s -translation binary
+    puts -nonewline $s "GET / HTTP/1.0\r\n\r\n"
+    flush $s
+    waitRequest
+    lindex $::request 0
+} -cleanup {
+    close $s
+    stopProxy
+    packageReset
+    unset s port
+} -result {GET / HTTP/1.0}
+
+test autoproxy-api-4.9 {tunnel_connect, proxy not reachable} -setup {
+    packageReset
+    # Get a free port and close it again, so nothing listens there.
+    set srv [socket -server {} -myaddr 127.0.0.1 0]
+    set port [lindex [fconfigure $srv -sockname] 2]
+    close $srv
+    autoproxy::configure -host 127.0.0.1 -port $port
+} -body {
+    autoproxy::tunnel_connect target.invalid 443
+} -cleanup {
+    packageReset
+    unset srv port
+} -returnCodes error -match glob -result {couldn't open socket: *}
+
+# -------------------------------------------------------------------------
+
+rename packageReset {}
+rename saveState {}
+rename restoreState {}
+rename startProxy {}
+rename stopProxy {}
+rename proxyAccept {}
+rename proxyRead {}
+rename proxyEcho {}
+rename echoThrough {}
+rename waitRequest {}
+testsuiteCleanup
+
+# Local variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
