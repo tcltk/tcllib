@@ -1,0 +1,437 @@
+# -*- tcl -*-
+# random-api.test: tests for simulation::random, complementing random.test.
+#
+# The generators are seeded with srand() so that the results are
+# reproducible; the statistical checks use wide tolerances.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal random.tcl simulation::random
+}
+
+# -------------------------------------------------------------------------
+
+# Draws n values from the generator, returns {mean stdev min max}.
+proc stats {prng n} {
+    set sum 0.0
+    set sum2 0.0
+    set min Inf
+    set max -Inf
+    for {set i 0} {$i < $n} {incr i} {
+	set v [$prng]
+	set sum [expr {$sum + $v}]
+	set sum2 [expr {$sum2 + $v*$v}]
+	if {$v < $min} {set min $v}
+	if {$v > $max} {set max $v}
+    }
+    set mean [expr {$sum/$n}]
+    set stdev [expr {sqrt(($sum2 - $n*$mean*$mean)/($n-1))}]
+    return [list $mean $stdev $min $max]
+}
+
+proc near {value expected tolerance} {
+    expr {abs($value - $expected) <= $tolerance}
+}
+
+proc cleanupPrng {} {
+    foreach p [info commands ::simulation::random::PRNG_*] {
+	rename $p {}
+    }
+}
+
+# -------------------------------------------------------------------------
+# Generator commands
+
+test random-api-1.1 {generator names are distinct commands} -setup {
+    expr {srand(1)}
+} -body {
+    set a [::simulation::random::prng_Uniform 0 1]
+    set b [::simulation::random::prng_Uniform 0 1]
+    list [expr {$a ne $b}] [llength [info commands $a]] [llength [info commands $b]]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain a b
+} -result {1 1 1}
+
+test random-api-1.2 {generators take no arguments} -setup {
+    set p [::simulation::random::prng_Uniform 0 1]
+} -body {
+    $p 1
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p
+} -returnCodes error -match glob -result {wrong # args: should be "*PRNG_*"}
+
+test random-api-1.3 {generators are reproducible with srand} -body {
+    set p [::simulation::random::prng_Normal 0 1]
+    expr {srand(42)}
+    set a [list [$p] [$p] [$p]]
+    expr {srand(42)}
+    set b [list [$p] [$p] [$p]]
+    string equal $a $b
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p a b
+} -result 1
+
+foreach {n cmd args} {
+    1  prng_Bernoulli     {}
+    2  prng_Discrete      {}
+    3  prng_Poisson       {}
+    4  prng_Uniform       {0}
+    5  prng_Exponential   {0}
+    6  prng_Normal        {0}
+    7  prng_Pareto        {0}
+    8  prng_Gumbel        {0}
+    9  prng_chiSquared    {}
+    10 prng_Disk          {}
+    11 prng_Sphere        {}
+    12 prng_Ball          {}
+    13 prng_Rectangle     {0}
+    14 prng_Block         {0 0}
+} {
+    test random-api-1.4.$n "$cmd, wrong # args" -body {
+	::simulation::random::$cmd {*}$args
+    } -returnCodes error -match glob -result "wrong # args: should be \"::simulation::random::$cmd *\""
+}
+unset n cmd args
+
+# -------------------------------------------------------------------------
+# Discrete distributions
+
+test random-api-2.1 {Bernoulli, frequency of ones} -setup {
+    expr {srand(101)}
+    set p [::simulation::random::prng_Bernoulli 0.3]
+} -body {
+    set ones 0
+    set other 0
+    for {set i 0} {$i < 10000} {incr i} {
+	set v [$p]
+	if {$v == 1} {incr ones} elseif {$v != 0} {incr other}
+    }
+    list [near $ones 3000 300] $other
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p ones other i v
+} -result {1 0}
+
+test random-api-2.2 {Discrete, values 0 to n-1 with equal probability} -setup {
+    expr {srand(102)}
+    set p [::simulation::random::prng_Discrete 5]
+} -body {
+    array set count {}
+    for {set i 0} {$i < 10000} {incr i} {
+	incr count([$p])
+    }
+    set ok 1
+    foreach k {0 1 2 3 4} {
+	if {![near $count($k) 2000 250]} {set ok 0}
+    }
+    list [lsort -integer [array names count]] $ok
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p count i ok k
+} -result {{0 1 2 3 4} 1}
+
+test random-api-2.3 {Discrete, n = 1} -setup {
+    set p [::simulation::random::prng_Discrete 1]
+} -body {
+    lsort -unique [list [$p] [$p] [$p] [$p]]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p
+} -result 0
+
+test random-api-2.4 {Poisson, mean and variance equal lambda} -setup {
+    expr {srand(103)}
+    set p [::simulation::random::prng_Poisson 4.0]
+} -body {
+    lassign [stats $p 10000] mean stdev min
+    list [near $mean 4.0 0.15] [near [expr {$stdev*$stdev}] 4.0 0.4] \
+	[expr {$min >= 0}]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev min
+} -result {1 1 1}
+
+test random-api-2.5 {Poisson, integer values} -setup {
+    expr {srand(104)}
+    set p [::simulation::random::prng_Poisson 2.5]
+} -body {
+    set ok 1
+    for {set i 0} {$i < 1000} {incr i} {
+	if {![string is integer -strict [$p]]} {set ok 0}
+    }
+    set ok
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p ok i
+} -result 1
+
+# -------------------------------------------------------------------------
+# Continuous distributions
+
+test random-api-3.1 {Uniform, mean and range} -setup {
+    expr {srand(201)}
+    set p [::simulation::random::prng_Uniform 2.0 6.0]
+} -body {
+    lassign [stats $p 10000] mean stdev min max
+    list [near $mean 4.0 0.1] [near $stdev [expr {4.0/sqrt(12.0)}] 0.05] \
+	[expr {$min >= 2.0}] [expr {$max <= 6.0}] [expr {$min < 2.1}] [expr {$max > 5.9}]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev min max
+} -result {1 1 1 1 1 1}
+
+test random-api-3.2 {Exponential, minimum and mean} -setup {
+    expr {srand(202)}
+    set p [::simulation::random::prng_Exponential 1.0 3.0]
+} -body {
+    lassign [stats $p 10000] mean stdev min
+    list [near $mean 3.0 0.1] [near $stdev 2.0 0.15] [expr {$min >= 1.0}]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev min
+} -result {1 1 1}
+
+test random-api-3.3 {Normal, mean and standard deviation} -setup {
+    expr {srand(203)}
+    set p [::simulation::random::prng_Normal -1.0 10.0]
+} -body {
+    lassign [stats $p 10000] mean stdev
+    list [near $mean -1.0 0.4] [near $stdev 10.0 0.4]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev
+} -result {1 1}
+
+# The generated values are at most "min" instead of at least "min".
+test random-api-3.4 {Pareto, values not below the minimum} -constraints knownBug -setup {
+    expr {srand(204)}
+    set p [::simulation::random::prng_Pareto 2.0 3.0]
+} -body {
+    lassign [stats $p 10000] mean stdev min
+    list [expr {$min >= 2.0}] [near $mean 3.0 0.2]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev min
+} -result {1 1}
+
+test random-api-3.5 {Gumbel, values are finite numbers} -setup {
+    expr {srand(205)}
+    set p [::simulation::random::prng_Gumbel 1.0 3.0]
+} -body {
+    set ok 1
+    for {set i 0} {$i < 1000} {incr i} {
+	set v [$p]
+	if {![string is double -strict $v] || $v != $v} {set ok 0}
+    }
+    set ok
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p ok i v
+} -result 1
+
+# The documentation says mean 0 and standard deviation 1; the
+# Box-Muller step lacks a factor 2.
+test random-api-3.6 {chiSquared, normalised mean and standard deviation} -constraints knownBug -setup {
+    expr {srand(206)}
+    set p [::simulation::random::prng_chiSquared 4]
+} -body {
+    lassign [stats $p 10000] mean stdev
+    list [near $mean 0.0 0.05] [near $stdev 1.0 0.1]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev
+} -result {1 1}
+
+# The documented command names are prng_Triangular and
+# prng_SymmTriangular; the package defines prng_Triangle and
+# prng_SymmetricTriangle instead.
+test random-api-3.7 {Triangular, documented name} -constraints knownBug -body {
+    set p [::simulation::random::prng_Triangular 0.0 1.0]
+    llength [info commands $p]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p
+} -result 1
+
+test random-api-3.8 {SymmTriangular, documented name} -constraints knownBug -body {
+    set p [::simulation::random::prng_SymmTriangular 0.0 1.0]
+    llength [info commands $p]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p
+} -result 1
+
+test random-api-3.9 {Triangle, smaller values more probable when min < max} -setup {
+    expr {srand(207)}
+    set p [::simulation::random::prng_Triangle 0.0 3.0]
+} -body {
+    lassign [stats $p 10000] mean stdev min max
+    list [near $mean 1.0 0.05] [expr {$min >= 0.0}] [expr {$max <= 3.0}]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev min max
+} -result {1 1 1}
+
+test random-api-3.10 {Triangle, larger values more probable when min > max} -setup {
+    expr {srand(208)}
+    set p [::simulation::random::prng_Triangle 3.0 0.0]
+} -body {
+    lassign [stats $p 10000] mean stdev min max
+    list [near $mean 2.0 0.05] [expr {$min >= 0.0}] [expr {$max <= 3.0}]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev min max
+} -result {1 1 1}
+
+test random-api-3.11 {SymmetricTriangle, symmetric around the middle} -setup {
+    expr {srand(209)}
+    set p [::simulation::random::prng_SymmetricTriangle 2.0 4.0]
+} -body {
+    lassign [stats $p 10000] mean stdev min max
+    list [near $mean 3.0 0.03] [near $stdev [expr {1.0/sqrt(6.0)}] 0.03] \
+	[expr {$min >= 2.0}] [expr {$max <= 4.0}]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p mean stdev min max
+} -result {1 1 1 1}
+
+# -------------------------------------------------------------------------
+# Point sets
+
+test random-api-4.1 {Disk, points inside the disk, all quadrants} -setup {
+    expr {srand(301)}
+    set p [::simulation::random::prng_Disk 2.0]
+} -body {
+    set inside 1
+    array set q {}
+    set n 0
+    for {set i 0} {$i < 4000} {incr i} {
+	lassign [$p] x y
+	if {hypot($x,$y) > 2.0 + 1e-12} {set inside 0}
+	if {hypot($x,$y) < 1.0} {incr n}
+	set q([expr {$x >= 0}][expr {$y >= 0}]) 1
+    }
+    list $inside [lsort [array names q]] [near $n 1000 120]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p inside q n i x y
+} -result {1 {00 01 10 11} 1}
+
+test random-api-4.2 {Sphere, points on the surface} -setup {
+    expr {srand(302)}
+    set p [::simulation::random::prng_Sphere 2.5]
+} -body {
+    set ok 1
+    for {set i 0} {$i < 1000} {incr i} {
+	lassign [$p] x y z
+	if {abs(sqrt($x*$x+$y*$y+$z*$z) - 2.5) > 1e-9} {set ok 0}
+    }
+    set ok
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p ok i x y z
+} -result 1
+
+# The z coordinate is computed as sin(acos(...)), which is never negative.
+test random-api-4.3 {Sphere, points on both hemispheres} -constraints knownBug -setup {
+    expr {srand(303)}
+    set p [::simulation::random::prng_Sphere 1.0]
+} -body {
+    set neg 0
+    for {set i 0} {$i < 1000} {incr i} {
+	lassign [$p] x y z
+	if {$z < 0} {incr neg}
+    }
+    near $neg 500 100
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p neg i x y z
+} -result 1
+
+test random-api-4.4 {Ball, points inside the ball} -setup {
+    expr {srand(304)}
+    set p [::simulation::random::prng_Ball 2.0]
+} -body {
+    set ok 1
+    set n 0
+    for {set i 0} {$i < 4000} {incr i} {
+	lassign [$p] x y z
+	set r [expr {sqrt($x*$x+$y*$y+$z*$z)}]
+	if {$r > 2.0 + 1e-9} {set ok 0}
+	if {$r < 1.0} {incr n}
+    }
+    list $ok [near $n 500 90]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p ok n i x y z r
+} -result {1 1}
+
+test random-api-4.5 {Ball, points on both sides of the xy plane} -constraints knownBug -setup {
+    expr {srand(305)}
+    set p [::simulation::random::prng_Ball 1.0]
+} -body {
+    set neg 0
+    for {set i 0} {$i < 1000} {incr i} {
+	lassign [$p] x y z
+	if {$z < 0} {incr neg}
+    }
+    near $neg 500 100
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p neg i x y z
+} -result 1
+
+test random-api-4.6 {Rectangle, points inside the rectangle} -setup {
+    expr {srand(306)}
+    set p [::simulation::random::prng_Rectangle 10.0 0.5]
+} -body {
+    set ok 1
+    set sx 0.0
+    set sy 0.0
+    for {set i 0} {$i < 4000} {incr i} {
+	lassign [$p] x y
+	if {$x < 0 || $x > 10.0 || $y < 0 || $y > 0.5} {set ok 0}
+	set sx [expr {$sx+$x}]
+	set sy [expr {$sy+$y}]
+    }
+    list $ok [near [expr {$sx/4000}] 5.0 0.2] [near [expr {$sy/4000}] 0.25 0.01]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p ok sx sy i x y
+} -result {1 1 1}
+
+test random-api-4.7 {Block, points inside the block} -setup {
+    expr {srand(307)}
+    set p [::simulation::random::prng_Block 10.0 0.5 2.0]
+} -body {
+    set ok 1
+    set sz 0.0
+    for {set i 0} {$i < 4000} {incr i} {
+	lassign [$p] x y z
+	if {$x < 0 || $x > 10.0 || $y < 0 || $y > 0.5 || $z < 0 || $z > 2.0} {set ok 0}
+	set sz [expr {$sz+$z}]
+    }
+    list $ok [near [expr {$sz/4000}] 1.0 0.05]
+} -cleanup {
+    cleanupPrng
+    unset -nocomplain p ok sz i x y z
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+
+rename stats {}
+rename near {}
+rename cleanupPrng {}
+testsuiteCleanup
+return

@@ -1,0 +1,261 @@
+# -*- tcl -*-
+# annealing-api.test: tests for simulation::annealing.
+#
+# The searches are seeded with srand() so that the results are
+# reproducible; the checks on the minimum use wide tolerances.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal annealing.tcl simulation::annealing
+}
+
+# -------------------------------------------------------------------------
+
+# file tempfile needs Tcl 8.6.
+tcltest::testConstraint fileTempfile [package vsatisfies [package provide Tcl] 8.6-]
+
+proc near {value expected tolerance} {
+    expr {abs($value - $expected) <= $tolerance}
+}
+
+# Returns the text written to a temporary channel by the script.
+proc capture {script} {
+    set chan [file tempfile path]
+    set ::reportChan $chan
+    set code [catch {uplevel 1 $script} msg]
+    seek $chan 0
+    set text [read $chan]
+    close $chan
+    file delete $path
+    unset ::reportChan
+    if {$code} {return -code $code $msg}
+    return $text
+}
+
+# Number of mismatches with the pattern 1 0 1 0 ...
+proc mismatches {params} {
+    set cost 0
+    set i 0
+    foreach p $params {
+	if {$p != ($i % 2 == 0)} {incr cost}
+	incr i
+    }
+    return $cost
+}
+
+# -------------------------------------------------------------------------
+# getOption, hasOption, setOption
+
+test annealing-api-1.1 {setOption, getOption, hasOption} -body {
+    list [::simulation::annealing::setOption myopt 12] \
+	[::simulation::annealing::getOption myopt] \
+	[::simulation::annealing::hasOption myopt] \
+	[::simulation::annealing::hasOption no-such-option]
+} -cleanup {
+    unset -nocomplain ::simulation::annealing::ann_option(-myopt)
+} -result {12 12 1 0}
+
+test annealing-api-1.2 {getOption, unknown option} -body {
+    ::simulation::annealing::getOption no-such-option
+} -returnCodes error -result {No such option: no-such-option}
+
+test annealing-api-1.3 {getOption, wrong # args} -body {
+    ::simulation::annealing::getOption
+} -returnCodes error -result {wrong # args: should be "::simulation::annealing::getOption option"}
+
+test annealing-api-1.4 {setOption, wrong # args} -body {
+    ::simulation::annealing::setOption x
+} -returnCodes error -result {wrong # args: should be "::simulation::annealing::setOption option value"}
+
+test annealing-api-1.5 {hasOption, wrong # args} -body {
+    ::simulation::annealing::hasOption
+} -returnCodes error -result {wrong # args: should be "::simulation::annealing::hasOption option"}
+
+# -------------------------------------------------------------------------
+# findMinimum
+
+test annealing-api-2.1 {findMinimum, no function} -body {
+    ::simulation::annealing::findMinimum -parameters {x 0 1}
+} -returnCodes error -result {Neither code nor function given! Nothing to optimize}
+
+test annealing-api-2.2 {findMinimum, no parameters} -body {
+    ::simulation::annealing::findMinimum -function {$x*$x}
+} -returnCodes error -result {No parameters given! Nothing to optimize}
+
+test annealing-api-2.3 {findMinimum, -function} -setup {
+    expr {srand(11)}
+} -body {
+    set r [::simulation::annealing::findMinimum -trials 300 \
+	       -parameters {x -5.0 5.0 y -5.0 5.0} \
+	       -function {($x-1.0)*($x-1.0) + ($y+2.0)*($y+2.0)}]
+    list [lsort [dict keys $r]] [near [dict get $r result] 0.0 0.2] \
+	[near [dict get $r x] 1.0 0.5] [near [dict get $r y] -2.0 0.5]
+} -cleanup {
+    unset -nocomplain r
+} -result {{result x y} 1 1 1}
+
+test annealing-api-2.4 {findMinimum, result is the function value at the point} -setup {
+    expr {srand(12)}
+} -body {
+    set r [::simulation::annealing::findMinimum -trials 100 \
+	       -parameters {x -3.0 3.0} -function {$x*$x+1.0}]
+    near [dict get $r result] [expr {[dict get $r x]**2+1.0}] 1e-9
+} -cleanup {
+    unset -nocomplain r
+} -result 1
+
+test annealing-api-2.5 {findMinimum, -code takes precedence over -function} -setup {
+    expr {srand(13)}
+} -body {
+    set r [::simulation::annealing::findMinimum -trials 200 \
+	       -parameters {x 0.0 10.0} \
+	       -function {$x} \
+	       -code {set result [expr {($x-7.0)*($x-7.0)}]}]
+    near [dict get $r x] 7.0 0.5
+} -cleanup {
+    unset -nocomplain r
+} -result 1
+
+test annealing-api-2.6 {findMinimum, parameters stay within their ranges} -setup {
+    expr {srand(14)}
+} -body {
+    set ::outside 0
+    set r [::simulation::annealing::findMinimum -trials 100 \
+	       -parameters {x 2.0 3.0 y -1.0 0.0} \
+	       -code {
+		   if {$x < 2.0 || $x > 3.0 || $y < -1.0 || $y > 0.0} {
+		       incr ::outside
+		   }
+		   set result [expr {$x + $y}]
+	       }]
+    list $::outside [near [dict get $r x] 2.0 0.2] [near [dict get $r y] -1.0 0.2]
+} -cleanup {
+    unset -nocomplain r ::outside
+} -result {0 1 1}
+
+test annealing-api-2.7 {findMinimum, -init, -final and custom options} -setup {
+    expr {srand(15)}
+} -body {
+    set r [::simulation::annealing::findMinimum -trials 50 \
+	       -parameters {x 0.0 1.0} \
+	       -target 0.25 \
+	       -init {set target [getOption target]; set ::initRun 1} \
+	       -code {set result [expr {abs($x-$target)}]} \
+	       -final {set ::finalResult $result}]
+    list $::initRun [string equal $::finalResult $r] [near [dict get $r x] 0.25 0.1]
+} -cleanup {
+    unset -nocomplain r ::initRun ::finalResult
+} -result {1 1 1}
+
+test annealing-api-2.8 {findMinimum, options are available afterwards} -setup {
+    expr {srand(16)}
+} -body {
+    ::simulation::annealing::findMinimum -trials 20 -reduce 0.5 \
+	-parameters {x 0.0 1.0} -function {$x}
+    list [::simulation::annealing::getOption trials] \
+	[::simulation::annealing::getOption reduce] \
+	[::simulation::annealing::getOption initial-temp] \
+	[::simulation::annealing::getOption reportfile]
+} -result {20 0.5 1.0 stdout}
+
+test annealing-api-2.9 {findMinimum, -estimate-scale} -setup {
+    expr {srand(17)}
+} -body {
+    set r [::simulation::annealing::findMinimum -trials 300 -estimate-scale 1 \
+	       -parameters {x -5.0 5.0} -function {($x-2.0)*($x-2.0)}]
+    near [dict get $r x] 2.0 0.5
+} -cleanup {
+    unset -nocomplain r
+} -result 1
+
+test annealing-api-2.10 {findMinimum, -verbose output to the report file} -constraints fileTempfile -setup {
+    expr {srand(18)}
+} -body {
+    set out [capture {
+	::simulation::annealing::findMinimum -trials 50 -verbose 1 \
+	    -reportfile $::reportChan -scale 2.0 \
+	    -parameters {x 0.0 1.0} -function {$x}
+    }]
+    set lines [split [string trimright $out \n] \n]
+    list [lindex $lines 0] [lindex $lines 1] \
+	[regexp {^\S+ -- \S+ -- [0-9.]+ %$} [lindex $lines 2]]
+} -cleanup {
+    unset -nocomplain out lines
+} -result {{Scale value: 2.0} {Result -- Mean of accepted values -- % accepted} 1}
+
+test annealing-api-2.11 {findMinimum, error in the code is propagated} -body {
+    ::simulation::annealing::findMinimum -trials 10 \
+	-parameters {x 0.0 1.0} -code {error boom}
+} -returnCodes error -result boom
+
+# -------------------------------------------------------------------------
+# findCombinatorialMinimum
+
+test annealing-api-3.1 {findCombinatorialMinimum, no function} -body {
+    ::simulation::annealing::findCombinatorialMinimum -number-params 4
+} -returnCodes error -result {Neither code nor function given! Nothing to optimize}
+
+test annealing-api-3.2 {findCombinatorialMinimum, no number of parameters} -body {
+    ::simulation::annealing::findCombinatorialMinimum -code {set result 0}
+} -returnCodes error -result {Number of parameters not given! Nothing to optimize}
+
+test annealing-api-3.3 {findCombinatorialMinimum, finds the pattern} -setup {
+    expr {srand(21)}
+} -body {
+    set r [::simulation::annealing::findCombinatorialMinimum -trials 300 \
+	       -number-params 12 -code {set result [mismatches $params]}]
+    list [lsort [dict keys $r]] [dict get $r result] [dict get $r solution]
+} -cleanup {
+    unset -nocomplain r
+} -result {{result solution} 0 {1 0 1 0 1 0 1 0 1 0 1 0}}
+
+test annealing-api-3.4 {findCombinatorialMinimum, -function, low -initial-temp} -setup {
+    expr {srand(22)}
+} -body {
+    set r [::simulation::annealing::findCombinatorialMinimum -trials 100 \
+	       -initial-temp 0.05 -number-params 6 -function {[::tcl::mathop::+ {*}$params]}]
+    list [dict get $r result] [dict get $r solution]
+} -cleanup {
+    unset -nocomplain r
+} -result {0 {0 0 0 0 0 0}}
+
+test annealing-api-3.5 {findCombinatorialMinimum, -initial-values, low -initial-temp} -setup {
+    expr {srand(23)}
+} -body {
+    set ::first {}
+    set r [::simulation::annealing::findCombinatorialMinimum -trials 100 \
+	       -initial-temp 0.05 -number-params 4 -initial-values {1 1 1 1} \
+	       -code {
+		   if {$::first eq ""} {set ::first $params}
+		   set result [expr {4 - [::tcl::mathop::+ {*}$params]}]
+	       }]
+    list $::first [dict get $r result] [dict get $r solution]
+} -cleanup {
+    unset -nocomplain r ::first
+} -result {{1 1 1 1} 0 {1 1 1 1}}
+
+test annealing-api-3.6 {findCombinatorialMinimum, solution contains only 0 and 1} -setup {
+    expr {srand(24)}
+} -body {
+    set r [::simulation::annealing::findCombinatorialMinimum -trials 50 \
+	       -number-params 20 -code {set result [expr {rand()}]}]
+    list [llength [dict get $r solution]] [lsort -unique [concat 0 1 [dict get $r solution]]]
+} -cleanup {
+    unset -nocomplain r
+} -result {20 {0 1}}
+
+# -------------------------------------------------------------------------
+
+rename near {}
+rename capture {}
+rename mismatches {}
+testsuiteCleanup
+return

@@ -1,0 +1,282 @@
+# -*- tcl -*-
+# montecarlo-api.test: tests for simulation::montecarlo.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use      math/math.tcl       math
+    use      math/linalg.tcl     math::linearalgebra
+    use      math/optimize.tcl   math::optimize
+    use      math/statistics.tcl math::statistics
+    useLocal random.tcl          simulation::random
+}
+testing {
+    useLocal montecarlo.tcl simulation::montecarlo
+}
+
+# -------------------------------------------------------------------------
+
+# file tempfile needs Tcl 8.6.
+tcltest::testConstraint fileTempfile [package vsatisfies [package provide Tcl] 8.6-]
+
+proc near {value expected tolerance} {
+    expr {abs($value - $expected) <= $tolerance}
+}
+
+# Returns the text written to a temporary channel by the script.
+proc capture {script} {
+    set chan [file tempfile path]
+    set ::reportChan $chan
+    set code [catch {uplevel 1 $script} msg]
+    seek $chan 0
+    set text [read $chan]
+    close $chan
+    file delete $path
+    unset ::reportChan
+    if {$code} {return -code $code $msg}
+    return $text
+}
+
+proc resetMC {} {
+    unset -nocomplain ::simulation::montecarlo::exp_option
+    set ::simulation::montecarlo::trial_result {}
+    set ::simulation::montecarlo::exp_result {}
+}
+
+# -------------------------------------------------------------------------
+# transposeData
+
+test montecarlo-api-1.1 {transposeData} -body {
+    ::simulation::montecarlo::transposeData {{1 2 3} {4 5 6}}
+} -result {{1 4} {2 5} {3 6}}
+
+test montecarlo-api-1.2 {transposeData, single row} -body {
+    ::simulation::montecarlo::transposeData {{a b}}
+} -result {a b}
+
+test montecarlo-api-1.3 {transposeData, empty} -body {
+    ::simulation::montecarlo::transposeData {}
+} -result {}
+
+test montecarlo-api-1.4 {transposeData twice is the identity} -body {
+    set d {{1 2} {3 4} {5 6}}
+    string equal [::simulation::montecarlo::transposeData \
+		      [::simulation::montecarlo::transposeData $d]] $d
+} -cleanup {
+    unset -nocomplain d
+} -result 1
+
+test montecarlo-api-1.5 {transposeData, wrong # args} -body {
+    ::simulation::montecarlo::transposeData
+} -returnCodes error -result {wrong # args: should be "::simulation::montecarlo::transposeData values"}
+
+# -------------------------------------------------------------------------
+# Options and results outside an experiment
+
+test montecarlo-api-2.1 {getOption, unknown option} -setup resetMC -body {
+    ::simulation::montecarlo::getOption nosuch
+} -returnCodes error -result {No such option: nosuch}
+
+test montecarlo-api-2.2 {hasOption, unknown option} -setup resetMC -body {
+    ::simulation::montecarlo::hasOption nosuch
+} -result 0
+
+test montecarlo-api-2.3 {setTrialResult and getTrialResults} -setup resetMC -body {
+    ::simulation::montecarlo::setTrialResult {1 2}
+    ::simulation::montecarlo::setTrialResult {3 4}
+    ::simulation::montecarlo::getTrialResults
+} -cleanup resetMC -result {{1 2} {3 4}}
+
+test montecarlo-api-2.4 {setExpResult and getExpResult} -setup resetMC -body {
+    ::simulation::montecarlo::setExpResult {a b c}
+    ::simulation::montecarlo::getExpResult
+} -cleanup resetMC -result {a b c}
+
+# setOption is documented but not implemented.
+test montecarlo-api-2.5 {setOption} -constraints knownBug -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -trials 1 -analysis none -loop {
+	setOption trials 5
+	setTrialResult [getOption trials]
+    }
+    ::simulation::montecarlo::getTrialResults
+} -cleanup resetMC -result 5
+
+test montecarlo-api-2.6 {getOption, wrong # args} -body {
+    ::simulation::montecarlo::getOption
+} -returnCodes error -result {wrong # args: should be "::simulation::montecarlo::getOption option"}
+
+# -------------------------------------------------------------------------
+# singleExperiment
+
+test montecarlo-api-3.1 {singleExperiment, init, loop, trials and getOption} -setup resetMC -body {
+    set r [::simulation::montecarlo::singleExperiment -analysis none \
+	-init {set count 0} \
+	-loop {
+	    incr count
+	    setTrialResult [list $count [getOption trials] [getOption samples]]
+	} -trials 3 -samples 7]
+    list $r [::simulation::montecarlo::getTrialResults]
+} -cleanup {
+    resetMC
+    unset -nocomplain r
+} -result {{} {{1 3 7} {2 3 7} {3 3 7}}}
+
+test montecarlo-api-3.2 {singleExperiment, final and experiment result} -setup resetMC -body {
+    set r [::simulation::montecarlo::singleExperiment -analysis none \
+	-loop {setTrialResult 2} \
+	-final {
+	    set sum 0
+	    foreach v [getTrialResults] {incr sum $v}
+	    setExpResult $sum
+	} -trials 4]
+    list $r [::simulation::montecarlo::getExpResult]
+} -cleanup {
+    resetMC
+    unset -nocomplain r
+} -result {8 8}
+
+test montecarlo-api-3.3 {singleExperiment, hasOption for predefined and custom options} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -analysis none -trials 1 -custom x -loop {
+	setTrialResult [list [hasOption custom] [hasOption reportfile] \
+			    [hasOption verbose] [hasOption columns] [hasOption other]]
+    }
+    ::simulation::montecarlo::getTrialResults
+} -cleanup resetMC -result {{1 1 1 1 0}}
+
+test montecarlo-api-3.4 {singleExperiment, default option values} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -analysis none -trials 1 -loop {
+	setTrialResult [list [getOption reportfile] [getOption verbose] [getOption columns]]
+    }
+    ::simulation::montecarlo::getTrialResults
+} -cleanup resetMC -result {{stdout 0 {}}}
+
+test montecarlo-api-3.5 {singleExperiment, options remain available afterwards} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -analysis none -trials 2 -loop {
+	setTrialResult 1
+    } -extra 42
+    list [::simulation::montecarlo::getOption trials] \
+	[::simulation::montecarlo::getOption extra]
+} -cleanup resetMC -result {2 42}
+
+test montecarlo-api-3.6 {singleExperiment, new experiment clears previous results} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -analysis none -trials 2 -loop {setTrialResult a}
+    ::simulation::montecarlo::singleExperiment -analysis none -trials 1 -loop {setTrialResult b}
+    list [::simulation::montecarlo::getTrialResults] [::simulation::montecarlo::getExpResult]
+} -cleanup resetMC -result {b {}}
+
+test montecarlo-api-3.7 {singleExperiment, zero trials} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -analysis none -trials 0 -loop {setTrialResult a}
+    ::simulation::montecarlo::getTrialResults
+} -cleanup resetMC -result {}
+
+test montecarlo-api-3.8 {singleExperiment, option without leading minus} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment trials 1
+} -cleanup resetMC -returnCodes error -result {Incorrect option: trials - should start with a -}
+
+test montecarlo-api-3.9 {singleExperiment, missing -trials} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -analysis none -loop {setTrialResult a}
+} -cleanup resetMC -returnCodes error -match glob -result *
+
+test montecarlo-api-3.10 {singleExperiment, error in the loop is propagated} -setup resetMC -body {
+    ::simulation::montecarlo::singleExperiment -analysis none -trials 3 -loop {error boom}
+} -cleanup resetMC -returnCodes error -result boom
+
+test montecarlo-api-3.11 {singleExperiment, custom analysis procedure} -setup {
+    resetMC
+    proc ::myAnalysis {} {
+	::simulation::montecarlo::setExpResult \
+	    [llength [::simulation::montecarlo::getTrialResults]]
+    }
+} -body {
+    ::simulation::montecarlo::singleExperiment -analysis ::myAnalysis \
+	-trials 5 -loop {setTrialResult x}
+} -cleanup {
+    resetMC
+    rename ::myAnalysis {}
+} -result 5
+
+test montecarlo-api-3.12 {singleExperiment, verbose output} -constraints fileTempfile -setup resetMC -body {
+    capture {
+	::simulation::montecarlo::singleExperiment -analysis none -trials 2 \
+	    -verbose 1 -reportfile $::reportChan -columns {A B} \
+	    -init {set i 0} -loop {incr i; setTrialResult [list $i [expr {$i*1.5}]]}
+    }
+} -cleanup resetMC -result [join [list \
+	[format "%5.5s %12.12s%12.12s" " " A B] \
+	[format "%5d:%12g%12g" 0 1 1.5] \
+	[format "%5d:%12g%12g" 1 2 3.0] ""] \n]
+
+test montecarlo-api-3.13 {singleExperiment, standard analysis} -constraints fileTempfile -setup {
+    resetMC
+    expr {srand(1)}
+} -body {
+    set out [capture {
+	set r [::simulation::montecarlo::singleExperiment -trials 50 \
+		   -reportfile $::reportChan -columns {X Y} \
+		   -loop {set x [expr {rand()}]; setTrialResult [list $x [expr {2*$x+1}]]}]
+    }]
+    lassign $r stats corr
+    lassign [lindex $stats 1] meanY minY maxY
+    list [string match "Basic statistical parameters:*Correlation matrix:*" $out] \
+	[llength $stats] [llength $corr] \
+	[near [lindex $corr 0 0] 1.0 1e-9] [near [lindex $corr 0 1] 1.0 1e-9] \
+	[expr {$minY >= 1.0 && $maxY <= 3.0}] \
+	[string equal $r [::simulation::montecarlo::getExpResult]]
+} -cleanup {
+    resetMC
+    unset -nocomplain out r stats corr meanY minY maxY
+} -result {1 2 2 1 1 1 1}
+
+# -------------------------------------------------------------------------
+# integral2D
+
+proc one {x y} {return 1.0}
+proc fx {x y} {return $x}
+proc inDisk {x y} {expr {hypot($x,$y) <= 1.0}}
+
+test montecarlo-api-4.1 {integral2D, wrong # args} -body {
+    ::simulation::montecarlo::integral2D {0 1 0 1}
+} -returnCodes error -result {wrong # args: should be "::simulation::montecarlo::integral2D domain func ?arg ...?"}
+
+test montecarlo-api-4.2 {integral2D, constant function gives the area} -setup {
+    expr {srand(2)}
+} -body {
+    ::simulation::montecarlo::integral2D {0.0 2.0 1.0 4.0} one -samples 100
+} -result 6.0
+
+test montecarlo-api-4.3 {integral2D, linear function} -setup {
+    expr {srand(3)}
+} -body {
+    near [::simulation::montecarlo::integral2D {0.0 1.0 0.0 2.0} fx -samples 5000] 1.0 0.05
+} -result 1
+
+test montecarlo-api-4.4 {integral2D, option without leading minus} -body {
+    ::simulation::montecarlo::integral2D {0 1 0 1} one samples 10
+} -returnCodes error -result {Incorrect option: samples - should start with a -}
+
+# The result is multiplied by the fraction of accepted points once too often.
+test montecarlo-api-4.5 {integral2D, -region} -constraints knownBug -setup {
+    expr {srand(4)}
+} -body {
+    near [::simulation::montecarlo::integral2D {-1.0 1.0 -1.0 1.0} one \
+	      -region inDisk -samples 5000] [expr {acos(-1)}] 0.1
+} -result 1
+
+rename one {}
+rename fx {}
+rename inDisk {}
+
+# -------------------------------------------------------------------------
+
+rename near {}
+rename capture {}
+rename resetMC {}
+testsuiteCleanup
+return
