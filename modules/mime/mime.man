@@ -45,17 +45,39 @@ canonical (raw) form and is found by consulting either the
 
 [para]
 
+With [option -parts] the type must be a composite type, e.g.
+[const multipart/mixed] or [const message/rfc822], and the
+tokens are the subordinate parts, created with
+[cmd ::mime::initialize] before.
+
+[para]
+
 In addition, both the [option -param] and [option -header] options may
 occur zero or more times to specify [const Content-Type] parameters
 (e.g., [const charset]) and header keyword/values (e.g.,
 
-[const Content-Disposition]), respectively.
+[const Content-Disposition]), respectively.  Each parameter may be
+given at most once.  The headers [const Content-Type],
+[const Content-Transfer-Encoding], [const Content-MD5] and
+[const MIME-Version] cannot be given with [option -header].  A
+[const Content-ID] header is added automatically unless one is given.
+
+[para]
+
+Header values are written as given.  They must contain only ASCII
+characters; use [cmd ::mime::word_encode] to encode other text.  The
+body given with [option -string] must be a string of bytes, e.g.
+converted with [cmd {encoding convertto}] and with a matching
+[const charset] parameter.
 
 [para]
 
 Also, [option -encoding], if present, specifies the
 
-[const Content-Transfer-Encoding] when copying the body.
+[const Content-Transfer-Encoding] when copying the body: one of
+[const 7bit], [const 8bit], [const binary], [const quoted-printable]
+or [const base64].  It cannot be used with [option -parts].  If it is
+absent, a suitable encoding is chosen from the type and the content.
 
 [item]
 
@@ -76,7 +98,10 @@ If the [option -subordinates] option is present, it specifies which
 subordinates should also be destroyed. The default value is
 
 [const dynamic], destroying all subordinates which were created by
-[cmd ::mime::initialize] together with the containing body part.
+[cmd ::mime::initialize] together with the containing body part,
+i.e. when parsing a message.  The value [const all] also destroys
+the parts given with [option -parts], and [const none] destroys no
+subordinates.
 
 [call [cmd ::mime::getproperty] [arg token] [opt "[arg property] | [option -names]"]]
 
@@ -107,7 +132,8 @@ A list of "Content-Type" parameters
 [def [const parts]]
 
 A list of tokens for the part's subordinates.  This property is
-present only if the MIME part has subordinates.
+present only if the MIME part has subordinates; asking for it for a
+leaf part raises an error.
 
 [def [const size]]
 
@@ -117,32 +143,32 @@ The approximate size of the content (unencoded)
 
 [call [cmd ::mime::getheader] [arg token] [opt "[arg key] | [option -names]"]]
 
-Returns the header of a MIME part as a dictionary with possibly-redundant keys.
+Returns the header of a MIME part as a dictionary with possibly-redundant keys,
+including the [const MIME-Version], [const Content-Transfer-Encoding]
+(if any) and [const Content-Type] headers.
 
 [para]
 
 If [arg key] is provided, then a list of values of matching names, without
-regard to case, is returned.
+regard to case, is returned.  An error is raised if there is no such
+header.
 
 [para]
 
-If [option -names] is provided, a list of all keys is returned.
+If [option -names] is provided, a list of all keys is returned, except
+[const MIME-Version], [const Content-Transfer-Encoding] and
+[const Content-Type].
 
 
-[call [cmd ::mime::setheader] [arg token] [arg {key value}] [opt "[option -mode] [const write] | [const append] | [const delete]"]]
+[call [cmd ::mime::setheader] [arg token] [arg key] [arg value] [opt "[option -mode] [const write] | [const append] | [const delete]"]]
 
-If [const append] is provided, creates a new header named [arg key] with the
-value of [arg value] is added.
-
-If [const write] is provided, deletes any existing headers whose names match
-[arg key] and then creates a new header named [arg key] with the value of
-[arg value].
-
-If [const delete] is provided any existing header having a name that matches
-[arg key] is deleted.
-
-Returns a list of strings containing the previous value associated with the
-key.
+Writes, appends to, or deletes the header named [arg key] (without
+regard to case).  Returns a list of strings containing the previous
+values associated with the key.  The headers [const Content-Type],
+[const Content-Transfer-Encoding], [const Content-MD5] and
+[const MIME-Version] cannot be changed.  As with
+[cmd ::mime::initialize], the value must contain only ASCII
+characters.
 
 [para]
 
@@ -161,14 +187,17 @@ A new [arg value] is appended for the [arg key] (creating it as necessary).
 [def [const delete]]
 
 All values associated with the key are removed (the [arg value]
-parameter is ignored).
+parameter is ignored).  An error is raised if there is no such
+header.
 
 [list_end]
 
 [call [cmd ::mime::getbody] [arg token] [opt [option -decode]] [opt "[option -command] [arg callback] [opt "[option -blocksize] [arg octets]"]"]]
 
 Returns a string containing the body of the leaf MIME
-part represented by [arg token] in canonical form.
+part represented by [arg token] in canonical form, i.e. with the
+Content-Transfer-Encoding removed.  An error is raised if the part is
+not a leaf.
 
 [para]
 
@@ -219,20 +248,21 @@ specified for the token and not the usual utf-8.
 
 If the option [option -decode] is present however the command will use
 the charset information associated with the token to convert the
-string from its encoding into utf-8 before returning it.
+string from its encoding into utf-8 before returning it.  Without a
+[const charset] parameter [const US-ASCII] is assumed; an unknown
+charset raises an error.
 
 [call [cmd ::mime::copymessage] [arg token] [arg channel]]
 
-Copies the MIME represented by [arg token] part to the
-specified [arg channel]. The command operates synchronously, and uses
-fileevent to allow asynchronous operations to proceed
-independently. It returns an empty string.
+Copies the MIME part represented by [arg token], with its header,
+to the specified [arg channel].  The command operates synchronously.
 
 [call [cmd ::mime::buildmessage] [arg token]]
 
 Returns the MIME part represented by [arg token] as a
 string.  It is similar to [cmd ::mime::copymessage], only it returns
-the data as a return string instead of writing to a channel.
+the data as a return string instead of writing to a channel.  The
+lines of the result end in CRLF.
 
 [call [cmd ::mime::parseaddress] [arg string]]
 
@@ -297,14 +327,19 @@ the phrase part
 [call [cmd ::mime::parsedatetime] ([arg string] | [option -now]) [arg property]]
 
 Takes a string containing an 822-style date-time
-specification and returns the specified property as a serialized
-array.
+specification, or [option -now] for the current time, and returns the
+value of the specified property.  Numeric values have no leading
+zeros.
 
 [para]
 
 The list of properties and their ranges are:
 
 [list_begin definitions]
+
+[def [const clock]]
+
+the time in seconds since the epoch, as returned by [cmd {clock seconds}]
 
 [def [const hour]]
 
@@ -348,7 +383,7 @@ elapsed seconds between then and now
 
 [def [const wday]]
 
-0 .. 6 (Sun .. Mon)
+0 .. 6 (Sun .. Sat)
 
 [def [const weekday]]
 
@@ -377,32 +412,104 @@ were known.  The remaining encodings return "" for now.
 [call [cmd ::mime::reversemapencoding] [arg charset_type]]
 
 Maps MIME charset types onto tcl encoding names.  Those
-that are unknown return "".
+that are unknown return "".  The case of [arg charset_type] does not
+matter, and common aliases (e.g., [const latin1]) are recognized.
 
-[list_end]
+[call [cmd ::mime::uniqueID]]
 
-[section {KNOWN BUGS}]
+Returns a new globally unique identifier of the form
+[const <id@hostname>], suitable for [const Content-ID] and
+[const Message-ID] headers.
 
-[list_begin definitions]
-[def {Tcllib Bug #447037}]
+[call [cmd ::mime::word_encode] [arg charset] [arg method] [arg string] [opt "[option -charset_encoded] [arg boolean]"] [opt "[option -maxlength] [arg length]"]]
 
-This problem affects only people which are using Tcl and Mime on a
-64-bit system. The currently recommended fix for this problem is to
-upgrade to Tcl version 8.4. This version has extended 64 bit support
-and the bug does not appear anymore.
-
-[para]
-
-The problem could have been generally solved by requiring the use of
-Tcl 8.4 for this package. We decided against this solution as it would
-force a large number of unaffected users to upgrade their Tcl
-interpreter for no reason.
+Encodes [arg string] as one or more RFC 2047 encoded words, for use in
+header values with non-ASCII text (e.g., [const Subject], or the
+phrase of an address).  The [arg charset] is a Tcl encoding name that
+has a MIME charset name (see [cmd ::mime::mapencoding]), e.g.
+[const utf-8] or [const iso8859-2], and [arg method] is
+[const base64] or [const quoted-printable].
 
 [para]
 
-See [uri {/tktview?name=447037} {Ticket 447037}] for additional information.
+By default ([option -charset_encoded] true), [arg string] must already
+be converted to [arg charset] with [cmd {encoding convertto}].  With
+[option -charset_encoded] false, [arg string] is a normal Tcl string
+and is converted by the command.
+
+[para]
+
+No encoded word is longer than [arg length] characters (default
+[const 66]); a longer text is split into several encoded words,
+separated by a newline and a space, which folds the header line.
+Characters are never split between encoded words.
+
+[call [cmd ::mime::word_decode] [arg encoded]]
+
+Decodes the first RFC 2047 encoded word in [arg encoded].  Returns a
+list of three elements: the Tcl encoding name of its charset, the
+method ([const base64] or [const quoted-printable]), and the decoded
+text, still in that charset.  An error is raised if there is no
+encoded word or its charset is unknown.
+
+[call [cmd ::mime::field_decode] [arg field]]
+
+Decodes all RFC 2047 encoded words in the header value [arg field],
+converts them from their charsets, and returns the resulting
+string.  White space between two encoded words is removed, the other
+text is kept.
 
 [list_end]
+
+[section EXAMPLES]
+
+A message with a text part and an attachment, and a non-ASCII
+[const Subject]:
+
+[example {
+package require mime
+
+set text [mime::initialize -canonical text/plain \
+    -param {charset UTF-8} -encoding quoted-printable \
+    -string [encoding convertto utf-8 "Привіт!\nThe report is attached.\n"]]
+set file [mime::initialize -canonical application/pdf \
+    -param {name report.pdf} \
+    -header {Content-Disposition {attachment; filename="report.pdf"}} \
+    -file report.pdf]
+set msg [mime::initialize -canonical multipart/mixed \
+    -parts [list $text $file]]
+
+mime::setheader $msg Subject \
+    [mime::word_encode utf-8 quoted-printable "Звіт за листопад" \
+        -charset_encoded 0]
+mime::setheader $msg From "Taras <taras@example.com>"
+mime::setheader $msg To "olena@example.com"
+
+set message [mime::buildmessage $msg]
+mime::finalize $msg -subordinates all
+}]
+
+[para]
+
+The attachment's name is set with the [const filename] parameter of
+the [const Content-Disposition] header (and, for older mail readers,
+the [const name] parameter of the [const Content-Type]).  The message
+can be sent with [cmd smtp::sendmessage] instead of being built as a
+string.
+
+[para]
+
+Parsing the message again:
+
+[example {
+set tok [mime::initialize -string $message]
+puts [mime::field_decode [lindex [mime::getheader $tok Subject] 0]]
+foreach part [mime::getproperty $tok parts] {
+    puts [mime::getproperty $part content]
+}
+set text [mime::getbody [lindex [mime::getproperty $tok parts] 0] -decode]
+mime::finalize $tok
+}]
 
 [vset CATEGORY mime]
 [include ../common-text/feedback.inc]
