@@ -1,0 +1,446 @@
+# -*- tcl -*-
+# rationalfunctions-api.test --
+#    Tests for the documented API of the math::rationalfunctions package
+#    (there were no tests for this package before).
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl        math
+    useLocal polynomials.tcl math::polynomials
+}
+testing {
+    useLocal rational_funcs.tcl math::rationalfunctions
+}
+
+# -------------------------------------------------------------------------
+
+# Element-wise comparison of lists of numbers with a relative tolerance
+proc matchNumbers {expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+	return 0
+    }
+    foreach a $actual e $expected {
+	if {![string is double -strict $a]} {
+	    return 0
+	}
+	if {abs($a-$e) > 1.0e-9 * max(1.0, abs($e))} {
+	    return 0
+	}
+    }
+    return 1
+}
+customMatch numbers matchNumbers
+
+namespace eval ::rftest {
+    namespace import ::math::rationalfunctions::rationalFunction \
+	::math::rationalfunctions::ratioCmd \
+	::math::rationalfunctions::evalRatio \
+	::math::rationalfunctions::addRatio \
+	::math::rationalfunctions::subRatio \
+	::math::rationalfunctions::multRatio \
+	::math::rationalfunctions::divRatio \
+	::math::rationalfunctions::derivRatio \
+	::math::rationalfunctions::coeffsNumerator \
+	::math::rationalfunctions::coeffsDenominator
+}
+
+# Evaluate a rational function at a list of points
+proc ::rftest::evalAt {f xs} {
+    set result {}
+    foreach x $xs {
+	lappend result [evalRatio $f $x]
+    }
+    return $result
+}
+
+# f1(x) = (1 + 2x + 3x^2) / (1 + 4x)
+# f2(x) = (5 + 7x) / 1
+set ::rftest::xs {0 0.5 1 2 3 -2}
+proc ::rftest::f1 {x} {expr {(1.0 + 2.0*$x + 3.0*$x*$x) / (1.0 + 4.0*$x)}}
+proc ::rftest::f2 {x} {expr {5.0 + 7.0*$x}}
+proc ::rftest::ref {script} {
+    variable xs
+    set result {}
+    foreach x $xs {
+	lappend result [eval $script [list $x]]
+    }
+    return $result
+}
+
+# -------------------------------------------------------------------------
+# rationalFunction
+# -------------------------------------------------------------------------
+
+test rationalfunctions-1.1 "rationalFunction: example from the manual" -body {
+    ::math::rationalfunctions::rationalFunction {1 0 0 1} {1 2 1}
+} -result {RATIONAL_FUNCTION {POLYNOMIAL {1 0 0 1}} {POLYNOMIAL {1 2 1}}}
+
+test rationalfunctions-1.2 "rationalFunction: coefficients round trip" -body {
+    set f [::math::rationalfunctions::rationalFunction {1 2 3} {1 4}]
+    list [::math::rationalfunctions::coeffsNumerator $f] \
+	[::math::rationalfunctions::coeffsDenominator $f]
+} -cleanup {
+    unset -nocomplain f
+} -result {{1 2 3} {1 4}}
+
+test rationalfunctions-1.3 "rationalFunction: trailing zero coefficients are dropped" -body {
+    set f [::math::rationalfunctions::rationalFunction {1 2 0 0} {4 0}]
+    list [::math::rationalfunctions::coeffsNumerator $f] \
+	[::math::rationalfunctions::coeffsDenominator $f]
+} -cleanup {
+    unset -nocomplain f
+} -result {{1 2} 4}
+
+test rationalfunctions-1.4 "rationalFunction: real (non-integer) coefficients" -body {
+    set f [::math::rationalfunctions::rationalFunction {0.5 -1.5e1} {2.25}]
+    list [::math::rationalfunctions::coeffsNumerator $f] \
+	[::math::rationalfunctions::coeffsDenominator $f]
+} -cleanup {
+    unset -nocomplain f
+} -result {{0.5 -1.5e1} 2.25}
+
+test rationalfunctions-1.5 "rationalFunction: non-numeric numerator coefficient" -body {
+    ::math::rationalfunctions::rationalFunction {1 a} {1}
+} -returnCodes error -result {Coefficients must be real numbers}
+
+test rationalfunctions-1.6 "rationalFunction: non-numeric denominator coefficient" -body {
+    ::math::rationalfunctions::rationalFunction {1 2} {1 {}}
+} -returnCodes error -result {Coefficients must be real numbers}
+
+test rationalfunctions-1.7 "rationalFunction: wrong # args (too few)" -body {
+    ::math::rationalfunctions::rationalFunction {1 2}
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::rationalFunction num den"}
+
+test rationalfunctions-1.8 "rationalFunction: wrong # args (too many)" -body {
+    ::math::rationalfunctions::rationalFunction {1 2} 1 1
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::rationalFunction num den"}
+
+# -------------------------------------------------------------------------
+# evalRatio
+# -------------------------------------------------------------------------
+
+test rationalfunctions-2.1 "evalRatio: compare with direct evaluation" -match numbers -body {
+    ::rftest::evalAt [::rftest::rationalFunction {1 2 3} {1 4}] $::rftest::xs
+} -result [::rftest::ref ::rftest::f1]
+
+test rationalfunctions-2.2 "evalRatio: example from the manual" -match numbers -body {
+    ::rftest::evalAt [::rftest::rationalFunction {1 0 0 1} {1 2 1}] {0 1 2}
+} -result [list 1.0 0.5 1.0]
+
+test rationalfunctions-2.3 "evalRatio: constant function" -match numbers -body {
+    ::rftest::evalAt [::rftest::rationalFunction {3} {2}] {-1 0 10}
+} -result {1.5 1.5 1.5}
+
+test rationalfunctions-2.4 "evalRatio: result is a floating-point number" -body {
+    string is double -strict \
+	[::math::rationalfunctions::evalRatio [::rftest::rationalFunction {1} {3}] 1]
+} -result 1
+
+test rationalfunctions-2.5 "evalRatio: not a rational function" -body {
+    ::math::rationalfunctions::evalRatio {POLYNOMIAL {1 2}} 1
+} -returnCodes error -result {Not a rational function}
+
+test rationalfunctions-2.6 "evalRatio: coordinate is not a number" -body {
+    ::math::rationalfunctions::evalRatio [::rftest::rationalFunction {1} {1}] abc
+} -returnCodes error -result {Coordinate must be a real number}
+
+test rationalfunctions-2.7 "evalRatio: wrong # args" -body {
+    ::math::rationalfunctions::evalRatio [::rftest::rationalFunction {1} {1}]
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::evalRatio ratio x"}
+
+# -------------------------------------------------------------------------
+# ratioCmd
+# -------------------------------------------------------------------------
+
+test rationalfunctions-3.1 "ratioCmd: creates a new command" -body {
+    set cmd [::math::rationalfunctions::ratioCmd {1 2 3} {1 4}]
+    llength [info commands $cmd]
+} -cleanup {
+    rename $cmd {}
+    unset -nocomplain cmd
+} -result 1
+
+test rationalfunctions-3.2 "ratioCmd: distinct names for each call" -body {
+    set cmd1 [::math::rationalfunctions::ratioCmd {1 2} {1 2}]
+    set cmd2 [::math::rationalfunctions::ratioCmd {1 2} {1 2}]
+    expr {$cmd1 ne $cmd2}
+} -cleanup {
+    rename $cmd1 {}
+    rename $cmd2 {}
+    unset -nocomplain cmd1 cmd2
+} -result 1
+
+# The degree of the denominator is computed from the numerator, so the
+# generated expression has balanced parentheses only if the denominator
+# has exactly one coefficient less than the numerator.
+test rationalfunctions-3.3 "ratioCmd: same degree in numerator and denominator" -constraints knownBug -match numbers -body {
+    set cmd [::math::rationalfunctions::ratioCmd {1 2} {3 4}]
+    list [$cmd 0] [$cmd 1] [$cmd 2]
+} -cleanup {
+    rename $cmd {}
+    unset -nocomplain cmd
+} -result [list [expr {1/3.0}] [expr {3/7.0}] [expr {5/11.0}]]
+
+test rationalfunctions-3.4 "ratioCmd: denominator of degree one lower" -match numbers -body {
+    set cmd [::math::rationalfunctions::ratioCmd {1 2 3} {1 4}]
+    set result {}
+    foreach x $::rftest::xs {
+	lappend result [$cmd $x]
+    }
+    set result
+} -cleanup {
+    rename $cmd {}
+    unset -nocomplain cmd result x
+} -result [::rftest::ref ::rftest::f1]
+
+test rationalfunctions-3.5 "ratioCmd: denominator of higher degree" -constraints knownBug -match numbers -body {
+    set cmd [::math::rationalfunctions::ratioCmd {1 0 0 1} {1 2 1 0 0}]
+    list [$cmd 0] [$cmd 1] [$cmd 2]
+} -cleanup {
+    rename $cmd {}
+    unset -nocomplain cmd
+} -result {1.0 0.5 1.0}
+
+test rationalfunctions-3.6 "ratioCmd: numerator and denominator of degree 2" -constraints knownBug -match numbers -body {
+    set cmd [::math::rationalfunctions::ratioCmd {1 2 3} {1 4 5}]
+    $cmd 1
+} -cleanup {
+    rename $cmd {}
+    unset -nocomplain cmd
+} -result 0.6
+
+test rationalfunctions-3.7 "ratioCmd: wrong # args of the generated command" -body {
+    set cmd [::math::rationalfunctions::ratioCmd {1 2} {1 2}]
+    list [catch {$cmd} msg] [string match {wrong # args: should be "*RATIO* x"} $msg]
+} -cleanup {
+    rename $cmd {}
+    unset -nocomplain cmd msg
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# coeffsNumerator, coeffsDenominator
+# -------------------------------------------------------------------------
+
+test rationalfunctions-4.1 "coeffsNumerator: not a rational function" -body {
+    ::math::rationalfunctions::coeffsNumerator {POLYNOMIAL {1 2}}
+} -returnCodes error -result {Not a rational function}
+
+test rationalfunctions-4.2 "coeffsDenominator: not a rational function" -body {
+    ::math::rationalfunctions::coeffsDenominator {1 2 3}
+} -returnCodes error -result {Not a rational function}
+
+test rationalfunctions-4.3 "coeffsNumerator: wrong # args" -body {
+    ::math::rationalfunctions::coeffsNumerator
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::coeffsNumerator ratio"}
+
+test rationalfunctions-4.4 "coeffsDenominator: wrong # args" -body {
+    ::math::rationalfunctions::coeffsDenominator a b
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::coeffsDenominator ratio"}
+
+# -------------------------------------------------------------------------
+# addRatio, subRatio, multRatio, divRatio
+# -------------------------------------------------------------------------
+
+test rationalfunctions-5.1 "addRatio: sum of two rational functions" -match numbers -body {
+    set f [::rftest::addRatio [::rftest::rationalFunction {1 2 3} {1 4}] \
+	       [::rftest::rationalFunction {5 7} {1}]]
+    ::rftest::evalAt $f $::rftest::xs
+} -cleanup {
+    unset -nocomplain f
+} -result [::rftest::ref {apply {x {expr {[::rftest::f1 $x] + [::rftest::f2 $x]}}}}]
+
+test rationalfunctions-5.2 "addRatio: coefficients of the result" -match numbers -body {
+    set f [::rftest::addRatio [::rftest::rationalFunction {1} {1 1}] \
+	       [::rftest::rationalFunction {1} {1 -1}]]
+    concat [::rftest::coeffsNumerator $f] [::rftest::coeffsDenominator $f]
+} -cleanup {
+    unset -nocomplain f
+} -result {2 1 0 -1}
+
+test rationalfunctions-5.3 "addRatio: not a rational function" -body {
+    ::math::rationalfunctions::addRatio [::rftest::rationalFunction {1} {1}] {a b}
+} -returnCodes error -result {Both arguments must be rational functions or a real number}
+
+test rationalfunctions-5.4 "addRatio: wrong # args" -body {
+    ::math::rationalfunctions::addRatio [::rftest::rationalFunction {1} {1}]
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::addRatio ratio1 ratio2"}
+
+test rationalfunctions-6.1 "subRatio: difference of two rational functions" -match numbers -body {
+    set f [::rftest::subRatio [::rftest::rationalFunction {1 2 3} {1 4}] \
+	       [::rftest::rationalFunction {5 7} {1}]]
+    ::rftest::evalAt $f $::rftest::xs
+} -cleanup {
+    unset -nocomplain f
+} -result [::rftest::ref {apply {x {expr {[::rftest::f1 $x] - [::rftest::f2 $x]}}}}]
+
+test rationalfunctions-6.2 "subRatio: difference with itself is zero" -match numbers -body {
+    set f1 [::rftest::rationalFunction {1 2 3} {1 4}]
+    ::rftest::evalAt [::rftest::subRatio $f1 $f1] $::rftest::xs
+} -cleanup {
+    unset -nocomplain f1
+} -result {0 0 0 0 0 0}
+
+test rationalfunctions-6.3 "subRatio: not a rational function" -body {
+    ::math::rationalfunctions::subRatio {POLYNOMIAL 1} [::rftest::rationalFunction {1} {1}]
+} -returnCodes error -result {Both arguments must be rational functions or a real number}
+
+test rationalfunctions-6.4 "subRatio: wrong # args" -body {
+    ::math::rationalfunctions::subRatio
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::subRatio ratio1 ratio2"}
+
+test rationalfunctions-7.1 "multRatio: product of two rational functions" -match numbers -body {
+    set f [::rftest::multRatio [::rftest::rationalFunction {1 2 3} {1 4}] \
+	       [::rftest::rationalFunction {5 7} {1}]]
+    ::rftest::evalAt $f $::rftest::xs
+} -cleanup {
+    unset -nocomplain f
+} -result [::rftest::ref {apply {x {expr {[::rftest::f1 $x] * [::rftest::f2 $x]}}}}]
+
+test rationalfunctions-7.2 "multRatio: coefficients of the result" -match numbers -body {
+    set f [::rftest::multRatio [::rftest::rationalFunction {1 1} {1 -1}] \
+	       [::rftest::rationalFunction {1 -1} {2}]]
+    concat [::rftest::coeffsNumerator $f] [::rftest::coeffsDenominator $f]
+} -cleanup {
+    unset -nocomplain f
+} -result {1 0 -1 2 -2}
+
+# The manual: "If one of the arguments is a scalar value, the other
+# rational function is simply scaled."
+test rationalfunctions-7.3 "multRatio: scale by a scalar (second argument)" -constraints knownBug -match numbers -body {
+    set f [::rftest::multRatio [::rftest::rationalFunction {1 2 3} {1 4}] 2]
+    ::rftest::evalAt $f $::rftest::xs
+} -cleanup {
+    unset -nocomplain f
+} -result [::rftest::ref {apply {x {expr {2.0 * [::rftest::f1 $x]}}}}]
+
+test rationalfunctions-7.4 "multRatio: scale by a scalar (first argument)" -constraints knownBug -match numbers -body {
+    set f [::rftest::multRatio 2 [::rftest::rationalFunction {1 2 3} {1 4}]]
+    ::rftest::evalAt $f $::rftest::xs
+} -cleanup {
+    unset -nocomplain f
+} -result [::rftest::ref {apply {x {expr {2.0 * [::rftest::f1 $x]}}}}]
+
+test rationalfunctions-7.5 "multRatio: not a rational function" -body {
+    ::math::rationalfunctions::multRatio [::rftest::rationalFunction {1} {1}] {x y}
+} -returnCodes error -result {Both arguments must be rational functions or a real number}
+
+test rationalfunctions-7.6 "multRatio: wrong # args" -body {
+    ::math::rationalfunctions::multRatio 1 2 3
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::multRatio ratio1 ratio2"}
+
+test rationalfunctions-8.1 "divRatio: quotient of two rational functions" -match numbers -body {
+    set f [::rftest::divRatio [::rftest::rationalFunction {1 2 3} {1 4}] \
+	       [::rftest::rationalFunction {5 7} {1}]]
+    ::rftest::evalAt $f $::rftest::xs
+} -cleanup {
+    unset -nocomplain f
+} -result [::rftest::ref {apply {x {expr {[::rftest::f1 $x] / [::rftest::f2 $x]}}}}]
+
+test rationalfunctions-8.2 "divRatio: quotient with itself is one" -match numbers -body {
+    set f1 [::rftest::rationalFunction {1 2 3} {1 4}]
+    ::rftest::evalAt [::rftest::divRatio $f1 $f1] $::rftest::xs
+} -cleanup {
+    unset -nocomplain f1
+} -result {1 1 1 1 1 1}
+
+test rationalfunctions-8.3 "divRatio: coefficients of the result" -match numbers -body {
+    set f [::rftest::divRatio [::rftest::rationalFunction {1 2 1} {1}] \
+	       [::rftest::rationalFunction {1 1} {2}]]
+    concat [::rftest::coeffsNumerator $f] [::rftest::coeffsDenominator $f]
+} -cleanup {
+    unset -nocomplain f
+} -result {2 4 2 1 1}
+
+test rationalfunctions-8.4 "divRatio: not a rational function" -body {
+    ::math::rationalfunctions::divRatio {} [::rftest::rationalFunction {1} {1}]
+} -returnCodes error -result {Both arguments must be rational functions or a real number}
+
+test rationalfunctions-8.5 "divRatio: wrong # args" -body {
+    ::math::rationalfunctions::divRatio 1
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::divRatio ratio1 ratio2"}
+
+# -------------------------------------------------------------------------
+# Derivative
+# The manual documents the command as derivPolyn, the implementation
+# (and the namespace export list) uses derivRatio. derivPolyn in this
+# namespace is the polynomial command imported from math::polynomials.
+# -------------------------------------------------------------------------
+
+test rationalfunctions-9.1 "derivRatio: derivative of a rational function" -match numbers -body {
+    set f [::rftest::derivRatio [::rftest::rationalFunction {1 2 3} {1 4}]]
+    ::rftest::evalAt $f $::rftest::xs
+} -cleanup {
+    unset -nocomplain f
+} -result [::rftest::ref {apply {x {
+    expr {((2.0 + 6.0*$x)*(1.0 + 4.0*$x) - 4.0*(1.0 + 2.0*$x + 3.0*$x*$x))
+	  / ((1.0 + 4.0*$x)**2)}}}}]
+
+test rationalfunctions-9.2 "derivRatio: coefficients of the derivative" -match numbers -body {
+    set f [::rftest::derivRatio [::rftest::rationalFunction {1 2 3} {1 4}]]
+    concat [::rftest::coeffsNumerator $f] [::rftest::coeffsDenominator $f]
+} -cleanup {
+    unset -nocomplain f
+} -result {-2 6 12 1 8 16}
+
+test rationalfunctions-9.3 "derivRatio: derivative of a constant is zero" -match numbers -body {
+    set f [::rftest::derivRatio [::rftest::rationalFunction {3} {2}]]
+    ::rftest::evalAt $f {0 1 2}
+} -cleanup {
+    unset -nocomplain f
+} -result {0 0 0}
+
+test rationalfunctions-9.4 "derivRatio: not a rational function" -body {
+    ::math::rationalfunctions::derivRatio {POLYNOMIAL {1 2}}
+} -returnCodes error -result {Not a rational function}
+
+test rationalfunctions-9.5 "derivRatio: wrong # args" -body {
+    ::math::rationalfunctions::derivRatio
+} -returnCodes error -result {wrong # args: should be "::math::rationalfunctions::derivRatio ratio"}
+
+test rationalfunctions-9.6 "derivPolyn: documented name of the derivative command" -constraints knownBug -match numbers -body {
+    set f [::math::rationalfunctions::derivPolyn \
+	       [::rftest::rationalFunction {1 2 3} {1 4}]]
+    ::rftest::evalAt $f {0 1}
+} -cleanup {
+    unset -nocomplain f
+} -result {-2.0 0.64}
+
+# -------------------------------------------------------------------------
+# Combinations
+# -------------------------------------------------------------------------
+
+test rationalfunctions-10.1 "Combination: (f+g)-g equals f" -match numbers -body {
+    set f [::rftest::rationalFunction {1 2 3} {1 4}]
+    set g [::rftest::rationalFunction {1 -1} {2 0 1}]
+    ::rftest::evalAt [::rftest::subRatio [::rftest::addRatio $f $g] $g] $::rftest::xs
+} -cleanup {
+    unset -nocomplain f g
+} -result [::rftest::ref ::rftest::f1]
+
+test rationalfunctions-10.2 "Combination: (f*g)/g equals f" -match numbers -body {
+    set f [::rftest::rationalFunction {1 2 3} {1 4}]
+    set g [::rftest::rationalFunction {1 -1} {2 0 1}]
+    # avoid the zero of g at x = 1
+    ::rftest::evalAt [::rftest::divRatio [::rftest::multRatio $f $g] $g] {0 0.5 2 3 -2}
+} -cleanup {
+    unset -nocomplain f g
+} -result [lreplace [::rftest::ref ::rftest::f1] 2 2]
+
+# -------------------------------------------------------------------------
+
+namespace delete ::rftest
+rename matchNumbers {}
+
+# End of test cases
+testsuiteCleanup

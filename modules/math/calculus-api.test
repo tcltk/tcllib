@@ -1,0 +1,326 @@
+# -*- tcl -*-
+# calculus-api.test --
+#    Additional tests for the documented API of math::calculus:
+#    newtonRaphsonParameters, the single-step ODE integrators,
+#    boundaryValueSecondOrder, solveTriDiagonal, integral/integralExpr
+#    and qk15 edge cases.
+#    (The rest of the API is tested in calculus.test.)
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use      textutil/wcswidth.tcl textutil::wcswidth
+    use      struct/matrix.tcl     struct::matrix
+    useLocal math.tcl              math
+    useLocal interpolate.tcl       math::interpolate
+}
+testing {
+    useLocal calculus.tcl math::calculus
+}
+
+# -------------------------------------------------------------------------
+# Tolerant comparison of (lists of) numbers
+
+proc ::matchTol {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach a $actual e $expected {
+        if {![string is double -strict $a]} {
+            return 0
+        }
+        set scale [expr {abs($e) > 1.0 ? abs($e) : 1.0}]
+        if {abs($a-$e) > $tol*$scale} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch approx9 {::matchTol 1.0e-9}
+customMatch approx6 {::matchTol 1.0e-6}
+
+namespace eval ::calcapi {
+    # Test functions
+    proc cube {x} {expr {$x*$x*$x}}
+    proc fsq  {x} {expr {$x*$x-1.0}}
+    proc dsq  {x} {expr {2.0*$x}}
+
+    # ODE right-hand sides: x' = f(t, x)
+    proc constant   {t xvec} {return 1.0}
+    proc linearT    {t xvec} {list $t}
+    proc growth     {t xvec} {list [lindex $xvec 0]}
+    proc oscillator {t xvec} {
+	lassign $xvec x v
+	list $v [expr {-$v-$x}]
+    }
+
+    # Boundary value problems: A=1, B=0, C=0 (i.e. y'' = D)
+    proc coeffs {x} {return {1.0 0.0 0.0}}
+    proc zero   {x} {return 0.0}
+}
+
+# -------------------------------------------------------------------------
+# newtonRaphsonParameters
+
+test calculus-api-1.1 {newtonRaphsonParameters - maxiter limits the number of steps} -body {
+    math::calculus::newtonRaphsonParameters 1 0.001
+    set r1 [math::calculus::newtonRaphson ::calcapi::fsq ::calcapi::dsq 2.0]
+    math::calculus::newtonRaphsonParameters 2 0.001
+    set r2 [math::calculus::newtonRaphson ::calcapi::fsq ::calcapi::dsq 2.0]
+    list $r1 $r2
+} -cleanup {
+    math::calculus::newtonRaphsonParameters 20 0.001
+    unset -nocomplain r1 r2
+} -match approx9 -result {1.25 1.025}
+
+test calculus-api-1.2 {newtonRaphsonParameters - tolerance controls the accuracy} -body {
+    math::calculus::newtonRaphsonParameters 100 0.1
+    set r1 [math::calculus::newtonRaphson ::calcapi::fsq ::calcapi::dsq 2.0]
+    math::calculus::newtonRaphsonParameters 100 1.0e-14
+    set r2 [math::calculus::newtonRaphson ::calcapi::fsq ::calcapi::dsq 2.0]
+    list [expr {abs($r1-1.0) > 1.0e-6}] [expr {abs($r2-1.0) < 1.0e-14}]
+} -cleanup {
+    math::calculus::newtonRaphsonParameters 20 0.001
+    unset -nocomplain r1 r2
+} -result {1 1}
+
+test calculus-api-1.3 {newtonRaphsonParameters - non-positive values are ignored} -body {
+    math::calculus::newtonRaphsonParameters 1 0.001
+    math::calculus::newtonRaphsonParameters 0 0
+    math::calculus::newtonRaphsonParameters -5 -1.0
+    math::calculus::newtonRaphson ::calcapi::fsq ::calcapi::dsq 2.0
+} -cleanup {
+    math::calculus::newtonRaphsonParameters 20 0.001
+} -match approx9 -result 1.25
+
+test calculus-api-1.4 {newtonRaphsonParameters - wrong # args} -body {
+    math::calculus::newtonRaphsonParameters 10
+} -returnCodes error -result {wrong # args: should be "math::calculus::newtonRaphsonParameters maxiter tolerance"}
+
+test calculus-api-1.5 {newtonRaphson - function resolved in the caller's namespace} -body {
+    namespace eval ::calcapi {
+	math::calculus::newtonRaphson fsq dsq -3.0
+    }
+} -match approx6 -result -1.0
+
+test calculus-api-1.6 {newtonRaphson - wrong # args} -body {
+    math::calculus::newtonRaphson ::calcapi::fsq ::calcapi::dsq
+} -returnCodes error -result {wrong # args: should be "math::calculus::newtonRaphson func deriv initval"}
+
+# -------------------------------------------------------------------------
+# Single-step integrators for ODEs
+
+test calculus-api-2.1 {eulerStep - constant derivative} -match approx9 -body {
+    math::calculus::eulerStep 0.0 0.5 2.0 ::calcapi::constant
+} -result 2.5
+
+test calculus-api-2.2 {eulerStep - system of two equations} -match approx9 -body {
+    math::calculus::eulerStep 0.0 0.1 {1.0 0.0} ::calcapi::oscillator
+} -result {1.0 -0.1}
+
+test calculus-api-2.3 {eulerStep - derivative depending on t is evaluated at the start} -match approx9 -body {
+    math::calculus::eulerStep 1.0 0.5 0.0 ::calcapi::linearT
+} -result 0.5
+
+test calculus-api-2.4 {heunStep - system of two equations} -match approx9 -body {
+    math::calculus::heunStep 0.0 0.1 {1.0 0.0} ::calcapi::oscillator
+} -result {0.995 -0.095}
+
+test calculus-api-2.5 {heunStep - exact for x' = t} -match approx9 -body {
+    math::calculus::heunStep 0.0 1.0 0.0 ::calcapi::linearT
+} -result 0.5
+
+test calculus-api-2.6 {heunStep - x' = x, second-order Taylor polynomial} -match approx9 -body {
+    math::calculus::heunStep 0.0 0.1 1.0 ::calcapi::growth
+} -result 1.105
+
+test calculus-api-2.7 {rungeKuttaStep - x' = x, fourth-order Taylor polynomial} -match approx9 -body {
+    math::calculus::rungeKuttaStep 0.0 0.1 1.0 ::calcapi::growth
+} -result [expr {1.0 + 0.1 + 0.01/2.0 + 0.001/6.0 + 0.0001/24.0}]
+
+test calculus-api-2.8 {rungeKuttaStep - exact for x' = t} -match approx9 -body {
+    math::calculus::rungeKuttaStep 2.0 1.0 0.0 ::calcapi::linearT
+} -result 2.5
+
+test calculus-api-2.9 {rungeKuttaStep - system of two equations, accuracy} -match approx6 -body {
+    # Damped oscillator x'' + x' + x = 0, x(0)=1, x'(0)=0
+    set xvec {1.0 0.0}
+    set t    0.0
+    for {set i 0} {$i < 10} {incr i} {
+	set xvec [math::calculus::rungeKuttaStep $t 0.1 $xvec ::calcapi::oscillator]
+	set t [expr {$t+0.1}]
+    }
+    set w [expr {sqrt(0.75)}]
+    expr {[lindex $xvec 0] - exp(-0.5)*(cos($w)+0.5/$w*sin($w))}
+} -cleanup {
+    unset -nocomplain xvec t i w
+} -result 0.0
+
+test calculus-api-2.10 {ODE steps - function resolved in the caller's namespace} -match approx9 -body {
+    namespace eval ::calcapi {
+	list [math::calculus::eulerStep 0.0 1.0 0.0 linearT] \
+	    [math::calculus::heunStep 0.0 1.0 0.0 linearT] \
+	    [math::calculus::rungeKuttaStep 0.0 1.0 0.0 linearT]
+    }
+} -result {0.0 0.5 0.5}
+
+test calculus-api-2.11 {eulerStep - wrong # args} -body {
+    math::calculus::eulerStep 0.0 1.0 0.0
+} -returnCodes error -result {wrong # args: should be "math::calculus::eulerStep t tstep xvec func"}
+
+test calculus-api-2.12 {heunStep - wrong # args} -body {
+    math::calculus::heunStep 0.0 1.0 0.0
+} -returnCodes error -result {wrong # args: should be "math::calculus::heunStep t tstep xvec func"}
+
+test calculus-api-2.13 {rungeKuttaStep - wrong # args} -body {
+    math::calculus::rungeKuttaStep 0.0 1.0 0.0
+} -returnCodes error -result {wrong # args: should be "math::calculus::rungeKuttaStep t tstep xvec func"}
+
+# -------------------------------------------------------------------------
+# boundaryValueSecondOrder
+
+test calculus-api-3.1 {boundaryValueSecondOrder - result is a list of x,y pairs} -body {
+    set result [math::calculus::boundaryValueSecondOrder \
+		    ::calcapi::coeffs ::calcapi::zero {0.0 1.0} {100.0 0.0} 10]
+    set xs {}
+    foreach {x y} $result {
+	lappend xs $x
+    }
+    concat [llength $result] $xs
+} -cleanup {
+    unset -nocomplain result xs x y
+} -match approx9 -result {20 5.0 15.0 25.0 35.0 45.0 55.0 65.0 75.0 85.0 95.0}
+
+test calculus-api-3.2 {boundaryValueSecondOrder - y'' = 0 converges to a straight line} -body {
+    set result [math::calculus::boundaryValueSecondOrder \
+		    ::calcapi::coeffs ::calcapi::zero {0.0 1.0} {100.0 0.0} 1000]
+    set maxerr 0.0
+    foreach {x y} $result {
+	set err [expr {abs($y - (1.0-$x/100.0))}]
+	if {$err > $maxerr} {
+	    set maxerr $err
+	}
+    }
+    expr {$maxerr < 1.0e-3}
+} -cleanup {
+    unset -nocomplain result maxerr x y err
+} -result 1
+
+test calculus-api-3.3 {boundaryValueSecondOrder - y'' = 0 is solved exactly} -constraints knownBug -body {
+    set result [math::calculus::boundaryValueSecondOrder \
+		    ::calcapi::coeffs ::calcapi::zero {0.0 1.0} {100.0 0.0} 10]
+    set ys {}
+    foreach {x y} $result {
+	lappend ys $y
+    }
+    set ys
+} -cleanup {
+    unset -nocomplain result ys x y
+} -match approx6 -result {0.95 0.85 0.75 0.65 0.55 0.45 0.35 0.25 0.15 0.05}
+
+test calculus-api-3.4 {boundaryValueSecondOrder - bad boundary condition} -body {
+    math::calculus::boundaryValueSecondOrder \
+	::calcapi::coeffs ::calcapi::zero {0.0} {1.0 0.0} 4
+} -returnCodes error -result {Boundary condition(s) incorrect}
+
+test calculus-api-3.5 {boundaryValueSecondOrder - bad boundary condition (right)} -body {
+    math::calculus::boundaryValueSecondOrder \
+	::calcapi::coeffs ::calcapi::zero {0.0 1.0} {1.0 0.0 2.0} 4
+} -returnCodes error -result {Boundary condition(s) incorrect}
+
+test calculus-api-3.6 {boundaryValueSecondOrder - number of steps} -body {
+    math::calculus::boundaryValueSecondOrder \
+	::calcapi::coeffs ::calcapi::zero {0.0 1.0} {1.0 0.0} 0
+} -returnCodes error -result {Number of steps must be larger/equal 1}
+
+test calculus-api-3.7 {boundaryValueSecondOrder - wrong # args} -body {
+    math::calculus::boundaryValueSecondOrder ::calcapi::coeffs ::calcapi::zero {0.0 1.0} {1.0 0.0}
+} -returnCodes error -result {wrong # args: should be "math::calculus::boundaryValueSecondOrder coeff_func force_func leftbnd rightbnd nostep"}
+
+# -------------------------------------------------------------------------
+# solveTriDiagonal
+
+test calculus-api-4.1 {solveTriDiagonal - 1x1 system} -match approx9 -body {
+    math::calculus::solveTriDiagonal {} {2.0} {} {4.0}
+} -result 2.0
+
+test calculus-api-4.2 {solveTriDiagonal - 3x3 system} -match approx9 -body {
+    # | 2 1 0 | |1|   | 4 |
+    # | 1 2 1 | |2| = | 8 |
+    # | 0 1 2 | |3|   | 8 |
+    math::calculus::solveTriDiagonal {1.0 1.0} {2.0 2.0 2.0} {1.0 1.0} {4.0 8.0 8.0}
+} -result {1.0 2.0 3.0}
+
+test calculus-api-4.3 {solveTriDiagonal - non-symmetric system} -match approx9 -body {
+    # | 4 1 0 0 | |1|   |  6 |
+    # | 2 4 1 0 | |2| = | 11 |
+    # | 0 3 4 1 | |1|   | 12 |
+    # | 0 0 1 4 | |2|   |  9 |
+    math::calculus::solveTriDiagonal {2.0 3.0 1.0} {4.0 4.0 4.0 4.0} {1.0 1.0 1.0} {6.0 11.0 12.0 9.0}
+} -result {1.0 2.0 1.0 2.0}
+
+test calculus-api-4.4 {solveTriDiagonal - wrong # args} -body {
+    math::calculus::solveTriDiagonal {} {2.0} {}
+} -returnCodes error -result {wrong # args: should be "math::calculus::solveTriDiagonal acoeff bcoeff ccoeff dvalue"}
+
+# -------------------------------------------------------------------------
+# integral, integralExpr, qk15
+
+test calculus-api-5.1 {integral - Simpson's rule is exact for cubics} -match approx9 -body {
+    math::calculus::integral 0.0 2.0 1 ::calcapi::cube
+} -result 4.0
+
+test calculus-api-5.2 {integral - reversed interval changes the sign} -match approx9 -body {
+    math::calculus::integral 2.0 0.0 3 ::calcapi::cube
+} -result -4.0
+
+test calculus-api-5.3 {integral - integer limits} -match approx9 -body {
+    math::calculus::integral 0 2 2 ::calcapi::cube
+} -result 4.0
+
+test calculus-api-5.4 {integral - wrong # args} -body {
+    math::calculus::integral 0.0 1.0 10
+} -returnCodes error -result {wrong # args: should be "math::calculus::integral begin end nosteps func"}
+
+test calculus-api-5.5 {integralExpr - expression in x} -match approx6 -body {
+    math::calculus::integralExpr 0.0 1.0 20 {exp($x)}
+} -result [expr {exp(1.0)-1.0}]
+
+test calculus-api-5.6 {integralExpr - exact for cubics} -match approx9 -body {
+    math::calculus::integralExpr -1.0 1.0 1 {$x*$x*$x + $x*$x}
+} -result [expr {2.0/3.0}]
+
+test calculus-api-5.7 {integralExpr - wrong # args} -body {
+    math::calculus::integralExpr 0.0 1.0 10
+} -returnCodes error -result {wrong # args: should be "math::calculus::integralExpr begin end nosteps expression"}
+
+test calculus-api-5.8 {qk15 - default number of steps, exact for polynomials} -match approx9 -body {
+    list [math::calculus::qk15 0.0 1.0 ::calcapi::cube] \
+	[math::calculus::qk15 0.0 1.0 ::calcapi::cube 3]
+} -result {0.25 0.25}
+
+test calculus-api-5.9 {qk15_detailed - four values, integral of |f| over two steps} -body {
+    lassign [math::calculus::qk15_detailed -1.0 1.0 ::calcapi::cube 2] i err iabs iasc
+    list [expr {abs($i) < 1.0e-12}] [expr {$err >= 0.0 && $err < 1.0e-10}] \
+	[expr {abs($iabs-0.5) < 1.0e-9}]
+} -cleanup {
+    unset -nocomplain i err iabs iasc
+} -result {1 1 1}
+
+test calculus-api-5.10 {qk15 - wrong # args} -body {
+    math::calculus::qk15 0.0 1.0
+} -returnCodes error -result {wrong # args: should be "math::calculus::qk15 xstart xend func ?n?"}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::calcapi
+rename ::matchTol {}
+
+testsuiteCleanup

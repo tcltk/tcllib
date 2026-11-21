@@ -1,0 +1,215 @@
+# -*- tcl -*-
+# qcomplex-api.test --
+#    Additional tests for the documented API of math::complexnumbers:
+#    unary minus, tostring forms, principal values, identities, edge
+#    cases and argument errors.
+#    (The basic operations are tested in qcomplex.test.)
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal qcomplex.tcl math::complexnumbers
+}
+
+# -------------------------------------------------------------------------
+
+proc ::matchTol {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach a $actual e $expected {
+        if {![string is double -strict $a]} {
+            return 0
+        }
+        set scale [expr {abs($e) > 1.0 ? abs($e) : 1.0}]
+        if {abs($a-$e) > $tol*$scale} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch approx {::matchTol 1.0e-12}
+
+set ::pi [expr {4.0*atan(1.0)}]
+
+# -------------------------------------------------------------------------
+# Arithmetic
+
+test qcomplex-api-1.1 {- - one argument gives the opposite} -match approx -body {
+    math::complexnumbers::- {1.0 -2.0}
+} -result {-1.0 2.0}
+
+test qcomplex-api-1.2 {- - two arguments} -match approx -body {
+    math::complexnumbers::- {1.0 2.0} {3.0 5.0}
+} -result {-2.0 -3.0}
+
+test qcomplex-api-1.3 {* - i*i = -1} -match approx -body {
+    math::complexnumbers::* {0.0 1.0} {0.0 1.0}
+} -result {-1.0 0.0}
+
+test qcomplex-api-1.4 {/ - floating-point operands} -match approx -body {
+    list {*}[math::complexnumbers::/ {1.0 0.0} {2.0 0.0}] \
+	{*}[math::complexnumbers::/ {1.0 1.0} {0.0 2.0}]
+} -result {0.5 0.0 0.5 -0.5}
+
+test qcomplex-api-1.5 {/ - integer operands} -constraints knownBug -match approx -body {
+    list {*}[math::complexnumbers::/ {1 0} {2 0}] \
+	{*}[math::complexnumbers::/ {1 1} {0 2}]
+} -result {0.5 0.0 0.5 -0.5}
+
+test qcomplex-api-1.6 {/ - division by zero is an error} -body {
+    catch {math::complexnumbers::/ {1.0 0.0} {0.0 0.0}}
+} -result 1
+
+test qcomplex-api-1.7 {/ - inverse of multiplication} -match approx -body {
+    set z [math::complexnumbers::* {1.5 -2.0} {0.25 3.0}]
+    math::complexnumbers::/ $z {0.25 3.0}
+} -cleanup {
+    unset z
+} -result {1.5 -2.0}
+
+test qcomplex-api-1.8 {+ - wrong # args} -body {
+    math::complexnumbers::+ {1 2}
+} -returnCodes error -result {wrong # args: should be "math::complexnumbers::+ z1 z2"}
+
+test qcomplex-api-1.9 {- - wrong # args} -body {
+    math::complexnumbers::-
+} -returnCodes error -result {wrong # args: should be "math::complexnumbers::- z1 ?z2?"}
+
+test qcomplex-api-1.10 {conj - wrong # args} -body {
+    math::complexnumbers::conj
+} -returnCodes error -result {wrong # args: should be "math::complexnumbers::conj z1"}
+
+# -------------------------------------------------------------------------
+# Conversion
+
+test qcomplex-api-2.1 {complex - construct} -body {
+    math::complexnumbers::complex 1.5 -2
+} -result {1.5 -2}
+
+test qcomplex-api-2.2 {complex - wrong # args} -body {
+    math::complexnumbers::complex 1
+} -returnCodes error -result {wrong # args: should be "math::complexnumbers::complex real imag"}
+
+test qcomplex-api-2.3 {real, imag - parts} -body {
+    list [math::complexnumbers::real {1.5 -2.5}] [math::complexnumbers::imag {1.5 -2.5}]
+} -result {1.5 -2.5}
+
+test qcomplex-api-2.4 {mod - 3+4i} -match approx -body {
+    math::complexnumbers::mod {3 4}
+} -result 5.0
+
+test qcomplex-api-2.5 {arg - all quadrants and the axes} -match approx -body {
+    list [math::complexnumbers::arg {1.0 1.0}] [math::complexnumbers::arg {-1.0 1.0}] \
+	[math::complexnumbers::arg {-1.0 0.0}] [math::complexnumbers::arg {0.0 -1.0}]
+} -result [list [expr {$pi/4}] [expr {3*$pi/4}] $pi [expr {-$pi/2}]]
+
+test qcomplex-api-2.6 {arg - zero} -body {
+    math::complexnumbers::arg {0.0 0.0}
+} -result 0.0
+
+test qcomplex-api-2.7 {tostring - zero, pure imaginary, positive imaginary part} -body {
+    list [math::complexnumbers::tostring {0 0}] [math::complexnumbers::tostring {0 2}] \
+	[math::complexnumbers::tostring {2 3}] [math::complexnumbers::tostring {0.0 -2.5}] \
+	[math::complexnumbers::tostring {-1.5 0}]
+} -result {0 2i 2+3i -2.5i -1.5}
+
+test qcomplex-api-2.8 {tostring - wrong # args} -body {
+    math::complexnumbers::tostring
+} -returnCodes error -result {wrong # args: should be "math::complexnumbers::tostring z1"}
+
+# -------------------------------------------------------------------------
+# Elementary functions
+
+test qcomplex-api-3.1 {exp - Euler's identity} -match approx -body {
+    math::complexnumbers::exp [list 0.0 $pi]
+} -result {-1.0 0.0}
+
+test qcomplex-api-3.2 {log - principal value of a negative real} -match approx -body {
+    math::complexnumbers::log {-1.0 0.0}
+} -result [list 0.0 $pi]
+
+test qcomplex-api-3.3 {log - 1+i} -match approx -body {
+    math::complexnumbers::log {1.0 1.0}
+} -result [list [expr {0.5*log(2.0)}] [expr {$pi/4}]]
+
+test qcomplex-api-3.4 {log, exp - inverse functions} -match approx -body {
+    math::complexnumbers::exp [math::complexnumbers::log {0.3 -1.7}]
+} -result {0.3 -1.7}
+
+test qcomplex-api-3.5 {sqrt - negative real} -match approx -body {
+    math::complexnumbers::sqrt {-4.0 0.0}
+} -result {0.0 2.0}
+
+test qcomplex-api-3.6 {sqrt - principal value, negative imaginary part} -match approx -body {
+    math::complexnumbers::sqrt {0.0 -4.0}
+} -result [list [expr {sqrt(2.0)}] [expr {-sqrt(2.0)}]]
+
+test qcomplex-api-3.7 {sqrt - square of the result} -match approx -body {
+    set s [math::complexnumbers::sqrt {-3.0 4.0}]
+    math::complexnumbers::* $s $s
+} -cleanup {
+    unset s
+} -result {-3.0 4.0}
+
+test qcomplex-api-3.8 {pow - i^2 = -1} -match approx -body {
+    math::complexnumbers::pow {0.0 1.0} {2.0 0.0}
+} -result {-1.0 0.0}
+
+test qcomplex-api-3.9 {pow - real square root} -match approx -body {
+    math::complexnumbers::pow {2.0 0.0} {0.5 0.0}
+} -result [list [expr {sqrt(2.0)}] 0.0]
+
+test qcomplex-api-3.10 {sin, cos - sin^2 + cos^2 = 1 for complex arguments} -match approx -body {
+    set s [math::complexnumbers::sin {0.7 1.3}]
+    set c [math::complexnumbers::cos {0.7 1.3}]
+    math::complexnumbers::+ [math::complexnumbers::* $s $s] [math::complexnumbers::* $c $c]
+} -cleanup {
+    unset s c
+} -result {1.0 0.0}
+
+test qcomplex-api-3.11 {sin, cos - purely imaginary argument} -match approx -body {
+    concat [math::complexnumbers::sin {0.0 1.0}] [math::complexnumbers::cos {0.0 1.0}]
+} -result [list 0.0 [expr {sinh(1.0)}] [expr {cosh(1.0)}] 0.0]
+
+test qcomplex-api-3.12 {tan - purely imaginary argument, tan(i) = i tanh(1)} -match approx -body {
+    math::complexnumbers::tan {0.0 1.0}
+} -result [list 0.0 [expr {tanh(1.0)}]]
+
+test qcomplex-api-3.13 {exp, sin, cos, tan, log, sqrt - wrong # args} -body {
+    set result {}
+    foreach f {exp sin cos tan log sqrt} {
+	catch {math::complexnumbers::$f} msg
+	lappend result $msg
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result f msg
+} -result [list \
+	       {wrong # args: should be "math::complexnumbers::exp z1"} \
+	       {wrong # args: should be "math::complexnumbers::sin z1"} \
+	       {wrong # args: should be "math::complexnumbers::cos z1"} \
+	       {wrong # args: should be "math::complexnumbers::tan z1"} \
+	       {wrong # args: should be "math::complexnumbers::log z1"} \
+	       {wrong # args: should be "math::complexnumbers::sqrt z1"}]
+
+test qcomplex-api-3.14 {pow - wrong # args} -body {
+    math::complexnumbers::pow {1 0}
+} -returnCodes error -result {wrong # args: should be "math::complexnumbers::pow z1 z2"}
+
+# -------------------------------------------------------------------------
+
+rename ::matchTol {}
+unset ::pi
+
+testsuiteCleanup

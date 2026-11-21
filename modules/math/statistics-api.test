@@ -1,0 +1,890 @@
+# -*- tcl -*-
+# statistics-api.test --
+#    Additional API tests for the ::math::statistics package:
+#    documented commands not covered by statistics.test, error cases
+#    and edge cases.
+#
+# Note:
+#    The tests assume tcltest 2.1, in order to compare
+#    floating-point results
+
+# -------------------------------------------------------------------------
+
+source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+    useLocal linalg.tcl math::linearalgebra
+    useLocal optimize.tcl math::optimize
+}
+testing {
+    useLocal statistics.tcl math::statistics
+}
+
+# -------------------------------------------------------------------------
+
+# Tolerant comparison of (nested) lists of numbers. Non-numeric elements
+# (e.g. empty strings) must match exactly.
+proc statapiClose {expected actual {rel 1.0e-6} {abs 1.0e-9}} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach e $expected a $actual {
+        if {[llength $e] != 1 || [llength $a] != 1} {
+            if {![statapiClose $e $a $rel $abs]} {
+                return 0
+            }
+        } elseif {[string is double -strict $e] && [string is double -strict $a]} {
+            if {abs($e - $a) > $abs && abs($e - $a) > $rel * abs($e)} {
+                return 0
+            }
+        } elseif {$e ne $a} {
+            return 0
+        }
+    }
+    return 1
+}
+proc statapiMatch {expected actual} {
+    statapiClose $expected $actual
+}
+# Looser comparison for results given to 4 significant digits
+proc statapiMatch4 {expected actual} {
+    statapiClose $expected $actual 1.0e-4 1.0e-6
+}
+customMatch statapi  statapiMatch
+customMatch statapi4 statapiMatch4
+
+# Mean and variance of a list
+proc statapiMeanVar {values} {
+    set n [llength $values]
+    set sum 0.0
+    foreach v $values {set sum [expr {$sum + $v}]}
+    set mean [expr {$sum / $n}]
+    set sq 0.0
+    foreach v $values {set sq [expr {$sq + ($v - $mean)**2}]}
+    list $mean [expr {$sq / ($n - 1)}]
+}
+
+# -------------------------------------------------------------------------
+# basic-stats and the single-statistic commands
+# -------------------------------------------------------------------------
+
+test statistics-api-1.1 {basic-stats: all parameters in documented order} -match statapi -body {
+    ::math::statistics::basic-stats {1 2 3 4}
+} -result {2.5 1.0 4.0 4 1.2909944487358056 1.6666666666666667 1.118033988749895 1.25}
+
+test statistics-api-1.2 {basic-stats: missing values are ignored} -match statapi -body {
+    ::math::statistics::basic-stats {1 {} 3}
+} -result {2.0 1.0 3.0 2 1.4142135623730951 2.0 1.0 1.0}
+
+test statistics-api-1.3 {basic-stats: single value has no sample stdev/var} -match statapi -body {
+    ::math::statistics::basic-stats {5}
+} -result {5.0 5.0 5.0 1 {} {} 0.0 0.0}
+
+test statistics-api-1.4 {basic-stats: consistent with single-statistic commands} -body {
+    set data {3.5 -1 7 2.25 0 11}
+    set all [::math::statistics::basic-stats $data]
+    set res {}
+    foreach cmd {mean min max number stdev var pstdev pvar} v $all {
+        lappend res [expr {[::math::statistics::$cmd $data] == $v}]
+    }
+    set res
+} -cleanup {
+    unset -nocomplain data all res cmd v
+} -result {1 1 1 1 1 1 1 1}
+
+test statistics-api-1.5 {basic-stats: empty list} -body {
+    ::math::statistics::basic-stats {}
+} -returnCodes error -result {Too few or invalid data}
+
+test statistics-api-1.6 {basic-stats: only missing values} -body {
+    ::math::statistics::basic-stats {{} {}}
+} -returnCodes error -result {Too few or invalid data}
+
+test statistics-api-1.7 {basic-stats: non-numeric value} -body {
+    ::math::statistics::basic-stats {1 a}
+} -returnCodes error -result {expected floating-point number but got "a"}
+
+test statistics-api-1.8 {basic-stats: wrong # args} -body {
+    ::math::statistics::basic-stats
+} -returnCodes error -result {wrong # args: should be "::math::statistics::basic-stats values"}
+
+test statistics-api-1.9 {mean: wrong # args} -body {
+    ::math::statistics::mean {1 2} extra
+} -returnCodes error -result {wrong # args: should be "::math::statistics::mean values"}
+
+test statistics-api-1.10 {stdev and var: single value gives empty result} -body {
+    list [::math::statistics::stdev {1}] [::math::statistics::var {1}] \
+         [::math::statistics::pstdev {1}] [::math::statistics::pvar {1}]
+} -result {{} {} 0.0 0.0}
+
+test statistics-api-1.11 {min/max/number with missing values} -body {
+    list [::math::statistics::min {3 {} 1 2}] [::math::statistics::max {3 {} 1 2}] \
+         [::math::statistics::number {{} {} 1}]
+} -result {1.0 3.0 1}
+
+test statistics-api-1.12 {median: odd, even number and missing values} -match statapi -body {
+    list [::math::statistics::median {3 1 2}] [::math::statistics::median {4 3 1 2}] \
+         [::math::statistics::median {{} 3 1 {}}]
+} -result {2 2.5 2.0}
+
+# -------------------------------------------------------------------------
+# Student's t distribution
+# -------------------------------------------------------------------------
+
+test statistics-api-2.1 {cdf-students-t: value 0 gives 0.5} -match statapi -body {
+    ::math::statistics::cdf-students-t 5 0
+} -result 0.5
+
+test statistics-api-2.2 {cdf-students-t: one degree of freedom (Cauchy)} -match statapi -body {
+    # CDF of Cauchy at 1 is 3/4
+    ::math::statistics::cdf-students-t 1 1
+} -result 0.75
+
+test statistics-api-2.3 {cdf-students-t: tabulated 97.5% quantile} -match statapi4 -body {
+    # t(10, 0.975) = 2.2281
+    ::math::statistics::cdf-students-t 10 2.228139
+} -result 0.975
+
+test statistics-api-2.4 {cdf-students-t: negative values} -match statapi -body {
+    # Two-sided: P(T < -t) = 1 - P(T < t)
+    expr {[::math::statistics::cdf-students-t 5 -1.5] + [::math::statistics::cdf-students-t 5 1.5]}
+} -result 1.0 -constraints knownBug
+# The code returns the same value for -t and t (it uses t*t only).
+
+test statistics-api-2.5 {cdf-students-t: zero degrees of freedom} -body {
+    ::math::statistics::cdf-students-t 0 1
+} -returnCodes error -result {Number of degrees of freedom must be positive}
+
+test statistics-api-2.6 {cdf-students-t: wrong # args} -body {
+    ::math::statistics::cdf-students-t 1
+} -returnCodes error -result {wrong # args: should be "::math::statistics::cdf-students-t degrees x"}
+
+test statistics-api-2.7 {pdf-students-t: one degree of freedom at 0 is 1/pi} -match statapi -body {
+    ::math::statistics::pdf-students-t 1 0
+} -result 0.3183098861837907
+
+test statistics-api-2.8 {pdf-students-t: symmetric, known value} -match statapi -body {
+    # f(2; df=2) = 1/(2*sqrt(2)*(1+2)^1.5) = 0.0680413817439772
+    list [::math::statistics::pdf-students-t 2 2] [::math::statistics::pdf-students-t 2 -2]
+} -result {0.0680413817439772 0.0680413817439772}
+
+test statistics-api-2.9 {pdf-students-t: zero degrees of freedom} -body {
+    ::math::statistics::pdf-students-t 0 0
+} -returnCodes error -result {Degrees of freedom must be positive} -constraints knownBug
+# The error is raised with an empty message (text only in -errorinfo).
+
+test statistics-api-2.10 {pdf-student-t: name as documented} -match statapi -body {
+    ::math::statistics::pdf-student-t 1 0
+} -result 0.3183098861837907 -constraints knownBug
+# The man page documents pdf-student-t; the code defines pdf-students-t.
+
+test statistics-api-2.11 {random-students-t: number of values, mean and variance} -body {
+    expr {srand(12345)}
+    set values [::math::statistics::random-students-t 10 4000]
+    lassign [statapiMeanVar $values] mean var
+    # Expected mean 0, variance df/(df-2) = 1.25
+    list [llength $values] [expr {abs($mean) < 0.1}] [expr {abs($var - 1.25) < 0.15}]
+} -cleanup {
+    unset -nocomplain values mean var
+} -result {4000 1 1}
+
+test statistics-api-2.12 {random-students-t: one degree of freedom (Cauchy quartiles)} -body {
+    expr {srand(12345)}
+    set values [::math::statistics::random-students-t 1 4000]
+    set inside 0
+    foreach v $values {
+        if {abs($v) < 1.0} {incr inside}
+    }
+    # P(|T| < 1) = 0.5 for the Cauchy distribution
+    list [llength $values] [expr {abs($inside / 4000.0 - 0.5) < 0.04}]
+} -cleanup {
+    unset -nocomplain values inside v
+} -result {4000 1}
+
+test statistics-api-2.13 {random-students-t: zero values requested} -body {
+    ::math::statistics::random-students-t 5 0
+} -result {} -constraints knownBug
+# The code fails with: can't read "retval": no such variable
+
+test statistics-api-2.14 {random-students-t: invalid degrees of freedom} -body {
+    ::math::statistics::random-students-t 0 5
+} -returnCodes error -result {Degrees of freedom must be at least 1} -constraints knownBug
+# The error is raised with an empty message (text only in -errorinfo).
+
+test statistics-api-2.15 {random-student-t: name as documented} -body {
+    expr {srand(12345)}
+    llength [::math::statistics::random-student-t 5 10]
+} -result 10 -constraints knownBug
+# The man page documents random-student-t; the code defines random-students-t.
+
+# -------------------------------------------------------------------------
+# Incomplete Gamma and Beta functions
+# -------------------------------------------------------------------------
+
+test statistics-api-3.1 {incompleteGamma: P(1,x) = 1-exp(-x)} -match statapi -body {
+    ::math::statistics::incompleteGamma 1 1
+} -result 0.6321205588558573
+
+test statistics-api-3.2 {incompleteGamma: P(3,2) = 1-5*exp(-2)} -match statapi -body {
+    ::math::statistics::incompleteGamma 2 3
+} -result 0.3233235838169366
+
+test statistics-api-3.3 {incompleteGamma: continued fraction branch, P(2,30)} -match statapi -body {
+    # 1 - 31*exp(-30)
+    ::math::statistics::incompleteGamma 30 2
+} -result 0.9999999999970992
+
+test statistics-api-3.4 {incompleteGamma: x = 0} -body {
+    ::math::statistics::incompleteGamma 0 3
+} -result 0.0
+
+test statistics-api-3.5 {incompleteGamma: normal approximation for large p} -body {
+    set v [::math::statistics::incompleteGamma 1000 1001]
+    # P(1001,1000) is slightly below 0.5 (median of Gamma(p) ~ p-1/3)
+    expr {abs($v - 0.4916) < 0.001}
+} -cleanup {
+    unset -nocomplain v
+} -result 1
+
+test statistics-api-3.6 {incompleteGamma: explicit tolerance} -match statapi4 -body {
+    ::math::statistics::incompleteGamma 2 3 1.0e-4
+} -result 0.3233235838169366
+
+test statistics-api-3.7 {incompleteGamma: negative x} -body {
+    ::math::statistics::incompleteGamma -1 3
+} -returnCodes error -result {x must be positive} -constraints knownBug
+# The error is raised with an empty message (text only in -errorinfo).
+
+test statistics-api-3.8 {incompleteGamma: p = 0} -body {
+    ::math::statistics::incompleteGamma 1 0
+} -returnCodes error -match glob -result {p must be *} -constraints knownBug
+# The error is raised with an empty message (text only in -errorinfo).
+
+test statistics-api-3.9 {incompleteGamma: wrong # args} -body {
+    ::math::statistics::incompleteGamma 1
+} -returnCodes error -result {wrong # args: should be "::math::statistics::incompleteGamma x p ?tol?"}
+
+test statistics-api-3.10 {incompleteBeta: I_x(1,1) = x} -match statapi -body {
+    ::math::statistics::incompleteBeta 1 1 0.3
+} -result 0.3
+
+test statistics-api-3.11 {incompleteBeta: I_0.4(2,3) as binomial sum} -match statapi -body {
+    ::math::statistics::incompleteBeta 2 3 0.4
+} -result 0.5248
+
+test statistics-api-3.12 {incompleteBeta: x > 0.5 uses symmetry I_x(a,b) = 1-I_(1-x)(b,a)} -match statapi -body {
+    expr {[::math::statistics::incompleteBeta 2 3 0.7] + [::math::statistics::incompleteBeta 3 2 0.3]}
+} -result 1.0
+
+test statistics-api-3.13 {incompleteBeta: end points} -body {
+    list [::math::statistics::incompleteBeta 2 3 0.0] [::math::statistics::incompleteBeta 2 3 1.0]
+} -result {0.0 1.0}
+
+test statistics-api-3.14 {incompleteBeta: x out of range} -body {
+    ::math::statistics::incompleteBeta 2 3 1.4
+} -returnCodes error -result {Value out of range in incomplete Beta function: x = 1.4, not in [0, 1]}
+
+test statistics-api-3.15 {incompleteBeta: a out of range} -body {
+    ::math::statistics::incompleteBeta 0 3 0.4
+} -returnCodes error -result {Value out of range in incomplete Beta function: a = 0, must be > 0}
+
+test statistics-api-3.16 {incompleteBeta: b out of range} -body {
+    ::math::statistics::incompleteBeta 2 -1 0.4
+} -returnCodes error -result {Value out of range in incomplete Beta function: b = -1, must be > 0}
+
+test statistics-api-3.17 {incompleteBeta: wrong # args} -body {
+    ::math::statistics::incompleteBeta 2 3
+} -returnCodes error -result {wrong # args: should be "::math::statistics::incompleteBeta a b x ?tol?"}
+
+# -------------------------------------------------------------------------
+# estimate-negative-binomial
+# (documented as "estimante-negative-binomial")
+# -------------------------------------------------------------------------
+
+test statistics-api-4.1 {estimate-negative-binomial: ML estimate} -match statapi -body {
+    # p = sum/(n*r + sum) = 6/(3*2+6)
+    ::math::statistics::estimate-negative-binomial 2 {1 2 3 {}}
+} -result 0.5
+
+test statistics-api-4.2 {estimate-negative-binomial: consistent with the mean} -match statapi -body {
+    # mean of the distribution is p*r/(1-p): mean 3, r 1 -> p = 0.75
+    ::math::statistics::estimate-negative-binomial 1 {1 5 3 2 4}
+} -result 0.75
+
+test statistics-api-4.3 {estimate-negative-binomial: random data} -body {
+    expr {srand(12345)}
+    set values [::math::statistics::random-negative-binomial 3 0.4 4000]
+    set p [::math::statistics::estimate-negative-binomial 3 $values]
+    expr {abs($p - 0.4) < 0.03}
+} -cleanup {
+    unset -nocomplain values p
+} -result 1
+
+# -------------------------------------------------------------------------
+# group-rank
+# -------------------------------------------------------------------------
+
+test statistics-api-5.1 {group-rank: group ID, value and rank, ties averaged} -body {
+    ::math::statistics::group-rank {1 3 5} {2 3 4}
+} -result {{0 1 1} {1 2 2} {0 3 3.5} {1 3 3.5} {1 4 5} {0 5 6}}
+
+test statistics-api-5.2 {group-rank: three groups, no ties} -body {
+    ::math::statistics::group-rank {10 1} {5} {7 2}
+} -result {{0 1 1} {2 2 2} {1 5 3} {2 7 4} {0 10 5}}
+
+test statistics-api-5.3 {group-rank: ties at the end} -body {
+    ::math::statistics::group-rank {1 2} {2 2}
+} -result {{0 1 1} {0 2 3.0} {1 2 3.0} {1 2 3.0}} -constraints knownBug
+# Ties among the largest values are not averaged: the code returns
+# {0 1 1} {0 2 2} {1 2 3} {1 2 4}.
+
+# -------------------------------------------------------------------------
+# histogram-uniform
+# -------------------------------------------------------------------------
+
+test statistics-api-6.1 {histogram-uniform: expected histogram} -body {
+    ::math::statistics::histogram-uniform 0 10 {2 5 10} 100
+} -result {20 30 50 0} -constraints knownBug
+# Bug in HistogramMake: "$cdf-values" is parsed as variable "cdf"
+# (can't read "cdf": no such variable).
+
+test statistics-api-6.2 {histogram-uniform: wrong order} -body {
+    ::math::statistics::histogram-uniform 10 0 {2 5 10} 100
+} -returnCodes error -result {Wrong order or zero range}
+
+test statistics-api-6.3 {histogram-uniform: zero range} -body {
+    ::math::statistics::histogram-uniform 1 1 {2 5 10} 100
+} -returnCodes error -result {Wrong order or zero range}
+
+test statistics-api-6.4 {histogram-uniform: wrong # args} -body {
+    ::math::statistics::histogram-uniform 0 10 {2 5 10}
+} -returnCodes error -result {wrong # args: should be "::math::statistics::histogram-uniform min max limits number"}
+
+# -------------------------------------------------------------------------
+# interval-mean-stdev
+# -------------------------------------------------------------------------
+
+test statistics-api-7.1 {interval-mean-stdev: returns four elements} -body {
+    llength [::math::statistics::interval-mean-stdev {1 2 3 4 5} 0.95]
+} -result 4
+
+test statistics-api-7.2 {interval-mean-stdev: interval of the mean} -match statapi4 -body {
+    # mean 3, s = sqrt(2.5), t(4, 0.975) = 2.776445
+    lrange [::math::statistics::interval-mean-stdev {1 2 3 4 5} 0.95] 0 1
+} -result {1.036757 4.963243} -constraints knownBug
+# The code uses the t quantile for (1+(1+conf)/2)/2 (0.9875 for 0.95),
+# giving the too wide interval {0.528 5.472}.
+
+test statistics-api-7.3 {interval-mean-stdev: interval of the stdev} -match statapi4 -body {
+    # sqrt(4*2.5/chi2(4,0.975)), sqrt(4*2.5/chi2(4,0.025))
+    lrange [::math::statistics::interval-mean-stdev {1 2 3 4 5} 0.95] 2 3
+} -result {0.947313 4.543490} -constraints knownBug
+# The documented interval of the standard deviation is returned as two
+# empty strings.
+
+test statistics-api-7.4 {interval-mean-stdev: interval contains the mean} -body {
+    lassign [::math::statistics::interval-mean-stdev {1 2 3 4 5 6 7} 0.99] lower upper
+    expr {$lower < 4.0 && 4.0 < $upper}
+} -cleanup {
+    unset -nocomplain lower upper
+} -result 1
+
+test statistics-api-7.5 {interval-mean-stdev: too few data} -body {
+    ::math::statistics::interval-mean-stdev {1} 0.95
+} -returnCodes error -result {Too few or invalid data}
+
+test statistics-api-7.6 {interval-mean-stdev: wrong # args} -body {
+    ::math::statistics::interval-mean-stdev {1 2 3}
+} -returnCodes error -result {wrong # args: should be "::math::statistics::interval-mean-stdev data confidence"}
+
+# -------------------------------------------------------------------------
+# tstat
+# -------------------------------------------------------------------------
+
+test statistics-api-8.1 {tstat: default alpha 0.05} -match statapi4 -body {
+    ::math::statistics::tstat 10
+} -result 2.228139
+
+test statistics-api-8.2 {tstat: alpha 0.01} -match statapi4 -body {
+    ::math::statistics::tstat 10 0.01
+} -result 3.169273
+
+test statistics-api-8.3 {tstat: one degree of freedom} -match statapi4 -body {
+    ::math::statistics::tstat 1
+} -result 12.7062
+
+test statistics-api-8.4 {tstat: consistent with cdf-students-t} -match statapi4 -body {
+    ::math::statistics::cdf-students-t 7 [::math::statistics::tstat 7 0.1]
+} -result 0.95
+
+test statistics-api-8.5 {tstat: wrong # args} -body {
+    ::math::statistics::tstat
+} -returnCodes error -result {wrong # args: should be "::math::statistics::tstat n ?alpha?"}
+
+# -------------------------------------------------------------------------
+# mv-wls
+# -------------------------------------------------------------------------
+
+test statistics-api-9.1 {mv-wls: equal weights give the same result as mv-ols} -match statapi -body {
+    set wls [::math::statistics::mv-wls {1 {3 1} 1 {5 2} 1 {7 3} 1 {9.1 4} 1 {10.9 5}}]
+    set ols [::math::statistics::mv-ols {{3 1} {5 2} {7 3} {9.1 4} {10.9 5}}]
+    list [llength $wls] [statapiClose $ols $wls]
+} -cleanup {
+    unset -nocomplain wls ols
+} -result {5 1}
+
+test statistics-api-9.2 {mv-wls: coefficients b1 ... bN, b0} -match statapi -body {
+    lindex [::math::statistics::mv-wls {1 {3 1} 1 {5 2} 1 {7 3} 1 {9.1 4} 1 {10.9 5}}] 2
+} -result {1.99 1.03}
+
+test statistics-api-9.3 {mv-wls: exact fit with two independent variables} -match statapi -body {
+    # y = 1 + 2*x1 - x2
+    set data {}
+    foreach {x1 x2} {0 0  1 0  0 1  1 1  2 1  1 3} {
+        lappend data 1.0 [list [expr {1 + 2*$x1 - $x2}] $x1 $x2]
+    }
+    set res [::math::statistics::mv-wls $data]
+    list [lindex $res 0] [lindex $res 2]
+} -cleanup {
+    unset -nocomplain data x1 x2 res
+} -result {1.0 {2.0 -1.0 1.0}}
+
+test statistics-api-9.4 {mv-wls: tiny weight suppresses an outlier} -match statapi4 -body {
+    lindex [::math::statistics::mv-wls {1 {1 0} 1 {3 1} 1 {5 2} 1 {7 3} 1.0e-12 {100 4}}] 2
+} -result {2.0 1.0}
+
+test statistics-api-9.5 {mv-wls: weights change the estimate} -body {
+    # The point (4, 9) gets weight 10: the line moves towards it
+    lindex [::math::statistics::mv-wls {1 {1 0} 1 {3 1} 1 {5.5 2} 1 {7 3} 10 {9 4}}] 2
+} -match statapi -result {1.971875 1.128125}
+
+test statistics-api-9.6 {mv-wls: non-numeric weight} -body {
+    ::math::statistics::mv-wls {a {3 1} 1 {5 2} 1 {7 3} 1 {9 4}}
+} -returnCodes error -result {::math::statistics::mv-wls: Weight "a" is not a number}
+
+test statistics-api-9.7 {mv-wls: inconsistent number of values} -body {
+    ::math::statistics::mv-wls {1 {3 1} 1 {5 2 3} 1 {7 3} 1 {9 4}}
+} -returnCodes error -result {::math::statistics::mv-wls: Point "5 2 3" has wrong number of values (expected 2)}
+
+test statistics-api-9.8 {mv-wls: too few degrees of freedom} -body {
+    ::math::statistics::mv-wls {1 {3 1} 1 {5 2} 1 {7 3}}
+} -returnCodes error -result {::math::statistics::mv-wls: Too few degrees of freedom: 2 variables but only 3 points}
+
+test statistics-api-9.9 {mv-wls: wrong # args} -body {
+    ::math::statistics::mv-wls
+} -returnCodes error -result {wrong # args: should be "::math::statistics::mv-wls data"}
+
+# -------------------------------------------------------------------------
+# print-2x2
+# -------------------------------------------------------------------------
+
+test statistics-api-10.1 {print-2x2: report with marginals, not significant} -body {
+    ::math::statistics::print-2x2 10 20 30 40
+} -match glob -result {        10        20 |         30
+        30        40 |         70
+-------------------- + ----------
+        40        60 |        100
+Chisquare = 0.79365079365079*
+Difference is significant?
+   at 95%: no
+   at 99%: no}
+
+test statistics-api-10.2 {print-2x2: significant at 95% but not at 99%} -body {
+    set report [::math::statistics::print-2x2 170 94 30 6]
+    lrange [split $report \n] end-1 end
+} -cleanup {
+    unset -nocomplain report
+} -result {{   at 95%: yes} {   at 99%: no}}
+
+test statistics-api-10.3 {print-2x2: chi-square line matches test-2x2} -body {
+    set report [::math::statistics::print-2x2 5 50 40 5]
+    expr {[lindex [split $report \n] 4] eq "Chisquare = [::math::statistics::test-2x2 5 50 40 5]"}
+} -cleanup {
+    unset -nocomplain report
+} -result 1
+
+test statistics-api-10.4 {print-2x2: wrong # args} -body {
+    ::math::statistics::print-2x2 1 2 3
+} -returnCodes error -result {wrong # args: should be "::math::statistics::print-2x2 a b c d"}
+
+# -------------------------------------------------------------------------
+# linear-model and linear-residuals
+# -------------------------------------------------------------------------
+
+set ::statapiX {1 2 3 4 5}
+set ::statapiY {3.1 4.9 7.2 8.8 11.1}
+
+test statistics-api-11.1 {linear-model: estimates, errors and R2} -match statapi -body {
+    set res [::math::statistics::linear-model $::statapiX $::statapiY]
+    # A, B, stdev Y, R2, (skip df), se A, (skip t A), se B
+    concat [lrange $res 0 3] [lindex $res 5] [lindex $res 7]
+} -cleanup {
+    unset -nocomplain res
+} -result {1.05 1.99 0.188856206322871 0.997305328900977 0.198074060223274 0.0597215762238960}
+
+test statistics-api-11.2 {linear-model: result has nine elements} -body {
+    llength [::math::statistics::linear-model $::statapiX $::statapiY]
+} -result 9
+
+test statistics-api-11.3 {linear-model: significance of A and B (t values)} -match statapi -body {
+    set res [::math::statistics::linear-model $::statapiX $::statapiY]
+    list [lindex $res 6] [lindex $res 8]
+} -cleanup {
+    unset -nocomplain res
+} -result {5.30102620258 33.3212412744} -constraints knownBug
+# Ticket 4dd68ce4e7: the t values are multiplied by sqrt(df-2).
+
+test statistics-api-11.4 {linear-model: exact fit} -match statapi -body {
+    lrange [::math::statistics::linear-model {1 2 3 4 5} {3 5 7 9 11}] 0 3
+} -result {1.0 2.0 0.0 1.0}
+
+test statistics-api-11.5 {linear-model: through the origin} -match statapi -body {
+    set res [::math::statistics::linear-model $::statapiX {2.1 3.9 6.2 7.8 10.1} 0]
+    list [lindex $res 0] [lindex $res 1] [lindex $res 5] [lindex $res 6]
+} -cleanup {
+    unset -nocomplain res
+} -result {0.0 2.00363636363636 {} {}}
+
+test statistics-api-11.6 {linear-model: missing data are skipped} -match statapi -body {
+    lrange [::math::statistics::linear-model {1 2 {} 3 4 5} {3.1 4.9 100 7.2 8.8 11.1}] 0 1
+} -result {1.05 1.99}
+
+test statistics-api-11.7 {linear-model: too few data} -body {
+    ::math::statistics::linear-model {1 2} {3 4}
+} -returnCodes error -result {Too few or invalid data: not enough independent data}
+
+test statistics-api-11.8 {linear-model: too few dependent data} -body {
+    ::math::statistics::linear-model {1 2 3} {3 4}
+} -returnCodes error -result {Too few or invalid data: not enough dependent data}
+
+test statistics-api-11.9 {linear-model: different lengths} -body {
+    ::math::statistics::linear-model {1 2 3 4} {3 4 5}
+} -returnCodes error -result {Too few or invalid data: number of dependent data differs from number of independent data}
+
+test statistics-api-11.10 {linear-model: constant independent data} -body {
+    ::math::statistics::linear-model {2 2 2} {3 4 5}
+} -returnCodes error -result {Too few or invalid data: independent values are all the same}
+
+test statistics-api-11.11 {linear-model: too few valid data} -body {
+    ::math::statistics::linear-model {1 2 {}} {3 4 5}
+} -returnCodes error -result {Too few or invalid data: too few valid data}
+
+test statistics-api-11.12 {linear-residuals: residuals of the fit} -match statapi -body {
+    ::math::statistics::linear-residuals $::statapiX $::statapiY
+} -result {0.06 -0.13 0.18 -0.21 0.1}
+
+test statistics-api-11.13 {linear-residuals: through the origin} -match statapi -body {
+    ::math::statistics::linear-residuals $::statapiX {2.1 3.9 6.2 7.8 10.1} 0
+} -result {0.0963636363636 -0.107272727273 0.189090909091 -0.214545454545 0.0818181818182}
+
+test statistics-api-11.14 {linear-residuals: too few data} -body {
+    ::math::statistics::linear-residuals {1 2} {3 4}
+} -returnCodes error -result {Too few or invalid data: no independent data}
+
+test statistics-api-11.15 {linear-residuals: different lengths} -body {
+    ::math::statistics::linear-residuals {1 2 3 4} {3 4 5}
+} -returnCodes error -result {Too few or invalid data: number of dependent data differs from number of independent data}
+
+unset ::statapiX ::statapiY
+
+# -------------------------------------------------------------------------
+# autocorr and crosscorr
+# -------------------------------------------------------------------------
+
+test statistics-api-12.1 {autocorr: about half the number of data, first value 1} -match statapi -body {
+    ::math::statistics::autocorr {1 2 3 4 5 6}
+} -result {1.0 0.6 0.0857142857142857}
+
+test statistics-api-12.2 {autocorr: alternating series} -match statapi -body {
+    ::math::statistics::autocorr {1 -1 1 -1 1 -1}
+} -result {1.0 -1.0 1.0}
+
+test statistics-api-12.3 {autocorr: values do not exceed 1 for random data} -body {
+    expr {srand(12345)}
+    set data {}
+    for {set i 0} {$i < 50} {incr i} {lappend data [expr {rand()}]}
+    set res [::math::statistics::autocorr $data]
+    set ok [expr {abs([lindex $res 0] - 1.0) < 1.0e-12 && [llength $res] == 25}]
+    foreach v $res {
+        if {abs($v) > 1.0 + 1.0e-12} {set ok 0}
+    }
+    set ok
+} -cleanup {
+    unset -nocomplain data i res ok v
+} -result 1
+
+test statistics-api-12.4 {autocorr: too few data} -body {
+    ::math::statistics::autocorr {1}
+} -returnCodes error -result {Too few or invalid data}
+
+test statistics-api-12.5 {crosscorr: identical data equal autocorr} -match statapi -body {
+    ::math::statistics::crosscorr {1 2 3 4 5 6} {1 2 3 4 5 6}
+} -result {1.0 0.6 0.0857142857142857}
+
+test statistics-api-12.6 {crosscorr: reversed data} -match statapi -body {
+    ::math::statistics::crosscorr {1 2 3 4 5 6} {6 5 4 3 2 1}
+} -result {-1.0 -0.6 -0.0857142857142857}
+
+test statistics-api-12.7 {crosscorr: too few data} -body {
+    ::math::statistics::crosscorr {1 2 3} {1}
+} -returnCodes error -result {Too few or invalid data}
+
+test statistics-api-12.8 {crosscorr: wrong # args} -body {
+    ::math::statistics::crosscorr {1 2 3}
+} -returnCodes error -result {wrong # args: should be "::math::statistics::crosscorr data1 data2"}
+
+# -------------------------------------------------------------------------
+# corr, spearman-rank, t-test-mean
+# -------------------------------------------------------------------------
+
+test statistics-api-13.1 {corr: known value} -match statapi -body {
+    ::math::statistics::corr {1 2 3} {2 4 7}
+} -result 0.993399267798783
+
+test statistics-api-13.2 {corr: perfect negative correlation} -match statapi -body {
+    ::math::statistics::corr {1 2 3 4} {8 6 4 2}
+} -result -1.0
+
+test statistics-api-13.3 {corr: pairs with a missing value are skipped} -match statapi -body {
+    ::math::statistics::corr {1 2 {} 3} {2 4 100 7}
+} -result 0.993399267798783
+
+test statistics-api-13.4 {spearman-rank: samples of different length} -body {
+    ::math::statistics::spearman-rank {1 2 3} {1 2}
+} -returnCodes error -result {The two samples should have the same number of data} -constraints knownBug
+# The error is raised with an empty message (text only in -errorinfo).
+
+test statistics-api-13.5 {t-test-mean: mean in accordance} -body {
+    ::math::statistics::t-test-mean {1 2 3 4 5} 3 1 0.95
+} -result 1
+
+test statistics-api-13.6 {t-test-mean: mean not in accordance} -body {
+    ::math::statistics::t-test-mean {1 2 3 4 5} 30 1 0.95
+} -result 0
+
+test statistics-api-13.7 {t-test-mean: zero standard deviation} -body {
+    ::math::statistics::t-test-mean {1 2 3} 2 0 0.95
+} -returnCodes error -result {Zero or negative standard deviation}
+
+test statistics-api-13.8 {t-test-mean: too few data} -body {
+    ::math::statistics::t-test-mean {1} 2 1 0.95
+} -returnCodes error -result {Too few or invalid data}
+
+# -------------------------------------------------------------------------
+# Histogram helpers
+# -------------------------------------------------------------------------
+
+test statistics-api-14.1 {mean-histogram-limits: default number of limits is 8} -match statapi -body {
+    ::math::statistics::mean-histogram-limits 0 1
+} -result {-3.0 -2.0 -1.0 -0.25 0.25 1.0 2.0 3.0}
+
+test statistics-api-14.2 {mean-histogram-limits: negative stdev} -body {
+    ::math::statistics::mean-histogram-limits 0 -1 4
+} -returnCodes error -result {Zero or negative standard deviation}
+
+test statistics-api-14.3 {minmax-histogram-limits: default number of limits is 8} -match statapi -body {
+    ::math::statistics::minmax-histogram-limits 0 7
+} -result {0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0}
+
+test statistics-api-14.4 {minmax-histogram-limits: wrong order} -body {
+    ::math::statistics::minmax-histogram-limits 10 0 5
+} -returnCodes error -result {Minimum must be lower than maximum}
+
+test statistics-api-14.5 {histogram: negative limits and values} -body {
+    ::math::statistics::histogram {-2 0} {-3 -2.5 -1 0.5}
+} -result {2 1 1}
+
+test statistics-api-14.6 {histogram: weights} -match statapi -body {
+    ::math::statistics::histogram {2 4} {1 2 3 4 5 6} {1 1 1 1 1 2}
+} -result {2 2 3}
+
+test statistics-api-14.7 {histogram: weights and values differ in length} -body {
+    ::math::statistics::histogram {2 4} {1 2 3} {1 1}
+} -returnCodes error -result {Weights and values differ in length}
+
+test statistics-api-14.8 {histogram: no limits} -body {
+    ::math::statistics::histogram {} {1 2}
+} -returnCodes error -result {No limits given}
+
+test statistics-api-14.9 {quantiles: empty data} -body {
+    ::math::statistics::quantiles {} 0.5
+} -returnCodes error -result {Too few or invalid data - raw data}
+
+# -------------------------------------------------------------------------
+# Error cases of the distribution procedures
+# -------------------------------------------------------------------------
+
+test statistics-api-15.1 {normal distribution: non-positive stdev} -body {
+    list [catch {::math::statistics::pdf-normal 0 0 1} m1] $m1 \
+         [catch {::math::statistics::cdf-normal 0 -1 1} m2] $m2 \
+         [catch {::math::statistics::random-normal 0 0 3} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Zero or negative standard deviation} 1 {Zero or negative standard deviation} 1 {Standard deviation must be positive}}
+
+test statistics-api-15.2 {uniform distribution: wrong order} -body {
+    list [catch {::math::statistics::pdf-uniform 2 1 0.5} m1] $m1 \
+         [catch {::math::statistics::random-uniform 2 1 3} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m3
+} -result {1 {Wrong order or zero range} 1 {Wrong order or zero range}}
+
+test statistics-api-15.3 {cdf-uniform: wrong order} -body {
+    ::math::statistics::cdf-uniform 2 1 0.5
+} -returnCodes error -result {Wrong order or zero range} -constraints knownBug
+# The error is raised with an empty message (text only in -errorinfo).
+
+test statistics-api-15.4 {random-*: zero values requested} -body {
+    list [::math::statistics::random-normal 0 1 0] [::math::statistics::random-uniform 0 1 0]
+} -result {{} {}}
+
+test statistics-api-15.5 {lognormal distribution: non-positive stdev} -body {
+    list [catch {::math::statistics::pdf-lognormal 1 0 1} m1] $m1 \
+         [catch {::math::statistics::cdf-lognormal 1 -1 1} m2] $m2 \
+         [catch {::math::statistics::random-lognormal 1 0 2} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Standard deviation and mean must be positive} 1 {Standard deviation and mean must be positive} 1 {Standard deviation and mean must be positive}}
+
+test statistics-api-15.6 {exponential distribution: non-positive mean} -body {
+    list [catch {::math::statistics::pdf-exponential 0 1} m1] $m1 \
+         [catch {::math::statistics::cdf-exponential -1 1} m2] $m2 \
+         [catch {::math::statistics::random-exponential 0 3} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Argument out of range: mean must be positive} 1 {Argument out of range: mean must be positive} 1 {Mean must be positive}}
+
+test statistics-api-15.7 {triangular distributions: zero range} -body {
+    list [catch {::math::statistics::pdf-triangular 1 1 0.5} m1] $m1 \
+         [catch {::math::statistics::pdf-symmetric-triangular 1 1 0.5} m2] $m2
+} -cleanup {
+    unset -nocomplain m1 m2
+} -result {1 {Zero range} 1 {Zero range}}
+
+test statistics-api-15.8 {beta distribution: parameters out of range} -body {
+    list [catch {::math::statistics::pdf-beta 0 1 0.5} m1] $m1 \
+         [catch {::math::statistics::pdf-beta 1 1 1.5} m2] $m2 \
+         [catch {::math::statistics::cdf-beta 0 1 0.5} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Value out of range in Beta density: a = 0, must be > 0} 1 {Value out of range in Beta density: x = 1.5, not in [0, 1]} 1 {Value out of range in incomplete Beta function: a = 0, must be > 0}}
+
+test statistics-api-15.9 {weibull, gumbel, pareto, cauchy: out of range} -body {
+    set res {}
+    foreach cmd {
+        {pdf-weibull 0 1 1} {cdf-weibull 1 0 1} {random-weibull 0 1 2}
+        {pdf-gumbel 0 0 1} {cdf-gumbel 0 0 1} {random-gumbel 0 0 2}
+        {pdf-pareto 0 1 1} {cdf-pareto 0 1 1} {random-pareto 0 1 2}
+        {pdf-cauchy 0 0 1} {cdf-cauchy 0 0 1} {random-cauchy 0 0 2}
+    } {
+        catch {namespace eval ::math::statistics $cmd} msg
+        lappend res $msg
+    }
+    lsort -unique $res
+} -cleanup {
+    unset -nocomplain res cmd msg
+} -result {{Argument out of range}}
+
+test statistics-api-15.10 {laplace distribution: non-positive scale} -body {
+    set res {}
+    foreach cmd {{pdf-laplace 0 0 1} {cdf-laplace 0 0 1} {random-laplace 0 0 2}} {
+        catch {namespace eval ::math::statistics $cmd} msg
+        lappend res $msg
+    }
+    lsort -unique $res
+} -cleanup {
+    unset -nocomplain res cmd msg
+} -result {{Argument out of range: scale must be positive}}
+
+test statistics-api-15.11 {kumaraswamy distribution: non-positive parameters} -body {
+    set res {}
+    foreach cmd {{pdf-kumaraswamy 0 1 .5} {cdf-kumaraswamy 1 0 .5} {random-kumaraswamy 0 1 2}} {
+        catch {namespace eval ::math::statistics $cmd} msg
+        lappend res $msg
+    }
+    lsort -unique $res
+} -cleanup {
+    unset -nocomplain res cmd msg
+} -result {{Argument out of range: parameters a and b must be positive}}
+
+test statistics-api-15.12 {negative binomial distribution: p out of range} -body {
+    list [catch {::math::statistics::pdf-negative-binomial 1 1.5 1} m1] $m1 \
+         [catch {::math::statistics::cdf-negative-binomial 1 1.5 1} m2] $m2
+} -cleanup {
+    unset -nocomplain m1 m2
+} -result {1 {Argument out of range: parameter p must be non-negative and lower than 1} 1 {Argument out of range: parameter p must be non-negative and lower than 1}}
+
+test statistics-api-15.13 {pdf-negative-binomial: r not a positive integer} -body {
+    ::math::statistics::pdf-negative-binomial 0 0.5 1
+} -returnCodes error -result {Argument invalid: parameter r must be a positive integer} -constraints knownBug
+# Typo in the code: $INVALIDE (can't read "INVALIDE": no such variable).
+
+test statistics-api-15.14 {random-negative-binomial: r not a positive integer} -body {
+    ::math::statistics::random-negative-binomial 0 0.5 2
+} -returnCodes error -result {Argument invalid: parameter r must be a positive integer} -constraints knownBug
+# Typo in the code: $INVALIDE (can't read "INVALIDE": no such variable).
+
+test statistics-api-15.15 {chi-square distribution: non-positive degrees of freedom} -body {
+    list [catch {::math::statistics::pdf-chisquare 0 1} m1] $m1 \
+         [catch {::math::statistics::cdf-chisquare 0 1} m2] $m2 \
+         [catch {::math::statistics::random-chisquare 0 1} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result {1 {Degrees of freedom must be positive} 1 {Degrees of freedom must be positive} 1 {Degrees of freedom must be positive}} -constraints knownBug
+# The errors are raised with an empty message (text only in -errorinfo).
+
+test statistics-api-15.16 {cdf-F: invalid degrees of freedom} -body {
+    ::math::statistics::cdf-F 0 1 1
+} -returnCodes error -result {Value out of range in incomplete Beta function: a = 0.0, must be > 0}
+
+# -------------------------------------------------------------------------
+# Control charts: error cases
+# -------------------------------------------------------------------------
+
+test statistics-api-16.1 {control-xbar: too few data} -body {
+    ::math::statistics::control-xbar {1 2 3}
+} -returnCodes error -result {Too few or invalid data}
+
+test statistics-api-16.2 {control-xbar: subsample size 1} -body {
+    ::math::statistics::control-xbar {1 2 3} 1
+} -returnCodes error -result {Number of data per subsample must be at least 2} -constraints knownBug
+# The code refers to the undeclared variable OUTOFRANGE.
+
+test statistics-api-16.3 {control-Rchart: too few data} -body {
+    ::math::statistics::control-Rchart {1 2 3}
+} -returnCodes error -result {Too few or invalid data}
+
+test statistics-api-16.4 {control-Rchart: subsample size 1} -body {
+    ::math::statistics::control-Rchart {1 2 3} 1
+} -returnCodes error -result {Number of data per subsample must be at least 2} -constraints knownBug
+# The code refers to the undeclared variable OUTOFRANGE.
+
+test statistics-api-16.5 {test-xbar: no data} -body {
+    ::math::statistics::test-xbar {0.5 0.4 0.6 4} {}
+} -returnCodes error -result {Too few or invalid data} -constraints knownBug
+# The code refers to the undeclared variable TOOFEWDATA.
+
+test statistics-api-16.6 {control-xbar: result elements} -body {
+    set data {}
+    for {set i 0} {$i < 80} {incr i} {lappend data [expr {$i % 4}]}
+    lassign [::math::statistics::control-xbar $data] mean lower upper nsamples
+    list $mean [expr {$lower < $mean && $mean < $upper}] $nsamples
+} -cleanup {
+    unset -nocomplain data i mean lower upper nsamples
+} -result {1.5 1 4}
+
+# -------------------------------------------------------------------------
+
+rename statapiClose {}
+rename statapiMatch {}
+rename statapiMatch4 {}
+rename statapiMeanVar {}
+
+# End of test cases
+testsuiteCleanup

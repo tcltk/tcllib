@@ -1,0 +1,160 @@
+# -*- tcl -*-
+# fuzzy-api.test --
+#    Tests for the documented API of the math::fuzzy package, in addition
+#    to fuzzy.test: the margin of the comparisons, consistency between
+#    the comparison procedures, negative numbers and error cases.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal fuzzy.tcl math::fuzzy
+}
+
+# -------------------------------------------------------------------------
+
+namespace eval ::fuzzytest {
+    namespace import ::math::fuzzy::*
+    # One unit in the last place above 1.0
+    variable ulp [expr {1.0 + 2.220446049250313e-16}]
+}
+
+proc fz {script} {
+    namespace eval ::fuzzytest $script
+}
+
+# -------------------------------------------------------------------------
+# Comparisons
+# -------------------------------------------------------------------------
+
+test fuzzy-api-1.1 "teq: margin of a few epsilon" -body {
+    fz {list [teq 1.0 $ulp] [teq 1.0 [expr {1.0+1e-15}]] \
+	    [teq -1.0 [expr {-$ulp}]] [teq 1e20 [expr {1e20*$ulp}]]}
+} -result {1 0 1 1}
+
+test fuzzy-api-1.2 "teq: the margin is relative" -body {
+    fz {list [teq 0.0 0.0] [teq 0.0 1e-300] [teq 1e-300 [expr {1e-300*$ulp}]]}
+} -result {1 0 1}
+
+test fuzzy-api-1.3 "tne: negation of teq" -body {
+    fz {list [tne 1.0 $ulp] [tne 1.0 [expr {1.0+1e-15}]] [tne 0.0 0.0]}
+} -result {0 1 0}
+
+test fuzzy-api-1.4 "tgt, tlt: values within the margin are not ordered" -body {
+    fz {list [tgt $ulp 1.0] [tlt 1.0 $ulp] [tge 1.0 $ulp] [tle $ulp 1.0]}
+} -result {0 0 1 1}
+
+test fuzzy-api-1.5 "tgt, tlt, tge, tle: clearly different values" -body {
+    fz {list [tgt 2.0 1.0] [tgt 1.0 2.0] [tlt 1.0 2.0] [tlt 2.0 1.0] \
+	    [tge 2.0 1.0] [tge 1.0 2.0] [tle 1.0 2.0] [tle 2.0 1.0]}
+} -result {1 0 1 0 1 0 1 0}
+
+test fuzzy-api-1.6 "tgt, tlt: negative numbers" -body {
+    fz {list [tgt -1.0 -2.0] [tlt -2.0 -1.0] [tgt -1.0 1.0] [tlt -1.0 1.0]}
+} -result {1 1 0 1}
+
+test fuzzy-api-1.7 "tlt is the opposite of tge, tgt the opposite of tle" -body {
+    fz {
+	set values [list -2.0 -1.0 0.0 1.0 $ulp [expr {1.0+1e-15}] 2.0]
+	set bad {}
+	foreach a $values {
+	    foreach b $values {
+		if {[tlt $a $b] == [tge $a $b] || [tgt $a $b] == [tle $a $b]} {
+		    lappend bad [list $a $b]
+		}
+		if {[teq $a $b] != ([tge $a $b] && [tle $a $b])} {
+		    lappend bad [list $a $b]
+		}
+	    }
+	}
+	set bad
+    }
+} -cleanup {
+    namespace eval ::fuzzytest {unset -nocomplain values bad a b}
+} -result {}
+
+test fuzzy-api-1.8 "teq: integers" -body {
+    fz {list [teq 1 1] [teq 1 2]}
+} -result {1 0}
+
+test fuzzy-api-1.9 "teq: not a number" -body {
+    fz {teq a 1}
+} -returnCodes error -result {expected number but got "a"}
+
+foreach cmd {teq tne tge tle tlt tgt} {
+    test fuzzy-api-1.10.$cmd "$cmd: wrong # args" -body {
+	::math::fuzzy::$cmd 1
+    } -returnCodes error -result "wrong # args: should be \"::math::fuzzy::$cmd first second\""
+}
+unset cmd
+
+# -------------------------------------------------------------------------
+# tfloor, tceil, tround, troundn
+# -------------------------------------------------------------------------
+
+test fuzzy-api-2.1 "tfloor: values just below an integer" -body {
+    fz {list [tfloor 2.9999999999999996] [tfloor -3.0000000000000004]}
+} -result {3.0 -3.0}
+
+test fuzzy-api-2.2 "tfloor: ordinary values" -body {
+    fz {list [tfloor 2.5] [tfloor -2.5] [tfloor 3.0] [tfloor 0.0]}
+} -result {2.0 -3.0 3.0 0.0}
+
+test fuzzy-api-2.3 "tceil: values just above an integer" -body {
+    fz {list [tceil 3.0000000000000004] [tceil -2.9999999999999996]}
+} -result {3.0 -3.0}
+
+test fuzzy-api-2.4 "tceil: ordinary values" -body {
+    fz {list [tceil 2.1] [tceil -2.5] [tceil 3.0]}
+} -result {3.0 -2.0 3.0}
+
+test fuzzy-api-2.5 "tround: ordinary values" -body {
+    fz {list [tround 2.4] [tround 2.6] [tround 2.5] [tround -2.4] [tround -2.6]}
+} -result {2.0 3.0 3.0 -2.0 -3.0}
+
+test fuzzy-api-2.6 "tround: value just below a half" -body {
+    fz {tround 2.4999999999999996}
+} -result 3.0
+
+test fuzzy-api-2.7 "troundn: positive and zero number of decimals" -body {
+    fz {list [troundn 1.25 1] [troundn 2.675 2] [troundn 1.4 0]}
+} -result {1.3 2.68 1.0}
+
+test fuzzy-api-2.8 "troundn: negative number of decimals" -body {
+    fz {troundn 1234.5 -2}
+} -result 1200.0
+
+test fuzzy-api-2.9 "tfloor: not a number" -body {
+    fz {tfloor x}
+} -returnCodes error -result {expected floating-point number but got "x"}
+
+foreach cmd {tfloor tceil tround} {
+    test fuzzy-api-2.10.$cmd "$cmd: wrong # args" -body {
+	::math::fuzzy::$cmd
+    } -returnCodes error -result "wrong # args: should be \"::math::fuzzy::$cmd number\""
+}
+unset cmd
+
+test fuzzy-api-2.11 "troundn: wrong # args" -body {
+    ::math::fuzzy::troundn 1
+} -returnCodes error -result {wrong # args: should be "::math::fuzzy::troundn number ndec"}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::fuzzytest
+rename fz {}
+
+# End of test cases
+testsuiteCleanup

@@ -1,0 +1,255 @@
+# -*- tcl -*-
+# figurate-api.test --
+#    Additional API tests for the ::math::figurate package:
+#    commands not covered by figurate.test, negative arguments,
+#    large arguments and error cases.
+#
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.1
+
+testing {
+    useLocal figurate.tcl math::figurate
+}
+
+# -------------------------------------------------------------------------
+
+proc Values {cmd from to} {
+    set r {}
+    for {set n $from} {$n <= $to} {incr n} {
+        lappend r [::math::figurate::$cmd $n]
+    }
+    return $r
+}
+
+proc BruteSum {n power odd} {
+    set sum 0
+    for {set i 1} {$i <= $n} {incr i} {
+        set b [expr {$odd ? 2*$i - 1 : $i}]
+        set sum [expr {$sum + $b**$power}]
+    }
+    return $sum
+}
+
+set sumCmds {
+    1 sum_sequence 2 sum_squares 3 sum_cubes 4 sum_4th_power
+    5 sum_5th_power 6 sum_6th_power 7 sum_7th_power 8 sum_8th_power
+    9 sum_9th_power 10 sum_10th_power
+}
+
+set figCmds {
+    oblong pronic triangular square cubic biquadratic centeredTriangular
+    centeredSquare centeredPentagonal centeredHexagonal centeredCube
+    decagonal heptagonal hexagonal octagonal octahedral pentagonal
+    squarePyramidal tetrahedral pentatope
+}
+
+# -------------------------------------------------------------------------
+# Commands not tested in figurate.test
+
+# OEIS A005900
+test figurate-api-1.1 {octahedral numbers} -body {
+    Values octahedral 0 10
+} -result {0 1 6 19 44 85 146 231 344 489 670}
+
+test figurate-api-1.2 {square numbers} -body {
+    Values square 0 6
+} -result {0 1 4 9 16 25 36}
+
+test figurate-api-1.3 {cubic numbers} -body {
+    Values cubic 0 6
+} -result {0 1 8 27 64 125 216}
+
+test figurate-api-1.4 {biquadratic numbers} -body {
+    Values biquadratic 0 6
+} -result {0 1 16 81 256 625 1296}
+
+# The manual page documents the name "squarePyramidral", the package
+# provides "squarePyramidal".
+test figurate-api-1.5 {squarePyramidral, name as documented} -constraints {
+    knownBug
+} -body {
+    Values squarePyramidral 0 5
+} -result {0 1 5 14 30 55}
+
+test figurate-api-1.6 {squarePyramidal equals sum_squares} -body {
+    expr {[Values squarePyramidal 0 30] eq [Values sum_squares 0 30]}
+} -result 1
+
+# -------------------------------------------------------------------------
+# Sums compared to direct summation
+
+test figurate-api-2.1 {sums of powers, compared to direct summation} -body {
+    set bad {}
+    foreach {p cmd} $sumCmds {
+        for {set n 0} {$n <= 25} {incr n} {
+            if {[::math::figurate::$cmd $n] != [BruteSum $n $p 0]} {
+                lappend bad $cmd $n
+            }
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad p cmd n
+} -result {}
+
+test figurate-api-2.2 {sums of odd powers, compared to direct summation} -body {
+    set bad {}
+    foreach {p cmd} $sumCmds {
+        for {set n 0} {$n <= 25} {incr n} {
+            if {[::math::figurate::${cmd}_odd $n] != [BruteSum $n $p 1]} {
+                lappend bad ${cmd}_odd $n
+            }
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad p cmd n
+} -result {}
+
+test figurate-api-2.3 {sums, exact for large arguments} -body {
+    list [::math::figurate::sum_sequence 1000000000000] \
+         [expr {[::math::figurate::sum_10th_power 1000] == [BruteSum 1000 10 0]}] \
+         [expr {[::math::figurate::sum_10th_power_odd 500] == [BruteSum 500 10 1]}]
+} -result {500000000000500000000000 1 1}
+
+test figurate-api-2.4 {sum_sequence_odd n is n squared} -body {
+    expr {[Values sum_sequence_odd 1 50] eq [Values square 1 50]}
+} -result 1
+
+test figurate-api-2.5 {sum_cubes is the square of sum_sequence} -body {
+    set bad {}
+    for {set n 0} {$n <= 50} {incr n} {
+        if {[::math::figurate::sum_cubes $n] != [::math::figurate::sum_sequence $n]**2} {
+            lappend bad $n
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad n
+} -result {}
+
+# -------------------------------------------------------------------------
+# Arguments lower than zero mean "no objects": the result is 0
+
+test figurate-api-3.1 {sums, negative arguments return 0} -body {
+    set r {}
+    foreach {p cmd} $sumCmds {
+        lappend r [::math::figurate::$cmd -1] [::math::figurate::$cmd -10] \
+                  [::math::figurate::${cmd}_odd -1] [::math::figurate::${cmd}_odd -10]
+    }
+    lsort -unique $r
+} -cleanup {
+    unset -nocomplain r p cmd
+} -result 0
+
+test figurate-api-3.2 {figurate numbers, negative arguments return 0} -body {
+    set r {}
+    foreach cmd $figCmds {
+        lappend r [::math::figurate::$cmd -1] [::math::figurate::$cmd -7]
+    }
+    lsort -unique $r
+} -cleanup {
+    unset -nocomplain r cmd
+} -result 0
+
+test figurate-api-3.3 {figurate numbers, argument 0 returns 0} -body {
+    set r {}
+    foreach cmd $figCmds {
+        lappend r [::math::figurate::$cmd 0]
+    }
+    lsort -unique $r
+} -cleanup {
+    unset -nocomplain r cmd
+} -result 0
+
+test figurate-api-3.4 {figurate numbers, argument 1 returns 1} -body {
+    set r {}
+    foreach cmd $figCmds {
+        if {$cmd in {oblong pronic}} continue
+        lappend r [::math::figurate::$cmd 1]
+    }
+    lsort -unique $r
+} -cleanup {
+    unset -nocomplain r cmd
+} -result 1
+
+# -------------------------------------------------------------------------
+# Relations between the figurate numbers
+
+test figurate-api-4.1 {oblong is twice triangular} -body {
+    set bad {}
+    for {set n 0} {$n <= 40} {incr n} {
+        if {[::math::figurate::oblong $n] != 2*[::math::figurate::triangular $n]} {
+            lappend bad $n
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad n
+} -result {}
+
+test figurate-api-4.2 {tetrahedral is the sum of triangular numbers} -body {
+    set bad {}
+    set sum 0
+    for {set n 0} {$n <= 40} {incr n} {
+        incr sum [::math::figurate::triangular $n]
+        if {[::math::figurate::tetrahedral $n] != $sum} {
+            lappend bad $n
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad n sum
+} -result {}
+
+test figurate-api-4.3 {pentatope is the sum of tetrahedral numbers} -body {
+    set bad {}
+    set sum 0
+    for {set n 0} {$n <= 40} {incr n} {
+        incr sum [::math::figurate::tetrahedral $n]
+        if {[::math::figurate::pentatope $n] != $sum} {
+            lappend bad $n
+        }
+    }
+    set bad
+} -cleanup {
+    unset -nocomplain bad n sum
+} -result {}
+
+test figurate-api-4.4 {large arguments give exact integers} -body {
+    list [::math::figurate::pentatope 1000000] \
+         [::math::figurate::octahedral 1000000]
+} -result {41666916667125000250000 666666666667000000}
+
+# -------------------------------------------------------------------------
+# Errors
+
+test figurate-api-5.1 {wrong # args} -body {
+    ::math::figurate::triangular
+} -returnCodes error -result {wrong # args: should be "::math::figurate::triangular n"}
+
+test figurate-api-5.2 {wrong # args, too many} -body {
+    ::math::figurate::sum_squares_odd 1 2
+} -returnCodes error -result {wrong # args: should be "::math::figurate::sum_squares_odd n"}
+
+test figurate-api-5.3 {non-numeric argument} -body {
+    ::math::figurate::pentagonal abc
+} -returnCodes error -match glob -result {*non-numeric*}
+
+# -------------------------------------------------------------------------
+
+rename Values {}
+rename BruteSum {}
+unset -nocomplain sumCmds figCmds
+
+testsuiteCleanup

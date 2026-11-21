@@ -1,0 +1,334 @@
+# -*- tcl -*-
+# filtergen-api.test --
+#     Additional API tests for the math::filters package: argument
+#     checks, higher orders, gains of the filters, the ripple factor,
+#     the reset method and the optional yinit argument of filter objects.
+#     Complements filtergen.test.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal filtergen.tcl math::filters
+}
+
+# -------------------------------------------------------------------------
+
+proc filterApiMatch {expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach e $expected a $actual {
+        if {![string is double -strict $a] || abs($a - $e) > 1.0e-6} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch tolerant filterApiMatch
+
+# Steady state response of a filter to a constant signal and to a signal
+# at the Nyquist frequency (+1, -1, +1, ...): the absolute value of the
+# last filtered value.
+proc filterApiGain {coeffs kind} {
+    set data {}
+    for {set i 0} {$i < 400} {incr i} {
+        if {$kind eq "dc"} {
+            lappend data 1.0
+        } else {
+            lappend data [expr {$i % 2 ? -1.0 : 1.0}]
+        }
+    }
+    return [expr {abs([lindex [::math::filters::filter $coeffs $data] end])}]
+}
+
+set moduleDir [file dirname [file join [pwd] [info script]]]
+
+# -------------------------------------------------------------------------
+# Package
+
+test filtergen-api-0.1 {package require through pkgIndex.tcl} -constraints {
+    knownBug
+} -setup {
+    set ip [interp create]
+} -body {
+    $ip eval [list set dir $moduleDir]
+    $ip eval {
+        source [file join $dir pkgIndex.tcl]
+        package require math::filters
+    }
+} -cleanup {
+    interp delete $ip
+    unset ip
+} -result 0.4
+
+# -------------------------------------------------------------------------
+# filterButterworth
+
+test filtergen-api-1.1 {filterButterworth, odd order} -body {
+    ::math::filters::filterButterworth 1 3 100 20
+} -returnCodes error -result {The order must be an even positive integer}
+
+test filtergen-api-1.2 {filterButterworth, order zero} -body {
+    ::math::filters::filterButterworth 1 0 100 20
+} -returnCodes error -result {The order must be an even positive integer}
+
+test filtergen-api-1.3 {filterButterworth, order not an integer} -body {
+    ::math::filters::filterButterworth 1 x 100 20
+} -returnCodes error -result {The order must be an even positive integer}
+
+test filtergen-api-1.4 {filterButterworth, zero sample frequency} -body {
+    ::math::filters::filterButterworth 1 2 0 20
+} -returnCodes error -result {The frequencies must be positive}
+
+test filtergen-api-1.5 {filterButterworth, zero cutoff frequency} -body {
+    ::math::filters::filterButterworth 1 2 100 0
+} -returnCodes error -result {The frequencies must be positive}
+
+test filtergen-api-1.6 {filterButterworth, cutoff above half the sample frequency} -body {
+    ::math::filters::filterButterworth 1 2 100 60
+} -returnCodes error -result {The cutoff frequency must be higher than half the sample frequency}
+
+test filtergen-api-1.7 {filterButterworth, wrong # args} -body {
+    ::math::filters::filterButterworth 1 2 100
+} -returnCodes error -result {wrong # args: should be "::math::filters::filterButterworth lowpass order samplefreq cutofffreq"}
+
+test filtergen-api-1.8 {filterButterworth, order 4: two sections} -body {
+    lmap c [::math::filters::filterButterworth 1 4 100 20] {llength $c}
+} -result {1 1 2 2 2}
+
+test filtergen-api-1.9 {filterButterworth low-pass, gains} -body {
+    set r {}
+    foreach order {2 4 6} {
+        set c [::math::filters::filterButterworth 1 $order 100 20]
+        lappend r [filterApiGain $c dc] [filterApiGain $c nyquist]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r order c
+} -match tolerant -result {1.0 0.0 1.0 0.0 1.0 0.0}
+
+test filtergen-api-1.10 {filterButterworth high-pass, gain for a constant signal} -body {
+    set r {}
+    foreach order {2 4 6} {
+        lappend r [filterApiGain [::math::filters::filterButterworth 0 $order 100 20] dc]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r order
+} -match tolerant -result {0.0 0.0 0.0}
+
+test filtergen-api-1.11 {filterButterworth high-pass, gain at the Nyquist frequency} -constraints {
+    knownBug
+} -body {
+    set r {}
+    foreach order {2 4 6} {
+        lappend r [filterApiGain [::math::filters::filterButterworth 0 $order 100 20] nyquist]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r order
+} -match tolerant -result {1.0 1.0 1.0}
+
+# -------------------------------------------------------------------------
+# filterChebyshev
+
+test filtergen-api-2.1 {filterChebyshev, odd order} -body {
+    ::math::filters::filterChebyshev 1 1 100 20
+} -returnCodes error -result {The order must be an even positive integer}
+
+test filtergen-api-2.2 {filterChebyshev, negative frequency} -body {
+    ::math::filters::filterChebyshev 1 2 -100 20
+} -returnCodes error -result {The frequencies must be positive}
+
+test filtergen-api-2.3 {filterChebyshev, cutoff above half the sample frequency} -body {
+    ::math::filters::filterChebyshev 1 2 100 60
+} -returnCodes error -result {The cutoff frequency must be higher than half the sample frequency}
+
+test filtergen-api-2.4 {filterChebyshev, cutoff must be less than half the sample frequency} -constraints {
+    knownBug
+} -body {
+    ::math::filters::filterChebyshev 1 2 100 50
+} -returnCodes error -match glob -result *
+
+test filtergen-api-2.5 {filterChebyshev, zero ripple factor} -body {
+    ::math::filters::filterChebyshev 1 2 100 20 0
+} -returnCodes error -result {The ripple factor should be positive}
+
+test filtergen-api-2.6 {filterChebyshev, negative ripple factor} -body {
+    ::math::filters::filterChebyshev 1 2 100 20 -1
+} -returnCodes error -result {The ripple factor should be positive}
+
+test filtergen-api-2.7 {filterChebyshev, wrong # args} -body {
+    ::math::filters::filterChebyshev 1 2 100
+} -returnCodes error -result {wrong # args: should be "::math::filters::filterChebyshev lowpass order samplefreq cutofffreq ?epsilon?"}
+
+test filtergen-api-2.8 {filterChebyshev, default ripple factor is 0.1} -body {
+    expr {[::math::filters::filterChebyshev 1 4 100 20] eq
+          [::math::filters::filterChebyshev 1 4 100 20 0.1]}
+} -result 1
+
+test filtergen-api-2.9 {filterChebyshev low-pass, gain for a constant signal} -body {
+    # Even order: the gain at frequency 0 is 1/sqrt(1+epsilon**2)
+    set r {}
+    foreach order {2 4} {
+        foreach eps {0.1 0.5} {
+            lappend r [filterApiGain [::math::filters::filterChebyshev 1 $order 100 20 $eps] dc]
+        }
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r order eps
+} -match tolerant -result [list [expr {1/sqrt(1.01)}] [expr {1/sqrt(1.25)}] \
+                                [expr {1/sqrt(1.01)}] [expr {1/sqrt(1.25)}]]
+
+test filtergen-api-2.10 {filterChebyshev low-pass, gain at the Nyquist frequency} -body {
+    list [filterApiGain [::math::filters::filterChebyshev 1 2 100 20] nyquist] \
+         [filterApiGain [::math::filters::filterChebyshev 1 4 100 20] nyquist]
+} -match tolerant -result {0.0 0.0}
+
+test filtergen-api-2.11 {filterChebyshev high-pass, gain for a constant signal} -body {
+    list [filterApiGain [::math::filters::filterChebyshev 0 2 100 20] dc] \
+         [filterApiGain [::math::filters::filterChebyshev 0 4 100 20] dc]
+} -match tolerant -result {0.0 0.0}
+
+test filtergen-api-2.12 {filterChebyshev high-pass, gain at the Nyquist frequency} -constraints {
+    knownBug
+} -body {
+    # Even order: the gain in the pass band lies between
+    # 1/sqrt(1+epsilon**2) and 1
+    set r {}
+    foreach order {2 4} {
+        set g [filterApiGain [::math::filters::filterChebyshev 0 $order 100 20] nyquist]
+        lappend r [expr {$g >= 1/sqrt(1.01) - 1.0e-6 && $g <= 1.0 + 1.0e-6}]
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r order g
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# filter
+
+test filtergen-api-3.1 {filter, empty data} -body {
+    ::math::filters::filter [::math::filters::filterButterworth 1 2 100 20] {}
+} -result {}
+
+test filtergen-api-3.2 {filter, length of the result} -body {
+    llength [::math::filters::filter [::math::filters::filterChebyshev 1 4 100 20] \
+                 {1 2 3 4 5 6 7}]
+} -result 7
+
+test filtergen-api-3.3 {filter, linearity} -body {
+    set c  [::math::filters::filterButterworth 1 4 100 10]
+    set x  {1 0 -2 3 5 1 0 0 2 -1}
+    set f1 [::math::filters::filter $c $x]
+    set f2 [::math::filters::filter $c [lmap v $x {expr {3.0 * $v}}]]
+    set diff {}
+    foreach a $f1 b $f2 {
+        lappend diff [expr {3.0 * $a - $b}]
+    }
+    set diff
+} -cleanup {
+    unset -nocomplain c x f1 f2 diff a b
+} -match tolerant -result {0 0 0 0 0 0 0 0 0 0}
+
+test filtergen-api-3.4 {filter, wrong # args} -body {
+    ::math::filters::filter {2.0 1.0 0.5 0.5 0.5}
+} -returnCodes error -result {wrong # args: should be "::math::filters::filter coeff data"}
+
+# -------------------------------------------------------------------------
+# filterObject
+
+test filtergen-api-4.1 {filterObject filter equals the filter command} -setup {
+    set c   [::math::filters::filterChebyshev 1 4 100 20]
+    set obj [::math::filters::filterObject new $c]
+} -body {
+    set data {1 2 3 -1 0 4 2}
+    set r {}
+    foreach x $data {
+        lappend r [$obj filter $x]
+    }
+    expr {$r eq [::math::filters::filter $c $data]}
+} -cleanup {
+    $obj destroy
+    unset -nocomplain c obj data r x
+} -result 1
+
+test filtergen-api-4.2 {filterObject reset starts anew} -setup {
+    set obj [::math::filters::filterObject new \
+                 [::math::filters::filterButterworth 1 2 100 20]]
+} -body {
+    set a {}
+    foreach x {1 2 3} {
+        lappend a [$obj filter $x]
+    }
+    $obj reset
+    set b {}
+    foreach x {1 2 3} {
+        lappend b [$obj filter $x]
+    }
+    expr {$a eq $b}
+} -cleanup {
+    $obj destroy
+    unset -nocomplain obj a b x
+} -result 1
+
+test filtergen-api-4.3 {filterObject reset clears the state} -setup {
+    set obj [::math::filters::filterObject new \
+                 [::math::filters::filterButterworth 1 2 100 20]]
+} -body {
+    $obj filter 5.0
+    $obj reset
+    $obj filter 0.0
+} -cleanup {
+    $obj destroy
+    unset obj
+} -match tolerant -result 0.0
+
+test filtergen-api-4.4 {filterObject create NAME} -body {
+    ::math::filters::filterObject create filterApiObj \
+        [::math::filters::filterButterworth 1 2 100 20]
+} -cleanup {
+    filterApiObj destroy
+} -result ::filterApiObj
+
+test filtergen-api-4.5 {filterObject new with yinit, as documented} -constraints {
+    knownBug
+} -setup {
+    set obj {}
+} -body {
+    set obj [::math::filters::filterObject new \
+                 [::math::filters::filterButterworth 1 2 100 20] {0.0 0.0}]
+    $obj filter 0.0
+} -cleanup {
+    if {$obj ne ""} {$obj destroy}
+    unset obj
+} -match tolerant -result 0.0
+
+test filtergen-api-4.6 {filterObject filter, wrong # args} -setup {
+    set obj [::math::filters::filterObject new \
+                 [::math::filters::filterButterworth 1 2 100 20]]
+} -body {
+    $obj filter
+} -cleanup {
+    $obj destroy
+    unset obj
+} -returnCodes error -match glob -result {wrong # args: should be "* filter x"}
+
+# -------------------------------------------------------------------------
+
+rename filterApiMatch {}
+rename filterApiGain {}
+unset -nocomplain moduleDir
+
+testsuiteCleanup

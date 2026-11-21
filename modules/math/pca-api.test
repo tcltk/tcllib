@@ -1,0 +1,415 @@
+# -*- tcl -*-
+# pca-api.test --
+#     Additional API tests for the math::PCA package: methods and options
+#     not covered by pca.test (using, proportions, distance, the
+#     -covariances option), edge cases and error cases.
+#
+
+source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl       math
+    useLocal linalg.tcl     math::linearalgebra
+    useLocal statistics.tcl math::statistics
+}
+testing {
+    useLocal pca.tcl math::PCA
+}
+
+# -------------------------------------------------------------------------
+# Compare (nested) lists of numbers with a tolerance
+
+proc pcaApiMatch {expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach e $expected a $actual {
+        if {[llength $e] > 1 || [llength $a] > 1} {
+            if {![pcaApiMatch $e $a]} {
+                return 0
+            }
+        } elseif {![string is double -strict $a] || ![string is double -strict $e]} {
+            if {$a ne $e} {
+                return 0
+            }
+        } elseif {abs($a - $e) > 1.0e-6 * max(1.0, abs($e))} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch tolerant pcaApiMatch
+
+set data {
+    {7 4 3}
+    {4 1 8}
+    {6 3 5}
+    {8 6 1}
+    {8 5 7}
+    {7 2 9}
+    {5 3 3}
+    {9 5 8}
+    {7 4 5}
+    {8 2 2}
+}
+
+# Eigenvalues of the correlation matrix (see pca.test)
+set eigen {1.768774136103425 0.9270759168988945 0.30414994699768233}
+
+# -------------------------------------------------------------------------
+# createPCA
+
+test pca-api-1.1 {createPCA, wrong # args} -body {
+    ::math::PCA::createPCA
+} -returnCodes error -result {wrong # args: should be "::math::PCA::createPCA data ?arg ...?"}
+
+test pca-api-1.2 {createPCA, data with only one component} -body {
+    ::math::PCA::createPCA {{1} {2} {3}}
+} -returnCodes error -result {The data should contain at least two components}
+
+test pca-api-1.3 {createPCA, unknown option} -body {
+    ::math::PCA::createPCA $data -foo 1
+} -returnCodes error -result {Unknown option: -foo}
+
+test pca-api-1.4 {createPCA, result is an object} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    info object isa object $pca
+} -cleanup {
+    $pca destroy
+    unset pca
+} -result 1
+
+test pca-api-1.5 {createPCA, correlations: eigenvalues sum to the number of components} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    tcl::mathop::+ {*}[$pca eigenvalues -all]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result 3.0
+
+# The manual page documents the option as -covariances, the code only
+# accepts -covariance.
+test pca-api-1.6 {createPCA -covariances 1, as documented} -constraints {
+    knownBug
+} -setup {
+    set pca {}
+} -body {
+    set pca [::math::PCA::createPCA $data -covariances 1]
+    $pca eigenvalues
+} -cleanup {
+    if {$pca ne ""} {$pca destroy}
+    unset pca
+} -match tolerant -result {8.273942580407862 3.6761292667973344 0.7499281527948025}
+
+test pca-api-1.7 {createPCA -covariance 1: eigenvalues of the covariance matrix} -setup {
+    set pca [::math::PCA::createPCA $data -covariance 1]
+} -body {
+    list [$pca eigenvalues] [tcl::mathop::+ {*}[$pca eigenvalues]]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result {{8.273942580407862 3.6761292667973344 0.7499281527948025} 12.7}
+
+test pca-api-1.8 {createPCA -covariance 0 is the default} -setup {
+    set pca [::math::PCA::createPCA $data -covariance 0]
+} -body {
+    $pca eigenvalues
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result $eigen
+
+# -------------------------------------------------------------------------
+# using
+
+test pca-api-2.1 {using, default is all components} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using
+} -cleanup {
+    $pca destroy
+    unset pca
+} -result 3
+
+test pca-api-2.2 {using, returns the number set} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    list [$pca using 2] [$pca using] [llength [$pca eigenvalues]]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -result {2 2 2}
+
+test pca-api-2.3 {using, out of range} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    list [catch {$pca using 0} m1] $m1 [catch {$pca using 4} m2] $m2
+} -cleanup {
+    $pca destroy
+    unset pca m1 m2
+} -result {1 {Number of components to be used must be between 1 and 3} 1 {Number of components to be used must be between 1 and 3}}
+
+test pca-api-2.4 {using, not an integer} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using x
+} -cleanup {
+    $pca destroy
+    unset pca
+} -returnCodes error -result {Number of components to be used must be between 1 and 3}
+
+test pca-api-2.5 {using, a rejected value does not change the setting} -constraints {
+    knownBug
+} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 2
+    catch {$pca using x}
+    $pca using
+} -cleanup {
+    $pca destroy
+    unset pca
+} -result 2
+
+test pca-api-2.6 {using, too many arguments} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 1 2 3
+} -cleanup {
+    $pca destroy
+    unset pca
+} -returnCodes error -result {Wrong arguments: use either the number of components or the minimal proportion}
+
+test pca-api-2.7 {using -minproportion, out of range} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using -minproportion 2
+} -cleanup {
+    $pca destroy
+    unset pca
+} -returnCodes error -result {Wrong arguments: the minimum proportion must be a number between 0 and 1 - it is "2"}
+
+test pca-api-2.8 {using -minproportion, selects the number of components} -constraints {
+    knownBug
+} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    # Proportions are about 0.590, 0.309 and 0.101
+    list [$pca using -minproportion 0.5] \
+         [$pca using -minproportion 0.85] \
+         [$pca using -minproportion 0.95]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -result {1 2 3}
+
+test pca-api-2.9 {using 1: eigenvectors as a list of lists} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 1
+    $pca eigenvectors
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result {{0.6420045763498947} {0.6863616413605773} {-0.3416691692479824}}
+
+test pca-api-2.10 {using 1: scores of an observation} -constraints {
+    knownBug
+} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 1
+    $pca scores [lindex $data 0]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result {0.5148128141212557}
+
+test pca-api-2.11 {using 1: eigenvalues} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 1
+    $pca eigenvalues
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result {1.768774136103425}
+
+# -------------------------------------------------------------------------
+# eigenvectors, eigenvalues
+
+test pca-api-3.1 {eigenvectors are orthonormal} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    set v [$pca eigenvectors -all]
+    ::math::linearalgebra::matmul [::math::linearalgebra::transpose $v] $v
+} -cleanup {
+    $pca destroy
+    unset pca v
+} -match tolerant -result {{1.0 0.0 0.0} {0.0 1.0 0.0} {0.0 0.0 1.0}}
+
+test pca-api-3.2 {eigenvalues are in decreasing order} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    set e [$pca eigenvalues]
+    expr {[lsort -real -decreasing $e] eq $e}
+} -cleanup {
+    $pca destroy
+    unset pca e
+} -result 1
+
+# -------------------------------------------------------------------------
+# proportions
+
+test pca-api-4.1 {proportions of the variation explained} -constraints {
+    knownBug
+} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca proportions
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result [list [expr {[lindex $eigen 0]/3.0}] \
+                                [expr {[lindex $eigen 1]/3.0}] \
+                                [expr {[lindex $eigen 2]/3.0}]]
+
+test pca-api-4.2 {proportions does not affect later approximations} -constraints {
+    knownBug
+} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 2
+    $pca proportions
+    $pca approximate [lindex $data 0]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result {7.03386897006181 3.961810336299144 2.981031668611465}
+
+# -------------------------------------------------------------------------
+# approximate, approximateOriginal, scores
+
+test pca-api-5.1 {approximate with all components reconstructs a new observation} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca approximate {1 2 3}
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result {1.0 2.0 3.0}
+
+test pca-api-5.2 {approximate, wrong # args} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca approximate
+} -cleanup {
+    $pca destroy
+    unset pca
+} -returnCodes error -match glob -result {wrong # args: should be "* approximate observation"}
+
+# The manual page documents the method as "approximatOriginal"
+test pca-api-5.3 {approximatOriginal, name as documented} -constraints {
+    knownBug
+} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca approximatOriginal
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result $data
+
+test pca-api-5.4 {approximateOriginal with two components} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 2
+    set approx [$pca approximateOriginal]
+    list [llength $approx] [lindex $approx 0] \
+        [expr {[lindex $approx 3] eq [$pca approximate [lindex $data 3]]}]
+} -cleanup {
+    $pca destroy
+    unset pca approx
+} -match tolerant -result {10 {7.03386897006181 3.961810336299144 2.981031668611465} 1}
+
+test pca-api-5.5 {scores with all components preserve the normalised length} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    # Squared length of the scores of an observation from the data set
+    # equals the squared length of the normalised observation
+    set s [$pca scores [lindex $data 0]]
+    set z [lindex [::math::PCA::Transform $data 1] 0 0]
+    expr {[::math::linearalgebra::dotproduct $s $s] -
+          [::math::linearalgebra::dotproduct $z $z]}
+} -cleanup {
+    $pca destroy
+    unset pca s z
+} -match tolerant -result 0.0
+
+test pca-api-5.6 {scores, wrong # args} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca scores
+} -cleanup {
+    $pca destroy
+    unset pca
+} -returnCodes error -match glob -result {wrong # args: should be "* scores observation"}
+
+# -------------------------------------------------------------------------
+# distance, qstatistic
+
+test pca-api-6.1 {distance is the square root of the Q statistic} -constraints {
+    knownBug
+} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 2
+    $pca distance [lindex $data 0]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result [expr {sqrt(0.001123022217614874)}]
+
+test pca-api-6.2 {qstatistic with all components is zero} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca qstatistic [lindex $data 4]
+} -cleanup {
+    $pca destroy
+    unset pca
+} -match tolerant -result 0.0
+
+test pca-api-6.3 {qstatistic, unknown option} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca qstatistic [lindex $data 0] -foo
+} -cleanup {
+    $pca destroy
+    unset pca
+} -returnCodes error -result {Unknown option: -foo - should be "-original"}
+
+test pca-api-6.4 {qstatistic -original is the scaled Q statistic} -setup {
+    set pca [::math::PCA::createPCA $data]
+} -body {
+    $pca using 2
+    set q  [$pca qstatistic [lindex $data 2]]
+    set qo [$pca qstatistic [lindex $data 2] -original]
+    expr {$qo / $q}
+} -cleanup {
+    $pca destroy
+    unset pca q qo
+} -match tolerant -result [expr {10.0 / 7.0}]
+
+# -------------------------------------------------------------------------
+
+rename pcaApiMatch {}
+unset -nocomplain data eigen
+
+testsuiteCleanup

@@ -1,0 +1,754 @@
+# -*- tcl -*-
+# decimal-api.test --
+#    Tests for the documented API of the math::decimal package, in
+#    addition to decimal.test.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+#
+# Expected values follow the General Decimal Arithmetic specification
+# (default context of the package: precision 20, rounding half_up,
+# extended mode).
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal decimal.tcl math::decimal
+}
+
+# -------------------------------------------------------------------------
+
+namespace eval ::dectest {
+    namespace import ::math::decimal::*
+    proc D {string}  {::math::decimal::fromstr $string}
+    proc S {decimal} {::math::decimal::tostr $decimal}
+
+    # Restore the default context
+    proc reset {} {
+	::math::decimal::setVariable precision   20
+	::math::decimal::setVariable rounding    half_up
+	::math::decimal::setVariable extended    1
+	::math::decimal::setVariable maxExponent 999
+	::math::decimal::setVariable minExponent -998
+    }
+}
+
+# -------------------------------------------------------------------------
+
+test decimal-api-1.1 "fromstr: integer" -body {
+    namespace eval ::dectest {fromstr 42}
+} -result {0 42 0}
+
+test decimal-api-1.2 "fromstr: decimal fraction" -body {
+    namespace eval ::dectest {fromstr 8.2}
+} -result {0 82 -1}
+
+test decimal-api-1.3 "fromstr: negative number" -body {
+    namespace eval ::dectest {fromstr -0.5}
+} -result {1 5 -1}
+
+test decimal-api-1.4 "fromstr: leading point" -body {
+    namespace eval ::dectest {fromstr .2}
+} -result {0 2 -1}
+
+test decimal-api-1.5 "fromstr: exponent" -body {
+    namespace eval ::dectest {fromstr 1.5E3}
+} -result {0 15 2}
+
+test decimal-api-1.6 "fromstr: lower case exponent" -body {
+    namespace eval ::dectest {fromstr 12e-2}
+} -result {0 12 -2}
+
+test decimal-api-1.7 "fromstr: trailing zeros are kept" -body {
+    namespace eval ::dectest {fromstr 0.00}
+} -result {0 0 -2}
+
+test decimal-api-1.8 "fromstr: negative zero" -body {
+    namespace eval ::dectest {fromstr -0}
+} -result {1 0 0}
+
+test decimal-api-1.9 "fromstr: infinity" -body {
+    namespace eval ::dectest {fromstr Inf}
+} -result {0 Inf 0}
+
+test decimal-api-1.10 "fromstr: negative infinity" -body {
+    namespace eval ::dectest {fromstr -Inf}
+} -result {1 Inf 0}
+
+test decimal-api-1.11 "fromstr: NaN" -body {
+    namespace eval ::dectest {fromstr NaN}
+} -result {0 NaN 0}
+
+
+test decimal-api-2.1 "tostr: integer" -body {
+    namespace eval ::dectest {tostr {0 1500 0}}
+} -result 1500
+
+test decimal-api-2.2 "tostr: positive exponent" -body {
+    namespace eval ::dectest {tostr {0 1 3}}
+} -result 1E+3
+
+test decimal-api-2.3 "tostr: positive exponent, several digits" -body {
+    namespace eval ::dectest {tostr {0 123 2}}
+} -result 1.23E+4
+
+test decimal-api-2.4 "tostr: trailing zeros" -body {
+    namespace eval ::dectest {tostr {1 1250 -2}}
+} -result -12.50
+
+test decimal-api-2.5 "tostr: small number in plain notation" -body {
+    namespace eval ::dectest {tostr {0 1 -6}}
+} -result 0.000001
+
+test decimal-api-2.6 "tostr: small number in scientific notation" -body {
+    namespace eval ::dectest {tostr {0 1 -7}}
+} -result 1E-7
+
+test decimal-api-2.7 "tostr: small number with several digits" -body {
+    namespace eval ::dectest {tostr {0 125 -9}}
+} -result 1.25E-7
+
+test decimal-api-2.8 "tostr: infinity" -body {
+    namespace eval ::dectest {tostr {1 Inf 0}}
+} -result -Inf
+
+test decimal-api-2.9 "tostr: NaN" -body {
+    namespace eval ::dectest {tostr {0 NaN 0}}
+} -result NaN
+
+test decimal-api-2.10 "tostr: round trip" -body {
+    namespace eval ::dectest {tostr [fromstr -123.4560]}
+} -result -123.4560
+
+
+test decimal-api-3.1 "add: example from the manual" -body {
+    namespace eval ::dectest {S [add [D 8.2] [D .2]]}
+} -result 8.4
+
+test decimal-api-3.2 "add: operator form" -body {
+    namespace eval ::dectest {S [+ [D 8.2] [D .2]]}
+} -result 8.4
+
+test decimal-api-3.3 "add: different exponents" -body {
+    namespace eval ::dectest {S [add [D 12] [D 7.00]]}
+} -result 19.00
+
+test decimal-api-3.4 "add: negative operand" -body {
+    namespace eval ::dectest {S [add [D 1.3] [D -2.07]]}
+} -result -0.77
+
+test decimal-api-3.5 "add: infinity plus finite" -body {
+    namespace eval ::dectest {S [add [D Inf] [D 1]]}
+} -result Inf
+
+test decimal-api-3.6 "add: infinity minus infinity" -body {
+    namespace eval ::dectest {S [add [D Inf] [D -Inf]]}
+} -result NaN
+
+test decimal-api-3.7 "add: NaN operand" -body {
+    namespace eval ::dectest {S [add [D NaN] [D 1]]}
+} -result NaN
+
+test decimal-api-3.8 "add: exact where expr is not" -body {
+    namespace eval ::dectest {S [add [D 0.1] [D 0.2]]}
+} -result 0.3
+
+
+test decimal-api-4.1 "subtract: example from the manual" -body {
+    namespace eval ::dectest {S [subtract [D 8.2] [D .2]]}
+} -result 8.0
+
+test decimal-api-4.2 "subtract: operator form" -body {
+    namespace eval ::dectest {S [- [D 8.2] [D .2]]}
+} -result 8.0
+
+test decimal-api-4.3 "subtract: negative result" -body {
+    namespace eval ::dectest {S [- [D 1.3] [D 2.07]]}
+} -result -0.77
+
+test decimal-api-4.4 "subtract: equal operands" -body {
+    namespace eval ::dectest {S [- [D 1.30] [D 1.3]]}
+} -result 0.00
+
+
+test decimal-api-5.1 "multiply: exponents are added" -body {
+    namespace eval ::dectest {S [multiply [D 1.20] [D 3]]}
+} -result 3.60
+
+test decimal-api-5.2 "multiply: operator form" -body {
+    namespace eval ::dectest {S [* [D -7] [D 3]]}
+} -result -21
+
+test decimal-api-5.3 "multiply: fractions" -body {
+    namespace eval ::dectest {S [* [D 0.9] [D 0.8]]}
+} -result 0.72
+
+test decimal-api-5.4 "multiply: infinity times zero" -body {
+    namespace eval ::dectest {S [* [D Inf] [D 0]]}
+} -result NaN
+
+test decimal-api-5.5 "multiply: infinity times negative" -body {
+    namespace eval ::dectest {S [* [D Inf] [D -2]]}
+} -result -Inf
+
+
+test decimal-api-6.1 "divide: repeating fraction (precision 20)" -body {
+    namespace eval ::dectest {S [divide [D 1] [D 3]]}
+} -result 0.33333333333333333333
+
+test decimal-api-6.2 "divide: operator form, rounded half up" -body {
+    namespace eval ::dectest {S [/ [D 2] [D 3]]}
+} -result 0.66666666666666666667
+
+test decimal-api-6.3 "divide: exact quotient" -body {
+    namespace eval ::dectest {S [/ [D 5] [D 2]]}
+} -result 2.5
+
+test decimal-api-6.4 "divide: quotient one" -body {
+    namespace eval ::dectest {S [/ [D 12] [D 12]]}
+} -result 1
+
+test decimal-api-6.5 "divide: trailing zeros" -body {
+    namespace eval ::dectest {S [/ [D 2.400] [D 2.0]]}
+} -result 1.20
+
+test decimal-api-6.6 "divide: division by zero" -body {
+    namespace eval ::dectest {S [/ [D 1] [D 0]]}
+} -result Inf
+
+test decimal-api-6.7 "divide: negative division by zero" -body {
+    namespace eval ::dectest {S [/ [D -1] [D 0]]}
+} -result -Inf
+
+test decimal-api-6.8 "divide: zero by zero" -body {
+    namespace eval ::dectest {S [/ [D 0] [D 0]]}
+} -result NaN
+
+
+test decimal-api-7.1 "divideint: quotient below one" -body {
+    namespace eval ::dectest {divideint [D 2] [D 3]}
+} -result 0
+
+test decimal-api-7.2 "divideint: positive operands" -body {
+    namespace eval ::dectest {divideint [D 10] [D 3]}
+} -result 3
+
+test decimal-api-7.3 "divideint: negative dividend" -body {
+    namespace eval ::dectest {divideint [D -10] [D 3]}
+} -result -3
+
+test decimal-api-7.4 "divideint: fractional operands" -body {
+    namespace eval ::dectest {divideint [D 1] [D 0.3]}
+} -result 3
+
+test decimal-api-7.5 "divideint: division by zero" -body {
+    namespace eval ::dectest {divideint [D 1] [D 0]}
+} -result Inf
+
+
+test decimal-api-8.1 "remainder: positive operands" -body {
+    namespace eval ::dectest {remainder [D 10] [D 3]}
+} -result 1
+
+test decimal-api-8.2 "remainder: negative dividend" -body {
+    namespace eval ::dectest {remainder [D -10] [D 3]}
+} -result -1
+
+test decimal-api-8.3 "remainder: fractional dividend" -body {
+    namespace eval ::dectest {remainder [D 10.2] [D 1]}
+} -result 0.2
+
+test decimal-api-8.4 "remainder: fractional operands" -body {
+    namespace eval ::dectest {remainder [D 3.6] [D 1.3]}
+} -result 1.0
+
+
+test decimal-api-9.1 "abs: negative" -body {
+    namespace eval ::dectest {S [abs [D -2.5]]}
+} -result 2.5
+
+test decimal-api-9.2 "abs: positive" -body {
+    namespace eval ::dectest {S [abs [D 2.5]]}
+} -result 2.5
+
+test decimal-api-9.3 "abs: negative infinity" -body {
+    namespace eval ::dectest {S [abs [D -Inf]]}
+} -result Inf
+
+
+test decimal-api-10.1 "compare: less" -body {
+    namespace eval ::dectest {compare [D 2.1] [D 3]}
+} -result -1
+
+test decimal-api-10.2 "compare: equal with different exponents" -body {
+    namespace eval ::dectest {compare [D 2.1] [D 2.10]}
+} -result 0
+
+test decimal-api-10.3 "compare: greater" -body {
+    namespace eval ::dectest {compare [D 3] [D 2.1]}
+} -result 1
+
+test decimal-api-10.4 "compare: negative and positive" -body {
+    namespace eval ::dectest {compare [D -3] [D 2.1]}
+} -result -1
+
+test decimal-api-10.5 "compare: small difference" -body {
+    namespace eval ::dectest {compare [D 1.000001] [D 1.000002]}
+} -result -1
+
+test decimal-api-10.6 "compare: negative infinity" -body {
+    namespace eval ::dectest {compare [D -Inf] [D 1]}
+} -result -1
+
+
+test decimal-api-11.1 "max: first is larger" -body {
+    namespace eval ::dectest {S [max [D 3] [D 2]]}
+} -result 3
+
+test decimal-api-11.2 "max: second is larger" -body {
+    namespace eval ::dectest {S [max [D -10] [D 3]]}
+} -result 3
+
+
+test decimal-api-12.1 "min: second is smaller" -body {
+    namespace eval ::dectest {S [min [D 3] [D 2]]}
+} -result 2
+
+test decimal-api-12.2 "min: first is smaller" -body {
+    namespace eval ::dectest {S [min [D -10] [D 3]]}
+} -result -10
+
+
+test decimal-api-13.1 "maxmag: negative with larger magnitude first" -body {
+    namespace eval ::dectest {S [maxmag [D -10] [D 1]]}
+} -result -10
+
+test decimal-api-13.2 "maxmag: negative with larger magnitude second" -body {
+    namespace eval ::dectest {S [maxmag [D 1] [D -10]]}
+} -result -10
+
+
+test decimal-api-14.1 "minmag: positive with smaller magnitude second" -body {
+    namespace eval ::dectest {S [minmag [D -10] [D 1]]}
+} -result 1
+
+test decimal-api-14.2 "minmag: positive with smaller magnitude first" -body {
+    namespace eval ::dectest {S [minmag [D 1] [D -10]]}
+} -result 1
+
+
+test decimal-api-15.1 "plus: positive" -body {
+    namespace eval ::dectest {S [plus [D 1.3]]}
+} -result 1.3
+
+test decimal-api-15.2 "plus: negative" -body {
+    namespace eval ::dectest {S [plus [D -1.3]]}
+} -result -1.3
+
+
+test decimal-api-16.1 "minus: positive" -body {
+    namespace eval ::dectest {S [minus [D 1.3]]}
+} -result -1.3
+
+test decimal-api-16.2 "minus: negative" -body {
+    namespace eval ::dectest {S [minus [D -1.3]]}
+} -result 1.3
+
+
+test decimal-api-17.1 "copynegate: positive" -body {
+    namespace eval ::dectest {S [copynegate [D 101.5]]}
+} -result -101.5
+
+test decimal-api-17.2 "copynegate: negative" -body {
+    namespace eval ::dectest {S [copynegate [D -101.5]]}
+} -result 101.5
+
+
+test decimal-api-18.1 "copysign: both positive" -body {
+    namespace eval ::dectest {S [copysign [D 1.50] [D 7.33]]}
+} -result 1.50
+
+test decimal-api-18.2 "copysign: negative to positive" -body {
+    namespace eval ::dectest {S [copysign [D -1.50] [D 7.33]]}
+} -result 1.50
+
+test decimal-api-18.3 "copysign: positive to negative" -body {
+    namespace eval ::dectest {S [copysign [D 1.50] [D -7.33]]}
+} -result -1.50
+
+
+test decimal-api-19.1 "is-signed: negative" -body {
+    namespace eval ::dectest {is-signed [D -1]}
+} -result 1
+
+test decimal-api-19.2 "is-signed: positive" -body {
+    namespace eval ::dectest {is-signed [D 1]}
+} -result 0
+
+test decimal-api-19.3 "is-signed: negative zero" -body {
+    namespace eval ::dectest {is-signed [D -0]}
+} -result 1
+
+
+test decimal-api-20.1 "is-zero: zero" -body {
+    namespace eval ::dectest {is-zero [D 0]}
+} -result 1
+
+test decimal-api-20.2 "is-zero: zero with exponent" -body {
+    namespace eval ::dectest {is-zero [D 0.00]}
+} -result 1
+
+test decimal-api-20.3 "is-zero: non-zero" -body {
+    namespace eval ::dectest {is-zero [D 1]}
+} -result 0
+
+
+test decimal-api-21.1 "is-NaN: NaN" -constraints knownBug -body {
+    namespace eval ::dectest {is-NaN [D NaN]}
+} -result 1
+
+test decimal-api-21.2 "is-NaN: number" -body {
+    namespace eval ::dectest {is-NaN [D 1]}
+} -result 0
+
+test decimal-api-21.3 "is-NaN: infinity" -body {
+    namespace eval ::dectest {is-NaN [D Inf]}
+} -result 0
+
+
+test decimal-api-22.1 "is-infinite: infinity" -body {
+    namespace eval ::dectest {is-infinite [D Inf]}
+} -result 1
+
+test decimal-api-22.2 "is-infinite: negative infinity" -body {
+    namespace eval ::dectest {is-infinite [D -Inf]}
+} -result 1
+
+test decimal-api-22.3 "is-infinite: number" -body {
+    namespace eval ::dectest {is-infinite [D 1]}
+} -result 0
+
+
+test decimal-api-23.1 "is-finite: number" -body {
+    namespace eval ::dectest {is-finite [D 1]}
+} -result 1
+
+test decimal-api-23.2 "is-finite: infinity" -body {
+    namespace eval ::dectest {is-finite [D Inf]}
+} -result 0
+
+test decimal-api-23.3 "is-finite: NaN" -constraints knownBug -body {
+    namespace eval ::dectest {is-finite [D NaN]}
+} -result 0
+
+
+test decimal-api-24.1 "fma: positive" -body {
+    namespace eval ::dectest {S [fma [D 3] [D 5] [D 7]]}
+} -result 22
+
+test decimal-api-24.2 "fma: negative product" -body {
+    namespace eval ::dectest {S [fma [D 3] [D -5] [D 7]]}
+} -result -8
+
+test decimal-api-24.3 "fma: exact zero" -body {
+    namespace eval ::dectest {S [fma [D 0.1] [D 0.1] [D -0.01]]}
+} -result 0.00
+
+
+test decimal-api-25.1 "round_half_even: tie to even (down)" -body {
+    namespace eval ::dectest {S [round_half_even [D 2.5] 0]}
+} -result 2
+
+test decimal-api-25.2 "round_half_even: tie to even (up)" -body {
+    namespace eval ::dectest {S [round_half_even [D 3.5] 0]}
+} -result 4
+
+test decimal-api-25.3 "round_half_even: tie at one decimal (down)" -body {
+    namespace eval ::dectest {S [round_half_even [D 2.45] 1]}
+} -result 2.4
+
+test decimal-api-25.4 "round_half_even: tie at one decimal (up)" -body {
+    namespace eval ::dectest {S [round_half_even [D 2.55] 1]}
+} -result 2.6
+
+
+test decimal-api-26.1 "round_half_up: tie" -body {
+    namespace eval ::dectest {S [round_half_up [D 2.5] 0]}
+} -result 3
+
+test decimal-api-26.2 "round_half_up: negative tie" -body {
+    namespace eval ::dectest {S [round_half_up [D -2.5] 0]}
+} -result -3
+
+test decimal-api-26.3 "round_half_up: tie at one decimal" -body {
+    namespace eval ::dectest {S [round_half_up [D 2.45] 1]}
+} -result 2.5
+
+test decimal-api-26.4 "round_half_up: three decimals" -body {
+    namespace eval ::dectest {S [round_half_up [D 1.23456] 3]}
+} -result 1.235
+
+test decimal-api-26.5 "round_half_up: more digits than present" -body {
+    namespace eval ::dectest {S [round_half_up [D 1.2] 3]}
+} -result 1.200
+
+
+test decimal-api-27.1 "round_half_down: tie" -body {
+    namespace eval ::dectest {S [round_half_down [D 2.5] 0]}
+} -result 2
+
+test decimal-api-27.2 "round_half_down: above tie" -body {
+    namespace eval ::dectest {S [round_half_down [D 2.51] 0]}
+} -result 3
+
+test decimal-api-27.3 "round_half_down: negative tie" -body {
+    namespace eval ::dectest {S [round_half_down [D -2.5] 0]}
+} -result -2
+
+
+test decimal-api-28.1 "round_down: positive" -body {
+    namespace eval ::dectest {S [round_down [D 2.9] 0]}
+} -result 2
+
+test decimal-api-28.2 "round_down: negative" -body {
+    namespace eval ::dectest {S [round_down [D -2.9] 0]}
+} -result -2
+
+test decimal-api-28.3 "round_down: negative digits" -body {
+    namespace eval ::dectest {S [round_down [D 123.456] -1]}
+} -result 1.2E+2
+
+
+test decimal-api-29.1 "round_up: positive" -body {
+    namespace eval ::dectest {S [round_up [D 2.1] 0]}
+} -result 3
+
+test decimal-api-29.2 "round_up: negative" -body {
+    namespace eval ::dectest {S [round_up [D -2.1] 0]}
+} -result -3
+
+
+test decimal-api-30.1 "round_floor: positive" -body {
+    namespace eval ::dectest {S [round_floor [D 2.9] 0]}
+} -result 2
+
+test decimal-api-30.2 "round_floor: negative" -body {
+    namespace eval ::dectest {S [round_floor [D -2.1] 0]}
+} -result -3
+
+
+test decimal-api-31.1 "round_ceiling: positive" -body {
+    namespace eval ::dectest {S [round_ceiling [D 2.1] 0]}
+} -result 3
+
+test decimal-api-31.2 "round_ceiling: negative" -body {
+    namespace eval ::dectest {S [round_ceiling [D -2.9] 0]}
+} -result -2
+
+
+test decimal-api-32.1 "round_05up: last digit not 0 or 5" -body {
+    namespace eval ::dectest {S [round_05up [D 2.1] 0]}
+} -result 2
+
+test decimal-api-32.2 "round_05up: last digit 5" -body {
+    namespace eval ::dectest {S [round_05up [D 5.1] 0]}
+} -result 6
+
+test decimal-api-32.3 "round_05up: last digit 0" -body {
+    namespace eval ::dectest {S [round_05up [D 0.1] 0]}
+} -result 1
+
+test decimal-api-32.4 "round_05up: one decimal, digit 2" -body {
+    namespace eval ::dectest {S [round_05up [D 1.23] 1]}
+} -result 1.2
+
+test decimal-api-32.5 "round_05up: one decimal, digit 0" -body {
+    namespace eval ::dectest {S [round_05up [D 1.03] 1]}
+} -result 1.1
+
+
+# -------------------------------------------------------------------------
+# setVariable (and the undocumented getVariable)
+# -------------------------------------------------------------------------
+
+test decimal-api-40.1 "setVariable: default settings" -body {
+    list [::math::decimal::getVariable precision] \
+	[::math::decimal::getVariable rounding] \
+	[::math::decimal::getVariable extended] \
+	[::math::decimal::getVariable maxExponent] \
+	[::math::decimal::getVariable minExponent]
+} -result {20 half_up 1 999 -998}
+
+test decimal-api-40.2 "setVariable: precision limits the mantissa" -body {
+    ::math::decimal::setVariable precision 5
+    namespace eval ::dectest {S [/ [D 1] [D 3]]}
+} -cleanup {
+    ::dectest::reset
+} -result 0.33333
+
+test decimal-api-40.3 "setVariable: precision with rounding of the last digit" -body {
+    ::math::decimal::setVariable precision 5
+    namespace eval ::dectest {S [/ [D 2] [D 3]]}
+} -cleanup {
+    ::dectest::reset
+} -result 0.66667
+
+test decimal-api-40.4 "setVariable: rounding down" -body {
+    ::math::decimal::setVariable precision 5
+    ::math::decimal::setVariable rounding down
+    namespace eval ::dectest {S [/ [D 2] [D 3]]}
+} -cleanup {
+    ::dectest::reset
+} -result 0.66666
+
+test decimal-api-40.5 "setVariable: rounding half_even" -body {
+    ::math::decimal::setVariable precision 3
+    ::math::decimal::setVariable rounding half_even
+    namespace eval ::dectest {list [S [+ [D 1.22] [D 0.005]]] [S [+ [D 1.23] [D 0.005]]]}
+} -cleanup {
+    ::dectest::reset
+} -result {1.22 1.24}
+
+test decimal-api-40.6 "setVariable: rounding ceiling and floor" -body {
+    ::math::decimal::setVariable precision 3
+    set result {}
+    foreach mode {ceiling floor} {
+	::math::decimal::setVariable rounding $mode
+	lappend result [namespace eval ::dectest {S [+ [D 1.23] [D 0.001]]}] \
+	    [namespace eval ::dectest {S [+ [D -1.23] [D -0.001]]}]
+    }
+    set result
+} -cleanup {
+    ::dectest::reset
+    unset -nocomplain result mode
+} -result {1.24 -1.23 1.23 -1.24}
+
+# The manual lists the rounding methods as round_half_even, round_half_up,
+# ..., but the code expects half_even, half_up, ... (it calls round_$rounding).
+test decimal-api-40.7 "setVariable: rounding method named as in the manual" -constraints knownBug -body {
+    ::math::decimal::setVariable precision 3
+    ::math::decimal::setVariable rounding round_half_even
+    namespace eval ::dectest {S [+ [D 1.23] [D 0.005]]}
+} -cleanup {
+    ::dectest::reset
+} -result 1.24
+
+test decimal-api-40.8 "setVariable: maxExponent, overflow to infinity" -body {
+    ::math::decimal::setVariable maxExponent 5
+    namespace eval ::dectest {S [* [D 1E3] [D 1E3]]}
+} -cleanup {
+    ::dectest::reset
+} -result Inf
+
+test decimal-api-40.9 "setVariable: maxExponent, no overflow below the limit" -body {
+    ::math::decimal::setVariable maxExponent 5
+    namespace eval ::dectest {S [* [D 1E2] [D 1E3]]}
+} -cleanup {
+    ::dectest::reset
+} -result 1E+5
+
+test decimal-api-40.10 "setVariable: simplified mode formats without exponent" -body {
+    ::math::decimal::setVariable extended 0
+    namespace eval ::dectest {list [S [D 1E+3]] [S [D -0]] [S [D 12.5]]}
+} -cleanup {
+    ::dectest::reset
+} -result {1000 0 12.5}
+
+test decimal-api-40.11 "setVariable: simplified mode rejects infinity" -body {
+    ::math::decimal::setVariable extended 0
+    ::math::decimal::fromstr Inf
+} -cleanup {
+    ::dectest::reset
+} -returnCodes error -result {Infinities and NaN's not allowed in simplified decimal arithmetic}
+
+test decimal-api-40.12 "setVariable: simplified mode rejects NaN" -body {
+    ::math::decimal::setVariable extended 0
+    ::math::decimal::fromstr NaN
+} -cleanup {
+    ::dectest::reset
+} -returnCodes error -result {Infinities and NaN's not allowed in simplified decimal arithmetic}
+
+test decimal-api-40.13 "setVariable: variable names are case-insensitive" -body {
+    ::math::decimal::setVariable PRECISION 7
+    ::math::decimal::getVariable precision
+} -cleanup {
+    ::dectest::reset
+} -result 7
+
+test decimal-api-40.14 "setVariable: unknown variable is ignored" -body {
+    ::math::decimal::setVariable nosuchvariable 1
+} -result {}
+
+# -------------------------------------------------------------------------
+# Wrong number of arguments
+# -------------------------------------------------------------------------
+
+set n 0
+foreach {cmd args} {
+    fromstr         {string}
+    tostr           {number}
+    setVariable     {variable setting}
+    add             {a b ?rescale?}
+    +               {a b ?rescale?}
+    multiply        {a b ?rescale?}
+    *               {a b ?rescale?}
+    divide          {a b ?rescale?}
+    /               {a b ?rescale?}
+    divideint       {a b}
+    remainder       {a b}
+    abs             {a}
+    compare         {a b}
+    max             {a b}
+    maxmag          {a b}
+    min             {a b}
+    minmag          {a b}
+    plus            {a}
+    minus           {a}
+    copynegate      {a}
+    copysign        {a b}
+    is-signed       {a}
+    is-zero         {a}
+    is-NaN          {a}
+    is-infinite     {a}
+    is-finite       {a}
+    fma             {a b c}
+    round_half_even {a digits}
+    round_half_up   {a digits}
+    round_half_down {a digits}
+    round_down      {a digits}
+    round_up        {a digits}
+    round_floor     {a digits}
+    round_ceiling   {a digits}
+    round_05up      {a digits}
+} {
+    incr n
+    test decimal-api-50.$n "$cmd: wrong # args" -body {
+	::math::decimal::$cmd
+    } -returnCodes error -result "wrong # args: should be \"::math::decimal::$cmd $args\""
+}
+unset n cmd args
+
+test decimal-api-51.1 "subtract: wrong # args" -body {
+    ::math::decimal::subtract
+} -returnCodes error -result {wrong # args: should be "::math::decimal::subtract a ?b? ?rescale?"}
+
+test decimal-api-51.2 "-: wrong # args" -body {
+    ::math::decimal::- 1 2 3 4
+} -returnCodes error -result {wrong # args: should be "::math::decimal::- a ?b? ?rescale?"}
+
+# -------------------------------------------------------------------------
+
+namespace delete ::dectest
+
+# End of test cases
+testsuiteCleanup

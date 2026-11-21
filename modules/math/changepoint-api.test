@@ -1,0 +1,205 @@
+# -*- tcl -*-
+# changepoint-api.test --
+#     Additional API tests for the math::changepoint package: options,
+#     the reset method of the online CUSUM object, binary segmentation
+#     with several change points, edge cases and error cases.
+#     Complements changepoint.test.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+    useLocal linalg.tcl math::linearalgebra
+    useLocal statistics.tcl math::statistics
+}
+testing {
+    useLocal changepoint.tcl math::changepoint
+}
+
+# -------------------------------------------------------------------------
+# cusum-detect
+
+set step {0 0 0 0 0 0 0 0 0 1 1 1 1}
+
+test changepoint-api-1.1 {cusum-detect, upward shift} -body {
+    # k = 0.25, h = 2.0: the upper sum grows by 0.75 per value of 1
+    ::math::changepoint::cusum-detect $step -target 0 -tolerance 0.5
+} -result 11
+
+test changepoint-api-1.2 {cusum-detect, downward shift} -body {
+    ::math::changepoint::cusum-detect {0 0 0 0 0 0 0 0 0 -1 -1 -1 -1} \
+        -target 0 -tolerance 0.5
+} -result 11
+
+test changepoint-api-1.3 {cusum-detect, -hfactor} -body {
+    # h = 0.5: the first value of 1 already exceeds the limit
+    ::math::changepoint::cusum-detect $step -target 0 -tolerance 0.5 -hfactor 1.0
+} -result 9
+
+test changepoint-api-1.4 {cusum-detect, -kfactor} -body {
+    # k = 0.4, h = 2.0: the upper sum grows by 0.6 per value of 1
+    ::math::changepoint::cusum-detect $step -target 0 -tolerance 0.5 -kfactor 0.8
+} -result 12
+
+test changepoint-api-1.5 {cusum-detect, no change: empty result} -body {
+    ::math::changepoint::cusum-detect {1 1 1 1 1 1 1 1} -target 1 -tolerance 0.5
+} -result {}
+
+test changepoint-api-1.6 {cusum-detect, defaults for target and tolerance} -body {
+    # Mean and standard deviation of the data are used
+    list [::math::changepoint::cusum-detect {1 1 1 1 1 1}] \
+         [::math::changepoint::cusum-detect {0 0 0 0 0 0 0 0 0 10 10 10 10}]
+} -result {{} {}}
+
+test changepoint-api-1.7 {cusum-detect, option without dash} -body {
+    ::math::changepoint::cusum-detect $step target 0
+} -returnCodes error -result {Unknown/invalid option: target}
+
+test changepoint-api-1.8 {cusum-detect, wrong # args} -body {
+    ::math::changepoint::cusum-detect
+} -returnCodes error -result {wrong # args: should be "::math::changepoint::cusum-detect data ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# cusum-online
+
+test changepoint-api-2.1 {cusum-online, examine returns 0 or 1} -setup {
+    set obj [::math::changepoint::cusum-online new -target 0 -tolerance 0.5]
+} -body {
+    set r {}
+    foreach v {0 0 1 1 1 1 1 1} {
+        lappend r [$obj examine $v]
+    }
+    set r
+} -cleanup {
+    $obj destroy
+    unset obj r v
+} -result {0 0 0 0 1 1 1 1}
+
+test changepoint-api-2.2 {cusum-online, reset restarts the cumulative sums} -setup {
+    set obj [::math::changepoint::cusum-online new -target 0 -tolerance 0.5]
+} -body {
+    foreach v {1 1 1} {
+        $obj examine $v
+    }
+    $obj reset
+    set r {}
+    foreach v {1 1 1} {
+        lappend r [$obj examine $v]
+    }
+    set r
+} -cleanup {
+    $obj destroy
+    unset obj r v
+} -result {0 0 1}
+
+test changepoint-api-2.3 {cusum-online, -kfactor and -hfactor} -setup {
+    set obj [::math::changepoint::cusum-online new -target 0 -tolerance 1.0 \
+                 -kfactor 1.0 -hfactor 1.0]
+} -body {
+    # k = 1, h = 1: values up to 1 do not accumulate
+    set r {}
+    foreach v {1 1 1 1.6 1.6} {
+        lappend r [$obj examine $v]
+    }
+    set r
+} -cleanup {
+    $obj destroy
+    unset obj r v
+} -result {0 0 0 0 1}
+
+test changepoint-api-2.4 {cusum-online, create with a name} -body {
+    ::math::changepoint::cusum-online create cusumApi -target 1 -tolerance 1
+} -cleanup {
+    cusumApi destroy
+} -result ::cusumApi
+
+test changepoint-api-2.5 {cusum-online, unknown option} -body {
+    ::math::changepoint::cusum-online new -target 1 -tolerance 1 -foo 1
+} -returnCodes error -result {Unknown/invalid option: -foo}
+
+test changepoint-api-2.6 {cusum-online, -target and -tolerance are required} -constraints {
+    knownBug
+} -body {
+    ::math::changepoint::cusum-online new -target 1
+} -returnCodes error -result {Values for target and tolerance are required}
+
+test changepoint-api-2.7 {cusum-online, no options} -constraints {
+    knownBug
+} -body {
+    ::math::changepoint::cusum-online new
+} -returnCodes error -result {Values for target and tolerance are required}
+
+test changepoint-api-2.8 {cusum-online examine, wrong # args} -setup {
+    set obj [::math::changepoint::cusum-online new -target 0 -tolerance 0.5]
+} -body {
+    $obj examine
+} -cleanup {
+    $obj destroy
+    unset obj
+} -returnCodes error -match glob -result {wrong # args: should be "* examine value"}
+
+# -------------------------------------------------------------------------
+# binary-segmentation
+
+test changepoint-api-3.1 {binary-segmentation, no change} -body {
+    ::math::changepoint::binary-segmentation [lrepeat 30 1.0]
+} -result {}
+
+test changepoint-api-3.2 {binary-segmentation, two change points, left part} -body {
+    ::math::changepoint::binary-segmentation \
+        [concat [lrepeat 20 0.0] [lrepeat 20 5.0] [lrepeat 20 0.0]]
+} -result {19 39}
+
+test changepoint-api-3.3 {binary-segmentation, change point in the right part} -constraints {
+    knownBug
+} -body {
+    # First split at 19, the second change point is found in the right
+    # segment and its index is off by one.
+    ::math::changepoint::binary-segmentation \
+        [concat [lrepeat 20 0.0] [lrepeat 20 10.0] [lrepeat 20 13.0]]
+} -result {19 39}
+
+test changepoint-api-3.4 {binary-segmentation, -minlength} -body {
+    set s [concat [lrepeat 10 0.0] [lrepeat 10 3.0]]
+    list [::math::changepoint::binary-segmentation $s -minlength 3] \
+         [::math::changepoint::binary-segmentation $s -minlength 10]
+} -cleanup {
+    unset s
+} -result {9 {}}
+
+test changepoint-api-3.5 {binary-segmentation, -threshold} -body {
+    set s [concat [lrepeat 10 0.0] [lrepeat 10 3.0]]
+    list [::math::changepoint::binary-segmentation $s -threshold 1.0] \
+         [::math::changepoint::binary-segmentation $s -threshold 100]
+} -cleanup {
+    unset s
+} -result {9 {}}
+
+test changepoint-api-3.6 {binary-segmentation, unknown option} -constraints {
+    knownBug
+} -body {
+    ::math::changepoint::binary-segmentation [lrepeat 30 1.0] -foo 1
+} -returnCodes error -result {Unknown keyword: -foo}
+
+test changepoint-api-3.7 {binary-segmentation, series too short} -constraints {
+    knownBug
+} -body {
+    ::math::changepoint::binary-segmentation {1 2 3}
+} -returnCodes error -result {Series too short - at least 5 values expected}
+
+test changepoint-api-3.8 {binary-segmentation, wrong # args} -body {
+    ::math::changepoint::binary-segmentation
+} -returnCodes error -result {wrong # args: should be "::math::changepoint::binary-segmentation series ?arg ...?"}
+
+# -------------------------------------------------------------------------
+
+unset -nocomplain step
+
+testsuiteCleanup

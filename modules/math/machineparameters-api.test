@@ -1,0 +1,242 @@
+# -*- tcl -*-
+# machineparameters-api.test --
+#    Tests for the documented API of the math::machineparameters package,
+#    in addition to machineparameters.test. The values checked are those
+#    of IEEE 754 double precision, which Tcl uses on all supported
+#    platforms.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    use snit/snit2.tcl snit
+}
+testing {
+    useLocal machineparameters.tcl math::machineparameters
+}
+
+# -------------------------------------------------------------------------
+# create, cget, configure, destroy
+# -------------------------------------------------------------------------
+
+test machineparameters-api-1.1 "create: returns the fully qualified name" -body {
+    set pp [machineparameters create mpTest]
+    list $pp [llength [info commands ::mpTest]]
+} -cleanup {
+    $pp destroy
+    unset pp
+} -result {::mpTest 1}
+
+test machineparameters-api-1.2 "create: %AUTO% name" -body {
+    set pp [machineparameters create %AUTO%]
+    list [string match ::* $pp] [llength [info commands $pp]]
+} -cleanup {
+    $pp destroy
+    unset pp
+} -result {1 1}
+
+test machineparameters-api-1.3 "create: default of -verbose is 0" -body {
+    set pp [machineparameters create %AUTO%]
+    $pp cget -verbose
+} -cleanup {
+    $pp destroy
+    unset pp
+} -result 0
+
+test machineparameters-api-1.4 "create: with -verbose" -body {
+    set pp [machineparameters create %AUTO% -verbose 1]
+    $pp cget -verbose
+} -cleanup {
+    $pp destroy
+    unset pp
+} -result 1
+
+test machineparameters-api-1.5 "create: unknown option" -body {
+    machineparameters create mpTest -nosuchoption 1
+} -cleanup {
+    catch {mpTest destroy}
+} -returnCodes error -result {Error in constructor: unknown option "-nosuchoption"}
+
+test machineparameters-api-1.6 "create: no object left after a failed create" -body {
+    catch {machineparameters create mpTest -nosuchoption 1}
+    info commands ::mpTest
+} -result {}
+
+test machineparameters-api-2.1 "configure: set and query -verbose" -body {
+    set pp [machineparameters create %AUTO%]
+    $pp configure -verbose 1
+    set a [$pp cget -verbose]
+    $pp configure -verbose 0
+    list $a [$pp cget -verbose]
+} -cleanup {
+    $pp destroy
+    unset pp a
+} -result {1 0}
+
+test machineparameters-api-2.2 "configure: unknown option" -body {
+    set pp [machineparameters create %AUTO%]
+    $pp configure -nosuchoption 1
+} -cleanup {
+    $pp destroy
+    unset pp
+} -returnCodes error -result {unknown option "-nosuchoption"}
+
+test machineparameters-api-2.3 "cget: unknown option" -body {
+    set pp [machineparameters create %AUTO%]
+    $pp cget -nosuchoption
+} -cleanup {
+    $pp destroy
+    unset pp
+} -returnCodes error -result {unknown option "-nosuchoption"}
+
+test machineparameters-api-2.4 "destroy: the object command is deleted" -body {
+    set pp [machineparameters create %AUTO%]
+    $pp destroy
+    info commands $pp
+} -cleanup {
+    unset pp
+} -result {}
+
+# -------------------------------------------------------------------------
+# compute, get
+# -------------------------------------------------------------------------
+
+test machineparameters-api-3.1 "compute: returns an empty string" -body {
+    set pp [machineparameters create %AUTO%]
+    $pp compute
+} -cleanup {
+    $pp destroy
+    unset pp
+} -result {}
+
+test machineparameters-api-3.2 "get: IEEE 754 double precision parameters" -setup {
+    set pp [machineparameters create %AUTO%]
+    $pp compute
+} -body {
+    list [$pp get -basis] [$pp get -mantissa] [$pp get -rounding] \
+	[$pp get -exponentmax] [$pp get -exponentmin]
+} -cleanup {
+    $pp destroy
+    unset pp
+} -result {2 53 proper 1024 -1021}
+
+test machineparameters-api-3.3 "get: -epsilon" -setup {
+    set pp [machineparameters create %AUTO%]
+    $pp compute
+} -body {
+    set eps [$pp get -epsilon]
+    # The manual: "smallest value so that 1+epsilon>1 is false"
+    list [expr {1.0 + $eps > 1.0}] [expr {1.0 + 2.0*$eps > 1.0}] \
+	[expr {$eps == pow(2,-53)}]
+} -cleanup {
+    $pp destroy
+    unset pp eps
+} -result {0 1 1}
+
+test machineparameters-api-3.4 "get: -vmax and -vmin" -setup {
+    set pp [machineparameters create %AUTO%]
+    $pp compute
+} -body {
+    set vmax [$pp get -vmax]
+    set vmin [$pp get -vmin]
+    list [expr {$vmax >= pow(2,1023)}] [expr {$vmax < 1.8e308}] \
+	[expr {$vmin == pow(2,-1022)}]
+} -cleanup {
+    $pp destroy
+    unset pp vmax vmin
+} -result {1 1 1}
+
+test machineparameters-api-3.5 "get: unknown key" -setup {
+    set pp [machineparameters create %AUTO%]
+} -body {
+    $pp get -nosuchkey
+} -cleanup {
+    $pp destroy
+    unset pp
+} -returnCodes error -result {Unknown key -nosuchkey}
+
+test machineparameters-api-3.6 "get: wrong # args" -setup {
+    set pp [machineparameters create mpTest]
+} -body {
+    $pp get
+} -cleanup {
+    $pp destroy
+    unset pp
+} -returnCodes error -result {wrong # args: should be "::mpTest get key"}
+
+test machineparameters-api-3.7 "compute: verbose logging" -setup {
+    set pp [machineparameters create %AUTO% -verbose 1]
+} -body {
+    $pp compute
+} -cleanup {
+    $pp destroy
+    unset pp
+} -match glob -output "(mp) compute\n*" -result {}
+
+test machineparameters-api-3.8 "compute: no output without -verbose" -setup {
+    set pp [machineparameters create %AUTO%]
+} -body {
+    $pp compute
+    $pp get -epsilon
+    return
+} -cleanup {
+    $pp destroy
+    unset pp
+} -output {} -result {}
+
+# -------------------------------------------------------------------------
+# tostring, print
+# -------------------------------------------------------------------------
+
+test machineparameters-api-4.1 "tostring: report" -setup {
+    set pp [machineparameters create %AUTO%]
+    $pp compute
+} -body {
+    $pp tostring
+} -cleanup {
+    $pp destroy
+    unset pp
+} -match glob -result "Machine parameters
+Epsilon : *e-16
+Basis : 2
+Rounding : proper
+Mantissa : 53
+Maximum exponent before overflow : 1024
+Minimum exponent before underflow : -1021
+Overflow threshold : *e+307
+Underflow threshold : *e-308
+"
+
+test machineparameters-api-4.2 "print: prints the report" -setup {
+    set pp [machineparameters create %AUTO%]
+    $pp compute
+} -body {
+    $pp print
+} -cleanup {
+    $pp destroy
+    unset pp
+} -match glob -output "Machine parameters
+Epsilon : *e-16
+Basis : 2
+Rounding : proper
+Mantissa : 53
+Maximum exponent before overflow : 1024
+Minimum exponent before underflow : -1021
+Overflow threshold : *e+307
+Underflow threshold : *e-308
+
+" -result {}
+
+# -------------------------------------------------------------------------
+
+# End of test cases
+testsuiteCleanup

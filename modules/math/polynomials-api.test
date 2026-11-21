@@ -1,0 +1,268 @@
+# -*- tcl -*-
+# polynomials-api.test --
+#    Additional tests for the documented API of math::polynomials:
+#    error cases, scalar operands, the null polynomial and polynCmd with
+#    a polynomial definition.
+#    (The basic operations are tested in polynomials.test.)
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal polynomials.tcl math::polynomials
+}
+
+# -------------------------------------------------------------------------
+
+proc ::matchTol {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach a $actual e $expected {
+        if {![string is double -strict $a]} {
+            return 0
+        }
+        set scale [expr {abs($e) > 1.0 ? abs($e) : 1.0}]
+        if {abs($a-$e) > $tol*$scale} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch approx {::matchTol 1.0e-9}
+
+namespace eval ::polyapi {
+    namespace import ::math::polynomials::*
+}
+
+# -------------------------------------------------------------------------
+# polynomial, polynCmd, evalPolyn
+
+test polynomials-api-1.1 {polynomial - representation: keyword and descending coefficients} -body {
+    ::math::polynomials::polynomial {1 2 3}
+} -result {POLYNOMIAL {3 2 1}}
+
+test polynomials-api-1.2 {polynomial - null polynomial} -body {
+    list [::math::polynomials::polynomial {}] [::math::polynomials::polynomial {0 0.0}]
+} -result {{POLYNOMIAL {}} {POLYNOMIAL {}}}
+
+test polynomials-api-1.3 {polynomial - wrong # args} -body {
+    ::math::polynomials::polynomial
+} -returnCodes error -result {wrong # args: should be "::math::polynomials::polynomial coeffs"}
+
+test polynomials-api-1.4 {polynCmd - from a polynomial definition} -match approx -body {
+    set cmd [::math::polynomials::polynCmd [::math::polynomials::polynomial {1 2 3}]]
+    list [$cmd 0.0] [$cmd 1.0] [$cmd 2.0] [$cmd -1.5]
+} -cleanup {
+    rename $cmd {}
+    unset cmd
+} -result {1.0 6.0 17.0 4.75}
+
+test polynomials-api-1.5 {polynCmd - distinct commands for distinct polynomials} -body {
+    set cmd1 [::math::polynomials::polynCmd {1 1}]
+    set cmd2 [::math::polynomials::polynCmd {2 2}]
+    list [expr {$cmd1 ne $cmd2}] [$cmd1 1] [$cmd2 1]
+} -cleanup {
+    rename $cmd1 {}
+    rename $cmd2 {}
+    unset cmd1 cmd2
+} -result {1 2 4}
+
+test polynomials-api-1.6 {evalPolyn - not a polynomial} -body {
+    ::math::polynomials::evalPolyn {1 2} 1.0
+} -returnCodes error -result {Not a polynomial}
+
+test polynomials-api-1.7 {evalPolyn - bad coordinate} -body {
+    ::math::polynomials::evalPolyn [::math::polynomials::polynomial {1 2}] x
+} -returnCodes error -result {Coordinate must be a real number}
+
+test polynomials-api-1.8 {evalPolyn - null polynomial} -body {
+    ::math::polynomials::evalPolyn [::math::polynomials::polynomial {}] 5.0
+} -result 0.0
+
+# -------------------------------------------------------------------------
+# degreePolyn, coeffPolyn, allCoeffsPolyn
+
+test polynomials-api-2.1 {degreePolyn - null polynomial has degree -1} -body {
+    ::math::polynomials::degreePolyn [::math::polynomials::polynomial {}]
+} -result -1
+
+test polynomials-api-2.2 {coeffPolyn - every coefficient} -body {
+    set p [::math::polynomials::polynomial {1 2 3}]
+    list [::math::polynomials::coeffPolyn $p 0] \
+	[::math::polynomials::coeffPolyn $p 1] \
+	[::math::polynomials::coeffPolyn $p 2]
+} -cleanup {
+    unset p
+} -result {1 2 3}
+
+test polynomials-api-2.3 {coeffPolyn - negative index} -body {
+    ::math::polynomials::coeffPolyn [::math::polynomials::polynomial {1 2 3}] -1
+} -returnCodes error -result {Index must be between 0 and 3}
+
+test polynomials-api-2.4 {coeffPolyn - index too large} -body {
+    ::math::polynomials::coeffPolyn [::math::polynomials::polynomial {1 2 3}] 4
+} -returnCodes error -result {Index must be between 0 and 3}
+
+test polynomials-api-2.5 {allCoeffsPolyn - null polynomial} -body {
+    ::math::polynomials::allCoeffsPolyn [::math::polynomials::polynomial {}]
+} -result {}
+
+test polynomials-api-2.6 {degreePolyn, coeffPolyn, allCoeffsPolyn - not a polynomial} -body {
+    list [catch {::math::polynomials::degreePolyn {1 2}} m1] $m1 \
+	[catch {::math::polynomials::coeffPolyn {1 2} 0} m2] $m2 \
+	[catch {::math::polynomials::allCoeffsPolyn {1 2}} m3] $m3
+} -cleanup {
+    unset -nocomplain m1 m2 m3
+} -result [lrepeat 3 1 {Not a polynomial}]
+
+# -------------------------------------------------------------------------
+# derivPolyn, primitivePolyn
+
+test polynomials-api-3.1 {derivPolyn - constant gives the null polynomial} -body {
+    ::math::polynomials::derivPolyn [::math::polynomials::polynomial {5}]
+} -result {POLYNOMIAL {}}
+
+test polynomials-api-3.2 {primitivePolyn - integration constant is zero} -match approx -body {
+    ::math::polynomials::allCoeffsPolyn \
+	[::math::polynomials::primitivePolyn [::math::polynomials::polynomial {2 3}]]
+} -result {0.0 2.0 1.5}
+
+test polynomials-api-3.3 {derivPolyn of primitivePolyn is the identity} -match approx -body {
+    set p [::math::polynomials::polynomial {1.0 -2.0 0.5 4.0}]
+    ::math::polynomials::allCoeffsPolyn \
+	[::math::polynomials::derivPolyn [::math::polynomials::primitivePolyn $p]]
+} -cleanup {
+    unset p
+} -result {1.0 -2.0 0.5 4.0}
+
+test polynomials-api-3.4 {derivPolyn, primitivePolyn - not a polynomial} -body {
+    list [catch {::math::polynomials::derivPolyn x} m1] $m1 \
+	[catch {::math::polynomials::primitivePolyn x} m2] $m2
+} -cleanup {
+    unset -nocomplain m1 m2
+} -result {1 {Not a polynomial} 1 {Not a polynomial}}
+
+# -------------------------------------------------------------------------
+# Arithmetic with scalars and errors
+
+test polynomials-api-4.1 {addPolyn - scalar operand, either side} -match approx -body {
+    set p [::math::polynomials::polynomial {1 2}]
+    concat [::math::polynomials::allCoeffsPolyn [::math::polynomials::addPolyn $p 3]] \
+	[::math::polynomials::allCoeffsPolyn [::math::polynomials::addPolyn 3 $p]]
+} -cleanup {
+    unset p
+} -result {4 2 4 2}
+
+test polynomials-api-4.2 {subPolyn - scalar operand} -match approx -body {
+    ::math::polynomials::allCoeffsPolyn \
+	[::math::polynomials::subPolyn [::math::polynomials::polynomial {1 2}] 1]
+} -result {0 2}
+
+test polynomials-api-4.3 {subPolyn - equal polynomials give the null polynomial} -body {
+    set p [::math::polynomials::polynomial {1 2 3}]
+    ::math::polynomials::degreePolyn [::math::polynomials::subPolyn $p $p]
+} -cleanup {
+    unset p
+} -result -1
+
+test polynomials-api-4.4 {multPolyn - two scalars} -match approx -body {
+    ::math::polynomials::allCoeffsPolyn [::math::polynomials::multPolyn 2 3]
+} -result 6.0
+
+test polynomials-api-4.5 {multPolyn - multiplying by zero gives the null polynomial} -body {
+    ::math::polynomials::degreePolyn \
+	[::math::polynomials::multPolyn [::math::polynomials::polynomial {1 2}] 0]
+} -result -1
+
+test polynomials-api-4.6 {addPolyn, subPolyn, multPolyn, divPolyn, remainderPolyn - bad operand} -body {
+    set p [::math::polynomials::polynomial {1 2}]
+    set result {}
+    foreach op {addPolyn subPolyn multPolyn divPolyn remainderPolyn} {
+	lappend result [catch {::math::polynomials::$op x $p} msg] $msg
+    }
+    set result
+} -cleanup {
+    unset -nocomplain p result op msg
+} -result [lrepeat 5 1 {Both arguments must be polynomials or a real number}]
+
+test polynomials-api-4.7 {divPolyn, remainderPolyn - by the scalar zero} -body {
+    set p [::math::polynomials::polynomial {1 2}]
+    list [catch {::math::polynomials::divPolyn $p 0} m1] $m1 \
+	[catch {::math::polynomials::remainderPolyn $p 0.0} m2] $m2
+} -cleanup {
+    unset -nocomplain p m1 m2
+} -result {1 {Denominator can not be zero} 1 {Denominator can not be zero}}
+
+test polynomials-api-4.8 {divPolyn, remainderPolyn - null numerator} -body {
+    set n [::math::polynomials::polynomial {}]
+    set d [::math::polynomials::polynomial {1 1}]
+    list [::math::polynomials::divPolyn $n $d] [::math::polynomials::remainderPolyn $n $d]
+} -cleanup {
+    unset -nocomplain n d
+} -result {{POLYNOMIAL {}} {POLYNOMIAL {}}}
+
+test polynomials-api-4.9 {divPolyn, remainderPolyn - exact division} -match approx -body {
+    # (x^2 - 1) / (x - 1) = x + 1
+    set n [::math::polynomials::polynomial {-1 0 1}]
+    set d [::math::polynomials::polynomial {-1 1}]
+    concat [::math::polynomials::allCoeffsPolyn [::math::polynomials::divPolyn $n $d]] \
+	[::math::polynomials::degreePolyn [::math::polynomials::remainderPolyn $n $d]]
+} -cleanup {
+    unset -nocomplain n d
+} -result {1 1 -1}
+
+test polynomials-api-4.10 {remainderPolyn - x^2 mod (x+1) = 1} -match approx -body {
+    ::math::polynomials::allCoeffsPolyn [::math::polynomials::remainderPolyn \
+	[::math::polynomials::polynomial {0 0 1}] [::math::polynomials::polynomial {1 1}]]
+} -result 1.0
+
+test polynomials-api-4.11 {divPolyn - by a scalar, floating-point coefficients} -match approx -body {
+    # (2 + x) / 2 = 1 + x/2
+    ::math::polynomials::allCoeffsPolyn \
+	[::math::polynomials::divPolyn [::math::polynomials::polynomial {2.0 1.0}] 2.0]
+} -result {1.0 0.5}
+
+test polynomials-api-4.12 {divPolyn - by a scalar, integer coefficients} -constraints knownBug -match approx -body {
+    # (2 + x) / 2 = 1 + x/2
+    ::math::polynomials::allCoeffsPolyn \
+	[::math::polynomials::divPolyn [::math::polynomials::polynomial {2 1}] 2]
+} -result {1.0 0.5}
+
+test polynomials-api-4.13 {divPolyn, remainderPolyn - dividend with zero coefficients} -constraints knownBug -match approx -body {
+    # x / 2 = x/2;  (x^2 + 1) / x = x, remainder 1
+    set n [::math::polynomials::polynomial {1.0 0.0 1.0}]
+    set d [::math::polynomials::polynomial {0.0 1.0}]
+    concat [::math::polynomials::allCoeffsPolyn \
+		[::math::polynomials::divPolyn [::math::polynomials::polynomial {0.0 1.0}] 2.0]] \
+	[::math::polynomials::allCoeffsPolyn [::math::polynomials::divPolyn $n $d]] \
+	[::math::polynomials::allCoeffsPolyn [::math::polynomials::remainderPolyn $n $d]]
+} -cleanup {
+    unset -nocomplain n d
+} -result {0.0 0.5  0.0 1.0  1.0}
+
+test polynomials-api-4.14 {divPolyn - wrong # args} -body {
+    ::math::polynomials::divPolyn [::math::polynomials::polynomial {1 2}]
+} -returnCodes error -result {wrong # args: should be "::math::polynomials::divPolyn polyn1 polyn2"}
+
+test polynomials-api-5.1 {exported commands can be imported} -body {
+    namespace eval ::polyapi {
+	evalPolyn [polynomial {1 1}] 2
+    }
+} -result 3.0
+
+# -------------------------------------------------------------------------
+
+namespace delete ::polyapi
+rename ::matchTol {}
+
+testsuiteCleanup

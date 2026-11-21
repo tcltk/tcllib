@@ -1,0 +1,328 @@
+# -*- tcl -*-
+# probopt-api.test --
+#     Additional API tests for the math::probopt package: properties of
+#     the result dictionary (value at the optimum, bounds, number of
+#     function evaluations, best values), a few options and error cases.
+#     Complements probopt.test. Small numbers of iterations are used and
+#     only properties of the results are checked, not exact values.
+#
+
+source [file join \
+        [file dirname [file dirname [file join [pwd] [info script]]]] \
+        devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal probopt.tcl math::probopt
+}
+
+# -------------------------------------------------------------------------
+
+proc setRand {} {
+    expr {srand(12345)}
+}
+
+# Functions that count their evaluations
+set ::probCalls 0
+
+proc probParab {coords} {
+    incr ::probCalls
+    lassign $coords x y
+    return [expr {($x-1.0)**2 + ($y-1.0)**2}]
+}
+
+proc probNegParab {coords} {
+    incr ::probCalls
+    lassign $coords x y
+    return [expr {-(($x-1.0)**2 + ($y-1.0)**2)}]
+}
+
+proc probParab1D {coords} {
+    incr ::probCalls
+    return [expr {([lindex $coords 0] - 0.3)**2}]
+}
+
+# Check the result dictionary: the value matches the coordinates, the
+# coordinates lie within the bounds, the number of evaluations matches
+# the number of calls.
+proc probCheck {result func bounds} {
+    set calls $::probCalls
+    set coords [dict get $result optimum-coordinates]
+    set r {}
+    lappend r [expr {[llength $coords] == [llength $bounds]}]
+    set inside 1
+    foreach c $coords b $bounds {
+        lassign $b min max
+        if {$c < $min || $c > $max} {
+            set inside 0
+        }
+    }
+    lappend r $inside
+    lappend r [expr {abs([$func $coords] - [dict get $result optimum-value]) < 1.0e-12}]
+    lappend r [expr {[dict get $result evaluations] == $calls}]
+    set ::probCalls $calls
+    return $r
+}
+
+proc isMonotonic {values direction} {
+    set prev {}
+    foreach v $values {
+        if {$prev ne ""} {
+            if {$direction eq "down" && $v > $prev} {return 0}
+            if {$direction eq "up"   && $v < $prev} {return 0}
+        }
+        set prev $v
+    }
+    return 1
+}
+
+set bounds2 {{0.0 4.0} {0.0 4.0}}
+
+# -------------------------------------------------------------------------
+# Wrong # args
+
+test probopt-api-0.1 {wrong # args} -body {
+    set r {}
+    foreach cmd {pso sce diffev lipoMax adaLipoMax} {
+        lappend r [catch {::math::probopt::$cmd probParab} m] $m
+    }
+    set r
+} -cleanup {
+    unset -nocomplain r cmd m
+} -result {1 {wrong # args: should be "::math::probopt::pso func bounds ?arg ...?"} 1 {wrong # args: should be "::math::probopt::sce func bounds ?arg ...?"} 1 {wrong # args: should be "::math::probopt::diffev func bounds ?arg ...?"} 1 {wrong # args: should be "::math::probopt::lipoMax f bounds ?arg ...?"} 1 {wrong # args: should be "::math::probopt::adaLipoMax f bounds ?arg ...?"}}
+
+# -------------------------------------------------------------------------
+# pso
+
+test probopt-api-1.1 {pso, result properties} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::pso probParab $bounds2 -iterations 20 -swarmsize 10]
+    concat [probCheck $res probParab $bounds2] \
+           [isMonotonic [dict get $res best-values] down] \
+           [expr {[dict get $res optimum-value] < 0.1}]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1 1 1}
+
+test probopt-api-1.2 {pso, local type, one dimension} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::pso probParab1D {{0.0 1.0}} -iterations 10 \
+                 -swarmsize 10 -type local -neighbours 3]
+    concat [probCheck $res probParab1D {{0.0 1.0}}] \
+           [expr {[dict get $res optimum-value] < 0.01}]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1 1}
+
+test probopt-api-1.3 {pso, -iterations limits the number of best values} -setup {
+    setRand
+} -body {
+    set res [::math::probopt::pso probParab $bounds2 -iterations 5 -swarmsize 5 \
+                 -tolerance 0.0]
+    expr {[llength [dict get $res best-values]] <= 5}
+} -cleanup {
+    unset -nocomplain res
+} -result 1
+
+test probopt-api-1.4 {pso, unknown type} -body {
+    ::math::probopt::pso probParab $bounds2 -type foo -iterations 3
+} -returnCodes error -result {Unknown type: foo}
+
+# -------------------------------------------------------------------------
+# sce
+
+test probopt-api-2.1 {sce, result properties} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::sce probParab $bounds2 -iterations 10]
+    concat [lrange [probCheck $res probParab $bounds2] 0 2] \
+           [expr {[dict get $res optimum-value] < 0.05}]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1}
+
+test probopt-api-2.2 {sce, number of evaluations of a second call} -constraints {
+    knownBug
+} -setup {
+    setRand
+} -body {
+    ::math::probopt::sce probParab $bounds2 -iterations 5
+    set ::probCalls 0
+    set res [::math::probopt::sce probParab $bounds2 -iterations 5]
+    expr {[dict get $res evaluations] == $::probCalls}
+} -cleanup {
+    unset -nocomplain res
+} -result 1
+
+test probopt-api-2.3 {sce, -maxevaluations} -constraints {
+    knownBug
+} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    # Without the limit this needs several hundred evaluations
+    ::math::probopt::sce probParab $bounds2 -iterations 20 -maxevaluations 30
+    expr {$::probCalls < 60}
+} -result 1
+
+test probopt-api-2.4 {sce, one dimension} -setup {
+    setRand
+} -body {
+    set res [::math::probopt::sce probParab1D {{0.0 1.0}} -iterations 10]
+    list [llength [dict get $res optimum-coordinates]] \
+         [expr {[dict get $res optimum-value] < 0.01}]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1}
+
+# -------------------------------------------------------------------------
+# diffev
+
+test probopt-api-3.1 {diffev, result properties} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::diffev probParab $bounds2 -iterations 20]
+    concat [probCheck $res probParab $bounds2] \
+           [isMonotonic [dict get $res best-values] down] \
+           [expr {[dict get $res optimum-value] < 0.05}]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1 1 1}
+
+test probopt-api-3.2 {diffev, -maxevaluations} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::diffev probParab $bounds2 -iterations 100 \
+                 -maxevaluations 30 -reltolerance 0.0]
+    list [expr {$::probCalls < 60}] [expr {[dict get $res evaluations] == $::probCalls}]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1}
+
+test probopt-api-3.3 {diffev, -number, -factor, -crossover} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::diffev probParab $bounds2 -iterations 10 \
+                 -number 12 -factor 0.5 -crossover 0.7]
+    probCheck $res probParab $bounds2
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1}
+
+test probopt-api-3.4 {diffev, non-zero -lambda} -constraints {
+    knownBug
+} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::diffev probParab $bounds2 -iterations 10 -lambda 0.2]
+    probCheck $res probParab $bounds2
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1}
+
+# -------------------------------------------------------------------------
+# lipoMax, adaLipoMax: these search a maximum
+
+test probopt-api-4.1 {lipoMax, result properties} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::lipoMax probNegParab $bounds2 -iterations 50]
+    concat [probCheck $res probNegParab $bounds2] \
+           [isMonotonic [dict get $res best-values] up]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1 1}
+
+test probopt-api-4.2 {lipoMax, -iterations equals the number of evaluations} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::lipoMax probNegParab $bounds2 -iterations 37 -lipschitz 5.0]
+    list [dict get $res evaluations] $::probCalls
+} -cleanup {
+    unset -nocomplain res
+} -result {37 37}
+
+test probopt-api-4.3 {lipoMax finds a maximum, not a minimum} -setup {
+    setRand
+} -body {
+    # The maximum of (x-0.3)**2 on [0,4] is at x = 4
+    set res [::math::probopt::lipoMax probParab1D {{0.0 4.0}} -iterations 50]
+    expr {[dict get $res optimum-coordinates] > 3.0}
+} -cleanup {
+    unset -nocomplain res
+} -result 1
+
+test probopt-api-4.4 {adaLipoMax, result properties} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::adaLipoMax probNegParab $bounds2 -iterations 50]
+    concat [probCheck $res probNegParab $bounds2] \
+           [isMonotonic [dict get $res best-values] up]
+} -cleanup {
+    unset -nocomplain res
+} -result {1 1 1 1 1}
+
+test probopt-api-4.5 {adaLipoMax, -iterations equals the number of evaluations} -setup {
+    setRand
+    set ::probCalls 0
+} -body {
+    set res [::math::probopt::adaLipoMax probNegParab $bounds2 -iterations 23 -bernoulli 0.5]
+    list [dict get $res evaluations] $::probCalls
+} -cleanup {
+    unset -nocomplain res
+} -result {23 23}
+
+# -------------------------------------------------------------------------
+# Function resolved in the caller's namespace
+
+# pso resolves the function name in the caller's namespace (see
+# probopt.test), the other algorithms do not.
+test probopt-api-5.1 {function name resolved in the caller's namespace} -constraints {
+    knownBug
+} -setup {
+    namespace eval ::probApiNs {
+        proc fn {coords} {
+            return [expr {([lindex $coords 0] - 0.5)**2}]
+        }
+    }
+    setRand
+} -body {
+    set r {}
+    foreach cmd {sce diffev lipoMax adaLipoMax} {
+        set res [namespace eval ::probApiNs [list ::math::probopt::$cmd fn {{0.0 1.0}} -iterations 5]]
+        lappend r [dict exists $res optimum-value]
+    }
+    set r
+} -cleanup {
+    namespace delete ::probApiNs
+    unset -nocomplain r cmd res
+} -result {1 1 1 1}
+
+# -------------------------------------------------------------------------
+
+rename setRand {}
+rename probParab {}
+rename probNegParab {}
+rename probParab1D {}
+rename probCheck {}
+rename isMonotonic {}
+unset -nocomplain probCalls bounds2
+
+testsuiteCleanup

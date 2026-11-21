@@ -1,0 +1,285 @@
+# -*- tcl -*-
+# trig-api.test --
+#    Tests for the documented API of the math::trig package, in addition
+#    to trig.test: values of every function at known points, special
+#    angles and error cases.
+#
+#    Note: several tests in trig.test (Trig-3.*) loop over lists that are
+#    never filled, so they do not check anything.
+#
+# Sourcing this file into Tcl runs the tests and generates output for
+# errors. No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal trig.tcl math::trig
+}
+
+# -------------------------------------------------------------------------
+
+# Element-wise comparison with a relative/absolute tolerance; infinities
+# must match exactly.
+proc matchNumbers {expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+	return 0
+    }
+    foreach a $actual e $expected {
+	if {![string is double -strict $a]} {
+	    return 0
+	}
+	if {[string match -nocase *inf* $e]} {
+	    if {$a != $e} {
+		return 0
+	    }
+	    continue
+	}
+	if {abs($a-$e) > 1.0e-12 * max(1.0, abs($e))} {
+	    return 0
+	}
+    }
+    return 1
+}
+customMatch numbers matchNumbers
+
+namespace eval ::trigtest {
+    namespace import ::math::trig::*
+    variable pi [expr {4.0*atan(1.0)}]
+
+    # Evaluate a command for a list of arguments
+    proc map {cmd values} {
+	set result {}
+	foreach v $values {
+	    lappend result [{*}$cmd $v]
+	}
+	return $result
+    }
+}
+
+proc trig {script} {
+    namespace eval ::trigtest $script
+}
+
+# -------------------------------------------------------------------------
+# Reduction
+# -------------------------------------------------------------------------
+
+test trig-api-1.1 "degree_reduced: values in \[0, 360)" -match numbers -body {
+    trig {map degree_reduced {0 30 359.5 360 725 -30 -360 -720 -725}}
+} -result {0 30 359.5 0 5 330 0 0 355}
+
+test trig-api-1.2 "radian_reduced: values in \[0, 2pi)" -match numbers -body {
+    trig {map radian_reduced [list 0 1.0 7.0 -0.5 [expr {-2.0*$pi - 1.0}]]}
+} -result [list 0 1.0 [expr {7.0 - 8.0*atan(1.0)}] [expr {8.0*atan(1.0) - 0.5}] \
+	       [expr {8.0*atan(1.0) - 1.0}]]
+
+test trig-api-1.3 "degree_reduced: wrong # args" -body {
+    ::math::trig::degree_reduced
+} -returnCodes error -result {wrong # args: should be "::math::trig::degree_reduced angle"}
+
+test trig-api-1.4 "radian_reduced: wrong # args" -body {
+    ::math::trig::radian_reduced 1 2
+} -returnCodes error -result {wrong # args: should be "::math::trig::radian_reduced angle"}
+
+# -------------------------------------------------------------------------
+# cosec, sec, cotan and their inverses
+# The manual describes cosec as 1/cos and sec as 1/sin; the code (and the
+# usual definitions) are cosec = 1/sin and sec = 1/cos.
+# -------------------------------------------------------------------------
+
+test trig-api-2.1 "cosec: 1/sin" -match numbers -body {
+    trig {map cosec {0.5 1.0 -2.0}}
+} -result [list [expr {1.0/sin(0.5)}] [expr {1.0/sin(1.0)}] [expr {1.0/sin(-2.0)}]]
+
+test trig-api-2.2 "sec: 1/cos" -match numbers -body {
+    trig {map sec {0.0 0.5 2.0}}
+} -result [list 1.0 [expr {1.0/cos(0.5)}] [expr {1.0/cos(2.0)}]]
+
+test trig-api-2.3 "cotan: 1/tan" -match numbers -body {
+    trig {map cotan {0.5 1.0 2.0}}
+} -result [list [expr {1.0/tan(0.5)}] [expr {1.0/tan(1.0)}] [expr {1.0/tan(2.0)}]]
+
+test trig-api-2.4 "cosec: singular at zero" -body {
+    trig {cosec 0.0}
+} -result Inf
+
+test trig-api-3.1 "acosec: arc cosecant" -match numbers -body {
+    trig {map acosec {2.0 -2.0 1.0}}
+} -result [list [expr {$::trigtest::pi/6.0}] [expr {-$::trigtest::pi/6.0}] [expr {$::trigtest::pi/2.0}]]
+
+test trig-api-3.2 "acosec: argument out of range" -body {
+    trig {acosec 0.5}
+} -returnCodes error -result {domain error: argument not in valid range}
+
+# asec computes 1/acos(x) instead of acos(1/x)
+test trig-api-3.3 "asec: arc secant" -constraints knownBug -match numbers -body {
+    trig {map asec {2.0 1.0 -2.0}}
+} -result [list [expr {$::trigtest::pi/3.0}] 0.0 [expr {2.0*$::trigtest::pi/3.0}]]
+
+test trig-api-3.4 "asec: inverse of sec" -constraints knownBug -match numbers -body {
+    trig {map asec [map sec {0.5 1.0 2.0 3.0}]}
+} -result {0.5 1.0 2.0 3.0}
+
+# acotan refers to an undefined variable "angle"
+test trig-api-3.5 "acotan: arc cotangent" -constraints knownBug -match numbers -body {
+    trig {map acotan {1.0 2.0}}
+} -result [list [expr {$::trigtest::pi/4.0}] [expr {atan(0.5)}]]
+
+test trig-api-3.6 "acotan: inverse of cotan" -constraints knownBug -match numbers -body {
+    trig {map acotan [map cotan {0.5 1.0 1.5}]}
+} -result {0.5 1.0 1.5}
+
+foreach {cmd arg} {cosec angle sec angle cotan angle acosec value asec value acotan value} {
+    test trig-api-3.7.$cmd "$cmd: wrong # args" -body {
+	::math::trig::$cmd
+    } -returnCodes error -result "wrong # args: should be \"::math::trig::$cmd $arg\""
+}
+unset cmd arg
+
+# -------------------------------------------------------------------------
+# Hyperbolic functions
+# -------------------------------------------------------------------------
+
+test trig-api-4.1 "cosech: 1/sinh" -match numbers -body {
+    trig {map cosech {1.0 -0.5}}
+} -result [list [expr {1.0/sinh(1.0)}] [expr {1.0/sinh(-0.5)}]]
+
+test trig-api-4.2 "sech: 1/cosh" -match numbers -body {
+    trig {map sech {0.0 1.0 -2.0}}
+} -result [list 1.0 [expr {1.0/cosh(1.0)}] [expr {1.0/cosh(-2.0)}]]
+
+test trig-api-4.3 "cotanh: 1/tanh" -match numbers -body {
+    trig {map cotanh {1.0 -0.5}}
+} -result [list [expr {1.0/tanh(1.0)}] [expr {1.0/tanh(-0.5)}]]
+
+test trig-api-4.4 "cosech, cotanh: singular at zero" -body {
+    trig {list [cosech 0.0] [cotanh 0.0]}
+} -result {Inf Inf}
+
+test trig-api-5.1 "asinh: inverse of sinh" -match numbers -body {
+    trig {map asinh [list [expr {sinh(0.5)}] [expr {sinh(-2.0)}] 0.0]}
+} -result {0.5 -2.0 0.0}
+
+test trig-api-5.2 "acosh: inverse of cosh" -match numbers -body {
+    trig {map acosh [list 1.0 [expr {cosh(0.5)}] [expr {cosh(3.0)}]]}
+} -result {0.0 0.5 3.0}
+
+test trig-api-5.3 "acosh: argument below 1" -body {
+    trig {acosh 0.5}
+} -returnCodes error -result {acosh: argument should be larger/equal 1.0}
+
+test trig-api-5.4 "atanh: inverse of tanh" -match numbers -body {
+    trig {map atanh [list 0.0 [expr {tanh(0.5)}] [expr {tanh(-1.5)}]]}
+} -result {0.0 0.5 -1.5}
+
+test trig-api-5.5 "atanh: argument out of range" -body {
+    trig {list [catch {atanh 1.0} m1] $m1 [catch {atanh -1.0} m2] $m2}
+} -cleanup {
+    unset -nocomplain ::trigtest::m1 ::trigtest::m2
+} -result {1 {atanh: argument should be between -1.0 and 1.0} 1 {atanh: argument should be between -1.0 and 1.0}}
+
+test trig-api-5.6 "acosech: inverse of cosech" -match numbers -body {
+    trig {map acosech [map cosech {0.5 2.0 -1.0}]}
+} -result {0.5 2.0 -1.0}
+
+test trig-api-5.7 "asech: inverse of sech" -match numbers -body {
+    trig {map asech [map sech {0.5 2.0}]}
+} -result {0.5 2.0}
+
+test trig-api-5.8 "asech: argument above 1" -body {
+    trig {asech 2.0}
+} -returnCodes error -result {acosh: argument should be larger/equal 1.0}
+
+test trig-api-5.9 "acotanh: inverse of cotanh" -match numbers -body {
+    trig {map acotanh [map cotanh {0.5 2.0 -1.0}]}
+} -result {0.5 2.0 -1.0}
+
+test trig-api-5.10 "acotanh: argument in (-1, 1)" -body {
+    trig {acotanh 0.5}
+} -returnCodes error -result {atanh: argument should be between -1.0 and 1.0}
+
+foreach cmd {cosech sech cotanh asinh acosh atanh acosech asech acotanh} {
+    test trig-api-5.11.$cmd "$cmd: wrong # args" -body {
+	::math::trig::$cmd
+    } -returnCodes error -result "wrong # args: should be \"::math::trig::$cmd value\""
+}
+unset cmd
+
+# -------------------------------------------------------------------------
+# Functions of angles in degrees
+# -------------------------------------------------------------------------
+
+test trig-api-6.1 "sind: known values" -match numbers -body {
+    trig {map sind {0 30 90 150 180 210 270 330 360 -90 450}}
+} -result {0 0.5 1 0.5 0 -0.5 -1 -0.5 0 -1 1}
+
+test trig-api-6.2 "cosd: known values" -match numbers -body {
+    trig {map cosd {0 60 90 120 180 240 270 300 360 -180 720}}
+} -result {1 0.5 0 -0.5 -1 -0.5 0 0.5 1 -1 1}
+
+test trig-api-6.3 "sind, cosd: exact at multiples of 90 degrees" -body {
+    trig {list [sind 0] [sind 90] [sind 180] [sind 270] [cosd 0] [cosd 180] [cosd 360] \
+	      [expr {[cosd 90] == 0.0}] [expr {[cosd 270] == 0.0}]}
+} -result {0.0 1.0 -0.0 -1.0 1.0 -1.0 1.0 1 1}
+
+test trig-api-6.4 "tand: known values" -match numbers -body {
+    trig {map tand {0 45 135 180 225 -45}}
+} -result {0 1 -1 0 1 -1}
+
+test trig-api-6.5 "tand: infinite at 90 degrees" -body {
+    trig {expr {abs([tand 90]) == Inf}}
+} -result 1
+
+test trig-api-6.6 "cosecd: known values" -match numbers -body {
+    trig {map cosecd {30 90 150 270 -30}}
+} -result {2 1 2 -1 -2}
+
+test trig-api-6.7 "secd: known values" -match numbers -body {
+    trig {map secd {0 60 180 300 -60}}
+} -result {1 2 -1 2 2}
+
+test trig-api-6.8 "cotand: known values" -match numbers -body {
+    trig {map cotand {45 90 135 270 -45}}
+} -result {1 0 -1 0 -1}
+
+test trig-api-6.9 "cosecd, cotand: infinite at 0 degrees" -body {
+    trig {list [cosecd 0] [cotand 0]}
+} -result {Inf Inf}
+
+test trig-api-6.10 "sind: agrees with sin for arbitrary angles" -match numbers -body {
+    trig {map sind {1 17.5 100 199 285 359}}
+} -result [::trigtest::map {apply {x {expr {sin($x*atan(1.0)/45.0)}}}} {1 17.5 100 199 285 359}]
+
+test trig-api-6.11 "cosd: agrees with cos for arbitrary angles" -match numbers -body {
+    trig {map cosd {1 17.5 100 199 285 359}}
+} -result [::trigtest::map {apply {x {expr {cos($x*atan(1.0)/45.0)}}}} {1 17.5 100 199 285 359}]
+
+test trig-api-6.12 "sind: not a number" -body {
+    trig {sind abc}
+} -returnCodes error -match glob -result {*non-numeric string*}
+
+foreach cmd {sind cosd tand cosecd secd cotand} {
+    test trig-api-6.13.$cmd "$cmd: wrong # args" -body {
+	::math::trig::$cmd
+    } -returnCodes error -result "wrong # args: should be \"::math::trig::$cmd angle\""
+}
+unset cmd
+
+# -------------------------------------------------------------------------
+
+namespace delete ::trigtest
+rename trig {}
+rename matchNumbers {}
+
+# End of test cases
+testsuiteCleanup

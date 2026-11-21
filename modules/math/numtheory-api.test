@@ -1,0 +1,231 @@
+# -*- tcl -*-
+# numtheory-api.test --
+#    Additional tests for the documented API of math::numtheory:
+#    isprime return values and options, edge cases (1, primes, zero
+#    arguments) and error cases.
+#    (The rest of the API is tested in numtheory.test and primes.test.)
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal numtheory.tcl math::numtheory
+}
+
+# -------------------------------------------------------------------------
+
+proc ::matchTol {tol expected actual} {
+    if {[llength $expected] != [llength $actual]} {
+        return 0
+    }
+    foreach a $actual e $expected {
+        if {![string is double -strict $a]} {
+            return 0
+        }
+        set scale [expr {abs($e) > 1.0 ? abs($e) : 1.0}]
+        if {abs($a-$e) > $tol*$scale} {
+            return 0
+        }
+    }
+    return 1
+}
+customMatch approx {::matchTol 1.0e-9}
+
+# -------------------------------------------------------------------------
+# isprime
+
+test numtheory-api-1.1 {isprime - large prime is "probably prime" (on)} -body {
+    math::numtheory::isprime 1000000000000000003
+} -result on
+
+test numtheory-api-1.2 {isprime - large composite} -body {
+    math::numtheory::isprime 1000000000000000001
+} -result 0
+
+test numtheory-api-1.3 {isprime - small prime is definitely prime (1)} -body {
+    list [math::numtheory::isprime 2] [math::numtheory::isprime 1000003]
+} -result {1 1}
+
+test numtheory-api-1.4 {isprime - -randommr option} -body {
+    list [math::numtheory::isprime 1000000000000000003 -randommr 10] \
+	[math::numtheory::isprime 1000000000000000001 -randommr 1] \
+	[math::numtheory::isprime 17 -randommr 0]
+} -result {on 0 1}
+
+test numtheory-api-1.5 {isprime - unknown options are silently ignored} -body {
+    math::numtheory::isprime 17 -nosuchoption value
+} -result 1
+
+test numtheory-api-1.6 {isprime - non-numeric argument} -body {
+    math::numtheory::isprime x
+} -returnCodes error -match glob -result {*non-numeric*}
+
+test numtheory-api-1.7 {isprime - wrong # args} -body {
+    math::numtheory::isprime
+} -returnCodes error -match glob -result {wrong # args: should be "math::numtheory::isprime n *"}
+
+# -------------------------------------------------------------------------
+# Lists of primes and factors
+
+test numtheory-api-2.1 {firstNprimes - zero and one} -body {
+    list [math::numtheory::firstNprimes 0] [math::numtheory::firstNprimes 1]
+} -result {{} 2}
+
+test numtheory-api-2.2 {primesLowerThan - no primes below 2} -body {
+    list [math::numtheory::primesLowerThan 1] [math::numtheory::primesLowerThan 0]
+} -result {{} {}}
+
+test numtheory-api-2.3 {primesLowerThan - upper limit is included} -body {
+    math::numtheory::primesLowerThan 13
+} -result {2 3 5 7 11 13}
+
+test numtheory-api-2.4 {primeFactors - 1 has no prime factors} -body {
+    math::numtheory::primeFactors 1
+} -result {}
+
+test numtheory-api-2.5 {primeFactors - a prime is its own factor} -body {
+    math::numtheory::primeFactors 13
+} -result 13
+
+test numtheory-api-2.6 {primeFactors - power of two, factors repeated} -body {
+    math::numtheory::primeFactors 1024
+} -result {2 2 2 2 2 2 2 2 2 2}
+
+test numtheory-api-2.7 {uniquePrimeFactors - 1 and 360} -body {
+    list [math::numtheory::uniquePrimeFactors 1] [math::numtheory::uniquePrimeFactors 360]
+} -result {{} {2 3 5}}
+
+test numtheory-api-2.8 {factors - 1, a prime and a square} -body {
+    list [math::numtheory::factors 1] [math::numtheory::factors 13] \
+	[lsort -integer [math::numtheory::factors 36]]
+} -result {1 {1 13} {1 2 3 4 6 9 12 18 36}}
+
+# -------------------------------------------------------------------------
+# Arithmetic functions
+
+test numtheory-api-3.1 {totient - 1, a prime, a square} -body {
+    list [math::numtheory::totient 1] [math::numtheory::totient 13] \
+	[math::numtheory::totient 36]
+} -result {1 12 12}
+
+test numtheory-api-3.2 {moebius - 1, square factor, odd number of primes} -body {
+    list [math::numtheory::moebius 1] [math::numtheory::moebius 4] \
+	[math::numtheory::moebius 30] [math::numtheory::moebius 6]
+} -result {1 0 -1 1}
+
+test numtheory-api-3.3 {moebius - non-positive argument} -body {
+    math::numtheory::moebius 0
+} -returnCodes error -result {The number must be positive}
+
+test numtheory-api-3.4 {legendre - residue, non-residue, multiple of p} -body {
+    list [math::numtheory::legendre 2 7] [math::numtheory::legendre 3 7] \
+	[math::numtheory::legendre 7 7] [math::numtheory::legendre 14 7]
+} -result {1 -1 0 0}
+
+test numtheory-api-3.5 {legendre - p must be non-zero} -body {
+    math::numtheory::legendre 1 0
+} -returnCodes error -result {The number p must be non-zero}
+
+test numtheory-api-3.6 {jacobi - composite lower number} -body {
+    list [math::numtheory::jacobi 2 15] [math::numtheory::jacobi 7 15] \
+	[math::numtheory::jacobi 0 1]
+} -result {1 -1 1}
+
+test numtheory-api-3.7 {gcd - zero arguments} -body {
+    list [math::numtheory::gcd 0 5] [math::numtheory::gcd 5 0] [math::numtheory::gcd 0 0]
+} -result {5 5 0}
+
+test numtheory-api-3.8 {gcd - coprime numbers, argument order} -body {
+    list [math::numtheory::gcd 17 5] [math::numtheory::gcd 5 17] \
+	[math::numtheory::gcd 36 48] [math::numtheory::gcd 48 36]
+} -result {1 1 12 12}
+
+test numtheory-api-3.9 {gcd - large integers} -body {
+    math::numtheory::gcd [expr {2**70 * 3}] [expr {2**65 * 9}]
+} -result [expr {2**65 * 3}]
+
+test numtheory-api-3.10 {gcd, lcm - negative arguments} -constraints knownBug -body {
+    list [math::numtheory::gcd -4 6] [math::numtheory::lcm -4 6]
+} -result {2 12}
+
+test numtheory-api-3.11 {gcd - non-integer argument} -body {
+    math::numtheory::gcd 1.5 2
+} -returnCodes error -match glob -result {*floating-point value*}
+
+test numtheory-api-3.12 {lcm - zero and equal arguments} -body {
+    list [math::numtheory::lcm 0 5] [math::numtheory::lcm 7 7] [math::numtheory::lcm 4 6]
+} -result {0 7 12}
+
+test numtheory-api-3.13 {gcd, lcm - wrong # args} -body {
+    list [catch {math::numtheory::gcd 1} m1] $m1 [catch {math::numtheory::lcm 1} m2] $m2
+} -cleanup {
+    unset -nocomplain m1 m2
+} -match glob -result {1 {wrong # args: should be "math::numtheory::gcd * *"} 1 {wrong # args: should be "math::numtheory::lcm * *"}}
+
+# -------------------------------------------------------------------------
+# Estimates of the number of primes
+
+test numtheory-api-4.1 {numberPrimesGauss - N/ln(N)} -match approx -body {
+    math::numtheory::numberPrimesGauss 100
+} -result [expr {100.0/log(100.0)}]
+
+test numtheory-api-4.2 {numberPrimesLegendre - N/(ln(N)-1)} -match approx -body {
+    math::numtheory::numberPrimesLegendre 100
+} -result [expr {100.0/(log(100.0)-1.0)}]
+
+test numtheory-api-4.3 {numberPrimesLegendreModified - N/(ln(N)-1.08366)} -match approx -body {
+    math::numtheory::numberPrimesLegendreModified 100
+} -result [expr {100.0/(log(100.0)-1.08366)}]
+
+test numtheory-api-4.4 {differenceNumberPrimesLegendreModified - difference of estimates} -match approx -body {
+    math::numtheory::differenceNumberPrimesLegendreModified 100 200
+} -result [expr {200.0/(log(200.0)-1.08366) - 100.0/(log(100.0)-1.08366)}]
+
+test numtheory-api-4.5 {numberPrimes* - limit too small} -body {
+    set result {}
+    foreach cmd {numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified} {
+	lappend result [catch {math::numtheory::$cmd 1} msg] $msg
+    }
+    set result
+} -cleanup {
+    unset -nocomplain result cmd msg
+} -result [lrepeat 3 1 {The limit must be larger than 1}]
+
+test numtheory-api-4.6 {differenceNumberPrimesLegendreModified - lower limit too small} -body {
+    math::numtheory::differenceNumberPrimesLegendreModified 0 100
+} -returnCodes error -result {The lower limit must be larger than 1}
+
+# -------------------------------------------------------------------------
+# listPrimePairs, listPrimeProgressions
+
+test numtheory-api-5.1 {listPrimePairs - default step is 2} -body {
+    math::numtheory::listPrimePairs 1 20
+} -result {{3 5} {5 7} {11 13} {17 19}}
+
+test numtheory-api-5.2 {listPrimeProgressions - step 6} -body {
+    math::numtheory::listPrimeProgressions 1 20 6
+} -result {{5 11 17} {7 13 19}}
+
+test numtheory-api-5.3 {listPrimePairs - upper limit below lower limit} -body {
+    math::numtheory::listPrimePairs 30 1
+} -returnCodes error -result {The upper limit must be larger than the lower limit}
+
+test numtheory-api-5.4 {listPrimeProgressions - upper limit below lower limit} -body {
+    math::numtheory::listPrimeProgressions 20 1
+} -returnCodes error -result {The upper limit must be larger than the lower limit}
+
+test numtheory-api-5.5 {listPrimePairs - step must be at least 1} -body {
+    math::numtheory::listPrimePairs 1 30 0
+} -returnCodes error -result {The step must be at least 1}
+
+# -------------------------------------------------------------------------
+
+rename ::matchTol {}
+
+testsuiteCleanup
