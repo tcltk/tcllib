@@ -1,0 +1,225 @@
+# -*- tcl -*-
+# import-api.test:  Tests for the documented API of doctools::idx::import
+# (idx_import.man) that are not covered by import.test: import text and
+# file with and without format, import object text/file, the use of
+# configuration variables and include paths by the docidx plugin.
+
+source [file join [
+    file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    use struct/list.tcl         struct::list
+    use snit/snit.tcl           snit
+    use fileutil/fileutil.tcl   fileutil
+    use fileutil/paths.tcl      fileutil::paths
+    use log/logger.tcl          logger
+    use pluginmgr/pluginmgr.tcl pluginmgr
+    use struct/map.tcl          struct::map
+
+    useLocal structure.tcl   doctools::idx::structure
+    useLocal export.tcl      doctools::idx::export
+    useLocal container.tcl   doctools::idx
+
+    source [tcllibPath doctools2base/tests/common]
+}
+testing {
+    useLocalKeep import.tcl doctools::idx::import
+}
+
+# -------------------------------------------------------------------------
+
+setup_plugins
+
+set docidxA {[index_begin LA TA][key k1][url r1 U1][key k2][manpage r2 M2][url r1 U1][index_end]}
+set canonA {doctools::idx {label LA keywords {k1 r1 k2 {r2 r1}} references {r1 {url U1} r2 {manpage M2}} title TA}}
+
+# A minimal object with a deserialize method, recording its argument.
+proc recorder {method args} {
+    lappend ::importapi_got $method $args
+    return
+}
+
+# =========================================================================
+# import text, import file
+
+test doctools-idx-import-api-1.0 {import text, default format docidx} -setup {
+    doctools::idx::import I
+} -body {
+    I import text $docidxA
+} -cleanup {
+    I destroy
+} -result $canonA
+
+test doctools-idx-import-api-1.1 {import text, explicit docidx} -setup {
+    doctools::idx::import I
+} -body {
+    I import text $docidxA docidx
+} -cleanup {
+    I destroy
+} -result $canonA
+
+test doctools-idx-import-api-1.2 {import text, json} -setup {
+    doctools::idx::import I
+} -body {
+    I import text {{"doctools::idx":{"label":"LA","keywords":{"k1":["r1"],"k2":["r2","r1"]},"references":{"r1":["url","U1"],"r2":["manpage","M2"]},"title":"TA"}}} json
+} -cleanup {
+    I destroy
+} -result $canonA
+
+test doctools-idx-import-api-1.3 {import text, unknown format} -setup {
+    doctools::idx::import I
+} -body {
+    I import text $docidxA importapi_nosuch
+} -cleanup {
+    I destroy
+} -returnCodes error -match glob -result {Unable to locate or load plugin "importapi_nosuch"*}
+
+test doctools-idx-import-api-1.4 {import text, syntax error} -setup {
+    doctools::idx::import I
+} -body {
+    I import text {bad}
+} -cleanup {
+    I destroy
+} -returnCodes error -result {error on line 1.3: Plain text beyond whitespace is not allowed}
+
+test doctools-idx-import-api-1.5 {import text, docidx text given to json} -setup {
+    doctools::idx::import I
+} -body {
+    I import text {} json
+} -cleanup {
+    I destroy
+} -returnCodes error -result {unexpected token "END" at position 0; expecting VALUE}
+
+test doctools-idx-import-api-1.6 {import file} -setup {
+    doctools::idx::import I
+    set f [tcltest::makeFile $docidxA importapi.idx]
+} -body {
+    I import file $f
+} -cleanup {
+    I destroy
+    tcltest::removeFile importapi.idx
+    unset -nocomplain f
+} -result $canonA
+
+test doctools-idx-import-api-1.7 {import file, missing file} -setup {
+    doctools::idx::import I
+    set f [file join [tcltest::temporaryDirectory] importapi-nosuch.idx]
+} -body {
+    I import file $f
+} -cleanup {
+    I destroy
+    unset -nocomplain f
+} -returnCodes error -match glob -result {Cannot read file "*importapi-nosuch.idx", does not exist}
+
+# =========================================================================
+# import object text, import object file
+
+test doctools-idx-import-api-2.0 {import object text, deserialize is called} -setup {
+    doctools::idx::import I
+    set importapi_got {}
+} -body {
+    list [I import object text recorder $docidxA] $importapi_got
+} -cleanup {
+    I destroy
+    unset -nocomplain importapi_got
+} -result [list {} [list deserialize [list $canonA]]]
+
+test doctools-idx-import-api-2.1 {import object file, deserialize is called} -setup {
+    doctools::idx::import I
+    set importapi_got {}
+    set f [tcltest::makeFile $docidxA importapi.idx]
+} -body {
+    list [I import object file recorder $f] $importapi_got
+} -cleanup {
+    I destroy
+    tcltest::removeFile importapi.idx
+    unset -nocomplain importapi_got f
+} -result [list {} [list deserialize [list $canonA]]]
+
+test doctools-idx-import-api-2.2 {import object text, explicit format} -setup {
+    doctools::idx::import I
+    set importapi_got {}
+} -body {
+    I import object text recorder {{"doctools::idx":{"label":"L","keywords":{},"references":{},"title":"T"}}} json
+    set importapi_got
+} -cleanup {
+    I destroy
+    unset -nocomplain importapi_got
+} -result {deserialize {{doctools::idx {label L keywords {} references {} title T}}}}
+
+test doctools-idx-import-api-2.3 {import object text into a doctools::idx container} -constraints {
+    knownBug
+} -setup {
+    doctools::idx::import I
+    doctools::idx C
+} -body {
+    # The container has only "deserialize =" and "deserialize +=".
+    I import object text C $docidxA
+    C serialize
+} -cleanup {
+    I destroy
+    C destroy
+} -result $canonA
+
+# =========================================================================
+# Configuration variables and include paths used by the docidx plugin
+
+test doctools-idx-import-api-3.0 {configuration variables are known to vset} -setup {
+    doctools::idx::import I
+} -body {
+    set r [list [catch {I import text {[index_begin L [vset X]][index_end]}} msg] $msg]
+    I config set X Value
+    lappend r [I import text {[index_begin L [vset X]][index_end]}]
+} -cleanup {
+    I destroy
+    unset -nocomplain r msg
+} -result {1 {error on line 1.20: Unknown variable "X"} {doctools::idx {label L keywords {} references {} title Value}}}
+
+test doctools-idx-import-api-3.1 {user is set internally} -setup {
+    doctools::idx::import I
+} -body {
+    I config set user importapi_nobody
+    string equal [lindex [I import text {[index_begin L [vset user]][index_end]}] 1 end] \
+        $::tcl_platform(user)
+} -cleanup {
+    I destroy
+} -result 1
+
+test doctools-idx-import-api-3.2 {include file not found} -setup {
+    doctools::idx::import I
+    set d [tcltest::makeDirectory importapi]
+    I include add $d
+} -body {
+    I import text {[index_begin L T][include importapi.inc][index_end]}
+} -cleanup {
+    I destroy
+    tcltest::removeDirectory importapi
+    unset -nocomplain d
+} -returnCodes error -result {error on line 1.25: Include file "importapi.inc" not found}
+
+test doctools-idx-import-api-3.3 {include file found in an include path} -constraints {
+    knownBug
+} -setup {
+    doctools::idx::import I
+    set d [tcltest::makeDirectory importapi]
+    tcltest::makeFile {[key k][url u U]} importapi.inc $d
+    I include add $d
+} -body {
+    # Fails with: node "" does not exist in tree "::doctools::idx::parse::AST"
+    I import text {[index_begin L T][include importapi.inc][index_end]}
+} -cleanup {
+    I destroy
+    tcltest::removeDirectory importapi
+    unset -nocomplain d
+} -result {doctools::idx {label L keywords {k u} references {u {url U}} title T}}
+
+# -------------------------------------------------------------------------
+
+rename recorder {}
+unset docidxA canonA
+testsuiteCleanup
+return

@@ -1,0 +1,260 @@
+# -*- tcl -*-
+# parse-api.test:  Tests for the documented API of doctools::idx::parse
+# (idx_parse.man) that are not covered by parse.test: the predefined
+# variables (vars, var set, var unset, var clear), the include search
+# paths (includes, include add/remove/clear) and their use.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useAccel [useTcllibC] struct/tree.tcl  struct::tree
+    TestAccelInit                          struct::tree
+
+    useAccel [useTcllibC] struct/stack.tcl struct::stack
+    TestAccelInit                          struct::stack
+
+    useAccel [useTcllibC] struct/sets.tcl  struct::set
+    TestAccelInit                          struct::set
+
+    use      struct/list.tcl               struct::list
+    use      snit/snit.tcl                 snit
+    use      fileutil/fileutil.tcl         fileutil
+    use      log/logger.tcl                logger
+    use      treeql/treeql.tcl             treeql
+
+    use      doctools2base/tcl_parse.tcl  doctools::tcl::parse
+    use      doctools2base/msgcat.tcl     doctools::msgcat
+    useLocal msgcat_c.tcl                 doctools::msgcat::idx::c
+    useLocal structure.tcl                doctools::idx::structure
+
+    msgcat::mclocale C
+}
+testing {
+    useLocal parse.tcl doctools::idx::parse
+}
+
+# -------------------------------------------------------------------------
+
+# Use the first available implementation of the accelerated packages.
+foreach ns {struct::tree struct::stack struct::set} {
+    ${ns}::SwitchTo [lindex [${ns}::Implementations] 0]
+}
+unset ns
+
+proc parseCleanup {} {
+    doctools::idx::parse var unset *
+    doctools::idx::parse include clear
+    # An internal error in the parser leaves its tree behind, which breaks
+    # all following parses.
+    catch {::doctools::idx::parse::AST destroy}
+    catch {tcltest::removeDirectory parseapi}
+}
+
+# =========================================================================
+# Predefined variables
+
+test doctools-idx-parse-api-1.0 {vars, initially empty} -body {
+    doctools::idx::parse vars
+} -result {}
+
+test doctools-idx-parse-api-1.1 {var set, vars} -body {
+    list [doctools::idx::parse var set fox FOX] \
+        [doctools::idx::parse var set dog DOG] \
+        [lsort -stride 2 [doctools::idx::parse vars]]
+} -cleanup {
+    parseCleanup
+} -result {{} {} {dog DOG fox FOX}}
+
+test doctools-idx-parse-api-1.2 {var set, overwrite} -body {
+    doctools::idx::parse var set fox FOX
+    doctools::idx::parse var set fox Fox
+    doctools::idx::parse vars
+} -cleanup {
+    parseCleanup
+} -result {fox Fox}
+
+test doctools-idx-parse-api-1.3 {var unset name} -body {
+    doctools::idx::parse var set fox FOX
+    doctools::idx::parse var set dog DOG
+    list [doctools::idx::parse var unset fox] [doctools::idx::parse vars]
+} -cleanup {
+    parseCleanup
+} -result {{} {dog DOG}}
+
+test doctools-idx-parse-api-1.4 {var unset, unknown name ignored} -body {
+    doctools::idx::parse var set fox FOX
+    doctools::idx::parse var unset nosuch
+    doctools::idx::parse vars
+} -cleanup {
+    parseCleanup
+} -result {fox FOX}
+
+test doctools-idx-parse-api-1.5 {var clear pattern} -constraints {
+    knownBug
+} -body {
+    # Documented, but not implemented ("var unset" accepts patterns).
+    doctools::idx::parse var set fox FOX
+    doctools::idx::parse var set fog FOG
+    doctools::idx::parse var set dog DOG
+    list [doctools::idx::parse var clear fo*] [doctools::idx::parse vars]
+} -cleanup {
+    parseCleanup
+} -result {{} {dog DOG}}
+
+test doctools-idx-parse-api-1.6 {var clear, all} -constraints {
+    knownBug
+} -body {
+    doctools::idx::parse var set fox FOX
+    doctools::idx::parse var clear
+    doctools::idx::parse vars
+} -cleanup {
+    parseCleanup
+} -result {}
+
+test doctools-idx-parse-api-1.7 {predefined variables are known to vset} -body {
+    doctools::idx::parse var set fox FOX
+    doctools::idx::parse var set dog DOG
+    doctools::idx::parse text {[index_begin [vset fox] T][key k][url u [vset dog]][index_end]}
+} -cleanup {
+    parseCleanup
+} -result {doctools::idx {label FOX keywords {k u} references {u {url DOG}} title T}}
+
+test doctools-idx-parse-api-1.8 {vset in the text does not change the predefined variables} -body {
+    doctools::idx::parse var set fox FOX
+    set r [doctools::idx::parse text {[vset fox Other][index_begin [vset fox] T][index_end]}]
+    list $r [doctools::idx::parse vars]
+} -cleanup {
+    parseCleanup
+    unset -nocomplain r
+} -result {{doctools::idx {label Other keywords {} references {} title T}} {fox FOX}}
+
+test doctools-idx-parse-api-1.9 {unknown variable} -body {
+    doctools::idx::parse text {[index_begin [vset nosuch] T][index_end]}
+} -cleanup {
+    parseCleanup
+} -returnCodes error -match glob -result {*nosuch*}
+
+# =========================================================================
+# Include search paths
+
+test doctools-idx-parse-api-2.0 {includes, initially empty} -body {
+    doctools::idx::parse includes
+} -result {}
+
+test doctools-idx-parse-api-2.1 {include add} -body {
+    list [doctools::idx::parse include add /parseapi/a] [doctools::idx::parse includes]
+} -cleanup {
+    parseCleanup
+} -result {{} /parseapi/a}
+
+test doctools-idx-parse-api-2.2 {include add, known path ignored} -body {
+    doctools::idx::parse include add /parseapi/a
+    doctools::idx::parse include add /parseapi/b
+    doctools::idx::parse include add /parseapi/a
+    lsort [doctools::idx::parse includes]
+} -cleanup {
+    parseCleanup
+} -result {/parseapi/a /parseapi/b}
+
+test doctools-idx-parse-api-2.3 {include remove} -body {
+    doctools::idx::parse include add /parseapi/a
+    doctools::idx::parse include add /parseapi/b
+    list [doctools::idx::parse include remove /parseapi/a] [doctools::idx::parse includes]
+} -cleanup {
+    parseCleanup
+} -result {{} /parseapi/b}
+
+test doctools-idx-parse-api-2.4 {include remove, unknown path ignored} -body {
+    doctools::idx::parse include add /parseapi/a
+    doctools::idx::parse include remove /parseapi/nosuch
+    doctools::idx::parse includes
+} -cleanup {
+    parseCleanup
+} -result /parseapi/a
+
+test doctools-idx-parse-api-2.5 {include clear} -body {
+    doctools::idx::parse include add /parseapi/a
+    doctools::idx::parse include add /parseapi/b
+    list [doctools::idx::parse include clear] [doctools::idx::parse includes]
+} -cleanup {
+    parseCleanup
+} -result {{} {}}
+
+test doctools-idx-parse-api-2.6 {include, file not found in the search paths} -setup {
+    set d [tcltest::makeDirectory parseapi]
+} -body {
+    doctools::idx::parse include add $d
+    doctools::idx::parse text {[index_begin L T][include parseapi.inc][index_end]}
+} -cleanup {
+    parseCleanup
+    unset -nocomplain d
+} -returnCodes error -result {error on line 1.25: Include file "parseapi.inc" not found}
+
+test doctools-idx-parse-api-2.7 {include, file found in a search path} -constraints {
+    knownBug
+} -setup {
+    set d [tcltest::makeDirectory parseapi]
+    tcltest::makeFile {[key k][url u U]} parseapi.inc $d
+} -body {
+    # Fails with: node "" does not exist in tree "::doctools::idx::parse::AST"
+    doctools::idx::parse include add $d
+    doctools::idx::parse text {[index_begin L T][include parseapi.inc][index_end]}
+} -cleanup {
+    parseCleanup
+    unset -nocomplain d
+} -result {doctools::idx {label L keywords {k u} references {u {url U}} title T}}
+
+test doctools-idx-parse-api-2.8 {include, relative to the current file} -constraints {
+    knownBug
+} -setup {
+    set d [tcltest::makeDirectory parseapi]
+    tcltest::makeFile {[key k][url u U]} parseapi.inc $d
+    set f [tcltest::makeFile {[index_begin L T][include parseapi.inc][index_end]} parseapi.idx $d]
+} -body {
+    doctools::idx::parse file $f
+} -cleanup {
+    parseCleanup
+    unset -nocomplain d f
+} -result {doctools::idx {label L keywords {k u} references {u {url U}} title T}}
+
+# =========================================================================
+# text and file
+
+test doctools-idx-parse-api-3.0 {file} -setup {
+    set d [tcltest::makeDirectory parseapi]
+    set f [tcltest::makeFile {[index_begin L T][key k][manpage m M][index_end]} parseapi.idx $d]
+} -body {
+    doctools::idx::parse file $f
+} -cleanup {
+    parseCleanup
+    unset -nocomplain d f
+} -result {doctools::idx {label L keywords {k m} references {m {manpage M}} title T}}
+
+test doctools-idx-parse-api-3.1 {file, missing file} -body {
+    doctools::idx::parse file [file join [tcltest::temporaryDirectory] parseapi-nosuch.idx]
+} -returnCodes error -match glob -result {*parseapi-nosuch.idx*}
+
+test doctools-idx-parse-api-3.2 {text, result is canonical} -body {
+    doctools::idx::structure verify-as-canonical [doctools::idx::parse text {
+        [index_begin L T]
+        [key zeta][url z2 B][url z1 A]
+        [key alpha][manpage a M]
+        [index_end]
+    }]
+} -cleanup {
+    parseCleanup
+} -result {}
+
+# -------------------------------------------------------------------------
+
+rename parseCleanup {}
+TestAccelExit struct::tree
+TestAccelExit struct::set
+TestAccelExit struct::stack
+testsuiteCleanup
+return

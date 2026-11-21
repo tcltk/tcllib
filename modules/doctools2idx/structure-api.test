@@ -1,0 +1,162 @@
+# -*- tcl -*-
+# structure-api.test:  Tests for the documented API of
+# doctools::idx::structure (idx_structure.man) that are not covered by
+# structure.test: verify with canonvar, canonicalize, print and merge.
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl snit
+}
+testing {
+    useLocal structure.tcl doctools::idx::structure
+}
+
+# -------------------------------------------------------------------------
+
+# A canonical serialization (keys sorted, references of a keyword
+# sorted by label).
+set canonA {doctools::idx {label LA keywords {k1 r1 k2 {r2 r1}} references {r1 {url U1} r2 {manpage M2}} title TA}}
+# The same index, not canonical (unsorted keys and keywords).
+set regularA {doctools::idx {title TA label LA references {r2 {manpage M2} r1 {url U1}} keywords {k2 {r1 r2} k1 r1}}}
+set canonB {doctools::idx {label LB keywords {k2 r3 k3 r1} references {r1 {url U1} r3 {url U3}} title TB}}
+
+# =========================================================================
+# verify
+
+test doctools-idx-structure-api-1.0 {verify, canonical, canonvar set to true} -body {
+    list [doctools::idx::structure verify $canonA c] $c
+} -cleanup {
+    unset -nocomplain c
+} -result {{} 1}
+
+test doctools-idx-structure-api-1.1 {verify, regular, canonvar set to false} -body {
+    list [doctools::idx::structure verify $regularA c] $c
+} -cleanup {
+    unset -nocomplain c
+} -result {{} 0}
+
+test doctools-idx-structure-api-1.2 {verify, invalid, canonvar not written} -setup {
+    unset -nocomplain c
+} -body {
+    list [catch {doctools::idx::structure verify {} c}] [info exists c]
+} -result {1 0}
+
+test doctools-idx-structure-api-1.3 {verify, canonvar in the calling context} -setup {
+    proc tst {s} {
+        doctools::idx::structure verify $s local
+        set local
+    }
+} -body {
+    list [tst $canonA] [tst $regularA] [info exists ::local]
+} -cleanup {
+    rename tst {}
+} -result {1 0 0}
+
+test doctools-idx-structure-api-1.4 {verify-as-canonical, canonical input} -body {
+    doctools::idx::structure verify-as-canonical $canonA
+} -result {}
+
+test doctools-idx-structure-api-1.5 {verify-as-canonical, regular input} -body {
+    doctools::idx::structure verify-as-canonical $regularA
+} -returnCodes error -result {error in serialization: duplicate and/or unsorted keywords/identifiers}
+
+test doctools-idx-structure-api-1.6 {verify, empty index} -body {
+    doctools::idx::structure verify {doctools::idx {label {} keywords {} references {} title {}}} c
+    set c
+} -cleanup {
+    unset -nocomplain c
+} -result 1
+
+# =========================================================================
+# canonicalize
+
+test doctools-idx-structure-api-2.0 {canonicalize, wrong # args} -body {
+    doctools::idx::structure canonicalize
+} -returnCodes error -result {wrong # args: should be "::doctools::idx::structure::Snit_typemethodcanonicalize type serial"}
+
+test doctools-idx-structure-api-2.1 {canonicalize, regular input} -body {
+    doctools::idx::structure canonicalize $regularA
+} -result $canonA
+
+test doctools-idx-structure-api-2.2 {canonicalize, canonical input unchanged} -body {
+    doctools::idx::structure canonicalize $canonA
+} -result $canonA
+
+test doctools-idx-structure-api-2.3 {canonicalize, result is canonical} -body {
+    doctools::idx::structure verify-as-canonical \
+        [doctools::idx::structure canonicalize $regularA]
+} -result {}
+
+test doctools-idx-structure-api-2.4 {canonicalize, invalid input} -body {
+    doctools::idx::structure canonicalize {doctools::idx {}}
+} -returnCodes error -result {error in serialization: dictionary too short, expected exactly four keys}
+
+# =========================================================================
+# print
+
+test doctools-idx-structure-api-3.0 {print} -body {
+    doctools::idx::structure print $canonA
+} -result {doctools::idx LA TA
+....k1
+........url U1 r1
+....k2
+........manpage M2 r2
+........url U1 r1}
+
+test doctools-idx-structure-api-3.1 {print, regular input is accepted} -body {
+    lindex [split [doctools::idx::structure print $regularA] \n] 0
+} -result {doctools::idx LA TA}
+
+test doctools-idx-structure-api-3.2 {print, empty index} -body {
+    doctools::idx::structure print {doctools::idx {label L keywords {} references {} title T}}
+} -result {doctools::idx L T}
+
+# =========================================================================
+# merge
+
+test doctools-idx-structure-api-4.0 {merge, union, title and label from second} -constraints {
+    knownBug
+} -body {
+    # merge fails with: can't read "b(keywords)": no such element in array
+    doctools::idx::structure merge $canonA $canonB
+} -result {doctools::idx {label LB keywords {k1 r1 k2 {r2 r1 r3} k3 r1} references {r1 {url U1} r2 {manpage M2} r3 {url U3}} title TB}}
+
+test doctools-idx-structure-api-4.1 {merge, result is canonical} -constraints {
+    knownBug
+} -body {
+    doctools::idx::structure verify-as-canonical \
+        [doctools::idx::structure merge $regularA $canonB]
+} -result {}
+
+test doctools-idx-structure-api-4.2 {merge, with itself} -constraints {
+    knownBug
+} -body {
+    doctools::idx::structure merge $canonA $regularA
+} -result $canonA
+
+test doctools-idx-structure-api-4.3 {merge, conflicting reference declarations} -constraints {
+    knownBug
+} -body {
+    doctools::idx::structure merge $canonA \
+        {doctools::idx {label L keywords {k r1} references {r1 {manpage X}} title T}}
+} -returnCodes error -match glob -result {*r1*}
+
+test doctools-idx-structure-api-4.4 {merge, invalid first serialization} -body {
+    doctools::idx::structure merge {} $canonA
+} -returnCodes error -result {error in serialization: dictionary too short, expected exactly one key}
+
+test doctools-idx-structure-api-4.5 {merge, invalid second serialization} -body {
+    doctools::idx::structure merge $canonA {FOO {}}
+} -returnCodes error -result {error in serialization: bad type tag "FOO"}
+
+# -------------------------------------------------------------------------
+
+unset canonA regularA canonB
+testsuiteCleanup
+return

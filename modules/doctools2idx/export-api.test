@@ -1,0 +1,197 @@
+# -*- tcl -*-
+# export-api.test:  Tests for the documented API of doctools::idx::export
+# (idx_export.man) that are not covered by export.test: export serial and
+# export object with and without format, canonicalization of the input,
+# errors, and the standard configuration variables user, format, file
+# and map.
+
+source [file join [
+    file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    use fileutil/fileutil.tcl    fileutil      ;# tests/common
+
+    use struct/list.tcl          struct::list
+    use snit/snit.tcl            snit
+    use log/logger.tcl           logger
+    use pluginmgr/pluginmgr.tcl  pluginmgr
+    use struct/map.tcl           struct::map
+
+    useLocal structure.tcl   doctools::idx::structure
+    use doctools2base/nroff_manmacros.tcl doctools::nroff::man_macros
+
+    source [tcllibPath doctools2base/tests/common]
+}
+testing {
+    useLocalKeep export.tcl doctools::idx::export
+}
+
+# -------------------------------------------------------------------------
+
+setup_plugins
+
+set canonA {doctools::idx {label LA keywords {k1 r1 k2 {r2 r1}} references {r1 {url U1} r2 {manpage M2}} title TA}}
+set regularA {doctools::idx {title TA label LA references {r2 {manpage M2} r1 {url U1}} keywords {k2 {r1 r2} k1 r1}}}
+
+# Remove the provenance comments (date, user) from docidx output.
+proc body {text} {
+    regsub -all {\[comment \{[^\}]*\}\]} $text {} text
+    return $text
+}
+
+# A minimal object with a serialize method.
+proc serializer {method args} {
+    return $::canonA
+}
+
+# =========================================================================
+# export serial, export object
+
+test doctools-idx-export-api-1.0 {export serial, default format docidx} -setup {
+    doctools::idx::export E
+} -body {
+    body [E export serial $canonA]
+} -cleanup {
+    E destroy
+} -result {[index_begin LA TA][key k1][url r1 U1][key k2][manpage r2 M2][url r1 U1][index_end]}
+
+test doctools-idx-export-api-1.1 {export serial, explicit format} -setup {
+    doctools::idx::export E
+} -body {
+    E export serial $canonA json
+} -cleanup {
+    E destroy
+} -result {{"doctools::idx":{"label":"LA","keywords":{"k1":["r1"],"k2":["r2","r1"]},"references":{"r1":["url","U1"],"r2":["manpage","M2"]},"title":"TA"}}}
+
+test doctools-idx-export-api-1.2 {export serial, regular input is canonicalized} -setup {
+    doctools::idx::export E
+} -body {
+    string equal [E export serial $regularA json] [E export serial $canonA json]
+} -cleanup {
+    E destroy
+} -result 1
+
+test doctools-idx-export-api-1.3 {export serial, invalid serialization} -setup {
+    doctools::idx::export E
+} -body {
+    E export serial {doctools::idx {}} json
+} -cleanup {
+    E destroy
+} -returnCodes error -result {error in serialization: dictionary too short, expected exactly four keys}
+
+test doctools-idx-export-api-1.4 {export serial, unknown format} -setup {
+    doctools::idx::export E
+} -body {
+    E export serial $canonA exportapi_nosuch
+} -cleanup {
+    E destroy
+} -returnCodes error -match glob -result {Unable to locate or load plugin "exportapi_nosuch"*}
+
+test doctools-idx-export-api-1.5 {export object} -setup {
+    doctools::idx::export E
+} -body {
+    string equal [E export object serializer json] [E export serial $canonA json]
+} -cleanup {
+    E destroy
+} -result 1
+
+test doctools-idx-export-api-1.6 {export object, default format} -setup {
+    doctools::idx::export E
+} -body {
+    string equal [body [E export object serializer]] [body [E export serial $canonA docidx]]
+} -cleanup {
+    E destroy
+} -result 1
+
+test doctools-idx-export-api-1.7 {export, all predefined formats} -setup {
+    doctools::idx::export E
+} -body {
+    set r {}
+    foreach f {docidx html json nroff text wiki} {
+        lappend r $f [expr {[string length [E export serial $canonA $f]] > 0}]
+    }
+    set r
+} -cleanup {
+    E destroy
+    unset -nocomplain r f
+} -result {docidx 1 html 1 json 1 nroff 1 text 1 wiki 1}
+
+# =========================================================================
+# Standard configuration variables
+
+test doctools-idx-export-api-2.0 {user and format are set internally} -setup {
+    doctools::idx::export E
+} -body {
+    E config set user exportapi_nobody
+    E config set format exportapi_nosuch
+    set doc [E export serial $canonA docidx]
+    list [string match "*By          $::tcl_platform(user)*" $doc] \
+        [string match *exportapi_nobody* $doc] [lsort [E config names]]
+} -cleanup {
+    E destroy
+    unset -nocomplain doc
+} -result {1 0 {format user}}
+
+test doctools-idx-export-api-2.1 {file appears in the provenance comment} -setup {
+    doctools::idx::export E
+} -body {
+    set r [string match *exportapi.idx* [E export serial $canonA docidx]]
+    E config set file exportapi.idx
+    lappend r [string match {*[comment {From file   exportapi.idx}]*} [E export serial $canonA docidx]]
+} -cleanup {
+    E destroy
+    unset -nocomplain r
+} -result {0 1}
+
+test doctools-idx-export-api-2.2 {map, wiki: manpage references mapped, urls unchanged} -setup {
+    doctools::idx::export E
+} -body {
+    E config set map {r2 path/m2.html r1 exportapi-notused}
+    set doc [E export serial $canonA wiki]
+    list [string match {*\[path/m2.html%|%M2\]*} $doc] [string match {*\[r1%|%U1\]*} $doc]
+} -cleanup {
+    E destroy
+    unset -nocomplain doc
+} -result {1 1}
+
+test doctools-idx-export-api-2.3 {map, text: manpage references mapped} -setup {
+    doctools::idx::export E
+} -body {
+    E config set map {r2 path/m2.html}
+    string match {*M2 (path/m2.html)*} [E export serial $canonA text]
+} -cleanup {
+    E destroy
+} -result 1
+
+test doctools-idx-export-api-2.4 {map, html: manpage references mapped} -constraints {
+    knownBug
+} -setup {
+    doctools::idx::export E
+} -body {
+    # The Map helper looks for the map one level too high and never finds
+    # it.
+    E config set map {r2 path/m2.html r1 exportapi-notused}
+    regexp -all -inline {<a href="[^"]*">[^<]*</a>} [E export serial $canonA html]
+} -cleanup {
+    E destroy
+} -match glob -result {* {<a href="r1">U1</a>} {<a href="path/m2.html">M2</a>} {<a href="r1">U1</a>}}
+
+test doctools-idx-export-api-2.5 {map, html: unmapped references unchanged} -setup {
+    doctools::idx::export E
+} -body {
+    lrange [regexp -all -inline {<a href="[^"]*">[^<]*</a>} [E export serial $canonA html]] end-2 end
+} -cleanup {
+    E destroy
+} -result {{<a href="r1">U1</a>} {<a href="r2">M2</a>} {<a href="r1">U1</a>}}
+
+# -------------------------------------------------------------------------
+
+rename body {}
+rename serializer {}
+unset canonA regularA
+testsuiteCleanup
+return

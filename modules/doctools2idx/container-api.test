@@ -1,0 +1,274 @@
+# -*- tcl -*-
+# container-api.test:  Tests for the documented API of doctools::idx
+# (idx_container.man) that are not covered by container.test: merging
+# with "deserialize +=", (de)serialization in other formats with and
+# without import/export managers, cached representations, destroy.
+
+source [file join [
+    file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    use struct/list.tcl          struct::list
+    use snit/snit.tcl            snit
+    use fileutil/fileutil.tcl    fileutil
+    use fileutil/paths.tcl       fileutil::paths
+    use log/logger.tcl           logger
+    use pluginmgr/pluginmgr.tcl  pluginmgr
+    use struct/map.tcl           struct::map
+
+    useLocal export.tcl      doctools::idx::export
+    useLocal import.tcl      doctools::idx::import
+    use doctools2base/nroff_manmacros.tcl doctools::nroff::man_macros
+
+    source [tcllibPath doctools2base/tests/common]
+}
+testing {
+    useLocalKeep container.tcl doctools::idx
+}
+
+# -------------------------------------------------------------------------
+
+setup_plugins
+
+set canonA {doctools::idx {label LA keywords {k1 r1 k2 {r2 r1}} references {r1 {url U1} r2 {manpage M2}} title TA}}
+set canonB {doctools::idx {label LB keywords {k2 r3 k3 r1} references {r1 {url U1} r3 {url U3}} title TB}}
+
+# =========================================================================
+# deserialize =, serialize
+
+test doctools-idx-api-1.0 {deserialize =, serialize round trip} -setup {
+    doctools::idx I
+} -body {
+    list [I deserialize = $canonA] [I serialize]
+} -cleanup {
+    I destroy
+} -result [list {} $canonA]
+
+test doctools-idx-api-1.1 {deserialize =, regular input, canonical output} -setup {
+    doctools::idx I
+} -body {
+    I deserialize = {doctools::idx {title TA label LA references {r2 {manpage M2} r1 {url U1}} keywords {k2 {r1 r2} k1 r1}}}
+    I serialize
+} -cleanup {
+    I destroy
+} -result $canonA
+
+test doctools-idx-api-1.2 {deserialize =, replaces the contents} -setup {
+    doctools::idx I
+} -body {
+    I deserialize = $canonA
+    I deserialize = $canonB
+    list [I title] [I label] [lsort [I keys]] [lsort [I references]]
+} -cleanup {
+    I destroy
+} -result {TB LB {k2 k3} {r1 r3}}
+
+test doctools-idx-api-1.3 {deserialize =, explicit serial format} -setup {
+    doctools::idx I
+} -body {
+    I deserialize = $canonA serial
+    I serialize serial
+} -cleanup {
+    I destroy
+} -result $canonA
+
+test doctools-idx-api-1.4 {deserialize =, invalid serialization, contents unchanged} -setup {
+    doctools::idx I
+    I deserialize = $canonA
+} -body {
+    list [catch {I deserialize = {doctools::idx {}}} msg] $msg [I serialize]
+} -cleanup {
+    I destroy
+    unset -nocomplain msg
+} -result [list 1 {error in serialization: dictionary too short, expected exactly four keys} $canonA]
+
+test doctools-idx-api-1.5 {deserialize =, other format, no importer} -setup {
+    doctools::idx I
+} -body {
+    I deserialize = {[index_begin L T][index_end]} docidx
+} -cleanup {
+    I destroy
+} -returnCodes error -result {Unable to import from "docidx", no importer configured}
+
+test doctools-idx-api-1.6 {serialize, other format, no exporter} -setup {
+    doctools::idx I
+} -body {
+    I serialize docidx
+} -cleanup {
+    I destroy
+} -returnCodes error -result {Unable to export from "docidx", no exporter configured}
+
+test doctools-idx-api-1.7 {deserialize =, other format, with importer} -setup {
+    doctools::idx I
+    doctools::idx::import IM
+    I importer IM
+} -body {
+    I deserialize = {[index_begin L T][key k][manpage m M][index_end]} docidx
+    I serialize
+} -cleanup {
+    I destroy
+    IM destroy
+} -result {doctools::idx {label L keywords {k m} references {m {manpage M}} title T}}
+
+test doctools-idx-api-1.8 {serialize, other format, with exporter} -setup {
+    doctools::idx I
+    doctools::idx::export EX
+    I exporter EX
+    I deserialize = $canonA
+} -body {
+    I serialize json
+} -cleanup {
+    I destroy
+    EX destroy
+} -result {{"doctools::idx":{"label":"LA","keywords":{"k1":["r1"],"k2":["r2","r1"]},"references":{"r1":["url","U1"],"r2":["manpage","M2"]},"title":"TA"}}}
+
+test doctools-idx-api-1.9 {serialize, other format, reflects changes of keys} -setup {
+    doctools::idx I
+    doctools::idx::export EX
+    I exporter EX
+    I deserialize = $canonA
+} -body {
+    set a [I serialize json]
+    I key add k3
+    I reference add url k3 r9 U9
+    set b [I serialize json]
+    list [string match *k3* $a] [string match *k3* $b]
+} -cleanup {
+    I destroy
+    EX destroy
+    unset -nocomplain a b
+} -result {0 1}
+
+test doctools-idx-api-1.12 {serialize, serial format reflects changes of title, regular input} -setup {
+    doctools::idx I
+    I deserialize = {doctools::idx {title TA label LA references {r2 {manpage M2} r1 {url U1}} keywords {k2 {r1 r2} k1 r1}}}
+} -body {
+    I title NewTitle
+    I serialize
+} -cleanup {
+    I destroy
+} -result {doctools::idx {label LA keywords {k1 r1 k2 {r2 r1}} references {r1 {url U1} r2 {manpage M2}} title NewTitle}}
+
+test doctools-idx-api-1.10 {serialize, other format, reflects changes of title} -constraints {
+    knownBug
+} -setup {
+    doctools::idx I
+    doctools::idx::export EX
+    I exporter EX
+    I deserialize = $canonA
+} -body {
+    # title and label do not invalidate the cached representations.
+    set a [I serialize json]
+    I title NewTitle
+    I label NewLabel
+    set b [I serialize json]
+    list [string match *NewTitle* $b] [string match *NewLabel* $b]
+} -cleanup {
+    I destroy
+    EX destroy
+    unset -nocomplain a b
+} -result {1 1}
+
+test doctools-idx-api-1.11 {serialize, serial format reflects changes of title} -constraints {
+    knownBug
+} -setup {
+    doctools::idx I
+    I deserialize = $canonA
+} -body {
+    # The canonical input is cached and returned unchanged.
+    I title NewTitle
+    I serialize
+} -cleanup {
+    I destroy
+} -result {doctools::idx {label LA keywords {k1 r1 k2 {r2 r1}} references {r1 {url U1} r2 {manpage M2}} title NewTitle}}
+
+# =========================================================================
+# deserialize +=
+
+test doctools-idx-api-2.0 {deserialize +=, merge} -constraints {
+    knownBug
+} -setup {
+    doctools::idx I
+    I deserialize = $canonA
+} -body {
+    # Fails in doctools::idx::structure merge.
+    list [I deserialize += $canonB] [I serialize]
+} -cleanup {
+    I destroy
+} -result {{} {doctools::idx {label LB keywords {k1 r1 k2 {r2 r1 r3} k3 r1} references {r1 {url U1} r2 {manpage M2} r3 {url U3}} title TB}}}
+
+test doctools-idx-api-2.1 {deserialize +=, into an empty index} -constraints {
+    knownBug
+} -setup {
+    doctools::idx I
+} -body {
+    I deserialize += $canonA
+    I serialize
+} -cleanup {
+    I destroy
+} -result $canonA
+
+test doctools-idx-api-2.2 {deserialize +=, conflict, contents unchanged} -constraints {
+    knownBug
+} -setup {
+    doctools::idx I
+    I deserialize = $canonA
+} -body {
+    list [catch {
+        I deserialize += {doctools::idx {label L keywords {k r1} references {r1 {manpage X}} title T}}
+    } msg] [string match *r1* $msg] [I serialize]
+} -cleanup {
+    I destroy
+    unset -nocomplain msg
+} -result [list 1 1 $canonA]
+
+test doctools-idx-api-2.3 {deserialize +=, invalid serialization, contents unchanged} -setup {
+    doctools::idx I
+    I deserialize = $canonA
+} -body {
+    list [catch {I deserialize += {FOO {}}} msg] $msg [I serialize]
+} -cleanup {
+    I destroy
+    unset -nocomplain msg
+} -result [list 1 {error in serialization: bad type tag "FOO"} $canonA]
+
+test doctools-idx-api-2.4 {deserialize +=, other format, no importer} -setup {
+    doctools::idx I
+} -body {
+    I deserialize += {[index_begin L T][index_end]} docidx
+} -cleanup {
+    I destroy
+} -returnCodes error -result {Unable to import from "docidx", no importer configured}
+
+# =========================================================================
+# destroy
+
+test doctools-idx-api-3.0 {destroy} -setup {
+    doctools::idx I
+} -body {
+    list [I destroy] [info commands ::I]
+} -result {{} {}}
+
+test doctools-idx-api-3.1 {destroy does not destroy the managers} -setup {
+    doctools::idx I
+    doctools::idx::export EX
+    doctools::idx::import IM
+    I exporter EX
+    I importer IM
+} -body {
+    I destroy
+    list [info commands ::EX] [info commands ::IM]
+} -cleanup {
+    EX destroy
+    IM destroy
+} -result {::EX ::IM}
+
+# -------------------------------------------------------------------------
+
+unset canonA canonB
+testsuiteCleanup
+return
