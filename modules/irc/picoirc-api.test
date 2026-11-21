@@ -340,12 +340,12 @@ test picoirc-api-2.13 {CTCP VERSION reply, default version} -body {
 test picoirc-api-2.14 {non-ASCII message, UTF-8 on the wire} -body {
     set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
     received 2
-    srv::send ":bob!~b@h PRIVMSG #tcl :łódź їж"
+    srv::send ":bob!~b@h PRIVMSG #tcl :\u0142\u00f3d\u017a \u0457\u0436"
     event chat
 } -cleanup {
     cleanupCtx $ctx
     unset ctx
-} -result [list chat #tcl bob "łódź їж" {}]
+} -result [list chat #tcl bob "\u0142\u00f3d\u017a \u0457\u0436" {}]
 
 # -------------------------------------------------------------------------
 # debug callback
@@ -461,12 +461,12 @@ test picoirc-api-4.4 {post, commands and text mixed in a multi-line message} -bo
 test picoirc-api-4.5 {post, non-ASCII text is sent as UTF-8} -body {
     set ctx [connectTo tcler irc://127.0.0.1:@PORT@]
     received 2
-    ::picoirc::post $ctx #tcl "łódź"
+    ::picoirc::post $ctx #tcl "\u0142\u00f3d\u017a"
     received 1
 } -cleanup {
     cleanupCtx $ctx
     unset ctx
-} -result [list "PRIVMSG #tcl :łódź"]
+} -result [list "PRIVMSG #tcl :\u0142\u00f3d\u017a"]
 
 # -------------------------------------------------------------------------
 srv::stop
