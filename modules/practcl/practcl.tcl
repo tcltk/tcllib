@@ -6,7 +6,7 @@
 package require Tcl 8.6 9
 package require file::home	;# tcllib file home forward compatibility
 
-package provide practcl 0.16.6
+package provide practcl 0.16.7
 namespace eval ::practcl {}
 
 ###
@@ -6773,7 +6773,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     # Provide a fallback
     set obj [my add_tool tcl {
       tag release class subproject.core
-      fossil_url http://core.tcl.tk/tcl
+      fossil_url https://core.tcl-lang.org/tcl
     }]
     my graft tclcore $obj
     return $obj
@@ -6793,7 +6793,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     # Provide a fallback
     set obj [my add_tool tk {
       tag release class tool.core
-      fossil_url http://core.tcl.tk/tk
+      fossil_url https://core.tcl-lang.org/tk
     }]
     my graft tkcore $obj
     return $obj
@@ -8405,11 +8405,11 @@ set ::auto_index(::practcl::LOCAL) {
   # as our main project
   # Add tclconfig as a project of record
   ::practcl::LOCAL add_tool tclconfig {
-    name tclconfig tag practcl class subproject.source fossil_url http://core.tcl.tk/tclconfig
+    name tclconfig tag practcl class subproject.source fossil_url https://core.tcl-lang.org/tclconfig
   }
   # Add tcllib as a project of record
   ::practcl::LOCAL add_tool tcllib {
-    tag trunk class sak fossil_url http://core.tcl.tk/tcllib
+    tag trunk class sak fossil_url https://core.tcl-lang.org/tcllib
   }
   ::practcl::LOCAL add_tool kettle {
     tag trunk class sak fossil_url http://fossil.etoyoc.com/fossil/kettle
@@ -8439,11 +8439,11 @@ set ::auto_index(::practcl::LOCAL) {
   }
   ::practcl::LOCAL add_tool tcl {
     tag release class subproject.core
-    fossil_url http://core.tcl.tk/tcl
+    fossil_url https://core.tcl-lang.org/tcl
   }
   ::practcl::LOCAL add_tool tk {
     tag release class subproject.core
-    fossil_url http://core.tcl.tk/tcl
+    fossil_url https://core.tcl-lang.org/tk
   }
   ::practcl::LOCAL add_tool sqlite {
     tag practcl

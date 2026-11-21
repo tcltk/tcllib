@@ -1,7 +1,7 @@
 ## -*- tcl -*-
 ## (C) 2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-## 'unknown hook' code -- Derived from http://wiki.tcl.tk/12790 (Neil Madden).
-## 'var/state' code    -- Derived from http://wiki.tcl.tk/1489 (various).
+## 'unknown hook' code -- Derived from https://wiki.tcl-lang.org/12790 (Neil Madden).
+## 'var/state' code    -- Derived from https://wiki.tcl-lang.org/1489 (various).
 ## BSD Licensed
 # # ## ### ##### ######## ############# ######################
 
