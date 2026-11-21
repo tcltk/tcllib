@@ -805,11 +805,11 @@ case is relevant.
 
 [list_begin enumerated]
 [enum]
-[uri http://wiki.tcl.tk/COST COST] on the Tcler's Wiki.
+[uri https://wiki.tcl-lang.org/COST COST] on the Tcler's Wiki.
 
 [enum]
 
-[uri http://wiki.tcl.tk/treeql TreeQL] on the Tcler's Wiki. Discuss
+[uri https://wiki.tcl-lang.org/treeql TreeQL] on the Tcler's Wiki. Discuss
 this package there.
 
 [list_end]
