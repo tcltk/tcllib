@@ -25,7 +25,7 @@ The [package tcl::transform::otp] package provides a command creating
 a channel transformation which uses externally provided one-time pads
 to perform encryption (on writing) and decryption (on reading).
 
-[para] A related transformations in this module is
+[para] A related transformation in this module is
 [package tcl::transform::rot].
 
 [para] The internal [package TclOO] class implementing the transform
@@ -39,14 +39,61 @@ framework.
 [call [cmd ::tcl::transform::otp] [arg chan] [arg keychanw] [arg keychanr]]
 
 This command creates a one-time pad based encryption transformation on
-top of the channel [arg chan] and returns its handle.
+top of the channel [arg chan] and returns [arg chan].
 
 [para] The two channels [arg keychanw] and [arg keychanr] contain the
-one-time pads for the write and read directions, respectively. Their
-contents are reads and xored with the bytes written to and read from
-the channel.
+one-time pads for the write and read directions, respectively. For
+every byte written to or read from [arg chan] the transformation reads
+one byte from the respective pad channel and xors the two. As xor is
+its own inverse, the same operation both encrypts and decrypts: data
+written with a pad is recovered by reading it back with a channel
+positioned at the same place in the same pad.
+
+[para] The pad channels have to be readable and configured for binary
+data (e.g. opened with mode [const rb]), and have to provide at least
+as many bytes as pass through the transformation. When a pad runs out,
+the transformation fails with an error. The pad channels are neither
+seeked nor closed by the transformation; this is left to the caller.
+
+[para] The transformation is meant for streaming. Seeking [arg chan]
+while the transformation is active does not reposition the pads.
 
 [list_end]
+
+[section EXAMPLE]
+
+Encrypt the file [file plain.txt] into [file secret.bin], then decrypt
+it again by reading [file secret.bin] through the transformation. The
+pad file [file pad.bin] has to contain at least as many random bytes as
+[file plain.txt], e.g. taken from [file /dev/urandom]. Each direction
+gets its own channel to the pad, so both start at the beginning of the
+pad.
+
+[example {
+package require tcl::transform::otp
+
+# Encrypt.
+set in  [open plain.txt rb]
+set out [open secret.bin wb]
+set kw  [open pad.bin rb]
+set kr  [open pad.bin rb]
+tcl::transform::otp $out $kw $kr
+fcopy $in $out
+close $out
+close $in
+close $kw
+close $kr
+
+# Decrypt.
+set in [open secret.bin rb]
+set kw [open pad.bin rb]
+set kr [open pad.bin rb]
+tcl::transform::otp $in $kw $kr
+set data [read $in]
+close $in
+close $kw
+close $kr
+}]
 
 [vset CATEGORY virtchannel]
 [include ../common-text/feedback.inc]
