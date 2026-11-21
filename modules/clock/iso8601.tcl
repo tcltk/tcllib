@@ -1,7 +1,7 @@
 ## -*- tcl -*-
 # # ## ### ##### ######## ############# #####################
 ## Copyright (c) 2004 Kevin Kenny
-## Origin http://wiki.tcl.tk/13094
+## Origin https://wiki.tcl-lang.org/13094
 ## Modified for Tcl 8.5 only (eval -> {*}).
 
 # # ## ### ##### ######## ############# #####################
