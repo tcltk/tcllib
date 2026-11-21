@@ -90,14 +90,14 @@ test docstrip_util-api-1.1 {thefile, encoding option} -setup {
     set f [makeFile {} dsu.txt]
     set fh [open $f w]
     fconfigure $fh -encoding iso8859-2
-    puts -nonewline $fh "łódź"
+    puts -nonewline $fh "\u0142\u00f3d\u017a"
     close $fh
 } -body {
     docstrip::util::thefile $f -encoding iso8859-2
 } -cleanup {
     removeFile dsu.txt
     unset f fh
-} -result "łódź"
+} -result "\u0142\u00f3d\u017a"
 
 # The error is rethrown without its message.
 test docstrip_util-api-1.2 {thefile, bad option} -constraints knownBug -setup {
@@ -642,7 +642,7 @@ test docstrip_util-api-8.10 {index_from_catalogue, -sourceconf} -setup {
     fconfigure $fh -encoding iso8859-2
     puts $fh [lines \
 	{%<docstrip.tcl::catalogue>pkgProvide dsutest::enc 1.0 {code}} \
-	"%<code>set ::dsutest_enc łódź"]
+	"%<code>set ::dsutest_enc \u0142\u00f3d\u017a"]
     close $fh
 } -body {
     docstrip::util::index_from_catalogue $dir *.dtx -reportcmd list -sourceconf {-encoding iso8859-2}
@@ -654,7 +654,7 @@ test docstrip_util-api-8.10 {index_from_catalogue, -sourceconf} -setup {
 } -cleanup {
     file delete -force $dir
     unset dir fh
-} -result "łódź"
+} -result "\u0142\u00f3d\u017a"
 
 test docstrip_util-api-8.11 {index_from_catalogue, fileoptions in the catalogue} -setup {
     set dir [file join [temporaryDirectory] dsutest]
