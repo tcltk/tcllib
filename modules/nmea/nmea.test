@@ -1,0 +1,921 @@
+# -*- tcl -*- Tests for the nmea module.
+#
+# This file contains a collection of tests for a module in the
+# Standard Tcl Library. Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal nmea.tcl nmea
+}
+
+# -------------------------------------------------------------------------
+# Helpers.  Handlers record what they receive in the global ::got.
+
+proc rec {data} {
+    lappend ::got [list REC $data]
+}
+proc rec2 {data} {
+    lappend ::got [list REC2 $data]
+}
+proc defh {sentence data} {
+    lappend ::got [list DEFAULT $sentence $data]
+}
+proc eofh {} {
+    lappend ::got EOF
+    set ::eofseen 1
+}
+
+# Reset the package state between tests.
+proc resetNmea {} {
+    nmea::close
+    nmea::log {}
+    foreach s [array names ::nmea::dispatch] {
+        nmea::event $s {}
+    }
+    nmea::configure checksum 1
+    nmea::configure rate 0
+    set ::got {}
+    unset -nocomplain ::eofseen
+}
+
+# Write a file with exactly the given contents.
+proc writeFile {name contents} {
+    set path [tcltest::makeFile {} $name]
+    set c [open $path w]
+    fconfigure $c -translation lf
+    puts -nonewline $c $contents
+    ::close $c
+    return $path
+}
+
+# Number of scheduled automatic reads.
+proc pendingReads {} {
+    set n 0
+    foreach id [after info] {
+        if {[string match *read_file* [after info $id]]} {
+            incr n
+        }
+    }
+    return $n
+}
+
+proc readFile {path} {
+    set c [open $path]
+    set data [read $c]
+    ::close $c
+    return $data
+}
+
+set ::got {}
+
+# -------------------------------------------------------------------------
+# checksum
+
+test nmea-1.0 {checksum, wrong # args} -body {
+    nmea::checksum
+} -returnCodes error -result {wrong # args: should be "nmea::checksum line"}
+
+test nmea-1.1 {checksum, wrong # args, too many} -body {
+    nmea::checksum a b
+} -returnCodes error -result {wrong # args: should be "nmea::checksum line"}
+
+test nmea-1.2 {checksum, example from the manpage} -body {
+    nmea::checksum GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1
+} -result 39
+
+test nmea-1.3 {checksum, empty data} -body {
+    nmea::checksum {}
+} -result 00
+
+test nmea-1.4 {checksum, single character} -body {
+    nmea::checksum A
+} -result 41
+
+test nmea-1.5 {checksum, XOR of all characters} -body {
+    list [nmea::checksum AA] [nmea::checksum AB] [nmea::checksum GPGGA]
+} -result {00 03 56}
+
+test nmea-1.6 {checksum, two hex digits, upper case} -body {
+    list [nmea::checksum "\x0a"] [nmea::checksum "\x7f"] [nmea::checksum z]
+} -result {0A 7F 7A}
+
+test nmea-1.7 {checksum, real sentence} -body {
+    nmea::checksum GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W
+} -result 6A
+
+# -------------------------------------------------------------------------
+# event
+
+test nmea-2.0 {event, wrong # args} -body {
+    nmea::event
+} -returnCodes error -result {wrong # args: should be "nmea::event sentence ?command?"}
+
+test nmea-2.1 {event, wrong # args, too many} -body {
+    nmea::event a b c
+} -returnCodes error -result {wrong # args: should be "nmea::event sentence ?command?"}
+
+test nmea-2.2 {event, no handler} -setup {
+    resetNmea
+} -body {
+    nmea::event GPGGA
+} -cleanup {
+    resetNmea
+} -result {}
+
+test nmea-2.3 {event, register returns the command} -setup {
+    resetNmea
+} -body {
+    list [nmea::event GPGGA rec] [nmea::event GPGGA]
+} -cleanup {
+    resetNmea
+} -result {rec rec}
+
+test nmea-2.4 {event, sentence name is case-insensitive} -setup {
+    resetNmea
+} -body {
+    nmea::event gpgsa rec
+    list [nmea::event GPGSA] [nmea::event GpGsA] [array names ::nmea::dispatch]
+} -cleanup {
+    resetNmea
+} -result {rec rec GPGSA}
+
+test nmea-2.5 {event, existing handler is replaced} -setup {
+    resetNmea
+} -body {
+    nmea::event GPGGA rec
+    nmea::event GPGGA rec2
+    nmea::input {$GPGGA,1}
+    list [nmea::event GPGGA] $::got
+} -cleanup {
+    resetNmea
+} -result {rec2 {{REC2 1}}}
+
+test nmea-2.6 {event, empty command removes the handler} -setup {
+    resetNmea
+} -body {
+    nmea::event GPGGA rec
+    list [nmea::event GPGGA {}] [nmea::event GPGGA] \
+	[info exists ::nmea::dispatch(GPGGA)]
+} -cleanup {
+    resetNmea
+} -result {{} {} 0}
+
+test nmea-2.7 {event, removing a non-existing handler} -setup {
+    resetNmea
+} -body {
+    nmea::event GPXXX {}
+} -cleanup {
+    resetNmea
+} -result {}
+
+test nmea-2.8 {event, handler gets the list of data values} -setup {
+    resetNmea
+} -body {
+    nmea::event GPGSA rec
+    nmea::input {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC {A 3 04 05 {} 09 12 {} {} 24 {} {} {} {} 2.5 1.3 2.1}}}
+
+test nmea-2.9 {event, DEFAULT handler gets sentence type and data} -setup {
+    resetNmea
+} -body {
+    nmea::event default defh
+    nmea::input {$GPXYZ,a,b}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{DEFAULT GPXYZ {a b}}}
+
+test nmea-2.10 {event, specific handler takes precedence over DEFAULT} -setup {
+    resetNmea
+} -body {
+    nmea::event DEFAULT defh
+    nmea::event GPGGA rec
+    nmea::input {$GPGGA,1}
+    nmea::input {$GPGLL,2}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC 1} {DEFAULT GPGLL 2}}
+
+test nmea-2.11 {event, no handler: sentence is ignored} -setup {
+    resetNmea
+} -body {
+    nmea::event GPGGA rec
+    nmea::input {$GPGLL,2}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {}
+
+test nmea-2.12 {event, handler is a proc in a namespace} -setup {
+    resetNmea
+    namespace eval ::nmeatest {
+        proc h {data} {lappend ::got [list NS $data]}
+    }
+} -body {
+    nmea::event GPGGA ::nmeatest::h
+    nmea::input {$GPGGA,1,2}
+    set ::got
+} -cleanup {
+    resetNmea
+    namespace delete ::nmeatest
+} -result {{NS {1 2}}}
+
+# -------------------------------------------------------------------------
+# input
+
+test nmea-3.0 {input, wrong # args} -body {
+    nmea::input
+} -returnCodes error -result {wrong # args: should be "nmea::input sentence"}
+
+test nmea-3.1 {input, wrong # args, too many} -body {
+    nmea::input a b
+} -returnCodes error -result {wrong # args: should be "nmea::input sentence"}
+
+test nmea-3.2 {input, with $ and checksum} -setup {
+    resetNmea
+    nmea::event GPGSA rec
+} -body {
+    nmea::input {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC {A 3 04 05 {} 09 12 {} {} 24 {} {} {} {} 2.5 1.3 2.1}}}
+
+test nmea-3.3 {input, Tcl list (example from the manpage)} -setup {
+    resetNmea
+    nmea::event GPGSA rec
+} -body {
+    nmea::input [list GPGSA A 3 04 05  09 12 "" "" 24 "" "" ""  2.5 1.3 2.1]
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC {A 3 04 05 09 12 {} {} 24 {} {} {} 2.5 1.3 2.1}}}
+
+test nmea-3.4 {input, without leading $} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+} -body {
+    nmea::input {GPGGA,1,2}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC {1 2}}}
+
+test nmea-3.5 {input, without leading $, with checksum} -setup {
+    resetNmea
+    nmea::event GPGSA rec
+} -body {
+    nmea::input {GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
+    llength [lindex $::got 0 1]
+} -cleanup {
+    resetNmea
+} -result 17
+
+test nmea-3.6 {input, with $, without checksum} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+} -body {
+    nmea::input {$GPGGA,1,2}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC {1 2}}}
+
+test nmea-3.7 {input, bad checksum: sentence is dropped} -setup {
+    resetNmea
+    nmea::event GPGSA rec
+    nmea::event DEFAULT defh
+} -body {
+    nmea::input {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*38}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {}
+
+test nmea-3.8 {input, Tcl list with a single element} -setup {
+    resetNmea
+    nmea::event GPXXX rec
+} -body {
+    nmea::input [list GPXXX]
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC {}}}
+
+test nmea-3.9 {input, sentence with no data fields} -setup {
+    resetNmea
+    nmea::event DEFAULT defh
+} -body {
+    nmea::input {$PXYZ,}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{DEFAULT PXYZ {{}}}}
+
+test nmea-3.10 {input, sentence type is case-sensitive in the data} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    nmea::event DEFAULT defh
+} -body {
+    nmea::input {$gpgga,1}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{DEFAULT gpgga 1}}
+
+# -------------------------------------------------------------------------
+# configure (the replacement of the documented rate command) and checksum
+# checking
+
+test nmea-4.0 {configure, wrong # args} -body {
+    nmea::configure
+} -returnCodes error -result {wrong # args: should be "nmea::configure opt ?val?"}
+
+test nmea-4.1 {configure, wrong # args, too many} -body {
+    nmea::configure rate 1 2
+} -returnCodes error -result {wrong # args: should be "nmea::configure opt ?val?"}
+
+test nmea-4.2 {configure, unknown option} -body {
+    nmea::configure foo
+} -returnCodes error -result {unknown option foo}
+
+test nmea-4.3 {configure checksum, default} -setup {
+    resetNmea
+} -body {
+    nmea::configure checksum
+} -result 1
+
+test nmea-4.4 {configure checksum, set} -setup {
+    resetNmea
+} -body {
+    list [nmea::configure checksum 0] [nmea::configure checksum] \
+	[nmea::configure checksum yes] [nmea::configure checksum]
+} -cleanup {
+    resetNmea
+} -result {0 0 yes yes}
+
+test nmea-4.5 {configure checksum, bad value} -setup {
+    resetNmea
+} -body {
+    nmea::configure checksum maybe
+} -cleanup {
+    resetNmea
+} -returnCodes error -result {checksum must be a boolean value}
+
+test nmea-4.6 {configure checksum off: bad checksum is accepted} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+} -body {
+    nmea::configure checksum off
+    nmea::input {$GPGGA,1*00}
+    set ::got
+} -cleanup {
+    resetNmea
+} -result {{REC 1}}
+
+test nmea-4.7 {configure rate, default} -setup {
+    resetNmea
+} -body {
+    nmea::configure rate
+} -result 0
+
+test nmea-4.8 {configure rate, bad value} -setup {
+    resetNmea
+} -body {
+    nmea::configure rate fast
+} -cleanup {
+    resetNmea
+} -returnCodes error -result {rate must be an integer value}
+
+test nmea-4.9 {configure rate, negative is set to 0} -setup {
+    resetNmea
+} -body {
+    list [nmea::configure rate -5] [nmea::configure rate]
+} -cleanup {
+    resetNmea
+} -result {0 0}
+
+test nmea-4.10 {configure rate, with an open file} -setup {
+    resetNmea
+    set path [writeFile nmea-4.10.txt "\$GPGGA,1\n"]
+    nmea::open_file $path
+} -body {
+    list [nmea::configure rate 1000] [nmea::configure rate] \
+	[nmea::configure rate 0] [nmea::configure rate]
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-4.10.txt
+    unset -nocomplain path
+} -result {1000 1000 0 0}
+
+# The manpage says that there does not need to be a file currently open
+# to set the rate.
+test nmea-4.11 {configure rate, without an open file} -setup {
+    resetNmea
+} -body {
+    list [nmea::configure rate 1000] [nmea::configure rate]
+} -cleanup {
+    resetNmea
+} -constraints knownBug -result {1000 1000}
+
+# -------------------------------------------------------------------------
+# open_file, do_line, close
+
+test nmea-5.0 {open_file, wrong # args} -body {
+    nmea::open_file
+} -returnCodes error -result {wrong # args: should be "nmea::open_file file ?rate?"}
+
+test nmea-5.1 {open_file, wrong # args, too many} -body {
+    nmea::open_file a 1 2
+} -returnCodes error -result {wrong # args: should be "nmea::open_file file ?rate?"}
+
+test nmea-5.2 {open_file, non-existing file} -setup {
+    resetNmea
+} -body {
+    nmea::open_file [file join [tcltest::temporaryDirectory] nmea-nonexisting.txt]
+} -cleanup {
+    resetNmea
+} -returnCodes error -match glob -result {couldn't open "*nmea-nonexisting.txt": no such file or directory}
+
+test nmea-5.3 {open_file returns the file name} -setup {
+    resetNmea
+    set path [writeFile nmea-5.3.txt "\$GPGGA,1\n"]
+} -body {
+    expr {[nmea::open_file $path] eq $path}
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.3.txt
+    unset -nocomplain path
+} -result 1
+
+test nmea-5.4 {do_line, no open file} -setup {
+    resetNmea
+} -body {
+    nmea::do_line
+} -returnCodes error -result {there is no currently open file}
+
+test nmea-5.5 {do_line, wrong # args} -body {
+    nmea::do_line x
+} -returnCodes error -result {wrong # args: should be "nmea::do_line"}
+
+test nmea-5.6 {do_line, reads one line per call} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    nmea::event GPGLL rec2
+    set path [writeFile nmea-5.6.txt "\$GPGGA,1\n\$GPGLL,2\n"]
+    nmea::open_file $path
+} -body {
+    set r [nmea::do_line]
+    lappend r $::got
+    lappend r [nmea::do_line] $::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.6.txt
+    unset -nocomplain path r
+} -result {1 {{REC 1}} 1 {{REC 1} {REC2 2}}}
+
+test nmea-5.7 {do_line, at end of file: returns 0, EOF handler, closes} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    nmea::event EOF eofh
+    set path [writeFile nmea-5.7.txt "\$GPGGA,1\n"]
+    nmea::open_file $path
+} -body {
+    list [nmea::do_line] [nmea::do_line] $::got \
+	[catch {nmea::do_line} msg] $msg
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.7.txt
+    unset -nocomplain path msg
+} -result {1 0 {{REC 1} EOF} 1 {there is no currently open file}}
+
+test nmea-5.8 {do_line, at end of file without EOF handler} -setup {
+    resetNmea
+    set path [writeFile nmea-5.8.txt ""]
+    nmea::open_file $path
+} -body {
+    list [nmea::do_line] [info exists ::nmea::nmea(fh)]
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.8.txt
+    unset -nocomplain path
+} -result {0 0}
+
+test nmea-5.9 {open_file, lines may omit the leading $ and the checksum} -setup {
+    resetNmea
+    nmea::event GPGSA rec
+    nmea::event GPGGA rec2
+    set path [writeFile nmea-5.9.txt [join {
+        {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
+        {GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
+        {$GPGGA,1}
+        {GPGGA,2}
+    } \n]\n]
+    nmea::open_file $path
+} -body {
+    while {[nmea::do_line]} {}
+    set ::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.9.txt
+    unset -nocomplain path
+} -result {{REC {A 3 04 05 {} 09 12 {} {} 24 {} {} {} {} 2.5 1.3 2.1}} {REC {A 3 04 05 {} 09 12 {} {} 24 {} {} {} {} 2.5 1.3 2.1}} {REC2 1} {REC2 2}}
+
+test nmea-5.10 {open_file, CRLF line endings} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    set path [writeFile nmea-5.10.txt "\$GPGGA,1*4B\r\n\$GPGGA,2\r\n"]
+    nmea::open_file $path
+} -body {
+    while {[nmea::do_line]} {}
+    set ::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.10.txt
+    unset -nocomplain path
+} -result {{REC 1} {REC 2}}
+
+test nmea-5.11 {open_file, bad checksum in file is dropped} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    set path [writeFile nmea-5.11.txt "\$GPGGA,1*00\n\$GPGGA,2\n"]
+    nmea::open_file $path
+} -body {
+    while {[nmea::do_line]} {}
+    set ::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.11.txt
+    unset -nocomplain path
+} -result {{REC 2}}
+
+# The last line of a file without a trailing newline is not processed:
+# read_file checks [eof] after [gets] and discards the line.
+test nmea-5.12 {open_file, last line without newline} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    set path [writeFile nmea-5.12.txt "\$GPGGA,1\n\$GPGGA,2"]
+    nmea::open_file $path
+} -body {
+    while {[nmea::do_line]} {}
+    set ::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.12.txt
+    unset -nocomplain path
+} -constraints knownBug -result {{REC 1} {REC 2}}
+
+test nmea-5.13 {open_file, opening a new file closes the old one} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    set path1 [writeFile nmea-5.13a.txt "\$GPGGA,1\n"]
+    set path2 [writeFile nmea-5.13b.txt "\$GPGGA,2\n"]
+} -body {
+    nmea::open_file $path1
+    set n [llength [chan names]]
+    nmea::open_file $path2
+    nmea::do_line
+    list [expr {[llength [chan names]] - $n}] $::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.13a.txt
+    tcltest::removeFile nmea-5.13b.txt
+    unset -nocomplain path1 path2 n
+} -result {0 {{REC 2}}}
+
+test nmea-5.14 {open_file, rate <= 0: no automatic processing} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    set path [writeFile nmea-5.14.txt "\$GPGGA,1\n"]
+} -body {
+    nmea::open_file $path -1
+    update
+    list [nmea::configure rate] $::got \
+	[pendingReads]
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.14.txt
+    unset -nocomplain path
+} -result {0 {} 0}
+
+test nmea-5.15 {open_file, rate > 0: lines are processed automatically} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    nmea::event EOF eofh
+    set path [writeFile nmea-5.15.txt "\$GPGGA,1\n\$GPGGA,2\n\$GPGGA,3\n"]
+} -body {
+    nmea::open_file $path 1
+    set id [after 10000 {set ::eofseen timeout}]
+    vwait ::eofseen
+    after cancel $id
+    list $::eofseen [nmea::configure rate] $::got [info exists ::nmea::nmea(fh)]
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.15.txt
+    unset -nocomplain path id
+} -result {1 1 {{REC 1} {REC 2} {REC 3} EOF} 0}
+
+test nmea-5.16 {open_file, the rate persists across files} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    nmea::event EOF eofh
+    set path1 [writeFile nmea-5.16a.txt "\$GPGGA,1\n"]
+    set path2 [writeFile nmea-5.16b.txt "\$GPGGA,2\n"]
+} -body {
+    nmea::open_file $path1 1
+    set id [after 10000 {set ::eofseen timeout}]
+    vwait ::eofseen
+    after cancel $id
+    unset ::eofseen
+    nmea::open_file $path2
+    set id [after 10000 {set ::eofseen timeout}]
+    vwait ::eofseen
+    after cancel $id
+    list $::eofseen $::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.16a.txt
+    tcltest::removeFile nmea-5.16b.txt
+    unset -nocomplain path1 path2 id
+} -result {1 {{REC 1} EOF {REC 2} EOF}}
+
+test nmea-5.17 {configure rate 0 stops automatic processing} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    set path [writeFile nmea-5.17.txt "\$GPGGA,1\n\$GPGGA,2\n"]
+} -body {
+    nmea::open_file $path 100000
+    nmea::configure rate 0
+    list [pendingReads] \
+	[nmea::do_line] $::got
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.17.txt
+    unset -nocomplain path
+} -result {0 1 {{REC 1}}}
+
+test nmea-5.18 {close, cancels automatic processing} -setup {
+    resetNmea
+    set path [writeFile nmea-5.18.txt "\$GPGGA,1\n"]
+} -body {
+    nmea::open_file $path 100000
+    set fh $::nmea::nmea(fh)
+    nmea::close
+    list [info exists ::nmea::nmea(fh)] [expr {$fh in [chan names]}] \
+	[pendingReads]
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-5.18.txt
+    unset -nocomplain path fh
+} -result {0 0 0}
+
+test nmea-5.19 {close, nothing open} -setup {
+    resetNmea
+} -body {
+    nmea::close
+} -result {}
+
+test nmea-5.20 {close, wrong # args} -body {
+    nmea::close x
+} -returnCodes error -result {wrong # args: should be "nmea::close"}
+
+# The manpage documents close_file, close_port and rate, which were
+# replaced by close and configure in 1.0.0 (see the ChangeLog).
+test nmea-5.21 {close_file, documented command} -setup {
+    resetNmea
+} -body {
+    llength [info commands ::nmea::close_file]
+} -constraints knownBug -result 1
+
+test nmea-5.22 {close_port, documented command} -setup {
+    resetNmea
+} -body {
+    llength [info commands ::nmea::close_port]
+} -constraints knownBug -result 1
+
+test nmea-5.23 {rate, documented command} -setup {
+    resetNmea
+} -body {
+    llength [info commands ::nmea::rate]
+} -constraints knownBug -result 1
+
+# -------------------------------------------------------------------------
+# open_port, configure_port: need a serial port, only the errors are tested
+
+test nmea-6.0 {open_port, wrong # args} -body {
+    nmea::open_port
+} -returnCodes error -result {wrong # args: should be "nmea::open_port port ?speed?"}
+
+test nmea-6.1 {open_port, wrong # args, too many} -body {
+    nmea::open_port a 1 2
+} -returnCodes error -result {wrong # args: should be "nmea::open_port port ?speed?"}
+
+test nmea-6.2 {open_port, non-existing port} -setup {
+    resetNmea
+} -body {
+    nmea::open_port [file join [tcltest::temporaryDirectory] nmea-nonexisting]
+} -cleanup {
+    resetNmea
+} -returnCodes error -match glob -result {couldn't open "*nmea-nonexisting": no such file or directory}
+
+test nmea-6.3 {configure_port, wrong # args} -body {
+    nmea::configure_port
+} -returnCodes error -result {wrong # args: should be "nmea::configure_port settings"}
+
+test nmea-6.4 {configure_port, wrong # args, too many} -body {
+    nmea::configure_port a b
+} -returnCodes error -result {wrong # args: should be "nmea::configure_port settings"}
+
+# -------------------------------------------------------------------------
+# Reading from a port (read_port is the fileevent handler installed by
+# open_port; it is called directly here on a file channel) and log
+
+test nmea-7.0 {log, wrong # args} -body {
+    nmea::log a b
+} -returnCodes error -result {wrong # args: should be "nmea::log ?file?"}
+
+test nmea-7.1 {log, disabled by default} -setup {
+    resetNmea
+} -body {
+    nmea::log
+} -result 0
+
+test nmea-7.2 {log, start and stop} -setup {
+    resetNmea
+    set path [file join [tcltest::temporaryDirectory] nmea-7.2.log]
+} -body {
+    list [expr {[nmea::log $path] eq $path}] [nmea::log] [file exists $path] \
+	[nmea::log {}] [nmea::log]
+} -cleanup {
+    resetNmea
+    file delete $path
+    unset -nocomplain path
+} -result {1 1 1 {} 0}
+
+test nmea-7.3 {read_port, data is dispatched and logged} -setup {
+    resetNmea
+    nmea::event GPGGA rec
+    set log [file join [tcltest::temporaryDirectory] nmea-7.3.log]
+    set path [writeFile nmea-7.3.txt "\$GPGGA,1*4B\n\$GPGGA,2\n"]
+    set f [open $path]
+} -body {
+    nmea::log $log
+    nmea::read_port $f
+    nmea::read_port $f
+    nmea::log {}
+    list $::got [readFile $log]
+} -cleanup {
+    resetNmea
+    ::close $f
+    file delete $log
+    tcltest::removeFile nmea-7.3.txt
+    unset -nocomplain path log f
+} -result [list {{REC 1} {REC 2}} "\$GPGGA,1*4B\n\$GPGGA,2\n"]
+
+test nmea-7.4 {log, appends to an existing file} -setup {
+    resetNmea
+    set log [writeFile nmea-7.4.log "old\n"]
+    set path [writeFile nmea-7.4.txt "\$GPGGA,1\n"]
+    set f [open $path]
+} -body {
+    nmea::log $log
+    nmea::read_port $f
+    nmea::log {}
+    readFile $log
+} -cleanup {
+    resetNmea
+    ::close $f
+    tcltest::removeFile nmea-7.4.log
+    tcltest::removeFile nmea-7.4.txt
+    unset -nocomplain path log f
+} -result "old\n\$GPGGA,1\n"
+
+test nmea-7.5 {log, a new log file replaces the old one} -setup {
+    resetNmea
+    set log1 [file join [tcltest::temporaryDirectory] nmea-7.5a.log]
+    set log2 [file join [tcltest::temporaryDirectory] nmea-7.5b.log]
+    set path [writeFile nmea-7.5.txt "\$GPGGA,1\n\$GPGGA,2\n"]
+    set f [open $path]
+} -body {
+    nmea::log $log1
+    nmea::read_port $f
+    nmea::log $log2
+    nmea::read_port $f
+    nmea::log {}
+    list [readFile $log1] [readFile $log2]
+} -cleanup {
+    resetNmea
+    ::close $f
+    file delete $log1 $log2
+    tcltest::removeFile nmea-7.5.txt
+    unset -nocomplain path log1 log2 f
+} -result [list "\$GPGGA,1\n" "\$GPGGA,2\n"]
+
+test nmea-7.6 {log, input and file data are not logged} -setup {
+    resetNmea
+    set log [file join [tcltest::temporaryDirectory] nmea-7.6.log]
+    set path [writeFile nmea-7.6.txt "\$GPGGA,1\n"]
+} -body {
+    nmea::log $log
+    nmea::input {$GPGGA,2}
+    nmea::open_file $path
+    nmea::do_line
+    nmea::log {}
+    readFile $log
+} -cleanup {
+    resetNmea
+    file delete $log
+    tcltest::removeFile nmea-7.6.txt
+    unset -nocomplain path log
+} -result {}
+
+test nmea-7.7 {read_port, end of file calls only the EOF handler} -setup {
+    resetNmea
+    nmea::event EOF eofh
+    nmea::event DEFAULT defh
+    set path [writeFile nmea-7.7.txt ""]
+    set f [open $path]
+    set ::nmea::nmea(fh) $f
+} -body {
+    nmea::read_port $f
+    list $::got [info exists ::nmea::nmea(fh)]
+} -cleanup {
+    resetNmea
+    tcltest::removeFile nmea-7.7.txt
+    unset -nocomplain path f
+} -constraints knownBug -result {EOF 0}
+
+# -------------------------------------------------------------------------
+# write (needs an open port; a file opened for writing is used instead)
+
+test nmea-8.0 {write, wrong # args} -body {
+    nmea::write
+} -returnCodes error -result {wrong # args: should be "nmea::write type ?arg ...?"}
+
+test nmea-8.1 {write, sentence with checksum} -setup {
+    resetNmea
+    set path [file join [tcltest::temporaryDirectory] nmea-8.1.txt]
+    set ::nmea::nmea(fh) [open $path w]
+    fconfigure $::nmea::nmea(fh) -translation crlf
+} -body {
+    nmea::write GPGSA A 3 04 05 {} 09 12 {} {} 24 {} {} {} {} 2.5 1.3 2.1
+    nmea::write PXYZ
+    nmea::close
+    set c [open $path rb]
+    set data [read $c]
+    ::close $c
+    set data
+} -cleanup {
+    resetNmea
+    file delete $path
+    unset -nocomplain path c data
+} -result "\$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39\r\n\$PXYZ,*27\r\n"
+
+test nmea-8.2 {write, output can be read back} -setup {
+    resetNmea
+    nmea::event GPXXX rec
+    set path [file join [tcltest::temporaryDirectory] nmea-8.2.txt]
+    set ::nmea::nmea(fh) [open $path w]
+} -body {
+    nmea::write GPXXX a {b c} d
+    nmea::close
+    nmea::open_file $path
+    nmea::do_line
+    set ::got
+} -cleanup {
+    resetNmea
+    file delete $path
+    unset -nocomplain path
+} -result {{REC {a {b c} d}}}
+
+# -------------------------------------------------------------------------
+
+resetNmea
+rename rec {}
+rename rec2 {}
+rename defh {}
+rename eofh {}
+rename resetNmea {}
+rename writeFile {}
+rename readFile {}
+rename pendingReads {}
+unset -nocomplain ::got ::eofseen
+
+testsuiteCleanup
+return
