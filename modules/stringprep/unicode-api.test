@@ -1,0 +1,271 @@
+# unicode-api.test                                              -*- tcl -*-
+#
+#	Additional API tests for the unicode package: the conversion
+#	commands, all normalization forms of both normalize commands,
+#	argument errors and the examples from the manual page.
+#	(unicode.test is generated from the Unicode test data and covers
+#	the normalization of individual characters.)
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocalFile unicode_data.tcl
+    useLocalFile unicode.tcl
+}
+
+# -------------------------------------------------------------------------
+
+# Characters outside the BMP can be represented (Tcl 9, or 8.6 built
+# with full Unicode support).
+tcltest::testConstraint fullUnicode [expr {[scan [format %c 0x1F600] %c] == 0x1F600}]
+
+# -------------------------------------------------------------------------
+# ::unicode::fromstring
+
+test unicode-api-1.0 {fromstring: wrong # args} -body {
+    unicode::fromstring
+} -returnCodes error -result {wrong # args: should be "unicode::fromstring str"}
+
+test unicode-api-1.1 {fromstring: too many args} -body {
+    unicode::fromstring a b
+} -returnCodes error -result {wrong # args: should be "unicode::fromstring str"}
+
+test unicode-api-1.2 {fromstring: empty string} -body {
+    unicode::fromstring ""
+} -result {}
+
+test unicode-api-1.3 {fromstring: ASCII} -body {
+    unicode::fromstring "12345"
+} -result {49 50 51 52 53}
+
+test unicode-api-1.4 {fromstring: manual page example} -body {
+    unicode::fromstring "\u0410\u0411\u0412\u0413"
+} -result {1040 1041 1042 1043}
+
+test unicode-api-1.5 {fromstring: NUL and Latin-1 characters} -body {
+    unicode::fromstring "\u0000\u00FF\u0100"
+} -result {0 255 256}
+
+test unicode-api-1.6 {fromstring: last BMP character} -body {
+    unicode::fromstring "\uFFFD\uFFFF"
+} -result {65533 65535}
+
+test unicode-api-1.7 {fromstring: character outside the BMP} -constraints {
+    fullUnicode
+} -body {
+    unicode::fromstring "a\U0001F600b"
+} -result {97 128512 98}
+
+# -------------------------------------------------------------------------
+# ::unicode::tostring
+
+test unicode-api-2.0 {tostring: wrong # args} -body {
+    unicode::tostring
+} -returnCodes error -result {wrong # args: should be "unicode::tostring uclist"}
+
+test unicode-api-2.1 {tostring: too many args} -body {
+    unicode::tostring {65} {66}
+} -returnCodes error -result {wrong # args: should be "unicode::tostring uclist"}
+
+test unicode-api-2.2 {tostring: empty list} -body {
+    unicode::tostring {}
+} -result {}
+
+test unicode-api-2.3 {tostring: manual page example} -body {
+    unicode::tostring {49 50 51 52 53}
+} -result 12345
+
+test unicode-api-2.4 {tostring: hexadecimal integers are accepted} -body {
+    unicode::tostring {0x41 0x42 0x410}
+} -result "AB\u0410"
+
+test unicode-api-2.5 {tostring: NUL character} -body {
+    string length [unicode::tostring {0 0}]
+} -result 2
+
+test unicode-api-2.6 {tostring: character outside the BMP} -constraints {
+    fullUnicode
+} -body {
+    unicode::tostring {97 128512 98}
+} -result "a\U0001F600b"
+
+test unicode-api-2.7 {tostring: value above U+10FFFF gives U+FFFD} -body {
+    unicode::fromstring [unicode::tostring {65 0x110000 66}]
+} -result {65 65533 66}
+
+test unicode-api-2.8 {tostring: negative value gives U+FFFD} -body {
+    unicode::fromstring [unicode::tostring {-1}]
+} -result {65533}
+
+test unicode-api-2.9 {tostring: too big integer is an error} -body {
+    unicode::tostring {99999999999}
+} -returnCodes error -result {integer value too large to represent}
+
+test unicode-api-2.10 {tostring: non-integer element} -body {
+    unicode::tostring {65 abc}
+} -returnCodes error -result {expected integer but got "abc"}
+
+test unicode-api-2.11 {tostring/fromstring round trip} -body {
+    set s "Za\u017C\u00F3\u0142\u0107 g\u0119\u015Bl\u0105 ja\u017A\u0144"
+    expr {[unicode::tostring [unicode::fromstring $s]] eq $s}
+} -cleanup {
+    unset s
+} -result 1
+
+# -------------------------------------------------------------------------
+# ::unicode::normalize
+
+test unicode-api-3.0 {normalize: wrong # args} -body {
+    unicode::normalize D
+} -returnCodes error -result {wrong # args: should be "unicode::normalize form uclist"}
+
+test unicode-api-3.1 {normalize: too many args} -body {
+    unicode::normalize D {65} {66}
+} -returnCodes error -result {wrong # args: should be "unicode::normalize form uclist"}
+
+test unicode-api-3.2 {normalize: form is case sensitive} -body {
+    unicode::normalize kc {65}
+} -returnCodes error -result {::unicode::normalize: Only D, C, KD and KC forms are allowed}
+
+test unicode-api-3.3 {normalize: empty form} -body {
+    unicode::normalize {} {65}
+} -returnCodes error -result {::unicode::normalize: Only D, C, KD and KC forms are allowed}
+
+foreach {n form} {4 D 5 C 6 KD 7 KC} {
+    test unicode-api-3.$n "normalize $form: empty list" -body {
+	unicode::normalize $form {}
+    } -result {}
+}
+
+test unicode-api-3.8 {normalize D: manual page example} -body {
+    unicode::normalize D {7692 775}
+} -result {68 803 775}
+
+test unicode-api-3.9 {normalize D: precomposed A with ring above} -body {
+    unicode::normalize D {197}
+} -result {65 778}
+
+test unicode-api-3.10 {normalize C: composes A + combining ring above} -body {
+    unicode::normalize C {65 778}
+} -result {197}
+
+test unicode-api-3.11 {normalize C: ANGSTROM SIGN is a canonical singleton} -body {
+    unicode::normalize C {8491}
+} -result {197}
+
+test unicode-api-3.12 {normalize C: compatibility characters are kept} -body {
+    unicode::normalize C {64257}
+} -result {64257}
+
+test unicode-api-3.13 {normalize KD: ligature fi} -body {
+    unicode::normalize KD {64257}
+} -result {102 105}
+
+test unicode-api-3.14 {normalize KD: ANGSTROM SIGN is decomposed} -body {
+    unicode::normalize KD {8491}
+} -result {65 778}
+
+test unicode-api-3.15 {normalize KC: ligature fi and A + ring above} -body {
+    unicode::normalize KC {64257 65 778}
+} -result {102 105 197}
+
+test unicode-api-3.16 {normalize: ASCII is unchanged in all forms} -body {
+    set res {}
+    foreach form {D C KD KC} {
+	lappend res [unicode::normalize $form {84 99 108}]
+    }
+    set res
+} -cleanup {
+    unset res form
+} -result {{84 99 108} {84 99 108} {84 99 108} {84 99 108}}
+
+test unicode-api-3.17 {normalize D: Hangul syllable is decomposed} -body {
+    unicode::normalize D {44032}
+} -result {4352 4449}
+
+test unicode-api-3.18 {normalize C: Hangul jamo are composed} -body {
+    unicode::normalize C {4352 4449}
+} -result {44032}
+
+test unicode-api-3.19 {normalize D: canonical ordering of combining marks} -body {
+    # COMBINING DOT ABOVE (230) must follow COMBINING DOT BELOW (220).
+    unicode::normalize D {113 775 803}
+} -result {113 803 775}
+
+# -------------------------------------------------------------------------
+# ::unicode::normalizeS
+
+test unicode-api-4.0 {normalizeS: wrong # args} -body {
+    unicode::normalizeS D
+} -returnCodes error -result {wrong # args: should be "unicode::normalizeS form str"}
+
+test unicode-api-4.1 {normalizeS: too many args} -body {
+    unicode::normalizeS D a b
+} -returnCodes error -result {wrong # args: should be "unicode::normalizeS form str"}
+
+test unicode-api-4.2 {normalizeS: form is case sensitive} -body {
+    unicode::normalizeS d "a"
+} -returnCodes error -result {::unicode::normalizeS: Only D, C, KD and KC forms are allowed}
+
+foreach {n form} {3 D 4 C 5 KD 6 KC} {
+    test unicode-api-4.$n "normalizeS $form: empty string" -body {
+	unicode::normalizeS $form ""
+    } -result {}
+}
+
+test unicode-api-4.7 {normalizeS KD: manual page example} -body {
+    unicode::normalizeS KD "\u1D2C"
+} -result A
+
+test unicode-api-4.8 {normalizeS: is tostring of normalize of fromstring} -body {
+    set s "\uFB01 \u212B A\u030A \u00C5 \u1E0C\u0307"
+    set res {}
+    foreach form {D C KD KC} {
+	lappend res [expr {[unicode::normalizeS $form $s] eq
+	    [unicode::tostring [unicode::normalize $form \
+		[unicode::fromstring $s]]]}]
+    }
+    set res
+} -cleanup {
+    unset s res form
+} -result {1 1 1 1}
+
+test unicode-api-4.9 {normalizeS KC: manual page example} -body {
+    set s "\u00C5\u212B[encoding convertfrom utf-8 \xC3\x85][encoding convertfrom utf-8 \xE2\x84\xAB][encoding convertfrom utf-8 \x41\xCC\x8A]"
+    set t [unicode::normalizeS KC $s]
+    list [string length $s] [string length $t] \
+	[expr {$t eq [string repeat \u00C5 5]}]
+} -cleanup {
+    unset s t
+} -result {6 5 1}
+
+test unicode-api-4.10 {normalizeS C: keeps compatibility characters} -body {
+    unicode::normalizeS C "\uFB01A\u030A"
+} -result "\uFB01\u00C5"
+
+test unicode-api-4.11 {normalizeS D: decomposes canonically only} -body {
+    unicode::normalizeS D "\uFB01\u00C5"
+} -result "\uFB01A\u030A"
+
+test unicode-api-4.12 {normalizeS KD: decomposes compatibility characters} -body {
+    unicode::normalizeS KD "\uFB01\u00C5"
+} -result "fiA\u030A"
+
+test unicode-api-4.13 {normalizeS KC: NO-BREAK SPACE and superscript} -body {
+    unicode::normalizeS KC "x\u00A0y\u00B2"
+} -result "x y2"
+
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+return

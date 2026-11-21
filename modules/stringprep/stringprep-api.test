@@ -1,0 +1,491 @@
+# stringprep-api.test                                           -*- tcl -*-
+#
+#	Additional API tests for the stringprep package: all options of
+#	::stringprep::register, the ::stringprep::compare command, argument
+#	errors and the examples from the manual page.
+#	(stringprep.test covers the option value errors and the nameprep and
+#	saslprep test vectors.)
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocalFile unicode_data.tcl
+    useLocalFile unicode.tcl
+    useLocalFile stringprep_data.tcl
+    useLocalFile stringprep.tcl
+}
+
+# -------------------------------------------------------------------------
+
+# Run SCRIPT with a fresh profile "tp" registered with OPTIONS and return
+# the result of SCRIPT as {code result}.
+proc withProfile {options script} {
+    ::stringprep::register tp {*}$options
+    set code [catch {uplevel 1 $script} res]
+    unset -nocomplain ::stringprep::profiles(tp)
+    list $code $res
+}
+
+proc prep {str} {
+    ::stringprep::stringprep tp $str
+}
+
+# -------------------------------------------------------------------------
+# ::stringprep::register
+
+test stringprep-api-1.0 {register: wrong # args} -body {
+    ::stringprep::register
+} -returnCodes error -result {wrong # args: should be "::stringprep::register profile ?arg ...?"}
+
+test stringprep-api-1.1 {register: no options, identity profile} -body {
+    withProfile {} {
+	prep "A\u00AD\u00C5\uFB01 \u0627 1"
+    }
+} -result [list 0 "A\u00AD\u00C5\uFB01 \u0627 1"]
+
+test stringprep-api-1.2 {register: re-registering replaces the profile} -body {
+    ::stringprep::register tp -mapping {B.1 B.2}
+    set res [list [::stringprep::stringprep tp "AB"]]
+    ::stringprep::register tp
+    lappend res [::stringprep::stringprep tp "AB"]
+} -cleanup {
+    unset -nocomplain res ::stringprep::profiles(tp)
+} -result {ab AB}
+
+test stringprep-api-1.3 {register: profile names are arbitrary strings} -body {
+    ::stringprep::register {my profile} -mapping B.3
+    ::stringprep::stringprep {my profile} "XyZ"
+} -cleanup {
+    unset -nocomplain {::stringprep::profiles(my profile)}
+} -result xyz
+
+# -mapping
+
+test stringprep-api-2.1 {register -mapping B.1: maps to nothing} -body {
+    withProfile {-mapping B.1} {
+	prep "A\u00ADB\u200BC\uFEFFD"
+    }
+} -result {0 ABCD}
+
+test stringprep-api-2.2 {register -mapping B.1: no case folding} -body {
+    withProfile {-mapping B.1} {
+	prep "ABC"
+    }
+} -result {0 ABC}
+
+test stringprep-api-2.3 {register -mapping B.3: case folding} -body {
+    withProfile {-mapping B.3} {
+	prep "ABC\u00DF"
+    }
+} -result {0 abcss}
+
+test stringprep-api-2.4 {register -mapping B.3: no map to nothing, no NFKC folding} -body {
+    withProfile {-mapping B.3} {
+	prep "A\u00AD\u00AA"
+    }
+} -result [list 0 "a\u00AD\u00AA"]
+
+test stringprep-api-2.5 {register -mapping B.2: case folding for NFKC} -body {
+    withProfile {-mapping B.2} {
+	prep "ABC\u00DF"
+    }
+} -result {0 abcss}
+
+test stringprep-api-2.6 {register -mapping {B.1 B.3}} -body {
+    withProfile {-mapping {B.1 B.3}} {
+	prep "A\u00ADB"
+    }
+} -result {0 ab}
+
+test stringprep-api-2.7 {register -mapping {}: no mapping} -body {
+    withProfile {-mapping {}} {
+	prep "A\u00ADB"
+    }
+} -result [list 0 "A\u00ADB"]
+
+test stringprep-api-2.8 {register -mapping: bad table in a list} -body {
+    ::stringprep::register tp -mapping {B.1 C.1}
+} -returnCodes error -result {::stringprep::register -mapping: Only B.1, B.2, B.3 tables are allowed}
+
+test stringprep-api-2.9 {stringprep: all characters mapped to nothing} -body {
+    withProfile {-mapping B.1 -prohibitedBidi 1} {
+	prep "\u00AD\u200B"
+    }
+} -result {0 {}}
+
+# -normalization
+
+test stringprep-api-3.1 {register -normalization D} -body {
+    withProfile {-normalization D} {
+	prep "\u00C5\uFB01"
+    }
+} -result [list 0 "A\u030A\uFB01"]
+
+test stringprep-api-3.2 {register -normalization C} -body {
+    withProfile {-normalization C} {
+	prep "A\u030A\uFB01"
+    }
+} -result [list 0 "\u00C5\uFB01"]
+
+test stringprep-api-3.3 {register -normalization KD} -body {
+    withProfile {-normalization KD} {
+	prep "\u00C5\uFB01"
+    }
+} -result [list 0 "A\u030Afi"]
+
+test stringprep-api-3.4 {register -normalization KC} -body {
+    withProfile {-normalization KC} {
+	prep "A\u030A\uFB01"
+    }
+} -result [list 0 "\u00C5fi"]
+
+test stringprep-api-3.5 {register -normalization {}: no normalization} -body {
+    withProfile {-normalization {}} {
+	prep "A\u030A\uFB01"
+    }
+} -result [list 0 "A\u030A\uFB01"]
+
+test stringprep-api-3.6 {register -normalization: lower case form} -body {
+    ::stringprep::register tp -normalization kc
+} -returnCodes error -result {::stringprep::register -normalization: Only D, C, KD, KC or empty normalization is allowed}
+
+# -prohibited
+
+test stringprep-api-4.1 {register -prohibited A.1: unassigned code point} -body {
+    withProfile {-prohibited A.1} {
+	list [catch {prep "a\u0221b"} r] $r [prep "abc"]
+    }
+} -result {0 {1 prohibited_character abc}}
+
+test stringprep-api-4.2 {register -prohibited C.1.1: ASCII space} -body {
+    withProfile {-prohibited C.1.1} {
+	list [catch {prep "a b"} r] $r [prep "a\u00A0b"]
+    }
+} -result [list 0 [list 1 prohibited_character "a\u00A0b"]]
+
+test stringprep-api-4.3 {register -prohibited C.1.2: non-ASCII space} -body {
+    withProfile {-prohibited C.1.2} {
+	list [catch {prep "a\u00A0b"} r] $r [prep "a b"]
+    }
+} -result {0 {1 prohibited_character {a b}}}
+
+test stringprep-api-4.4 {register -prohibited C.2.1: ASCII control} -body {
+    withProfile {-prohibited C.2.1} {
+	list [catch {prep "a\u0007b"} r] $r [prep "a\u0085b"]
+    }
+} -result [list 0 [list 1 prohibited_character "a\u0085b"]]
+
+test stringprep-api-4.5 {register -prohibited C.2.2: non-ASCII control} -body {
+    withProfile {-prohibited C.2.2} {
+	list [catch {prep "a\u0085b"} r] $r [prep "a\u0007b"]
+    }
+} -result [list 0 [list 1 prohibited_character "a\u0007b"]]
+
+test stringprep-api-4.6 {register -prohibited C.3-C.9: private use} -body {
+    withProfile {-prohibited {C.3 C.4 C.5 C.6 C.7 C.8 C.9}} {
+	list [catch {prep "a\uE000b"} r] $r [prep "a b"]
+    }
+} -result {0 {1 prohibited_character {a b}}}
+
+test stringprep-api-4.7 {register -prohibited C.3-C.9: non-character} -body {
+    withProfile {-prohibited {C.9 C.8 C.7 C.6 C.5 C.4 C.3}} {
+	list [catch {prep "a\uFFFFb"} r] $r
+    }
+} -result {0 {1 prohibited_character}}
+
+test stringprep-api-4.8 {register -prohibited: six of C.3-C.9} -body {
+    ::stringprep::register tp -prohibited {C.3 C.4 C.5 C.6 C.7 C.8}
+} -returnCodes error -result {::stringprep::register -prohibited: Must prohibit all C.3--C.9 tables or none of them}
+
+test stringprep-api-4.9 {register -prohibited {}: nothing prohibited} -body {
+    withProfile {-prohibited {}} {
+	prep "a\u0007\uE000 b"
+    }
+} -result [list 0 "a\u0007\uE000 b"]
+
+test stringprep-api-4.10 {register -prohibited: check is after mapping} -body {
+    # ZERO WIDTH SPACE (in C.1.2) is mapped to nothing by B.1 before
+    # the prohibition check.
+    withProfile {-mapping B.1 -prohibited {C.1.2}} {
+	prep "a\u200Bb"
+    }
+} -result {0 ab}
+
+# -prohibitedList
+
+test stringprep-api-5.1 {register -prohibitedList: hexadecimal and decimal} -body {
+    withProfile {-prohibitedList {0x40 65}} {
+	list [catch {prep "a@b"} r1] $r1 [catch {prep "aAb"} r2] $r2 \
+	    [prep "ab"]
+    }
+} -result {0 {1 prohibited_character 1 prohibited_character ab}}
+
+test stringprep-api-5.2 {register -prohibitedList: manual page example} -body {
+    withProfile {-prohibitedList {0x22 0x26 0x27 0x2F 0x3A 0x3C 0x3E 0x40}} {
+	set res {}
+	foreach c {\" & ' / : < > @ x} {
+	    lappend res [catch {prep "a${c}b"}]
+	}
+	set res
+    }
+} -cleanup {
+    unset -nocomplain res c
+} -result {0 {1 1 1 1 1 1 1 1 0}}
+
+test stringprep-api-5.3 {register -prohibitedList: in addition to -prohibited} -body {
+    withProfile {-prohibited C.1.1 -prohibitedList 0x40} {
+	list [catch {prep "a b"} r1] $r1 [catch {prep "a@b"} r2] $r2
+    }
+} -result {0 {1 prohibited_character 1 prohibited_character}}
+
+test stringprep-api-5.4 {register -prohibitedList: checked after mapping} -body {
+    withProfile {-mapping B.2 -prohibitedList 0x61} {
+	list [catch {prep "A"} r] $r
+    }
+} -result {0 {1 prohibited_character}}
+
+test stringprep-api-5.5 {register -prohibitedList: empty list} -body {
+    withProfile {-prohibitedList {}} {
+	prep "a@b"
+    }
+} -result {0 a@b}
+
+# -prohibitedCommand
+
+test stringprep-api-6.1 {register -prohibitedCommand: true result prohibits} -body {
+    withProfile {-prohibitedCommand {string equal 120}} {
+	list [catch {prep "axb"} r] $r [prep "ayb"]
+    }
+} -result {0 {1 prohibited_character ayb}}
+
+test stringprep-api-6.2 {register -prohibitedCommand: gets mapped code points} -setup {
+    set ::calls {}
+    proc ::rec {uc} {lappend ::calls $uc; return 0}
+} -body {
+    list [withProfile {-mapping {B.1 B.2} -normalization KC -prohibitedCommand ::rec} {
+	prep "A\u00AD\uFB01"
+    }] $::calls
+} -cleanup {
+    rename ::rec {}
+    unset ::calls
+} -result {{0 afi} {97 102 105}}
+
+test stringprep-api-6.3 {register -prohibitedCommand: called at global level} -setup {
+    proc ::lvl {uc} {set ::level [info level]; return 0}
+} -body {
+    withProfile {-prohibitedCommand ::lvl} {
+	prep "a"
+    }
+    set ::level
+} -cleanup {
+    rename ::lvl {}
+    unset ::level
+} -result 1
+
+test stringprep-api-6.4 {register -prohibitedCommand: error is propagated} -body {
+    withProfile {-prohibitedCommand {error boom}} {
+	prep "a"
+    }
+} -result {1 boom}
+
+test stringprep-api-6.5 {register -prohibitedCommand: empty means no command} -body {
+    withProfile {-prohibitedCommand {}} {
+	prep "a"
+    }
+} -result {0 a}
+
+# -prohibitedBidi
+
+test stringprep-api-7.1 {register -prohibitedBidi: RandALCat string is allowed} -body {
+    withProfile {-prohibitedBidi 1} {
+	prep "\u0627\u0628"
+    }
+} -result [list 0 "\u0627\u0628"]
+
+test stringprep-api-7.2 {register -prohibitedBidi: RandALCat first and last} -body {
+    withProfile {-prohibitedBidi true} {
+	prep "\u06271\u0628"
+    }
+} -result [list 0 "\u06271\u0628"]
+
+test stringprep-api-7.3 {register -prohibitedBidi: RandALCat with LCat} -body {
+    withProfile {-prohibitedBidi yes} {
+	prep "\u0627a\u0628"
+    }
+} -result {1 prohibited_bidi}
+
+test stringprep-api-7.4 {register -prohibitedBidi: RandALCat not first} -body {
+    withProfile {-prohibitedBidi on} {
+	prep "1\u0627"
+    }
+} -result {1 prohibited_bidi}
+
+test stringprep-api-7.5 {register -prohibitedBidi: RandALCat not last} -body {
+    withProfile {-prohibitedBidi 1} {
+	prep "\u06271"
+    }
+} -result {1 prohibited_bidi}
+
+test stringprep-api-7.6 {register -prohibitedBidi: LCat only string} -body {
+    withProfile {-prohibitedBidi 1} {
+	prep "abc 1"
+    }
+} -result {0 {abc 1}}
+
+test stringprep-api-7.7 {register -prohibitedBidi false: no bidi check} -body {
+    set res {}
+    foreach v {0 false no off} {
+	lappend res [withProfile [list -prohibitedBidi $v] {
+	    prep "\u06271"
+	}]
+    }
+    set res
+} -cleanup {
+    unset res v
+} -result [lrepeat 4 [list 0 "\u06271"]]
+
+test stringprep-api-7.8 {register -prohibitedBidi: prohibited character is reported first} -body {
+    withProfile {-prohibitedBidi 1 -prohibitedList 0x31} {
+	prep "\u06271"
+    }
+} -result {1 prohibited_character}
+
+# -------------------------------------------------------------------------
+# ::stringprep::stringprep
+
+test stringprep-api-8.0 {stringprep: wrong # args} -body {
+    ::stringprep::stringprep tp
+} -returnCodes error -result {wrong # args: should be "::stringprep::stringprep profile str"}
+
+test stringprep-api-8.1 {stringprep: too many args} -body {
+    ::stringprep::stringprep tp a b
+} -returnCodes error -result {wrong # args: should be "::stringprep::stringprep profile str"}
+
+test stringprep-api-8.2 {stringprep: empty string} -body {
+    withProfile {-mapping {B.1 B.2} -normalization KC -prohibited A.1 -prohibitedBidi 1} {
+	prep ""
+    }
+} -result {0 {}}
+
+test stringprep-api-8.3 {stringprep: unknown profile} -body {
+    ::stringprep::stringprep no-such-profile "a"
+} -returnCodes error -result invalid_profile
+
+test stringprep-api-8.4 {stringprep: manual page nameprep profile} -setup {
+    ::stringprep::register tnameprep \
+	-mapping {B.1 B.2} \
+	-normalization KC \
+	-prohibited {A.1 C.1.2 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9} \
+	-prohibitedBidi 1
+} -body {
+    list [::stringprep::stringprep tnameprep "Ex\u00ADample.COM"] \
+	[catch {::stringprep::stringprep tnameprep "a\u0085b"} r] $r
+} -cleanup {
+    unset -nocomplain ::stringprep::profiles(tnameprep) r
+} -result {example.com 1 prohibited_character}
+
+test stringprep-api-8.5 {stringprep: manual page nodeprep profile} -setup {
+    ::stringprep::register tnodeprep \
+	-mapping {B.1 B.2} \
+	-normalization KC \
+	-prohibited {A.1 C.1.1 C.1.2 C.2.1 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9} \
+	-prohibitedList {0x22 0x26 0x27 0x2f 0x3a 0x3c 0x3e 0x40} \
+	-prohibitedBidi 1
+} -body {
+    list [::stringprep::stringprep tnodeprep "JuLiet"] \
+	[catch {::stringprep::stringprep tnodeprep "a b"} r1] $r1 \
+	[catch {::stringprep::stringprep tnodeprep "a/b"} r2] $r2
+} -cleanup {
+    unset -nocomplain ::stringprep::profiles(tnodeprep) r1 r2
+} -result {juliet 1 prohibited_character 1 prohibited_character}
+
+test stringprep-api-8.6 {stringprep: manual page resourceprep profile} -setup {
+    ::stringprep::register tresourceprep \
+	-mapping {B.1} \
+	-normalization KC \
+	-prohibited {A.1 C.1.2 C.2.1 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9} \
+	-prohibitedBidi 1
+} -body {
+    # Case and ASCII spaces are kept, "/" and "@" are allowed.
+    ::stringprep::stringprep tresourceprep "Home Office/a@b\uFB01"
+} -cleanup {
+    unset -nocomplain ::stringprep::profiles(tresourceprep)
+} -result "Home Office/a@bfi"
+
+# -------------------------------------------------------------------------
+# ::stringprep::compare
+
+test stringprep-api-9.0 {compare: wrong # args} -body {
+    ::stringprep::compare tp a
+} -returnCodes error -result {wrong # args: should be "::stringprep::compare profile str1 str2"}
+
+test stringprep-api-9.1 {compare: too many args} -body {
+    ::stringprep::compare tp a b c
+} -returnCodes error -result {wrong # args: should be "::stringprep::compare profile str1 str2"}
+
+test stringprep-api-9.2 {compare: unknown profile} -body {
+    ::stringprep::compare no-such-profile a b
+} -returnCodes error -result invalid_profile
+
+test stringprep-api-9.3 {compare: equal, less and greater} -body {
+    withProfile {} {
+	list [::stringprep::compare tp abc abc] \
+	    [::stringprep::compare tp abc abd] \
+	    [::stringprep::compare tp abd abc] \
+	    [::stringprep::compare tp ab abc] \
+	    [::stringprep::compare tp "" ""]
+    }
+} -result {0 {0 -1 1 -1 0}}
+
+test stringprep-api-9.4 {compare: strings equal after preparation} -body {
+    withProfile {-mapping {B.1 B.2} -normalization KC} {
+	list [::stringprep::compare tp "ABC" "abc"] \
+	    [::stringprep::compare tp "Stra\u00DFe" "STRASSE"] \
+	    [::stringprep::compare tp "a\u00ADb" "AB"] \
+	    [::stringprep::compare tp "\uFB01" "FI"]
+    }
+} -result {0 {0 0 0 0}}
+
+test stringprep-api-9.5 {compare: comparison is of the prepared strings} -body {
+    # "B" < "a" as is, but "b" > "a" after case folding.
+    withProfile {-mapping B.3} {
+	list [string compare B a] [::stringprep::compare tp B a]
+    }
+} -result {0 {-1 1}}
+
+test stringprep-api-9.6 {compare: prohibited character is an error} -body {
+    withProfile {-prohibitedList 0x40} {
+	::stringprep::compare tp abc a@b
+    }
+} -result {1 prohibited_character}
+
+test stringprep-api-9.7 {compare: manual page example} -setup {
+    ::stringprep::register basicprep -mapping {B.1 B.2} -normalization KC
+} -body {
+    set A "Caf[encoding convertfrom utf-8 \x65\xCC\x81]\
+	[encoding convertfrom utf-8 \xE2\x84\xAB]ngstr[encoding convertfrom utf-8 \x6F\xCC\x88]m"
+    set B "Caf\u00E9 \u00C5ngstr\u00F6m"
+    set C "Caf\u00E9 \u212Bngstr\u00F6m"
+    list [string compare $A $B] [string compare $A $C] \
+	[::stringprep::compare basicprep $A $B] \
+	[::stringprep::compare basicprep $A $C]
+} -cleanup {
+    unset -nocomplain ::stringprep::profiles(basicprep) A B C
+} -result {-1 -1 0 0}
+
+# -------------------------------------------------------------------------
+
+rename withProfile {}
+rename prep {}
+testsuiteCleanup
+return
