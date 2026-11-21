@@ -28,6 +28,15 @@ The commands in this package will [emph not] modify the [var ::argc]
 companion when called with [var ::argv]. Keeping the value consistent,
 if such is desired or required, is the responsibility of the caller.
 
+[para]
+
+Options are expected at the beginning of the command line. Option
+processing stops at the first word that does not begin with a dash, or
+after the word [const --], which is removed. The remaining words, for
+example the names of the files to process, are left in the list
+variable for the application to handle. See the
+[sectref {Processing a complete command line}] example.
+
 [section API]
 
 [list_begin definitions]
@@ -39,6 +48,13 @@ function.  Given an option string and a pointer to an array of args
 this command will process the [emph {first argument}] and return
 info on how to proceed. The command returns 1 if an option was found,
 0 if no more options were found, and -1 if an error occurred.
+
+[para]
+
+An option is a word beginning with a dash. It may also be written with
+two dashes, i.e. [const -opt] and [const --opt] are the same option.
+The command returns 0 at the word [const --], which it removes, and at
+the first word not beginning with a dash, which it leaves in the list.
 
 [para]
 
@@ -68,8 +84,10 @@ options, otherwise the value is 1.
 
 [call [cmd ::cmdline::getKnownOpt] [arg argvVar] [arg optstring] [arg optVar] [arg valVar]]
 
-Like [cmd ::cmdline::getopt], except it ignores any unknown options in
-the input.
+Like [cmd ::cmdline::getopt], except that it distinguishes unknown
+options from other errors: it returns -1 for an unknown option, which
+is left in the list, and -2 for any other error, such as a missing
+option value. This allows the caller to skip unknown options.
 
 [call [cmd ::cmdline::getoptions] [arg argvVar] [arg optlist] [opt [arg usage]]]
 
@@ -91,14 +109,17 @@ are removed from the start of the list.
 [para]
 
 [arg optlist] contains a list of lists where each element specifies an
-option in the form: [arg flag] [arg default] [arg comment].
+option in the form: [arg flag] [arg default] [arg comment] for an
+option taking a value, and [arg flag] [arg comment] for a boolean
+option.
 
 [para]
 
 If [arg flag] ends in ".arg" then the value is taken from the command
-line. Otherwise it is a boolean and appears in the result if present
-on the command line. If [arg flag] ends in ".secret", it will not be
-displayed in the usage.
+line, and the option is set to [arg default] if not given. Otherwise
+it is a boolean, set to 1 if present on the command line and to 0
+otherwise. If [arg flag] ends in ".secret", it will not be displayed
+in the usage. The ".secret" suffix comes last, e.g. [const key.arg.secret].
 
 [para]
 
@@ -107,7 +128,9 @@ implicitly understood. The first two abort option processing by
 throwing an error and force the generation of the usage message,
 whereas the the last aborts option processing without an error,
 leaving all arguments coming after for regular processing, even if
-starting with a dash.
+starting with a dash. An unknown option or a missing option value also
+throws the usage message. All these errors have the error code
+[const {CMDLINE USAGE}].
 
 [para]
 
@@ -117,7 +140,9 @@ values, be they user-specified or defaults.
 [call [cmd ::cmdline::getKnownOptions] [arg argvVar] [arg optlist] [opt [arg usage]]]
 
 Like [cmd ::cmdline::getoptions], but ignores any unknown options in the
-input.
+input. The unknown options, each with the words not beginning with a
+dash that follow it, are kept and put back at the front of the list
+variable named by [arg argvVar].
 
 [call [cmd ::cmdline::usage] [arg optlist] [opt [arg usage]]]
 
@@ -125,29 +150,115 @@ Generates and returns an error message that lists the allowed
 flags. [arg optlist] is defined as for
 [cmd ::cmdline::getoptions]. The optional [arg usage]-argument
 contains a string to include in front of the generated message. If not
-present it defaults to "options:".
+present it defaults to "options:". The message begins with the
+application name returned by [cmd ::cmdline::getArgv0], followed by
+[arg usage].
 
 [call [cmd ::cmdline::getfiles] [arg patterns] [arg quiet]]
 
 Given a list of file [arg patterns] this command computes the set of
-valid files.  On windows, file globbing is performed on each argument.
-On Unix, only file existence is tested.  If a file argument produces
-no valid files, a warning is optionally generated (set [arg quiet] to
-true).
+valid files, i.e. existing regular files.  On Windows, file globbing
+is performed on each argument.  On Unix, only file existence is
+tested, as the shell has already expanded the patterns; a pattern like
+[const *.txt] passed to the command is taken as a file name.  If a
+file argument produces no valid files, a warning is written to
+standard output, unless [arg quiet] is true.
 
 [para]
 
-This code also uses the full path for each file.  If not given it
-prepends the current working directory to the filename. This ensures
-that these files will never conflict with files in a wrapped zip
-file. The last sentence refers to the pro-tools.
+The result is the list of valid files. Each file is returned with its
+full path: relative names are joined to the current working directory.
+
+[para]
+
+[arg patterns] is typically the list of words left in [var ::argv]
+after option processing.
 
 [call [cmd ::cmdline::getArgv0]]
 
-This command returns the "sanitized" version of [arg argv0].  It will
-strip off the leading path and removes the extension ".bin". The
-latter is used by the TclPro applications because they must be wrapped
-by a shell script.
+This command returns the "sanitized" version of [var ::argv0], for
+use in messages.  It strips off the leading path and the extension,
+e.g. [const /usr/bin/myapp.tcl] becomes [const myapp].
+
+[list_end]
+
+[subsection {Typed options}]
+
+The following commands are variants of [cmd ::cmdline::getopt],
+[cmd ::cmdline::getoptions] and [cmd ::cmdline::usage] which check the
+type of option values.
+
+[list_begin definitions]
+
+[call [cmd ::cmdline::typedGetopt] [arg argvVar] [arg optstring] [arg optVar] [arg valVar]]
+
+Like [cmd ::cmdline::getopt], but each option in [arg optstring] may
+specify the type of its value:
+
+[list_begin definitions]
+[def [const name]]
+A boolean option, without value.
+[def [const name.arg]]
+An option taking a value of any type.
+[def [const name.][arg class]]
+An option taking a value accepted by [cmd {string is}] [arg class],
+e.g. [const count.integer] or [const size.double].
+[def [const name.(][arg a][const |][arg b][const |][arg ...][const )]]
+An option taking one of the listed values,
+e.g. [const color.(red|green|blue)].
+[list_end]
+
+A value specification may be followed by a quantifier: [const ?] for
+an optional value, [const +] for one or more values, and [const *]
+for zero or more values. With [const +] and [const *] the values are
+collected into a list, up to the word [const --] (which is removed)
+or the end of the arguments; all words before it, including words
+beginning with a dash, must match the type. Example:
+[const files.arg+].
+
+[para]
+
+Option names may be abbreviated on the command line to any unique
+prefix. Only the [const -opt] form is accepted.
+
+[para]
+
+The command returns 1 if an option was found, 0 if no more options
+were found, -1 for an unknown option, -2 for a missing value, and -3
+for a value not matching the type. In case of an error the variable
+named by [arg valVar] contains an error message. An invalid type in
+[arg optstring] throws an error with the error code
+[const {CMDLINE BAD OPTION TYPE}].
+
+[call [cmd ::cmdline::typedGetoptions] [arg argvVar] [arg optlist] [opt [arg usage]]]
+
+Like [cmd ::cmdline::getoptions], using the option specifications of
+[cmd ::cmdline::typedGetopt] for the flags in [arg optlist]. Two
+more suffixes are understood:
+
+[list_begin definitions]
+[def [const .multi]]
+The option may be given several times. The values are collected into a
+list. A boolean option with this suffix is toggled on and off each
+time it is given. Without this suffix, the last value given wins.
+[def [const .secret]]
+The option is not shown in the usage message. This suffix comes last,
+e.g. [const key.xdigit.multi.secret].
+[list_end]
+
+The result is a dictionary of the options given on the command line,
+plus the options with a non-empty [arg default] which were not given;
+an option given without its value also gets the default. A boolean
+option is in the result, with an empty value, only if it is set.
+An unknown option, a value not matching its type, a missing value
+without default, [option -?] and [option -help] throw the usage
+message, with the error code [const {CMDLINE USAGE}].
+
+[call [cmd ::cmdline::typedUsage] [arg optlist] [opt [arg usage]]]
+
+Like [cmd ::cmdline::usage], for an [arg optlist] as accepted by
+[cmd ::cmdline::typedGetoptions]. The message shows the type and the
+default of each option taking a value.
 
 [list_end]
 
@@ -155,7 +266,10 @@ by a shell script.
 
 Starting with version 1.5 all errors thrown by the package have a
 proper [var ::errorCode] for use with Tcl's [cmd try] command. This
-code always has the word [const CMDLINE] as its first element.
+code always has the word [const CMDLINE] as its first element. The
+usage message thrown by [cmd ::cmdline::getoptions] and the other
+commands processing a complete command line has the error code
+[const {CMDLINE USAGE}].
 
 [section EXAMPLES]
 
@@ -218,18 +332,62 @@ passed to the script, and what their value is.
 
 [subsection cmdline::getopt]
 
-This example shows the core loop of [cmd cmdline::getoptions] from the
-previous example. It demonstrates how it uses [cmd cmdline::get] to
-process the options one at a time.
+This example uses [cmd cmdline::getopt] to process the options one at
+a time. This allows an option to be given several times, here
+[option -i]. A command line of [const {-i src -v -i lib main.tcl}]
+sets [var includes] to [const {src lib}], [var verbose] to 1, and
+leaves [const main.tcl] in [var argv].
 
 [example {
-    while {[set err [getopt argv $opts opt arg]]} {
-	if {$err < 0} {
-            set result(?) ""
-            break
-	}
-	set result($opt) $arg
+    package require cmdline
+
+    set verbose 0
+    set includes {}
+    while {[set err [cmdline::getopt argv {v i.arg} opt value]]} {
+        if {$err < 0} {
+            # value holds the error message.
+            puts stderr "[cmdline::getArgv0]: $value"
+            exit 1
+        }
+        switch -exact -- $opt {
+            v {set verbose 1}
+            i {lappend includes $value}
+        }
     }
+    # argv now holds the remaining arguments.
+}]
+
+[subsection {Processing a complete command line}]
+
+This example processes a command line like
+[const {myapp -o result.txt -v *.txt}]: the options first, then the
+file names. On Unix the shell expands [const *.txt] into the names of
+the matching files before [const myapp] runs; on Windows
+[cmd cmdline::getfiles] does it.
+
+[example {
+    package require cmdline 1.5
+
+    set options {
+        {o.arg  out.txt "write the result to this file"}
+        {v              "print the name of each file"}
+    }
+    set usage "\[options] file ...\noptions:"
+    try {
+        set params [cmdline::getoptions argv $options $usage]
+    } trap {CMDLINE USAGE} msg {
+        puts stderr $msg
+        exit 1
+    }
+
+    # The options are removed from argv, the file names remain.
+    foreach file [cmdline::getfiles $argv 0] {
+        if {[dict get $params v]} {
+            puts "processing $file"
+        }
+        # ...
+    }
+    puts "result in [dict get $params o]"
 }]
 
 [vset CATEGORY cmdline]
