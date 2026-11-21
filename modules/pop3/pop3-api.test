@@ -1,0 +1,826 @@
+# -*- tcl -*-
+# pop3-api.test:  Additional tests for the documented API of the pop3
+# client: config, last, list, uidl, capa, delete and retrieve with all
+# index forms, retrieval mode fallbacks, the -msex, -socketcmd and -stls
+# options, and close.  Complements pop3.test.
+#
+# The server is simulated in-process: the -socketcmd option is used to
+# return a reflected channel which answers the client commands from a
+# simulated maildrop.  No network connections are made.  TLS is not
+# tested here.
+#
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use log/log.tcl         log
+    use cmdline/cmdline.tcl cmdline
+}
+testing {
+    useLocal pop3.tcl pop3
+}
+
+::log::lvSuppressLE emergency 1
+
+# A fake tls::socket is defined for some tests; only when the real tls
+# package is not loaded.
+tcltest::testConstraint notls [expr {![namespace exists ::tls]}]
+
+# -------------------------------------------------------------------------
+# Simulated POP3 server.
+#
+# fake::reset ?options?  initializes the maildrop:
+#   -messages list   message texts (LF line endings)
+#   -last n          answer to LAST (empty: LAST is not supported)
+#   -retrsize bool   whether RETR reports the message size
+#   -listsize bool   whether LIST n reports the message size
+#   -capa list       capabilities (empty: CAPA is not supported)
+#   -password str    the accepted password
+#   -greeting str    greeting line
+# fake::socket host port   is the -socketcmd.
+# fake::log              returns the commands received.
+
+namespace eval fake {
+    variable st
+    array set st {}
+
+    proc reset {args} {
+	variable st
+	array unset st
+	array set st {
+	    messages {}
+	    last     {}
+	    retrsize 1
+	    listsize 1
+	    capa     {}
+	    password secret
+	    greeting {+OK fake POP3 server ready}
+	}
+	foreach {k v} $args {
+	    set st([string range $k 1 end]) $v
+	}
+	set st(deleted) {}
+	set st(log)     {}
+	set st(out)     {}
+	set st(in)      {}
+	set st(host)    {}
+	set st(port)    {}
+	set st(chan)    {}
+    }
+
+    proc log {} {
+	variable st
+	return $st(log)
+    }
+
+    proc socket {host port} {
+	variable st
+	set st(host) $host
+	set st(port) $port
+	set st(chan) [chan create {read write} [namespace code handler]]
+	Reply $st(greeting)
+	return $st(chan)
+    }
+
+    proc handler {cmd chan args} {
+	variable st
+	switch -exact -- $cmd {
+	    initialize {
+		return {initialize finalize watch read write}
+	    }
+	    finalize - watch {
+		return
+	    }
+	    read {
+		set n [lindex $args 0]
+		set data [string range $st(out) 0 [expr {$n - 1}]]
+		set st(out) [string range $st(out) $n end]
+		return $data
+	    }
+	    write {
+		set data [lindex $args 0]
+		append st(in) $data
+		while {[set i [string first \n $st(in)]] >= 0} {
+		    set line [string trimright [string range $st(in) 0 [expr {$i - 1}]] \r]
+		    set st(in) [string range $st(in) [expr {$i + 1}] end]
+		    lappend st(log) $line
+		    Command $line
+		}
+		return [string length $data]
+	    }
+	}
+    }
+
+    proc Reply {line} {
+	variable st
+	append st(out) $line\r\n
+    }
+
+    # Message n in wire format: CRLF line ends, dot-stuffed.
+    proc Wire {n} {
+	variable st
+	set res {}
+	set msg [lindex $st(messages) [expr {$n - 1}]]
+	if {[string index $msg end] eq "\n"} {
+	    set msg [string range $msg 0 end-1]
+	}
+	foreach line [split $msg \n] {
+	    if {[string match .* $line]} {set line .$line}
+	    append res $line\r\n
+	}
+	return $res
+    }
+
+    proc Valid {n} {
+	variable st
+	expr {[string is integer -strict $n] && $n >= 1 &&
+	      $n <= [llength $st(messages)] && [lsearch $st(deleted) $n] < 0}
+    }
+
+    proc Command {line} {
+	variable st
+	set words [split $line]
+	set cmd   [string toupper [lindex $words 0]]
+	set arg1  [lindex $words 1]
+	set arg2  [lindex $words 2]
+	switch -exact -- $cmd {
+	    USER {
+		Reply "+OK send PASS"
+	    }
+	    PASS {
+		if {$arg1 eq $st(password)} {
+		    Reply "+OK logged in"
+		} else {
+		    Reply "-ERR authentication failed"
+		}
+	    }
+	    STAT {
+		set size 0
+		set n 0
+		for {set i 1} {$i <= [llength $st(messages)]} {incr i} {
+		    if {[Valid $i]} {
+			incr n
+			incr size [string length [Wire $i]]
+		    }
+		}
+		Reply "+OK $n $size"
+	    }
+	    LAST {
+		if {$st(last) eq ""} {
+		    Reply "-ERR unknown command"
+		} else {
+		    Reply "+OK $st(last)"
+		}
+	    }
+	    LIST - UIDL {
+		if {$arg1 eq ""} {
+		    Reply "+OK listing follows"
+		    for {set i 1} {$i <= [llength $st(messages)]} {incr i} {
+			if {[Valid $i]} {
+			    Reply "$i [Info $cmd $i]"
+			}
+		    }
+		    Reply .
+		} elseif {[Valid $arg1]} {
+		    if {$cmd eq "LIST" && !$st(listsize)} {
+			Reply "+OK"
+		    } else {
+			Reply "+OK $arg1 [Info $cmd $arg1]"
+		    }
+		} else {
+		    Reply "-ERR no such message"
+		}
+	    }
+	    RETR {
+		if {[Valid $arg1]} {
+		    set wire [Wire $arg1]
+		    if {$st(retrsize)} {
+			Reply "+OK [string length $wire] octets"
+		    } else {
+			Reply "+OK message follows"
+		    }
+		    append st(out) $wire .\r\n
+		} else {
+		    Reply "-ERR no such message"
+		}
+	    }
+	    TOP {
+		if {[Valid $arg1]} {
+		    Reply "+OK top follows"
+		    set wire [split [string trimright [Wire $arg1] \n] \n]
+		    set h [lsearch -exact $wire \r]
+		    if {$h < 0} {set h [llength $wire]}
+		    foreach line [lrange $wire 0 [expr {$h + $arg2}]] {
+			append st(out) $line\n
+		    }
+		    append st(out) .\r\n
+		} else {
+		    Reply "-ERR no such message"
+		}
+	    }
+	    DELE {
+		if {[Valid $arg1]} {
+		    lappend st(deleted) $arg1
+		    Reply "+OK message $arg1 deleted"
+		} else {
+		    Reply "-ERR no such message"
+		}
+	    }
+	    CAPA {
+		if {![llength $st(capa)]} {
+		    Reply "-ERR unknown command"
+		} else {
+		    Reply "+OK capability list follows"
+		    foreach c $st(capa) {Reply $c}
+		    Reply .
+		}
+	    }
+	    QUIT {
+		Reply "+OK bye"
+	    }
+	    default {
+		Reply "-ERR unknown command"
+	    }
+	}
+    }
+
+    proc Info {cmd n} {
+	if {$cmd eq "LIST"} {
+	    return [string length [Wire $n]]
+	}
+	return uid-$n
+    }
+}
+
+proc pop3open {args} {
+    pop3::open -socketcmd fake::socket {*}$args localhost user secret
+}
+
+proc commands {} {
+    # Drop the login commands.
+    lrange [fake::log] 3 end
+}
+
+set m1 "Subject: one\n\nFirst message.\n"
+set m2 "Subject: two\n\nSecond message.\n.dot line\n"
+set m3 "Subject: three\nX-Extra: yes\n\nThird message.\nMore text.\n"
+
+# -------------------------------------------------------------------------
+# open: options, ports, socketcmd
+
+test pop3-api-1.0 {open, -socketcmd called with host and default port} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    list $fake::st(host) $fake::st(port) [lrange [fake::log] 0 2]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {localhost 110 {{USER user} {PASS secret} STAT}}
+
+test pop3-api-1.1 {open, explicit port} -setup {
+    fake::reset
+} -body {
+    set chan [pop3::open -socketcmd fake::socket localhost user secret 1234]
+    set fake::st(port)
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result 1234
+
+test pop3-api-1.2 {open, -socketcmd as command prefix} -setup {
+    fake::reset
+    proc mysock {tag host port} {
+	set ::sockargs [list $tag $host $port]
+	fake::socket $host $port
+    }
+} -body {
+    set chan [pop3::open -socketcmd {mysock tag} localhost user secret]
+    set ::sockargs
+} -cleanup {
+    pop3::close $chan
+    rename mysock {}
+    unset chan ::sockargs
+} -result {tag localhost 110}
+
+test pop3-api-1.3 {open, tls::socket as -socketcmd changes the default port to 995} -setup {
+    fake::reset
+    namespace eval ::tls {}
+    proc ::tls::socket {host port} { fake::socket $host $port }
+} -constraints notls -body {
+    set chan [pop3::open -socketcmd tls::socket localhost user secret]
+    set fake::st(port)
+} -cleanup {
+    pop3::close $chan
+    namespace delete ::tls
+    unset chan
+} -result 995
+
+test pop3-api-1.4 {open, ::tls::socket as -socketcmd changes the default port to 995} -setup {
+    fake::reset
+    namespace eval ::tls {}
+    proc ::tls::socket {host port} { fake::socket $host $port }
+} -constraints notls -body {
+    set chan [pop3::open -socketcmd ::tls::socket localhost user secret]
+    set fake::st(port)
+} -cleanup {
+    pop3::close $chan
+    namespace delete ::tls
+    unset chan
+} -result 995
+
+test pop3-api-1.5 {open, wrong password} -setup {
+    fake::reset
+} -body {
+    pop3::open -socketcmd fake::socket localhost user wrong
+} -returnCodes error -result {POP3 LOGIN ERROR:  authentication failed}
+
+test pop3-api-1.6 {open, bad greeting} -setup {
+    fake::reset -greeting {-ERR go away}
+} -body {
+    pop3open
+} -returnCodes error -result {POP3 CONNECT ERROR:  go away}
+
+test pop3-api-1.7 {open, -stls not boolean} -body {
+    pop3::open -stls foo localhost user secret
+} -returnCodes error -result {:pop3::open : Argument to -tls has to be boolean}
+
+test pop3-api-1.9 {open, option without value} -body {
+    pop3::open -msex
+} -returnCodes error -result {::pop3::open : Option "msex" requires an argument}
+
+# The connection is closed and an error returned when the server does
+# not support STLS.  The error path calls the package's own close
+# command instead of the builtin one.
+test pop3-api-1.10 {open, -stls, server without STLS capability} -constraints {
+    knownBug
+} -setup {
+    fake::reset -capa {TOP UIDL}
+} -body {
+    pop3open -stls 1
+} -cleanup {
+    catch {::close $fake::st(chan)}
+} -returnCodes error -result {POP CONNECT ERROR: STLS requested but not supported by server}
+
+# -------------------------------------------------------------------------
+# config
+
+test pop3-api-2.0 {config, defaults} -setup {
+    fake::reset -messages [list $m1 $m2]
+} -body {
+    set chan [pop3open]
+    dictsort [pop3::config $chan]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {limit 2 msex 0 retr_mode retr socketcmd fake::socket stls 0 tls-callback {}}
+
+test pop3-api-2.1 {config, options} -setup {
+    fake::reset
+} -body {
+    set chan [pop3open -msex 1 -retr-mode slow -tls-callback mycallback]
+    dictsort [pop3::config $chan]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {limit 0 msex 1 retr_mode slow socketcmd fake::socket stls 0 tls-callback mycallback}
+
+test pop3-api-2.2 {config, unknown channel} -body {
+    pop3::config nosuchchan
+} -returnCodes error -result {can't read "state(nosuchchan)": no such element in array}
+
+test pop3-api-2.3 {config, wrong # args} -body {
+    pop3::config
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::config chan 0]
+
+# -------------------------------------------------------------------------
+# -msex
+
+test pop3-api-3.0 {-msex, commands are terminated by LF only} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open -msex 1]
+    list [pop3::status $chan] [pop3::retrieve $chan 1]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list [list 1 [string length [string map {\n \r\n} $m1]]] [list $m1]]
+
+# -------------------------------------------------------------------------
+# status
+
+test pop3-api-4.0 {status} -setup {
+    fake::reset -messages [list $m1 $m2 $m3]
+} -body {
+    set chan [pop3open]
+    pop3::status $chan
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list 3 [string length [string map {\n \r\n} $m1$m2$m3.]]]
+
+test pop3-api-4.1 {status, empty maildrop} -setup {
+    fake::reset
+} -body {
+    set chan [pop3open]
+    pop3::status $chan
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {0 0}
+
+test pop3-api-4.2 {status, wrong # args} -body {
+    pop3::status
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::status chan 0]
+
+# -------------------------------------------------------------------------
+# last
+
+test pop3-api-5.0 {last} -setup {
+    fake::reset -messages [list $m1 $m2] -last 1
+} -body {
+    set chan [pop3open]
+    list [pop3::last $chan] [commands]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {1 LAST}
+
+test pop3-api-5.1 {last, wrong # args} -body {
+    pop3::last
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::last chan 0]
+
+# -------------------------------------------------------------------------
+# list
+
+test pop3-api-6.0 {list, all messages} -setup {
+    fake::reset -messages [list $m1 $m2]
+} -body {
+    set chan [pop3open]
+    pop3::list $chan
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result "1 [string length [string map {\n \r\n} $m1]]\n2 [string length [string map {\n \r\n} $m2.]]\n"
+
+test pop3-api-6.1 {list, single message} -setup {
+    fake::reset -messages [list $m1 $m2]
+} -body {
+    set chan [pop3open]
+    list [pop3::list $chan 2] [commands]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list "2 [string length [string map {\n \r\n} $m2.]]" {{LIST 2}}]
+
+test pop3-api-6.2 {list, malformed message number} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    pop3::list $chan foo
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result {POP3 LIST ERROR: malformed message number 'foo'}
+
+test pop3-api-6.3 {list, no such message} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    pop3::list $chan 5
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result { no such message}
+
+test pop3-api-6.4 {list, empty maildrop} -setup {
+    fake::reset
+} -body {
+    set chan [pop3open]
+    pop3::list $chan
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {}
+
+test pop3-api-6.5 {list, wrong # args} -body {
+    pop3::list
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::list {chan ?msg?} 0]
+
+test pop3-api-6.6 {list, too many args} -body {
+    pop3::list a b c
+} -returnCodes error -result [tcltest::tooManyArgs pop3::list {chan ?msg?}]
+
+# -------------------------------------------------------------------------
+# uidl
+
+test pop3-api-7.0 {uidl, all messages} -setup {
+    fake::reset -messages [list $m1 $m2 $m3]
+} -body {
+    set chan [pop3open]
+    pop3::uidl $chan
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result "1 uid-1\n2 uid-2\n3 uid-3\n"
+
+test pop3-api-7.1 {uidl, single message} -setup {
+    fake::reset -messages [list $m1 $m2 $m3]
+} -body {
+    set chan [pop3open]
+    list [pop3::uidl $chan 3] [commands]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {{3 uid-3} {{UIDL 3}}}
+
+test pop3-api-7.2 {uidl, malformed message number} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    pop3::uidl $chan foo
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result {POP3 UIDL ERROR: malformed message number 'foo'}
+
+test pop3-api-7.3 {uidl, wrong # args} -body {
+    pop3::uidl
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::uidl {chan ?msg?} 0]
+
+# -------------------------------------------------------------------------
+# top
+
+test pop3-api-8.0 {top, headers and body lines} -setup {
+    fake::reset -messages [list $m1 $m3]
+} -body {
+    set chan [pop3open]
+    list [pop3::top $chan 2 1] [pop3::top $chan 2 0] [lrange [commands] 0 1]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list "Subject: three\nX-Extra: yes\n\nThird message.\n" "Subject: three\nX-Extra: yes\n\n" {{TOP 2 1} {TOP 2 0}}]
+
+# -------------------------------------------------------------------------
+# capa
+
+# The documentation says a list of the capabilities is returned, the
+# result has an additional empty element at the end.
+test pop3-api-9.0 {capa} -constraints knownBug -setup {
+    fake::reset -capa {TOP UIDL STLS}
+} -body {
+    set chan [pop3open]
+    pop3::capa $chan
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {TOP UIDL STLS}
+
+test pop3-api-9.1 {capa, capabilities are returned} -setup {
+    fake::reset -capa {TOP UIDL {SASL PLAIN}}
+} -body {
+    set chan [pop3open]
+    lrange [pop3::capa $chan] 0 2
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result {TOP UIDL {SASL PLAIN}}
+
+test pop3-api-9.2 {capa, not supported} -setup {
+    fake::reset
+} -body {
+    set chan [pop3open]
+    pop3::capa $chan
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result {POP3 CAPA ERROR:  unknown command}
+
+test pop3-api-9.3 {capa, wrong # args} -body {
+    pop3::capa
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::capa chan 0]
+
+# -------------------------------------------------------------------------
+# retrieve: index forms
+
+foreach {n start end last expected cmds} {
+    0 1     {}   {} {1}     {{RETR 1}}
+    1 start {}   {} {1}     {{RETR 1}}
+    2 end   {}   {} {3}     {{RETR 3}}
+    3 next  {}   1  {2}     {{RETR 2}}
+    4 next  {}   {} {1}     {{RETR 1}}
+    5 1     end  {} {1 2 3} {{RETR 1} {RETR 2} {RETR 3}}
+    6 2     3    {} {2 3}   {{RETR 2} {RETR 3}}
+    7 start last 2  {1 2}   {{RETR 1} {RETR 2}}
+    8 next  end  1  {2 3}   {{RETR 2} {RETR 3}}
+    9 2     10   {} {2 3}   {{RETR 2} {RETR 3}}
+   10 0     {}   {} {1}     {{RETR 1}}
+   11 2     -1   {} {2}     {{RETR 2}}
+   12 3     2    {} {}      {}
+} {
+    test pop3-api-10.$n "retrieve, start $start, end $end, last $last" -setup {
+	fake::reset -messages [list $m1 $m2 $m3] -last $last
+    } -body {
+	set chan [pop3open]
+	if {$end eq ""} {
+	    set res [pop3::retrieve $chan $start]
+	} else {
+	    set res [pop3::retrieve $chan $start $end]
+	}
+	set nums {}
+	foreach msg $res {
+	    lappend nums [expr {[lsearch -exact [list $m1 $m2 $m3] $msg] + 1}]
+	}
+	set rcmds {}
+	foreach c [commands] {
+	    if {$c ne "LAST"} {lappend rcmds $c}
+	}
+	list $nums $rcmds
+    } -cleanup {
+	pop3::close $chan
+	unset -nocomplain chan res nums rcmds msg c
+    } -result [list $expected $cmds]
+}
+
+test pop3-api-10.20 {retrieve, dot-stuffed lines} -setup {
+    fake::reset -messages [list $m2]
+} -body {
+    set chan [pop3open]
+    pop3::retrieve $chan 1
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list $m2]
+
+# -------------------------------------------------------------------------
+# retrieve: modes and fallbacks
+
+test pop3-api-11.0 {retrieve, mode retr, server sends size} -setup {
+    fake::reset -messages [list $m1 $m3]
+} -body {
+    set chan [pop3open -retr-mode retr]
+    list [pop3::retrieve $chan 1 2] [commands] \
+	[dict get [pop3::config $chan] retr_mode]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list [list $m1 $m3] {LAST {RETR 1} {RETR 2}} retr]
+
+test pop3-api-11.1 {retrieve, mode retr falls back to list without size} -setup {
+    fake::reset -messages [list $m1 $m3] -retrsize 0
+} -body {
+    set chan [pop3open -retr-mode retr]
+    list [pop3::retrieve $chan 1 2] [commands] \
+	[dict get [pop3::config $chan] retr_mode]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list [list $m1 $m3] {LAST {RETR 1} {LIST 2} {RETR 2}} list]
+
+test pop3-api-11.2 {retrieve, mode list} -setup {
+    fake::reset -messages [list $m1 $m3] -retrsize 0
+} -body {
+    set chan [pop3open -retr-mode list]
+    list [pop3::retrieve $chan 2] [commands] \
+	[dict get [pop3::config $chan] retr_mode]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list [list $m3] {LAST {LIST 2} {RETR 2}} list]
+
+test pop3-api-11.3 {retrieve, mode list falls back to slow without size} -setup {
+    fake::reset -messages [list $m1 $m3] -retrsize 0 -listsize 0
+} -body {
+    set chan [pop3open -retr-mode list]
+    list [pop3::retrieve $chan 1 2] [commands] \
+	[dict get [pop3::config $chan] retr_mode]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list [list $m1 $m3] {LAST {LIST 1} {RETR 1} {RETR 2}} slow]
+
+test pop3-api-11.4 {retrieve, mode slow} -setup {
+    fake::reset -messages [list $m1 $m2]
+} -body {
+    set chan [pop3open -retr-mode slow]
+    list [pop3::retrieve $chan 1 2] [commands]
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -result [list [list $m1 $m2] {LAST {RETR 1} {RETR 2}}]
+
+test pop3-api-11.5 {retrieve, no such message} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    set fake::st(deleted) 1
+    pop3::retrieve $chan 1
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result { no such message}
+
+# -------------------------------------------------------------------------
+# delete
+
+foreach {n start end last cmds} {
+    0 1     {}   {} {{DELE 1}}
+    1 start {}   {} {{DELE 1}}
+    2 end   {}   {} {{DELE 3}}
+    3 next  {}   1  {{DELE 2}}
+    4 1     end  {} {{DELE 1} {DELE 2} {DELE 3}}
+    5 2     3    {} {{DELE 2} {DELE 3}}
+    6 start last 2  {{DELE 1} {DELE 2}}
+    7 2     99   {} {{DELE 2} {DELE 3}}
+    8 0     {}   {} {{DELE 1}}
+    9 3     1    {} {}
+} {
+    test pop3-api-12.$n "delete, start $start, end $end, last $last" -setup {
+	fake::reset -messages [list $m1 $m2 $m3] -last $last
+    } -body {
+	set chan [pop3open]
+	if {$end eq ""} {
+	    set res [pop3::delete $chan $start]
+	} else {
+	    set res [pop3::delete $chan $start $end]
+	}
+	set rcmds {}
+	foreach c [commands] {
+	    if {$c ne "LAST"} {lappend rcmds $c}
+	}
+	list $res $rcmds [lsort -integer $fake::st(deleted)]
+    } -cleanup {
+	pop3::close $chan
+	unset -nocomplain chan res rcmds c
+    } -result [list {} $cmds [lsort -integer [string map {DELE {}} [join $cmds]]]]
+}
+
+test pop3-api-12.20 {delete, bad start index} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    pop3::delete $chan foo
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result {POP3 Deletion error: Bad start index foo}
+
+test pop3-api-12.21 {delete, bad end index} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    pop3::delete $chan 1 foo
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result {POP3 Deletion error: Bad end index foo}
+
+test pop3-api-12.22 {delete, server error} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    set fake::st(deleted) 1
+    pop3::delete $chan 1
+} -cleanup {
+    pop3::close $chan
+    unset chan
+} -returnCodes error -result {POP3 DELETE ERROR:  no such message}
+
+test pop3-api-12.23 {delete, wrong # args} -body {
+    pop3::delete
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::delete {chan start ?end?} 0]
+
+test pop3-api-12.24 {delete, too many args} -body {
+    pop3::delete a b c d
+} -returnCodes error -result [tcltest::tooManyArgs pop3::delete {chan start ?end?}]
+
+# -------------------------------------------------------------------------
+# close
+
+test pop3-api-13.0 {close sends QUIT and closes the channel} -setup {
+    fake::reset -messages [list $m1]
+} -body {
+    set chan [pop3open]
+    set res [pop3::close $chan]
+    list $res [commands] [expr {$chan in [chan names]}] \
+	[catch {pop3::config $chan}]
+} -cleanup {
+    unset chan res
+} -result {{} QUIT 0 1}
+
+test pop3-api-13.1 {close, wrong # args} -body {
+    pop3::close
+} -returnCodes error -result [tcltest::wrongNumArgs pop3::close chan 0]
+
+# -------------------------------------------------------------------------
+rename pop3open {}
+rename commands {}
+namespace delete fake
+unset m1 m2 m3
+testsuiteCleanup
