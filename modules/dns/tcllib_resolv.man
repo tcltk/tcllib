@@ -1,0 +1,101 @@
+[vset RESOLV_VERSION 1.0.4]
+[manpage_begin resolv n [vset RESOLV_VERSION]]
+[see_also dns]
+[see_also nslookup(1)]
+[keywords DNS]
+[keywords {domain name service}]
+[keywords {name resolution}]
+[keywords resolver]
+[copyright {2002, Emmanuel Frecon}]
+[moddesc   {Domain Name Service}]
+[titledesc {Host name resolution with a cache}]
+[category  Networking]
+[require Tcl "8.5 9"]
+[require resolv [opt [vset RESOLV_VERSION]]]
+[description]
+[para]
+
+The [package resolv] package resolves host names to IPv4 addresses
+using the [package dns] package. It adds two things to [package dns]:
+it finds the name server configured on the local machine by itself,
+and it keeps the results in a cache. The cache entries never expire,
+which is usually good enough for short-lived applications.
+
+[para]
+
+The queries are sent to the name server found by [cmd ::resolv::init]
+using the port, protocol and timeout set with [cmd ::dns::configure];
+the [option -nameserver] setting of [package dns] is not used.
+
+[section COMMANDS]
+
+[list_begin definitions]
+
+[call [cmd ::resolv::init] [opt [arg defaultdns]] [opt [arg search]]]
+
+Looks for the name server of the local machine, empties the cache and
+returns the name or address of the name server that will be used, or
+the empty string if there is none.
+
+[para]
+
+The name server is found by running [syscmd nslookup] on the name of
+the local host. If this does not give a name server, [arg defaultdns]
+is used. [arg search] is a list of domains: when a name to resolve does
+not exist, it is tried again with each of these domains appended, in
+order, until one of them exists.
+
+[para]
+
+[cmd ::resolv::resolve] calls this command without arguments if it has
+not been called before. Call it with arguments to provide a fallback
+name server or a search list, or call it again to empty the cache.
+
+[call [cmd ::resolv::resolve] [arg hostname]]
+
+Returns the IPv4 address of [arg hostname]. If the name has several
+addresses, the first one is returned; if it exists but has no address,
+the result is the empty string. A dotted IPv4 address is returned
+unchanged without a query.
+
+[para]
+
+Results are taken from the cache if present, otherwise the name server
+is queried and the result is added to the cache under [arg hostname].
+The command waits for the answer, processing events meanwhile.
+
+[para]
+
+An error is thrown if there is no name server ([const {No dns server provided}]),
+or if the query fails, for example if the name does not exist or the
+server does not answer in time. The error message then starts with
+[const {dns error:}] followed by the error message of [package dns].
+
+[call [cmd ::resolv::ignore] [arg hostname]]
+
+Removes [arg hostname] from the cache, so that the next
+[cmd ::resolv::resolve] of it queries the name server again. It is not
+an error if the name is not in the cache.
+
+[list_end]
+
+[section EXAMPLE]
+
+[example {
+package require resolv
+
+# Use 192.0.2.53 if the local name server cannot be found, and look up
+# names that do not exist in example.org as well.
+resolv::init 192.0.2.53 example.org
+
+puts [resolv::resolve www.example.org]
+puts [resolv::resolve www]       ;# www.example.org, if www does not exist
+puts [resolv::resolve 192.0.2.1] ;# 192.0.2.1, no query
+}]
+
+[section AUTHORS]
+Emmanuel Frecon, Pat Thoyts
+
+[vset CATEGORY dns]
+[include ../common-text/feedback.inc]
+[manpage_end]
