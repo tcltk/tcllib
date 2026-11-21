@@ -643,7 +643,12 @@ proc ::ftp::StateHandler {s {sock ""}} {
         pwd_sent {
             switch -exact -- $rc {
                 2 {
-                    regexp -- "^.*\"(.*)\"" $buffer temp ftp(Dir)
+                    # RFC 959: the name starts after the first quote
+                    # and ends at the first quote which is not
+                    # doubled. Doubled quotes stand for one quote.
+                    if {[regexp -- {"((?:[^"]|"")*)"} $buffer -> dir]} {
+                        set ftp(Dir) [string map {{""} {"}} $dir]
+                    }
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) pwd $ftp(Dir)
@@ -3156,4 +3161,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.14} 1]
+package provide ftp [lindex {Revision: 2.4.15} 1]

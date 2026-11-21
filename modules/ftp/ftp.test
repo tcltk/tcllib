@@ -1,0 +1,102 @@
+# -*- tcl -*-
+# ftp.test:  tests for the ftp client.
+#
+# This file contains a collection of tests for one or more of the Tcl
+# built-in commands.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 1.0
+
+support {
+    use log/log.tcl log
+}
+testing {
+    useLocal ftp.tcl ftp
+}
+
+# -------------------------------------------------------------------------
+# A minimal fake FTP server running in this interpreter, on the loopback
+# interface. The reply to PWD is taken from the variable pwdReply.
+
+set ftp::VERBOSE 0
+set ftp::DEBUG   0
+log::lvSuppressLE emergency
+
+proc fakeAccept {chan addr port} {
+    fconfigure $chan -buffering line -translation crlf -blocking 0
+    fileevent $chan readable [list fakeRead $chan]
+    puts $chan "220 Fake FTP server ready"
+}
+
+proc fakeRead {chan} {
+    global pwdReply
+    if {[gets $chan line] < 0} {
+	if {[eof $chan]} {close $chan}
+	return
+    }
+    switch -glob -- $line {
+	"USER *" {puts $chan "331 Password required"}
+	"PASS *" {puts $chan "230 Logged in"}
+	"TYPE *" {puts $chan "200 Type set"}
+	PWD      {puts $chan $pwdReply}
+	QUIT     {puts $chan "221 Bye"; close $chan}
+	default  {puts $chan "502 Command not implemented"}
+    }
+}
+
+set fakeServer [socket -server fakeAccept -myaddr 127.0.0.1 0]
+set fakePort   [lindex [fconfigure $fakeServer -sockname] 2]
+
+proc fakePwd {reply} {
+    global pwdReply fakePort
+    set pwdReply $reply
+    set s [ftp::Open 127.0.0.1 user passwd -port $fakePort -timeout 10]
+    if {$s < 0} {return -code error "cannot connect to the fake server"}
+    set result [ftp::Pwd $s]
+    ftp::Close $s
+    return $result
+}
+
+# -------------------------------------------------------------------------
+
+test ftp-pwd-1.0 {Pwd, simple name} -body {
+    fakePwd {257 "/usr/dm" is current directory.}
+} -result /usr/dm
+
+test ftp-pwd-1.1 {Pwd, name with doubled quotes, RFC 959} -body {
+    fakePwd {257 "/usr/dm/a""b" is current directory.}
+} -result {/usr/dm/a"b}
+
+test ftp-pwd-1.2 {Pwd, quoted text in the comment} -body {
+    fakePwd {257 "/usr/dm" is "current" directory.}
+} -result /usr/dm
+
+test ftp-pwd-1.3 {Pwd, doubled quotes at both ends of the name} -body {
+    fakePwd {257 """a b""" created.}
+} -result {"a b"}
+
+test ftp-pwd-1.4 {Pwd, empty name} -body {
+    fakePwd {257 "" is current directory.}
+} -result {}
+
+test ftp-pwd-1.5 {Pwd, no quoted name} -body {
+    fakePwd {257 is current directory.}
+} -result {}
+
+# -------------------------------------------------------------------------
+
+close $fakeServer
+rename fakeAccept {}
+rename fakeRead   {}
+rename fakePwd    {}
+unset -nocomplain fakeServer fakePort pwdReply
+
+testsuiteCleanup
+return
