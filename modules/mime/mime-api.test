@@ -917,6 +917,21 @@ test mime-api-7.5 {buildmessage: encoded body} -body {
     unset res e tok msg
 } -result {a=3Db YT1i}
 
+test mime-api-7.13 {buildmessage: quoted-printable line with a single dot} -constraints {
+    knownBug
+} -body {
+    # The line break before a line containing only "." is lost.
+    set body "a\n.\nb"
+    set tok [mime::initialize -canonical text/plain -encoding quoted-printable \
+		 -string $body]
+    set tok2 [mime::initialize -string [mime::buildmessage $tok]]
+    string map {\r\n \n} [mime::getbody $tok2]
+} -cleanup {
+    mime::finalize $tok
+    mime::finalize $tok2
+    unset body tok tok2
+} -result "a\n.\nb"
+
 test mime-api-7.6 {buildmessage: Content-Transfer-Encoding once} -constraints {
     knownBug
 } -body {
