@@ -657,7 +657,7 @@ test mime-14.0 {ticket 5f455d6343} -setup {
 		   -encoding base64 -string "This is a test"]
     set whole [mime::initialize -canonical multipart/mixed -parts [list $part]]
 
-    set saved checkmime.msg
+    set saved [makeFile {} checkmime.msg]
     set stm [open $saved w]
     mime::copymessage $whole $stm
     close $stm
@@ -669,6 +669,7 @@ test mime-14.0 {ticket 5f455d6343} -setup {
     set restore [mime::initialize -string $str]
 } -cleanup {
     mime::finalize $restore
+    removeFile checkmime.msg
     unset part whole saved stm str
 } -match glob -result "::mime::*"
 
