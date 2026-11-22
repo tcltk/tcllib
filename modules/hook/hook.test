@@ -86,7 +86,9 @@ proc TestBind {subject hook observer} {
 proc ErrorCommand {call result opts} {
     variable info
 
-    set opts [dict remove $opts -errorinfo -errorline]
+    # -errorstack shows how Tcl executed the failing command, which differs
+    # between Tcl versions; it is not part of what hook passes on.
+    set opts [dict remove $opts -errorinfo -errorline -errorstack]
 
     lappend info(errorList) [list $call $result $opts]
 }
@@ -449,12 +451,7 @@ test errorcommand-1.2 {error with -errorcommand set} -body {
     GetError
 } -cleanup {
     cleanup
-} -result [tcltest::byConstraint {
-    tcl9plus {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorstack {INNER {returnImm {simulated error} {}} UP 1 CALL {::hook::call S1 <H1>}} -errorcode NONE}}}
-    tcl8.6.10plus {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {::hook::call S1 <H1>}} -errorcode NONE}}}
-    tcl8.6not10   {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {call S1 <H1>}} -errorcode NONE}}}
-    tcl8.5only   {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorcode NONE}}}
-}]
+} -result {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorcode NONE}}}
 
 test errorcommand-1.3 {handled errors don't break sequence of calls} -body {
     hook configure -errorcommand ErrorCommand
@@ -466,12 +463,7 @@ test errorcommand-1.3 {handled errors don't break sequence of calls} -body {
     list [GetCalls] [GetError]
 } -cleanup {
     cleanup
-} -result [tcltest::byConstraint {
-    tcl9plus {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorstack {INNER {returnImm {simulated error} {}} UP 1 CALL {::hook::call S1 <H1>}} -errorcode NONE}}}}
-    tcl8.6.10plus {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {::hook::call S1 <H1>}} -errorcode NONE}}}}
-    tcl8.6not10   {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {call S1 <H1>}} -errorcode NONE}}}}
-    tcl8.5only   {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorcode NONE}}}}
-}]
+} -result {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorcode NONE}}}}
 
 test errorcommand-1.4 {-errorcommand handles other exceptions} -body {
     hook configure -errorcommand ErrorCommand
