@@ -20,6 +20,13 @@ testing {
     useLocal crc16.tcl crc16 ::crc
 }
 
+# The error message for a string that is not a byte sequence changed in Tcl 9.0.4.
+if {[package vsatisfies [package provide Tcl] 9.0.4-]} {
+    set nonbyteMsg "expected code point values below 0xff but value at byte offset 0 was 0xfffe"
+} else {
+    set nonbyteMsg "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"
+}
+
 # -------------------------------------------------------------------------
 
 test crc16-1.0 {crc16 with no parameters } {
@@ -87,7 +94,7 @@ test crc16-2.6 {crc16 and unsigned integer} tcl8 {
 
 test crc16-2.6 {crc16 and unsigned integer} tcl9plus {
     list [catch {::crc::crc16 "\uFFFE\u0000\u0001\u0002"} res] $res
-} [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
+} [list 1 $nonbyteMsg]
 
 foreach {n msg expected} {
     1    ""
@@ -112,7 +119,7 @@ test crc16-3.6 {crc16 as hexadecimal string} tcl8 {
 
 test crc16-3.6 {crc16 as hexadecimal string} tcl9plus {
     list [catch {::crc::crc16 -format 0x%X "\uFFFE\u0000\u0001\u0002"} res] $res
-} [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
+} [list 1 $nonbyteMsg]
 
 # -------------------------------------------------------------------------
 # Implementation tests
@@ -190,7 +197,7 @@ test crc16-6.6 {crc-ccitt and unsigned integer} tcl8 {
 
 test crc16-6.6 {crc-ccitt and unsigned integer} tcl9plus {
     list [catch {::crc::crc-ccitt -format 0x%X "\uFFFE\u0000\u0001\u0002"} res] $res
-} [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
+} [list 1 $nonbyteMsg]
 
 # -------------------------------------------------------------------------
 # CRC32 tests
@@ -219,7 +226,7 @@ test crc16-7.6 {crc-32 from the crc16 algorithms} tcl8 {
 
 test crc16-7.6 {crc-32 from the crc16 algorithms} tcl9plus {
     list [catch {::crc::crc-32 -format 0x%X "\uFFFE\u0000\u0001\u0002"} res] $res
-} [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
+} [list 1 $nonbyteMsg]
 
 # -------------------------------------------------------------------------
 # XMODEM CRC tests
@@ -250,7 +257,7 @@ test crc16-8.6 {XMODEM CRCs as hexadecimal string} tcl8 {
 
 test crc16-8.6 {XMODEM CRCs as hexadecimal string} tcl9plus {
     list [catch {::crc::xmodem -format 0x%X "\uFFFE\u0000\u0001\u0002"} res] $res
-} [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
+} [list 1 $nonbyteMsg]
 
 # -------------------------------------------------------------------------
 # General tests based on the test vectors listed in the implementation
