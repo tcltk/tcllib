@@ -198,13 +198,15 @@ proc ::map::slippy::tcl_geo_box_fit {gbox canvdim zmax {zmin 0}} {
     # (that's the log(2) down there)
     set canvw [expr {abs($canvw)}]
     set canvh [expr {abs($canvh)}]
-    set z [expr {int(log(min( \
-		  ($canvh/$ourtilesize) / (abs($gh)/180), \
-		  ($canvw/$ourtilesize) / (abs($gw)/360))) \
-                 / log(2))}]
+    # Floating-point division throughout: the box and canvas may be given as integers. A box of
+    # zero size gives an infinite zoom, clamped to zmax below.
+    set z [expr {log(min( \
+		  (double($canvh)/$ourtilesize) / (abs($gh)/180.0), \
+		  (double($canvw)/$ourtilesize) / (abs($gw)/360.0))) \
+                 / log(2)}]
     #puts z'initial:$z
-    # clamp ...
-    set z [expr {($z<$zmin) ? $zmin : (($z>$zmax) ? $zmax : $z)}]
+    # clamp ... (before int(), which cannot convert Inf)
+    set z [expr {int(($z<$zmin) ? $zmin : (($z>$zmax) ? $zmax : $z))}]
     #puts z'clamp:$z
 
     # The zoom we have now is an approximation, since the scale factor isn't uniform across the map
@@ -230,11 +232,11 @@ proc ::map::slippy::tcl_geo_box_fit {gbox canvdim zmax {zmin 0}} {
 	    # fits: grow
 	    #puts "fits: grow..."
 	    if { [info exists z1] } break; # but not if we come "from above"
+	    set z0 $z ; # remember it before stopping at zmax, also when we come "from below"
 	    if {$z >= $zmax} {
 		#puts "fits: at max!"
 		break
 	    }
-	    set z0 $z
 	    incr z
 	}
     }

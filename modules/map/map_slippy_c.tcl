@@ -345,13 +345,14 @@ critcl::cproc ::map::slippy::critcl_geo_box_fit {
     canvw = fabs (canvw);
     canvh = fabs (canvh);
 
-    int z = (int) (log(fmin(
+    // A box of zero size gives an infinite zoom, clamped to zmax below.
+    double zd = log(fmin(
 			(canvh/OURTILESIZED) / (fabs(gbox.lat1 - gbox.lat0)/180.),
 			(canvw/OURTILESIZED) / (fabs(gbox.lon1 - gbox.lon0)/360.)))
-		/ log(2));
-    //fprintf(stdout, "z'initial:%d\n", z);fflush(stdout);
-    // clamp
-    z = ((z < zmin) ? zmin : ((z > zmax) ? zmax : z));
+		/ log(2);
+    //fprintf(stdout, "z'initial:%f\n", zd);fflush(stdout);
+    // clamp (before the conversion to int, which is undefined for an infinite zoom)
+    int z = ((zd < zmin) ? zmin : ((zd > zmax) ? zmax : (int) zd));
     //fprintf(stdout, "z'clamp:%d\n", z);fflush(stdout);
 
     // Now zoom is an approximation, since the scale factor isn't uniform across the map
@@ -387,11 +388,11 @@ critcl::cproc ::map::slippy::critcl_geo_box_fit {
 	    //fprintf(stdout, "fits: grow z1?%d\n", hasz1);fflush(stdout);
 	    // fits: grow
 	    if (hasz1) break; // but not if we came from above
+	    z0 = z ; hasz0 = 1; // remember it before stopping at zmax, also when we came from below
 	    if (z >= zmax) {
 		//fprintf(stdout, "fits: at max!\n");fflush(stdout);
 		break; // can't be > zmax
 	    }
-	    z0 = z ; hasz0 = 1;
 	    z ++;
 	}
     }

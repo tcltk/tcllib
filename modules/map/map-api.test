@@ -518,6 +518,23 @@ TestAccelDo map::slippy impl {
 	map slippy geo box fit $box {380.0 267.0}
     } -returnCodes error -result {wrong # args: should be "map slippy geo box fit gbox canvdim zmax ?zmin?"}
 
+    test map-api-slippy-${impl}-1.4 {geo box fit, integer box and canvas, ticket 7e1f72fa08} -body {
+	list [map slippy geo box fit {46 9 50 15} {396 278} 18] \
+	    [map slippy geo box fit {46.0 9.0 50.0 15.0} {396.0 278.0} 18]
+    } -result {6 6}
+
+    test map-api-slippy-${impl}-1.5 {geo box fit, zero-size box gives zmax, ticket 7e1f72fa08} -body {
+	list [map slippy geo box fit {46.0 9.0 46.0 9.0} {396 278} 12] \
+	    [map slippy geo box fit {46 9 46 9} {396 278} 18 3]
+    } -result {12 18}
+
+    test map-api-slippy-${impl}-1.6 {geo box fit, box fits at zmax, or at zmax-1 only} -body {
+	# The box is 273x272 pixels at zoom 6 and 546x544 pixels at zoom 7.
+	list [map slippy geo box fit {46.0 9.0 50.0 15.0} {396 278} 6] \
+	    [map slippy geo box fit {46.0 9.0 50.0 15.0} {396 278} 6 3] \
+	    [map slippy geo box fit {46.0 9.0 50.0 15.0} {396 278} 7]
+    } -result {6 6 6}
+
     test map-api-slippy-${impl}-2.0 {ensemble, unknown subcommand} -body {
 	map slippy bogus
     } -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be *}

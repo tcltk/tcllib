@@ -1,4 +1,4 @@
-[vset VERSION 0.10]
+[vset VERSION 0.10.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::slippy n [vset VERSION]]
 [keywords geodesy]
@@ -68,6 +68,9 @@ This command calculates the zoom level such that the [arg geobox] will fit into 
 
 [para] The zoom level will be made to fit within the range [arg zmin]...[arg zmax].
 When [arg zmin] is not specified it will default to [const 0].
+
+[para] A [arg geobox] of zero size (a single point) fits at every zoom level, and the result is
+then [arg zmax].
 
 [comment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%]
 [call [cmd ::map] [method {slippy geo box inside}] [arg geobox] [arg geo]]
