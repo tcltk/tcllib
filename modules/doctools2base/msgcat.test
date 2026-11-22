@@ -25,9 +25,10 @@ testing {
 
 # -------------------------------------------------------------------------
 
-array_unset env LANG*
-array_unset env LC_*
-set env(LANG) C ; # Usually default if nothing is set, OS X requires this.
+# The msgcat locale is initialized from the environment when the msgcat
+# package is loaded, so setting env(LANG) here would be too late. Tests
+# which depend on the locale set it explicitly via msgcat::mclocale.
+set savedLocale [msgcat::mclocale]
 
 # -------------------------------------------------------------------------
 
@@ -41,11 +42,16 @@ test doctools-msgcat-1.1 {init, wrong#args, too many} -body {
     doctools::msgcat::init fu bar
 } -returnCodes error -result {wrong # args: should be "doctools::msgcat::init prefix"}
 
-test doctools-msgcat-2.0 {init, ok args} -body {
+test doctools-msgcat-2.0 {init, ok args} -setup {
+    msgcat::mclocale C
+} -body {
     doctools::msgcat::init idx
+} -cleanup {
+    msgcat::mclocale $savedLocale
 } -result 1
 
 # -------------------------------------------------------------------------
 
+unset savedLocale
 testsuiteCleanup
 return
