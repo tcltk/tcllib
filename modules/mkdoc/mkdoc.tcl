@@ -30,7 +30,7 @@
 #
 ##############################################################################
 #' ---
-#' title: mkdoc::mkdoc 0.7.1
+#' title: mkdoc::mkdoc 0.7.2
 #' author: Detlef Groth, Schwielowsee, Germany
 #' css: mkdoc.css
 #' ---
@@ -64,7 +64,7 @@
 #' Usage as package:
 #'
 #' ```
-#' package require mkdoc::mkdoc
+#' package require mkdoc
 #' mkdoc::mkdoc inputfile outputfile ?-css file.css?
 #' ```
 #'
@@ -103,18 +103,22 @@
 #'    to *outfile* either in Markdown, Doctools  or HTML format. 
 #' 
 #' > - *infile* - file with embedded markdown documentation
-#'   - *outfile* -  name of output file extension
-#'   - *-css cssfile* if outfile is an HTML file use the given *cssfile*
+#'   - *outfile* - name of the output file, its file extension determines the output format
+#'   - *-css cssfile* - if outfile is an HTML file use the given *cssfile*
 #'     
-#' > If the file extension of the outfile is either html or htm a HTML file is created. If the output file has other 
-#'   file extension the documentation after _#'_ comments is simply extracted and stored in the given _outfile_, *-mode* flag  (one of -html, -md, -pandoc) is not given, the output format is taken from the file extension of the output file, either *.html* for HTML or *.md* for Markdown format. This deduction from the filetype can be overwritten giving either `-html` or `-md` as command line flags. If as mode `-pandoc` is given, the Markdown markup code as well contains the YAML header.
-#'   If infile has the extension .md (Markdown) or -man (Doctools) than conversion to html will be performed, outfile file extension
-#'   In this case must be .html. If output is html a *-css* flag can be given to use the given stylesheet file instead of the default style sheet embedded within the mkdoc code.
+#' > Options are given as name/value pairs, *-css* is the only option.
+#'   The output format is always taken from the file extension of *outfile*. If it is either *.md* (Markdown)
+#'   or *.man* (Doctools), the documentation after _#'_ comments is simply extracted and stored in the given _outfile_,
+#'   preceded by the YAML header, which tools like pandoc can use as well. For any other file extension, for instance
+#'   *.html* or *.htm*, a HTML file is created. *infile* and *outfile* must have different file extensions.
+#'   If infile has the extension *.md* (Markdown) or *.man* (Doctools), its whole content is taken as the documentation,
+#'   so that for instance a Markdown file can be converted to HTML.
+#'   If output is HTML a *-css* option can be given to link the given stylesheet file instead of using the default style sheet embedded within the mkdoc code.
 #'  
 #' > Example:
 #'
 #' > ```
-#' package require mkdoc::mkdoc
+#' package require mkdoc
 #' mkdoc::mkdoc mkdoc.tcl mkdoc.html
 #' mkdoc::mkdoc mkdoc.tcl mkdoc.md 
 #' > ```
