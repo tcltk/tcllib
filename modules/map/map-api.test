@@ -33,7 +33,11 @@ support {
 snitErrors
 
 testing {
-    useLocal map_slippy.tcl            map::slippy
+    # Keep the namespace, it may hold the critcl commands of tcllibc
+    # (json above loads it too), which cannot be re-created.
+    useTcllibC
+    useLocalKeep map_slippy.tcl        map::slippy
+    TestAccelInit                      map::slippy
     useLocal map_geocode_nominatim.tcl map::geocode::nominatim
 
     # Tk, if possible (needed by map::slippy::cache and map::slippy::fetcher).
@@ -493,49 +497,62 @@ test map-api-nominatim-5.1 {default -error prints the error to stderr} -constrai
 # map::slippy, documented behaviour not covered by map_slippy.testsuite
 # -------------------------------------------------------------------------
 
-set box {49.292809 -123.1589 49.314037 -123.116543}
+# The tests run with every available implementation (critcl, tcl).
 
-test map-api-slippy-1.0 {geo box fit, zmin defaults to 0} -body {
-    map slippy geo box fit $box {380.0 267.0} 18
-} -result 13
+TestAccelDo map::slippy impl {
+    set box {49.292809 -123.1589 49.314037 -123.116543}
 
-test map-api-slippy-1.1 {geo box fit, result limited to zmax} -body {
-    map slippy geo box fit $box {380.0 267.0} 10
-} -result 10
+    test map-api-slippy-${impl}-1.0 {geo box fit, zmin defaults to 0} -body {
+	map slippy geo box fit $box {380.0 267.0} 18
+    } -result 13
 
-test map-api-slippy-1.2 {geo box fit, result limited to zmin} -body {
-    map slippy geo box fit $box {380.0 267.0} 18 15
-} -result 15
+    test map-api-slippy-${impl}-1.1 {geo box fit, result limited to zmax} -body {
+	map slippy geo box fit $box {380.0 267.0} 10
+    } -result 10
 
-test map-api-slippy-1.3 {geo box fit, wrong # args} -body {
-    map slippy geo box fit $box {380.0 267.0}
-} -returnCodes error -result {wrong # args: should be "map slippy geo box fit gbox canvdim zmax ?zmin?"}
+    test map-api-slippy-${impl}-1.2 {geo box fit, result limited to zmin} -body {
+	map slippy geo box fit $box {380.0 267.0} 18 15
+    } -result 15
 
-test map-api-slippy-2.0 {ensemble, unknown subcommand} -body {
-    map slippy bogus
-} -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be *}
+    test map-api-slippy-${impl}-1.3 {geo box fit, wrong # args} -body {
+	map slippy geo box fit $box {380.0 267.0}
+    } -returnCodes error -result {wrong # args: should be "map slippy geo box fit gbox canvdim zmax ?zmin?"}
 
-test map-api-slippy-3.0 {point simplify radial, documented signature: threshold point-list} -constraints {
-    knownBug
-} -body {
-    # The documentation describes two arguments, the implementation
-    # requires an additional 'closed' flag before the point list.
-    map slippy point simplify radial 10 {{0 0} {1 1} {50 50}}
-} -result {{0 0} {50 50}}
+    test map-api-slippy-${impl}-2.0 {ensemble, unknown subcommand} -body {
+	map slippy bogus
+    } -returnCodes error -match glob -result {unknown or ambiguous subcommand "bogus": must be *}
 
-test map-api-slippy-4.0 {tile valid, message variable untouched for valid tile} -setup {
-    set msg untouched
-} -body {
-    list [map slippy tile valid 2 1 1 5 msg] $msg
-} -cleanup {
-    unset msg
-} -result {1 untouched}
+    test map-api-slippy-${impl}-3.0 {point simplify radial, documented signature: threshold point-list} -constraints {
+	knownBug
+    } -body {
+	# The documentation describes two arguments, the implementation
+	# requires an additional 'closed' flag before the point list.
+	map slippy point simplify radial 10 {{0 0} {1 1} {50 50}}
+    } -result {{0 0} {50 50}}
 
-test map-api-slippy-4.1 {tile valid, without message variable} -body {
-    map slippy tile valid 9 0 0 5
-} -result 0
+    test map-api-slippy-${impl}-4.0 {tile valid, message variable untouched for valid tile} -setup {
+	set msg untouched
+    } -body {
+	list [map slippy tile valid 2 1 1 5 msg] $msg
+    } -cleanup {
+	unset msg
+    } -result {1 untouched}
 
-unset box
+    test map-api-slippy-${impl}-4.1 {tile valid, without message variable} -body {
+	map slippy tile valid 9 0 0 5
+    } -result 0
+
+    unset box
+}
+
+# Reactivate the preferred implementation for the tests below.
+foreach impl [map::slippy::KnownImplementations] {
+    if {$impl in [map::slippy::Implementations]} {
+	map::slippy::SwitchTo $impl
+	break
+    }
+}
+unset impl
 
 # -------------------------------------------------------------------------
 # map::slippy::fetcher (needs Tk)
@@ -956,6 +973,7 @@ rename recorderror {}
 rename failing {}
 namespace delete srv
 unset jsonok
+TestAccelExit map::slippy
 testsuiteCleanup
 # Leave no Tk main loop running after the tests.
 if {[info exists tk_version]} {
