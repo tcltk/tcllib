@@ -9,7 +9,7 @@ if {![package vsatisfies [package provide Tcl] 8.5 9]} {return}
 # - Parser for doctoc markup, and handling serializations
 # - Message catalogs for the parser
 
-package ifneeded doctools::toc                 2     [list source [file join $dir container.tcl]]
+package ifneeded doctools::toc                 2.1   [list source [file join $dir container.tcl]]
 package ifneeded doctools::toc::export         0.2.2 [list source [file join $dir export.tcl]]
 
 package ifneeded doctools::toc::export::doctoc 0.2 [list source [file join $dir export_doctoc.tcl]]

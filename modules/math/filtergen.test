@@ -160,6 +160,23 @@ test filterobj-1.0 {low-pass, second order, sine series} -match numbers -body {
 } -result {0.771545 0.809968 0.845195 0.877086 0.905515 0.930371 0.951555 0.968984 0.982588 0.992315}
 
 
+test filters-pkgindex-1.0 {pkgIndex.tcl matches package provide, ticket 523f7e0556} -setup {
+    set i [interp create]
+} -body {
+    $i eval [list set dir [localDirectory]]
+    $i eval {source [file join $dir pkgIndex.tcl]}
+    set v [$i eval {package versions math::filters}]
+    set f [lindex [$i eval [list package ifneeded math::filters $v]] end]
+    set c [open $f]
+    set data [read $c]
+    close $c
+    regexp {package provide math::filters (\S+)} $data -> pv
+    expr {$pv eq $v}
+} -cleanup {
+    interp delete $i
+    unset -nocomplain i v f c data pv
+} -result 1
+
 #
 # Cleanup
 #

@@ -68,6 +68,29 @@ TestAccelDo struct::stack stkimpl {
     TestAccelDo struct::set setimpl {
 	TestAccelDo struct::tree impl {
 	    source [localPath tests/tcl_parse]
+
+	    test doctools-tcl-parse-${stkimpl}-${setimpl}-${impl}-12.0 {parse file, binary channel (Tcl 9)} -setup {
+		set path [makeFile {a b c} tclparse12.0.tcl]
+		struct::tree myresult
+		struct::tree myexpected
+	    } -body {
+		doctools::tcl::parse file myresult $path
+		doctools::tcl::parse text myexpected [fileutil::cat $path]
+		set res {}
+		foreach t {myresult myexpected} {
+		    set r {}
+		    $t walk root tok {
+			lappend r [dictsort [$t getall $tok]]
+		    }
+		    lappend res $r
+		}
+		expr {[lindex $res 0] eq [lindex $res 1]}
+	    } -cleanup {
+		myresult destroy
+		myexpected destroy
+		removeFile tclparse12.0.tcl
+		unset path res r t tok
+	    } -result 1
 	}
     }
 }
