@@ -1,0 +1,315 @@
+# -*- tcl -*-
+# crc32-api.test:  tests for the documented API of crc32 not covered by
+# crc32.test and crc32bugs.test: -channel, -filename on binary data,
+# the programming interface (Crc32Init, Crc32Update, Crc32Final),
+# the documented examples and the option errors.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal crc32.tcl crc32 ::crc
+    useTcllibC
+}
+
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing (as in crc32.test)
+
+::crc::LoadAccelerator critcl
+::crc::LoadAccelerator trf
+
+array set preserve [array get ::crc::accel]
+
+proc implementations {} {
+    variable ::crc::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::crc::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::crc::accel
+    array set accel [array get ::preserve]
+}
+
+# -------------------------------------------------------------------------
+# Test data with known CRC-32 values.
+
+set allbytes {}
+for {set i 0} {$i < 256} {incr i} {append allbytes [binary format c $i]}
+set pattern {}
+for {set i 0} {$i < 10000} {incr i} {
+    append pattern [binary format c [expr {($i * 7 + 3) % 256}]]
+}
+unset i
+
+proc writefile {name data} {
+    set f [open $name wb]
+    puts -nonewline $f $data
+    close $f
+}
+
+# -------------------------------------------------------------------------
+# Errors
+
+test crc32-api-1.1 {crc32: unknown option} -body {
+    ::crc::crc32 -bogus abc
+} -returnCodes error -result {bad option "-bogus": must be -channel, -chunksize, -filename, -format, -seed, -timeout}
+
+test crc32-api-1.2 {crc32: too many data arguments} -body {
+    ::crc::crc32 -- a b
+} -returnCodes error -match glob -result {wrong # args: should be *}
+
+test crc32-api-1.3 {crc32: option without data} -body {
+    ::crc::crc32 -format %x
+} -returnCodes error -match glob -result {wrong # args: should be *}
+
+test crc32-api-1.4 {crc32: -filename of a missing file} -setup {
+    set name [makeFile {} crc32-api-missing.dat]
+    removeFile crc32-api-missing.dat
+} -body {
+    ::crc::crc32 -filename $name
+} -cleanup {
+    unset name
+} -returnCodes error -match glob -result {couldn't open "*crc32-api-missing.dat": no such file or directory}
+
+test crc32-api-1.5 {Crc32Update: wrong # args} -body {
+    ::crc::Crc32Update tok
+} -returnCodes error -result [tcltest::wrongNumArgs ::crc::Crc32Update {token data} 1]
+
+test crc32-api-1.6 {Crc32Final: wrong # args} -body {
+    ::crc::Crc32Final
+} -returnCodes error -result [tcltest::wrongNumArgs ::crc::Crc32Final {token} 0]
+
+test crc32-api-1.7 {Crc32Init: too many arguments} -body {
+    ::crc::Crc32Init 1 2
+} -returnCodes error -result {wrong # args: should be "::crc::Crc32Init ?seed?"}
+
+# -------------------------------------------------------------------------
+# Documented examples and binary data
+
+foreach impl [implementations] {
+    select_implementation $impl
+
+    test crc32-api-2.1.$impl "documented example, unsigned ($impl)" -body {
+	::crc::crc32 "Hello, World!"
+    } -result 3964322768
+
+    test crc32-api-2.2.$impl "documented example, -format ($impl)" -body {
+	::crc::crc32 -format 0x%X "Hello, World!"
+    } -result 0xEC4AC3D0
+
+    test crc32-api-2.3.$impl "all byte values ($impl)" -body {
+	::crc::crc32 $allbytes
+    } -result 688229491
+
+    test crc32-api-2.4.$impl "10000 bytes ($impl)" -body {
+	::crc::crc32 $pattern
+    } -result 3588557334
+
+    reset_implementation
+}
+
+test crc32-api-2.5 {-format with a field width} -body {
+    ::crc::crc32 -format %08x a
+} -result e8b7be43
+
+test crc32-api-2.6 {-format: abbreviated option name} -body {
+    ::crc::crc32 -for 0x%X a
+} -result 0xE8B7BE43
+
+# -------------------------------------------------------------------------
+# -filename and -channel
+
+foreach impl [implementations] {
+    select_implementation $impl
+
+    test crc32-api-3.1.$impl "-filename reads binary data ($impl)" -setup {
+	set name [makeFile {} crc32-api.dat]
+	writefile $name $pattern
+    } -body {
+	::crc::crc32 -filename $name
+    } -cleanup {
+	removeFile crc32-api.dat
+	unset name
+    } -result 3588557334
+
+    test crc32-api-3.2.$impl "-channel: read until eof, not closed ($impl)" -setup {
+	set name [makeFile {} crc32-api.dat]
+	writefile $name $allbytes
+	set f [open $name rb]
+    } -body {
+	list [::crc::crc32 -channel $f] [eof $f] [expr {$f in [file channels]}]
+    } -cleanup {
+	close $f
+	removeFile crc32-api.dat
+	unset name f
+    } -result {688229491 1 1}
+
+    test crc32-api-3.3.$impl "-channel: from the current position ($impl)" -setup {
+	set name [makeFile {} crc32-api.dat]
+	writefile $name "xyzHello, World!"
+	set f [open $name rb]
+	read $f 3
+    } -body {
+	::crc::crc32 -channel $f
+    } -cleanup {
+	close $f
+	removeFile crc32-api.dat
+	unset name f
+    } -result 3964322768
+
+    reset_implementation
+}
+
+test crc32-api-3.4 {-filename: the file is closed} -setup {
+    set name [makeFile {} crc32-api.dat]
+    writefile $name abc
+    set before [lsort [file channels]]
+} -body {
+    ::crc::crc32 -filename $name
+    string equal $before [lsort [file channels]]
+} -cleanup {
+    removeFile crc32-api.dat
+    unset name before
+} -result 1
+
+test crc32-api-3.5 {-filename: empty file} -setup {
+    set name [makeFile {} crc32-api.dat]
+    writefile $name {}
+} -body {
+    ::crc::crc32 -filename $name
+} -cleanup {
+    removeFile crc32-api.dat
+    unset name
+} -result 0
+
+test crc32-api-3.6 {-filename with -format and -seed} -setup {
+    set name [makeFile {} crc32-api.dat]
+    writefile $name "Hello, World!"
+} -body {
+    list [::crc::crc32 -format 0x%X -filename $name] \
+	[::crc::crc32 -seed 0 -filename $name] \
+	[::crc::crc32 -seed 0 "Hello, World!"]
+} -cleanup {
+    removeFile crc32-api.dat
+    unset name
+} -result {0xEC4AC3D0 482441901 482441901}
+
+test crc32-api-3.7 {-file is an abbreviation of -filename} -setup {
+    set name [makeFile {} crc32-api.dat]
+    writefile $name "Hello, World!"
+} -body {
+    ::crc::crc32 -file $name
+} -cleanup {
+    removeFile crc32-api.dat
+    unset name
+} -result 3964322768
+
+# -------------------------------------------------------------------------
+# Programming interface
+
+foreach impl [implementations] {
+    select_implementation $impl
+
+    test crc32-api-4.1.$impl "documented example ($impl)" -body {
+	set tok [::crc::Crc32Init]
+	::crc::Crc32Update $tok "Hello, "
+	::crc::Crc32Update $tok "World!"
+	::crc::Crc32Final $tok
+    } -cleanup {
+	unset tok
+    } -result 3964322768
+
+    test crc32-api-4.2.$impl "chunked updates of binary data ($impl)" -body {
+	set tok [::crc::Crc32Init]
+	for {set i 0} {$i < 10000} {incr i 999} {
+	    ::crc::Crc32Update $tok [string range $pattern $i [expr {$i + 998}]]
+	}
+	::crc::Crc32Final $tok
+    } -cleanup {
+	unset tok i
+    } -result 3588557334
+
+    test crc32-api-4.3.$impl "no data ($impl)" -body {
+	::crc::Crc32Final [::crc::Crc32Init]
+    } -result 0
+
+    test crc32-api-4.4.$impl "empty updates ($impl)" -body {
+	set tok [::crc::Crc32Init]
+	::crc::Crc32Update $tok ""
+	::crc::Crc32Update $tok "Hello, World!"
+	::crc::Crc32Update $tok ""
+	::crc::Crc32Final $tok
+    } -cleanup {
+	unset tok
+    } -result 3964322768
+
+    test crc32-api-4.5.$impl "Crc32Init with a seed, same as -seed ($impl)" -body {
+	set tok [::crc::Crc32Init 0]
+	::crc::Crc32Update $tok "Hello, World!"
+	list [::crc::Crc32Final $tok] [::crc::crc32 -seed 0 "Hello, World!"]
+    } -cleanup {
+	unset tok
+    } -result {482441901 482441901}
+
+    reset_implementation
+}
+
+test crc32-api-4.6 {Crc32Init returns distinct tokens} -body {
+    set t1 [::crc::Crc32Init]
+    set t2 [::crc::Crc32Init]
+    string equal $t1 $t2
+} -cleanup {
+    ::crc::Crc32Final $t1
+    ::crc::Crc32Final $t2
+    unset t1 t2
+} -result 0
+
+test crc32-api-4.7 {Crc32Update returns empty, Crc32Final releases token} -body {
+    set tok [::crc::Crc32Init]
+    set r [::crc::Crc32Update $tok abc]
+    ::crc::Crc32Final $tok
+    list $r [info exists $tok]
+} -cleanup {
+    unset tok r
+} -result {{} 0}
+
+test crc32-api-4.8 {independent tokens} -body {
+    set t1 [::crc::Crc32Init]
+    set t2 [::crc::Crc32Init]
+    ::crc::Crc32Update $t1 "Hello, "
+    ::crc::Crc32Update $t2 a
+    ::crc::Crc32Update $t1 "World!"
+    list [::crc::Crc32Final $t1] [::crc::Crc32Final $t2]
+} -cleanup {
+    unset t1 t2
+} -result {3964322768 3904355907}
+
+# -------------------------------------------------------------------------
+
+rename implementations {}
+rename select_implementation {}
+rename reset_implementation {}
+rename writefile {}
+unset preserve allbytes pattern impl
+
+testsuiteCleanup
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

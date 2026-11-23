@@ -21,6 +21,15 @@ testing {
     useTcllibC
 }
 
+# The error message for a string that is not a byte sequence changed in Tcl 9.0.4.
+if {[package vsatisfies [package provide Tcl] 9.0.4-]} {
+    set nonbyteMsg  "expected code point values below 0xff but value at byte offset 0 was 0xfffe"
+    set nonbyteMsg2 $nonbyteMsg
+} else {
+    set nonbyteMsg  "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"
+    set nonbyteMsg2 "expected byte sequence but character 0 was '\U0000FFFE\x00' (U+00FFFE)"
+}
+
 # -------------------------------------------------------------------------
 
 if {[::crc::LoadAccelerator critcl]} {
@@ -132,7 +141,7 @@ foreach impl [implementations] {
 
     test crc32-$impl-3.8 "crc32 as hexadecimal string ($impl)" tcl9plus {
         list [catch {::crc::crc32 -format 0x%X "\uFFFE\u0000\u0001\u0002"} err] $err
-    } [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00\x01\x02' (U+00FFFE)"]
+    } [list 1 $nonbyteMsg]
 
     # And with the string properly encoded into bytes no error for either Tcl;
     # and a different result (unencoded 8.6 sees just FE, encoded multiple bytes)
@@ -228,7 +237,7 @@ foreach impl [implementations] {
         list [catch {
             ::crc::crc32 -seed [expr {[::crc::crc32 "\uFFFE\u0000"] ^ 0xffffffff}] "\u0001\u0002"
         } err] $err
-    } [list 1 "expected byte sequence but character 0 was '\U0000FFFE\x00' (U+00FFFE)"]
+    } [list 1 $nonbyteMsg2]
     reset_implementation
 }
 
