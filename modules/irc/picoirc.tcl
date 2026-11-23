@@ -1,5 +1,5 @@
 # Based upon the picoirc code by Salvatore Sanfillipo and Richard Suchenwirth
-# See http://wiki.tcl.tk/13134 for the original standalone version.
+# See https://wiki.tcl-lang.org/13134 for the original standalone version.
 #
 #	This package provides a general purpose minimal IRC client suitable for
 #	embedding in other applications. All communication with the parent

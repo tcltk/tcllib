@@ -31,7 +31,7 @@
         ::practcl::tcllib_require tcl::transform::zlib
         ::practcl::tcllib_require tar
         set fh [::open $archive]
-        fconfigure $fh -encoding binary -translation lf -eofchar {}
+        fconfigure $fh -translation binary
         ::tcl::transform::zlib $fh
       }
     }
