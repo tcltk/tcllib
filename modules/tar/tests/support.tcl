@@ -1,6 +1,7 @@
 
 proc stream {{size 128000}} {
     set chan [tcl::chan::memchan]
+    fconfigure $chan -translation binary
     set line {}
     while 1 {
 	incr i

@@ -1,6 +1,6 @@
 * Enhancing tcllib with CriTcl
 
-    I have been looking into using critcl [http://wiki.tcl.tk.critcl]
+    I have been looking into using critcl [https://wiki.tcl-lang.org/critcl]
     to enhance some of the computationally intensive packages in
     tcllib with compiled functions. The intention here is to provide
     an alternative implementation for the 'hot-spots' in a package. In

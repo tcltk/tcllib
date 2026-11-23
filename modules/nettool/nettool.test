@@ -97,5 +97,22 @@ foreach {port nextport comment} {
     [list ::nettool::allocate_port 7790] 7792
 
 
+test nettool-pkgindex-1.0 {pkgIndex.tcl matches package provide, ticket 523f7e0556} -setup {
+    set i [interp create]
+} -body {
+    $i eval [list set dir [localDirectory]]
+    $i eval {source [file join $dir pkgIndex.tcl]}
+    set v [$i eval {package versions nettool}]
+    set f [lindex [$i eval [list package ifneeded nettool $v]] end]
+    set c [open $f]
+    set data [read $c]
+    close $c
+    regexp {package provide nettool (\S+)} $data -> pv
+    expr {$pv eq $v}
+} -cleanup {
+    interp delete $i
+    unset -nocomplain i v f c data pv
+} -result 1
+
 testsuiteCleanup
 return

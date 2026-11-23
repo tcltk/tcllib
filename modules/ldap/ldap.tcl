@@ -920,7 +920,7 @@ proc ldap::MessageReceiver {handle} {
                 }
 	    }
 	    partial {
-		# See ticket https://core.tcl.tk/tcllib/tktview/c247ed5db42e373470bf8a6302717e76eb3c6106
+		# See ticket https://core.tcl-lang.org/tcllib/tktview/c247ed5db42e373470bf8a6302717e76eb3c6106
 		return
 	    }
 	    eof {
@@ -1755,7 +1755,7 @@ proc ldap::add { handle dn attrValueTuples } {
     # In order to handle multi-valuated attributes (see bug 1191326 on
     # sourceforge), we walk through tuples to collect all values for
     # an attribute.
-    # http://core.tcl.tk/tcllib/tktview?name=1191326fff
+    # https://core.tcl-lang.org/tcllib/tktview?name=1191326fff
     #
 
     foreach { attrName attrValue } $attrValueTuples {

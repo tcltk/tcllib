@@ -25,7 +25,7 @@ test fhome-1.1.0 {file home, no argument} -constraints tcl8 -body {
 
 test fhome-1.1.1 {file home, no argument} -constraints tcl9plus -body {
     file home
-} -result $::env(HOME)
+} -result [file join $::env(HOME)]
 
 test fhome-1.2.0 {file home, user} -constraints tcl8 -body {
     file home a
@@ -55,7 +55,7 @@ test fhome-2.3.0 {file tildeexpand, path with tilde} -constraints tcl8 -body {
 
 test fhome-2.3.1 {file tildeexpand, path with tilde} -constraints tcl9plus -body {
     file tildeexpand ~/path
-} -result $::env(HOME)/path
+} -result [file join $::env(HOME) path]
 
 # -------------------------------------------------------------------------
 

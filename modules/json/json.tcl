@@ -28,8 +28,6 @@ proc ::json::LoadAccelerator {key} {
     set r 0
     switch -exact -- $key {
 	critcl {
-	    # Critcl implementation of json requires Tcl 8.4.
-	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    # Check for the jsonc 1.1.1 API we are fixing later.
 	    set r [llength [info commands ::json::many_json2dict_critcl]]

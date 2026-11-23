@@ -5,6 +5,7 @@
  */
 
 #include <ctype.h>  /* is... */
+#include <stddef.h> /* ptrdiff_t */
 #include <string.h>
 #include "util.h"
 #include "m.h"
