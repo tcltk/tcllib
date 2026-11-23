@@ -110,7 +110,7 @@ test pki-api-1.7 {encrypt, last of -hex/-binary wins} -body {
 } -result {128 64}
 
 test pki-api-1.8 {encrypt/decrypt, default hex, roundtrip} -body {
-    ::pki::decrypt -priv [::pki::encrypt -pub {Hello, world} $key] $key
+    ::pki::decrypt -priv -- [::pki::encrypt -pub {Hello, world} $key] $key
 } -result {Hello, world}
 
 test pki-api-1.9 {encrypt/decrypt -hex explicit, roundtrip} -body {
@@ -138,7 +138,7 @@ test pki-api-1.13 {encrypt -nopad, decrypt -nounpad: raw RSA, left zero padded} 
 } -result {64 64 hello}
 
 test pki-api-1.14 {encrypt -nopad -pad, last wins} -body {
-    ::pki::decrypt -priv [::pki::encrypt -nopad -pad -pub abc $key] $key
+    ::pki::decrypt -priv -- [::pki::encrypt -nopad -pad -pub abc $key] $key
 } -result abc
 
 test pki-api-1.15 {decrypt -unpad -nounpad, last wins} -body {
@@ -150,12 +150,12 @@ test pki-api-1.15 {decrypt -unpad -nounpad, last wins} -body {
 } -result [list 64 \0abc]
 
 test pki-api-1.16 {decrypt, binary input} -body {
-    ::pki::decrypt -binary -priv [::pki::encrypt -binary -pub abc $key] $key
+    ::pki::decrypt -binary -priv -- [::pki::encrypt -binary -pub abc $key] $key
 } -result abc
 
 test pki-api-1.17 {decrypt, binary data, all byte values} -body {
     set data [binary format c* {0 1 2 127 128 200 255}]
-    set p [::pki::decrypt -binary -priv [::pki::encrypt -binary -pub $data $key] $key]
+    set p [::pki::decrypt -binary -priv -- [::pki::encrypt -binary -pub $data $key] $key]
     string equal $p $data
 } -cleanup {
     unset data p
@@ -183,7 +183,7 @@ test pki-api-1.22 {decrypt, invalid padding} -body {
 
 test pki-api-1.23 {encrypt with public key only (parsed certificate)} -body {
     set pub [::pki::x509::parse_cert [asset-get test-v1.crt]]
-    ::pki::decrypt -priv [::pki::encrypt -pub abc $pub] $fixedkey
+    ::pki::decrypt -priv -- [::pki::encrypt -pub abc $pub] $fixedkey
 } -cleanup {
     unset pub
 } -result abc
@@ -365,7 +365,7 @@ test pki-api-4.2 {generate, d is the inverse of e} -body {
 
 test pki-api-4.3 {generate, explicit exponent} -body {
     set k [::pki::rsa::generate 256 65539]
-    list [dict get $k e] [::pki::decrypt -priv [::pki::encrypt -pub abc $k] $k]
+    list [dict get $k e] [::pki::decrypt -priv -- [::pki::encrypt -pub abc $k] $k]
 } -cleanup {
     unset k
 } -result {65539 abc}
