@@ -85,13 +85,29 @@ if {[llength [info commands ::yencode::CEncode]]} {
 ## Higher unicode
 
 set text    "\uFFFE\u0000\u0001\u0002"
-set encoded "éè*+,"
+set encoded "\u0019\u00e9\u00e8*+,"
 
 test yencode-4.0 "Encode \"$text\"" -body {
     ::yencode::encode [encoding convertto utf-8 $text]
 } -result $encoded ; # {}
 
 test yencode-5.0 "Decode \"$encoded\"" -body {
+    encoding convertfrom utf-8 [::yencode::decode $encoded]
+} -result $text ; # {}
+
+# Tcl 9+ reads source files as UTF-8 by default on every platform, so the
+# expected value can be written with raw non-ASCII characters (including a
+# literal U+0019 control character) and still parse identically everywhere.
+# Tcl 8.6 uses [encoding system] instead (e.g. cp1252 on Windows), hence the
+# escaped form used by tests 4.0 and 5.0 above.
+
+set encoded "éè*+,"
+
+test yencode-4.1 "Encode \"$text\", raw UTF-8 source literal" -constraints tcl9plus -body {
+    ::yencode::encode [encoding convertto utf-8 $text]
+} -result $encoded ; # {}
+
+test yencode-5.1 "Decode \"$encoded\", raw UTF-8 source literal" -constraints tcl9plus -body {
     encoding convertfrom utf-8 [::yencode::decode $encoded]
 } -result $text ; # {}
 

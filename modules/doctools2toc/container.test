@@ -45,6 +45,23 @@ TestAccelDo struct::tree impl {
     source [localPath tests/container_main]
 }
 
+test doctools-toc-pkgindex-1.0 {pkgIndex.tcl matches package provide, ticket 523f7e0556} -setup {
+    set i [interp create]
+} -body {
+    $i eval [list set dir [localDirectory]]
+    $i eval {source [file join $dir pkgIndex.tcl]}
+    set v [$i eval {package versions doctools::toc}]
+    set f [lindex [$i eval [list package ifneeded doctools::toc $v]] end]
+    set c [open $f]
+    set data [read $c]
+    close $c
+    regexp {package provide doctools::toc (\S+)} $data -> pv
+    expr {$pv eq $v}
+} -cleanup {
+    interp delete $i
+    unset -nocomplain i v f c data pv
+} -result 1
+
 #----------------------------------------------------------------------
 TestAccelExit struct::tree
 testsuiteCleanup

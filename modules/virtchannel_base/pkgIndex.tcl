@@ -9,7 +9,7 @@ package ifneeded tcl::chan::memchan 1.0.5  [list source [file join $dir memchan.
 package ifneeded tcl::chan::null 1.1       [list source [file join $dir null.tcl]]
 package ifneeded tcl::chan::nullzero 1.1   [list source [file join $dir nullzero.tcl]]
 package ifneeded tcl::chan::random 1.1     [list source [file join $dir random.tcl]]
-package ifneeded tcl::chan::std 1.0.2      [list source [file join $dir std.tcl]]
+package ifneeded tcl::chan::std 1.2        [list source [file join $dir std.tcl]]
 package ifneeded tcl::chan::string 1.0.4   [list source [file join $dir string.tcl]]
 package ifneeded tcl::chan::textwindow 1.1 [list source [file join $dir textwindow.tcl]]
 package ifneeded tcl::chan::variable 1.0.5 [list source [file join $dir variable.tcl]]
