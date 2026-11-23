@@ -339,38 +339,56 @@ proc mkTemp {data} {
     return $path
 }
 
-test uri-api-7.1 {geturl, file URL is handled internally} -constraints fileTempfile -setup {
+# A file URL for a local absolute path: file:///path (RFC 8089), with
+# the path percent-encoded as UTF-8.  On Windows, geturl of
+# file:///C:/... does not work yet (ticket 664392).
+proc fileUrl {path {host {}}} {
+    set path [file normalize $path]
+    if {![string match /* $path]} {set path /$path}
+    set enc {}
+    foreach c [split [encoding convertto utf-8 $path] {}] {
+	if {[string match {[A-Za-z0-9/:._~!$&'()*+,;=@-]} $c]} {
+	    append enc $c
+	} else {
+	    append enc [format %%%02X [scan $c %c]]
+	}
+    }
+    return file://$host$enc
+}
+set fileUrlBug [expr {$::tcl_platform(platform) eq "windows" ? "knownBug" : ""}]
+
+test uri-api-7.1 {geturl, file URL is handled internally} -constraints "fileTempfile $fileUrlBug" -setup {
     set path [mkTemp "line 1\nline 2\n"]
 } -body {
-    set token [uri::geturl file://[file normalize $path]]
+    set token [uri::geturl [fileUrl $path]]
     list [string match ::uri::* $token] [set ${token}(data)]
 } -cleanup {
     file delete $path
-    unset -nocomplain $token
+    if {[info exists token]} {unset -nocomplain $token}
     unset -nocomplain path token
 } -result [list 1 "line 1\nline 2\n"]
 
-test uri-api-7.2 {geturl, file URL with host localhost} -constraints fileTempfile -setup {
+test uri-api-7.2 {geturl, file URL with host localhost} -constraints "fileTempfile $fileUrlBug" -setup {
     set path [mkTemp data]
 } -body {
-    set token [uri::geturl file://localhost[file normalize $path]]
+    set token [uri::geturl [fileUrl $path localhost]]
     set ${token}(data)
 } -cleanup {
     file delete $path
-    unset -nocomplain $token
+    if {[info exists token]} {unset -nocomplain $token}
     unset -nocomplain path token
 } -result data
 
-test uri-api-7.3 {geturl, file URL, each call returns a new token} -constraints fileTempfile -setup {
+test uri-api-7.3 {geturl, file URL, each call returns a new token} -constraints "fileTempfile $fileUrlBug" -setup {
     set path [mkTemp data]
 } -body {
-    set t1 [uri::geturl file://[file normalize $path]]
-    set t2 [uri::geturl file://[file normalize $path]]
+    set t1 [uri::geturl [fileUrl $path]]
+    set t2 [uri::geturl [fileUrl $path]]
     expr {$t1 ne $t2}
 } -cleanup {
     file delete $path
-    unset -nocomplain $t1 $t2
-    unset -nocomplain path t1 t2
+    foreach t {t1 t2} {if {[info exists $t]} {unset -nocomplain [set $t]}}
+    unset -nocomplain path t1 t2 t
 } -result 1
 
 test uri-api-7.4 {geturl, dispatch to package SCHEME::geturl with options} -setup {
@@ -528,5 +546,7 @@ rename restoreQuirks {}
 rename saveRegistry {}
 rename restoreRegistry {}
 rename mkTemp {}
+rename fileUrl {}
+unset fileUrlBug
 testsuiteCleanup
 return

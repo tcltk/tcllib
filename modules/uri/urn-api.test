@@ -55,7 +55,7 @@ test urn-api-1.8 {unquote, wrong # args} -body {
 
 test urn-api-1.9 {unquote, lower case hex digits} -body {
     uri::urn::unquote %c5%82%2f%2F
-} -result "ł//"
+} -result "\u0142//"
 
 test urn-api-1.10 {unquote, incomplete escapes are kept} -body {
     uri::urn::unquote %zz%2
@@ -66,7 +66,7 @@ test urn-api-1.11 {unquote, text without escapes} -body {
 } -result abc:def
 
 test urn-api-1.12 {unquote reverses quote} -body {
-    set s "a b/ćй%€"
+    set s "a b/\u0107\u0439%\u20ac"
     string equal [uri::urn::unquote [uri::urn::quote $s]] $s
 } -cleanup {
     unset -nocomplain s
