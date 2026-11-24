@@ -1,0 +1,241 @@
+# -*- tcl -*-
+# tcl_parse-api.test: tests for doctools::tcl::parse, complementing
+# tcl_parse.test (which covers the "text" method on the test data).
+#
+# Covers the "file" method, the optional root argument, pre-existing
+# attributes, and the documented error code format.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    use cmdline/cmdline.tcl    cmdline
+    use struct/list.tcl        struct::list
+    use struct/tree.tcl        struct::tree
+    use struct/stack.tcl       struct::stack
+    use struct/sets.tcl        struct::set
+    use snit/snit.tcl          snit
+    use fileutil/fileutil.tcl  fileutil
+    use log/logger.tcl         logger
+    use treeql/treeql.tcl      treeql
+}
+testing {
+    useLocal tcl_parse.tcl doctools::tcl::parse
+}
+
+# -------------------------------------------------------------------------
+
+# file tempfile needs Tcl 8.6.
+tcltest::testConstraint fileTempfile [package vsatisfies [package provide Tcl] 8.6-]
+
+# "parse file" uses "-encoding binary", which Tcl 9 no longer supports.
+# Ticket [146ae829a9].
+set fileBug [expr {[package vsatisfies [package provide Tcl] 9] ? "knownBug" : ""}]
+
+# Dumps the subtree below node as a list of {depth type text} triples
+# (node names are not part of the dump).
+proc dump {t {node root}} {
+    set res {}
+    $t walk $node n {
+	if {$n eq $node} continue
+	set text [expr {[$t keyexists $n text] ? [$t get $n text] : ""}]
+	lappend res [list [$t depth $n] [$t get $n type] $text]
+    }
+    return $res
+}
+
+proc mkTemp {data} {
+    set f [file tempfile path]
+    fconfigure $f -translation binary
+    puts -nonewline $f $data
+    close $f
+    return $path
+}
+
+# -------------------------------------------------------------------------
+
+test tcl-parse-api-1.1 {parse text returns the empty string} -setup {
+    struct::tree T
+} -body {
+    doctools::tcl::parse text T {a [b c] d}
+} -cleanup {
+    T destroy
+} -result {}
+
+test tcl-parse-api-1.2 {parse text, plain text only} -setup {
+    struct::tree T
+} -body {
+    doctools::tcl::parse text T {just text}
+    dump T
+} -cleanup {
+    T destroy
+} -result {{1 Text {just text}}}
+
+test tcl-parse-api-1.3 {parse text, empty input} -setup {
+    struct::tree T
+} -body {
+    doctools::tcl::parse text T {}
+    T numchildren root
+} -cleanup {
+    T destroy
+} -result 0
+
+test tcl-parse-api-1.4 {parse text, root node has no attributes} -setup {
+    struct::tree T
+} -body {
+    doctools::tcl::parse text T {x [y z]}
+    T getall root
+} -cleanup {
+    T destroy
+} -result {}
+
+test tcl-parse-api-1.5 {parse text, node attributes} -setup {
+    struct::tree T
+} -body {
+    doctools::tcl::parse text T "ab\n\[cmd arg\]"
+    set r {}
+    foreach n [T children root] {
+	lappend r [dictsort [T getall $n]]
+    }
+    set r
+} -cleanup {
+    T destroy
+    unset -nocomplain r n
+} -result {{col 0 line 2 range {0 2} text {ab
+} type Text} {col 4 line 2 range {4 6} text cmd type Command}}
+
+test tcl-parse-api-1.7 {parse text, word with embedded command} -setup {
+    struct::tree T
+} -body {
+    doctools::tcl::parse text T {[cmd "x [y] z"]}
+    dump T
+} -cleanup {
+    T destroy
+} -result {{1 Command cmd} {2 Word {}} {3 Text {x }} {3 Command y} {3 Text { z}}}
+
+# Verify checks the whole tree as if the given node was the root and
+# fails with 'invalid key "type"' on the root parameter's parent.
+test tcl-parse-api-1.8 {parse text, given root node} -constraints knownBug -setup {
+    struct::tree T
+    T insert root end sub
+    T insert root end other
+    T set sub mine keep
+} -body {
+    doctools::tcl::parse text T {t [c a]} sub
+    list [T children root] [dump T sub] [dictsort [T getall sub]] \
+	[T numchildren other]
+} -cleanup {
+    T destroy
+} -result {{sub other} {{2 Text {t }} {2 Command c} {3 Text a}} {mine keep} 0}
+
+# Verify rejects a root node with attributes, although pre-existing
+# attributes are documented to be left alone.
+test tcl-parse-api-1.9 {parse text, pre-existing attributes of the root are kept} -constraints knownBug -setup {
+    struct::tree T
+    T set root mine keep
+} -body {
+    doctools::tcl::parse text T {[c]}
+    list [T getall root] [dump T]
+} -cleanup {
+    T destroy
+} -result {{mine keep} {{1 Command c}}}
+
+test tcl-parse-api-1.10 {parse text, tree must exist} -body {
+    doctools::tcl::parse text noSuchTree {a}
+} -returnCodes error -match glob -result {invalid command name*noSuchTree*}
+
+# -------------------------------------------------------------------------
+# Error format
+
+test tcl-parse-api-2.1 {error code, unexpected end of input} -setup {
+    struct::tree T
+} -body {
+    list [catch {doctools::tcl::parse text T "ab\n\[x"} msg] $::errorCode
+} -cleanup {
+    T destroy
+    unset -nocomplain msg
+} -result {1 {doctools::tcl::parse eof 5 2 2}}
+
+test tcl-parse-api-2.2 {error code, unexpected character} -setup {
+    struct::tree T
+} -body {
+    list [catch {doctools::tcl::parse text T "x \[a\nb\]"} msg] $::errorCode
+} -cleanup {
+    T destroy
+    unset -nocomplain msg
+} -result {1 {doctools::tcl::parse char 4 1 4}}
+
+test tcl-parse-api-2.3 {error message mentions line and column} -setup {
+    struct::tree T
+} -body {
+    catch {doctools::tcl::parse text T "ab\n\[x"} msg
+    list [string match *2* $msg] [string length $msg]
+} -cleanup {
+    T destroy
+    unset -nocomplain msg
+} -match glob -result {1 *}
+
+# -------------------------------------------------------------------------
+# parse file
+
+test tcl-parse-api-3.1 {parse file, same as text} -constraints "fileTempfile $fileBug" -setup {
+    struct::tree A
+    struct::tree B
+    set data "line 1 \[cmd a \{b c\}\]\nline 2 \\\n continued\n"
+    set path [mkTemp $data]
+} -body {
+    list [doctools::tcl::parse file A $path] \
+	[doctools::tcl::parse text B $data] \
+	[string equal [dump A] [dump B]] [llength [dump A]]
+} -cleanup {
+    A destroy
+    B destroy
+    file delete $path
+    unset -nocomplain path data
+} -result {{} {} 1 5}
+
+test tcl-parse-api-3.2 {parse file, given root node} -constraints {knownBug fileTempfile} -setup {
+    struct::tree T
+    T insert root end sub
+    set path [mkTemp {[x]}]
+} -body {
+    doctools::tcl::parse file T $path sub
+    list [T numchildren root] [dump T sub]
+} -cleanup {
+    T destroy
+    file delete $path
+    unset -nocomplain path
+} -result {1 {{2 Command x}}}
+
+test tcl-parse-api-3.3 {parse file, error code} -constraints "fileTempfile $fileBug" -setup {
+    struct::tree T
+    set path [mkTemp {[foo}]
+} -body {
+    list [catch {doctools::tcl::parse file T $path} msg] $::errorCode
+} -cleanup {
+    T destroy
+    file delete $path
+    unset -nocomplain path msg
+} -result {1 {doctools::tcl::parse eof 4 1 4}}
+
+test tcl-parse-api-3.4 {parse file, no such file} -setup {
+    struct::tree T
+} -body {
+    doctools::tcl::parse file T [file join [tcltest::temporaryDirectory] no-such-tcl-parse-file]
+} -cleanup {
+    T destroy
+} -returnCodes error -match glob -result {*no-such-tcl-parse-file*}
+
+# -------------------------------------------------------------------------
+
+rename dump {}
+rename mkTemp {}
+unset fileBug
+testsuiteCleanup
+return
