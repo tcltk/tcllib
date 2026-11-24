@@ -1,0 +1,667 @@
+# -*- tcl -*-
+# pki-api.test:  API tests for the pki package not covered by pki.test:
+#                option handling and errors of encrypt/decrypt, sign/verify
+#                algorithms, ::pki::key, parse_key, rsa::generate,
+#                validate_cert/verify_cert options, create_csr/create_cert
+#                arguments, DER input.
+#
+# The tests do not depend on the current date: certificates used with
+# date checks are created here relative to [clock seconds], or checked
+# with -ignoretime.
+
+# -------------------------------------------------------------------------
+
+source [file join [file dirname [file dirname [
+	file join [pwd] [info script]]]] devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+support {
+    use asn/asn.tcl       asn
+    use base64/base64.tcl base64
+    use des/des.tcl       des
+    use math/bignum.tcl   math::bignum
+    # md5 2.x!
+    use md5/md5x.tcl      md5
+    use sha1/sha1.tcl     sha1
+    use sha1/sha256.tcl   sha256
+    use aes/aes.tcl       aes
+}
+testing {
+    useLocal pki.tcl pki
+}
+
+# -------------------------------------------------------------------------
+## Shared data
+
+set password ARoseIsARoseIsARose
+
+# Fixed 2048 bit key pair (private key + certificate).
+array set tmp [::pki::pkcs::parse_key [asset-get test.key.des] $password]
+array set tmp [::pki::x509::parse_cert [asset-get test-v1.crt]]
+set fixedkey [array get tmp]
+unset tmp
+
+# Generated keys (512 bits for speed).
+set key   [::pki::rsa::generate 512]
+set cakey [::pki::rsa::generate 512]
+
+# A self-signed CA certificate valid from yesterday for ten years, and
+# its parsed form plus private key.
+set now [clock seconds]
+set cacsr [::pki::pkcs::parse_csr [::pki::pkcs::create_csr $cakey \
+	{C UA O Tcllib CN {Test API CA}} 1]]
+set cakeylist $cacsr
+dict set cakeylist d [dict get $cakey d]
+set cacert [::pki::x509::parse_cert [::pki::x509::create_cert $cacsr $cakeylist \
+	1 [expr {$now - 86400}] [clock add $now 10 years] 1 {} 1]]
+set cafull [dict merge $cacert $cakey]
+
+set csr [::pki::pkcs::parse_csr [::pki::pkcs::create_csr $key \
+	{C UA O Tcllib CN leaf.test}]]
+
+proc pem2der {pem} {
+    regexp -- {-----BEGIN [^-]*-----\n(.*)-----END} $pem -> b64
+    return [binary decode base64 $b64]
+}
+
+set encusage {usage: encrypt ?-binary? ?-hex? ?-pad? ?-nopad? -priv|-pub ?--? input key}
+set decusage {usage: decrypt ?-binary? ?-hex? ?-unpad? ?-nounpad? -priv|-pub ?--? input key}
+
+# -------------------------------------------------------------------------
+# ::pki::encrypt, ::pki::decrypt
+# -------------------------------------------------------------------------
+
+test pki-api-1.0 {encrypt, no arguments} -body {
+    ::pki::encrypt
+} -returnCodes error -result $encusage
+
+test pki-api-1.1 {encrypt, neither -pub nor -priv} -body {
+    ::pki::encrypt abc $key
+} -returnCodes error -result $encusage
+
+test pki-api-1.2 {encrypt, unknown option} -body {
+    ::pki::encrypt -foo -pub abc $key
+} -returnCodes error -result $encusage
+
+test pki-api-1.3 {encrypt, too many arguments} -body {
+    ::pki::encrypt -pub abc $key x
+} -returnCodes error -result $encusage
+
+test pki-api-1.4 {encrypt, missing key} -body {
+    ::pki::encrypt -pub abc
+} -returnCodes error -result $encusage
+
+test pki-api-1.5 {encrypt, default output is hex of key length} -body {
+    set c [::pki::encrypt -pub abc $key]
+    list [regexp {^[0-9a-f]+$} $c] [string length $c]
+} -cleanup {
+    unset c
+} -result {1 128}
+
+test pki-api-1.6 {encrypt -binary, output length is the key length in bytes} -body {
+    string length [::pki::encrypt -binary -pub abc $fixedkey]
+} -result 256
+
+test pki-api-1.7 {encrypt, last of -hex/-binary wins} -body {
+    list [string length [::pki::encrypt -binary -hex -pub abc $key]] \
+	 [string length [::pki::encrypt -hex -binary -pub abc $key]]
+} -result {128 64}
+
+test pki-api-1.8 {encrypt/decrypt, default hex, roundtrip} -body {
+    ::pki::decrypt -priv -- [::pki::encrypt -pub {Hello, world} $key] $key
+} -result {Hello, world}
+
+test pki-api-1.9 {encrypt/decrypt -hex explicit, roundtrip} -body {
+    ::pki::decrypt -hex -priv -- [::pki::encrypt -hex -pub -- abc $key] $key
+} -result abc
+
+test pki-api-1.10 {encrypt -pub is randomized (padding type 2)} -body {
+    string equal [::pki::encrypt -pub abc $key] [::pki::encrypt -pub abc $key]
+} -result 0
+
+test pki-api-1.11 {encrypt -priv is deterministic (padding type 1)} -body {
+    string equal [::pki::encrypt -priv abc $key] [::pki::encrypt -priv abc $key]
+} -result 1
+
+test pki-api-1.12 {encrypt --, input starting with a dash} -body {
+    ::pki::decrypt -priv -- [::pki::encrypt -pub -- -pub $key] $key
+} -result -pub
+
+test pki-api-1.13 {encrypt -nopad, decrypt -nounpad: raw RSA, left zero padded} -body {
+    set c [::pki::encrypt -binary -nopad -pub -- hello $key]
+    set p [::pki::decrypt -binary -nounpad -priv -- $c $key]
+    list [string length $c] [string length $p] [string trimleft $p \0]
+} -cleanup {
+    unset c p
+} -result {64 64 hello}
+
+test pki-api-1.14 {encrypt -nopad -pad, last wins} -body {
+    ::pki::decrypt -priv -- [::pki::encrypt -nopad -pad -pub abc $key] $key
+} -result abc
+
+test pki-api-1.15 {decrypt -unpad -nounpad, last wins} -body {
+    set p [::pki::decrypt -binary -unpad -nounpad -priv -- \
+	       [::pki::encrypt -binary -pub abc $key] $key]
+    list [string length $p] [string range $p end-3 end]
+} -cleanup {
+    unset p
+} -result [list 64 \0abc]
+
+test pki-api-1.16 {decrypt, binary input} -body {
+    ::pki::decrypt -binary -priv -- [::pki::encrypt -binary -pub abc $key] $key
+} -result abc
+
+test pki-api-1.17 {decrypt, binary data, all byte values} -body {
+    set data [binary format c* {0 1 2 127 128 200 255}]
+    set p [::pki::decrypt -binary -priv -- [::pki::encrypt -binary -pub $data $key] $key]
+    string equal $p $data
+} -cleanup {
+    unset data p
+} -result 1
+
+test pki-api-1.18 {decrypt, no arguments} -body {
+    ::pki::decrypt
+} -returnCodes error -result $decusage
+
+test pki-api-1.19 {decrypt, neither -pub nor -priv} -body {
+    ::pki::decrypt 00 $key
+} -returnCodes error -result $decusage
+
+test pki-api-1.20 {decrypt, unknown option} -body {
+    ::pki::decrypt -pad -priv 00 $key
+} -returnCodes error -result $decusage
+
+test pki-api-1.21 {decrypt, bad hex input} -body {
+    ::pki::decrypt -priv zz $key
+} -returnCodes error -result {expected hexadecimal string but got "zz" instead}
+
+test pki-api-1.22 {decrypt, invalid padding} -body {
+    ::pki::decrypt -priv 00 $key
+} -returnCodes error -result {Invalid padding, no seperator byte found}
+
+test pki-api-1.23 {encrypt with public key only (parsed certificate)} -body {
+    set pub [::pki::x509::parse_cert [asset-get test-v1.crt]]
+    ::pki::decrypt -priv -- [::pki::encrypt -pub abc $pub] $fixedkey
+} -cleanup {
+    unset pub
+} -result abc
+
+# -------------------------------------------------------------------------
+# ::pki::sign, ::pki::verify
+# -------------------------------------------------------------------------
+
+test pki-api-2.0 {sign, default algorithm is sha1} -body {
+    string equal [::pki::sign abc $key] [::pki::sign abc $key sha1]
+} -result 1
+
+test pki-api-2.1 {sign, binary result of key length} -body {
+    string length [::pki::sign abc $key sha256]
+} -result 64
+
+test pki-api-2.2 {sign, algorithms give different signatures} -body {
+    set s1 [::pki::sign abc $key md5]
+    set s2 [::pki::sign abc $key sha1]
+    set s3 [::pki::sign abc $key sha256]
+    list [string equal $s1 $s2] [string equal $s2 $s3] [string equal $s1 $s3]
+} -cleanup {
+    unset s1 s2 s3
+} -result {0 0 0}
+
+test pki-api-2.3 {sign, invalid algorithm} -body {
+    ::pki::sign abc $key sha512
+} -returnCodes error -result {Invalid algorithm selected, must be one of: md5, sha1, sha256, raw}
+
+test pki-api-2.4 {sign, wrong # args} -body {
+    ::pki::sign abc
+} -returnCodes error -result {wrong # args: should be "::pki::sign input keylist ?algo?"}
+
+foreach {n algo} {0 md5 1 sha1 2 sha256} {
+    test pki-api-2.5.$n "verify, $algo, algorithm taken from the signature" -body {
+	::pki::verify [::pki::sign {some text} $key $algo] {some text} $key
+    } -result true
+
+    test pki-api-2.6.$n "verify, $algo, other message" -body {
+	::pki::verify [::pki::sign {some text} $key $algo] {some texT} $key
+    } -result false
+
+    # Documented to return true or false, throws "Unknown hashing
+    # algorithm: unknown" when the signature does not decode (see 2.13).
+    test pki-api-2.7.$n "verify, $algo, other key" -constraints {
+	knownBug
+    } -body {
+	::pki::verify [::pki::sign {some text} $key $algo] {some text} $cakey
+    } -result false
+}
+
+test pki-api-2.8 {sign raw + verify with algorithm: raw signs the given digest} -body {
+    # With "raw" no hashing nor ASN.1 header: the input is the digest.
+    set s [::pki::sign [sha1::sha1 -bin {some text}] $key raw]
+    list [::pki::verify $s {some text} $key sha1] [::pki::verify $s {other} $key sha1]
+} -cleanup {
+    unset s
+} -result {true false}
+
+test pki-api-2.9 {sign raw + verify sha256} -body {
+    set s [::pki::sign [sha2::sha256 -bin abc] $key raw]
+    ::pki::verify $s abc $key sha256
+} -cleanup {
+    unset s
+} -result true
+
+test pki-api-2.10 {verify, wrong # args} -body {
+    ::pki::verify a b
+} -returnCodes error -result {wrong # args: should be "::pki::verify signedmessage checkmessage keylist ?algo?"}
+
+test pki-api-2.11 {verify, unknown explicit algorithm} -body {
+    ::pki::verify [::pki::sign abc $key raw] abc $key sha512
+} -returnCodes error -result {Unknown hashing algorithm: sha512}
+
+test pki-api-2.12 {verify, signature of the fixed key with its certificate} -body {
+    set pub [::pki::x509::parse_cert [asset-get test-v1.crt]]
+    ::pki::verify [::pki::sign abc $fixedkey sha256] abc $pub
+} -cleanup {
+    unset pub
+} -result true
+
+test pki-api-2.13 {verify, malformed signature returns false} -constraints {
+    knownBug
+} -body {
+    # Documented to return true or false; throws "Unknown hashing
+    # algorithm: unknown" instead.
+    ::pki::verify xxx abc $key
+} -result false
+
+# -------------------------------------------------------------------------
+# ::pki::key, ::pki::pkcs::parse_key
+# -------------------------------------------------------------------------
+
+proc samekey {a b} {
+    foreach k {n e d p q} {
+	if {[dict get $a $k] != [dict get $b $k]} {return 0}
+    }
+    return 1
+}
+
+test pki-api-3.0 {key, PEM by default} -body {
+    set pem [::pki::key $key]
+    list [lindex [split $pem \n] 0] [lindex [split [string trimright $pem \n] \n] end]
+} -cleanup {
+    unset pem
+} -result {{-----BEGIN RSA PRIVATE KEY-----} {-----END RSA PRIVATE KEY-----}}
+
+test pki-api-3.1 {key, PEM roundtrip through parse_key} -body {
+    samekey [::pki::pkcs::parse_key [::pki::key $key]] $key
+} -result 1
+
+test pki-api-3.2 {key, parse_key result keys} -body {
+    lsort [dict keys [::pki::pkcs::parse_key [::pki::key $key]]]
+} -result {d e l n p q type}
+
+test pki-api-3.3 {key, password protected PEM} -body {
+    set pem [::pki::key $key secret]
+    list [lrange [split $pem \n] 0 1] \
+	[samekey [::pki::pkcs::parse_key $pem secret] $key]
+} -cleanup {
+    unset pem
+} -result {{{-----BEGIN RSA PRIVATE KEY-----} {Proc-Type: 4,ENCRYPTED}} 1}
+
+test pki-api-3.4 {key, DER encoded} -body {
+    set der [::pki::key $key {} 0]
+    list [string range [binary encode hex $der] 0 1] \
+	[samekey [::pki::pkcs::parse_key $der] $key]
+} -cleanup {
+    unset der
+} -result {30 1}
+
+test pki-api-3.5 {key, DER with password} -body {
+    ::pki::key $key secret 0
+} -returnCodes error -result {DER encoded keys may not be password protected}
+
+test pki-api-3.6 {key, wrong # args} -body {
+    ::pki::key
+} -returnCodes error -result {wrong # args: should be "::pki::key keylist ?password? ?encodePem?"}
+
+test pki-api-3.7 {key, fixed key roundtrip} -body {
+    samekey [::pki::pkcs::parse_key [::pki::key $fixedkey]] $fixedkey
+} -result 1
+
+test pki-api-3.8 {parse_key, garbage} -body {
+    ::pki::pkcs::parse_key garbage
+} -returnCodes error -result {Expected Sequence (0x30), but got 67}
+
+test pki-api-3.9 {parse_key, wrong # args} -body {
+    ::pki::pkcs::parse_key
+} -returnCodes error -result {wrong # args: should be "::pki::pkcs::parse_key key ?password?"}
+
+test pki-api-3.10 {parse_key, wrong password} -body {
+    ::pki::pkcs::parse_key [asset-get test.key.des] wrong
+} -returnCodes error -match glob -result *
+
+# -------------------------------------------------------------------------
+# ::pki::rsa::generate
+# -------------------------------------------------------------------------
+
+test pki-api-4.0 {generate, key structure} -body {
+    list [lsort [dict keys $key]] [dict get $key type] [dict get $key l] [dict get $key e]
+} -result {{d e l n p q type} rsa 512 0x10001}
+
+test pki-api-4.1 {generate, modulus is p*q of the requested size} -body {
+    set n [dict get $key n]
+    list [expr {$n == [dict get $key p] * [dict get $key q]}] \
+	[string length [format %llx $n]]
+} -cleanup {
+    unset n
+} -result {1 128}
+
+test pki-api-4.2 {generate, d is the inverse of e} -body {
+    set p [dict get $key p]
+    set q [dict get $key q]
+    expr {([dict get $key d] * [dict get $key e]) % (($p - 1) * ($q - 1))}
+} -cleanup {
+    unset p q
+} -result 1
+
+test pki-api-4.3 {generate, explicit exponent} -body {
+    set k [::pki::rsa::generate 256 65539]
+    list [dict get $k e] [::pki::decrypt -priv -- [::pki::encrypt -pub abc $k] $k]
+} -cleanup {
+    unset k
+} -result {65539 abc}
+
+test pki-api-4.4 {generate, wrong # args} -body {
+    ::pki::rsa::generate
+} -returnCodes error -result {wrong # args: should be "::pki::rsa::generate bitlength ?exponent?"}
+
+test pki-api-4.5 {generate, exponent not coprime to the totient terminates} -constraints {
+    knownBug
+} -setup {
+    # The private exponent search loops forever when gcd(e, (p-1)(q-1)) != 1,
+    # e.g. for p=7, q=11, e=3.  Run it in a child interpreter with a
+    # command limit.
+    set i [interp create]
+    foreach p {::pki::rsa::_generate_private ::pki::_bits} {
+	set args {}
+	foreach a [info args $p] {
+	    if {[info default $p $a d]} {lappend args [list $a $d]} else {lappend args $a}
+	}
+	$i eval [list namespace eval [namespace qualifiers $p] {}]
+	$i eval [list proc $p $args [info body $p]]
+    }
+    interp limit $i command -value [expr {[$i eval {info cmdcount}] + 200000}]
+} -body {
+    catch {$i eval {::pki::rsa::_generate_private 7 11 3 8}} msg
+    string match {*limit exceeded*} $msg
+} -cleanup {
+    interp delete $i
+    unset i p a args msg
+    catch {unset d}
+} -result 0
+
+# -------------------------------------------------------------------------
+# ::pki::x509::parse_cert
+# -------------------------------------------------------------------------
+
+test pki-api-5.0 {parse_cert, DER input same as PEM} -body {
+    set pem [asset-get CA.crt]
+    set a [::pki::x509::parse_cert $pem]
+    set b [::pki::x509::parse_cert [pem2der $pem]]
+    list [string equal [dict get $a subject] [dict get $b subject]] \
+	[string equal [dict get $a n] [dict get $b n]] \
+	[string equal [dict get $a serial_number] [dict get $b serial_number]]
+} -cleanup {
+    unset pem a b
+} -result {1 1 1}
+
+test pki-api-5.1 {parse_cert, documented keys} -body {
+    set c [::pki::x509::parse_cert [asset-get test-v1.crt]]
+    set r {}
+    foreach k {subject issuer serial_number notBefore notAfter version extensions} {
+	lappend r [dict exists $c $k]
+    }
+    lappend r [dict get $c notBefore] [dict get $c notAfter] [dict get $c version]
+} -cleanup {
+    unset c r k
+} -result {1 1 1 1 1 1 1 1281340325 1596959525 1}
+
+test pki-api-5.2 {parse_cert, garbage} -body {
+    ::pki::x509::parse_cert garbage
+} -returnCodes error -result {Expected Sequence (0x30), but got 67}
+
+test pki-api-5.3 {parse_cert, wrong # args} -body {
+    ::pki::x509::parse_cert
+} -returnCodes error -result {wrong # args: should be "::pki::x509::parse_cert cert"}
+
+# -------------------------------------------------------------------------
+# ::pki::pkcs::create_csr, ::pki::pkcs::parse_csr
+# -------------------------------------------------------------------------
+
+test pki-api-6.0 {create_csr, DER by default} -body {
+    set r [::pki::pkcs::create_csr $key {C UA CN x.test}]
+    string range [binary encode hex $r] 0 1
+} -cleanup {
+    unset r
+} -result 30
+
+test pki-api-6.1 {create_csr, PEM} -body {
+    lindex [split [::pki::pkcs::create_csr $key {C UA CN x.test} 1] \n] 0
+} -result {-----BEGIN CERTIFICATE REQUEST-----}
+
+foreach {n algo} {0 md5 1 sha1 2 sha256} {
+    test pki-api-6.2.$n "create_csr, $algo, parse_csr roundtrip" -body {
+	set p [::pki::pkcs::parse_csr [::pki::pkcs::create_csr $key \
+		  {C UA O Tcllib CN x.test} 1 $algo]]
+	list [dict get $p subject] [dict get $p type] \
+	    [expr {[dict get $p n] == [dict get $key n]}] [dict get $p e]
+    } -cleanup {
+	unset p
+    } -result {{C=UA, O=Tcllib, CN=x.test} rsa 1 65537}
+}
+
+test pki-api-6.3 {parse_csr, DER input} -body {
+    dict get [::pki::pkcs::parse_csr [::pki::pkcs::create_csr $key {CN der.test}]] subject
+} -result {CN=der.test}
+
+test pki-api-6.4 {parse_csr, PEM and DER give the same result} -body {
+    set pem [asset-get pkitest.csr]
+    string equal [::pki::pkcs::parse_csr $pem] [::pki::pkcs::parse_csr [pem2der $pem]]
+} -cleanup {
+    unset pem
+} -result 1
+
+test pki-api-6.5 {create_csr, invalid algorithm} -body {
+    ::pki::pkcs::create_csr $key {CN x.test} 0 sha512
+} -returnCodes error -result {Invalid algorithm selected, must be one of: md5, sha1, sha256, raw}
+
+test pki-api-6.6 {create_csr, wrong # args} -body {
+    ::pki::pkcs::create_csr $key
+} -returnCodes error -result {wrong # args: should be "::pki::pkcs::create_csr keylist namelist ?encodePem? ?algo?"}
+
+test pki-api-6.7 {parse_csr, wrong # args} -body {
+    ::pki::pkcs::parse_csr
+} -returnCodes error -result {wrong # args: should be "::pki::pkcs::parse_csr csr"}
+
+# -------------------------------------------------------------------------
+# ::pki::x509::create_cert
+# -------------------------------------------------------------------------
+
+test pki-api-7.0 {create_cert, DER by default, fields} -body {
+    set c [::pki::x509::parse_cert [::pki::x509::create_cert $csr $cafull \
+	    4242 1700000000 1900000000 0 {}]]
+    list [dict get $c serial_number] [dict get $c notBefore] [dict get $c notAfter] \
+	[dict get $c subject] [dict get $c issuer] [dict get $c signature_algo] \
+	[expr {[dict get $c n] == [dict get $key n]}]
+} -cleanup {
+    unset c
+} -result {4242 1700000000 1900000000 {C=UA, O=Tcllib, CN=leaf.test} {C=UA, O=Tcllib, CN=Test API CA} sha1WithRSAEncryption 1}
+
+test pki-api-7.1 {create_cert, DER output} -body {
+    string range [binary encode hex [::pki::x509::create_cert $csr $cafull \
+	    1 1700000000 1900000000 0 {}]] 0 1
+} -result 30
+
+test pki-api-7.2 {create_cert, PEM output} -body {
+    lindex [split [::pki::x509::create_cert $csr $cafull 1 1700000000 1900000000 0 {} 1] \n] 0
+} -result {-----BEGIN CERTIFICATE-----}
+
+foreach {n algo} {0 md5 1 sha1 2 sha256} {
+    test pki-api-7.3.$n "create_cert, $algo signature" -body {
+	set c [::pki::x509::parse_cert [::pki::x509::create_cert $csr $cafull \
+		1 [expr {$now - 3600}] [expr {$now + 3600}] 0 {} 1 $algo]]
+	list [dict get $c signature_algo] [::pki::x509::verify_cert $c [list $cacert]]
+    } -cleanup {
+	unset c
+    } -result [list ${algo}WithRSAEncryption true]
+}
+
+test pki-api-7.4 {create_cert, isCA adds critical basicConstraints, infinite depth} -body {
+    set c [::pki::x509::parse_cert [::pki::x509::create_cert $csr $cafull \
+	    1 1700000000 1900000000 1 {} 1]]
+    list [dict get $c extensions basicConstraints] [dict get $c extensions id-ce-basicConstraints]
+} -cleanup {
+    unset c
+} -result {{1 {1 -1}} {1 1 -1}}
+
+test pki-api-7.5 {create_cert, not CA: no extensions} -body {
+    set c [::pki::x509::parse_cert [::pki::x509::create_cert $csr $cafull \
+	    1 1700000000 1900000000 0 {} 1]]
+    dict get $c extensions
+} -cleanup {
+    unset c
+} -result {}
+
+test pki-api-7.6 {create_cert, documented extension id-ce-basicConstraints} -constraints {
+    knownBug
+} -body {
+    # Fails: "Unable to convert OID id-ce-basicConstraints to an OID value".
+    set c [::pki::x509::parse_cert [::pki::x509::create_cert $csr $cafull \
+	    1 1700000000 1900000000 0 {id-ce-basicConstraints {true true 2}} 1]]
+    dict get $c extensions basicConstraints
+} -cleanup {
+    unset -nocomplain c
+} -result {1 {1 2}}
+
+test pki-api-7.7 {create_cert, basicConstraints extension with depth} -body {
+    set c [::pki::x509::parse_cert [::pki::x509::create_cert $csr $cafull \
+	    1 1700000000 1900000000 0 {basicConstraints {true true 2}} 1]]
+    dict get $c extensions basicConstraints
+} -cleanup {
+    unset c
+} -result {1 {1 2}}
+
+test pki-api-7.8 {create_cert, unknown extension} -body {
+    ::pki::x509::create_cert $csr $cafull 1 1700000000 1900000000 0 {bogusExt {1 2}} 1
+} -returnCodes error -result {Unknown extension: bogusExt}
+
+test pki-api-7.9 {create_cert, wrong # args} -body {
+    ::pki::x509::create_cert $csr $cafull 1 1700000000 1900000000 0
+} -returnCodes error -result {wrong # args: should be "::pki::x509::create_cert signreqlist cakeylist serial_number notBefore notAfter isCA extensions ?encodePem? ?algo?"}
+
+# -------------------------------------------------------------------------
+# ::pki::x509::validate_cert
+# -------------------------------------------------------------------------
+
+proc mkcert {notBefore notAfter isCA {ext {}}} {
+    ::pki::x509::parse_cert [::pki::x509::create_cert $::csr $::cafull \
+	1 $notBefore $notAfter $isCA $ext 1]
+}
+
+test pki-api-8.0 {validate_cert, currently valid} -body {
+    ::pki::x509::validate_cert [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0]
+} -result true
+
+test pki-api-8.1 {validate_cert, expired} -body {
+    ::pki::x509::validate_cert [mkcert 1000000000 1100000000 0]
+} -result false
+
+test pki-api-8.2 {validate_cert, not yet valid} -body {
+    ::pki::x509::validate_cert [mkcert [expr {$now + 86400}] [expr {$now + 2*86400}] 0]
+} -result false
+
+test pki-api-8.3 {validate_cert -ignoretime} -body {
+    list [::pki::x509::validate_cert [mkcert 1000000000 1100000000 0] -ignoretime] \
+	[::pki::x509::validate_cert [mkcert [expr {$now + 86400}] [expr {$now + 2*86400}] 0] -ignoretime]
+} -result {true true}
+
+test pki-api-8.4 {validate_cert -sign_cert, CA certificate} -body {
+    ::pki::x509::validate_cert $cacert -sign_cert ANY -1
+} -result true
+
+test pki-api-8.5 {validate_cert -sign_cert, non-CA certificate} -body {
+    ::pki::x509::validate_cert [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0] -sign_cert ANY -1
+} -result false
+
+test pki-api-8.6 {validate_cert -sign_cert, CA depth limit} -body {
+    set c [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0 {basicConstraints {true true 2}}]
+    list [::pki::x509::validate_cert $c -sign_cert ANY 1] \
+	[::pki::x509::validate_cert $c -sign_cert ANY 2] \
+	[::pki::x509::validate_cert $c -sign_cert ANY 3]
+} -cleanup {
+    unset c
+} -result {true true false}
+
+test pki-api-8.7 {validate_cert, unknown option} -body {
+    ::pki::x509::validate_cert $cacert -foo
+} -returnCodes error -result {wrong # args: should be  "validate_cert cert ?-sign_message dn_of_signer? ?-encrypt_message dn_of_signer? ?-sign_cert [dn_to_be_signed | ANY | ALL] ca_depth? ?-ssl dn?"}
+
+test pki-api-8.8 {validate_cert, wrong # args} -body {
+    ::pki::x509::validate_cert
+} -returnCodes error -result {wrong # args: should be "::pki::x509::validate_cert cert ?arg ...?"}
+
+# -------------------------------------------------------------------------
+# ::pki::x509::verify_cert
+# -------------------------------------------------------------------------
+
+test pki-api-9.0 {verify_cert, signed by the trusted CA} -body {
+    ::pki::x509::verify_cert [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0] [list $cacert]
+} -result true
+
+test pki-api-9.1 {verify_cert, no trusted certificates} -body {
+    ::pki::x509::verify_cert [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0] {}
+} -result false
+
+test pki-api-9.2 {verify_cert, other CA among trusted certificates} -body {
+    set other [::pki::x509::parse_cert [asset-get pkitest-ca.crt]]
+    list [::pki::x509::verify_cert [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0] [list $other]] \
+	[::pki::x509::verify_cert [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0] [list $other $cacert]]
+} -cleanup {
+    unset other
+} -result {false true}
+
+test pki-api-9.3 {verify_cert, expired certificate} -body {
+    ::pki::x509::verify_cert [mkcert 1000000000 1100000000 0] [list $cacert]
+} -result false
+
+test pki-api-9.4 {verify_cert, intermediate certificates argument accepted} -body {
+    ::pki::x509::verify_cert [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0] [list $cacert] {}
+} -result true
+
+test pki-api-9.5 {verify_cert, tampered certificate} -body {
+    set c [mkcert [expr {$now - 3600}] [expr {$now + 3600}] 0]
+    dict set c subject {C=UA, O=Tcllib, CN=evil.test}
+    # The signature covers the encoded certificate, not the parsed fields.
+    set cert [dict get $c cert]
+    dict set c cert [string replace $cert end-1 end [expr {[string index $cert end] eq "0" ? "11" : "00"}]]
+    ::pki::x509::verify_cert $c [list $cacert]
+} -cleanup {
+    unset c cert
+} -result false
+
+test pki-api-9.6 {verify_cert, wrong # args} -body {
+    ::pki::x509::verify_cert $cacert
+} -returnCodes error -result {wrong # args: should be "::pki::x509::verify_cert cert trustedcerts ?arg ...?"}
+
+# -------------------------------------------------------------------------
+
+rename pem2der {}
+rename samekey {}
+rename mkcert {}
+unset password fixedkey key cakey now cacsr cakeylist cacert cafull csr encusage decusage
+testsuiteCleanup
+return
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
