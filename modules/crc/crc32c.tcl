@@ -36,23 +36,19 @@ package provide crcc 1.3.4
 namespace eval ::crc {
     critcl::ccommand Crc32_c {dummy interp objc objv} {
         /*
-         * The CRC is kept in an unsigned 32-bit value and exchanged with
-         * Tcl as a wide integer. A C long is only 32 bits on Windows, so
-         * Tcl_NewLongObj would return a negative value whenever bit 31 is
-         * set, and Tcl_GetLongFromObj rejects such values once they have
-         * been through Tcl arithmetic (Tcl 9).
+         * The CRC is kept in an unsigned 64-bit value and exchanged with
+         * Tcl as a wide integer, on every platform. This is what the code
+         * always did where a C long is 64 bits (Linux, macOS), so the
+         * results there are unchanged. A C long is only 32 bits on
+         * Windows, which made Tcl_NewLongObj return negative values and
+         * Tcl_GetLongFromObj reject the sums Crc32Update passed back in.
          *
-         * The seed must fit into 32 bits, as either a signed or an
-         * unsigned value (-2147483648 .. 4294967295), which is the range
-         * Tcl_GetLongFromObj accepted for a 32-bit long. Anything else is
-         * rejected with the same error Tcl reports.
-         *
-         * Define CRC32_NO_SEED_RANGE_CHECK to disable this check. The
-         * seed is then truncated to its low 32 bits instead, on every
-         * platform.
+         * Seeds are accepted in the same 64-bit range as before, and their
+         * upper bits take part in the computation, as before. Crc32Final
+         * reduces the result to 32 bits.
          */
         int r = TCL_OK;
-        unsigned int t = 0xFFFFFFFFU;
+        Tcl_WideUInt t = 0xFFFFFFFF;
         Tcl_WideInt w;
 
         if (objc < 2 || objc > 3) {
@@ -60,23 +56,29 @@ namespace eval ::crc {
             return TCL_ERROR;
         }
         if (objc == 3) {
-            r = Tcl_GetWideIntFromObj(interp, objv[2], &w);
-            if (r == TCL_OK) {
-#ifndef CRC32_NO_SEED_RANGE_CHECK
-                if (w < -(Tcl_WideInt) 0x80000000 || w > (Tcl_WideInt) 0xFFFFFFFF) {
-                    const char *msg = "integer value too large to represent";
-                    Tcl_SetObjResult(interp, Tcl_NewStringObj(msg, -1));
-                    Tcl_SetErrorCode(interp, "ARITH", "IOVERFLOW", msg, (char *) NULL);
-                    return TCL_ERROR;
-                }
+#if TCL_MAJOR_VERSION >= 9
+            /*
+             * Tcl 9's Tcl_GetWideIntFromObj stops at 2^63-1, while its
+             * Tcl_GetLongFromObj accepted unsigned values up to 2^64-1
+             * for a 64-bit long. Try the unsigned conversion first to
+             * keep that range; negative values and errors fall through.
+             */
+            Tcl_WideUInt u;
+            if (Tcl_GetWideUIntFromObj(NULL, objv[2], &u) == TCL_OK) {
+                t = u;
+            } else
 #endif
-                t = (unsigned int) (w & 0xFFFFFFFF);
+            {
+                r = Tcl_GetWideIntFromObj(interp, objv[2], &w);
+                if (r == TCL_OK) {
+                    t = (Tcl_WideUInt) w;
+                }
             }
         }
         if (r == TCL_OK) {
             Tcl_Size cn, size, ndx;
             unsigned char *data;
-            unsigned int lkp;
+            Tcl_WideUInt lkp;
             Tcl_Obj *tblPtr, *lkpPtr;
 
             tblPtr = Tcl_GetVar2Ex(interp, "::crc::crc32_tbl", NULL,
@@ -95,7 +97,7 @@ namespace eval ::crc {
                     r = Tcl_GetWideIntFromObj(interp, lkpPtr, &w);
                 }
                 if (r == TCL_OK) {
-                    lkp = (unsigned int) (w & 0xFFFFFFFF);
+                    lkp = (Tcl_WideUInt) (w & 0xFFFFFFFF);
                     t = lkp ^ (t >> 8);
                 }
             }

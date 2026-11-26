@@ -300,66 +300,75 @@ test crc32-api-4.8 {independent tokens} -body {
 } -result {3964322768 3904355907}
 
 # -------------------------------------------------------------------------
-# Seed range of the critcl implementation. The seed must fit into 32 bits
-# as either a signed or an unsigned value (-2147483648 .. 4294967295),
-# on every platform, whatever the size of a C long.
+# Seeds of the critcl implementation. Crc32_c works in 64 bits on every
+# platform, as it always did where a C long is 64 bits (Linux, macOS):
+# 64-bit seeds are accepted, their upper bits take part in the
+# computation, and Crc32_c returns the 64-bit (signed) value. Crc32Final
+# and crc32 reduce the result to 32 bits.
+#
+# The pure-Tcl implementation treats seeds wider than 32 bits differently,
+# hence the constraint. Seeds below -2^63 are not tested: Tcl 8.6 accepts
+# them, Tcl 9 does not.
 
 tcltest::testConstraint crc32critcl [expr {
     [info exists preserve(critcl)] && $preserve(critcl)
 }]
 
-proc seedcheck {seed} {
-    set code [catch {::crc::Crc32_c {} $seed} msg opts]
-    if {$code} {
-        return [list $code $msg [dict get $opts -errorcode]]
-    }
-    return [list $code $msg]
+proc crcseeds {data seeds} {
+    set r {}
+    foreach seed $seeds {lappend r [::crc::Crc32_c $data $seed]}
+    return $r
 }
 
-test crc32-api-5.1 {Crc32_c: seeds at the limits of the range} -constraints {
+test crc32-api-5.1 {Crc32_c: seeds within 32 bits, no data} -constraints {
     crc32critcl
 } -body {
-    list [seedcheck -2147483648] [seedcheck -1] [seedcheck 0] \
-        [seedcheck 0x7FFFFFFF] [seedcheck 0x80000000] [seedcheck 4294967295]
-} -result {{0 2147483647} {0 0} {0 4294967295} {0 2147483648} {0 2147483647} {0 0}}
+    crcseeds {} {0 0x7FFFFFFF 0x80000000 0xFFFFFFFF -1 -2147483648}
+} -result {4294967295 2147483648 2147483647 0 -4294967296 -2147483649}
 
-test crc32-api-5.2 {Crc32_c: seed just below the range} -constraints {
+test crc32-api-5.2 {Crc32_c: seeds beyond 32 bits are accepted} -constraints {
     crc32critcl
 } -body {
-    seedcheck -2147483649
-} -result {1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}}
+    crcseeds {} {4294967296 0x1FFFFFFFF -2147483649}
+} -result {8589934591 4294967296 -2147483648}
 
-test crc32-api-5.3 {Crc32_c: seed just above the range} -constraints {
+test crc32-api-5.3 {Crc32_c: upper seed bits take part} -constraints {
     crc32critcl
 } -body {
-    seedcheck 4294967296
-} -result {1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}}
+    crcseeds "Hello, World!" {4294967296 0x1FFFFFFFF 0x123456789ABCDEF0}
+} -result {196767470 4214347667 4207577333}
 
-test crc32-api-5.4 {Crc32_c: 64-bit seeds} -constraints {
+test crc32-api-5.4 {Crc32_c: seeds at the 64-bit limits} -constraints {
     crc32critcl
 } -body {
-    list [seedcheck 0x1FFFFFFFF] [seedcheck -0x7FFFFFFFFFFFFFFF]
-} -result {{1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}} {1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}}}
+    crcseeds abc {0x7FFFFFFFFFFFFFFF -0x8000000000000000 0xFFFFFFFFFFFFFFFF}
+} -result {548864245442 550655125295 1098620059330}
 
 test crc32-api-5.5 {Crc32_c: seed larger than 64 bits} -constraints {
     crc32critcl
 } -body {
-    lrange [seedcheck 0x10000000000000000] 0 1
-} -result {1 {integer value too large to represent}}
+    ::crc::Crc32_c abc 0x10000000000000000
+} -returnCodes error -result {integer value too large to represent}
 
-test crc32-api-5.6 {crc32 -seed out of range (critcl)} -constraints {
+test crc32-api-5.6 {crc32 -seed and Crc32Init with wide seeds (critcl)} -constraints {
     crc32critcl
 } -setup {
     select_implementation critcl
 } -body {
-    list [::crc::crc32 -seed 4294967295 abc] \
-        [catch {::crc::crc32 -seed 4294967296 abc} msg] $msg
+    set r {}
+    foreach seed {0xFFFFFFFF 4294967296 0x1FFFFFFFF -1 0x123456789ABCDEF0} {
+        set tok [::crc::Crc32Init $seed]
+        ::crc::Crc32Update $tok "Hello, "
+        ::crc::Crc32Update $tok "World!"
+        lappend r [list [::crc::crc32 -seed $seed "Hello, World!"] [::crc::Crc32Final $tok]]
+    }
+    set r
 } -cleanup {
     reset_implementation
-    unset msg
-} -result {891568578 1 {integer value too large to represent}}
+    unset seed tok r
+} -result {{3964322768 3964322768} {196767470 196767470} {4214347667 4214347667} {4122749057 4122749057} {4207577333 4207577333}}
 
-rename seedcheck {}
+rename crcseeds {}
 
 # -------------------------------------------------------------------------
 
