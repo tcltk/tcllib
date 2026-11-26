@@ -300,6 +300,68 @@ test crc32-api-4.8 {independent tokens} -body {
 } -result {3964322768 3904355907}
 
 # -------------------------------------------------------------------------
+# Seed range of the critcl implementation. The seed must fit into 32 bits
+# as either a signed or an unsigned value (-2147483648 .. 4294967295),
+# on every platform, whatever the size of a C long.
+
+tcltest::testConstraint crc32critcl [expr {
+    [info exists preserve(critcl)] && $preserve(critcl)
+}]
+
+proc seedcheck {seed} {
+    set code [catch {::crc::Crc32_c {} $seed} msg opts]
+    if {$code} {
+        return [list $code $msg [dict get $opts -errorcode]]
+    }
+    return [list $code $msg]
+}
+
+test crc32-api-5.1 {Crc32_c: seeds at the limits of the range} -constraints {
+    crc32critcl
+} -body {
+    list [seedcheck -2147483648] [seedcheck -1] [seedcheck 0] \
+        [seedcheck 0x7FFFFFFF] [seedcheck 0x80000000] [seedcheck 4294967295]
+} -result {{0 2147483647} {0 0} {0 4294967295} {0 2147483648} {0 2147483647} {0 0}}
+
+test crc32-api-5.2 {Crc32_c: seed just below the range} -constraints {
+    crc32critcl
+} -body {
+    seedcheck -2147483649
+} -result {1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}}
+
+test crc32-api-5.3 {Crc32_c: seed just above the range} -constraints {
+    crc32critcl
+} -body {
+    seedcheck 4294967296
+} -result {1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}}
+
+test crc32-api-5.4 {Crc32_c: 64-bit seeds} -constraints {
+    crc32critcl
+} -body {
+    list [seedcheck 0x1FFFFFFFF] [seedcheck -0x7FFFFFFFFFFFFFFF]
+} -result {{1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}} {1 {integer value too large to represent} {ARITH IOVERFLOW {integer value too large to represent}}}}
+
+test crc32-api-5.5 {Crc32_c: seed larger than 64 bits} -constraints {
+    crc32critcl
+} -body {
+    lrange [seedcheck 0x10000000000000000] 0 1
+} -result {1 {integer value too large to represent}}
+
+test crc32-api-5.6 {crc32 -seed out of range (critcl)} -constraints {
+    crc32critcl
+} -setup {
+    select_implementation critcl
+} -body {
+    list [::crc::crc32 -seed 4294967295 abc] \
+        [catch {::crc::crc32 -seed 4294967296 abc} msg] $msg
+} -cleanup {
+    reset_implementation
+    unset msg
+} -result {891568578 1 {integer value too large to represent}}
+
+rename seedcheck {}
+
+# -------------------------------------------------------------------------
 
 rename implementations {}
 rename select_implementation {}
