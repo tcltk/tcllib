@@ -23,7 +23,7 @@
 
 package require critcl
 # @sak notprovided crcc
-package provide crcc 1.3.4
+package provide crcc 1.3.5
 
 # -------------------------------------------------------------------------
 

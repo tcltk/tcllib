@@ -1,3 +1,17 @@
+2026-11-27  pbrooks  <philbrks@gmail.com>
+
+	* crc32c.tcl (::crc::Crc32_c): Keep the CRC in a 64-bit
+	* crc32-api.test: unsigned value and exchange it with Tcl as a wide
+	  integer on all platforms. The code used C longs, which are only
+	  32 bits on Windows: Tcl_NewLongObj returned negative values and
+	  Tcl 9 rejected the sums passed back in by Crc32Update ("integer
+	  value too large to represent"), so every second Crc32Update
+	  call failed. Results and the accepted seed range are now those
+	  of the existing 64-bit long code (Linux, macOS) everywhere; on
+	  Tcl 9, Tcl_GetWideUIntFromObj keeps seeds up to 2^64-1. Fixes
+	  crc32-api-3.1, 4.1, 4.2, 4.4 and 4.8 on Windows. Added tests
+	  crc32-api-5.* for wide seeds. Bumped crcc to 1.3.5.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
